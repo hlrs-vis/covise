@@ -1,0 +1,8 @@
+renderer/crossref.png
+*/*.html
+*/*.css
+cover/images.pl
+cover/images.tex
+mapeditor/images.pl
+mapeditor/images.tex
+mapeditor/img*.png

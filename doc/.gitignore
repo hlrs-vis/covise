@@ -1,0 +1,10 @@
+**/*.aux
+**/*.log
+**/*.out
+**/*.toc
+**/*.idx
+**/*.ilg
+**/*.ind
+**/*.lof
+**/*.pdf
+**/pict/*.png

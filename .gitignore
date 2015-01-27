@@ -1,0 +1,8 @@
+DIST
+.envrc
+**/.*.swp
+linux64*
+rhel6*
+rhel7*
+darwin64*
+libc++*
