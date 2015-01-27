@@ -1,0 +1,27 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+CutGeometry cuts geometry objects:
+Lines, Polygons and TriangleStrips. 
+The part which sould be cut away is defined
+through a plane. This is used to make the inner parts of geometry objects visible.
+
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{CutGeometryModule}{0.7}\end{covimg2}
+
+%
+CutGeometry is available for COVISE version 4.5 and higher. It's tested on all available platforms.
+%
+
+
+%
+%=============================================================

@@ -1,0 +1,95 @@
+MatrixTransform {
+  name "history_a.iv"
+  nodeMask 0xffffffff
+  cullingActive TRUE
+  referenceFrame RELATIVE
+  Matrix {
+    1 0 0 0
+    0 0 1 0
+    0 -1 0 0
+    0 0 0 1
+  }
+  num_children 1
+  Geode {
+    nodeMask 0xffffffff
+    cullingActive TRUE
+    num_drawables 1
+    Geometry {
+      DataVariance STATIC
+      StateSet {
+        DataVariance STATIC
+        rendering_hint DEFAULT_BIN
+        renderBinMode INHERIT
+        GL_LIGHTING ON
+        Material {
+          ColorMode DIFFUSE
+          ambientColor 0.1 0.1 0.1 1
+          diffuseColor 0.9804 0.9804 0.9804 1
+          specularColor 0.9 0.9 0.9 1
+          emissionColor 0 0 0 1
+          shininess 32
+        }
+        textureUnit 0 {
+          GL_TEXTURE_2D ON
+          Texture2D {
+            file "history_a.rgb"
+            wrap_s REPEAT
+            wrap_t REPEAT
+            wrap_r CLAMP
+            min_filter LINEAR_MIPMAP_LINEAR
+            mag_filter LINEAR
+            maxAnisotropy 1
+            borderColor 0 0 0 0
+            borderWidth 0
+            useHardwareMipMapGeneration TRUE
+            unRefImageDataAfterApply TRUE
+            internalFormatMode USE_IMAGE_DATA_FORMAT
+            resizeNonPowerOfTwo TRUE
+          }
+          TexEnv {
+            mode MODULATE
+          }
+        }
+      }
+      useDisplayList TRUE
+      useVertexBufferObjects FALSE
+      PrimitiveSets 1
+      {
+        DrawArrays TRIANGLES 0 6
+      }
+      VertexArray Vec3Array 6
+      {
+        -128 32 0.00626646
+        -128 -32 -0.00676646
+        128 32 0.00626646
+        128 -32 -0.00676646
+        128 32 0.00626646
+        -128 -32 -0.00676646
+      }
+      NormalBinding PER_VERTEX
+      NormalArray Vec3Array 6
+      {
+        0 -0.000203639 1
+        0 -0.000203639 1
+        0 -0.000203639 1
+        0 -0.000203639 1
+        0 -0.000203639 1
+        0 -0.000203639 1
+      }
+      ColorBinding OVERALL
+      ColorArray Vec4Array 1
+      {
+        0.9804 0.9804 0.9804 1
+      }
+      TexCoordArray 0 Vec2Array 6
+      {
+        1 1
+        1 0
+        0 1
+        0 0
+        0 1
+        1 0
+      }
+    }
+  }
+}

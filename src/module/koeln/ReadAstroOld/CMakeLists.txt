@@ -1,0 +1,10 @@
+USING(Virvo)
+
+SET(HEADERS
+)
+SET(SOURCES
+  ReadAstro.cpp
+)
+ADD_COVISE_MODULE(IO ReadAstroOld ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadAstroOld coApi coAppl coCore ${EXTRA_LIBS})
+COVISE_INSTALL_TARGET(ReadAstroOld)

@@ -1,0 +1,23 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{geo\_in} & Polygons & Input polygons \\
+\hline
+	\textcolor{required}{data\_in} &                       Float   & Data on these polygons \\
+											
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

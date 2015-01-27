@@ -1,0 +1,28 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+% examples for using this module
+
+\begin{covimg}{}
+	{RWCoviseGroupMap}{covise/net/examples/RWCoviseGroup.net}{0.6}\end{covimg}
+	
+The first RWCoviseGroup reads the data in. We have four files: one for the grid data, 
+one for the temperature data, one for the pressure data and one for the velocity data. 
+The map uses the data to compute a cutting surface and some trace lines. In this example 
+the temperature data is used for the cutting surface. But with RWCoviseGroup you can now 
+visualize the pressure data without changing your map: Choose "pressure" for 
+the field\_1 choice parameter which defines the output of the second output port and 
+execute the pipeline again. You then get the result shown in the next picture. 
+
+The second RWCoviseGroup modules is now in writing mode. You can choose your own 
+description for the two connected ports.
+
+\begin{covimg} {} {RWCoviseGroupRenderer}{Pressure data}{0.7}\end{covimg}
+
+
+
+

@@ -1,0 +1,129 @@
+COVISE and OpenCOVER
+====================
+
+[COVISE][1], the collaborative visualization and simulation environment, is a modular distributed visualization system.
+As it's focus is on visualization of scientific data in virtual environments, it comprises the VR renderer [OpenCOVER][2].
+COVISE development is headed by [HLRS][3].
+It is portable to Windows and UNIX. We do regular builds on x86_64 Windows, Linux and Mac OS X.
+
+License
+-------
+
+If not stated otherwise, COVISE and OpenCOVER source code is licensed under the LGPL v2.1. See `lgpl-2.1.txt` for
+details.
+
+
+Getting COVISE
+--------------
+
+Getting COVISE is as easy as
+
+      git clone https://github.com/hlrs-vis/covise.git
+      cd covise
+      git submodule update --init
+
+
+Build Requirements
+------------------
+
+- **C++ compiler**:
+  C++03 or C++11
+
+  On Windows, only Visual Studio 2012 is tested.
+- **CMake**:
+  2.8.10 or newer should work
+- **XercesC**:
+- **Qt**:
+  Either Qt 4 or 5 is required by the graphical user interface
+- **Boost**:
+  1.52 and newer should work
+- **Python**:
+  Python 3 is required for the GUI vr-prepare and for the scripting interface
+- **GLEW**:
+  used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
+- **OpenSceneGraph**:
+  3.2 or newer is required
+
+CMake will show lists of met and unmet optional and required dependencies.
+You should check those and install additional prerequisites as needed.
+
+
+Building COVISE
+---------------
+
+### UNIX
+
+      cd covise
+      source .covise.sh #set environment variables
+      make #invoke cmake followed by make
+
+No installation is required: you can use COVISE directly from the build tree.
+
+### Windows
+   
+       cd covise
+       common.bat
+       mkdir build.covise
+       cd build.covise
+       cmake-gui ..
+       devenv
+       cd %COVISEDIR%
+       mkdir build.cover
+       cd build.cover
+       cmake-gui ../src/OpenCOVER
+       devenv
+
+
+Invoking COVISE
+---------------
+
+### UNIX
+
+Add .../covise/bin to your PATH.
+
+      covise
+
+
+Source Code Organization
+------------------------
+
+- `cmake`:
+  cmake files
+
+- `doc`:
+  documentation and tools for creating documentation
+
+- `config`:
+  configuration examples
+
+- `scripts`:
+  support scripts for building COVISE
+
+- `share`:
+  architecture independent files: textures, shaders, example data, ...
+
+- `src`:
+  source code
+
+  - `src/3rdparty`:
+    3rd party source code
+
+  - `src/tools`:
+    various programs related to building or using COVISE
+
+  - `src/kernel`:
+    COVISE core libraries
+
+  - `src/sys`:
+    COVISE core executables
+
+  - `src/module`:
+    COVISE visualization modules (algorithms)
+
+  - `src/OpenCOVER`:
+    VR renderer with its plug-ins
+
+
+[1]:   http://www.hlrs.de/organization/av/vis/covise/
+[2]:   http://www.hlrs.de/organization/av/vis/covise/features/opencover/
+[3]:   http://www.hlrs.de/

@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/ParaViewResources" >
+    <file>../FLE_Client.xml</file>
+  </qresource>
+</RCC>

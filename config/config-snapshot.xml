@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+      <COVER>
+
+         <Plugin>
+            <PBufferSnapShot value="on" />
+<PointCloud>
+   <PointSize value="10" />
+   <AdaptLOD value="false" />
+   </PointCloud>
+
+         </Plugin>
+
+         <Input>
+            <MouseNav value="ON" />
+            <TrackingSystem value="MOUSE" />
+         </Input>
+
+         <TabletPC>
+            <Server value="141.58.8.187" />
+         </TabletPC>
+
+         <MultiPC>
+            <SyncMode value="TCP" />
+            <NumSlaves value="1" />
+            <MasterInterface value="192.168.2.150" />
+
+            <Startup arch="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+         </MultiPC>
+
+         <PipeConfig>
+            <Pipe display="only needed for multiple X11 displays/screens" server="0" screen="0" name="0" />
+         </PipeConfig>
+
+         <ChannelConfig>
+            <!-- each Screen needs a Channel -->
+            <Channel width="1" height="1" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="NONE"  windowIndex="0"  name="0"  />
+            <Channel width="1" height="1" left="0" bottom="0" comment="SECONDARY" channel="0" stereoMode="NONE"  windowIndex="1"  name="1"  />
+         </ChannelConfig>
+
+         <!--Background r="1.0" g="1.0" b="1.0"/-->
+      </COVER>
+   </GLOBAL>
+
+   <LOCAL host="viscluster50,viscluster70" >
+      <COVER>
+         <NumScreens value="2" />
+         <NumWindows value="2" />
+
+         <WindowConfig>
+            <OpenGL3 value="false" />
+            <Window arch="unix" width="900" comment="FRONT_L" window="0" pipeIndex="0" height="800" left="0" bottom="0" name="0" decoration="false" />
+            <Window arch="unix" width="900" comment="FRONT_R" window="1" pipeIndex="0" height="800" left="900" bottom="0" name="1" decoration="false" />
+         </WindowConfig>
+
+         <ScreenConfig>
+            <Screen width="900" comment="FRONT-L" h="0.0" originX="-450" originY="0" originZ="0" height="800" p="0.0" r="0.0" name="0" screen="0" />
+            <Screen width="900" comment="FRONT_R" h="0.0" originX="450" originY="0" originZ="0" height="800" p="0.0" r="0.0" name="1" screen="1" />
+         </ScreenConfig>
+      </COVER>
+   </LOCAL>
+
+   <LOCAL host="viscluster51,viscluster71" >
+      <COVER>
+         <WindowConfig>
+            <OpenGL3 value="false" />
+            <Window arch="unix" width="900" comment="FRONT_R" window="0" pipeIndex="0" height="800" left="1800" bottom="0" name="0" decoration="false" />
+         </WindowConfig>
+
+         <ScreenConfig>
+            <Screen width="900" comment="FRONT_R" h="0.0" originX="450" originY="0" originZ="0" height="800" p="0.0" r="0.0" name="0" screen="0" />
+         </ScreenConfig>
+      </COVER>
+   </LOCAL>
+
+   <INCLUDE global="1" configname="defaults" >config.xml </INCLUDE>
+   <!--INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE-->
+   <!-- this config is required by the ViNCE Renderer-->
+   <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
+</COCONFIG>

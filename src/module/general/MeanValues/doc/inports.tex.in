@@ -1,0 +1,40 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{density} & Float \newline 
+	                                Float & density \\
+\hline
+	\textcolor{optional}{momentum} & Vec3  \newline
+	                                Vec3 & x-, y-, z-momentum \\
+\hline
+	\textcolor{required}{energy} & Float \newline
+	                               Float & energy per volume unit \\					
+\hline
+	\textcolor{optional}{rhou} & Float \newline
+	                             Float & rhou = 1st component of
+				     momentum\\
+\hline
+	\textcolor{optional}{rhov} & Float \newline
+	                             Float & rhov = 2nd component of
+				     momentum \\
+\hline
+	\textcolor{optional}{rhow} & Float \newline
+	                             Float & rhow = 3rd component of
+				     momentum \\				     														
+
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

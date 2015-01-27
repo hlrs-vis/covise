@@ -1,0 +1,12 @@
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+		{PlotMap}{covise/net/examples/CuttingLine.net}{0.7}\end{covimg} 
+In the example net above, CuttingLine extracts a line from a structured data set and
+creates a 2D object. Plot is used to display this object as shown in the Plot output
+below.
+
+\begin{covimg2}	{}{PlotOut}{0.6}\end{covimg2}  

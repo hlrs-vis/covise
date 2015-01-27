@@ -1,0 +1,34 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+	\textcolor{output}{meshOut} & Polygons \newline 
+                                  TriangleStrips & IsoSurface produced in either polygonal or optimized triangle strip 
+                                                                format. \\
+\hline
+	\textcolor{output}{dataOut} & Float  \newline
+                                  Vec3 & Interpolated data on the surface, when data has been provided 
+                                                                at the optional input port dataIn. \\
+\hline
+	\textcolor{output}{normalOut} & 
+                                  Unstructured\_V3D\_Normals & Normals calculated based on the weighted average of the face
+                                                                normals 
+                                                                of all neighbor faces of the resulting polygonal isosurface. Normal
+                                                                generation turned on results in a higher memory consumption of
+                                                                the isosurface module.  \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  CheckObj.cpp
+)
+
+SET(EXTRASOURCES
+  CheckObj.h
+)
+
+ADD_COVISE_MODULE(Tools CheckObj ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(CheckObj  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(CheckObj)

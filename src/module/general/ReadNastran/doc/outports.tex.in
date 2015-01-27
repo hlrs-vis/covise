@@ -1,0 +1,70 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{MESH} & UnstructuredGrid & 
+	The geometry as an unstructured grid. \\
+\hline
+	\textcolor{output}{TYPE} & IntArr & 
+	The element and property id's for a further selection 
+	through the module SelectUSG. \\
+\hline
+	\textcolor{output}{PLOTEL} & Lines & 
+	PLOTEL is drawn as lines connecting the grid points. \\
+\hline
+	\textcolor{output}{CONM2} & Polygons & 
+	The location of the CONM2 card is drawn as small squares. \\
+\hline
+	\textcolor{output}{FORCE} & Lines & FORCE is drawn as a line. \\	
+\hline
+	\textcolor{output}{MOMENT} & Lines & MOMENT is drawn as a line. \\
+\hline
+	\textcolor{output}{GRAV} & Lines & GRAV is drawn as a line. \\
+\hline
+	\textcolor{output}{TEMP} & Float & 
+	The temperature information of the nastran file.  \\
+\hline
+	\textcolor{output}{RBAR} & Lines & 
+	RBAR is drawn as lines connecting the grid points. \\	
+\hline
+	\textcolor{output}{RBE2} & Lines & 
+	GRAV is drawn as lines connecting the grid points. \\
+\hline
+	\textcolor{output}{SPC1} & Lines & 
+	The SPC1 card visualizes the degrees of freedom (DOFs) 
+	at different grid points. The notation is as follows: \newline 
+	A simple arrow indicates a possible translation along this axis.\newline 
+	A double arrow indicates a possible rotation around this axis.\newline 
+	A triple arrow indicates a possible translation and rotation.  \\
+\hline
+	\textcolor{output}{OQG1} & Vec3 & 
+	The reaction forces (vectors). \\
+\hline
+	\textcolor{output}{OUGV1} & Vec3 & 
+	The displacements (vectors).\\	
+\hline
+	\textcolor{output}{OEF1} & Vec3 & 
+	The element forces (vectors). \\
+\hline
+	\textcolor{output}{OES1} & Vec3 & 
+	Van Mises stress data.  \\
+\hline
+	try\_skipping & Boolean & Some programs create non-standard NASTRAN files. 
+	                        If you get an error message while reading in the file 
+				try to turn this parameter on.   \\																		
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

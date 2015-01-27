@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14">
+ 
+   <COVER>
+     <Console arch="windows" value="true" file="c:\OpenCOVER" />
+   </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi00" >
+
+  <COVER>
+
+   <Input>
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="0" />
+    <HandAddress value="10" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <Transmitter>
+     <Offset x="0" y="0" z="-121" />
+     <Orientation h="0" p="0" r="0" />
+    </Transmitter>
+
+    <HeadSensor>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadSensor>
+
+    <HandSensor>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HandSensor>
+<DTrack>
+   <Startup value="192.168.0.10:5001" />
+   <Port value="5000" />
+  </DTrack>
+
+
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <StationName value="CoviseBrille" name="0" />
+     <StationName value="CoviseMaus" name="1" />
+     <Server host="visadler" />
+    </Tarsus>
+
+   </Input>
+
+  </COVER>
+
+  <Module>
+   <Fenfloss>
+     <LOCAL value="visent.hlrs.de"/>
+   </Fenfloss>
+  </Module>
+
+ </LOCAL>
+
+
+ <LOCAL host="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14">  
+  <System>
+
+   <HostConfig>
+    <Host timeout="30" memory="shm" method="ssh" name="fasi00" hostname="fasi00" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi01" hostname="fasi01" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi02" hostname="fasi02" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi03" hostname="fasi03" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi04" hostname="fasi04" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi05" hostname="fasi05" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi06" hostname="fasi06" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi07" hostname="fasi07" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi08" hostname="fasi08" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi09" hostname="fasi09" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi10" hostname="fasi10" />
+    <Host timeout="30" memory="shm" method="ssh" name="fasi11" hostname="fasi11" />
+   </HostConfig>
+
+   <covRemote>
+    <Host value="visling" />
+    <Server port="31809" />
+   </covRemote>
+
+  </System>
+
+
+  <COVER>
+ <OMPThreads value="off" />
+
+   <Plugin>
+     <MirrorViews value="true" enabled="false" posX="910" posY="260" posZ="1050" oriH="-20" oriP="0" oriR="0" />
+
+    <Vrml97>
+    <GenerateTriangleStrips value="true" />
+
+     <!--Audio value="AServer" >
+      <Host value="visadler" />
+     </Audio-->
+
+    </Vrml97>
+
+   </Plugin>
+
+   <TabletPC>
+   <Server value="localhost" />
+   </TabletPC>
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="12" />
+    <Startup arch="x11" value="ssh ${USER}@fasi01 cd `pwd` \;opencover 2\> /tmp/errors.log" name="0"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi02 cd `pwd` \;opencover 2\> /tmp/errors.log" name="1"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi03 cd `pwd` \;opencover 2\> /tmp/errors.log" name="2"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi04 cd `pwd` \;opencover 2\> /tmp/errors.log" name="3"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi05 cd `pwd` \;opencover 2\> /tmp/errors.log" name="4"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi06 cd `pwd` \;opencover 2\> /tmp/errors.log" name="5"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi07 cd `pwd` \;opencover 2\> /tmp/errors.log" name="6"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi08 cd `pwd` \;opencover 2\> /tmp/errors.log" name="7"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi09 cd `pwd` \;opencover 2\> /tmp/errors.log" name="8"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi10 cd `pwd` \;opencover 2\> /tmp/errors.log" name="9"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi11 cd `pwd` \;opencover 2\> /tmp/errors.log" name="10"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi12 cd `pwd` \;opencover 2\> /tmp/errors.log" name="11"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi13 cd `pwd` \;opencover 2\> /tmp/errors.log" name="12"/>
+    <Startup arch="x11" value="ssh ${USER}@fasi14 cd `pwd` \;opencover 2\> /tmp/errors.log" name="13"/>
+    <Startup arch="windows" value="covRemote OpenCOVER 2;" name="0" />
+    <Startup arch="windows" value="covRemote OpenCOVER 3;" name="1" />
+    <Startup arch="windows" value="covRemote OpenCOVER 4;" name="2" />
+    <Startup arch="windows" value="covRemote OpenCOVER 5;" name="3" />
+    <Startup arch="windows" value="covRemote OpenCOVER 6;" name="4" />
+   </MultiPC>
+
+   <PipeConfig>
+    <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+   </PipeConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="fasi00" >  
+  <COVER>
+   <WindowConfig>
+    <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="1920" bottom="120" name="0" decoration="false" />
+    <!--Window width="128" comment="MAIN" window="0" pipeIndex="0" height="128" left="0" bottom="0" name="0" decoration="false" /-->
+   </WindowConfig>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;0.00;0.00;-32.0000000;32.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+ 
+ <LOCAL host="fasi01" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;105.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi02" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;79.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi03" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;52.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi04" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;26.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi05" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi06" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;-26.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi07">
+   <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;-52.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi08" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;-79.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi09" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;-105.00;7.00;90.00;-33.0000000;33.0000000;-23.0000000;23.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi10" >  
+  <!-- Spiegel rechts -->
+  <COVER>
+   <Plugin>
+     <MirrorViews value="true" enabled="true" posX="910" posY="260" posZ="1050" oriH="-20" oriP="0" oriR="0" />
+   </Plugin>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;-145.00;3.00;180.00;-32.0000000;33.0000000;-24.0000000;27.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi11" >  
+  <!-- Spiegel innen -->
+  <COVER>
+   <Plugin>
+     <MirrorViews value="true" enabled="true" posX="0" posY="180" posZ="1300" oriH="-9" oriP="3" oriR="0" />
+   </Plugin>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;-185.00;0.00;0.00;-35.0000000;35.0000000;-28.0000000;25.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi12" >  
+  <!-- Spiegel links -->
+  <COVER>
+   <Plugin>
+     <MirrorViews value="true" enabled="true" posX="-910" posY="260" posZ="1050" oriH="7" oriP="0" oriR="0" />
+   </Plugin>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;150.00;0.00;0.00;-34.0000000;35.0000000;-25.0000000;26.0000000"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi13" >  
+  <COVER>
+   <ScreenConfig>
+    <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;8.00;90.00;-32.0000000;32.0000000;-23.0000000;23.0000000;-0.6248694;0.6248694;-0.4244748;0.4244748;1.2497387;0.8489496"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="fasi14" >  
+  <COVER>
+   <ScreenConfig>
+   <Screen frustum="0.0000000;0.0000000;1000.0000000;0.00;8.00;90.00;-32.0000000;32.0000000;-23.0000000;23.0000000;-0.6248694;0.6248694;-0.4244748;0.4244748;1.2497387;0.8489496"  radius="2800" comment="FRONT" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+
+
+ <LOCAL host="fasi00,fasi01,fasi02,fasi03,fasi04,fasi05,fasi06,fasi07,fasi08,fasi09,fasi10,fasi11,fasi12,fasi13,fasi14"> 
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+
+
+   <WelcomeMessage value="Welcome to OpenCOVER at FKFS" />
+   <SyncToVBlank value="ON" device="DFP-1"/>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="OFF" />
+   <Stereo enable="OFF" value="OFF" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <!--ViewerPosition x="-350" y="400" z="1260" /-->
+   <ViewerPosition x="0" y="0" z="1000" />
+   <FloorHeight value="-1000" />
+   <StepSize value="400" />
+
+   <Input>
+    <MouseNav value="ON" />
+    <TrackingSystem value="MOUSE" />
+    <DebugStation value="0" />
+   <DebugTracking value="RAW" />
+   </Input>
+
+   <SceneSize value="1000" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <!-- Menu for mid panel with mouse /-->
+    <!--Orientation h="-0" p="0" r="0" /-->
+    <!--Position x="300" y="1000" z="500" /-->
+
+    <!-- Menu for left panel with tracking /--> 
+    <!--Orientation h="-90" p="0" r="0" /-->
+    <!--Position x="1000" y="-500" z="500" /-->
+   </Menu>
+
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <Plugin>
+
+  <SteeringWheel>
+
+   <PorscheMouse value="/dev/input/porschemouse" />
+   <PorscheHupe value="/dev/input/porschehupe" />   
+   <PorscheHupe value="/dev/input/porschehupe" />   
+   <FKFS value="OFF" host="192.168.0.20" />   
+   <FKFSDynamics value="ON" host="192.168.0.20" />
+   <Dynamics value="FKFSDynamics">
+      <FKFSServer host="192.168.0.40" port="47003" localPort="47002"/>
+     <IntersectionTest startElevation="0.0" testLengthUp="0.5" testLengthDown="1.0"/>
+   </Dynamics>
+   <!--Dynamics value="EinspurDynamik">
+        <inertia mass="1500" moiYaw="2700" moiRoll="600" moiPitch="2800" heightcenter="0.5" />
+        <measures lengthfront="2.5" lengthrear="2.3" width="1.8" height="1.3" wheelradius="0.3" />
+        <aerodynamics Aw="2.3" cw="0.3" />
+        <roll kr="500000" dr="20000" />
+        <pitch kp="200000" dp="50000" />
+        <transmission axle="3.5" first="3.6" second="2.19" third="1.41" fourth="1.0" fifth="0.83" reverse="-3.6" />
+        <ITMServer host="141.58.8.212" />
+  </Dynamics-->
+ 
+      <VDServer value="OFF" host="141.58.8.210" />   
+  </SteeringWheel>
+
+
+    <UpdateView>
+     <Server host="localhost" port="7000" />
+    </UpdateView>
+    <Vrml97>
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+   </Plugin>
+
+   <WindowConfig>
+    <Window width="1919" comment="MAIN" window="0" pipeIndex="0" height="1200" left="1920" bottom="0" name="0" decoration="false" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

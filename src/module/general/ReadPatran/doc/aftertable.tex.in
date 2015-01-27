@@ -1,0 +1,18 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+\begin{covimg} {}{ReadPatranMap}{covise/net/examples/ReadPatran.net}{0.7}\end{covimg}
+
+We have two data files: the neutral file contains all information about the grid, the result file contains the velocity vector in the first three columns and the kinetic energy in the fourth column. The name of the neutral file is placed in the {\tt grid\_path} parameter. To read out vector data we use the parameter {\tt nodal\_displ\_force\_path}. We find the vector output at the second output port. These vectors are displayed with the module VectorField. The energy data is read by setting the parameter {\tt nodal\_result\_path} with the same filename. \\
+{\it Note:} You should use the parameter {\tt elem\_result\_path } if you have 
+data per element. Some modules accept vertex-based data only; use the module 
+CellToVert to convert cell-based data to vertex-based data. \\
+To get the fourth column of the results data file we set the parameter 
+nb\_columns to {\tt 4}. We get this scalar data from the third port and visualize it by using colors on a cutting plane. The result is shown in the image below.
+
+\begin{covimg} {}{ReadPatranRenderer}{Result in the Renderer}{0.7}\end{covimg}
+%

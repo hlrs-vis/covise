@@ -1,0 +1,1857 @@
+<ui version="4.0" >
+ <comment>Python:from Utils import FloatInRangeControl
+Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+ <class>PartVisualizationPanelBase</class>
+ <widget class="QWidget" name="PartVisualizationPanelBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>493</width>
+    <height>763</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="baseSize" >
+   <size>
+    <width>325</width>
+    <height>715</height>
+   </size>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>ColoringOption</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="vrpIconToolset" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="scaledContents" >
+      <bool>true</bool>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <widget class="QLabel" name="vrpLabelTitle" >
+     <property name="font" >
+      <font>
+       <family>URW Gothic L</family>
+      </font>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text" >
+      <string>Edit 2D Object:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="ChangeIndicatedLE" native="1" name="nameWidget" />
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QTabWidget" name="TabWidgetGeneralAdvanced" >
+     <property name="tabShape" >
+      <enum>QTabWidget::Rounded</enum>
+     </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>Coloring</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4" >
+       <item row="0" column="0" colspan="2" >
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Coloring</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2" >
+          <item row="0" column="0" colspan="4" >
+           <widget class="QRadioButton" name="vrpRadioButtonNoColor" >
+            <property name="toolTip" >
+             <string>Reset the object color to the color &lt;br>that was given by the Covise import module.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Reset the object color to the color &lt;br>that was given by the Covise import module.</string>
+            </property>
+            <property name="text" >
+             <string>Original Color</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="4" >
+           <widget class="QRadioButton" name="vrpRadioButtonColorRGB" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Give the complete object one color.&lt;br> The button &lt;b>RGB Color&lt;/b> opens a color editor panel.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Give the complete object one color.&lt;br> The button &lt;b>RGB Color&lt;/b> opens a color editor panel.</string>
+            </property>
+            <property name="text" >
+             <string>RGB Color</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <spacer name="spacer62" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="1" colspan="3" >
+           <widget class="QPushButton" name="vrpPushButtonColorRGB" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="text" >
+             <string>RGB Color</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="4" >
+           <widget class="QRadioButton" name="vrpRadioButtonColorMaterial_2" >
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Give the object complete object &lt;br>an OpenGL material. With the buttons below you can define the ambient, diffuse and specular color of the material.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Give the complete object &lt;br>an OpenGL material. With the buttons below you can define the ambient, diffuse and specular color of the material.</string>
+            </property>
+            <property name="text" >
+             <string>OpenGL Material</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" >
+           <spacer name="spacer62_2_3" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="1" colspan="3" >
+           <widget class="QPushButton" name="vrpPushButtonAmbientRGB_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="text" >
+             <string>Ambient Color</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" >
+           <spacer name="spacer62_3_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="1" colspan="3" >
+           <widget class="QPushButton" name="vrpPushButtonDiffuseRGB_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="text" >
+             <string>Diffuse Color</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" >
+           <spacer name="spacer62_4_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="6" column="1" colspan="3" >
+           <widget class="QPushButton" name="vrpPushButtonSpecularRGB_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The button opens a color editor panel.</string>
+            </property>
+            <property name="text" >
+             <string>Specular Color</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0" >
+           <spacer name="spacer62_4_2_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="7" column="1" colspan="3" >
+           <widget class="QLabel" name="textLabel4_4_3_4_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Set the shininess of the material.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Set the shininess of the material.</string>
+            </property>
+            <property name="text" >
+             <string>Shininess:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="4" >
+           <widget class="FloatInRangeControl" native="1" name="floatInRangeShininess_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip" >
+             <string>Set the shininess of the material.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Set the shininess of the material.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="4" >
+           <widget class="QRadioButton" name="vrpRadioButtonColorVariable_2" >
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Give the object complete object &lt;br>an OpenGL material. With the buttons below you can define the ambient, diffuse and specular color of the material.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Give the complete object &lt;br>an OpenGL material. With the buttons below you can define the ambient, diffuse and specular color of the material.</string>
+            </property>
+            <property name="text" >
+             <string>Variable</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0" >
+           <spacer name="spacer62_2_4" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>13</width>
+              <height>13</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item rowspan="2" row="10" column="1" colspan="2" >
+           <widget class="QLabel" name="vrpLabelVariable_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip" >
+             <string>Select the variable.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select the variable.</string>
+            </property>
+            <property name="lineWidth" >
+             <number>1</number>
+            </property>
+            <property name="text" >
+             <string>Variable:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="2" colspan="2" >
+           <widget class="QComboBox" name="vrpComboBoxVariable_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>30</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Select the variable which will be mapped as color on the surface.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select the variable which will be mapped as color on the surface.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="0" >
+           <spacer name="spacer62_2_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>17</width>
+              <height>18</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="12" column="1" >
+           <widget class="QLabel" name="vrpLabelColorMap_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Select one of the predefined colormaps</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select one of the predefined colormaps</string>
+            </property>
+            <property name="text" >
+             <string>Color Map:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="2" >
+           <widget class="QComboBox" name="vrpComboboxColorMap_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>55</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="mouseTracking" >
+             <bool>false</bool>
+            </property>
+            <property name="acceptDrops" >
+             <bool>true</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Select one of the predefined colormaps</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select one of the predefined colormaps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="12" column="3" >
+           <widget class="QPushButton" name="vrpPushButtonCustomizeColorMap_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Customize the range and steps of the colormap.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Customize the range and steps of the colormap.</string>
+            </property>
+            <property name="text" >
+             <string>C&amp;ustom...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+U</string>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="1" colspan="3" >
+           <spacer name="verticalSpacer" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>20</width>
+              <height>293</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <widget class="QCheckBox" name="vrpCheckBoxTransparency" >
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="focusPolicy" >
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="toolTip" >
+          <string>Enable transparency.&lt;br> Set the transparency with the slider below. 0 is complete transparent, 1 is complete opaque.</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Enable transparency.&lt;br> Set the transparency with the slider below. 0 is complete transparent, 1 is complete opaque.</string>
+         </property>
+         <property name="text" >
+          <string>Transparency</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <spacer name="spacer11" >
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="1" >
+        <widget class="FloatInRangeControl" native="1" name="floatInRangeTrans" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>Set the transparency&lt;br> of the object. 0 is complete transparent, 1 is complete opaque.</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Set the transparency&lt;br> of the object. 0 is complete transparent, 1 is complete opaque.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab2" >
+      <attribute name="title" >
+       <string>Shader</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3" >
+       <item>
+        <widget class="QScrollArea" name="scrollArea" >
+         <property name="widgetResizable" >
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>449</width>
+            <height>664</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4" >
+           <item>
+            <widget class="QListWidget" name="shaderList" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>Visualization</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxConditions" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string/>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="0" column="1" >
+           <widget class="QComboBox" name="vrpComboBoxVariable" >
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Select the variable which you want &lt;br>to investigate with a visualization function.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select the variable which you want &lt;br>to investigate with a visualization function.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QComboBox" name="vrpComboBoxGrid" >
+              <property name="cursor" >
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
+              <property name="toolTip" >
+               <string>Description which grid &lt;br>was selected in the part list on the left.</string>
+              </property>
+              <property name="whatsThis" >
+               <string>Description which grid &lt;br>was selected in the part list on the left.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="vrpLocalisationLabel" >
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="wordWrap" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="2" >
+           <spacer name="spacer207_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="vrpLabelVariable" >
+            <property name="toolTip" >
+             <string>Select the variable which you want &lt;br>to investigate with a visualization function.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select the variable which you want &lt;br>to investigate with a visualization function.</string>
+            </property>
+            <property name="text" >
+             <string>Variable:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="vrpLabelLocalisation" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip" >
+             <string>Description which grid &lt;br>was selected in the part list on the left.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Description which grid &lt;br>was selected in the part list on the left.</string>
+            </property>
+            <property name="text" >
+             <string>Localisation:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <spacer name="spacer207" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxCuttingSurface" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Visualization Tools</string>
+         </property>
+         <layout class="QVBoxLayout" >
+          <item>
+           <widget class="QPushButton" name="CuttingSurfaceColoredPushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes a new colored cuttingsurface (contours on section plane)&lt;br> on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes a new colored cuttingsurface (contours on section plane)&lt;br> on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New &amp;Colored Cutting Surface...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+C</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="SurfaceVectorsPushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes arrows (vectors) on the selected geometry and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes arrows (vectors) on the selected geometry and data.</string>
+            </property>
+            <property name="text" >
+             <string>New Vectors on Geometry...</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="MagmaTracePushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes lines from points in different time steps.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes lines from points in different time steps.</string>
+            </property>
+            <property name="text" >
+             <string>Magma Trace...</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer4" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="IsoSurfacePushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes a new isosurface on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes a new isosurface on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New &amp;Iso Surface...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+I</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="IsoCutterPushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes a new cropped isosurface on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes a new cropped isosurface on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New Iso Cropped Surface...</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ClipIntervalPushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes a new iso interval surface on the selected surface and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes a new iso interval surface on the selected surface and data.</string>
+            </property>
+            <property name="text" >
+             <string>New Iso Interval Surface...</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer4_2" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ProbingPointPushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes a new point probe on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes a new point probe on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New &amp;Probing Point...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+P</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ProbingSquarePushButton" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes a new square probe on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes a new square probe on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New Probing &amp;Square...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+S</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer4_3" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="MovingPointsPushButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes new particles &lt;br> which fly along streamlines on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes new particles &lt;br> which fly along streamlines on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New &amp;Moving Points...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+M</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="PathlinesPushButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes new growing streamlines&lt;br> on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes new growing streamlines&lt;br> on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New &amp;Pathlines...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+P</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="Streamlines2DPushButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>This button computes new streamlines&lt;br> on the selected grid and data.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>This button computes new streamlines&lt;br> on the selected grid and data.</string>
+            </property>
+            <property name="text" >
+             <string>New Streamlines on Surface...</string>
+            </property>
+            <property name="shortcut" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="StreaklinesPushButton" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>&lt;b>Streaklines&lt;/b> imitate a &lt;br> smoke probe of a wind channel at every time step.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>&lt;b>Streaklines&lt;/b> imitate a &lt;br> smoke probe of a wind channel at every time step. Streaklines require transient data.</string>
+            </property>
+            <property name="text" >
+             <string>Strea&amp;klines...</string>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+K</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>Transform</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxRotation" >
+         <property name="title" >
+          <string>Rotation</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5" >
+          <item row="0" column="0" >
+           <widget class="QLabel" name="textLabelRotAxisX" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="toolTip" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="text" >
+             <string>Axis x:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="FloatInRangeControl" native="1" name="floatInRangeAxisX" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="textLabelRotAxisY" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="toolTip" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="text" >
+             <string>Axis y:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="FloatInRangeControl" native="1" name="floatInRangeAxisY" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="textLabelRotAxisZ" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="toolTip" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="text" >
+             <string>Axis z:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="FloatInRangeControl" native="1" name="floatInRangeAxisZ" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <spacer name="spacer14" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>20</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="textLabelAngle" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="toolTip" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+            </property>
+            <property name="text" >
+             <string>Angle:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" >
+           <widget class="FloatInRangeControl" native="1" name="floatInRangeAngle" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2" >
+           <spacer name="verticalSpacer_2" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>328</width>
+              <height>176</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxTranslate" >
+         <property name="title" >
+          <string>Translation</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3" >
+          <item row="0" column="0" >
+           <widget class="QLabel" name="textLabel4_4_3" >
+            <property name="toolTip" >
+             <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+            </property>
+            <property name="text" >
+             <string>x:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <spacer name="spacer14_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>273</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="2" >
+           <widget class="ChangeIndicatedLE" native="1" name="floatX" >
+            <property name="minimumSize" >
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="textLabel4_4_2_3" >
+            <property name="toolTip" >
+             <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+            </property>
+            <property name="text" >
+             <string>y:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <spacer name="spacer15" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>273</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="2" >
+           <widget class="ChangeIndicatedLE" native="1" name="floatY" >
+            <property name="minimumSize" >
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="textLabel4_4_2_2_2" >
+            <property name="toolTip" >
+             <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+            </property>
+            <property name="text" >
+             <string>z:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <spacer name="spacer16" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>273</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="2" >
+           <widget class="ChangeIndicatedLE" native="1" name="floatZ" >
+            <property name="minimumSize" >
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3" >
+           <spacer name="verticalSpacer_3" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>328</width>
+              <height>202</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>Cut</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxCut" >
+         <property name="title" >
+          <string>CutGeometry</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2" >
+          <item>
+           <widget class="QGroupBox" name="groupBoxRectPositioning_3" >
+            <property name="title" >
+             <string/>
+            </property>
+            <property name="flat" >
+             <bool>true</bool>
+            </property>
+            <property name="checkable" >
+             <bool>false</bool>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+            <layout class="QGridLayout" name="gridLayout" >
+             <item row="0" column="0" >
+              <widget class="QLabel" name="textLabel4_4_3_2" >
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>x:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="0" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeX" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="1" column="0" >
+              <widget class="QLabel" name="textLabel4_4_2_3_2" >
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>y:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="2" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeY" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="3" column="0" >
+              <widget class="QLabel" name="textLabel4_4_2_2_2_2" >
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>z:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeZ" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0" >
+              <widget class="QLabel" name="textLabel4_3_2_2_3" >
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>Orientation:</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1" >
+              <widget class="QGroupBox" name="groupBoxOrientation" >
+               <property name="title" >
+                <string/>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout" >
+                <item>
+                 <widget class="QRadioButton" name="xAxisRadioButton" >
+                  <property name="cursor" >
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip" >
+                   <string/>
+                  </property>
+                  <property name="whatsThis" >
+                   <string/>
+                  </property>
+                  <property name="text" >
+                   <string>x-Axis</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="yAxisRadioButton" >
+                  <property name="cursor" >
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip" >
+                   <string/>
+                  </property>
+                  <property name="whatsThis" >
+                   <string/>
+                  </property>
+                  <property name="text" >
+                   <string>y-Axis</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="zAxisRadioButton" >
+                  <property name="sizePolicy" >
+                   <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="cursor" >
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip" >
+                   <string/>
+                  </property>
+                  <property name="whatsThis" >
+                   <string/>
+                  </property>
+                  <property name="text" >
+                   <string>z-Axis</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="6" column="0" >
+              <widget class="QLabel" name="textLabelRotX" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>Rotation x:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="6" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeRotX" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="7" column="0" >
+              <widget class="QLabel" name="textLabelRotY" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>Rotation y:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="8" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeRotY" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item rowspan="2" row="9" column="0" >
+              <widget class="QLabel" name="textLabelRotZ" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="toolTip" >
+                <string/>
+               </property>
+               <property name="whatsThis" >
+                <string/>
+               </property>
+               <property name="text" >
+                <string>Rotation z:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeRotZ" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>FloatInRangeControl</class>
+   <extends>QWidget</extends>
+   <header location="global" >Utils</header>
+  </customwidget>
+  <customwidget>
+   <class>ChangeIndicatedLE</class>
+   <extends>QWidget</extends>
+   <header location="global" >ChangeIndicatedLE</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+ </includes>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,74 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	CasePath & Browser & input file \\
+\hline
+	DataPath & Browser & input file \\
+\hline
+	select\_data\_1 & Choice &  see below \\	
+\hline
+	select\_data\_2 & Choice &  see below \\	
+\hline
+	select\_data\_3 & Choice &  see below \\						
+\hline
+	timesteps & Scalar &  Number of timesteps \\					
+\hline
+	file\_increment & Scalar &  Increment in the timestep index containt in the name of the file \\	
+\hline
+	skipped\_files & Scalar &  Number of files to skip \\
+\hline
+
+\end{longtable}
+
+
+To read time dependent data the data-set usually contains one cas-file
+and n datafiles. ReadFluent assumes data file names obeying the
+following convention: \textit{name}-NNN.dat.  Where NNN is a eight
+figure integer with leading zeros and \textit{name} an arbitrary name
+of the model. The increment NNN from data-file $i$ to data-file $i+1$
+must be constant. Enter n in the timesteps parameter of ReadFluent and
+the increment of NNN as file\_increment parameter. To read only each
+k-th data-file anter an appropriate value for the parameter
+skipped\_files.
+
+Example:\\
+
+To read a Fluent dataset containing the files tube.cas,
+tube-00001000.dat, tube-00002000.dat, tube-00003000.dat,
+tube-00004000.dat you should use the following parameter settings:
+
+\begin{tabular}{ll}
+  timesteps & 4 \\
+  file\_increment & 1000 \\
+  skipped\_files & 0 \\
+\end{tabular}
+
+In case you want to read each second file of the data set use:
+
+\begin{tabular}{ll}
+  timesteps & 4 \\
+  file\_increment & 1000 \\
+  skipped\_files & 1 \\
+\end{tabular}
+
+
+%=============================================================
+
+\begin{covimg}{}
+		{select}{Data selection (ModuleInfo)}{0.6}\end{covimg}
+\begin{htmlonly} Fig. Data selection (ModuleInfo) \end{htmlonly}
+
+\clearpage
+
+
+
+
+%
+%=============================================================

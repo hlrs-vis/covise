@@ -1,0 +1,50 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        no\_startp & Slider & The starting points of the stream lines are defined by 
+                              equidistantly deviding the line segment reaching from 
+                              \textit{startpoint1} to \textit{startpoint2} by 
+                              \textit{no\_startp} points.\\
+\hline
+        startpoint1 & Vector & Starting point of the line segment yielding the stream lines.  \\
+\hline
+        startpoint2 & Vector & End point of the line segment yielding the stream lines.  \\
+\hline
+        direction & Choice &  Selects if the stream lines are calculated up-stream (selection: \textbf{forward}) 
+                              down-stream (selection: \textbf{backward}) or in both directions (selection: \textbf{both}). 
+			      In all cases the integration of the stream-lines ends at the true borders of a block or if 
+			      a region of zero velocity is reached.\\
+\hline
+        whatout & Choice &    Selection of the scalar magnitude for output: the magnitude of the velocity field,
+                              a single component of it, a number constant along a trajectory but different
+                              for the different trajectories or the time along the trajectories.\\
+\hline
+        cellfr & Scalar & Each integration step advances the stream-line at least a fraction \textit{cellfr} of a cell in the grid.\\
+\hline
+        crit\_angle & Scalar & This parameter is only relevant for sets of grids. When a trajectory crosses
+                               the interface between two grids, there may be a discontinuity of the velocity
+                               field. If the angle of the vectors at both sides of the interface is larger
+                               than the value of this parameter, the integration is interrupted. In this case
+                               the presence of a wall is assumed. Nevertheless, if you want the integration
+                               to continue even if the velocity field is strongly discontinuous, then you may set
+                               this value to 90.\\
+                               
+                                                                                                                
+%       ....
+%       ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

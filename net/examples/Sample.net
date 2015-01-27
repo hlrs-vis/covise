@@ -1,0 +1,1048 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+9
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+277
+315
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+DomainSurface_1
+20
+174
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module ReadStar
+ReadStar
+1
+LOCAL
+IO_Module
+ReadStar_1
+20
+20
+0
+20
+mesh
+UnstructuredGrid
+Mesh output
+default
+
+data_0
+Float|Vec3|Points
+Data Output
+default
+
+data_1
+Float|Vec3|Points
+Data Output
+default
+
+data_2
+Float|Vec3|Points
+Data Output
+default
+
+data_3
+Float|Vec3|Points
+Data Output
+default
+
+data_4
+Float|Vec3|Points
+Data Output
+default
+
+data_5
+Float|Vec3|Points
+Data Output
+default
+
+data_6
+Float|Vec3|Points
+Data Output
+default
+
+data_7
+Float|Vec3|Points
+Data Output
+default
+
+data_8
+Float|Vec3|Points
+Data Output
+default
+
+data_9
+Float|Vec3|Points
+Data Output
+default
+
+data_10
+Float|Vec3|Points
+Data Output
+default
+
+data_11
+Float|Vec3|Points
+Data Output
+default
+
+data_12
+Float|Vec3|Points
+Data Output
+default
+
+data_13
+Float|Vec3|Points
+Data Output
+default
+
+data_14
+Float|Vec3|Points
+Data Output
+default
+
+data_15
+Float|Vec3|Points
+Data Output
+default
+
+type
+IntArr
+Cell types
+default
+
+cellTable
+IntArr
+Cell Table
+default
+
+cpPolygons
+Polygons
+CP Matching Poly
+default
+
+23
+mesh_path
+Browser
+Mesh file path
+share/covise/example-data/ReadStar/tiny16
+
+2
+mesh_path___filter
+BrowserFilter
+Mesh file path
+mesh_path *16;*mdl;*MDL
+
+-1
+data_path
+Browser
+Data file path
+share/covise/example-data/ReadStar/tiny09
+
+2
+data_path___filter
+BrowserFilter
+Data file path
+data_path *09;*29*;*pst*;*PST*
+
+-1
+from_to_step
+IntVector
+Read from/to/by step 
+0 0 0
+
+-1
+timestep
+IntSlider
+current timestep to be read (0 for static)
+0 0 1
+
+-1
+cellVert
+Choice
+Create Cell- or Vertex-based data
+1 CreateVERTEXData CreateCELLData
+
+-1
+field_0
+Choice
+Field to read for output
+2 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_1
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_2
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_3
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_4
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_5
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_6
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_7
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_8
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_9
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_10
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_11
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_12
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_13
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_14
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+field_15
+Choice
+Field to read for output
+1 --- Velocity V-Magnitude U V W P TE ED T-Vis
+
+0
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+Colors_1
+288
+243
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0.001636 1.70141e+38
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0.001636 1.70141e+38 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module ShowGrid
+ShowGrid
+1
+LOCAL
+Tools
+ShowGrid_1
+166
+178
+1
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+2
+lines
+Lines
+Grid Lines
+default
+
+points
+Points
+Grid Points
+default
+
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+
+2
+pos
+IntSlider
+number of unstructured grid element
+0 1 0
+
+-1
+0
+# Module Colors
+Colors
+2
+LOCAL
+Mapper
+Colors_2
+419
+171
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0.0129077 2.29541
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0.0129077 2.29541 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module CuttingSurface
+CuttingSurface
+1
+LOCAL
+Filter
+CuttingSurface_1
+277
+173
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+0 0.0 1
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0 0 0.05
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.05
+
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+FALSE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.1
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.0
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.1
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+# Module Sample
+Sample
+1
+LOCAL
+Interpolator
+Sample_1
+176
+83
+3
+GridIn
+UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid|Points
+Grid input
+req
+
+DataIn
+Float|Vec3
+Data input
+opt
+
+ReferenceGridIn
+UniformGrid
+Reference Grid
+opt
+
+2
+GridOut
+UniformGrid
+Grid Output Port
+default
+
+DataOut
+Float|Vec3
+Data Output Port
+default
+
+14
+outside
+Choice
+fill value for outside - MAXFLT or number
+2 MAX_FLT user_defined_fill_value
+
+0
+fill_value
+FloatScalar
+Fill Value if not intersecting
+0.000000
+
+0
+algorithm
+Choice
+choose algorithm
+2 possibleholes noholesandnoexpansion noholesandexpansion accurateandslow
+
+0
+point_sampling
+Choice
+choose mapping for point sampling
+3 linear logarithmic normalizedlinear normalizedlogarithmic
+
+-1
+isize
+Choice
+unigrid size in i direction
+1 userdefined 8 16 32 64 128 256 512 1024
+
+0
+user_defined_isize
+IntScalar
+user defined i_size
+32
+
+-1
+jsize
+Choice
+unigrid size in j direction
+1 userdefined 8 16 32 64 128 256 512 1024
+
+0
+user_defined_jsize
+IntScalar
+user defined j_size
+32
+
+-1
+ksize
+Choice
+unigrid size in k direction
+1 userdefined 8 16 32 64 128 256 512 1024
+
+0
+user_defined_ksize
+IntScalar
+user defined k_size
+32
+
+-1
+bounding_box
+Choice
+bounding box calculation
+3 automaticpertimestep automaticglobal manual
+
+0
+P1_bounds
+FloatVector
+First point
+-0.400000 -0.800000 -0.100000
+
+-1
+P2_bounds
+FloatVector
+Second point
+0.600000 0.525000 0.200000
+
+-1
+eps
+FloatScalar
+small value to cover numerical problems
+0.000000
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+166
+384
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+14
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+DomainSurface
+1
+LOCAL
+GridOut1
+
+Renderer
+1
+LOCAL
+RenderData
+ReadStar
+1
+LOCAL
+mesh
+
+DomainSurface
+1
+LOCAL
+GridIn0
+ReadStar
+1
+LOCAL
+mesh
+
+Sample
+1
+LOCAL
+GridIn
+ReadStar
+1
+LOCAL
+data_0
+
+Sample
+1
+LOCAL
+DataIn
+ReadStar
+1
+LOCAL
+data_0
+
+Colors
+2
+LOCAL
+DataIn0
+Colors
+1
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn0
+ShowGrid
+1
+LOCAL
+lines
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+2
+LOCAL
+ColormapOut0
+
+Colors
+1
+LOCAL
+ColormapIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+DataOut0
+
+Colors
+1
+LOCAL
+DataIn0
+Sample
+1
+LOCAL
+GridOut
+
+ShowGrid
+1
+LOCAL
+meshIn
+Sample
+1
+LOCAL
+GridOut
+
+CuttingSurface
+1
+LOCAL
+GridIn0
+Sample
+1
+LOCAL
+DataOut
+
+CuttingSurface
+1
+LOCAL
+DataIn0
+0

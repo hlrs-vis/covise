@@ -1,0 +1,39 @@
+
+%=============================================================
+
+%
+% short description what the module does
+%
+EliminatePolygons eliminates polygons out of a surface.
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2} {}{EliminatePolygonsModule}{0.7}
+\end{covimg2}
+
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+EliminatePolygons is available for COVISE version 4.5 and higher. 
+It's available for all supported platforms.
+
+%
+%-------------------------------------------------------------
+% Notes for using the 3 environments for tables below:
+%-------------------------------------------------------------
+% 1. In some cases it may be necessary to increase the size of a column, 
+%    e.g. change the value of p for the type of input or output ports from 3.5cm to 4cm
+% 2. If you have more than one entry in a cell but you don't want to place 
+%    them in the one row, use "\newline", not "\\". For the first column you have
+%    to specify explicitly the size of the coloumn (change "l" to "p{xxcm}") 
+%    in addition.
+%-------------------------------------------------------------
+%
+%=============================================================

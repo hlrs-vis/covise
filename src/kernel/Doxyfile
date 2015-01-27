@@ -1,0 +1,49 @@
+PROJECT_NAME = "COVISE Core"
+PROJECT_NUMBER =
+INPUT = config config/kernel \
+        util sysdep \
+        net dmgr covise appl shm do alg \
+        api vrbclient gpu grmsg tui \
+        file reader img star wslib
+        #bifbof_lib metis
+FILE_PATTERNS = *.h *.inc *.c *.cpp
+STRIP_FROM_PATH = . ../../../common/src/kernel
+OUTPUT_DIRECTORY = ../../doc/doxygen/kernel
+HTML_OUTPUT = .
+OUTPUT_LANGUAGE = English
+IGNORE_PREFIX          = co
+PREDEFINED             =
+
+SHORT_NAMES            = YES
+
+WARNINGS = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_FORMAT            = "$file:$line: $text"
+EXTRACT_ALL = YES
+EXTRACT_PRIVATE = YES
+EXTRACT_STATIC = YES
+HIDE_UNDOC_CLASSES     = NO
+HIDE_UNDOC_MEMBERS     = NO
+
+CLASS_DIAGRAMS = YES
+DISTRIBUTE_GROUP_DOC   = NO
+ENABLED_SECTIONS       = 
+#GENERATE_TODOLIST      = YES
+GENERATE_TESTLIST      = NO
+ALPHABETICAL_INDEX     = NO
+DISABLE_INDEX          = NO
+#GENERATE_TREEVIEW      = YES
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+GRAPHICAL_HIERARCHY    = YES
+
+GENERATE_HTML = YES
+#SEARCHENGINE           = YES
+GENERATE_LATEX = NO
+GENERATE_MAN = NO
+RECURSIVE = NO
+HTML_HEADER            = 
+
+HAVE_DOT               = YES

@@ -1,0 +1,60 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+
+\textcolor{required}{meshIn}
+&
+UnstructuredGrid \newline
+UniformGrid \newline
+StructuredGrid \newline
+RectilinearGrid \newline
+&
+All types of grids or sets of the grids.
+\\
+\hline 
+\textcolor{required}{dataIn}
+&
+Float \newline
+Vec3 \newline
+Float \newline
+Vec3 \newline
+&
+Scalar or vector data on the grid or sets of data. The
+number of data values must match the number of nodes
+in the grid.
+\\
+\hline
+\textcolor{optional}{isoDataIn}
+&
+Float \newline
+Float
+&
+Optional port for supplying isodata or sets of isodata.
+The number of values must match the number of nodes.
+If this port isn't connected, dataIn is used to calculate
+isolines. If it is a vector dataset, only the first component
+is used.
+\\
+\hline
+\textcolor{optional}{colorMapIn}
+&
+ColorMap
+&
+Optional port for supplying  a colormap for the visualization
+of data.
+\\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

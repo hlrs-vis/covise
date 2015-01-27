@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="viriato" >
+
+  <COVER>
+
+   <Menu>
+    <Position x="400" y="0" z="300" />
+    <Size value="1" />
+   </Menu>
+   <Stereo value="true" enable="ON" separation="60"/>
+
+   <ChannelConfig>
+    <Channel comment="FRONT" channel="0" right="1" left="0" windowIndex="0" bottom="0" name="0" top="1" stereoMode="QUAD_BUFFER"  />
+   </ChannelConfig>
+ 
+  <WindowConfig>
+    <Window width="1280" comment="FRONT" window="0" pipeIndex="0" height="1024" left="0" bottom="0" name="0" decoration="false"/>
+   </WindowConfig>
+
+   <ScreenConfig>
+    <Screen width="1280" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1024" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+<!--Input>
+    <TrackingSystem value="TARSUS" />
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <TrackingSystem>
+     <Offset x="-100" y="-750" z="-750" />
+     <Orientation h="0" p="0" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="45" r="0" />
+    </HandDevice>
+
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <StationName value="WU Glasses" name="0" />
+     <StationName value="MotionMouse" name="1" />
+     <Server host="146.87.69.122" />
+    </Tarsus>
+
+   </Input-->
+  </COVER>
+
+
+ </LOCAL>
+
+</COCONFIG>

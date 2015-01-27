@@ -1,0 +1,23 @@
+#!/bin/sh
+#########################################################################
+#
+# startup script to overcome restrictions of the interpreter line 
+# (max length = 30chars)
+#
+# RM VirCinity GmbH Stuttgart March 2003 (C)
+#
+#########################################################################
+
+
+_PYTHON=${PYTHON_HOME}/bin/python3
+_STARTUP=$COVISEDIR/Python/scriptInterface.py 
+_PYOPT="-i"
+
+if test $COVISE_LOCAL_PYTHON ; then
+    echo "*  using local python interpreter " $COVISE_LOCAL_PYTHON
+    _PYTHON=$COVISE_LOCAL_PYTHON
+    unset PYTHONHOME
+fi
+
+exec $_PYTHON $_PYOPT $_STARTUP "$@"
+exit 0 

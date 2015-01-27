@@ -1,0 +1,19 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+ 
+% examples for using this module
+
+In the example below GridSurface has been used as a replacement for DomainSurface in 
+covise/net/tutorial/tutorial\_grid\_1.net
+
+\begin{covimg2}{}{GridSurfaceMap}{0.7}\end{covimg2}
+
+The output in the Renderer is shown in the next picture; the option 'AutoClipping
+Planes' in the Renderer Preference Sheet has been used to cut the object and thus show
+the difference between GridSurface and DomainSurface.
+
+\begin{covimg2}	{}{GridSurfaceRenderer}{0.6}\end{covimg2}

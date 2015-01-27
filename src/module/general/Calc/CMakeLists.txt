@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  Calc.cpp
+)
+
+SET(EXTRASOURCES
+  Calc.h
+)
+
+ADD_COVISE_MODULE(Tools Calc ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(Calc  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(Calc)

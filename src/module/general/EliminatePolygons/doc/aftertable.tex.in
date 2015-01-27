@@ -1,0 +1,21 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}{ReadTascflowMap}{covise/net/examples/ReadTascflowTDI.net}{0.6}\end{covimg}
+
+We look at the example map {\tt covise/net/examples/ReadTascflowTDI.net} 
+concerning the ReadTascflowTDI module. The object in this example consists of one 
+channel and one pipe. The channel has an embedded grid just for computational reasons. 
+Therefore we don`t want to see the surface of the embedded grid. 
+In this example EliminatePolygons gets those polygons from the module ReadTascflowTDI 
+who belong to this added grid. The fist figure shows you the surface before 
+elimination. The pipe is closed. This does not make sense. The second figure  
+shows you the real conditions. 
+ 
+\begin{covimg}{}{EliminatePolygonsRenderer1}{Surface before elimination}{0.6}\end{covimg}
+
+\begin{covimg}{}{ReadTascflowTDIRenderer2}{Surface afterwards}{0.6}\end{covimg}

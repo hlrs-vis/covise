@@ -1,0 +1,146 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Master Control</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#3333FF">Master Control</font></font></h2>
+<u><font face="Arial,Helvetica"><font color="#000000">Note 1:</font></font></u>
+<table CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">You have 2 possibilities to become Master</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">issue a Master Request using <b>Master Control
+from the Menu Bar in the MapEditor (described below)</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">issue a Master Request using the item Master
+Request from the <a href="../renderer/ren_viewpopup.html">Viewer Popup
+Menu</a> in the Renderer&nbsp;</font></li>
+</ul>
+</td>
+</tr>
+</table>
+
+<br>&nbsp;
+<table COLS=2 WIDTH="73%" >
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><img SRC="mastercontrol.gif" height=167 width=286></td>
+
+<td ALIGN=CENTER VALIGN=CENTER><img SRC="masterrequest.gif" height=180 width=130></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><font face="Arial,Helvetica">MasterRequest
+via MasterControl from (Slave) MapEditor</font></td>
+
+<td ALIGN=CENTER VALIGN=CENTER><font face="Arial,Helvetica">MasterRequest
+from PopUp Menu in (Slave)Renderer</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<p><font face="Arial,Helvetica"><font color="#000000"><u>Note 2</u>:</font></font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">You can use this (and no other) menu item
+as <b>Slave</b> only!</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">A master/slave relationship is applied
+among participating partners of a session.</font>
+<br><font face="Arial,Helvetica">This means, that at every point in time
+only one participant has control over the overall session, while the others
+can only watch ongoing actions performed by the master. All slave windows
+are insensitive for user input. But all important events are spread to
+all slaves. Therefore when a new map is generated or editied, every module
+icon and connection line between module ports also appear in the slave
+MapEditor working area. The modifications in the Module Setup and attached
+parameters in the Control Panel are also spread to the slave sides.</font>
+<p><font face="Arial,Helvetica"><b>Changing the roles of Master and Slave</b>
+works as follows:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">As slave partner you can use only the menu
+item <b>Master Control</b> (appears in black =&nbsp; selectable; all other
+menu items appear in grey = not selectable)</font></li>
+
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica">Selecting Master Control you send a <b>Master
+Request</b> to ask for master status</font></li>
+
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica">A <b>question dialog</b> (see figure below)
+pops up on the master side</font></li>
+</ul>
+
+<ul><img SRC="request.gif" height=138 width=375></ul>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">If the master replies <b>No</b> you will be
+informed by</font></li>
+</ul>
+
+<ul><img SRC="requestdenied.gif" height=136 width=315></ul>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">If the master replies <b>Yes</b></font></li>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">all previously grey menu items on your side
+are now black (selectable), only&nbsp; MasterControl becomes grey (not
+selectable)</font></li>
+
+<li>
+<font face="Arial,Helvetica">all previously black menu items on the master
+side are now grey (not selectable), only MasterControl becomes black (selectable)</font></li>
+</ul>
+</ul>
+<u>Note 3:</u>
+<table CELLPADDING=4 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td>
+<br>Please observe the following restrictions for scalar/slider parameters
+if their appearance type has been changed to player/sequencer:
+<ul>
+<ul>
+<li>
+a player/sequencer will be stopped if you transfer control to the slave</li>
+
+<li>
+the "delta value" will not be transferred to the slave; so if you don't
+like the default value you have to explicitly set delta at the slave again</li>
+
+<br>&nbsp;</ul>
+</ul>
+</td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">For functions available as <b>Master</b>
+see option <b><a href="map_cscw_addhost.html">CSCW</a></b>.</font>
+<p><font face="Arial,Helvetica">To <b>send infomation to partners</b> (independent
+from master or slave state) use the <b><a href="map_message.html">Chat
+Line</a></b> (and receive information in the Message Area).</font>
+<p><font face="Arial,Helvetica">For general information on <b>distributed
+and collaborative working</b> see <a href="map_collab.html">CollaborativeWorking</a>,
+<font color="#3333FF"><a href="../../online_doc/Tutorial/start/start_Advanced.html" target="_top">Tutorial
+(Advanced Topics</a><a href="../../online/start/start_Advanced.html" target="_top">)</a></font>,
+and <a href="../../online_doc/usersguide/start/start_collab.html" target="_top"><font color="#3333FF">User's
+Guide, chapter COVISE CE</font>.</a></font>
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

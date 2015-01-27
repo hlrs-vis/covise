@@ -1,0 +1,48 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+		{TracerUsg_map}{covise/net/example/TracerUsg.net (obsolete)}{0.6}\end{covimg}
+		
+In this example we integrate the velocity field in a domain for 6
+different initial conditions. This domain is defined by a set with two
+structured grids. A StoU module is used to get a set of unstructured grids.
+One might use in this case %TracerStr without any need for StoU,
+\covlink{TracerStr}{TracerStr}{../TracerStr/TracerStr.html}
+without any need for StoU,
+but we use this procedure for the sake of illustrating TracerUsg.
+Observe in the renderer images below that in the domain there
+are some regions, which coincide with blades in a rotor, with null velocity.
+This regions are shown in blue.
+The colours on the line map the magnitude
+of the velocity. 
+
+The output is produced below for two cases. With the
+default value for wall detection (parameter Speed\_thres), the trajectories
+stop when they arrive at the border between the grids, because a
+severe discontinuity of the velocity field is detected. The output (Speed\_thres=0) may be
+seen in the first image. The second image (Speed\_thres=-1) shows what happens if
+we deactivate this feature by introducing a negative value
+for parameter Speed\_thres. A similar effect could be achieved by introducing
+a big enough positive number. The deactivation of this feature may be useful if we know that
+the discontinuity appears because the velocity in both domains
+is measured in different reference systems. The trajectories are then continued
+in the second grid. 
+
+
+\begin{covimg}{}
+		{TracerUsg_out_wall}{A wall has been incorrectly detected}{0.6}\end{covimg}
+		
+\begin{covimg}{}
+		{TracerUsg_out_no_wall}{Wall detection is deactivated}{0.6}\end{covimg}
+		
+
+

@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <vr-prepare>
+
+         <ImageStyle value="Style_White.rcc" /> 
+         <StyleSheet value=":/style_klsmartin.css" />
+         <ApplicationIcon value=":/icon_klsmartin.png" />
+
+         <InitialDatasetSearchPath value="" />
+
+         <!-- start cover in qtwidget in vr-prepare -->
+         <EmbeddedOpenCOVER value="on" />
+         
+         <!-- set this parameter to True if you want to use the Performer VR renderer -->
+         <UseCOVERRenderer value="off" />
+         
+         <RendererRestartPreCommand value="clean_cover" />
+         
+         <!-- cache created octtrees to disk -->
+         <CachedOctTrees value="off" />
+         
+         <!-- e.g. for DNA Plugin - flag if we have to check if the puzzle is solved -->
+         <SolvePresentationStep value="off" />
+         
+         <!-- disable sampling modules (e.g. for CuttingSurface, Tracer) -->
+         <UseSamplingModules value="off" />
+         
+         <!-- set here, if initially invisible visualizers will be connected to COVER -->
+         <InvisibleConnectToRenderer value="on" />
+
+         <!-- set here, if the reduction dialog should appear, so that the user may decide if a data reduction should happen or not -->
+         <ShowReductionDialog value="off" />
+
+         <!-- how to handle the startpoints on 2D Parts -->
+         <!-- TRACE_FROM_2D_SAMPLE, TRACE_FROM_2D_RAW, TRACE_FROM_2D_GTS -->
+         <TraceFrom2DStyle value="TRACE_FROM_2D_RAW" />
+         
+         <!-- whether to start the COVER automatically after its crash -->
+         <!-- RENDERER_RESTART_AUTOMATIC, RENDERER_RESTART_MANUAL -->
+<!--          <RendererRestartMode value="RENDERER_RESTART_MANUAL" /> -->
+
+         <!-- names for cutting surface -->
+         <NameArrowsCuttingSurface value="Vectors" />
+         <ArrowsOnCuttingSurfaceText value="Edit Vectors on Section Plane:" />
+         <ArrowsOnCuttingSurfaceAdjustmentText value="Vectors on Section Plane Adjustment" />
+         <NewArrowsCuttingSurfaceText value="New &amp;Vectors on Section Plane..." />
+         <!-- start cutting surface at sampled grid -->
+         <ArrowsOnSampledGrid value="on" />
+
+         <NameColoredCuttingSurface value="Contours" />
+         <NewColoredCuttingSurfaceText value="New &amp;Contours on Section Plane..." />
+         <ColoredCuttingSurfaceText value="Edit Contours on Section Plane:" />
+
+         <UseComposedVelocity value="off" />
+
+         <AdditionalVisibilityCheckbox value="off" />
+
+         <ShowSnapshotDialog value="on" />
+
+         <GettingStartedDocument value="GettingStartedKLSM/index.html" />
+         
+         <TurntableAnimationTime value="20" />
+
+         <Features>
+            <SceneView value="off" />
+            <PresentationManager value="off" />
+            <ViewpointManager value="off" />
+            <TrackingManager value="off" />
+            <AnimationManager value="off" />
+            <RestartRenderer value="off" />
+            <Advice value="off" />
+            <GettingStarted value="on" />
+            <OrthographicProjection value="on" />
+            <TurntableAnimation value="on" />
+            <TurntableRotate45 value="on" />
+            <FlyingMode value="off" />
+            <FileNewWizard value="off" />
+            <AddProject value="off" />
+            <CompareProject value="off" />
+            <ExportToMap value="off" />
+            <Snapshot value="on" />
+            <SnapAll value="off" />
+            <VideoCapture value="on" />
+            <NavigationMode value="on" />
+            <EditPartsMenu value="off" />
+            <!-- KLS Martin features -->
+            <CoxmlBrowser value="on" />
+            <CreateSceneObjectList value="on" />
+            <SceneEditor_Grid value="on" />
+            <SceneEditor_OperatingRange value="on" />
+         </Features>
+
+         <!-- To improve speed, we dont do a full deepcopy if we have coPresentationStepParams. -->
+         <!-- The problem is the structure in which the viewpoints are stored and the deepcopy of the status-dict in coPresentationStepParams (which holds the params of all VisItems). -->
+         <!-- Each coPresentationMgr.changeUnconfirmedViewpointID (called for each viewpoint) results in changes of the viewpoint in all presentation steps. -->
+         <!-- So we have num_viewpoints*num_presentationsteps calls of coPresentationStep.changeUnconfirmedViewpointID which uses at least 3 CopyParams. -->
+         <!-- As a result, loading a project takes a considerable amount of time. -->
+         <FastLoading value="off" />
+
+         <DocumentsInGUI value="on" />
+
+         <!-- parameter for do not update cutting surfaces in presentationpoints -->
+         <DoNotUpdateCuttingSurfaces value="off" />
+         
+         <PrecisionFloatInRangeControls value="6" />
+         
+         <!-- in Utils.py AxisAlignedRectangleIn3d.__eq__: -->
+         <!-- the computations of a rectangle from Tracer parameter startpoint1, startpoints2 and direction often leed to rounding errors -->
+         <!-- if epsReactangleLength is available in this file, it is used for comparison of rectangle lenghts and middle point  -->
+         <!-- example abs(self.lenghtA-other.lenghtA) < epsRectangleLength instead of self.lengthA == other.lenghtA -->
+         <EpsRectangleLength value="0.000001" />
+         <!-- if epsRectangleAngle is available in this file, it is used to compare rotX, rotY, rotZ -->
+         <EpsRectangleAngle value="0.001" />
+
+         <ProductName value="KLS Martin - marWORLD 3D" />
+         
+         <!-- comma separated groups, eg. value="Lightning, Materials" -->
+         <NotShownGroups value="Lightning" />
+         <NotShownShader value="" />
+
+         <Panels>
+            <ViewpointManager visible="off" />
+            <PresentationManager visible="off" />
+            <AnimationManager visible="off" />
+            <TrackingManager visible="off" />
+            <SceneView visible="off" dockable="on"/>
+            <!-- start advice outside the mainWindow (undocked) -->
+            <Advice visible="off" docked="off" />
+            <CoxmlBrowser visible="on"/>
+            <VideoCaptureManager docked="off" />
+         </Panels>
+         
+         <TrackingManager>
+            <ButtonMap>
+               <TRANS_LEFT  button="-1" />
+               <TRANS_RIGHT button="-1" />
+               <TRANS_UP    button="-1" />
+               <TRANS_DOWN  button="-1" />
+               <TRANS_FRONT button="-1" />
+               <TRANS_BACK  button="-1" />
+               <ROT_X_PLUS  button="16" />
+               <ROT_X_MINUS button="32" />
+               <ROT_Y_PLUS  button="-1" />
+               <ROT_Y_MINUS button="-1" />
+               <ROT_Z_PLUS  button="-1" />
+               <ROT_Z_MINUS button="-1" />
+               <SCALE_PLUS  button="1" />
+               <SCALE_MINUS button="2" />
+            </ButtonMap>
+            
+            <TranslateBarrier value="1.0" />
+            <VRCJoystick value="on" />
+            
+            <!-- buttons for sensor events -->
+            <ButtonSensor1 value="4" />
+            <ButtonSensor2 value="8" />
+            <ButtonSensor1Sound value="" />
+            <ButtonSensor2Sound value="" />
+            <WrlName value="ohr.wrl" />
+
+         </TrackingManager>
+
+         <ResetPresentation value="512" />
+         <ForwardPresentation value="128" />
+         <BackwardPresentation value="64" />
+
+         <SecondUDP value="off">
+            <IP value="192.168.0.21" />
+            <Port value="6666" />
+         </SecondUDP>
+
+         <ServerConfig>
+            <Host value="192.168.0.39" />
+            <User value="sk_te" />
+            <Timeout value="30" />
+         </ServerConfig>
+
+         <ColorPalette name="KLSM_Transparent">
+            <Color name="Opaque" value="245 245 245 255" />
+            <Color name="Transparent" value="245 245 245 100" />
+         </ColorPalette>
+
+        <ColorPalette name="KLSM_Transparent_Wireframe">
+            <Color name="Opaque" value="245 245 245 255" />
+            <Color name="Transparent" value="245 245 245 100" />
+            <Color name="Wireframe" value="0 0 0 0" />
+         </ColorPalette>
+
+         <ColorPalette name="KLSM_Wall">
+            <Color name="White (RAL 9010)" value="247 249 239 255" />
+            <Color name="Yellow (NCS 0010-Y)" value="255 255 230 255" />
+            <Color name="Green (NCS 0010-G10Y)" value="221 236 216 255" />
+            <Color name="Blue (NCS 0010-B)" value="230 230 255 255" />
+         </ColorPalette>
+
+         <ColorPalette name="KLSM_Floor">
+            <Color name="Grey 1" value="208 208 208 255" />
+            <Color name="Grey 2" value="194 194 194 255" />
+            <Color name="Grey 3" value="139 142 147 255" />
+            <Color name="Grey 4" value="40 40 50 255" />
+            <Color name="Beige 1" value="203 195 187 255" />
+            <Color name="Beige 2" value="201 172 142 255" />
+            <Color name="Blue" value="137 159 185 255" />
+            <Color name="Beige 3" value="219 212 198 255" />
+            <Color name="Orange 1" value="224 186 130 255" />
+            <Color name="Orange 2" value="205 148 93 255" />
+            <Color name="Brown 1" value="148 121 108 255" />
+            <Color name="Brown 2" value="87 64 56 255" />
+            <Color name="Green" value="148 153 117 255" />
+            <Color name="Anthracite" value="95 93 96 255" />
+         </ColorPalette>
+
+      </vr-prepare>
+
+   </GLOBAL>
+
+</COCONFIG>

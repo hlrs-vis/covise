@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Lichtbrechung' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <ShortCut value="showName" name="showName" />
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Diamant_0" regexp="Diamant_0-FACES.*" shader="Glossy5" />
+                <Scope name="Switch_Smily" regexp="Switch_Smily.*" shader="Glossy2b" />
+            </CoviseConfigShader>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Physik/Lichtbrechung/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

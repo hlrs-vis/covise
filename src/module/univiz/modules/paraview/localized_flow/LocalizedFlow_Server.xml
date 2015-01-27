@@ -1,0 +1,76 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+   
+   <SourceProxy name="LocalizedFlow" class="vtkLocalizedFlow" label="Plugin
+Univiz Localized Flow">
+    <Documentation>
+      The LocalizedFlow filter computes three fields from point (node) velocity data. This filter operates on unstructured grid data and produces unstructured grid data.
+    </Documentation>
+     <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <Documentation>
+            The input.
+          </Documentation>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        label="Velocity">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <!--<FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>-->
+       <Documentation>
+         The name of the velocity array to compute the localized flow for.
+       </Documentation>
+     </StringVectorProperty> 
+
+     <DoubleVectorProperty
+        name="Residual"
+        label="Residual"
+        command="SetResidual"
+        number_of_elements="1"
+        default_values="1e-10">
+       <Documentation>
+         Iteration stops if residual falls below this value.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="MaxIter"
+        label="Maximum Iterations"
+        command="SetMaxIter"
+        number_of_elements="1"
+        default_values="1000">
+       <Documentation>
+         Maximum number of iteration the solver takes.
+       </Documentation>
+     </IntVectorProperty>
+
+   <!-- End VortexCriteria -->
+   </SourceProxy> 
+   
+  </ProxyGroup>
+</ServerManagerConfiguration>

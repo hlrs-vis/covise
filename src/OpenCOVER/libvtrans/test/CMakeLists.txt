@@ -1,0 +1,55 @@
+ENABLE_TESTING()
+SET(Boost_USE_STATIC_LIBS   ON)
+SET(Boost_USE_MULTITHREADED ON)
+FIND_PACKAGE(Boost COMPONENTS locale thread system REQUIRED)
+INCLUDE_DIRECTORIES(${COMMON_INCLUDES} ${Boost_INCLUDE_DIRS})
+
+#thread date_time 
+#SET(Boost_ADDITIONAL_VERSIONS "1.44" "1.44.0")
+#ADD_DEFINITIONS(-DBOOST_THREAD_USE_LIB)
+
+#${LINK_DIRECTORIES} 
+CMAKE_POLICY(SET CMP0015 NEW)
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+       
+INCLUDE_DIRECTORIES(${COMMON_INCLUDES} ${Boost_INCLUDE_DIRS} ../vtrans)
+
+IF (BUILD_UNIT_TESTS)
+    INCLUDE_DIRECTORIES(${COMMON_INCLUDES} ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+ENDIF(BUILD_UNIT_TESTS)
+
+SET(gtest_force_shared_crt ON CACHE BOOL "Don't force shared." FORCE)
+OPTION(
+  gtest_force_shared_crt
+  "Use shared (DLL) run-time lib even when Google Test is built as static lib."
+  ON)
+
+ADD_EXECUTABLE(vtranstest vtranstest.cpp vtranstest.h BoostTranslatorTest.cpp TransFactoryTest.cpp PathTranslatorTest.cpp)
+TARGET_LINK_LIBRARIES(vtranstest ${GTEST_BOTH_LIBRARIES} gtest gtest_main ${Boost_LIBRARIES} vtrans)
+
+FIND_PACKAGE(ICU)
+IF (ICU_FOUND)
+    INCLUDE_DIRECTORIES(${COMMON_INCLUDES} ${ICU_INCLUDE_DIRS})
+    TARGET_LINK_LIBRARIES(vtranstest  ${ICU_LIBRARIES} ${ICU_I18N_LIBRARIES})
+    FIND_PACKAGE (Threads)
+    TARGET_LINK_LIBRARIES (vtranstest ${CMAKE_THREAD_LIBS_INIT})
+    ADD_DEFINITIONS(-DICU_PRESENT)
+ENDIF(ICU_FOUND)
+
+ADD_TEST( NAME vtranstest COMMAND vtranstest --gtest_output=xml )
+
+IF (MSVC)
+ADD_CUSTOM_COMMAND(
+    TARGET vtranstest
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/test_dir
+)
+ELSE (MSVC)
+ADD_CUSTOM_COMMAND(
+    TARGET vtranstest
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_dir ${CMAKE_CURRENT_BINARY_DIR}/test_dir
+)
+ENDIF (MSVC)
+
+

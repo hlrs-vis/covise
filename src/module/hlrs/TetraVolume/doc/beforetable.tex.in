@@ -1,0 +1,34 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+\textbf{TetraVolume} calculates the volume of each (tetrahedral) cell of a tetraheder grid. It is mainly 
+used as preprocessor-module for the module \textbf{TetraTrace}. 
+
+{\bf Note:}
+
+Module TetraTrace is obsolete - kept for compatibility with 5.1 only, but support 
+discontinued - use {\bf Tracer} (new with 5.2) instead! 
+So there should be no need to use TetraVolume for preprocessing any longer.
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2} {}{TetraVolume_icon}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+
+
+%
+%
+%=============================================================

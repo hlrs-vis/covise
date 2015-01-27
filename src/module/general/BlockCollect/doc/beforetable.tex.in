@@ -1,0 +1,28 @@
+
+%=============================================================
+
+%
+% short description what the module does
+%
+BlockCollect collects different objects and puts them into one set. 
+You can choose among the rules to build up this set.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}
+{}{BlockCollectModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+BlockCollect runs on all supported platforms.
+\clearpage
+%
+%=============================================================

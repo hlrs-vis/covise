@@ -1,0 +1,61 @@
+#! /bin/bash
+
+CC="/usr/bin/gcc"
+
+if [ -x /usr/bin/gcc44 ]; then
+   CC="/usr/bin/gcc44"
+fi
+
+declare -a ARGS
+
+function addarg() {
+   ARGS[${#ARGS[@]}]="$1"
+}
+
+if [ -f /usr/local/bin/gcc-4.8 ]; then
+   CC="/usr/local/bin/gcc-4.8"
+   addarg "-ansi"
+fi
+
+if [ "$(uname)" = "Darwin" ]; then
+   # use HomeBrew: `brew install apple-gcc42`
+   CC="/usr/local/bin/gcc-4.2"
+   addarg "-ansi"
+   addarg -nodefaultlibs
+   sdkroot="$(xcodebuild  -version -sdk macosx10.9 Path)"
+   #addarg "-isysroot"
+   #addarg "${sdkroot}"
+fi
+
+#echo "$@" >> /tmp/host-compiler.log
+
+while [ ! -z "$1" ]; do
+   case "$1" in
+      #-dumpspecs)
+          #cat /tmp/gcc-specs.txt
+          #exit 0
+          #;;
+      -stdlib=libc++)
+        #addarg "-nostdinc++"
+        #addarg "-lc++abi"
+        #addarg "-I/usr/lib//c++/v1"
+         ;;
+        -std=*)
+            #addarg "-std=c++03"
+            ;;
+      -std=c++11)
+        addarg "-std=c++0x"
+          ;;
+      -fsanitize=*)
+         ;;
+      -march=native|-mtune=native)
+         ;;
+      *)
+        addarg "$1"
+        ;;
+   esac
+   shift
+done
+
+#echo transformed: "$CC" "${ARGS[@]}" >> /tmp/host-compiler.log
+"$CC" "${ARGS[@]}"

@@ -1,0 +1,199 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef TASKMANAGER_H
+#define TASKMANAGER_H 1
+
+
+#include <vpb/DataSet>
+#include <vpb/MachinePool>
+#include <vpb/Task>
+#include <vpb/BuildOptions>
+
+#include <osgDB/DatabaseRevisions>
+
+#include <map>
+
+namespace vpb
+{
+
+class VPB_EXPORT TaskManager : public osg::Referenced, public Logger
+{
+    public:
+
+        TaskManager();
+
+        /// override from Logger to be able to pass on to all associated Machine objects
+        void setBuildLog(BuildLog* bl);
+
+        /** initialize the TaskManager from application arguments and get process, host details.*/
+        int read(osg::ArgumentParser& arguments);
+
+        void setSource(osgTerrain::TerrainTile* terrain);
+        osgTerrain::TerrainTile* getSource();
+
+        void setPreviousSource(osgTerrain::TerrainTile* terrain);
+        osgTerrain::TerrainTile* getPreviousSource();
+
+        /** start a new set of tasks.*/
+        void nextTaskSet();
+        
+        /** add a task to the current task set.*/
+        void addTask(Task* task);
+        void addTask(const std::string& taskFileName, const std::string& application, const std::string& sourceFile,
+                     const std::string& fileListBaseName);
+        
+        /** build the database directly without using slaves.*/
+        void buildWithoutSlaves();
+
+        /** generate the tasks required to do a incremental/distributed build from the source definition.*/
+        bool generateTasksFromSource();
+
+        /** run all the tasks.*/
+        bool run();
+        
+        /** Clear the TaskSetList.*/
+        void clearTaskSetList();
+        
+        void setRunPath(const std::string& runPath);
+        const std::string& getRunPath() const { return _runPath; }
+        
+        void setBuildName(const std::string& buildName) { _buildName = buildName; }
+        const std::string& getBuildName() const { return _buildName; }
+        
+        void setSourceFileName(const std::string& sourceFileName) { _sourceFileName = sourceFileName; }
+        const std::string& getSourceFileName() const { return _sourceFileName; }
+
+        /** write the source list to file.*/
+        bool writeSource(const std::string& filename);
+
+        /** read the source list from file.*/
+        bool readSource(const std::string& filename);
+
+        const std::string& getSourceFileName() { return _sourceFileName; }
+
+        /** read the previous source list from file.*/
+        bool readPreviousSource(const std::string& filename);
+
+
+
+        /** read the task list from file.*/
+        bool readTasks(const std::string& filename);
+
+        /** write the task list to file.*/
+        bool writeTasks(const std::string& filename, bool asFileNames);
+        
+        const std::string& getTasksFileName() { return _tasksFileName; }
+        
+        
+        /** Helper method for creating task file names.*/
+        std::string createUniqueTaskFileName(const std::string application);
+
+        typedef std::list< osg::ref_ptr<Task> > TaskSet;
+        typedef std::list< TaskSet > TaskSetList;
+        
+        BuildOptions* getBuildOptions();
+        
+        MachinePool* getMachinePool();
+        const MachinePool* getMachinePool() const;
+        
+        bool hasMachines() const { return getMachinePool() && getMachinePool()->getNumThreads()!=0; }
+
+        bool hasTasks() const { return !(_taskSetList.empty() || _taskSetList.front().empty()); }
+        
+        TaskSetList& getTaskSetList() { return _taskSetList; }
+
+        
+        void setDone(bool done);
+        
+        bool done() const { return _done; }
+        
+
+        enum SignalAction
+        {
+            IGNORE_SIGNAL,
+            DO_NOT_HANDLE,
+            COMPLETE_RUNNING_TASKS_THEN_EXIT,
+            TERMINATE_RUNNING_TASKS_THEN_EXIT,
+            RESET_MACHINE_POOL,
+            UPDATE_MACHINE_POOL
+        };
+        
+        void setDefaultSignalAction(SignalAction action) { _defaultSignalAction = action; }
+        SignalAction getDefaultSignalAction() const { return _defaultSignalAction; }
+        
+        void setSignalAction(int sig, SignalAction action);
+        SignalAction getSignalAction(int sig) const;
+        
+        /** Send a signal to the all running tasks. */
+        void handleSignal(int sig);
+
+        /** Send terminate signal to all running tasks and set done flag to true to exit from run loop.*/
+        void exit(int sig);
+        
+        /** Run though all attached tasks and check the completed tasks to see if their sources are more up to
+          * date than the build data of that task, if so change its status from completed to pending.*/
+        void setOutOfDateTasksToPending();
+
+        /** Check the build validity, return an empty string if everything is OK, on error return the error string.*/
+        std::string checkBuildValidity();
+
+        void setDatabaseRevisions(osgDB::DatabaseRevisions* db);
+        osgDB::DatabaseRevisions* getDatabaseRevisions();
+
+        void addRevisionFileList(const std::string& filename);
+
+    protected:
+
+        virtual ~TaskManager();
+
+        osgTerrain::TerrainTile* readSourceFile(const std::string& filename);
+
+        void readPatchSetUp(const std::string& patchFile);
+
+
+        Task* readTask(osgDB::Input& fr, bool& itrAdvanced);
+        bool writeTask(osgDB::Output& fout, const Task* task, bool asFileNames) const;
+        
+        static void signalHandler(int sig);
+        
+        std::string                             _runPath;
+        std::string                             _buildName;
+
+        osg::ref_ptr<Task>                      _taskFile;
+        
+        std::string                             _sourceFileName;
+        osg::ref_ptr<osgTerrain::TerrainTile>   _terrainTile;
+        
+        std::string                             _previousSourceFileName;
+        osg::ref_ptr<osgTerrain::TerrainTile>   _previousTerrainTile;
+
+        std::string                             _tasksFileName;
+        TaskSetList                             _taskSetList;
+
+        bool                                    _done;
+        
+        typedef std::map<int, SignalAction> SignalActionMap;
+
+        SignalAction                            _defaultSignalAction;
+        SignalActionMap                         _signalActionMap;
+        
+        mutable OpenThreads::Mutex              _signalHandleMutex;
+
+        OpenThreads::Mutex                      _databaseRevisionsMutex;
+        osg::ref_ptr<osgDB::DatabaseRevisions>  _databaseRevisions;
+};
+
+}
+
+#endif

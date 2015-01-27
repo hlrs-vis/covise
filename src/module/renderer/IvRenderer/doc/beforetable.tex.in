@@ -1,0 +1,50 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The IV Renderer (Open Inventor Renderer) visualizes the output data. 
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2} {modules/Renderer/IvRenderer}{image1}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+For detailed information see User's Guide, section Desktop Renderer (Inventor
+Renderer).
+
+For Online Help using the Renderer see IV Renderer.
+
+
+%
+% short information about versions 
+%
+
+The COVISE renderer is based on the OpenInventor high level object oriented 
+graphics toolkit developed by Silicon Graphics. OpenInventor itself uses 
+OpenGL, the 3D graphics standard as its rendering interface.
+
+SGI Systems ship with OpenInventor 2.1 and OpenGL 1.2, there are no
+additional requirements.
+
+The Rendering speed can vary significantly, depending on the graphics
+adaptor and the quality of the OpenGL implementation. Currently we support SGI, HP and Linux platforms.
+Spacemouse/Spaceball as input device is currently only supported in the SGI
+version.
+
+
+Another thing regarding OpenInventor has to be mentioned: On SGI we currently
+support three different Inventor releases: 1.1, 2.0 and 2.1.2. Depending on
+the eoe subsystem installed on your machine there should exist a link from
+one of these renderers (Renderer11,Renderer20,Renderer21) to a module called renderer. 
+
+
+%
+%=============================================================

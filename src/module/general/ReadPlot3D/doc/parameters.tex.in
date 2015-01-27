@@ -1,0 +1,28 @@
+
+\subsubsection{Parameters}
+%=============================================================
+% 
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+	grid\_path & Browser & The basic grid file location.  \\	
+\hline
+	data\_path & Browser & The basic data file location.  \\
+\hline
+	gridtype & Choice & The type of the grid:Structured, Unstructured or IBLANKed.   \\	
+\hline
+	subtype & Choice & The subtype: Single or Multi.\\
+\hline
+	datatype & Choice & The type of the data: Solution or Scalar/Vector \newline 
+	                                          or Function \\
+
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

@@ -1,0 +1,328 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+/**************************************************************************
+** ODD: OpenDRIVE Designer
+**   Frank Naegele (c) 2010
+**   <mail@f-naegele.de>
+**   12.03.2010
+**
+**************************************************************************/
+
+#include "objectitem.hpp"
+
+#include "src/util/odd.hpp"
+#include "src/util/colorpalette.hpp"
+
+// Data //
+//
+#include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/commands/signalcommands.hpp"
+#include "src/data/roadsystem/rsystemelementroad.hpp"
+
+// Widget //
+//
+#include "src/gui/projectwidget.hpp"
+
+// Graph //
+//
+
+#include "src/graph/items/roadsystem/signal/objecttextitem.hpp"
+#include "src/graph/items/roadsystem/roadsystemitem.hpp"
+#include "src/graph/editors/signaleditor.hpp"
+
+// Qt //
+//
+#include <QBrush>
+#include <QPen>
+#include <QCursor>
+#include <QColor>
+#include <QString>
+#include <QMatrix>
+
+ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
+    : GraphElement(roadSystemItem, object)
+    , object_(object)
+    , pos_(pos)
+{
+    init();
+}
+
+ObjectItem::~ObjectItem()
+{
+}
+
+void
+ObjectItem::init()
+{
+    // Hover Events //
+    //
+    setAcceptHoverEvents(true);
+    setSelectable();
+
+    // Signal Editor
+    //
+    signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+
+    // Context Menu //
+    //
+
+    QAction *removeRoadAction = getRemoveMenu()->addAction(tr("Object"));
+    connect(removeRoadAction, SIGNAL(triggered()), this, SLOT(removeObject()));
+
+    if (getTopviewGraph()) // not for profile graph
+    {
+        // Text //
+        //
+        objectTextItem_ = new ObjectTextItem(this);
+        objectTextItem_->setZValue(1.0); // stack before siblings
+    }
+
+    updateColor();
+    updatePosition();
+    createPath();
+}
+
+/*! \brief Sets the color according to the number of links.
+*/
+void
+ObjectItem::updateColor()
+{
+    outerColor_.setRgb(255, 0, 255);
+}
+
+/*!
+* Initializes the path (only once).
+*/
+void
+ObjectItem::createPath()
+{
+    setBrush(QBrush(outerColor_));
+    setPen(QPen(outerColor_));
+
+    QPainterPath path;
+
+    RSystemElementRoad *road = object_->getParentRoad();
+
+    if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
+    {
+        double totalLength = 0.0;
+        double currentS = object_->getRepeatS();
+
+        while ((totalLength < object_->getRepeatLength()) && (currentS < road->getLength()))
+        {
+            QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS, object_->getT());
+
+            if (object_->getRepeatDistance() > 0.0) // multiple objects
+            {
+                double length = object_->getRadius() / 4;
+
+                if (object_->getRadius() > 0.0) // circular object
+                {
+                    path.addEllipse(currentPos, object_->getRadius(), object_->getRadius());
+
+                    setPen(QPen(QColor(255, 255, 255)));
+                    path.moveTo(currentPos.x() - length, currentPos.y());
+                    path.lineTo(currentPos.x() + length, currentPos.y());
+
+                    path.moveTo(currentPos.x(), currentPos.y() - length);
+                    path.lineTo(currentPos.x(), currentPos.y() + length);
+                }
+                else
+                {
+                    QMatrix transformationMatrix;
+                    QMatrix rotationMatrix;
+                    QPainterPath tmpPath;
+                    transformationMatrix.translate(currentPos.x(), currentPos.y());
+                    tmpPath.addRect(object_->getWidth() / -2.0, object_->getLength() / -2.0, object_->getWidth() / 2.0, object_->getLength() / 2.0);
+                    rotationMatrix.rotate(road->getGlobalHeading(currentS) - 90 + object_->getHeading());
+                    tmpPath = transformationMatrix.map(rotationMatrix.map(tmpPath));
+                    path += tmpPath;
+                }
+
+                double dist = object_->getRepeatDistance();
+                if ((totalLength + dist) > object_->getRepeatLength())
+                    dist = object_->getRepeatLength() - totalLength;
+
+                totalLength += dist;
+                currentS += dist;
+            }
+            else
+            { // line object
+
+                if (totalLength == 0)
+                {
+                    path.moveTo(currentPos.x(), currentPos.y());
+                }
+                else
+                {
+                    path.lineTo(currentPos.x(), currentPos.y());
+                    path.moveTo(currentPos.x(), currentPos.y());
+                }
+
+                //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
+                double dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
+
+                if ((totalLength + dist) > object_->getRepeatLength())
+                {
+                    QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS + (object_->getRepeatLength() - totalLength), object_->getT());
+                    path.lineTo(currentPos.x(), currentPos.y());
+                }
+
+                totalLength += dist;
+                currentS += dist;
+            }
+        }
+    }
+    else
+    {
+        if (object_->getRadius() > 0.0) // circular object
+        {
+            path.addEllipse(pos_, object_->getRadius(), object_->getRadius());
+            double length = object_->getRadius() / 4;
+
+            setPen(QPen(QColor(255, 255, 255)));
+            path.moveTo(pos_.x() - length, pos_.y());
+            path.lineTo(pos_.x() + length, pos_.y());
+
+            path.moveTo(pos_.x(), pos_.y() - length);
+            path.lineTo(pos_.x(), pos_.y() + length);
+        }
+        else
+        {
+            QMatrix transformationMatrix;
+            QMatrix rotationMatrix;
+
+            transformationMatrix.translate(pos_.x(), pos_.y());
+            path.addRect(object_->getWidth() / -2.0, object_->getLength() / -2.0, object_->getWidth() / 2.0, object_->getLength() / 2.0);
+            rotationMatrix.rotate(road->getGlobalHeading(object_->getSStart()) - 90 + object_->getHeading());
+            path = transformationMatrix.map(rotationMatrix.map(path));
+        }
+    }
+
+    setPath(path);
+}
+
+/*
+* Update position
+*/
+void
+ObjectItem::updatePosition()
+{
+
+    pos_ = object_->getParentRoad()->getGlobalPoint(object_->getSStart(), object_->getT());
+    updateColor();
+    createPath();
+}
+
+//*************//
+// Delete Item
+//*************//
+
+bool
+ObjectItem::deleteRequest()
+{
+    if (removeObject())
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//################//
+// SLOTS          //
+//################//
+
+bool
+ObjectItem::removeObject()
+{
+    RemoveObjectCommand *command = new RemoveObjectCommand(object_, object_->getParentRoad());
+    return getProjectGraph()->executeCommand(command);
+}
+
+//################//
+// EVENTS         //
+//################//
+
+void
+ObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+
+    // Text //
+    //
+    getObjectTextItem()->setVisible(true);
+    getObjectTextItem()->setPos(event->scenePos());
+
+    // Parent //
+    //
+    //GraphElement::hoverEnterEvent(event); // pass to baseclass
+}
+
+void
+ObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+
+    // Text //
+    //
+    getObjectTextItem()->setVisible(false);
+
+    // Parent //
+    //
+    //GraphElement::hoverLeaveEvent(event); // pass to baseclass
+}
+
+void
+ObjectItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+
+    // Parent //
+    //
+    //GraphElement::hoverMoveEvent(event);
+}
+
+void
+ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Object
+    if (tool == ODD::TSG_DEL)
+    {
+        removeObject();
+    }
+    else
+    {
+        GraphElement::mousePressEvent(event); // pass to baseclass
+    }
+}
+
+//##################//
+// Observer Pattern //
+//##################//
+
+/*! \brief Called when the observed DataElement has been changed.
+*
+*/
+void
+ObjectItem::updateObserver()
+{
+    // Parent //
+    //
+    GraphElement::updateObserver();
+    if (isInGarbage())
+    {
+        return; // will be deleted anyway
+    }
+
+    // Object //
+    //
+    int changes = object_->getObjectChanges();
+
+    if ((changes & Object::CEL_ParameterChange))
+    {
+        updatePosition();
+    }
+}

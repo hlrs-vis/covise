@@ -1,0 +1,15 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+   {Tutorial_Vel_2_Net}{covise/net/tutorial/tutorial\_vel\_2.net(obsolete)}{0.6}\end{covimg}
+
+TetraNeighbor is usualy used in combination with \covlink{TetraTrace}{TetraTrace}{../../Tracer/TetraTrace/TetraTrace.html}, 
+e.g. in the map \newline
+{\tt covise/net/tutorial/tutorial\_vel\_2.net}(obsolete).
+
+

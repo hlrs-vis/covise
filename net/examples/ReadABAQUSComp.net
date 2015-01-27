@@ -1,0 +1,629 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+7
+# Module SplitUsg
+SplitUsg
+1
+LOCAL
+Filter
+SplitUsg_1
+140
+76
+3
+Grid
+UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+
+S_Data
+Float
+scalar data of input grid
+opt
+
+V_Data
+Vec3
+vector data of input grid
+opt
+
+12
+Grid3D
+UnstructuredGrid
+3D grid
+default
+
+S_Grid3D_Data
+Float
+scalar data of 3D grid
+dep S_Data
+
+V_Grid3D_Data
+Vec3
+vector data of 3D grid
+dep V_Data
+
+Grid2D
+Polygons
+2D grid
+default
+
+S_Grid2D_Data
+Float
+scalar data of 2D grid
+dep S_Data
+
+V_Grid2D_Data
+Vec3
+vector data of 2D grid
+dep V_Data
+
+Grid1D
+Lines
+1D grid
+default
+
+S_Grid1D_Data
+Float
+scalar data of 1D grid
+dep S_Data
+
+V_Grid1D_Data
+Vec3
+vector data of 1D grid
+dep V_Data
+
+Grid0D
+Points
+0D grid
+default
+
+S_Grid0D_Data
+Float
+scalar data of 0D grid
+dep S_Data
+
+V_Grid0D_Data
+Vec3
+vector data of 0D grid
+dep V_Data
+
+0
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+161
+360
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+208
+282
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+Colors_1
+218
+146
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 1
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0 1 RGBAX 3 0 3 0 0 0 1 1 0 0 1 0 0 1 0.5 0
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 3 0 0 0 1 1 0 0 1 0 0 1 0.5 0 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+DomainSurface_1
+73
+148
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module Collect
+Collect
+2
+LOCAL
+Tools
+Collect_2
+73
+280
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+2
+LOCAL
+Mapper
+Colors_2
+95
+220
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 0
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0 0 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 3 0 0 0 1 1 0 0 1 0 0 1 0.5 0 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+11
+SplitUsg
+1
+LOCAL
+Grid3D
+
+DomainSurface
+1
+LOCAL
+GridIn0
+SplitUsg
+1
+LOCAL
+S_Grid3D_Data
+
+DomainSurface
+1
+LOCAL
+DataIn0
+SplitUsg
+1
+LOCAL
+Grid2D
+
+Collect
+1
+LOCAL
+GridIn0
+SplitUsg
+1
+LOCAL
+S_Grid2D_Data
+
+Colors
+1
+LOCAL
+DataIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn0
+Colors
+1
+LOCAL
+ColormapOut0
+
+Colors
+2
+LOCAL
+ColormapIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Collect
+2
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+DataOut0
+
+Colors
+2
+LOCAL
+DataIn0
+Collect
+2
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+2
+LOCAL
+DataOut0
+
+Collect
+2
+LOCAL
+DataIn0
+0

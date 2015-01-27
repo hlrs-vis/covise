@@ -1,0 +1,41 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{mesh\_out} & UniformGrid \newline
+	                                  Text \newline
+	                                  Points \newline
+					  UnstructuredGrid \newline
+					  RectilinearGrid \newline
+					  StructuredGrid \newline
+					  Float \newline
+					  Vec3 \newline
+					  Float \newline
+					  Vec3 \newline
+					  Polygons \newline
+					  TriangleStrips \newline
+					  Unstructured\_V3D\_Normals 
+	                                  Geometry \newline
+					  Lines \newline
+					  PixelImage \newline
+					  Texture \newline
+					  IntArr \newline
+					  RGBA\_Colors
+					 & All possible Covise objects \\
+	
+	
+\hline
+\end{longtable}
+
+
+
+Files are stored in the following format. For detailed information about 
+all data types see chapter three of the programming guide
+
+%=============================================================

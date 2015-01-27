@@ -1,0 +1,19 @@
+
+\subsubsection{Parameters}
+%================================================================================
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+	group & Choice & A list of available pre-defined and user-defined material groups.
+	The user-defined material group is only available if the covise.config file contains at
+	least one user-defined material. 
+	See the section "User-defined Materials" how to add materials to your covise.config file. \\
+\hline
+	material & Choice & The name of this choice button depends on the chosen material group.
+	It contains all materials of a special material group. \\
+\hline
+\end{longtable}
+
+%================================================================================

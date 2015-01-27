@@ -1,0 +1,90 @@
+\section{Vortex Criteria}
+\label{sec:vortex-criteria}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Computes vortex criteria from velocity data. Vortex criteria are computed at each node of the data grid.
+ 
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  data grid (unstructured)
+  \begin{itemize}
+  \item
+    velocity (3-vect)
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  scalar vortex criterion
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{quantity}:
+  \begin{itemize}
+  \item
+    helicity:
+absolute value of
+dot product between velocity and vorticity as defined by \cite{Moffatt1969}. High absolute values indicate vortex regions.
+% Note that this criterion is visualized e.g. using two isosurfaces, one at positive isolevel and one at negative isolevel, since arbitrary orientation of vorticity and velocity is possible.
+  \item
+    velo-norm helicity:
+absolute value of
+dot product between normalized velocity and not normalized vorticity. High absolute values indicate vortex regions.
+% Note that this criterion is visualized e.g. using two isosurfaces, one at positive isolevel and one at negative isolevel, since arbitrary orientation of vorticity and velocity is possible.
+  \item
+    vorticity mag: vorticity magnitude.
+  \item
+    z vorticity: z-component of vorticity.
+  \item
+    lambda2: medium eigenvalue ($\lambda_2$) of $S^2 + \Omega^2$, where $S$ is the symmetric component of the velocity gradient and $\Omega$ is the antisymmetric component, according to \cite{JeongH95}. This medium eigenvalue has to be smaller than zero. Visualized e.g. using an isosurface at level zero. Levels below zero are not perfectly conforming to the criterion but may however give insights.
+  \item
+    Q: introduced by Hunt in 1988 \cite{HuntWM88} as $1/2 (||\Omega||^2 - ||S||^2)$ using the Frobenius norm $||A|| = \sqrt{trace A^T A}$. Values larger than zero indicate vortices. See e.g. \cite{JeongH95} for a discussion and comparison to $\lambda_2$.
+  \item
+    delta: defined by Chong et al. in 1990 \cite{ChongPC90} as $\Delta = (Q/3)^3 + (R/2)^2$ where $R = det \nabla u$ with velocity $u$. Values larger than zero indicate vortex regions. See e.g. \cite{JeongH95} for a discussion and comparison to $\lambda_2$.
+  \item
+    div accel: divergence of ``steady'' acceleration, more precisely $\nabla \cdot ((u \cdot \nabla) u)$ with velocity $u$. Negative values may indicate vortex regions. See \cite{GotoV04} for a discussion.
+  \item
+    divergence: divergence of velocity (not a vortex criterion to tell the truth).
+  \end{itemize}
+
+\item
+  \textbf{smoothing range}: neighborhood range used for gradient computation. Larger values cause more smoothing. Large values distort the criteria.
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2007-08-24
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Filip Sadlo
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................

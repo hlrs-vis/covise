@@ -1,0 +1,67 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+		{IsoSurfaceCompNet}{covise/net/general/examples/IsoSurfaceComp.net}{0.6}\end{covimg}
+
+The first example network shows an isosurface generation 
+using data from the GenDat module. A scalar field and a vector
+field are generated. IsoSurfaceComp creates isosurfaces for
+a given value of the scalar field. We map the vector field
+on the output geometry using colored lines. This task would
+require more modules if we had use the IsoSurface module instead.
+
+You find the map in the directory {\bf covise/net/general/examples}.  
+
+The next image is a snapshot of the results in the Inventor Renderer.  
+
+\begin{covimg2}{}{RendererSnapshot}{0.7}\end{covimg2}
+
+%\clearpage
+
+%The next two images show a slightly more complicated example (IsoSurfaceComp2.net) and the
+%corresponding renderer output.
+
+%\begin{covimg}{}
+%		{IsoSurfaceCompNet2}{covise/net/general/examples/IsoSurfaceComp2.net}{0.6}\end{covimg}
+
+%\begin{covimg2}{}{RendererSnapshot2}{0.7}\end{covimg2}
+%
+%=============================================================
+\clearpage
+
+\subsubsection{Tunable Parameters}
+%=============================================================
+%
+The Isosurface(Comp) module algorithm for unstructured grids has to
+allocate memory for the output vertices and the data interpolated
+on it. The size of this allocation is based on heuristics and
+by default set to 20\% of the number of vertices in the input
+data set. However, this might not be enough for some data sets,
+especially if the Isosurface is extremely wrinkled.
+
+In this case, the module terminates execution, submits a message,
+increases the ratio by 5\% and re-executes itself. To prevent
+this procedure, establish a higher starting value by putting
+a section with a higher value (e.g. 50\%) into your covise.config:
+
+\begin{verbatim}
+IsosurfaceSurface
+{
+   # Ratio of array size to number of input vertices in Percent
+   VERTEX_RATIO   50
+}
+\end{verbatim}
+
+This value is used by both IsoSurface and IsoSurfaceComp. The
+theoretical maximum value is 300\% (VERTEX\_RATIO 300).
+
+%

@@ -1,0 +1,25 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+		{tubemap}{covise/net/examples/Tube.net}{0.6}\end{covimg}
+%
+
+The first image below shows the lines obtained as a result of the module 
+VectorField (which ncludes the function of VectorScal).
+
+\begin{covimg2}	{}{TubeRenderer1}{0.6}\end{covimg2}
+
+The module Tube will generate tubes around these lines according to data 
+received at the second import port. The result is shown in the second image.
+ 
+\begin{covimg2}	{}{TubeRenderer2}{0.6}\end{covimg2} 
+

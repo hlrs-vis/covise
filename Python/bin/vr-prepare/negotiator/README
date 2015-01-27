@@ -1,0 +1,25 @@
+
+
+* START
+
+The line
+
+  covise --script testNegotiator.py
+
+starts a test.
+
+Alternatively
+
+  LD_LIBRARY_PATH=$COVISEDIR/$ARCHSUFFIX/lib python testNegotiator.py 
+
+should do the same.
+
+
+* FILE META INFO
+
+At least for emacs the following lines are helpful for
+handling this file.
+
+local variables:
+mode: outline
+end:

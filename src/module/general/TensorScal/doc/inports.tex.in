@@ -1,0 +1,25 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{vDataIn} & Unstructured\_T3D\_Data 
+					& input tensor data \\
+
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

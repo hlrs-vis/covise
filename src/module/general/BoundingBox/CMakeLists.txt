@@ -1,0 +1,17 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  BoundingBox.cpp
+)
+
+SET(EXTRASOURCES
+  BoundingBox.h
+)
+
+USE_VTK(OPTIONAL)
+ADD_COVISE_MODULE(Tools BoundingBox ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(BoundingBox  coAlg coApi coAppl coCore)
+
+COVISE_INSTALL_TARGET(BoundingBox)

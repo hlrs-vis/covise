@@ -1,0 +1,42 @@
+%=============================================================
+% short description what the module does
+%=============================================================
+
+\emph{ReadITK} is a module which is able to read image series of *.png, *.jp(e)g or *.tif(f) data and converts them into a \emph{COVISE} volume data set. 
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{readitk-modul}{1.0}\end{covimg2}
+
+The module owns four ports for outgoing data. The first one delivers a uniform grid, the three following ports the RGB data.
+
+%=============================================================
+% parameter window
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{readitk-param}{1.0}\end{covimg2}
+
+Reading in the images can be modified by a few parameters:
+
+\begin{description}
+\item[FilePath] You have to fill in the path, where the image data can be found. For the filenames you have to build a filename mask with printf expression.
+\item[SequenceBegin] Here you have to fill in the first number of the ennummeration of the image series. 
+\item[SequenceEnd] Here you have to fill in the last number of the ennummeration of the image series. 
+\item[SequenceInc] Here you have to fill in the step length between the image ennummeration.
+\item[VoxelSize] For the modification of the image size, you have to activate this checkbox.
+\item[VoxelWidth, Vovelheight, VoxelDepth] The width and height present the size of a normal pixel size. For changing the depth of an image, you have to change the depth of the voxels corresponding to the size of the pixels.
+\item[ImageOrigin] If the image should receive another origin, this checkbox has to be activated.
+\item[xorigin, yorigin, zorigin] If the checkbox for the origin is activated, the image origin can be modified by filling in new coordinates.
+\end{description}
+
+
+
+
+
+

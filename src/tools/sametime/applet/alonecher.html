@@ -1,0 +1,17 @@
+<HTML>
+<HEAD>
+<TITLE>Sametime Meeeting Launcher Applet</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="sametime.css">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY>
+<script>
+document.writeln("<APPLET HEIGHT=0 WIDTH=0 CODE=MeetingLauncher.class NAME=MeetingLauncher id=applet1 MAYSCRIPT>");
+document.writeln("<PARAM NAME='cabinets' VALUE='bin/STJNILoader.cab,bin/STBroadcast20.cab,bin/CommRes.cab,bin/STMeeting20.cab'>");
+document.writeln("<<PARAM NAME='loginName' VALUE='"+ top.userName + "'>");
+document.writeln("<PARAM NAME='password' VALUE='"+ top.password + "'>");
+document.writeln("<PARAM NAME='placeName' VALUE='"+ top.placeName + "'>");
+document.writeln("</APPLET>");
+</script>
+</BODY>
+</HTML>

@@ -1,0 +1,13 @@
+README for webinterface with renderer
+author: eichhorn@hlrs.de
+
+To use the buildin Renderer do the following steps:
+
+
+1. start Covise on Host machine
+2. open webbrowser and go to 141.58.8.5:31111/test.html
+3, run startVNCClient.sh script
+4. reload the right frame
+5. enjoy!
+
+

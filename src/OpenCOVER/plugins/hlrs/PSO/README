@@ -1,0 +1,8 @@
+// Particle Swarm Optimization using One Dimensional Search
+/*
+ * Author: Florian Seybold, Professor Gerhard Venter
+ * University of Stellenbosch and High-Performance Computing Center Stuttgart
+ * Copyright: 2007, 2008
+*/
+
+Opencover plugin for visualizing the movement of particles in a PSO algorithm optimization run.

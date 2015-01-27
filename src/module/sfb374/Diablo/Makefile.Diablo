@@ -1,0 +1,146 @@
+ ##########################################################################
+##                                                           (C)1994 RUS  ##
+##                                                                        ##
+## Description: Makefile for COVISE DIABLO calculation module             ##
+##                                                                        ##
+##                                                                        ##
+##                                                                        ##
+##                                                                        ##
+##                                                                        ##
+##                                                                        ##
+##                               (C) 1995                                 ##
+##                            Christoph Kunz                              ##
+##                Computer Center University of Stuttgart                 ##
+##                            Allmandring 30                              ##
+##                            70550 Stuttgart                             ##  
+## Author: C.Kunz                                                         ##
+##                                                                        ##
+## Date:  18.05.94  V1.0                                                  ##
+ ##########################################################################
+
+#
+# Compiler stuff
+# --------------
+#
+LC++OPTS = -Wf,-XNp10000 
+#C++FLAGS = -O2 -DFUNCPROTO 
+C++FLAGS = -g -DFUNCPROTO -DSGI
+FFLAGS   = -col120 
+CFLAGS   = -ansi -float
+FC = f77
+CC = cc
+C++ = DCC
+#
+# COVISE ec library stuff
+# -----------------------
+#
+EC_LIB = -lec
+EC_INC_PATH = -I../../../lib
+EC_LIB_PATH = -L../../../lib
+
+#
+# Application interface library stuff
+# -----------------------------------
+# 
+#APPL_LIB      = -lxappl
+APPL_LIB      = -lappl 
+APPL_INC_PATH = -I../ApplLib
+APPL_LIB_PATH = -L../ApplLib
+APPL_FLAG     =
+#APPL_FLAG     = -DUSE_X11
+
+#
+# Motif  stuff
+# ------------
+#
+#MOTIFLIBS = -lXirisw -lXm_s -lXt_s -lX11_s -lXi -lXext -lPW
+LIBF	= -lm -lF77 -lfm -lI77 -lisam -lC
+
+#
+# Debugging stuff
+# ---------------
+#
+DEBUG = -DDEBUG
+#DEBUG = 
+LIBDBGMALLOC = -lmalloc_cv
+#
+# Performance measurement stuff
+# -----------------------------
+#
+# set the flag for timing measurements
+# A protocol file called 'Application.time'
+# will be written out after a session
+#
+TIMEFLAG = 
+#TIMEFLAG  = -DTIMER
+
+#################################################################################
+# Application module stuff
+#################################################################################
+
+
+all:	Diablo
+
+Diablo: Diablo.o ApplMain.o hard.o ipol2p.o prep.o rdabk.o rdcout.o \
+	rddk.o rdmart.o rdzta.o rdzw.o wrfiin.o wrtver.o dif1dim.o \
+	diflin.o difkug.o ipol1p.o tridag.o rdcc1d.o wrxcel.o
+	$(C++) $(C++FLAGS) -o $@ ApplMain.o Diablo.o hard.o ipol2p.o\
+	prep.o rdabk.o rdcout.o rddk.o rdmart.o rdzta.o rdzw.o wrxcel.o\
+	wrfiin.o wrtver.o dif1dim.o diflin.o difkug.o ipol1p.o tridag.o rdcc1d.o\
+	$(EC_INC_PATH) $(EC_LIB_PATH) $(EC_LIB) $(APPL_LIB_PATH) $(APPL_LIB) $(LIBF) 
+	mv Diablo ../../../bin
+	cp Diablo.dsc ../../../descr
+
+Diablo.o: Diablo.C Diablo.h
+	$(C++) $(C++FLAGS) $(DEBUG) $(TIMEFLAG) $(LC++FLAGS) $(EC_INC_PATH) \
+	$(APPL_INC_PATH) $(APPL_FLAG) -c Diablo.C
+
+ApplMain.o: ApplMain.C
+	$(C++) $(C++FLAGS) $(DEBUG) $(TIMEFLAG) $(LC++FLAGS) $(EC_INC_PATH) \
+	$(APPL_INC_PATH) $(APPL_FLAG) -c ApplMain.C
+
+
+#
+# Diablo Fortran stuff
+#	
+hard.o:    hard.f
+	   $(FC) $(FFLAGS) -c -g $<		   
+ipol2p.o:  ipol2p.f
+	   $(FC) $(FFLAGS) -c -g $<	   
+prep.o:    prep.f
+	   $(FC) $(FFLAGS) -c -g $<	   
+rdabk.o:   rdabk.f
+	   $(FC) $(FFLAGS) -c -g $<
+rdcout.o:  rdcout.f
+	   $(FC) $(FFLAGS) -c -g $<
+rddk.o:    rddk.f
+	   $(FC) $(FFLAGS) -c -g $<
+rdmart.o:  rdmart.f
+	   $(FC) $(FFLAGS) -c -g $<
+rdzta.o:   rdzta.f
+	   $(FC) $(FFLAGS) -c -g $<
+rdzw.o:    rdzw.f
+	   $(FC) $(FFLAGS) -c -g $<
+wrfiin.o:  wrfiin.f
+	   $(FC) $(FFLAGS) -c -g $<
+wrtver.o:  wrtver.f
+	   $(FC) $(FFLAGS) -c -g $<
+dif1dim.o: dif1dim.f
+	   $(FC) $(FFLAGS) -c -g $<
+diflin.o:  diflin.f
+	   $(FC) $(FFLAGS) -c -g $<
+difkug.o:  difkug.f
+	   $(FC) $(FFLAGS) -c -g $<
+ipol1p.o:  ipol1p.f
+	   $(FC) $(FFLAGS) -c -g $<
+tridag.o:  tridag.f
+	   $(FC) $(FFLAGS) -c -g $<
+rdcc1d.o:  rdcc1d.f
+	   $(FC) $(FFLAGS) -c -g $<
+wrxcel.o:  wrxcel.f
+	   $(FC) $(FFLAGS) -c -g $<
+
+clean:
+	 rm *.o
+	 rm *.bak
+	 rm *.sav

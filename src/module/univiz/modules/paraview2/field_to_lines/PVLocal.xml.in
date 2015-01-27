@@ -1,0 +1,67 @@
+<ModuleInterfaces>
+ <Library name="@PROJECT_NAME@" directory="@LIBRARY_OUTPUT_PATH@"/>
+ <ServerManagerFile name="@PROJECT_NAME@.pvsm"/>
+
+ <!-- Start of ParaView plugin interface specification. -->
+
+  <Module name="FieldToLines"
+          menu_name="Field To Lines"
+          root_name="FieldToLines"
+          button_image="PVThresholdButton"
+          module_type="Filter"
+          button_help="Convert line field to polylines."
+          long_help="Convert lines encoded in structured field node (point) data to polylines."
+          short_help="Convert line field to lines.">
+
+    <Filter class="vtkFieldToLines">
+      <Input name="Input"
+             class="vtkDataSet">
+        <ArrayRequirement components="2"/>
+      </Input>
+    </Filter>
+
+    <InputMenu trace_name="Input" property="Input"
+               id="im"
+               label="Input"
+               input_name="Input"
+               help="Set the input to this filter." />
+
+    <ArrayMenu id="am" property="SelectInputVectors"
+               trace_name="Vectors"
+               label="Velocity"
+               input_menu="im"
+               help="Choose the velocity array."/>
+
+    <VectorEntry label="Nodes in x-direction"
+                 trace_name="NodesX"
+                 property="NodesX" type="int"
+                 help="Number of lines in x-direction, used for subsampling, only used if Stride > 1."/>
+
+    <VectorEntry label="Nodes in y-direction"
+                 trace_name="NodesY"
+                 property="NodesY" type="int"
+                 help="Number of lines in y-direction, used for subsampling, only used if Stride > 1."/>
+
+    <VectorEntry label="Nodes in z-direction"
+                 trace_name="NodesZ"
+                 property="NodesZ" type="int"
+                 help="Number of lines in z-direction, used for subsampling, only used if Stride > 1."/>
+
+    <VectorEntry label="Stride"
+                 trace_name="Stride"
+                 property="Stride" type="int"
+                 help="Take each stride-th line in each dimension."/>
+
+    <LabeledToggle label="Pass Data"
+               trace_name="PassData"
+               property="PassData"
+               help="Pass data from input to output."/>
+
+    <Documentation>
+The FieldToLines filter converts lines encoded in structured field node (point) data, as produced e.g. by the FLE module, to polylines. This filter operates on structured grid data and produces geometry output.
+    </Documentation>
+  </Module>
+
+ <!-- End of ParaView plugin interface specification. -->
+
+</ModuleInterfaces>

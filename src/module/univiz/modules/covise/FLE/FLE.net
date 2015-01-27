@@ -1,0 +1,702 @@
+1
+LOCAL
+LUSER
+8
+ReadAVSucd
+1
+LOCAL
+Filip
+TITLE=ReadAVSucd_1
+33
+22
+0
+3
+outPortGrid
+UnstructuredGrid
+Grid output
+default
+ReadAVSucd_1_OUT_0_
+outPortVectorData
+Vec3
+VectorData output
+default
+ReadAVSucd_1_OUT_1_
+outPortScalarData
+Float
+ScalarData output
+default
+ReadAVSucd_1_OUT_2_
+4
+grid file type
+Choice
+grid file type
+2 Ascii Binary
+IMM
+-1
+grid file name
+Browser
+grid file name
+/pub/flowvis/sadlof/data/cat_arm_cp20_h90_sstmass_vorticity.inp
+IMM
+-1
+vector component
+Choice
+vector component
+1 Velocity Vorticity PressureGradient VelocityuGradient VelocityvGradient VelocitywGradient VelocityCurl
+IMM
+-1
+scalar component
+Choice
+scalar component
+1 EddyViscosity Pressure CourantNumber ShearStrainRate WallDistance Density DynamicViscosity boundarynodes
+IMM
+-1
+0
+FLE
+3
+LOCAL
+Univiz
+TITLE=FLE_3
+44
+110
+3
+velocityGrid
+UnstructuredGrid
+Vector Grid
+req
+none
+velocity
+Vec3
+Vector Data
+req
+none
+samplingGrid
+UnstructuredGrid
+Sampling Grid
+opt
+none
+9
+outputGrid
+UnstructuredGrid
+Output Grid
+default
+FLE_3_OUT_0_
+FLE
+Float
+Finite Lyapunov Exponent
+default
+FLE_3_OUT_1_
+eigenvalMax
+Float
+Maximum Eigenvalue
+default
+FLE_3_OUT_2_
+eigenvalMed
+Float
+Medium Eigenvalue
+default
+FLE_3_OUT_3_
+eigenvalMin
+Float
+Minimum Eigenvalue
+default
+FLE_3_OUT_4_
+integrationSize
+Float
+Integration Time/Length
+default
+FLE_3_OUT_5_
+map
+Vec3
+Flow Map
+default
+FLE_3_OUT_6_
+trajectoriesGrid
+StructuredGrid
+Trajectories Grid
+default
+FLE_3_OUT_7_
+trajectoriesData
+Vec2
+Trajectories Data
+default
+FLE_3_OUT_8_
+19
+origin
+FloatVector
+origin of sampling grid
+-0.25 0.55 0
+IMM
+-1
+cells
+IntVector
+number of cells per dimension of sampling grid
+20 20 16
+IMM
+-1
+cellSize
+FloatScalar
+side length of a cell in sampling grid
+0.0125
+IMM
+-1
+unsteady
+Boolean
+unsteady vector field input
+FALSE
+IMM
+-1
+velocityFile
+Browser
+velocity file for unsteady input
+.
+IMM
+-1
+startTime
+FloatScalar
+start time for integration
+0.000000
+IMM
+-1
+mode
+Choice
+finite Lyapunov exponent variant
+1 FTLE FLLE FSLE FTLEM FTLEA
+IMM
+-1
+ln
+Boolean
+compute logarithm
+TRUE
+IMM
+-1
+divT
+Boolean
+divide by T
+TRUE
+IMM
+-1
+integrationTime
+FloatScalar
+integration time
+0.100000
+IMM
+-1
+integrationLength
+FloatScalar
+integration length
+0.100000
+IMM
+-1
+timeIntervals
+IntScalar
+Number of time intervals. Used e.g. for FSLE, larger values produce better quantization but use more memory.
+50
+IMM
+-1
+sepFactorMin
+FloatScalar
+minimum separation factor
+1.100000
+IMM
+-1
+integStepsMax
+IntScalar
+maximum number of integration steps
+100
+IMM
+-1
+forward
+Boolean
+integration in forward direction
+TRUE
+IMM
+-1
+smoothingRange
+IntScalar
+smoothing range for gradient computation
+1
+IMM
+-1
+omitBoundaryCells
+Boolean
+omit boundary cells
+FALSE
+IMM
+-1
+gradNeighDisabled
+Boolean
+do not compute and mark gradient at undefined flow map nodes
+TRUE
+IMM
+-1
+execute
+Boolean
+allow execution
+TRUE
+IMM
+-1
+0
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+363
+99
+2
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+none
+dataIn
+Float|Vec3
+data on grid points
+opt
+none
+4
+meshOut
+Polygons
+surface of structured grid
+default
+DomainSurface_1_OUT_0_
+dataOut
+Float|Vec3
+data on surface
+dep dataIn
+DomainSurface_1_OUT_1_
+linesOut
+Lines
+feature lines 
+default
+DomainSurface_1_OUT_2_
+ldataOut
+Float|Vec3
+data on feature lines
+dep dataIn
+DomainSurface_1_OUT_3_
+5
+angle
+FloatScalar
+feature angle
+0.100000
+IMM
+-1
+vertex
+FloatVector
+normal for back-face culling
+ 1 0 0.
+IMM
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.500000
+IMM
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+IMM
+-1
+optimize
+Choice
+optimize for memory or speed
+1 speed memory
+IMM
+-1
+0
+IvRenderer
+1
+LOCAL
+Renderer
+TITLE=IvRenderer_1
+385
+506
+1
+RenderData
+Geometry|Points|CellGrid|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+FieldToLines
+4
+LOCAL
+Univiz
+TITLE=FieldToLines_4
+231
+275
+2
+lineFieldGrid
+StructuredGrid
+Structured Grid
+req
+none
+lineFieldData
+Vec2
+Line Data
+req
+none
+1
+lines
+Lines
+Lines From Field
+default
+FieldToLines_4_OUT_0_
+4
+nodesX
+IntScalar
+number of nodes in grid in x-direction
+21
+IMM
+-1
+nodesY
+IntScalar
+number of nodes in grid in y-direction
+21
+IMM
+-1
+nodesZ
+IntScalar
+number of nodes in grid in z-direction
+17
+IMM
+-1
+stride
+IntScalar
+take each stride'th line in each dimension
+3
+IMM
+-1
+0
+RidgeSurface
+3
+LOCAL
+Univiz
+TITLE=RidgeSurface_3
+44
+275
+3
+grid
+UnstructuredGrid
+Scalar Grid
+req
+none
+scalar
+Float
+Scalar Data
+req
+none
+clipScalar
+Float
+Scalar Clip Data
+opt
+none
+2
+ridges
+Polygons
+Ridge Surfaces
+default
+RidgeSurface_3_OUT_0_
+normals
+Vec3
+Surface Normals
+default
+RidgeSurface_3_OUT_1_
+16
+smoothingRange
+IntScalar
+smoothing range for gradient computation
+2
+IMM
+-1
+mode
+Choice
+method for consistent eigenvector orientation
+1 cellnodesPCA edgenodesPCA
+IMM
+-1
+extremum
+Choice
+ridges (maximum) or valleys (minimum)
+1 maximumridges minimumridges
+IMM
+-1
+excludeFLT_MAX
+Boolean
+exclude nodes with FLT_MAX (produced e.g. by FLE module for marking nodes with invalid data)
+TRUE
+IMM
+-1
+excludeLonelyNodes
+Boolean
+exclude lonely nodes (nodes that do not have enough neighbors (due to excludeFLT_MAX)
+TRUE
+IMM
+-1
+HessExtrEigenvalMin
+FloatScalar
+minimum absolute value of of second derivative across ridge (used for suppressing flat ridges)
+0.000000
+IMM
+-1
+PCAsubdomMaxPerc
+FloatScalar
+the second largest absolute eigenvalue must not be larger than this percentage of the largest absolute eigenvalue
+1.000000
+IMM
+-1
+scalarMin
+FloatScalar
+minimum value of the scalar field for ridge extraction
+20
+IMM
+-1
+scalarMax
+FloatScalar
+maximum value of the scalar field for ridge extraction
+100000002004087734272.000000
+IMM
+-1
+clipScalarMin
+FloatScalar
+minimum value of the scalar clipping field for clipped ridge extraction
+0.000000
+IMM
+-1
+clipScalarMax
+FloatScalar
+maximum value of the scalar clipping field for clipped ridge extraction
+100000002004087734272.000000
+IMM
+-1
+minSize
+IntScalar
+ridges with less than this number of triangles are suppressed
+1
+IMM
+-1
+filterByCell
+Boolean
+ridge filtering is based on cells. Otherwise it is based on cell edges (recommended).
+FALSE
+IMM
+-1
+combineExceptions
+Boolean
+instead of rejecting a triangle if a condition is violated at any corner, the violations are summed up and the the triangle is rejected if the count exceeds maxExceptions
+FALSE
+IMM
+-1
+maxExceptions
+IntScalar
+a triangle is rejected if it exhibits this count of exceptions
+1
+IMM
+-1
+generateNormals
+Boolean
+generate normals. However it is recommended to use the GenNormals module instead.
+FALSE
+IMM
+-1
+0
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+110
+440
+4
+grid
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons
+Grid
+req
+none
+colors
+Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Vec3
+Normals
+opt
+none
+textures
+Texture
+Textures
+opt
+none
+1
+geometry
+Geometry|Spheres
+combined object
+default
+Collect_1_OUT_0_
+1
+nodemask
+String
+Node Mask
+0xffffffff
+IMM
+-1
+0
+GenNormals
+2
+LOCAL
+Tools
+TITLE=GenNormals_2
+77
+341
+1
+inPort
+Polygons|Lines
+Grid, polygonal or linear input
+req
+none
+1
+outPort
+Vec3
+Normals
+default
+GenNormals_2_OUT_0_
+1
+LineNormalStyle
+Choice
+Which Normal Style For Lines
+1 BisectLargeAngle BisectSmallAngle Orthogonal
+IMM
+-1
+0
+13
+ReadAVSucd
+1
+LOCAL
+outPortGrid
+ReadAVSucd_1_OUT_0_
+FLE
+3
+LOCAL
+velocityGrid
+ReadAVSucd
+1
+LOCAL
+outPortGrid
+ReadAVSucd_1_OUT_0_
+DomainSurface
+1
+LOCAL
+meshIn
+ReadAVSucd
+1
+LOCAL
+outPortVectorData
+ReadAVSucd_1_OUT_1_
+FLE
+3
+LOCAL
+velocity
+FLE
+3
+LOCAL
+outputGrid
+FLE_3_OUT_0_
+RidgeSurface
+3
+LOCAL
+grid
+FLE
+3
+LOCAL
+FLE
+FLE_3_OUT_1_
+RidgeSurface
+3
+LOCAL
+scalar
+FLE
+3
+LOCAL
+trajectoriesGrid
+FLE_3_OUT_7_
+FieldToLines
+4
+LOCAL
+lineFieldGrid
+FLE
+3
+LOCAL
+trajectoriesData
+FLE_3_OUT_8_
+FieldToLines
+4
+LOCAL
+lineFieldData
+DomainSurface
+1
+LOCAL
+linesOut
+DomainSurface_1_OUT_2_
+IvRenderer
+1
+LOCAL
+RenderData
+FieldToLines
+4
+LOCAL
+lines
+FieldToLines_4_OUT_0_
+IvRenderer
+1
+LOCAL
+RenderData
+RidgeSurface
+3
+LOCAL
+ridges
+RidgeSurface_3_OUT_0_
+Collect
+1
+LOCAL
+grid
+RidgeSurface
+3
+LOCAL
+ridges
+RidgeSurface_3_OUT_0_
+GenNormals
+2
+LOCAL
+inPort
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_0_
+IvRenderer
+1
+LOCAL
+RenderData
+GenNormals
+2
+LOCAL
+outPort
+GenNormals_2_OUT_0_
+Collect
+1
+LOCAL
+normals
+0

@@ -1,0 +1,18 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}
+ {}{HistogramMap}{covise/net/examples/Histogram.net}{0.7}\end{covimg}
+ 
+The module GenDat creates a structured grid( 64x64x64) and data on it for testing. We use 
+the parameter Pipe which creates data values using the function \latexonly $sin(x)sin(y)$
+\endlatexonly \begin{htmlonly} sin(x)sin(y) \end{htmlonly}. IndexSurface extracts a plane out of the grid. 
+
+Histogram calculates the distribution of data values. Plot creates a graph out of the result of Histogram. The result is shown below.
+
+\begin{covimg}
+{}{HistogramPlot}{Distribution of data values}{0.7}\end{covimg}

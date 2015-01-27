@@ -1,0 +1,22 @@
+/* XPM */
+static const char * smiley[] = {
+"16 16 3 1",
+" 	c None",
+".	c #000000",
+"X	c #FFFF00",
+"     .....      ",
+"   ..XXXXX..    ",
+"  .XXXXXXXXX.   ",
+" .XXXXXXXXXXX.  ",
+" .XX..XXX..XX.  ",
+".XXXXXXXXXXXXX. ",
+".XX...XXX...XX. ",
+".XXX..XXX..XXX. ",
+".XXXXXXXXXXXXX. ",
+".XXXXXX.XXXXXX. ",
+" .XX.XX.XX.XX.  ",
+" .XXX..X..XXX.  ",
+"  .XXXXXXXXX.   ",
+"   ..XXXXX..    ",
+"     .....      ",
+"                "};

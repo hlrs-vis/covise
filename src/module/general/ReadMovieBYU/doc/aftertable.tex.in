@@ -1,0 +1,24 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+	{readmoviebyu_net}{covise/net/examples/ReadMovieBYU.net}{0.7}\end{covimg}
+
+This is a simple example of a net using ReadMovieBYU. In this case displacement data is used, 
+so only the second output port is needed. The small data set shows some timesteps of a small 
+car crashing against a road plank.  
+To edit the data set DomainSurface and GenNormals are choosen; they provide a smooth surface 
+of the model. You can also take DisplaceUsg to get a result.  
+
+The next image is a snapshot of the results in the Inventor Renderer.  
+
+
+\begin{covimg2}{}{renderer}{0.7}\end{covimg2}
+

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# my user's name
+user=`whoami`
+
+# kill all running COVERs
+killall opencover cover COVER COVER_VRML >/dev/null 2>&1
+
+# kill all running COVERs
+killall -kill opencover cover COVER COVER_VRML >/dev/null 2>&1
+
+sleep 1
+
+# kill semaphores
+ipcs | grep $user | grep 0x | awk '{print $2;}' | xargs ipcrm sem >/dev/null 2>&1 
+
+# kill my user's pf* files
+
+(ls -l /usr/tmp/pf*.pf* | grep $user | awk '{print $8}' | xargs /bin/rm ) >/dev/null 2>&1
+

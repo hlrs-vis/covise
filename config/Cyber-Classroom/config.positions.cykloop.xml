@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <SmallSceneAxis value="off" >
+            <Position x="-750" y="0" z="-500" />
+            <Size value="100"/>
+            <FontSize value="10"/>
+         </SmallSceneAxis>
+
+         <NameMenuPosition value="on" x="-860" y="0" z="660"/> 
+         <NameMenuScale value="2.0"/> 
+
+         <Menu>
+            <Position x="-850" y="0" z="660"/>
+            <Size value="1.5"/>
+         </Menu>
+
+         <QuitMenu>
+            <Position x="-100" y="-100" z="0" />
+         </QuitMenu>
+
+         <Plugin>
+
+            <AKToolbar value="on">
+               <Scale value=".7" />
+               <Position x="-850" y="0" z="-550" />
+            </AKToolbar>
+
+            <DocumentViewer value="on">
+               <Vsize value="1250" />
+            </DocumentViewer>
+
+         </Plugin>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

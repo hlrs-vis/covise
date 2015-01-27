@@ -1,0 +1,78 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef FILEDETAILS_H
+#define FILEDETAILS_H 1
+
+#include <osgDB/FileUtils>
+
+#include <vpb/GeospatialDataset>
+#include <vpb/SpatialProperties>
+
+namespace vpb
+{
+
+class VPB_EXPORT FileDetails : public osg::Object
+{
+    public:
+    
+        FileDetails();
+
+        /** Copy constructor using CopyOp to manage deep vs shallow copy.*/
+        FileDetails(const FileDetails&,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+        
+        META_Object(vpb, FileDetails);
+        
+        bool operator == (const FileDetails& rhs) const
+        {
+            return _hostname == rhs._hostname &&
+                   _originalSourceFile == rhs._originalSourceFile &&
+                   _filename == rhs._filename &&
+                   _spatialProperties == rhs._spatialProperties;
+        }
+
+        void setHostName(const std::string& hostname) { _hostname = hostname; }
+        std::string& getHostName() { return _hostname; }
+        const std::string& getHostName() const { return _hostname; }
+        
+        void setBuildApplication(const std::string& app) { _buildApplication = app; }
+        std::string& getBuildApplication() { return _buildApplication; }
+        const std::string& getBuildApplication() const { return _buildApplication; }
+        
+        void setOriginalSourceFileName(const std::string& filename) { _originalSourceFile = filename; }
+        std::string& getOriginalSourceFileName() { return _originalSourceFile; }
+        const std::string& getOriginalSourceFileName() const { return _originalSourceFile; }
+
+        void setFileName(const std::string& filename) { _filename = filename; }
+        std::string& getFileName() { return _filename; }
+        const std::string& getFileName() const { return _filename; }
+
+        void setSpatialProperties(const SpatialProperties& sd) { _spatialProperties = sd; }
+        SpatialProperties& getSpatialProperties() { return _spatialProperties; }
+        const SpatialProperties& getSpatialProperties() const { return _spatialProperties; }
+
+    protected:
+    
+        virtual ~FileDetails();
+        
+        std::string         _originalSourceFile;
+        std::string         _buildApplication;
+        std::string         _hostname;
+        std::string         _filename;
+        SpatialProperties   _spatialProperties;
+        
+};
+
+}
+
+#endif

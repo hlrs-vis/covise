@@ -1,0 +1,62 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+ 
+The VRML renderer is a module, which creates a VRML file from its
+input objects. It can be connected in the map like a normal renderer
+and accepts all graphical objects as input.
+
+The file is re-written after any change of the input objects, both
+when objects are added or removed from the renderer. The output file
+is an ascii VRML97 file.
+
+\begin{covimg2} {}{VRMLRendererModule}{0.7}\end{covimg2}
+
+WARNING: The performance of the VRML renderer is rather slow and the
+output files are relatively large for even small graphical objects.
+    
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+%\begin{covimg2} {modules/VRMLRenderer/VRMLRenderer}{image1}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+
+%
+% short information about versions 
+%
+The VRML renderer is supported on all platforms.
+
+
+%
+%=============================================================
+%\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+%\begin{longtable}{|p{2.5cm}|p{4.5cm}|p{7cm}|}
+%\hline
+%   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+%\hline\hline
+%	\textcolor{required}{DO\_Geometry} & DO\_Geometry \newline
+%                                             DO\_UnstructuredGrid
+%                                             DO\_Points \newline
+%                                             DO\_StructuredGrid \newline
+%                                             DO\_Polygons \newline
+%                                             DO\_TriangleStrips \newline
+%                                             DO\_Lines  & Geometry to be rendered \\
+%
+%
+%\hline
+%\end{longtable}
+

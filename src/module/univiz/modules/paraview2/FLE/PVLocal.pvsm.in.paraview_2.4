@@ -1,0 +1,217 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+
+
+   <SourceProxy name="FLE" class="vtkFLE">
+    <InputProperty
+       name="Input"
+       command="SetInput">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <DoubleVectorProperty
+        name="Origin"
+        command="SetOrigin"
+        number_of_elements="3"
+        default_values="0 0 0" >
+        <DoubleRangeDomain name="range"/>
+        <!--<Documentation>
+          Define origin of sampling grid. Default is (0,0,0).
+        </Documentation>-->
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="Cells"
+        command="SetCells"
+        number_of_elements="3"
+        animateable="1"
+        default_values="10 10 10" >
+        <!--<Documentation>
+          Define number of cells per dimension of sampling grid. Default is (10,10,10).
+        </Documentation>-->
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="CellSize"
+        command="SetCellSize"
+        number_of_elements="1"
+        default_values="0.01">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty 
+        name="Unsteady" 
+        command="SetUnsteady" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <StringVectorProperty
+        name="VelocityFile"
+        animateable="1"
+        command="SetVelocityFile"
+        number_of_elements="1">
+        <!--<FileListDomain name="files"/>-->
+     </StringVectorProperty>
+
+     <DoubleVectorProperty
+        name="StartTime"
+        command="SetStartTime"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1000000" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty 
+        name="Mode" 
+        command="SetMode" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="FTLE"/>
+         <Entry value="1" text="FLLE"/>
+         <Entry value="2" text="FSLE"/>
+         <Entry value="3" text="FTLEM"/>
+         <Entry value="4" text="FTLEA"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Ln" 
+        command="SetLn" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="DivT" 
+        command="SetDivT" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="IntegrationTime"
+        command="SetIntegrationTime"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="IntegrationLength"
+        command="SetIntegrationLength"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="TimeIntervals"
+        command="SetTimeIntervals"
+        number_of_elements="1"
+        default_values="50">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="SepFactorMin"
+        command="SetSepFactorMin"
+        number_of_elements="1"
+        default_values="1.1">
+       <DoubleRangeDomain name="range" min="1.0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="IntegStepsMax"
+        command="SetIntegStepsMax"
+        number_of_elements="1"
+        default_values="100">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Forward" 
+        command="SetForward" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="OmitBoundaryCells" 
+        command="SetOmitBoundaryCells" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GradNeighDisabled" 
+        command="SetGradNeighDisabled" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Execute" 
+        command="SetExecute" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ResampleOnTrajectories" 
+        command="SetResampleOnTrajectories" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+   <!-- End FLE -->
+   </SourceProxy>
+
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

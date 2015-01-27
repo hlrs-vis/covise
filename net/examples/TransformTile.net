@@ -1,0 +1,1131 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+12
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+77
+22
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+1 64 7
+
+-1
+ySize
+IntSlider
+Size in y-direction
+1 64 5
+
+-1
+zSize
+IntSlider
+Size in z-direction
+1 64 3
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module ShowGrid
+ShowGrid
+1
+LOCAL
+Tools
+TITLE=ShowGrid_1
+77
+132
+1
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+2
+lines
+Lines
+Grid Lines
+default
+
+points
+Points
+Grid Points
+default
+
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+
+-1
+pos
+IntSlider
+number of unstructured grid element
+0 1 0
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+77
+352
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Renderer
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_2
+242
+352
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ShowGrid
+ShowGrid
+2
+LOCAL
+Tools
+TITLE=ShowGrid_2
+209
+275
+1
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+2
+lines
+Lines
+Grid Lines
+default
+
+points
+Points
+Grid Points
+default
+
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+
+-1
+pos
+IntSlider
+number of unstructured grid element
+0 1 0
+
+-1
+0
+# Module VectorField
+VectorField
+1
+LOCAL
+Mapper
+TITLE=VectorField_1
+231
+220
+3
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|Polygons|Lines|UnstructuredGrid|TriangleStrips|Points
+input mesh
+req
+
+vdataIn
+Vec3|Mat3
+input vector data
+req
+
+sdataIn
+Float
+input scalar data
+opt
+
+2
+linesOut
+Lines
+Vectors (Lines)
+default
+
+dataOut
+Float
+Data on arrows
+default
+
+6
+scale
+FloatSlider
+Scale factor
+0 1 1.
+
+-1
+length
+Choice
+Length of vectors
+2 1*scale length*scale according_to_data
+
+-1
+fasten
+Choice
+on_the_bottom or on_the_middle
+1 on_the_bottom on_the_middle
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.200000
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+0
+# Module VectorField
+VectorField
+2
+LOCAL
+Mapper
+TITLE=VectorField_2
+99
+231
+3
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|Polygons|Lines|UnstructuredGrid|TriangleStrips|Points
+input mesh
+req
+
+vdataIn
+Vec3|Mat3
+input vector data
+req
+
+sdataIn
+Float
+input scalar data
+opt
+
+2
+linesOut
+Lines
+Vectors (Lines)
+default
+
+dataOut
+Float
+Data on arrows
+default
+
+6
+scale
+FloatSlider
+Scale factor
+0 1 1.
+
+-1
+length
+Choice
+Length of vectors
+2 1*scale length*scale according_to_data
+
+-1
+fasten
+Choice
+on_the_bottom or on_the_middle
+1 on_the_bottom on_the_middle
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.200000
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+0
+# Module Transform
+Transform
+1
+LOCAL
+Tools
+TITLE=Transform_1
+209
+143
+5
+geo_in
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid input
+req
+
+data_in0
+Float|Vec3
+data output
+opt
+
+data_in1
+Float|Vec3
+data output
+opt
+
+data_in2
+Float|Vec3
+data output
+opt
+
+data_in3
+Float|Vec3
+data output
+opt
+
+5
+geo_out
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid output
+default
+
+data_out0
+Float|Vec3
+data output
+dep data_in0
+
+data_out1
+Float|Vec3
+data output
+dep data_in1
+
+data_out2
+Float|Vec3
+data output
+dep data_in2
+
+data_out3
+Float|Vec3
+data output
+dep data_in3
+
+26
+Transform
+Choice
+Please enter your choice
+7 Pleaseenteryourchoice Mirror Translate Rotate Scale MultiRot Tile
+
+1
+normal_of_mirror_plane
+FloatVector
+normal of mirror-plane
+0 0 1.
+
+-1
+distance_to_origin
+FloatScalar
+distance to the origin
+0.000000
+
+-1
+MirroredAndOriginal
+Boolean
+Transformed object(s) and original
+TRUE
+
+-1
+vector_of_translation
+FloatVector
+transformation
+0 0 0.
+
+-1
+axis_of_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+scale_type
+Choice
+Scale type
+1 Uniform X-axis Y-axis Z-axis
+
+-1
+scaling_factor
+FloatScalar
+scaling factor
+1.000000
+
+-1
+new_origin
+FloatVector
+new origin
+0 0 0.
+
+-1
+axis_of_multi_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+_one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_multi_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+number_of_rotations
+IntScalar
+number of rotations
+1
+
+-1
+TilingPlane
+Choice
+Tiling plane
+1 XY YZ ZX
+
+1
+flipTile
+Boolean
+Flip or else translate tile
+TRUE
+
+1
+TilingMin
+IntVector
+Tiling pattern
+0 0
+
+1
+TilingMax
+IntVector
+Tiling pattern
+1 1
+
+1
+EUC_file
+Browser
+Euclidian motion
+/usr/tmp
+
+-1
+InDataType_0
+Choice
+Input data type_0
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_1
+Choice
+Input data type_1
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_2
+Choice
+Input data type_2
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_3
+Choice
+Input data type_3
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+createSet
+Boolean
+create sets for multiple transformations
+TRUE
+
+-1
+EUC_file___filter
+BrowserFilter
+Euclidian motion
+EUC_file *.euc
+
+-1
+0
+# Module Renderer
+Renderer
+3
+LOCAL
+Renderer
+TITLE=Renderer_3
+418
+341
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ShowGrid
+ShowGrid
+3
+LOCAL
+Tools
+TITLE=ShowGrid_3
+396
+264
+1
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+2
+lines
+Lines
+Grid Lines
+default
+
+points
+Points
+Grid Points
+default
+
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+
+-1
+pos
+IntSlider
+number of unstructured grid element
+0 1 0
+
+-1
+0
+# Module VectorField
+VectorField
+3
+LOCAL
+Mapper
+TITLE=VectorField_3
+429
+198
+3
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|Polygons|Lines|UnstructuredGrid|TriangleStrips|Points
+input mesh
+req
+
+vdataIn
+Vec3|Mat3
+input vector data
+req
+
+sdataIn
+Float
+input scalar data
+opt
+
+2
+linesOut
+Lines
+Vectors (Lines)
+default
+
+dataOut
+Float
+Data on arrows
+default
+
+6
+scale
+FloatSlider
+Scale factor
+0 1 1.
+
+-1
+length
+Choice
+Length of vectors
+2 1*scale length*scale according_to_data
+
+-1
+fasten
+Choice
+on_the_bottom or on_the_middle
+1 on_the_bottom on_the_middle
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.200000
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+0
+# Module Transform
+Transform
+2
+LOCAL
+Tools
+TITLE=Transform_2
+396
+121
+5
+geo_in
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid input
+req
+
+data_in0
+Float|Vec3
+data output
+opt
+
+data_in1
+Float|Vec3
+data output
+opt
+
+data_in2
+Float|Vec3
+data output
+opt
+
+data_in3
+Float|Vec3
+data output
+opt
+
+5
+geo_out
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid output
+default
+
+data_out0
+Float|Vec3
+data output
+dep data_in0
+
+data_out1
+Float|Vec3
+data output
+dep data_in1
+
+data_out2
+Float|Vec3
+data output
+dep data_in2
+
+data_out3
+Float|Vec3
+data output
+dep data_in3
+
+26
+Transform
+Choice
+Please enter your choice
+7 Pleaseenteryourchoice Mirror Translate Rotate Scale MultiRot Tile
+
+1
+normal_of_mirror_plane
+FloatVector
+normal of mirror-plane
+0 0 1.
+
+-1
+distance_to_origin
+FloatScalar
+distance to the origin
+0.000000
+
+-1
+MirroredAndOriginal
+Boolean
+Transformed object(s) and original
+TRUE
+
+-1
+vector_of_translation
+FloatVector
+transformation
+0 0 0.
+
+-1
+axis_of_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+scale_type
+Choice
+Scale type
+1 Uniform X-axis Y-axis Z-axis
+
+-1
+scaling_factor
+FloatScalar
+scaling factor
+1.000000
+
+-1
+new_origin
+FloatVector
+new origin
+0 0 0.
+
+-1
+axis_of_multi_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+_one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_multi_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+number_of_rotations
+IntScalar
+number of rotations
+1
+
+-1
+TilingPlane
+Choice
+Tiling plane
+1 XY YZ ZX
+
+1
+flipTile
+Boolean
+Flip or else translate tile
+TRUE
+
+1
+TilingMin
+IntVector
+Tiling pattern
+0 0
+
+1
+TilingMax
+IntVector
+Tiling pattern
+1 1
+
+1
+EUC_file
+Browser
+Euclidian motion
+/usr/tmp
+
+-1
+InDataType_0
+Choice
+Input data type_0
+3 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_1
+Choice
+Input data type_1
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_2
+Choice
+Input data type_2
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_3
+Choice
+Input data type_3
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+createSet
+Boolean
+create sets for multiple transformations
+TRUE
+
+-1
+EUC_file___filter
+BrowserFilter
+Euclidian motion
+EUC_file *.euc
+
+-1
+0
+19
+GenDat
+1
+LOCAL
+GridOut0
+
+ShowGrid
+1
+LOCAL
+meshIn
+GenDat
+1
+LOCAL
+GridOut0
+
+VectorField
+2
+LOCAL
+meshIn
+GenDat
+1
+LOCAL
+GridOut0
+
+Transform
+1
+LOCAL
+geo_in
+GenDat
+1
+LOCAL
+GridOut0
+
+Transform
+2
+LOCAL
+geo_in
+GenDat
+1
+LOCAL
+DataOut1
+
+VectorField
+2
+LOCAL
+vdataIn
+GenDat
+1
+LOCAL
+DataOut1
+
+Transform
+1
+LOCAL
+data_in0
+GenDat
+1
+LOCAL
+DataOut1
+
+Transform
+2
+LOCAL
+data_in0
+ShowGrid
+1
+LOCAL
+lines
+
+Renderer
+1
+LOCAL
+RenderData
+ShowGrid
+2
+LOCAL
+lines
+
+Renderer
+2
+LOCAL
+RenderData
+VectorField
+1
+LOCAL
+linesOut
+
+Renderer
+2
+LOCAL
+RenderData
+VectorField
+2
+LOCAL
+linesOut
+
+Renderer
+1
+LOCAL
+RenderData
+Transform
+1
+LOCAL
+geo_out
+
+ShowGrid
+2
+LOCAL
+meshIn
+Transform
+1
+LOCAL
+geo_out
+
+VectorField
+1
+LOCAL
+meshIn
+Transform
+1
+LOCAL
+data_out0
+
+VectorField
+1
+LOCAL
+vdataIn
+ShowGrid
+3
+LOCAL
+lines
+
+Renderer
+3
+LOCAL
+RenderData
+VectorField
+3
+LOCAL
+linesOut
+
+Renderer
+3
+LOCAL
+RenderData
+Transform
+2
+LOCAL
+geo_out
+
+ShowGrid
+3
+LOCAL
+meshIn
+Transform
+2
+LOCAL
+geo_out
+
+VectorField
+3
+LOCAL
+meshIn
+Transform
+2
+LOCAL
+data_out0
+
+VectorField
+3
+LOCAL
+vdataIn
+0

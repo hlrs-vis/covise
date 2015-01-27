@@ -1,0 +1,32 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{spheres} & TriangleStrips \newline
+	                                Polygons \newline
+                                        Spheres
+	                                                   & The spheres themselves \\
+\hline
+	\textcolor{output}{normals} & Vec3 & Normals for the
+	spheres for better visual quality (for max. performance the spheres are made up
+	of only very few triangles and so you should use the normals in order to make
+	them look like spheres instead of some sort of n-hedron)  \\
+\hline
+	\textcolor{output}{dataOut} & Float \newline
+                                      Vec3 \newline
+                                      RGBA
+                                          & The colors\_in
+	recomputed to match the spheres; this can e.g. be used as an input for the
+	Colors module.
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

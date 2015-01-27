@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadKiva.cpp
+)
+
+SET(EXTRASOURCES
+  ReadKiva.h
+)
+
+ADD_COVISE_MODULE(IO ReadKiva ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadKiva  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadKiva)

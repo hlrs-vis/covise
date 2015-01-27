@@ -1,0 +1,23 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{5.5cm}|p{5.5cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{polygons} & Polygons & generated polygons \\
+\hline
+	\textcolor{output}{colors} & RGBA\_Colors & polygon's colors  \\
+\hline
+	\textcolor{output}{normals} & Unstructured\_V3D\_Normals & polygon's normals \\
+														
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

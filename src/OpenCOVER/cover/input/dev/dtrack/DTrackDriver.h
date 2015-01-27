@@ -1,0 +1,56 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+/*
+ * inputhdw.h
+ *
+ *  Created on: Dec 9, 2014
+ *      Author: svnvlad
+ */
+
+#ifndef DTRACK_DRIVER_H
+#define DTRACK_DRIVER_H
+
+#include <OpenThreads/Thread>
+#include <osg/Matrix>
+#include <string>
+
+#include "DTrackSDK.hpp"
+
+#include <cover/input/inputdevice.h>
+
+/**
+ * @brief The DTrackDriver class interacts with input hardware
+ *
+ * This class interacts with input hardware and stores the data
+ * about all configured input hardware e.g. tracking systems,
+ * button devices etc.
+ *
+ * Main interaction loop runs in its own thread
+ */
+class DTrackDriver : public opencover::InputDevice
+{
+    //-------------------DTrack related stuff
+    DTrackSDK *dt; ///ART DTrack SDK class
+    size_t m_numFlySticks; ///Number of DTrack flysticks
+    size_t m_numBodies; ///Number of DTrack bodies
+    size_t m_bodyBase;
+    std::vector<size_t> m_buttonBase;
+    std::vector<size_t> m_valuatorBase;
+
+    bool init();
+    virtual bool poll();
+
+public:
+    DTrackDriver(const std::string &name);
+    virtual ~DTrackDriver();
+
+    //==============Hardware related interface methods=====================
+    bool updateBodyMatrix(size_t idx); ///get DTrack body matrix
+    bool updateFlyStick(size_t idx); ///get flystick body matrix
+};
+#endif

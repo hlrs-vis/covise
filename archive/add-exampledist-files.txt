@@ -1,0 +1,2 @@
+net/examples/\*
+example-data/[A-Z]\*

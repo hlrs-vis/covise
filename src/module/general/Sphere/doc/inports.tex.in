@@ -1,0 +1,37 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{points} & 	Points \newline
+             	                       	UnstructuredGrid \newline
+             				StructuredGrid  
+					& Points to be used. 
+					  Grid points are used if grids are assigned to
+					  this port. \\
+\hline
+	\textcolor{optional}{data} & Float \newline
+                                     Vec3
+	       & The optional data on this port is used to deform the spheres: 
+		 \begin{itemize}
+                     \item scalar: the radius of each sphere will be scale*(data value)
+                     \item vector: the radius will be stretched in the vectors direction
+		     according to scale*(length of vector) 
+                 \end{itemize} \\
+\hline
+	\textcolor{optional}{colors\_in} & Float \newline
+	                                   Vec3 \newline
+                                           RGBA
+	                                 & Scalar data to be mapped on the spheres.
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

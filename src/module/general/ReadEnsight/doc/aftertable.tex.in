@@ -1,0 +1,19 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+\begin{covimg}
+{}{ReadEnsightNT_Map}{covise/net/examples/ReadEnsight.net}{0.7}\end{covimg}
+%
+The map ReadEnsight.net reads the together 
+with scalar and vector state data. 
+
+The last figure is a snapshot of the renderer. 
+%
+\begin{covimg} {}{ReadEnsightNT_Renderer}{Output of Renderer\_1}{0.7}\end{covimg}
+

@@ -1,0 +1,890 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+
+<!-- Yun: Missing module (filter) added -->
+   <SourceProxy name="Statistics" class="vtkStatistics">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="1">
+	    <RequiredProperties>
+              <Property name="SelectInputScalars" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputScalars"
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Scalars" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+
+   <!-- End Statistics -->
+   </SourceProxy>
+
+
+
+   <SourceProxy name="FieldToLines" class="vtkFieldToLines">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="2">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <IntVectorProperty
+        name="NodesX"
+        command="SetNodesX"
+        number_of_elements="1"
+        default_values="11">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="NodesY"
+        command="SetNodesY"
+        number_of_elements="1"
+        default_values="11">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="NodesZ"
+        command="SetNodesZ"
+        number_of_elements="1"
+        default_values="11">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="Stride"
+        command="SetStride"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="PassData" 
+        command="SetPassData" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+   <!-- End FieldToLines -->
+   </SourceProxy>
+
+
+   <SourceProxy name="FLE" class="vtkFLE">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+<!-- Yun: No need for the vector field in ParaView3-->
+					 <!--
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+					 -->
+     </StringVectorProperty> 
+
+     <DoubleVectorProperty
+        name="Origin"
+        command="SetOrigin"
+        number_of_elements="3"
+        default_values="0 0 0" >
+<!-- Yun: No range is needed -->
+        <!-- <DoubleRangeDomain name="range"/>
+        <Documentation>
+          Define origin of sampling grid. Default is (0,0,0).
+        </Documentation>-->
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="Cells"
+        command="SetCells"
+        number_of_elements="3"
+        animateable="1"
+        default_values="10 10 10" >
+        <!--<Documentation>
+          Define number of cells per dimension of sampling grid. Default is (10,10,10).
+        </Documentation>-->
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="CellSize"
+        command="SetCellSize"
+        number_of_elements="1"
+        default_values="0.01">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty 
+        name="Unsteady" 
+        command="SetUnsteady" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <StringVectorProperty
+        name="VelocityFile"
+        animateable="1"
+        command="SetVelocityFile"
+        number_of_elements="1">
+        <!--<FileListDomain name="files"/>-->
+     </StringVectorProperty>
+
+     <DoubleVectorProperty
+        name="StartTime"
+        command="SetStartTime"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1000000" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty 
+        name="Mode" 
+        command="SetMode" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="FTLE"/>
+         <Entry value="1" text="FLLE"/>
+         <Entry value="2" text="FSLE"/>
+         <Entry value="3" text="FTLEM"/>
+         <Entry value="4" text="FTLEA"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Ln" 
+        command="SetLn" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="DivT" 
+        command="SetDivT" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="IntegrationTime"
+        command="SetIntegrationTime"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="IntegrationLength"
+        command="SetIntegrationLength"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="TimeIntervals"
+        command="SetTimeIntervals"
+        number_of_elements="1"
+        default_values="50">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="SepFactorMin"
+        command="SetSepFactorMin"
+        number_of_elements="1"
+        default_values="1.1">
+       <DoubleRangeDomain name="range" min="1.0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="IntegStepsMax"
+        command="SetIntegStepsMax"
+        number_of_elements="1"
+        default_values="100">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Forward" 
+        command="SetForward" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="OmitBoundaryCells" 
+        command="SetOmitBoundaryCells" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GradNeighDisabled" 
+        command="SetGradNeighDisabled" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Execute" 
+        command="SetExecute" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ResampleOnTrajectories" 
+        command="SetResampleOnTrajectories" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+   <!-- End FLE -->
+   </SourceProxy>
+
+
+   <SourceProxy name="FlowTopo" class="vtkFlowTopo">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <IntVectorProperty 
+        name="DivideByWallDist" 
+        command="SetDivideByWallDist" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="InteriorCritPts" 
+        command="SetInteriorCritPts" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="BoundaryCritPts" 
+        command="SetBoundaryCritPts" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GenerateSeeds" 
+        command="SetGenerateSeeds" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="SeedsPerCircle"
+        command="SetSeedsPerCircle"
+        number_of_elements="1"
+        default_values="8">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="Radius"
+        command="SetRadius"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="Offset"
+        command="SetOffset"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="GlyphRadius"
+        command="SetGlyphRadius"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+     </DoubleVectorProperty>
+
+   <!-- End FlowTopo -->
+   </SourceProxy>
+
+
+   <SourceProxy name="RidgeSurface" class="vtkRidgeSurface">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="1">
+	    <RequiredProperties>
+              <Property name="SelectInputScalars" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputScalars" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Scalars" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Mode" 
+        command="SetMode" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="cell nodes PCA"/>
+         <Entry value="1" text="edge nodes PCA"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Extremum" 
+        command="SetExtremum" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="maximum ridges"/>
+         <Entry value="1" text="minimum ridges"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ExcludeFLT_MAX" 
+        command="SetExcludeFLT_MAX" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ExcludeLonelyNodes" 
+        command="SetExcludeLonelyNodes" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="HessExtrEigenvalMin"
+        command="SetHessExtrEigenvalMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="0" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="PCAsubdomMaxPerc"
+        command="SetPCAsubdomMaxPerc"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ScalarMin"
+        command="SetScalarMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ScalarMax"
+        command="SetScalarMax"
+        number_of_elements="1"
+        default_values="1e20">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ClipScalarMin"
+        command="SetClipScalarMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ClipScalarMax"
+        command="SetClipScalarMax"
+        number_of_elements="1"
+        default_values="1e20">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="MinSize"
+        command="SetMinSize"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="FilterByCell" 
+        command="SetFilterByCell" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="CombineExceptions" 
+        command="SetCombineExceptions" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MaxExceptions"
+        command="SetMaxExceptions"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GenerateNormals" 
+        command="SetGenerateNormals" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+   <!-- End RidgeSurface -->
+   </SourceProxy>
+
+
+   <SourceProxy name="VortexCores" class="vtkVortexCores">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <IntVectorProperty 
+        name="Method" 
+        command="SetMethod" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="LEVY"/>
+         <Entry value="1" text="SUJUDI-HAIMES"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Variant" 
+        command="SetVariant" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="TRIANGLE"/>
+         <Entry value="1" text="QUAD-NEWTON"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MinimumNumberOfVertices"
+        command="SetMinimumNumberOfVertices"
+        number_of_elements="1"
+        default_values="10">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MaximumNumberOfExceptions"
+        command="SetMaximumNumberOfExceptions"
+        number_of_elements="1"
+        default_values="3">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="MinStrength"
+        command="SetMinStrength"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="1" max="1000000"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="MaxAngle"
+        command="SetMaxAngle"
+        number_of_elements="1"
+        default_values="30.0">
+       <DoubleRangeDomain name="range" min="1" max="1000000"/>
+     </DoubleVectorProperty>
+
+   <!-- End VortexCores -->
+   </SourceProxy>
+
+
+   <SourceProxy name="VortexCriteria" class="vtkVortexCriteria">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <IntVectorProperty 
+        name="Quantity" 
+        command="SetQuantity" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="HELICITY"/>
+         <Entry value="1" text="VELO-NORM HELICITY"/>
+         <Entry value="2" text="VORTICITY MAG"/>
+         <Entry value="3" text="Z VORTICITY"/>
+         <Entry value="4" text="LAMBDA2"/>
+         <Entry value="5" text="Q"/>
+         <Entry value="6" text="DELTA"/>
+         <Entry value="7" text="DIV ACCEL"/>
+         <Entry value="8" text="DIVERGENCE"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+   <!-- End VortexCriteria -->
+   </SourceProxy>  
+
+  </ProxyGroup>
+
+
+
+  <ProxyGroup name="writers">
+
+  <WriterProxy name="WriteUnstructured" 
+      class="vtkWriteUnstructured">
+      <Documentation
+        short_help="Write unstructured grid in a Unstructured data
+        file.">
+        Writer to write unstructured grid in a Unstructured data file. Cannot be used
+        for parallel writing.
+      </Documentation>
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type" composite_data_supported="0">
+          <DataType value="vtkUnstructuredGrid" />
+        </DataTypeDomain>
+        <Documentation>
+          The input filter/source whose output dataset is to written to the
+          file.
+        </Documentation>
+      </InputProperty>
+      <StringVectorProperty 
+        name="FileName" 
+        command="SetFileName"
+        number_of_elements="1">
+      </StringVectorProperty>
+      <Hints>
+        <Property name="Input" show="0"/>
+        <Property name="FileName" show="0"/>
+      </Hints>
+      <!-- End of WriteUnstructured -->
+    </WriterProxy>
+
+  </ProxyGroup>
+
+
+
+
+
+ <ProxyGroup name="readers">
+
+   <SourceProxy name="ReadUnstructured" 
+                class="vtkReadUnstructured"
+                label="Unstructured reader">
+     <Documentation
+       short_help="Read a dataset in Unstructured format."
+       long_help="Read Unstructured format.">
+       The Unstructured reader reads unstructured data. The default file extension is .unst. The output of this reader is unstructured grid.
+     </Documentation>
+     <StringVectorProperty
+        name="FileName"
+        animateable="0"
+        command="SetFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for the Unstructured reader.
+        </Documentation>
+     </StringVectorProperty>
+
+     <StringVectorProperty 
+        name="CellArrayInfo"
+        information_only="1">
+        <ArraySelectionInformationHelper attribute_name="Cell"/>
+     </StringVectorProperty>
+
+     <StringVectorProperty
+        name="CellArrayStatus"
+        command="SetCellArrayStatus"
+        number_of_elements="2" 
+        repeat_command="1"
+        number_of_elements_per_command="2"
+        element_types="2 0" 
+        information_property="CellArrayInfo"
+        label="Cell Arrays">
+       <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+             <Property name="CellArrayInfo" function="ArrayList"/>
+          </RequiredProperties>
+       </ArraySelectionDomain>
+       <Documentation>
+         This property contains a list of the cell-centered arrays to read.
+       </Documentation>
+     </StringVectorProperty>
+
+     <StringVectorProperty 
+        name="PointArrayInfo"
+        information_only="1">
+        <ArraySelectionInformationHelper attribute_name="Point"/>
+     </StringVectorProperty>
+
+     <StringVectorProperty
+        name="PointArrayStatus"
+        command="SetPointArrayStatus"
+        number_of_elements="2" 
+        repeat_command="1"
+        number_of_elements_per_command="2"
+        element_types="2 0" 
+        information_property="PointArrayInfo"
+        label="Point Arrays">
+       <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+             <Property name="PointArrayInfo" function="ArrayList"/>
+          </RequiredProperties>
+       </ArraySelectionDomain>
+       <Documentation>
+         This property contains a list of the point-centered arrays to read.
+       </Documentation>
+     </StringVectorProperty>
+   <!-- End ReadUnstructured -->
+   </SourceProxy>
+
+  </ProxyGroup>
+
+
+</ServerManagerConfiguration>

@@ -1,0 +1,2132 @@
+<ui version="4.0" >
+ <class>MainWindowBase</class>
+ <widget class="QMainWindow" name="MainWindowBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>958</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>297</width>
+    <height>389</height>
+   </size>
+  </property>
+  <property name="baseSize" >
+   <size>
+    <width>365</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+   </font>
+  </property>
+  <property name="contextMenuPolicy" >
+   <enum>Qt::NoContextMenu</enum>
+  </property>
+  <property name="windowTitle" >
+   <string>VR-Prepare</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="images/StaticImages.qrc" >
+    <normaloff>:/icon_wuerfel_blau.png</normaloff>:/icon_wuerfel_blau.png</iconset>
+  </property>
+  <property name="toolTip" >
+   <string/>
+  </property>
+  <widget class="QWidget" name="widget" >
+   <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter1" >
+      <property name="lineWidth" >
+       <number>0</number>
+      </property>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QFrame" name="FrameLeft" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QStackedWidget" name="WidgetStackLeft" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape" >
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="lineWidth" >
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="WStackPage" >
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QFrame" name="frameButtons" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>0</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout" >
+           <item>
+            <widget class="QLabel" name="label" >
+             <property name="text" >
+              <string>Filter:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="filterLineEdit" />
+           </item>
+           <item>
+            <widget class="QCheckBox" name="filterSceneGraphItems" >
+             <property name="text" >
+              <string>reduce scenegraph</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="clearFilterButton" >
+             <property name="maximumSize" >
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>ArrowCursor</cursorShape>
+             </property>
+             <property name="toolTip" >
+              <string>Remove the current filter</string>
+             </property>
+             <property name="text" >
+              <string>...</string>
+             </property>
+             <property name="icon" >
+              <iconset>
+               <normaloff>:/button_clear.png</normaloff>:/button_clear.png</iconset>
+             </property>
+             <property name="autoRaise" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="spacer1008" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>20</width>
+               <height>21</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QToolButton" name="vrpToolButtonInterlink" >
+             <property name="maximumSize" >
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>ArrowCursor</cursorShape>
+             </property>
+             <property name="toolTip" >
+              <string>Interlink Data sets for Comparsion.</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="images/StaticImages.qrc" >
+               <normaloff>:/button_interlink.png</normaloff>:/button_interlink.png</iconset>
+             </property>
+             <property name="checkable" >
+              <bool>true</bool>
+             </property>
+             <property name="autoRaise" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="vrpToolButtonUngroup" >
+             <property name="maximumSize" >
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>ArrowCursor</cursorShape>
+             </property>
+             <property name="toolTip" >
+              <string>Ungroup selected group.</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="images/StaticImages.qrc" >
+               <normaloff>:/button_ungroup.png</normaloff>:/button_ungroup.png</iconset>
+             </property>
+             <property name="autoRaise" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="vrpToolButtonGroup" >
+             <property name="maximumSize" >
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>ArrowCursor</cursorShape>
+             </property>
+             <property name="toolTip" >
+              <string>Group selected objects.</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="images/StaticImages.qrc" >
+               <normaloff>:/button_group.png</normaloff>:/button_group.png</iconset>
+             </property>
+             <property name="autoRaise" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="vrpToolButtonRemove" >
+             <property name="minimumSize" >
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>25</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>ArrowCursor</cursorShape>
+             </property>
+             <property name="toolTip" >
+              <string>Remove selected objects from object list.</string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="images/StaticImages.qrc" >
+               <normaloff>:/button_remove.png</normaloff>:/button_remove.png</iconset>
+             </property>
+             <property name="autoRaise" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QFrame" name="FrameRight" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth" >
+        <number>0</number>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout" >
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QWidget" native="1" name="FrameRightTopWidget" >
+          <layout class="QHBoxLayout" name="horizontalLayout_2" >
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="CoxmlButton" >
+             <property name="minimumSize" >
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize" >
+              <size>
+               <width>999999</width>
+               <height>26</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string>Component Library</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="PropertiesButton" >
+             <property name="minimumSize" >
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string>Properties</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>1</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="FrameRightPinButton" >
+             <property name="maximumSize" >
+              <size>
+               <width>26</width>
+               <height>26</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+             <property name="icon" >
+              <iconset resource="images/StaticImages.qrc" >
+               <normaloff>:/unpinned.png</normaloff>
+               <normalon>:/pinned.png</normalon>:/unpinned.png</iconset>
+             </property>
+             <property name="checkable" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QStackedWidget" name="WidgetStackRight" >
+          <property name="frameShape" >
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth" >
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="WStackPage" >
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="toolBar_Standard" >
+   <property name="windowTitle" >
+    <string>Standard</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="fileNewAction" />
+   <addaction name="fileOpenAction" />
+   <addaction name="fileSaveAction" />
+  </widget>
+  <widget class="QToolBar" name="toolBar_Viewpoints" >
+   <property name="windowTitle" >
+    <string>Viewpoints</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="viewpointsNew_ViewpointAction" />
+   <addaction name="viewpointsDelete_ViewpointAction" />
+   <addaction name="viewpointsChange_ViewpointAction" />
+   <addaction name="separator" />
+   <addaction name="navigationMode_NoneAction" />
+   <addaction name="navigationMode_TransformAction" />
+   <addaction name="navigationMode_MeasureAction" />
+   <addaction name="separator" />
+   <addaction name="actionSceneEditorGrid" />
+   <addaction name="actionSceneEditorOperatingRange" />
+   <addaction name="actionOrthographic_Projection" />
+   <addaction name="actionTurntable_animation" />
+   <addaction name="actionTurntable_rotate45" />
+   <addaction name="viewpointsView_AllAction" />
+   <addaction name="separator" />
+   <addaction name="actionFront" />
+   <addaction name="actionBack" />
+   <addaction name="actionLeft" />
+   <addaction name="actionRight" />
+   <addaction name="actionTop" />
+   <addaction name="actionBottom" />
+   <addaction name="separator" />
+  </widget>
+  <widget class="QToolBar" name="toolBar_snap" >
+   <property name="windowTitle" >
+    <string>Snap</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="snapshotAction" />
+   <addaction name="snapallAction" />
+   <addaction name="videoCaptureAction" />
+  </widget>
+  <widget class="QMenuBar" name="MenuBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>958</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="File" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="fileNewAction" />
+    <addaction name="fileWizardAction" />
+    <addaction name="fileOpenAction" />
+    <addaction name="fileAddAction" />
+    <addaction name="fileCompare_Project_Action" />
+    <addaction name="fileSaveAction" />
+    <addaction name="fileSaveAsAction" />
+    <addaction name="separator" />
+    <addaction name="fileProject_InformationAction" />
+    <addaction name="fileImport_DatasetsAction" />
+    <addaction name="fileExport_to_mapAction" />
+    <addaction name="separator" />
+    <addaction name="fileExitAction" />
+   </widget>
+   <widget class="QMenu" name="editMenu" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <widget class="QMenu" name="editPartsMenu" >
+     <property name="tearOffEnabled" >
+      <bool>true</bool>
+     </property>
+     <property name="title" >
+      <string>&amp;Parts</string>
+     </property>
+     <addaction name="editPartsDuplicate_Selected_PartAction" />
+     <addaction name="editPartsCut_Selected_PartAction" />
+     <addaction name="editPartsDelete_Selected_PartAction" />
+     <addaction name="separator" />
+     <addaction name="editPartsShow_Selected_PartAction" />
+     <addaction name="editPartsHide_Selected_PartAction" />
+     <addaction name="separator" />
+     <addaction name="editPartsSynchronization_Options_Action" />
+     <addaction name="editPartsCrop_all_parts_Action" />
+    </widget>
+    <addaction name="editPartsMenu" />
+   </widget>
+   <widget class="QMenu" name="Create" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;Create</string>
+    </property>
+    <addaction name="createPresentation_StepAction" />
+    <addaction name="createViewpointAction" />
+    <addaction name="actionScene_Object_List" />
+   </widget>
+   <widget class="QMenu" name="Window" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="RendererRestartAction" />
+    <addaction name="windowPresenter_ManagerAction" />
+    <addaction name="windowViewpoint_ManagerAction" />
+    <addaction name="windowAnimation_ManagerAction" />
+    <addaction name="windowTracking_ManagerAction" />
+    <addaction name="windowScene_ViewAction" />
+    <addaction name="separator" />
+    <addaction name="windowAdviceAction" />
+   </widget>
+   <widget class="QMenu" name="helpMenu" >
+    <property name="minimumSize" >
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="showAdvice" />
+    <addaction name="helpGettingStartedAction" />
+   </widget>
+   <widget class="QMenu" name="Viewpoints" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuNavigation" >
+     <property name="title" >
+      <string>N&amp;avigation</string>
+     </property>
+     <addaction name="navigationMode_NoneAction" />
+     <addaction name="navigationMode_TransformAction" />
+     <addaction name="navigationMode_MeasureAction" />
+    </widget>
+    <addaction name="viewpointsNew_ViewpointAction" />
+    <addaction name="viewpointsDelete_ViewpointAction" />
+    <addaction name="viewpointsChange_ViewpointAction" />
+    <addaction name="separator" />
+    <addaction name="viewpointsFlying_ModeAction" />
+    <addaction name="menuNavigation" />
+    <addaction name="separator" />
+    <addaction name="actionSceneEditorGrid" />
+    <addaction name="actionSceneEditorOperatingRange" />
+    <addaction name="actionOrthographic_Projection" />
+    <addaction name="actionTurntable_animation" />
+    <addaction name="actionTurntable_rotate45" />
+    <addaction name="viewpointsView_AllAction" />
+    <addaction name="separator" />
+    <addaction name="actionFront" />
+    <addaction name="actionBack" />
+    <addaction name="actionLeft" />
+    <addaction name="actionRight" />
+    <addaction name="actionTop" />
+    <addaction name="actionBottom" />
+   </widget>
+   <widget class="QMenu" name="Presentation" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;Presentation</string>
+    </property>
+    <widget class="QMenu" name="presentationNavigationAction" >
+     <property name="tearOffEnabled" >
+      <bool>true</bool>
+     </property>
+     <property name="title" >
+      <string>&amp;Navigation</string>
+     </property>
+     <addaction name="presentationNavigationPlayAction" />
+     <addaction name="presentationNavigationStopAction" />
+     <addaction name="presentationNavigationBackAction" />
+     <addaction name="presentationNavigationForwardAction" />
+     <addaction name="presentationNavigationGo_To_StartAction" />
+     <addaction name="presentationNavigationGo_To_EndAction" />
+    </widget>
+    <addaction name="presentationNew_Presentation_StepAction" />
+    <addaction name="presentationDelete_Presentation_StepAction" />
+    <addaction name="presentationNavigationAction" />
+    <addaction name="separator" />
+    <addaction name="presentationNewViewpointAction" />
+   </widget>
+   <widget class="QMenu" name="Snapshot" >
+    <property name="tearOffEnabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>&amp;Snapshot</string>
+    </property>
+    <addaction name="snapshotAction" />
+    <addaction name="snapallAction" />
+    <addaction name="videoCaptureAction" />
+   </widget>
+   <addaction name="File" />
+   <addaction name="editMenu" />
+   <addaction name="Create" />
+   <addaction name="Window" />
+   <addaction name="Viewpoints" />
+   <addaction name="Presentation" />
+   <addaction name="Snapshot" />
+   <addaction name="helpMenu" />
+  </widget>
+  <widget class="QToolBar" name="toolBar_Presenter" >
+   <property name="windowTitle" >
+    <string>Presenter</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="presentationNew_Presentation_StepAction" />
+   <addaction name="presentationDelete_Presentation_StepAction" />
+   <addaction name="separator" />
+   <addaction name="presentationNavigationGo_To_StartAction" />
+   <addaction name="presentationNavigationBackAction" />
+   <addaction name="presentationNavigationStopAction" />
+   <addaction name="presentationNavigationPlayAction" />
+   <addaction name="presentationNavigationForwardAction" />
+   <addaction name="presentationNavigationGo_To_EndAction" />
+  </widget>
+  <action name="fileNewAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/filenew</normaloff>:/filenew</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;New Project</string>
+   </property>
+   <property name="iconText" >
+    <string>Create new Project</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileNewAction</cstring>
+   </property>
+  </action>
+  <action name="fileOpenAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/fileopen</normaloff>:/fileopen</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Open Project ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Open existent Project</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileOpenAction</cstring>
+   </property>
+  </action>
+  <action name="fileSaveAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/filesave</normaloff>:/filesave</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Save</string>
+   </property>
+   <property name="iconText" >
+    <string>Save Project</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileSaveAction</cstring>
+   </property>
+  </action>
+  <action name="fileSaveAsAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Save &amp;As...</string>
+   </property>
+   <property name="iconText" >
+    <string>Save As</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileSaveAsAction</cstring>
+   </property>
+  </action>
+  <action name="filePrintAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/print</normaloff>:/print</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Print...</string>
+   </property>
+   <property name="iconText" >
+    <string>Print report</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+P</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>filePrintAction</cstring>
+   </property>
+  </action>
+  <action name="fileExitAction" >
+   <property name="text" >
+    <string>&amp;Quit</string>
+   </property>
+   <property name="iconText" >
+    <string>&amp;Quit</string>
+   </property>
+   <property name="toolTip" >
+    <string>Leave COVISE</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileExitAction</cstring>
+   </property>
+  </action>
+  <action name="editUndoAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/undo</normaloff>:/undo</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Undo</string>
+   </property>
+   <property name="iconText" >
+    <string>Undo last action</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Z</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editUndoAction</cstring>
+   </property>
+  </action>
+  <action name="editRedoAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/redo</normaloff>:/redo</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Redo</string>
+   </property>
+   <property name="iconText" >
+    <string>Redo last action</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Y</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editRedoAction</cstring>
+   </property>
+  </action>
+  <action name="helpUserguideAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;COVISE Userguide...</string>
+   </property>
+   <property name="iconText" >
+    <string>COVISE Userguide</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>helpUserguideAction</cstring>
+   </property>
+  </action>
+  <action name="helpGettingStartedAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Getting Started</string>
+   </property>
+   <property name="iconText" >
+    <string>Getting Started</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>helpGettingStartedAction</cstring>
+   </property>
+  </action>
+  <action name="helpAboutAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;About...</string>
+   </property>
+   <property name="iconText" >
+    <string>About</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>helpAboutAction</cstring>
+   </property>
+  </action>
+  <action name="fileProject_InformationAction" >
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Project Information...</string>
+   </property>
+   <property name="iconText" >
+    <string>&amp;Project Information...</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileProject_InformationAction</cstring>
+   </property>
+  </action>
+  <action name="editFilteringAction" >
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_filter-parts.png</normaloff>:/button_filter-parts.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Object Selection</string>
+   </property>
+   <property name="iconText" >
+    <string>Object Selection</string>
+   </property>
+   <property name="toolTip" >
+    <string>Edit Object Selection</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Object Selection</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editFilteringAction</cstring>
+   </property>
+  </action>
+  <action name="viewShaderAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Shader</string>
+   </property>
+   <property name="iconText" >
+    <string>Shader on/off</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewShaderAction</cstring>
+   </property>
+  </action>
+  <action name="viewViewpointsAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Viewpoints</string>
+   </property>
+   <property name="iconText" >
+    <string>&amp;Viewpoints</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewViewpointsAction</cstring>
+   </property>
+  </action>
+  <action name="viewRendererCOVERAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>COVER &amp;Desktop</string>
+   </property>
+   <property name="iconText" >
+    <string>COVER Desktop</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewRendererCOVERAction</cstring>
+   </property>
+  </action>
+  <action name="windowPresenter_ManagerAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Presentation Manager</string>
+   </property>
+   <property name="iconText" >
+    <string>Presentation Manager</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presenterWidget</cstring>
+   </property>
+  </action>
+  <action name="showEditPanel" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_edit_objects.png</normaloff>:/button_edit_objects.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Edit Panel</string>
+   </property>
+   <property name="iconText" >
+    <string>Edit Panel show / hide</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>showEditPanel</cstring>
+   </property>
+  </action>
+  <action name="showObjectList" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_objectlist.png</normaloff>:/button_objectlist.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Object &amp;List</string>
+   </property>
+   <property name="iconText" >
+    <string>Object List show/hide</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>showObjectList</cstring>
+   </property>
+  </action>
+  <action name="fileImport_DatasetsAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Import Data Set(s)...</string>
+   </property>
+   <property name="iconText" >
+    <string>Import Data Set(s)...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Import Data Set to the Project.</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileImport_DatasetsAction</cstring>
+   </property>
+  </action>
+  <action name="fileExport_to_mapAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Export to Map...</string>
+   </property>
+   <property name="iconText" >
+    <string>Export to Map...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Export to Map for COVISE Map-Editor.</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileExport_to_mapAction</cstring>
+   </property>
+  </action>
+  <action name="viewVisualizationToolset" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_visualization_toolset.png</normaloff>:/button_visualization_toolset.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Visualization Toolset...</string>
+   </property>
+   <property name="iconText" >
+    <string>&amp;Visualization Toolset...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Open Visualization Toolset.</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewVisualizationToolset</cstring>
+   </property>
+  </action>
+  <action name="viewGlobalGeometryAttributes" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_geometry_edit.png</normaloff>:/button_geometry_edit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Global Geometry Attributes...</string>
+   </property>
+   <property name="iconText" >
+    <string>Global Geometry Attributes...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Edit Global Geometry Attributes</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewGlobalGeometryAttributes</cstring>
+   </property>
+  </action>
+  <action name="showAdvice" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/symbol_help.png</normaloff>:/symbol_help.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Advice</string>
+   </property>
+   <property name="iconText" >
+    <string>Advice</string>
+   </property>
+   <property name="toolTip" >
+    <string>Show Advice for GUI handling.</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>showAdvice</cstring>
+   </property>
+  </action>
+  <action name="viewRendererCOVERVRAction" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>COVER &amp;VR</string>
+   </property>
+   <property name="iconText" >
+    <string>COVER VR</string>
+   </property>
+   <property name="toolTip" >
+    <string>View COVER in VR environment.</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewRendererCOVERVRAction</cstring>
+   </property>
+  </action>
+  <action name="editRegionOfInterest" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_roi.png</normaloff>:/button_roi.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Region of &amp;Interest</string>
+   </property>
+   <property name="iconText" >
+    <string>Region of Interest</string>
+   </property>
+   <property name="toolTip" >
+    <string>Customize Region of Interest</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editRegionOfInterest</cstring>
+   </property>
+  </action>
+  <action name="createPresentation_StepAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_preferences.png</normaloff>:/button_preferences.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Presentation Step</string>
+   </property>
+   <property name="iconText" >
+    <string>Presentation Step</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>createPresentation_PointAction</cstring>
+   </property>
+  </action>
+  <action name="viewpointsNew_ViewpointAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/viewpointMgr.png</normaloff>:/viewpointMgr.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;New Viewpoint</string>
+   </property>
+   <property name="iconText" >
+    <string>New Viewpoint</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewpointsNew_ViewpointAction</cstring>
+   </property>
+  </action>
+  <action name="viewpointsDelete_ViewpointAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/viewpointMgr_delete.png</normaloff>:/viewpointMgr_delete.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Delete Viewpoint</string>
+   </property>
+   <property name="iconText" >
+    <string>Delete Viewpoint</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewpointsDelete_ViewpointAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNew_Presentation_StepAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_preferences.png</normaloff>:/button_preferences.png</iconset>
+   </property>
+   <property name="text" >
+    <string>New &amp;Presentation Step</string>
+   </property>
+   <property name="iconText" >
+    <string>New Presentation Step</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNew_Presentation_PointAction</cstring>
+   </property>
+  </action>
+  <action name="presentationDelete_Presentation_StepAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_preferences_delete.png</normaloff>:/button_preferences_delete.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Delete Presentation Step</string>
+   </property>
+   <property name="iconText" >
+    <string>Delete Presentation Step</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationDelete_Presentation_PointAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNavigationPlayAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/media-playback-start.png</normaloff>:/media-playback-start.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Play</string>
+   </property>
+   <property name="iconText" >
+    <string>Play</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNavigationPlayAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNavigationStopAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/media-playback-stop.png</normaloff>:/media-playback-stop.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Stop</string>
+   </property>
+   <property name="iconText" >
+    <string>Stop</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNavigationStopAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNavigationBackAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/media-seek-backward.png</normaloff>:/media-seek-backward.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Backward</string>
+   </property>
+   <property name="iconText" >
+    <string>Backward</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNavigationBackAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNavigationForwardAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/media-seek-forward.png</normaloff>:/media-seek-forward.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Forward</string>
+   </property>
+   <property name="iconText" >
+    <string>Forward</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNavigationForwardAction</cstring>
+   </property>
+  </action>
+  <action name="viewpointsView_AllAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/viewall.png</normaloff>:/viewall.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;View All</string>
+   </property>
+   <property name="iconText" >
+    <string>View All</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewpointsView_AllAction</cstring>
+   </property>
+  </action>
+  <action name="windowViewpoint_ManagerAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Viewpoint Manager</string>
+   </property>
+   <property name="iconText" >
+    <string>Viewpoint Manager</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>windowViewpoint_ManagerAction</cstring>
+   </property>
+  </action>
+  <action name="windowAdviceAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>A&amp;dvice</string>
+   </property>
+   <property name="iconText" >
+    <string>Advice</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>windowAdviceAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNewViewpointAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Always create new Viewpoint</string>
+   </property>
+   <property name="iconText" >
+    <string>Always create new Viewpoint</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNewViewpointAction</cstring>
+   </property>
+  </action>
+  <action name="editPartsAction" >
+   <property name="text" >
+    <string>Parts</string>
+   </property>
+   <property name="iconText" >
+    <string>Parts</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editPartsAction</cstring>
+   </property>
+  </action>
+  <action name="editPartsDuplicate_Selected_PartAction" >
+   <property name="text" >
+    <string>D&amp;uplicate Selected Parts</string>
+   </property>
+   <property name="iconText" >
+    <string>Duplicate Selected Parts</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editPartsDuplicate_Selected_PartAction</cstring>
+   </property>
+  </action>
+  <action name="editPartsDelete_Selected_PartAction" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Delete Selected Parts</string>
+   </property>
+   <property name="iconText" >
+    <string>Delete Selected Parts</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editPartsDelete_Selected_PartAction</cstring>
+   </property>
+  </action>
+  <action name="viewpointsFlying_ModeAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Fl&amp;ying Mode</string>
+   </property>
+   <property name="iconText" >
+    <string>Flying Mode</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>viewpointsFlying_ModeAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNavigationGo_To_StartAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/media-seek-toStart.png</normaloff>:/media-seek-toStart.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Go To Start</string>
+   </property>
+   <property name="iconText" >
+    <string>Go To Start</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNavigationGo_To_StartAction</cstring>
+   </property>
+  </action>
+  <action name="presentationNavigationGo_To_EndAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/media-seek-toEnd.png</normaloff>:/media-seek-toEnd.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Go To &amp;End</string>
+   </property>
+   <property name="iconText" >
+    <string>Go To End</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>presentationNavigationGo_To_EndAction</cstring>
+   </property>
+  </action>
+  <action name="fileAddAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_objectlist.png</normaloff>:/button_objectlist.png</iconset>
+   </property>
+   <property name="text" >
+    <string>A&amp;dd Project ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Add Project ...</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileAddAction</cstring>
+   </property>
+  </action>
+  <action name="editPartsSynchronization_Options_Action" >
+   <property name="text" >
+    <string>S&amp;ynchronization Options ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Synchronization Options ...</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editPartsSynchronization_Options_Action</cstring>
+   </property>
+  </action>
+  <action name="fileCompare_Project_Action" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_interlink.png</normaloff>:/button_interlink.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Compare Project ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Compare Project ...</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>fileCompare_Project_Action</cstring>
+   </property>
+  </action>
+  <action name="RendererRestartAction" >
+   <property name="text" >
+    <string>&amp;Restart Renderer</string>
+   </property>
+   <property name="iconText" >
+    <string>Restart Renderer</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>RendererRestartAction</cstring>
+   </property>
+  </action>
+  <action name="windowAnimation_ManagerAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Animation Manager</string>
+   </property>
+   <property name="iconText" >
+    <string>Animation Manager</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>windowAnimation_ManagerAction</cstring>
+   </property>
+  </action>
+  <action name="editPartsCrop_all_parts_Action" >
+   <property name="text" >
+    <string>Cr&amp;op all parts ...</string>
+   </property>
+   <property name="iconText" >
+    <string>Crop all parts ...</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editPartsCrop_all_parts_Action</cstring>
+   </property>
+  </action>
+  <action name="editPartsCut_Selected_PartAction" >
+   <property name="text" >
+    <string>&amp;Cut Selected Parts</string>
+   </property>
+   <property name="iconText" >
+    <string>Cut Selected Parts</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>editPartsCut_Selected_PartAction</cstring>
+   </property>
+  </action>
+  <action name="snapallAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/videoCamera.png</normaloff>:/videoCamera.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Snap &amp;all</string>
+   </property>
+   <property name="iconText" >
+    <string>Snap all</string>
+   </property>
+   <property name="name" stdset="0" >
+    <cstring>snapshotnew_itemAction</cstring>
+   </property>
+  </action>
+  <action name="editPartsShow_Selected_PartAction" >
+   <property name="text" >
+    <string>&amp;Show Selected Parts</string>
+   </property>
+  </action>
+  <action name="editPartsHide_Selected_PartAction" >
+   <property name="text" >
+    <string>&amp;Hide Selected Parts</string>
+   </property>
+  </action>
+  <action name="createViewpointAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/viewpointMgr.png</normaloff>:/viewpointMgr.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Viewpoint</string>
+   </property>
+  </action>
+  <action name="windowTracking_ManagerAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Tracking Manager</string>
+   </property>
+  </action>
+  <action name="snapshotAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/photoCamera.png</normaloff>:/photoCamera.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Snapshot</string>
+   </property>
+  </action>
+  <action name="viewpointsChange_ViewpointAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/button_visualization_toolset.png</normaloff>:/button_visualization_toolset.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Change Viewpoint</string>
+   </property>
+  </action>
+  <action name="windowScene_ViewAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Scene View</string>
+   </property>
+  </action>
+  <action name="videoCaptureAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/videoCamera.png</normaloff>:/videoCamera.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Capture video</string>
+   </property>
+   <property name="toolTip" >
+    <string>Capture Video</string>
+   </property>
+  </action>
+  <action name="actionScene_Object_List" >
+   <property name="text" >
+    <string>&amp;Scene Object List</string>
+   </property>
+  </action>
+  <action name="actionOrthographic_Projection" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/orthographicProjection.png</normaloff>:/orthographicProjection.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Orthographic Projection</string>
+   </property>
+  </action>
+  <action name="actionTurntable_animation" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/turntableAnimation.png</normaloff>:/turntableAnimation.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Turntable Animation</string>
+   </property>
+  </action>
+  <action name="actionTurntable_rotate45" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/turntableRotate45.png</normaloff>:/turntableRotate45.png</iconset>
+   </property>
+   <property name="text" >
+    <string>T&amp;urntable Rotate 45</string>
+   </property>
+  </action>
+  <action name="actionFront" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/frontView.png</normaloff>:/frontView.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Front</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Go to viewpoint front</string>
+   </property>
+  </action>
+  <action name="actionBack" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/backView.png</normaloff>:/backView.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Back</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Go to viewpoint back</string>
+   </property>
+  </action>
+  <action name="actionLeft" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/leftView.png</normaloff>:/leftView.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Left</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Go to viewpoint left</string>
+   </property>
+  </action>
+  <action name="actionRight" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/rightView.png</normaloff>:/rightView.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Right</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Go to viewpoint right</string>
+   </property>
+  </action>
+  <action name="actionTop" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/topView.png</normaloff>:/topView.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Top</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Go to viewpoint top</string>
+   </property>
+  </action>
+  <action name="actionBottom" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/bottomView.png</normaloff>:/bottomView.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Botto&amp;m</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Go to viewpoint bottom</string>
+   </property>
+  </action>
+  <action name="fileWizardAction" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/filenew</normaloff>:/filenew</iconset>
+   </property>
+   <property name="text" >
+    <string>New Project (&amp;Wizard) ...</string>
+   </property>
+  </action>
+  <action name="actionTurntable_animation" >
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/turntableAnimation.png</normaloff>:/turntableAnimation.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Turntable Animation</string>
+   </property>
+  </action>
+  <action name="navigationMode_NoneAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/cam_move_locked.png</normaloff>:/cam_move_locked.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Fixed</string>
+   </property>
+  </action>
+  <action name="navigationMode_TransformAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/cam_move.png</normaloff>:/cam_move.png</iconset>
+   </property>
+   <property name="text" >
+    <string>F&amp;ree</string>
+   </property>
+  </action>
+  <action name="navigationMode_MeasureAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/measure.png</normaloff>:/measure.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Measure</string>
+   </property>
+  </action>
+  <action name="actionSceneEditorOperatingRange" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/operating_range.png</normaloff>:/operating_range.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Operating Range</string>
+   </property>
+  </action>
+  <action name="actionSceneEditorGrid" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="images/StaticImages.qrc" >
+     <normaloff>:/grid.png</normaloff>:/grid.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Grid</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources>
+  <include location="images/StaticImages.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>fileNewAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileNew()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileOpenAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileOpen()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileSaveAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileSave()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileSaveAsAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileSaveAs()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileExitAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileExit()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editUndoAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>editUndo()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editRedoAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>editRedo()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showEditPanel</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>FrameRight</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>898</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showObjectList</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>FrameLeft</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>29</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileExport_to_mapAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>exportMap()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileAddAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileAdd()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileCompare_Project_Action</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileCompare()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RendererRestartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>restartRenderer()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileProject_InformationAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileProjectInformation()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileImport_DatasetsAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>importDataset()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>378</x>
+     <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileWizardAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowBase</receiver>
+   <slot>fileWizard()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>466</x>
+     <y>416</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

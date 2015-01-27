@@ -1,0 +1,251 @@
+#########################################################################
+#                                                                       #
+# EUROPEAN NETWORKING DEMO BOOTH @ SC99                                 #
+#                                                                       #
+#########################################################################
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+# 	foo	   	shm		rexec			30
+	a1		shm		rexec			30
+}
+
+## HostInfo : enables SMP Multithread Parallelisation
+##            ---> set to 1 if experiencing Memory problems
+##            foo is Multi-Processor, all others are Single.
+
+HostInfo: foo
+{
+    numProcs 5
+}
+
+HostInfo
+{
+    numProcs 1
+}
+
+License
+{
+#    Key abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabc    bar@foo    31.12.3909
+Key IBKNKOFDPHPEKMPFNBNDMAIJCPIBLPHPJGALEJCOIKNCAOBV    covise@sc99    30.11.1999
+}
+
+COVERConfig
+{
+    ANTIALIAS                   ON
+#   ARENA_SIZE                  250000000
+#   AUTO_WIREFRAME              OFF
+#   BACKGROUND                  0.0 0.0 0.0
+#   BUTTON_SYSTEM               DIVISION
+    COORD_AXIS                  ON
+    VIEWER_POSITION             
+#   FPS OFF                     OFF
+    WELCOME_MESSAGE             Welcome to COVER
+#   FOOTER_MESSAGE              Covise Virtual Environment
+#   FORCE_FEEDBACK	        OFF
+#   FORCE_FEEDBACK_MODE         2
+#   FORCE_SCALE		        1.0
+    FREEZE			ON
+#   LIGHT1                      0 1000 1000 1
+#   LIGHT2                      0 1000 1000 1
+#   MAX_FORCE                   0.05
+#   MENU_POSITION               900 0 800
+#   MENU_ORIENTATION            -30 0 0 1
+#   MODELPATH                   /usr/share/data/models
+#   MODELFILE                   banana.iv
+#   MOVE_PARTS                  ON
+#   MODULE                      CUBE
+#   MULTIPROCESS                ON
+#   NOSEPARATION                FALSE
+#   NOTIFY                      OFF
+#   SPOTLIGHT                   OFF
+#   TWOSIDE                     ON
+    TRACKING_SYSTEM             
+#   COVERConfig.SAVE_FILE       cover.pfb
+    SCENESIZE		            300
+    NUM_PIPES		            1
+    NUM_WINDOWS		            1
+    PIPE_LOCKING                CHANNEL
+    STEREO_SEPARATION           60
+#   RELATIVISTIC_PARAMETER_FILE xxx
+#   RELATIVISTIC_Mode           xxx   
+    SCALE_ALL		            OFF
+#   VISUAL_ID                   0x6f
+    WHITE_TO_GREY		        TRUE
+		
+}
+
+#onyx
+COVERConfig: a1
+{
+    ANTIALIAS                   ON
+
+#   ARENA_SIZE                  250000000
+#   AUTO_WIREFRAME              OFF
+#   BACKGROUND                  0.0 0.0 0.0
+   BUTTON_SYSTEM               CAVELIB
+
+    COORD_AXIS                  ON
+
+#   VIEWER_POSITION             
+
+#   FPS OFF                     OFF
+
+    WELCOME_MESSAGE             Covise @ SC'99
+
+#   FOOTER_MESSAGE              Covise @ SC'99
+#   FORCE_FEEDBACK	        OFF
+#   FORCE_FEEDBACK_MODE         2
+#   FORCE_SCALE		        1.0
+
+    FREEZE			OFF
+
+#   LIGHT1                      0 1000 1000 1
+#   LIGHT2                      0 1000 1000 1
+#   MAX_FORCE                   0.05
+#   MENU_POSITION               900 0 800
+#   MENU_ORIENTATION            -30 0 0 1
+#   MODELPATH                   /usr/share/data/models
+#   MODELFILE                   banana.iv
+#   MOVE_PARTS                  ON
+#   MODULE                      CUBE
+
+    MULTIPROCESS                ON
+
+#   NOSEPARATION                FALSE
+#   NOTIFY                      OFF
+#   SPOTLIGHT                   OFF
+
+    TWOSIDE                     ON
+    TRACKING_SYSTEM             CAVELIB
+
+#   COVERConfig.SAVE_FILE       cover.pfb
+
+    SCENESIZE		        1249
+    NUM_PIPES		        1
+    NUM_WINDOWS		        1
+    PIPE_LOCKING                CHANNEL
+    STEREO_SEPARATION           60
+
+#   RELATIVISTIC_PARAMETER_FILE xxx
+#   RELATIVISTIC_Mode           xxx   
+
+    SCALE_ALL		        ON
+
+#   VISUAL_ID                   0x6f
+#    WHITE_TO_GREY	        TRUE
+		
+}
+
+CaveLibConfig
+{
+    WAND_SHMID	9801
+    TRACKER_SHMID	9800
+}
+
+ButtonConfig
+{
+    BUTTON_DEVICE	/dev/ttyd2
+}
+
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1024 768
+}
+
+WindowConfig: a1
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	1024 0 		1024 768
+}
+
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:0.0
+}
+
+PipeConfig: a1
+{
+#	SoftPipe	Screen   	Display				
+      	0		0		:0.0
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		340 270		0 0 0			0.0 0.0 0.0	
+}
+
+ScreenConfig: a1
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		1690 1249	0 0 0			0.0 -30.0 0.0	
+}
+
+
+#
+# CAVELIB TRACKERD
+#
+PolhemusConfig
+{
+	SERIAL_PORT		 	/dev/ttyd2	19200
+	HEMISPHERE      		0 0 1
+
+#	Polhemus hand device and station
+	HAND	POLHEMUS_STYLUS		1
+
+#	Pohemus headtracking device and station
+	HEAD	POLHEMUS_SENSOR		0
+
+#	Position of the transmitter in the world coordinate system
+#	TRANSMITTER_OFFSET_POS			0 0 -62
+	TRANSMITTER_OFFSET_POS			0 0 97
+
+
+#	Orientation of the Transmitter in the world coordinate system RPH
+#	heading=rotz, pitch=rotx, roll=roty
+#					         H   P   R
+	TRANSMITTER_OFFSET_EULER		 0   60   0 
+
+
+#	Position of the Viewer in the receiver system
+	SENSOR_OFFSET_POS			0 -9 0
+
+#	Orientation of the Viewer in the receiver system
+        SENSOR_OFFSET_EULER			-90 0 0
+
+#       Position of the pointer in the receiver system
+	STYLUS_OFFSET_POS			0 0 -15
+
+#	Orientation of the Pointer in the receiver system
+###	STYLUS_OFFSET_EULER			-90 0 90
+	STYLUS_OFFSET_EULER			90 -90 0        
+}
+
+
+Network
+{
+#	IP_ALIAS	visavis		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+# Simulation coupling example
+
+MiniSim
+{
+   PORTS    31000-31999
+   SERVER   Module
+   TIMEOUT  90
+   STARTUP  CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; miniSim
+#   STARTUP  echo "setenv CO_SIMLIB_CONN %e ; cd %0 ; miniSim"
+   VERBOSE  1
+}
+
+

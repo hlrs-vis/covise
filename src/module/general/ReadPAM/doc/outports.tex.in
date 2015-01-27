@@ -1,0 +1,107 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{meshOut} & UnstructuredGrid & 
+        In general you will get a hierarchy of sets.
+        On the first level you get a set with time steps. The
+        elements of this set are in their turn sets of unstructured
+        grids. All elements in each one of these grids are of a unique
+        type. So you get separate grids according to the element type
+        of their elements:
+\begin{itemize}
+\item
+Solids.
+\item
+Shells.
+\item
+Bars.
+\item
+Beams.
+\item
+Bars with material label 205.
+\item
+Springs.
+\item
+Spherical joints.
+\item
+Flexion--torsion joints.
+\item
+Spotwelds.
+\item
+Jets.
+\item
+Kinematic joints.
+\item
+Mesh-independent spotwelds.
+\end{itemize}
+\\
+\hline
+	\textcolor{output}{nodalData1\newline nodalData2} & 
+                Float Vec3
+	 & Data per node.  \\
+\hline
+	\textcolor{output}{cellData1\newline cellData2} & 
+                Float Vec3
+	 & Data per cell.  \\
+\hline
+	\textcolor{output}{globalData1\newline globalData2} & 
+                Float Vec3
+	 & Non-local data. This category may include:
+\begin{itemize}  
+\item
+Global variables.
+\item
+Material variables.
+\item
+Transmission section variables.
+\item
+Contact interface variables.
+\item
+Rigid wall variables.
+\item
+Airbag or fluid cell variables.
+\item
+Airbag chamber variables.
+\item
+Airbag wall variables.
+\end{itemize}  
+\\
+\hline
+	\textcolor{output}{tensorData1} & 
+                Unstructured\_T3D\_Data
+	 & Tensor cell-based data. See parameter {\it Port select}
+         for more details.\\
+
+\\
+\hline
+	\textcolor{output}{Materials} & 
+                IntArr
+	 & A set of sets with the same structure as the grid, but
+           instead of grids, the final set elements are integer
+           arrays storing the material labels for the grid elements.
+           You may find this object useful to visualise parts
+           of the grid using \covlink{AssembleUsg}{AssembleUsg}{../../Tools/AssembleUsg/AssembleUsg.html}. \\
+\hline
+	\textcolor{output}{Elem\_Labels} & 
+                IntArr
+	 & A set of sets with the same structure as the grid, but
+           instead of grids, the final set elements are integer
+           arrays storing the element labels for the grid elements.
+           You may find this object useful to visualise parts
+           of the grid using \covlink{AssembleUsg}{AssembleUsg}{../../Tools/AssembleUsg/AssembleUsg.html}. \\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+%
+%=============================================================

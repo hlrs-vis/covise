@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Differentialgetriebe' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <ShortCut value="showName" name="showName" />
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="Sillstand" regexp="Sillstand.*" shader="Glossy1" />
+               <Scope name="folie3" regexp="folie3.*" shader="Glossy1" />
+               <Scope name="folie4" regexp="folie4.*" shader="Glossy1" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/CCBerufschulen/Maschinen_Werkzeuge/Differentialgetriebe/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

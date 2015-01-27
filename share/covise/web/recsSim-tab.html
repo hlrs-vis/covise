@@ -1,0 +1,226 @@
+<!DOCTYPE html>   
+<html lang="en">   
+  <head>   
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>COVISE - RECS Simulation</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/hlrs-covise.png">
+
+    <!-- jquery -->
+    <script src="jquery/jquery-2.0.3.min.js"></script>
+    <script src="jquery/jquery-ui.custom.js"></script>
+    <script src="jquery/jquery.cookie.js"></script>
+    <!-- bootstrap plugins such as tab-->
+    <script src="bootstrap/js/bootstrap.js"></script>
+ 
+    <script src="jquery/jquery.dynatree.js"></script>
+    <link href="jquery/skin/ui.dynatree.css" rel="stylesheet"> 
+
+    <!-- bootstrap -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">     
+    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">    
+    <link href="bootstrap/css/bootstrap-form.css" rel="stylesheet">
+
+    <!-- bootstrap plugins such as tab-->
+    <script src="bootstrap/js/bootstrap.js"></script>
+
+    <!-- bootstrap plugin file upload-->
+    <script src="bootstrap/plugins/bootstrap-fileupload.js"></script>
+    <link href="bootstrap/plugins/bootstrap-fileupload.css" rel="stylesheet">
+
+    <!-- bootstrap slider -->
+    <link href="bootstrap/slider/css/slider.css" rel="stylesheet"> 
+    <script src="bootstrap/slider/js/bootstrap-slider.js"></script>
+
+    <script>
+    /*
+      $('#plmxmlFileButton').change(function(){
+        $('#plmxmlFile').val($(this).val());
+      });
+    */
+    </script>
+  </head>
+
+  <body class="container">          
+    <form class="form-horizontal" id="recsSimForm">    
+    <!--
+    <div class="control-group">
+      <label class="control-label">PLMXML</label> 
+      <div class="controls">    
+        <input type="file" id="plmxmlFileButton" style="display:none;" />       
+        <input type="text" id="plmxmlFile" class="input-xlarge" placeholder="Please load the file ..." onchange="sendTextParameter(this.id)"> 
+        <a class="btn btn-primary" onclick="$('#plmxmlFileButton').click();">Browse</a>
+        <p class="help-block">Please choose the PLM XML file.</p>
+      </div>      
+    </div>
+    -->   
+
+    <!-- use this plugin or use the other one above -->
+    <!-- load file to covise machine -->
+    <!--
+    <div class="control-group">
+      <label class="control-label">PLMXML</label> 
+      <div class="controls">
+        <div class="fileupload fileupload-new" data-provides="fileupload">
+          <span class="btn btn-file btn-primary">
+            <span class="fileupload-new">select file</span>
+            <span class="fileupload-exists">change</span>
+            <input type="file" id="plmxmlFile"/>
+          </span>
+          <span class="fileupload-preview"></span>
+            <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float:none">×</a>
+            <p class="help-block">Please choose the PLM XML file.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <div class="controls">
+        <button type="button" class="btn btn-primary" id="fileUploadToServer" onclick="uploadResource()">upload</button>
+        <p class="help-block">Please load the PLM XML file to server.</p>
+      </div> 
+    </div>
+   -->
+    
+    <!--
+    <div class="control-group">
+      <label class="control-label">PLMXML</label> 
+      <div class="controls">
+        <div class="fileupload fileupload-new" data-provides="fileupload">
+          <span class="btn btn-file btn-primary">
+            <span class="fileupload-new">select file</span>
+            <span class="fileupload-exists">change</span>
+            <input type="file" id="plmxmlFile"/>
+          </span>
+          <span class="fileupload-preview"></span>
+            <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float:none">×</a>
+            <p class="help-block">Please choose the PLM XML file.</p>
+        </div>
+      </div>
+    </div>
+    -->
+    
+    <!--
+    <div class="control-group">
+      <div class="controls">
+        <button type="button" class="btn btn-primary" id="fileUploadToServer" onclick="davUploadFile()">upload</button>
+       <button type="button" class="btn btn-primary" id="fileUploadToServer" onclick="makeCorsRequest()">upload</button>
+        <p class="help-block">Please load the PLM XML file to server.</p>
+      </div> 
+    </div>
+    -->
+
+    <!--
+    <div class="control-group">
+      <div class="controls">
+        <div class="row">  
+          <div class="span4"> 
+            <div class="progress">  
+              <div class="bar" style="width: 0%;"></div> 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    -->    
+    
+    <!--
+    <div class="control-group">
+      <label class="control-label">Project</label> 
+      <div class="controls">
+        <input type="text" id="project" class="input-medium" required="required" pattern="[A-Za-z0-9]*" data-error="Please give your project." onchange="sendTextParameter(this.id)"> 
+        <p class="help-block">Please give your project name.</p>
+      </div>
+    </div>
+    -->
+  
+    <!-- used by coolEmAll on 20131115 -->
+    <div class="control-group">
+      <label class="control-label">DebbURL</label> 
+      <div class="controls" id="debbUrlDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Experiment</label> 
+      <div class="controls" id="experimentDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Trial</label> 
+      <div class="controls" id="trialDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Experiment Type</label> 
+      <div class="controls" id="experimentTypeDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Object Path</label> 
+      <div class="controls" id="objectPathDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Testbed Instance</label> 
+      <div class="controls" id="testbedInstanceDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Start Time</label> 
+      <div class="controls" id="startTimeDiv">        
+      
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">End Time</label> 
+      <div class="controls" id="endTimeDiv">        
+      
+      </div>
+    </div>
+  
+
+    <div class="control-group">
+      <label class="control-label"></label> 
+      <div class="controls"> 
+        <button type="button" class="btn btn-primary" id="runSim" onclick="executeModule(this.id)">run sim.</button>
+        <p class="help-block">Please run simulation first.</p>
+      </div>
+    </div> 
+
+    <hr></hr>          
+
+    <div class="control-group">
+      <label class="control-label">Cutting Surface</label> 
+      <div class="controls">         
+          <input type="text" id="cutSurface" class="input-mini">         
+      </div>
+    </div> 
+
+    <div class="control-group">
+      <label class="control-label"></label> 
+      <div class="controls">
+         
+        <button type="button" class="btn btn-primary" onclick="executeNet()">run vis.</button>
+      
+        <p class="help-block">Please run visualisation now.</p>
+      </div>
+    </div> 
+    </form> 
+
+    </script>
+  </body> 
+</html>

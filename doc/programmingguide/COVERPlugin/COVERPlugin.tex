@@ -1,0 +1,2115 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+
+%=============================================================
+\startdocument
+\chapter{OpenCOVER Plugin Programming }
+\label{COVERPlugin}
+%=============================================================
+
+\index{COVER|see{OpenCOVER}}
+
+
+
+The virtual reality Renderer module OpenCOVER \index{OpenCOVER!introduction}is a COVISE
+module with support for virtual reality (VR) input devices such as Polhemus FASTRAK,
+Ascension Motionstar or A.R.T. tracking devices and backprojection displays with
+stereo projection like CAVE or workbench.
+OpenCOVER can also be started independently of COVISE and be used as a 
+virtual reality viewer for 3D geometry. 
+
+The functionality of OpenCOVER can be extended through \emph{plugins}. 
+A plugin \index{Plugin Interface!Introduction}is a 
+dynamic library with a certain interface. During execution,
+OpenCOVER executes the functions provided by each such library.
+
+Plugins can either be used to implement interaction with other COVISE modules 
+(also called "feedback"), for example for steering a simulation module, or for 
+extending the functionality of OpenCOVER as a VR viewer.
+
+The plugin programmer needs to derive from the class \code{coVRPlugin} and reimplement
+some of its virtual methods as well as its constructor and destructor.
+These virtual methods are called at the appropriate times while OpenCOVER is running.
+This class has to be advertised to OpenCOVER with the macro \code{COVERPLUGIN}.
+
+A simple skeleton for an OpenCOVER plugin is available in
+\code{covise/src/template/plugin}.
+
+
+\section{Background on Dynamic Libraries}
+\latexonly
+\index{OpenCOVER!Dynamic Libraries}
+\endlatexonly
+
+In UNIX systems \code{dlopen} makes a dynamic library available to a running process. 
+\code{dlsym} returns the address of a symbol in the dynamic library (returns a
+pointer to a function in the dynamic library), \code{dlerror} returns diagnostic 
+information and \code{dlclose} closes the dynamic library. 
+The class \code{coVRDynLib} encapsulates this in a platform independent way.
+
+If OpenCOVER notices that it has to open a plugin it creates an instance of the 
+class \code{coVRPlugin}. The class \code{coVRPlugin} handles a plugin in OpenCOVER. It
+has virtual methods which correspond to the functions in a plugin, e.~g.\ \code{preFrame}, 
+\code{postFrame}, \code{addObject}, \code{addInteractor}, \code{removeObject},~\ldots
+Then OpenCOVER opens the dynamic library with 
+
+\begin{verbatim}
+      handle=dlopen(name, mode)
+\end{verbatim}
+
+and extracts the function with the name \code{coVRPluginInit} with 
+
+\begin{verbatim}
+      dlsym(handle, "coVRPluginInit") 
+\end{verbatim}
+
+which creates a new instance of \code{coVRPlugin}.
+All this is handled by the \code{COVERPLUGIN} macro.
+
+During execution of OpenCOVER for each loaded plugin the methods are called at the 
+appropriate time, e.~g.\ \code{coVRPlugin::preFrame} is executed before OpenCOVER 
+calls \code{osgViewer::Viewer::frame} and for each plugin \code{coVRPlugin::postFrame}
+is executed after.
+
+
+\section{OpenSceneGraph}
+\latexonly
+\index{OpenCOVER!OpenSceneGraph}
+\endlatexonly
+
+OpenCOVER uses the scene graph library OpenSceneGraph. The plugin programmer should be 
+familiar with the basic concepts of OpenSceneGraph such as the scene graph with its different
+types of nodes, the rendering loop and its main concepts. 
+You can consult the OpenSceneGraph Quickstart Guide by Paul Martz
+(available as hardcopya or a free download from \url{http://www.lulu.com/content/767629})
+and the OpenSceneGraph Doxygen documentation (available online at
+\url{http://www.openscenegraph.org/projects/osg/wiki/Support/ReferenceGuides})
+for more information.
+
+OpenCOVER can be configured to use multiple threads for rendering.
+%for multi-pipe application. The default multiprocessing 
+%model is PFMP\_APP\_CULL\_DRAW. For single pipe applications the
+%multiprocessing model can be set to PFMP\_APPCULLDRAW in the section CoverConfig 
+%in the file covise.config (you find more information in the
+%online help about OpenCOVER). 
+
+%TODO
+The scene graph of OpenCOVER which is relevant to the plugin programmer looks like 
+this:
+
+\begin{covimg}{COVERPlugin}
+     {Scene_Graph}{OpenCOVER scene graph}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: OpenCOVER scene graph
+\end{htmlonly}
+\vspace*{1cm}
+
+The matrix of handTransform comes from the 3D input device of the hand e.~g.\ the 
+Polhemus Stylus or the Ascension 6DOF Mouse. Under handTransform the interactor 
+geometry for the hand is located. This is for e.~g.\ laser sword or the 
+magnifying glass. For the action "xform" the matrix of the handTransform is applied 
+also to the objectXformTransform, for the action "scale" only the x component of the 
+position is used to compute a scale matrix and is applied to the objectScaleTransform. 
+COVISE geometry and other 3D geometry (in IV, OBJ etc. format) is appended 
+under the group node \code{cover->getObjectsRoot()}.
+
+
+\section{OpenCOVER as a COVISE module}
+\latexonly
+\index{OpenCOVER!OpenCOVER as a COVISE module}
+\endlatexonly
+
+As a COVISE module, OpenCOVER loads the COVISE plugin and uses the library \emph{coAppl} for interfacing to COVISE. 
+This library is similar to the newer \emph{coApi} (which is
+used by non-renderer modules) and provides functions to open a socket connection 
+to the controller and data manager and to create COVISE data objects. OpenCOVER can 
+also be used stand-alone. Depending on the number of command line parameters the program 
+decides if a connection to COVISE is needed. 
+
+As OpenSceneGraph has its own main loop, OpenCOVER checks for COVISE "ADD OBJECT" 
+or "REMOVE OBJECT" messages from COVISE every frame. If it receives an object,
+OpenCOVER creates the appropriate OpenSceneGraph objects and appends them to the scene 
+graph under the node \code{cover->getObjectsRoot()}. If feedback information was
+appended to the object (see \ref{COVER:module}), OpenCOVER loads the appropriate
+plugin automatically.
+
+Section \ref{COVER:covise} describes the methods your plugin can implement for
+interfacing with COVISE.
+
+
+\section{OpenCOVER as a VR viewer for 3D geometry}
+
+If OpenCOVER is started outside of COVISE, it interprets the argument as a file which 
+should be loaded. If you want to load a plugin, this has to be specified
+in your COVISE configuration in the section \code{COVER.Plugin}.
+A minimal configuration file to enable OpenCOVER's Vrml97 plugin would look like this:
+\begin{verbatim}
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+  <GLOBAL>
+    <COVER>
+      <Plugin>
+        <Vrml97 value="on" />
+      </Plugin>
+    </COVER>
+  </GLOBAL>
+</COCONFIG>
+\end{verbatim}
+
+
+\section{The Plugin Interface}
+
+During execution OpenCOVER calls the functions provided by the plugin at certain 
+points in the rendering loop. The functions are declared in \code{kernel/coVRPlugin.h}. 
+
+None of these methods have to implemented, all are optional.
+However, you should make sure that all resources acquired by your plugin are released
+in its desctructor.
+
+\subsection{Plugin Life Cycle}
+
+The following methods are called during the different phases of the plugin life time.
+
+\index{Plugin Interface!coVRPlugin()}
+\index{Plugin Interface!constructor}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{coVRPlugin()}}\\
+\hline
+{Description:}  
+  & \multicolumn{2}{|p{9.5cm}|}
+  {The plugin is constructed when it is loaded.
+   There are four methods to load a plugin:
+   \begin{enumerate}
+   \item The plugin is specified in the configuration file.
+      Then it is initialized in OpenCOVER before the main loop starts.
+      In this case, the OpenCOVER scene graph is not yet fully initialized.
+   \item OpenCOVER gets a COVISE object with had a \code{coFeedback} object applied.
+   \item The user requests that a plugin be loaded from  Tablet User Interface.
+   \item A plugin starts another plugin.
+   \end{enumerate}
+   %The implementation of this function is required!
+   The plugin constructor should be used to do early plugin initialization that does
+   not depend on OpenCOVER data structures.
+  } \\
+\hline
+\end{longtable}
+
+
+\index{Plugin Interface!init()}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{bool init()}}\\
+\hline
+{Description:}  
+  & \multicolumn{2}{|p{9.5cm}|}
+  {This method is called when the plugin is loaded and when OpenCOVER has
+   completed start-up, all its data structures are established.
+   This is the place where you can insert objects into the scene graph,
+   add new menu entries, \ldots
+  } \\
+\hline
+\end{longtable}
+
+
+\index{Plugin Interface!destroy()}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{bool destroy()}}\\
+\hline
+{Description:}  
+  & \multicolumn{2}{|p{9.5cm}|}
+  {This method is called to announce that OpenCOVER wants to remove your plugin.
+   Reimplement it in order to do early clean-up work.
+   Return \code{false} to prevent your module from being removed.
+  } \\
+\hline
+\end{longtable}
+
+
+\index{Plugin Interface!~coVRPlugin()}
+\index{Plugin Interface!destructor}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{\~{}coVRPlugin()}}\\
+\hline
+{Description:} & \multicolumn{2}{|p{9.5cm}|}
+        {This function is called before the plugin is removed from OpenCOVER.\newline
+	 It is important that you remove all your menu entries,
+         remove your objects from the scene graph and release all resources
+         acquired by your plugin.
+        }\\
+\hline
+\end{longtable}
+
+\subsection{COVISE Interface}
+\label{COVER:covise}
+
+The following functions deal with COVISE data objects. A plugin can be 
+informed if OpenCOVER gets \code{ADD\_OBJECT} or \code{DELETE\_OBJECT} messages:
+
+Within OpenCOVER all COVISE data objects, i.~e.\ objects derived from
+\code{coDistributedObject}, are represented as \code{RenderObjects}.
+These are replicated between all nodes if OpenCOVER runs on a render cluster for e.~g.\ a CAVE.
+All data and attributes are copied to the corresponding fields of the \code{RenderObject}.
+
+\index{Plugin Interface!addObject()} 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void addObject(RenderObject *baseObj,
+ RenderObject *geomObj,\newline
+ RenderObject *normObj, RenderObject *colorObj, RenderObject *texObj,\newline
+ const char *parentName,\newline 
+ int numCol, int colorBinding, int colorPacking,
+ float *r, float *g, float *b, int *packedCol,\newline 
+ int numNormals, int normalBinding,
+ float *xn, float *yn, float *zn, float transparency)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called whenever OpenCOVER 
+	   receives a COVISE object.} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{baseObj} 
+                          & \
+ {The container object, i.~e.\ the representation of the \code{coDoSet} object the newly
+    added object is part of.
+ }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{geomObj} 
+                          & \
+ {The geometry container object consisting of a geometry object, a color object, 
+ a normal object and a texture object.\newline
+ geomContainer is \code{NULL} if there is no container object but only a geometry object 
+ (e.~g.\ polygons without colors)}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{normObj} 
+                          & \
+			  {The representation of the associated normals data.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{colorObj} 
+                          & \
+			  {The representation of the associated colors data.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{texObj} 
+                          & \
+			  {The representation of the associated texture data.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{parentName} 
+                          & \
+ {Name of the parent COVISE object, it is only set for set elements,
+  for other data objects it is \code{NULL}.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{numCol} 
+                          & \
+			  {Number of colors}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{colorBinding} 
+                          & \
+  {Color binding type: \newline
+   PER\_PRIMITIVE, PER\_FACE, PER\_VERTEX, NONE}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{colorPacking} 
+                          & \
+			  {Non-zero if colors are packed colors
+                                        instead of RGB values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{r} 
+                          & \
+			  {Red color values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{g} 
+                          & \
+			  {Green color values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{b} 
+                          & \
+			  {Blue color values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{packedCol:} 
+                          & \
+			  {Packed RGBA colors.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{numNormals} 
+                          & \
+			  {Number of normals.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{normalBinding} 
+                          & \
+  {Normal binding type: \newline
+  PER\_PRIMITIVE, PER\_FACE, PER\_VERTEX, NONE}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{xn} 
+                          & \
+			  {List of normals x values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{yn} 
+                          & \
+			  {List of normal y values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{zn} 
+                          & \
+			  {List of normal z values.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{transparency}
+                          & \
+			  {Transparency value.}\\
+\hline
+\end{longtable}
+
+\index{Plugin Interface!removeObject}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void removeObject(const char *objName, bool replace)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called whenever OpenCOVER
+            receives a DELETE\_OBJECT message.} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{objName} 
+                          & \
+	  {The name of the COVISE object to delete.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{replace} 
+                          & \
+	  {\code{true}, if the COVISE object is replaced (this happens if the user 
+	  a module executes again), \code{false} if it really has to be deleted 
+	  (this happens, if the user removes a module or the connection between 
+	  the module and OpenCOVER).}\endhead
+\hline
+\end{longtable}
+
+
+\index{Plugin Interface!newInteractor}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void newInteractor(RenderObject *container,
+coInteractor *feedback)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called whenever 
+	   OpenCOVER receives a COVISE object with feedback 
+	   information appended. } \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{container} 
+                          & \
+  {The geometry container object consisting of a geometry object, 
+  a color object, a normal object and a texture object.\newline
+  \code{container} is \code{NULL} if there is no container object but only a 
+  geometry object (e.~g.\ polygons without colors).}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{feedback} 
+                          & \
+	{The class \code{coInteractor} handles feedback in OpenCOVER.}\endhead
+\hline
+\end{longtable}
+
+\index{Plugin Interface!coviseError}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void coviseError(const char *errorMsg)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called whenever OpenCOVER
+      receives an error message. Error messages are created
+		by modules with \code{sendError}. They are displayed in the Map Editor 
+		message window.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{errorMsg} 
+                          & \
+	  {The COVISE error message.}\endhead
+\hline
+\end{longtable}
+
+
+\subsection{Scene Graph Management}
+
+These functions are called when OpenCOVER appends or removes a node in the 
+scene graph:
+
+\index{Plugin Interface!addNode}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void addNode(osg::Node *node, RenderObject *obj)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called when OpenCOVER adds a new COVISE 
+	    object to the scenegraph or if other plugins insert a node into the 
+	    scene graph.
+           }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{node} 
+                          & \
+			  {A pointer to the scene graph node.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{obj} 
+                          & \
+			  {A pointer to the \code{RenderObject} generated from the COVISE object,\newline
+                           \code{NULL} if not corresponding to a COVISE object}\endhead
+\hline
+\end{longtable}
+
+
+\index{Plugin Interface!removeNode}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void removeNode(osg::Node *node)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called if a node
+            is removed from the scene graph.
+	   }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{node} 
+                          & \
+			  {A pointer to the scene graph node.}\\
+\hline
+\end{longtable}
+
+
+\subsection{Render Loop}
+
+These functions are called at certain points during the execution of OpenCOVER.
+
+\index{Plugin Interface!preFrame}
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf \code{void preFrame()}}\\
+\hline
+{Description:}  
+           & 
+	   {If implemented, this function is called from the main thread immediately
+              before \code{osgViewer::Viewer::frame()} is called.} \endhead
+\hline
+\end{longtable}
+
+\index{Plugin Interface!postFrame}
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf \code{void postFrame()}}\\
+\hline
+{Description:}  
+           & 
+	   {If implemented, this function is called from the main thread immediately
+              after \code{osgViewer::Viewer::frame()} was called.} \endhead
+\hline
+\end{longtable}
+
+
+\index{Plugin Interface!preSwapBuffers}
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf \code{void preSwapBuffers()}}\\
+\hline
+{Description:}  
+           & 
+	   {This method is called by the draw thread immediately before GL swap buffers.}
+	   \endhead
+\hline
+\end{longtable}
+
+
+\subsection{Other Events}
+
+All animations in OpenCOVER are synchronised. If a plugin needs to synchronise
+its interaction to the global animation, it should implement 
+\code{setTimestep} to become informed whenever OpenCOVER displays another timestep.
+
+\index{Plugin Interface!setTimestep}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{8cm}|}
+{\bf \code{void setTimestep(int timestep)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called when OpenCOVER switches to
+		a new timestep.} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{timestep} 
+                          & \
+			  {The number of the current timestep.}\endhead
+\hline
+\end{longtable}
+
+
+Plugins can be notified when the user presses keys on its keyboard.
+
+\index{Plugin Interface!key}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void key(int type, int keySym, int modifiers)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called when a key is pressed
+		or released.} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{type} 
+                          & \
+			  {Type of event: \code{osgGA::GUIEventAdapter::KEYDOWN} or
+                          \code{KEYUP}.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \code{keySym} 
+                          & \
+			  {The key symbol, see \code{osgGA/GUIEventAdapter}.}\\
+\hline			  	
+\multicolumn{1}{|r|}{IN:} & \code{modifiers} 
+                          & \
+			  {The state of the Shift and other modifier keys,
+                           also see \code{osgGA/GUIEventAdapter}.}\endhead			  		  
+\hline
+\end{longtable}
+
+Plugins can send messages to each other, see \ref{COVER:messages}.
+
+\index{Plugin Interface!message}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf \code{void message(int type, int len, const void *buf)}}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {If implemented, this function is called when 
+	   messages from other plugins arrive.} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {type} 
+                          & \
+			  {Integer representing the message type.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {len} 
+                          & \
+			  {Message length.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buf} 
+                          & \
+			  {A pointer to the message.}\endhead
+\hline
+\end{longtable}
+
+
+
+\section{Accessing OpenCOVER from a plugin}
+
+The class \code{coVRPluginSupport} gives the plugin programmer access to the OpenCOVER scene
+graph if he wants to add own geometry, or needs access to the menu to add new 
+menu items, \ldots
+This class is a singleton, the static instance of \code{coVRPluginSupport} named \code{cover} is
+declared in \code{kernel/coVRPluginSupport.h}.
+
+Example: 
+\begin{verbatim}
+   osg::Group *s = cover.getScene();
+\end{verbatim}
+
+\subsection{Access to the scene graph and its transformations}
+\index{coVRPluginSupport!Access to the scene graph}
+
+With the following methods you can access parts of the OpenCOVER scene graph (see 
+Figure 12: OpenCOVER Scene Graph) or get/set transformations in the osg::MatrixTransform nodes.
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Group* getScene();}\\
+\hline
+{Description:}  
+           & 
+	   {Returns a pointer to the scene node} \\
+\hline
+{Return value:}  
+    & 
+    {pointer to the scene node} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::ClipNode* getObjectsRoot();}\\
+\hline
+{Description:}  
+           & 
+	   {Returns a pointer to the group node objectsRoot} \\
+\hline
+{Return value:}  
+    & 
+    {pointer to the group node} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::MatrixTransform * getPointer();}\\
+\hline
+{Description:}  
+           & 
+	   {Returns a pointer to the transform node for the hand which contains
+	    the transformation matrix of the 3D input device.} \\
+\hline
+{Return value:}  
+    & 
+    {pointer to the transform node for the hand/pointer device} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::MatrixTransform * getObjectsXform();}\\
+\hline
+{Description:}  
+           & 
+	   {Returns a pointer to the objectsXform node.} \\
+\hline
+{Return value:}  
+    & 
+    {pointer to the transform node objectsXform} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::MatrixTransform * getObjectsScale();}\\
+\hline
+{Description:}  
+           & 
+	   {Returns a pointer to the objectsXform node.} \\
+\hline
+{Return value:}  
+    & 
+    {pointer to the transform node objectsXform} \endhead
+\hline
+\end{longtable}
+
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Matrix \&getBaseMat();}\\
+\hline
+{Description:}  
+           & 
+	   {transformation matrix from object coordinates 
+	   to world coordinates \newline
+	   (objectScaleMat*objectsXformMat)} \\
+\hline
+{Return value:}  
+    & 
+    {transformation matrix} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Matrix \&getInvBaseMat();}\\
+\hline
+{Description:}  
+           & 
+	   {transformation from world coordinates to 
+	   object coordinates \newline
+	   \code{1 / (objectScaleMat*objectsXformMat)}\newline
+           use this cached value instead of computing it on your own} \\
+\hline
+{Return value:}  
+    & 
+    {transformation matrix} \endhead
+\hline
+\end{longtable}
+
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Matrix \&getPointerMat();}\\
+\hline
+{Description:}  
+           & 
+	   {get matrix of handTransform \newline
+	    (same as \code{getPointer()->getMatrix()}}) \\
+\hline
+{Return value:}  
+    & 
+    {transformation matrix} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Matrix \&getXformMat();}\\
+\hline
+{Description:}  
+           & 
+	   {get the matrix of objectsXform \newline
+	   (same as \code{getObjectXforms()->getMatrix()})} \\	      
+\hline
+{Return value:}  
+    & 
+    {transformation matrix} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setXformMat(osg::Matrix \&transformMatrix);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {set the matrix of objectsXform\newline
+	   (same as \code{getObjectXform()->setMatrix()})} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {transformMatrix} 
+                          & \
+			  {transformation matrix}\endhead
+\hline			  
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf float getScale();}\\
+\hline
+{Description:}  
+           & 
+	   {get the scale factor of the scale node, scale factor 
+	   is the same for all directions} \\
+\hline
+{Return value:}  
+    & 
+    {scale factor} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setScale(float s);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {set the scale factor of the matrix of the scale node} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {s} 
+                          & {scale factor}\endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf float getSceneSize();}\\
+\hline
+{Description:}  
+           & 
+	   {get the scene size defined in covise.config} \\
+\hline
+{Return value:}  
+    & 
+    {the scene size in [mm]} \endhead
+\hline
+\end{longtable}
+
+
+\subsection{Access to the camera}
+\index{coVRPluginSupport!Access to the camera}
+
+You get the viewing matrix with:
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Matrix \&getViewerMat();}\\
+\hline
+{Description:}  
+           & 
+	   {get the transformation matrix of the viewer. 
+	    The matrix contains the position and orientation of the 
+	    users head. If headtracking is on, the viewer matrix changes 
+	    every frame.} \\
+\hline
+{Return value:}  
+           & 
+           {transformation matrix} \endhead
+\hline
+\end{longtable}
+
+\subsection{Loading 3D Geometry}
+\index{coVRPluginSupport!Loading 3D Geometry}
+
+The following methods simplify the loading of files into the plugin:
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf const char *getname(const char *file);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {get the full name for the file (with absolute path)} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {file} 
+                          & {short file name}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}{full name} \endhead
+\hline
+\end{longtable}
+ 
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf osg::Node *loadFile(const char *file);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {load a file in any format supported by OpenSceneGraph or a VRML97 file} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {file} 
+                          & {file name}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}{the root node of the scene graph created for this file} \endhead
+\hline
+\end{longtable}  
+ 
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void loadVRML(const char *url);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {Load the specified VRML file into the OpenSceneGraph scene graph 
+	   and appends it under objectsRoot} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {url} 
+                          & {url containing a vrml97 file}\endhead
+\hline
+\end{longtable} 
+  
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf void reloadVRML();}\\
+\hline
+{Description:}  
+           & 
+	   {reload the previously loaded VRML file. If your VRML file 
+	   is on a remote machine and you changed the model there you can 
+	   update it in OpenCOVER by using this method} \endhead
+\hline
+\end{longtable}
+ 
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf void removeVRML();}\\
+\hline
+{Description:}  
+           & 
+	   {removes the current VRML file from the scene} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf osg::Node *loadIcon(const char *filename);}\\
+\hline
+{Description:}  
+           & 
+	   {Load an icon file, similar to loadFile, but this method 
+	   looks first in covise/icons/\$LookAndFeel, then covise/icons} \\
+\hline
+{Return value:}  
+           & 
+           {the root node of the scene graph created for this file , 
+	   or \code{NULL}, if the file was not found} \endhead
+\hline
+\end{longtable} 
+ 
+ 
+\subsection{Access to the Buttons of the Input Device}
+\index{coVRPluginSupport!Access to the Buttons} 
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf coPointerButton *getButton();}\\
+\hline
+{Description:}  
+           & 
+	   {returns a pointer to a pointerButton object} \\
+\hline
+{Return value:}  
+    & {class coPointerButton handles the button state} \endhead
+\hline
+\end{longtable} 
+ 
+\subsection{Interactions}
+\index{coVRPluginSupport!Interactions}
+
+A plugin needs to know if the input device is already used for another 
+interaction or if it is free for own interaction. If a plugin uses the input 
+device it has to announce this to other plugins and to OpenCOVER.
+
+%TODO document coInteraction
+
+  
+ 
+\subsection{Load and Unload Other Plugins and Communicate with them}
+\index{coVRPluginSupport!Communicate with other Plugins}
+\label{COVER:messages}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coVRPlugin *addPlugin(const char *name);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Load a plugin} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & \
+			  {The name of the plugin. If the name of the shared 
+			  object is libXxxPlugin.so, then the name is XxxPlugin}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}
+    {Object of type coVRPlugin. Class coVRPlugin represents a plugin.} \endhead
+\hline
+\end{longtable} 
+ 
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int removePlugin(const char *name);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Unload a plugin} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & \
+			  {The name of the plugin to be unloaded.}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}{true, if successfully unloaded} \endhead
+\hline
+\end{longtable} 
+  
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void unload(coVRPlugin *plugin);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Unload a plugin} \\
+\hline
+\hline
+\multicolumn{1}{|r|}{IN:} & {plugin} 
+                          & {The plugin object}\endhead
+\hline
+\end{longtable} 
+ 
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void sendMessage(coVRPlugin *sender, int toWhom, int type, int len, const
+void *buf);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{send a message to other plugins} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {sender} 
+                          & \
+			  {the name of the plugin which sends the message}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {toWhom} 
+                          & \
+			  {destination types are:\newline
+			  TO\_ALL,\newline
+                          TO\_ALL\_OTHERS,\newline
+                          TO\_SAME,\newline
+			  TO\_SAME\_OTHERS,\newline
+			  NUM\_TYPES}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {type} 
+                          & \
+			  {a user defined number. 
+			  The sender can identify the message by means 
+			  of that number. For messages sent to all plugins 
+			  this should be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {len} 
+                          & \
+			  {length of the message}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buf} 
+                          & \
+			  {the message}\endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void sendMessage(coVRPlugin *sender, const char *destination, int type, 
+int len, const void *buf);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{send a message to a plugin} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {sender} 
+                          & \
+			  {the name of the plugin which sends the message}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {destination} 
+                          & \
+			  {The name of the destination plugin}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {type} 
+                          & \
+			  {a user defined number. 
+			  The sender can identify the message by means 
+			  of that number. For messages sent to all plugins 
+			  this should be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {len} 
+                          & \
+			  {length of the message}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buf} 
+                          & \
+			  {the message}\endhead
+\hline
+\end{longtable}
+
+ 
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void addedNode(osg::Node *node,coVRPlugin *myPlugin);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{
+	   informs other plugins that this plugin extended the scene graph} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {node} 
+                          & \
+			  {pointer to the OpenSceneGraph node which was added}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {myPlugin} 
+                          & \
+			  {the plugin which added the node}\endhead
+\hline
+\end{longtable}  
+ 
+\subsection{Append Buttons to the Pinboard}
+\index{coVRPluginSupport!Append Buttons to the Pinboard}
+
+The plugin programmer has full access to the Virtual Reality User 
+Interface library (OpenVRUI), which is used by OpenCOVER to generate the pinboard 
+and its submenus. With this library simple user interface elements
+like labels and icons and more complex elements like menu items can
+be created. The OpenVRUI header files are located in 
+covise/src/kernel/OpenVRUI. A small example how to use the
+library is available in the Cube plugin source code under
+\code{covise/src/renderer/OpenCOVER/plugins/examples/Cube}.
+
+Sometimes a plugin needs to create own menu items or submenus
+and needs to add them to the main pinboard. The method getMenu
+returns a pointer to the pinboard menu. The plugin Cube is a small
+example which create an own submenu and add it to the pinboard.
+\vspace*{0.5cm} 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coMenu *getMenu();}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{
+	   Get a pointer to the Pinboard.} \\
+\hline
+{Return Value:} & \multicolumn{2}{|p{9.5cm}|}
+			  {pointer to the pinboard menu}\endhead
+\hline
+\end{longtable}  
+
+
+
+\vspace*{0.5cm}
+For compatibility with older COVISE Versions (< 5.0) the following
+functions for menu item generation are available:
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void addToggleButton(const char *buttonName, const char
+ *parentMenuName, int state, void *callback, void *classPtr, void
+ *userData);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{append a switch button to a menu} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button which is also the text 
+			  on the button. Button names have to be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {parentMenuName} 
+                          & 
+			  {the name of the menu to which this button will 
+			  be appended, code{NULL} menas to append it to the main Pinboard}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & 
+			  {The state of the switch button,
+			  false=off, true=on}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {callback} 
+                          & 
+			  {function which is called on press/release}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {classPtr} 
+                          & 
+			  {ptr to the class which calls the callback}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {userData} 
+                          & 
+			  {ptr to data which are handed over to the callback}\endhead
+\hline
+\end{longtable}  
+ 
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void addGroupButton(const char *buttonName, const char *parentMenuName, int
+ state, void *callback, int groupId, void *classPtr, void *userData);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{append a switch button to a menu} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button which is also the text on 
+			  the button. Button names have to be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {parentMenuName} 
+                          & 
+			  {the name of the menu to which this button will 
+			  be appended, \code{NULL} means to append it to the main Pinboard}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & 
+			  {The state of the switch button,
+                                         false=off, true=on}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {callback} 
+                          & 
+			  {function which is called on press/release}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {groupId} 
+                          & 
+			  {if a button is in the same group with others it 
+			  is automatically switched off if another button 
+			  is pressed. The group id of the navigation functions 
+			  in the main Pinboard is zero. To create a 
+			  new group id, use the method uniqueButtonGroup}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {classPtr} 
+                          & 
+			  {ptr to the class which calls the callback}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {userData} 
+                          & 
+			  {ptr to data which are handed over to the callback}\endhead
+\hline
+\end{longtable}  
+
+ 
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void addSubmenuButton(const char *buttonName, const char *parentMenuName,
+ const char *subMenuName, int state, void *callback, int groupId, void
+ *classPtr);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {append a switch button to a menu} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button which is also the text 
+			  on the button. Button names have to be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {parentMenuName} 
+                          & 
+			  {the name of the menu to which this button will 
+			  be appended, \code{NULL} means to append it to the main Pinboard}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {subMenuName} 
+                          & 
+			  {name of the submenu which is also the header text 
+			  of the submenu. Name has to be unique?}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & 
+			  {The state of the switch button,
+			  false=off, true=on}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {callback} 
+                          & 
+			  {function which is called on press/release}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {groupId} 
+                          & 
+			  {if a button is in the same group with others it 
+			  is automatically switched off if another button is 
+			  pressed. The group id of the navigation functions 
+			  in the main Pinboard is zero. To create a new group 
+			  id, use the method uniqueButtonGroup}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {classPtr} 
+                          & 
+			  {ptr to the class which calls the callback}\endhead
+\hline
+\end{longtable}  
+ 
+ 
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setButtonState(const char *buttonName, int state);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {set the state of a switch or submenu button} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & 
+			  {The state of the button\newline
+			  switch button:\newline 
+			  false=off, true=on\newline
+			  submenu: \newline
+			  false=closed, true=open}\endhead
+\hline
+\end{longtable} 
+
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf addFunctionButton(const char *buttonName, const char *parentMenuName,
+*callback, void *classPtr);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {add a function button, a function button just calls 
+	   the callback when pressed} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button which is also the text 
+			  on the button. Button names have to be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {parentMenuName} 
+                          & 
+			  {the name of the menu to which this button will 
+			  be appended, \code{NULL} means to append it to the main Pinboard}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {callback} 
+                          & 
+			  {function which is called on press/release}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {classPtr} 
+                          & 
+			  {ptr to the class which calls the callback}\endhead
+\hline
+\end{longtable} 
+
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void addSliderButton(const char *buttonName, const char *parentMenuName,float min, float max, float value, void *callback, 
+void *classPtr); }\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{add a slider to a menu} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button which is also the text on the button. 
+			  Button names have to be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {parentMenuName} 
+                          & 
+			  {the name of the menu to which this button will be 
+			  appended, \code{NULL} means to append it to the main Pinboard}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {min} 
+                          & 
+			  {minimum slider value}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {max} 
+                          & 
+			  {maximum slider value}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                          & 
+			  {current slider value}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {callback} 
+                          & 
+			  {function which is if slider value changes}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {classPtr} 
+                          & 
+			  {ptr to the class which calls the callback}\endhead
+\hline
+\end{longtable}
+ 
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setSliderValue(const char *buttonName, float value);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{set slider value} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                          & 
+			  {current slider value}\endhead
+\hline
+\end{longtable}
+ 
+
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void removeButton(const char *buttonName, const char *parentMenuName);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{remove a button\newline
+                                      parentMenuName=NULL: remove it from main menu} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {buttonName} 
+                          & 
+			  {the name of the button which is also the text on the button. 
+			  Button names have to be unique.}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {parentMenuName} 
+                          & 
+			  {the name of the menu to which this button will be 
+			  appended, NULL = append it to the main Pinboard}\endhead
+\hline
+\end{longtable}
+
+
+
+
+
+\section{Use OpenCOVER built-in interaction without the Pinboard}
+
+
+A plugin programmer may want to user OpenCOVER interaction although the pinboard is 
+not visible, for example if the plugin implements a custom menu, but wants to use the navigation functions like XFORM, or the plugin wants to set 
+the state of a button without using the menu.In this case the corresponding 
+function needs to be configured in the section COVERPinboard. The Pinboard can 
+be visible or invisible.
+
+OpenCOVER supports the following functionality (see the usersguide for details):
+
+Navigation: 
+\begin{itemize}
+\item XFORM
+\item SCALE
+\item VIEW\_ALL
+\item FREEZE
+\item COLLIDE
+\item FLY
+\item WALK
+\item DRIVE
+\item DRIVE\_SPEED
+\end{itemize}
+
+Part Manipulation: 
+\begin{itemize}
+\item SNAP
+\item REMOVE
+\item UNDO
+\item MOVE\_PART
+\end{itemize}
+
+View Options: 
+\begin{itemize}
+\item COORD\_AXIS
+\item SPECULAR
+\item SPOTLIGHT
+\item STEREO\_SEP
+\end{itemize}
+
+Collaborative Working: 
+\begin{itemize}
+\item LOOSE\_COUPLING
+\item TIGHT\_COUPLING
+\item MASTERSLAVE\_COUPLING
+\item SHOW\_AVATAR
+\end{itemize}
+
+Scene Graph: 
+\begin{itemize}
+\item STORE
+\item RELOAD\_VRML
+\end{itemize}
+
+COVISE: 
+\begin{itemize}
+\item EXECUTE
+\item CUTTINGSURFACE
+\item ISOSURFACEP
+\item TRACERUSG, STRACER, BLOCKSTRACER, TETRATRACE, MAGTRACER, MAGBLOCKTRACER, 
+CELLTRACER
+\end{itemize}
+
+Animation: 
+\begin{itemize}
+\item FORWARD
+\item BACKWARD,
+\item ANIM\_SPEED
+\item STEADYCAM
+\end{itemize}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int isFunction(const char *functionName);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {Test if a function is configured and therefore in the pinboard} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {functionName} 
+                          & \
+			  {The name of the function, for example "XFORM"}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}{true, if function is in pinboard} \endhead
+\hline
+\end{longtable}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setFunctionState(const char *functionName, int state);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {Set the state of a toggle, group, or submenu button 
+	   and call the callback} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {functionName} 
+                          & \
+			  {The name of the function, for example "FREEZE"}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & {true/false}\endhead
+\hline
+\end{longtable}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setFunctionValue(const char *functionName, float val);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {Set the value of a slider button and call the callback} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {functionName} 
+                          & \
+			  {The name of the function, for example "DRIVE\_SPEED"}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                          & {value between min and max}\endhead
+\hline
+\end{longtable}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void doFunctionState(const char *functionName);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Call the callback of a function button} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {functionName} 
+                          & \
+			  {The name of the function, for example "XFORM"}\endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int getFunctionState(const char *functionName, int *state);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {Get the state of a toggle, group or submenu button} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {functionName} 
+                          & \
+			  {The name of the function, for example "FREEZE"}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & \
+			  {provide a pointer for getting the current state}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}
+    {true, if the function is in pinboard, false if not configured} \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int getFunctionValue(const char *functionName, float *value);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {Get the state of slider button} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {functionName} 
+                          & \
+			  {The name of the function, for example "DRIVE\_SPEED"}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {state} 
+                          & \
+			  {provide a pointer for getting the current value}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}
+    {true, if the function is in pinboard, false if not configured} \endhead
+\hline
+\end{longtable}
+
+
+
+\section{Controlling a COVISE module from within OpenCOVER}
+\label{COVER:module}
+\latexonly
+\index{OpenCOVER!Controlling a COVISE module}
+\endlatexonly
+
+Module parameters are usually adjusted through the COVISE Map Editor or its 
+Control Panel. If parameters should also be controllable from within OpenCOVER,
+\begin{enumerate}
+\item the module has to append the parameter information to the data objects and 
+\item OpenCOVER has to be extended by a plugin.
+\end{enumerate}
+
+\subsection{Class coFeedback}
+
+Feedback information is appended to data objects as attributes with a certain 
+keyword. The class coFeedback handles the creation of such feedback-attributes:
+
+In the constructor of coFeedback the name of the plugin has to be provided. When 
+OpenCOVER receives this feedback information, it loads the appropriate plugin, if 
+not already loaded (note that plugins can be loaded at starting time through the
+keyword MODULE in the section CoverConfig in the file
+covise.config).
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coFeedback::coFeedback(const char *pluginName)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Create a feedback object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {PluginName} 
+                          & \
+			  {The name of the plugin which should be loaded by OpenCOVER}\endhead
+\hline
+\end{longtable}
+ 
+ Parameters can now be added to such a feedback object with:
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coFeedback::addPara(coUifPara *parameter);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{add a parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {Parameter} 
+                          & \
+			  {The parameter which should be steerable from 
+			  within the plugin}\endhead
+\hline
+\end{longtable}
+ 
+ 
+ In case that the module programmer needs to provide other information than 
+ parameters to the plugin he can use:
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coFeedback::addString(const char *userString);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{add a string} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {UserString} 
+                          & \
+			  {Any string which is needed by the plugin}\endhead
+\hline
+\end{longtable}  
+ 
+ 
+The feedback object has to be applied to a COVISE data object. This data object 
+can be one which is created by the module anyway or you can create a dummy 
+output object, for example a single point and append it to this object.
+
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coFeedback:: apply(coDistributedObject *obj}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{apply feedback object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {Obj} 
+                          & \
+			  {The COVISE data object to which the feedback is appended}\endhead
+\hline
+\end{longtable}
+ 
+ The feedback object can be deleted after it is appended:
+
+ 
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf coFeedback::~coFeedback(const char *pluginName)}\\
+\hline
+{Description:}  
+           & {Delete a feedback object} \endhead
+\hline
+\end{longtable} 
+
+
+\subsection{Other functions}
+
+If an OpenCOVER plugin has the functions coVRAddObject and coVRRemoveObject 
+implemented, it is informed if OpenCOVER receives "ADD OBJECT" or "REMOVE OBJECT". 
+If it has the function coVRAddInteractor implemented it is also informed, when 
+the COVISE object has feedback attributes attached.
+
+With the coFeedback::getXXX methods, the plugin can access the values
+of the module parameters, here one example for retreiving the values
+of a slider parameter: 
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coInteractor::getFloatSliderParam(int paraNo, float \and min, float \and max, float \and val);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Get the values of a slider parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {paraNo} 
+                          & \
+			  {The index of the parameter. The parameters are attached to
+			  the covise object with coFeedback::addPara(). paraNo is the
+			  index of the parameter in the list of the parameters which
+			  are added as feedback. it is not the parameter index in
+			  the module info window or the control panel. }\\
+			  \hline
+\multicolumn{1}{|r|}{IN:} & {min} 
+                          & \
+			  {The minimum value of the slider parameter }\\
+\multicolumn{1}{|r|}{IN:} & {max} 
+                          & \
+			  {The maximum value of the slider parameter }\\
+\multicolumn{1}{|r|}{IN:} & {min} 
+                          & \
+			  {The current value of the slider parameter }\endhead
+\hline
+\end{longtable}  
+  
+ 
+The plugin can set module parameters with the coInteractor::setXXX
+methods: 
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coInteractor::setSliderParam(const char *name,float min,float max, float value);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Set the values of a slider parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & \
+			  {The parameter name. It needs to be exactly the name
+			  of the parameter of the module}\\
+			  \hline
+\multicolumn{1}{|r|}{IN:} & {min} 
+                          & \
+			  {The minimum value of the slider parameter }\\
+\multicolumn{1}{|r|}{IN:} & {max} 
+                          & \
+			  {The maximum value of the slider parameter }\\
+\multicolumn{1}{|r|}{IN:} & {min} 
+                          & \
+			  {The current value of the slider parameter }\endhead
+\hline
+\end{longtable}  
+
+Please look at covise/src/renderer/OpenCOVER/kernel/coInteractor.h for 
+the methods to receive and set also boolean, scalar, vector, string and choice 
+parameters.
+
+With coVRNewInteractor, coVRAddObject and coVRRemoveObject a plugin
+is informed about any object which is added to OpenCOVER or removed from
+OpenCOVER. There are a few functions which can be used to find out from
+which module the coInteractor comes from or for which plugin it is
+intended:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf const char *coInteractor::getPluginName();}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Get the name of the plugin for which
+			  this coInteractor is intended} \\
+\hline
+{Return value:} & \multicolumn{2}{|p{9.5cm}|}
+			  {The name of the plugin.}\endhead
+\hline
+\end{longtable}  
+   
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf const char *coInteractor::getModuleName();}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Get the name of the module from which
+			  this coInteractor is generated} \\
+\hline
+{Return value:} & \multicolumn{2}{|p{9.5cm}|}
+			  {The name of the module.}\endhead
+\hline
+\end{longtable}  
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coInteractor::getModuleInstance();}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Get the instance of the module from which
+			  this coInteractor is generated} \\
+\hline
+{Return value:} & \multicolumn{2}{|p{9.5cm}|}
+			  {The instance of the module.}\endhead
+\hline
+\end{longtable}     
+
+\subsection{A Plugin Programming Example}
+
+Have a look at the programming example in the directory
+covise/src/renderer/OpenCOVER/plugins/examples/Cube. 
+
+The plugin \code{Cube} implements interaction with the COVISE example 
+module \code{Cube}. The \code{Cube} module generates a solid cube. The
+size and center of the cube can be manipulated through the module parameters.
+
+The Cube plugin main class \code{CubePlugin} implements constructor and destructor
+and the virtual methods \code{init}, \code{newInteractor}, \code{removeObject} and
+\code{preFrame}.
+In \code{init}, OpenSceneGraph nodes are prepared to be added to the scene graph later. 
+Through \code{newInteractor} the plugin can access the current value of the
+module parameters and the current cube COVISE object. In \code{removeObject}
+the plugin is informed, when an object is deleted. In \code{preFrame}
+direct manipulation of a wireframe cube is implemented. We need this
+additional representation of the cube for direct manipulation because we 
+cannot manipulate the
+parameters of the Cube module in realtime (the communication between
+OpenCOVER and the module is not fast enough). As soon as
+the manipulation is finished, the current size and center of this wireframe
+cube is sent back to the module.
+ 
+\subsection{Module Example} 
+
+(from \code{covise/src/application/examples/Cube})
+
+\begin{verbatim}
+#include "coFeedback.h"
+
+// the ports and parameters of the module
+coOutputPort *p_polyOut;
+coFloatVectorParam *p_center;
+coFloatParam *p_cusize;
+ 
+// in the compute callback we create an output object
+polygonObj = new DO_Polygons(polygonObjName, 8, xCoords, yCoords, zCoords, 24, 
+vertexList, 6, polygonList);
+ 
+// interaction info for OpenCOVER
+coFeedback feedback("CubePlugin");
+feedback.addPara(p_center);
+feedback.addPara(p_cusize);
+feedback.addString("Test the user string as well");
+feedback.apply(polygonObj);
+ 
+// apply the object to the port
+p_polyOut->setObj(polygonObj);
+\end{verbatim}
+
+
+
+
+
+\section{Utility Classes}
+
+\subsection{The classes \code{coIntersection} and \code{coAction}}
+
+The classes coIntersection and coAction provide intersection testing of a node 
+in your scene graph with the pointer ray.
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf virtual int coAction::hit(osg::Vec3 \&hitPoint, osgUtil::Hit *hit)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {hit is called whenever the node or any node with this action is 
+	   intersected}  \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {hitPoint} 
+                          & \
+			  {intersection point in world coordinates }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {hit} 
+                          & \
+			  {see man osgUtil::Hit}\\
+\hline
+{Return value:}  
+    & \multicolumn{2}{|p{9.5cm}|}
+    {return ACTION\_CALL\_ON\_MISS if you want miss to be called, 
+    otherwise return ACTION\_DONE } \endhead
+\hline
+\end{longtable}
+
+
+ 
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{9.5cm}|}
+{\bf virtual void coAction::miss()}\\
+\hline
+{Description:}  
+           & 
+	   {miss is called once after a hit if the node is 
+	   not intersected any more} \\
+\hline
+{Return value:}  
+    & 
+    {return ACTION\_CALL\_ON\_MISS if you want miss to be called, 
+    otherwise return ACTION\_DONE } \endhead
+\hline
+\end{longtable}
+
+
+ 
+ 
+Append the node which you want to have tested for intersection to the global 
+intersection list:
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coIntersection::add(osg::Node *node, coAction *action)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {you can add a node to the global intersection 
+	   list {\bf intersector}} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {node} 
+                          & \
+			  {the node you want to have tested 
+			  for intersection}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {action} 
+                          & \
+			  {your class which is derived from coAction and 
+			  which contains the functions hit and miss}\endhead
+\hline
+\end{longtable}
+
+ 
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coIntersection::remove(osg::Node *node)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}
+	   {remove a node from the global intersection 
+	   list {\bf intersector}} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {node} 
+                          & \
+			  {the node you want to have tested for intersection}\endhead
+\hline
+\end{longtable}
+
+
+
+\vspace*{1cm}
+{\Large Example:}
+\vspace*{0.5cm}
+
+\begin{verbatim}
+#include <coInteraction.h>
+ 
+class myClass: public coAction
+{
+private:
+   osg::MatrixTransform *transform;
+ 
+public:
+   myClass()
+{
+       //...
+       intersector.add(transform, this);
+       //...
+};
+   ~myClass()
+{
+       //...
+       interscetor.remove(transform);
+       //...
+};
+   virtual int hit(osg::Vec3 &hitPoint, osgUtil::Hit *hit)
+{
+       //...
+       fprintf(stderr, "my transform was hit\n");
+       return ACTION_CALL_ON_MISS;
+};
+ 
+   virtual void miss()
+{
+       //...
+       fprintf(stderr, "my transform was missed\n");
+};
+}
+\end{verbatim}
+
+
+\subsection{OpenCOVER in a clustered environment}
+
+\input{coVRPluginSupport/classopencover_1_1co_v_r_plugin_support.tex}
+\input{coVRPluginSupport/classopencover_1_1co_pointer_button.tex}
+\input{coVRPluginSupport/structopencover_1_1_isect.tex}
+
+% Objektname Avatar.*: auschliessen von der BB-Berechnung
+ 
+
+
+
+

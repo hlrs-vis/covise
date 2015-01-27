@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/WS" >
+        <file alias="COVISE.wsdl">gsoap_stubs/COVISE.wsdl</file>
+        <file alias="covise.xsd">gsoap_stubs/covise.xsd</file>
+    </qresource>
+</RCC>

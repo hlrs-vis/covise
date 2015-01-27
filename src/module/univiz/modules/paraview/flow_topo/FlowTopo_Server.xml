@@ -1,0 +1,178 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+
+   <SourceProxy name="FlowTopo" class="vtkFlowTopo" label="Plugin Univiz Flow Topology">
+
+    <Documentation> 
+      The FlowTopo filter computes critical points of point (node) data. This filter operates on unstructured grid data and produces geometry output.
+    </Documentation>
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3" optional="0">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <InputArrayDomain name="input_array2" attribute_type="point" number_of_components="1" optional="1">
+	   <RequiredProperties>
+              <Property name="SelectInputScalars" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <Documentation>
+            The input for extracting critical points.
+          </Documentation>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        default_values="0"
+        label="Velocity"> <!-- default_values=0, send vectors to the right place -->
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+          <!-- <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>-->
+       <Documentation>
+         The name of the vector array to extract critical points from.
+       </Documentation>
+     </StringVectorProperty> 
+
+     <StringVectorProperty 
+        name="SelectInputScalars" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        default_values="1"
+        label="Wall Distance"> <!-- default_values=1, send scalars to the right place -->
+           <ArrayListDomain name="array_list" attribute_type="Scalars" input_domain_name="input_array2">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+          <!-- <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>-->
+       <Documentation>
+         The name of the scalar array that supplies the distance to the solid boundaries (optional).
+       </Documentation>
+     </StringVectorProperty> 
+
+     <IntVectorProperty 
+        name="DivideByWallDist" 
+        label="Divide by Wall Distance"
+        command="SetDivideByWallDist" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Divide the field by wall distance.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="InteriorCritPts" 
+        label="Interior Critical Points"
+        command="SetInteriorCritPts" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Compute critical points in the interior of the field.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="BoundaryCritPts" 
+        label="Boundary Critical Points"
+        command="SetBoundaryCritPts" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Compute critical points on the boundary of the field.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GenerateSeeds" 
+        label="Generate Seeds"
+        command="SetGenerateSeeds" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Generate seeds on two circles, oriented according to the Eigenvector directions.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="SeedsPerCircle"
+        label="Seeds per Circle"
+        command="SetSeedsPerCircle"
+        number_of_elements="1"
+        default_values="8">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         If generating seeds, this number of seeds is generated on the circles at the critical point.
+       </Documentation>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="Radius"
+        label="Circle Radius"
+        command="SetRadius"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+       <Documentation>
+         Radius of the seed circle.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="Offset"
+        label="Circle Offset"
+        command="SetOffset"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+       <Documentation>
+         Offset of the circles from the critical point.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="GlyphRadius"
+        label="Glyph Radius"
+        command="SetGlyphRadius"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+       <Documentation>
+         Glyph radius.
+       </Documentation>
+     </DoubleVectorProperty>
+
+   <!-- End FlowTopo -->
+   </SourceProxy>
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

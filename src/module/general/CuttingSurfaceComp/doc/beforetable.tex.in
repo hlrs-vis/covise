@@ -1,0 +1,35 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The only difference between CuttingSurface and 
+CuttingSurfaceComp is that CuttingSurfaceComp directly produces its output
+for a Renderer. To get a colored output you have the possibility to 
+pass a colormap by an input port. In general you will only connect
+the first output port of the module directly with the renderer. 
+Using this module instead
+of CuttingSurface reduces the number of modules (Collect, Colors, VectorField...)
+you have to use.
+
+CuttingSurfaceComp implements now the functionality of
+CuttingSurface3DTex, which should no longer be used.
+More remarks to this point are found under {\sl examples}.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{CuttingSurfaceCompModule}{1.0}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+CuttingSurfaceComp is available on all supported platforms. 
+
+%
+%=============================================================

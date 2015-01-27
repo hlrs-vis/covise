@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+<LOCAL host="visd800, visit,vispro2,visbits,visavis" >
+
+  <COVER>
+
+   <!-- IDS 
+   
+   <ViewerPosition x="0" y="-1838" z="0" />
+
+   <ScreenConfig> 
+   <Screen width="1280" height="1024" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+   -->
+   
+   <!-- Logitech camera-->
+   <ViewerPosition x="0" y="-1400" z="0" />
+   <Menu>
+    <Position x="10" y="0" z="10" />
+   </Menu>
+
+   <ScreenConfig>
+   <Screen width="800" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="600" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+	
+	
+	
+    <WindowConfig>
+	    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="true" />
+   </WindowConfig>
+   <TabletPC>
+   <Server value="localhost" />
+   </TabletPC>
+   
+      <Input>
+       <MouseNav value="ON" />
+       <TrackingSystem value="MOUSE" />
+   </Input>
+
+   <Plugin>
+    <ARTrace value="off" />
+
+    <ARToolKit value="on" >
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <RenderTextures value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <DisplayVideo value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="OFF" />
+     <FlipH value="FALSE" />
+     <!--VideoConfig arch="windows" value="c:\data\WDM_camera_IDS.xml" /-->
+     <!--VideoConfig arch="windows" value="c:\data\WDM_camera_HMD.xml" /-->
+     <!--VideoConfig arch="windows" value="c:\data\WDM_camera_Logitech.xml" /-->
+     <VideoConfig arch="windows" value="-width=800 -heigh=600" />
+     <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
+     <VideoConfig value="-mode=1024x768_COLOR  -debug -channel=0 -ID=0x00b09d01002f522b -rate=15" />
+     <Threshold value="100" />
+     <Camera value="c:\data\ARToolKit\camera_para.dat" />
+
+     <Marker name="ObjectMarker0" >
+      <Pattern value="c:\data\ARToolKit\4x4_5.patt" />
+      <Size value="200" />
+      <Offset x="00" y="0" z="400" h="0" p="0" r="0" />  
+      <!-- original Werkzeug Offset x="00" y="0" z="200" h="0" p="0" r="0" /-->  
+      <!--Offset x="00" y="0" z="397.958710" h="0" p="0" r="0" /-->  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+     
+     <Marker name="ObjectMarker1" >
+      <Pattern value="c:\data\ARToolKit\4x4_23.patt" />
+      <Size value="200" />
+      <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
+      <VrmlToPf value="FALSE"/>
+     </Marker>
+     
+     <Marker name="TimestepMarker" >
+      <Pattern value="c:\data\ARToolKit\4x4_30.patt" />
+      <Size value="20" />
+      <Offset x="0" y="0" z="0" h="-90" p="0" r="0" />  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+     
+     <Marker name="CuttingSurface3" >
+      <Pattern value="0 0 0 0 0 0" />
+      <Size value="10000" />
+      <Offset x="0" h="0" y="0" z="0" p="0" r="0" />
+      <VrmlToPf value="TRUE" />
+     </Marker>
+     
+     <Marker name="wand1marker" >
+      <Pattern value="c:\data\ARToolKit\4x4_1.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     <Marker name="wand2marker" >
+      <Pattern value="c:\data\ARToolKit\4x4_2.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     <Marker name="wand3marker" >
+      <Pattern value="c:\data\ARToolKit\4x4_3.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     <Marker name="wand4marker" >
+      <Pattern value="c:\data\ARToolKit\4x4_4.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     
+     
+          <Marker name="Haus1" >
+            <Pattern value="c:\data\ARToolKit\4x4_43.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus2" >
+            <Pattern value="c:\data\ARToolKit\4x4_64.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus3" >
+            <Pattern value="c:\data\ARToolKit\4x4_2.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus4" >
+            <Pattern value="c:\data\ARToolKit\4x4_80.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus5" >
+            <Pattern value="c:\data\ARToolKit\4x4_94.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus6" >
+            <Pattern value="c:\data\ARToolKit\4x4_56.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus7" >
+            <Pattern value="c:\data\ARToolKit\4x4_14.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus8" >
+            <Pattern value="c:\data\ARToolKit\4x4_89.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+          
+	            <Marker name="Auto1" >
+	              <Pattern value="c:\data\ARToolKit\4x4_2.patt" />
+	              <Size value="1050" />
+	              <Offset x="0" y="0" z="-800" h="0" p="180" r="0" />
+	            </Marker>
+     
+          
+     	            <Marker name="Auto2" >
+     	              <Pattern value="c:\data\ARToolKit\4x4_14.patt" />
+     	              <Size value="1050" />
+     	              <Offset x="0" y="0" z="-300" h="0" p="180" r="0" />
+     	            </Marker>
+          
+     	            <Marker name="Auto3" >
+     	              <Pattern value="c:\data\ARToolKit\4x4_55.patt" />
+     	              <Size value="1050" />
+     	              <Offset x="0" y="0" z="-800" h="0" p="180" r="0" />
+     	            </Marker>
+          
+     	            <Marker name="Auto4" >
+     	              <Pattern value="c:\data\ARToolKit\4x4_64.patt" />
+     	              <Size value="1050" />
+     	              <Offset x="0" y="0" z="0" h="0" p="180" r="0" />
+     	            </Marker>
+          
+     	            <Marker name="VideoWand" >
+     	              <Pattern value="c:\data\ARToolKit\4x4_89.patt" />
+     	              <Size value="1170" />
+     	              <Offset x="0" y="0" z="0" h="0" p="180" r="0" />
+     	            </Marker>
+     
+     
+         
+    
+     
+    </ARToolKit>
+
+   </Plugin>
+
+  </COVER>
+
+
+  <ARToolKit/>
+
+ </LOCAL>
+
+ <INCLUDE configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+ 
+
+</COCONFIG>

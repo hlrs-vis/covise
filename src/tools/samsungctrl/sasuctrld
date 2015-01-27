@@ -1,0 +1,330 @@
+#!/usr/bin/python
+
+# packets needed:
+#  lirc
+#  irsend
+#
+# TODO:
+# - polling needs 100%CPU (5W ;), using blocking listeners in two threads might 
+#   be the better idea. But threaded listen to IR fails in current pylib.
+
+import pylirc
+import time
+import sys
+import os
+import getopt
+import socket
+
+from threading import Thread
+
+# -------------------------------------------------------------------------------
+
+UDP_IP   = "141.58.8.59"                  # address of this host
+#UDP_IP   = "192.168.1.112"                  # address of this host
+UDP_PORT = 5005                           # UDP listener port
+PYLIRC_CONF = "./conf"                    # location of pylircs conf file
+BLOCKING = 0;                             # blocking mode for lirc         #FIXME
+
+# -------------------------------------------------------------------------------
+# initIRReceiver()
+# init of pylirc in blocking (=1) mode
+# -------------------------------------------------------------------------------
+def initIRReceiver():
+   if (not pylirc.init("pylirc", "./conf", 1)):     
+      print "error: failed to init pylirc"
+      sys.exit(1)
+   code = {"config" : ""}
+
+# -------------------------------------------------------------------------------
+# thdIRReceiver()
+# waits until there appears something in the recv_buffer, if so all commands
+# from the buffer will be send by the RPi irsend command using the lirc conf
+# -------------------------------------------------------------------------------
+def thdIRReceiver():
+   while True:
+      queue = pylirc.nextcode(1) 
+
+      while (queue):
+         for (code) in queue:
+            print "debug: command: %s, repeat: %d" % (code["config"], code["repeat"])
+            os.system("irsend SEND_ONCE AA59-00630A " + code["config"])
+         queue = pylirc.nextcode(1)
+
+# -------------------------------------------------------------------------------
+# initUDPReceiver()
+# init of the UPD socket to receive in blocking mode (=1)
+# -------------------------------------------------------------------------------
+def initUDPReceiver():
+   try:
+      sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+      sock.setblocking(1)
+      sock.bind((UDP_IP, UDP_PORT))
+   except:
+      print "error: could not init and bind UDP socket"
+      sys.exit(1)
+   return sock
+
+# -------------------------------------------------------------------------------
+# thdUDPReceiver
+# waits until there appears something in the recv_buffer, if so all packets
+# from the buffer will be read, checked and send by the RPi irsend command using 
+# the lirc conf
+# -------------------------------------------------------------------------------
+def thdUDPReceiver(sock):
+   while True:
+      try:
+         print "wait"
+         data, addr = sock.recvfrom(1024)
+         print "got"
+      except:
+         pass
+      else:
+         print "debug: received via UDP message : '", data, "'"
+         print "debug: sender is                : ", addr 
+
+         if (data == "3d_on"):
+            os.system("irsend SEND_ONCE AA59-00630A 3D")
+            time.sleep(3)
+            os.system("irsend SEND_ONCE AA59-00630A right")
+            time.sleep(3)
+            os.system("irsend SEND_ONCE AA59-00630A enter")
+            time.sleep(1)
+            os.system("irsend SEND_ONCE AA59-00630A 3D")
+            time.sleep(3)
+            os.system("irsend SEND_ONCE AA59-00630A 3D")
+            time.sleep(3)
+            os.system("irsend SEND_ONCE AA59-00630A right")
+            time.sleep(3)
+            os.system("irsend SEND_ONCE AA59-00630A enter")
+            
+         elif (data == "3d_off"):
+            os.system("irsend SEND_ONCE AA59-00630A 3D")
+
+         elif (data == "on"):
+            os.system("irsend SEND_ONCE AA59-00630A power")	
+
+         elif (data in "off"):
+            os.system("irsend SEND_ONCE AA59-00630A " + data)
+
+# -------------------------------------------------------------------------------
+class SASUCtrl():
+  
+   def initUDP(self):
+      try:
+         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+         self.sock.setblocking(0)
+         self.sock.bind((UDP_IP, UDP_PORT))
+      except:
+         print "error"
+         return False
+      return True
+
+   def __init__(self): 
+      if (not pylirc.init("pylirc", "./conf", BLOCKING)):
+         print "error: failed to init pylirc"
+         sys.exit(1)
+      if (not self.initUDP()):
+         print "error: failed to init udp socket"
+         sys.exit(2)
+      self.code = {"config" : ""}
+
+   def __del__(self):
+      pylirc.exit()
+
+   def loop(self):
+
+      while True:
+
+         # check IR commands
+      
+         queue = pylirc.nextcode(1) 
+
+         while (queue):
+            for (code) in queue:
+               print "debug: command: %s, repeat: %d" % (code["config"], code["repeat"])
+               os.system("irsend SEND_ONCE AA59-00630A " + code["config"])
+            queue = pylirc.nextcode(1)
+
+         # check for udp commands
+
+         try:
+            data, addr = self.sock.recvfrom(1024)
+         except:
+            pass
+         else:
+            print "debug: received via UDP message : ", data
+            print "debug: sender is                : ", addr 
+
+            if (data == "3d_on"):
+               os.system("irsend SEND_ONCE AA59-00630A 3D")
+               time.sleep(3)
+               os.system("irsend SEND_ONCE AA59-00630A right")
+               time.sleep(3)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(1)
+               os.system("irsend SEND_ONCE AA59-00630A 3D")
+               time.sleep(3)
+               os.system("irsend SEND_ONCE AA59-00630A 3D")
+               time.sleep(3)
+               os.system("irsend SEND_ONCE AA59-00630A right")
+               time.sleep(3)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+
+            elif (data == "3d_off"):
+               os.system("irsend SEND_ONCE AA59-00630A 3D")
+
+	    elif (data == "on"):
+	       os.system("irsend SEND_ONCE AA59-00630A power")	
+
+            elif (data == "hdmi"):
+               os.system("irsend SEND_ONCE AA59-00630A yellow")
+
+            elif (data == "dvi"):
+               os.system("irsend SEND_ONCE AA59-00630A green")
+
+            elif (data == "vwall_on"):
+               os.system("irsend SEND_ONCE AA59-00630A menu")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A up")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A up")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A up")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A exit")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A green")
+               
+            elif (data == "vwall_off"):
+               os.system("irsend SEND_ONCE AA59-00630A menu")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A up")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A up")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A down")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A up")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A enter")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A exit")
+               time.sleep(0.5)
+               os.system("irsend SEND_ONCE AA59-00630A yellow")
+
+            elif (data in "off"):
+               os.system("irsend SEND_ONCE AA59-00630A " + data)
+      
+# -------------------------------------------------------------------------------
+def startLoop():
+
+   if (pylirc.init("pylirc", "./conf", BLOCKING)):
+
+      code = {"config" : ""}
+
+      while (code["config"] != "quit"):
+
+         queue = pylirc.nextcode(1)           # get next commands from buffer
+
+         while (queue):
+         
+
+            for (code) in queue:
+               
+               print "debug: command: %s, repeat: %d" % (code["config"], code["repeat"])
+      
+               os.system("irsend SEND_ONCE AA59-00630A " + code["config"])
+
+            queue = pylirc.nextcode(1)
+   
+   pylirc.exit()                              # clean up lirc
+
+# -------------------------------------------------------------------------------
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+# -------------------------------------------------------------------------------
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        try:
+            opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        except getopt.error, msg:
+             raise Usage(msg)
+
+        sasu = SASUCtrl()
+        sasu.loop()
+
+#        startLoop()
+
+#        initIRReceiver()
+#        sock = initUDPReceiver()
+#        tIR = Thread(target=thdIRReceiver)
+#        tUDP = Thread(target=thdUDPReceiver, args=(sock,))
+#        tUDP.run()
+#        tIR.run()
+#        print "tUDP started"
+#        tIR.join()
+#        tUDP.join()
+#        while True:
+#           pass
+
+    except Usage, err:
+        print >>sys.stderr, err.msg
+        print >>sys.stderr, "for help use --help"
+        return 2
+
+# -------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+# -------------------------------------------------------------------------------
+
+
+
+
+
+   

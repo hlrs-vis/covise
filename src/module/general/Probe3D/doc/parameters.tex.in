@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline dimensionality & Choice & 3d, poly\\ \hline probe\_type & Choice & point, square\\ \hline point & FloatVector & point\\ \hline normal & FloatVector & normal\\ \hline side & FloatScalar & side length\\ \hline numsidepoints & IntSlider & number of side points\\
+\hline \end{longtable}
+

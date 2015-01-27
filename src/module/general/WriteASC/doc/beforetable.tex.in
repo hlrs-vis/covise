@@ -1,0 +1,35 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+WriteASC generates an ASCII file containing the information
+of a Covise object (accepted types are specified in the list
+of types of the unique input port, see below). You may use
+this file by way of report or in case you wish to analyse the data
+with your own tools.
+
+%
+% input of a module icon for example
+% #1    path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{WriteASC}{0.7}\end{covimg2}
+
+%\begin{covimg}{/home/sergio/docu/usersguide}{otro}{Here comes the caption}{0.7}\end{covimg}
+
+%
+% short information about versions
+%
+
+%GenNormals is available for Covise version Snap--2000--10.
+It has been tested on SGI and Linux platforms.
+%Information about versions is not available.
+
+
+%
+%=============================================================

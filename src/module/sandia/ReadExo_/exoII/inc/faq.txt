@@ -1,0 +1,611 @@
+
+Frequently Asked Questions About netCDF
+
+This document contains answers to some of the most frequently asked
+questions on the netcdfgroup mailing list and in the email sent to
+support@unidata.ucar.edu.
+
+----------------------------------------------------------------------------
+
+General
+
+   * What Is netCDF?
+   * How do I get the netCDF software package?
+   * Is there any access to netCDF information on the World Wide Web?
+   * What is new in the netCDF 2.4 release?
+   * What are the files in pub/netcdf/ on ftp.unidata.ucar.edu?
+   * What is the best way to represent [some particular data] using netCDF?
+   * Is there a mailing list for netCDF discussions and questions?
+   * What is the best way to handle time using netCDF?
+   * Who else uses netCDF?
+   * What are some references to netCDF?
+   * Is there a document describing the actual physical format for a Unidata
+     netCDF file?
+
+Platforms and Portability
+
+   * What does netCDF run on?
+   * Is netCDF available for Windows 95?
+   * Is netCDF available for Windows NT?
+   * Is netCDF available for the Apple Macintosh?
+   * Is netCDF available for MSDOS/Borland platforms?
+
+netCDF and Other Software
+
+   * What other software is available for accessing, displaying, and
+     manipulating netCDF data?
+   * What other data access interfaces and formats are available for
+     scientific data?
+   * What is the connection between netCDF and CDF?
+   * What is the connection between netCDF and HDF?
+   * Has anyone implemented client-server access for netCDF data?
+   * What ever happened to plans to write a complete set of netCDF
+     operators?
+
+Problems and Bugs
+
+   * Is there a list of reported problems and workarounds?
+   * Why do netCDF calls just exit on errors instead of returning an error
+     indicator?
+   * Why do I get XDR error messages when trying to write data?
+   * How do I make a bug report?
+   * How do I search through past problem reports?
+
+Language Interfaces
+
+   * How does the C++ interface differ from the C interface?
+   * How does the Fortran interface differ from the C interface?
+   * How does the perl interface differ from the C interface?
+
+Plans
+
+   * Are there plans to add facilities for data compression to netCDF?
+   * What other future work on netCDF is planned?
+
+----------------------------------------------------------------------------
+
+General
+
+What Is netCDF?
+
+NetCDF (network Common Data Form) is an interface for array-oriented data
+access and a freely-distributed collection of software libraries for C,
+Fortran, C++, and perl that provide implementations of the interface. The
+netCDF software was developed by Glenn Davis, Russ Rew, and Steve Emmerson
+at the Unidata Program Center in Boulder, Colorado, and augmented by
+contributions from other netCDF users. The netCDF libraries define a
+machine-independent format for representing scientific data. Together, the
+interface, libraries, and format support the creation, access, and sharing
+of scientific data.
+
+NetCDF data is:
+
+   * Self-Describing. A netCDF file includes information about the data it
+     contains.
+
+   * Network-transparent. A netCDF file is represented in a form that can be
+     accessed by computers with different ways of storing integers,
+     characters, and floating-point numbers.
+
+   * Direct-access. A small subset of a large dataset may be accessed
+     efficiently, without first reading through all the preceding data.
+
+   * Appendable. Data can be appended to a netCDF dataset along one
+     dimension without copying the dataset or redefining its structure. The
+     structure of a netCDF dataset can be changed, though this sometimes
+     causes the dataset to be copied.
+
+   * Sharable. One writer and multiple readers may simultaneously access the
+     same netCDF file.
+
+                                  --------
+
+How do I get the netCDF software package?
+
+Source distributions are available via anonymous FTP from the directory
+ftp://ftp.unidata.ucar.edu/pub/netcdf/ or from other mirror sites.
+
+Files in that directory include:
+
+netcdf.tar.Z
+     A compressed tar file of source code for the latest general release,
+     version 2.4.2, May 1996.
+
+Binary distributions for some platforms will soon be available from the
+directory ftp://ftp.unidata.ucar.edu/pub/netcdf/pub/binary.
+
+Source for the perl interface is available as a separate package,
+netCDFPerl, via anonymous FTP from the
+ftp://ftp.unidata.ucar.edu/pub/netcdf-perl/ directory.
+
+                                  --------
+
+Is there any access to netCDF information on the World Wide Web?
+
+Yes, the latest version of this FAQ document as well as a hypertext version
+of the NetCDF User's Guide and other information about netCDF are available
+from http://www.unidata.ucar.edu/packages/netcdf.
+
+                                  --------
+
+What is new in the netCDF 2.4 release?
+
+Version 2.4 provides a new version of the netCDF software that incorporates
+support for new platforms and updated versions of previously-supported
+platforms, provides new optimizations, improves the documentation,
+incorporates fixes for reported bugs, and includes other miscellaneous
+improvements. For more details, see the release notes.
+
+                                  --------
+
+What are the files in pub/netcdf/ on ftp.unidata.ucar.edu?
+
+README
+     general information about netCDF
+faq.txt
+     this file of frequently asked questions in text form. The more useful
+     WWW document is at http://www.unidata.ucar.edu/packages/netcdf/faq.html
+software.txt
+     a plain text version of the hypertext list of software packages
+     currently available or under development that can manipulate or display
+     netCDF data
+guide.ps.Z
+     a compressed PostScript file of the NetCDF User's Guide. This can be
+     generated from the TeX version included in the netCDF source
+     distribution, if you have TeX installed.
+contrib/
+     a directory of user-contributed software and documentation related to
+     netCDF but not supported by Unidata, including notes and patches for
+     porting netCDF to additional platforms.
+Conventions/
+     a directory intended for documents describing discipline-specific
+     conventions from various groups that are using netCDF.
+cdl/
+     a directory containing some examples of CDL files (an ASCII
+     representation for netCDF files).
+
+                                  --------
+
+What is the best way to represent [some particular data] using netCDF?
+
+There are many ways to represent the same information in any general-purpose
+data model. Choices left up to the user in the case of netCDF include which
+information to represent as variables or as variable attributes; what names
+to choose for variables, dimensions, and attributes; what order to use for
+the dimensions of multidimensional variables; what variables to include in
+the same netCDF file; and how to use variable attributes to capture the
+structure and meaning of data. We provide some guidelines in the NetCDF
+User's Guide (e.g., the section on ``Differences between Attributes and
+Variables''), but we've found that a little experience helps. Occasionally
+we have decided it was useful to change the structure of netCDF files after
+experience with how the data is used.
+
+                                  --------
+
+Is there a mailing list for netCDF discussions and questions?
+
+Yes. For information about the mailing list and how to subscribe or
+unsubscribe, send a message to majordomo@unidata.ucar.edu with no subject
+and with the following line in the body of the message:
+
+     info netcdfgroup
+
+
+                                  --------
+
+What is the best way to handle time using netCDF?
+
+Discussions of conventions for representing time and handling time-dependent
+data is a fairly frequent topic of discussion on the netcdfgroup mailing
+list. When the subject comes up, interesting discussions often result, so
+we've archived past discussions on this subject at
+http://www.unidata.ucar.edu/packages/netcdf/time/.
+
+A summary of Unidata's recommendations is available from
+http://www.unidata.ucar.edu/packages/netcdf/time/recs.html. Briefly, we
+recommend use of the units conventions supported by the udunits library for
+time and other units attributes.
+
+Other groups have established more specific conventions that include the
+representation of time in netCDF files. For more information on such
+conventions, see the NetCDF Conventions Page at
+http://www.unidata.ucar.edu/packages/netcdf/conventions.html.
+
+                                  --------
+
+Who else uses netCDF?
+
+The netCDF mailing list has over 500 addresses (some of which are aliases to
+more addresses) in thirty countries. Several groups have adopted netCDF as a
+standard way to represent some forms of scientific data.
+
+   * During March and April 1996:
+        o over 900 distinct hosts downloaded netCDF software via FTP
+        o over 1600 distinct hosts accessed netCDF WWW information via a web
+          browser
+        o hosts from over 50 countries accessed netCDF software or
+          information
+
+A description of some of the projects and groups that have used netCDF is
+available from http://www.unidata.ucar.edu/packages/netcdf/usage.html.
+
+                                  --------
+
+What are some references to netCDF?
+
+Hard-copies of some of these are available from the Unidata Program Center,
+P.O. Box 3000, Boulder, CO 80307-3000:
+
+Rew, R. K., G. P. Davis, S. Emmerson, and H. Davies, NetCDF User's Guide, An
+Interface for Data Access, Version 2.4, February 1996. (Available from
+Unidata or in PostScript form by anonymous FTP from
+<URL:ftp://ftp.unidata.ucar.edu/pub/netcdf/guide.ps.Z>). There is also a
+hypertext version of the User's Guide available at
+<URL:http://www.unidata.ucar.edu/packages/netcdf/guide_toc.html>.
+
+Rew, R. K. and G. P. Davis, "NetCDF: An Interface for Scientific Data
+Access," IEEE Computer Graphics and Applications, Vol. 10, No. 4, pp. 76-82,
+July 1990.
+
+Rew, R. K. and G. P. Davis, "The Unidata netCDF: Software for Scientific
+Data Access," Sixth International Conference on Interactive Information and
+Processing Systems for Meteorology, Oceanography, and Hydrology, Anaheim,
+California, American Meteorology Society, pp. 33-40, February 1990.
+
+Jenter, H. L. and R. P. Signell, 1992. "NetCDF: A Freely-Available
+Software-Solution to Data-Access Problems for Numerical Modelers".
+Proceedings of the American Society of Civil Engineers Conference on
+Estuarine and Coastal Modeling. Tampa, Florida. (Also available as a
+PostScript file from
+<URL:http://www.unidata.ucar.edu/packages/netcdf/netcdf.asce.ps>).
+
+Fulker, D. W., "Unidata Strawman for Storing Earth-Referencing Data,"
+Seventh International Conference on Interactive Information and Processing
+Systems for Meteorology, Oceanography, and Hydrology, New Orleans, La.,
+American Meteorology Society, January 1991.
+
+Brown, S. A, M. Folk, G. Goucher, and R. Rew, "Software for Portable
+Scientific Data Management," Computers in Physics, American Institute of
+Physics, Vol. 7, No. 3, May/June 1993, pp. 304-308.
+
+                                  --------
+
+Is there a document describing the actual physical format for a Unidata
+netCDF file?
+
+Yes, the NetCDF User's Guide contains an appendix that specifies the netCDF
+file format.
+
+Also, the chapter on "NetCDF File Structure and Performance" explains the
+physical structure of netCDF data at a high enough level to make clear the
+performance implications of different data organizations.
+
+If users only go through the documented interfaces to access netCDF data,
+any future changes to the format will be transparent.
+
+----------------------------------------------------------------------------
+
+Platforms and Portability
+
+What does netCDF run on?
+
+Version 2.4.2 has been built and tested on the following platforms:
+
+   * AIX-4.1 (IBM Powerstation)
+   * BSD/OS 2.1 (Intel x86, FORTRAN interface not tested)
+   * HPUX-9.05 (HP PA-RISC)
+   * IRIX-5.3 (SGI Indigo2)
+   * IRIX64-6.1 (SGI Power Indigo2)
+   * Linux 1.3.95 (486 PC, see notes)
+   * MSDOS using gcc, f2c, and GNU make (IBM PS/2, 386)
+   * OpenVMS-6.2 (Digital MicroVAX, C++ interface not tested)
+   * OSF1-3.2 (Digital Alpha)
+   * OS/2 2.1 (Gateway, 486)
+   * SunOS-4.1.4 (Sun SPARCstation)
+   * SunOS-5.4, SunOS-5.5 (Sun SPARCstation)
+   * ULTRIX-4.4 (Digital VAXstation, C++ interface not tested)
+   * ULTRIX-4.5 (Digital DECstation)
+   * UNICOS-8 (Cray Y-MP, T3D, C++ interface not tested)
+   * Windows NT-3.51 (Pentium)
+
+                                  --------
+
+Is netCDF available for Windows 95?
+
+Although we don't develop or support a Windows 95 version of netCDF,
+Toshinobu Hondo has contributed a port for Windows 95 and Windows NT
+compiled by Microsoft Visual C++ 4.01. The diffs and compiled libraries are
+available from the directory ftp://ftp.unidata.ucar.edu/pub/netcdf/win32/
+
+                                  --------
+
+Is netCDF available for Windows NT?
+
+Although we don't develop or support a Windows NT version of netCDF, we have
+integrated changes for porting netCDF to Windows NT into version 2.4. The
+supplied Makefiles are for Windows NT 3.51 using Visual C++ 2.2 and Fortran
+Powerstation 1.0. Before building for Windows NT from the current source
+distribution, see Known Problems with the netCDF Distribution for a couple
+of additional steps that were inadvertantly left out of the instructions.
+
+                                  --------
+
+Is netCDF available for the Apple Macintosh?
+
+Unidata doesn't test or maintain a version of netCDF for Macintoshes, but
+Chuck Denham (USGS) has ported and made available a version of the netCDF
+libraries for Macs.
+
+You can fetch cdflib.o and xdrlib.o for PowerMac via anonymous FTP from the
+directory ftp://crusty.er.usgs.gov/incoming/netcdf-mac/. The format is
+MacBinary II.
+
+If you are a Matlab user, try using the mexcdf function developed at USGS,
+which you can pick up by following the mexcdf link from Chuck's homepage at
+http://priapus.er.usgs.gov. You may be able to get libraries for PowerMac
+and Mac68K there as well.
+
+                                  --------
+
+Is netCDF available for MSDOS/Borland platforms?
+
+Unidata doesn't test or maintain a version of netCDF for Borland compilers,
+but see the files in the directory
+ftp://ftp.unidata.ucar.edu/pub/netcdf/contrib/borland/ for compiled netcdf
+2.3.2 libraries for MSDOS/Borland platforms, including XDR and netcdf
+libraries for all four memory models.
+
+----------------------------------------------------------------------------
+
+NetCDF and Other Software
+
+                                  --------
+
+What other software is available for accessing, displaying, and manipulating
+netCDF data?
+
+Utilities available in the current netCDF distribution from Unidata are
+ncdump, for converting netCDF files to an ASCII human-readable form, and
+ncgen for converting from the ASCII human-readable form back to a binary
+netCDF file or a C or FORTRAN program for generating the netCDF file. A list
+of other software that can be used to manipulate or display netCDF data is
+available from http://www.unidata.ucar.edu/packages/netcdf/software.html.
+
+What other data access interfaces and formats are available for scientific
+data?
+
+The Scientific Data Format Information FAQ provides a good description of
+other access interfaces and formats for scientific data, including CDF and
+HDF.
+
+                                  --------
+
+What is the connection between netCDF and CDF?
+
+CDF was developed at the NASA Space Science Data Center at Goddard, and is
+freely available. It was originally a VMS FORTRAN interface for scientific
+data access. Unidata reimplemented the library from scratch to use XDR for a
+machine-independent representation, designed the CDL text representation for
+netCDF data, wrote a User's Guide and made other additions including
+aggregate data access, single-file implementation, named dimensions, and
+variable-specific attributes.
+
+NetCDF and CDF have evolved independently. CDF now supports many of the same
+features as netCDF (aggregate data access, XDR representation, single-file
+representation, variable-specific attributes), but some differences remain
+(netCDF doesn't support native-mode representation, CDF doesn't support
+named dimensions). There is no compatibility between data in CDF and netCDF
+form, and as yet no translation software exists to convert data in one form
+to data in the other form.
+
+                                  --------
+
+What is the connection between netCDF and HDF?
+
+The National Center for Supercomputing Applications (NCSA) developed the HDF
+software and makes it freely available. HDF is an extensible data format for
+self-describing files that was developed independently of netCDF.
+Applications and utilities based on HDF are available that support
+raster-image manipulation and display and browsing through multidimensional
+scientific data. The HDF software includes a package of routines for
+accessing each HDF data type, as well as a lower-level interface for
+building packages to support new types. HDF supports both C and Fortran
+interfaces, and it has been successfully ported to a wide variety of machine
+architectures and operating systems. HDF emphasizes a single common format
+for data, on which many interfaces can be built.
+
+NCSA has implemented software that provides a netCDF interface to HDF. With
+this software, it is possible to use the netCDF calling interface to place
+data into an HDF file. The netCDF calling interface has not changed and
+netCDF files stored in XDR format are readable, so existing programs and
+data will still be usable (although programs will need to be relinked to the
+new library). There is currently no support for the mixing of HDF and netCDF
+structures. For example, a raster image can exist in the same file as a
+netCDF object, but you have to use the Raster Image interface to read the
+image and the netCDF interface to read the netCDF object. The other HDF
+interfaces are currently being modified to allow multi-file access, closer
+integration with the netCDF interface will probably be delayed until the end
+of that project.
+
+Eventually, it may be possible to integrate netCDF objects with the rest of
+the HDF tool suite. Such an integration will then allow tools written for
+netCDF and tools written for HDF to both interact intelligently with the new
+data files.
+
+                                  --------
+
+Has anyone implemented client-server access for netCDF data?
+
+Yes, as part of the Distributed Ocean Data System (DODS), developers at the
+University of Rhode Island and Massachusetts Institute of Technology have
+implemented a client-server based distributed system for access to
+oceanographic data over the Internet that supports use of the netCDF
+interface for clients. The source code is available in source and binary
+forms from ftp://dods.gso.uri.edu/pub/dods/ for the server, sample clients,
+and libraries. You do not need to get the source code to try to re-link your
+netCDF applications. The server supports use of URL notation for accessing
+netCDF data from remote sites running the DODS server.
+
+                                  --------
+
+What ever happened to plans to write a complete set of netCDF operators?
+
+After considering recent developments in netCDF interfaces to interpretive
+languages and scientific visualization packages, we decided that the need
+for the capabilities provided by the netCDF operators has diminished. The
+netCDF operators approach, connecting programs using UNIX shell syntax, is
+still useful for some purposes, but future Unidata netCDF development
+efforts will be concentrated in enhancements to the netCDF data model,
+library, language interfaces, and application interfaces, rather than
+continuing the development of the full set of netCDF operators as originally
+specified.
+
+----------------------------------------------------------------------------
+
+Problems and Bugs
+
+Is there a list of reported problems and workarounds?
+
+Yes, the document Known problems with the netCDF Distribution describes
+reported problems and workarounds in the current release.
+
+                                  --------
+
+Why do netCDF calls just exit on errors instead of returning an error
+indicator?
+
+The default error handling behavior of all the netCDF functions is to exit
+on error, but this behavior is under programmer control. You can
+independently control the fatality of errors and the appearance of messages
+from errors detected in netCDF library calls. See the section on Error
+Handling in the NetCDF User's Guide for how to do this.
+
+                                  --------
+
+Why do I get XDR error messages when trying to write data?
+
+Probably due to a write error, perhaps because of exceeding disk quotas, a
+full device, or permission problems. The netCDF library is usually built on
+a vendor-supplied XDR library layer. Sometimes errors occur in the XDR layer
+rather than the netCDF layer, and in this case the error messages from the
+XDR layer can be cryptic. For example, if the user is writing data and
+exceeds a disk space quota, this might be detected first in the XDR layer.
+Although we try to catch and elaborate on errors that occur in the XDR
+layer, sometimes there is not enough information passed up to calling
+routines from the XDR layer to make construction of a meaningful error
+message possible.
+
+                                  --------
+
+How do I make a bug report?
+
+If you find a bug, send a description to support@unidata.ucar.edu. This is
+also the address to use for questions or discussions about netCDF that are
+not appropriate for the entire netcdfgroup mailing list.
+
+                                  --------
+
+How do I search through past problem reports?
+
+A search form is available at the bottom of the netCDF homepage, providing a
+full-text search of the support questions and answers about netCDF provided
+by Unidata support staff.
+
+----------------------------------------------------------------------------
+
+Language Interfaces
+
+How does the C++ interface differ from the C interface?
+
+It provides all the functionality of the C interface (except for the
+generalized hyperslab access of ncvarputg() and ncvargetg()), improves type
+safety by eliminating use of void* pointers, and is somewhat simpler to use
+than the C interface. With the C++ interface, no IDs are needed for netCDF
+components, there is no need to specify types when creating attributes, and
+less indirection is required for dealing with dimensions. However, the C++
+interface is less mature and less-widely used than the C interface, and the
+documentation for the C++ interface is less extensive, assuming a
+familiarity with the netCDF data model and the C interface.
+
+                                  --------
+
+How does the Fortran interface differ from the C interface?
+
+It provides all the functionality of the C interface. The Fortran interface
+uses Fortran conventions for array indices, subscript order, and strings.
+There is no difference in the on-disk format for data written from the
+different language interfaces. Data written by a C language program may be
+read from a Fortran program and vice-versa.
+
+                                  --------
+
+How does the Perl interface differ from the C interface?
+
+It provides all the functionality of the C interface. The Perl interface
+uses Perl conventions for arrays and strings. There is no difference in the
+on-disk format for data written from the different language interfaces. Data
+written by a C language program may be read from a Perl program and
+vice-versa.
+
+----------------------------------------------------------------------------
+
+Plans
+
+Are there plans to add facilities for data compression to netCDF?
+
+We have no plans to add data compression to netCDF, although we do plan to
+add a form of transparent data packing on write and unpacking on read in
+netCDF 3.
+
+Arbitrary array cross-section access and direct access to individual array
+values conflict with most simple compression schemes. With netCDF, the
+elements of an array variable can be filled in any order or as
+cross-sections in any direction. NetCDF permits writing elements in one
+order and reading them later in different orders.
+
+Some compression methods require that all the data to be compressed are
+known before starting the compression. Techniques like run-length encoding
+or anything that depends on exploiting similarities in nearby values can't
+be used if nearby values aren't all known at the time some of the data are
+to be written.
+
+An alternative that can be implemented above the netCDF library is to adopt
+a convention for compressed data that uses a "compression" attribute to
+encode the method of compression, e.g.
+
+        x:compression = "rle" ;
+
+for run-length encoding of the data in a variable x. Then when you write the
+data, compress them into a bland array of bytes and write all the bytes.
+Note that it would be difficult to define the size of such a variable in
+advance, since its compressed size depends on its values. You would also
+have to give up on cross-section access for such variables, but instead read
+the compressed array in all at once and uncompress it before using it.
+
+                                  --------
+
+What other future work on netCDF is planned?
+
+An NSF/IITA-funded position will provide resources to continue netCDF
+development in 1996.
+
+   * Add transparent packing
+   * Access by key for generalized coordinate variables
+   * Support for nested arrays (as in J), ragged arrays, and structures.
+   * Continued improvements to C++ interface, implementation
+   * Support for new types: 64-bit integers, unsigned types
+
+Other desirable netCDF enhancements that may be implemented depending on the
+available resources include:
+
+   * Georeferencing library, like udunits
+   * NetCDF client-server interfaces
+   * Link variables pointing to virtual data or data in other files, using
+     Davies' FAN notation
+   * Multiple unlimited dimensions per dataset
+   * Support for wide characters
+   * Fortran-90 interface
+   * Thread-safety (modulo underlying system calls)
+   * Datasets larger than 2 Gbytes
+
+----------------------------------------------------------------------------

@@ -1,0 +1,32 @@
+
+   \subsubsection{Output Ports}
+   %================================================================================
+
+    
+   \begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+   \hline
+      \bf{Name} & \bf{Type} & \bf{Description} \endhead
+   \hline
+	   \textcolor{output}{mesh} & UnstructuredGrid & The grid: single grid for stationary data, 
+														   set of grids for transient data. \\
+   \hline
+	   \textcolor{output}{data\_0,...\newline
+			      data\_15} & Float  \newline Vec3 &
+					The data set as selected with choice parameters "field\_0, field\_15". If a
+					data port is connected and the corresponding choice parameter "field\_x"
+					is set to "---", the next module will deliver an error message "cannot
+					read data for port XXX". \\
+
+   \hline
+	   \textcolor{output}{type} & IntArr & List with cell types. \\
+   \hline
+	   \textcolor{output}{cellTable} & IntArr & List of the properties for every cell type. \\
+   \hline
+	   \textcolor{output}{cpPolygons} & Polygons & Interfacial polygons between matching grids. You
+   may use \covlink{EliminatePolygons}{EliminatePolygons}{../../Filter/EliminatePolygons/EliminatePolygons.html} to eliminate these polygons if they are 
+                                            a hindrance for your visualization. \\
+   \hline
+   \end{longtable}
+
+
+   %================================================================================

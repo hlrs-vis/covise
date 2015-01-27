@@ -1,0 +1,86 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	RST\_file & File Browser & Name of .rst .rfl or .rth file. \\
+\hline
+	timeSteps  & Vector & First set, last set and a number used for skipping sets.\\
+\hline
+	ScaleGridDisplacements & Scalar & You may modify the default valule (1.0)
+        in order to amplify or suppress the deformation of the grid. \\
+\hline
+	Solution & Choice & You should choose among 3 options: showing only
+        a frozen geometry not influenced by parameter {\sl timeSteps}, or nodal
+        data (degrees of freedom) or element data (derived results). 
+        The two latter options are influenced by the value of {\sl timeSteps}. \\ 
+\hline
+	DOF\_Solution & Choice & The module sets up a list with the degrees of freedom
+        available in the file. The module may also include options for generating
+        vector magnitudes out of these degrees of freedom. This happens if
+        the 3 components are found in the file. The isolated components are output
+        in the nodal coordinate system used in the analysis. However, when
+        you choose oone vector option, the resulting vector field will be rotated
+        into the global coordinate system.\\
+\hline
+	Derived\_Solution & Choice & You may choose among stresses, elastic strains,
+        plastic strains, creep strains, thermal strains, thermal fluxes and
+        volume or energy-related data per cell.\\
+\hline
+	SolidShellComponents  & Choice & The value of this selection
+        influences the magnitude associated with solid elements and
+        shells. You may choose among XX, YY, ZZ, XY, YZ, ZX, T1, T2, T3,
+        TI and TIGE. The first 6 valid choices determine the component of the
+        relevant symmetric tensor (chosen through {\sl Derived\_Solution})
+        selected for output. T1, T2, T3 stand for principal values of the tensor
+        and are only available for stresses. TI stands for the intensity
+        as defined in the ANSYS manuals and is only available for stresses.
+        TIGE stands for the equivalent value and is available in principle for
+        stresses and strains. If you want to compare the results
+        produced by choosing one of the possible components with the images
+        of the ANSYS postprocessor, you will have to introduce the APDL
+        command {\sl rsys, solu}, which makes ANSYS show results in the
+        same coordinate system as used for their being saved in the results file.\\
+\hline
+	BeamComponents  & Choice & You may choose among the axial, Yp, Ym,
+        Zp, Zm options. Stresses or strains for beam elements are referred to
+        an element coordinate system whose X component is aligned with the beam.
+        Yp, Ym (Zp, Zm) refer to the state at the positive and negative side respectively
+        along the local Y (Z) direction.\\
+\hline
+        AxiShellComponents & Choice & For axisymmteric shells the available
+        components are not the ones listed by {\sl SolidShellComponents}, but
+        Meridional, ThroughThickness, Hoop and Meridional--hoop.\\
+\hline
+        TopBottom & Choice & For shells you may select if the data is shown
+        for the top or the bottom side. You may also choose to average both results.
+        For multilayered shells you might see false results, if keyopt(8) is 1.\\	
+\hline
+        ThermalFlux & Choice & You may choose among the 3 independent components
+        of the the heat flux, or choose the vector itself.\\
+\hline
+        VolEnergy & Choice & You may select volume, strain enery or kinetic 
+        energy per cell.\\
+\hline
+        OutputNodeDecode & Boolean & for special applications only - not
+	recommended \\  
+\hline
+        AlwaysVertexBased & Boolean & if turned on cell based data is automatically 
+	       converted to vertex based data \\	      
+\hline
+        MagFluxDens & Choice & For electromagnetical applications only! Choose the component of the magnetical flux-density to be read. \\        
+
+%	....
+%	....
+
+\hline
+\end{longtable}
+
+%=============================================================
+%
+%=============================================================

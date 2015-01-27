@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<UnityVRConfig xmlns:xi="http://www.w3.org/2003/XInclude">
+
+   <xi:include href="config:///config.language.xml" xpointer="xpointer(//Localization)" />
+   <xi:include href="config:///config.general.xml" xpointer="xpointer(//Localization)" />
+   <xi:include href="config:///config.license.xml" xpointer="xpointer(//License)" />
+   <xi:include href="config:///unityconfig.setup.xml"/>
+
+</UnityVRConfig>    

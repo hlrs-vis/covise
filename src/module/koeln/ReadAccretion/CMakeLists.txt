@@ -1,0 +1,8 @@
+SET(HEADERS
+)
+SET(SOURCES
+  ReadAccretion.cpp
+)
+ADD_COVISE_MODULE(IO ReadAccretion ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadAccretion coApi coAppl coCore)
+COVISE_INSTALL_TARGET(ReadAccretion)

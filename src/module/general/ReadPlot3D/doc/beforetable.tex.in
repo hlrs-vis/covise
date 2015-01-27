@@ -1,0 +1,24 @@
+
+%=============================================================
+
+%
+% short description what the module does
+%
+The module reads data sets written by Plot3D.
+ 
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{ReadPlot3DModule}{0.9}\end{covimg2}
+
+%
+% short information about versions 
+%
+{\bf ReadPlot3D} is available for COVISE snapvir-2001-01 and higher. It's tested on SGI systems.
+
+{\bf SGI only - no LINUX support}
+%
+%
+%=============================================================

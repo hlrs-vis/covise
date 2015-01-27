@@ -1,0 +1,33 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{Geometry\_in} & Polygons \newline Points& The geometry you want to use.\\
+\hline
+	\textcolor{required}{Scalar\_in} & Float & Data on geometry that will be used to vcleep the data.\\
+\hline
+	\textcolor{optional}{Field\_in\_0\ldots \newline Field\_in\_4} & 
+Float
+Vec3
+Unstructured\_T3D\_Data & Additional data that you may wish to map onto the output geometry 
+                              - just handed through module\\
+\hline
+	\textcolor{optional}{minmax} & MinMax\_Data & The minimal and maximal value of the data, obtained from the output port of the MinMax module. When used,
+these two values are used for setting the first two components of
+both slider parameters, so that, after a first execution, you may know
+the meaningful interval in which you may parametrise the clipping.\\
+												
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

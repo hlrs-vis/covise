@@ -1,0 +1,23 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+{TetraTraceMap}{covise/net/tutorial/tutorial\_vel\_2.net (obsolete)}{0.6}\end{covimg}
+
+You have to use this pipeline in order to use TetraTrace with a mixed-celltype
+unstructured grid. Note that you should save the results from Tetrahedronize, TetraVolume
+and TetraNeighbor so you don't have to recompute them. 
+
+Tetrahedronize requires the grid on the first port and the per-vertex velocity-data
+on the second. You should not change Tetrahedronize's parameter because that feature is
+not yet implemented. 
+
+

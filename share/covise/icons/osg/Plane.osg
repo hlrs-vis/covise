@@ -1,0 +1,81 @@
+MatrixTransform {
+  name "Plane.iv"
+  nodeMask 0xffffffff
+  cullingActive TRUE
+  referenceFrame RELATIVE
+  Matrix {
+    1 0 0 0
+    0 0 1 0
+    0 -1 0 0
+    0 0 0 1
+  }
+  num_children 1
+  Geode {
+    nodeMask 0xffffffff
+    cullingActive TRUE
+    num_drawables 1
+    Geometry {
+      DataVariance STATIC
+      StateSet {
+        DataVariance STATIC
+        rendering_hint TRANSPARENT_BIN
+        renderBinMode USE
+        binNumber 10
+        binName DepthSortedBin
+        GL_LIGHTING ON
+        GL_BLEND ON
+        Material {
+          ColorMode DIFFUSE
+          ambientColor 0.5 0.5 0.5 0.5
+          diffuseColor 0.5059 0.9059 0.5059 0.5
+          specularColor 0.315 0.315 0.315 0.5
+          emissionColor 0 0 0 0.5
+          shininess 71.68
+        }
+        BlendFunc {
+          source SRC_ALPHA
+          destination ONE_MINUS_SRC_ALPHA
+        }
+      }
+      useDisplayList TRUE
+      useVertexBufferObjects FALSE
+      PrimitiveSets 1
+      {
+        DrawArrays TRIANGLES 0 6
+      }
+      VertexArray Vec3Array 6
+      {
+        -75 75 0
+        75 75 0
+        75 -75 0
+        -75 75 0
+        75 -75 0
+        -75 -75 0
+      }
+      NormalBinding PER_VERTEX
+      NormalArray Vec3Array 6
+      {
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 0 -1
+      }
+      ColorBinding OVERALL
+      ColorArray Vec4Array 1
+      {
+        0.5059 0.9059 0.5059 0.5
+      }
+      TexCoordArray 0 Vec2Array 6
+      {
+        0 0
+        0 0
+        0 0
+        0 0
+        0 0
+        0 0
+      }
+    }
+  }
+}

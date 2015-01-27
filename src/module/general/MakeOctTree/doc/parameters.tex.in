@@ -1,0 +1,49 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	normal\_size & scalar & The bounding box of the
+        geometric domain is uniformly divided into several
+        octrees (subdomains). 
+        The number of octrees is influenced by this parameter.
+        Its meaning is as follows: if the grid were uniform,
+        then the number of cells in each subdomain would be
+        with good approximation the value of this parameter,
+        as long as the total number of cells is of course high enough.   \\
+\hline
+	max\_no\_levels & scalar & The maximum number of levels
+        in an octree. \\
+\hline
+        min\_small\_enough & scalar & When an octree leaf contains
+        less than some number of elements, leaf division is interrupted.
+        This number is in general greater than the value of this parameter,
+        but you may influence it through this parameter.\\
+\hline
+        crit\_level & scalar & From this level leaf division
+        is interrupted if a would-be son-cell contains as many
+        cells as the parent.\\
+\hline
+        limit\_fX & scalar & This parameter influences how the
+        bounding box of the geometric object is subdivided
+        into a number of subdomains for as many octrees. In particular
+        this parameter limits the number of division in the X-dimension.\\
+\hline
+        limit\_fY & scalar & See comment for limit\_fX.
+        This parameter limits the number of division in the Y-dimension.\\
+\hline
+        limit\_fZ & scalar & See comment for limit\_fX.
+        This parameter limits the number of division in the Z-dimension.\\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

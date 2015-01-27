@@ -1,0 +1,12 @@
+
+
+RWCoviseASCII reads or writes COVISE ASCII files.
+
+\begin{covimg2}	{}{RWASCII}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+RWCoviseASCII is available for COVISE version 5.2.2 and higher. 
+
+%=============================================================

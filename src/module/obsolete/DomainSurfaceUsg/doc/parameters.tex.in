@@ -1,0 +1,31 @@
+
+\subsubsection{Parameters}
+%================================================================================
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	angle &Scalar & Adjacent faces with an angle more than this are considered to have an edge and a line is
+                                         computed for this edge. The lines are available at the third output port.\\													  
+\hline
+	vertex & Vector & You can use the parameters "vertex" and "scalar" to look inside the domain surface. Faces
+                                         are removed, if the angle between the faces and "vertex" is less than "scalar",
+					 e.g. you can remove faces (approximately) parallel to a coordinate axis. If you
+                                         want to cut the geometry instead of removing some faces use the module
+													  CutGeometry. \\
+\hline
+ 	scalar & Scalar &Scalar specifies the angle in radians between the face and "Vertex" up to which
+                                         polygons are removed (see "vertex") \\
+\hline
+ 	double & Boolean &Not implemented (will be removed in future versions). \\
+\hline
+   optimize & Choice & Optimize for speed or memory. \\
+\hline
+\end{longtable}
+
+
+
+
+%================================================================================

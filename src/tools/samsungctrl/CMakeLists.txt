@@ -1,0 +1,28 @@
+# PROJECT(samsungdctrl)
+
+ADD_DEFINITIONS(
+)
+
+INCLUDE_DIRECTORIES(
+)
+
+SET(HEADERS
+  samsungctrl.h
+)
+
+SET(SOURCES
+  samsungctrl.cpp
+)
+
+IF(UNIX)
+  FIND_LIBRARY(RT rt)
+  IF(RT)
+    SET(EXTRA_LIBS ${RT})
+  ENDIF()
+ENDIF()
+
+ADD_COVISE_EXECUTABLE(samsungctrl)
+
+TARGET_LINK_LIBRARIES(samsungctrl coNet ${EXTRA_LIBS})
+
+COVISE_INSTALL_TARGET(samsungctrl)

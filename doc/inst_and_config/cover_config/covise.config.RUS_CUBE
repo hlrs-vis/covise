@@ -1,0 +1,131 @@
+#########################################################################
+#									#
+# Covise Configuration file for COVER with screens in any position	#
+#									#
+#########################################################################
+
+HostConfig
+{
+    vision-at1		shm		rsh			60
+    visit		shm		rsh			30
+}
+
+COVERConfig: vision
+{
+    PIPE_LOCKING        CHANNEL
+    TRACKING_SYSTEM	    FLOCK
+    SCENESIZE		    2500
+    NUM_PIPES		    2
+    NUM_WINDOWS		    4
+    AUTO_WIREFRAME	    OFF
+    COORD_AXIS		    OFF
+    FREEZE		        OFF
+    #SPOTLIGHT		    ON
+    STEREO_SEPARATION   60
+    #LIGHT1		        0 10000 10000 1.0
+    NOSEPARATION	    FALSE
+    #MODELPATH          /mnt/scr/cod/boytcheff/PTT
+    #MODELFILE          PTT_Complete_new2.iv
+    TWOSIDE             ON
+}
+
+
+
+WindowConfig: vision
+{
+#   WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0		FRONT       	0       	0 109 		1024 915
+    1		RIGHT       	0       	1024 109 	1024 915
+    2		LEFT        	1       	992 109 	1024 915
+    3		BOTTOM      	1       	0 32 		992 992
+}
+
+
+PipeConfig: vision
+{
+#   SoftPipe	Screen   	Display
+    0		    0		    :0.2
+    1		    0		    :0.1
+}
+
+
+ScreenConfig: vision
+{
+#   ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		FRONT		2800 2500	0 1400 0		0.0 0.0 0.0
+    1		RIGHT		2800 2500	1400 0 0 		-90.0 0.0 0.0
+    2		LEFT		2800 2500	-1400 0 0		90.0 0.0 0.0
+    3		BOTTOM		2800 2800	0 0 -1250		0.0 -90.0 0.0
+	
+}
+
+
+
+# the tracking sysem is an ethernet motionstar
+PolhemusConfig
+{
+
+	SERIAL_PORT		 	        /dev/ttyd6	19200
+	HEMISPHERE      		    1 0 0
+	INTERPOLATION_FILE			calib_23apr99_posit.data
+	INTERPOLATION_FILE_X		calib_23apr99_ori_x.data
+	INTERPOLATION_FILE_Y		calib_23apr99_ori_y.data
+	INTERPOLATION_FILE_Z		calib_23apr99_ori_z.data
+    ORIENT_INTERPOLATION		FALSE
+	WRITE_CALIBRATION			FALSE
+
+#	Polhemus hand device and station
+#   FOB Mouse
+	HAND	POLHEMUS_STYLUS		0
+
+#	Pohemus headtracking device and station
+	HEAD	POLHEMUS_SENSOR		1
+
+	LINEAR_MAGNETIC_FIELD_CORRECTION	1.0 1.0 0.0015
+
+	TRANSMITTER_OFFSET_POS			0 -165 -61
+	TRANSMITTER_OFFSET_EULER		-90 0 180 
+	SENSOR_OFFSET_POS			6 0 8
+    SENSOR_OFFSET_EULER			-90 0 -90
+	STYLUS_OFFSET_EULER			90 0 0
+        
+}
+
+Network
+{
+#	IP_ALIAS	visavis		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+
+
+
+
+TrackerCalibration
+{
+#	these settings should be retrieved using  ms  and the TrackerCalibration
+#	application-module
+
+# 	NOTE: if this filter is enabled, it overrides a few settings in
+#		the section PolhemusConfig
+
+
+#	should the filter be used ? (ON / OFF)
+	STATUS			OFF
+        SWAP                    ON
+	ORIGIN			-22.0 29.0 202.0
+	ALPHA			-0.55
+	BETA0			0.5
+	BETA1			0.4
+	GAMMA			30.0
+	DELTA			35.0
+	UP_SCALE		0.4
+        
+        // 1: use given parameters
+        // 2: use hype-parameters retrieved with Solver
+        //
+        FILTER_TYPE             1
+        
+}
+
+	

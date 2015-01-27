@@ -1,0 +1,810 @@
+<HTML>
+
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Daniela Rainer, rainer@rus.uni-stuttgart.de">
+   <META NAME="Domain" CONTENT="rus">
+   <META NAME="Project" CONTENT="COVISE">
+   <META NAME="Description" CONTENT="COVISE Documentation - Installation & Configuration - COVER Configuration">
+   <META NAME="Keywords" CONTENT="COVISE">
+   <META NAME="Title" CONTENT="COVISE Documentation - Installation & Configuration - COVER Configuration">
+   <META NAME="Quarter" CONTENT="Q4">
+   <META NAME="Date" CONTENT="19990809">
+   <META NAME="Year" CONTENT="1999">
+   <META NAME="Referencetype" CONTENT="text/html">
+   <TITLE>COVISE Documentation - Installation & Configuration - COVER Configuration</TITLE>
+</HEAD>
+
+<BODY BGCOLOR=WHITE LINK=#0033cc VLINK=#0033cc>
+
+
+
+
+<!-- Navigation -->
+<TABLE BORDER=0>
+<TR>
+    <TD WIDTH=100 ALIGN=CENTER VALIGN=TOP>
+        <IMG ALIGN=CENTER VALIGN=CENTER SRC="../../logo.gif">
+    </TD>
+    <TD WIDTH=20 ALIGN=LEFT VALIGN=CENTER>&nbsp;</TD>    
+    <TD ALIGN=LEFT VALIGN=CENTER> 
+        &nbsp;<BR> 
+                
+        <A HREF="../index.html">[&nbsp;Installation & Configuration&nbsp;]</A>        
+        <A HREF="index.html">[&nbsp;COVER Configuration&nbsp;]</A>        
+   </TD>
+</TR>
+</TABLE>
+<HR>
+
+
+<!-- Ueberschrift -->
+<TABLE BORDER=0>
+
+<TR>
+    <TD><IMG SRC="pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR>
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD><H1>COVER Configuration</H1></TD>
+</TR>
+</TABLE>
+
+
+
+<!-- Text -->
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>covise.config</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+        COVER is configured via the COVISE configuration file <b>covise.config</b>.
+        The configuration file contains the sections:
+        <P>
+        <a HREF="#cover_config">CoverConfig</a><BR>
+        <a HREF="#window_config">WindowConfig</a><BR>
+        <a HREF="#pipe_config">PipeConfig</a><BR>
+        <a HREF="#screen_config">ScreenConfig</a><BR>
+        <a HREF="#polhemus_config">PolhemusConfig</a><BR>
+        ButtonConfig
+</TD>
+</TR>
+</TABLE>
+
+
+<!-- Text -->
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>Examples</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+        Here you find some examples, which can be a template
+        for your own configuraton:
+        <P>
+        <a HREF="covise.config.RUS_CUBE">RUS CUBE with Motionstar and 6DOF mouse</a><BR>
+        <A HREF="dbvira.html">DBViRA with Polhemus and Stylus</A><BR>
+        <A HREF="bae_workbench.html">BAe Workbench with Polhemus and Stylus</A><BR>
+        <A HREF="cenit_wall.html">CENIT Wall with Motionstar and IAO mouse</A><BR>
+        Holobench at the TAN/SGI Demo Center<BR>
+        Wall at IHS<BR>
+        Wall at the University of Jyv&auml;skyl&auml;<BR>
+        PDC VR Cube<BR>
+        <A HREF="covise.config.IMMERSADESK">Fakespace/Pyramid Immersadesk</A>
+        
+     </TD>
+</TR>
+</TABLE>
+
+
+
+<A NAME="cover_config">
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>COVERConfig</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+        The section COVERConfig can contain the following keywords:<P>
+        <A HREF="#8">ANTIALIAS</A><BR>
+        <A HREF="#9">ARENA_SIZE</A><BR>
+        <A HREF="#10">AUTO_WIREFRAME</A><BR>
+        <A HREF="#11">BUTTON_SYSTEM</A><BR>
+        <A HREF="#12">COORD_AXIS</A><BR>
+        FORCE_FEEDBACK<BR>
+        FORCE_SCALE<BR>
+        FORCE_FEEDBACK_MODE<BR>
+        <A HREF="#13">FPS</A><BR>
+        <A HREF="#14">FOOTER_MESSAGE</A><BR>
+        <A HREF="#15">FREEZE</A><BR>
+        <A HREF="#16">LIGHT1</A><BR>
+        <A HREF="#16">LIGHT2</A><BR>
+        LOD_SCALE<BR>
+        MAX_FORCE<BR>
+        <A HREF="#17">MENU_POSITION</A><BR>
+        <A HREF="#18">MENU_ROTATION</A><BR>
+        <A HREF="#19">MODELPATH</A><BR>
+        <A HREF="#19">MODELFILE</A><BR>
+        <A HREF="#20">MONO_COMMAND</A><BR>
+        MOVE_PARTS<BR>
+        <A HREF="#21">MULTIPROCESS</A><BR>
+        <A HREF="#22">NOSEPARATION</A><BR>
+        <A HREF="#23">NOTIFY</A><BR>
+        <A HREF="#3">NUM_PIPES</A><BR>
+        <A HREF="#4">NUM_WINDOWS</A><BR>
+        <A HREF="#7">RELATIVISTIC_MODE</A><BR>
+        <A HREF="#6">RELATIVISTIC_PARAMETER_FILE</A><BR>
+        RELATIVISTIC_MULTITHREADING<BR>
+        ROTATE<BR>
+        SAVE_FILE<BR>
+        <A HREF="#2">SCENESIZE</A><BR>
+        SCALE_ALL<BR>
+        <A HREF="#24">SPOTLIGHT</A><BR>
+        STIPPLE_ON<BR>
+        SCALE_ROTATION<BR>
+        SCALE_TRANSLATION<BR>
+        <A HREF="#5">STEREO_SEPARATION</A><BR>
+        <A HREF="#20">STEREO_COMMAND</A><BR>
+        <A HREF="#25">TWOSIDE</A><BR>
+        <A HREF="#1">TRACKING_SYSTEM</A><BR>
+        <A HREF="#14">WELCOME_MESSAGE</A><BR>
+        
+        <P>
+
+        <A NAME="8"><H4><FONT COLOR=BLUE>ANTIALIAS &lt;flag&gt;</FONT></H4></A>
+        Enables or disables antialiasing. If ANTIALIAS is ON but the 
+        graphics board doesn't support multisampling antialiasing is not enabled.
+        If the line is ommited but the graphics board supports
+        multisampling antialiasing is enabled. If ANTIALIAS is OFF
+        the frame buffer is not configured for multisampling. 
+
+        <PRE>    
+        <B>ANTIALIAS OFF</B></PRE>
+
+        <A NAME="9"><H4><FONT COLOR=BLUE>ARENA_SIZE &lt;size&gt;</FONT></H4></A>
+        sets the size of the shared arena Performer uses. The default size is
+        256 MB. The size is defined in byte. If you want to increase the shared arena size
+        please read the man pages of <B>pfSharedArenaSize</B> before.
+        Example:<P>
+        increase the shared arena size to 1000 MB:
+        <PRE>    <B>ARENA_SIZE 1000000000</B></PRE>
+
+        <A NAME="10"><H4><FONT COLOR=BLUE>AUTO_WIREFRAME &lt;flag&gt;</FONT></H4></A>
+        enables or disables auto wireframe mode. auto wireframe means that all scene
+        objects are drawn in wireframe mode as soon as the user selects the menu.
+        Possible values are ON and OFF. If you omit the line it is OFF. 
+
+
+        <A NAME="11"><H4><FONT COLOR=BLUE>BUTTON_SYSTEM &lt;system&gt;</FONT></H4></A>
+        specifies the use of an extra button devices which doesn't come with the tracking system.
+        For example the Motionstar system from Ascension comes with a 3D mouse but
+        DVISION offers an own 3D device where the scension sensor is integrated. For using
+        the ascension mouse you do not have to specify a button system but
+        for using the DVISION mouse you have to specify it in CoverConfig. The device is
+        further configured in the section ButtonConfig.
+        <P>
+        Supported systems are
+        <DL>
+        <LI>IAO
+        <LI>CAVELIB
+        <LI>DVISION ???
+        </DL>
+        Please contact us before you want to use one of the above 3D devices.
+
+
+        <A NAME="12"><H4><FONT COLOR=BLUE>COORD_AXIS &lt;flag&gt;</FONT></H4></A>
+        ON/OFF enables or disables drawing of an axis system in the renderer window at starting time.
+        If the line is omitted the coordinate axis is displayed at starting time.
+
+
+        <A NAME="13"><H4><FONT COLOR=BLUE>FPS &lt;flag&gt;</FONT></H4></A>
+        ON/OFF enables or disables printing the frame rate (FPS = frames per second) into the terminal window.
+        If the line is omited printing the frame rate is disabled.<P>
+        Example:
+        <PRE>
+            <B>FPS OFF</B>
+        </PRE>
+
+
+        <A NAME="14"><H4><FONT COLOR=BLUE>WELLCOME_MESSAGE &lt;message&gt;<BR>FOOTER_MESSAGE &lt;message&gt;
+        </FONT></H4></A>
+        If a wellcome message is specified this message is displayed for some seconds when COVER is started.
+        If a footer message is specified, this message is always displayed at the bottom of the renderer window.
+        Please note that the text is drawn only in the stereo channel of the right eye.<P>
+        Example:
+        <PRE>
+            <B>WELLCOME_MESSAGE Wellcome to COVISE-VR</B>
+            <B>FOOTER_MESSAGE Data courtesy of ...</B>
+        </PRE>
+
+
+        <A NAME="15"><H4><FONT COLOR=BLUE>FREEZE &lt;flag&gt;</FONT></H4></A>
+        flag=ON/OFF enables/disables headtracking at starting time. If the line is omitted headtracking is
+        ON at starting time.<P>
+        Example:
+        <PRE>
+            <B>FREEZE OFF</B>
+        </PRE>
+
+        <A NAME="16"><H4><FONT COLOR=BLUE>LIGHT1 &lt;xpos&gt; &lt;ypos&gt; &lt;zpos&gt; &lt;w&gt; <BR>
+        LIGHT2 &lt;xpos&gt; &lt;ypos&gt; &lt;zpos&gt; &lt;w&gt;</FONT></H4></A>
+        You can define 2 additional lights. xpos, ypos and zpos define the position and w specifies, if the light is
+        local or infinite<P>
+        Example:
+        <PRE>
+            <B>LIGHT1 0 10000 10000 1.0</B>
+        </PRE>
+
+        <A NAME="17"><H4><FONT COLOR=BLUE>MENU_POSITION &lt;x&gt; &lt;y&gt; &lt;z&gt;</FONT></H4></A>
+        specifies the position of the menu in the world coordinate system. The default position (if the line
+        is omitted) is  x=0.6*sceneSize/2.0, y=0.0, z=0.6*sceneSize/2.0.<P>
+        Example:
+        <PRE>
+            <B>MENU_POSITION 900 0 800</B>
+        </PRE>
+
+
+        <A NAME="18"><H4><FONT COLOR=BLUE>MENU_ROTATION &lt;angle&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt;</FONT></H4></A>
+        specifies the orientation of the menu in the world coordinate system. [x y z] define an axis and angle is 
+        the rotation in degree around this axis. The default orientation (if the line
+        is omitted) is angle=-30 axis=[0 0 1]. This is a rotation around the z axis.<P>
+        Example:
+
+        <PRE>
+            <B>MENU_ORIENTATION -30 0 0 1</B>
+        </PRE>
+
+        <A NAME="19"><H4><FONT COLOR=BLUE>MODELPATH &lt;path&gt; <BR>MODELFILE &lt;file&gt;</FONT></H4></A>
+        COVER is based on the graphics library IRIS Performer. Performer is able to load many 3D file formats
+        like obj, dxf, iv, etc.. The MODELPATH and MODELFILE entries are a way to load models into the
+        renderer without using COVISE. It works if COVER was started inside COVISE or in standalone mode.
+        MODELPATH defines the absolute path to a directory with model files, MODELFILE specifies the file.
+        <P>
+        Example:
+
+        <PRE>
+            <B>MODELPATH /usr/share/data/models
+            MODELFILE banana.iv</B>
+        </PRE>
+
+        <A NAME="20"><H4><FONT COLOR=BLUE>MONO_COMMAND &lt;command&gt; <BR>STEREO_COMMAND &lt;command&gt;</FONT></H4></A>
+        For stereo projection the application has to draw two images and the display system has
+        to be stereo capable. There are two ways to display the stereo images: 1. display the left and right eye 
+        view one after another (shutter glasses mode) or display them at the same time with two polarixed projectors 
+        (passive stereo mode with polarized glasses). COVER supports both modes. This sections is about
+        the shutter glasses stereo mode.<P>
+        COVER always starts in stereo mode this means it draws two images. If the video format is a stereo format
+        (for example 1024x768_96s) then you will automatically see two images without setting STEREO_COMAND. 
+        <P>
+        In the case that the system has a mono video format at starting time you can provide a command to switch
+        to stereo for example /usr/gfx/setmon -n 1024x768_96s. If you want to go back to mono after COVER is finished
+        you can provide a mono command. Please note that not all video formats can be downloaded with setmon. Read
+        the man pages about setmon and ircombine.
+
+        <A NAME="21"><H4><FONT COLOR=BLUE>MULTIPROCESS &lt;flag&gt;</FONT></H4></A>
+        IRIS Performer can fork separate processes for application, culling and drawing. With
+        MULTIPROCESS ON you enable the multiprocessing modell APP_CULL_DRAW (see man pfMultiProcess).
+        On multiprocessor systems multiprocessing should be enables. On singleprocessor systems and for
+        debugging purposes multiprocessing can be switched off.<P>
+        Example:
+        <PRE>
+            <B>MULTIPROCESS ON</B>
+        </PRE>
+
+
+        <A NAME="22"><H4><FONT COLOR=BLUE>NOSEPARATION &lt;flag&gt;</FONT></H4></A>
+        For some purposes like making photos or images you don't want to see the two images. If your
+        projection system is configured for a mono mode you can simply switch to mono through the 3D menu in 
+        COVER. In the case your projections system is configured only for stereo video formats you have to
+        can't switch to mono mode. The solution is to set the stereo separation to 0 ot to enable NOSEPARATION<P>
+        Example:
+        <PRE>
+            <B>NOSEPARATION ON</B>
+        </PRE>
+
+
+        <A NAME="23"><H4><FONT COLOR=BLUE>NOTIFY &lt;mode&gt;</FONT></H4></A>
+        sets different levels of Performer debugging messages. Valid values are 
+        <DL>
+        <LI>OFF or line omiteed- sets the notify level to PFNFY_FATAL
+        <LI>ON - sets the notify level to PFNFY_DEBUG
+        <LI>NOTICE - sets the notify level to PFNFY_NOTICE
+        </DL><P>
+        Example:
+        <PRE>
+            <B>NOTIFY OFF</B>
+        </PRE>
+
+        <A NAME="24"><H4><FONT COLOR=BLUE>SPOTLIGHT &lt;flag&gt;</FONT></H4></A>
+        enables/disables the spotlight at starting time. The spotlight can be switched on/off
+        also through the 3D menu in COVER.
+        <P>
+        Example:
+        <PRE>
+            <B>SPOTLIGHT OFF</B>
+        </PRE>
+
+
+        <A NAME="25"><H4><FONT COLOR=BLUE>TWOSIDE &lt;flag&gt;</FONT></H4></A>
+        enables/disables twosided lighting. Twosided lighting is a performance penalty but
+        necessary if some faces of a model have a wrong orientation or if inner sides should be
+        lighted. For COVISE geometry twosided lighting is recommended. If this line is ommited twosided
+        lighting is ON<P>
+        Example:
+        <PRE>
+            <B>TWOSIDE ON</B>
+        </PRE>
+
+
+        <A NAME="1"><H4><FONT COLOR=BLUE>TRACKING_SYSTEM &lt;system&gt;</FONT></A></H4>
+        This parameter describes the tracking system type. 
+        Supported systems are:
+        <UL>
+        <LI>POLHEMUS (FASTRAK with Stylus from Polhemus)
+        <LI>FLOCK (Ethernet Motionstar with 6DOF mouse from Ascension)
+        <LI>LOGITECH (not supported any more) 
+        <LI>SPACEPOINTER (2D mouse steering)
+        <LI>SPACEBALL (SPACEMOUSE from DLR)
+        <LI>BEEBOX (undocumented)
+        <LI>FLYBOX (undocumented)
+        <LI>PHANTOM (undocumented)
+        </UL>
+        Example:
+        <PRE>    <B>TRACKING_SYSTEM POLHEMUS</B></PRE>
+        If the keyword TRACKING_SYSTEM is missing a default tracking system is used. The
+        default tracking system is SPACEPOINTER.
+        <P>
+        The systems POLHEMUS and FLOCK rquire further configuration in the section 
+        <A HREF="polhemus_config.html">PolhemusConfig</A>
+        and FlockConfig. Please note that in COVISE 4.5.2 most of the configuration parameters
+        of FLOCK have to be in the section PolhemusConfig. This will change in the next release.
+
+        <A NAME="2"><H4><FONT COLOR=BLUE>SCENE_SIZE &lt;size&gt;</FONT></H4></A>
+        The scene size is used for scaling objects into the visible area. Therefore
+        the scene size should be in the same range as the screen size is. 
+        It is measured in mm.<P>
+        Example:<BR> 
+        Screen size of the wall of the RUS CUBE is 2800 x 2500 mm 
+        <PRE>    <B>SCENE_SIZE 2500</B></PRE>
+        Screen size of a 19" monitor is 340 x 270 mm
+        <PRE>    <B>SCENE_SIZE 270</B></PRE>
+
+
+        <A NAME="3"><H4><FONT COLOR=BLUE>NUM_PIPES &lt;num&gt;</FONT></H4></A>
+        defines the number of grafics pipes you want to use for your 
+        application. It doesn't have to be equal to the number of pipes in your
+        machine.
+        <P>
+        Example:<BR> 
+        The Onyx which drives the RUS CUBE has 3 graphics pipes but only 2 are
+        used for the CAVE: 
+        <PRE>    <B>NUM_PIPES 2</B></PRE>
+
+
+        <A NAME="4"><H4><FONT COLOR=BLUE>NUM_WINDOWS &lt;num&gt;</FONT></H4></A>
+        defines the number of windows. In a 4 wall cave system you
+        have 4 windows, on the Holobench you have 2 windows and on an Immersadesk
+        or Workbench you have 1 window.
+        <P>
+        Example:<BR> 
+        The RUS CUBE has 4 walls: 
+        <PRE>    <B>NUM_WINDOWS 4</B></PRE>
+
+
+        <A NAME="5"><H4><FONT COLOR=BLUE>STEREO_SEPARATION &lt;separation&gt;</FONT></A></H4>
+        sets the separation between the eyes and is measured in mm.
+        Here a good rule to compute a reasonable separation:
+        <PRE>
+            sep = 2 * opt_dist * tan( betamax / 2 ) * ((i + 1) / i)
+        </PRE>
+        opt_dist stands for the optimal viewer distance when the field of view is 45 
+        degrees:
+        <PRE>
+            opt_dist = scene_size / (2 * tan (22.5)) 
+            betamax = 1.73 degree
+            tan(betamax/2)=0.015098245
+            i=yfar/opt_dist
+        </PRE>
+        Example: 
+        <PRE>
+            scene_size = 2500
+            opt_dist = 3017.767
+            yfar = 2 * scene_size
+            i = 5000/3017.767=1.656
+            sep = 2*3017.767 * 0.015098245 * 1.6= 145.8
+        </PRE>
+
+
+
+        <A NAME="6"><H4><FONT COLOR=BLUE>RELATIVISTIC_PARAMETER_FILE &lt;file&gt;</FONT></H4></A>
+        is the location of an additional
+        parameter file with relativistic options. The syntax of 
+        this file is:
+        <PRE>
+          dummy_value 
+          start_x start_y start_z 
+          direction_x direction_y direction_z
+          begin_time delta_time end_time
+          dummy dummy dummy
+          num_lights
+          { light_x light_y light_z }
+          overall_scale
+          acceleration_scale_x 
+          acceleration_scale_y 
+          acceleration_scale_z
+        </PRE>
+        start_? is the initial position of the observer with respect
+        to the frame of reference of the objects.
+        <P>
+        direction_? is the initial direction of the motion of the observer with respect
+        to the frame of reference of the objects.
+        <P>
+        begin_time, delta_time, and end_time describe the propagation of
+        the proper time of the observer.
+        <P>
+        num_lights is the number of lights. The direction
+        of the lights {light_x light_y light_z} has
+        to be specified num_lights times. 
+        <P>
+        overall_scale is the overall scaling of the three-dimensional model.
+        <P>
+        acceleration_scale_? is the sensitivity with respect to accelerations.
+
+
+        <A NAME="7"><H4><FONT COLOR=BLUE>RELATIVISTIC_Mode &lt;flag&gt;</FONT></H4></A>
+        is ON or OFF. Default is off.
+
+    </TD>
+</TR>
+</TABLE>
+
+
+
+
+<A NAME="window_config">
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>WindowConfig</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+<PRE>
+WindowConfig:
+{
+    WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0		FRONT   	1       	0 109 		1024 915
+    1		RIGHT       	1       	1024 109 	1024 915
+    2		LEFT        	0       	992 109 	1024 915
+    3		BOTTOM      	0       	0 32 		992 992
+}
+        </PRE>
+        For each window you have fill in one line. The window number has to start with 0.
+        The window name can be any string.
+        <P>
+        The variable SoftPipeNo describes the software pipe, that is not identical
+        to the hardware grafics pipe. The SoftPipeNo starts with 0 and has to be 
+        numbered consecutively. For example if you have 3 grafics pipes in
+        your machine and you use 2 of them for COVER (pipe 0 and pipe 2) then the
+        software pipes have to be numbered 0 and 1.
+        <P>
+        With Origin and Size you set the origin (left bottom edge) and the size of 
+        the window on the XDisplay (managed area).
+        <P>
+        <H3>
+        Passive Stereo Systems
+        </H3>
+        For passive stereo systems, which typically consist of two projectors creating
+        one congruently overlapping picture by projecting the left and right image respecively,
+        the window (and screen) configuration looks somewhat different.
+        For a single projection wall with two projectors the window config would look like:
+        <P>
+        <PRE>
+        WindowConfig:
+        {
+            WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+            0		FRONT   	0       	0 109 		1024 915
+            1		FRONT       	0       	1024 109 	1024 915
+        }
+        </PRE>
+        Here the same name has to be used to state that the two windows form a combined
+        passive stereo projection. Additionaly, in the COVERConfig section of the configuration
+        file the number of windows has to be set to two:
+        <P>
+        <PRE>
+        COVERConfig:
+        {
+         ...
+        # Set number of windows 2*n
+              NUM_WINDOWS             2
+         ...
+        }
+        </PRE>
+        <P>
+        Finally the screen configuration section should look like:
+        <PRE>
+        ScreenConfig:
+        {
+        #       ScreenNo        ScreenName      ScreenSize[mm]  ScreenCenter[mm]        ScreenOrient hpr [degrees]
+                0               FRONT           2800 2500       0 0 0           0.0 0.0 0.0
+                1               FRONT           2800 2500       0 0 0           0.0 0.0 0.0
+
+        }
+        </PRE>
+        Again the same name (here FRONT) should be used double for passive stereo mode.
+        Note that in case of a n-wall passive stereo system, the multiple double names
+        should occur sequentially (1,1,2,2) and should not be mixed (1,2,1,2). 
+
+    </TD>
+</TR>
+</TABLE>
+
+<A NAME="pipe_config">
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>PipeConfig</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+<PRE>
+PipeConfig: vision
+{
+#   SoftPipe	Screen   Server:Screen		    
+    0		0	:0.0
+    1		0	:2.0
+}
+</PRE>
+        In a multipipe but single keyboard system, the screen is identical to
+        the hardware pipe number. For example if you have three pipes and you use 0 
+        and 2 for COVER, then the screens are 0 and 2 and the Server:Screen
+        values are :0.0 and :0.1.
+        <P>
+        In a multipipe but triple keyboard system the ServerScreen values are
+        :0.0 and :2.0. The screen is always 0.
+        <P> We know that one variable would be enough ;-)
+
+    </TD>
+</TR>
+</TABLE>
+
+<A NAME="screen_config">
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>ScreenConfig</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+<PRE>    
+ScreenConfig: vista
+{
+#   ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		FRONT		2800 2500	0 1400 0		0.0 0.0 0.0
+    1		RIGHT		2800 2500	0 0 1250 		-90.0 0.0 0.0
+    2		LEFT		2800 2500	-1400 0 0		90.0 0.0 0.0
+    3		BOTTOM		2800 2800	0 0 -1250		0.0 -90.0 0.0
+</PRE>
+        ScreenConfig describes the geometry and orientation of the walls. Center 
+        describes the center of the wall in relation to the origin of a default
+        projection plane. ScreenOrientation is the orientation offset in relation
+        to the default projection plane. The default projection plane in IRIS
+        Performer is the xz plane through the origin. 
+        <P>
+        The Performer coordinate system is: X = RIGHT, Z = UP, Y = into the screen.
+
+
+    </TD>
+</TR>
+</TABLE>
+
+
+
+<A NAME="polhemus_config">
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+ 
+<TR>
+    <TD  ALIGN=RIGHT VALIGN=TOP><B>PolhemusConfig</B></TD>
+    <TD>&nbsp;</TD>
+    <TD>
+<PRE>
+PolhemusConfig
+{
+    SERIAL_PORT	 /dev/ttyd5	19200   
+    HEMISPHERE	1 0 0
+    HAND	POLHEMUS_STYLUS		1 
+    HEAD	POLHEMUS_SENSOR		2
+    LINEAR_MAGNETIC_FIELD_CORRECTION	0.0 0.0 -0.35
+#					x  y  z
+    TRANSMITTER_OFFSET_POS	        0 -185 -25
+#					h   p  r
+    TRANSMITTER_OFFSET_EULER	        90 180 0
+#					x  y  z 
+    SENSOR_OFFSET_POS			10 0 10
+#					H  P  R
+    SENSOR_OFFSET_EULER			-90 0 90
+#					x  y  z
+    STYLUS_OFFSET_POS			0  0  0
+#					H  P  R
+    STYLUS_OFFSET_EULER		 	-90 0 90
+ }	    
+</PRE>
+
+The parameters behind the keyword SERIAL_PORT are the port name and the 
+baudrate. The baudrate is set with the switches at the  rear side of the SEU.
+The switches have the following meaning:
+<PRE>
+1	Baud Rate Select
+2	Baud Rate Select
+3	Baud Rate Select
+4	Hardware Handshake select
+5	Character width -- UP=8 Bits
+6	Parity Select
+7	Parity Select
+8	IO Select -- UP for RS-232
+</PRE>
+<P>
+The Baud Rate switches have the following meaning:<BR>
+<PRE>
+1200	000
+2400	100
+4800	010
+9600	110
+19200	001
+38400	101
+57600	011
+115200	111
+</PRE>
+
+<P>
+The parameters behind HEMISPHERE describe a vector pointing to the zenit
+of the hemisphere.
+<P>
+The parameters for HAND and HEAD  are the name of the device and it's station
+number. Note that Polhemus station numbers start with 1. The stylus button
+only works at station 1.
+<P>
+The offset between the world coordinate system, the transmitter coordinate
+system and the sensor's coordinate system are also described in this section.
+<P>
+<IMG SRC="transformationen.gif"><P>
+The <B>TRANSMITTER_OFFSET_POSITION</B> is the position of the transmitter in relation
+to the origin of the world coordinate system. You have to imagine how you have to
+tranlate the world coordinate system origin in the world coordinate system
+to fit to the transmitter origin. In the above figure you have to translate it
+in -x direction (and -z direction).
+<P>
+The <B>TRANSMITTER_OFFSET_EULER</B> is the orientation of the transmitter in relation to
+the world coordinate system. Imagine how you have to rotate the world coordinate
+system in the world coordinate system to fit to the transmitter system. 
+The Rotation order is R * P * H. This means first rotate
+about y (Roll) then about x (Pitch) and then about z (Heading). 
+In the config file you have to specify the rotation in the order HPR where
+H=rot(z), P = rot(x), R=rot(z).
+<P>
+The sensor offsets are used to indicate the mounting position of the sensor
+at the glasses in relation to the viewer system. 
+To determine the <B>SENSOR_OFFSET_POSITION</B> imagine how you have
+to translate the receiver system (red) in the receiver system to fit to the 
+viewer system (blue). In the above figure you have to translate it into +x
+and + z direction.
+<P>
+To determine the <B>SENSOR_OFFSET_EULER</B>, imagine how to rotate the receiver 
+system in the receiver system to fit to the viewer system order RPH. In the above figure 
+you have to rotate it 90 degree about y (y is into the screen) and -90 degree
+about z.
+
+
+    </TD>
+</TR>
+</TABLE>
+<!-- Fusszeile -->
+<HR>
+<TABLE BORDER=0>
+
+<!-- eine Zeile Abstand nach oben -->
+<TR>
+    <TD><IMG SRC="../../pixel_trans.gif" WIDTH=100 HEIGHT=1></TD>
+    <TD><IMG SRC="../..//pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD>&nbsp;</TD>
+</TR>
+
+<TR>
+    <TD>
+        <FONT SIZE=2>January 2000</FONT>
+    </TD>
+    <TD>&nbsp</TD>
+    <TD>    
+        <FONT SIZE=2>Copyright © University of Stuttgart 2000</FONT>
+    </TD>
+</TR>
+</TABLE>
+
+        
+</BODY>
+</HTML>
+
+</BODY>
+</HTML>

@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<OpenDRIVE>
+   <header west="-480" version="1" revMajor="1" south="-1150" revMinor="1" name="VIRES Test" east="3300" date="Wed Dec 10 11:19:55 2008" north="1900"/>
+   <road junction="-1" length="800" id="1" name="Anfangsstueck">
+      <planView>
+         <geometry x="-300" y="0" hdg="0" length="800" s="0">
+            <line/>
+         </geometry>
+      </planView>
+      <elevationProfile>
+         <elevation a="0" s="0" b="0" c="0" d="0"/>
+         <elevation a="0" s="204" b="0" c="0" d="0"/>
+         <elevation a="0" s="363.0000034349344" b="0" c="0" d="0"/>
+         <elevation a="0" s="482.9999929732927" b="0" c="0" d="0"/>
+      </elevationProfile>
+      <lateralProfile>
+         <superelevation a="0" s="0" b="0" c="0" d="0"/>
+         <crossfall a="0" s="0" b="0" c="0" d="0"/>
+      </lateralProfile>
+      <lanes>
+         <laneSection s="0">
+            <right>
+               <lane type="driving" id="-3" level="0">
+                  <link>
+                     <predecessor id="-3"/>
+                     <successor id="-3"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-2" level="0">
+                  <link>
+                     <predecessor id="-2"/>
+                     <successor id="-2"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="shoulder" id="-1" level="0">
+                  <width a="0" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="none" id="0" level="0">
+                  <roadMark width="0.13" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+         </laneSection>
+      </lanes>
+      <type type="unknown" s="0"/>
+   </road>
+   <road junction="-1" length="800" id="20" name="Endstueck">
+      <planView>
+         <geometry x="3700" y="0" hdg="0" length="800" s="0">
+            <line/>
+         </geometry>
+      </planView>
+      <elevationProfile>
+         <elevation a="0" s="0" b="0" c="0" d="0"/>
+      </elevationProfile>
+      <lateralProfile>
+         <superelevation a="0" s="0" b="0" c="0" d="0"/>
+         <crossfall a="0" s="0" b="0" c="0" d="0"/>
+      </lateralProfile>
+      <lanes>
+         <laneSection s="0">
+            <right>
+               <lane type="driving" id="-3" level="0">
+                  <link>
+                     <predecessor id="-3"/>
+                     <successor id="-3"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-2" level="0">
+                  <link>
+                     <predecessor id="-2"/>
+                     <successor id="-2"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="shoulder" id="-1" level="0">
+                  <width a="0" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="none" id="0" level="0">
+                  <roadMark width="0.13" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+         </laneSection>
+      </lanes>
+      <type type="unknown" s="0"/>
+   </road>
+   <scenery file="camera_trans.wrl"/>
+</OpenDRIVE>

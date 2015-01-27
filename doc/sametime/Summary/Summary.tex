@@ -1,0 +1,116 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Summary}
+\label{Summary}
+%=============================================================
+
+%\section{S1}
+
+By using N'S\begin{htmlonly} ³ \end{htmlonly} \latexonly $^3$ \endlatexonly (Conference Room Interface) 
+you can extend a Collaborative COVISE Session to a complete meeting.
+\vspace{0.5cm}
+
+The Conference Room Interface 
+\begin{itemize}
+\item has been developed in the framework of the \begin{htmlonly} N'S³ \end{htmlonly}
+\latexonly N'S$^3$\endlatexonly (ENScube) Project - see Simplified User's Guide (taken from this project)
+\item is based on Sametime (Sametime is a trademark of IBM Lotus Corporation) - so in case of problems, 
+e.g. error messages, see Sametime User's Guide
+\end{itemize}
+\vspace{0.5cm}
+
+This extension
+\begin{itemize} 
+\item is started out of the Collaborative COVISE Session
+\item uses the services of Sametime
+\item runs under Windows on a separate PC 
+\end{itemize}
+\vspace{0.5cm}
+
+It provides the following features
+\begin{itemize}
+\item Connect List (list of participants)
+\item Whiteboard
+\item Shared application (e.g. Word)
+\item Collaborative Visualization (COVISE)
+\item Chat Messages
+\item Audio and Video
+\end{itemize}
+\vspace{0.5cm}
+
+These features are explained in the next chapters at a level of detail that should allow
+you a quick start. You have two more choices:
+\begin{itemize} 
+\item If you are in a hurry, use the Simplified User Guide
+\item If you need more details - especially in case of errors, please use the Sametime User's Guide.
+\end{itemize}
+
+For both see chapter Usage Hints.
+\vspace{0.5cm}
+
+For questions about a Collaborative COVISE session itself see
+\begin{itemize}
+\item Chapter Collaborative Visualisation (short info in this document)
+\item COVISE Collaborative Engineering (Introduction) (separate document)
+\end{itemize}
+
+%\section{S2}
+%\section{S3}
+
+
+%\begin{covimg}{Summary}{imagename}{User Interface}{0.7}\end{covimg}
+%\begin{htmlonly}
+%Figure 1.1: User Interface
+%\vspace{0.5cm}
+%\end{htmlonly}

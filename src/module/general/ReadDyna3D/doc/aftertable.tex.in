@@ -1,0 +1,26 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+		{dyna3d_net}{covise/net/examples/ReadDyna3D.net}{0.7}\end{covimg}
+
+The above figure shows a map that performs reading the displaced FE meshes 
+together with scalar state data. The following module \covlink
+{DomainSurface}{DomainSurface}{../../Tools/DomainSurface/DomainSurface.html}
+is applied to generate a surface polygon of the data-set.  
+
+The last figure is a snapshot of the renderer. It shows one step of an 
+airbag visualization.  
+
+\begin{covimg2}	{}{renderer_snapshot}{0.7}\end{covimg2}
+
+
+
+

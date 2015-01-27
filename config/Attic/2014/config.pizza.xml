@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="visspring" >
+
+  <COVER>
+
+   <Input>
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <TrackingSystem>
+     <Offset x="0" y="0" z="-1210" />
+     <Orientation h="0" p="0" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HandDevice>
+
+    <DebugStation value="0" />
+
+    <Tarsus>
+     <ButtonDevice value="TarsusMouse" />
+     <Server host="visadler" />
+    </Tarsus>
+
+   </Input>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="visspring,vissummer,visautumn,viswinter" >
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+
+     <Audio value="AServer" >
+      <Host value="visadler" />
+     </Audio>
+
+    </Vrml97>
+
+   </Plugin>
+
+   <TabletPC>
+   <!--Server value="localhost" /-->
+   <Server value="141.58.8.88" />
+   </TabletPC>
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="3" />
+    <Command value="ssh ${USER}@vissummer if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\&amp; /tmp/errors.log" name="0" />
+    <Command value="ssh ${USER}@visautumn if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\&amp; /tmp/errors.log" name="1" />
+    <Command value="ssh ${USER}@viswinter if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\&amp; /tmp/errors.log" name="2" />
+    <Startup value="ssh ${USER}@vissummer setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+    <Startup value="ssh ${USER}@visautumn setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1" />
+    <Startup value="ssh ${USER}@viswinter setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="2" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="visspring" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="FRONT" h="0.0" originX="0" originY="1400" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="FRONT" h="0.0" originX="0" originY="1400" originZ="0" height="2500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viswinter" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="LEFT" h="90.0" originX="-1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="LEFT" h="90.0" originX="-1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vissummer" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="RIGHT" h="-90.0" originX="1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="RIGHT" h="-90.0" originX="1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="visautumn" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="BOTTOM" h="0.0" originX="0" originY="0" originZ="-1250" height="2800" p="-90.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="BOTTOM" h="0.0" originX="0" originY="0" originZ="-1250" height="2800" p="-90.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="visautumn" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" right="1074" stereoMode="LEFT" left="1563" windowIndex="0" bottom="0" name="0" top="1050" />
+    <Channel comment="MAIN" channel="1" right="1074" stereoMode="RIGHT" left="163" windowIndex="0" bottom="0" name="1" top="1050" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="visspring,vissummer,viswinter" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" right="1176" stereoMode="LEFT" left="1512" windowIndex="0" bottom="0" name="0" top="1050" />
+    <Channel comment="MAIN" channel="1" right="1176" stereoMode="RIGHT" left="112" windowIndex="0" bottom="0" name="1" top="1050" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="visspring,vissummer,visautumn,viswinter" >
+
+  <SteeringWheelPlugin>
+
+   <Mouse value="PorscheMouse" />
+  </SteeringWheelPlugin>
+
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+   </Plugin>
+
+   <StereoMode coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated, please use ChannelConfig.Channel.stereoMode instead-->
+   </StereoMode>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="ON" />
+   <Stereo enable="ON" value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition x="500" y="-3600" z="320" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <Input>
+    <ButtonSystem value="NONE # IAO" />
+    <MouseNav value="OFF" />
+    <TrackingSystem value="TARSUS" />
+   </Input>
+
+   <SceneSize value="2500" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="2" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <Orientation h="-90" p="0" r="0" />
+    <Position x="1300" y="-1000" z="500" />
+   </Menu>
+
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <WindowConfig>
+    <Window width="2800" comment="MAIN" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

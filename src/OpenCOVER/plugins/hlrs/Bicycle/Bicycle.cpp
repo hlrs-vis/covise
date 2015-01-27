@@ -1,0 +1,1025 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+//
+//
+
+#include "Bicycle.h"
+#include <cover/coVRTui.h>
+#include <cover/coVRCommunication.h>
+#include <osg/LineSegment>
+#include <osg/MatrixTransform>
+#include <osgUtil/IntersectVisitor>
+#include "AVRserialcom.h"
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+//#define USE_X11
+#define USE_LINUX
+#endif
+
+// standard linux sockets
+#include <sys/types.h>
+#ifndef WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
+#include <pthread.h>
+#include <stdio.h>
+//#include <unistd. h.>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <time.h>
+
+#ifdef USE_X11
+#include <X11/Xlib.h>
+#include <X11/extensions/XInput.h>
+#include <X11/cursorfont.h>
+#endif
+
+#include <PluginUtil/PluginMessageTypes.h>
+
+// socket (listen)
+#define LOCAL_SERVER_PORT 9930
+
+#define REMOTE_IP "141.58.8.26"
+#define REMOTE_PORT 9931
+
+#define BUF 512
+
+using namespace covise;
+
+int s, rc, n, len;
+struct sockaddr_in cliAddr, servAddr;
+char puffer[BUF];
+time_t time1;
+char loctime[BUF];
+char *ptr;
+const int y = 1;
+pthread_t thdGetBicycleSpeedIns;
+static volatile int rpiSpeed;
+
+void *thdGetBicycleSpeed(void *ptr);
+
+// socket (send)
+#define BUFLEN 512
+
+struct sockaddr_in si_other;
+int ssend, i, slen = sizeof(si_other);
+char buf[BUFLEN];
+
+void setBicycleBreak(int breakvalue);
+
+BicyclePlugin *BicyclePlugin::plugin = NULL;
+
+// --------------------------------------------------------------------
+// void setBicycleBreak(int breakvalue)
+// breakvalue e {0,10000}
+// --------------------------------------------------------------------
+void setBicycleBreak(int breakvalue)
+{
+    if ((breakvalue >= 0) && (breakvalue <= 10000))
+    {
+        sprintf(buf, "%i\n", breakvalue);
+
+        if (sendto(ssend, buf, BUFLEN, 0, (struct sockaddr *)&si_other, slen) == -1)
+        {
+            printf("Bicycle: sendto failed");
+        }
+    }
+}
+
+// --------------------------------------------------------------------
+
+void *thdGetBicycleSpeed(void *ptr)
+{
+    while (1)
+    {
+        memset(puffer, 0, BUF);
+        len = sizeof(cliAddr);
+
+        n = recvfrom(s, puffer, BUF, 0, (struct sockaddr *)&cliAddr, (socklen_t *)&len);
+
+        if (n >= 0)
+        {
+            sscanf(puffer, "%d", &rpiSpeed);
+            fprintf(stderr, "message received %d\n", rpiSpeed);
+        }
+    }
+
+    // char *message;
+    // message = (char *) ptr;
+    // printf("%s \n", message);
+    return NULL;
+}
+
+// --------------------------------------------------------------------
+
+static VrmlNode *creator(VrmlScene *scene)
+{
+    return new VrmlNodeBicycle(scene);
+}
+
+// --------------------------------------------------------------------
+// Define the built in VrmlNodeType:: "Bicycle" fields
+// --------------------------------------------------------------------
+
+VrmlNodeType *VrmlNodeBicycle::defineType(VrmlNodeType *t)
+{
+    static VrmlNodeType *st = 0;
+
+    if (!t)
+    {
+        if (st)
+            return st; // Only define the type once.
+        t = st = new VrmlNodeType("Bicycle", creator);
+    }
+
+    VrmlNodeChild::defineType(t); // Parent class
+    t->addEventOut("speed", VrmlField::SFFLOAT);
+    t->addEventOut("revs", VrmlField::SFFLOAT);
+    t->addEventOut("gear", VrmlField::SFINT32);
+    t->addEventOut("button", VrmlField::SFINT32);
+    t->addExposedField("bikeRotation", VrmlField::SFROTATION);
+    t->addExposedField("bikeTranslation", VrmlField::SFVEC3F);
+
+    return t;
+}
+
+// --------------------------------------------------------------------
+
+VrmlNodeType *VrmlNodeBicycle::nodeType() const
+{
+    return defineType(0);
+}
+
+// --------------------------------------------------------------------
+
+VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
+    : VrmlNodeChild(scene)
+    , d_bikeRotation(1, 0, 0, 0)
+    , d_bikeTranslation(0, 0, 0)
+    , d_button(0)
+{
+    setModified();
+    bikeTrans.makeIdentity();
+}
+
+// --------------------------------------------------------------------
+
+VrmlNodeBicycle::VrmlNodeBicycle(const VrmlNodeBicycle &n)
+    : VrmlNodeChild(n.d_scene)
+    , d_bikeRotation(n.d_bikeRotation)
+    , d_bikeTranslation(n.d_bikeTranslation)
+    , d_button(n.d_button)
+{
+    setModified();
+    bikeTrans.makeIdentity();
+}
+
+// --------------------------------------------------------------------
+
+VrmlNodeBicycle::~VrmlNodeBicycle()
+{
+}
+
+// --------------------------------------------------------------------
+
+VrmlNode *VrmlNodeBicycle::cloneMe() const
+{
+    return new VrmlNodeBicycle(*this);
+}
+
+// --------------------------------------------------------------------
+
+VrmlNodeBicycle *VrmlNodeBicycle::toBicycle() const
+{
+    return (VrmlNodeBicycle *)this;
+}
+
+// --------------------------------------------------------------------
+
+ostream &VrmlNodeBicycle::printFields(ostream &os, int indent)
+{
+    if (!d_bikeRotation.get())
+    {
+        PRINT_FIELD(bikeRotation);
+    }
+    if (!d_bikeTranslation.get())
+    {
+        PRINT_FIELD(bikeTranslation);
+    }
+    return os;
+}
+
+// --------------------------------------------------------------------
+// Set the value of one of the node fields.
+// --------------------------------------------------------------------
+
+void VrmlNodeBicycle::setField(const char *fieldName, const VrmlField &fieldValue)
+{
+    if
+        TRY_FIELD(bikeRotation, SFRotation)
+    else if
+        TRY_FIELD(bikeTranslation, SFVec3f)
+    else
+    {
+        VrmlNodeChild::setField(fieldName, fieldValue);
+        if (strcmp(fieldName, "bikeRotation") == 0)
+        {
+            recalcMatrix();
+        }
+        else if (strcmp(fieldName, "bikeTranslation") == 0)
+        {
+            recalcMatrix();
+        }
+    }
+}
+
+// --------------------------------------------------------------------
+
+void VrmlNodeBicycle::recalcMatrix()
+{
+    float *ct = d_bikeTranslation.get();
+    osg::Vec3 tr(ct[0], ct[1], ct[2]);
+    bikeTrans.makeTranslate(tr);
+    osg::Matrix rot;
+
+    ct = d_bikeRotation.get();
+    tr.set(ct[0], ct[1], ct[2]);
+    rot.makeRotate(ct[3], tr);
+    bikeTrans.preMult(rot);
+}
+
+const VrmlField *VrmlNodeBicycle::getField(const char *fieldName)
+{
+    if (strcmp(fieldName, "enabled") == 0)
+        return &d_enabled;
+    else if (strcmp(fieldName, "joystickNumber") == 0)
+        return &d_joystickNumber;
+    else if (strcmp(fieldName, "axes_changed") == 0)
+        return &d_axes;
+    else if (strcmp(fieldName, "buttons_changed") == 0)
+        return &d_buttons;
+    else
+        cout << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
+    return 0;
+}
+
+void VrmlNodeBicycle::eventIn(double timeStamp,
+                              const char *eventName,
+                              const VrmlField *fieldValue)
+{
+    if (strcmp(eventName, "bikeRotation") == 0)
+    {
+        fprintf(stderr, "resetRot\n");
+        setField(eventName, *fieldValue);
+        recalcMatrix();
+    }
+    else if (strcmp(eventName, "bikeTranslation") == 0)
+    {
+        fprintf(stderr, "resetTrans\n");
+        setField(eventName, *fieldValue);
+        recalcMatrix();
+    }
+    // Check exposedFields
+    else
+    {
+        VrmlNode::eventIn(timeStamp, eventName, fieldValue);
+    }
+
+    setModified();
+}
+
+// --------------------------------------------------------------------
+/*
+void BicyclePlugin::run()
+{
+   while (running)
+   {
+      // we get speed from raspi via UDP
+      speedCounter = rpiSpeed;
+      
+      //AVRReadBytes(1,&speedCounter);
+   }
+}*/
+
+// --------------------------------------------------------------------
+
+char BicyclePlugin::readps2(int fd)
+{
+    char ch;
+
+    while (read(fd, &ch, 1) && (ch == (char)0xfa || ch == (char)0xaa))
+    {
+        //fprintf(stderr,"<%02X>",ch&0xff);
+    }
+    //fprintf(stderr,"[%02X]",ch&0xff);
+    return (ch);
+}
+
+// --------------------------------------------------------------------
+
+void VrmlNodeBicycle::render(Viewer *)
+{
+    double dT = cover->frameDuration();
+    float wheelBase = 0.98;
+    float v = BicyclePlugin::plugin->speed; //*0.06222222;
+    //fprintf(stderr,"speed: %f", v);
+
+    float s = v * dT;
+    osg::Vec3 V(0, 0, -s);
+
+    float rotAngle = 0.0;
+    //if((vehicleParameters->getWheelAngle()>-0.0001 && vehicleParameters->getWheelAngle()><0.0001 )|| (s < 0.0001 && s > -0.0001)) // straight
+    if ((s < 0.0001 && s > -0.0001)) // straight
+    {
+    }
+    else
+    {
+        //float r = tan(M_PI_2-vehicleParameters->getWheelAngle()) * wheelBase;
+        float r = tan(M_PI_2 - BicyclePlugin::plugin->angle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
+        float u = 2.0 * r * M_PI;
+        rotAngle = (s / u) * 2.0 * M_PI;
+        V[2] = -r * sin(rotAngle);
+        V[0] = r - r * cos(rotAngle);
+    }
+
+    osg::Matrix relTrans;
+    osg::Matrix relRot;
+    relRot.makeRotate(rotAngle, 0, 1, 0);
+    relTrans.makeTranslate(V);
+    bikeTrans = relRot * relTrans * bikeTrans;
+    moveToStreet();
+
+    osg::Quat q;
+    q.set(bikeTrans);
+    osg::Quat::value_type orient[4];
+    q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+    d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
+    d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
+    double timeStamp = System::the->time();
+
+    int buttonState = 0;
+    if (coVRMSController::instance()->isMaster())
+    {
+        if (BicyclePlugin::plugin->tacx != NULL)
+        {
+            buttonState = BicyclePlugin::plugin->tacx->getButtons();
+        }
+        coVRMSController::instance()->sendSlaves((char *)&buttonState, sizeof(buttonState));
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster((char *)&buttonState, sizeof(buttonState));
+    }
+    d_button.set(buttonState);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        eventOut(timeStamp, "bikeTranslation", d_bikeTranslation);
+        eventOut(timeStamp, "bikeRotation", d_bikeRotation);
+    }
+    if (d_button.get() != oldButtonState)
+    {
+        oldButtonState = d_button.get();
+        eventOut(timeStamp, "button", d_button);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Name: UpdateInputState()
+// Desc: Get the input device's state and display it.
+//-----------------------------------------------------------------------------
+void BicyclePlugin::UpdateInputState()
+{
+    /*counters[0]=0;
+counters[1]=0;
+   //int i;
+      if(coVRMSController::instance()->isMaster())
+      {
+#ifdef USE_LINUX
+   if (mouse1 != -1) {
+      while (read(mouse1, buffer, 4) == 4)
+      {
+      counters[0]+=buffer[2];
+         //wheelcounter -= buffer[3];
+         buffer[0] &= (1 << NUM_BUTTONS) - 1;
+         if(buffer[0] & 2)
+         {
+            //wheelcounter = 0;
+            cout << "reset wheelcounter: " << (int)buffer[0] << endl;
+         }
+         //cout << "button: " << (int)buffer[0] << endl;
+      }
+      //printf("buffer: %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+      //printf("wheelcounter: %d\n", wheelcounter);
+   }if (mouse2 != -1) {
+      while (read(mouse2, buffer+4, 4) == 4)
+      {
+         counters[1]+=buffer[2+4];
+         //wheelcounter -= buffer[3+4];
+         buffer[0+4] &= (1 << NUM_BUTTONS) - 1;
+         if(buffer[0+4] & 2)
+         {
+            //wheelcounter = 0;
+            cout << "reset wheelcounter: " << (int)buffer[0] << endl;
+         }
+         //cout << "button: " << (int)buffer[0] << endl;
+      }
+      //printf("buffer: %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+      //printf("buffer: %d %d %d %d\n", buffer[0+4], buffer[1+4], buffer[2+4], buffer[3+4]);
+      //printf("wheelcounter: %d\n", wheelcounter);
+   }
+#endif
+
+         coVRMSController::instance()->sendSlaves((char *)counters,sizeof(counters));
+      
+}
+      else
+         coVRMSController::instance()->readMaster((char *)counters,sizeof(counters));
+  
+  
+   //angleCounter+=counters[0];
+   
+   //speedCounter+=counters[1];
+   buffer[2]=0;
+   buffer[2+4]=0;
+   
+   angle = (angleCounter/536.0)*(M_PI/2.0);
+   static double oldTime=0.0;
+   if(oldTime==0.0)
+       oldTime = cover->frameTime();
+       
+   if(cover->frameTime() > oldTime+1.0)
+   {
+       speed = rpiSpeed; //speedCounter;///(cover->frameTime() - oldTime);
+       oldTime = cover->frameTime();
+   }
+   if(cover->number_axes[2]>2)
+   {
+   angle = (-cover->axes[2][2])/2.0;
+   }
+   if((speed > 105) || (angle != 0) )
+   {
+   //printf("angleCounter: %d angle: %f\n", angleCounter,angle);
+   //printf("speedCounter: %d speed: %f\n", speedCounter, speed);
+   }
+   
+      if(coVRMSController::instance()->isMaster())
+      {
+         coVRMSController::instance()->sendSlaves((char *)&angle,sizeof(angle));
+}
+      else
+         coVRMSController::instance()->readMaster((char *)&angle,sizeof(angle));
+ */
+    if (coVRMSController::instance()->isMaster())
+    {
+        if (tacx != NULL)
+        {
+            angle = tacx->getAngle() * 2.0;
+            speed = tacx->getSpeed() * velocityFactor->getValue();
+        }
+        coVRMSController::instance()->sendSlaves((char *)&angle, sizeof(angle));
+        coVRMSController::instance()->sendSlaves((char *)&speed, sizeof(speed));
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster((char *)&angle, sizeof(angle));
+        coVRMSController::instance()->readMaster((char *)&speed, sizeof(speed));
+    }
+    return;
+}
+
+void BicyclePlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
+{
+}
+
+void BicyclePlugin::tabletEvent(coTUIElement * /*tUIItem*/)
+{
+    //if(tUIItem == springConstant)
+    {
+    }
+}
+
+BicyclePlugin::BicyclePlugin()
+{
+    //startThread();
+    running = true;
+}
+
+void VrmlNodeBicycle::moveToStreet()
+{
+    this->moveToStreet(bikeTrans);
+}
+
+void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
+{
+    //float carHeight=200;
+    //  just adjust height here
+
+    osg::Matrix carTransWorld, tmp;
+    osg::Vec3 pos, p0, q0;
+
+    osg::Matrix baseMat;
+    osg::Matrix invBaseMat;
+
+    baseMat = cover->getObjectsScale()->getMatrix();
+
+    osg::Matrix transformMatrix = cover->getObjectsXform()->getMatrix();
+
+    baseMat.postMult(transformMatrix);
+    invBaseMat.invert(baseMat);
+
+    osg::Matrix invVRMLRotMat;
+    invVRMLRotMat.makeRotate(-M_PI / 2.0, osg::Vec3(1.0, 0.0, 0.0));
+    osg::Matrix VRMLRotMat;
+    VRMLRotMat.makeRotate(M_PI / 2.0, osg::Vec3(1.0, 0.0, 0.0));
+
+    carTransWorld = carTrans * VRMLRotMat * baseMat;
+    pos = carTransWorld.getTrans();
+
+    //pos[2] -= carHeight;
+    // down segment
+    p0.set(pos[0], pos[1], pos[2] + 1500.0);
+    q0.set(pos[0], pos[1], pos[2] - 40000.0);
+
+    osg::ref_ptr<osg::LineSegment> ray1 = new osg::LineSegment();
+    ray1->set(p0, q0);
+
+    // down segment 2
+    p0.set(pos[0], pos[1] + 1000, pos[2] + 1500.0);
+    q0.set(pos[0], pos[1] + 1000, pos[2] - 40000.0);
+    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
+    ray2->set(p0, q0);
+
+    osgUtil::IntersectVisitor visitor;
+    visitor.setTraversalMask(Isect::Collision);
+    visitor.addLineSegment(ray1.get());
+    visitor.addLineSegment(ray2.get());
+
+    cover->getObjectsXform()->accept(visitor);
+    int num1 = visitor.getNumHits(ray1.get());
+    int num2 = visitor.getNumHits(ray2.get());
+    fprintf(stderr, "num1%d\n", num1);
+    fprintf(stderr, "num2%d\n", num2);
+    if (num1 || num2)
+    {
+        osgUtil::Hit hitInformation1;
+        osgUtil::Hit hitInformation2;
+        if (num1)
+            hitInformation1 = visitor.getHitList(ray1.get()).front();
+        if (num2)
+            hitInformation2 = visitor.getHitList(ray2.get()).front();
+
+        if (num1 || num2)
+        {
+            float dist = 0.0;
+            osg::Vec3 normal(0, 0, 1);
+            osg::Vec3 normal2(0, 0, 1);
+            osg::Geode *geode = NULL;
+            if (num1 && !num2)
+            {
+                normal = hitInformation1.getWorldIntersectNormal();
+                dist = pos[2] - hitInformation1.getWorldIntersectPoint()[2];
+                geode = hitInformation1.getGeode();
+            }
+            else if (!num1 && num2)
+            {
+                normal = hitInformation2.getWorldIntersectNormal();
+                dist = pos[2] - hitInformation2.getWorldIntersectPoint()[2];
+                geode = hitInformation2.getGeode();
+            }
+            else if (num1 && num2)
+            {
+
+                normal = hitInformation1.getWorldIntersectNormal();
+                normal2 = hitInformation2.getWorldIntersectNormal();
+                normal += normal2;
+                normal *= 0.5;
+                dist = pos[2] - hitInformation1.getWorldIntersectPoint()[2];
+                geode = hitInformation1.getGeode();
+                if (fabs(pos[2] - hitInformation2.getWorldIntersectPoint()[2]) < fabs(dist))
+                {
+                    dist = pos[2] - hitInformation2.getWorldIntersectPoint()[2];
+                    geode = hitInformation2.getGeode();
+                }
+            }
+            /*if(geode)
+	   {
+	   std::string geodeName = geode->getName();
+	   if(!geodeName.empty())
+	   {
+	   if((geodeName.find("ROAD"))!=std::string::npos)
+	   {
+	   if(BicyclePlugin::plugin->sitzkiste) {
+	   SteeringWheelPlugin::plugin->sitzkiste->setRoadFactor(0.0); //0 == Road 1 == rough
+	   }
+	   if(SteeringWheelPlugin::plugin->dynamics) {
+	   SteeringWheelPlugin::plugin->dynamics->setRoadType(0);
+	   lastRoadPos = carTrans;
+	   }
+	   }
+	   else
+	   {
+	   if(SteeringWheelPlugin::plugin->sitzkiste) {
+	   SteeringWheelPlugin::plugin->sitzkiste->setRoadFactor(1.0); //0 == Road 1 == rough
+	   }
+	   if(SteeringWheelPlugin::plugin->dynamics) {
+	   SteeringWheelPlugin::plugin->dynamics->setRoadType(1);
+	   }
+	   }
+	   }
+	   }*/
+            osg::Vec3 carNormal(carTransWorld(1, 0), carTransWorld(1, 1), carTransWorld(1, 2));
+            //osg::Vec3 carNormal(carTrans(1,0),carTrans(1,1),carTrans(1,2));
+            //osg::Vec3 carNormal(carTrans(1,0),-carTrans(1,2),carTrans(1,1));
+            tmp.makeTranslate(0, 0, -dist);
+            osg::Matrix rMat;
+            carNormal.normalize();
+            osg::Vec3 upVec(0.0, 0.0, 1.0);
+            float sprod = upVec * normal;
+            if (sprod < 0)
+                normal *= -1;
+            sprod = upVec * normal;
+            osg::Vec3 yVec(0.0, 1.0, 0.0);
+            osg::Vec3 nwc = osg::Matrix::transform3x3(upVec, baseMat);
+            nwc.normalize();
+            //float s = yVec*nwc;
+            float s = -(yVec * normal);
+            //fprintf(stderr,"Steigung: %f",s*100000.0);
+            if (coVRMSController::instance()->isMaster())
+            {
+                const float zero = 0.3;
+                if (BicyclePlugin::plugin->tacx)
+                {
+                    float f = zero;
+                    if (s < 0)
+                    {
+                        f += s * 3 * BicyclePlugin::plugin->forceFactor->getValue();
+                    }
+                    else
+                    {
+                        f += s * 9 * BicyclePlugin::plugin->forceFactor->getValue();
+                    }
+                    if (f < 0.)
+                        f = 0.;
+                    if (f > 1.)
+                        f = 1.;
+
+#if 0
+	       //setBicycleBreak((int)(s*100000.0));
+	       if(s < -0.5)
+		  s=-0.5;
+	       if(s > 0.5)
+		  s=0.5;
+	       s+=0.5;
+#endif
+                    BicyclePlugin::plugin->tacx->setForce(f);
+                    cerr << "Slope: " << s << ", Force: " << f << endl;
+                }
+            }
+            //cerr <<" carNormal: " << carNormal[0]  << " "<< carNormal[1] << " "<< carNormal[2] << endl;
+            //cerr <<" normal: " << normal[0]<< " " << normal[1]<< " " << normal[2] << endl;
+            //cerr <<" sprod: " << sprod << endl;
+            if (sprod > 0.8) // only rotate the car if the angle is not more the 45 degrees
+            {
+                // rMat.makeRotate(carNormal,normal);
+                //  tmp.preMult(rMat);
+                carTrans.postMult(VRMLRotMat * baseMat * tmp * invBaseMat * invVRMLRotMat);
+            }
+            else
+            {
+
+                carTrans.postMult(VRMLRotMat * baseMat * tmp * invBaseMat * invVRMLRotMat);
+            }
+        }
+    }
+}
+
+bool BicyclePlugin::init()
+{
+    fprintf(stderr, "BicyclePlugin::BicyclePlugin\n");
+    if (plugin)
+        return false;
+    plugin = this;
+    if (coVRMSController::instance()->isMaster())
+    {
+
+        tacx = new Tacx();
+        start();
+    }
+    else
+    {
+        tacx = NULL;
+    }
+
+    angleCounter = 0;
+    angle = 0;
+    speedCounter = 0;
+    speed = 0;
+
+    BicycleTab = new coTUITab("Bicycle", coVRTui::instance()->mainFolder->getID());
+    BicycleTab->setPos(0, 0);
+
+    velocityFactor = new coTUIEditFloatField("velocity factor", BicycleTab->getID());
+    velocityFactor->setEventListener(this);
+    velocityFactor->setValue(2.0);
+    //velocityFactor->setMin(1.0);
+    //velocityFactor->setMax(100.0);
+    velocityFactor->setPos(1, 0);
+
+    velocityFactorLabel = new coTUILabel("velocity factor:", BicycleTab->getID());
+    velocityFactorLabel->setPos(0, 0);
+
+    forceFactor = new coTUIEditFloatField("force factor", BicycleTab->getID());
+    forceFactor->setEventListener(this);
+    forceFactor->setValue(1.0);
+    //forceFactor->setMin(0.0);
+    //forceFactor->setMax(1.0);
+    forceFactor->setPos(1, 1);
+
+    forceFactorLabel = new coTUILabel("force factor:", BicycleTab->getID());
+    forceFactorLabel->setPos(0, 1);
+
+    plugin = this;
+    std::string Mouse1Dev = coCoviseConfig::getEntry("COVER.Plugin.Bicycle.LenkMaus");
+    cout << "Mouse1Dev :" << Mouse1Dev << endl;
+    std::string Mouse2Dev = coCoviseConfig::getEntry("COVER.Plugin.Bicycle.PedalDevice");
+    cout << "Mouse2Dev  : " << Mouse2Dev << endl;
+
+#ifndef WIN32
+
+    // socket init (tx)
+
+    if ((ssend = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    {
+        printf("bicyce: socket error\n");
+    }
+
+    memset((char *)&si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(REMOTE_PORT);
+    if (inet_aton(REMOTE_IP, &si_other.sin_addr) == 0)
+    {
+        printf("bicyce: inet_aton failed\n");
+    }
+
+    // socket init (rx)
+
+    s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s < 0)
+    {
+        printf("Bicycle: Kann Socket nicht öffnen ...(%s)\n",
+               strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    servAddr.sin_family = AF_INET;
+    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr.sin_port = htons(LOCAL_SERVER_PORT);
+    setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(int));
+    rc = bind(s, (struct sockaddr *)&servAddr,
+              sizeof(servAddr));
+    if (rc < 0)
+    {
+        printf("Bicycle: Kann Portnummern %d nicht binden (%s)\n",
+               LOCAL_SERVER_PORT, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    const char *message = "getSpeed";
+
+    int iret1;
+    iret1 = pthread_create(&thdGetBicycleSpeedIns, NULL, thdGetBicycleSpeed, (void *)message);
+    if (iret1)
+    {
+        fprintf(stderr, "Bicycle: pthread_create() return code: %d\n", iret1);
+        exit(EXIT_FAILURE);
+    }
+
+    mouse1 = -1;
+    mouse2 = -1;
+    //wheelcounter = 0;
+
+    if (!Mouse1Dev.empty())
+    {
+        memset(buffer, 0, 4);
+        mouse1 = open(Mouse1Dev.c_str(), O_RDWR | O_NONBLOCK);
+        if (mouse1 == -1)
+        {
+            fprintf(stderr, "Bicycle: could not open Mouse1 device %s\n\n", Mouse1Dev.c_str());
+        }
+        else
+        {
+
+            char ch;
+            unsigned char getdevtype = 0xf2, disableps2 = 0xf5, imps2[6] = { 0xf3, 200, 0xf3, 100, 0xf3, 80 }, resetps2 = 0xff;
+
+            fprintf(stderr, "write disable\n");
+            ssize_t iret = write(mouse1, &disableps2, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'disableps2', wrong no. of arguments\n");
+
+            tcflush(mouse1, TCIFLUSH);
+            iret = write(mouse1, &getdevtype, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'getdevtype', wrong no. of arguments\n");
+            usleep(1000);
+            ch = readps2(mouse1);
+
+            iret = write(mouse1, &resetps2, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'resetps2', wrong no. of arguments\n");
+            usleep(1000);
+            ch = readps2(mouse1);
+            tcflush(mouse1, TCIFLUSH);
+            iret = write(mouse1, &getdevtype, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'getdevtype', wrong no. of arguments\n");
+            usleep(1000);
+            ch = readps2(mouse1);
+
+            iret = write(mouse1, imps2, 6);
+            if (iret != 6)
+                fprintf(stderr, "Bicycle: error reading 'imps2',wrong no. of arguments\n");
+        }
+    }
+    if (!Mouse2Dev.empty())
+    {
+        memset(buffer, 0, 4);
+        mouse2 = open(Mouse2Dev.c_str(), O_RDWR | O_NONBLOCK);
+        if (mouse2 == -1)
+        {
+            fprintf(stderr, "Bicycle: could not open Mouse2 device %s\n\n", Mouse2Dev.c_str());
+        }
+        else
+        {
+
+            char ch;
+            unsigned char getdevtype = 0xf2, disableps2 = 0xf5, imps2[6] = { 0xf3, 200, 0xf3, 100, 0xf3, 80 }, resetps2 = 0xff;
+
+            fprintf(stderr, "write disable\n");
+            ssize_t iret = write(mouse2, &disableps2, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'disableps2', wrong no. of arguments\n");
+
+            tcflush(mouse2, TCIFLUSH);
+            iret = write(mouse2, &getdevtype, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'getdevtype', wrong no. of arguments\n");
+            usleep(1000);
+            ch = readps2(mouse2);
+
+            iret = write(mouse2, &resetps2, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'resetps2', wrong no. of arguments\n");
+            usleep(1000);
+            ch = readps2(mouse2);
+            tcflush(mouse2, TCIFLUSH);
+            iret = write(mouse2, &getdevtype, 1);
+            if (iret != 1)
+                fprintf(stderr, "Bicycle: error reading 'getdevtype', wrong no. of arguments\n");
+            usleep(1000);
+            ch = readps2(mouse2);
+
+            iret = write(mouse2, imps2, 6);
+            if (iret != 6)
+                fprintf(stderr, "Bicycle: error reading 'imps2',wrong no. of arguments\n");
+        }
+    }
+#endif
+
+    if (!Mouse2Dev.empty())
+    {
+        //AVRInit(Mouse2Dev.c_str(), 9600);
+    }
+    initUI();
+
+    return true;
+}
+
+// this is called if the plugin is removed at runtime
+// which currently never happens
+BicyclePlugin::~BicyclePlugin()
+{
+    fprintf(stderr, "BicyclePlugin::~BicyclePlugin\n");
+    close(mouse1);
+    running = false;
+    //AVRClose();
+}
+
+int BicyclePlugin::initUI()
+{
+    VrmlNamespace::addBuiltIn(VrmlNodeBicycle::defineType());
+    return 1;
+}
+
+// this function is called if a message arrives
+void BicyclePlugin::message(int /*type*/, int /*length*/, const void * /*data*/)
+{
+    //if(type == PluginMessageTypes::HLRS_BicycleRemoteVehiclePosition)
+    {
+    }
+}
+
+void
+BicyclePlugin::stop()
+{
+    doStop = true;
+}
+void
+BicyclePlugin::run()
+{
+    running = true;
+    doStop = false;
+    while (running)
+    {
+        usleep(20000);
+        tacx->update();
+    }
+}
+void
+BicyclePlugin::preFrame()
+{
+    if (coVRMSController::instance()->isMaster() && tacx != NULL)
+    {
+    }
+    UpdateInputState();
+}
+
+void BicyclePlugin::key(int /*type*/, int /*keySym*/, int /*mod*/)
+{
+    /*
+   Keyboard* keyb = dynamic_cast<Keyboard*>(BicyclePlugin::plugin->sitzkiste);
+   if(keyb != NULL) {
+      //if(mod) {} //Otherwise warning: "mod not used" -> with compiler flag: "Treat warnings as errors" -> Compiler-TERROR!!!
+
+      if(type == osgGA::GUIEventAdapter::KEYDOWN) {
+       switch(keySym) {
+         case 65361:
+            keyb->leftKeyDown();
+            break;
+         case 65363:
+            keyb->rightKeyDown();
+            break;
+         case 65362:
+            keyb->foreKeyDown();
+            break;
+         case 65364:
+            keyb->backKeyDown();
+            break;
+         case 103:
+            keyb->gearShiftUpKeyDown();
+            break;
+         case 102:
+            keyb->gearShiftDownKeyDown();
+            break;
+         case 104:
+            keyb->hornKeyDown();
+            break;
+         case 114:
+            keyb->resetKeyDown();
+            break;
+         }
+      }
+      else if(type == osgGA::GUIEventAdapter::KEYUP) {
+			std::cout << "KEYUP EVENT!!!" << std::endl;
+         switch(keySym) {
+         case 65361:
+            keyb->leftKeyUp();
+            break;
+         case 65363:
+            keyb->rightKeyUp();
+            break;
+         case 65362:
+            keyb->foreKeyUp();
+            break;
+         case 65364:
+            keyb->backKeyUp();
+            break;
+         case 103:
+            keyb->gearShiftUpKeyUp();
+            break;
+         case 102:
+            keyb->gearShiftDownKeyUp();
+            break;
+          case 104:
+            keyb->hornKeyUp();
+            break;
+         case 114:
+            keyb->resetKeyUp();
+            break;
+         }
+      }
+   }
+   */
+}
+
+COVERPLUGIN(BicyclePlugin)

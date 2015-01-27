@@ -1,0 +1,218 @@
+
+
+
+
+\subsubsection{Algorithms}
+%=============================================================
+%
+\paragraph{First algorithm}
+
+\begin{verbatim}
+traverse all unstr grid nodes
+{
+   find the closest node of the uniform grid
+
+   add the inverse of the distance to an accumulator
+         for this node of the uniform grid.
+
+   calculate a value using the product of the value
+         at the input-grid node and the inverse of the distance.
+}
+
+traverse all unigrid nodes
+{
+   use the accumulator for this node in order
+         to obtain the correct value.
+}
+\end{verbatim}
+
+This is the fastest one, but if the input grid is coarser
+than the output uniform grid in some regions, holes may
+appear; that is to say, some nodes of the uniform grid
+that are within the domain of some element of the input
+grid, have been given a value as if they were beyond the domain
+of the input grid.
+Holes may be apparent, but sometimes not (for instance
+CuttingSurface could smear out this holes producing
+false results which are not apparent at first sight).
+This latter situation may lead to confusion, that is why this
+algorithm has to be used with caution.
+
+\paragraph{Second (default) algorithm}
+
+\begin{verbatim}
+traverse all unstr grid elements
+{
+   calculate the largest box of nodes of the uniform grid
+           that is fully contained in this element.
+
+   for all nodes in this box
+   {
+      for all nodes of this element of the unstr grid
+      {
+         add the inverse of the distance to an accumulator
+            for this node of the box.
+
+         calculate a value using the product of the value
+            at the unstr-grid node and the inverse of the distance.
+      }
+   }
+}
+traverse all unigrid nodes
+{
+   use the accumulator for this node in order
+         to obtain the correct value.
+}
+\end{verbatim}
+
+This is the default algorithm and it is heartily
+recommended in most situations. Holes are avoided.
+One feature of this algorithm is that the sharpness of geometric
+features are better preserved than with the third
+algorithm. Sometimes this may lead to some features
+being shrunk. For instance, if you have a
+model with some pipe-like structures communicating
+two vessels, the pipe thickness that you see may
+be reduced. If this is really a problem for you,
+then you may use the third algorithm, but then be aware
+that the calculation may take longer and the geometric
+details may be blurred, which you will most likely
+not prefer.
+
+\paragraph{Third algorithm}
+
+\begin{verbatim}
+traverse all unstr grid elements
+{
+   calculate the smallest box of nodes of the uniform grid
+           that fully contains this element.
+
+   for all nodes in this box
+   {
+      for all nodes of this element of the unstr grid
+      {
+         add the inverse of the distance to an accumulator
+            for this node of the box.
+
+         calculate a value using the product of the value
+            at the unstr-grid node and the inverse of the distance.
+      }
+   }
+}
+traverse all unigrid nodes
+{
+   use the accumulator for this node in order
+         to obtain the correct value.
+}
+\end{verbatim}
+
+Although this algorithm closely resembles the second one,
+it is in general significantly slower. Geometric features
+are now not shrunk, but rather expanded and blurred.
+
+
+\paragraph{Fourth algorithm}
+
+\begin{verbatim}
+traverse all unstr grid elements
+{
+   find min and max unigrid indices by rounding to
+   next smaller grid point
+   
+   for each unigrid point between min and max unigrid index
+   {
+      test if point is inside element
+                  
+      if inside       
+      {
+         interpolate using the form functions from the
+            finite element theory for this element.
+      }
+   }    	    
+ }
+ \end{verbatim}
+    
+For the test if a point is in a cell the cell is decomposed into tetrahedera. For each
+tetrahedron it is tested if point is inside the tetrahedron (The barycentric
+coordinates of the point in relation to the tetrahedron are computed. If the
+barycentric coordinates are between 0 and 1 the point is in.) This leads to the
+following problems:
+\begin{itemize}
+\item tetrahedra decomposition might lead to gaps between cells if a 
+       point is in gap 
+\latexonly $\Rightarrow$ \endlatexonly \begin{htmlonly} --> \end{htmlonly} hole
+\item if point is exactly on the face numerical errors might lead to holes 
+\item numerical errors or modelling inaccuracy might lead to holes especially at flat
+outer walls
+\end{itemize}
+
+In case that holes appear you may give parameter {\it eps} a
+small positive value. Then the condition for the point
+to be inside the element is that
+the barycentric coordinates are between 0-eps and 1+eps.
+
+Holes seldom appear with this algorithm, and if they do, it is
+most of the times near the borders of the grid. Nevertheless,
+on some occasions holes have been seen in the interior of the
+model. In this situations you may have to use parameter {\it eps}
+to prevent holes from happening.
+
+Apart from these occasional problems, the values obtained with
+this algorithm are most accurate, but the price to pay for
+this accuracy is a rather long execution time.
+
+%=============================================================
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+
+%\paragraph{First example}
+%
+%\begin{covimg}{modules/Tools/Sample}%
+%		{SampleMap}{covise/net/examples/Sample.net}{0.6}\end{covimg}
+%
+%The first input for Sample is an unstructured grid and the second input are vertex
+%based data on unstructured grids. In the example the computational grid is a channel
+%with two inlets and the data is the turbulent energy.
+%
+%The dimension of the sampled grid was 30x30x30 and the fill value of Sample
+%was set to 0.0.
+%
+%The module \covlink 
+%{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+% computes a cuttingsurface on the uniform grid and the module 
+%\covlink {Colors}{Colors}{../../Color/Colors/Colors.html} maps the
+%data on the surface to colors.
+%
+%The module
+%\covlink{ShowGrid}{ShowGrid}{../../Tools/ShowGrid/ShowGrid.html}
+% displays the uniform grid (in this case 3 sides of the outer surface).
+%
+%\begin{covimg2}{modules/Tools/Sample}{SampleRenderer}{0.7}\end{covimg2}
+%
+%\paragraph{Second example}
+
+\begin{covimg}{}%
+		{SampleMap}{covise/net/examples/Sample.net}{0.6}\end{covimg}
+
+The first input for Sample is an unstructured grid and the second input are 
+vertex-based data on unstructured grids. In the example the computational grid is a channel
+with two inlets and the data is the turbulent energy.
+
+The dimension of the sampled grid was 30x30x30 and the fill value of Sample
+was set to 0.0.
+
+We produce two images corresponding to the second and third algorithms
+respectively. We want to illustrate how one produces sharper geometrical
+details and the other produces an expansion and blurring of them. This is
+clearly seen for the two inlets of the structure.
+
+\begin{covimg}{}{SampleShrink}%
+          {2nd algorithm: sharpness of details are preserved}{0.7}\end{covimg}
+
+\begin{covimg}{}{SampleExpand}%
+          {3rd algorithm: blurred image, geometric details are expanded}{0.7}\end{covimg}
+

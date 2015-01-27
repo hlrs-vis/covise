@@ -1,0 +1,353 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef DESTINATION_H
+#define DESTINATION_H 1
+
+#include <vpb/Source>
+#include <osg/ClusterCullingCallback>
+
+namespace vpb
+{
+
+// forward declare
+class DestinationTile;
+class CompositeDestination;
+class DataSet;
+class ImageOptions;
+
+class VPB_EXPORT TransformToLocal : public osg::Referenced
+{
+
+    TransformToLocal();
+
+    osg::Matrixd localToWorld;
+    osg::Matrixd worldToLocal;
+
+    const osg::EllipsoidModel* _et;
+    bool _mapLatLongsToXYZ;
+    bool _useLocalToTileTransform;
+
+
+    void transformVertex(const osg::Vec3d& v_in, osg::Vec3& v_out);
+    void transformNormal(const osg::Vec3& n_in, osg::Vec3& n_out);
+    
+    
+};
+
+
+struct DestinationData : public osg::Referenced, SpatialProperties
+{
+
+    DestinationData(DataSet* dataSet):
+        _dataSet(dataSet),
+        _minDistance(0.0),
+        _maxDistance(FLT_MAX) {}
+
+    DataSet*                                    _dataSet;
+
+    float                                       _minDistance;
+    float                                       _maxDistance;
+
+
+    osg::ref_ptr<osg::Image>                    _image;
+    osg::ref_ptr<osg::HeightField>              _heightField;
+    ModelList                                   _models;
+    ModelList                                   _shapeFiles;
+};
+
+
+
+class DestinationVisitor
+{
+public:
+    DestinationVisitor() {}
+    virtual ~DestinationVisitor() {}
+
+    virtual void traverse(CompositeDestination&);
+    virtual void apply(CompositeDestination& cd);
+    virtual void apply(DestinationTile&);
+};
+
+class VPB_EXPORT DestinationTile : public osg::Referenced, public SpatialProperties
+{
+public:
+
+
+    enum Position
+    {
+        LEFT        = 0,
+        LEFT_BELOW  = 1,
+        BELOW       = 2,
+        BELOW_RIGHT = 3,
+        RIGHT       = 4,
+        RIGHT_ABOVE = 5,
+        ABOVE       = 6,
+        ABOVE_LEFT  = 7,
+        NUMBER_OF_POSITIONS = 8
+    };
+
+
+    DestinationTile();
+    
+    void accept(DestinationVisitor& visitor) { visitor.apply(*this); }
+
+
+    const ImageOptions* getImageOptions(unsigned int layerNum) const;
+    GLenum getPixelFormat(unsigned int layerNum) const;
+    GLenum getPixelType(unsigned int layerNum) const;
+
+    void computeNeighboursFromQuadMap();
+
+    void setNeighbours(DestinationTile* left, DestinationTile* left_below, 
+                       DestinationTile* below, DestinationTile* below_right,
+                       DestinationTile* right, DestinationTile* right_above,
+                       DestinationTile* above, DestinationTile* above_left);
+
+    void checkNeighbouringTiles();
+
+
+    void setMaximumTerrainSize(unsigned int maxNumColumns,unsigned int maxNumRows)
+    {
+        _terrain_maxNumColumns = maxNumColumns;
+        _terrain_maxNumRows = maxNumRows;
+    }
+
+    void computeMaximumSourceResolution();
+    void computeMaximumSourceResolution(Source* source);
+    void computeMaximumSourceResolution(CompositeSource* sourceGraph);
+
+    bool computeImageResolution(unsigned int layer, const std::string& setname, unsigned int& numColumns, unsigned int& numRows, double& resX, double& resY);
+    bool computeTerrainResolution(unsigned int& numColumns, unsigned int& numRows, double& resX, double& resY);
+
+    void requiresDivision(float resolutionSensitivityScale, bool& needToDivideX, bool& needToDivideY);
+
+    void allocate();
+
+    void addRequiredResolutions(CompositeSource* sourceGraph);
+
+    void readFrom();
+    void readFrom(Source* source);
+    void readFrom(CompositeSource* sourceGraph);
+
+    void allocateEdgeNormals();
+
+    void equalizeCorner(Position position);
+    void equalizeEdge(Position position);
+
+    void equalizeBoundaries();
+
+    void setTileComplete(bool complete);
+    bool getTileComplete() const { return _complete; }
+
+    void optimizeResolution();
+
+    osg::HeightField* getSourceHeightField() { return _terrain->_heightField.get(); }
+
+    void setScene(osg::Node* node) { _createdScene = node; }
+    osg::Node* getScene() { if (!_createdScene) createScene(); return _createdScene.get(); }
+    
+    void addNodeToScene(osg::Node* node, bool transformIfRequired = true);
+
+    // create final scene graph elements,
+    osg::Node* createScene();
+
+    osg::StateSet* createStateSet();
+    osg::Node* createHeightField();
+    osg::Node* createTerrainTile();
+    osg::Node* createPolygonal();
+    
+    osg::ClusterCullingCallback* createClusterCullingCallback();
+
+    void addSource(Source* source) { _sources.push_back(source); }
+
+    void unrefData();
+    
+
+    CompositeDestination*                       _parent;
+    DataSet*                                    _dataSet;
+    std::string                                 _name;
+    unsigned int                                _level;
+    unsigned int                                _tileX;
+    unsigned int                                _tileY;
+
+    struct ImageData
+    {
+        ImageData():
+            _image_maxSourceResolutionX(0.0f),
+            _image_maxSourceResolutionY(0.0f) {}
+
+
+        float                                  _image_maxSourceResolutionX;
+        float                                  _image_maxSourceResolutionY;
+
+        osg::ref_ptr<DestinationData>          _imageDestination;
+    };
+
+    struct ImageSet
+    {
+        ImageSet():
+            _optional(false),
+            _image_maxSourceResolutionX(0.0f),
+            _image_maxSourceResolutionY(0.0f) {}
+            
+        bool valid()
+        {
+            for(LayerSetImageDataMap::iterator itr =_layerSetImageDataMap.begin();
+                itr != _layerSetImageDataMap.end();
+                ++itr)
+            {
+                if (itr->second._imageDestination.valid() &&
+                    itr->second._imageDestination->_image.valid()) return true;
+            }
+            return false;
+        }
+
+        typedef std::map<std::string, ImageData> LayerSetImageDataMap;
+        LayerSetImageDataMap                    _layerSetImageDataMap;
+        
+        bool                                    _optional;
+
+        float                                   _image_maxSourceResolutionX;
+        float                                   _image_maxSourceResolutionY;
+    };
+
+    std::vector<ImageSet>                       _imageLayerSet;
+
+    inline ImageData& getImageData(unsigned int layer, const std::string& setname)
+    {
+        if (layer>=_imageLayerSet.size()) _imageLayerSet.resize(layer+1);
+        return _imageLayerSet[layer]._layerSetImageDataMap[setname];
+    }
+
+    inline ImageSet& getImageSet(unsigned int layer)
+    {
+        if (layer>=_imageLayerSet.size()) _imageLayerSet.resize(layer+1);
+        return _imageLayerSet[layer];
+    }
+    
+    inline unsigned int getNumLayers() const { return _imageLayerSet.size(); }
+
+    osg::ref_ptr<DestinationData>               _terrain;
+    osg::ref_ptr<DestinationData>               _models;
+
+    DestinationTile*                            _neighbour[NUMBER_OF_POSITIONS];
+    bool                                        _equalized[NUMBER_OF_POSITIONS];
+
+
+    unsigned int                                _maxSourceLevel;
+
+    unsigned int                                _terrain_maxNumColumns;
+    unsigned int                                _terrain_maxNumRows;
+    float                                       _terrain_maxSourceResolutionX;
+    float                                       _terrain_maxSourceResolutionY;
+
+    bool                                        _complete;
+
+    typedef std::vector<osg::Vec2> HeightDeltaList;
+    HeightDeltaList                             _heightDeltas[NUMBER_OF_POSITIONS];
+
+    osg::Matrixd                                _localToWorld;
+    osg::Matrixd                                _worldToLocal;
+
+    osg::ref_ptr<osg::StateSet>                 _stateset;
+    osg::ref_ptr<osg::Node>                     _createdScene;
+    
+    typedef std::list< osg::ref_ptr<Source> >   Sources;
+    Sources                                     _sources;
+    
+};
+
+class VPB_EXPORT CompositeDestination : public osg::Referenced, public SpatialProperties
+{
+public:
+
+    CompositeDestination():
+        _dataSet(0),
+        _parent(0),
+        _level(0),
+        _tileX(0),
+        _tileY(0),
+        _type(GROUP),
+        _maxVisibleDistance(FLT_MAX),
+        _subTileGenerated(false) {}
+
+    CompositeDestination(osg::CoordinateSystemNode* cs, const GeospatialExtents& extents):
+        SpatialProperties(cs,extents),
+        _dataSet(0),
+        _parent(0),
+        _level(0),
+        _tileX(0),
+        _tileY(0),
+        _type(GROUP),
+        _maxVisibleDistance(FLT_MAX),
+        _subTileGenerated(false)  {}
+
+    void accept(DestinationVisitor& visitor) { visitor.apply(*this); }
+
+    void addChild(CompositeDestination* cd) { if (cd) _children.push_back(cd); }
+
+    void computeNeighboursFromQuadMap();
+
+    void addRequiredResolutions(CompositeSource* sourceGraph);
+
+    void readFrom(CompositeSource* sourceGraph);
+    
+    void addSource(Source* source);
+
+    void computeMaximumSourceResolution();
+
+    void equalizeBoundaries();
+
+    osg::Node* createScene();
+
+    bool areSubTilesComplete();
+    std::string getSubTileName();
+    std::string getExternalSubTileName();
+    
+    std::string getTileFileName();
+    std::string getTilePath();
+    std::string getRelativePathForExternalSet(const std::string& setname);
+    
+    osg::Node* createPagedLODScene();
+    osg::Node* createSubTileScene();
+
+    void unrefSubTileData();
+    void unrefLocalData();
+
+    void setSubTilesGenerated(bool generated) { _subTileGenerated=generated; }
+    bool getSubTilesGenerated() const { return _subTileGenerated; }
+
+    DestinationTile::Sources getAllContributingSources();
+
+    typedef std::vector< osg::ref_ptr<DestinationTile> > TileList;
+    typedef std::vector< osg::ref_ptr<CompositeDestination> > ChildList;
+
+    DataSet*                _dataSet;
+    CompositeDestination*   _parent;
+    std::string             _name;
+    unsigned int            _level;
+    unsigned int            _tileX;
+    unsigned int            _tileY;
+    CompositeType           _type;
+    TileList                _tiles;
+    ChildList               _children;
+    float                   _maxVisibleDistance;
+    bool                    _subTileGenerated;
+
+};
+
+
+}
+
+#endif

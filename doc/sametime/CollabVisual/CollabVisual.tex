@@ -1,0 +1,134 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Collaborative Visualization}
+\label{CollabVisual}
+%=============================================================
+
+
+The central part of the meeting is the COVISE collaborative session. For details please
+refer to COVISE Collaborative Working (Introduction),online or printed version, and for questions about specific 
+operations use Online Help.
+
+A few remarks about the essential features for collaboration should be
+sufficient:
+
+\section{Moving Objects/Changing the View}
+
+The Renderer provides four methods for moving objects or changing the view
+
+\begin{enumerate}
+\item Tool Bar
+      \begin{itemize}
+      \item Home Position/Set Home Position
+      \item View All
+      \item Seek Mode
+      \item Projection Mode 
+      \end{itemize}
+\item Viewer Popup Menu
+      \begin{itemize}
+      \item Home/Set Home 
+      \item View All
+      \item Seek 
+      \end{itemize}      
+\item Wheels
+      \begin{itemize}
+      \item Rotx: rotate around x-axis
+      \item Roty: rotate around y-axis
+      \item Dolly/Zoom: move camera/zoom
+      \end{itemize}
+\item Mouse Operations in View Mode
+      \begin{itemize}
+      \item Rotate (left mouse button)
+      \item Pan (Translate)  (middle mouse button)
+      \item Zoom (left and middle mouse button) 
+      \end{itemize}
+\end{enumerate}
+
+All these operations can be transmitted from the master renderer to all slave renderers (see
+below)
+
+\section{Synchronization}
+
+The Renderer provides three levels of synchronization between the "master" and the "slaves"
+
+\begin{itemize}
+\item Tight Coupling: permanent synchronization of moving objects/change view 
+\item Master/Slave (SYNC): update slave renderers at endpoints only)
+\item Loose Coupling): slaves are free in moving objects/change view
+\end{itemize}
+
+Note: Special light effects (direct/spot/point light ) are not transmitted - Turn all lights off/on is transmitted
+
+\section{Collaboration Features} 
+
+Special Features for Collaboration are
+
+\begin{itemize}
+\item AddHost/AddPartner and DelHost/DelPartner (MapEditor)
+\item MasterControl/MasterRequest (MapEditor and Renderer: switch master/slave)
+\item Telepointer (Renderer, mouse plus SHIFT: point to same location)
+\item Chat Line (MapEditor: chat feature using Message Area)
+\item Mirroring (MapEditor: Mirror maps to partners) 
+\end{itemize}
+
+
+
+
+
+
+%\begin{covimg}{CollabVisual}{imagename}{caption}{0.7}\end{covimg}
+%\begin{htmlonly}
+%Figure x.x: caption for html
+%\vspace{0.5cm}
+%\end{htmlonly}

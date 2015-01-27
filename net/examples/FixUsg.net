@@ -1,0 +1,337 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+3
+# Module ReadNastran
+ReadNastran
+1
+LOCAL
+IO_Module
+TITLE=ReadNastran_1
+22
+22
+0
+15
+MESH
+UnstructuredGrid
+Mesh output
+default
+
+TYPE
+IntArr
+IDs
+default
+
+PLOTEL
+Lines
+PLOTEL output
+default
+
+CONM2
+Polygons
+CONM2 output
+default
+
+FORCE
+Lines
+FORCE output
+default
+
+MOMENT
+Lines
+MOMENT output
+default
+
+GRAV
+Lines
+GRAV output
+default
+
+TEMP
+Float
+TEMP output
+default
+
+RBAR
+Lines
+RBAR output
+default
+
+RBE2
+Lines
+RBE2 output
+default
+
+SPC1
+Lines
+SPC output
+default
+
+OQG1
+Vec3
+reaction forces
+default
+
+OUGV1
+Vec3
+displacements
+default
+
+OEF1
+Vec3
+element forces
+default
+
+OES1
+Float
+element stress
+default
+
+16
+output2_path
+Browser
+NASTRAN output2 file path
+share/covise/example-data/Nastran/adaptor.op2
+
+1
+plotel_color
+String
+colorname for PLOTEL
+orange
+
+-1
+conm2_color
+String
+colorname for CONM2
+purple
+
+-1
+conm2_scale
+FloatScalar
+CONM2 scaling factor
+0.2
+
+-1
+force_color
+String
+colorname for FORCE
+red
+
+-1
+grav_color
+String
+colorname for GRAV
+green
+
+-1
+moment_color
+String
+colorname for MOMENT
+blue
+
+-1
+rbar_color
+String
+colorname for RBAR
+cyan
+
+-1
+rbe2_color
+String
+colorname for RBE2
+magenta
+
+-1
+spc1_color
+String
+colorname for SPC1
+yellow
+
+-1
+spc1_scale
+FloatScalar
+SPC1 scaling factor
+1.0
+
+-1
+mode
+IntScalar
+mode number
+1
+
+-1
+try_skipping
+Boolean
+try
+0
+
+-1
+disp_transient
+Boolean
+transient
+0
+
+-1
+fibre_distance
+IntScalar
+fibre distance
+1
+
+-1
+output2_path___filter
+BrowserFilter
+NASTRAN output2 file path
+output2_path *.op2
+
+-1
+0
+# Module FixUsg
+FixUsg
+1
+LOCAL
+Tools
+TITLE=FixUsg_1
+22
+110
+6
+GridIn0
+UnstructuredGrid|Polygons|Lines
+Unstructured Grid or Polygons
+req
+
+DataIn0
+Float|Vec3
+data
+opt
+
+DataIn1
+Float|Vec3
+data
+opt
+
+DataIn2
+Float|Vec3
+data
+opt
+
+DataIn3
+Float|Vec3
+data
+opt
+
+DataIn4
+Float|Vec3
+data
+opt
+
+6
+GridOut0
+UnstructuredGrid|Polygons|Lines
+filtered USG or Polygons
+default
+
+DataOut0
+Float|Vec3
+data
+dep DataIn0
+
+DataOut1
+Float|Vec3
+data
+dep DataIn1
+
+DataOut2
+Float|Vec3
+data
+dep DataIn2
+
+DataOut3
+Float|Vec3
+data
+dep DataIn3
+
+DataOut4
+Float|Vec3
+data
+dep DataIn4
+
+4
+maxvertices
+IntScalar
+min. number of vertices in box for further recursion
+50
+
+-1
+delta
+FloatScalar
+max. distance between two vertices
+0.000000
+
+-1
+algorithm
+Choice
+choose your favorite algorithm
+1 BoundingBox None
+
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_3
+22
+187
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+3
+ReadNastran
+1
+LOCAL
+MESH
+
+FixUsg
+1
+LOCAL
+GridIn0
+ReadNastran
+1
+LOCAL
+TEMP
+
+FixUsg
+1
+LOCAL
+DataIn0
+FixUsg
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

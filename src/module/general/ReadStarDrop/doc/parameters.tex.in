@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline filename & Browser & Droplet File\\ \hline maxPart & Scalar & Max. no. of Particles to show, 0=all\\ \hline numSteps & Scalar & Number of steps to use, 0=auto\\ \hline stickHandling & Choice & How to handle sticked droplets\\
+\hline \end{longtable}
+

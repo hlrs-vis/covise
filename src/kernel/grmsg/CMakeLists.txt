@@ -1,0 +1,18 @@
+# @file
+# 
+# CMakeLists.txt for kernel - grmsg
+#
+# @author Blasius Czink
+
+ADD_DEFINITIONS(-DCOVISE_GRMSG)
+
+SET(GRMSG_SOURCES
+coGRActivatedViewpointMsg.cpp coGRAddDocMsg.cpp coGRAnimationOnMsg.cpp coGRChangeViewpointIdMsg.cpp coGRChangeViewpointMsg.cpp coGRChangeViewpointNameMsg.cpp coGRCreateDefaultViewpointMsg.cpp coGRCreateViewpointMsg.cpp coGRDeleteViewpointMsg.cpp coGRDocMsg.cpp coGRDocVisibleMsg.cpp coGRGenericParamChangedMsg.cpp coGRGenericParamRegisterMsg.cpp coGRGraphicRessourceMsg.cpp coGRKeyWordMsg.cpp coGRMsg.cpp coGRObjAddChildMsg.cpp coGRObjAttachedClipPlaneMsg.cpp coGRObjBoundariesObjMsg.cpp coGRObjColorObjMsg.cpp coGRObjDelMsg.cpp coGRObjGeometryMsg.cpp coGRObjKinematicsStateMsg.cpp coGRObjMaterialObjMsg.cpp coGRObjMovedMsg.cpp coGRObjMoveInterMsg.cpp coGRObjMoveObjMsg.cpp coGRObjMsg.cpp coGRObjRegisterMsg.cpp coGRObjRestrictAxisMsg.cpp coGRObjSelectMsg.cpp coGRObjSensorEventMsg.cpp coGRObjSensorMsg.cpp coGRObjSetAppearanceMsg.cpp coGRObjSetCaseMsg.cpp coGRObjSetConnectionMsg.cpp coGRObjSetMoveMsg.cpp coGRObjSetMoveSelectedMsg.cpp coGRObjSetNameMsg.cpp coGRObjSetTransparencyMsg.cpp coGRObjSetVariantMsg.cpp coGRObjShaderObjMsg.cpp coGRObjTransformAbstractMsg.cpp coGRObjTransformCaseMsg.cpp coGRObjTransformMsg.cpp coGRObjTransformSGItemMsg.cpp coGRObjVisMsg.cpp coGRSendCurrentDocMsg.cpp coGRSendDocNumbersMsg.cpp coGRSetAnimationSpeedMsg.cpp coGRSetDocPageMsg.cpp coGRSetDocPageSizeMsg.cpp coGRSetDocPositionMsg.cpp coGRSetDocScaleMsg.cpp coGRSetTimestepMsg.cpp coGRSetTrackingParamsMsg.cpp coGRShowPresentationpointMsg.cpp coGRShowViewpointMsg.cpp coGRSnapshotMsg.cpp coGRToggleFlymodeMsg.cpp coGRToggleVPClipPlaneModeMsg.cpp coGRTurnTableAnimationMsg.cpp coGRViewpointChangedMsg.cpp
+)
+
+SET(GRMSG_HEADERS
+coGRActivatedViewpointMsg.h coGRAddDocMsg.h coGRAnimationOnMsg.h coGRChangeViewpointIdMsg.h coGRChangeViewpointMsg.h coGRChangeViewpointNameMsg.h coGRCreateDefaultViewpointMsg.h coGRCreateViewpointMsg.h coGRDeleteViewpointMsg.h coGRDocMsg.h coGRDocVisibleMsg.h coGRGenericParamChangedMsg.h coGRGenericParamRegisterMsg.h coGRGraphicRessourceMsg.h coGRKeyWordMsg.h coGRMsg.h coGRObjAddChildMsg.h coGRObjAttachedClipPlaneMsg.h coGRObjBoundariesObjMsg.h coGRObjColorObjMsg.h coGRObjDelMsg.h coGRObjGeometryMsg.h coGRObjKinematicsStateMsg.h coGRObjMaterialObjMsg.h coGRObjMovedMsg.h coGRObjMoveInterMsg.h coGRObjMoveObjMsg.h coGRObjMsg.h coGRObjRegisterMsg.h coGRObjRestrictAxisMsg.h coGRObjSelectMsg.h coGRObjSensorEventMsg.h coGRObjSensorMsg.h coGRObjSetAppearanceMsg.h coGRObjSetCaseMsg.h coGRObjSetConnectionMsg.h coGRObjSetMoveMsg.h coGRObjSetMoveSelectedMsg.h coGRObjSetNameMsg.h coGRObjSetTransparencyMsg.h coGRObjSetVariantMsg.h coGRObjShaderObjMsg.h coGRObjTransformAbstractMsg.h coGRObjTransformCaseMsg.h coGRObjTransformMsg.h coGRObjTransformSGItemMsg.h coGRObjVisMsg.h coGRSendCurrentDocMsg.h coGRSendDocNumbersMsg.h coGRSetAnimationSpeedMsg.h coGRSetDocPageMsg.h coGRSetDocPageSizeMsg.h coGRSetDocPositionMsg.h coGRSetDocScaleMsg.h coGRSetTimestepMsg.h coGRSetTrackingParamsMsg.h coGRShowPresentationpointMsg.h coGRShowViewpointMsg.h coGRSnapshotMsg.h coGRToggleFlymodeMsg.h coGRToggleVPClipPlaneModeMsg.h coGRTurnTableAnimationMsg.h coGRViewpointChangedMsg.h
+)
+
+ADD_COVISE_LIBRARY(coGRMsg ${COVISE_LIB_TYPE} ${GRMSG_SOURCES} ${GRMSG_HEADERS})
+COVISE_INSTALL_TARGET(coGRMsg)

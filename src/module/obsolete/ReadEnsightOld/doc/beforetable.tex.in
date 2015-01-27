@@ -1,0 +1,45 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+EnsightData reads data files written by Ensight. 
+Versions supported are ensight 5.0 and ensight gold.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2} {}{module}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+ 
+Ensight 5.0 data consists of files:
+\begin{itemize}  
+\item description of the geometry (*.geo) - required 
+\item result file (*.res) - optional 
+\item variable files - optional
+\end{itemize} 
+Ensight gold data consists of files:
+\begin{itemize} 
+\item description of the geometry (*.geo) - required 
+\item case file (*.case) - required; in this file are pointers to all other necessary files
+\end{itemize}
+
+Timesteps are supported. 
+ 
+
+%
+% short information about versions 
+%
+ReadEnsight is available for COVISE version 4.5 and higher. 
+It's tested on Linux 6.4 and SGI. 
+
+
+%
+%=============================================================

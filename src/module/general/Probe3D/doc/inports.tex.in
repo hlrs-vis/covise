@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline meshIn & UniformGrid\newline RectilinearGrid\newline StructuredGrid\newline UnstructuredGrid & input mesh\\ \hline gdataIn & Float\newline Float & input grid scalar data.\\ \hline gOcttreesIn & OctTree & input grid octtrees\\ \hline polyIn & Polygons & input polygons\\ \hline pdataIn & Float & input polygon scalar data\\ \hline pOcttreesIn & OctTreeP & input polygon octtrees\\ \hline colorMapIn & ColorMap & color map to create geometry\\
+\hline \end{longtable}
+

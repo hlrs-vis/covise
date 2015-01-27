@@ -1,0 +1,8 @@
+SET(HEADERS
+)
+SET(SOURCES
+  r_ivdflex.cpp
+)
+ADD_COVISE_MODULE(IO r_ivdflex ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(r_ivdflex coApi coAppl coCore)
+COVISE_INSTALL_TARGET(r_ivdflex)

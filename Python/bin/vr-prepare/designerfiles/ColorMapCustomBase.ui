@@ -1,0 +1,503 @@
+<ui version="4.0" >
+ <comment>Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+ <class>ColorMapCustomBase</class>
+ <widget class="QDialog" name="ColorMapCustomBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>865</width>
+    <height>611</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="MinimumExpanding" hsizetype="MinimumExpanding" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>Customize Color Map</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="2" column="0" colspan="3" >
+    <layout class="QGridLayout" >
+     <item row="0" column="1" >
+      <spacer name="spacer612" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>5</width>
+         <height>21</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QCheckBox" name="vrpCheckBoxShow" >
+       <property name="cursor" >
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text" >
+        <string>ShowModification</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3" >
+      <widget class="QPushButton" name="vrpPushButtonClose" >
+       <property name="cursor" >
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text" >
+        <string>Close</string>
+       </property>
+       <property name="shortcut" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0" >
+    <widget class="QLabel" name="vrpIconColorMap" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="pixmap" >
+      <pixmap resource="images/StaticImages.qrc" >:/button_colormap.png</pixmap>
+     </property>
+     <property name="scaledContents" >
+      <bool>true</bool>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2" >
+    <widget class="QLabel" name="vrpLabelTitle" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font" >
+      <font>
+       <family>URW Gothic L</family>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Customize Color Maps</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QListWidget" name="vrpListViewColorMaps" >
+     <property name="minimumSize" >
+      <size>
+       <width>135</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="cursor" stdset="0" >
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="focusPolicy" >
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <item>
+      <property name="text" >
+       <string>Custom</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>Star</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="2" >
+    <widget class="QFrame" name="frame352" >
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth" >
+      <number>0</number>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="vrpLabelName" >
+        <property name="text" >
+         <string>Name:</string>
+        </property>
+        <property name="wordWrap" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2" >
+       <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditName" />
+      </item>
+      <item row="1" column="0" colspan="3" >
+       <widget class="QGroupBox" name="groupBox" >
+        <property name="title" >
+         <string>Color Spectrum</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" >
+         <item row="0" column="0" colspan="2" >
+          <widget class="QRadioButton" name="radioButtonManual" >
+           <property name="text" >
+            <string>Manual Settings</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <spacer name="spacer2" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>142</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLabel" name="textLabel5" >
+           <property name="text" >
+            <string>Minimum:</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" >
+          <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditMin" >
+           <property name="minimumSize" >
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <spacer name="spacer3" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>31</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLabel" name="textLabel5_2" >
+           <property name="text" >
+            <string>Maximum:</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" >
+          <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditMax" >
+           <property name="minimumSize" >
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2" >
+          <widget class="QRadioButton" name="radioButtonLocal" >
+           <property name="text" >
+            <string>Auto Adjust to Streamline
+min: 1. max: 2.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2" >
+          <widget class="QRadioButton" name="radioButtonGlobal" >
+           <property name="text" >
+            <string>Auto Adjust to Global
+min:0., max:0.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3" >
+       <widget class="QGroupBox" name="groupBox_4" >
+        <property name="title" >
+         <string>Spectrum Steps</string>
+        </property>
+        <widget class="QLabel" name="textLabel4" >
+         <property name="geometry" >
+          <rect>
+           <x>0</x>
+           <y>20</y>
+           <width>125</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>Number of Steps:</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="vrpSpinBoxSteps" >
+         <property name="geometry" >
+          <rect>
+           <x>110</x>
+           <y>20</y>
+           <width>181</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="cursor" >
+          <cursorShape>IBeamCursor</cursorShape>
+         </property>
+         <property name="maximum" >
+          <number>1000000</number>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3" >
+       <widget class="QGroupBox" name="groupBox_3" >
+        <property name="title" >
+         <string>Color Palette</string>
+        </property>
+        <widget class="QLabel" name="textLabel5_2_2" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>125</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text" >
+          <string>Map:</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="vrpComboBoxMap" >
+         <property name="geometry" >
+          <rect>
+           <x>120</x>
+           <y>10</y>
+           <width>141</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <item>
+          <property name="text" >
+           <string>Standard</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>Star</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>ITSM</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>Rainbow</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>Pastell</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>Magma</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>Ansys</string>
+          </property>
+         </item>
+        </widget>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="3" >
+       <widget class="QGroupBox" name="groupBox_2" >
+        <property name="title" >
+         <string>Visualization Options</string>
+        </property>
+        <widget class="QRadioButton" name="vrpRadioButtonColorGradient" >
+         <property name="geometry" >
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>201</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text" >
+          <string>Color Gradient</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2" >
+       <widget class="QPushButton" name="vrpPushButtonCopy" >
+        <property name="cursor" >
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text" >
+         <string>Copy To New</string>
+        </property>
+        <property name="shortcut" >
+         <string/>
+        </property>
+        <property name="autoDefault" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2" >
+       <widget class="QPushButton" name="vrpPushButtonDelete" >
+        <property name="cursor" >
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text" >
+         <string>Delete</string>
+        </property>
+        <property name="shortcut" >
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>ChangeIndicatedLE</class>
+   <extends>QWidget</extends>
+   <header location="global" >ChangeIndicatedLE</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>vrpPushButtonCopy</tabstop>
+  <tabstop>vrpPushButtonDelete</tabstop>
+  <tabstop>vrpCheckBoxShow</tabstop>
+  <tabstop>vrpPushButtonClose</tabstop>
+  <tabstop>vrpListViewColorMaps</tabstop>
+ </tabstops>
+ <includes>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+ </includes>
+ <resources>
+  <include location="images/StaticImages.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>vrpPushButtonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>ColorMapCustomBase</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

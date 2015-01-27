@@ -1,0 +1,202 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef System_H
+#define System_H 1
+
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
+
+#include <vpb/GeospatialDataset>
+#include <vpb/FileCache>
+#include <vpb/MachinePool>
+#include <vpb/TaskManager>
+
+namespace vpb
+{
+
+extern VPB_EXPORT std::string getLocalHostName();
+extern VPB_EXPORT int getProcessID();
+
+extern VPB_EXPORT osgDB::FilePathList& getSourcePaths();
+extern VPB_EXPORT std::string& getDestinationDirectory();
+extern VPB_EXPORT std::string& getIntermediateDirectory();
+extern VPB_EXPORT std::string& getLogDirectory();
+extern VPB_EXPORT std::string& getTaskDirectory();
+extern VPB_EXPORT std::string& getMachineFileName();
+extern VPB_EXPORT std::string& getCacheFileName();
+extern VPB_EXPORT unsigned int getMaxNumberOfFilesPerDirectory();
+
+inline bool getAttributeValue(const std::string& field, const std::string& name, std::string& value)
+{
+    if (field.compare(0,name.size(), name)==0)
+    {
+        value.assign(field, name.size()+1, std::string::npos);
+        return true;
+    }
+    else return false;
+}
+
+inline bool getAttributeValue(const std::string& field, const std::string& name, int& value)
+{
+    std::string str;
+    if (getAttributeValue(field, name, str))
+    {
+        value = atoi(str.c_str());
+        return true;
+    }
+    return false;
+}
+
+class VPB_EXPORT System : public osg::Referenced
+{
+    public:
+    
+        static osg::ref_ptr<System>& instance();
+    
+        osgDB::FilePathList& getSourcePaths() { return _sourcePaths; }
+        std::string& getDestinationDirectory() { return _destinationDirectory; }
+        std::string& getIntermediateDirectory() { return _intermediateDirectory; }
+        std::string& getLogDirectory() { return _logDirectory; }
+        std::string& getTaskDirectory() { return _taskDirectory; }
+        std::string& getMachineFileName() { return _machineFileName; }
+        std::string& getCacheFileName() { return _cacheFileName; }
+        std::string& getXodrName() { return _xodrName; }
+    
+        void readEnvironmentVariables();
+        void readArguments(osg::ArgumentParser& arguments);
+        
+
+        void setTrimOldestTiles(bool trimOldest) { _trimOldestTiles = trimOldest; }
+        bool getTrimOldestTiles() const { return _trimOldestTiles; }
+        
+        void setNumUnusedDatasetsToTrimFromCache(unsigned int num) { _numUnusedDatasetsToTrimFromCache = num; }
+        unsigned int getNumUnusedDatasetsToTrimFromCache() const { return _numUnusedDatasetsToTrimFromCache; }
+        
+        void setMaximumNumDatasets(unsigned int maxNumDatasets);
+        unsigned int getMaximumNumDatasets() const { return _maxNumDatasets; }
+        
+        void clearDatasetCache();
+
+        void clearUnusedDatasets(unsigned int numToClear=1);
+        
+        GeospatialDataset* openGeospatialDataset(const std::string& filename, AccessMode accessMode);
+
+        GeospatialDataset* openOptimumGeospatialDataset(const std::string& filename, const SpatialProperties& sp, AccessMode accessMode);
+
+        void setFileCache(FileCache* fileCache) { _fileCache = fileCache; }
+        FileCache* getFileCache();
+
+        void setMachinePool(MachinePool* machinePool) { _machinePool = machinePool; }
+        MachinePool* getMachinePool();
+
+        void setMachinePool(TaskManager* taskManager) { _taskManager = taskManager; }
+        TaskManager* getTaskManager();
+
+        typedef std::pair<std::string, AccessMode> FileNameAccessModePair;
+        typedef std::map<FileNameAccessModePair, osg::ref_ptr<GeospatialDataset> >  DatasetMap;
+        
+        /** Return the date of last modification from the list of source specified on the terrain source.*/
+        bool getDateOfLastModification(osgTerrain::TerrainTile* source, Date& date);
+        
+        /** Return the size of a file in bytes.*/
+        unsigned long getFileSize(const std::string& filename);
+
+        unsigned int getMaxNumberOfFilesPerDirectory() const { return _maxNumberOfFilesPerDirectory; }
+        
+        inline bool isFileTypeSupported(const std::string& filename, int acceptedTypeMask)
+        {
+            std::string ext = osgDB::getFileExtension(filename);
+        
+            // check if file extension is in supported list.
+            if (isExtensionSupported(ext, acceptedTypeMask)) return true;
+            
+            // check if file extension is in the unsupported list.
+            if (_unsupportedExtensions.count(ext)!=0) return false;
+            
+            //
+            return openFileToCheckThatItSupported(filename, acceptedTypeMask);
+        }
+
+        inline bool isExtensionSupported(const std::string& ext, int acceptedTypeMask) const
+        {
+            SupportedExtensions::const_iterator itr = _supportedExtensions.find(ext);
+            if (itr != _supportedExtensions.end()) return (itr->second.acceptedTypeMask & acceptedTypeMask)!=0;
+            else return false;
+        }
+
+
+        struct FormatInfo
+        {
+            FormatInfo():
+                acceptedTypeMask(0) {}
+            
+            int         acceptedTypeMask;
+            std::string description;
+        };
+
+
+        typedef std::map<std::string, FormatInfo> SupportedExtensions;
+        SupportedExtensions& getSupportExtensions() { return _supportedExtensions; }
+        const SupportedExtensions& getSupportExtensions() const { return _supportedExtensions; }
+        
+        void addSupportedExtension(const std::string& ext, int acceptedTypeMask, const std::string& description)
+        {
+            SupportedExtensions::iterator itr = _supportedExtensions.find(ext);
+            if (itr != _supportedExtensions.end()) itr->second.acceptedTypeMask = itr->second.acceptedTypeMask | acceptedTypeMask;
+            else
+            {
+                _supportedExtensions[ext].acceptedTypeMask = acceptedTypeMask;
+                _supportedExtensions[ext].description = description;
+            }
+        }
+        
+        typedef std::set<std::string> UnsupportedExtensions;
+        UnsupportedExtensions& getUnsupportedExtensions() { return _unsupportedExtensions; }
+        const UnsupportedExtensions& getUnsupportedExtensions() const { return _unsupportedExtensions; }
+        void addUnsupportedExtension(const std::string& ext) { _unsupportedExtensions.insert(ext); }
+        
+        /** brute force way to check if file is supported by GDAL/VirtualPlanetBuilder by opening the file.*/
+        bool openFileToCheckThatItSupported(const std::string& filename, int acceptedTypeMask);
+
+    protected:
+    
+        System();
+        virtual ~System();
+        
+        osgDB::FilePathList         _sourcePaths;
+        std::string                 _destinationDirectory;
+        std::string                 _intermediateDirectory;
+        std::string                 _logDirectory;
+        std::string                 _taskDirectory;
+        std::string                 _machineFileName;
+        std::string                 _cacheFileName;
+        std::string                 _xodrName;
+        unsigned int                _maxNumberOfFilesPerDirectory;
+        
+        bool                        _trimOldestTiles;
+        unsigned int                _numUnusedDatasetsToTrimFromCache;
+        unsigned int                _maxNumDatasets;
+        DatasetMap                  _datasetMap;
+        
+        osg::ref_ptr<FileCache>     _fileCache;
+        osg::ref_ptr<MachinePool>   _machinePool;
+        osg::ref_ptr<TaskManager>   _taskManager;
+        
+        SupportedExtensions         _supportedExtensions;
+        UnsupportedExtensions       _unsupportedExtensions;
+};
+
+}
+
+#endif

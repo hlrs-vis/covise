@@ -1,0 +1,53 @@
+#define		CELL 67    /* Numeric value of ASCII 'C' */
+#define		NODE 78    /* Numeric value of ASCII 'N' */
+#define		XYGRID 1   /* Type of values is 1 layer node values */
+#define		ELEVGRID 2 /* Type of values is node values for the whole model */ 
+#define		ATTRGRID 3 /* Type of values is cell center for the whole model */ 
+#define		ACTIVE   4 /* Type of values is cell center for the whole model */ 
+
+struct S_simDATE
+{
+  long	day;	/* Numeric day */
+  long	month;  /* Numeric month */
+  long	year;   /* Numeric year */
+};
+
+struct S_simHDR
+{
+  char	title[120];       /* Title */
+  struct S_simDATE  date; /* Data structure */
+  char  sim_name[15];    /* name of the simulator */
+  long	version;          /* version number of EXTRACT */
+  long	nR;               /* Number of rows */
+  long	nC;		  /* Number of columns */
+  long	nL;               /* Number of layers */
+  long	nTS;              /* Number of Time steps */
+  long	flag;		  /* UNUSED (Reserved for future use) */
+  long	nIprop;		  /* Number of time independent properties */
+  long	nTprop;           /* Number of time dependent properties */
+  float xOFF;		  /* X bottom left corner coordinate value */
+  float yOFF;		  /* Y bottom left corner coordinate value */
+  float aROT;		  /* angle of rotation for the model */
+  char  TS_units[10];	  /* Time step unit either YEARS or DAYS */ 
+  float TS_dates[2000];   /* array holding the date for each time step */    
+};
+
+struct S_simDATA
+{
+  char	title[120];       /* Title */
+  long  type;             /* type of grid */
+  long	nR;               /* Number of rows */
+  long	nC;               /* Number of columns */
+  long	nL;               /* Number of layers */
+  long	nTS;              /* Number of Time steps */
+  float min;		  /* data minimum value */
+  float max;		  /* data maximum value */
+  long	dataref;          /* Data reference CELL = 67, NODE = 78 */
+};
+
+float *data;            /* Pointer to 2D, 3D or 4D grid array */
+
+typedef struct S_simDATE simDATE;
+typedef struct S_simHDR  simHDR;
+typedef struct S_simDATA simDATA;
+

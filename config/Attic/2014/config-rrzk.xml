@@ -1,0 +1,336 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+    <Renderer>
+       <Snap passes="1" width="1280" height="720" format="tiff" />
+    </Renderer>
+
+
+  <Colormaps>
+
+     <!--FourClasses absolute="true">
+        <Point x="1" rgb="88aaff" index="0" />
+        <Point x="2" rgb="00ff00" index="1" />
+        <Point x="3" rgb="ff5500" index="2" />
+        <Point x="4" rgb="ffffff" index="3" />
+     </FourClasses-->
+
+     <AccretionDiscMass>
+        <Point index="0" r="0." g="1." b="1." a="1." x="0." />
+        <Point index="1" r="0." g="1." b="0." a="1." x="0.5" />
+        <Point index="2" r="1." g="0." b="0." a="1." x="1.0" />
+     </AccretionDiscMass>
+
+     <FourClasses absolute="true">
+        <Point x="1" rgb="0000ff" index="0" />
+        <Point x="2" rgb="00ff00" index="1" />
+        <Point x="3" rgb="ff0000" index="2" />
+        <Point x="4" rgb="ffff00" index="3" />
+     </FourClasses>
+
+     <FourClassesTransparent absolute="true">
+        <Point x="1" rgba="0000ff55" index="0" />
+        <Point x="2" rgba="00ff0055" index="1" />
+        <Point x="3" rgba="ff000077" index="2" />
+        <Point x="4" rgba="ffff00ff" index="3" />
+     </FourClassesTransparent>
+
+     <FourClasses2 absolute="true">
+        <Point x="1" rgb="88aaff" index="0" />
+        <Point x="2" rgb="00ff00" index="1" />
+        <Point x="3" rgb="ff4466" index="2" />
+        <Point x="4" rgb="ffff44" index="3" />
+     </FourClasses2>
+
+     <FourClasses2Transparent absolute="true">
+        <Point x="1" rgba="88aaff55" index="0" />
+        <Point x="2" rgba="00ff0055" index="1" />
+        <Point x="3" rgba="ff446677" index="2" />
+        <Point x="4" rgba="ffff44ff" index="3" />
+     </FourClasses2Transparent>
+
+     <Stars absolute="true">
+        <Point x="0.1" rgb="ffbb7b" index="0" />
+        <Point x="0.3" rgb="ffbb7b" index="1" />
+        <Point x="0.4" rgb="ffbe7f" index="2" />
+        <Point x="0.8" rgb="ffc690" index="3" />
+        <Point x="1.8" rgb="fff4ea" index="4" />
+        <Point x="4.0" rgb="edeeff" index="5" />
+        <Point x="5.0" rgb="cad8ff" index="6" />
+        <Point x="10." rgb="a7bcff" index="7" />
+        <Point x="18." rgb="a2b9ff" index="8" />
+        <Point x="50." rgb="9db4ff" index="9" />
+     </Stars>
+
+     <NegativeStars absolute="true">
+        <Point x="0.1" rgb="004484" index="0" />
+        <Point x="0.3" rgb="004484" index="1" />
+        <Point x="0.4" rgb="004180" index="2" />
+        <Point x="0.8" rgb="00296f" index="3" />
+        <Point x="1.8" rgb="000b15" index="4" />
+        <Point x="4.0" rgb="121100" index="5" />
+        <Point x="5.0" rgb="352700" index="6" />
+        <Point x="10." rgb="584300" index="7" />
+        <Point x="18." rgb="5d6000" index="8" />
+        <Point x="50." rgb="624b00" index="9" />
+     </NegativeStars>
+  </Colormaps>
+
+  <Module>
+      <SwitchData>
+          <NumberOfInputs value="5" />
+      </SwitchData>
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <Fenfloss>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <STARTUP value="gate %0 %1 %e" name="v3" />
+    <STARTUP value="tube %0 %1 %e" name="v4" />
+    <STARTUP value="axial %0 %1 %e" name="v5" />
+    <STARTUP value="radial %0 %1 %e" name="v6" />
+    <STARTUP value="sc2004booth %0 %1 %e" name="v7" />
+    <STARTUP value="archflow %0 %1 %e" name="v8" />
+    <STARTUP value="other %0 %1 %e" name="v9" />
+   </Fenfloss>
+
+   <StarCD>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <SERVER value="m" />
+    <STARTUP value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <STARTUP value="dummy d" name="v2" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+
+   <Material>
+    <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0" />
+   </Material>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+  </Module>
+
+
+  <System>
+   <VRB>
+     <!--Server value="visper.hlrs.de" port="31200" /-->
+     <!--Server value="vis.rrz.uni-koeln.de" port="31002" /-->
+   </VRB>
+ 
+    <HostConfig>
+    <Host timeout="50" memory="shm" method="ssh" name="vis" hostname="vis.rrz.uni-koeln.de" />
+    <Host timeout="50" memory="shm" method="ssh" name="vis00" hostname="vis00.rrz.uni-koeln.de" />
+    <Host timeout="50" memory="shm" method="ssh" name="vis01" hostname="vis01.rrz.uni-koeln.de" />
+    <Host timeout="50" memory="shm" method="ssh" name="vis02" hostname="vis02.rrz.uni-koeln.de" />
+    <Host timeout="50" memory="shm" method="ssh" name="vis03" hostname="vis03.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="vislab0" hostname="vislab0.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="vislab1" hostname="vislab1.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="vismod0" hostname="vislab0.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="vismod1" hostname="vismod1.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="vispss" hostname="vispss.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="visimac" hostname="visimac.rrz.uni-koeln.de" />
+    <Host timeout="50" memory="shm" method="ssh" name="visard" hostname="visard.rrz.uni-koeln.de" />
+    <Host timeout="50" memory="shm" method="ssh" name="visilias" hostname="visilias.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="viskas" hostname="viskas.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="visvr" hostname="visvr.rrz.uni-koeln.de" />
+    <Host timeout="60" memory="shm" method="ssh" name="visper" hostname="visper.hlrs.de" />
+   </HostConfig>
+
+   <RemoteDaemon>
+    <Server port="31090" />
+   </RemoteDaemon>
+  </System>
+
+  <UserInterface>
+   <ShortCuts value="RWCovise Colors Collect CuttingSurface IsoSurface Renderer VRRenderer" />
+   <AutoSaveTime value="60" />
+   <Qt value="true" />
+  </UserInterface>
+
+
+  <Renderer>
+   <Axis value="off" />
+   <!--VolumeRenderer value="Tex" /-->
+   <InputDevices>
+    <Spaceball value="on" />
+   </InputDevices>
+  </Renderer>
+
+
+  <COVER>
+   <DriveSpeed min="0.03" max="30.0" default="1.0" />
+   <!--Background r="0.3" g="0.3" b="0.3" /-->
+   <WelcomeMessage value="Welcome to OpenCOVER at RRZK" />
+   <SplashScreen value="icons/OpenCOVERLogoRRZK.tif" width="640" height="640" />
+   <!--RenderOnMaster value="OFF" /-->
+   <MultiProcess value="ON" />
+   <!--MultiThreaded value="OFF" /-->
+   <MultiThreaded value="OFF" />
+   <Near value="100" />
+   <Far value="20000000" />
+
+   <!--WindowConfig>
+    <VisualID arch="x11" value="0x23" />
+   </WindowConfig-->
+
+   <Stereo enable="OFF" separation="60" value="OFF" />
+   <RotationAxis x="1" y="0" z="0" />
+   <FrameAngle value="0.5" />
+   <Headlight value="ON" />
+
+ <Plugin>
+     <SwitchData value="on" />
+     <Move value="off" />
+     <Video value="off" />
+     <!--Move value="off" />
+     <Molecules value="off" />
+     <ClipPlane value="off" />
+     <SGBrowser value="off" />
+     <Vrml97 value="off" /-->
+     <Volume value="on" >
+     <Files>
+      <Body value="/data/volume/VolData/fctbody.xvf" />
+      <Head value="/data/volume/VolData/head256.rvf" />
+      <Skull value="/data/general/examples/ReadVolume/skull.rvf" />
+      <Lobster value="/data/general/examples/ReadVolume/lobster.rvf" />
+      <Aneurism value="/data/general/examples/ReadVolume/aneurism.rvf" />
+      <Hydrogen value="/data/general/examples/ReadVolume/hydrogenAtom.rvf" />
+      <Lambda value="/data/general/examples/ReadVolume/lambda.rvf" />
+      <Galaxy value="/data/volume/VolData/galaxy-254cubed-masses-0to36.xvf" />
+     </Files>
+    </Volume>
+
+    <Molecules value="on" >
+     <DataDir value="/data/chem/itt" />
+    </Molecules>
+
+    <PDB value="off" />
+    <ClipPlane value="on" />
+
+    <VRViewpoints>
+     <WriteVrmlViewpoint value="ON" />
+    </VRViewpoints>
+
+    <Vrml97 value="on" >
+     <TextureCounter value="ON" />
+     <Audio value="None" />
+     <Lights value="ON" />
+     <Crease value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended_alphatest" />
+    </Vrml97>
+
+    <ARToolKit>
+     <Capture value="OFF" />
+    </ARToolKit>
+
+    <CuttingPlane>
+     <Verbose value="OFF" />
+     <TextureFilterType value="TRILINEAR" />
+     <PlaneAttachment value="PLANE_MOVESTO_HAND" />
+     <StopMove value="PRESS" />
+     <ExecuteModule value="STOPMOVE" />
+     <InterSize value="100" />
+    </CuttingPlane>
+
+    <Move value="on" >
+     <Explicit value="ON" />
+     <Print value="ON" />
+    </Move>
+
+    <ModifyHeadBox>
+     <ShowConstraints value="ON_TOUCH" />
+     <SphereSize value="20.0" />
+    </ModifyHeadBox>
+	
+     <AKToolbar value="on">
+        <MapAnimationSlider value="true" />
+        <ShortCut value="toggleAnimation" name="ToggleAnimation" />
+        <ShortCut name="Plugin-PickSphere0" value="AttachViewer" plugin="PickSphere" command="AttachViewer" icon="picksphere-attach" toggleButton="true" />
+        <ShortCut name="Plugin-PickSphere1" value="SingleSelect" plugin="PickSphere" command="SingleSelect" icon="picksphere" toggleButton="true" />
+        <ShortCut name="Plugin-PickSphere2" value="MultiSelect" plugin="PickSphere" command="MultiSelect" icon="picksphere-multi" toggleButton="true" />
+        <ShortCut name="Plugin-PickSphere3" value="ClearSelection" plugin="PickSphere" command="ClearSelection" icon="picksphere-clear" />
+     </AKToolbar>
+     
+   </Plugin>
+
+   <Specular value="ON" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <!--Freeze value="OFF" /-->
+   <Notify value="FATAL" />
+   <ScaleAll value="OFF" />
+   <FPS value="ON" />
+
+  <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+    <Email value="aumueller@uni-koeln.de" />
+    <URL value="http://vis.uni-koeln.de/" />
+    <UserName value="Martin Aumueller" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="10.0" />
+   <Shadows value="true" />
+   <DebugLevel value="1" />
+
+   <Pinboard>
+    <ViewAll value="&quot;view all&quot; &quot;View Options&quot;" />
+    <Fly value="&quot;fly&quot; &quot;Navigation&quot;" />
+    <Scale value="&quot;scale world&quot; &quot;Navigation&quot;" />
+    <Walk value="&quot;walk&quot; &quot;Navigation&quot;" />
+    <Drive value="&quot;drive&quot; &quot;Navigation&quot;" />
+    <XForm value="&quot;move world&quot; &quot;Navigation&quot;" />
+    <DriveSpeed value="&quot;speed&quot; &quot;Navigation&quot;" />
+    <Collide value="&quot;collision&quot; &quot;Navigation&quot;" />
+    <ResetView value="&quot;reset view&quot; &quot;View Options&quot;" />
+    <Freeze value="&quot;stop headtracking&quot; &quot;View Options&quot;" />
+    <CoordAxis value="&quot;axis&quot; &quot;View Options&quot;" />
+    <Specular value="&quot;specular&quot; &quot;View Options&quot;" />
+    <Spotlight value="&quot;spotlight&quot; &quot;View Options&quot;" />
+    <Headlight value="&quot;headlight&quot; &quot;View Options&quot;" />
+    <OtherLights value="&quot;other lights&quot; &quot;View Options&quot;" />
+    <StereoSeparation value="&quot;stereo sep&quot; &quot;View Options&quot;" />
+    <Statistics value="&quot;statistics&quot; &quot;View Options&quot;" />
+    <!--Snap value="&quot;snap&quot; &quot;misc&quot;" /-->
+    <!--Store value="&quot;store scenegraph&quot; &quot;misc&quot;" /-->
+    <!--ReloadVRML value="&quot;reload vrml&quot; &quot;misc&quot;" /-->
+    <Snap value="&quot;NONE&quot;" />
+    <Store value="&quot;NONE&quot;" />
+    <ReloadVRML value="&quot;NONE&quot;" />
+    <Execute value="&quot;execute&quot; &quot;COVISE&quot;" />
+    <CuttingSurface value="&quot;CuttingSurface&quot; &quot;COVISE&quot;" />
+    <CutGeometry value="&quot;CutGeometry&quot; &quot;COVISE&quot;" />
+    <IsoSurface value="&quot;IsoSurface&quot; &quot;COVISE&quot;" />
+    <TracerUsg value="&quot;TracerUsg&quot; &quot;COVISE&quot;" />
+    <Tracer value="&quot;Tracer&quot; &quot;COVISE&quot;" />
+    <STracer value="&quot;STracer&quot; &quot;COVISE&quot;" />
+    <TetraTrace value="&quot;TetraTrace&quot; &quot;COVISE&quot;" />
+    <MagTracer value="&quot;MagTracer&quot; &quot;COVISE&quot;" />
+    <CellTracer value="&quot;CellTracer&quot; &quot;COVISE&quot;" />
+    <LTracer value="&quot;LarsTracer&quot; &quot;COVISE&quot;" />
+   </Pinboard>
+  </COVER>
+
+
+  <SpaceballConfig>
+   <ScaleRotation value="1.0" />
+   <ScaleTranslation value="5.0" />
+  </SpaceballConfig>
+
+
+ </GLOBAL>
+
+
+ <INCLUDE configname="general" >config.xml</INCLUDE>
+
+</COCONFIG>

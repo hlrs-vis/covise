@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <SmallFeatureCulling value="0.0" />
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+				<ShortCut value="viewall" name="viewall" />
+				<!--<ShortCut value="showName" name="showName" />-->			
+				<!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+				<!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <RuledSurfaces value="on">
+				<DataPath value="..\Demos\VR4Schule\Mathematik\Regelflaechen\" />
+			</RuledSurfaces>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Mathematik/Regelflaechen/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

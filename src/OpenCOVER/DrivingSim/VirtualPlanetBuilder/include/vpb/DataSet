@@ -1,0 +1,280 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef DATASET_H
+#define DATASET_H 1
+
+#if defined(WIN32) && !(defined(__CYGWIN__) || defined(__MINGW32__))
+
+/////////////////////////////////////////////////////////////////////////////
+// Disable unavoidable warning messages:
+//
+// C4503 - decorated name length exceeded, name was truncated
+//
+#pragma warning(disable : 4503)
+
+#endif // WIN32
+
+
+#include <osg/CoordinateSystemNode>
+
+#include <osgTerrain/TerrainTile>
+
+#include <osgDB/Archive>
+#include <osgDB/DatabaseRevisions>
+
+#include <set>
+
+#include <vpb/SpatialProperties>
+#include <vpb/Source>
+#include <vpb/Destination>
+#include <vpb/BuildOptions>
+#include <vpb/BuildLog>
+#include <vpb/ObjectPlacer>
+#include <vpb/ThreadPool>
+
+
+// forward declare so we can avoid tieing vpb to GDAL.
+class GDALDataset;
+class GDALRasterBand;
+
+namespace vpb
+{
+
+class TaskManager;
+
+class VPB_EXPORT DataSet : public BuildOptions, public Logger
+{
+    public:
+
+        typedef std::map<unsigned int,CompositeDestination*> Row;
+        typedef std::map<unsigned int,Row> Level;
+        typedef std::map<unsigned int,Level> QuadMap;
+        
+        void insertTileToQuadMap(CompositeDestination* tile)
+        {
+            _quadMap[tile->_level][tile->_tileY][tile->_tileX] = tile;
+        }
+        
+        DestinationTile* getTile(unsigned int level,unsigned int X, unsigned int Y)
+        {
+            CompositeDestination* cd = getComposite(level,X,Y);
+            if (!cd) return 0;
+            if (cd->_tiles.empty()) return 0;
+            return (cd->_tiles).front().get();
+        }
+
+        CompositeDestination* getComposite(unsigned int level,unsigned int X, unsigned int Y)
+        {
+            QuadMap::iterator levelItr = _quadMap.find(level);
+            if (levelItr==_quadMap.end()) return 0;
+
+            Level::iterator rowItr = levelItr->second.find(Y);
+            if (rowItr==levelItr->second.end()) return 0;
+
+            Row::iterator columnItr = rowItr->second.find(X);
+            if (columnItr==rowItr->second.end()) return 0;
+            else return columnItr->second;
+        }
+
+        Row& getRow(unsigned int level,unsigned int Y)
+        {
+            return _quadMap[level][Y];
+        }
+
+    public:
+
+
+        DataSet();
+
+        void setTask(Task* taskFile) { _taskFile = taskFile; }
+        Task* getTask() { return _taskFile.get(); }
+        const Task* getTask() const { return _taskFile.get(); }
+
+        CompositeSource* getSourceGraph() { return _sourceGraph.get(); }
+
+
+        void addSource(Source* source, unsigned int revisionNumber);
+        // void addSource(CompositeSource* composite);
+
+        bool addModel(Source::Type type, osg::Node* node, unsigned int revisionNumber);
+        bool addLayer(Source::Type type, osgTerrain::Layer* layer, unsigned layerNum, unsigned int revisionNumber);
+        bool addTerrain(osgTerrain::TerrainTile* terrain, unsigned int revisionNumber);
+
+        bool addTerrain(osgTerrain::TerrainTile* terrain);
+        bool addPatchedTerrain(osgTerrain::TerrainTile* previous_terrain, osgTerrain::TerrainTile* new_terrain);
+
+        osgTerrain::TerrainTile* createTerrainRepresentation();
+
+        void loadSources();
+
+        void mapReprojectedSourcesAvailableInFileCache();
+
+        void assignDestinationCoordinateSystem();
+
+        void assignIntermediateCoordinateSystem();
+        void setIntermediateCoordinateSystem(const std::string& wellKnownText) { setIntermediateCoordinateSystem(new osg::CoordinateSystemNode("WKT",wellKnownText)); }
+        void setIntermediateCoordinateSystem(osg::CoordinateSystemNode* cs) { _intermediateCoordinateSystem = cs; }
+        osg::CoordinateSystemNode* getIntermediateCoordinateSystem() { return _intermediateCoordinateSystem.get(); }
+
+        bool requiresReprojection();
+
+        bool mapLatLongsToXYZ() const;
+
+        static void setNotifyOffset(int level);
+        static int getNotifyOffset();
+
+
+        void createNewDestinationGraph(osg::CoordinateSystemNode* cs,
+                                       const GeospatialExtents& extents,
+                                       unsigned int maxImageSize,
+                                       unsigned int maxTerrainSize,
+                                       unsigned int maxNumLevels);
+
+        CompositeDestination* createDestinationGraph(CompositeDestination* parent,
+                                                     osg::CoordinateSystemNode* cs,
+                                                     const GeospatialExtents& extents,
+                                                     unsigned int maxImageSize,
+                                                     unsigned int maxTerrainSize,
+                                                     unsigned int currentLevel,
+                                                     unsigned int currentX,
+                                                     unsigned int currentY,
+                                                     unsigned int maxNumLevels);
+
+        void computeDestinationGraphFromSources(unsigned int numLevels);
+
+        void updateSourcesForDestinationGraphNeeds();
+
+        void reprojectSourcesAndGenerateOverviews();
+
+        void populateDestinationGraphFromSources();
+
+        void createDestination(unsigned int numLevels);
+
+        void buildDestination() { _buildDestination(false); }
+
+        void writeDestination() { _buildDestination(true); }
+
+        osg::Node* getDestinationRootNode() { return _rootNode.get(); }
+
+
+        typedef std::pair<unsigned int, unsigned int> TilePair;
+        typedef std::map<TilePair, unsigned int> TilePairMap;
+
+        bool createTileMap(unsigned int level, TilePairMap& tilepairMap);
+
+        bool generateTasks(TaskManager* taskManager);
+
+        bool generateTasksImplementation(TaskManager* taskManager);
+
+
+        int run();
+
+        // helper functions for handling optional archive
+        void _writeNodeFile(osg::Node& node,const std::string& filename);
+        void _writeImageFile(osg::Image& image,const std::string& filename);
+        void _writeNodeFileAndImages(osg::Node& node,const std::string& filename);
+       
+        void setState(osg::State* state) { _state = state; }
+        osg::State* getState() { return _state.get(); }
+
+        /** Set the Archive.*/
+        void setArchive(osgDB::Archive* archive) { _archive = archive; }
+
+        /** Get the Archive if one is to being used.*/
+        osgDB::Archive* getArchive() { return _archive.get(); }
+
+        unsigned int getNumOfTextureLevels() const { return _numTextureLevels; }
+
+        void setModelPlacer(ObjectPlacer* placer) { _modelPlacer = placer; }
+        ObjectPlacer* getModelPlacer() { return _modelPlacer.get(); }
+
+        void setShapeFilePlacer(ObjectPlacer* placer) { _shapeFilePlacer = placer; }
+        ObjectPlacer* getShapeFilePlacer() { return _shapeFilePlacer.get(); }
+
+
+        std::string getTaskName(unsigned int level, unsigned int X, unsigned int Y) const;
+        std::string getSubtileName(unsigned int level, unsigned int X, unsigned int Y) const;
+        const std::string getTaskOutputDirectory() const { return _taskOutputDirectory; }
+
+        /** Check the build validity, return an empty string if everything is OK, on error return the error string.*/
+        std::string checkBuildValidity();
+
+        void setDatabaseRevision(osgDB::DatabaseRevision* db) { _databaseRevision = db; }
+        osgDB::DatabaseRevision* getDatabaseRevision() { return _databaseRevision.get(); }
+        const osgDB::DatabaseRevision* getDatabaseRevision() const { return _databaseRevision.get(); }
+
+        const std::string getDatabaseRevisionBaseFileName(unsigned int level, unsigned int x, unsigned y) const;
+
+    protected:
+
+        virtual ~DataSet() {}
+
+        friend class DestinationTile;
+
+        osg::ref_ptr<ThreadPool> _readThreadPool;
+        osg::ref_ptr<ThreadPool> _writeThreadPool;
+
+        void _readRow(Row& row);
+        void _equalizeRow(Row& row);
+        void _writeRow(Row& row);
+        void _buildDestination(bool writeToDisk);
+        int _run();
+
+        void init();
+
+        osg::Node* decorateWithTerrain(osg::Node* subgraph);
+        osg::Node* decorateWithCoordinateSystemNode(osg::Node* subgraph);
+        osg::Node* decorateWithMultiTextureControl(osg::Node* subgraph);
+
+        bool computeCoverage(const GeospatialExtents& extents, int level, int& minX, int& minY, int& maxX, int& maxY);
+        bool computeOptimumLevel(Source* source, int maxLevel, int& level);
+        bool computeOptimumTileSystemDimensions(int& C1, int& R1);
+        CompositeDestination* createDestinationTile(int level, int tileX, int tileY);
+        int computeMaximumLevel(int maxNumLevels);
+        bool prepareForDestinationGraphCreation();
+        void selectAppropriateSplitLevels();
+
+        osg::ref_ptr<CompositeSource>               _sourceGraph;
+
+        osg::ref_ptr<CompositeDestination>          _destinationGraph;
+
+        QuadMap                                     _quadMap;
+
+        osg::ref_ptr<osg::Node>                     _rootNode;
+        osg::ref_ptr<osg::State>                    _state;
+
+        osg::ref_ptr<osgDB::Archive>                _archive;
+
+        unsigned int                                _numTextureLevels;
+        osg::ref_ptr<osg::CoordinateSystemNode>     _intermediateCoordinateSystem;
+
+        osg::ref_ptr<Task>                          _taskFile;
+
+        osg::ref_ptr<ObjectPlacer>                  _modelPlacer;
+        osg::ref_ptr<ObjectPlacer>                  _shapeFilePlacer;
+
+        GeospatialExtents                           _destinationExtents;
+        int                                         _C1;
+        int                                         _R1;
+
+        bool                                        _newDestinationGraph;
+
+        std::string                                 _taskOutputDirectory;
+
+        osg::ref_ptr<osgDB::DatabaseRevision>       _databaseRevision;
+};
+
+}
+
+#endif

@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline Projectfile & Browser & filename\\ \hline select\_data\_1 & Choice & Select Output Data\\ \hline select\_data\_2 & Choice & Select Output Data\\ \hline select\_data\_3 & Choice & Select Output Data\\ \hline smoothType & Choice & Smoothing algorithm\\
+\hline \end{longtable}
+

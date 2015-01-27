@@ -1,0 +1,21 @@
+
+
+
+
+\subsubsection{Examples}
+%================================================================================
+
+\begin{covimg}{}%
+		{ShowFaceNormalMap}{covise/net/examples/ShowFaceNormal.net}{0.6}\end{covimg}
+ 
+
+In ShowFaceNormal.net the module GenDat computes some data. 
+The module IsoSurface uses the data to compute a surface. 
+This surface is drawn by the renderer and also given to ShowFaceNormal. 
+ShowFaceNormal computes the centers of the polygons and their normals. 
+The vector data is visualized by the module Vectorfield. The output of Vectorfield are lines 
+which are the normals.
+
+
+\begin{covimg2}{}{ShowFaceNormalRenderer}{0.6}\end{covimg2}
+

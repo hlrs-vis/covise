@@ -1,0 +1,441 @@
+
+Chosen aspects of the Tracer
+
+The first section explains function compute and its multithreading
+details. Section 2 depicts the way the integrator works.
+Section 3 dwells on aspects of the interpolating routines.
+The last section gives some brief closing remarks on dead
+code of the Tracer.
+
+1. In int Tracer::compute()
+
+When the Tracer module is executed, int Tracer::compute() starts 
+execution and there you find a call to createHTask:
+
+   HTask *theTask=createHTask();
+
+and an object (*theTask) is created. This is done in the first part
+of function createHTask. This object stands
+for the task specified by the user. HTask is an abstraction for
+this "task". One object of this kind may correspond to a set
+of streamlines (class Streamlines)
+or pathlines (class Pathlines or PathlinesStat)
+or moving-point animations (class Pathlines or PathlinesStat)
+or streaklines (Streaklines).
+
+PathlinesStat means "pathlines for static data sets".
+PathlinesStat is derived from Streamlines, because pathlines
+may be produced in terms of streamline calculation.
+Class Pathlines refers to particle motion calculation in dynamic sets.
+Streaklines is derived from Pathlines. The main difference lies in
+what the user wants to see. In the case of pathlines, it is the path history
+of emitted pareticles, in the case of streamlines and moving points,
+the user wants to see the actual state of particles emitted at different
+times.
+
+Now you may want to take a shallow look at the second part of function
+createHTask. Here one may want to test, whether the input data makes
+sense for the task to be performed. For instance, if set structure match,
+or if grid size matches data size, and this kind of boring but necessary
+tests. However, these tests are only necessary and performed when 
+the input data has changed. If the input objects are the same as in the
+last computations, these tests would be redundant. Among those "tests"
+there are however some computations that are a bit non-trivial, or at least
+look so. These computations
+refer to each UNSGRD getting an octree assigned. There are mainly two
+alternatives to consider. Either the input port for octrees has been
+used, and in this case the Tracer uses these input octrees and assigns them,
+or octrees are created on the fly and assigned to the grids. 
+The first case is trivial and deserves not many comments.
+
+For the second case we may want to give some additional details.
+The bookkeeping
+associated with those internally created objects (octtress) 
+is a bit tedious, but
+you may easily imagine what it amounts to: such objects are to be created once
+and reused in successive user-triggered executions as long as the input
+objects (i.e. the model) do not change. 
+Nevertheless, when the Tracer gets a new model,
+the "old" octrees associated with the old model should be thrown away.
+This is done by invocation of the destroy function.
+Class BBoxAdmin cares for this administrative tasks.
+
+Now we jump again to compute and look at line:
+   while(!theTask->Finished())
+
+We think of (*theTask) as some computation that may be carried
+out in a series of steps. Computations in one of these steps may
+depend or not on the results of the previous steps. Anyway, Finished
+tests whether all these "stepwise" computations are done. When true
+is returned, then function gatherAll (see a few dozen lines below) 
+is the last point when the calculated information may be processed. 
+
+In order to prevent this discussion from getting too abstract (meaningless?),
+we may want to take a more accurate look at these "stepwise" computations
+are about. In the case of streamlines for dynamic sets, one run of
+this while loop corresponds to one time step of the model. In the case
+of pathlines or streaklines, one run of this loop corresponds to 
+particle integration between two consecutive time steps. I hope you get the
+feeling...
+
+The first action in this external loop is
+      theTask->createPTasks();
+
+This amounts to creating a set of "PTasks". By way of illusrtation,
+In the case of streamlines, each PTask cooresponds to a streamline. 
+If we are calculating streaklines in a dynamic set, new PTasks are
+generated for each new released particle. So in this case, a PTask
+corresponds to the motion of one particle. Returning to the streamline
+case, previous "PTasks" used in a previous time step are irrelevant
+for a new time step and can be discarded. This is not the case for
+streaklines, where in general new "PTasks" are added to a pool of
+active "PTasks" (i.e. particles).
+
+In the loop starting with line
+      while(!theTask->allPFinished())
+computations associated with the current time step are carried out
+until we are done with them. This means in the case of Streamlines
+until all streamlines for the current time step are finished, or in
+the case of Streaklines, when all active particles have been integrated
+up the the next time step.
+
+Pre-processor directive
+#ifndef CO_hp1020
+has to be understood as "if this platform supports posix threads".
+Otherwise, function Solve is called (which would also be called
+when the parameter specifying the number of working threads is 0).
+When a pool of worker threads is running, active PTasks are assigned
+to idle worker threads, as long as there are idle worker threads
+and there are some PTasks waiting to be computed. The logic of
+the latter statement is in line
+            while(theTask->unserviced() && !lazyThreads_.isEmpty())
+
+When this while loop ends, the main thread eventually gets into the loop
+            while(doneThreads.isEmpty())
+doneThreads is a stack of worker thread labels (integers) of
+those threads that are done with an assigned PTask (either a streamline
+for the current time step, or the integration of a particle between
+two consecutive time steps). As long as doneThreads is empty, PTasks
+that have not yet been assigned, cannot be assigned.
+
+Now we proceed to the next loop:
+            do
+            {
+               .........
+               .........
+            }while(!doneThreads.isEmpty());
+If we have arrived at this loop, it is only because the condition in
+the while-clause of the previous loop was false. Put it another way,
+doneThreads is not empty. At least one worker thread is done with
+its PTask. The most important action carried out in this loop is
+               theTask->gatherPTask(&read_task_[label]);
+label is an identifier of (one of) the worker thread(s) that has 
+finished its assigned PTask. read_task_ is an array of PTasks.
+When a worker thread gets a PTask assigned, it accesses it through
+this array. So object (*theTask) may read the new results associated
+with this PTask in function gatherPTask, and accumulate information
+to be produced as output.
+
+There is a similar function, where (*theTask) has an additional
+opportunity for further processing when all PTasks for the current
+time steps have been worked out. This is the line:
+      theTask->gatherTimeStep();
+
+Even when all time steps have been processed, (*theTask) has a
+last opportunity for data processing in
+   theTask->gatherAll(p_line,p_mag);
+One may expect that covise objects are created in this function
+and attached to output ports.
+
+Not little information in this section was related to multithreading
+aspects of the Tracer. One possible refurbishment of the Tracer
+would be using libMasterAndWorkers for multithreading implementation.
+Take it as a proposed exercise.
+
+2. Some technical aspects of the integrator
+
+Details about the "derivs" method are explained in section 3.
+In this section it suffices, if you know that this function performs
+an interpolation at time x and point y[3] returning SERVICED if
+the interpolation coiuld be performed and FINISHED_DOMAIN otherwise.
+The interpolated velocity is written to array ydot:
+PTask::status
+P?????line::derivs(float x,                        // time
+   const float *y,                                   // point
+   float *ydot,                                      // velocity (output)
+   int allGrids,
+   int search_level)
+
+I srtongly recommend reading first this section prior to understanding
+all details in function derivs.
+
+2.1 Streamline computation
+
+Streamline computations are carried out in PStreamline::Solve.
+In this subsection we are taking a look at this function.
+We may begin with
+   problems=derivs(x,y,dydx,0,search_level_polygons);
+y is an array with the initial point, and x the initial time (0.0)
+dydx is an output array with the interpolated velocity.
+If the initial point is out of the domain, the function returns FINISHED_DOMAIN
+and we need not continue with the computation.
+
+On the other hand, when the initial point was in the domain, 
+we know a non-void streamline may be computed, and we may store
+the initial point as first point of the streamline. This storing
+action is performed by
+      addPoint(x,y,dydx,kount);
+Now it is apposite to discuss the line before and after the call to
+addPoint. In
+      previousCell_0_.backUp();
+we store in the structure previousCell_0_ some information that may
+accelerate future cell-searches during the computation. The point
+is that when calling derivs we have had to perform a cell-seach
+computation (in which cell do the initial point lie). That information
+may be a reasonable try for the next computation. By the way,
+previousCell_0_ keeps track of the cell label and the grid label.
+Do not forget that the model may consist of several grids. That is
+why, specifying a cell requieres also a grid label. The cell label
+may require up to three integers (in the case of structured rgids).
+
+As for the statement after addPoint:
+      hintRegister_.push_back(previousCell_0_);
+this is only useful when mapping another field onto the integrated
+lines. In other words, it would be convenient to add some logic
+in order to execute this line only when it is necessary. You can do it 
+by way of exercise. hintRegister_
+is a basically a record of the cells where the particle has been.
+This information is used in order to accelerate the interpolation
+of the field to be mapped.
+
+Then function suggestInitialH is called. This amounts to getting
+a time interval in which the particle would advance a distance 
+which is of the order of magnitude of a grid cell. This time is
+reduced in:
+   h *= divide_cell;
+We do not want to start too fast.
+
+And now we enter tha main integration loop:
+   while(kount<max_points_)
+
+The integration is stopped when the number of accumulated
+traceline points reaches a limit. I will not bother you with
+many boring details because this loop has already been commented at
+length. However you may find the following paragraphs valuable
+for a general understanding.
+
+Function rkqs is a standard stepper based on a Runge-Kutta
+integration procedure. The functionality is implemented by
+the Numerical Recipes, the standard reference for quick-and-dirty
+sollutions. It has been nevertheless modified in order to admit
+an absolute error (eps_abs) argument. This is necessary in order
+to prevent the integration process from becoming too slow, which
+would otherwise admittedly happen pretty seldom, but it is nevertheless
+a must. Another question is the automatic calculation of eps_abs,
+instead of being a parameter value. The answer to this question is
+that according to the accumulated experience, a reasonable value
+for eps_abs might be a characteristic length of the model multiplied
+by a "small" factor, let us say 10^-5 or so.
+
+The stepper rkqs returns a "problem" value. If OK, this means,
+that the intermediate calculated points were not out of the domain.
+Nevertheless, it is still possible that the final point is out of
+the domain and rkqs returns SERVICED. SERVICED means loosely speaking
+"no problem", but remember, this refers to intermediate points, not
+to the final point. That is why we check first in an if-clause the
+possibility that an intermediate calculation has failed:
+      if(emergency_ == OK && problems==FINISHED_DOMAIN)
+in this case, the previously backed-up cell is discarded and
+the previous values in previousCell_0_ are restored. Observe
+the last lines in this if-clause:
+         if(fabs(h)<fabs(h_ctrl))
+         {
+            emergency_ = GOT_OUT_OF_DOMAIN;
+         }
+         h=h_ctrl;
+         h *= divide_cell;
+         continue;
+This means that if the proposed time step in the last call to rkqs
+was "small enough", variable emergency_ is changed from OK to
+GOT_OUT_OF_DOMAIN. the semantics of this variable is as follows:
+a value OK means integration may "confidently" proceed without
+the fear that we are near a domain border and the integration may
+cross it; a value GOT_OUT_OF_DOMAIN means that we know by the
+previous calculations a border is not far, and in this case we
+have to integrate with some care (i.e. with a short time step
+determined by a characteristic grid cell size). Because of this
+care we multiply above h by a factor smaller than 1 (divide_cell),
+and then we try again.
+
+If rkqs reported no problems, then we are execute following lines:
+      previousCell_0_.backUp();
+
+      problems=derivs(x,y,dydx,1,-1);
+
+Backing-up the previous cell may be too optimistic, because the
+last integration point calculated by rkqs has not been checked.
+This is done by the previous call to derivs. If this call returns
+FINISHED_DOMAIN, then we enter an if-clause (clause A):
+      if(emergency_ == OK && problems==FINISHED_DOMAIN)
+assuming emergency_ was OK up to now,
+otherwise, execution continues in the else-if-clause (clause B):
+      else if(emergency_ == GOT_OUT_OF_DOMAIN && problems==FINISHED_DOMAIN)
+
+Well, there is even another else-if clause below (clause C) 
+for the case when emergency_ is GOT_OUT_OF_DOMAIN and derivs
+has returned SERVICED:
+      else if(emergency_ == GOT_OUT_OF_DOMAIN && problems==SERVICED)
+
+As you may see, the logic is beginning to get a bit involved at this
+point. Do not give up, take some vitamine pills and do not stop reading.
+
+Clause A is very similar to the previous clause before the call
+to derivs.
+
+Clause B means we are integrating out of the domain. Perhaps we have
+already been integrating out of the domain in the hope that we may
+soon return to the domain. Nevertheless, if this does not happen,
+it becomes growingly likely, that the condition in
+         if(   getOutLength(y,kount_out_domain)
+            >
+            max_out_of_cell*suggestInitialH(previousCell_0_.cell_,
+            grids0_->operator[](previousCell_0_.grid_),
+            NULL) )
+be true. In this case we have to accept that the integration cannot be
+continued and the last points out of the domain are discarded by calling
+the crop method for the results arrays.
+
+Now, please, pay heed; I have still more to say.
+Execution in clause C means that we have returned to the domain
+again (to the same previous grid or a new one) after a period of "alarm" (i.e.
+variable emergency_ was GOT_OUT_OF_DOMAIN). If the former circumstance 
+(i.e. "alarm" period + indication that we have returned again to the 
+same grid) remains a few times in the main integration loop, 
+this alarm is unset in:
+            if(kount_in_domain>4/divide_cell)
+            {
+               // seems that the alarm was not correct, so return to normality
+               // kount_in_ok=0;
+               emergency_ = OK;
+            }
+If we have returned to the domain, but to another grid, then the
+alarm flag emergency_ is immediately unset (emergency_ = OK;) without
+waiting for the fulfilment of a condition such as
+            if(kount_in_domain>4/divide_cell)
+above.
+Now we want to consider the meaning of the else-clause. I know you
+feel your strength is abandoning you, but do not give up
+now. I untangle the bushy path for your steps. Bear in mind we have
+been integrating tha last points using an interpolation (in fact,
+an extrapolation) of the data for the previous grid. Well, we have
+now realised that the last point is in a different grid. one alternative
+would be using this last point as a starting point for further
+integration. But we want to be a bit more precise. We test previous
+(intermediate - see comment below about the Runge-Kutta procedure) 
+integration points and check if any of them lies in the
+new grid. The first one fulfilling this condition is taken as starting
+point for later integrations. Now an explanation about the word
+"intermediate". In the process of Runge-Kutta integration, 4 more-
+or-less-with-some-approximation-calculated points are produced, these
+are the points we were referring to in this discussion. 
+
+And now the knottier part of this discussion is finished. The remaining
+lines are easy to interpret. When they are reached, a point is added
+to the results arrays by the call to addPoint, and the register of
+the cell in which this point was found, is added to hintRegister_. Here
+applies the same comment as above, this register is only useful when
+we are mapping the field got at port (*p_field) onto the tracelines.
+
+2.2 Pathline computation
+
+This will not be another detailed account of function PPathline::Solve.
+So you do not have read simultaneously this subsection and the code.
+I am assuming you have understood subsection 2.1.
+The computation of a pathline means we are integrating a time-varying
+velocity field in a time-varying grid. In practice, time variations
+are represented by a finite number of time steps. If a vector field 
+has to be interpolated at point P and time t, and this time step
+lies between two consecutive time steps, n and n+1, fulfilling
+t_n <= t <= t_{n+1}, then the interpolation is performed as follows:
+we interpolate the velocity at point P for grid G_n (grid may be in
+this context a set of grids), and call it V_n,
+and then for grid G_{n+1} and call it V_{n+1}. Now we interpolate
+the velocity linearly:
+V = V_n * (t_{n+1} - t)/(t_{n+1}-t_n) + V_{n+1} * (t - t_n)/(t_{n+1}-t_n)
+
+What happens if P is out of G_n or G_{n+1}? In this case the interpolation
+process fails and this leads to a complicated logic as in the case of
+section 2.1.... well, in fact, a bit more complicated for ppathlines,
+delve into it if you need to understand it.
+
+A possible, when one of the two interpolation operation fails,
+instead of assuming that the particle got out of the domain, would be
+interpolating at another point. Assume for the sake of clarity, that
+V_n could be interpolated, but not V_{n+1}. Then one might try to
+approximate the velocity field at time t_{n+1} by trying an interpolation
+at point P + V_n*(t_{n+1} - t), or something like that.
+
+3. P????line::derivs
+
+Here again the declaration of derivs:
+PTask::status
+P?????line::derivs(float x,                        // time
+   const float *y,                                   // point
+   float *ydot,                                      // velocity (output)
+   int allGrids,
+   int search_level)
+
+We continue this sluggish pilgrimage through the tracer with some
+comments about the derivs function. There are two version of this
+function: one in PStreamline and another in PPathline. In the first
+case, the first parameter plays no role, inasmuch as we are dealing
+with a problem where time is irrelevant for the integration procedure.
+
+The key operation in derivs is the call to function derivsForAGrid.
+derivsForAGrid carries out an interpolation problem for a given 
+grid. That is why derivs is a bit more complicated than a simple
+call to derivsForAGrid. we have to deal with the possibility that
+the particle lies within any grid in a set of grids. Nevertheless,
+it may be often convenient to use the hint of a previous operation.
+Here applies an obvious locality principle, if the particle was
+in a given grid, it is very likely that it will remain in the same
+grid when a new interpolation has to be performed.
+
+One of the first actions to be done is getting a hint:
+   // get "suggestion" for initial grid...
+   int iniGrid=previousCell_0_.whichGrid();
+
+if this grid label (iniGrid) seems useful, we try a call to
+derivsForAGrid. Most of the times, the locality principle we
+have mentioned above will prove to be useful.
+
+Sometimes, we will have no hint at all, or it will happen to be invalid.
+In the latter case, parameter allGrids is relevant and means that
+interpolations are tried in other grids when allGrids is not 0.
+Please, note that array previousCell_0_.cell_ has three floats.
+This may be necessary for structured grids.
+
+search_level is only relevant for interpolation in polygons. The meaning
+is easily grasped. A DO_OctreeP is in fact a forest of octrees, organised
+in an structured "grid" (this has nothing to do with DO_Structured_Grids!!!)
+of octrees. When looking for the cell containg a point, and if search_level
+is 0, only one octree (the one in which the point lies) is used. When
+search_level is 1, also neighbour octrees are searched; when 2,
+neighbours of neighbours and so on.
+
+PPathline::derivs is a bit longer, but now you should be able to
+understand it. The principles are the same, but the difference
+lies in the fact that we have to interpolate the velocity at
+a point for two different models (time steps), each consisting
+possibly of several grids. the function is basically organised
+in three blocks:
+1. Try an interpolation for the first time step.
+2. Try an interpolation for the second time step.
+3. If both are successful, work out a linear interpolation
+   between both time steps according to the hints of section 2.
+
+4. Last remarks
+
+PPathlineStatNoControl is no longer used. PPathlineStat is significantly
+more efficient. Code in PPathlineStatNoControl.{h,cpp} has not been
+maintained for a long time.

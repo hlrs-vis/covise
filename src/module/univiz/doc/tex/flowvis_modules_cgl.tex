@@ -1,0 +1,76 @@
+\documentclass[12pt]{book}
+\usepackage{amsmath,amssymb,amsthm}
+%\usepackage[pdftex]{graphicx}  %sadlo disabled 2007-02-01 (pdflatex -> latex)
+
+% ###
+\usepackage{floatflt}
+%\usepackage{picins}
+\usepackage{wrapfig}
+\usepackage{longtable}
+
+%for clickable cross-references, should be last package included
+\usepackage[backref,colorlinks=true,naturalnames=true,linkcolor=black,hypertexnames=false]{hyperref}
+
+%\pdfcompresslevel=9   %sadlo disabled 2007-02-01
+%\pdfoutput=1          %sadlo disabled 2007-02-01
+%\DeclareGraphicsExtensions{.pdf,.png}   %sadlo disabled 2007-02-01
+
+\bibliographystyle{alpha}
+
+
+%\includeonly{vortex_cores}
+
+
+\pagestyle{myheadings}
+\markboth{Filip Sadlo, Ronald Peikert}{Flow Visualization Modules - Documentation}
+
+\topmargin 0in
+\textheight 8in
+\textwidth 6.0in
+\oddsidemargin 0.25in
+\evensidemargin 0.25in
+\parskip 0.1in
+\parindent 0in
+\renewcommand{\arraystretch}{1.5}
+\renewcommand{\baselinestretch}{1}
+
+\input{Preamble}
+
+\begin{document}
+
+\title{Flow Visualization Modules - Documentation}
+%\author{Filip Sadlo, Ronald Peikert - CGL ETH Z\"urich}
+\author{Filip Sadlo, Ronald Peikert\\ Computer Graphics Laboratory - ETH Z\"urich}
+\maketitle
+\clearemptydoublepage
+\pagenumbering{roman}
+\setcounter{page}{1}
+\tableofcontents
+\clearemptydoublepage
+\pagenumbering{arabic}
+
+
+\include{intro}
+\chapter{Modules}
+\include{dump_cfx}
+\include{field_to_lines}
+\include{FLE}
+\include{flow_topo}
+\include{read_unstructured}
+\include{ridge_surface}
+\include{statistics}
+\include{vortex_cores}
+\include{vortex_criteria}
+\include{write_unstructured}
+
+\appendix
+
+%\nocite{*}
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{flowvis_modules_cgl}
+
+\chapter{Additional Information}
+\include{news}
+\include{future}
+\include{acknowledgements}
+\end{document}

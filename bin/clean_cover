@@ -1,0 +1,26 @@
+#! /bin/bash
+
+echo killing all covers...
+
+COVER="cover COVER opencover OpenCOVER VRRenderer OpenCOVER.mpi"
+for i in $COVER; do
+   killall $i
+done
+
+
+sleep 1
+
+for i in $COVER; do
+   killall -9 $i
+done
+
+echo removing all semaphores...
+ipcs | grep 0x | awk '{print $2;}' | xargs ipcrm sem >&/dev/null
+
+files=`ls /usr/tmp/*.pfdpool 2>/dev/null`  || exit 1
+for i in $files; do
+	echo removing $i
+	rm $i
+done
+
+

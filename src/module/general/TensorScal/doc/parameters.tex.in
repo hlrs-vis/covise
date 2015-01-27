@@ -1,0 +1,24 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	option & Choice & Options: 
+                          \begin{itemize}
+                          \item Spur: sum of diagonal tensor components
+			  \item Stress effective value: effective stress (assuming that the input tensor stands for a symmetric tensor describing a stress state).
+                          \end{itemize} \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

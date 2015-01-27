@@ -1,0 +1,195 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Release Information</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+&nbsp;
+<p><b><font face="Arial,Helvetica"><font size=+2>06/18/01: Tutorial in
+Latex and online in HTML</font></font></b>
+<br><font face="Arial,Helvetica">07/03/01: change contents of make all
+and make Tutorial</font>
+<p>A <b><u>Latex version</u></b> of the Tutorial is provided in .../doc/<b>Tutorial</b>/...,
+the corresponding chapters of the
+<b><u>online version (.html)</u></b>
+can be generated in .../doc/online/Preface,&nbsp; .../doc/online/StartCOVISE,
+...., .../doc/online/AdvancedTopics.
+<br>The Latex version is based on the latest available .doc version; this
+.doc version and the .pdf version in doc/<b>tutorial</b>/... are untouched.
+(Capital "T" = new version, "t" = old version)
+<p>Remarks:
+<p>The Latex version is an update of the .doc version from snapshot 10
+to Release 1. Most images and corresponding text parts had to be updated
+(maps, renderer output, Mapeditor menu items). In general, some other modifications
+have been necessary to get an acceptable html.
+<p>The <b><u>Makefile</u></b> provides the following options
+<br>&nbsp;
+<table CELLPADDING=5 COLS=2 WIDTH="79%" >
+<tr>
+<td><b>all</b>:&nbsp;</td>
+
+<td>generate&nbsp; .dvi&nbsp; .html .pdf and&nbsp; .ps</td>
+</tr>
+
+<tr>
+<td><b>Tutorial</b></td>
+
+<td>generate .dvi and .pdf&nbsp;</td>
+</tr>
+
+<tr>
+<td><b>Tutorial.dvi</b>:</td>
+
+<td>generate .dvi</td>
+</tr>
+
+<tr>
+<td><b>Tutorial.ps</b>:</td>
+
+<td>generate the .ps version</td>
+</tr>
+
+<tr>
+<td><b>Tutorial.pdf</b>:&nbsp;</td>
+
+<td>generate the .pdf version</td>
+</tr>
+
+<tr>
+<td><b>Tutorialhtml</b>:</td>
+
+<td>generate the .html (online) version</td>
+</tr>
+</table>
+
+<p>and the reverse operations
+<br>&nbsp;
+<table CELLPADDING=5 COLS=2 WIDTH="79%" >
+<tr>
+<td><b>clean_Tutorial</b>:&nbsp;</td>
+
+<td>remove .dvi .ps .pdf .toc .aux</td>
+</tr>
+
+<tr>
+<td><b>clean_Tutorialhtml</b>:</td>
+
+<td>remove online version (.html)</td>
+</tr>
+</table>
+
+<p>The following start points into the <b><u>online version</u></b> of
+the Tutorial are provided; normally <b>start_Preface</b> should be used
+as entry and <b>this should be inserted in the help menu of the MapEditor
+</b>(Online
+Help uses start_Preface and start_Advanced, if applicable).
+<p><b><tt><u>start points&nbsp; (in .../doc/online/start/...)</u></tt></b>
+<br>&nbsp;
+<table BORDER CELLSPACING=0 CELLPADDING=3 WIDTH="90%" >
+<tr BGCOLOR="#CCCCCC">
+<td><b><tt>start point</tt></b></td>
+
+<td><b><tt>toc</tt></b></td>
+
+<td><b><tt>calls</tt></b></td>
+</tr>
+
+<tr BGCOLOR="#33CCFF">
+<td><tt>start_Preface</tt></td>
+
+<td><tt>tocPreface</tt></td>
+
+<td><tt>Preface&nbsp;</tt>
+<br><tt>- entry to Tutorial (1st chapter)</tt></td>
+</tr>
+
+<tr>
+<td><tt>start<b>_</b>StartCOV</tt></td>
+
+<td><tt>tocStartCOV</tt></td>
+
+<td><tt>Starting COVISE</tt></td>
+</tr>
+
+<tr>
+<td><tt>start_UseRenderer</tt></td>
+
+<td><tt>tocUseRenderer</tt></td>
+
+<td><tt>Using the OpenInventor Renderer</tt></td>
+</tr>
+
+<tr>
+<td><tt>start_ModWork</tt></td>
+
+<td><tt>tocModWork</tt></td>
+
+<td><tt>Working with Modules</tt></td>
+</tr>
+
+<tr>
+<td><tt>start_3DData</tt></td>
+
+<td><tt>toc3DData</tt></td>
+
+<td><tt>Analysis of 3D Data</tt></td>
+</tr>
+
+<tr>
+<td><tt>start_Advanced</tt></td>
+
+<td><tt>tocAdvanced</tt></td>
+
+<td><tt>Advanced Topics</tt></td>
+</tr>
+</table>
+
+<p>Table of contents (list of chapters) of the Tutorial in Tutorialtoc
+<br>&nbsp;
+<p>The Online Help has been updated to branch to the online (.html version)
+of the Tutorial, and the help menu in MapEditor uses start_Preface as well.
+<p><b><font size=+2>Information for merging the new Tutorial:</font></b>
+<p><b>doc/Tutorial</b>
+<p>completely new - contains Latex version of Tutorial
+<br>(including this file, <b>README.html</b>)
+<p><b>doc/online</b>
+<p>add following directories (for .html version of Tutorial - directories
+only ,&nbsp; files will be generated):
+<blockquote>AdvancedTopics
+<br>Analysis_of_3D_Data
+<br>Preface
+<br>StartCOVISE
+<br>Using_the_Renderer
+<br>Working_with_Modules</blockquote>
+<b>doc/online/start</b>
+<p>add following start files:
+<blockquote>start_3DData.html
+<br>start_Advanced.html
+<br>start_ModWork.html
+<br>start_Preface.html
+<br>start_StartCOV.html
+<br>start_UseRenderer.html</blockquote>
+add following tables of contents:
+<blockquote>Tutorialtoc.html
+<p>toc3DData.html
+<br>tocAdvanced.html
+<br>tocModWork.html
+<br>tocPreface.html
+<br>tocStartCOV.html
+<br>tocUseRenderer.html</blockquote>
+<b>doc/help</b>
+<p>change following files:
+<blockquote>releaseinfo.html
+<br>helpabout.html</blockquote>
+
+<p><br><b>doc/help/mapeditor</b>
+<p>change following files:
+<blockquote>map_collab.html
+<br>map_cscw.html
+<br>map_masterctrl.html</blockquote>
+
+</body>
+</html>

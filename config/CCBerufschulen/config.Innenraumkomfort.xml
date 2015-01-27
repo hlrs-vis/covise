@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Innenraumkomfort' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="traverseInteractors" name="traverseInteractors" />
+               <!--<ShortCut value="showName" name="showName" />-->
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="Smoothing" regexp="RWCovise_.*" smooth="true" />
+               <Scope name="Dach" regexp="RWCovise_17.*" shader="Glossy9" />
+               <Scope name="SeiteLI" regexp="RWCovise_26.*" shader="Glossy9" />
+               <Scope name="SeiteRE" regexp="RWCovise_27.*" shader="Glossy9" />
+               <Scope name="Windschutzscheibe" regexp="RWCovise_15.*" shader="Glossy5" />
+               <Scope name="Heckscheibe" regexp="RWCovise_19.*" shader="Glossy5" />
+               <Scope name="SeitenscheibenRE" regexp="RWCovise_22.*" shader="Glossy5" />
+               <Scope name="SeitenscheibenLI" regexp="RWCovise_23.*" shader="Glossy5" />
+            </CoviseConfigShader>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/CCBerufschulen/KFZ-Technologie/Innenraumkomfort/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

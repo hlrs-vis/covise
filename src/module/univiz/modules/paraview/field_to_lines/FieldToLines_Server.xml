@@ -1,0 +1,113 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+   
+   <SourceProxy name="FieldToLines" class="vtkFieldToLines" label="Plugin Univiz Field to Lines">
+    <Documentation> 
+      Convert lines encoded in structured field node (point) data, as produced e.g. by the FLE module, to polylines. This filter operates on structured grid data and produces geometry output.
+    </Documentation>
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="2">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <Documentation>
+            The input.
+          </Documentation>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        label="Trajectories">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <!--<FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>-->
+       <Documentation>
+         The name of the vector array that represents the lines.
+       </Documentation>
+     </StringVectorProperty> 
+
+     <IntVectorProperty
+        name="NodesX"
+        label="Nodes in x-direction"
+        command="SetNodesX"
+        number_of_elements="1"
+        default_values="11">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Number of lines in x-direction, used for subsampling, only used if Stride > 1.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="NodesY"
+        label="Nodes in y-direction"
+        command="SetNodesY"
+        number_of_elements="1"
+        default_values="11">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Number of lines in y-direction, used for subsampling, only used if Stride > 1.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="NodesZ"
+        label="Nodes in z-direction"
+        command="SetNodesZ"
+        number_of_elements="1"
+        default_values="11">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Number of lines in z-direction, used for subsampling, only used if Stride > 1.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="Stride"
+        label="Stride"
+        command="SetStride"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Take each stride-th line in each dimension.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="PassData" 
+        label="Pass Data"
+        command="SetPassData" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Pass data from input to output.
+       </Documentation>
+     </IntVectorProperty>
+
+   <!-- End FieldToLines -->
+   </SourceProxy>
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

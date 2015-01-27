@@ -1,0 +1,45 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{inport} & StructuredGrid \newline
+	                               Float \newline
+				       Vec3 \newline
+				       RectilinearGrid \newline
+				       UniformGrid \newline
+				       UnstructuredGrid \newline
+	                  Polygons \newline
+				       Float \newline
+				       Vec3  \newline
+				       Unstructured\_T3D\_Data \newline
+				       Unstructured\_V3D\_Normals   \newline
+				       Texture &  \\
+\hline
+        \textcolor{optional}{accordingTo} & StructuredGrid \newline
+	                               Float \newline
+				       Vec3 \newline
+				       RectilinearGrid \newline
+				       UniformGrid \newline
+				       UnstructuredGrid \newline
+	                               Polygons \newline
+				       Float \newline
+				       Vec3  \newline
+				       Unstructured\_T3D\_Data \newline
+				       Unstructured\_V3D\_Normals   \newline
+				       Texture & 
+				       number of steps according to this
+				       input \\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,741 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="COCONFIG">
+    <xs:annotation>
+       <xs:appinfo>elementDescription = "CoConfig element"</xs:appinfo >
+       <xs:appinfo>elementGroup="Config" </xs:appinfo >
+       <xs:appinfo>elementName = "COCONFIG"</xs:appinfo>
+       <xs:appinfo>readableElementRule = "This is the Root of the config"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence minOccurs="0" maxOccurs="1">
+         <xs:choice maxOccurs="unbounded">
+            <xs:element ref="INCLUDE"  />
+            <xs:element ref="GLOBAL" />
+            <xs:element ref="LOCAL" />
+         </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="version" use="optional" type="xs:integer"/>
+      <xs:attribute name="global" type="boolean" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="INCLUDE" >
+     <xs:annotation>
+        <xs:appinfo>elementDescription = "include node"</xs:appinfo >
+        <xs:appinfo>elementGroup="Config" </xs:appinfo >
+        <xs:appinfo>elementName = "Include"</xs:appinfo>
+        <xs:appinfo>readableElementRule = "inlcude another Covise Config file"</xs:appinfo>
+      </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:NCName">
+          <xs:attribute name="configname" use="optional" type="xs:NCName"/>
+          <xs:attribute name="global" use="optional" type="boolean"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="GLOBAL">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "GLobal"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:choice maxOccurs="unbounded">
+        <xs:element ref="COVER"/>
+        <xs:element ref="System"/>
+        <xs:element ref="Module"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="LOCAL">
+     <xs:annotation>
+        <xs:appinfo>elementDescription="LOCAL Element, defined for some hosts only" </xs:appinfo >
+        <xs:appinfo>elementGroup="Config" </xs:appinfo >
+     </xs:annotation>
+     <xs:complexType>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+           <xs:choice maxOccurs="unbounded">
+           <xs:element ref="COVER"/>
+           <xs:element ref="System"/>
+           <xs:element ref="Module"/>
+        </xs:choice>
+        </xs:sequence>
+        <xs:attribute name="host" type="token" use="optional" />
+        <xs:attribute name="scope" type="token" use="optional" />
+     </xs:complexType>
+     </xs:element>
+
+  <xs:element name="COVER">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Cover"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="Plugin"/>
+        <xs:element ref="TabletPC"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Plugin">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:sequence minOccurs="0" maxOccurs= "unbounded" >
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="Volume"/>
+        <xs:element ref="VRViewpoints"/>
+        <xs:element ref="Molecules"/>
+        <xs:element ref="AKToolbar"/>
+        <xs:element ref="CCDBVR"/>
+        <xs:element ref="DNA"/>
+        <xs:element ref="PDB"/>
+        <xs:element ref="PDBSequenceDisplay"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="VRViewpoints">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "VRViewpoints"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="WriteVrmlViewpoint"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="WriteVrmlViewpoint">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="Cover.Plugin.VRViewpoints" </xs:appinfo >
+         <xs:appinfo>elementName = "Write VRML Viewpoint"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:attribute name="value" use="required" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Molecules">
+     <xs:annotation>
+      </xs:annotation>
+  <xs:complexType>
+     <xs:sequence>
+        <xs:element ref="DataDir"/>
+     </xs:sequence>
+    </xs:complexType>
+ </xs:element>
+
+  <xs:element name="AKToolbar">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "AKToolbar"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence maxOccurs="unbounded" >
+            <xs:choice maxOccurs="unbounded">
+            <xs:element  ref="ShortCut"/>
+            <xs:element name="Scale" type="scaleType">
+            <xs:annotation>
+               <xs:appinfo>elementName = "Scale AK"</xs:appinfo>
+               <xs:appinfo>elementGroup="Cover.Plugin.AKToolbar" </xs:appinfo >
+               <xs:appinfo>elementDescription = "Scale Element"</xs:appinfo >
+            </xs:annotation>
+          </xs:element>
+       </xs:choice>
+          </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ShortCut">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="Cover.Plugin.AKToolbar" </xs:appinfo >
+         <xs:appinfo>elementName = "ShortCut"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:attribute name="name" use="required" type="token"/>
+      <xs:attribute name="value" use="required" type="token"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CCDBVR">
+      <xs:complexType>
+          <xs:sequence>
+             <xs:choice maxOccurs="unbounded">
+             <xs:element ref="ViewerDistance"/>
+             <xs:element ref="Mitochondria"/>
+             <xs:element ref="HPFNode"/>
+            <xs:element ref="Complete"/>
+            <xs:element name="Scale" type="integer" >
+               <xs:annotation>
+                  <xs:appinfo>elementName = "Scale CCDBVR"</xs:appinfo>
+                  <xs:appinfo>elementGroup="Cover.Plugin.CCDBVR" </xs:appinfo >
+                  <xs:appinfo>elementDescription = "Scale Element"</xs:appinfo >
+               </xs:annotation>
+            </xs:element>
+         </xs:choice>
+           </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ViewerDistance">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Distance of View"</xs:appinfo >
+         <xs:appinfo>elementGroup="Cover.Plugin.CCDBVR" </xs:appinfo >
+         <xs:appinfo>elementName = "Viewer distance"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:attribute name="value" use="optional" type="float"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Mitochondria" type="xs:string"/>
+  <xs:annotation>
+     <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+     <xs:appinfo>elementGroup="Cover.Plugin.CCDBVR" </xs:appinfo >
+     <xs:appinfo>elementName = "Mitochondria"</xs:appinfo>
+     <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+
+  <xs:element name="HPFNode" type="xs:string"/>
+  <xs:annotation>
+     <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+     <xs:appinfo>elementGroup="Cover.Plugin.CCDBVR" </xs:appinfo >
+     <xs:appinfo>elementName = "HPFNode"</xs:appinfo>
+     <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+
+  <xs:element name="Complete" type="xs:base64Binary"/>
+  <xs:annotation>
+     <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+     <xs:appinfo>elementGroup="Cover.Plugin.CCDBVR" </xs:appinfo >
+     <xs:appinfo>elementName = "Complete"</xs:appinfo>
+     <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+
+  <xs:element name="DNA" type="DataDir"/>
+  <xs:annotation>
+     <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+     <xs:appinfo>elementGroup="Cover.Plugin" </xs:appinfo >
+     <xs:appinfo>elementName = "DNA "</xs:appinfo>
+     <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+
+  <xs:element name="PDB">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "PDB"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="BrowserDirectory"/>
+        <xs:element ref="PDBPluginMolDir"/>
+     </xs:choice>
+      </xs:sequence>
+          </xs:complexType>
+  </xs:element>
+
+  <xs:element name="BrowserDirectory">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="Cover.Plugin.PDB" </xs:appinfo >
+         <xs:appinfo>elementName = "Browser directory"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="PDBPluginMolDir">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="Cover.Plugin.PDB" </xs:appinfo >
+         <xs:appinfo>elementName = "PDB Plugin Mol directory"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="PDBSequenceDisplay" >
+  <xs:annotation>
+     <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+     <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
+            <xs:element name="Scale" type="scaleType" >
+            <xs:annotation>
+               <xs:appinfo>elementName = "Scale PDB"</xs:appinfo>
+               <xs:appinfo>elementGroup="Cover.Plugin.PDBSequenceDisplay" </xs:appinfo >
+               <xs:appinfo>elementDescription = "Scale Element"</xs:appinfo >
+             </xs:annotation>
+          </xs:element>
+       </xs:choice>
+          </xs:sequence>
+    </xs:complexType>
+ </xs:element>
+
+
+  <xs:element name="TabletPC" type="Server"/>
+
+  <xs:element name="System">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+        <xs:element ref="CRB"/>
+        <xs:element ref="HostConfig"/>
+        <xs:element ref="IpTable"/>
+        <xs:element ref="VRB"/>
+        <xs:element ref="RemoteDaemon"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CRB">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Proxy"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Proxy">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ProxyCommand"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProxyCommand">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HostConfig">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Host"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Host">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="hostname" use="required" type="token"/>
+      <xs:attribute name="memory" use="required" type="xs:NCName"/>
+      <xs:attribute name="method" use="required" type="xs:NCName"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="timeout" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="IpTable">
+
+      <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="IP"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="IP">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "ip"</xs:appinfo >
+         <xs:appinfo>elementGroup="System.IpTable" </xs:appinfo >
+         <xs:appinfo>elementName = "Ip"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:attribute name="name" use="required" type="token"/>
+      <xs:attribute name="symbolic" use="required" type="token"/>
+      <xs:attribute name="value" use="required" type="iptype"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="VRB">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="RemoteDaemon" type="Server"/>
+  <xs:element name="Module">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="IHS"/>
+        <xs:element ref="TetraTrace"/>
+        <xs:element ref="Fenfloss"/>
+        <xs:element ref="StarCD"/>
+        <xs:element ref="Material"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IHS">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="DataPath"/>
+        <xs:element ref="GateBladeMin"/>
+        <xs:element ref="GateBladeMax"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DataPath">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GateBladeMin">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GateBladeMax">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TetraTrace">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BoxIncreaseFactor"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BoxIncreaseFactor">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Fenfloss">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="Verbose"/>
+        <xs:element ref="Timeout"/>
+        <xs:element maxOccurs="unbounded" ref="Startup"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StarCD">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded">
+        <xs:element ref="Verbose"/>
+        <xs:element ref="Timeout"/>
+        <xs:element name="Server">
+          <xs:annotation>
+            <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+            <xs:appinfo>elementGroup="" </xs:appinfo >
+            <xs:appinfo>elementName = "Name"</xs:appinfo>
+            <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="value" use="required" type="xs:NCName"/>
+          </xs:complexType>
+        </xs:element>
+        <!--xs:element ref="Server"/-->
+        <xs:element maxOccurs="unbounded" ref="Startup"/>
+     </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Material">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="bronze"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="bronze">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+
+<!--
+    <xs:element name="COLOR">
+    <xs:annotation>
+       <xs:appinfo>elementDescription = "Color definition for Editor"</xs:appinfo >
+         <xs:appinfo>elementGroup="Config" </xs:appinfo >
+         <xs:appinfo>elementName = "Color"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:attribute name="color" use="optional" type="token"/>
+      <xs:attribute name="name" use="optional" type="token"/>
+    </xs:complexType>
+  </xs:element>
+-->
+  <xs:element name="EntryWidget">
+     <xs:annotation>
+        <xs:appinfo>elementDescription = "Color definition for Editor"</xs:appinfo >
+        <xs:appinfo>elementGroup="Config" </xs:appinfo >
+        <xs:appinfo>elementName = "EntryWidget"</xs:appinfo>
+        <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+     </xs:annotation>
+     <xs:complexType>
+        <xs:attribute name="TextValueWidget_type_TEXT" use="optional" type="token"/>
+        <xs:attribute name="BoolValueWidget_type_BOOL" use="optional" type="boolean"/>
+         <xs:attribute name="TextValueWidget_type_INFO" use="optional" type="token"/>
+     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Volume">
+      <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="Files"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Files" type="xs:string"/>
+  <xs:annotation>
+     <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+     <xs:appinfo>elementGroup="Cover.Plugin.Volume" </xs:appinfo >
+     <xs:appinfo>elementName = "Files"</xs:appinfo>
+     <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+   </xs:annotation>
+
+  <xs:complexType name="DataDir">
+    <xs:sequence>
+      <xs:element ref="DataDir"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="DataDir">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Data directory"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+      <xs:attribute name="value" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:complexType name="Server">
+    <xs:sequence>
+      <xs:element ref="Server"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Server">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Server"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="port" type="xs:integer"/>
+      <xs:attribute name="value" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Verbose">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Timeout">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="value" use="required" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Startup">
+    <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="value" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:complexType name ="scaleType">
+     <xs:attribute name="value" use="optional" type="integer"/>
+  </xs:complexType>
+
+  <xs:simpleType name="iptype">
+     <xs:annotation>
+        <xs:appinfo>attributeTypeInfo = "Please insert a IP. Allowed Range: 000.000.000.000 to 254.254.254.254" </xs:appinfo>
+     </xs:annotation>
+     <xs:restriction base="xs:string">
+        <xs:pattern value="((1?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])" />
+     </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="boolean">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "This is a boolean value</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="(true|false|on|off|1|0)" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="token">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "Please insert the value as a single word"</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="\w*" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="integer">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "Please insert the value as an integer number"</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:integer">
+         <!--  <xs:pattern value="\-?\d{,5}"   ^[0-9]{3}$ [-+]?[0-9]* ^-{0,1}\d+$ />    [A-Za-z-_]* \w* -->
+         <xs:pattern value="-{0,1}\d" />
+         <xs:maxInclusive value="32768"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="float">
+       <xs:annotation>
+          <xs:appinfo>attributeTypeInfo = "Please insert the value as an floating number"</xs:appinfo>
+       </xs:annotation>
+       <xs:restriction base="xs:string">
+          <xs:pattern value="[-+]?[0-9]*\.?[0-9]+" />
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

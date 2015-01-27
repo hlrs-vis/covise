@@ -1,0 +1,43 @@
+if ( ! $?COVISEDIR ) then
+   ### set direct path, not links - hence use `pwd`
+   if ( -f .covise ) then
+      setenv COVISEDIR "`/bin/pwd`"
+   else
+      if ( -f ~/covise/.covise ) then
+         setenv COVISEDIR "`csh -f -c 'cd  ~/covise ; /bin/pwd'`"
+      else if ( -f ~/covise_snap/.covise ) then
+         setenv COVISEDIR "`csh -f -c 'cd  ~/covise_snap ; /bin/pwd'`"
+      endif
+   endif
+endif
+
+set PWD=`pwd`
+cd $COVISEDIR
+setenv COVISEDIR "`/bin/pwd`"
+cd $PWD
+
+set DBSH=/tmp/${USER}-dot-covise.sh
+set DCSH=/tmp/${USER}-dot-covise.csh
+set DCSH2=/tmp/${USER}-dot-covise-pre.csh
+set DCSH3=/tmp/${USER}-dot-covise-post.csh
+
+# Create helper script
+cat ${COVISEDIR}/.covise.sh > "$DBSH"
+echo "printenv | cut -b 1-4099" >> "$DBSH"
+
+# Make a snapshot of the previous environment
+printenv | sed -e 's/^/setenv /' -e 's/=/ "/' -e 's/$/"/' | sort > "$DCSH2"
+
+# Execute the helper script to get the COVISE environment 
+bash "$DBSH" | sed -e 's/^/setenv /' -e 's/=/ "/' -e 's/$/"/' | sort > "$DCSH3"
+
+# Compare both results to extract the differences
+diff "$DCSH3" "$DCSH2" | grep '^<' | cut -f2- -d\  > "$DCSH"
+
+rm -f "$DBSH" "$DCSH2" "$DCSH3"
+
+source "$DCSH"
+rm -f "$DCSH"
+
+unsetenv GLOBUS_DEFINES
+#unsetenv GLOBUS_LIBS

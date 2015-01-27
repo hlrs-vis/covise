@@ -1,0 +1,3438 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+
+%=============================================================
+\startdocument
+\chapter{COVISE Data Objects}
+\label{CoviseDataObjects}
+%=============================================================
+\index{Data Objects}
+
+\section{Available Data Object Types}
+\latexonly
+\index{Data Object Types}
+\endlatexonly
+
+Before the access for reading input objects is explained, we give in this 
+section a short description of all available data object classes the programmer
+can use.
+
+\begin{longtable}{|p{7cm}|p{7cm}|}
+\hline
+   {\bf Data type} & {\bf Description} \\
+\hline\hline
+	coDistributedObject \index{Distributed Object} 
+	                          & Base class for all data object types \\
+\hline
+	coDoAbstractStructuredGrid & Abstract base class for structured grids \\
+\hline
+	coDoUniformGrid \newline 
+	coDoRectilinearGrid \newline                        
+	coDoStructuredGrid      & Structured Grid Types \\
+\hline
+	coDoUnstructuredGrid     & Unstructured Grid Types \\
+\hline
+	coDoCoordinates & Abstract base class for geometry data \\
+\hline
+	coDoPoints \newline
+	coDoLines\newline
+	coDoTriangleStrips\newline
+	coDoPolygons\newline
+        coDoSpheres &   Geometry data types \endhead
+\hline
+	coDoFloat & Scalar data \\
+\hline
+	coDoVec2 \newline
+	coDoVec3 & Vector data \\
+\hline
+	coDoTensor  &   Tensor data \\
+\hline
+	coDoRGBA &  Packed colour values \\
+\hline
+	coDoSet & Container type for grouping of data objects \\
+\hline
+   coDoGeometry & Renderer geometry container data type (as created by Collect
+module) \\
+
+\hline
+\end{longtable}
+{\bf        Table 2: COVISE data types}
+\vspace{1cm}
+
+
+The data types have been designed to meet the requirements of common scientific 
+visualization problems and are similar to data models of widespread
+visualization packages.
+
+ 
+There are five main groups of data in the COVISE data model: 
+
+\begin{enumerate}
+\item Structured grids: They have implicit connectivity information. Addressing 
+is  typically done by using 3 indices in x, y and z direction. The most simple 
+structured grid is an equidistant orthogonal grid, i.~e.\ a collection of cubes 
+or bricks. Also non-equidistant and deformed structured grid types are supported.
+\item Unstructured grids: They are constructed of primitive elements by explicit 
+definition of the element vertices of each single element.
+\item Geometric Objects: They contain geometry element descriptions in various 
+formats, which can be displayed by a renderer. They can be combined with color, 
+normal and texture information using the Collect module.
+\item Data  objects: They contain data elements, which usually reside either on
+unstructured or structured grids, but also the other geometric elements are
+possible.
+\item Set Containers: They allow grouping of multiple objects, typically of the same 
+kind. Thus, either multi-part objects or time-series of objects can be described. 
+Containers can be used recursively.
+\end{enumerate}
+
+Each of these groups can be divided in sub-groups as shown in the table above. 
+
+
+\section{Two important warnings}
+
+\begin{covimgpath}{CoviseDataObjects}{Warning3}{0.7}\end{covimgpath}
+ 
+
+\section{The Base Class for Distributed Objects}
+\index{Distributed Object|see{coDistributedObject}}
+\index{Data Object|see{coDistributedObject}}
+
+This class is the base class of all available data object classes. It offers 
+some basic functionality to all object classes:
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *getName()} \\
+\hline
+{Description:}   
+              & {get the name of an object} \\
+\hline
+{Return value:}  & {object name} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!getName}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *getType()} \\
+\hline
+{Description:}   
+              & {get the type of an object} \\
+\hline
+{Return value:}  & {object type} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!getType}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int isType(const char *reqType)} \\
+\hline
+{Description:}   
+            & {check whether a an object has a certain type} \\
+\hline
+{Return value:}  & {object type} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!isType}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf char coDistributedObject::objectOk()} \\
+\hline
+{Description:}   
+          & {Check whether object was created correctly} \\
+\hline
+{COVISE states:} & {Compute} \\
+\hline
+{Return value:}  
+                    & {NONZERO on success, =0 on error} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!objectOk}
+
+The coDistributedObject class is generally only used as the base class for all 
+object classes. Direct usage of coDistributedObject class objects is usually
+not necessary, except for:
+
+\begin{itemize}
+\item receiving data at an input port: A port can deliver different kinds of 
+objects, so it returns a pointer to the base class. The user can then request 
+the type with getType and then safely up-cast it to the real data type.
+\item building/retrieving sets: The data container {\tt coDoSet} can hold 
+groups of arbitrary data objects, which are represented by base class pointers. 
+\end{itemize}
+
+
+\section{Object types}
+
+To identify the type of an object, the getType or isType functions can be used. 
+This function works with a unique 6-digit string, documented in the
+following table
+
+\begin{longtable}{|p{6cm}|p{6cm}|}
+\hline
+   {\bf Data Object Type} & {\bf Type name} \\
+\hline\hline
+	coDoUniformGrid & UNIGRD \\
+\hline
+	coDoRectilinearGrid & RCTGRD \\
+\hline
+	coDoStructuredGrid & STRGRD \\
+\hline
+	coDoUnstructuredGrid & UNSGRD \\
+\hline
+	coDoPoints & POINTS \\		
+\hline
+	coDoLines &  LINES \\
+\hline
+	coDoPolygons & POLYGN \\
+\hline
+	coDoTriangleStrips & TRIANG \\
+\hline
+	coDoSpheres & SPHERE \\		
+\hline
+	coDoFloat & USTSDT \\
+\hline
+	coDoVec3 & USTVDT \\
+\hline
+	coDoTensor & USTTDT \endhead	
+\hline
+\end{longtable}
+{\bf        Table 2: COVISE Type Identifiers}
+\vspace{1cm}
+
+A typical code fragment from the beginning of the {\tt compute()} callback 
+function:
+
+\begin{verbatim}
+myApplication::compute(const char * /*port*/)     // ... module is executed
+{
+   // get the grid object from the port and check, 
+   // whether it was received at all
+   coDistributedObject *gridObj = p_grid->getCurrentObject();
+   if (!gridObj)
+   {
+      sendError("Did not receive object at port %s",
+                 p_grid->getName());
+      return;
+   }
+ 
+   // if this is an unstructured grid...
+   if ( coDoUnstructuredGrid *unsGrd = dynamic_cast<coDoUnstructuredGrid *>(gridObj) )
+   {
+      ... handle unstructured grid
+   }
+ 
+   // it is not an unstructured grid, maybe a structured grid...
+   else if ( coDoStructuredGrid *strGrd = dynamic_cast<coDoStructuredGrid *>(gridObj) )
+   {
+      ... handle structured grid
+   }
+ 
+   // if it is not a case we can handle, we have to submit an error
+   else
+   {
+      sendError("Illegal object type at port %s : %s",
+                              p_grid->getName(), grid->get_type());
+      return;
+   }
+}
+\end{verbatim}
+ 
+
+
+The code fragment first checks whether an object was created and then forks 
+into different branches dependent on the received object type. dynamic\_cast
+is used to check if an object is of a certain type and to up-cast the 
+object pointer delivered by the port.
+
+\section{Attributes}
+
+Object attributes can be added to all objects derived from the coDistributedObject 
+class. Attributes are only meaningful to modules which know about the
+existence of a certain attribute. Attributes can be used to pack additional 
+information (only character data is possible) into an data object.  Attributes
+are created by:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf addAttribute(const char *name, const char *value)} \\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{attach a single attribute to an object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {attribute name}\\
+\hline
+{Return}  & \multicolumn{2}{p{9.5cm}|}{attribute value} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!addAttribute}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf addAttributes (int num,\newline
+           const char * const* names, const char * const* values)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{attach multiple attributes to an object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {attribute name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {values} 
+                          & {attribute values}\\
+\hline
+{Return}  & \multicolumn{2}{p{9.5cm}|}{attribute value} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!addAttributes}
+
+The difficult-looking `const' declarations are necessary to allow constant 
+fields to be assigned to this argument. Any two-dimensional char array or
+list pointer to a list of char pointers can be assigned to this parameter. 
+
+This is how attributes are retrieved from an object:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf const char *getAttribute(const char *name)} \\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{retrieve attribute values} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {attribute name}\\
+\hline
+{Return}  
+  & \multicolumn{2}{p{9.5cm}|}{attribute value, NULL if attribute does not exist} \endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!getAttribute}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int getAllAttributes(const char ***names, 
+const char ***content)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{retrieve all attribute values} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {names} 
+                          & {attribute name}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {contents} 
+                          & {attribute contents}\endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!getAllAttributes}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void copyAllAttributes(coDistributedObject  *src)} \\
+\hline
+{Description:}  
+      & \multicolumn{2}{p{9.5cm}|}{copy all attribute values of object `src' to this object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {src} 
+                          & {the source distributed object}\endhead
+\hline
+\end{longtable}
+\index{coDistributedObject!copyAllAttributes}
+
+ 
+
+\section{Structured Grid Types}
+\index{Structured Grid}
+
+A structured grid can be either a regular orthogonal grid with constant spacing 
+(coDoUniformGrid) or a regular orthogonal grid with variable spacing
+(coDoRectilinerGrid) or a curvilinear grid (coDoStructuredGrid). Typical for all 
+these grids is, that the grid is constructed by intersecting lines.
+Furthermore it is not necessary to have a special connection list of the 
+neighbouring points (contrary to unstructured grids) because each point can be
+addressed by using the indices of  the computational domain.
+
+\subsection{Abstract Structured Grid Base Class}
+\index{Structured Grid!Abstract base class|see{coDoGeneralStructuredGrid}}
+
+For easier handling of all these similiar structured grid types, they are
+derived from the common abstract base class coDoGeneralStructuredGrid,
+which provides the following methods:
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coDoGeneralStructuredGrid::getGridSize \newline
+           (int *x\_size, int *y\_size, int *z\_size)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the grid dimensions} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in which 
+			  dimensions should be stored}\endhead
+\hline
+\end{longtable}
+\index{coDoGeneralStructuredGrid!getGridSize}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coDoGeneralStructuredGrid::getGridSize \newline
+           (int *x\_size, int *y\_size, int *z\_size)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the grid dimensions} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in which 
+			  dimensions should be stored}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{i,j,k} 
+                          & \multicolumn{1}{p{5cm}|}{coordinate index in 
+			     \{x$\mid$y$\mid$z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_ccord} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in 
+			  which cordinates should be stored}\endhead
+\hline
+\end{longtable}
+\index{coDoGeneralStructuredGrid!getPointCoordinates}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{i,j,k} 
+                          & \multicolumn{1}{p{5cm}|}{coordinate index in 
+			     \{x|y|z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_ccord} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in 
+			  which cordinates should be stored}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+
+\subsection{Uniform Grid}
+\index{Uniform Grid|see{coDoUniformGrid}}
+%\vspace*{1cm}
+%{\Large Uniform Grid} 
+%\vspace*{0.5cm}
+
+A uniform grid is described by 3 sets of equidistantly split coordinate ranges. 
+The interpretation of a uniform grid may vary with the used coordinate
+system. COVISE currently only supports Cartesian coordinates, so any uniform 
+grid handed over to a COVISE module is interpreted as shown in the
+following drawing: 
+\latexonly
+
+\endlatexonly
+
+\begin{covimg}{CoviseDataObjects}{Uniform_Grid}{Uniform Grid}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Uniform Grid
+\end{htmlonly}
+\vspace*{1cm}
+
+Uniform grids are seldom, since the spatial resolution is constant, while most 
+real-world applications require varying spatial resolutions. 
+
+To create a new uniform grid object in shared memory, the 
+constructor \index{coDoUniformGrid!constructor}is used:
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoUniformGrid(const char *name,\newline
+           int     x\_size,  int     y\_size,  int     z\_size,\newline
+	   float  x\_min,    float   x\_max,   float  y\_min,\newline
+	   float  y\_max,    float   z\_min,   float  z\_max }\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{create a new uniform grid by number of steps} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{name} 
+                          & \multicolumn{1}{p{5cm}|}{new object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{grid dimensions\newline 
+			  in \{x$\mid$y$\mid$z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_\{min/max\}} 
+                          & \multicolumn{1}{p{5cm}|}{minimum/maximum coordinate 
+			  in \{x$\mid$y$\mid$z\} direction}\endhead
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoUniformGrid(const char *name,\newline
+           int     x\_size,  int     y\_size,  int     z\_size,\newline
+	   float  x\_min,    float   x\_max,   float  y\_min,\newline
+	   float  y\_max,    float   z\_min,   float  z\_max }\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{create a new uniform grid by number of steps} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{name} 
+                          & \multicolumn{1}{p{5cm}|}{new object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{grid dimensions\newline 
+			  in \{x|y|z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_\{min/max\}} 
+                          & \multicolumn{1}{p{5cm}|}{minimum/maximum coordinate 
+			  in \{x|y|z\} direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+The new object name is usually taken from the output port's 
+{\tt getObjName()} function, except for building part objects in a {\tt coDoSet}
+container, as explained later.
+
+Earlier API versions also contained a constructor, which retrieved the object 
+from shared memory. This constructor is not necessary any more, since
+the {\tt getCurrentObject()} method of the input port automatically retrieves all objects 
+and hands over an object pointer.
+
+The following functions extract the information of a received uniform grid:
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coDoUniformGrid::getGridSize \newline
+           (int *x\_size, int *y\_size, int *z\_size)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the grid dimensions} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in which 
+			  dimensions should be stored}\endhead
+\hline
+\end{longtable}
+\index{coDoUniformGrid!getGridSize}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coDoUniformGrid::getGridSize \newline
+           (int *x\_size, int *y\_size, int *z\_size)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the grid dimensions} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in which 
+			  dimensions should be stored}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{i,j,k} 
+                          & \multicolumn{1}{p{5cm}|}{coordinate index in 
+			     \{x$\mid$y$\mid$z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_ccord} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in 
+			  which cordinates should be stored}\endhead
+\hline
+\end{longtable}
+\index{coDoUniformGrid!getPointCoordinates}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{i,j,k} 
+                          & \multicolumn{1}{p{5cm}|}{coordinate index in 
+			     \{x|y|z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_ccord} 
+                          & \multicolumn{1}{p{5cm}|}{ptr to variables in 
+			  which cordinates should be stored}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getDelta(float *dx, float *dy, float *dz)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the type of an object} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{dx,dy,dz} 
+                          & \multicolumn{1}{p{5cm}|}{spacing in 
+			     \{x$\mid$y$\mid$z\} direction}\endhead
+\hline
+{Return value}  & \multicolumn{2}{p{9.5cm}|}{none} \\
+\hline
+\end{longtable}
+\index{coDoUniformGrid!getDelta}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getDelta(float *dx, float *dy, float *dz)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the type of an object} \\
+\hline
+{COVISE states:}  
+           & \multicolumn{2}{p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{dx,dy,dz} 
+                          & \multicolumn{1}{p{5cm}|}{spacing in 
+			     \{x|y|z\} direction}\endhead
+\hline
+{Return value}  & \multicolumn{2}{p{9.5cm}|}{none} \\
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getMinMax(  float   *x\_min,  float   *x\_max,\newline
+           float   *y\_min,  float   *y\_max,\newline
+	   float   *z\_min,  float   *z\_max)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_\{min/max\}} 
+                          & \multicolumn{1}{p{5cm}|}{minimum/maximum coordinate 
+			  in \{x$\mid$y$\mid$z\} direction}\endhead
+\hline
+\end{longtable}
+\index{coDoUniformGrid!getDelta}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getMinMax(  float   *x\_min,  float   *x\_max,\newline
+           float   *y\_min,  float   *y\_max,\newline
+	   float   *z\_min,  float   *z\_max)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_\{min/max\}} 
+                          & \multicolumn{1}{p{5cm}|}{minimum/maximum coordinate 
+			  in \{x|y|z\} direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\subsection{Rectilinear Grid}
+\index{Rectilinear Grid|see{coDoRectilinearGrid}}
+%\vspace*{1cm}
+%{\Large Rectilinear Grid}
+%\vspace*{0.5cm}
+
+A rectilinear grid is similar to a uniform grid, except that the spacing 
+along each coordinate axis is non-uniform. The coordinates are the coordinates 
+on the x, y and z-axis.
+
+
+\begin{covimg}{CoviseDataObjects}{Rectilinear_Grid}{Rectilinear Grid}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Rectilinear Grid
+\end{htmlonly}
+\vspace*{1cm}
+
+A new rectilinear grid can be constructed using two different 
+constructors \index{coDoRectilinearGrid!constructor}:
+
+\latexonly	     
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf  coDoRectilinearGrid(const char *name, int x\_size, int y\_size, int z\_size)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a rectilinear grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{name} 
+                          & \multicolumn{1}{p{5cm}|}{name of rectilinear grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{dimension in 
+			  \{x$\mid$y$\mid$z\}-direction}\endhead
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf  coDoRectilinearGrid(const char *name, int x\_size, int y\_size, int z\_size)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a rectilinear grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{name} 
+                          & \multicolumn{1}{p{5cm}|}{name of rectilinear grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_size} 
+                          & \multicolumn{1}{p{5cm}|}{dimension in 
+			  \{x|y|z\}-direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+This is the usual constructor: it allocates the fields in shared memory but does 
+not set any values. The user can then request pointers to the fields in
+shared memory and create the coordinate fields directly without need for an 
+additional copy in the local memory space.
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf  coDoRectilinearGrid(const char *name, int x, int y, int z, 
+float *x\_coord, float *y\_coord, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a rectilinear grid with given set of coords} \\
+\hline
+{Parameters} & \multicolumn{1}{p{3cm}|}{name:} 
+                          & \multicolumn{1}{p{5cm}|}{name of rectilinear grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}} 
+                          & \multicolumn{1}{p{5cm}|}{size in 
+			  \{x$\mid$y$\mid$z\}-direction}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{cordinates in 
+			  \{x$\mid$y$\mid$z\}-direction}\endhead
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf  coDoRectilinearGrid(const char *name, int x, int y, int z, 
+float *x\_coord, float *y\_coord, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a rectilinear grid with given set of coords} \\
+\hline
+{Parameters} & \multicolumn{1}{p{3cm}|}{name:} 
+                          & \multicolumn{1}{p{5cm}|}{name of rectilinear grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}} 
+                          & \multicolumn{1}{p{5cm}|}{size in 
+			  \{x|y|z\}-direction}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{cordinates in 
+			  \{x|y|z\}-direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+If the field of coordinates exists in memory, the object can be created in 
+shared memory. This is exactly like creating the object, retrieving the field
+pointers and copying the three coordinate fields.
+
+The following routines give information about a rectangular grid object:
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getGridSize \newline
+           (int *x\_dim, int *y\_dim, int *z\_dim)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Get dimensions of the grid} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_dim} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to int variables 
+			  to return \{x$\mid$y$\mid$z\}-sizes at index i}\endhead
+\hline
+\end{longtable}
+\index{coDoRectilinearGrid!getGridSize}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getGridSize \newline
+           (int *x\_dim, int *y\_dim, int *z\_dim)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Get dimensions of the grid} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_dim} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to int variables 
+			  to return \{x|y|z\}-sizes at index i}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{i$\mid$j$\mid$k\}} 
+                          & \multicolumn{1}{p{5cm}|}{location in 
+			     \{x$\mid$y$\mid$z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to float variables to
+			  return \{x$\mid$y$\mid$z\}-cordinates at 
+			  index \{i$\mid$j$\mid$k\}}\endhead
+\hline
+\end{longtable}
+\index{coDoRectilinearGrid!getPointCoordinates}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of a single grid point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{i|j|k\}} 
+                          & \multicolumn{1}{p{5cm}|}{location in 
+			     \{x|y|z\} direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to float variables to
+			  return \{x|y|z\}-cordinates at 
+			  index \{i|j|k\}}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+The last function gives direct access to the shared memory storage for the 
+coordinate arrays. \emph{Warning: coordinate indices are not checked, so writing
+beyond the bounds of the allocated array usually crashes the system.}
+
+\latexonly 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(float **x\_start, float **y\_start, 
+                       float **z\_start)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Get coordinate array pointers} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_start} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to (float *) variable, 
+			  which is set to start of \{x$\mid$y$\mid$z\} coordinate
+			  field}\endhead
+\hline
+\end{longtable} 
+\index{coDoRectilinearGrid!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(float **x\_start, float **y\_start, 
+                       float **z\_start)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Get coordinate array pointers} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_start} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to (float *) variable, 
+			  which is set to start of \{x|y|z\} coordinate
+			  field}\endhead
+\hline
+\end{longtable} 
+\end{htmlonly}
+
+\subsection{Structured Grid}
+\index{Structured Grid|see{coDoStructuredGrid}}
+%\vspace*{1cm} 
+%{\Large Structured Grid}
+%\vspace*{0.5cm}
+
+A structured grid is an arbitrarily deformed hexahedral grid, which still has a 
+primitive structure of i x j x k hexahedra. All vertex coordinates are stored
+independently, but the connectivity is still implicit.
+
+
+\begin{covimg}{CoviseDataObjects}
+		    {Structured_Grid}{Structured Grid}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure : Structured Grid
+\end{htmlonly} 
+\vspace*{1cm}
+
+
+Like the rectilinear grid, the structured grid can be 
+constructed \index{coDoStructuredGrid!constructor} with or 
+without pre-setting the coordinate arrays:
+
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoStructuredGrid(const char *name, int x\_nv, int y\_nv, int z\_nv)  }\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a structured grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{name} 
+                          & \multicolumn{1}{p{5cm}|}{name of structured grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_nv} 
+                          & \multicolumn{1}{p{5cm}|}{number of vertices in 
+			  \{x$\mid$y$\mid$z\}-direction}\endhead
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoStructuredGrid(const char *name, int x\_nv, int y\_nv, int z\_nv)  }\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a structured grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{name} 
+                          & \multicolumn{1}{p{5cm}|}{name of structured grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_nv} 
+                          & \multicolumn{1}{p{5cm}|}{number of vertices in 
+			  \{x|y|z\}-direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoStructuredGrid(char *name, int x\_nv, int y\_nv, int z\_nv \newline 
+         float *x\_coord, float *y\_coord, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a structured grid} \\
+\hline
+{Parameters} & \multicolumn{1}{p{3cm}|}{name:} 
+                          & \multicolumn{1}{p{5cm}|}{name of structured grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{\{x$\mid$y$\mid$z\}-coordinates
+			   (Field size: ixjxk)}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_nv} 
+                          & \multicolumn{1}{p{5cm}|}{number of vertices in
+			  \{x$\mid$y$\mid$z\}-direction}\endhead
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoStructuredGrid(char *name, int x\_nv, int y\_nv, int z\_nv \newline 
+         float *x\_coord, float *y\_coord, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a structured grid} \\
+\hline
+{Parameters} & \multicolumn{1}{p{3cm}|}{name:} 
+                          & \multicolumn{1}{p{5cm}|}{name of structured grid object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{\{x|y|z\}-coordinates
+			   (Field size: ixjxk)}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_nv} 
+                          & \multicolumn{1}{p{5cm}|}{number of vertices in
+			  \{x|y|z\}-direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+The size and the sequence of the 3 coordinate arrays is arr[x\_nv][y\_nv][z\_nv].
+
+All other functions are equivalent to the methods for rectilinear grids:
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of selected point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{i$\mid$j$\mid$k\}} 
+                          & \multicolumn{1}{p{5cm}|}{index in 
+			     \{x$\mid$y$\mid$z\}-direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to variable
+			  for requested cordinate}\endhead
+\hline
+\end{longtable}
+\index{coDoStructuredGrid!getPointCoordinates}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointCoordinates \newline
+(int i, float *x\_coord, int j,  float *y\_coord,  int k, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get the coordinates of selected point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & \multicolumn{1}{p{3cm}|}{\{i|j|k\}} 
+                          & \multicolumn{1}{p{5cm}|}{index in 
+			     \{x|y|z\}-direction}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_coord} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to variable
+			  for requested cordinate}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getGridSize(int *x\_dim, int *y\_dim, int *z\_dim)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get field dimensions} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_dim} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to variable 
+			  for size in \{x$\mid$y$\mid$z\}-direction}\endhead
+\hline
+\end{longtable}
+\index{coDoStructuredGrid!getGridSize}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getGridSize(int *x\_dim, int *y\_dim, int *z\_dim)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get field dimensions} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_dim} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to variable 
+			  for size in \{x|y|z\}-direction}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(float **x\_start, float **y\_start, 
+                       float **z\_start)}\\
+\hline
+{Description} & 
+\multicolumn{2}{p{9.5cm}|}{get coordinate array pointers} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x$\mid$y$\mid$z\}\_start} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to (float *) var
+			  to return starting address of vertex
+			  \{x$\mid$y$\mid$z\} coordinate array}\endhead
+\hline
+\end{longtable} 
+\index{coDoStructuredGrid!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(float **x\_start, float **y\_start, 
+                       float **z\_start)}\\
+\hline
+{Description} & 
+\multicolumn{2}{p{9.5cm}|}{get coordinate array pointers} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & \multicolumn{1}{p{3cm}|}{\{x|y|z\}\_start} 
+                          & \multicolumn{1}{p{5cm}|}{Pointer to (float *) var
+			  to return starting address of vertex
+			  \{x|y|z\} coordinate array}\endhead
+\hline
+\end{longtable} 
+\end{htmlonly}
+
+COVISE's structured grid type corresponds to "fields" in AVS which covers 
+"uniform", "rectilinear" and "irregular" "AVS-grids". Referring to the IBM
+Data Explorer the structured grid type corresponds to "regular", "deformed 
+regular", and "irregular" grids.
+
+
+
+\section{Unstructured Grid Types}
+\index{Unstructured Grid|see{coDoUnstructuredGrid}}
+
+Unstructured grids are grids composed of explicitly described basic elements. 
+Such kind of grids is often used in Computational Fluid Dynamics (CFD)
+and Structural Analysis with Finite Elements Methods (FEM).
+
+The basic elements for COVISE's unstructured grids are:
+
+\begin{covimg}{CoviseDataObjects}
+	   {Usg_Base_Elements}{Unstructured Grid Base Element}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Unstructured Grid Base Elements
+\end{htmlonly}
+\vspace*{1cm}
+
+All unstructured grids are collections of these basic elements. To describe the grid, multiple lists are maintained:
+
+\begin{itemize}
+\item {\bf Type list}: It contains the type of a certain element. This cannot be 
+determined implicitly, since tetrahedra and quads have the same number of vertices. 
+\item {\bf Element list}: It contains the index into the connectivity list, where 
+the description of a certain element begins.
+\item {\bf Connectivity list}: It lists the indices of the vertices belonging to 
+each element.
+\item \latexonly{\bf X$\mid$Y$\mid$Z Coordinate list}\endlatexonly
+\begin{htmlonly}{\bf X|Y|Z Coordinate list}\end{htmlonly}: It contains the vertex coordinates.
+\end{itemize}
+
+If the type list does not exist, the types are assumed by the relation between the 
+sizes of the connectivity and the element list. Not all modules correctly implement 
+the non-typed unstructured grids, so using these is strongly discouraged.
+
+The correlation of the different lists is shown in the following drawing:
+
+\begin{covimg}{CoviseDataObjects}
+		    {Usg_Format}{Unstructured Grid format}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Unstructured Grid format
+\end{htmlonly}
+
+An example for an unstructured Grid with three cells:
+
+\begin{covimg}{CoviseDataObjects}
+		    {Usg_Example}{Unstructured Grid example}{0.8}\end{covimg}
+\begin{htmlonly}
+Figure: Unstructured Grid example
+\end{htmlonly}
+\vspace*{1cm}
+
+
+An unstructured grid is usually constructed using the following 
+constructor \index{coDoUnstructuredGrid!constructor}:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoUnstructuredGrid\newline
+              (const char *name, int nelem, int nconn, int ncoord, int ht)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an unstructured grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of USG object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nelem} 
+                          & {number of elements}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nconn} 
+                          & {number of connectivities}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {ncoord} 
+                          & {number of coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {ht} 
+                          & {whether the type list exists}\endhead
+\hline
+\end{longtable}
+
+After constructing the object, pointers to the arrays are retrieved using the 
+{\tt getAddresses} method and the lists are then filled directly in shared memory.
+
+The other constructor allows to create the object with already prepared fields. 
+This is usually a waste of memory, since a copy has to be held which is not 
+necessary if the USG is allocated before.
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoUnstructuredGrid(const char *name,\newline
+              int nelem, int nconn, int ncoord, int *el, int *cl,\newline
+	      float *x\_coord, float *y\_coord, float *z\_coord,\newline
+	      int *tl)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an unstructured grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of USG object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nelem} 
+                          & {number of elements}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nconn} 
+                          & {number of connectivities}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {ncoord} 
+                          & {number of coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {el} 
+                          & {element list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {cl} 
+                          & {coordinate list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {tl} 
+                          & {type list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {\{x$\mid$y$\mid$z\}\_coord} 
+                          & {array of \{x$\mid$y$\mid$z\} 
+			  coordinates}\endhead  
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coDoUnstructuredGrid(const char *name,\newline
+              int nelem, int nconn, int ncoord, int *el, int *cl,\newline
+	      float *x\_coord, float *y\_coord, float *z\_coord,\newline
+	      int *tl)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an unstructured grid} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of USG object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nelem} 
+                          & {number of elements}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nconn} 
+                          & {number of connectivities}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {ncoord} 
+                          & {number of coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {el} 
+                          & {element list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {cl} 
+                          & {coordinate list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {tl} 
+                          & {type list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {\{x|y|z\}\_coord} 
+                          & {array of \{x|y|z\} 
+			  coordinates}\endhead 
+\hline
+\end{longtable}
+\end{htmlonly}
+
+There are additional constructors for unstructured grids, which can be found in 
+the header file, but they will not be supported for future use. 
+
+
+The following functions retrieve all information from the USG and give access 
+to its internal fields. 
+
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getGridSize(int *numEl, int *numConn, 
+   int *numCoord)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get field dimensions} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {numEl} 
+                           & {number of elements}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {numConn} 
+                           & {number of connectivity list entries}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {numCoord} 
+                           & {number of coordinates}\endhead
+\hline
+\end{longtable}
+\index{coDoUnstructuredGrid!getGridSize}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(int **elem, int **conn,\newline
+              float **x\_coord, float **y\_coord, float **z\_coord)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Get pointers to internal lists of USG type} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {elem} 
+                           & {element list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {conn} 
+                           & {connectivity list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:}
+          & {\{x$\mid$y$\mid$z\}\_list} 
+          & {\{x$\mid$y$\mid$z\}-coordinate arrays}\endhead
+\hline
+\end{longtable}
+\index{coDoUnstructuredGrid!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(int **elem, int **conn,\newline
+              float **x\_coord, float **y\_coord, float **z\_coord)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Get pointers to internal lists of USG type} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {elem} 
+                           & {element list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {conn} 
+                           & {connectivity list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:}
+          & {\{x|y|z\}\_list} 
+          & {\{x|y|z\}-coordinate arrays}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getTypeList(int **tList)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Get pointers to internal lists od USG type} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {tList} 
+                           & {type list}\endhead
+\hline
+\end{longtable}
+\index{coDoUnstructuredGrid!getTypeList}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int hasTypeList()}\\
+\hline
+{Description:}  
+       & {Check whether a type list exists} \\
+\hline
+{Return value:}  
+       & {=0 : no typelist, else typelist exists} \endhead
+\hline
+\end{longtable}
+\index{coDoUnstructuredGrid!hasTypeList}
+
+The following command creates a coordinate-to-cell mapping. 
+\emph{Caution: The fields allocated by this procedure have to be deleted by the user 
+with} {\tt delete []} \emph{command.}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getNeighborList(int *n, int **elemList, int **vStart)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get backward mapping} \\
+\hline
+\multicolumn{1}{|r|}{OUT:}
+                & {n} 
+                & {number of entries in elemList}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+                & {elemList} 
+                & {
+                                       [n] : elements containing specific
+                                       vertex }\endhead
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+                & {vStart} 
+                & {[numvert+1] :\newline 
+		                       Entries in elemList 
+                                       start at \newline 
+				       vStart[vertexNo] and end \newline
+                                       before vStart[vertexNo+1]}\\
+\hline
+\end{longtable}
+\index{coDoUnstructuredGrid!getNeighborList}
+
+E.g.the cells containing Point \#7 are {\tt *elemList[vStart[7]...(vStart[8]-1)]}
+
+Example:
+
+\begin{covimg}{CoviseDataObjects} {Elem_Neighbor}{Element Neighbor List}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Element Neighbor List
+\end{htmlonly}
+\vspace*{1cm}
+\clearpage
+
+\section{Data Types}
+\index{Data Objects}
+
+The mapping between computational and coordinate space is either direct and 
+implicit or explicit. In COVISE explicit data mapping has been chosen.
+That means in the three dimensional case, all three coordinates at each grid point 
+are stored plus possibly additional scalar values at each of these grid points. 
+A vector, e.g. a three dimensional vector, will be treated and stored as three 
+scalars at each grid point.
+
+There are several different data types available: scalar data, 2D and 3D vector data,
+tensor data, and packed RGBA data. 
+All are quite similar, except that the 2D and 3D vector types contain 2 or 3 arrays
+respectively instead of 1 array. The splitting into several different fields instead
+of 1 large field with x-y-z packed data allows larger fields on systems with restricted
+shared memory chunk sizes.
+
+Data contains no information of the underlying grid. Instead, a linear array is saved. 
+
+The user must compare the number of elements in the list, which can be requested 
+in all sub-types of unstructured data, and then compare against the number of cells 
+and coordinates to decide, whether cell- or point-based data was given.
+
+\subsection{Scalar Data}
+\index{Scalar data|see{coDoFloat}}
+%\vspace*{1cm}
+%{\Large Scalar Data}
+%\vspace*{0.5cm}
+
+\index{coDoFloat!constructor}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoFloat(const char *name, int num\_values)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoFloat(const char *name, int num\_values, float *scalar\_data)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for scalar 
+                                  data without and with setting elements} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {scalar\_data} 
+      & {data values}\endhead
+\hline
+\end{longtable}
+
+As for all other objects, it is recommended to create an empty object and 
+fill in data to prevent double storage.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddress(float **start)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointer to object data} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {start} 
+                     & {pointer to starting address} \endhead
+\hline
+\end{longtable}
+\index{coDoFloat!getAddress}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, float *value)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get single data value}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {data value}\endhead
+\hline
+\end{longtable}
+\index{coDoFloat!getPointValue}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumPoints()}\\
+\hline
+{Description:}  
+       & {get number of data values saved}\\
+\hline
+{Return value:}  
+       & {number of elements}\endhead
+\hline
+\end{longtable}
+\index{coDoFloat!getNumPoints}
+
+\subsection{2D Vector Data}
+\index{2D Vector data|see{coDoVec2}}
+%\vspace*{1cm}
+%{\Large 2D Data}
+%\vspace*{0.5cm}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec2(const char *name, int num\_values)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec2(const char *name, int num\_values,\newline
+              float *data1, float *data2)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for 2D vector data 
+                                  without and with setting elements} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {data\{1$\mid$2\}} 
+      & {data value arrays}\endhead
+\hline
+\end{longtable}
+\index{coDoVec2!constructor}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec2(const char *name, int num\_values)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec2(const char *name, int num\_values,\newline
+              float *data1, float *data2)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for 2D vector data 
+                                  without and with setting elements} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {data\{1|2\}} 
+      & {data value arrays}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(float **data1, float **data2)}\endhead
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointers to object data fields} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {data\{1$\mid$2\}} 
+      & {pointer to starting address in shared memory} \\
+\hline
+\end{longtable}
+\index{coDoVec2!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddresses(float **data1, float **data2)}\endhead
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointers to object data fields} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {data\{1|2\}} 
+      & {pointer to starting address in shared memory} \\
+\hline
+\end{longtable}
+\index{coDoVec2!getAddresses}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, float *val1, float *val2)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get single data value}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {val\{1$\mid$2\}} 
+                           & {data values}\endhead
+\hline
+\end{longtable}
+\index{coDoVec2!getPointValue}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, float *val1, float *val2)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get single data value}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {val\{1|2\}} 
+                           & {data values}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\subsection{3D Vector Data}
+\index{3D Vector data|see{coDoVec3}}
+%\vspace*{1cm}
+%{\Large Unstructured Vector Data}
+%\vspace*{0.5cm}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec3(const char *name, int num\_values)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec3(const char *name, int num\_values,\newline
+              float *data1, float *data2, float *data2)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for 3D vector data 
+                                  without and with setting elements} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {data\{1$\mid$2$\mid$3\}} 
+      & {data value arrays}\endhead
+\hline
+\end{longtable}
+\index{coDoVec3!constructor}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec3(const char *name, int num\_values}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoVec3(const char *name, int num\_values,\newline
+              float *data1, float *data2, float *data2)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for 3D vector data 
+                                  without and with setting elements} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {data\{1|2|3\}} 
+      & {data value arrays}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **data1, float **data2, float **data3)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointers to object data fields} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {data\{1$\mid$2$\mid$3\}} 
+                     & {pointer to starting address 
+		                                  in shared memory} \endhead
+\hline
+\end{longtable}
+\index{coDoVec3!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **data1, float **data2, float **data3)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointers to object data fields} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {data\{1|2|3\}} 
+                     & {pointer to starting address 
+		                                  in shared memory} \endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, float *val1, float *val2, float *val3)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get single data value}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {val\{1$\mid$2$\mid$3\}} 
+                           & {data values}\endhead
+\hline
+\end{longtable}
+\index{coDoVec3!getPointValue}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, float *val1, float *val2, float *val3)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get single data value}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {val\{1|2|3\}} 
+                           & {data values}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\subsection{Tensor Data}
+\index{Tensor data|see{coDoTensor}}
+%\vspace*{1cm}
+%{\Large Tensor data}
+%\vspace*{0.5cm}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoTensor(const char *name, int num\_values, TensorType ttype)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoTensor(const char *name, int num\_values, float *tensor\_data, TensorType ttype)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for tensor 
+                                  data without and with setting elements} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {tensor\_data} 
+      & {data values}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {ttype} 
+      & {kind of tensor}\endhead
+\hline
+\end{longtable}
+\index{coDoTensor!constructor}
+\endlatexonly
+
+As for all other objects, it is recommended to create an empty object and 
+fill in data to prevent double storage. The kinds of tensors are summarised here:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|} 
+\hline
+{Tensor type} & 
+{Space \newline dimension} &
+{Sequence of independent components} \\
+\hline
+\multicolumn{1}{|r|}{S2D:}  & {2}
+      & {XX, YY, XY} \\
+\hline
+\multicolumn{1}{|r|}{F2D:}  & {2}
+      & {XX, XY, YX, YY} \\
+\hline
+\multicolumn{1}{|r|}{S3D:}  & {3}
+      & {XX, YY, ZZ, XY, YZ, ZX} \\
+\hline
+\multicolumn{1}{|r|}{F3D:}  & {3}
+      & {XX, XY, XZ, YX, YY, YZ, ZX, ZY, ZZ} \\
+\hline
+\end{longtable}
+
+The numerical information for this object is kept in a single
+array with as many floats as the number of tensors (number of
+points in space for which a tensor is described) multiplied
+by the number of independent components for the tensor type at issue.
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddress(float **start)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointer to object data} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {start} 
+                     & {pointer to starting address} \endhead
+\hline
+\end{longtable}
+\index{coDoTensor!getAddress}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, float *value)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get tensor components for an index}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {array with tensor components}\endhead
+\hline
+\end{longtable}
+\index{coDoTensor!getPointValue}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumPoints()}\\
+\hline
+{Description:}  
+       & {get number of data values saved}\\
+\hline
+{Return value:}  
+       & {number of tensor elements}\endhead
+\hline
+\end{longtable}
+\index{coDoTensor!getNumPoints}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf coDoTensor::TensorType getTensorType()}\\
+\hline
+{Description:}  
+       & {get tensor type}\\
+\hline
+{Return value:}  
+       & {Either UNKNOWN, S2D, F2D, S3D or F3D}\endhead
+\hline
+\end{longtable}
+\index{coDoTensor!getTensorType}
+
+\subsection{Packed RGBA Data}
+\index{Packed RGBA data|see{coDoRGBA}}
+\index{RGBA data|see{coDoRGBA}}
+%\vspace*{1cm}
+%{\Large Packed RGBA Data}
+%\vspace*{0.5cm}
+
+Packed RGBA data consists of one 4-byte word per value, containing RGBA color 
+and opacity values.
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoRGBA (const char *name, int num\_values)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoRGBA (const char *name, int num\_values, int *packedColors)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{Create an object for packed RGBA values} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {name of data object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_values} 
+      & {length of data array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {packedColors} 
+      & {data array}\endhead
+\hline
+\end{longtable}
+\index{coDoRGBA!constructor}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getAddress(int **color\_field)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get pointers to object data fields} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {color\_field} 
+                     & {pointer to starting address} \endhead
+\hline
+\end{longtable}
+\index{coDoRGBA!getAddress}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getPointValue(int pos, int *value)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{access single element}\\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {pos} 
+     & {index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {RGBA value casted to int}\endhead
+\hline
+\end{longtable}
+\index{coDoRGBA!getPointValue}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int setFloatRGBA(int pos, float r, float g, float b, float alpha)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int setIntRGBA(int pos, int r, int g, int b, int alpha)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{set a single value} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {pos} 
+                   & {-}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {r,g,b} 
+      & {RGBA float [0..1] or int [0..255]}\endhead
+\hline
+\end{longtable}
+\index{coDoRGBA!setFloatRGBA}
+\index{coDoRGBA!setIntRGBA}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int getFloatRGBA(int pos, float *r, float *g, float *b, float *alpha)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int getIntRGBA(int pos, int *r, int *g, int *b, int *alpha)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{get a single value} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {pos} 
+                   & {-}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {r,g,b} 
+      & {RGBA value , either float [0..1] 
+                                   or int [0..255]}\\
+\hline
+{Return value:}  
+       & \multicolumn{2}{p{9.5cm}|}{nothing (always 1)} \endhead
+\hline       
+\end{longtable}
+\index{coDoRGBA!getFloatRGBA}
+\index{coDoRGBA!getIntRGBA}
+
+
+\section{Geometry data types}
+\index{Geometry data}
+
+
+Geometry data is the kind of data that can be displayed in Renderers. It describes 
+a geometrical object consisting of points and connectivity information of the 
+geometrical primitives.
+
+\subsection{Geometry Container Class}
+\index{Geometry container|see{coDoGeometry}}
+%\vspace*{1cm}
+%{\Large Geometry container class}
+%\vspace*{0.5cm}
+
+The additional container object type {\tt coDoGeometry} is used to combine colors, 
+normals and textures into geometrical data types. Usually, this is done with the
+"Collect" module, which automatically combines all its input objects into the 
+{\tt coDoGeometry} container. 
+
+Users should normally not create {\tt coDoGeometry} objects but instead create 
+the single part objects and then let the "Collect" module combine it. This allows 
+to add filters, e.g. cropping or simplification, to be attached after the module.
+
+Each coDoGeometry container must contain a geometrical object, while all other parts 
+of the container are optional.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoGeometry (const char *name, coDistributedObject *geometry\_object)}\\
+\hline
+{Description:}  
+ & \multicolumn{2}{p{9.5cm}|}{Create a container around the given 
+                            geometrical object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                   & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {geometry\_object} 
+      & {geometrical object}\endhead
+\hline
+\end{longtable}
+\index{coDoGeometry!constructor}
+
+This routine attaches the given object \emph(not a copy) to the Container. See under 
+`Advanced features' what to do for re-using received data objects.
+
+All other parts of the Container are volatile and can be attached to the container 
+after its creation. There are no default objects, so if nothing is attached, a null 
+object will be returned.
+
+These methods attach additional objects to the container:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setColors(int attrib, coDistributedObject *colObj}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void setNormals(int attrib, coDistributedObject *normObj)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{set a single value} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {attrib} 
+        & {OVERALL, PER\_FACE or PER\_VERTEX 
+	                             how data is to be applied to 
+				     geometrical objects}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {colObj} 
+      & {Colors: Either a RGAB object containing
+                                   packed colors or a structured or 
+				   vector data field containing 
+				   RGB valued [0..1]}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {normObj} 
+      & {Normals: Either a structured or 
+                                   vector data field containing 
+				   normal vectors}\endhead
+\hline
+\end{longtable}
+\index{coDoGeometry!setColors}
+\index{coDoGeometry!setNormals}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coDoGeometry::setTexture(int attrib, coDistributedObject *object)}\\
+\hline
+{Description:}  
+       & \multicolumn{2}{p{9.5cm}|}{attach colors and normals to a 
+                                  geometry container} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {attrib} 
+        & {for future use}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {object} 
+        & {Texture object containing texture}\endhead
+\hline
+\end{longtable}
+\index{coDoGeometry!setTexture}
+
+The part objects can be retrieved from the container using:
+ 
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf coDistributedObject *getGeometry()}\\
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf coDistributedObject *getColors()}\\
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf coDistributedObject *getNormals()}\\
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf coDistributedObject *getTexture()}\\
+\hline
+{Description:}  
+       & {get the geometry object from the container} \\
+\hline
+{Return value:}  
+       & {pointer to requested object} \endhead
+\hline       
+\end{longtable}
+\index{coDoGeometry!getGeometry}
+\index{coDoGeometry!getColors}
+\index{coDoGeometry!getNormals}
+\index{coDoGeometry!getTexture}
+
+The attributes of the part objects are retrieved using:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int getColorAttributes() int getNormalAttributes() int getTextureAttributes()}\\
+\hline
+{Description:}  
+       & {get object attributes} \\
+\hline
+{Return value:}  
+       & {attribute} \endhead
+\hline       
+\end{longtable}
+\index{coDoGeometry!getColorAttributes}
+\index{coDoGeometry!getNormalAttributes}
+\index{coDoGeometry!getTextureAttributes}
+
+\subsection{Points}
+\index{Point data|see{coDoPoints}}
+%\vspace*{1cm}					       
+%{\Large Points}
+%\vspace*{0.5cm}
+
+A point object is simply a list of triples of data in 3D space. The representation 
+in the renderer is a single point. To emphasize points, the "Sphere" module can 
+convert points to spheres consisting of multiple triangles together with the 
+appropriate normals or to sphere impostors.
+					       
+\latexonly	       
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPoints(const char *name, int numPoints)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPoints(const char *name, int numPoints,\newline
+  float *x\_coord, float *y\_coord, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{create a point object without 
+	                              or with initial values} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {numPoints} 
+                          & {number of points}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {\{x$\mid$y$\mid$z\}\_coord} 
+           & {point 3D coordinates}\endhead
+\hline
+\end{longtable}
+\index{coDoPoints!constructor}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPoints(const char *name, int numPoints)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPoints(const char *name, int numPoints,\newline
+  float *x\_coord, float *y\_coord, float *z\_coord)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{create a point object without 
+	                              or with initial values} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {numPoints} 
+                          & {number of points}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {\{x|y|z\}\_coord} 
+           & {point 3D coordinates}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **x\_start, float **y\_start, float**z\_start)}\\
+\hline
+{Description:}  
+   & \multicolumn{2}{p{9.5cm}|}{get access to coordinate fields in shared memory} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & {\{x$\mid$y$\mid$z\}\_start} 
+           & {Start of \{x$\mid$y$\mid$z\} 
+	                              cordinates field}\endhead
+\hline
+\end{longtable}
+\index{coDoPoints!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **x\_start, float **y\_start, float**z\_start)}\\
+\hline
+{Description:}  
+   & \multicolumn{2}{p{9.5cm}|}{get access to coordinate fields in shared memory} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & {\{x|y|z\}\_start} 
+           & {Start of \{x|y|z\} 
+	                              cordinates field}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumPoints()}\\
+\hline
+{Description:}  
+           & {get number of points in object} \\
+\hline
+{Return value:}  
+           & {number of points} \endhead
+\hline
+\end{longtable}
+\index{coDoPoints!getNumPoints}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void getPointValue(int pos, float \&value[3])}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get single point} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {pos} 
+                          & {point index}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                          & {point coordinates}\endhead
+\hline
+\end{longtable}
+\index{coDoPoints!getPointValue}
+
+Point objects are used e.g. for particle positions.
+
+An attribute "POINTSIZE" can be attached to the object : a value of "0" results in 
+the default pointsize in the renderer, while higher values than "1" can result in 
+larger display points, if the hardware and the renderer support this. 
+
+\subsection{Lines}
+\index{Line data|see{coDoLines}}
+%\vspace*{1cm}
+%{\Large Lines} 
+%\vspace*{0.5cm}
+
+A coDoLines object holds the points and the connectivity information for a set 
+of  line segments in 3D space.
+
+The storage format of coDoLines is similar to coDoUnstructuredGrid. The connectivity 
+information is stored in two lists: the first list holds the indices of the points 
+that belong to each line segment, while the second list holds the index in 
+the first list, where each segment starts. 
+
+This could also be done in one list by ending each segment with an index of -1, 
+but the amount of storage needed for this would be nearly the same.
+Additionally the access to a line segment in the middle of the list will be much 
+faster in the two-list-case.
+
+
+\begin{covimg}{CoviseDataObjects}
+	  {Line_Structure}{Lists for defining a line structure}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Lists for defining a line structure
+\end{htmlonly}
+\vspace*{1cm}
+
+To better understand the structure, an example is given, which constructs 
+a coDoLines object with 3 lines using 10 points for 14 corners:
+
+\begin{covimg}{CoviseDataObjects}
+		    {Line_Example}{Example for Lines}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Example for Lines
+\end{htmlonly}
+\vspace*{1cm}
+
+The resulting lists would be:
+
+\begin{htmlonly}
+\begin{verbatim}
+num_lines   = 3         Line list:     [ 0 6 10 ]
+
+num_corners = 13        Corner list:   [ 4 0 1 2 3 6 1 6 5 1 8 9 2 7 ]
+
+num_coord   = 10        x_coord        [ x0, x1, ...x9]   Point x-coordinates
+                        y_coord        [ y0, y1, ...y9]   Point y-coordinates
+                        x_coord        [ z0, z1, ...z9]   Point z-coordinates
+\end{verbatim}
+\end{htmlonly}
+
+\latexonly
+\begin{longtable}{p{2cm} p{1cm} p{3cm} p{3cm} p{3.5cm}}
+\multicolumn{1}{p{2cm}}{num\_lines}  
+      &  \multicolumn{1}{p{1cm}}{= 3} 
+	             &  \multicolumn{1}{p{3cm}}{Line list:}
+	                   &  \multicolumn{2}{p{6.5cm}}{[ 0 6 10 ]} \\
+			   \\
+\multicolumn{1}{p{2cm}}{num\_corners}  
+      &  \multicolumn{1}{p{1cm}}{= 13} 
+	     &  \multicolumn{1}{p{3cm}}{Corner list:}
+	        & \multicolumn{2}{p{65cm}}{[ 4 0 1 2 3 6 1 6 5 1 8 9 2 7 ]}\\
+		            \\
+\multicolumn{1}{p{2cm}}{num\_coord}  
+      &  \multicolumn{1}{p{1cm}}{= 10} 
+	   &  \multicolumn{1}{p{3cm}}{x\_coord\newline 
+		                       y\_coord\newline
+		                       x\_coord }
+	       &  \multicolumn{1}{p{3cm}}{[ x$_0$, x$_1$, ...x$_9$]\newline
+			                  [ y$_0$, y$_1$, ...y$_9$]\newline
+			                  [ z$_0$, z$_1$, ...z$_9$]}
+	        & \multicolumn{1}{p{3.5cm}}{Point x-coordinates\newline
+		                            Point y-coordinates\newline 
+		                            Point z-coordinates} \endhead
+\end{longtable}
+\endlatexonly
+
+Notice that a closed line is generated by repeating the first point index at the end.
+
+As for the unstructured grid, it is recommended to construct an empty Lines 
+object of the appropriate size and then fill the list directly into shared memory. 
+This both avoids double storage and the copying time.
+
+The constructors \index{coDoLines!constructor} for Lines objects are:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoLines(const char *name, int num\_points, int num\_corners, int num\_lines)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Construct a Lines object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {Number of points used for the lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {Sum of  corners of all lines, 
+			                               including start and end point}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_lines} 
+                          & {Number of distinct lines}\endhead
+\hline
+\end{longtable}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoLines(const char *name,\newline
+int num\_points, float *x\_c, float *y\_c, float *z\_c,\newline
+int num\_corners, int *corner\_list,\newline
+int num\_lines, int *line\_list )}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Construct a Lines object 
+	                              and copy data from given fields} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {Number of points 
+			                               used for the lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {sum of  corners of all 
+			                               lines, including 
+						       start and end point }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_lines} 
+                          & {Number of distinct lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {\{x$\mid$y$\mid$z\}\_c} 
+           & {point coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {corner\_list} 
+                          & {corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {line\_list } 
+                          & {line list}\endhead
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoLines(const char *name,\newline
+int num\_points, float *x\_c, float *y\_c, float *z\_c,\newline
+int num\_corners, int *corner\_list,\newline
+int num\_lines, int *line\_list )}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Construct a Lines object 
+	                              and copy data from given fields} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {Number of points 
+			                               used for the lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {sum of  corners of all 
+			                               lines, including 
+						       start and end point }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_lines} 
+                          & {Number of distinct lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {\{x|y|z\}\_c} 
+           & {point coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {corner\_list} 
+                          & {corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {line\_list } 
+                          & {line list}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+
+Access to the fields of the object is given by the following call:
+
+\emph{Caution: boundaries are not checked!}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **x\_start, float **y\_start, float **z\_start,\newline
+int **corner\_list, int **line\_list)}\endhead
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{access fields in shared memory} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & {\{x$\mid$y$\mid$z\}\_start} 
+           & {Pointer to coordinate field}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {corner\_list} 
+                           & {Pointer to corner list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {line\_list} 
+                           & {Pointer to line list}\\
+\hline
+\end{longtable}
+\index{coDoLines!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **x\_start, float **y\_start, float **z\_start,\newline
+int **corner\_list, int **line\_list)}\endhead
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{access fields in shared memory} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & {\{x|y|z\}\_start} 
+           & {Pointer to coordinate field}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {corner\_list} 
+                           & {Pointer to corner list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {line\_list} 
+                           & {Pointer to line list}\\
+\hline
+\end{longtable}
+\end{htmlonly}
+
+Previous versions of this manual used the term "vertex" either for points within 
+unstructured grids or for corners in geometry. To avoid confusion, this was changed. 
+Still, the geometrical library calls use the term "vertex" for corners.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumPoints()}\\
+\hline
+{Description:}  
+  & {get number of points (length of coordinate arrays)} \\
+\hline
+{Return value:}  
+           & {number of points} \endhead
+\hline
+\end{longtable}
+\index{coDoLines!getNumPoints}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumVertices()}\\
+\hline
+{Description:}  
+     & {get number corners (length of corner list)} \\
+\hline
+{Return value:}  
+           & {number of corners} \endhead
+\hline
+\end{longtable}
+\index{coDoLines!getNumVertices}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumLines()}\\
+\hline
+{Description:}  
+    & {get number of lines (length of line list)} \\
+\hline
+{Return value:}  
+           & {number of lines} \endhead
+\hline
+\end{longtable}
+\index{coDoLines!getNumLines}
+
+\subsection{Polygons}
+\index{Polygon data|see{coDoPolygons}}
+%\vspace*{1cm}
+%{\Large Polygons}  
+%\vspace*{0.5cm}
+
+Polygonal objects are similar to lines, except that every set of corners which 
+used to define a line now defines a closed polygon. Other than lines,polygons are 
+closed automatically, so the last point is automatically connected with the 
+first one.
+
+%\begin{covimg}{CoviseDataObjects}
+%		    {Polygon_Example}{Polygon Example}{0.8}\end{covimg}
+
+\begin{covimg}{CoviseDataObjects}
+		    {PolygonExample}{Polygon Example}{0.6}\end{covimg}		    
+\begin{htmlonly}
+Figure: Polygon Example
+\end{htmlonly}
+\vspace*{1cm}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPolygons(const char *name,\newline
+       int num\_points, int num\_corners, int num\_polygons)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Construct a Lines object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {Number of points used for 
+			                               the lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {Sum of  corners of all lines, 
+			                               including start and end point}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_polygons} 
+                          & {Number of distinct 
+			                               polygons}\endhead
+\hline
+\end{longtable}
+\index{coDoPolygons!}
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **x\_start, float **y\_start, float **z\_start,\newline
+int **corner\_list, int **polygon\_list)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{access fields in shared memory} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & {\{x$\mid$y$\mid$z\}\_start} 
+           & {Pointer to coordinate field}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {corner\_list} 
+                           & {Pointer to corner list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {polygon\_list} 
+                           & {Pointer to polygon list}\endhead
+\hline
+\end{longtable}
+\index{coDoPolygons!getAddresses}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddresses(float **x\_start, float **y\_start, float **z\_start,\newline
+int **corner\_list, int **polygon\_list)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{access fields in shared memory} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & {\{x|y|z\}\_start} 
+           & {Pointer to coordinate field}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {corner\_list} 
+                           & {Pointer to corner list}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {polygon\_list} 
+                           & {Pointer to polygon list}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+As described in previous cases, the recommended way to construct an object 
+is to initialize it empty, get the field pointers and then fill it. Nevertheless,
+a copying constructor is available.
+
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPolygons(const char *name, int num\_points,\newline
+float *x\_coord, float *y\_coord, float *z\_coord,\newline
+int num\_corners, int *corner\_list,\newline
+int num\_polygons, int *polygon\_list)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Construct a coDoPolygons object 
+	                              and copy data from given fields} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {Number of points 
+			                               used for the lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {Sum of corners of all 
+			                               lines, including 
+						       start and end point}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_polygons} 
+                          & {Number of distinct 
+			  polygons} \\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {\{x$\mid$y$\mid$z\}\_c} 
+           & {point coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {corner\_list} 
+                          & {corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {polygon\_list} 
+                          & {polygon list}\endhead
+\hline
+\end{longtable}
+\index{coDoPolygons!constructor}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPolygons(const char *name, int num\_points,\newline
+float *x\_coord, float *y\_coord, float *z\_coord,\newline
+int num\_corners, int *corner\_list,\newline
+int num\_polygons, int *polygon\_list)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Construct a coDoPolygons object 
+	                              and copy data from given fields} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {object name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {Number of points 
+			                               used for the lines}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {Sum of corners of all 
+			                               lines, including 
+						       start and end point}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_polygons} 
+                          & {Number of distinct 
+			  polygons} \\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {\{x|y|z\}\_c} 
+           & {point coordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {corner\_list} 
+                          & {corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {polygon\_list} 
+                          & {polygon list}\endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+Previous versions of this manual used the term "vertex" either for points within 
+unstructured grids or for corners in geometry. To avoid confusion, this
+was changed. Still, the geometrical library calls use the term "vertex" for corners.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumPoints()}\\
+\hline
+{Description:}  
+  & {get number of points (length of coordinate arrays)} \\
+\hline
+{Return value:}  
+           & {number of points} \endhead
+\hline
+\end{longtable}
+\index{coDoPolygons!getNumPoints}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumVertices()}\\
+\hline
+{Description:}  
+     & {get number corners (length of corner list)} \\
+\hline
+{Return value:}  
+           & {number of corners} \endhead
+\hline
+\end{longtable}
+\index{coDoPolygons!getNumVertices}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int getNumPolygons()}\\
+\hline
+{Description:}  
+    & {get number of polygons (length of polygon list)} \\
+\hline
+{Return value:}  
+           & {number of polygons}\endhead
+\hline
+\end{longtable}
+\index{coDoPolygons!getNumLines}
+
+\begin{longtable}{|p{4cm}|p{3.5cm}|p{6.5cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{|p{14cm}|}{\bf get\_neighbor\_list(int *n, int **polygon\_list, int **index\_list)} \\
+\hline
+{Description:}  
+    & \multicolumn{2}{p{10cm}|}{returns list of polygons that have the same point in common} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & \multicolumn{1}{p{3.5cm}|}{n} 
+           & \multicolumn{1}{p{6.5cm}|}{number of neigbors}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & \multicolumn{1}{p{3.5cm}|}{polygon\_list[numconn]} 
+           & \multicolumn{1}{p{6.5cm}|}{polygons that have one point in common}\endhead
+\hline
+\multicolumn{1}{|r|}{OUT:} 
+           & \multicolumn{1}{p{3.5cm}|}{index\_list[numccod+1]} 
+           & \multicolumn{1}{p{6.5cm}|}{begin of next group of polygons that have one point in common}\\
+\hline
+\end{longtable}
+\index{coDoPolygons!get\_neighbor\_list}
+
+Example:
+
+Polygons of vertex i:
+lnl[(lnli[i]...lnli[i+1]-1)]
+
+\begin{covimg}{CoviseDataObjects} {Polygon_Neighbor}{Polygon Neighbor List}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Polygon Neighbor List
+\end{htmlonly}
+\vspace*{1cm}
+\clearpage
+
+\subsection{Triangle Strips}
+\index{Triangle strips|see{coDoTriangleStrips}}
+%\vspace*{1cm}
+%{\Large Triangle Strips}
+%\vspace*{0.5cm}
+
+Triangle strips are a special case of polygons and are rendered very efficiently 
+on hardware accelerated graphics. Nevertheless, PER\_VERTEX coloring is not available 
+and leads to strange colored objects. A triangle strip is stored similar to lines 
+and polygons, except that a  line/polygon is now interpreted as a triangle strip.
+
+
+\begin{covimg}{CoviseDataObjects}
+		    {Triangle_Strip}{Single triangle strip}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure: Single triangle strip
+\end{htmlonly}
+\vspace*{1cm}
+
+Just as the coDoPolygon object contains multiple polygons, the coDoTriangleStrips object contains multiple 
+strips, with a strip list pointing into a corner list which holds the corner values.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoTriangleStrips(const char *name,\newline
+     int num\_points, int num\_corners, int num\_strips)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a Triangle Strip Object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of triangle strips object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_points} 
+                          & {number of coordinates (points)}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_corners} 
+                          & {length of corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num\_strips} 
+                          & {length of strip list}\endhead
+\hline
+\end{longtable}
+\index{coDoTriangleStrips!constructor}
+
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoTriangleStrips(const char *name,\newline
+int num\_points, float *x\_c, float *y\_c, float *z\_c,\newline
+int num\_corners, int *corner\_list,\newline
+int num\_strips, int *strips\_list )}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a Triangle Strip Object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name, num\_*} 
+                          & {as above}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {\{x$\mid$y$\mid$z\}\_c} 
+                          & {coordinates array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {corner\_list} 
+                          & {corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {strips\_list } 
+                          & {strip list} \\
+\hline
+\end{longtable}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoTriangleStrips(const char *name,\newline
+int num\_points, float *x\_c, float *y\_c, float *z\_c,\newline
+int num\_corners, int *corner\_list,\newline
+int num\_strips, int *strips\_list )}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a Triangle Strip Object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name, num\_*} 
+                          & {as above}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {\{x|y|z\}\_c} 
+                          & {coordinates array}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {corner\_list} 
+                          & {corner list}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {strips\_list } 
+                          & {strip list} \\
+\hline
+\end{longtable}
+\end{htmlonly}
+
+The functions {\tt getAddresses()}, {\tt getNumPoints()}, 
+{\tt getNumVertices()} and {\tt getNumStrips()} work exactly like 
+their coDoPolygon counterparts.
+
+Optimal rendering performance already be reached with about 5 to 6 triangles 
+per Strip.
+
+Example:
+
+\begin{covimg}{CoviseDataObjects}{TriangleExample}{Triangle Strip example}{0.6}\end{covimg}
+	    
+\begin{htmlonly}
+Figure: Triangle Strip example
+\end{htmlonly}
+
+
+
+
+\section{Pixel Image Objects}
+\index{Image data|see {coDoPixelImage}}
+\index{Pixel image data|see {coDoPixelImage}}
+
+Pixel images with different formats can be stored in the PixelImage type. 
+Warning: the data saved in the pixel buffer of this type is transferred in
+binary between machines and not converted.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoPixelImage(const char *name,\newline
+     int width, int height, unsigned form, short psize)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{create a Pixel Image} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {width} 
+                          & {Image width}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {heigth} 
+                          & {Image heigth}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {form} 
+                          & {format ID}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {psize} 
+                          & {number of bytes per pixel}\endhead
+\hline
+\end{longtable}
+\index{coDoPixelImage!constructor}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf char* getPixels()}\\
+\hline
+{Description:}  
+           & {get a pointer to the storage area} \\
+\hline
+{Return value:}  
+           & {pointer to buffer area} \endhead
+\hline
+\end{longtable}
+\index{coDoPixelImage!getPixels}
+
+All other parameters can be requested using member functions:
+
+\begin{longtable}{p{5.5cm} p{5.5cm}}
+{\tt int getWidth()}     &   	delivers image width  \\
+
+{\tt int getHeight()}    &  	delivers image height \\
+
+{\tt int getPixelsize()} & 	delivers image pixel size \\
+
+{\tt int getormat()}    &  	delivers format ID \endhead
+\end{longtable}
+\index{coDoPixelImage!getWidth}
+\index{coDoPixelImage!getHeight}
+\index{coDoPixelImage!getPixelsize}
+\index{coDoPixelImage!getFormat}
+
+
+
+
+\subsection{2D Textures}
+\index{Texture data|see {coDoTexture}}
+\index{2D textures|see {coDoTexture}}
+%\vspace*{1cm}
+%{\Large Texture}
+%\vspace*{0.5cm}
+
+Textures are, if supported in hardware, a fast method to apply complex coloring 
+to geometrical objects. 
+
+A Texture object is created from a PixelImage, a list of vertex indices, 
+a 2D field of texture coordinates  and some additional information specific to 
+texture usage in OpenGL. 
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoTexture(const char *name, coDoPixelImage* image,\newline
+     int b, int c,  int l, int nv,int* vi, int nc, float** coords);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{create a texture object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {image} 
+                          & {texture buffer}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {b} 
+                          & {number of border pixels}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {c} 
+                          & {number of components}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {l} 
+                          & {level}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {nv} 
+                          & {number of vertices}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {int* vi} 
+                          & {vertex-indices}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {int nc} 
+                          & {number of ccordinates}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {coords} 
+                          & {x/y coordinates:\newline 
+			                        Pointer to float*[2]variable}\endhead
+\hline
+\end{longtable}
+\index{coDoTexture!constructor}
+
+This information can also be retrieved by a module, using the following set of 
+member functions:
+
+\begin{longtable}{p{3cm} p{5.5cm}}
+{\bf coDoPixelImage*}  &  {\bf getBuffer();}\\
+{\bf int }             &  {\bf getBorder();}\\
+{\bf int }             &  {\bf getComponents();}\\
+{\bf int }             &  {\bf getLevel();}\\
+{\bf int }             &  {\bf getWidth();}\\
+{\bf int }             &  {\bf getHeight();}\\
+{\bf int* }            &  {\bf getVertices();}\\
+{\bf int }             &  {\bf getNumCoordinates();}\\
+{\bf float**}          &  {\bf getCoordinates();}\\
+\end{longtable}
+\index{coDoTexture!getBuffer}
+\index{coDoTexture!getBorder}
+\index{coDoTexture!getComponents}
+\index{coDoTexture!getLevel}
+\index{coDoTexture!getWidth}
+\index{coDoTexture!getHeight}
+\index{coDoTexture!getVertices}
+\index{coDoTexture!getNumCoordinates}
+\index{coDoTexture!getCoordinates}
+All these functions simply return the values as explained in the constructor.
+
+
+
+\section{Text Objects}
+\index{Text data|see {coDoText}}
+\index{Character data|see {coDoText}}
+\index{String data|see {coDoText}}
+
+Text objects can be used to transmit binary data between modules. Furthermore the 
+Inventor renderer understands a special kind of text object directly:
+OpenInventor file format (or VRML 1.0 format). 
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoText(const char *name, int numBytes)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{create a binary object} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                          & {name of text object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {numBytes} 
+                          & {allocated size in bytes}\endhead
+\hline
+\end{longtable}
+\index{coDoText!constructor}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoText(const char *name, const char *value)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{create a binary objectfrom a given 
+	                              string and copy string to it} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                          & {name of text object}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                          & {NONZERO terminated string}\endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int getTextLength()}\\
+\hline
+{Description:}  
+           & {request length of storage area} \\
+\hline
+{Return value:}  
+           & {length of buffer in bytes} \endhead
+\hline
+\end{longtable}
+\index{coDoText!getTextLength}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void getAddress(char **text\_ptr)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get buffer pointer} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {text\_ptr} 
+                           & {buffer pointer}\endhead
+\hline
+\end{longtable}
+\index{coDoText!getAddress}
+
+Text objects should not be used for generating geometry for the renderer. Instead 
+the COVISE geometry object classes are recommended. In this case other existing 
+modules may be able to also handle data objects.
+
+Using Text objects for anything else than ASCII text is generally discouraged, 
+since neither type conversion nor field size adjustment is done on this data.
+
+
+\section{Integer Arrays}
+\index{Integer arrays|see {coDoIntArr}}
+\index{Arrays|see {coDoIntArr}}
+
+Integer arrays can be used to send indices or other integer fields. Fluid dynamics 
+codes often save cell types, materials and other properties per cell.
+These properties can be useful to allow selection of parts, e.g. with the 
+SelectUsg module. The class IntArr defines an integer array with an 
+arbitrary number of dimensions. It defined them in a one dimension field, 
+saving the sizes per dimension, and the data field as one large field.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoIntArr(const char *objName, int numDim, const int *dimArray, const int *initdata=NULL)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {numDim} 
+                          & {number of dimensions}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {dimArray} 
+                          & {integer array holding the 
+			                             sizes for numDim dimensions}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {initdata} 
+                          & {if given and non-zero: 
+			                              initialization field}\endhead
+\hline
+\end{longtable}
+\index{coDoIntArr!constructor}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int getNumDimensions()}\\
+\hline
+{Description:}  
+           & {get number of dimensions}  \\
+\hline
+{Return value:}  
+           & {number of dimensions} \endhead
+\hline
+\end{longtable}
+\index{coDoIntArr!getNumDimensions}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int getDimension(int i)}\\
+\hline
+{Description:}  
+           & {get size in i-dimension (i=[0..numDim-1]} \\
+\hline
+{Return value:}  
+           & {size in i-dimension} \endhead
+\hline
+\end{longtable}
+\index{coDoIntArr!getDimension}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int getSize()}\\
+\hline
+{Description:}  
+           & {get overall size} \\
+\hline
+{Return value:}  
+           & {product of all sizes} \endhead
+\hline
+\end{longtable}
+\index{coDoIntArr!getSize}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int *getAddress()}\\
+\hline
+{Description:}  
+           & {get base address} \\
+\hline
+{Return value:}  
+           & {pointer to table in memory} \endhead
+\hline
+\end{longtable}
+\index{coDoIntArr!getAddress}
+
+\section{Container Class coDoSet}
+\index{Set|see{coDoSet}}
+\index{Container|see{coDoSet}}
+
+The class coDoSet is a container for a certain number of objects of the same type. These 
+objects can also be sets, thus creating hierarchies of objects.
+Such hierarchies should be used cautiously since every access to a data object means a 
+task-task communication with the CRB. Thus excessive usage of set hierarchies can lead to 
+significant performance penalties.
+
+There are two cases, where sets are typically used:
+\begin{itemize}
+\item The real-world data is structured in a hierarchical system: typically FEM data 
+comes from CAD models, which have a strong hierarchical structure.
+\item The data is time-dependent: in this case there is one object per time step. Time 
+dependent data is created by attaching an attribute to the set declaring this set to be 
+a time series. A time set is simply any set with an attribute "TIMESTEP" and the
+value "0 <last number>" attached to the
+container object.
+\end{itemize}
+
+The creation of a coDoSet containing n objects consists of the following steps:
+
+\begin{enumerate}
+
+\item Creation of an array for the object pointers: {\it one element larger for termination}
+{\tt coDistributedObject **objects = new coDistributedObject* [n+1]}
+
+\item Creation of n objects of any kind and assigning it to {\tt objects[i]}. The 
+class {\tt coDistributedObject} is the base class of all object classes, thus it can be 
+assigned without casting. All object names {\it must} be different. As a convention, 
+the name returned from the port is taken and `\_i' is added using the current index i.
+
+\item Assignment of {\tt objects[n] = NULL} to terminate the list.
+
+\item Creation of the set object with {\tt objects} as the parameter.
+
+\item Deletion of all part objects with {\tt delete objects[i]}. 
+
+\item Deletion of the array using {\tt delete [] objects}.
+
+\end{enumerate}
+For the final level, the set object is assigned to the port, otherwise it might be 
+integrated into another set and deleted after creation of the higher level
+set. As a rule, any object created with {\tt `new *'} must either be deleted or 
+assigned to a port.
+
+There are several  constructors for coDoSet, but only the following is supported:
+
+ 
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDoSet(const char *name, coDistributedObject **elements)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{Create a set} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of the set 
+			                               container to fill}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {elements} 
+                          & {null-terminated array 
+			                             of COVISE data objects}\endhead
+\hline
+\end{longtable}
+\index{coDoSet!constructor}
+
+To retrieve data from a set, there are two possibilities:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDistributedObject * const *getAllElements(int *no)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get all elements of a set} \\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {no} 
+                          & {number of elements in the set}\\
+\hline
+{Return value:}  
+           & \multicolumn{2}{p{9.5cm}|}{Array of object pointers, must be deleted 
+	                              with delete[]} \endhead
+\hline
+\end{longtable}
+\index{coDoSet!getAllElements}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf coDistributedObject *getElement(int no)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{p{9.5cm}|}{get all elements of a set} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {no} 
+                          & {number of elements in the set}\\
+\hline
+{Return value:}  
+           & \multicolumn{2}{p{9.5cm}|}{pointer to set object} \endhead
+\hline
+\end{longtable}
+\index{coDoSet!getElement}
+

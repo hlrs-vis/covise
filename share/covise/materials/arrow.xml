@@ -1,0 +1,105 @@
+
+<arrow>
+
+  <uniform name="r" type="float" value="0.02"/>
+  <uniform name="arrowsize" type="float" value="0.05"/>
+
+  <uniform name="mytexture" texture="arrow.png" type="sampler2D" value="1"/>
+
+  <vertexProgram>
+ 
+varying vec4 color;
+    
+  void main( void )
+  {
+	gl_Position = gl_Vertex;
+	color = gl_Color;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+  }
+  </vertexProgram>
+
+  <geometryProgram inputType="LINES" numVertices="4" outputType="TRIANGLE_STRIP">
+#version 120 
+#extension GL_EXT_geometry_shader4 : enable  
+
+varying in vec4 color[2];
+varying out vec2 texCoord;
+varying out vec4 ocolor;
+uniform float r;
+uniform float arrowsize;
+
+  void main(void)
+  {
+
+	float arrowlength = 0.08023;
+	vec3 viewer =gl_ModelViewMatrixInverse[3].xyz;
+    vec3 dir = (gl_PositionIn[1]-gl_PositionIn[0]).xyz;
+	float dirlength = length(dir);
+	float size = min(arrowsize,dirlength*0.8);
+	float tex_x = 1-min(arrowlength*dirlength/size,1.0);
+
+	vec3 toViewer = viewer-gl_PositionIn[0].xyz;
+	vec3 w = r*normalize(cross(toViewer,dir));
+
+	
+	ocolor = color[0];
+	vec4 p = gl_PositionIn[0]-vec4(w,0);
+    gl_Position = gl_ModelViewProjectionMatrix * p;
+
+	texCoord = vec2(tex_x,0);
+	EmitVertex();
+	
+	p = gl_PositionIn[0]+vec4(w,0);
+	gl_Position = gl_ModelViewProjectionMatrix * p;
+	texCoord = vec2(tex_x,1);
+	EmitVertex(); 
+	
+	p = gl_PositionIn[1]-vec4(w,0);
+	gl_Position = gl_ModelViewProjectionMatrix * p;
+	texCoord = vec2(1,0);
+	EmitVertex();	
+	
+	p = gl_PositionIn[1]+vec4(w,0);
+	gl_Position = gl_ModelViewProjectionMatrix * p;
+	texCoord = vec2(1,1);
+	EmitVertex();	
+ 	EndPrimitive();	
+   }
+													
+</geometryProgram>
+
+  <fragmentProgram>
+   
+
+   varying vec2 texCoord;
+   varying vec4 ocolor;
+   uniform sampler2D mytexture;
+   
+   void main( void )
+   {
+		float arrowlength = 0.08023;
+		if (texCoord.x &lt; 0.91976) 
+		{
+		  if ((texCoord.y &lt; 0.35484) || (texCoord.y &gt; 0.64516)) discard;
+		}
+		else 
+		{
+		  float q = 1/(2*arrowlength)*(1-texCoord.x);
+		  
+		  if ((texCoord.y-0.5) &gt; q) discard;
+		  if ((0.5-texCoord.y) &gt; q) discard;
+		}
+
+	        vec4 texColor;
+			
+			texColor = texture2D(mytexture,texCoord);
+
+			gl_FragColor = ocolor*texColor;
+
+          
+   }
+  </fragmentProgram>
+
+</arrow>

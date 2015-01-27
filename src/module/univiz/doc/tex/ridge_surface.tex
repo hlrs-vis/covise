@@ -1,0 +1,126 @@
+\section{Ridge Surface}
+\label{sec:ridge-surface}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Extracts ridge surfaces from scalar data.
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  data grid (unstructured)
+  \begin{itemize}
+  \item
+    scalar (1-vect)
+  \item
+    clip scalar (1-vect) (optional)
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  surface-type geometry (the ridge surfaces)
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{smoothing range}: smoothing range used for gradient computation. A value of 1 means ``no smoothing''.
+
+\item
+  \textbf{mode}:
+  \begin{itemize}
+  \item
+    cell nodes PCA: eigenvector orientation is made consistent per cell using PCA, refer to \cite{Furst2001Ridges} and \cite{Sadlo07ARidges}.
+  \item
+    edge nodes PCA: eigenvector orientation is made consistent per edge using PCA, refer to \cite{Sadlo07ARidges}
+  \end{itemize}
+
+\item
+  \textbf{extremum}:
+  \begin{itemize}
+  \item
+    maximum ridges: extract ridge (maximum) surfaces, used e.g. for LCS extraction in FTLE.
+  \item
+    minimum ridges: extract valley (minimum) surfaces.
+  \end{itemize}
+
+\item
+  \textbf{exclude FLT\_MAX}: exclude nodes with FLT\_MAX (produced e.g. by \emph{FLE} module for marking nodes with invalid data).
+
+\item
+  \textbf{exclude lonely nodes}: exclude lonely nodes (nodes that do not have enough neighbors (due to \emph{exclude FLT\_MAX}).
+
+\item
+  \textbf{Hess. extr. eigenval min}: minimum absolute value of of second derivative across ridge (used for suppressing flat ridges).
+
+\item
+  \textbf{PCA subdom max perc.}: the second largest absolute eigenvalue must not be larger than this percentage of the largest absolute eigenvalue. This is used for preventing ridge surfaces in regions where it would be more appropriate to extract ridge lines or even ridge points.
+
+\item
+  \textbf{scalar min}: minimum value of the scalar field for ridge extraction.
+
+\item
+  \textbf{scalar max}: maximum value of the scalar field for ridge extraction.
+
+\item
+  \textbf{clip scalar min}: minimum value of the scalar clipping field for clipped ridge extraction.
+
+\item
+  \textbf{clip scalar max}: maximum value of the scalar clipping field for clipped ridge extraction.
+
+\item
+  \textbf{min size}: ridges with less than this number of triangles are suppressed.
+
+\item
+  \textbf{filter by cell}: ridge filtering is based on cells. Otherwise it is based on cell edges (recommended).
+
+\item
+  \textbf{combine exceptions}: instead of rejecting a triangle if a condition is violated at any corner, the violations are summed up and the the triangle is rejected if the count reaches or exceeds \emph{max exceptions}.
+
+\item
+  \textbf{max exceptions}: a triangle is rejected if it exhibits this count of exceptions.
+
+\item
+  \textbf{generate normals}: generate normals. However it is recommended to use the system-dependent normals generation module instead.
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2007-08-15
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Filip Sadlo
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................
+
+\begin{itemize}
+
+\item
+  FLE (Section~\ref{sec:FLE})
+\end{itemize}
+

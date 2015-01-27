@@ -1,0 +1,11 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{4cm}|p{4cm}|p{9cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	GridIn0 & Polygons\newline UnstructuredGrid & Geo input\\ 
+\hline
+	DataIn0 & Int\newline Float\newline Vec2\newline Vec3\newline RGBA\newline Mat3\newline Tensor & Scalar input\\ 
+\hline
+	DataIn1 & Int\newline Float\newline Vec2\newline Vec3\newline RGBA\newline Mat3\newline Tensor & Vector input\\
+\hline \end{longtable}
+

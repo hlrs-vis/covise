@@ -1,0 +1,38 @@
+
+
+
+
+\subsubsection{Example 1}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}%
+		{CropUsgMap}{covise/net/examples/CropUsg.net}{0.6}\end{covimg}
+
+The first RW\_Covise modules reads in the computational grid of a channel with two inlets
+and the second reads in the pressure field. The bounding box parameters are [-2000.0 -0.5
+-2000.0] for the first vertex and [2000.0 2000.0 2000.0] for the diagonal opposite vertex.
+The extension of the uncropped channel is from y=0.5 (inlet side) to y=-2 (outlet side).
+With the CropUsg module it is shortened thus it ends cropped at y=-0.5. 
+
+\begin{covimg2}{}{CropUsgRenderer}{0.7}\end{covimg2}
+
+\clearpage
+%
+%=============================================================
+
+\subsubsection{Example 2}
+%=============================================================
+%
+
+ 
+% examples for using this module
+The second example map shows you how to set the parameters by two points.
+
+
+\begin{covimg}{}%
+		{CropUsgMap2}{covise/net/examples/CropUsg\_RWAscii.net}{0.6}\end{covimg}
+

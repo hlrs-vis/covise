@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ 
+
+ <LOCAL host="visstereo" >
+ <License>
+   <SERVER value="ANY 6.5 31.12.2010 0 IAEZDNC Visstereo License" type="SERVER" name="IAEZDNC" />
+   <STD_UI value="ANY 6.5 31.12.2010 0 CEIQUCC Visstereo License" type="STD_UI" name="CEIQUCC" />
+   <VR_ONE_PIPE value="ANY 6.5 31.12.2010 0 ICGUKGE Visstereo License" type="VR_ONE_PIPE" name="ICGUKGE" />
+   <VR_MULTI_ANY value="ANY 6.5 31.12.2010 0 UQQDFLQ Visstereo License" type="VR_MULTI_ANY" name="UQQDFLQ" />
+   <COVISE_VRML value="ANY 6.5 31.12.2010 0 SIQXBBU Visstereo License" type="COVISE_VRML" name="SIQXBBU" />
+   <COVISE_CFD value="ANY 6.5 31.12.2010 0 MEKPXXO Visstereo License" type="COVISE_CFD" name="MEKPXXO" />
+   <COVISE_FEM value="ANY 6.5 31.12.2010 0 OYIKGWK Visstereo License" type="COVISE_FEM" name="OYIKGWK" />
+ <VR_DUAL_CLUSTER value="ANY 6.5 31.12.2010 0 IEWUCCC Visstereo License" type="VR_DUAL_CLUSTER" name="IEWUCCC" />
+</License>
+
+  
+  
+  <COVER>
+   <!--Console arch="windows" value="true" file="c:\OpenCOVER" /--> 
+   <ViewerPosition x="0.0" y="-600" z="0.0" />
+   <TabletPC>
+    <Server value="141.58.8.10"/>
+   </TabletPC>
+   
+   <Stereo value="OFF" />
+   <Tmp arch="x11" value="/tmp" />
+   <Tmp arch="windows" value="f:\tmp" />
+
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="0" />
+    <Startup arch="windows" value="covRemote OpenCOVER 2;" name="0" />   	 
+    <!--Startup arch="windows" value="startOpenCover" name="0" /-->
+    <Host arch="windows" value="141.58.8.90" name="0" />    
+   </MultiPC>
+
+   <WindowConfig>
+    <Window width="720" comment="FRONT" window="0" pipeIndex="0" height="576" left="0" bottom="30" name="0" decoration="true"/>
+   </WindowConfig>
+
+   <Collaborative>
+     <Sync mode="LOOSE_COUPLING" interval="0.1" />
+   </Collaborative>
+
+   <DebugLevel value="1"/>
+   <Plugin>
+   <ARToolKit value="On" >
+     <Capture value="On" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <DisplayVideo value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="ON" />
+     <FlipH value="FALSE" />
+	 <VideoConfig value="y:\AR\camera\WDM_camera.xml"/>
+	 <!--VideoConfig value="y:\AR\camera\WDM_dmax_hmd.xml"/-->
+     <!--<VideoConfig value="inputDevive=WDM_CAP,videoWidth=640,videoHeight=480,flipV,deinterlaceState=auto,pixelFormat=PIXELFORMAT_RGB24" />-->
+     <Threshold value="160" />
+     <Camera value="Y:\AR\camera\logNotePro.dat" />
+	 <!--Camera value="Y:\AR\camera\cctv_para.dat" /-->
+
+     <Marker name="ObjectMarker" >
+      <Pattern value="Y:\AR\camera\4x4_56.patt" />
+      <Size value="52" />
+      <Offset x="-0" h="0" y="0" z="38" p="0" r="-7" />
+      <VrmlToPf value="TRUE" />
+	 </Marker>
+	 
+	 <Marker name="ObjectMarker0" >
+      <Pattern value="Y:\AR\camera\4x4_15.patt" />
+      <Size value="50" />
+      <Offset x="-0" h="0" y="0" z="0" p="0" r="-7" />
+      <VrmlToPf value="TRUE" />
+	 </Marker>
+	 
+	 <RemoteAR>
+	    <Transmit value="Off" />
+		<EncodingStyle value="0" />
+		<EncodingQuant value="1" />
+		<UseIRMOS value="1" />
+		<irmosReceiver value="0" />
+		<irmosReceiverPort value="31666" />
+		<irmosReceiverServer value="141.58.8.10" />
+	  </RemoteAR>
+    </ARToolKit>
+   </Plugin>
+
+  </COVER>
+  
+  <System>
+    <HostConfig>
+      <Host timeout="60" memory="shm" method="SSLDaemon" name="visstereo" hostname="visstereo" />
+    </HostConfig>
+
+   <VRB>
+    <!--Server port="31200"/>
+    <Server value="141.58.8.90"/-->   
+   </VRB>	  
+
+   <RemoteDaemon>
+	   <Server port="31090" />
+	   <Debug value="true"/>
+	   <EnableFileDebug value="true"/>
+	   <DebugFile value="f:\RemoteDaemon.log"/>
+   </RemoteDaemon>
+
+   <CoviseDaemon>
+	   <Server port="31090" />
+	   <Debug value="true"/>
+	   <EnableFileDebug value="false"/>
+	   <Poll value="0.08" />
+	   <EnableInternalDebug value="false"/>
+	   <EnableCertificateCheck value="true"/>
+	   <DebugFile value="f:\CoviseDaemon.log"/>
+	   <Certificate value="G:\Daten\ssl\certs\mbr-personal.pem" />
+	   <Keyfile value="G:\Daten\ssl\keys\mbr-personal-key.pem" />
+	   <CAFile value="G:\Daten\ssl\certs\cacert.pem"  />
+	   <HostACL>
+		   <Host index="141058008090" hostname="141.58.8.90"/>
+		   <Host index="141058008011" hostname="141.58.8.11"/>
+		   <Host index="141058008010" hostname="141.58.8.10"/>
+	   </HostACL>
+   </CoviseDaemon>
+
+
+   <covRemote>
+    <!--Host value="141.58.8.10" />
+    <Server port="31809" /-->
+   </covRemote>
+
+  <!--HostConfig>
+   <Host timeout="30" memory="shm" method="ssh" name="visstereo" hostname="visstereo" /> 
+   <Host timeout="30" memory="shm" method="ssh" name="vissenschaft" hostname="vissenschaft" /> 
+  </HostConfig-->
+  </System> 
+
+ </LOCAL>
+
+ <include global="1" configname="hlrs" >config.hlrs.xml</include>
+ 
+</COCONFIG>

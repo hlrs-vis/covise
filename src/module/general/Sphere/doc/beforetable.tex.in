@@ -1,0 +1,25 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+Sphere builds spheres (made up of triangle-strips) out of points (e. g. retrieved using a
+particle tracer) or sends data for rendering sphere impostors to OpenCOVER.
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{Sphere}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+Sphere is available for COVISE version 4.5 on all supported platforms.
+
+%
+%=============================================================

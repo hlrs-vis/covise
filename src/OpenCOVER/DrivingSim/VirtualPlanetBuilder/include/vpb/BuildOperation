@@ -1,0 +1,64 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef BUILDOPERATION_H
+#define BUILDOPERATION_H 1
+
+#include <osg/CoordinateSystemNode>
+#include <osg/Notify>
+
+#include <osgTerrain/Terrain>
+#include <osgDB/Archive>
+
+#include <set>
+
+#include <vpb/BuildLog>
+
+namespace vpb
+{
+
+class ThreadPool;
+
+class VPB_EXPORT BuildOperation : public osg::Operation
+{
+    public:
+    
+        BuildOperation(ThreadPool* threadPool, BuildLog* buildLog, const std::string& name, bool keep);
+        
+        /** Set the OperationLog used to store log messages.*/
+        void setOperationLog(OperationLog* log) { _log = log; }
+
+        /** Get the OperationLog used to store log messages.*/
+        OperationLog* getOperationLog() { return _log.get(); }
+
+        /** Get the const OperationLog used to store log messages.*/
+        const OperationLog* getOperationLog() const { return _log.get(); }
+
+        /** Use a TemplateMethod design pattern - the OperationThread calls this method, and this provides progress info.*/
+        virtual void operator () (osg::Object*);
+
+        /** Virtual build method - this is the mehthod that must be overriden to provide the build method.*/
+        virtual void build() = 0;
+        
+
+    protected:
+    
+        ThreadPool*                 _threadPool;
+        osg::ref_ptr<OperationLog>  _log;
+        osg::observer_ptr<BuildLog> _buildLog;
+
+};
+
+}
+
+#endif

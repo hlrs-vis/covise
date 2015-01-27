@@ -1,0 +1,143 @@
+#VRML V1.0 ascii
+
+Separator {
+    DEF Viewer Info {
+	string	"Examiner"
+    }
+    DEF Cameras Switch {
+	whichChild	-1
+	DEF Home PerspectiveCamera {
+	    position	-0.046599 -0.00103554 1.09322
+	}
+    }
+    Group {
+	Separator {
+	    Transform {
+		translation	3.77639 -0.95563 0.838554
+		rotation	-0.636816 -0.666353 -0.387866  2.42386
+		scaleFactor	0.999993 0.999992 0.999989
+		scaleOrientation	-0.528466 -0.0779593 0.845367  0.935339
+		center	0 0 0
+	    }
+	    Separator {
+		Group {
+		    Info {
+			string	"solid"
+		    }
+		    Material {
+			ambientColor	0.247933 0.234873 0.25
+			diffuseColor	0.991732 0.939493 1
+			emissiveColor	0 0 0
+			shininess	0
+			transparency	0
+		    }
+		}
+		Cone {
+		    bottomRadius	4.14009
+		    height	9.2164
+		}
+		Separator {
+		}
+	    }
+	}
+    }
+    Group {
+	Separator {
+	    Transform {
+		translation	-8.4 -0.95563 0.838554
+		rotation	-0.636816 -0.666353 -0.387866  2.42386
+		scaleFactor	0.999998 0.999993 0.999996
+		scaleOrientation	0.542671 0.596197 0.591656  1.0714
+		center	0 0 0
+	    }
+	    Separator {
+		Group {
+		    Info {
+			string	"solid"
+		    }
+		    LightModel {
+			fields [ SFEnum model ]
+			model	PHONG
+		    }
+		    Material {
+			ambientColor	0.247933 0.234873 0.25
+			diffuseColor	0.991732 0.939493 1
+			emissiveColor	0 0 0
+			shininess	0
+			transparency	0
+		    }
+		}
+		Cylinder {
+		    radius	2.39692
+		    height	16.0945
+		}
+		Separator {
+		}
+	    }
+	}
+    }
+    Group {
+	Separator {
+	    Transform {
+		translation	-22.8234 0.207105 0
+		rotation	0 0 1  0
+		scaleFactor	1 1 1
+		scaleOrientation	0 0 1  0
+		center	0 0 0
+	    }
+	    Separator {
+		Group {
+		    Info {
+			string	"solid"
+		    }
+		    Material {
+			ambientColor	0.219385 0.226102 0
+			diffuseColor	0.877539 0.904409 0
+			specularColor	0.0955906 0.0955906 0.0955906
+			emissiveColor	0 0 0
+			shininess	0.078125
+			transparency	0
+		    }
+		}
+		Cylinder {
+		    radius	1.65686
+		    height	50.5879
+		}
+	    }
+	}
+    }
+    Group {
+	Info {
+	}
+	Separator {
+	    Transform {
+		translation	13.05036 -0.414214 0
+		rotation	0 0 1  0
+		scaleFactor	1 1 1
+		scaleOrientation	0 0 1  0
+		center	0 0 0
+	    }
+	    Separator {
+		Group {
+		    Info {
+			string	"solid"
+		    }
+		    Material {
+			ambientColor	0.187004 0 0.0100218
+			diffuseColor	0.748016 0 0.0400871
+			specularColor	0.89697 0.89697 0.89697
+			emissiveColor	0 0 0
+			shininess	1
+			transparency	0
+		    }
+		}
+		Cylinder {
+		    radius	1.65686
+		    height	50.5879
+		}
+		Separator {
+		}
+	    }
+	}
+    }
+}

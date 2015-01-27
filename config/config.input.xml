@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<COCONFIG version="1">
+<GLOBAL>
+    <COVER>
+        <Input>
+            <Device>
+               <DTrackCave driver="dtrack" port="5005">
+                  <Offset x="0" y="-0" z="-1307" />
+                  <Orientation h="0" p="0" r="0" />
+               </DTrackCave>
+
+               <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+
+               <Legacy driver="legacy" />
+
+            </Device>
+
+            <Body>
+               <ConstHead>
+                  <Offset x="0" y="-2000" z="0" />
+                  <Orientation h="0" p="0" r="0" />
+               </ConstHead>
+
+               <PowerWallHead device="DTrack" bodyIndex="0">
+                  <Offset x="-105" y="-40" z="-50" />
+                  <Orientation h="0" p="0" r="0" />
+               </PowerWallHead>
+
+               <PowerWallHand device="DTrack" bodyIndex="1">
+                  <Offset x="-50" y="0" z="0" />
+                  <Orientation h="0" p="-90" r="0" />
+               </PowerWallHand>
+
+               <CaveHead device="DTrackCave" bodyIndex="1">
+                  <Offset x="-105" y="-40" z="-50" />
+                  <Orientation h="0" p="0" r="0" />
+               </CaveHead>
+
+               <CaveHand device="DTrackCave" bodyIndex="0">
+                  <Offset x="0" y="-170" z="0" />
+                  <Orientation h="0" p="0" r="0" />
+               </CaveHand>
+
+               <LegacyTracker0 device="Legacy" bodyIndex="0" />
+               <LegacyTracker1 device="Legacy" bodyIndex="1" />
+
+            </Body>
+
+            <Buttons>
+               <CaveMouse device="CaveButtons" />
+               <PowerWallMouse device="Buttons" />
+               <LegacyMouse device="Legacy" />
+            </Buttons>
+
+            <Persons count="1" >
+               <Person name="0" head="ConstHead" />
+               <Person name="1" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" />
+            </Persons>
+        </Input>
+    </COVER>
+</GLOBAL>
+</COCONFIG>

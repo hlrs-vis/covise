@@ -1,0 +1,91 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+ReadEnsight reads data files written by Ensight. For supported versions see table below.
+
+
+\begin{longtable}{|p{4cm}|p{4cm}|p{4cm}|p{4cm}|}
+\hline
+\multicolumn{4}{|p{14cm}|}{{\bf Ensight Data Formats (support state by 20.10.2005)}} \\
+\hline\hline
+\multicolumn{1}{|p{4cm}||}{  } 
+                 & \multicolumn{1}{p{2.5cm}|}{Ensight v5} 
+		 & \multicolumn{1}{p{5cm}|}{Ensight 6} 
+		 & \multicolumn{1}{p{2.5cm}|}{Ensight Gold} \\
+\hline\hline
+\multicolumn{1}{|p{4cm}||}{Stationary} 
+                 & \multicolumn{1}{p{2.5cm}|}{NO**} 
+		 & \multicolumn{1}{p{4cm}|}{V+C (ascii+fort.-bin+C-bin) } 
+		 & \multicolumn{1}{p{4cm}|}{V+C (ascii+fort.-bin+C-bin) } \\
+\hline
+\multicolumn{1}{|p{4cm}||}{Time-dependant} 
+                 & \multicolumn{1}{p{2.5cm}|}{NO**} 
+		 & \multicolumn{1}{p{4cm}|}{  }
+		 & \multicolumn{1}{p{4cm}|}{  } \\
+\hline
+\multicolumn{1}{|p{4cm}||}{Stat.Geo./\newline moving data} 
+                 & \multicolumn{1}{p{2.5cm}|}{NO**} 
+		 & \multicolumn{1}{p{5cm}|}{V+C (ascii+fort.-bin+C-bin) } 
+		 & \multicolumn{1}{p{2.5cm}|}{V+C (ascii+fort.-bin+C-bin)} \\		 
+\hline
+\multicolumn{1}{|p{4cm}||}{Moving Geo./\newline moving data} 
+                 & \multicolumn{1}{p{2.5cm}|}{NO**} 
+		 & \multicolumn{1}{p{5cm}|}{V+C (ascii+fort.-bin+C-bin) } 
+		 & \multicolumn{1}{p{2.5cm}|}{V+C (ascii+fort.-bin+C-bin)} \\
+\hline
+\multicolumn{1}{|p{4cm}||}{Measured geo/\newline data/particles} 
+                 & \multicolumn{1}{p{2cm}|}{NO**} 
+		 & \multicolumn{1}{p{4.5cm}|}{NO*} 
+		 & \multicolumn{1}{p{2.5cm}|}{NO*} \\		                             
+\hline
+\multicolumn{1}{|p{4cm}||}{Structured blocks} 
+                 & \multicolumn{1}{p{2.5cm}|}{NO} 
+		 & \multicolumn{1}{p{4cm}|}{NO} 
+		 & \multicolumn{1}{p{2.5cm}|}{NO} \endhead
+\hline
+\end{longtable}
+
+V : Vertex (node) based data\\
+C : Cell based data \\
+*will be fully supported in final version.\\
+**an Ensight 5 data-set can be transformed to Ensight 6 data by adding a (hand writen) case-file.
+
+Note: ReadEnsightNT is planned to replace ReadEnsight as soon as it it will accept 
+all Ensight formats.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2} {}{ReadEnsightNT_Module}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+ 
+ 
+Ensight6 data consists of files:
+\begin{itemize} 
+\item description of the geometry (*.geo) - required 
+\item case file (*.case) - required; in this file are pointers to all other necessary files
+\item variable files
+\end{itemize}
+
+Timesteps are supported. 
+ 
+
+%
+% short information about versions 
+%
+ReadEnsightNT is available for COVISE version 5.2.3. 
+It's tested on all platforms. 
+
+\clearpage
+%
+%=============================================================

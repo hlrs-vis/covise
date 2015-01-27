@@ -1,0 +1,169 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Starting COVISE}
+\label{StartCOVISE}
+%=============================================================
+
+\section{Introduction}
+
+After having read this chapter you will be familiar with: 
+
+\begin{itemize}
+\item how to start COVISE 
+\item the parts of the MapEditor 
+\item how to load a map
+\end{itemize}
+
+COVISE is a toolkit to integrate several stages of a scientific or technical 
+application such as simulations, reading of data, postprocessing and visualization. 
+Each step is implemented as a module. Connecting these module forms a data flow 
+network that can be executed. The user interacts with COVISE and its modules 
+through a Motif based user interface.
+
+\section{Starting COVISE}
+
+After the installation the path to the covise executable is appended to the 
+environment variable \$PATH. To start COVISE type {\bf covise} in a cshell or 
+tcshell window. 
+
+This initiates the following processes: the controller which is responsible 
+for message handling, the request broker, responsible for data handling, and 
+the main user interface called MapEditor.
+
+
+\begin{longtable}{|p{15cm}|}
+\hline
+If the command {\bf covise} is not found make sure you use a tcshell or a cshell.
+Otherwise have a look at the files README and INSTALL.TXT and check the environment
+variable COVISE\_PATH. \newline
+During the starting phase you might get the message \begin{verbatim} Timelimit in accept exceeded
+\end{verbatim}
+Edit the file covise.config in the covise directory and increase the timelimit 
+for your machine. You find more information about {\it covise.config} in Chapter 2 in 
+the {\it User's Guide}.\\	 														
+\hline
+\end{longtable}
+
+COVISE can also be started with parameters. Typing  \verb/covise help/  will show you the syntax. 
+
+\vspace{0.5cm}
+
+The following 2 start options may be useful e.g. for demos with COVISE:
+\begin{itemize}
+\item {\bf -i}  start with MapEditor as icon
+\item {\bf -e}  execute immediately after loading
+\end{itemize}
+
+\section{The Mapeditor}
+
+\begin{covimg}{StartCOVISE}{mapnew}{The Mapeditor}{0.7}\end{covimg}
+
+\begin{htmlonly}
+Figure 1.1: The Mapeditor 
+\vspace{0.5cm}
+\end{htmlonly}
+
+After the starting phase the MapEditor window (with Visual Programming as default) appears.
+
+ 
+The MapEditor window consists of four main parts: 
+
+\begin{itemize}
+\item the Menu Bar 
+\item the Tool Bar
+\item one of three index cards according to the selected function
+  \begin{itemize}
+  \item Visual Programming - default: to build a map
+  \item COVISE Objects - to look at the data structures involved
+  \item Control Panel - to modify parameters
+  \end{itemize} 
+\item the Message Area 
+\end{itemize}
+
+A Chat Line - used for communication together with the Message Area - appears in case of
+two or more users only.
+
+The Visual Programming index card contains the Module Browser and the Visual Programming Area (canvas or
+working area). 
+The Menu Bar contains an item File. You can have a new file, in which you create a 
+data flow network, you can save a file or you can open a file that contains a saved 
+session. Such a file is called a map. It contains a list of the modules in the map and information
+about the connections. 
+
+Creating a new module network (map) is discussed in chapter 3. In this chapter you learn 
+how to load and execute a saved map. COVISE comes with some example maps and the 
+maps described in this tutorial. They are located in the following directories: 
+\newline
+{\it \$COVISEDIR/net/general/example}
+\newline
+{\it \$COVISEDIR/net/general/tutorial} 
+
+
+\clearpage
+\section{Loading a Map}
+
+\begin{covimg}{StartCOVISE}{MenuFile}{Menu Item File}{0.7}\end{covimg}
+
+\begin{htmlonly}
+Figure 1.2: Menu Item File  
+\vspace{0.5cm}
+\end{htmlonly}
+
+The menu item File Open pops up a file browser (Figure 1.2). Select the 
+file {\it covise/net/tutorial/tutorial\_pressure\_1.net}. 
+
+The loaded map appears in the working area. Each module is represented by an icon. 
+A module has input data ports, represented by blue buttons on the top edge of the 
+module icon and output data ports represented by blue buttons on the bottom of 
+the icon. Green buttons mean optional data ports. Module icons are described in 
+more detail in chapter 3. 
+
+When the Renderer module is started as part of the module network, its window is 
+opened. Initially it contains only three coordinate axis. This is explained in 
+more detail in chapter 2. 
+
+Now execute the network by selecting Execute in the Execution menu. One module 
+icon after the other shows a red frame which indicates that it operates. Finally 
+geometry objects appear in the render window (Figure 1.3). 
+
+\begin{covimg}{StartCOVISE}{GeometryObjects}{Geometry Objects in the Renderer}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 1.3: Geometry Objects in the Renderer 
+\vspace{0.5cm}
+\end{htmlonly}
+
+Have a look at Figure 1.1: the modules on the top are named {\bf RWCovise}. Their task 
+is to read in data files in the COVISE data format.
+The files are the output of a flow simulation. In a flow simulation the geometric 
+domain occupied by the fluid is covered by a grid of a certain type. Such a grid 
+consists of grid points together with their connectivity information. The 
+simulation results typically contain scalar or vector data such as pressure, 
+temperature or velocity attached to the grid points. Grids and attached data are 
+handled as separate objects in COVISE. 
+
+The left {\bf RWCovise} module reads the grid file tiny\_geo.covise. You select the grid 
+via a file browser that pops up automatically. 
+
+Below {\bf RWCovise} you find the module {\bf DomainSurface}. Out of the whole 3D grid it 
+extracts the outer surface or bounding lines of the grid. The {\bf DomainSurface} module 
+is directly connected to the Renderer module, which displays the results of 
+{\bf DomainSurface}.
+Figure 1.3 shows the content of the Renderer module window. The white lines are the 
+bounding edges of the geometry. The displayed content is a flow channel with two 
+inlets.
+
+The second {\bf RWCovise} module reads in the pressure distribution tiny\_p.covise. 
+{\bf CuttingSurface} then computes a cutting plane in the pressure data. The module 
+{\bf Colors} converts the scalar data values to colors. The grid of the cutting plane
+and the colors are combined into a geometry object by the {\bf Collect} module. 
+{\bf Collect} is directly connected to the {\bf Renderer}, which displays the resulting
+colored plane. 
+
+
+

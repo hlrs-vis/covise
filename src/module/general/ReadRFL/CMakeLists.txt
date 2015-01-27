@@ -1,0 +1,19 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadRFL.cpp
+  ReadRflFile.cpp
+)
+
+SET(EXTRASOURCES
+  ReadRFL.h
+  ReadRflFile.h
+  binheader.h
+)
+
+ADD_COVISE_MODULE(IO ReadRFL ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadRFL  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadRFL)

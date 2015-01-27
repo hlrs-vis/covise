@@ -1,0 +1,497 @@
+Base Header     96 Byte = 24 Words      (1)
+===========
+
+int   MAXN          Anzahl Vertices
+int   MAXE          Anzahl Cells
+int   IS(1)
+int   IS(2)
+int   IS(3)
+int   JVERS         Versionsnummer * 1000
+
+int KEYS(1..18)
+int ( 1)  NUMW
+int ( 2)  NI
+int ( 3)  NJ
+int ( 4)  NK
+int ( 5)  NF
+int ( 6)  MAXB       Max. number of boundary faces
+int ( 7)  IBFILL
+int ( 8)  NOVICE
+int ( 9)  MAXR       Max. number of Regions
+int (10)  NLINE      Lines per page in ProStar
+int (11)  MAXCY      Max. number of cyclic couplings (CY-command)
+int (12)  LSCTYPE
+int (13)  RMSIZE
+int (14)  INPECH     Input Echo
+int (15)  ISVER
+int (16)  MAXS       Max. number of Splines
+int (17)  MXBL       Max. number of Blocks
+int (18)  ISTOP
+
+TITLE     240 Byte = 60 Words   (2)
+=====
+
+char   TITLE(80)
+char   SUBTIT(80)
+char   SUBTIT2(80)
+
+
+NCYDMF,NCPDMF      8 Byte = 2 Words   (3)
+=============
+
+MAX NUMBER OF CELLS IN CYCLIC AND COUPLED SETS
+      
+only versions > 3000 !!
+
+int    NCYDMF      Max. number of cells in cyclic sets
+int    NCPDMF      Max. number of cells in coupled sets
+
+
+UNKNOWN
+=======
+
+v2220:  8 Blocks
+v2300:  9 Blocks
+v3000: 12 Blocks
+v3050: 12 Blocks  1386+  1+15+1093+551+12+3+2084+2084+109+13+246  ??
+v3050: 12 Blocks  1386+186+15+1093+551+12+3+2084+2084+109+13+246  ??
+
+
+Cell Table
+==========
+
+int    V1 V2 V3 V4 V5 V6 V7 V8         8 Vertex numbers
+int    ictid                           Cell Type ID
+
+(MAXE-1)/100+1 Blocks   each 100x9 integers
+
+
+Vertex Table
+============
+
+float  X Y Z     3 Vertex coordinates
+
+(MAXN-1)/300+1 Blocks   each 300x3 floats
+
+
+Boundary Face List
+==================
+
+int    N1 N2 N3 N4    Boundary patch vertices
+int    region         Region number
+int    patch          
+
+(MAXB-1)/150+1 Blocks   each 150x6 integers
+
+
+Region Parameter List   Regions: [0..MAXR] !!
+=====================
+
+NPREG=55         Parameters per Region
+NDIV=900/NPREG   Blocking divisor
+
+MAXR/NDIV+1 Blocks     each 16 Region parameter sets
+
+Region Type List   Regions: [0..MAXR] !!
+================
+
+int regType      Region type:  1 Inlet     5 Cyclic     9 FreeStream
+                               2 Outlet    6 Stag      10 Trans  
+                               3 Symmetry  7 Pressure  11 Att.
+                               4 Wall      8 Baffle
+
+v3100 -> MAXR/900+1 Block     each 900x1 integer
+v3050 ->  integer field, maxr+1 elements
+
+
+UNKNOWN: Boundaries (?)
+===================
+
+v3100 -> ???? Strings: 80 chars * (MAXR+1), 8000 char blocked
+
+Boundary labels (?)
+===============
+
+v3100 ->   Boundary names: 80 chars * (MAXR+1), 2000 blocked
+
+Solver Settings
+===============
+
+1 Block:    v2200    170 words
+            v2300    172 words
+            v3000    172 words
+            v3050    174 words
+            v3100    174 words
+
+LS-Block
+========
+
+LS(1..29),IS(1..99),LS(30),NPRSRF(1..3),NPROBS
+
+1 Block:    v2200    133 words
+            v2300    136 words
+            v3000    136 words
+            v3050    136 words
+            v3100    139 words
+
+v2200:   if ( NPRSRF(1) || NPRSRF(2) || NPRSF(3) )
+            write max( KEYS(2),KEYS(3),KEYS(4) ) elements
+                   in blocks of 300x3 ints
+
+if (NPROBS>0) 
+
+   MAXOBF=10
+   (MAXOBF-1)/900+1 Blocks   each 1 int/float
+
+
+Property Info Block
+===================
+
+int IS(1)
+int LMDEF(1..99)
+
+1 Block:    v2200    400 words
+            v2300    400 words
+            v3000    496 words
+            v3050    496 words
+            v3100    496 words
+
+
+INOX Info Block
+===============
+
+only > v3040
+
+int INOX   ( 1 word )
+
+
+INOX Data
+=========
+
+only > v3040
+
+if (INOX)
+
+   unknown: 2 Blocks
+
+
+Property Blocks
+===============
+
+for all (i=1..99) with LMDEF(i)
+
+   v2200    1 block  
+   v2201    2 blocks
+   v2300    2 blocks   
+   v3000    2 blocks   87 + 375 words
+   v3040    3 blocks   87 + 13 + 375 words
+   v3050    5 blocks   87 + 3 + 20 + 33 + 375 words
+   v3100    5 blocks   87 + 3 + 20 + 33 + 375 words
+
+ROTA
+====
+
+1 block   693 words
+
+
+Two Layer
+=========
+
+1 block   205 words
+
+
+NBND Sizes
+==========
+
+only versions <= v2330
+
+  int   NBND(1..6)   number of boundary patches in N,S,W,O,T,B direct ???
+
+
+NBND Data
+=========
+
+only versions <= v2330
+
+  max(NBND(1..6))  6-int records in 150x6 blocking
+ 
+
+NKEYS
+=====
+
+1 Block:    v2200     26 words
+            v2300     26 words
+            v3000     60 words
+            v3050     60 words
+            v3100     60 words
+
+version < v3000 ??? equivalenced to int lswtch,rswtch (logic, real)
+
+LSWTCH,RSWTCH
+=============
+
+version > v3000
+
+LSWTCH,RSWTCH :   1 Block, 400 words
+
+v3100 : 401 words
+
+Cyclic Data
+===========
+
+vers <  3000
+
+   (MAXCY-1)/450+1 Blocks   each 450x6 integers
+
+vers >= 3000 : NCYDMF read in Block 1
+
+   NN1=2048/NCYDMF
+   NUMREC=(MAXCY-1)/NN1+1
+   
+   (MAXCY-1)/NN1+1 blocks each NCYDMF integers  <= 2048 words
+
+Data Base sets
+==============
+
+1 Block:    v2200     15 words
+            v2300     15 words
+            v3000     18 words
+            v3050     18 words
+            v3100     18 words
+
+
+Cell selection
+==============
+
+int selected(MAXE)
+
+(MAXE-1)/900+1 Blocks     each 900x1 integer 
+
+
+Vertex selection
+================
+
+int selected(MAXN)
+
+(MAXN-1)/900+1 Blocks     each 900x1 integer 
+
+
+Boundary selection
+==================
+
+int selected(MAXB)
+
+(MAXB-1)/900+1 Blocks     each 900x1 integer 
+
+
+Spline selection
+================
+
+int selected(MAXS)
+
+(MAXS-1)/900+1 Blocks     each 900x1 integer 
+
+
+Block selection
+===============
+
+int selected(MXBL)
+
+(MXBL-1)/900+1 Blocks     each 900x1 integer 
+
+
+Spline Data
+===========
+
+(MAXS-1)/8+1  Blocks
+
+
+Block Data
+==========
+
+(MXBL-1)/31+1  Blocks
+
+KEYS2
+=====
+
+25 words:
+
+int   (1) MXTB      Max. Tell type number
+int   (2) LTURBI
+int   (3) LTURBP
+int   (4) SETADD
+int   (5) NSENS
+int   (6) NPART
+float (7) SCALE8    Geometry scaling
+int   (8) MAXCP     Max. number of coupled cells
+int   (9) LOC180
+int  (10) MVER
+int  (11) MAXSCL
+int  (12) ISTYPE
+int  (13) MXSTB     Max. Entry in spline table
+int  (14) NUMCP
+int  (15) IOPTBC
+int  (16) LTURBF
+int  (17) LTURBT
+int  (18) MAXCRS
+int  (19) MXSAM  (PBTOL)
+int  (20) KEYSD(1)
+int  (21) KEYSD(2)
+int  (22) KEYSD(3)
+int  (23) KEYSD(4)
+int  (24) KEYSD(5)
+int  (25) KEYSD(6)
+
+
+CPG-Block
+=========
+
+vers > v3040
+
+   1st block: int MXCPTB,ICPTAC,CPGTIN,CPGTPL,CPGTAN (5 words)
+   
+CPTB data
+=========
+   
+vers > v3040
+
+  if (MAXCP>0)
+      
+     (MAXCP-1)/900+1 blocks of 1 logic each
+   
+SAMM
+====
+
+version > v2310 : SAMM descriptions
+
+if (MXSAM>0) 
+
+   (MXSAM-1)/2048+1 Blocks  NLSAMM
+   (MXSAM-1)/150+1  Blocks  NESAMM
+
+
+Cell Table   ICTABLE
+==========
+
+MXTB entries of 10 ints:
+
+  ctype, colorIdx, porosIdx, materIdx, groupIdx, dummy[5]   < v3100
+  
+  ctype, colorIdx, porosIdx, materIdx, spinIdx, groupIdx,   >= 3100
+  procNumber, lightMaterial, ?? ?? 
+   
+
+ctype = fluid(1) solid(2) baffle(3) shell(4) line(5) point(6) ?
+
+
+(MXTB*10-1)/900+1 Blocks     each 90x10 integer 
+
+
+Cell Types Names
+================
+
+MXTB cell type names 
+   vers>2015  ...  char[4] without delimiters
+   vers>=3060 ...  char[80] without delimiters
+
+vers>=3060
+   (MXTB-1)/100*1 blocks each 100*80 chars
+2015<vers<3060
+   1 block, size=MXTB*4 bytes
+   
+
+Spline tables
+=============
+
+vers>2115 && MXSTB>0
+   (5*MXSTB-1)/900+1 Blocks   ISTAB(5*MXSTB)
+
+
+Couple tables
+=============
+
+if (  MXCPTB>0 && vers>v3040 ) 
+
+    (5*MXCPTB-1)/900+1 blocks         ICPTAB(5*MXCPTB)
+    + 1 block                         CPBTOL(MXCPTB)
+    
+    vers > 3060
+    (MXCPTB-1)/100+1 blocks         CPTNAME(MXCPTB)
+    
+
+
+Probe data
+==========
+if  (NSENS>0)
+  
+   (2*NSENS-1)/900+1 blocks           NPROBE(2,NSENS)
+
+
+Particle Data
+=============
+
+if (NPART>0)
+
+   if (vers<2237)
+      (NPART-1)/450+1 blocks        NPSTRT(2,NPART)
+   ELSE
+      (NPART-1)/100+1 blocks        NPSTRT(7,NPART)
+
+
+Porosity Data
+=============
+
+  1 Block
+  
+
+Coupled cell sets
+=================
+
+maxcp>0
+
+   Max. number of slave cells: NCPDMF
+
+   vers <= 2210        : NCPDMF = 24+1
+   2210 < vers < 2325  : NCPDMF = 50+1
+   vers >=2325         : NCPDMF saved in block 2
+
+   vers < 2325  : NN1 = 900/NCPDMF
+   vers >=2325  : NN1 = 2048/NCPDMF
+
+   (MAXCP-1)/NN1+1   blocks with NN1 elements of NCPDMF ints
+
+   vers>=3040
+      1 block ICPTYP(MAXCP)
+
+ANSYS nodal rotations
+=====================
+
+   Wenn (mver==1)    
+
+      input.skipBlocks(maxn*3,900);
+
+
+
+SCALR(15,50)
+============
+
+   Wenn (maxscl) : skip 1 block
+   
+
+Scalar Names
+============
+
+    if (maxscl) 
+     
+        maxscl*20 chars  (immer 50?)
+         
+ 
+
+
+
+
+
+
+
+
+

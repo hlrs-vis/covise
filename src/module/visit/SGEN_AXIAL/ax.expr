@@ -1,0 +1,40 @@
+2 0
+ase1
+2 0
+ase2
+2 0
+f(ixb1+bord)
+2 0
+ixb1+bord
+2 0
+za
+2 0
+bord
+2 0
+f(ixb2+za)
+2 0
+f(iyb2+za)
+2 0
+f(ixb1+za)
+2 0
+f(iyb1+za)
+2 0
+bvs1
+2 0
+f(ixr+seed)
+2 0
+f(iyr+seed)
+2 0
+x1
+2 0
+y1
+2 0
+x2
+2 0
+y2
+2 0
+TEND
+2 0
+TBEG
+2 0
+NL

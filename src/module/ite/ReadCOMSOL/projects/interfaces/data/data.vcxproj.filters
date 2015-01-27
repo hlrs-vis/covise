@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{8a823fba-805a-4ee5-b31a-5fbee6489d8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sourcecode">
+      <UniqueIdentifier>{dff9b104-d71c-4554-81df-fce75d26bfad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dll">
+      <UniqueIdentifier>{5a6fc341-5238-4307-8da5-5630fc3be748}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\basicelements.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cartesian.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\data.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\meshdata.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\physicalvalues.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\time.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\meshdatastandard.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\physicalvaluesstandard.h">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\timestandard.h">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\dllapi.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\stdafx.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\targetver.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sourcecode\meshdata.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\physicalvalues.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\time.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\physicalvaluesstandard.cpp">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\timestandard.cpp">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\dllmain.cpp">
+      <Filter>dll</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\stdafx.cpp">
+      <Filter>dll</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\meshdatastandard.cpp">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

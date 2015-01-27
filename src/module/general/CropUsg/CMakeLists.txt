@@ -1,0 +1,13 @@
+
+SET(SOURCES
+  CropUsg.cpp
+)
+
+SET(EXTRASOURCES
+  CropUsg.h
+)
+
+ADD_COVISE_MODULE(Filter CropUsg ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(CropUsg  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(CropUsg)

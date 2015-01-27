@@ -1,0 +1,9 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} 
+\hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline Geometry & Points \newline Uniform Grid \newline Rectilinear Grid \newline Structured Grid & Points or a grid\\ 
+\hline ScalarData & Float \newline Float & Scalar data\\ 
+\hline VectorData & Vec3 \newline Vec3 & Vector data\\ 
+\hline \end{longtable}
+

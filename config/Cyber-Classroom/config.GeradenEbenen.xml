@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Analytische Geometrie' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">			   
+			   <ShortCut value="viewall" name="viewall" />
+			   <ShortCut value="traverseInteractors" name="traverseInteractors" />
+               <!--<ShortCut value="showName" name="showName" />-->
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <!-- Mathematik -->
+            <Mathematic value="on">
+               <Boundary max="10" />
+               <LineVectorMode value="on" />
+               <PlaneDirectionsMode value="on" />
+               <PlaneParameterEquation value="on" />
+               <PlaneNormalEquation value="off" />
+            </Mathematic>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Mathematik/GeradenEbenen/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

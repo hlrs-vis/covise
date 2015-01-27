@@ -1,0 +1,1051 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+13
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+357
+493
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module CellToVert
+CellToVert
+1
+LOCAL
+Interpolator
+TITLE=CellToVert_1
+391
+272
+2
+GridIn0
+UnstructuredGrid|Polygons|Lines
+mesh
+req
+
+DataIn0
+Float|Vec3
+data
+req
+
+1
+DataOut0
+Float|Vec3
+data
+default
+
+1
+algorithm
+Choice
+how to do the interpolation
+2 SqrWeight Simple
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+51
+289
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module CellToVert
+CellToVert
+2
+LOCAL
+Interpolator
+TITLE=CellToVert_2
+221
+289
+2
+GridIn0
+UnstructuredGrid|Polygons|Lines
+mesh
+req
+
+DataIn0
+Float|Vec3
+data
+req
+
+1
+DataOut0
+Float|Vec3
+data
+default
+
+1
+algorithm
+Choice
+how to do the interpolation
+2 SqrWeight Simple
+
+-1
+0
+# Module CellToVert
+CellToVert
+3
+LOCAL
+Interpolator
+TITLE=CellToVert_3
+561
+272
+2
+GridIn0
+UnstructuredGrid|Polygons|Lines
+mesh
+req
+
+DataIn0
+Float|Vec3
+data
+req
+
+1
+DataOut0
+Float|Vec3
+data
+default
+
+1
+algorithm
+Choice
+how to do the interpolation
+2 SqrWeight Simple
+
+-1
+0
+# Module Scalar2Vector
+Scalar2Vector
+1
+LOCAL
+Converter
+TITLE=Scalar2Vector_1
+374
+374
+4
+inPortU
+Float
+Scalar input for U/red
+req
+
+inPortV
+Float
+Scalar input for V/green
+req
+
+inPortW
+Float
+Scalar input for W/blue
+req
+
+inPortA
+Float
+Scalar input for alpha/opacity
+opt
+
+2
+outPort
+Vec3
+Vector output
+default
+
+outPortRGBA
+RGBA
+Packed color output
+default
+
+4
+normalizeMode
+Choice
+if and how the packed RGBA data is normalized
+1 Donot IgnoreMAX_FLT Ignoreuserdefinedvalue Userdefinedbounds
+
+-1
+userIgnoreValue
+FloatScalar
+Value to ignore for min and max for normalization
+0.000000
+
+-1
+userNormalizeMin
+FloatVector
+Minima to use for normalization
+0 0 0 0.
+
+-1
+userNormalizeMax
+FloatVector
+Maxima to use for normalization
+1 1 1 1.
+
+-1
+0
+# Module FixUsg
+FixUsg
+1
+LOCAL
+Tools
+TITLE=FixUsg_1
+51
+153
+6
+GridIn0
+UnstructuredGrid|Polygons|Lines
+Unstructured Grid or Polygons
+req
+
+DataIn0
+Float|Vec3
+data
+opt
+
+DataIn1
+Float|Vec3
+data
+opt
+
+DataIn2
+Float|Vec3
+data
+opt
+
+DataIn3
+Float|Vec3
+data
+opt
+
+DataIn4
+Float|Vec3
+data
+opt
+
+6
+GridOut0
+UnstructuredGrid|Polygons|Lines
+filtered USG or Polygons
+default
+
+DataOut0
+Float|Vec3
+data
+dep DataIn0
+
+DataOut1
+Float|Vec3
+data
+dep DataIn1
+
+DataOut2
+Float|Vec3
+data
+dep DataIn2
+
+DataOut3
+Float|Vec3
+data
+dep DataIn3
+
+DataOut4
+Float|Vec3
+data
+dep DataIn4
+
+4
+maxvertices
+IntScalar
+min. number of vertices in box for further recursion
+50
+
+-1
+delta
+FloatScalar
+max. distance between two vertices
+0.000000
+
+-1
+algorithm
+Choice
+choose your favorite algorithm
+1 BoundingBox None
+
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+
+-1
+0
+# Module Tracer
+Tracer
+1
+LOCAL
+Tracer
+TITLE=Tracer_1
+34
+425
+5
+meshIn
+UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+dataIn
+Vec3
+input velo.
+req
+
+pointsIn
+Points|UnstructuredGrid|Polygons|TriangleStrips|Lines|Vec3
+input initial points
+opt
+
+octtreesIn
+OctTree|OctTreeP
+input octtrees
+opt
+
+fieldIn
+Float
+input mapped field
+opt
+
+3
+lines
+Lines|Points|TriangleStrips
+output geometry
+default
+
+dataOut
+Float|Vec3
+output magnitude
+default
+
+startingPoints
+Points
+real used starting points
+default
+
+32
+no_startp
+IntSlider
+Number of starting points
+1 10 6
+
+-1
+startpoint1
+FloatVector
+First start point
+-0.4 0.3 0.1
+
+-1
+startpoint2
+FloatVector
+Last start point
+-0.4 0.5 0.1
+
+-1
+direction
+FloatVector
+Square of starting points
+1.0 0.0 0.0
+
+1
+cyl_axis
+FloatVector
+axis of starting cylinder
+0 0 1
+
+-1
+cyl_radius
+FloatScalar
+diameter of starting cylinder
+1.000000
+
+-1
+cyl_height
+FloatScalar
+height of starting cylinder
+1.000000
+
+-1
+cyl_bottompoint_on_axis
+FloatVector
+point on starting cylinder
+1 0 0
+
+-1
+Displacement
+FloatVector
+Shift traces
+0 0 0.
+
+-1
+tdirection
+Choice
+Forward, backward or both
+3 forward backward both
+
+1
+whatout
+Choice
+mag, v, vx, vy, vz, time or id
+1 mag v_x v_y v_z time
+
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+1 Streamlines MovingPoints Pathlines Streaklines
+
+1
+startStyle
+Choice
+line, square or cylinder
+1 line plane
+
+-1
+trace_eps
+FloatScalar
+relative error control
+0.00001
+
+-1
+trace_abs
+FloatScalar
+absolute error control
+0.000100
+
+-1
+grid_tol
+FloatScalar
+grid tolerance for UNSGRD or POLYGN
+0.000100
+
+-1
+trace_len
+FloatScalar
+maximum length
+2.0
+
+1
+min_vel
+FloatScalar
+minimal velocity
+0.001000
+
+1
+MaxPoints
+IntScalar
+maximum number of points
+10000
+
+1
+stepDuration
+FloatScalar
+Step duration if no REALTIME available
+0.010000
+
+-1
+NoCycles
+IntScalar
+number of cycles (dynamic data)
+1
+
+-1
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+
+-1
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+
+-1
+ParticlesReleaseRate
+FloatScalar
+Frequency at which new particles are released
+0.000000
+
+-1
+divideCell
+FloatScalar
+Step control when out of domain
+0.125000
+
+-1
+maxOutOfDomain
+FloatScalar
+Control how far to integrate when out of domain
+0.250000
+
+-1
+NoWThreads
+IntScalar
+number of worker threads
+1
+
+-1
+SearchLevel
+IntScalar
+search level for polygons
+0
+
+-1
+SkipInitialSteps
+IntScalar
+skip initial steps
+0
+
+-1
+color
+String
+attribute color
+red
+
+-1
+RandomOffset
+Boolean
+If true, Particles are started at a random offset in stationary data fields
+FALSE
+
+-1
+RandomStartpoints
+Boolean
+If true, numStartpoints are randomly picked from the overall number of points in an input mesh
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+1
+LOCAL
+IO_Module
+TITLE=RW:tiny_geo_1
+51
+17
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/tutorial/tiny_geo.covise
+
+-1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+2
+LOCAL
+IO_Module
+TITLE=RW:tiny_velocity_1
+221
+17
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/tutorial/tiny_velocity.covise
+
+-1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module VectorScal
+VectorScal
+1
+LOCAL
+Tools
+TITLE=VectorScal_1
+221
+153
+1
+vdataIn
+TriangleStrips|Polygons|UnstructuredGrid|Vec3|RGBA
+input vector data
+req
+
+1
+sdataOut
+Float|Vec3
+output scalar or vector data
+default
+
+1
+option
+Choice
+Options
+2 Length X-Component Y-Component Z-Component
+
+-1
+0
+# Module VectorScal
+VectorScal
+2
+LOCAL
+Tools
+TITLE=VectorScal_2
+408
+153
+1
+vdataIn
+TriangleStrips|Polygons|UnstructuredGrid|Vec3|RGBA
+input vector data
+req
+
+1
+sdataOut
+Float|Vec3
+output scalar or vector data
+default
+
+1
+option
+Choice
+Options
+3 Length X-Component Y-Component Z-Component
+
+-1
+0
+# Module VectorScal
+VectorScal
+3
+LOCAL
+Tools
+TITLE=VectorScal_3
+544
+136
+1
+vdataIn
+TriangleStrips|Polygons|UnstructuredGrid|Vec3|RGBA
+input vector data
+req
+
+1
+sdataOut
+Float|Vec3
+output scalar or vector data
+default
+
+1
+option
+Choice
+Options
+4 Length X-Component Y-Component Z-Component
+
+-1
+0
+21
+CellToVert
+1
+LOCAL
+DataOut0
+
+Scalar2Vector
+1
+LOCAL
+inPortV
+DomainSurface
+1
+LOCAL
+GridOut1
+
+Renderer
+1
+LOCAL
+RenderData
+CellToVert
+2
+LOCAL
+DataOut0
+
+Scalar2Vector
+1
+LOCAL
+inPortU
+CellToVert
+3
+LOCAL
+DataOut0
+
+Scalar2Vector
+1
+LOCAL
+inPortW
+Scalar2Vector
+1
+LOCAL
+outPort
+
+Tracer
+1
+LOCAL
+dataIn
+FixUsg
+1
+LOCAL
+GridOut0
+
+DomainSurface
+1
+LOCAL
+GridIn0
+FixUsg
+1
+LOCAL
+GridOut0
+
+CellToVert
+2
+LOCAL
+GridIn0
+FixUsg
+1
+LOCAL
+GridOut0
+
+CellToVert
+1
+LOCAL
+GridIn0
+FixUsg
+1
+LOCAL
+GridOut0
+
+CellToVert
+3
+LOCAL
+GridIn0
+FixUsg
+1
+LOCAL
+GridOut0
+
+Tracer
+1
+LOCAL
+meshIn
+FixUsg
+1
+LOCAL
+DataOut0
+
+CellToVert
+2
+LOCAL
+DataIn0
+FixUsg
+1
+LOCAL
+DataOut1
+
+CellToVert
+1
+LOCAL
+DataIn0
+FixUsg
+1
+LOCAL
+DataOut2
+
+CellToVert
+3
+LOCAL
+DataIn0
+Tracer
+1
+LOCAL
+lines
+
+Renderer
+1
+LOCAL
+RenderData
+RWCovise
+1
+LOCAL
+mesh
+
+FixUsg
+1
+LOCAL
+GridIn0
+RWCovise
+2
+LOCAL
+mesh
+
+VectorScal
+1
+LOCAL
+vdataIn
+RWCovise
+2
+LOCAL
+mesh
+
+VectorScal
+2
+LOCAL
+vdataIn
+RWCovise
+2
+LOCAL
+mesh
+
+VectorScal
+3
+LOCAL
+vdataIn
+VectorScal
+1
+LOCAL
+sdataOut
+
+FixUsg
+1
+LOCAL
+DataIn0
+VectorScal
+2
+LOCAL
+sdataOut
+
+FixUsg
+1
+LOCAL
+DataIn1
+VectorScal
+3
+LOCAL
+sdataOut
+
+FixUsg
+1
+LOCAL
+DataIn2
+0

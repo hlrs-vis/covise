@@ -1,0 +1,29 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}%
+		{CutGeometryMap}{covise/net/tutorial/tutorial\_grid\_3.net}{0.6}\end{covimg}
+
+RWCovise reads in the computational grid of a channel with two inlets. DomainSurface
+computes the outer surface of the channel. CutGeometry cuts the upper side of the
+channel.\\ 
+
+\clearpage
+
+The following image shows the cutted channel in the renderer.
+
+
+\begin{covimg2}
+		{}{CutGeometryRenderer}{0.7}\end{covimg2}
+
+
+
+

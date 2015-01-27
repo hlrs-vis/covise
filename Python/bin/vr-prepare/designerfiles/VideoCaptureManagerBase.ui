@@ -1,0 +1,187 @@
+<ui version="4.0" >
+ <comment>Python:from Utils import FloatInRangeControl
+Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+ <class>VideoCaptureManagerBase</class>
+ <widget class="QWidget" name="VideoCaptureManagerBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>322</width>
+    <height>191</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2" >
+   <item row="0" column="0" >
+    <widget class="QFrame" name="frame18" >
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" >
+      <item row="0" column="0" >
+       <widget class="QGroupBox" name="groupSettings" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="MinimumExpanding" hsizetype="MinimumExpanding" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="title" >
+         <string>Settings</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout" >
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2" >
+           <item>
+            <widget class="QLabel" name="label_2" >
+             <property name="text" >
+              <string>Filename</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton" >
+             <property name="minimumSize" >
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text" >
+              <string>Select file...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text" >
+              <string>D:\</string>
+             </property>
+             <property name="readOnly" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QGroupBox" name="groupCapturing" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="MinimumExpanding" hsizetype="MinimumExpanding" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="title" >
+         <string>Capturing</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2" >
+         <item>
+          <widget class="QComboBox" name="comboBox" >
+           <item>
+            <property name="text" >
+             <string>10 Sec Turntable Animation</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>20 Sec Turntable Animation</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>Free Capturing</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4" >
+           <item>
+            <widget class="QPushButton" name="buttonCapture" >
+             <property name="text" >
+              <string>Capture</string>
+             </property>
+             <property name="icon" >
+              <iconset resource="images/StaticImages.qrc" >
+               <normaloff>:/videoCamera.png</normaloff>:/videoCamera.png</iconset>
+             </property>
+             <property name="checkable" >
+              <bool>false</bool>
+             </property>
+             <property name="autoDefault" >
+              <bool>false</bool>
+             </property>
+             <property name="default" >
+              <bool>false</bool>
+             </property>
+             <property name="flat" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonPreview" >
+             <property name="text" >
+              <string>Preview</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <includes>
+  <include location="local" >changeindicatedle.h</include>
+ </includes>
+ <resources>
+  <include location="images/StaticImages.qrc" />
+ </resources>
+ <connections/>
+</ui>

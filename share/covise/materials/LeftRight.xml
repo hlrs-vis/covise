@@ -1,0 +1,31 @@
+<LeftRight>
+<uniform name="Stereo" type="int" value="0"/>
+<vertexProgram>
+  
+    varying vec2 Texcoord;
+  
+     
+    void main( void )
+    {
+Texcoord = gl_MultiTexCoord0;
+	    gl_Position = ftransform();	
+    }
+  </vertexProgram>
+  <fragmentProgram>
+   
+   
+    varying vec2 Texcoord;
+   
+    uniform int Stereo;
+   
+    void main( void )
+    {
+    if(Stereo==1) //right
+      gl_FragColor = vec4(1,1,0,1) ;
+    else          //left
+      gl_FragColor = vec4(0,1,0,1) ;	
+    
+    }
+	</fragmentProgram>
+    
+    </LeftRight>

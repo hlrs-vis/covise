@@ -1,0 +1,6 @@
+system
+ARToolKit
+Cg
+ffmpeg
+libwww
+glew

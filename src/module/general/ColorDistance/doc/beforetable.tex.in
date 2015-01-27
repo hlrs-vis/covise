@@ -1,0 +1,36 @@
+%=============================================================
+% short description what the module does
+%=============================================================
+
+This module is able to calculate distances between color data.
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{colordistance-modul}{1.0}\end{covimg2}
+
+The module owns three ports for incoming and one port for outgoing data. The input ports accept RGB data, while the output port delivers the alpha channel.
+
+%=============================================================
+% parameter window
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2}{}{colordistance-param}{1.0}\end{covimg2}
+
+\begin{covimg2}{}{colordistance-refcolor}{1.0}\end{covimg2}
+
+The calculation of the color distance can be modified by a few parameters:
+\begin{description}
+\item[ReferenceColor] This is the color value on which the calculation is based on. You can choose the color from a color table (folder button), a color picker (pipet button) or you can fill in manually the RGBA values.
+\item[Metric] Two different metrics can be used to calculate the color distance. You can choose between:
+\begin{itemize}
+\item euclidian distance or
+\item manhattan distance
+\end{itemize}
+\item[DistanceBase, DistanceMultiplier] The sliders represent values for the calculation of the distance. This way, the calculation can be modified directly out of the \emph{Map Editor}.
+\end{description}

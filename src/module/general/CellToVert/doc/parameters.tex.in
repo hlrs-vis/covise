@@ -1,0 +1,25 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	algorithm & Choice & Algorithm to compute the data at the cell vertices. You have the choice
+	between Sqare Weight and Simple.\\
+
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Akku' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="showName" name="showName" />
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="AlMg_complete" regexp="AlMg_complete-EOT.*" shader="Glossy1" />
+               <Scope name="AlMg_halb" regexp="AlMg_halb-EOT.*" shader="Glossy1" />
+               <Scope name="NiCd_halb" regexp="NiCd_halb-EOT.*" shader="Glossy1" />
+               <Scope name="NiCd_complete" regexp="NiCd_complete-EOT.*" shader="Glossy1" />
+               <Scope name="Gehaeuse_Front" regexp="Gehaeuse_Front-FACES.*" shader="Glossy1" />
+               <Scope name="Gehaeuse_Back" regexp="Gehaeuse_Back-FACES.*" shader="Glossy1" />
+               <Scope name="Salzloesung" regexp="Salzloesung-FACES.*" shader="Glossy1" />
+               <Scope name="Anode" regexp="Anode-FACES.*" shader="Glossy2b" />
+               <Scope name="Kathode" regexp="Kathode-FACES.*" shader="Glossy2b" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Chemie/Akku/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

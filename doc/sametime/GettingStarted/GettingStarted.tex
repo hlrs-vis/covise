@@ -1,0 +1,90 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Getting Started}
+\label{Getting Started}
+%=============================================================
+
+%\section{S1}
+
+You start the Conference Room Interface from your COVISE Collaborative Session (i.e. from
+your {\bf COVISE screen}) using 
+the option CSCW (Computer Supported Collaborative Working) \latexonly$>$\endlatexonly
+\begin{htmlonly} > \end{htmlonly} Open Conference Room in the MapEditor...
+
+\begin{covimg}{GettingStarted}{openconference}{Open Conference Room Interface}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 2.1: Open Conference Room Interface
+\vspace{0.5cm}
+\end{htmlonly}
+
+
+...and see the following on the {\bf screen of your PC running windows}:
+
+
+\begin{covimg}{GettingStarted}{sametime_start}{Conference Room Interface}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 2.2: Conference Room Interface 
+\vspace{0.5cm}
+\end{htmlonly}
+The screen provides the following main features
+\begin{itemize}
+\item the Connect List (People here) - to show and control participation in the meeting
+\item Audio and Video controls and a small Video screen - to contact all participants
+\item a Chat Window - to contact selected participants (to be opened explicitely)
+\item a window that can be used either as a Whiteboard (default) or for a Shared Application
+\end{itemize}
+
+%\section{S2}
+
+%\section{S3}

@@ -1,0 +1,43 @@
+<Points>
+<uniform max="64" min="1" name="Size" type="float" value="20"/>
+<uniform max="10.0" min="0.0001" name="Scale" type="float" value="1"/>
+<uniform name="diffuseMap" type="sampler2D" value="0"/>
+<vertexProgram>
+  
+    varying vec2 Texcoord;
+    varying vec4 color;
+    uniform float Scale;
+    uniform float Size;
+  
+     
+    void main( void )
+    {
+color = gl_Color;
+Texcoord = gl_MultiTexCoord0;
+vec4 transformedVertex = gl_ModelViewMatrix*gl_Vertex;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = transformedVertex;
+#endif	
+	    gl_Position = ftransform();
+float dist = length(transformedVertex);
+float s = (dist)*-0.001*Scale+Size;
+if(s &gt; Size)
+s = Size;
+if(s &lt; 2)
+s = 2 ;
+gl_PointSize = s ;
+    }
+  </vertexProgram>
+  <fragmentProgram>
+   
+    varying vec2 Texcoord;
+    varying vec4 color;
+   
+    uniform sampler2D diffuseMap;
+   
+    void main( void )
+    {
+
+      gl_FragColor = color*texture2D(diffuseMap , gl_TexCoord[0].xy);
+     // gl_FragColor = vec4(1,1,1,1) ;
+    }</fragmentProgram></Points>

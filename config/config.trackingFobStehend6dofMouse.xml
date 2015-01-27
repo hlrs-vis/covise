@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+<GLOBAL>
+
+   <COVER>
+
+      <PointerDepth value="0"/>
+      <PointerAppearance>
+         <IconName value="pointer"/>
+         <Width value="10"/>
+         <Length value="1500"/>
+         <Intersection value="15000" />
+      </PointerAppearance>
+
+      <!-- FOB MOUSE--> 
+      <Input>  
+         <DebugButtons value="off" />
+         <DebugStation value="1" />
+         <TrackingSystem value="VRC" />
+         <VRC>
+            <Port value="7777" />
+            <DebugLevel value="on"/>
+         </VRC>
+         
+         <HandAddress value="1" />
+         
+         <TrackingSystem>
+            <Offset x="0" y="-80" z="-770" />
+            <Orientation h="90" p="0" r="180" />
+         </TrackingSystem>
+         
+         <HandDevice>
+            <Offset x="0" y="0" z="0" />
+            <Orientation h="90" p="0" r="180" />
+         </HandDevice>
+         
+         <HeadDevice>
+            <Offset x="0" y="0" z="0" />
+            <Orientation h="90" p="0" r="180" />
+         </HeadDevice>
+         
+         <ButtonConfig>
+            <Map value="1 ACTION_BUTTON"  name="1 ACTION_BUTTON"/>
+            <Map value="3 XFORM_BUTTON"  name="3 XFORM_BUTTON"/>
+            <Map value="2 DRIVE_BUTTON" name="2 DRIVE_BUTTON"/>
+         </ButtonConfig>
+         
+         <VisensoJoystick value="OFF" >
+            <Analog value="on" />
+         </VisensoJoystick> 
+         
+         <MouseNav value="ON" />
+      </Input>
+        
+      <Plugin> 
+         <AKToolbar value="on">
+               <ShortCut value="scale" name="scale" />
+         </AKToolbar>
+      </Plugin>
+         
+   </COVER>
+     
+
+</GLOBAL>
+
+
+
+</COCONFIG>

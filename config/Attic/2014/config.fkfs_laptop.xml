@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="ivkn52,IVKN52" >  
+
+
+
+  <COVER>
+
+     <Console arch="windows" value="true" file="c:\OpenCOVER" />
+   <WelcomeMessage value="Welcome to OpenCOVER at FKFS" />
+   <StereoMode coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated, please use ChannelConfig.Channel.stereoMode instead-->
+   </StereoMode>
+   <SyncToVBlank value="ON" device="DFP-1"/>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="OFF" />
+   <Stereo enable="ON" value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition x="0" y="-1300" z="-220" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <Input>
+    <ButtonSystem value="NONE # IAO" />
+    <MouseNav value="ON" />
+    <TrackingSystem value="MOUSE" />
+   </Input>
+
+   <SceneSize value="1000" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <!-- Menu for mid panel with mouse /-->
+    <Orientation h="-0" p="0" r="0" />
+    <Position x="300" y="1000" z="500" />
+
+    <!-- Menu for left panel with tracking /--> 
+    <!--Orientation h="-90" p="0" r="0" /-->
+    <!--Position x="1000" y="-500" z="500" /-->
+   </Menu>
+
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <Plugin>
+
+  <SteeringWheel>
+
+   <PorscheMouse value="/dev/input/porschemouse" />
+   <PorscheHupe value="/dev/input/porschehupe" />   
+   <PorscheHupe value="/dev/input/porschehupe" />   
+   <FKFS value="OFF" host="192.168.0.20" />   
+   <FKFSDynamics value="ON" host="localhost" />   
+   <VDServer value="OFF" host="141.58.8.210" />   
+  </SteeringWheel>
+
+    <Volume value="on" />
+
+    <Vrml97>
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+   </Plugin>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

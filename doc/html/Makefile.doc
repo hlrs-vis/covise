@@ -1,0 +1,34 @@
+
+DEBUGOUT = /dev/null
+
+LTX = latex
+
+L2H3 =	latex2html -transparent -local_icons -html_version 4.0 \
+	-split 2 -link 4 -no_info -no_navigation  -t "COVISE Online Documentation" 
+   
+
+HF = ../../scripts/header-footer.sh 2
+CF = ../../scripts/child.pl
+             
+%.html: %.html.in
+	${COVISEDIR}/doc/scripts/htmlheader.sh 1 > $@
+	cat $< >> $@
+	${COVISEDIR}/doc/scripts/htmlfooter.sh 1 >> $@
+
+all:  allhtml
+
+allhtml: index.html html
+
+depend:
+	HERE=`/bin/pwd` && cd ../../`basename $$HERE` && make depend
+	HERE=`/bin/pwd` && cd $$HERE && ../../scripts/createTexDep `basename $$HERE` > html.make
+
+cleanhtml:
+
+clean: cleanhtml
+	rm -f index.html html.make
+
+debug:
+	make DEBUGOUT=/dev/tty
+	
+-include html.make

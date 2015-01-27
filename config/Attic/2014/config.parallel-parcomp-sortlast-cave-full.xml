@@ -1,0 +1,482 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+ <LOCAL host="viscluster09" >
+
+  <COVER>
+
+   <Input>
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <TrackingSystem>
+     <Offset x="0" y="0" z="-1210" />
+     <Orientation h="0" p="0" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HandDevice>
+
+    <DebugStation value="0" />
+
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <StationName value="CoviseBrille" name="0" />
+     <StationName value="CoviseMaus" name="1" />
+     <Server host="visadler" />
+    </Tarsus>
+
+   </Input>
+
+  </COVER>
+
+  <Module>
+   <Fenfloss>
+     <LOCAL value="visent.hlrs.de"/>
+   </Fenfloss>
+  </Module>
+
+ </LOCAL>
+
+
+
+ <LOCAL host="viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="FRONT" h="0.0" originX="0" originY="1400" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="FRONT" h="0.0" originX="0" originY="1400" originZ="0" height="2500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="LEFT" h="90.0" originX="-1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="LEFT" h="90.0" originX="-1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="RIGHT" h="-90.0" originX="1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="RIGHT" h="-90.0" originX="1400" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2800" comment="BOTTOM" h="0.0" originX="0" originY="0" originZ="-1250" height="2800" p="-90.0" r="0.0" name="0" screen="0" />
+    <Screen width="2800" comment="BOTTOM" h="0.0" originX="0" originY="0" originZ="-1250" height="2800" p="-90.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster05,viscluster21,viscluster22,viscluster23" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1074" stereoMode="RIGHT" left="163" windowIndex="0" bottom="0" name="0" height="1050" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster06,viscluster24,viscluster25,viscluster26" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1074" stereoMode="LEFT" left="163" windowIndex="0" bottom="0" name="0" height="1050" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster01,visent,visent.hlrs.de,viscluster03,viscluster07,viscluster09,viscluster10,viscluster11,viscluster15,viscluster16,viscluster17,viscluster27,viscluster28,viscluster29" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1176" stereoMode="RIGHT" left="112" windowIndex="0" bottom="0" name="0" height="1050" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster02,viscluster04,viscluster08,viscluster12,viscluster13,viscluster14,viscluster18,viscluster19,viscluster20,viscluster30,viscluster31,viscluster32" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1176" stereoMode="LEFT" left="112" windowIndex="0" bottom="0" name="0" height="1050" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster01,visent,visent.hlrs.de,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08,viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32" >
+
+  <COVER>
+
+   <WelcomeMessage value="Welcome to OpenCOVER at HLRS CAVE" />
+   <StereoMode coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated, please use ChannelConfig.Channel.stereoMode instead-->
+   </StereoMode>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="OFF" />
+   <Stereo enable="ON" value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition x="400" y="-3300" z="320" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <Input>
+    <ButtonSystem value="NONE # IAO" />
+    <MouseNav value="OFF" />
+    <TrackingSystem value="TARSUS" />
+   </Input>
+
+   <SceneSize value="2500" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <Orientation h="-90" p="0" r="0" />
+    <Position x="1300" y="-1000" z="500" />
+   </Menu>
+
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <Plugin>
+
+  <SteeringWheel>
+
+   <PorscheMouse value="/dev/input/porschemouse" />
+   <PorscheHupe value="/dev/input/porschehupe" />
+  </SteeringWheel>
+
+    <Volume value="on" />
+
+    <Vrml97>
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+   </Plugin>
+
+   <WindowConfig>
+    <Window width="1400" comment="MAIN" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="false" />
+   </WindowConfig>
+
+  </COVER>
+
+
+  <System>
+
+   <HostConfig>
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster01" hostname="viscluster01" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster02" hostname="viscluster02" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster03" hostname="viscluster03" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster04" hostname="viscluster04" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster05" hostname="viscluster05" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster06" hostname="viscluster06" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster07" hostname="viscluster07" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster08" hostname="viscluster08" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster09" hostname="viscluster09" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster10" hostname="viscluster10" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster11" hostname="viscluster11" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster12" hostname="viscluster12" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster13" hostname="viscluster13" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster14" hostname="viscluster14" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster15" hostname="viscluster15" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster16" hostname="viscluster16" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster17" hostname="viscluster17" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster18" hostname="viscluster18" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster19" hostname="viscluster19" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster20" hostname="viscluster20" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster21" hostname="viscluster21" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster22" hostname="viscluster22" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster23" hostname="viscluster23" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster24" hostname="viscluster24" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster25" hostname="viscluster25" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster26" hostname="viscluster26" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster27" hostname="viscluster27" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster28" hostname="viscluster28" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster29" hostname="viscluster29" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster30" hostname="viscluster30" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster31" hostname="viscluster31" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster32" hostname="viscluster32" />
+   </HostConfig>
+
+   <covRemote>
+    <Host value="visling" />
+    <Server port="31809" />
+   </covRemote>
+
+  </System>
+
+
+    <COVER>
+       <MultiPC>
+
+          <SyncMode value="TCP" />
+          <!--NumSlaves value="23" /-->
+          <NumSlaves value="2" />
+          <!--Startup value="ssh ${USER}@viscluster09 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0"/-->
+          <Startup value="ssh ${USER}@viscluster10 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0"/>
+          <Startup value="ssh ${USER}@viscluster11 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1"/>
+
+          <!--Startup value="ssh ${USER}@viscluster02 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="3"/>
+          <Startup value="ssh ${USER}@viscluster12 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="4"/>
+          <Startup value="ssh ${USER}@viscluster13 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="5"/>
+          <Startup value="ssh ${USER}@viscluster14 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="6"/>
+
+          <Startup value="ssh ${USER}@viscluster03 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="7"/>
+          <Startup value="ssh ${USER}@viscluster15 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="8"/>
+          <Startup value="ssh ${USER}@viscluster16 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="9"/>
+          <Startup value="ssh ${USER}@viscluster17 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="10"/>
+
+          <Startup value="ssh ${USER}@viscluster04 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="11"/>
+          <Startup value="ssh ${USER}@viscluster18 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="12"/>
+          <Startup value="ssh ${USER}@viscluster19 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="13"/>
+          <Startup value="ssh ${USER}@viscluster20 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="14"/>
+
+          <Startup value="ssh ${USER}@viscluster05 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="15"/>
+          <Startup value="ssh ${USER}@viscluster21 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="16"/>
+          <Startup value="ssh ${USER}@viscluster22 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="17"/>
+          <Startup value="ssh ${USER}@viscluster23 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="18"/>
+
+          <Startup value="ssh ${USER}@viscluster06 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="19"/>
+          <Startup value="ssh ${USER}@viscluster24 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="20"/>
+          <Startup value="ssh ${USER}@viscluster25 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="21"/>
+          <Startup value="ssh ${USER}@viscluster26 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="22"/>
+
+          <Startup value="ssh ${USER}@viscluster07 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="23"/>
+          <Startup value="ssh ${USER}@viscluster27 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="24"/>
+          <Startup value="ssh ${USER}@viscluster28 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="25"/>
+          <Startup value="ssh ${USER}@viscluster29 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="26"/>
+
+          <Startup value="ssh ${USER}@viscluster08 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="27"/>
+          <Startup value="ssh ${USER}@viscluster30 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="28"/>
+          <Startup value="ssh ${USER}@viscluster31 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="29"/>
+          <Startup value="ssh ${USER}@viscluster32 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="30"/-->
+
+       </MultiPC>
+       <Plugin>
+          <SortLastHPParComp value="on" />
+       </Plugin>
+
+   <Plugin>
+
+    <Vrml97>
+
+     <Audio value="AServer" >
+      <Host value="visadler" />
+     </Audio>
+
+    </Vrml97>
+
+   </Plugin>
+
+   <TabletPC>
+   <!--Server value="localhost" /-->
+   <Server value="viscluster01" />
+   </TabletPC>
+
+    </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster01,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08">
+    <COVER>
+       <NodeMask value="0x04" />
+    </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster09,viscluster12,viscluster15,viscluster18,viscluster21,viscluster24,viscluster27,viscluster30">
+    <COVER>
+       <NodeMask value="0x01" />
+    </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster10,viscluster13,viscluster16,viscluster19,viscluster22,viscluster25,viscluster28,viscluster31">
+    <COVER>
+       <NodeMask value="0x02" />
+    </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster11,viscluster14,viscluster17,viscluster20,viscluster23,viscluster26,viscluster29,viscluster32">
+    <COVER>
+       <NodeMask value="0x04" />
+    </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster01">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster09,viscluster10,viscluster11"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster02">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster12,viscluster13,viscluster14"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster03">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster15,viscluster16,viscluster17"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster04">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster18,viscluster19,viscluster20"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster05">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster21,viscluster22,viscluster23"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster06">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster24,viscluster25,viscluster26"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster07">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster27,viscluster28,viscluster29"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster08">
+  <COVER>
+   <Plugin>
+    <SortLastHPParComp>
+     <Slaves value="viscluster30,viscluster31,viscluster32"/>
+     <Window width="1400" height="1050" left="1280" bottom="0" fullscreen="on"/>
+    </SortLastHPParComp>
+   </Plugin>
+  </COVER>
+ </LOCAL>
+
+
+
+</COCONFIG>

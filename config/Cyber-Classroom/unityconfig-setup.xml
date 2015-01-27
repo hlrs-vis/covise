@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<UnityVRConfig xmlns:xi="http://www.w3.org/2003/XInclude">
+
+   <xi:include href="config:///unityconfig.tracking.wii.xml"/>
+   <xi:include href="config:///unityconfig.projection.lg.xml"/>
+
+</UnityVRConfig>    

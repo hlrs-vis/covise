@@ -1,0 +1,139 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Synchronize</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">Sync (Synchronize)</font></font></h2>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="81%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">This menu item can be selected from the
+<b>Master
+only</b>.&nbsp;</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">2 fields in the information area indicate
+the <b>Collaboration Status</b>:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">The Interaction Mode field indicates whether
+your Renderer is MASTER.</font></li>
+
+<li>
+<font face="Arial,Helvetica">The field below specifies the level of coupling</font></li>
+</ul>
+<font face="Arial,Helvetica">With the <b>Sync menu option</b>&nbsp; you
+modify the level of coupling (synchronization) between Renderers.</font>
+<blockquote>&nbsp;
+<center><table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="60%" >
+<tr>
+<td><img SRC="sync.gif" height=294 width=353></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica"><font size=-1>Menu options and corresponding
+fields in the information area (increasing degree of coupling)</font></font></td>
+</tr>
+</table></center>
+</blockquote>
+<font face="Arial,Helvetica">There are three levels of coupling (see figure
+above):</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Master/Slave Coupling</font></b></li>
+
+<br><font face="Arial,Helvetica">Normally a master/slave relationship has
+been established between the partners of a working session. Only the master
+can change e. g. the camera position in his renderer, and the cameras of
+all other partners are synchronized with the master camera. In general,
+manipulators and editors become detached and invisible, the menu bar is
+set to insensitive in the slave renderers, and the scene in all slave renderers
+is updated according to the view in the master renderer.</font>
+<br><font face="Arial,Helvetica">(Exception: Special light information
+- directional, point, spot light - is not sent to other renderers in a
+cooperative environment, whereas "headlight on/off" resp. "turn all on/off"
+is sent to slave renderers)</font>
+<p><font face="Arial,Helvetica">The <b>Sync field</b> of the information
+area is set to <b>SYNC</b>. This is the <b>default value</b>.</font></ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Tight Coupling</font></b></li>
+
+<br><font face="Arial,Helvetica">The only difference between TIGHT and
+Master/Slave (SYNC) is that</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">TIGHT enforces permanent synchronization</font></li>
+
+<li>
+<font face="Arial,Helvetica">Master/Slave updates the slave renderers at
+endpoints only</font></li>
+</ul>
+
+<p><br><font face="Arial,Helvetica">The <b>Sync field </b>of the information
+area is set to TIGHT.</font></ul>
+
+<ul><u><font face="Arial,Helvetica">Note:</font></u>
+<table CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;For normal operation, you need not
+differentiate between&nbsp; 'Master/Slave'&nbsp; and 'Tight', and the terms
+have sometimes been used as synonyms. Only in case of a slow connection
+between master and slave be sure to use 'Master/Slave' and not 'Tight'.&nbsp;</font></td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Loose Coupling</font></b></li>
+
+<br><font face="Arial,Helvetica">If the master enables this mode all partners
+have the same interaction facilities as the master; the camera positions
+etc. are no longer sent to other renderers.</font>
+<p><font face="Arial,Helvetica">The <b>Sync field</b> of the information
+area is set to LOOSE.</font></ul>
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">Telepointer</font></font></h2>
+<font face="Arial,Helvetica">This feature is operating in all directions,
+<b>not
+depending on MASTER mode</b>.</font>
+<p><font face="Arial,Helvetica">The <b>Telepointer</b> allows you to point
+to all renderer windows (see figure below).</font>
+<br><font face="Arial,Helvetica">If you keep the SHIFT key down while moving
+the mouse</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">the pointer is changed to a ' &lt; '</font></li>
+
+<li>
+<font face="Arial,Helvetica">your hostname is added to the pointer</font></li>
+
+<li>
+<font face="Arial,Helvetica">the pointer is placed in the same position</font></li>
+</ul>
+</ul>
+<b><font face="Arial,Helvetica">on the other renderer windows.</font></b>
+<p><font face="Arial,Helvetica">To set the telepointer to another position,
+release the SHIFT key, move the mouse and press SHIFT again at the new
+position, or move the mouse while the SHIFT key is still pressed.</font>
+<ul>
+<ul>&nbsp;</ul>
+<img SRC="telepointer.gif" height=523 width=457></ul>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

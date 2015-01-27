@@ -1,0 +1,97 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef TASK_H
+#define TASK_H 1
+
+
+#include <osg/ArgumentParser>
+#include <osg/OperationThread>
+#include <osg/Object>
+#include <osg/Notify>
+
+#include <OpenThreads/Mutex>
+#include <OpenThreads/Thread>
+
+#include <vpb/PropertyFile>
+#include <vpb/Date>
+
+namespace vpb
+{
+
+class VPB_EXPORT Task : public PropertyFile
+{
+    public:
+    
+        
+        Task(const std::string& filename);
+        
+        void init(osg::ArgumentParser& arguments);
+
+        enum Status
+        {
+            PENDING,
+            RUNNING,
+            FAILED,
+            COMPLETED
+        };
+        
+        void setStatus(Status status);
+        Status getStatus() const;
+                
+        void setDate(const std::string& property, const Date& date);
+        void setWithCurrentDate(const std::string& property);
+
+        bool getDate(const std::string& property, Date& date) const;
+
+    protected:
+
+        virtual ~Task();
+        
+        int             _argc;
+        char**          _argv;
+};
+
+class TaskOperation : public osg::Operation
+{
+    public:
+    
+        TaskOperation(Task* Task):
+            osg::Operation("ReadTask",true),
+            _task(Task) {}
+
+        virtual void operator () (osg::Object*);
+        
+    protected:
+
+        osg::ref_ptr<Task> _task;
+};
+
+class SleepOperation : public osg::Operation
+{
+    public:
+    
+        SleepOperation(unsigned int microSeconds):
+            osg::Operation("Sleep",true),
+            _microSeconds(microSeconds) {}
+
+        virtual void operator () (osg::Object*);
+        
+    protected:
+
+        unsigned int _microSeconds;
+};
+
+}
+
+#endif

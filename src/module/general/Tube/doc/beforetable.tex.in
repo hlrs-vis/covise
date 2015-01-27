@@ -1,0 +1,31 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+Tube creates cylinders around the lines. 
+The shape of the tubes will be determined in function of the radius, 
+number of sides (scalar parameters) and the type of the 
+cylinder (open, closed or arrow).
+When a diameter is provided at port three, each line is scaled by the appropriate value.
+The Diameter is multiplied with the radius parameter value.
+When the amount of data supplied is equal to the number of points of the line, the tube thickness is adjusted on a per point basis.
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{TubeModule}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+Tube is available for all COVISE versions on all supported platforms. 
+
+%
+
+%
+%=============================================================

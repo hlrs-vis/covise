@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ShowUsg.cpp
+)
+
+SET(EXTRASOURCES
+  ShowUsg.h
+)
+
+ADD_COVISE_MODULE(Tools ShowUsg ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ShowUsg  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ShowUsg)

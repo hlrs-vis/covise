@@ -1,0 +1,19 @@
+SET(HEADERS
+  PSOPlugin.h
+  Particle.h
+  OSGPSOParticle.h
+  OSGResponseSurface.h
+  OSGPSOParticleOnResponseSurface.h
+  OSGPSOParticleOnResponseSurface.h
+)
+SET(SOURCES
+  PSOPlugin.cpp
+  Particle.cpp
+  OSGPSOParticle.cpp
+  OSGResponseSurface.cpp
+  OSGPSOParticleOnResponseSurface.cpp
+)
+
+cover_add_plugin(PSO)
+COVISE_WNOERROR(PSO)
+#COVER_INSTALL_PLUGIN(PSO)

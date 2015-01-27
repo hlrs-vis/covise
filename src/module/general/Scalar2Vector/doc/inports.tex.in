@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline inPortU & Float\newline Float & Scalar input for U/red\\ \hline inPortV & Float\newline Float & Scalar input for V/green\\ \hline inPortW & Float\newline Float & Scalar input for W/blue\\ \hline inPortA & Float & Scalar input for alpha/opacity\\
+\hline \end{longtable}
+

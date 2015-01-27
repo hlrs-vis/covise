@@ -1,0 +1,30 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{traceOut} & DO\_Points \newline
+		                         DO\_Polygons \newline
+	                                 DO\_Lines \newline
+	                                 DO\_TriangleStrips & 
+	representation of the computed particle-traces in the
+	desired form \\
+\hline
+	\textcolor{output}{dataOut} & DO\_Float
+	DO\_Vec3 & the data mapped on the traces \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

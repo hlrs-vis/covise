@@ -1,0 +1,10 @@
+#Inventor V1.0 ascii
+
+Material {
+    ambientColor	0.0810811 0 0.0354558
+    diffuseColor	0.303858 0 0.132874
+    specularColor	0.340541 0 0.144668
+    emissiveColor	0 0 0
+    shininess	0.0486486
+    transparency	0
+}

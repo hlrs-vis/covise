@@ -1,0 +1,25 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{inPort\_x} & Float 
+               & X magnitude. \\	
+\hline
+	\textcolor{optional}{inPort\_y\_0\ldots\newline inPort\_y\_5} & 
+               Float 
+               & Y magnitudes. \\	
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

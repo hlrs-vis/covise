@@ -1,0 +1,30 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+ 
+% examples for using this module
+
+\begin{covimg}{} {stoumap}{covise/net/examples/StoU.net}{0.6}\end{covimg}
+
+In the example map we use the module ShowGrid to see only a given element of the unstructured grid; the
+Renderer output is shown below for the options 
+\begin{enumerate}
+\item tetrahedrons (use Preferences \latexonly $>>$ \endlatexonly \begin{htmlonly} > >
+\end{htmlonly} Clipping Plane to see inside the cube, or use the parameter "pos" of
+ShowGrid to move the example tetrahedron into the visible region)
+\item hexahedrons
+\item pyramids
+\item prisms
+\end{enumerate}
+
+\begin{covimg}{} {tetrahedrons}{tetrahedrons}{0.6}\end{covimg}
+
+\begin{covimg}{} {hexahedrons}{hexahedrons}{0.6}\end{covimg}
+
+\begin{covimg}{} {pyramids}{pyramids}{0.6}\end{covimg}
+
+\begin{covimg}{} {prisms}{prisms}{0.6}\end{covimg}

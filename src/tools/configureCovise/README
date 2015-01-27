@@ -1,0 +1,17 @@
+
+The approach for the config tool is the following
+the parser reads the values of the config file and translates it into tcl code
+which is used by the GUI ( which has to be written), so that the gui shows the current values.
+
+How to change the syntax?
+For this purpose the file coviseconfig.grammar has to be changed.
+If new new tokens are introduced , these have to be added to token/section or token/item or token/specifier.
+Since the syntax of covise.configis so uniform you normally can use one of the macro ONEENUM, THREEFLOAT and so on.
+If your rule does not fit into this scheme you have to add a new macro to coviseconfig.yacchead.
+
+
+TODO
+Write the gui.
+fw_common
+fw_tcl80
+fw_tk80

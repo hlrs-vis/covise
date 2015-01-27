@@ -1,0 +1,11 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+\begin{covimg2}{}{net}{0.55}\end{covimg2}
+
+The above figure shows an example COVISE network to write volume data from GenDat. 

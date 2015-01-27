@@ -1,0 +1,899 @@
+
+
+
+
+\subsubsection{Format description COVISE ASCII format}
+%=============================================================
+%
+This section describes (with examples) the following types of data objects:
+\begin{itemize}
+\item Geometry Data Types
+   \begin{itemize}
+   \item POINTS (points)
+   \item LINES (lines)
+   \item POLYGN (polygons)
+   \item TRIANG (triangle strips)
+   \end{itemize}
+\item Structured Grid Types
+   \begin{itemize}
+   \item UNIGRD (uniform grid)
+   \item RCTGRD (rectilinear grid)
+   \item STRGRD (structured grid)
+   \end{itemize}
+\item Unstructured Grid Types
+   \begin{itemize}
+   \item UNSGRD (unstructured grid)
+   \end{itemize}
+\item Structured Data Types
+   \begin{itemize}
+   \item STRSDT (structured grid scalar data)
+   \item STRVDT (structured grid vector data)
+   \end{itemize}
+\item Unstructured Data Types
+   \begin{itemize}
+   \item USTSDT (unstructured grid scalar data)
+   \item USTVDT (unstructured grid vector data)
+   \end{itemize}
+\item Set of Elements (for timesteps)
+   \begin{itemize}
+   \item SETELEM (set of elements)
+   \end{itemize}
+\end{itemize}
+If you need more information about COVISE Data Objects please read COVISE Programming Guide, Chapter 3.
+
+
+\begin{longtable}{|p{14cm}|}
+\hline
+{\bf Important Note:}\newline
+{\bf Do not split the first line of the datatype format description!}\newline
+POLYGN 4 14 8 {\bf  or } STRGRD 2 2 2 {\bf  etc. has to be written in one line!}\\
+\hline
+\end{longtable}
+
+
+\begin{itemize}
+\item {\large Geometry Data Types}
+  \begin{itemize}
+  \item {\bf POINTS (points)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+POINTS <numVertex>
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+POINTS 5
+{
+   ATTR color white
+
+	 
+   VERTEX
+     1 0 0
+     2 4 5
+     7 6 5
+     5 6 7
+     6 7 7
+}
+	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline
+ 
+Define 5 points, coordinates of  
+\begin{itemize}
+\item Point 0: (1,0,0)
+\item Point 1: (2,4,5)
+\item Point 2: (7,6,5)
+\item Point 3: (5,6,7)
+\item Point 4: (6,7,7)
+\end{itemize}
+are given in the VERTEX list.
+\clearpage
+
+  \item {\bf LINES (lines)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example}  \endhead
+\hline\hline
+\begin{verbatim}
+LINES <numLines> <numConn> <numVertex>  	
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+     						
+   CONN						
+     <v1> <v2> <v3> <v4> ...			
+     <v1> <v2> ...				
+     ...					
+}
+\end{verbatim}						
+&
+\begin{verbatim}
+LINES 6 19 10
+{
+   ATTR color white
+   
+   
+   VERTEX
+       0 0 0
+       0 0 1
+       0 0 2
+       0 1 0
+       0 1 1
+       0 1 2
+       0 1 3
+       0 2 0
+       0 2 1
+       0 2 2
+
+   CONN
+       0 1 2
+       3 4 5 6
+       7 8 9
+       0 3 7
+       1 4 8
+       2 5 6
+}
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline
+
+Define a line grid of 6 lines across 10 points.\newline     
+
+The coordinates of these 10 points, P0...P9, are specified in the VERTEX list.\newline 
+
+The connectivity list CONN specifies the lines 
+\begin{itemize}
+\item Line 0:  0-1-2 
+\item Line 1:  3-4-5-6
+\item Line 2:  7-8-9
+\item Line 3:  0-3-7
+\item Line 4:  1-4-8
+\item Line 5:  2-5-6
+\end{itemize}
+\clearpage
+
+
+   \item {\bf POLYGN (polygons)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+POLYGN <numPoly> <numConn> <numVertex>
+{						
+   ATTR <name> <value>				
+   ATTR <name> <value>			
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+       						
+   CONN  					
+     <v1> <v2> <v3> <v4> ...			
+     <v1> <v2> ...				
+     ...					
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+POLYGN 4 14 8
+{
+   ATTR vertexOrder 0
+   ATTR color white
+
+
+   VERTEX
+   	0 0 0
+   	0 0 1
+   	0 0 2
+   	0 1 0
+   	0 1 1
+   	0 1 2
+   	0 1 3
+   	0 2 0
+      	
+    CONN
+    	0 1 4 3
+    	1 2 5 4
+    	2 6 5
+    	2 6 7
+}			
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline 
+
+Define 4 polygons with 8 points. \newline
+
+The points are P0...P7. \newline
+
+The connectivity list defines the polygons, which are automatically closed:  
+\begin{itemize}
+\item Polygon 0:  0-1-4-3-0
+\item Polygon 1:  1-2-5-4-1
+\item Polygon 2:  2-6-5-2
+\item Polygon 3:  2-6-7-2
+\end{itemize}
+\clearpage
+
+
+   \item {\bf TRIANG (triangle strips)}
+
+\begin{longtable}{|p{9cm}|p{5cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+TRIANG <numPoints> <numCorners> <numStrips>
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+       						
+   CONN  					
+     <corner1> <corner2> <corner3>	
+     <corner1> <corner2> ...
+     ...					
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+TRIANG 5 7 2
+{
+   ATTR color white
+
+
+   VERTEX
+     1 0 0
+     4 6 7
+     7 8 4
+     8 9 0
+     3 6 7
+
+   CONN
+     1 3 2 4
+     0 4 3
+}	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example: \newline
+
+Defines 2 triangle strips built from 5 points. \newline
+
+The triangle strips in the example contain the following triangles: 
+\begin{itemize}
+\item Strip 0:  Triangles  1-3-2  and  3-2-4
+\item Strip 1:  Triangle   0-4-3
+\end{itemize}
+(see also Programming Guide, 3.10.5 Triangle Strips)
+\clearpage
+   \end{itemize}
+
+\item {\large Structured Grid Types}\newline
+   \begin{itemize}
+   \item {\bf UNIGRD (uniform grid)}
+
+\begin{longtable}{|p{6.5cm}|p{9cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+UNIGRD <xSize> <ySize> <zSize> 
+       <xMin> <xMax> 
+       <yMin> <yMax> 
+       <zMin> <zMax>
+\end{verbatim}       
+\begin{verbatim}
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+				
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+UNIGRD 30 30 30 -0.4 0.6 -0.8 0.5 -0.1 0.2
+
+
+\end{verbatim}
+{\bf UNIGRID declaration must be written in 1 line !}
+\begin{verbatim}
+{
+   ATTR STAR_SCALE8 1.000000
+   ATTR DataObjectName 
+        ReadStar_1_OUT_01
+}	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example: \newline
+
+Define a uniform grid (Cartesian coordinates, spacing along each axis is uniform)\newline
+
+In the example above
+\begin{itemize}  
+\item values of x vary between -0.4 and 0.6
+\item values of y vary between -0.8 and 0.5
+\item values of z vary between -0.1 and 0.2
+\item a uniform grid of dimension 30*30*30 is defined within these ranges 
+\end{itemize}
+\clearpage
+   
+   \item {\bf RCTGRD (rectilinear grid)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+RCTGRD <xSize> <ySize> <zSize>
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   VERTEX					
+     <x1> 
+     <x2>
+     ...
+     <y1> 
+     <y2>
+     ...				
+     <z1>
+     <z2>				
+     ...					
+   	  				
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+RCTGRD 2 2 2
+{
+   ATTR color blue
+
+
+   VERTEX
+     0
+     0
+     1
+     2
+     3
+     7
+}	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline
+ 
+Define a rectilinear grid (Cartesian coordinates, spacing along each axis is nonuniform).
+\begin{itemize}  
+\item The number of VERTEX entries is xSize + ySize + zSize, in the example above 2+2+2=6. \newline
+\item The vertex list defines 
+\begin{verbatim}
+		x1=0
+		x2=0
+		y1=1
+		y2=2
+		z1=3
+		z2=7
+\end{verbatim}
+\item This defines 2 points P1(x1=0,y1=1,z1=3) and P2 (x2=0,y2=2,z2=7) 
+This is sufficient to define a rectilinear grid, because all lines of the grid 
+are parallel to one of the axes. 
+\end{itemize}
+\clearpage
+
+   
+   \item {\bf STRGRD (structured grid)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+STRGRD <xSize> <ySize> <zSize> 
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+				
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+STRGRD 2 2 2
+{
+   ATTR color blue
+
+
+   VERTEX
+     0 3 4
+     1 2 3
+     3 6 7
+     4 6 7
+     2 5 6
+     2 3 4
+     0 9 8
+     9 8 7
+}	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example: \newline
+
+Define a structured grid, i. e. an arbitrarily deformed hexahedral grid, which still has a primitive
+structure of i x j x k hexahedra. All vertex coordinates are stored independently, but the connectivity is
+still implicit. in our example above
+\begin{itemize}
+\item The number of vertices is xSize * ySize * zSize, i.e. 2*2*2=8.
+\item Therefore we have one deformed hexahedron (8 points)
+\end{itemize}
+    \end{itemize}
+\clearpage
+   
+\item {\large Unstructured Grid Types}\newline
+   \begin{itemize}
+   \item {\bf UNSGRD (unstructured grid)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+UNSGRD <numCells> <numConn> <numVertex>
+{						
+   ATTR <name> <value>   	
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+       						
+   CONN  					
+     <v1> <v2> <v3> <v4> ...			
+     <v1> <v2> ...				
+     ...					
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+UNSGRD 3 17 10
+{
+   ATTR color white
+ 
+ 
+   VERTEX
+     0   0   0
+     1   0   0
+     0   1   0
+     1   1   0
+     0   0   1
+     1   0   1
+     0   1   1
+     1   1   1
+     ... ... ...
+     0.5 0.5 2
+	
+   CONN
+     HEX 4 6 7 5 0 2 3 1
+     PYR 4 5 7 6 8
+     TET 8 5 7 9
+}			
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+
+Example:\newline
+ 
+Define an unstructured grid consisting of 3 cells using 10 points P0...P9. 
+\begin{itemize}
+\item first cell is a Hexahedron: 4-6-7-5-0-2-3-1
+\item second cell is a Pyramid: 4-5-7-6-8
+\item third cell is a Tetrahedron: 8-5-7-9
+\end{itemize}
+(see also Programming Guide, 3.7 Unstructured Grid Types, Unstructured Grid Base Elements)
+  
+\clearpage
+  
+Different element types are defined by the following symbols:
+
+\begin{longtable}{|p{2.5cm}|p{2cm}|}
+\hline
+   \bf{Type} & \bf{Symbol}  \endhead
+\hline\hline
+	Prism & PRI  \\
+\hline
+	Tetrahedron & TET  \\
+\hline
+      	Pyramid & PYR \\
+\hline
+      	Hexahedron & HEX \\
+\hline
+	Quad & QUA  \\
+\hline
+	Triangle & TRI  \\
+\hline
+      	Bar & BAR \\
+\hline
+      	Point & POI \\
+\hline
+\end{longtable}
+
+\end{itemize}
+    
+    
+\clearpage
+
+
+\item {\large Structured Data Types}\newline
+   \begin{itemize}
+   \item {\bf STRSDT (structured grid scalar data)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+STRSDT <xSize> <zSize> <zSize>
+{
+   ATTR <name> <value>
+   ATTR ...
+   
+   DATA
+     <value1>
+     <value2>
+     <value3>
+     ...
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+STRSDT 2 2 2
+{
+   ATTR species te
+
+
+   DATA
+      1
+      5
+      7
+      9
+     10
+      3
+      0
+     11
+}	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline
+Define scalar data on a structured grid. The number of vertices of the structured grid 
+is xSize*ySize*zSize, and there is one data value per vertex. In case of a uniform or
+rectilinear grid, the order of the points and thus of the corresponding values is such,
+that you vary first the z, then y, and then z. So in case of our example above
+\begin{itemize}
+\item The number of vertices is 2*2*2 = 8
+\item In case of a uniform or rectilinear grid the order of the values is
+\begin{verbatim}
+	    value1= 1 at (x0,y0,z0)
+	    value2= 5 at (x0,y0,z1)
+	    value3= 7 at (x0,y1,z0)
+	    value4= 9 at (x0,y1,z1)
+	    value5=10 at (x1,y0,z0)
+	    value6= 3 at (x1,y0,z1)
+	    value7= 0 at (x1,y1,z0)
+	    value8=11 at (x1,y1,z1)
+\end{verbatim}
+\end{itemize}
+
+
+\clearpage			
+   
+   \item {\bf STRVDT (structured grid vector data)}
+
+\begin{longtable}{|p{8cm}|p{6cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+STRVDT <xSize> <ySize> <zSize>
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   VERTEX					
+     <x> <y> <z>				
+     <x> <y> <z>				
+     <x> <y> <z>				
+     ...					
+      			
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+STRVDT 2 2 2
+{
+   ATTR color blue
+
+
+   VERTEX
+      1  2  4
+      5  6  7
+      9  8  0
+      4  6  0
+      9  8 11
+      8  9 10
+      0  0  0
+      1  1  0
+}	
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example: \newline
+
+Define vector data on a structured grid. The number of vertices of the grid is 
+xSize*ySize*zSize, and the VERTEX list (actually the list of data vectors per vertex)
+contains the vector data for the points. So in case of our example above
+\begin{itemize}
+\item The number of vertices is 2*2*2 = 8
+\item In case of a uniform or rectilinear grid the order of the values is
+\begin{verbatim}
+	    vector1 = (1, 2, 4) at (x0,y0,z0)
+	    vector2 = (5, 6, 7) at (x0,y0,z1)
+	    vector3 = (9, 8, 0) at (x0,y1,z0)
+	    vector4 = (4, 6, 0) at (x0,y1,z1)
+	    vector5 = (9, 8,11) at (x1,y0,z0)
+	    vector6 = (8, 9,10) at (x1,y0,z1)
+	    vector7 = (0, 0, 0) at (x1,y1,z0)
+	    vector8 = (1, 1, 0) at (x1,y1,z1)
+\end{verbatim}
+\end{itemize}
+   \end{itemize} 
+\clearpage
+   
+\item {\large Unstructured Data Types}\newline
+   \begin{itemize}
+   \item {\bf USTSDT (unstructured grid scalar data)}
+
+\begin{longtable}{|p{7.5cm}|p{6.5cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+USTSDT <numValues>
+{						
+   ATTR <name> <value>				
+   ATTR ...					
+   						
+   DATA					
+     <value1>			
+     <value2>			
+     <value3>			
+     ...	     			
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+USTSDT 10
+{
+   ATTR color white
+
+
+   DATA
+     0.0
+     0.1
+     0.2
+     0.3
+     0.4
+     0.5
+     0.6
+     0.7
+     0.8
+     0.9
+}
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example: \newline
+
+Define scalar data on an unstructured grid.
+\clearpage
+   
+   \item {\bf USTVDT (unstructured grid vector data)}
+
+\begin{longtable}{|p{7.5cm}|p{6.5cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+USTVDT <numValues>
+{
+   ATTR <name> <value>
+   ATTR ...
+      					
+   DATA
+     <value11> <value12> <value13>
+     <value21> <value22> <value23>
+     <value31> <value32> <value33>
+     ...
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+USTVDT 4
+{
+   ATTR color blue
+   
+   
+   DATA
+     0.854572 0.195090 0.000000
+     0.854572 0.195090 0.195090
+     0.854572 0.000000 0.195090
+     0.854572 0.000000 0.000000
+}
+
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline
+ 
+Define vector data on an unstructured grid, i. our example 4 data vectors on a grid of 4 points.
+\end{itemize}
+\clearpage
+
+\item {\large Set of Elements (for timesteps)}
+   \begin{itemize}
+   \item {\bf SETELEM (set of elements)}\newline
+   
+\begin{longtable}{|p{7.5cm}|p{7cm}|}
+\hline
+   \bf{datatype format} & \bf{example} \\  
+\hline\hline
+
+\begin{verbatim}
+SETELEM <numElem>
+{						
+  ATTR <name> <value>				
+  ATTR ...					
+     ELEM					
+     {					
+        # elem number 0		
+        TYPE0			
+        {				
+           ATTR <name> <value>	
+           ATTR ...		
+					
+           ...	
+        }			
+			
+        ...	
+     }		   	
+}			
+\end{verbatim}
+&
+\begin{verbatim}
+SETELEM 2
+{
+  ATTR timestep 1 2
+     ELEM
+     {
+        # elem number 0
+        POINTS 3
+        {
+           ATTR color white
+           VERTEX
+              1 0 0
+              2 4 5
+              5 6 7
+        }
+        # elem number 1
+        POINTS 3
+        {
+           ATTR color white
+           VERTEX
+              3 5 6
+              7 8 9
+              1 0 1
+        }
+     }
+}			
+\end{verbatim}
+\\
+\hline
+\end{longtable}
+
+Example:\newline 
+
+Define a set of 2 objects (1 for each of 2 timesteps) of type POINTS, each consisting of 3 points.
+   \end{itemize}
+\clearpage
+
+\end{itemize}
+
+
+						
+
+
+
+
+
+						
+			
+
+				
+
+						

@@ -1,0 +1,78 @@
+
+
+\subsubsection{Tunable Parameter}
+%=============================================================
+%
+The CuttingSurface module algorithm for unstructured grids has to
+allocate memory for the output vertices and the data interpolated
+on it. The size of this allocation is based on heuristics over several
+data sets and defaults to
+\begin{verbatim}
+    max_vert = VERTEX_RATIO  * num_vert_in ^ (2/3)
+    
+    VERTEX_RATIO = 4.0   by default.
+\end{verbatim}
+However, this setting might be too low.
+In this case, the module terminates execution, submits a message,
+increases the ratio by 1.0 and re-executes itself. To prevent
+this procedure, establish a higher starting value (e.g. 9.0) by
+putting a section into your covise.config file:
+\begin{verbatim}
+CuttingSurface
+{
+   # Ratio of array size to number of input vertices in Percent
+   VERTEX_RATIO   9.0
+}
+\end{verbatim}
+%
+%=============================================================
+
+
+
+\subsubsection{Example 1}
+%=============================================================
+%
+% examples for using this module
+
+Example 1 shows {\tt covise/net/tutorial\_pressure\_1.net}.
+
+\begin{covimg}{}{CuttingSurfaceMap}{covise/net/tutorial\_pressure\_1.net}{0.6}\end{covimg}
+
+RWCovise\_1 reads in the grid. The module DomainSurface computes the edges of the outer surface
+of the grid and the module Renderer displays the edges as white lines. 
+
+RWCovise\_2 reads in the pressure values on the grid points. CuttingSurface\_1 computes a cutting 
+plane with the normal (0.0 0.0 1.0) and the distance (0.05). 
+
+The module Colors\_2 is in the map only for creating a colormap with the minimum and maximum of
+all pressure values.
+
+The interpolated data on the cutting plane are mapped to colors with the module Colors\_1.  The module
+Colors\_1 inherits the colormap and minimum and maximum from Colors\_2.
+
+The module Collect creates triangle strips from the coordinates and the colors and the Renderer displays
+the resulting plane as colored polygons.
+
+The next image is a snapshot of the results in the Inventor Renderer. 
+
+\begin{covimg2}{}{CuttingSurfaceRenderer}{0.7}\end{covimg2}
+
+\clearpage
+%
+%=============================================================
+
+\subsubsection{Example 2}
+%=============================================================
+%
+% examples for using this module
+
+Example 2 shows {\tt covise/net/example/CuttingSurface\_Normals.net}.
+
+\begin{covimg}{}{cuttingnormmap}{covise/net/example/CuttingSurface\_Normals.net}{0.6}\end{covimg}
+
+The next image is a snapshot of the results in the Inventor Renderer (parameter "option"
+ = Cylinder). 
+
+\begin{covimg2}{}{cuttingnormout}{0.7}\end{covimg2}
+
+

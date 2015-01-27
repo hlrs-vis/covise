@@ -1,0 +1,1195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Edited for validating plmxml schema -->
+<PLMXML xmlns="http://www.plmxml.org/Schemas/PLMXMLSchema"
+	xmlns:vis="PLMXMLTcVisSchema" schemaVersion="6" date="2013-01-23" time="15:00:00"
+	author="HLRS 0.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.plmxml.org/Schemas/PLMXMLSchema PLMXMLSchema.xsd">
+
+<!-- Original 
+<PLMXML xmlns="http://www.plmxml.org/Schemas/PLMXMLSchema"
+	xmlns:vis="PLMXMLTcVisSchema" schemaVersion="6" date="2012-07-16" time="11:30:47"
+	author="HLRS 0.1.0">
+-->
+	<ProductDef id="id1">
+		<!-- The rootRefs is important and refers to the root ProductInstance (id). -->
+		<InstanceGraph id="id2" rootRefs="inst35833">
+		    
+		    <!-- 	70xx = Games Rack
+		    		71xx = RECS1
+		    		72xx = RECS2
+		    		74xx = Types i.e. of nodes, sensors -->
+		    
+
+			<!-- Generic description for a type of rack (with eight instances following) -->
+			<ProductRevisionView id="id01" name="DefRack01">
+				<UserData id="id1_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack01" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1001" format="VRML" location=".\objects\01.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst01_1" name="Rack01" partRef="#id01">
+				<Transform id="id01_1">-1 0 0 0 0 -1 0 0 0 0 1 0 8.348 0.418 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with eight instances following) -->
+			<ProductRevisionView id="id02" name="DefRack02">
+				<UserData id="id2_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="NECWaterCooledRack" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1002" format="VRML" location=".\objects\02.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for two racks of the same type in our server 
+				room -->
+			<ProductInstance id="inst02_1" name="Rack02" partRef="#id02">
+				<Transform id="id02_1">-1 0 0 0 0 -1 0 0 0 0 1 0 8.961 0.427 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst02_2" name="Rack04" partRef="#id02">
+				<Transform id="id02_2">-1 0 0 0 0 -1 0 0 0 0 1 0 10.182 0.427 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with eight instances following) -->
+			<ProductRevisionView id="id03" name="DefRack03">
+				<UserData id="id3_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack02" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1003" format="VRML" location=".\objects\03.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst03_1" name="Rack03" partRef="#id03">
+				<Transform id="id03_1">-1 0 0 0 0 -1 0 0 0 0 1 0 9.568 0.427 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with four instances following) -->
+			<ProductRevisionView id="id05" name="RackNECWC">
+				<UserData id="id5_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="RackNECWC" title="DEBBComponent"></UserValue>
+				</UserData>
+				<!--Representation id="id100" format="STL" location=".\RackNECWC.stl"></Representation -->
+				<Representation id="id1005" format="VRML" location=".\objects\05.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for four racks of the same type in our server 
+				room, probably the part of the Nehalem Cluster hosted in the room -->
+			<ProductInstance id="inst05_1" name="Rack05" partRef="#id05">
+				<Transform id="id05_1">-1 0 0 0 0 -1 0 0 0 0 1 0 9.822 3.006 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst05_2" name="Rack06" partRef="#id05">
+				<Transform id="id05_2">-1 0 0 0 0 -1 0 0 0 0 1 0 10.843 3.006 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst05_3" name="Rack07" partRef="#id05">
+				<Transform id="id05_3">-1 0 0 0 0 -1 0 0 0 0 1 0 11.854 3.006 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst05_4" name="Rack08" partRef="#id05">
+				<Transform id="id05_4">-1 0 0 0 0 -1 0 0 0 0 1 0 12.867 3.006 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id09" name="DefRack09">
+				<UserData id="id09_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack09" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1009" format="VRML" location=".\objects\09.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst09_1" name="Rack09" partRef="#id09">
+				<Transform id="id09_1">-1 0 0 0 0 -1 0 0 0 0 1 0 13.465 2.801 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id10" name="DefRack10">
+				<UserData id="id10_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack10" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1010" format="VRML" location=".\objects\10.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst10_1" name="Rack10" partRef="#id10">
+				<Transform id="id10_1">0 -1 0 0 1 0 0 0 0 0 1 0 9.461 5.077 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id12" name="DefRack12">
+				<UserData id="id12_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack12" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1012" format="VRML" location=".\objects\12.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst12_1" name="Rack12" partRef="#id12">
+				<Transform id="id12_1">-1 0 0 0 0 -1 0 0 0 0 1 0 13.778 5.203 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with eight instances following) -->
+			<ProductRevisionView id="id13" name="DefRack13">
+				<UserData id="id13_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack13" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1013" format="VRML" location=".\objects\13.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for eight racks of the same type in our server 
+				room -->
+			<ProductInstance id="inst13_1" name="Rack13" partRef="#id13">
+				<Transform id="id13_1">0 -1 0 0 1 0 0 0 0 0 1 0 15.398 3.757 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_2" name="Rack14" partRef="#id13">
+				<Transform id="id13_2">0 -1 0 0 1 0 0 0 0 0 1 0 15.398 5.056 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_3" name="Rack24" partRef="#id13">
+				<Transform id="id13_3">1 0 0 0 0 1 0 0 0 0 1 0 11.794 8.751 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_4" name="Rack25" partRef="#id13">
+				<Transform id="id13_4">1 0 0 0 0 1 0 0 0 0 1 0 10.494 8.751 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_5" name="Rack27" partRef="#id13">
+				<Transform id="id13_5">1 0 0 0 0 1 0 0 0 0 1 0 7.232 8.751 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_6" name="Rack28" partRef="#id13">
+				<Transform id="id13_6">1 0 0 0 0 1 0 0 0 0 1 0 5.932 8.751 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_7" name="Rack37" partRef="#id13">
+				<Transform id="id13_7">0 1 0 0 -1 0 0 0 0 0 1 0 0.832 1.873 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst13_8" name="Rack38" partRef="#id13">
+				<Transform id="id13_8">0 1 0 0 -1 0 0 0 0 0 1 0 0.832 3.188 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id15" name="DefRack15">
+				<UserData id="id15_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack15" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1015" format="VRML" location=".\objects\15.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst15_1" name="Rack15" partRef="#id15">
+				<Transform id="id15_1">1 0 0 0 0 1 0 0 0 0 1 0 8.507 6.617 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id16" name="DefRack16">
+				<UserData id="id16_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack16" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1016" format="VRML" location=".\objects\16.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst16_1" name="Rack16" partRef="#id16">
+				<Transform id="id16_1">1 0 0 0 0 1 0 0 0 0 1 0 9.127 6.614 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with five instances following) -->
+			<ProductRevisionView id="id17" name="DefRack17">
+				<UserData id="id17_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack17" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1017" format="VRML" location=".\objects\17.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for five racks of the same type in our server 
+				room -->
+			<ProductInstance id="inst17_1" name="Rack17" partRef="#id17">
+				<Transform id="id17_1">1 0 0 0 0 1 0 0 0 0 1 0 9.949 6.59 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst17_2" name="Rack18" partRef="#id17">
+				<Transform id="id17_2">1 0 0 0 0 1 0 0 0 0 1 0 10.554 6.59 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst17_3" name="Rack19" partRef="#id17">
+				<Transform id="id17_3">1 0 0 0 0 1 0 0 0 0 1 0 11.159 6.59 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst17_4" name="Rack20" partRef="#id17">
+				<Transform id="id17_4">1 0 0 0 0 1 0 0 0 0 1 0 11.763 6.59 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst17_5" name="Rack21" partRef="#id17">
+				<Transform id="id17_5">1 0 0 0 0 1 0 0 0 0 1 0 12.368 6.59 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id22" name="DefRack22">
+				<UserData id="id22_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack22" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1022" format="VRML" location=".\objects\22.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst22_1" name="Rack22" partRef="#id22">
+				<Transform id="id22_1">1 0 0 0 0 1 0 0 0 0 1 0 13.512 6.622 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id23" name="DefRack23">
+				<UserData id="id23_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack23" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1023" format="VRML" location=".\objects\23.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst23_1" name="Rack23" partRef="#id23">
+				<Transform id="id23_1">1 0 0 0 0 1 0 0 0 0 1 0 14.105 6.622 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id26" name="DefRack26">
+				<UserData id="id26_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack26" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1026" format="VRML" location=".\objects\26.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst26_1" name="Rack26" partRef="#id26">
+				<Transform id="id26_1">1 0 0 0 0 1 0 0 0 0 1 0 9.592 9.088 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with eight instances following) -->
+			<ProductRevisionView id="id29" name="DefRack29">
+				<UserData id="id29_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack29" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1029" format="VRML" location=".\objects\29.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for eight racks of the same type in our server 
+				room -->
+			<ProductInstance id="inst29_1" name="Rack29" partRef="#id29">
+				<Transform id="id29_1">1 0 0 0 0 1 0 0 0 0 1 0 1.468 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_2" name="Rack30" partRef="#id29">
+				<Transform id="id29_2">1 0 0 0 0 1 0 0 0 0 1 0 2.217 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_3" name="Rack31" partRef="#id29">
+				<Transform id="id29_3">1 0 0 0 0 1 0 0 0 0 1 0 2.975 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_4" name="Rack32" partRef="#id29">
+				<Transform id="id29_4">1 0 0 0 0 1 0 0 0 0 1 0 3.711 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_5" name="Rack33" partRef="#id29">
+				<Transform id="id29_5">1 0 0 0 0 1 0 0 0 0 1 0 4.455 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_6" name="Rack34" partRef="#id29">
+				<Transform id="id29_6">1 0 0 0 0 1 0 0 0 0 1 0 5.214 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_7" name="Rack35" partRef="#id29">
+				<Transform id="id29_7">1 0 0 0 0 1 0 0 0 0 1 0 5.952 6.591 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst29_8" name="Rack36" partRef="#id29">
+				<Transform id="id29_8">1 0 0 0 0 1 0 0 0 0 1 0 6.691 6.591 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id39" name="DefRack39">
+				<UserData id="id39_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack39" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1039" format="VRML" location=".\objects\39.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst39_1" name="Rack39" partRef="#id39">
+				<Transform id="id39_1">-1 0 0 0 0 -1 0 0 0 0 1 0 2.732 5.09 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with three instances following) -->
+			<ProductRevisionView id="id40" name="DefRack40">
+				<UserData id="id40_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack40" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1040" format="VRML" location=".\objects\40.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for three racks of the same type in our server 
+				room -->
+			<ProductInstance id="inst40_1" name="Rack40" partRef="#id40">
+				<Transform id="id40_1">0 1 0 0 -1 0 0 0 0 0 1 0 4.559 0.637 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst40_2" name="Rack41" partRef="#id40">
+				<Transform id="id40_2">0 1 0 0 -1 0 0 0 0 0 1 0 4.559 1.235 0. 1</Transform>
+			</ProductInstance>
+			<ProductInstance id="inst40_3" name="Rack42" partRef="#id40">
+				<Transform id="id40_3">0 1 0 0 -1 0 0 0 0 0 1 0 4.559 1.814 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id43" name="DefRack43">
+				<UserData id="id43_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack43" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1043" format="VRML" location=".\objects\43.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst43_1" name="Rack43" partRef="#id43">
+				<Transform id="id43_1">0 1 0 0 -1 0 0 0 0 0 1 0 4.547 2.429 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id44" name="DefRack44">
+				<UserData id="id44_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="Rack44" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1044" format="VRML" location=".\objects\44.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst44_1" name="Rack44" partRef="#id44">
+				<Transform id="id44_1">0 1 0 0 -1 0 0 0 0 0 1 0 4.546 3.271 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id45" name="DefRack45">
+				<UserData id="id45_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack45" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1045" format="VRML" location=".\objects\45.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst45_1" name="Rack45" partRef="#id45">
+				<Transform id="id45_1">0 1 0 0 -1 0 0 0 0 0 1 0 4.546 3.952 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id46" name="DefRack46">
+				<UserData id="id46_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack46" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1046" format="VRML" location=".\objects\46.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst46_1" name="Rack46" partRef="#id46">
+				<Transform id="id46_1">0 1 0 0 -1 0 0 0 0 0 1 0 4.55 4.612 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id47" name="DefRack47">
+				<UserData id="id47_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack47" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1047" format="VRML" location=".\objects\47.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst47_1" name="Rack47" partRef="#id47">
+				<Transform id="id47_1">0 -1 0 0 1 0 0 0 0 0 1 0 6.573 2.646 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id48" name="DefRack48">
+				<UserData id="id48_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack48" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1048" format="VRML" location=".\objects\48.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst48_1" name="Rack48" partRef="#id48">
+				<Transform id="id48_1">0 -1 0 0 1 0 0 0 0 0 1 0 6.574 3.289 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack (with two instances following) -->
+			<ProductRevisionView id="id49" name="DefRack49">
+				<UserData id="id49_0">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack49" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1049" format="VRML" location=".\objects\49.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst49_1" name="Rack49" partRef="#id49">
+				<Transform id="id49_1">0 -1 0 0 1 0 0 0 0 0 1 0 6.592 4.012 0. 1</Transform>
+			</ProductInstance>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst49_2" name="Rack50" partRef="#id49">
+				<Transform id="id49_2">1 0 0 0 0 1 0 0 0 0 1 0 6.592 4.732 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of rack -->
+			<ProductRevisionView id="id51" name="DefRack51">
+				<UserData id="id51_2">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack51" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1051" format="VRML" location=".\objects\51.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for one rack in our server room -->
+			<ProductInstance id="inst51_1" name="Rack51" partRef="#id51">
+				<Transform id="id51_1">1 0 0 0 0 1 0 0 0 0 1 0 6.631 5.361 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description for a type of unit within the games rack -->
+			<ProductRevisionView id="id70" name="DefRack70">
+				<UserData id="id70_2">
+					<UserValue value="Node" title="DEBBLevel"></UserValue>
+					<UserValue value="DefRack70" title="DEBBComponent"></UserValue>
+				</UserData>
+				<Representation id="id1070" format="VRML"
+					location=".\objects\block.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description for a unit within the games rack -->
+			<ProductInstance id="inst70_1" name="Rack70" partRef="#id70">
+				<Transform id="id70_1">1 0 0 0 0 1 0 0 0 0 1 0 0.097 -0.149 0.798 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic Description for all nodes of the same kind (here Core2Duo 
+				in the first installation at HLRS including geometry and reference to DEBBComponent 
+				type definition -->
+			<!-- To have distinct identifier for the different installations, idxx/instxx 
+				are used in a way that 71/72/.. is HLRS, 81/82/.. is PSNC. This is relevant 
+				for the Nodes within RECS and their views -->
+			<ProductRevisionView id="id74_01_1" name="NodeGeometry">
+				<UserData id="id74_01_1_1">
+					<UserValue value="Node" title="DEBBLevel"></UserValue>
+					<UserValue value="node_hlrs_Core2Duo" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<!-- The NodeBoard representation is probably the one for the Core2Duo 
+					Nodes, but since it is the only one available, it is used for all types of 
+					nodes within RECS -->
+				<Representation id="id1074_01_1" format="VRML"
+					location=".\objects\NodeBoard.wrl"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of a specific physical node including position 
+				(transform) and instance details (i.e. hostname) -->
+			<ProductInstance id="inst71_01_1" name="Node1"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_1_1">
+					<UserValue value="n001" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_01">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.084 0.005 1</Transform>
+			</ProductInstance>
+
+			<!-- Same for the next node -->
+			<ProductInstance id="inst71_01_2" name="Node2"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_2_1">
+					<UserValue value="n002" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_02">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.194 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_3" name="Node3"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_3_1">
+					<UserValue value="n003" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_03">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.304 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_4" name="Node4"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_4_1">
+					<UserValue value="n004" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_04">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.414 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_5" name="Node5"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_5_1">
+					<UserValue value="n005" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_05">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.524 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_6" name="Node6"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_6_1">
+					<UserValue value="n006" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_06">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.634 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_7" name="Node7"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_7_1">
+					<UserValue value="n007" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_07">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.744 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_8" name="Node8"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_8_1">
+					<UserValue value="n008" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_08">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.854 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_9" name="Node9"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_9_1">
+					<UserValue value="n009" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_09">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.964 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_10" name="Node10"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_10_1">
+					<UserValue value="n010" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_10">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.192 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_11" name="Node11"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_11_1">
+					<UserValue value="n011" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_11">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.302 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_12" name="Node12"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_12_1">
+					<UserValue value="n012" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_12">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.412 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_13" name="Node13"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_13_1">
+					<UserValue value="n013" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_13">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.522 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_14" name="Node14"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_14_1">
+					<UserValue value="n014" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_14">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.632 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_15" name="Node15"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_15_1">
+					<UserValue value="n015" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_15">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.742 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_16" name="Node16"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_16_1">
+					<UserValue value="n016" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_16">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.852 0.005 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_01_17" name="Node17"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_17_1">
+					<UserValue value="n017" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_17">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.962 0.005 1</Transform>
+			</ProductInstance>
+
+			<!-- And the same for the last node -->
+			<ProductInstance id="inst71_01_18" name="Node18"
+				partRef="#id71_01_1">
+				<UserData id="id71_01_18_1">
+					<UserValue value="n018" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_01_18">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 1.062 0.005 1</Transform>
+			</ProductInstance>
+
+
+			<!-- Generic Description for all sensors of the same kind (i.e. temperature 
+				on one kind of node -->
+			<ProductRevisionView id="id74_01_2" name="SensorGeometry">
+				<Representation id="id1074_01_2" format="VRML"
+					location=".\objects\Sensor.wrl"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description for one specific sensor -->
+			<ProductInstance id="inst71_02_1" name="Sensor1"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_01">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.136 0.0 1</Transform>
+			</ProductInstance>
+
+			<!-- The same for all other sensors of that kind -->
+			<ProductInstance id="inst71_02_2" name="Sensor2"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_02">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.246 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_3" name="Sensor3"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_03">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.356 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_4" name="Sensor4"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_04">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.466 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_5" name="Sensor5"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_05">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.576 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_6" name="Sensor6"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_06">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.686 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_7" name="Sensor7"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_07">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.796 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_8" name="Sensor8"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_08">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.906 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_9" name="Sensor9"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_09">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 1.016 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_10" name="Sensor10"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_10">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.136 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_11" name="Sensor11"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_11">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.246 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_12" name="Sensor12"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_12">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.356 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_13" name="Sensor13"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_13">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.466 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_14" name="Sensor14"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_14">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.576 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_15" name="Sensor15"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_15">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.686 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_16" name="Sensor16"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_16">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.796 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst71_02_17" name="Sensor17"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_17">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.906 0.0 1</Transform>
+			</ProductInstance>
+
+			<!-- The last sensor of that kind -->
+			<ProductInstance id="inst71_02_18" name="Sensor18"
+				partRef="#id74_01_2">
+				<Transform id="id71_02_18">1 0 0 0 0 1 0 0 0 0 1 0 0.444 1.016 0.0 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of a RECS including an assembly, in this all 
+				nodes (inst71_01_x) and for each on sensor (inst71_02_x) -->
+			<ProductRevisionView id="id71" name="DefRack71"
+				instanceRefs="inst71_01_1 inst71_01_2 inst71_01_3 inst71_01_4 inst71_01_5 inst71_01_6 inst71_01_7 inst71_01_8 inst71_01_9 inst71_01_10 inst71_01_11 inst71_01_12 inst71_01_13 inst71_01_14 inst71_01_15 inst71_01_16 inst71_01_17 inst71_01_18 inst71_02_1 inst71_02_2 inst71_02_3 inst71_02_4 inst71_02_5 inst71_02_6 inst71_02_7 inst71_02_8 inst71_02_9 inst71_02_10 inst71_02_11 inst71_02_12 inst71_02_13 inst71_02_14 inst71_02_15 inst71_02_16 inst71_02_17 inst71_02_18"
+				type="assembly">
+				<UserData id="id71_1">
+					<!-- DEBBLevel is one of the following: Node, NodeGroup, Computebox1, 
+						ComputeBox2, maybe extended by Sensor, CoolingDevice, Powersupply, ... -->
+					<UserValue value="NodeGroup" title="DEBBLevel"></UserValue>
+					<!-- DEBBComponent Id is the reference to the ComponentId in the DEBBComponents 
+						XML file -->
+					<UserValue value="RECS_Sirius" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<Representation id="id1071" format="VRML"
+					location=".\objects\recscase.wrl"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of a specific RECS -->
+			<ProductInstance id="inst71_1" name="Rack71" partRef="#id71">
+				<UserData id="id71_1_1">
+					<!-- title="hostname" is on of the possible titles, currently only hostname 
+						is in use, maybe others are added like config options, other identifiers, 
+						etc. -->
+					<UserValue value="recs1" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id71_2">1 0 0 0 0 1 0 0 0 0 1 0 0.075 -0.317 1.003 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic Description for all nodes of the same kind (here three types 
+				for HLRS second phase including geometry and reference to DEBBComponent type 
+				definition -->
+			<!-- To have distinct identifier for the different installations, idxx/instxx 
+				are used in a way that 71/72/.. is HLRS, 81/82/.. is PSNC. This is relevant 
+				for the Nodes within RECS and their views -->
+			<ProductRevisionView id="id74_02_1" name="NodeGeometry">
+				<UserData id="id74_02_1_1">
+					<UserValue value="Node" title="DEBBLevel"></UserValue>
+					<UserValue value="node_hlrs_AtomZ530" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<!-- The NodeBoard representation is probably the one for the Core2Duo 
+					Nodes, but since it is the only one available, it is used for all types of 
+					nodes within RECS -->
+				<Representation id="id1074_02_1" format="VRML"
+					location=".\objects\NodeBoard.wrl"></Representation>
+			</ProductRevisionView>
+			<ProductRevisionView id="id74_03_1" name="NodeGeometry">
+				<UserData id="id74_03_1_1">
+					<UserValue value="Node" title="DEBBLevel"></UserValue>
+					<UserValue value="node_hlrs_FusionGT56N" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<Representation id="id1074_03_1" format="VRML"
+					location=".\objects\NodeBoard.wrl"></Representation>
+			</ProductRevisionView>
+			<ProductRevisionView id="id74_04_1" name="NodeGeometry">
+				<UserData id="id74_04_1_1">
+					<UserValue value="Node" title="DEBBLevel"></UserValue>
+					<UserValue value="node_hlrs_i7-8GB" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<Representation id="id1074_04_1" format="VRML"
+					location=".\objects\NodeBoard.wrl"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of a specific physical node including position 
+				(transform) and instance details (i.e. hostname) -->
+			<ProductInstance id="inst72_01_1" name="Node19"
+				partRef="#id74_02_1">
+				<UserData id="id72_01_1_1">
+					<!-- hostnames align to Instance names since instance names in blockt to 6 nodes (
+						atom, fusion and i7), all nodes will have two hostnames, nxxx as overall number (i.e. n019)  
+						and n_y_z including type y and number within this type (i.e. n_a_1 for first atom node) 
+						nodes types are slotted in line with the RECS numbering -->
+					<UserValue value="n_a_1" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_01">0
+					1 0 0 -1 0 0 0 0 0 1 0 0.175 0.084 0.005 1
+				</Transform>
+			</ProductInstance>
+			<!-- Same for the next node -->
+			<ProductInstance id="inst72_01_2" name="Node20"
+				partRef="#id74_02_1">
+				<UserData id="id72_01_2_1">
+					<UserValue value="n_a_2" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_02">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.194 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_3" name="Node21"
+				partRef="#id74_02_1">
+				<UserData id="id72_01_3_1">
+					<UserValue value="n_a_3" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_03">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.304 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_4" name="Node22"
+				partRef="#id74_02_1">
+				<UserData id="id72_01_4_1">
+					<UserValue value="n_a_4" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_04">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.414 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_5" name="Node23"
+				partRef="#id74_02_1">
+				<UserData id="id72_01_5_1">
+					<UserValue value="n_a_5" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_05">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.524 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_6" name="Node24"
+				partRef="#id74_02_1">
+				<UserData id="id72_01_6_1">
+					<UserValue value="n_a_6" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_06">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.634 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_7" name="Node25"
+				partRef="#id74_03_1">
+				<UserData id="id72_01_7_1">
+					<UserValue value="n_f_1" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_07">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.744 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_8" name="Node26"
+				partRef="#id74_03_1">
+				<UserData id="id72_01_8_1">
+					<UserValue value="n_f_2" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_08">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.854 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_9" name="Node27"
+				partRef="#id74_03_1">
+				<UserData id="id72_01_9_1">
+					<UserValue value="n_f_3" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_09">0 1 0 0 -1 0 0 0 0 0 1 0 0.175 0.964 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_10" name="Node28"
+				partRef="#id74_03_1">
+				<UserData id="id72_01_10_1">
+					<UserValue value="n_f_4" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_10">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.192 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_11" name="Node29"
+				partRef="#id74_03_1">
+				<UserData id="id72_01_11_1">
+					<UserValue value="n_f_5" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_11">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.302 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_12" name="Node30"
+				partRef="#id74_03_1">
+				<UserData id="id72_01_12_1">
+					<UserValue value="n_f_6" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_12">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.412 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_13" name="Node31"
+				partRef="#id74_04_1">
+				<UserData id="id72_01_13_1">
+					<UserValue value="n_i7_1" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_13">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.522 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_14" name="Node32"
+				partRef="#id74_04_1">
+				<UserData id="id72_01_14_1">
+					<UserValue value="n_i7_2" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_14">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.632 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_15" name="Node33"
+				partRef="#id74_04_1">
+				<UserData id="id72_01_15_1">
+					<UserValue value="n_i7_3" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_15">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.742 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_16" name="Node34"
+				partRef="#id74_04_1">
+				<UserData id="id72_01_16_1">
+					<UserValue value="n_i7_4" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_16">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.852 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_01_17" name="Node35"
+				partRef="#id74_04_1">
+				<UserData id="id72_01_17_1">
+					<UserValue value="n_i7_5" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_17">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 0.962 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+			<!-- And the same for the last node -->
+			<ProductInstance id="inst72_01_18" name="Node36"
+				partRef="#id74_04_1">
+				<UserData id="id72_01_18_1">
+					<UserValue value="n_i7_6" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_01_18">0 -1 0 0 1 0 0 0 0 0 1 0 0.245 1.062 0.005
+					1
+				</Transform>
+			</ProductInstance>
+
+
+			<!-- Generic Description for all sensors of the same kind (i.e. temperature 
+				on one kind of node, so here three types of sensors -->
+			<ProductRevisionView id="id74_02_2" name="SensorGeometry">
+				<Representation id="id1074_02_2" format="VRML"
+					location=".\objects\Sensor.wrl"></Representation>
+			</ProductRevisionView>
+
+			<ProductRevisionView id="id74_03_2" name="SensorGeometry">
+				<Representation id="id1074_03_2" format="VRML"
+					location=".\objects\Sensor.wrl"></Representation>
+			</ProductRevisionView>
+			
+			<ProductRevisionView id="id74_04_2" name="SensorGeometry">
+				<Representation id="id1074_04_2" format="VRML"
+					location=".\objects\Sensor.wrl"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description for one specific sensor -->
+			<ProductInstance id="inst72_02_1" name="Sensor19"
+				partRef="#id74_02_2">
+				<Transform id="id72_02_01">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.136 0.0 1</Transform>
+			</ProductInstance>
+
+			<!-- The same for all other sensors of that kind -->
+			<ProductInstance id="inst72_02_2" name="Sensor20"
+				partRef="#id74_02_2">
+				<Transform id="id72_02_02">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.246 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_3" name="Sensor21"
+				partRef="#id74_02_2">
+				<Transform id="id72_02_03">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.356 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_4" name="Sensor22"
+				partRef="#id74_02_2">
+				<Transform id="id72_02_04">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.466 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_5" name="Sensor23"
+				partRef="#id74_02_2">
+				<Transform id="id72_02_05">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.576 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_6" name="Sensor24"
+				partRef="#id74_02_2">
+				<Transform id="id72_02_06">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.686 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_7" name="Sensor25"
+				partRef="#id74_03_2">
+				<Transform id="id72_02_07">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.796 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_8" name="Sensor26"
+				partRef="#id74_03_2">
+				<Transform id="id72_02_08">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 0.906 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_9" name="Sensor27"
+				partRef="#id74_03_2">
+				<Transform id="id72_02_09">1 0 0 0 0 1 0 0 0 0 1 0 -0.021 1.016 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_10" name="Sensor28"
+				partRef="#id74_03_2">
+				<Transform id="id72_02_10">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.136 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_11" name="Sensor29"
+				partRef="#id74_03_2">
+				<Transform id="id72_02_11">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.246 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_12" name="Sensor30"
+				partRef="#id74_03_2">
+				<Transform id="id72_02_12">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.356 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_13" name="Sensor31"
+				partRef="#id74_04_2">
+				<Transform id="id72_02_13">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.466 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_14" name="Sensor32"
+				partRef="#id74_04_2">
+				<Transform id="id72_02_14">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.576 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_15" name="Sensor33"
+				partRef="#id74_04_2">
+				<Transform id="id72_02_15">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.686 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_16" name="Sensor34"
+				partRef="#id74_04_2">
+				<Transform id="id72_02_16">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.796 0.0 1</Transform>
+			</ProductInstance>
+
+			<ProductInstance id="inst72_02_17" name="Sensor35"
+				partRef="#id74_04_2">
+				<Transform id="id72_02_17">1 0 0 0 0 1 0 0 0 0 1 0 0.444 0.906 0.0 1</Transform>
+			</ProductInstance>
+
+			<!-- The last sensor of that kind -->
+			<ProductInstance id="inst72_02_18" name="Sensor36"
+				partRef="#id74_04_2">
+				<Transform id="id72_02_18">1 0 0 0 0 1 0 0 0 0 1 0 0.444 1.016 0.0 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of a RECS including an assembly, in this all 
+				nodes (inst72_01_x) and for each on sensor (inst72_02_x) -->
+			<ProductRevisionView id="id72" name="DefRack72"
+				instanceRefs="inst72_01_1 inst72_01_2 inst72_01_3 inst72_01_4 inst72_01_5 inst72_01_6 inst72_01_7 inst72_01_8 inst72_01_9 inst72_01_10 inst72_01_11 inst72_01_12 inst72_01_13 inst72_01_14 inst72_01_15 inst72_01_16 inst72_01_17 inst72_01_18 inst72_02_1 inst72_02_2 inst72_02_3 inst72_02_4 inst72_02_5 inst72_02_6 inst72_02_7 inst72_02_8 inst72_02_9 inst72_02_10 inst72_02_11 inst72_02_12 inst72_02_13 inst72_02_14 inst72_02_15 inst72_02_16 inst72_02_17 inst72_02_18"
+				type="assembly">
+				<UserData id="id72_1">
+					<!-- DEBBLevel is one of the following: Node, NodeGroup, Computebox1, 
+						ComputeBox2, maybe extended by Sensor, CoolingDevice, Powersupply, ... -->
+					<UserValue value="NodeGroup" title="DEBBLevel"></UserValue>
+					<!-- DEBBComponent Id is the reference to the ComponentId in the DEBBComponents 
+						XML file -->
+					<UserValue value="RECS_Sirius" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<Representation id="id1072" format="VRML"
+					location=".\objects\recscase.wrl"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of a specific RECS -->
+			<ProductInstance id="inst72_1" name="Rack72" partRef="#id72">
+				<UserData id="id72_1_1">
+					<!-- title="hostname" is on of the possible titles, currently only hostname 
+						is in use, maybe others are added like config options, other identifiers, 
+						etc. -->
+					<UserValue value="recs2" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id72_2">1 0 0 0 0 1 0 0 0 0 1 0 0.075 -0.317 1.079 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of some sort of rack-mountable unit within the 
+				games rack -->
+			<ProductRevisionView id="id75" name="DefRack75">
+				<Representation id="id1075" format="VRML"
+					location=".\objects\einschub2.WRL"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of one rack-mountable unit within the games 
+				rack -->
+			<ProductInstance id="inst75_1" name="Rack75" partRef="#id75">
+				<UserData id="id75_1_1">
+					<UserValue value="GAMES Head" title="label"></UserValue>
+					<UserValue value="head" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id75_1">1 0 0 0 0 1 0 0 0 0 1 0 0.075 0.473 0.857 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of some sort of rack-mountable unit within the 
+				games rack -->
+			<ProductRevisionView id="id73" name="DefRack73">
+				<Representation id="id1073" format="VRML"
+					location=".\objects\einschub3.WRL"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of one rack-mountable unit within the games 
+				rack -->
+			<ProductInstance id="inst73_1" name="Rack73" partRef="#id73">
+				<UserData id="id73_1_1">
+					<UserValue value="GAMES Intern" title="label"></UserValue>
+					<UserValue value="intern" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id73_1">1 0 0 0 0 1 0 0 0 0 1 0 0.075 0.043 0.481 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of some sort of rack-mountable unit within the 
+				games rack -->
+			<ProductRevisionView id="id74" name="DefRack74">
+				<Representation id="id1074" format="VRML"
+					location=".\objects\einschub4.WRL"></Representation>
+			</ProductRevisionView>
+
+			<!-- Concrete description of one rack-mountable unit within the games 
+				rack -->
+			<ProductInstance id="inst74_1" name="Rack74" partRef="#id74">
+				<UserData id="id74_1_1">
+					<UserValue value="GAMES Storage" title="label"></UserValue>
+					<UserValue value="storage" title="hostname"></UserValue>
+				</UserData>
+				<Transform id="id74_1">1 0 0 0 0 1 0 0 0 0 1 0 0.075 0.043 0.315 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of rack like the games rack -->
+			<ProductRevisionView id="id11" name="DefRack11"
+				instanceRefs="inst70_1 inst71_1 inst72_1 inst73_1 inst74_1 inst75_1" type="assembly">
+				<UserData id="id11_1">
+					<UserValue value="ComputeBox1" title="DEBBLevel"></UserValue>
+					<UserValue value="gamesRack" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<Representation id="id1011" format="VRML"
+					location=".\objects\rack.WRL"></Representation>
+			</ProductRevisionView>
+			<!-- Concrete description of the games rack, the UserValue "label" is just an example what can be defined 
+				for Computebox1-->
+			<ProductInstance id="inst11_1" name="Rack11" partRef="#id11">
+				<UserData id="id11_2">
+					<UserValue value="GAMES Rack" title="label"></UserValue>
+				</UserData>
+				<Transform id="id11_1_1">1 0 0 0 0 1 0 0 0 0 1 0 10.977 4.35 0. 1</Transform>
+			</ProductInstance>
+
+			<!-- Generic description of a room like the small server room at HLRS -->
+			<ProductRevisionView id="id4" name="HLRS_SmallServerRoom"
+				instanceRefs="inst01_1 inst02_1 inst02_2 inst03_1 inst05_1 inst05_2 inst05_3 inst05_4 inst09_1 inst10_1 inst11_1 inst12_1 inst13_1 inst13_2 inst13_3 inst13_4 inst13_5 inst13_6 inst13_7 inst13_8 inst15_1 inst16_1 inst17_1 inst17_2 inst17_3 inst17_4 inst17_5 inst22_1 inst23_1 inst26_1 inst29_1 inst29_2 inst29_3 inst29_4 inst29_5 inst29_6 inst29_7 inst29_8 inst39_1 inst40_1 inst40_2 inst40_3 inst43_1 inst44_1 inst45_1 inst46_1 inst47_1 inst48_1 inst49_1 inst49_2 inst51_1"
+				type="assembly">
+				<UserData id="id4_1">
+					<UserValue value="ComputeBox2" title="DEBBLevel"></UserValue>
+					<UserValue value="hlrs_smallServerRoom" title="DEBBComponentId"></UserValue>
+				</UserData>
+				<Representation id="id6" format="VRML"
+					location=".\objects\serverroom.wrl">
+				</Representation>
+			</ProductRevisionView>
+			<!-- concrete description of the small server room at HLRS where the games 
+				rack is hosted, the UserValue "location" is just an example what can be defined 
+				for Computebox2 -->
+			<ProductInstance id="inst35833" name="HLRS_SmallServerRoom"
+				partRef="#id4">
+				<UserData id="id35833">
+					<UserValue
+						value="Room Nr. xxxx, Allmandring 30, 70569 Stuttgart, Germany"
+						title="location"></UserValue>
+				</UserData>
+			</ProductInstance>
+		</InstanceGraph>
+	</ProductDef>
+</PLMXML>

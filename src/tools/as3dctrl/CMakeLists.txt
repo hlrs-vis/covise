@@ -1,0 +1,28 @@
+# PROJECT(as3dctrl)
+
+ADD_DEFINITIONS(
+)
+
+INCLUDE_DIRECTORIES(
+)
+
+SET(HEADERS
+  as3dctrl.h
+)
+
+SET(SOURCES
+  as3dctrl.cpp
+)
+
+IF(UNIX)
+  FIND_LIBRARY(RT rt)
+  IF(RT)
+    SET(EXTRA_LIBS ${RT})
+  ENDIF()
+ENDIF()
+
+ADD_COVISE_EXECUTABLE(as3dctrl)
+
+TARGET_LINK_LIBRARIES(as3dctrl coNet ${EXTRA_LIBS})
+
+COVISE_INSTALL_TARGET(as3dctrl)

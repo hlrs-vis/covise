@@ -1,0 +1,99 @@
+\section{Dump CFX}
+\label{sec:dump-cfx}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Extracts time dependent velocity data from CFX result files. The module generates the files needed for efficient path line integration using mmap(), as done by the FLE module. It was chosen to read directly from CFX files because the CFX readers (and network mechanisms) inside Covise and Paraview do not allow to retrieve the time that a data set belongs to or read all data, leading to memory problems.
+
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  dump files of velocity data
+\item
+  files used by the pathline integration approach using mmap()
+\item
+  descriptor file describing the mmap files, the name of the file is ``data.info''. This file has to be passed to e.g. the FLE module.
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{file name}: the file name of the CFX result file.
+
+\item
+  \textbf{vector component}: allows to select the vector component of the CFX result file that has to be dumped.
+
+\item
+  \textbf{domain}: CFX domain to read, 0 for all domains.
+
+\item
+  \textbf{level of interest}: CFX level of interest. 1 for most important variables, 3 for all variables.
+
+\item
+  \textbf{first time step}: the first time step to read from the CFX file. The first time step of the CFX file has index 1.
+
+\item
+  \textbf{time step number}: number of time steps to read, 0 for all time steps.
+
+\item
+  \textbf{mmap file size max}: maximum size of mmap file (in bytes). Set to 0 if address space is large enough (64-bit systems), then only a single file is generated. Otherwise set to e.g. 300 MB, so multiple files are generated.
+
+\item
+  \textbf{generate mmap files}: generate mmap files.
+
+\item
+  \textbf{delete dump files}: delete dump files (after generation of mmap files).
+
+\item
+  \textbf{output path}: output path for the files.
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2008-04-24
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Filip Sadlo
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................
+
+\begin{itemize}
+
+\item
+  FLE (Section~\ref{sec:FLE})
+
+\item
+  see the source code of this module, it contains disabled code for a stand-alone program that allows to generate the mmap files from dump files. This can be used to generate the mmap files from other sources. For this, the dump files can be generated using the \emph{Write Dump} module.
+
+\end{itemize}
+
+
+\subsubsection{Example Network}
+%.............................................................................
+

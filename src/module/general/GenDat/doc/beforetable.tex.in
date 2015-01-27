@@ -1,0 +1,57 @@
+
+%=============================================================
+
+%-------------------------------------------------------------
+% General Notes for Latex novices:
+% 1. Please protect any "_" by a backslash "\" to prevent that it is
+%    interpreted by Latex as an order, e. g. write
+%    Vec3. 
+%    Protect "#", "$", "&", "%" , "{" and "}" in the same way by a "\".
+% 2. Use {\bf text} or {\it text} to generate text in bold face resp. italics
+% 3. For Figures, Tables, Lists, Verbatim-Environments (unformatted text), References/Links,
+%    etc. see below.
+% 4. Look at CuttingSurface.tex , ReadSTAR.tex, or Domainsurface.tex as good examples.  
+% 5. A Latex book (Latex Einführung Band 1) is available for further questions
+%    (usually on Peter's desk) 
+%-------------------------------------------------------------
+
+%
+% short description what the module does
+%
+GenDat creates a chunk of a regular grid. It generates meshes based on
+carthesian and cyclic coordinates. 
+
+GenDat is mainly used as a generator of test and reference data.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{GenDat_icon}{0.8}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+Gen Dat is available in all versions of COVISE.
+%
+% short information about versions 
+%
+
+
+%
+%-------------------------------------------------------------
+% Notes for using the 3 environments for tables below:
+%-------------------------------------------------------------
+% 1. In some cases it may be necessary to increase the size of a column, 
+%    e.g. change the value of p for the type of input or output ports from 3.5cm to 4cm
+% 2. If you have more than one entry in a cell but you don't want to place 
+%    them in the one row, use "\newline", not "\\". For the first column you have
+%    to specify explicitly the size of the coloumn ("p{xxcm}", not "l" as in a previous
+%    version of this template).
+% 3. Please check that the first line (heading line) of your longtables is ended
+%    by "\endhead" instead of "\\". This forces replication of the header in case
+%    the table crosses page boudary. 
+%-------------------------------------------------------------
+%
+%=============================================================

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  MinMax.cpp
+)
+
+SET(EXTRASOURCES
+  MinMax.h
+)
+
+ADD_COVISE_MODULE(Tools MinMax ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(MinMax  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(MinMax)

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <COVER>
+   <Plugin>
+    <Vrml97 value="on" />
+    <ClipPlane value="on" />
+    <Volume value="on" />
+    <PDB value="on" />
+   </Plugin>
+
+   <ViewerPosition x="0" y="-2000" z="0" />
+   <Menu>
+    <Position x="600" y="0" z="500" />
+   </Menu>
+   <SceneSize value="1500" />
+   <DebugLevel value="1" />
+   <FPS value="true" />
+
+   <PipeConfig>
+    <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+   </PipeConfig>
+
+   <WindowConfig>
+    <Window index="0" width="1024" height="768" decoration="false" />
+   </WindowConfig>
+
+   <ScreenConfig>
+    <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+    <Screen width="2000" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1500" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+
+  <Renderer>
+   <VolumeRenderer value="Tex2d" />
+  </Renderer>
+
+  <!-- position of transfer editor menu>
+
+      <TFE>
+         <MenuPosition value="-200 0 80" >
+         <MenuSize value="0.15" >
+      </TFE--><!--position of error message window (PDBplugin)>
+
+      <Messages>
+         <MenuPosition value="100 0 120" />
+         <MenuSize value="0.15" />
+      </Messages-->
+
+ </GLOBAL>
+
+
+ <!-- this config is required by the OpenSG Renderer-->
+ <INCLUDE global="1" configname="colormap" >config.colormaps.xml </INCLUDE>
+ <INCLUDE global="1" configname="opensg-base" >config.opensg.base.xml </INCLUDE>
+ <INCLUDE global="1" configname="opensg-base" >config-rrzk.xml </INCLUDE>
+
+</COCONFIG>

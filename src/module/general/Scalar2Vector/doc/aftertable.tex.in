@@ -1,0 +1,79 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+
+A "classical" combination of three modules is: 
+ReadStar, FixUsg and CellToVert. Whenever results of StarCD data are analysed, 
+this combination of modules is needed.
+
+\covlink{ReadStar}{ReadStar}{../../IO/ReadStar/ReadStar.html} reads a 
+dataset from two files: A file16 for the grid and either a file29 or a file09 
+for the data. With the field1, field2 and field3 parameters of ReadStar the 
+variables which are available at the output ports are selected. 
+In this example the velocity components U, V, and W are selected. 
+
+{\bf FixUsg} eliminates all unused or duplicate points and cells with zero volume 
+from the data set. Caution: All data sets must also be passed through FixUsg 
+to remove the unused cell's data. Multiple data sets can be filtered through 
+one CheckUsg module. 
+
+{\bf StarCD} calculates finite Volumes, i.e. one value per cell. 
+Since most visualisation modules need per-vertex data, 
+\covlink{CellToVert}{CellToVert}{../../Tools/CellToVert/CellToVert.html} interpolates 
+the data to vertices. This is done with all three outputs of CheckUsg. 
+
+{\bf Scalar2Vector} combines the U, V and W component to one vector data object. 
+
+The grid and the vector data are connected 
+to \covlink{TracerUsg}{TracerUsg}{../../Tracer/TracerUsg/TracerUsg.html}, 
+which computes streamlines. 
+
+Below you see the example Scalar2Vector.net and the resulting output in the Renderer.
+Here we use RWCovise instead of ReadStar.
+
+\begin{covimg}{}
+{ScalarVect}{covise/net/examples/Scalar2Vector.net}{0.6}\end{covimg}
+
+\begin{covimg2} {}{ScalarVectRenderer}{0.7}\end{covimg2}
+		
+Consider some examples how attribute names and their attribute values 
+can be summarized. Note that in the examples we have only one attribute 
+for each input port but there can be an arbitrary number of them.
+\begin{longtable}{|p{3.5cm}|p{1.5cm}|p{4cm}|p{2.5cm}|}
+\hline
+   \bf{Input attribute names} & \bf{Input \newline attribute \newline values} & \bf{Output
+    attribute  name} & \bf{Output \newline attribute \newline value}\endhead
+\hline\hline
+ XVelocity \newline
+ yvelocity \newline
+ ZVELOCITY
+                    & foo \newline
+                      bar \newline
+                      foofoo
+                                  & XyZvelocity 
+				                 & (foo,bar,foofoo)\\
+\hline						 
+ VelocityU \newline
+ velocityV \newline
+ VELOCITYW
+	            & foo \newline
+	              foo \newline
+	              foo
+                                  & velocityUVW
+
+                                                 & foo \\
+ \hline
+ XVelocity \newline
+ velocityY \newline
+ Z-VELOCITY
+	            & foo \newline
+		      foo \newline
+		      foo
+		                  & Summary of attributes not possible, attributes leave unchanged & \\
+\hline
+\end{longtable}	   

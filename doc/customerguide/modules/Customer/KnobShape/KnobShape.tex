@@ -1,0 +1,222 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+%=============================================================
+%=============================================================
+
+
+%=============================================================
+\startdocument
+\subsection{KnobShape}
+\label{KnobShape}
+%=============================================================
+
+
+%
+% short description what the module does
+%
+KnobShape produces a simplified but quite realistic representation
+of the geometry of a knob. 
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{modules/Customer/KnobShape}{KnobShape}{0.7}\end{covimg2}
+
+
+
+%
+% short information about versions 
+%
+%Sample is available since COVISE snap-2000-10 on all supported platforms.
+
+%
+%=============================================================
+\subsubsection{Parameters}
+%=============================================================
+%
+
+%\covlink{Colors}{Colors}{../../Color/Colors/Colors.html}
+\begin{longtable}{|p{3cm}|p{2cm}|p{8.5cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        AbrasionDiv & Scalar & This parameter controls the number of element divisions
+              used in the geometric representation of the fillet curve associated 
+              with the abrasion radius.\\
+\hline
+        RoundingDiv & Scalar & This parameter controls the number of element divisions
+              used in the geometric representation of the fillet curve associated 
+              with the rounding radius.\\
+\hline
+\end{longtable}
+
+
+
+%
+%=============================================================
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{KnobParam} & DO\_Text & Message with
+                 values for knob geometry parameters. If this object
+                 has no KNOB\_SELECT attribute (the value is irrelevant),
+                 dummy objects are produced for the output ports.\\
+%\covlink{Transform}{Transform}{../../Tools/Transform/Transform.html}.\\
+                     
+                    
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{TheKnob} & DO\_Polygons & The knob geometry to be shown
+                            and produced by the renderer.\\
+\hline
+	\textcolor{required}{TheNormals} & DO\_Unstructured\_V3D\_Data & Do not use this port.
+                                 The normals have to be generated with GenNormals. \\
+\hline
+	\textcolor{required}{TheSameKnob} & DO\_Polygons & The same as the first output port,
+                           but this is never a dummy. Even when you are not watching the
+                           knob geometry, this object is always created for the benefit
+                           of other modules that may require this information.\\
+\hline
+\end{longtable}
+%=============================================================
+
+
+%%=============================================================
+%\subsubsection{Examples}
+%%=============================================================
+%%
+%
+%% examples for using this module
+%
+%%\paragraph{First example}
+%%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureMap1}{covise/net/examples/ImageToTexture.net}{0.6}\end{covimg}
+%
+%In the first example we show a dynamic geometry. As the geometry moves the image 
+%moves with it. In order to achieve this effect, we use the displacement information
+%at the second port.
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend1}{The image is dragged by the material motion.}{0.6}\end{covimg}
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureMap2}{covise/net/examples/ImageToTexture2.net}{0.6}\end{covimg}
+%
+%In the second example we want to illustrate the effect of the parameter {\sl GroupGeometry}
+%and of size adjustment. The geometry is a set with 4 DO\_Polygon object. When
+%the value of {\sl GroupGeometry} is true (default), the image is mapped once onto the
+%whole geometry. This effect is seen in the first renderer image. If the value
+%of this parameter is false, then we get the second image. Note that here the geometry
+%is used separately for each DO\_Polygon object. The third image has the default
+%value for this parameter, i.e. true. If we are seeing here many eyes, it is because
+%we are no longer fitting the image size to that of the geometry. In this case, we
+%have manually set the image size to an inferior value, that is why we have to replicate
+%the image in order to create a texture for the whole geometry.
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend2_1}{GroupGeometry is true, the image size is that of the geometry.}{0.6}\end{covimg}
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend2_2}{GroupGeometry is false.}{0.6}\end{covimg}
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend2_3}{GroupGeometry is true, but the image size has been manually adjusted to an inferior value.}{0.6}\end{covimg}
+%
+%%
+%%
+%%The dimension of the sampled grid was 30x30x30 and the fill value of Sample
+%%was set to 0.0.
+%%
+%%The module \covlink 
+%%{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+%% computes a cuttingsurface on the uniform grid and the module 
+%%\covlink {Colors}{Colors}{../../Color/Colors/Colors.html} maps the
+%%data on the surface to colors.
+%%
+%%The module
+%%\covlink{ShowGrid}{ShowGrid}{../../Tools/ShowGrid/ShowGrid.html}
+%% displays the uniform grid (in this case 3 sides of the outer surface).
+%%
+%%\begin{covimg2}{modules/Tools/Sample}{SampleRenderer}{0.7}\end{covimg2}
+%%
+%%\paragraph{Second example}

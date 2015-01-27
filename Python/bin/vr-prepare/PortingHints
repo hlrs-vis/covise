@@ -1,0 +1,94 @@
+*Base.ui in designer von Qt 4 (everest:/usr/share/qt4/bin/designer) importieren
+QButtonGroup muss im Designer durch QGroupBox ersetzt werden
+Datei speichern
+
+Bei QTextBrowser nochmal öffnen:
+   "text" (im Editor) kopieren und bei "html" (im Editor) einfügen, anschließen "text" löschen
+
+
+Neues ui-File im Text-Editor oeffnen:
+   Folgende Umbenennungen direkt im .ui File vornehmen:
+      <class>VRP*Base</class>   in   <class>*Base</class>  (auch sonstige Vorkommnisse)
+      Q3Frame -> QFrame
+      Q3ListBox -> QListWidget
+      Q3DockWindow -> QDockWidget
+      Q3WidgetStack -> QStackedWidget
+      Q3ScrollView -> QScrollArea
+
+      Q3ListView -> QListView
+      Q3TextBrowser -> QTextBrowser
+      Q3TextEdit -> QTextEdit
+      Q3DateEdit -> QDateEdit
+
+      QListWidget::Multi -> QListWidget::MultiSelection
+      QListView::Multi -> QListView::MultiSelection
+
+      vScrollBarMode > verticalScrollBarPolicy
+      hScrollBarMode > horizontalScrollBarPolicy
+      QScrollView::Auto -> Qt::ScrollBarAsNeeded
+      QScrollView::AlwaysOn -> Qt::ScrollBarAlwaysOn
+      QScrollView::AlwaysOff -> Qt::ScrollBarAlwaysOff
+
+      QListView::AllColumns -> QListView::Fixed
+
+      <property name="showSortIndicator" > -> <property name="showSortIndicator" stdset="0" >
+      <property name="itemMargin" > -> <property name="itemMargin" stdset="0" >
+      <property name="rootIsDecorated" > -> <property name="rootIsDecorated" stdset="0" >
+
+   Qt3 Support custom Widgets- Eintraege loeschen
+   AUSNAHME: ChangeIndicatedLE und FloatInRangeControl
+
+
+
+pyuic mit Option -w, um Base- Klassen direkt von QObect abzuleiten (Makefile)
+
+
+
+Aenderungen in Python- Klassen:
+
+   "from qt import *"  ändern in  "from PyQt4 import QtCore, QtGui"
+
+   Replace QObject.connect by QtCore.QObject.connect
+   Replace: VRP<KLASSENNMAE> in <KLASSENNAME>
+
+   QSlider valueChanged schickt nun Tupel (wert,), in qt3 wert
+
+   QDoubleValidator: Name als zweites Argument muss geloescht werden
+
+   Konstruktor *Base: Name als zweites Argument muss geloescht werden
+
+   QRadioButton: isOn() -> isChecked(), QtCore.Qt.Checked, QtCore.Qt.Unchecked
+
+   raiseWidget() aendern in setCurrentWidget()
+
+   QListWidgetItem: setSelected -> selectItem
+
+   QCustomEvent aendern in QtCore.QEvent
+   QDockWindow aendern in QtGui.QDockWidget
+
+   (QComboBox) insertItem aendern in addItem
+   (QComboBox) setCurrentItem aendern in setCurrentIndex
+
+   QColorDialog aendern in QtGui.QColorDialog
+   QColor aendern in QtGui.QColor
+
+   VRPStreamlinesBase in GenericVisualizerPanelBase
+
+   qApp aendern in QtGui.QApplication
+
+   QToolTip.add(self.var,self.__tr("text")) aendern in self.var.setToolTip(self.__tr("text")
+
+   QWhatsThis.add(self.var,self.__tr("text")) aendern in self.var.setWhatsThis(self.__tr("text"))
+
+
+Im GenericVisualizerPanelBase hat sich die Group Orientation geaendert, d.h. textLabel4_3_2_2_3 und vrpButtonGroupOrientation_2 gibts nicht mehr
+beim "hide" einfach ein self.groupOrientation.hide() draus machen
+sonst ist textLabel4_3_2_2_3 groupOrientation.title() und vrpButtonGroupOrientation_2 self.groupOrientation
+
+
+
+http://doc.trolltech.com/4.4/porting4.html
+
+geoInputNames=['meshIn'] -> geoInputNames=['GridIn0']   (Tracercomp hat noch 'meshIn')
+VRPInternalConfig -> InternalConfig
+outputName='geometryOut' -> outputName='GeometryOut0'

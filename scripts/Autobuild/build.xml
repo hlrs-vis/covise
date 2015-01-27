@@ -1,0 +1,1474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="COVISE for Windows" default="nightflight">
+    
+    <!--
+	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	Ant script for Windowsversions of COVISE
+	-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	
+	TODO-List:
+	*) cleanup directory structure
+	*) which version number is to be applied to the results of this script?
+	*) Innosetup script
+		+) test result
+		+) [ca. line 355] have compile-batches to be copied also?
+		+) [ca. line 411] have LIBs also to be copied in a non-developer version?
+	*) check to see, if content of common.VISENSO.bat is to be inserted to covise\common.bat in any way
+	*) add more errorchecking in this script
+	
+	author: Harry Trautmann
+	
+	(C) Copyright 2009 VISENSO GmbH
+    -->
+    
+    
+    
+    <description>
+    Ant script for Windowsversions of COVISE
+    </description>
+    
+    
+    
+    <!-- the following line enables the antcontrib extensions, like the "if" and "stopwatch" tasks -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    
+    
+    
+    <macrodef name="echocnf" description="echos message to console and file">
+        <attribute name="file" default="NULL"/>
+	<attribute name="append" default="true"/>
+	<text name="message"/>
+        <sequential>
+	    <if>
+	        <not><equals arg1="@{file}" arg2="NULL"/></not>
+	        <then>
+	            <echo file="@{file}" append="@{append}">@{message}</echo>
+	        </then>
+            </if>
+	    <echo>@{message}</echo>
+	</sequential>
+    </macrodef>
+    
+    
+<!--
+    <macrodef name="deletefile" description="deletes a file if it exists, without failing">
+        <attribute name="file" default="NULL"/>
+        <sequential>
+	    <if>
+	        <and>
+	        <not><equals arg1="@{file}" arg2="NULL"/></not>
+		<available file="@{file}" type="file" property="ignoredhere"/>
+		</and>
+	        <then>
+		    <delete file="@{file}" failonerror="false"/>
+	        </then>
+            </if>
+	</sequential>
+    </macrodef>
+-->
+    
+    
+    
+    <!-- note: property file definition has to be placed before any target 
+       definition; also do not change the order of property file definitions,
+       since property cannot be overwritten once declared -->
+    <property file="build.properties"/>
+    <property file="default.properties"/>
+    
+    
+    
+    
+    
+    <target name="init" description="initializes project structures">
+    	<!--
+	initializes global project stuctures
+	note: project properties should already be loaded from property files (s. a.)
+	this target is intended to be the first dependency of every other target
+	to ensure that necessary structures are set up correctly
+        -->
+	
+	<!-- echo currently set properties -->
+	<!--<echoproperties/>-->
+	
+	<!--
+	create base directories, if they do not exist already
+	-->
+	<if>
+	    <not>
+	    <available file="${DIRREPORTS}" type="dir" property="DIRREPORTS.exists"/>
+	    </not>
+	    <then>
+	    <mkdir dir="${DIRREPORTS}"/>
+	    <echocnf file="${FILEREPORT}" append="true">
+	        init: created directory ${DIRREPORTS}
+	    </echocnf>
+	    </then>
+	</if>
+	<if>
+	    <not>
+	    <available file="${DIRCOVSRC}\.." type="dir" property="DIRCOVSRCdotdot.exists"/>
+	    </not>
+	    <then>
+	    <mkdir dir="${DIRCOVSRC}\.."/>
+	    <echocnf file="${FILEREPORT}" append="true">
+	        init: created directory ${DIRCOVSRC}\..
+	    </echocnf>
+	    </then>
+	</if>
+	
+	<!--
+        <echocnf file="${FILEREPORT}" append="true">
+            target: init
+        </echocnf>
+	-->
+    </target>
+    
+    
+    
+    
+    
+    <target name="refreshsources" depends="init" description="gets sources from svn">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: refreshsources
+        </echocnf>
+        <available file="${DIRCOVSRC}" type="dir" property="DIRCOVSRC.base.exists"/>
+        <available file="${DIRCOVSRC}/src/Visenso" type="dir" property="DIRCOVSRC.visenso.exists"/>
+        <available file="${DIRCOVSRC}/src/Visenso/ui/branches/pyqt4" type="dir" property="DIRCOVSRC.pyqt4.exists"/>
+	
+        <!-- 
+	get base sources from svn
+        -->
+	<if>
+	    <equals arg1="${refreshsources.forcecheckout}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: forced svn checkout; will delete existing sources!
+                </echocnf>
+	        <if>
+	           <equals arg1="${DIRCOVSRC.base.exists}" arg2="true"/>
+	           <then>
+	           <echocnf file="${FILEREPORT}" append="true">
+		       refreshsources: cleaning directory ${DIRCOVSRC}\..
+	           </echocnf>
+	           <delete dir="${DIRCOVSRC}\.." quiet="true"/>
+		   <mkdir dir="${DIRCOVSRC}"/>
+	           </then>
+	        </if>
+	    </then>
+	</if>
+        <if>
+	    <and>
+                <equals arg1="${DIRCOVSRC.base.exists}" arg2="true"/>
+	        <not>
+	            <equals arg1="${refreshsources.forcecheckout}" arg2="true"/>
+	        </not>
+	    </and>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: svn update ${DIRCOVSRC}
+                </echocnf>
+                <if>
+                    <!-- rename the Visenso folder to avoid svn problems due to Visenso being from different repository -->
+                    <equals arg1="${DIRCOVSRC.visenso.exists}" arg2="true"/>
+                    <then>
+                        <exec executable="${DIRSCRIPTS}\RenameAt.bat" output="${FILEREPORT}" append="true">
+                            <arg value="${DIRCOVSRC}\src"/>
+                            <arg value="Visenso"/>
+                            <arg value="_VISENSO"/>
+                        </exec>
+		    </then>
+                </if>
+                <!-- perform svn update on ${DIRCOVSRC}-->
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\.." output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.base.svnfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERTRUNK}"/>
+                    <arg value="update"/>
+                    <arg value="--force"/>
+                </exec>
+                <if>
+                    <!-- re-rename Visenso folder -->
+                    <equals arg1="${DIRCOVSRC.visenso.exists}" arg2="true"/>
+                    <then>
+                        <exec executable="${DIRSCRIPTS}\RenameAt.bat" output="${FILEREPORT}" append="true">
+                            <arg value="${DIRCOVSRC}\src"/>
+                            <arg value="_VISENSO"/>
+                            <arg value="Visenso"/>
+                        </exec>
+                    </then>
+                </if>
+            </then>
+            <else>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: svn checkout ${DIRCOVSRC}
+                </echocnf>
+                <!-- make directory and perform svn checkout on ${DIRCOVSRC}-->
+                <mkdir dir="${DIRCOVSRC}"/>
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\.." output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.base.svnfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERTRUNK}"/>
+                    <arg value="checkout"/>
+                    <arg value="--force"/>
+                    <arg value="svn+ssh://${SVNUSERTRUNK}@${SVNREPOSTRUNK}"/>
+                    <arg value="${DIRCOVSRC}\.."/>
+                </exec>
+            </else>
+        </if>
+	<if>
+	    <equals arg1="${DIRCOVSRC.base.svnfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    refreshsources: error, svn checkout (or svn update, if not nightly build) failed on ${DIRCOVSRC}
+                </echocnf>
+	    </then>
+	</if>
+	
+        <!-- 
+	get src\visenso sources from svn
+         -->
+        <if>
+	    <and>
+            <equals arg1="${DIRCOVSRC.visenso.exists}" arg2="true"/>
+	    <not>
+	    <equals arg1="${refreshsources.forcecheckout}" arg2="true"/>
+	    </not>
+	    </and>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: svn update ${DIRCOVSRC}\src\visenso
+                </echocnf>
+                <!-- perform svn update on ${DIRCOVSRC}\src\visenso-->
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\src\visenso"  output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.visenso.svnfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERVISENSO}"/>
+                    <arg value="update"/>
+                    <arg value="--force"/>
+                </exec>
+            </then>
+            <else>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: svn checkout ${DIRCOVSRC}\src\visenso
+                </echocnf>
+                <!-- make directory and perform svn checkout on ${DIRCOVSRC}\src\visenso-->
+                <mkdir dir="${DIRCOVSRC}\src\Visenso"/>
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\src" output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.visenso.svnfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERVISENSO}"/>
+                    <arg value="checkout"/>
+                    <arg value="--force"/>
+                    <arg value="svn+ssh://${SVNUSERVISENSO}@${SVNREPOSVISENSO}"/>
+                    <arg value="${DIRCOVSRC}\src\visenso"/>
+                </exec>
+            </else>                           
+        </if>
+	<if>
+	    <equals arg1="${DIRCOVSRC.visenso.svnfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    error: svn checkout (or svn update) failed on ${DIRCOVSRC}\src\visenso
+                </echocnf>
+	    </then>
+	</if>
+	
+        <!-- 
+	get src\visenso\branches\pyqt4 sources from svn 
+         -->
+        <if>
+	    <and>
+            <equals arg1="${DIRCOVSRC.pyqt4.exists}" arg2="true"/>
+	    <not>
+	    <equals arg1="${refreshsources.forcecheckout}" arg2="true"/>
+	    </not>
+	    </and>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: svn update  ${DIRCOVSRC}\src\visenso\branches\pyqt4
+                </echocnf>
+                <!-- perform svn update on ${DIRCOVSRC}\src\visenso\branches\pyqt4-->
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\src\visenso\branches\pyqt4" output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.pyqt4.svnfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERVRPREPARE4}"/>
+                    <arg value="update"/>
+                    <arg value="--force"/>
+                </exec>
+            </then>
+            <else>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: svn checkout  ${DIRCOVSRC}\src\visenso\branches\pyqt4
+                </echocnf>
+                <!-- make directory and perform svn checkout on ${DIRCOVSRC}\src\visenso\branches\pyqt4-->
+                <mkdir dir="${DIRCOVSRC}\src\visenso\branches\pyqt4"/>
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\src\visenso\branches" output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.pyqt4.svnfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERVRPREPARE4}"/>
+                    <arg value="checkout"/>
+                    <arg value="--force"/>
+                    <arg value="svn+ssh://${SVNUSERVRPREPARE4}@${SVNREPOSVRPREPARE4}"/>
+                    <arg value="${DIRCOVSRC}\src\visenso\branches\pyqt4"/>
+                </exec>
+            </else>
+        </if>
+	<if>
+	    <equals arg1="${DIRCOVSRC.pyqt4.svnfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    refreshsources: error, svn checkout (or svn update) failed on ${DIRCOVSRC}\src\visenso\branches\pyqt4
+                </echocnf>
+	    </then>
+	</if>
+	
+	<!-- if any svn operation failed, a svncleanup could be necessary now -->
+        <if>
+            <or>
+                <isset property="DIRCOVSRC.base.svnfail"/>
+                <isset property="DIRCOVSRC.visenso.svnfail"/>
+                <isset property="DIRCOVSRC.pyqt4.svnfail"/>
+            </or>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    refreshsources: some svn operation failed; performing svn cleanup
+                </echocnf>
+                <antcall target="svncleanup">
+                    <param name="svncleanup.base" value="${DIRCOVSRC.base.svnfail}"/>
+                    <param name="svncleanup.visenso" value="${DIRCOVSRC.visenso.svnfail}"/>
+                    <param name="svncleanup.pyqt4" value="${DIRCOVSRC.pyqt4.svnfail}"/>
+                </antcall>
+            </then>
+        </if>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="svncleanup" depends="init" description="performs a svn cleanup on sources">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: svncleanup
+        </echocnf>
+        <!-- 
+
+	runs svn cleanup on source folders
+	param svncleanup.base cleanup ${DIRCOVSRC}\..
+	param svncleanup.visenso cleanup  ${DIRCOVSRC}\src\visenso
+	param svncleanup.pyqt4 cleanup  ${DIRCOVSRC}\src\visenso\branches\pyqt4
+
+         -->
+        <if>
+            <and>
+                <available file="${DIRCOVSRC}" type="dir" property="ignoredhere"/>
+                <equals arg1="${svncleanup.base}" arg2="true"/>
+            </and>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    svncleanup: performing svn cleanup ${DIRCOVSRC}
+                </echocnf>
+                <!-- perform svn cleanup on ${DIRCOVSRC}-->
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\.." output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.base.svncleanupfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERTRUNK}"/>
+                    <arg value="cleanup"/>
+                    <arg value="."/>
+                </exec>
+            </then>
+        </if>
+	<if>
+	    <equals arg1="${DIRCOVSRC.base.svncleanupfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    svncleanup: error, svn cleanup failed on ${DIRCOVSRC}
+                </echocnf>
+	    </then>
+	</if>
+	
+        <if>
+            <and>
+                <available file="${DIRCOVSRC}/src/visenso" type="dir" property="ignoredhere"/>
+                <equals arg1="${svncleanup.visenso}" arg2="true"/>
+            </and>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    svncleanup: performing svn cleanup ${DIRCOVSRC}\src\visenso
+                </echocnf>
+                <!-- perform svn cleanup on ${DIRCOVSRC}\src\visenso-->
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\src\visenso" output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.visenso.svncleanupfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERVISENSO}"/>
+                    <arg value="cleanup"/>
+                    <arg value="."/>
+                </exec>
+            </then>
+        </if>
+	<if>
+	    <equals arg1="${DIRCOVSRC.visenso.svncleanupfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    svncleanup: error, svn cleanup failed on ${DIRCOVSRC}\src\visenso
+                </echocnf>
+	    </then>
+	</if>
+	
+        <if>
+            <and>
+                <available file="${DIRCOVSRC}/src/visenso/ui/branches/pyqt4" type="dir" property="ignoredhere"/>
+                <equals arg1="${svncleanup.pyqt4}" arg2="true"/>
+            </and>
+            <then>
+                <echocnf file="${FILEREPORT}" append="true">
+                    svncleanup: performing svn cleanup ${DIRCOVSRC}\src\visenso\branches\pyqt4
+                </echocnf>
+                <!-- perform svn cleanup on ${DIRCOVSRC}\src\visenso\branches\pyqt4 -->
+                <exec executable="${DIRSCRIPTS}\svncmd.bat" dir="${DIRCOVSRC}\src\visenso\branches\pyqt4" output="${FILEREPORT}" append="true" errorproperty="DIRCOVSRC.pyqt4.svncleanupfail">
+		    <arg value="${DIRPLINKTOOL}"/>
+                    <arg value="${SVNUSERVRPREPARE4}"/>
+                    <arg value="cleanup"/>
+                    <arg value="."/>
+                </exec>
+            </then>
+        </if>
+	<if>
+	    <equals arg1="${DIRCOVSRC.pyqt4.svncleanupfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    svncleanup: error, svn cleanup failed on ${DIRCOVSRC}\src\visenso\branches\pyqt4
+                </echocnf>
+	    </then>
+	</if>
+    </target>
+    
+    
+    
+    
+    
+    <target name="compile_qmake" depends="init" description="generates a VC project by qmake">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compile_qmake
+        </echocnf>
+        <!-- 
+	generate the specified Microsoft Visual C++ project by qmake 
+        -->
+	<echocnf file="${FILEREPORT}" append="true">
+            compile_qmake: calling qmake to generate VC Project ${compile.qmake.directory}
+        </echocnf>
+	<exec executable="${DIRSCRIPTS}\autobuild_QMake.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.qmake.fail">
+            <arg value="${compile.qmake.COVARCHSUFFIX}"/>
+	    <arg value="${DIRCOVSRC}"/>
+            <arg value="${compile.qmake.directory}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.qmake.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_qmake: error, qmake generation of VC project failed for ${compile.qmake.directory}
+                </echocnf>
+	    </then>
+	</if>
+    </target>
+    
+    
+    
+    
+    
+    <target name="compile_qmake_all" depends="init" description="generates all COVISE VC projects by qmake">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compile_qmake_all
+        </echocnf>
+        <!-- 
+	generate all COVISE Microsoft Visual C++ projects by qmake 
+        -->
+	<echocnf file="${FILEREPORT}" append="true">
+            compile_qmake_all: calling qmake to generate VC Projects
+        </echocnf>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}"/>
+	</antcall>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}\src\Renderer\OpenCOVER\plugins\hlrs"/>
+	</antcall>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}\src\kernel\vrml97\jpeg-6b"/>
+	</antcall>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}\src\kernel\vrml97\zlib"/>
+	</antcall>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}\src\kernel\util"/>
+	</antcall>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}\src\renderer\OpenCOVER\plugins"/>
+	</antcall>
+	
+	<antcall target="compile_qmake">
+		<param name="compile.qmake.directory" value="${DIRCOVSRC}\src\sys\GuiRenderMessage"/>
+	</antcall>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="compile_VCProject" depends="init" description="builds a given VC project">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compile_VCProject
+        </echocnf>
+        <!-- 
+	build the supplied VC++ project
+        -->
+	<echocnf file="${FILEREPORT}" append="true">
+            compile_VCProject: building ${compile.VCProject.project} (archsuffix=${compile.VCProject.COVARCHSUFFIX})
+        </echocnf>
+	<exec executable="${DIRSCRIPTS}\autobuild_COVISEProject.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.VCProject.fail">
+                <arg value="${compile.VCProject.COVARCHSUFFIX}"/>
+                <arg value="${DIRCOVSRC}"/>
+                <arg value="${compile.VCProject.project}"/>
+                <arg value="${compile.VCProject.projname}"/>
+                <arg value="${DIRREPORTS}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.VCProject.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_VCProject: error, compilation of ${compile.VCProject.project} failed
+                </echocnf>
+	    </then>
+	</if>
+        <exec executable="${DIRSCRIPTS}\autobuild_VCProjectsReport.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.VCProject.reportfail">
+            <arg value="results_${compile.VCProject.projname}.txt"/>
+            <arg value="${DIRREPORTS}"/>
+            <arg value="${DIRUNIXUTILS}"/>
+            <arg value="${FILECOMPILEERRORS}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.VCProject.reportfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_VCProject: error, could not generate report of compilation of ${compile.VCProject.project}
+                </echocnf>
+	    </then>
+	</if>
+    </target>
+    
+    
+    
+    
+    
+    <target name="compile_coGRMsg" depends="init" description="builds the coGRMsg VC project">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compile_coGRMsg
+        </echocnf>
+        <!-- 
+	build coGRMsg VC++ project
+        -->
+	<echocnf file="${FILEREPORT}" append="true">
+            compile_coGRMsg: building src\sys\GuiRenderMessage\coGRMsg_${compile.coGRMsg.COVARCHSUFFIX}.sln
+        </echocnf>
+        <exec executable="${DIRSCRIPTS}\autobuild_coGRMsg.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.coGRMsg.fail">
+            <arg value="${compile.coGRMsg.COVARCHSUFFIX}"/>
+            <arg value="${DIRCOVSRC}"/>
+            <arg value="${DIRREPORTS}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.coGRMsg.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_coGRMsg: error, compilation of ${DIRCOVSRC}\src\sys\GuiRenderMessage\coGRMsg_${compile.coGRMsg.COVARCHSUFFIX}.sln failed
+                </echocnf>
+	    </then>
+	</if>
+        <exec executable="${DIRSCRIPTS}\autobuild_VCProjectsReport.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.coGRMsg.reportfail">
+            <arg value="results_coGRMsg.txt"/>
+            <arg value="${DIRREPORTS}"/>
+            <arg value="${DIRUNIXUTILS}"/>
+            <arg value="${FILECOMPILEERRORS}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.coGRMsg.reportfail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_coGRMsg: error, could not generate report of compilation of ${DIRCOVSRC}\src\sys\GuiRenderMessage\coGRMsg_${compile.coGRMsg.COVARCHSUFFIX}.sln
+                </echocnf>
+	    </then>
+	</if>
+    </target>
+    
+    
+    
+    
+    
+    <target name="compile_PYC" depends="init" description="generates binaries from Python scripts">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compile_PYC for ARCHSUFFIX=${compile.PYC.COVARCHSUFFIX}
+        </echocnf>
+	<!-- 
+        generates binaries from Python scripts 
+        -->
+	
+	<if>
+	    <or>
+	    <equals arg1="${compile.PYC.COVARCHSUFFIX}" arg2="vista"/>
+	    <equals arg1="${compile.PYC.COVARCHSUFFIX}" arg2="amdwin64"/>
+	    </or>
+	    <then>
+	        <property name="compile.PYC.buildtarget" value="-d"/>
+	    </then>
+	    <else>
+	        <if>
+		    <or>
+		    <equals arg1="${compile.PYC.COVARCHSUFFIX}" arg2="vistaopt"/>
+		    <equals arg1="${compile.PYC.COVARCHSUFFIX}" arg2="amdwin64opt"/>
+		    </or>
+		    <then>
+		      <property name="compile.PYC.buildtarget" value="-r"/>
+	            </then>
+		    <else>
+		       <echocnf>
+		           compile_PYC: ERROR: unknown ARCHSUFFIX=${compile.PYC.COVARCHSUFFIX}
+		       </echocnf>
+		    </else>
+		</if>
+	    </else>
+	</if>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+            compile_PYC: buildtarget=${compile.PYC.buildtarget}
+        </echocnf>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile_PYC: generating binaries from python scripts for ARCHSUFFIX=${compile.PYC.COVARCHSUFFIX}
+	</echocnf>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+		compile_PYC: current dir is ${DIRCOVSRC}\Python\
+	</echocnf>
+        <exec executable="${DIRSCRIPTS}\autobuild_generatePYC.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.PYC.python.fail">
+	    <arg value="${compile.PYC.COVARCHSUFFIX}"/>
+	    <arg value="${DIRCOVSRC}"/>
+            <arg value="${DIRCOVSRC}\Python\"/>
+	    <arg value="${compile.PYC.buildtarget}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.PYC.python.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_PYC: error, compilation of Python scripts in ${DIRCOVSRC}\Python failed
+                </echocnf>
+	    </then>
+	</if>
+	<echocnf file="${FILEREPORT}" append="true">
+		compile_PYC: current dir is ${DIRCOVSRC}\src\Visenso\branches\pyqt4\
+	</echocnf>
+        <exec executable="${DIRSCRIPTS}\autobuild_generatePYC.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.PYC.pyqt4.fail">
+	    <arg value="${compile.PYC.COVARCHSUFFIX}"/>
+	    <arg value="${DIRCOVSRC}"/>
+            <arg value="${DIRCOVSRC}\src\Visenso\branches\pyqt4\"/>
+	    <arg value="${compile.PYC.buildtarget}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.PYC.pyqt4.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_PYC: error, compilation of Python scripts in ${DIRCOVSRC}\src\visenso\branches\pyqt4 failed
+                </echocnf>
+	    </then>
+	</if>
+	<echocnf file="${FILEREPORT}" append="true">
+		compile_PYC: current dir is ${DIRCOVSRC}\${compile.PYC.COVARCHSUFFIX}\lib\
+	</echocnf>
+        <exec executable="${DIRSCRIPTS}\autobuild_generatePYC.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="compile.PYC.archsuffixlib.fail">
+	    <arg value="${compile.PYC.COVARCHSUFFIX}"/>
+	    <arg value="${DIRCOVSRC}"/>
+            <arg value="${DIRCOVSRC}\${compile.PYC.COVARCHSUFFIX}\lib\"/>
+	    <arg value="${compile.PYC.buildtarget}"/>
+        </exec>
+	<if>
+	    <equals arg1="${compile.PYC.archsuffixlib.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    compile_PYC: error, compilation of Python scripts in ${DIRCOVSRC}\${compile.PYC.COVARCHSUFFIX}\lib failed
+                </echocnf>
+	    </then>
+	</if>
+    </target>
+    
+    
+    
+    
+    
+    <target name="compileandtest" depends="init" description="generates and builds the complete COVISE for the given ARCHSUFFIX">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compileandtest
+        </echocnf>
+	
+	<stopwatch name="elapsedtimer.compileandtest" action="start"/>
+	
+        <echocnf file="${FILEREPORT}" append="true">
+	    compileandtest: begin build of ARCHSUFFIX ${compileandtest.COVARCHSUFFIX}
+	</echocnf>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compileandtest: begin target compile ${compileandtest.COVARCHSUFFIX}
+	</echocnf>
+	<stopwatch name="elapsedtimer.compileandtest" action="elapsed"/>
+	<antcall target="compile">
+		<param name="compile.COVARCHSUFFIX" value="${compileandtest.COVARCHSUFFIX}"/>
+		<param name="compile.skipqmake" value="${compileandtest.skipqmake}"/>
+	</antcall>
+        
+	<echocnf file="${FILEREPORT}" append="true">
+	    compileandtest: begin target test ${compileandtest.COVARCHSUFFIX}
+	</echocnf>
+	<stopwatch name="elapsedtimer.compileandtest" action="elapsed"/>
+	<antcall target="test">
+		<param name="test.COVARCHSUFFIX" value="${compileandtest.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<stopwatch name="elapsedtimer.compileandtest" action="stop"/>
+    </target>
+    
+    
+    
+    
+    
+    <target name="compile" depends="init" description="generates and builds all VC projects, as well as python scripts">
+        <echocnf file="${FILEREPORT}" append="true">
+            target: compile of ${compile.COVARCHSUFFIX}
+        </echocnf>
+	
+	<stopwatch name="elapsedtimercompile" action="start"/>
+	
+	<if>
+	   <equals arg1="${compile.skipqmake}" arg2="false"/>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: begin target compile_qmake_all
+	      </echocnf>
+	      <stopwatch name="elapsedtimercompile" action="elapsed"/>
+	      <antcall target="compile_qmake_all">
+	          <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+	   <else>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: skipping qmake
+	      </echocnf>
+	   </else>
+	</if>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_VCProject for project coUtil
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\kernel\util\coUtil_${compile.COVARCHSUFFIX}.vcproj" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\kernel\util\coUtil_${compile.COVARCHSUFFIX}.vcproj
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src\kernel\util"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<antcall target="compile_VCProject">
+	    <param name="compile.VCProject.project" value="kernel\util\coUtil_${compile.COVARCHSUFFIX}.vcproj"/>
+	    <param name="compile.VCProject.projname" value="coUtil"/>
+	    <param name="compile.VCProject.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_VCProject for project myjpeg
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\kernel\vrml97\jpeg-6b\myJpeg_${compile.COVARCHSUFFIX}.vcproj" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\kernel\vrml97\jpeg-6b\myJpeg_${compile.COVARCHSUFFIX}.vcproj
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src\kernel\vrml97\jpeg-6b"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<antcall target="compile_VCProject">
+	    <param name="compile.VCProject.project" value="kernel\vrml97\jpeg-6b\myJpeg_${compile.COVARCHSUFFIX}.vcproj"/>
+	    <param name="compile.VCProject.projname" value="myjpeg"/>
+	    <param name="compile.VCProject.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_VCProject for project myz
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\kernel\vrml97\zlib\myz_${compile.COVARCHSUFFIX}.vcproj" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\kernel\vrml97\zlib\myz_${compile.COVARCHSUFFIX}.vcproj
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src\kernel\vrml97\zlib"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<antcall target="compile_VCProject">
+	    <param name="compile.VCProject.project" value="kernel\vrml97\zlib\myz_${compile.COVARCHSUFFIX}.vcproj"/>
+	    <param name="compile.VCProject.projname" value="myz"/>
+	    <param name="compile.VCProject.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_VCProject for project src
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\src_${compile.COVARCHSUFFIX}.sln" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\src_${compile.COVARCHSUFFIX}.sln
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<antcall target="compile_VCProject">
+	    <param name="compile.VCProject.project" value="src_${compile.COVARCHSUFFIX}.sln"/>
+	    <param name="compile.VCProject.projname" value="src"/>
+	    <param name="compile.VCProject.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_VCProject for project plugins
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\renderer\OpenCOVER\plugins\plugins_${compile.COVARCHSUFFIX}.sln" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\renderer\OpenCOVER\plugins\plugins_${compile.COVARCHSUFFIX}.sln
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src\renderer\OpenCOVER\plugins"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<antcall target="compile_VCProject">
+	    <param name="compile.VCProject.project" value="renderer\OpenCOVER\plugins\plugins_${compile.COVARCHSUFFIX}.sln"/>
+	    <param name="compile.VCProject.projname" value="plugins"/>
+	    <param name="compile.VCProject.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_VCProject for project plugins\hlrs
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\renderer\OpenCOVER\plugins\hlrs\hlrs_${compile.COVARCHSUFFIX}.sln" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\renderer\OpenCOVER\plugins\hlrs\hlrs_${compile.COVARCHSUFFIX}.sln
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src\renderer\OpenCOVER\plugins\hlrs"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<antcall target="compile_VCProject">
+	    <param name="compile.VCProject.project" value="renderer\OpenCOVER\plugins\hlrs\hlrs_${compile.COVARCHSUFFIX}.sln"/>
+	    <param name="compile.VCProject.projname" value="pluginshlrs"/>
+	    <param name="compile.VCProject.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+        <echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_coGRMsg
+	</echocnf>
+	<if>
+	   <not><available file="${DIRCOVSRC}\src\sys\GuiRenderMessage\_coGRMsg_${compile.COVARCHSUFFIX}.sln" type="file" property="ignoredhere"/></not>
+	   <then>
+	      <echocnf file="${FILEREPORT}" append="true">
+	          compile: project/solution not found, calling qmake for ${DIRCOVSRC}\src\sys\GuiRenderMessage\_coGRMsg_${compile.COVARCHSUFFIX}.sln
+	      </echocnf>
+	      <antcall target="compile_qmake">
+	         <param name="compile.qmake.directory" value="${DIRCOVSRC}\src\sys\GuiRenderMessage"/>
+		 <param name="compile.qmake.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	      </antcall>
+	   </then>
+        </if>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<antcall target="compile_coGRMsg">
+	    <param name="compile.coGRMsg.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    compile: begin target compile_PYC
+	</echocnf>
+	<stopwatch name="elapsedtimercompile" action="elapsed"/>
+	<antcall target="compile_PYC">
+	    <param name="compile.PYC.COVARCHSUFFIX" value="${compile.COVARCHSUFFIX}"/>
+	</antcall>
+	
+	<stopwatch name="elapsedtimercompile" action="stop"/>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="justcompilePYC" depends="init" description="compiles the Python scripts into binary code">
+        <!--
+	simply compile Python scripts to binary code
+        -->
+        <echocnf file="${FILEREPORT}" append="true">
+            target: justcompilePYC for ${COVARCHSUFFIX} and ${COVARCHSUFFIX}opt
+        </echocnf>
+        <echocnf file="${FILEREPORT}" append="true">
+	    justcompilePYC: begin target compile_PYC for ${COVARCHSUFFIX}
+	</echocnf>
+	<antcall target="compile_PYC">
+	    <param name="compile.PYC.COVARCHSUFFIX" value="${COVARCHSUFFIX}"/>
+	</antcall>
+	<echocnf file="${FILEREPORT}" append="true">
+	    justcompilePYC: begin target compile_PYC for ${COVARCHSUFFIX}opt
+	</echocnf>
+	<antcall target="compile_PYC">
+	    <param name="compile.PYC.COVARCHSUFFIX" value="${COVARCHSUFFIX}opt"/>
+	</antcall>
+    </target>
+    
+    
+    
+    
+    
+    <target name="test" depends="init" description="performs unit tests">
+        <!--
+	run unit tests
+        -->
+	<tstamp>
+	   <format property="test.timestart" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+        <echocnf file="${FILEREPORT}" append="true">
+            target: test of ${test.COVARCHSUFFIX} at ${test.timestart}
+        </echocnf>
+	
+	<stopwatch name="test.elapsedtimer" action="start"/>
+	<stopwatch name="test.elapsedtimer" action="elapsed"/>
+	<stopwatch name="test.elapsedtimer" action="total"/>
+	<stopwatch name="test.elapsedtimer" action="stop"/>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="dist" depends="init" description="assembles shipment + setup.exe">
+        <if>
+	    <not><isset property="dist.COVARCHSUFFIX"/></not>
+	    <then>
+	       <echocnf file="${FILEREPORT}" append="true">
+	       	   dist: warning!! No ARCHSUFFIX given, defaulting to vista!!
+	       </echocnf>
+	       <property name="dist.COVARCHSUFFIX" value="vista"/>
+	    </then>
+	</if>
+    	
+        <echocnf file="${FILEREPORT}" append="true">
+            target: dist of ${dist.COVARCHSUFFIX}
+        </echocnf>
+	
+        <!-- 
+	assemble shipment
+        -->
+        <echocnf file="${FILEREPORT}" append="true">
+            dist: assembling shipment
+        </echocnf>
+	<echocnf file="${FILESHIPARCHSUFFIXES}" append="false">${dist.COVARCHSUFFIX}opt</echocnf>
+	<echocnf file="${FILESHIPARCHSUFFIXES}" append="true">
+${dist.COVARCHSUFFIX}</echocnf>
+        <exec executable="${DIRSCRIPTS}\autobuild_COVISEShipment.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="dist.shipment.fail">
+            <arg value="${DIRCOVSRC}"/>
+            <arg value="${DIRCOVINSTALL}"/>
+            <arg value="${dist.COVARCHSUFFIX}"/>
+            <arg value="${DIRCOVLICENSE}"/>
+	    <arg value="${DIRUNIXUTILS}"/>
+	    <arg value="${SETUP.INSTALLTARGET}"/>
+        </exec>
+	<if>
+	    <equals arg1="${dist.shipment.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    dist: error, assembly of COVISE shipment failed
+                </echocnf>
+	    </then>
+	</if>
+        
+	<!-- 
+	build Setup.exe
+	note: only the opt version is build since the non-opt version should not get distributed
+        -->
+	<echocnf file="${FILEREPORT}" append="true">
+            dist: building setup.exe
+        </echocnf>
+        <exec executable="${DIRSCRIPTS}\autobuild_COVISESetup.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="dist.setup.fail">
+            <arg value="${DIRCOVSRC}\covise.iss"/>
+            <arg value="${dist.COVARCHSUFFIX}opt"/>
+            <arg value="${DIRCOVSRC}"/>
+	    <arg value="${SETUP.INSTALLTARGET}"/>
+	    <arg value="${SETUP.RTTDISTRO}"/>
+        </exec>
+	<if>
+	    <equals arg1="${dist.setup.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    dist: error, generation of setup routine failed
+                </echocnf>
+	    </then>
+	</if>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="dist_vistaopt" depends="init" description="assembles shipment + setup.exe for ARCHSUFFIX=vistaopt">
+        <echocnf file="${FILEREPORT}" append="true">
+	    dist_vistaopt: begin target dist vistaopt (shipment will contain vista binaries also)
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	<antcall target="dist">
+	   <param name="dist.COVARCHSUFFIX" value="vista"/>
+	   <!-- note: dist.COVARCHSUFFIX will trigger vistaopt as well as vista shipment, which is intended -->
+	</antcall>
+    </target>
+    
+    
+    
+    
+    
+    <target name="justsetup" depends="init" description="just creates a setup.exe for given ARCHSUFFIX">
+        <!-- 
+	build Setup.exe
+	note: only the opt version is build since the non-opt version should not get distributed
+	note: also make sure, the binaries are available (and do not forget the *.pyc Python binaries!)
+        -->    
+        <echocnf file="${FILEREPORT}" append="true">
+	    justsetup: creating setup.exe for COVISE ARCHSUFFIX=${COVARCHSUFFIX}opt
+	</echocnf>
+        
+        <exec executable="${DIRSCRIPTS}\autobuild_COVISESetup.bat" dir="${DIRSCRIPTS}" output="${FILEREPORT}" append="true" errorproperty="dist.setup.fail">
+            <arg value="${DIRCOVSRC}\covise.iss"/>
+            <arg value="${COVARCHSUFFIX}opt"/>
+            <arg value="${DIRCOVSRC}"/>
+        </exec>
+	<if>
+	    <equals arg1="${dist.setup.fail}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    justsetup: error, generation of setup routine failed
+                </echocnf>
+	    </then>
+	    <else>
+	        <echocnf file="${FILEERRORATTACHMENT}" append="true">
+                    justsetup: done, please find the setup.exe in directory ${DIRCOVSRC}\DIST\DIST.${COVARCHSUFFIX}opt
+                </echocnf>
+	    </else>
+	</if>
+    </target>
+    
+    
+    
+    <target name="justbuild_release" depends="init" description="simply builds the release version">
+    	<!-- 
+	only execute compilation commands
+         -->
+	
+	<tstamp>
+	   <format property="justbuild_release.timestart" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+	<stopwatch name="elapsedtimer" action="start"/>
+	
+	
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	
+	
+	<!-- echo some messages here, because target clean deletes reportfile -->
+	<echocnf file="${FILEREPORT}" append="true">
+            target: justbuild_release for ${COVARCHSUFFIX}opt (start at ${justbuild_release.timestart})
+        </echocnf>
+	
+	
+	<!-- echo currently set properties -->
+	<echoproperties destfile="${FILEREPORT}"/>
+	
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    justbuild_release: beginning to build ARCHSUFFIX ${COVARCHSUFFIX}opt
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	<antcall target="compileandtest">
+		<param name="compileandtest.COVARCHSUFFIX" value="${COVARCHSUFFIX}opt"/>
+		<param name="compileandtest.skipqmake" value="false"/>
+		<!-- if compileandtest.skipqmake=true, qmake is left out, 
+		 i. e. skip project generation and assume projects already build-->
+	</antcall>
+	
+	<tstamp>
+	   <format property="justbuild_release.timeend" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+	<echocnf file="${FILEREPORT}" append="true">
+	    justbuild_release: end (end at ${justbuild_release.timeend})
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="total"/>
+	
+	
+	<stopwatch name="elapsedtimer" action="stop"/>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="justbuild_debug" depends="init" description="simply builds the debug version">
+    	<!-- 
+	only execute compilation commands
+         -->
+	
+	<tstamp>
+	   <format property="justbuild_debug.timestart" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+	<stopwatch name="elapsedtimer" action="start"/>
+	
+	
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	
+	
+	<!-- echo some messages here, because target clean deletes reportfile -->
+	<echocnf file="${FILEREPORT}" append="true">
+            target: justbuild_debug for ${COVARCHSUFFIX} (start at ${justbuild_debug.timestart})
+        </echocnf>
+	
+	
+	<!-- echo currently set properties -->
+	<echoproperties destfile="${FILEREPORT}"/>
+	
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    justbuild_debug: beginning to build ARCHSUFFIX ${COVARCHSUFFIX}
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	<antcall target="compileandtest">
+		<param name="compileandtest.COVARCHSUFFIX" value="${COVARCHSUFFIX}"/>
+		<param name="compileandtest.skipqmake" value="false"/>
+		<!-- if compileandtest.skipqmake=true, qmake is left out, 
+		 i. e. skip project generation and assume projects already build-->
+	</antcall>
+	
+	<tstamp>
+	   <format property="justbuild_debug.timeend" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+	<echocnf file="${FILEREPORT}" append="true">
+	    justbuild_debug: end (end at ${justbuild_debug.timeend})
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="total"/>
+	
+	
+	<stopwatch name="elapsedtimer" action="stop"/>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="clean" depends="init" description="cleans all intermediate and resulting objects">
+        <!-- 
+	clean all intermediate and resulting objects
+         -->
+        <echocnf file="${FILEREPORT}" append="true">
+            target: clean
+        </echocnf>
+	
+	<!--
+	TODO: 
+	- delete ARCHSUFFIX\bin and lib (get ARCHSUFFIX by target parameter)
+	- (optional?) per project: delete *.obj and so on
+	
+	NOTE: instead of deleting the report files, some archiving system would
+	    be better.
+	-->
+	<delete file="${FILEREPORT}" failonerror="false"/>
+	<delete file="${FILEERRORATTACHMENT}" failonerror="false"/>
+	<delete file="${FILECOMPILEERRORS}" failonerror="false"/>
+	<delete file="${DIRREPORTS}\results_coUtil.txt" failonerror="false"/>
+	<delete file="${DIRREPORTS}\results_myz.txt" failonerror="false"/>
+	<delete file="${DIRREPORTS}\results_myjpeg.txt" failonerror="false"/>
+	<delete file="${DIRREPORTS}\results_src.txt" failonerror="false"/>
+	<delete file="${DIRREPORTS}\results_plugins.txt" failonerror="false"/>
+	<delete file="${DIRREPORTS}\results_coGRMsg.txt" failonerror="false"/>
+	<delete file="${DIRREPORTS}\antlog.txt" failonerror="false"/>
+    </target>
+    
+    
+    
+    
+    
+    <target name="summary" depends="init" description="sends a summarizing mail">
+        <!-- 
+	send a summary mail containing
+	- a textfile stating all errors (autobuild operations and compile errors)
+	- a zipfile containing the full autobuild report
+         -->
+        <echocnf file="${FILEREPORT}" append="true">
+            target: summary
+        </echocnf>
+	<zip destfile="${DIRREPORTS}\fullreport.zip">
+	    <fileset file="${FILEREPORT}" erroronmissingdir="false"/>
+	    <fileset file="${DIRREPORTS}\results_coUtil.txt" erroronmissingdir="false"/>
+	    <fileset file="${DIRREPORTS}\results_myz.txt" erroronmissingdir="false"/>
+	    <fileset file="${DIRREPORTS}\results_src.txt" erroronmissingdir="false"/>
+	    <fileset file="${DIRREPORTS}\results_plugins.txt" erroronmissingdir="false"/>
+	    <fileset file="${DIRREPORTS}\results_coGRMsg.txt" erroronmissingdir="false"/>
+	    <fileset file="${DIRREPORTS}\antlog.txt" erroronmissingdir="false"/>
+	    <fileset file="${FILEERRORATTACHMENT}" erroronmissingdir="false"/>
+	    <fileset file="${FILECOMPILEERRORS}" erroronmissingdir="false"/>
+	</zip>
+        <mail mailhost="${MAILHOST}" mailport="${MAILPORT}" subject="${BUILDNAME} summary" tolist="${MAILTOLIST}" failonerror="false">
+            <from address="${MAILFROM}"/>
+            <replyto address="${MAILREPLY}"/>
+            <!--<to address="${MAILTO}"/>-->
+            <message>
+                build finished on ${BUILDSERVERNAME}; see attachments for detailed info.
+            </message>
+            <attachments>
+		<fileset file="${FILEERRORATTACHMENT}" erroronmissingdir="false"/>
+		<fileset file="${FILECOMPILEERRORS}" erroronmissingdir="false"/>
+		<fileset file="${DIRREPORTS}\fullreport.zip" erroronmissingdir="false"/>
+	    </attachments>
+        </mail>
+    </target>
+    
+    
+    
+    
+    
+    <target name="nightflight" depends="init" description="run a nightly build">
+        <!-- 
+	run a nightly build
+        -->
+	
+	
+	<tstamp>
+	   <format property="nightflight.timestart" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+	<stopwatch name="elapsedtimer" action="start"/>
+	
+	
+	<stopwatch name="elapsedtimer" action="elapsed"/>	
+	
+	<antcall target="clean"/>
+	
+	
+	<!-- echo some messages here, because target clean deletes reportfile -->
+	<echocnf file="${FILEREPORT}" append="true">
+            target: nightflight (start at ${nightflight.timestart})
+        </echocnf>
+	
+	
+	<!-- echo currently set properties -->
+	<echoproperties destfile="${FILEREPORT}"/>
+	
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    nightflight: executed target clean
+	</echocnf>
+	
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    nightflight: begin target refreshsources (forcing svn checkout)
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+        <antcall target="refreshsources">
+	    <param name="refreshsources.forcecheckout" value="${TARGET.NIGHTFLIGHT.FORCECHECKOUT}"/>
+	</antcall>
+	
+	
+	<!-- start svn operations a second time to force external 
+	     dependencies to be resolved -->
+	<echocnf file="${FILEREPORT}" append="true">
+	    nightflight: 2nd refreshsources to get external references (via svn update)
+	</echocnf>
+	<antcall target="refreshsources">
+	    <param name="refreshsources.forcecheckout" value="false"/>
+	</antcall>
+	
+	
+	<if>
+	    <equals arg1="${TARGET.NIGHTFLIGHT.BUILDRELEASE}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEREPORT}" append="true">
+	            nightflight: beginning to build ARCHSUFFIX ${COVARCHSUFFIX}opt
+	        </echocnf>
+	        <stopwatch name="elapsedtimer" action="elapsed"/>
+	        <antcall target="compileandtest">
+		    <param name="compileandtest.COVARCHSUFFIX" value="${COVARCHSUFFIX}opt"/>
+		    <param name="compileandtest.skipqmake" value="${TARGET.NIGHTFLIGHT.SKIPQMAKE}"/>
+	        </antcall>
+	    </then>
+	    <else>
+	        <echocnf file="${FILEREPORT}" append="true">
+	            nightflight: build of ARCHSUFFIX ${COVARCHSUFFIX}opt is disabled
+	        </echocnf>
+	    </else>
+	</if>
+	
+	
+	<if>
+	    <equals arg1="${TARGET.NIGHTFLIGHT.BUILDDEBUG}" arg2="true"/>
+	    <then>
+	        <echocnf file="${FILEREPORT}" append="true">
+	            nightflight: beginning to build ARCHSUFFIX ${COVARCHSUFFIX}
+	        </echocnf>
+	        <stopwatch name="elapsedtimer" action="elapsed"/>
+	        <antcall target="compileandtest">
+		    <param name="compileandtest.COVARCHSUFFIX" value="${COVARCHSUFFIX}"/>
+		    <param name="compileandtest.skipqmake" value="${TARGET.NIGHTFLIGHT.SKIPQMAKE}"/>
+	        </antcall>
+            </then>
+	    <else>
+	        <echocnf file="${FILEREPORT}" append="true">
+	            nightflight: build of ARCHSUFFIX ${COVARCHSUFFIX} is disabled
+	        </echocnf>
+	    </else>
+	</if>
+	
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    nightflight: begin target dist ${COVARCHSUFFIX} (shipment will contain both: debug and release binaries)
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	<antcall target="dist">
+	   <param name="dist.COVARCHSUFFIX" value="${COVARCHSUFFIX}"/>
+	</antcall>
+	
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    nightflight: begin target summary
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	<antcall target="summary"/>
+	
+	
+	<tstamp>
+	   <format property="nightflight.timeend" pattern="dd-MM-yyyy hh:mm aa"/>
+	</tstamp>
+	<echocnf file="${FILEREPORT}" append="true">
+	    nightflight: end (end at ${nightflight.timeend})
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="total"/>
+	
+	
+	<stopwatch name="elapsedtimer" action="stop"/>
+	
+    </target>
+    
+    
+    
+    
+    
+    <target name="justship" depends="init" description="simply assembles a shipment + setup.exe">
+        <!-- 
+	simply assembles a shipment + setup.exe
+         -->
+        <echocnf file="${FILEREPORT}" append="true">
+            target: justship
+        </echocnf>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+	    justship: begin target dist ${COVARCHSUFFIX} (shipment will contain both: debug and release binaries)
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+	<antcall target="dist">
+	   <param name="dist.COVARCHSUFFIX" value="${COVARCHSUFFIX}"/>
+	</antcall>
+    </target>
+    
+    
+    
+    
+    
+    <target name="manualsvncleanup" depends="init" description="manually performs a svn cleanup on all source directories">
+        <!-- 
+	manually performs a svn cleanup on all source directories
+         -->
+        <echocnf file="${FILEREPORT}" append="true">
+            target: manualsvncleanup
+        </echocnf>
+        <antcall target="svncleanup">
+            <param name="svncleanup.base" value="true"/>
+            <param name="svncleanup.visenso" value="true"/>
+            <param name="svncleanup.pyqt4" value="true"/>
+        </antcall>
+    </target>
+    
+    
+    
+    
+    
+    <target name="skipsvn" depends="init,compile,test,dist,clean,summary" description="equal to nightly build, except for exclusion of svn operations">
+        <!-- 
+	builds the sources that are available right now and assemble shipment + setup.exe
+         -->
+        <echocnf file="${FILEREPORT}" append="true">
+            target: skipsvn
+        </echocnf>
+	
+	<echocnf file="${FILEREPORT}" append="true">
+            skipsvn: todo, dependencies init,compile,test,dist,clean,summary should be explicitely be called as antcalls
+        </echocnf>
+    </target>
+    
+    
+    
+    <target name="justsvn" depends="init" description="only executes svn operations">
+    	<echocnf file="${FILEREPORT}" append="true">
+            target: justsvn
+        </echocnf>
+    	<echocnf file="${FILEREPORT}" append="true">
+	    justsvn: begin target refreshsources (forcing svn checkout)
+	</echocnf>
+	<stopwatch name="elapsedtimer" action="elapsed"/>
+        <antcall target="refreshsources">
+	    <param name="refreshsources.forcecheckout" value="${TARGET.NIGHTFLIGHT.FORCECHECKOUT}"/>
+	</antcall>
+	<!-- start svn operations a second time to force external 
+	     dependencies to be resolved -->
+	<echocnf file="${FILEREPORT}" append="true">
+	    justsvn: 2nd refreshsources to get external references (via svn update)
+	</echocnf>
+	<antcall target="refreshsources">
+	    <param name="refreshsources.forcecheckout" value="false"/>
+	</antcall>
+    </target>
+    
+    
+    
+    
+    
+</project>

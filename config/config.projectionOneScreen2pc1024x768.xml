@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   
+   <GLOBAL>
+      
+      <COVER>
+         
+         <Stereo enable="ON" value="ON" />
+         
+         <NumWindows value="1" />
+         <NumScreens value="1" />
+         
+         <PipeConfig>
+            <Pipe name="0" pipe="0" screen="0"/>
+         </PipeConfig>
+         
+         <WindowConfig>
+            <Window width="1024" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="off" />
+         </WindowConfig>
+         
+         <MultiPC>
+            <NumSlaves value="1" />
+            <Startup value="ssh ${USER}@slave ~/Covise7.0/covise/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0" />
+         </MultiPC>
+ 
+      </COVER>
+      
+      
+   </GLOBAL>
+
+   <!-- master -->
+   <LOCAL host="master" >
+      
+      <COVER>
+         
+         <ChannelConfig>
+            <Channel comment="FRONT" channel="0" windowIndex="0"  left="0" right="1" bottom="0" top="1" name="0" stereoMode="LEFT"  />
+         </ChannelConfig>
+         
+      </COVER>
+      
+   </LOCAL>
+   
+   <!-- slave -->
+   <LOCAL host="slave" >
+      <COVER>
+         <ChannelConfig>
+            <Channel comment="FRONT" channel="0" windowIndex="0"  left="0" right="1" bottom="0" top="1" name="0" stereoMode="RIGHT"   />
+         </ChannelConfig>
+         
+      </COVER>
+   </LOCAL>
+
+   
+   
+</COCONFIG>

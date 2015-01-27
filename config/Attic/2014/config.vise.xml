@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+ <COVER>
+   <Multisample value="OFF" numSamples="4" numBuffers="1" mode="FASTEST" />
+   <!--SyncToVBlank value="ON" device="DFP-1" /-->
+   <Background g="0" r="0" b="0" />
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="0" />
+
+    <Startup arch="x11" value="ssh ${USER}@viscluster02 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="0"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster03 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="1"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster04 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="2"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster05 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="3"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster06 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="4"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster07 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="5"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster08 startOpenCOVER `pwd` rhel5 $COVISEDIR $COCONFIG" name="6"/>
+
+   </MultiPC>
+
+   <GenStrips value="OFF" />
+   <UseDisplayLists value="on"/>
+
+   <Plugin>
+     <!--ViewPoint value="on"/-->
+     <cuIsoSurface value="off"/>
+     <cuCuttingSurface value="on"/>
+     <!--Amber value="on"/-->
+     <!--PLMXML value="on"/-->
+     <Script value="off">
+       <StartupScript value="/home/hpcflon/covise/src/renderer/OpenCOVER/plugins/general/Script/example.qs"/>
+     </Script>
+    <Volume>
+     <Files>
+    data/volume/nchc/osaka3.xvf Osaka
+    data/volume/nchc/osaka3_sub7_str.xvf OsakaLarge
+    data/volume/nchc/osaka3_sub7_str_small.xvf OsakaSmall
+    data/volume/nchc/osaka3_sub7_str_small_1.xvf OsakaSmall1
+    data/VolData/vhd/female-knee-marked3.xvf Knee
+    /mnt/raid/cod/VolData/vhd/fctskull.xvf Skull
+    data/ihf/abs-small2.xvf abs
+    data/ihf/zj_small.xvf zj
+    data/VolData/vhd/lunge.xvf Lung
+    data/VolData/virvo/lambda.rvf Lambda
+    data/VolData/klaus/engine256x256x110.rvf
+    data/VolData/virvo/softpyramid.rvf Pyramid
+    data/VolData/vhd/avm-512-32-stretched.xvf avm-512-32-stretched
+    data/VolData/hilfer/pressure.rvf Pressure
+    data/VolData/vhd/kopf-rgb.xvf kopf-rgb
+    data/VolData/virvo/rgbcube24.xvf rgbcube24
+    data/VolData/klaus/engine.rvf Engine
+    data/VolData/marc/earth3_.xvf earth3_
+  </Files>
+
+
+    </Volume>
+
+    <Molecules>
+     <DataDir value="/mnt/raid/cod/itt" />
+    </Molecules>
+
+    <DNA>
+     <DataDir value="/mnt/raid/cod/sandia/igrid/DNA Drawer/Data" />
+    </DNA>
+
+   </Plugin>
+
+   <TabletPC>
+    <Server value="localhost" />
+   </TabletPC>
+
+  </COVER>
+
+
+  <System>
+
+   <CRB>
+
+    <Proxy>
+     <ProxyCommand value="ssh uw_te@visit crb" />
+    </Proxy>
+
+   </CRB>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="ssh" name="viskas" hostname="viskas" />
+    <Host timeout="60" memory="shm" method="ssh" name="visspring" hostname="visspring" />
+    <Host timeout="30" memory="shm" method="ssh" name="vispw1" hostname="vispw1" />
+    <Host timeout="300" memory="shm" method="ssh" name="visard" hostname="visard" />
+    <Host timeout="300" memory="shm" method="ssh" name="viszdf" hostname="viszdf" />
+    <Host timeout="60" memory="shm" method="ssh" name="visper" hostname="visper" />
+    <Host timeout="60" memory="shm" method="ssh" name="vis-mail" hostname="vis-mail" />
+    <Host timeout="60" memory="shm" method="ssh" name="visible" hostname="visible" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="vispw1" />
+   </HostConfig>
+
+   <IpTable>
+    <IP symbolic="visper" value="141.58.8.11" name="visper" />
+    <IP symbolic="vispw1" value="141.58.8.3" name="visper" />
+   </IpTable>
+
+   <RemoteDaemon/>
+  </System>
+
+
+  <GLOBUS>
+
+   <GlobusRun value="/data/extern_libs/leguan/globus-4.0.1/bin/globusrun-ws" />
+   <JobFactory value="/wsrf/services/ManagedJobFactoryService" />
+   <MyProxy host="vise.hlrs.de" user="hpcflon" />
+
+   <certificates>
+    <certificate cert="/home/hpcflon/.globus/hlrscert.pem" key="/home/hpcflon/.globus/hlrskey.pem" value="hpcflon" name="1" />
+    <certificate cert="/home/hpcflon/.globus/dfn-gridcert.pem" key="/home/hpcflon/.globus/dfn-gridkey.pem" value="globus" name="2" />
+   </certificates>
+
+  </GLOBUS>
+
+
+  <Module>
+   <IHS>
+    <DataPath value="/mnt/raid/cod/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="10" />
+   </IHS>
+
+   <IsoSurface>
+     <SupportPolyhedra value="false"/>
+   </IsoSurface>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+
+   <Fenfloss>
+    <VERBOSE value="1" />
+    <SERVER value="m" />
+    <!-- <SERVER value="m"/> -->
+    <!-- <SERVER value="s"/> -->
+    <TIMEOUT value="20" />
+    <STARTUP value="gate %0 %1 %e" name="v3" />
+    <STARTUP value="tube %0 %1 %e" name="v4" />
+    <STARTUP value="axial %0 %1 %e" name="v5" />
+    <STARTUP value="radial %0 %1 %e" name="v6" />
+    <STARTUP value="sc2004booth %0 %1 %e" name="v7" />
+    <STARTUP value="archflow %0 %1 %e" name="v8" />
+    <STARTUP value="other %0 %1 %e" name="v9" />
+    <STARTUP value="dgrid /usr/bin/ssh -l hpcflon frontend.dgrid.hlrs.de 'export CO_SIMLIB_CONN=%e; /usr/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V //data1/HLRS/hlrs/%2/fen_covise_gate'" name="v10" />
+    <PORTS value="31500 31510" />
+    <Application value="p_covise_fen6.3.0.0" name="v3"/>
+    <Application value="p_fen7.0" name="v4"/>
+   </Fenfloss>
+
+  <MiniSim>
+
+   <Verbose value="1" />
+   <Server value="m" />
+   <Startup value="blubb %0 %e" name="v1" />
+   <StartUpScript value="/home/hpcflon/covise/src/application/examples/MiniSim/miniSim.sh" />
+
+  </MiniSim>
+
+
+   <Material>
+    <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0" />
+   </Material>
+
+  </Module>
+
+
+
+  <CONFIGEDITOR>
+
+   <COLOR name="global_scope" color="blue" />
+   <COLOR name="global_variable" color="darkslateblue" />
+   <COLOR name="host_scope" color="red" />
+   <COLOR name="host_variable" color="indianred" />
+   <COLOR name="user_scope" color="darkgreen" />
+   <COLOR name="user_variable" color="darkseagreen" />
+   <COLOR name="userhost_scope" color="darkorange" />
+   <COLOR name="userhost_variable" color="goldenrod" />
+  </CONFIGEDITOR>
+
+
+ </GLOBAL>
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="rueckpro" >config.rpro.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="AR" >config.ar.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="vispro" >config.vispro.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="visd800" >config.uwe.xml</INCLUDE>
+
+</COCONFIG>

@@ -1,0 +1,98 @@
+1
+LOCAL
+LUSER
+3
+RWCovise
+1
+LOCAL
+IO
+Read OR Write COVISE Data
+20
+20
+1
+mesh_in
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh_in
+opt
+none
+1
+mesh
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh
+default
+RWCovise_1_OUT_00
+1
+grid_path
+Browser
+File path
+data/general/tutorial/tiny_geo.covise *.covise
+START
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+20
+220
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+0
+0
+GridSurface
+1
+LOCAL
+Tools
+create surface of a grid
+20
+121
+2
+grid_in
+Set_StructuredGrid|Set_UnstructuredGrid|DO_Polygons
+grid input
+req
+none
+data_in
+Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+data input
+opt
+none
+2
+poly_out
+Set_Polygons
+computed surface
+default
+GridSurface_1_OUT_00
+data_out
+Set_Unstructured_S3D_Data
+data
+dep data_in
+GridSurface_1_OUT_01
+0
+0
+2
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_00
+GridSurface
+1
+LOCAL
+grid_in
+GridSurface
+1
+LOCAL
+poly_out
+GridSurface_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+0

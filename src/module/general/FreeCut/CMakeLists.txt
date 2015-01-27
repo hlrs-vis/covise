@@ -1,0 +1,21 @@
+
+SET(HEADERS
+  FreeCut.h
+)
+
+SET(SOURCES
+  FreeCut.cpp
+)
+
+SET(EXTRASOURCES
+  FreeCut.h
+)
+
+ADD_COVISE_MODULE(Filter FreeCut ${EXTRASOURCES} )
+IF(WIN32)
+ELSE(WIN32)
+ADD_COVISE_COMPILE_FLAGS(FreeCut "-g0 -O2 -fno-strict-aliasing")
+ENDIF(WIN32)
+TARGET_LINK_LIBRARIES(FreeCut  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(FreeCut)

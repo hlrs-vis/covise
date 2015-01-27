@@ -1,0 +1,115 @@
+#VRML V2.0 utf8
+
+# Produced by Uwes VRML Plugin, Version 8, Revision 05, .NET
+# MAX File: Lenkrad.max, Date: Sun Dec 04 15:44:58 2005
+
+DEF Global-TIMER TimeSensor { loop TRUE cycleInterval 3.333 },
+NavigationInfo { headlight FALSE }
+
+DEF SkyDome Sky
+{
+
+}
+
+
+DEF Lenkrad-SCRIPT Script {
+  eventIn MFFloat axes
+  eventIn MFInt32 buttons
+  eventIn MFInt32 buttons2
+  eventIn MFFloat axes2
+  eventOut SFRotation rotA
+  eventOut SFRotation rotB
+  eventOut SFRotation rotC
+  eventOut SFVec3f pos1
+  eventOut SFVec3f pos2
+  eventOut SFVec3f pos3
+  eventOut SFVec3f pos4
+  eventOut SFVec3f pos5
+  eventOut SFVec3f pos6
+  eventOut SFVec3f pos7
+  eventOut SFVec3f pos8
+  field SFRotation rA 0 0 1 0.0
+  field SFRotation rB 1 0 0 0.0
+  field SFRotation rC 1 0 0 0.0
+  field SFVec3f pos 0 0 0
+  field SFFloat tmp 0
+  field SFInt32 wheel 1
+  url "javascript:
+    function axes(k,t) {
+    //print(k);
+    rA[3] = k[0]*-2.2;
+    rotA = rA;
+    if(wheel == 0)
+    {
+    if(k[1]>0)
+    {
+        rB[3] = 1.0 - k[1]*1.0;
+        rotB = rB;
+    }
+    else if(k[1]<0)
+    {
+        rC[3] = 1.0 + k[1]*1.0;
+        rotC = rC;
+    }
+    else
+    {
+        rC[3]=1.0;
+        rotB=rC;
+        rotC=rC;
+    }
+    }
+    else
+{
+    rC[3] = (1.0 + k[1])*0.5;
+    rB[3] = (1.0 + k[2])*0.5;
+        rotB=rB;
+        rotC=rC;
+
+}
+  }
+  function axes2(k,t) {
+   print(k);
+  }
+  function buttons2(k,t) {
+   print(k);
+  }
+  function buttons(k,t) {
+    print(k);
+       if(k[0]!=0)
+       pos1[2]=-0.017;
+       else
+       pos1[2]=0;
+       if(k[1]!=0)
+       pos2[2]=-0.017;
+       else
+       pos2[2]=0;
+	   if(k[2]!=0)
+	   pos3[2]=-0.017;
+	   else
+       pos3[2]=0;
+	   if(k[3]!=0)
+	   pos4[2]=-0.017;
+	   else
+       pos4[2]=0;
+	   if(k[4]!=0)
+	   pos5[2]=-0.017;
+	   else
+       pos5[2]=0;
+	   if(k[5]!=0)
+	   pos6[2]=-0.017;
+	   else
+       pos6[2]=0;
+	   if(k[6]!=0)
+	   pos7[2]=-0.017;
+	   else
+       pos7[2]=0;
+	   if(k[7]!=0)
+	   pos8[2]=-0.017;
+	   else
+       pos8[2]=0;
+
+  }
+  "
+}
+
+ROUTE SkyDome.axes_changed TO Lenkrad-SCRIPT.axes

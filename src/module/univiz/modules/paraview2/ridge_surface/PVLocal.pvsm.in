@@ -1,0 +1,179 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+
+
+   <SourceProxy name="RidgeSurface" class="vtkRidgeSurface">
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="1">
+	    <RequiredProperties>
+              <Property name="SelectInputScalars" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputScalars" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2">
+           <ArrayListDomain name="array_list" attribute_type="Scalars" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>
+     </StringVectorProperty> 
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Mode" 
+        command="SetMode" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="cell nodes PCA"/>
+         <Entry value="1" text="edge nodes PCA"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Extremum" 
+        command="SetExtremum" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="maximum ridges"/>
+         <Entry value="1" text="minimum ridges"/>
+       </EnumerationDomain>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ExcludeFLT_MAX" 
+        command="SetExcludeFLT_MAX" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ExcludeLonelyNodes" 
+        command="SetExcludeLonelyNodes" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="HessExtrEigenvalMin"
+        command="SetHessExtrEigenvalMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="0" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="PCAsubdomMaxPerc"
+        command="SetPCAsubdomMaxPerc"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ScalarMin"
+        command="SetScalarMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ScalarMax"
+        command="SetScalarMax"
+        number_of_elements="1"
+        default_values="1e20">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ClipScalarMin"
+        command="SetClipScalarMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ClipScalarMax"
+        command="SetClipScalarMax"
+        number_of_elements="1"
+        default_values="1e20">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="MinSize"
+        command="SetMinSize"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="FilterByCell" 
+        command="SetFilterByCell" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="CombineExceptions" 
+        command="SetCombineExceptions" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MaxExceptions"
+        command="SetMaxExceptions"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GenerateNormals" 
+        command="SetGenerateNormals" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+   <!-- End RidgeSurface -->
+   </SourceProxy>
+
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

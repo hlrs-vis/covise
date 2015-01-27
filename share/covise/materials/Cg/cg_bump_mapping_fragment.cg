@@ -1,0 +1,27 @@
+struct interpolatedValues
+{
+    float2 decalCoords  : TEXCOORD0;
+    float2 normalCoords : TEXCOORD1;
+    float3 lightVec     : TEXCOORD2;
+    float3 halfVec      : TEXCOORD3;
+};
+
+// fragment program
+float4 main(in interpolatedValues IN,                
+            uniform float3 diffuseCoeff,
+            uniform float specularCoeff,
+            uniform sampler2D decal,
+            uniform sampler2D normalMap,
+            uniform sampler2D lookupTable) : COLOR
+{
+	float3 decalColor = tex2D(decal, IN.decalCoords).rgb;
+
+	float3 normal = tex2D(normalMap, IN.normalCoords).rgb;
+	float4 lighting = tex2D(lookupTable, float2(dot(IN.lightVec, normal),
+	                                                dot(IN.halfVec, normal)));
+    
+	float3 diffuse = lighting.rgb * diffuseCoeff;
+	float specular = lighting.a * specularCoeff;
+
+	return float4(diffuse * decalColor + specular, 1.0);
+}

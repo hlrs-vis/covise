@@ -1,0 +1,15 @@
+SET(HEADERS
+  anim.h
+  coPlotItem.h
+  vranimPlugin.h
+)
+SET(SOURCES
+  auxil.cpp
+  plot.cpp
+  read.cpp
+  vranimPlugin.cpp
+  coPlotItem.cpp
+)
+ADD_DEFINITIONS(-DVRANIM)
+cover_add_plugin(VRAnim)
+#COVER_INSTALL_PLUGIN(VRAnim)

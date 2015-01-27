@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline Startup & Choice & Switch startup messages\\ \hline bool & Boolean & Test boolean param\\ \hline choice & Choice & Test Choice param\\ \hline corner & Choice & Which corner to do\\ \hline Value111 & Slider & Value1 at coordinate 1,1,1\\ \hline Value117 & Slider & Value1 at coordinate 1,1,7\\ \hline Value777 & Slider & Value1 at coordinate 7,7,7\\ \hline relax & Scalar & Relaxation factor\\ \hline steps & Scalar & Number of steps per loop\\ \hline dir & String & Directory for run\\
+\hline \end{longtable}
+

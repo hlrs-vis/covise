@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline grid & UniformGrid & the Grid\\ \hline density & Float & Density per node\\ \hline velocity & Vec3 & Velocity per node\\
+\hline \end{longtable}
+

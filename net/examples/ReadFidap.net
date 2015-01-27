@@ -1,0 +1,298 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+4
+# Module ReadFidap
+ReadFidap
+1
+LOCAL
+IO_Module
+ReadFidap_1
+35
+20
+0
+7
+mesh
+UnstructuredGrid
+Grid
+default
+
+velocity
+Vec3
+velocity
+default
+
+pressure
+Float
+pressure
+default
+
+K
+Float
+K
+default
+
+EPS
+Float
+EPS
+default
+
+B_U
+Float
+B_U
+default
+
+NUt
+Float
+Nut
+default
+
+1
+grid_path
+Browser
+Fidap Neutral file path
+share/covise/example-data/Fidap/g13dspc.FDNEUT
+
+1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+35
+309
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+DomainSurface_1
+35
+120
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module CutGeometry
+CutGeometry
+1
+LOCAL
+Filter
+CutGeometry_1
+35
+209
+6
+GridIn0
+Polygons|TriangleStrips|Lines
+geometry
+req
+
+DataIn0
+Float|Vec3|RGBA
+data
+opt
+
+DataIn1
+Float|Vec3|RGBA
+data
+opt
+
+DataIn2
+Float|Vec3|RGBA
+data
+opt
+
+DataIn3
+Float|Vec3|RGBA
+data
+opt
+
+adjustParams
+Text
+override parameter values
+opt
+
+5
+GridOut0
+Polygons|Lines
+geometry
+default
+
+DataOut0
+Float|Vec3|RGBA
+data
+dep DataIn0
+
+DataOut1
+Float|Vec3|RGBA
+data
+dep DataIn1
+
+DataOut2
+Float|Vec3|RGBA
+data
+dep DataIn2
+
+DataOut3
+Float|Vec3|RGBA
+data
+dep DataIn3
+
+9
+method
+Choice
+cut geometry based on data or based on geometry
+1
+
+-1
+distance
+FloatScalar
+distance of plane or cylinder radius - use negative radius to invert cylinder cut!
+0
+
+-1
+normal
+FloatVector
+normal of plane or cylinder axis
+0 1 0
+
+-1
+data_min
+FloatScalar
+smallest data value, polygons with smaller values will be removed
+0.000000
+
+-1
+data_max
+FloatScalar
+biggest data value, polygons with bigger values will be removed
+1.000000
+
+-1
+invert_cut
+Boolean
+invert selected polygons?
+FALSE
+
+-1
+strict_selection
+Boolean
+one vertex out of bound is enough to erase polygon
+FALSE
+
+-1
+geoMethod
+Choice
+cut with a plane, cylider or sphere
+1 Plane Cylinder Sphere 
+
+-1
+bottom
+FloatVector
+point on cylinder axis or center of sphere
+0 0 0
+
+-1
+0
+3
+ReadFidap
+1
+LOCAL
+mesh
+
+DomainSurface
+1
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+CutGeometry
+1
+LOCAL
+GridIn0
+CutGeometry
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

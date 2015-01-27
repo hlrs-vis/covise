@@ -1,0 +1,25 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+CheckObj tests the object received at the input port 
+(unstructured grid, polygons, lines, triangle strips)
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2} {}{CheckObjModule}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+CheckObj is available for all COVISE versions on all supported platforms. 
+
+
+%
+%=============================================================

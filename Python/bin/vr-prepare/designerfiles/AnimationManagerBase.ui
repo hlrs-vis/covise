@@ -1,0 +1,420 @@
+<ui version="4.0" >
+ <comment>Python:from Utils import IntInRangeControl
+Python:from Utils import FloatInRangeControl
+Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+ <class>AnimationManagerBase</class>
+ <widget class="QWidget" name="AnimationManagerBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>387</width>
+    <height>289</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>5</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QFrame" name="frame18" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3" >
+      <item row="0" column="0" >
+       <layout class="QHBoxLayout" >
+        <item>
+         <widget class="QLabel" name="NumStepsLabel" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>Number of animation steps:</string>
+          </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacer5" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType" >
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="NumStepsLabel_2" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>1</string>
+          </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QGroupBox" name="groupBox_2" >
+        <property name="title" >
+         <string/>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2" >
+         <item row="0" column="0" >
+          <layout class="QHBoxLayout" name="_4" >
+           <item>
+            <widget class="QRadioButton" name="radioButton15" >
+             <property name="text" >
+              <string>Reduction Factor</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="ChangeIndicatedLE" native="1" name="ReductionLE" />
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0" >
+          <layout class="QVBoxLayout" name="_5" >
+           <item>
+            <layout class="QHBoxLayout" name="_6" >
+             <item>
+              <widget class="QRadioButton" name="radioButtonSelectionString" >
+               <property name="text" >
+                <string>Selection</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditSelectionString" />
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="_7" >
+             <item>
+              <spacer name="spacer32" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>140</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButtonEditSelectionString" >
+               <property name="text" >
+                <string>Edit Selection...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButtonApply" >
+               <property name="text" >
+                <string>Apply</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QGroupBox" name="groupBox" >
+        <property name="title" >
+         <string/>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" >
+         <item row="0" column="0" colspan="6" >
+          <layout class="QHBoxLayout" name="_2" >
+           <item>
+            <widget class="QLabel" name="textLabelTimestep" >
+             <property name="text" >
+              <string>TimeStep</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="IntInRangeControl" native="1" name="timestepSlider" >
+             <property name="enabled" >
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip" >
+              <string>Current Timestep</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Current Timestep</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0" colspan="6" >
+          <layout class="QHBoxLayout" name="_3" >
+           <item>
+            <widget class="QLabel" name="textLabelSpeed" >
+             <property name="text" >
+              <string>AnimationSpeed</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="FloatInRangeControl" native="1" name="sliderSpeed" >
+             <property name="enabled" >
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip" >
+              <string>Speed of animation</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Speed of animation</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QPushButton" name="ToStartButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Go to start</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="images/StaticImages.qrc" >
+             <normaloff>:/media-seek-toStart.png</normaloff>:/media-seek-toStart.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QPushButton" name="BackButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>One step back</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="images/StaticImages.qrc" >
+             <normaloff>:/media-seek-backward.png</normaloff>:/media-seek-backward.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" >
+          <widget class="QPushButton" name="StopButton" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Stop animation</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="images/StaticImages.qrc" >
+             <normaloff>:/media-playback-stop.png</normaloff>:/media-playback-stop.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3" >
+          <widget class="QPushButton" name="PlayButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Start animation</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="images/StaticImages.qrc" >
+             <normaloff>:/media-playback-start.png</normaloff>:/media-playback-start.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4" >
+          <widget class="QPushButton" name="ForwardButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Go to next step</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="images/StaticImages.qrc" >
+             <normaloff>:/media-seek-forward.png</normaloff>:/media-seek-forward.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="5" >
+          <widget class="QPushButton" name="ToEndButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip" >
+            <string>Go to last step</string>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="images/StaticImages.qrc" >
+             <normaloff>:/media-seek-toEnd.png</normaloff>:/media-seek-toEnd.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>FloatInRangeControl</class>
+   <extends>QWidget</extends>
+   <header location="global" >Utils</header>
+  </customwidget>
+  <customwidget>
+   <class>ChangeIndicatedLE</class>
+   <extends>QWidget</extends>
+   <header location="global" >ChangeIndicatedLE</header>
+  </customwidget>
+  <customwidget>
+   <class>IntInRangeControl</class>
+   <extends>QWidget</extends>
+   <header location="global" >Utils</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+ </includes>
+ <resources>
+  <include location="images/StaticImages.qrc" />
+ </resources>
+ <connections/>
+</ui>

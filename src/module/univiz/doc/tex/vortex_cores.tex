@@ -1,0 +1,90 @@
+\section{Vortex Cores}
+\label{sec:vortex-cores}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Extracts vortex core lines (center lines of vortices) from velocity data. Vortex core line segments are extracted for every single cell of the data grid and finally the segments are connected. For a given cell, the segment(s) are determined by evaluating the necessary conditions on each face of the cell, resulting in the intersection points of the core lines with the faces of the cell. From these intersections the core line segments of the given cell are computed by connecting them by straight lines.
+ 
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  data grid (unstructured)
+  \begin{itemize}
+  \item
+    velocity (3-vect)
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  line-type geometry (the vortex core lines)
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{method}:
+  \begin{itemize}
+  \item
+    Levy: for vortex core lines according to Levy et al. \cite{LevyDS90}
+  \item
+    Sujudi-Haimes: for vortex core lines according to Sujudi and Haimes \cite{SujudiH95}
+  \end{itemize}
+
+\item
+  \textbf{variant}:
+  \begin{itemize}
+  \item
+    triangle: non-planar cell faces are subdivided into triangles $\rightarrow$ the desired intersection points can be computed directly.
+  \item
+    quad Newton: non-planar cell faces are treated as-is $\rightarrow$ the desired intersection points are computed using Newton iteration.
+  \end{itemize}
+
+\item
+  \textbf{min vertices}: core lines that contain fewer than this count of vertices are suppressed.
+
+\item
+  \textbf{max exceptions}: core line segments that exhibit more than this count of consecutive exceptions (vertices where the other filtering rules are violated) are suppressed.
+
+\item
+  \textbf{min strength}: core line vertices that exhibit lower vortex strength are suppressed (count as an exception). Vortex strength is the absolute imaginary part of the Jacobian of projected velocity (projected to a plane perpendicular to the core), scaled such that the quantity gets problem-independent and hence the default values apply to most cases.
+
+\item
+  \textbf{max angle}: core line vertices that exhibit a larger angle between the field vector (Parallel Vectors method \cite{PeikertR99}) and the core line tangent are suppressed (count as an exception).
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2007-08-16
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Martin Roth, Filip Sadlo, Ronald Peikert
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................
+
+

@@ -1,0 +1,254 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef BUILDLOG_H
+#define BUILDLOG_H 1
+
+#if defined(_MSC_VER)
+    #if _MSC_VER < 1500
+    #    define vsnprintf _vsnprintf
+    #endif
+#endif
+
+
+#include <stdarg.h>
+
+#include <osg/Object>
+#include <osg/Notify>
+#include <osg/Timer>
+
+#include <OpenThreads/Mutex>
+#include <OpenThreads/Thread>
+
+#include <vpb/Task>
+
+#include <list>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+
+
+namespace vpb
+{
+
+class BuildOperation;
+class BuildLog;
+class OperationLog;
+
+extern void VPB_EXPORT log(osg::NotifySeverity level, const char* format, ...);
+
+extern void VPB_EXPORT pushOperationLog(OperationLog* operationLog);
+extern void VPB_EXPORT popOperationLog();
+
+struct Message : public osg::Referenced
+{
+    Message(double t, osg::NotifySeverity l, const std::string& s):
+        time(t),
+        level(l),
+        message(s),
+        thread(OpenThreads::Thread::CurrentThread())
+        {}
+
+    double                  time;
+    osg::NotifySeverity     level;
+    std::string             message;
+    OpenThreads::Thread*    thread;
+};
+
+class VPB_EXPORT LogFile : public osg::Referenced
+{
+    public:
+    
+        LogFile(const std::string& filename);
+        
+        void write(Message* message);
+        
+        std::ofstream       _fout;
+        OpenThreads::Mutex  _mutex;
+        
+        osg::ref_ptr<Task>  _taskFile;
+};
+
+class VPB_EXPORT OperationLog : public osg::Object
+{
+    public:
+    
+        OperationLog();
+
+        OperationLog(const std::string& name);
+        
+        OperationLog(const OperationLog& log, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+
+        META_Object(vpb, OperationLog)
+        
+        void openLogFile(const std::string& filename) { _logFile = new LogFile(filename); }
+        
+        void setLogFile(LogFile* logFile) { _logFile = logFile; }
+        LogFile* getLogFile() { return _logFile.get(); }
+
+        void log(osg::NotifySeverity level, const char* message, ...);
+        
+        void log(osg::NotifySeverity level, const std::string& message);
+
+        void setStartPendingTime(double t) { _startPendingTime = t; }
+        double getStartPendingTime() const { return _startPendingTime; }
+        
+        void setStartRunningTime(double t) { _startRunningTime = t; }
+        double getStartRunningTime() const { return _startRunningTime; }
+        
+        void setEndRunningTime(double t) { _endRunningTime = t; }
+        double getEndRunningTime() const { return _endRunningTime; }
+        
+        double getWaitingTime() const { return _startRunningTime - _startPendingTime; }
+        double getRunningTime() const { return _endRunningTime - _startRunningTime; }
+        
+        virtual void report(std::ostream& out);
+        
+        typedef std::list< osg::ref_ptr<Message> > Messages;
+        const Messages& getMessages() const { return _messages; }
+
+    protected:
+    
+        virtual ~OperationLog();
+        
+        double _startPendingTime;
+        double _startRunningTime;
+        double _endRunningTime;
+
+        Messages _messages;
+        
+        osg::ref_ptr<LogFile> _logFile;
+};
+
+class VPB_EXPORT BuildLog : public OperationLog
+{
+    public:
+    
+        BuildLog();
+
+        BuildLog(const std::string& name);
+
+        BuildLog(const BuildLog& bl, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+        
+        META_Object(vpb, BuildLog)
+
+        /** Signal that a operation has been constructed and is awaiting execution.*/
+        void pendingOperation(BuildOperation* operation);
+        
+        /** Signal that a operation has started execution.*/
+        void runningOperation(BuildOperation* operation);
+        
+        /** Signal that a operation has be completed running.*/
+        void completedOperation(BuildOperation* operation);
+
+
+        /** Initialize the build logs timer.*/
+        void initStartTime();
+        
+        /** Get the current time.*/
+        double getCurrentTime() const { return osg::Timer::instance()->time_s(); }
+        
+        /** Report if all outstanding operations have been completed. */
+        bool isComplete() const;
+
+        /** Wait for all outstanding operations to be completed. */
+        void waitForCompletion() const;
+
+
+        /** Generate report. */
+        virtual void report(std::ostream& out);
+
+    protected:
+    
+        virtual ~BuildLog() {}
+
+        typedef std::list< osg::ref_ptr<OperationLog> > OperationLogs;
+
+        mutable OpenThreads::Mutex  _pendingOperationsMutex;
+        OperationLogs       _pendingOperations;
+
+        mutable OpenThreads::Mutex  _runningOperationsMutex;
+        OperationLogs       _runningOperations;
+
+        mutable OpenThreads::Mutex  _completedOperationsMutex;
+        OperationLogs       _completedOperations;
+        
+        void remove(OperationLogs& logs, OperationLog* log);
+};
+
+class Logger
+{
+    public:
+        Logger() {}
+        virtual ~Logger() {}
+
+        virtual void setBuildLog(BuildLog* bl) { _buildLog = bl; }
+        BuildLog* getBuildLog() { return _buildLog.get(); }
+        const BuildLog* getBuildLog() const { return _buildLog.get(); }
+
+        void log(osg::NotifySeverity level, const std::string& message) const
+        {
+            if (level>osg::getNotifyLevel()) return;
+
+            if (_buildLog.valid())
+            {
+                _buildLog->log(level, message);
+                if (level==osg::FATAL) throw message;
+            }
+            else
+            {
+                if (level==osg::FATAL) throw message;
+
+                std::cout<<message<<std::endl;
+            }
+
+        }
+
+        void log(osg::NotifySeverity level, const char* format, ...) const
+        {
+            if (level>osg::getNotifyLevel()) return;
+
+            va_list args; va_start(args, format);
+            if (_buildLog.valid())
+            {
+                char str[1024];
+                vsnprintf(str, sizeof(str), format, args);
+                _buildLog->log(level, str);
+
+                if (level==osg::FATAL) throw std::string(str);
+            }
+            else
+            {
+                if (level==osg::FATAL)
+                {
+                    char str[1024];
+                    vsnprintf(str, sizeof(str), format, args);
+                    throw std::string(str);
+                }
+
+                vprintf(format, args); printf("\n");
+            }
+            va_end(args);
+
+    }
+
+    protected:
+
+        osg::ref_ptr<BuildLog> _buildLog;
+        
+        
+};
+
+}
+
+#endif

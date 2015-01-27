@@ -1,0 +1,63 @@
+Covise Image Lib
+================
+
+
+The Covise Image lib contains of the following classes:
+
+
+coImage
+=======
+
+End-User access class of the Library. Supplies the functions for 
+accessing the Image's data and description (size, # of bitplanes,
+#of frames).
+
+coImage contains a pointer to the Format-dependent class, which
+implements reading the file into a buffer. This class must be a 
+sub-class of coImageImpl.
+
+coImage holds a table mapping suffixes to virtual c'tors of the 
+implementation classes. The Ctor of coImage checks the file for
+its suffix and then calls the virtual c'tor to create the internal
+format-dependent class object.
+
+Format-dependent classes register themselves at coImage by calling
+the static function registerImageTyp(). The function returns a bool,
+which should initialize a static global variable.
+
+coImageImpl
+===========
+
+Base class for all format-dependent implementation classes. It supplies
+common variables for all sub-classes:
+
+      int width_;             
+      int height_;            
+      int numChannels_;        
+      int numFrames_;
+
+which can either be set by its cTor or by the implementing class.
+
+It also supplies the error-handler, currently a function 
+
+      setError(const char *)
+
+which sets the state to "bad" and and error string is set, which can
+be requested by the user of the coImage class
+
+coImageTEMPL.cpp / coImageTEMPL.h
+=================================
+
+Template for implementing format classes
+
+coBinImage
+==========
+
+Derived from coImageImpl, it implements an image in memory without a
+file behind it, e.g. created by a scaling operation
+
+coBadImage
+==========
+
+Derived from coImageImpl, it implements a dummy looking like an image
+but just transporting an error message.

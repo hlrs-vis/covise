@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ 
+ <LOCAL host="vishexa" >
+  <COVER>
+  <MultiPC>
+    <SyncMode value="TCP" />
+   <NumSlaves value="0" />
+     <Startup arch="x11" value="ssh ${USER}@visbits startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+  </MultiPC>
+   <ChannelConfig>
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="960" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="1" width="960" left="960" windowIndex="0" bottom="0" name="1" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="2" width="960" left="0" windowIndex="1" bottom="0" name="2" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="3" width="960" left="960" windowIndex="1" bottom="0" name="3" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="4" width="1" left="0" windowIndex="2" bottom="0" name="4" height="1" />
+
+    <!--Channel stereoMode="LEFT" comment="FRONT" channel="4" width="960" left="1920" windowIndex="0" bottom="1080" name="4" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="5" width="960" left="2880" windowIndex="0" bottom="1080" name="5" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="6" width="960" left="1920" windowIndex="1" bottom="1080" name="6" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="7" width="960" left="2880" windowIndex="1" bottom="1080" name="7" height="1" /-->
+   </ChannelConfig>
+  <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="-611" originZ="0" originY="0" height="1366" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="1212" comment="FRONT" h="0.0" originX="-611" originZ="0" originY="0" height="1366" p="0.0" r="0.0" name="1" screen="1" />
+    <Screen width="1212" comment="FRONT" h="0.0" originX="611" originZ="0" originY="0" height="1366" p="0.0" r="0.0" name="2" screen="2" />
+    <Screen width="1212" comment="FRONT" h="0.0" originX="611" originZ="0" originY="0" height="1366" p="0.0" r="0.0" name="3" screen="3" />
+    <Screen width="2424" comment="FRONT" h="0.0" originX="0" originZ="0" originY="0" height="1366" p="0.0" r="0.0" name="4" screen="4" />
+
+    <!--Screen width="1212" comment="FRONT" h="0.0" originX="-611" originZ="-346" originY="0" height="683" p="0.0" r="0.0" name="4" screen="4" />
+    <Screen width="1212" comment="FRONT" h="0.0" originX="-611" originZ="-346" originY="0" height="683" p="0.0" r="0.0" name="5" screen="5" />
+    <Screen width="1212" comment="FRONT" h="0.0" originX="611" originZ="-346" originY="0" height="683" p="0.0" r="0.0" name="6" screen="6" />
+    <Screen width="1212" comment="FRONT" h="0.0" originX="611" originZ="-346" originY="0" height="683" p="0.0" r="0.0" name="7" screen="7" /-->
+  </ScreenConfig>
+
+   <NumPipes value="2" />
+   <WindowConfig>
+       <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="2180" left="1600" bottom="0" name="0" decoration="false"/>
+    <Window width="1920" comment="FRONT" window="1" pipeIndex="1" height="2180" left="0" bottom="0" name="1" decoration="false"/>
+    <Window width="1024" comment="FRONT" window="2" pipeIndex="0" height="576" left="10" bottom="10" name="2" decoration="true"/>
+   </WindowConfig>
+   
+   <PipeConfig>
+    <Pipe server="0" screen="0" name="0" />
+    <Pipe server="0" screen="1" name="1" />
+   </PipeConfig>
+
+  <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+  <SyncToVBlank value="ON" device="DFP-1" />
+  
+  <WelcomeMessage value="Welcome to HLRS at GCS Booth" />
+
+  <Plugin>
+
+   <!--COVERScript value="ON"/-->
+   <!--cuIsoSurface value="ON"/>
+   <cuCuttingSurface value="ON"/-->
+   <!--cuTracer value="ON"/-->
+   <Vrml97>
+     <MaybeGC value="ON" />
+  
+
+     <!-- nicht ausschalten, sonst funktionieren die shader nicht die Binormalen brauchen GenerateTriangleStrips value="false" /-->
+
+     <Audio value="AServer" >
+	 <!--Host value="192.168.0.10" /-->
+     </Audio>
+
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended_alphatest" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+    <VncClient value="OFF" rfbPort="31590" rfbHost="172.26.80.190" />
+    <AKToolbar value="ON">
+     <Scale value="0.6" />
+     <Attachment value="TOP" />
+     <Position x="-170" y="0" z="640" />
+
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+       
+  </Plugin>
+  
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+   
+   
+   <SceneSize value="1500" />
+   <FloorHeight value="-1349" />
+   <MenuPosition value="400 0 500" />
+   <MenuSize value="0.7" />
+   <MultiProcess value="OFF" />
+   <MouseNav value="OFF" />
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <Stereo value="ON" />
+   <DebugLevel value="0" />
+   <Freeze value="ON" />
+   <ViewerPosition value="-200 -2000 0" />
+   <NumScreens value="5" />
+   <NumWindows value="3" />
+   <TransparencyMode value="sorted_blended_alphatest" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+
+  <TabletPC>
+   <!--Server value="192.168.1.58" /-->
+   <Server value="192.168.1.58" />
+   <!--Server value="localhost" /-->
+  </TabletPC>
+  
+  <Input>
+ 
+   <ButtonSystem value="MOUSE" />
+   <TrackingSystem value="DTRACK" />
+   <DebugButtons value="TRUE" />
+   <HeadAddress value="1" />
+   <HandAddress value="0" />
+   <ButtonSystem value="MOUSE" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+   <DebugStation value="0" />
+   <DebugTracking value="false" />
+   
+   <TrackingSystem> 
+    <Offset x="0" y="-1500" z="-1349" />
+    <Orientation h="0" p="0" r="0" />
+   </TrackingSystem>
+   
+   <HeadDevice>   
+    <Offset x="-105" y="-40" z="-50" />
+    <Orientation h="0" p="0" r="0" />
+   </HeadDevice>
+     
+   <HandDevice>     
+    <Offset x="-60" y="0" z="-60" />
+    <Orientation h="0" p="0" r="0" />
+   </HandDevice>
+   
+  <ButtonConfig>
+   <ButtonDevice value="/dev/input/presenter" />
+   <Map value="1 ACTION_BUTTON" name="1" />
+   <Map value="8 XFORM_BUTTON" name="2" />
+   <Map value="2 DRIVE_BUTTON" name="3" />
+  </ButtonConfig>  
+  <DTrack>
+   <Startup value="192.168.1.10:5001" />
+   <!--Startup value="141.30.14.209:5001" /-->
+  </DTrack>  
+   
+  </Input>
+    
+
+    </COVER>
+
+  <Module>
+   <Fenfloss>
+    <Verbose value="1" />
+    <Timeout value="20" />
+    <Local value="localhost"/>
+    <Startup value="gate %0 %1 %e" name="v3" />
+    <Startup value="tube %0 %1 %e" name="v4" />
+    <Startup value="axial %0 %1 %e" name="v5" />
+    <Startup value="radial %0 %1 %e" name="v6" />
+    <Startup value="sc2004booth %0 %1 %e" name="v7" />
+    <Startup value="archflow %0 %1 %e" name="v8" />
+    <Startup value="other %0 %1 %e" name="v9" />
+
+    <Application value="p_covise_fen6.3.0.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+    <Application value="p_fen7.0" name="v3"/>
+   </Fenfloss>
+
+  <OpenFoam>
+   <Verbose value="1" />
+   <Server value="m" />
+   <Startup value="blubb %0 %e" name="v1" />
+   <StartUpScript value="/home/hpcyborg/OpenFOAM/OpenFOAM-1.7.1/applications/solvers/incompressible/icoFoamCovise/cavity.sh" />
+   <Local value="195.37.217.230" />
+  </OpenFoam>
+
+  </Module>
+  
+ </LOCAL>
+
+</COCONFIG>

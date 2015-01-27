@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/ParaViewResources" >
+    <file>../WriteUnstructured_Client.xml</file>
+  </qresource>
+</RCC>

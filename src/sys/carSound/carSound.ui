@@ -1,0 +1,227 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <widget class="QSpinBox" name="speed" >
+    <property name="geometry" >
+     <rect>
+      <x>60</x>
+      <y>90</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QSlider" name="speedSlider" >
+    <property name="geometry" >
+     <rect>
+      <x>30</x>
+      <y>50</y>
+      <width>711</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label" >
+    <property name="geometry" >
+     <rect>
+      <x>260</x>
+      <y>20</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>SampleSpeed</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="sampleSpeed" >
+    <property name="geometry" >
+     <rect>
+      <x>340</x>
+      <y>20</y>
+      <width>46</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="pitchOffset" >
+    <property name="geometry" >
+     <rect>
+      <x>230</x>
+      <y>90</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton" >
+    <property name="geometry" >
+     <rect>
+      <x>60</x>
+      <y>140</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Up</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2" >
+    <property name="geometry" >
+     <rect>
+      <x>230</x>
+      <y>140</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Down</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="upDown" >
+    <property name="geometry" >
+     <rect>
+      <x>60</x>
+      <y>180</y>
+      <width>72</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>UpDown80</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="volumeOffset" >
+    <property name="geometry" >
+     <rect>
+      <x>410</x>
+      <y>90</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2" >
+    <property name="geometry" >
+     <rect>
+      <x>430</x>
+      <y>70</y>
+      <width>46</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Volume</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3" >
+    <property name="geometry" >
+     <rect>
+      <x>240</x>
+      <y>70</y>
+      <width>46</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Pitch</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="hupeButton" >
+    <property name="geometry" >
+     <rect>
+      <x>350</x>
+      <y>140</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Hupe</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="anlasserButton" >
+    <property name="geometry" >
+     <rect>
+      <x>500</x>
+      <y>140</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Anlasser</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>speedSlider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>speed</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>60</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>112</x>
+     <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>speed</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>speedSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>150</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>130</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>pitchChanged()</slot>
+ </slots>
+</ui>

@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+<SERVER value="00e081b349ee 6.5 02.12.2011 0 OAGDBFC MAC:00e081b349ee" type="SERVER" name="OAGDBFC" />
+ <STD_UI value="00e081b349ee 6.5 02.12.2011 0 EEMQGQQ MAC:00e081b349ee" type="STD_UI" name="EEMQGQQ" />
+ <COVISE_WINDOWS value="00e081b349ee 6.5 02.12.2011 0 GIOPTXU MAC:00e081b349ee" type="COVISE_WINDOWS" name="GIOPTXU" />
+ <VR_ONE_PIPE value="00e081b349ee 6.5 02.12.2011 0 GGAOCAA MAC:00e081b349ee" type="VR_ONE_PIPE" name="GGAOCAA" />
+ <VR_MULTI_ANY value="00e081b349ee 6.5 02.12.2011 0 OOYHVFY MAC:00e081b349ee" type="VR_MULTI_ANY" name="OOYHVFY" />
+ <COVISE_VRML value="00e081b349ee 6.5 02.12.2011 0 WWWBLVY MAC:00e081b349ee" type="COVISE_VRML" name="WWWBLVY" />
+ <COVISE_CFD value="00e081b349ee 6.5 02.12.2011 0 MGWLTLC MAC:00e081b349ee" type="COVISE_CFD" name="MGWLTLC" />
+ <COVISE_FEM value="00e081b349ee 6.5 02.12.2011 0 USSYQGU MAC:00e081b349ee" type="COVISE_FEM" name="USSYQGU" />
+ <VR_DUAL_CLUSTER value="00e081b349ee 6.5 02.12.2011 0 WWKYCCI MAC:00e081b349ee" type="VR_DUAL_CLUSTER" name="WWKYCCI" />
+
+
+<License>
+ <SERVER value="00301bb99658 6.5 22.03.2011 0 QGCHFZW visling" type="SERVER" name="QGCHFZW" />
+ <STD_UI value="00301bb99658 6.5 22.03.2011 0 GKIUKKK visling" type="STD_UI" name="GKIUKKK" />
+ <VR_ONE_PIPE value="00301bb99658 6.5 22.03.2011 0 AEMYESO visling" type="VR_ONE_PIPE" name="AEMYESO" />
+ <VR_MULTI_ANY value="00301bb99658 6.5 22.03.2011 0 QKSNRPQ visling" type="VR_MULTI_ANY" name="QKSNRPQ" />
+ <COVISE_VRML value="00301bb99658 6.5 22.03.2011 0 QUILNNM visling" type="COVISE_VRML" name="QUILNNM" />
+ <COVISE_CFD value="00301bb99658 6.5 22.03.2011 0 YEWLXRK visling" type="COVISE_CFD" name="YEWLXRK" />
+ <COVISE_FEM value="00301bb99658 6.5 22.03.2011 0 GQSYUMC visling" type="COVISE_FEM" name="GQSYUMC" />
+ <VR_DUAL_CLUSTER value="00301bb99658 6.5 22.03.2011 0 WMKWIUQ visling" type="VR_DUAL_CLUSTER" name="WMKWIUQ" />
+</License>
+
+<License>
+ <SERVER value="00301bb99658 7.0 22.03.2011 0 KMIZXTQ visling" type="SERVER" name="KMIZXTQ" />
+ <STD_UI value="00301bb99658 7.0 22.03.2011 0 AQOMCEE visling" type="STD_UI" name="AQOMCEE" />
+ <VR_ONE_PIPE value="00301bb99658 7.0 22.03.2011 0 ICQWYYK visling" type="VR_ONE_PIPE" name="ICQWYYK" />
+ <VR_MULTI_ANY value="00301bb99658 7.0 22.03.2011 0 ECQLTFQ visling" type="VR_MULTI_ANY" name="ECQLTFQ" />
+ <COVISE_VRML value="00301bb99658 7.0 22.03.2011 0 YSMJHTI visling" type="COVISE_VRML" name="YSMJHTI" />
+ <COVISE_CFD value="00301bb99658 7.0 22.03.2011 0 EGOFNXG visling" type="COVISE_CFD" name="EGOFNXG" />
+ <COVISE_FEM value="00301bb99658 7.0 22.03.2011 0 MSKSKSY visling" type="COVISE_FEM" name="MSKSKSY" />
+ <VR_DUAL_CLUSTER value="00301bb99658 7.0 22.03.2011 0 YEISGEU visling" type="VR_DUAL_CLUSTER" name="YEISGEU" />
+</License>
+
+
+<License>
+ <SERVER value="0009dd507f54 6.0 05.08.2010 0 KQYWECE apollo" type="SERVER" name="KQYWECE" />
+ <STD_UI value="0009dd507f54 6.0 05.08.2010 0 AUEJJNS apollo" type="STD_UI" name="AUEJJNS" />
+ <VR_ONE_PIPE value="0009dd507f54 6.0 05.08.2010 0 IIGNHNK apollo" type="VR_ONE_PIPE" name="IIGNHNK" />
+ <COVISE_CFD value="0009dd507f54 6.0 05.08.2010 0 SGAASAO apollo" type="COVISE_CFD" name="SGAASAO" />
+ <COVISE_FEM value="0009dd507f54 6.0 05.08.2010 0 ASWNPVG apollo" type="COVISE_FEM" name="ASWNPVG" />
+ <VR_THREE_CLUSTER value="0009dd507f54 6.0 05.08.2010 0 EQWVBJA apollo" type="VR_THREE_CLUSTER" name="EQWVBJA" />
+</License>
+
+<License>
+ <SERVER value="0019d1e1639f 6.0 08.07.2010 0 KUQZPHK domina" type="SERVER" name="KUQZPHK" />
+ <STD_UI value="0019d1e1639f 6.0 08.07.2010 0 AYWMUSY domina" type="STD_UI" name="AYWMUSY" />
+ <VR_ONE_PIPE value="0019d1e1639f 6.0 08.07.2010 0 KWCCEIE domina" type="VR_ONE_PIPE" name="KWCCEIE" />
+ <VR_MULTI_ANY value="0019d1e1639f 6.0 08.07.2010 0 KEMDBNU domina" type="VR_MULTI_ANY" name="KEMDBNU" />
+ <COVISE_VRML value="0019d1e1639f 6.0 08.07.2010 0 AMYPNDC domina" type="COVISE_VRML" name="AMYPNDC" />
+ <COVISE_CFD value="0019d1e1639f 6.0 08.07.2010 0 AUARLPW domina" type="COVISE_CFD" name="AUARLPW" />
+ <COVISE_FEM value="0019d1e1639f 6.0 08.07.2010 0 IGWEIKO domina" type="COVISE_FEM" name="IGWEIKO" />
+ <VR_DUAL_CLUSTER value="0019d1e1639f 6.0 08.07.2010 0 UIOAYEC domina" type="VR_DUAL_CLUSTER" name="UIOAYEC" />
+</License>
+
+<License>
+ <SERVER value="000ffe7b4b3f 6.0 08.07.2010 0 GMODZJQ collins" type="SERVER" name="GMODZJQ" />
+ <STD_UI value="000ffe7b4b3f 6.0 08.07.2010 0 WQUQEUE collins" type="STD_UI" name="WQUQEUE" />
+ <VR_ONE_PIPE value="000ffe7b4b3f 6.0 08.07.2010 0 GOAGOKK collins" type="VR_ONE_PIPE" name="GOAGOKK" />
+ <VR_MULTI_ANY value="000ffe7b4b3f 6.0 08.07.2010 0 GWKHLPA collins" type="VR_MULTI_ANY" name="GWKHLPA" />
+ <COVISE_VRML value="000ffe7b4b3f 6.0 08.07.2010 0 WEWTXFI collins" type="COVISE_VRML" name="WEWTXFI" />
+ <COVISE_CFD value="000ffe7b4b3f 6.0 08.07.2010 0 WMYVVRC collins" type="COVISE_CFD" name="WMYVVRC" />
+ <COVISE_FEM value="000ffe7b4b3f 6.0 08.07.2010 0 EYUISMU collins" type="COVISE_FEM" name="EYUISMU" />
+ <VR_DUAL_CLUSTER value="000ffe7b4b3f 6.0 08.07.2010 0 QAMEIGI collins" type="VR_DUAL_CLUSTER" name="QAMEIGI" />
+</License>
+
+
+
+
+
+<License>
+ <STD_UI value="000fb0cace91 6.0 18.08.2009 0 KGQFBFC vis17" type="STD_UI" name="KGQFBFC" />
+ <MKS value="000fb0cace91 6.0 18.08.2009 0 KGQFBFC vis17" type="STD_UI" name="KGQFBFC" />
+ <VR_ONE_PIPE value="000fb0cace91 6.0 18.08.2009 0 CWWJBVW vis17" type="VR_ONE_PIPE" name="CWWJBVW" />
+ <COVISE_VRML value="000fb0cace91 6.0 18.08.2009 0 SMSWKQU vis17" type="COVISE_VRML" name="SMSWKQU" />
+ <COVISE_CFD value="000fb0cace91 6.0 18.08.2009 0 YAIGCYE vis17" type="COVISE_CFD" name="YAIGCYE" />
+ <COVISE_FEM value="000fb0cace91 6.0 18.08.2009 0 GMETZTW vis17" type="COVISE_FEM" name="GMETZTW" />
+ <COVISE_MKS value="000fb0cace91 6.0 28.08.2009 0 KEKIIWO vis17" type="COVISE_MKS" name="KEKIIWO" />
+</License>
+
+<License>
+ <SERVER value="0019d1e1639f 6.0 30.08.2020 0 SOEGKMC domina" type="SERVER" name="SOEGKMC" />
+ <STD_UI value="0019d1e1639f 6.0 30.08.2020 0 ISKTPXQ domina" type="STD_UI" name="ISKTPXQ" />
+ <VR_ONE_PIPE value="0019d1e1639f 6.0 30.08.2020 0 UYKBHNK domina" type="VR_ONE_PIPE" name="UYKBHNK" />
+ <VR_MULTI_ANY value="0019d1e1639f 6.0 30.08.2020 0 WGOACQC domina" type="VR_MULTI_ANY" name="WGOACQC" />
+ <COVISE_VRML value="0019d1e1639f 6.0 30.08.2020 0 KOGOQII domina" type="COVISE_VRML" name="KOGOQII" />
+ <COVISE_CFD value="0019d1e1639f 6.0 30.08.2020 0 UOOOMCW domina" type="COVISE_CFD" name="UOOOMCW" />
+ <COVISE_FEM value="0019d1e1639f 6.0 30.08.2020 0 CAKBJXO domina" type="COVISE_FEM" name="CAKBJXO" />
+ <VR_DUAL_CLUSTER value="0019d1e1639f 6.0 30.08.2020 0 EMYHDTI domina" type="VR_DUAL_CLUSTER" name="EMYHDTI" />
+ <COVISE_MKS value="0019d1e1639f 6.0 30.08.2020 0 GIYECCU domina" type="COVISE_MKS" name="GIYECCU" />
+</License>
+
+
+<License>
+ <SERVER value="001cc49f7000 6.0 29.01.2010 0 CQWCUGK lolek" type="SERVER" name="CQWCUGK" />
+ <STD_UI value="001cc49f7000 6.0 29.01.2010 0 SUCPZRY lolek" type="STD_UI" name="SUCPZRY" />
+ <VR_ONE_PIPE value="001cc49f7000 6.0 29.01.2010 0 OQWNNRW lolek" type="VR_ONE_PIPE" name="OQWNNRW" />
+ <VR_MULTI_ANY value="001cc49f7000 6.0 29.01.2010 0 EOSEQWE lolek" type="VR_MULTI_ANY" name="EOSEQWE" />
+ <COVISE_VRML value="001cc49f7000 6.0 29.01.2010 0 EGSAWMU lolek" type="COVISE_VRML" name="EGSAWMU" />
+ <COVISE_CFD value="001cc49f7000 6.0 29.01.2010 0 WOUACWG lolek" type="COVISE_CFD" name="WOUACWG" />
+ <COVISE_FEM value="001cc49f7000 6.0 29.01.2010 0 EAQNZRY lolek" type="COVISE_FEM" name="EAQNZRY" />
+ <VR_DUAL_CLUSTER value="001cc49f7000 6.0 29.01.2010 0 UOGXFXU lolek" type="VR_DUAL_CLUSTER" name="UOGXFXU" />
+</License>
+
+
+<License>
+ <SERVER value="001018346604 6.0 27.01.2010 0 KUWUCSQ everest" type="SERVER" name="KUWUCSQ" />
+ <STD_UI value="001018346604 6.0 27.01.2010 0 AYCHHDE everest" type="STD_UI" name="AYCHHDE" />
+ <VR_ONE_PIPE value="001018346604 6.0 27.01.2010 0 WSUNXRU everest" type="VR_ONE_PIPE" name="WSUNXRU" />
+ <VR_MULTI_ANY value="001018346604 6.0 27.01.2010 0 QQMYUYY everest" type="VR_MULTI_ANY" name="QQMYUYY" />
+ <COVISE_VRML value="001018346604 6.0 27.01.2010 0 MIQAGMS everest" type="COVISE_VRML" name="MIQAGMS" />
+ <COVISE_CFD value="001018346604 6.0 27.01.2010 0 QQISIIW everest" type="COVISE_CFD" name="QQISIIW" />
+ <COVISE_FEM value="001018346604 6.0 27.01.2010 0 YCEFFDO everest" type="COVISE_FEM" name="YCEFFDO" />
+ <VR_DUAL_CLUSTER value="001018346604 6.0 27.01.2010 0 MQQLXRA everest" type="VR_DUAL_CLUSTER" name="MQQLXRA" />
+</License>
+
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

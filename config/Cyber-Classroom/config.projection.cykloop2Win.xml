@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <Stereo enable="ON" value="ON" />
+         <TransparencyMode value="sorted_blended" />
+         <SceneSize value="1320" />
+         <ViewerPosition x="0" y="-1500" z="-100" />
+
+         <NumWindows value="2" />
+         <NumPipes value="1" />
+         <NumScreens value="2" />
+
+         <PipeConfig>
+            <Pipe name="0" screen="0" pipe="0" />
+         </PipeConfig>
+
+         <WindowConfig>
+            <Window width="1400" comment="MAIN" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="off" />
+            <Window width="1400" comment="MAIN" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="off" />
+         </WindowConfig>
+
+         <ChannelConfig>
+            <Channel channel="0" left="0"    width="1400" bottom="0" height="1050" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+            <Channel channel="1" left="0" width="1400" bottom="0" height="1050" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+         </ChannelConfig>
+
+         <ScreenConfig>
+            <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+            <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+         </ScreenConfig>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

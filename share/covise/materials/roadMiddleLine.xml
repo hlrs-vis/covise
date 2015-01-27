@@ -1,0 +1,84 @@
+
+<road>
+
+  <uniform name="lineWidth" type="float" value="0.01"/>
+
+  <uniform name="lineLength" type="float" value="0.1"/>
+
+  <uniform name="repeatLength" type="float" value="0.2"/>
+
+  <uniform name="lineWidthLeft" type="float" value="0.02"/>
+
+  <uniform name="lineLengthLeft" type="float" value="0.1"/>
+
+  <uniform name="repeatLengthLeft" type="float" value="0.2"/>
+
+  <uniform name="tarmac" type="sampler2D" value="0"/>
+
+  <uniform name="LineColor" type="vec4" value="1.0 1.0 1.0 1.0"/>
+
+  <vertexProgram>
+  
+  
+  varying float LightIntensity;
+  varying vec3  MCposition;
+  
+  uniform vec3  LightPos;
+  uniform float Scale;
+  
+  void main(void)
+  {
+      gl_TexCoord[0] = gl_MultiTexCoord0;
+      gl_Position     = ftransform();
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+  
+  }
+
+  </vertexProgram>
+
+  <fragmentProgram>
+   
+   
+   uniform vec4 LineColor;   
+   uniform float lineWidth;  
+   uniform float lineLength;  
+   uniform float repeatLength;  
+   uniform float lineWidthLeft;  
+   uniform float lineLengthLeft;  
+   uniform float repeatLengthLeft;  
+   uniform sampler2D tarmac;   
+   
+   void main (void)
+   { 
+     /*
+     vec2 texcoord = gl_TexCoord[0];
+     vec4  tarmacColor  = texture2D(tarmac, texcoord);
+     float right = step(mod(texcoord.t,repeatLength),lineLength);
+     right = right*step(texcoord.s,lineWidth);
+     float left=0.0;
+     if(lineWidthLeft!=0.0)
+     {
+        left = step(mod(texcoord.t,repeatLengthLeft),lineLengthLeft);
+        left = left*step(1.0 - texcoord.s,lineWidthLeft);
+     }
+     float line = max(left,right);
+     */
+      
+     vec2 texcoord = gl_TexCoord[0];
+     vec4  tarmacColor  = texture2D(tarmac, texcoord);
+     float line = step(mod(texcoord.s,repeatLength),lineLength);
+     line = line*step(texcoord.t, 0.5+lineWidth);
+     line = line*step(0.5-lineWidth, texcoord.t);
+
+
+     
+     gl_FragColor = mix(tarmacColor,LineColor,line);
+    
+   }
+   
+
+  </fragmentProgram>
+
+</road>

@@ -1,0 +1,132 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	no\_startp & Slider & number of particles to trace.  \\
+\hline
+	startpoint1 & Vector & Start point of a line, if startStyle is line,
+         or a corner point of a rectangle of stating points, if startStyle is plane. \\
+\hline
+        startpoint2 & Vector & End point of a line, if startStyle is line,
+         or the opposite corner point of a rectangle of stating points, if startStyle is plane.  \\
+\hline
+        direction & Vector & Vector describing the direction of one side of the rectangle of initial points
+                             (only relevant if startStyle is plane). \\
+\hline
+        amesh\_path & Browser & File containing a two-column ASCII list of
+        block number pairs, which indicate the neighbourhood of the grid blocks.
+        The functionality associated to this parameter is still in construction, so
+        you need not worry about it.  \\
+\hline
+        option & Choice & Order of the Runge--Kutta integrator. \\
+\hline
+        stp\_control & Choice & Step control method:
+ 
+        ``position'' computes the time step using the velocity and the cell size at
+        the current position, \latexonly 5$<$angle$<$12 or 2$<$angle$<$6
+	\endlatexonly \begin{htmlonly} 5 < angle < 12 or 2 < angle < 6 \end{htmlonly} compute the step width using
+        the angle between two velocity vectors, in a way that the time step is increased
+        or decreased in order to try to remain in the pertinent interval. The first
+        choice is by far safer than the other two options. \\ 
+\hline
+        tdirection & Choice & You may choose among:
+
+\begin{itemize}
+\item forward
+\item backward
+\item both
+\end{itemize} \\
+\hline
+        reduce & Choice & Reduction of the number of points in the streamline. ``Off''
+        disables reduction, ``3deg'' and ``5deg'' use the angle between the velocity        vectors for reducing the number of points. Reduction of points also includes reduction
+        of corresponding data values. ``3deg'' and ``5deg'' therefore don't display
+        data on the streamlines as accurately as in the ``Off'' case, especially
+        where the reduction may be very strong, that is to say, where the lines are almost straight. \\
+\hline 
+        whatout & Choice & Select what data will be available at the second output
+        port. You have the choice between the velocity magnitude (``mag''), the x, y, or
+        z component (``v\_x'' ``v\_y'' ``v\_z''), or the module may assign a fixed number to
+        a line (``number''). When mapping the data on the line to colours and you have
+        choosen ``number'' each line has a different color.  \\
+\hline  
+        trace\_eps & Scalar & Relative tolerance for deciding if a point is in a cell.  \\
+\hline
+        trace\_len & Scalar & The integration for a line is interrupted when it attains this length.  \\
+\hline
+	startStyle & Choice & how should the particles 
+          starting positions be arranged:
+            %(only the two first options
+            %are supported at the moment): 
+	 \begin{itemize}
+         \item line: connecting line between startpoint1 and startpoint2
+         \item plane: a quad defined by its diagonal (startpoint1/2) and a side (direction),
+%	 \item sphere: sphere through startpoint1/2, whose center is in the middle
+%	 between the two startpoints
+%         \item box: defining a cuboid by its room-diagonal (startpoint1/2), normal and
+%	 direction
+	 \end{itemize}  \\
+\hline
+         MaxPoints & Scalar & It limits the maximum number of points in the
+	 output lines.\newline
+	 Note: If velocity goes to 0, it makes no sense to increase "MaxPoints"
+	 - ignore the corresponding message! \\
+\hline
+         MaxSearchFactor & Scalar & It sets a limit to the maximum size of a box
+              about a possible starting point, in which the starting cell is looked for.
+              For grids in which the element sizes do not vary very wildly, the
+              default value will usually be big enough; but it may eventually
+              happen that you have to increase this number for this module
+             to be able the find the cell containing some point. 
+             The greater the value of this parameter is set, the slower
+             this module will be. In this sense, the default value
+             is rather conservative.
+             But if the integration has been interrupted by the module and
+             this was not correct, this
+             may be a sign that a greater value of this parameter is
+             required. On other occasions this may be an indication
+             that a wall has been incorrectly detected (this is only relevant
+             for grid sets), then you have
+             to modify parameter {\sl Speed\_thres}. \\
+\hline
+         Speed\_thres & Scalar & It sets a threshold for wall detection.
+         When the trajectory crosses the border between two blocks 
+         (two grids that are elements in a set), the module
+         works out the velocity on both sides and their difference. If the
+         length of the difference is less than this parameter multiplied
+         by the maximum of the magnitudes of both velocities, then the module
+         assumes that this interface is not a wall. Otherwise it interpretes 
+         that a wall has been found and the integration is interrupted. If you
+         want to deactivate this feature, then introduce a negative number.
+         This has in general the same effect as if a huge positive number
+         were introduced. \\
+%	 NOTE: only line and plane supported at the moment \\
+%\hline
+%        loppDelta & Scalar & Parameter for loop detection. \\
+\hline
+        Connectivity & Boolean & If TRUE the reader assumes
+        that the grid connectivity is correct in the sense that
+        it may be used in order to determine the neighbour cells
+        of a given cell. TRUE is the default value because then
+        the performance is better. Nevertheless, it may happen
+        that in your grid the connectivity may not be relied upon
+        for this purpose, for instance if some parts of the
+        grid have been refined in a such a way that some nodes
+        are lying between two elements but they only belong to the element
+        of the refined region. Then you have to set this parameter
+        to FALSE, otherwise the trace integration is interrupted
+        when this unconnected interface is reached. \\
+\hline
+%%%%%%%%%
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

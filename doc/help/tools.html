@@ -1,0 +1,215 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>ModuleDescriptions</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h1>
+<font face="Times New Roman,Times"><font color="#009900"><font size=+4>Module
+Reference Guide</font></font></font></h1>
+<b><font face="Arial,Helvetica"><font size=+1>Tools</font></font></b>
+<p><font face="Arial,Helvetica"><font color="#000000"><u>Note</u>:</font></font>
+<table CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">If you are looking for a module you might
+have problems starting with the right category. Strictly speaking, '<b>Filter</b>'
+(pass only selected information) and '<b>Mapper</b>' (create an image out
+of data) are subsets of '<b>Tools</b>'; so if you don't find a suitable
+module in 'Filter' or 'Mapper', look up in 'Tools', and vice versa! (use
+<b><a href="mod_overview.html">Overview</a></b>
+- you will find there also an alphabetical module list)&nbsp;</font></td>
+</tr>
+</table>
+
+<ul><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/AssembleUsg/AssembleUsg.html">AssembleUsg</a></font></b>
+<br><font face="Arial,Helvetica">converts blocks of unstructured grids
+(per timestep) to one unstructured grid (per timestep) without any block
+information. This module has been developed to use the module TetraTrace
+also for blocks of grids.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/BlockCollect/BlockCollect.html">BlockCollect</a></font></b>
+<br><font face="Arial,Helvetica">collects different objects and puts them
+into one set.</font>
+<br><font face="Arial,Helvetica">You can choose among three different rules
+to build up this set:</font>
+<ul><font face="Arial,Helvetica">1. Set of Elements</font>
+<br><font face="Arial,Helvetica">2. Cat Timesteps</font>
+<br><font face="Arial,Helvetica">3. Merge Blocks</font></ul>
+
+<p><br><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/BoundingBox/BoundingBox.html">BoundingBox</a></font></b>
+<br><font face="Arial,Helvetica">writes a message with information about
+the smallest parallelepiped parallel to the globale coordinate system which
+contains an unstructured grid (or set of grids).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Calc/Calc.html">Calc</a></font></b>
+<br><font face="Arial,Helvetica">allows you to perform mathematical calculations
+with scalar and/or vector objects. The result may be a scalar or a vector.
+The module interprets a string according to a syntax described below.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CellToVert/CellToVert.html">CellToVert</a></font></b>
+<br><font face="Arial,Helvetica">interpolates per-cell data to per-vertex
+data</font>
+<br><font face="Arial,Helvetica">(Simulation codes like Fluent or StarCD
+compute results per-cell. Most COVISE modules expect per-vertex data.)</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CheckObj/CheckObj.html">CheckObj</a></font></b>
+<br><font face="Arial,Helvetica">tests the object received at the input
+port (unstructured grid, polygons, lines, triangle strips).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Collect/Collect.html">Collect</a></font></b>
+<br><font face="Arial,Helvetica">combines geometric primitive objects like
+points, lines, polygons, triangle strips with colors, normals and textures.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CropUsg/CropUsg.html">CropUsg</a></font></b>
+<br><font face="Arial,Helvetica">crops the parts of an unstructured grid
+which are outside of a bounding box.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CutGeometry/CutGeometry.html">CutGeometry</a></font></b>
+<br><font face="Arial,Helvetica">cuts geometry objects. The part which
+should be cut away is defined through a plane. This is usually used to
+make the inner parts of geometry objects visible.</font>
+<p><b><font face="Arial,Helvetica"><a href="/home/pw_te/covise_snap/doc/online/modules/Tools/CuttingSurface3DTex/CuttingSurface3DTex.html">CuttingSurface3DTex</a></font></b>
+<br><font face="Arial,Helvetica">combines a cuttingsurface and colors on
+a cuttingsurface with an uniform grid and color on a uniform grid into
+a set of two geometry objects. The uniform grid and the colors on the uniform
+grid represent the voxels of a 3D texture.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DerivOperators/DerivOperators.html">DerivOperators</a></font></b>
+<br><font face="Arial,Helvetica">works out gradients of scalar fields,
+or the divergence or curl of vector fields.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DisplaceUsg/DisplaceUsg.html">DisplaceUsg</a></font></b>
+<br><font face="Arial,Helvetica">displaces an unstructured grid by using
+displacement vectors for every vertex.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DomainSurface/DomainSurface.html">DomainSurface</a></font></b>
+<br><font face="Arial,Helvetica">computes the outer surface or edges of
+an unstructured grid.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DomainSurfaceStr/DomainSurfaceStr.html">DomainSurfaceStr</a></font></b>
+<br><font face="Arial,Helvetica">computes the outer surface or edges of
+a structured grid.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/FixPart/FixPart.html">FixPart</a></font></b>
+<br><font face="Arial,Helvetica">fixes one part in a simulation over timesteps
+and moves all other parts relativ to the fixed one.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/FixUsg/FixUsg.html">FixUsg</a></font></b>
+<br><font face="Arial,Helvetica">removes double and unused vertices.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/GenNormals/GenNormals.html">GenNormals</a></font></b>
+<br><font face="Arial,Helvetica">generates normals for a set of polygons.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/GetSetelem/GetSetelem.html">GetSetelem</a></font></b>
+<br><font face="Arial,Helvetica">performs the operation of selecting an
+element out of a set.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/GridSurface/GridSurface.html">GridSurface</a></font></b>
+<br><font face="Arial,Helvetica">analyzes grids and generates surfaces
+as polygons. It shows <b>all</b> surfaces,&nbsp; i.e. including the inner
+ones.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Histogram/Histogram.html">Histogram</a></font></b>
+<br><font face="Arial,Helvetica">generates a histogram from a data set,
+i.e. counts for every data value how often it appears in the data set.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/ImageToTexture/ImageToTexture.html">ImageToTexture</a></font></b>
+<br><font face="Arial,Helvetica">generates </font>a texture for a polygon
+input object given a TIFF file. The default mapping that relates the geometry
+point
+<br>coordinates with the texture coordinates is a simple projection onto
+the XY plane. You may introduce your own mapping if the module
+<br>gets a vector field as input object.
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Interpolate/Interpolate.html">Interpolate</a></font></b>
+<br><font face="Arial,Helvetica">creates a set of unstructured vector or
+scalar data by interpolation of the incoming data. For each point of the
+data set the intervall between zero and the current value is decomposed
+into a given number of segments.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakeOctTree/MakeOctTree.html">MakeOctTree</a></font></b>
+<br><font face="Arial,Helvetica">generates octtrees for unstructured grids
+and polygons.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakePlots/MakePlots.html">MakePlots</a></font></b>
+<br><font face="Arial,Helvetica">generates a set of DO_Unstructured_2D_Data
+objects, which may be&nbsp; plotted by Plot (see Renderer modules) out
+of some scalar fields.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakeTransient/MakeTransient.html">MakeTransient</a></font></b>
+<br><font face="Arial,Helvetica">allows you to generate a specified number
+of timesteps (default 72) out of 'static' data. With a Timestep Sequencer
+that shows up in the Renderer you can go thru your timesteps, either step
+by step or continuously using 'play'.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Material/Material.html">Material</a></font></b>
+<br><font face="Arial,Helvetica">contains a list of different color values
+from which the user can select.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MinMax/MinMax.html">MinMax</a></font></b>
+<br><font face="Arial,Helvetica">calculates the minimum and maximum value
+of a scalar dataset. It outputs either a min-max pair that can be used
+for example as input for a colormap module, or a list of x-y pairs that
+shows the distribution of values over the range.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/PartSelect/PartSelect.html">PartSelect</a></font></b>
+<br><font face="Arial,Helvetica">is able to manage sets to cull parts of
+the geometry or data based on the <i>part </i>attribute.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/PipelineCollect/PipelineCollect.html">PipelineCollect</a></font></b>
+<br><font face="Arial,Helvetica">reduces the maximum usage of memory by
+executing a pipeline stepwise.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Sample/Sample.html">Sample</a></font></b>
+<br><font face="Arial,Helvetica">transforms an unstructured grid and data
+on the unstructured grid into a uniform grid and data on the uniform grid.
+As the uniform grid has the extension of the bounding box around the unstructured
+grid, data on parts of the uniform grid which are outside the unstructured
+grid are either set to a certain value or max_float. The module Colors
+computes a transparent color for MAX_FLT data so those parts appear transparent
+in the Renderer.</font>
+<br><font face="Arial,Helvetica">A uniform grid and colors on the uniform
+grid can also be seen as a 3D texture. If you cut a plane out of the 3D
+you get a 2D texture (an image). Mapping this texture on a plane gives
+similar information as a cuttingsurface through the 3D grid with data mapped
+on the surface as colors.</font>
+<br><font face="Arial,Helvetica">3D textures are supported by Octane and
+Onyx systems and are computed by the graphics hardware and are thus very
+fast.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Scalar2Vector/Scalar2Vector.html">Scalar2Vector</a></font></b>
+<br><font face="Arial,Helvetica">combines scalar data given at the input
+ports to vector data. If input data have attributes they are summarized
+where it makes sense.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/ShowFaceNormal/ShowFaceNormal.html">ShowFaceNormal</a></font></b>
+<br><font face="Arial,Helvetica">computes the normal of a polygon or a
+triangle strip.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/ShowGrid/ShowGrid.html">ShowGrid</a></font></b>
+<br><font face="Arial,Helvetica">for structured grids: computes the grid
+lines of the grid.</font>
+<br><font face="Arial,Helvetica">There are different display methods:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">show all grid lines</font></li>
+
+<li>
+<font face="Arial,Helvetica">show the grid lines on the outer surface (hull)
+only</font></li>
+
+<li>
+<font face="Arial,Helvetica">show three sides of the hull only (the user
+may choose among 8 options that determine which three sides are selected)</font></li>
+
+<li>
+<font face="Arial,Helvetica">show only the bounding box only</font></li>
+
+<li>
+<font face="Arial,Helvetica">show the edge lines only</font></li>
+</ul>
+<font face="Arial,Helvetica">for unstructured grids: displays only one
+cell; the cell is selected through the parameter position.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Solutions/Solutions.html">Solutions</a></font></b>
+<br><font face="Arial,Helvetica">calculates Plot3D solution data (data
+read by ReadPlot3D).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Sphere/Sphere.html">Sphere</a></font></b>
+<br><font face="Arial,Helvetica">builds spheres (made up of triangle-strips)
+out of points (e. g. retrieved using a particle tracer).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/StoU/StoU.html">StoU</a></font></b>
+<br><font face="Arial,Helvetica">transforms a rectiliniar, structured or
+an uniform grid received to the inout port into an unstructured grid which
+can be composed of tetrahedrons, hexahedrons, pyramids or prisms.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/TensorScal/TensorScal.html">TensorScal</a></font></b>
+<br><font face="Arial,Helvetica">extracts invariants from tensor fields.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Tetrahedronize/Tetrahedronize.html">Tetrahedronize</a></font></b>
+<br><font face="Arial,Helvetica">converts unstructured mixed-cell-type
+grids into tetrahedra grids.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Transform/Transform.html">Transform</a></font></b>
+<br><font face="Arial,Helvetica">manipulates grids and geometry objects.
+Transform makes it possible to mirror, translate, scale, rotate, and tile
+objects and their data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Tube/Tube.html">Tube</a></font></b>
+<br><font face="Arial,Helvetica">creates cylinders around lines. The shape
+of the tubes depends on the radius, number of sides (scalar parameters)
+and the type of the cylinder (open, closed or arrow).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/VectorScal/VectorScal.html">VectorScal</a></font></b>
+<br><font face="Arial,Helvetica">extracts scalar values from vector fields.</font></ul>
+
+<blockquote>&nbsp;</blockquote>
+
+</body>
+</html>

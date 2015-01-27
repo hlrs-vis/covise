@@ -1,0 +1,26 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+     min\_Slider & FloatSlider & The minimal value of the interval. 
+     If this value is bigger than the maximum than it will be reduced automatically to the maximum.\\
+\hline
+     max\_Slider & FloatSlider & The maximal value of the interval.  \\
+\hline
+     dummy & Boolean & on:  objects without data are "clipped"\newline
+                       off: objects without data unchanged        \\
+\hline
+    										
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

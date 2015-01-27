@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sourcecode">
+      <UniqueIdentifier>{8cd759f6-f911-4085-b3cc-dbbe3c47af0a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sourcecode\datacontainer.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\readmatlab.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sourcecode\datacontainer.hxx">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\readmatlab.hxx">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ReadMATLAB.rc" />
+  </ItemGroup>
+</Project>

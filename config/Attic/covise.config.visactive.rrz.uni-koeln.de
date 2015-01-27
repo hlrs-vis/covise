@@ -1,0 +1,61 @@
+TabletPC
+{
+#       Server localhost
+#       Server vislab01.rrz.uni-koeln.de
+
+       #Server 134.95.83.253
+       #Server viskas.rrz.uni-koeln.de
+}
+
+COVERConfig
+{
+   NEAR 100
+   FAR 2000000
+	TRACKING_SYSTEM		TARSUS
+        MOUSE_NAV               OFF
+    #AUDIO                        None
+    AUDIO                        AServer
+    AUDIO_HOST                   vistracker.rrz.uni-koeln.de
+
+  VISUAL_ID           0x25
+  #VISUAL_ID           0x3c
+  STEREO_MODE         QUAD_BUFFER
+    STEREO ON
+STEREO_SEPARATION 60
+    STEREO_SEP          ON
+
+    SCENESIZE          1500
+}
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1280 1024
+       	#0	FRONT       	0       	0 0 		1024 768
+       	#0	FRONT       	0       	0 0 		640 480
+}
+ChannelConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+#       	0	FRONT       	0       	0 0 		1280 1024
+}
+
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:0.0
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	#0		FRONT		1800 1350		0 0 0			0.0 0.0 0.0
+	0		FRONT		2500 2000		0 0 0			0.0 0.0 0.0
+	
+}
+
+# now the default values
+include "config/covise.config.koeln"
+

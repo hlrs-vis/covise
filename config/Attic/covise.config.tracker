@@ -1,0 +1,101 @@
+ COVERConfig
+{
+    ....
+    TRACKING_SYSTEM         <POLHEMUS MOTIONSTAR FOB DTRACK VRC CAVELIB SPACEBALL SPACEPOINTER MOUSE>
+    BUTTON_SYSTEM           <MIKE VIRTUAL_PRESENCE PINCH CEREAL CAVELIB DIVISION>
+    ....
+#   TRACKED_HMD             <ON OFF>
+#   HMD_DISTANCE            <dist to virtual screen in mm>
+  
+}
+
+#enthaelt die Gemeinsamkeiten der echten Tracker (POLHEMUS MOTIONSTAR FOB DTRACK VRC CAVELIB)
+TrackerConfig
+{
+    TRANSMITTER_OFFSET                  <x y z>
+    TRANSMITTER_ORIENTATION             <h p r>
+    HEADSENSOR_OFFSET                   <x y z>
+    HEADSENSOR_ORIENTATION              <h p r>
+    HANDSENSOR_OFFSET                   <x y z>
+    HANDSENSOR_ORIENTATION              <h p r>
+    NUM_SENSORS                         <n>
+    HAND_ADDR                           <station nr address>
+    HEAD_ADDR                           <station nr or address>
+    LINEAR_MAGNETIC_FIELD_CORRECTION    <x y z>
+    INTERPOLATION_FILE                  <filename for position correction>
+    
+    ORIENT_INTERPOLATION                <don't use!>
+    INTERPOLATION_FILE_X                <don't use!>
+    INTERPOLATION_FILE_Y                <don't use!>
+    INTERPOLATION_FILE_Z                <don't use!>
+    WRITE_CALIBRATION                   <don't use!>
+    
+    DEBUG_TRACKING                      <RAW APP>
+    DEBUG_BUTTONS                       <TRUE FALSE>
+    DEBUG_STATION                       <sensor addr>
+
+}
+
+
+PolhemusConfig
+{   
+    SERIAL_PORT                         </dev/ttyd...>
+    BAUD_RATE                           <baudrate>
+    HEMISPHERE                          <x y z>  
+}
+
+FobConfig
+{
+    SERIAL_PORT                         </dev/ttyd...>
+    BAUDRATE                            <baudrate>
+    HEMISPHERE                          <FRONT REAR LEFT RIGHT UPPER LOWER>
+    FULLRANGE                           <ON OFF>
+    STREAM_MODE                         <ON OFF>
+}
+
+MotionstarConfig
+{
+    IP_ADDRESS                          <address>
+    HEMISPHERE                          <FRONT REAR LEFT RIGHT UPPER LOWER>
+    DualTransmitter                     <ON OFF>
+    # nur fuer wireless
+    MotionstarButtonSystem              <MIKE VIRTUAL_PRESENCE CEREAL CAVELIB DIVISION>
+    AngleMode                           <don't use!>
+    SamplingRate                        <default ist 80 - Einheit weiss ich nicht>
+    BIOS                                <OLD oder nichts>
+    Debug                               <ON OFF>
+    DebugAll                            <ON OFF>
+}
+
+DTrackConfig
+{
+    Port                                <port number>
+}
+
+VRCTracker
+{
+    Port                                <port number>
+}
+
+
+CaveLibConfig
+{
+    TRACKER_SHMID                       <key>
+}
+
+# fuer alle button devices, die nicht ueber den Tracker laufen muss man den seriellen port angeben
+# füer alle tracker, die mehr als einen Button haben, kann man die Zuordnung Button-Funktion aendern
+ButtonConfig
+{
+    SERIAL_PORT                         </dev/ttyd...>
+    MAP                                 <nummer> <string>
+    MAP                                 1   ACTION_BUTTON
+    MAP                                 2   DRIVE_BUTTON
+    MAP                                 3   XFORM_BUTTON
+}
+
+SpaceballConfig
+{
+    SCALE_ROTATION      <float Zahl default ist 1.0>
+    SCALE_TRANSLATION   <float zahl default ist 1.0>
+}           

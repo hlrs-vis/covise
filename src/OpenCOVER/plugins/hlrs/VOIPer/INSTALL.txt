@@ -1,0 +1,40 @@
+
+
+
+Umgebungsvariablen
+******************
+
+# PTLIB # example:
+
+export PTLIBDIR=/mnt/raid/home/hpcfnaeg/projects/h323/ptlib-2.8.2
+export LD_LIBRARY_PATH=${PTLIBDIR}/lib_linux_x86_64:$LD_LIBRARY_PATH
+export PTLIBPLUGINDIR=${PTLIBDIR}/lib_linux_x86_64
+
+# OPAL # example:
+
+export OPALDIR=/mnt/raid/home/hpcfnaeg/projects/h323/opal-3.8.2
+export LD_LIBRARY_PATH=${OPALDIR}/lib_linux_x86_64:$LD_LIBRARY_PATH
+export PTLIBPLUGINDIR=${PTLIBDIR}/lib_linux_x86_64:${OPALDIR}/lib_linux_x86_64
+
+
+PTLIB konfiguriert mit:
+***********************
+
+./configure --enable-alsa  --enable-wavfile --enable-audio
+
+
+Opal konfiguriert mit:
+**********************
+
+./configure --enable-sip --disable-video --enable-alsa --enable-pcss --enable-statistics --enable-mixer --enable-audio
+
+
+Tests:
+********
+devices anzeigen lassen:
+  ptlib: samples/audio/obj...  audio -r 
+
+
+
+
+

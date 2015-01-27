@@ -1,0 +1,17 @@
+
+<Glossy5b>
+
+   <vertexProgram value="brdf_cubemap.vert" />
+   <fragmentProgram value="brdf_cubemap.frag" />
+
+   <uniform type="float" name="Brightness" value="1.5"/>
+   <uniform type="vec3" name="LightPos" value="0.0 10.0 10.0"/>
+   <uniform type="vec2" name="Reflectance" value="1.0 1.1"/>
+   <uniform type="vec2" name="Slope" value="0.05 0.1"/>
+   <uniform type="vec3" name="ScaleFactors" value="1.9 1.0 0.0"/>
+   <uniform type="float" name="CubemapRatio" value="0.2"/>
+
+   <uniform name="EXISTING_TEXTURE" type="sampler2D" value="0" overwrite="false"/>
+   <uniform name="EnvMap" type="samplerCube" value="1" overwrite="true" texture1="textures/cm_right.rgb" texture2="textures/cm_back.rgb" texture3="textures/cm_top.rgb" texture4="textures/cm_left.rgb" texture5="textures/cm_front.rgb" texture6="textures/cm_bottom.rgb"/>
+
+</Glossy5b>

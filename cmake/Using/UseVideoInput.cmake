@@ -1,0 +1,18 @@
+MACRO(USE_VIDEOINPUT)
+  FIND_PACKAGE(VideoInput)
+  IF ((NOT VideoInput_FOUND) AND (${ARGC} LESS 1))
+    USING_MESSAGE("Skipping because of missing VideoInput")
+    RETURN()
+  ENDIF((NOT VideoInput_FOUND) AND (${ARGC} LESS 1))
+  IF(NOT VideoInput_USED AND VideoInput_FOUND)
+    SET(VideoInput_USED TRUE)
+    ADD_DEFINITIONS(-D HAVE_VIDEOINPUT)  
+    
+    INCLUDE_DIRECTORIES(${VideoInput_INCLUDE_DIR})
+    SET(EXTRA_LIBS ${EXTRA_LIBS} ${VideoInput_LIBRARIES})
+    IF(UNIX AND NOT APPLE)
+      SET(EXTRA_LIBS ${EXTRA_LIBS})
+    ENDIF()
+  ENDIF()
+ENDMACRO(USE_VIDEOINPUT)
+

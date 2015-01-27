@@ -1,0 +1,39 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	geoFile & File Browser & Geometry description file. \\
+\hline
+	caseFile & File Browser & Case file.  \\
+\hline
+	resFile & File Browser & Result file.  \\
+\hline
+	gridScalarFile & File Browser & File with scalar data for grid elements.  \\	
+\hline
+	gridVectorFile & File Browser & File with vector data for grid elements.  \\
+\hline
+	polygonScalarFile & File Browser & File with scalar data for polygons.  \\
+\hline
+	polygonVectorFile & File Browser & File with vector data for polygons.  \\				
+\hline
+	LineElementLength & Scalar & Length of the line token in geometry and variable files.\\
+\hline
+	NumberValuesInLine & Scalar & Number of tokens in a line of a variable file 
+	                              (default setting 6 characters). \\																
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

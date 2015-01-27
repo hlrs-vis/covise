@@ -1,0 +1,244 @@
+
+
+
+
+\subsubsection{Restrictions and additional remarks}
+%=============================================================
+Summary of supported elements:
+\begin{longtable}{|p{3cm}|p{4.5cm}|p{4.5cm}|}
+\hline
+   \bf{Element name} & \bf{Geometric representation} & \bf{Derived data support} \endhead
+\hline\hline
+LINK1 & TYPE\_BAR  & LINK \\
+\hline
+PLANE2 & TYPE\_TRIANGLE & PLANE \\
+\hline
+BEAM3 & TYPE\_BAR &   BEAM3 \\
+\hline
+BEAM4 & TYPE\_BAR &   BEAM4 \\
+\hline
+SOLID5 & TYPE\_HEXAEDER & SOLID \\
+\hline
+LINK8 & TYPE\_BAR & LINK \\
+\hline
+LINK10 & TYPE\_BAR & LINK \\
+\hline
+LINK11 & TYPE\_BAR & --- \\
+\hline
+PLANE13 & TYPE\_QUAD & PLANE \\
+\hline
+COMBIN14 & TYPE\_BAR & --- \\
+\hline
+PIPE16 & TYPE\_BAR & --- \\
+\hline
+MASS21 & TYPE\_POINT & --- \\
+\hline
+BEAM23 & TYPE\_BAR & LINK \\   % not tested
+\hline
+BEAM24 & TYPE\_BAR & LINK \\   % not tested
+\hline
+PLANE25 & TYPE\_QUAD & PLANE \\
+\hline
+SHELL28 & TYPE\_QUAD & SHELL \\
+\hline
+LINK31 & TYPE\_BAR & --- \\
+\hline
+LINK32 & TYPE\_BAR & --- \\
+\hline
+LINK33 & TYPE\_BAR & --- \\
+\hline
+LINK34 & TYPE\_BAR & --- \\
+\hline
+PLANE35 & TYPE\_TRIANGLE & THERMAL\_PLANE \\
+\hline
+COMBIN37 & TYPE\_BAR & --- \\
+\hline
+COMBIN39 & TYPE\_BAR & --- \\
+\hline
+COMBIN40 & TYPE\_BAR & --- \\
+\hline
+SHELL41 & TYPE\_QUAD & SHELL \\
+\hline
+PLANE42 & TYPE\_QUAD & PLANE \\
+\hline
+PLANE43 & TYPE\_QUAD & SHELL \\
+\hline
+BEAM44 & TYPE\_BAR & BEAM4 \\
+\hline
+SOLID45 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID46 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SHELL51 & TYPE\_BAR & AXI\_SHELL \\
+\hline
+BEAM54 & TYPE\_BAR & BEAM3 \\
+\hline
+PLANE55 & TYPE\_QUAD & THERMAL\_PLANE \\
+\hline
+HYPER56 & TYPE\_QUAD & SOLID \\  % test!!!!!!!!!!!!!!
+\hline
+SHELL57 & TYPE\_QUAD & THERMAL\_PLANE \\
+\hline
+HYPER58 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SHELL61 & TYPE\_BAR & --- \\
+\hline
+SHELL63 & TYPE\_QUAD & SHELL \\
+\hline
+SOLID64 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID65 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID70 & TYPE\_HEXAEDER & THERMAL\_SOLID \\
+\hline
+MASS71 & TYPE\_POINT & --- \\
+\hline
+HYPER74 & TYPE\_QUAD & PLANE \\
+\hline
+PLANE75 & TYPE\_QUAD & --- \\
+\hline
+PLANE77 & TYPE\_QUAD & THERMAL\_PLANE \\
+\hline
+PLANE78 & TYPE\_TRIANGLE & --- \\
+\hline
+PLANE82 & TYPE\_QUAD & PLANE \\
+\hline
+PLANE83 & TYPE\_QUAD & PLANE \\
+\hline
+HYPER84 & TYPE\_QUAD & PLANE \\
+\hline
+HYPER86 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID87 & TYPE\_TETRAHEDER & THERMAL\_SOLID \\
+\hline
+VISCO88 & TYPE\_QUAD & PLANE \\
+\hline
+VISCO89 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID90 & TYPE\_HEXAEDER & THERMAL\_SOLID \\
+\hline
+SHELL91 & TYPE\_QUAD & SHELL \\
+\hline
+SOLID92 &  TYPE\_TETRAHEDER & SOLID \\
+\hline
+SHELL93 & TYPE\_QUAD & SHELL \\
+\hline
+SOLID95 &  TYPE\_HEXAEDER & SOLID \\
+\hline
+SHELL99 & TYPE\_QUAD & SHELL \\
+\hline
+VISCO106 & TYPE\_QUAD & PLANE \\
+\hline
+VISCO107 & TYPE\_HEXAEDER & SOLID \\
+\hline
+VISCO108 & TYPE\_QUAD & PLANE \\
+\hline
+FLUID141 & TYPE\_QUAD & --- \\
+\hline
+FLUID142 & TYPE\_HEXAEDER & --- \\
+\hline
+SHELL143 & TYPE\_QUAD & SHELL \\
+\hline
+PLANE145 & TYPE\_QUAD & PLANE \\
+\hline
+PLANE146 & TYPE\_TRIANGLE & PLANE \\
+\hline
+SOLID147 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID148 & TYPE\_TETRAHEDER & SOLID \\
+\hline
+SHELL150 & TYPE\_QUAD & SHELL \\
+\hline
+SOLID158 & TYPE\_TETRAHEDER & SOLID \\
+\hline
+TARGE169 & TYPE\_TARGET\_2D & --- \\
+\hline
+TARGE170 & TYPE\_TARGET & --- \\
+\hline
+SOLID181 & TYPE\_QUAD & SHELL \\
+\hline
+PLANE182 & TYPE\_QUAD & PLANE \\
+\hline
+PLANE183 & TYPE\_QUAD & PLANE \\
+\hline
+SOLID185 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID186 & TYPE\_HEXAEDER & SOLID \\
+\hline
+SOLID187 & TYPE\_TETRAHEDER & SOLID \\
+\hline
+SOLID191 & TYPE\_HEXAEDER & SOLID \\
+\hline
+\end{longtable}
+
+Elements not appearing in this list will
+be invisible for COVISE. 
+
+The code of the third column establishes which derived
+magnitudes you may read for the element at issue.
+When no code is present, only DOF data is available
+for output. Nevertheless you will see the geometry
+of those elements even when you request derived data.
+
+Output for elements with code SOLID, PLANE or SHELL is controlled by 
+parameter {\sl SolidShellComponents}. In the case of SHELL
+you may control with parameter {\sl TopBottom} for which
+face of the shell you want to retrieve results, or 
+make an average. If you use are using multilayered elements,
+you ought to set KEYOPT(8) for the pertinent element type in ANSYS to the value 0. If 
+you work with KEYOPT(8) set to 1, you will not be able
+to access inner layers, and according to our tests, you
+may access only TOP and BOTTOM as if KEYOPT(8) were 0, nevertheless,
+according to the documented structure of the .rst file, false
+values could be produced in this case.
+
+Derived output for elements with code BEAM3 and BEAM4 is controlled
+with parameter {\sl BeamComponents}, whose last two options apply
+only to 3D beams (BEAM4).
+
+Derived output for elements with code AXI\_SHELL is controlled
+by parameter {\sl AxiShellComponents}.
+
+Derived output for elements with code THERMAL\_PLANE or
+THERMAL\_SOLID are both controlled by parameter {\sl ThermalFlux}.
+
+The geometric representation for target elements is based on
+their nodes. If their {\sl true} geometry is given by a shape
+such that it is not fully represented by the nodes, the representation
+may be drastically simplified. So, as far as TARGET170 is concerned,
+spherical targets are represented by a single node at the centre,
+cones and cylinders are
+represented by two-noded bars. As for TARGET169, parabolic and arc target
+elements, which have 3 nodes, are represented by a bar with the two
+end nodes; and targets with circle shape are represented by a single
+node at the centre.
+
+%
+%=============================================================
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+We present below two examples. 
+
+\begin{covimg}{}
+		{ReadANSYS_net}{covise/net/examples/ReadANSYS.net}{0.7}\end{covimg}
+This example shows a model modified from example vm6.dat of the verification
+collection of ANSYS. Derived data is available only for some elements.
+The output for the equivalent stresses on the top side of the shell elements
+is shown below.
+
+\begin{covimg}{}
+		{ReadANSYS_stress}{Equivalent stress}{0.7}\end{covimg}
+
+The other exemple is based on the second net file.
+
+\begin{covimg}{}
+		{ReadANSYS_net_flot}{covise/net/examples/ReadANSYS\_flot.net}{0.7}\end{covimg}
+The magnitude of the velocity for the final available set of the simulation is produced
+below.
+
+\begin{covimg}{}
+		{ReadANSYS_velo}{Flow velocity}{0.7}\end{covimg}
+

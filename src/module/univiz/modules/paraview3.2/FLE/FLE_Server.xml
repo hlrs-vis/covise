@@ -1,0 +1,301 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+
+   <SourceProxy name="FLE" class="vtkFLE" label="Plugin Univiz FLE">
+    <Documentation> 
+      The FLE filter computes variants of finite Lyapunov exponents from point (node) velocity data. This filter operates on unstructured grid data and produces unstructured grid data.
+    </Documentation>
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <Documentation>
+            The input.
+          </Documentation>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        label="Velocity">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+	   <!-- <FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>  -->
+       <Documentation>
+         The velocity (vector) array to compute the FLE from.
+       </Documentation>
+     </StringVectorProperty> 
+
+     <DoubleVectorProperty
+        name="Origin"
+        label="Origin"
+        command="SetOrigin"
+        number_of_elements="3"
+        animateable="1"
+        default_values="0 0 0" >
+        <!--<DoubleRangeDomain name="range"/>-->
+        <Documentation>
+          Define origin of sampling grid. 
+        </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="Cells"
+        label="Cells"
+        command="SetCells"
+        number_of_elements="3"
+        animateable="1"
+        default_values="10 10 10" >
+        <Documentation>
+          Define number of cells per dimension of sampling grid.
+        </Documentation>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="CellSize"
+        label="Cell Size"
+        command="SetCellSize"
+        number_of_elements="1"
+        default_values="0.01">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+       <Documentation>
+         Size of a cell of the sampling grid.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty 
+        name="Unsteady" 
+        label="Unsteady"
+        command="SetUnsteady" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         For unsteady velocity data, read data from file.
+       </Documentation>
+     </IntVectorProperty>
+
+     <!-- TODO: file browser -->
+     <StringVectorProperty
+        name="VelocityFile"
+        label="Velocity File"
+        animateable="1"
+        command="SetVelocityFile"
+        number_of_elements="1">
+        <!--<FileListDomain name="files"/>-->
+       <Documentation>
+         Name of file to read unsteady data from.
+       </Documentation>
+     </StringVectorProperty>
+
+     <DoubleVectorProperty
+        name="StartTime"
+        label="Start Time"
+        command="SetStartTime"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1000000" max="1000000"/>
+       <Documentation>
+         Start time for integration of pathlines.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty 
+        name="Mode" 
+        label="Mode"
+        command="SetMode" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="FTLE"/>
+         <Entry value="1" text="FLLE"/>
+         <Entry value="2" text="FSLE"/>
+         <Entry value="3" text="FTLEM"/>
+         <Entry value="4" text="FTLEA"/>
+       </EnumerationDomain>
+       <Documentation>
+         The variant of finite Lyapunov exponent to compute. FLLE and FTLEA are usually of little use. See the cited paper for the description (of FTLEM).
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Ln" 
+        label="Ln"
+        command="SetLn" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Compute logarithm, this conforms to original FTLE definition.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="DivT" 
+        label="1 / T"
+        command="SetDivT" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Divide by advection time T, this conforms to original FTLE definition.
+       </Documentation>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="IntegrationTime"
+        label="Integration Time"
+        command="SetIntegrationTime"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+       <Documentation>
+         Integration time of trajectories.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="IntegrationLength"
+        label="Integration Length"
+        command="SetIntegrationLength"
+        number_of_elements="1"
+        default_values="0.1">
+       <DoubleRangeDomain name="range" min="0" max="1000000"/>
+       <Documentation>
+         Integration length of trajectories.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="TimeIntervals"
+        label="Time Intervals"
+        command="SetTimeIntervals"
+        number_of_elements="1"
+        default_values="50">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Number of time intervals. Used e.g. for FSLE and FTLEM, larger values produce better quantization but use more memory.
+       </Documentation>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="SepFactorMin"
+        label="Minimum Separation Factor"
+        command="SetSepFactorMin"
+        number_of_elements="1"
+        default_values="1.1">
+       <DoubleRangeDomain name="range" min="1.0" max="1000000"/>
+       <Documentation>
+         Minimum separation factor.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="IntegStepsMax"
+        label="Maximum Number of Integration Steps"
+        command="SetIntegStepsMax"
+        number_of_elements="1"
+        default_values="100">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Maximum number of integration steps.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Forward" 
+        label="Forward"
+        command="SetForward" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Integration in forward direction.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        label="Smoothing Range"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Smoothing range for gradient computation.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="OmitBoundaryCells" 
+        label="Omit Boundary Cells"
+        command="SetOmitBoundaryCells" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Omit boundary cells.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GradNeighDisabled" 
+        label="Gradient Neighbors Disabled"
+        command="SetGradNeighDisabled" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Do not compute and mark gradient at undefined flow map nodes.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Execute" 
+        label="Execute"
+        command="SetExecute" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Allow execution.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ResampleOnTrajectories" 
+        label="Resample On Trajectories"
+        command="SetResampleOnTrajectories" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Resample field variables at vertices of resulting trajectories.
+       </Documentation>
+     </IntVectorProperty>
+
+   <!-- End FLE -->
+   </SourceProxy>
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

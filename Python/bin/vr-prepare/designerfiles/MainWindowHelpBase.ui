@@ -1,0 +1,103 @@
+<ui version="4.0" >
+ <class>MainWindowHelpBase</class>
+ <widget class="QWidget" name="MainWindowHelpBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>253</width>
+    <height>513</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="baseSize" >
+   <size>
+    <width>200</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+    <pointsize>8</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>Form2</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QTextBrowser" name="vrpTextBrowserInstruction" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="toolTip" >
+      <string/>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="lineWidth" >
+      <number>1</number>
+     </property>
+     <property name="autoFormatting" >
+      <set>QTextEdit::AutoNone</set>
+     </property>
+     <property name="lineWrapMode" >
+      <enum>QTextEdit::WidgetWidth</enum>
+     </property>
+     <property name="html" >
+      <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Droid Sans'; font-size:8pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-weight:600;">Main Window&lt;/span> &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The &lt;span style=" font-weight:600;">menu bar&lt;/span> contains actions to open, save and quit a project, to undo and redo actions and to prepare a presentation of this project. In the &lt;span style=" font-weight:600;">toolbar&lt;/span> you find shortcuts for the most important actions. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The &lt;span style=" font-weight:600;">part list&lt;/span> panel shows a tree view of the datasets, parts, and visualization objects. The checkboxes on the left side of a part or visualization object show or hide the parts. For a grid part the corresponding bounding box is shown. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The &lt;span style=" font-weight:600;">visualization toolset&lt;/span> or the &lt;span style=" font-weight:600;">edit panels&lt;/span> appear as soon as you select a part or a visualization function. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The &lt;span style=" font-weight:600;">advice&lt;/span> panel explains usually the function of the edit panel in a few words. For detailed information use the tooltips of the buttons. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The &lt;span style=" font-weight:600;">presentation manager&lt;/span> helps you creating a presentation. Each presentation point stores the current state of the project. It is possible to run through all steps by pressing the play button. The timeout defines how long (in seconds) the step is shown. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">With the &lt;span style=" font-weight:600;">viewpoint manager&lt;/span> it is possible to create new viewpoints and to load the viewpoint by clicking at the name. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This advice about the main window is visible only after you have created a new project. &lt;/p>&lt;/body>&lt;/html></string>
+     </property>
+     <property name="overwriteMode" >
+      <bool>false</bool>
+     </property>
+     <property name="acceptRichText" >
+      <bool>true</bool>
+     </property>
+     <property name="openLinks" >
+      <bool>false</bool>
+     </property>
+     <property name="text" stdset="0" >
+      <string/>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>

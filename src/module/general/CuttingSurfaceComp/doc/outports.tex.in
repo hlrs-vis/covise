@@ -1,0 +1,59 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+
+
+\textcolor{output}{geometryOut}
+&
+Geometry
+&
+The complete geometry output which can be directly connected with a renderer.
+\\
+\hline 
+\textcolor{output}{meshOut}
+&
+Polygons \newline
+TriangleStrips
+&
+The grid of the resulting cutting surface as
+polygons or triangle strips.
+\\
+\hline 
+\textcolor{output}{dataOut}
+&
+Float \newline
+Vec3
+&
+The interpolated data at the grid points of the
+cutting surface.
+\\
+\hline
+\textcolor{output}{normalsOut}
+&
+Unstructured\_V3D\_Normals
+&
+Normals to the surface. Only available if enabled
+with the parameter gennormals.
+\\
+\hline
+\textcolor{output}{linesOut}
+&
+Lines
+&
+The isolines as a set of lines.
+\\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+\clearpage
+%=============================================================

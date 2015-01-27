@@ -1,0 +1,92 @@
+<ui version="4.0" >
+ <class>frmRequestConfirm</class>
+ <widget class="QDialog" name="frmRequestConfirm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>409</width>
+    <height>85</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Remote application launch request</string>
+  </property>
+  <widget class="QGroupBox" name="grpBorder" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>391</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string/>
+   </property>
+   <widget class="QLabel" name="lblMessage" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>381</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Someone from PX3459 tries to start COVISE on your machine ..... Allow this?</string>
+    </property>
+    <property name="alignment" >
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+    </property>
+    <property name="wordWrap" >
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="layoutWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>60</x>
+     <y>50</y>
+     <width>260</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <item>
+     <widget class="QPushButton" name="btnAllow" >
+      <property name="toolTip" >
+       <string>This adds the remote host and partner to your permanent list of allowed hosts and partners.</string>
+      </property>
+      <property name="text" >
+       <string>Allow</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnTempAllow" >
+      <property name="toolTip" >
+       <string>This allows the application launch for this request without storing any information about the remote site</string>
+      </property>
+      <property name="text" >
+       <string>Allow temporarily</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnDeny" >
+      <property name="toolTip" >
+       <string>Deny the request totally, not launching anything</string>
+      </property>
+      <property name="text" >
+       <string>Deny</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

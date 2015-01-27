@@ -1,0 +1,25 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{8.5cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{colors} & RGBA\_Colors & Color Map.  \\
+\hline
+	\textcolor{output}{texture} & Textures & Colors as a texture.  \\
+\hline
+	\textcolor{output}{cmapOut} & ColorMap  & Colormap object: Contains all information of the colormap, including Min/Max,
+                                                    Annotation and numSteps.  \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+%
+%=============================================================

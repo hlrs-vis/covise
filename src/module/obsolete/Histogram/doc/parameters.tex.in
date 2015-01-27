@@ -1,0 +1,20 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+   NumBuck & Slider   & Number of analyzed data values. The chosen data values are evenly distributed over the range of the data set.\\												
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

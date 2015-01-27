@@ -1,0 +1,141 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Preferences...</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">Preferences...</font></font></h2>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">To select your preferred defaults for
+the viewer area press the <b>right</b> mouse button on the viewer area
+and select <b>Preferences...</b> with the left mouse button</font>.</td>
+</tr>
+</table>
+
+<br>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="70%" >
+<tr>
+<td><img SRC="pref.gif" height=465 width=542></td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica">The <b>Covise Renderer Preference Sheet</b>
+allows you to</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">change the <b>seek animation time</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">choose how <b>seek mode</b> works, i. e. choose
+a camera view</font></li>
+
+<ul><font face="Arial,Helvetica">centered to the selected point (<b>seek
+to point</b>) and orthogonal to the object or</font>
+<br><font face="Arial,Helvetica">centered to the whole object (<b>seek
+to object</b>) without changing the orientation</font></ul>
+
+<li>
+<font face="Arial,Helvetica">predefine range and start value of your <b>camera
+zoom</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">set the <b>volume sampling rate</b> (see <u><font color="#3333FF"><a href="../../online_doc/usersguide/start/start_volumerendering.html" target="_top">User's
+Guide, Appendix: Volume Rendering</a></font></u>) via a thumb wheel</font></li>
+
+<li>
+<font face="Arial,Helvetica">select the <b>tracking device</b> out of a
+list of possible devices</font></li>
+
+<li>
+<font face="Arial,Helvetica">use <b>auto</b>(matic) <b>clipping planes</b>
+to cut of part of your geometry:</font></li>
+
+<br><font face="Arial,Helvetica">You apply 2 switchable planes with fixed
+normal (orientation) but variable distance from the origin</font>
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 WIDTH="92%" BGCOLOR="#FFCCCC" >
+<tr>
+<td COLSPAN="2" BGCOLOR="#FFCCCC"><font face="Arial,Helvetica">Similar
+functions are provided by</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../../online/modules/Tools/CutGeometry/CutGeometry.html">CutGeometry</a></font>&nbsp;
+(Module)</font></b></td>
+
+<td><font face="Arial,Helvetica">1 permanent plane with variable normal
+and a variable point on the plane (to be supplied as module parameters)</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica"><b>Clipping Plane</b> (<b>Renderer</b>,
+menu item <a href="ren_viewing.html">Viewing</a> > Clipping Plane)</font></td>
+
+<td><font face="Arial,Helvetica">1 switchable plane with variable normal
+and a variable point on the plane</font></td>
+</tr>
+</table>
+
+<li>
+<font face="Arial,Helvetica">enable <b>stereo viewing</b>:</font></li>
+
+<br><font face="Arial,Helvetica">Some platforms support stereo viewing
+(default: no); if selected and available, a thumb wheel allows camera rotation</font>
+<li>
+<font face="Arial,Helvetica">enable <b>stipple stereo viewing</b>:</font></li>
+
+<br><font face="Arial,Helvetica">Stereo viewing using an overlay of two
+stippled images; supported on some platforms, wheel for camera rotation
+provided</font>
+<li>
+<font face="Arial,Helvetica">enable <b>spin animation</b>:</font></li>
+
+<br><font face="Arial,Helvetica">If spin animation is enabled and</font>
+<br><font face="Arial,Helvetica">if you keep moving the mouse while you
+release the left button</font>
+<br><font face="Arial,Helvetica">the scene will spin permanently until
+you click on the viewer area</font>
+<li>
+<font face="Arial,Helvetica"><b>show</b> the <b>point of rotation axes&nbsp;</b>
+(and change their size)</font></li>
+
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="79%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Show point of rotation axes works in <a href="ren_viewmode.html">ViewMode</a>
+only!</font></td>
+</tr>
+</table>
+
+<li>
+<font face="Arial,Helvetica">generate <b>smoother surfaces</b> ('<b>smooth
+normals</b>').</font></li>
+
+<br><font face="Arial,Helvetica">You approximate a surface by a polygon;
+if you use one normal per vertex you get a smoother surface than if you
+use one normal per polygon face</font>
+<li>
+<b><font face="Arial,Helvetica">use alternative number format for Colormaps:</font></b></li>
+
+<br><font face="Arial,Helvetica">This field can be used to specify formats
+of the numbers along the color legend. It must be a float format for the
+"printf" format as specified in the unix manual pages and should be left-justified.</font>
+<br><font face="Arial,Helvetica">Examples:</font>
+<br><font face="Arial,Helvetica">Values:&nbsp; 0 0.1 0.2 0.3 0.4 0.5</font>
+<br><font face="Arial,Helvetica">Format:&nbsp; %-.3f&nbsp;&nbsp; -->&nbsp;&nbsp;
+0.000 0.100 0.200 0.300 0.400 0.500</font>
+<br><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%-.2f&nbsp;&nbsp; -->&nbsp;&nbsp; 0.00 0.10 0.20 0.30 0.40 0.50</font>
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;</ul>
+
+</body>
+</html>

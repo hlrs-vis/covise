@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  MakeOctTree.cpp
+)
+
+SET(EXTRASOURCES
+  MakeOctTree.h
+)
+
+ADD_COVISE_MODULE(Tools MakeOctTree ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(MakeOctTree  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(MakeOctTree)

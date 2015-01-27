@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<OpenDRIVE>
+   <header west="-10000" version="1" revMajor="1" south="-10000" revMinor="2" name="Untitled" east="10000" date="Wed Aug 08:26:05 2010" north="10000"/>
+   <road junction="-1" length="640.0882743241457" id="road" name="road">
+      <planView>
+         <geometry x="-385.67936" y="-504.9548800000001" hdg="0.8139618465375398" length="39.58218988205901" s="0">
+            <line/>
+         </geometry>
+         <geometry x="-358.5012979812072" y="-476.1781075986942" hdg="0.8139618307317483" length="47.24977953462506" s="39.58218988205901">
+            <spiral curvStart="0" curvEnd="0.00783955051264037"/>
+         </geometry>
+         <geometry x="-328.2851190199419" y="-439.9465484648037" hdg="0.9991703474181555" length="48.0586875935199" s="86.83196941668407">
+            <arc curvature="0.00783955051264037"/>
+         </geometry>
+         <geometry x="-310.4204584820558" y="-395.6374095122623" hdg="1.375928856378758" length="49.71386543802061" s="134.890657010204">
+            <spiral curvStart="0.00783955051264037" curvEnd="2.240958581394418e-18"/>
+         </geometry>
+         <geometry x="-307.1999920511528" y="-346.1119929667648" hdg="1.570796036018743" length="56.62691116360778" s="184.6045224482246">
+            <spiral curvStart="-0" curvEnd="-0.007193909835989974"/>
+         </geometry>
+         <geometry x="-303.3666801755044" y="-289.7195621865597" hdg="1.367111589417938" length="56.62688940047867" s="241.2314336118324">
+            <arc curvature="-0.007193909835989973"/>
+         </geometry>
+         <geometry x="-281.0861924602553" y="-238.0854207346778" hdg="0.9597428527783185" length="56.62688616547317" s="297.8583230123111">
+            <spiral curvStart="-0.007193909835989973" curvEnd="-2.708031849432224e-18"/>
+         </geometry>
+         <geometry x="-242.6880008531342" y="-196.6079979574969" hdg="0.7560592368348792" length="15.80526483436374" s="354.4852091777842">
+            <line/>
+         </geometry>
+         <geometry x="-231.1889554700193" y="-185.7646427681914" hdg="0.7560592368348792" length="30.74517790116038" s="370.290474012148">
+            <spiral curvStart="-0" curvEnd="-0.002609287323445806"/>
+         </geometry>
+         <geometry x="-208.5420540237081" y="-164.9740526137634" hdg="0.7159477353575872" length="28.8707163428395" s="401.0356519133084">
+            <arc curvature="-0.002609287323445805"/>
+         </geometry>
+         <geometry x="-186.0671281414321" y="-146.8632308513408" hdg="0.6406157411854156" length="27.94913593477164" s="429.9063682561479">
+            <spiral curvStart="-0.002609287323445805" curvEnd="-1.990054530679157e-18"/>
+         </geometry>
+         <geometry x="-163.2614561891975" y="-130.7088839730048" hdg="0.6041520970392691" length="46.76782017484084" s="457.8555041909195">
+            <line/>
+         </geometry>
+         <geometry x="-124.7722858066047" y="-104.1417469957919" hdg="0.6041520970392691" length="51.21011793814319" s="504.6233243657603">
+            <spiral curvStart="-0" curvEnd="-0.006559349919911067"/>
+         </geometry>
+         <geometry x="-81.12056557660287" y="-77.48776022712896" hdg="0.4361995555411706" length="43.87084771396944" s="555.8334423039036">
+            <arc curvature="-0.006559349919911061"/>
+         </geometry>
+         <geometry x="-39.25557769828828" y="-64.8889802508767" hdg="0.1484353141021151" length="40.38398430627276" s="599.7042900178729">
+            <spiral curvStart="-0.006559349919911061" curvEnd="-3.462287228685454e-18"/>
+         </geometry>
+      </planView>
+      <elevationProfile>
+         <elevation a="0" s="0" b="0" c="0" d="0"/>
+         <elevation a="0" s="16.22595125533862" b="0" c="0" d="0"/>
+         <elevation a="0" s="184.6045224482246" b="0" c="0" d="0"/>
+         <elevation a="0" s="354.4852091777842" b="0" c="0" d="0"/>
+         <elevation a="0" s="370.290474012148" b="0" c="0" d="0"/>
+         <elevation a="0" s="459.0171119831135" b="0" c="0" d="0"/>
+         <elevation a="0" s="504.6233243657603" b="0" c="0" d="0"/>
+      </elevationProfile>
+      <lateralProfile>
+         <superelevation a="0" s="0" b="0" c="0" d="0"/>
+         <superelevation a="0" s="16.22595125533862" b="0" c="0" d="0"/>
+         <superelevation a="0" s="184.6045224482246" b="0" c="0" d="0"/>
+         <superelevation a="0" s="354.4852091777842" b="0" c="0" d="0"/>
+         <superelevation a="0" s="370.290474012148" b="0" c="0" d="0"/>
+         <superelevation a="0" s="459.0171119831135" b="0" c="0" d="0"/>
+         <superelevation a="0" s="504.6233243657603" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="0" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="16.22595125533862" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="184.6045224482246" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="354.4852091777842" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="370.290474012148" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="459.0171119831135" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="504.6233243657603" b="0" c="0" d="0"/>
+      </lateralProfile>
+      <lanes>
+         <laneSection s="0">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+         <laneSection s="16.22595125533862">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+         <laneSection s="184.6045224482246">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+         <laneSection s="354.4852091777842">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+         <laneSection s="370.290474012148">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+         <laneSection s="459.0171119831135">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+         <laneSection s="504.6233243657603">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="driving" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="1.56" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+      </lanes>
+      <type type="motorway" s="0"/>
+      <type type="motorway" s="16.22595125533862"/>
+      <type type="motorway" s="184.6045224482246"/>
+      <type type="motorway" s="354.4852091777842"/>
+      <type type="motorway" s="370.290474012148"/>
+      <type type="motorway" s="459.0171119831135"/>
+      <type type="motorway" s="504.6233243657603"/>
+   </road>
+   <scenery>
+      <map width="431" x="-252.8" opacity="0.5" y="144.3999999999999" height="352" id="map0" filename="/home/frank/uni/da/oddlot/trunk/stuff/karte-kreuzstuttgart.png"/>
+   </scenery>
+   <scenery>
+      <map width="600" x="-544.8097151999999" opacity="0.5" y="-111.4737024" height="350" id="map3" filename="/home/frank/uni/da/oddlot/trunk/stuff/karte-kreuzstuttgart2.png"/>
+   </scenery>
+</OpenDRIVE>

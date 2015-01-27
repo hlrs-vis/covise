@@ -1,0 +1,169 @@
+#VRML V1.0 ascii
+
+Separator {
+  Info { string "Produced by 3D Studio MAX VRML 1.0/2.0 exporter, Version 2,05, Revision 0" }
+  Info { string "MAX File: xform.max, Date: Fri Jun 16 21:20:46 2000" }
+  ShapeHints {
+    shapeType SOLID
+    vertexOrdering COUNTERCLOCKWISE
+    faceType CONVEX
+  }
+  DEF stern Separator {
+    Translation { translation 1.305 1.187 -17.43 }
+    Rotation { rotation -0.8881 -0.3028 0.3459 -1.923 }
+    Scale { scaleFactor 1 1 1 }
+    DEF VSep02 Separator {
+      Translation { translation 25.22 -0.9114 5.649 }
+      Rotation { rotation 0.7044 0.7097 0.01557 -3.111 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.187 0 0.01002
+        diffuseColor 0.298 0.749 0
+        specularColor 0.897 0.897 0.897
+        shininess 0.38
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.1598 0 }
+        Cone { bottomRadius 0.09437 height 0.3196 }
+      }
+    }
+    DEF VSep04 Separator {
+      Translation { translation -30.29 -0.738 6.795 }
+      Rotation { rotation 0.7097 -0.7044 -0.01545 -3.11 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.187 0 0.01002
+        diffuseColor 0.298 0.749 0
+        specularColor 0.897 0.897 0.897
+        shininess 0.38
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.1598 0 }
+        Cone { bottomRadius 0.09437 height 0.3196 }
+      }
+    }
+    DEF VSep06 Separator {
+      Translation { translation -30.28 -1.355 6.768 }
+      Rotation { rotation 0.7044 0.7097 0.01557 -3.111 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.2479 0.2349 0.25
+        diffuseColor 0.9917 0.9395 1
+        specularColor 0 0 0
+        shininess 0.0025
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.2775 0 }
+        Cylinder { radius 0.04971 height 0.555 }
+      }
+    }
+    DEF VSep08 Separator {
+      Translation { translation -0.6448 1.137 -21.54 }
+      Rotation { rotation 1 0 0 -1.571 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.187 0 0.01002
+        diffuseColor 0.298 0.749 0
+        specularColor 0.897 0.897 0.897
+        shininess 0.38
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.1598 0 }
+        Cone { bottomRadius 0.09437 height 0.3196 }
+      }
+    }
+    DEF VSep10 Separator {
+      Translation { translation -0.003877 -0.0001157 33.97 }
+      Rotation { rotation 0 0.7071 0.7071 -3.142 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.187 0 0.01002
+        diffuseColor 0.298 0.749 0
+        specularColor 0.897 0.897 0.897
+        shininess 0.38
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.1598 0 }
+        Cone { bottomRadius 0.09437 height 0.3196 }
+      }
+    }
+    DEF VSep12 Separator {
+      Translation { translation -0.6213 0 33.97 }
+      Rotation { rotation 1 0 0 -1.571 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.2479 0.2349 0.25
+        diffuseColor 0.9917 0.9395 1
+        specularColor 0 0 0
+        shininess 0.0025
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.2775 0 }
+        Cylinder { radius 0.04971 height 0.555 }
+      }
+    }
+    DEF VSep14 Separator {
+      Translation { translation 0.05054 -26.87 3.752 }
+      Rotation { rotation 1 0 0 -3.098 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.187 0 0.01002
+        diffuseColor 0.298 0.749 0
+        specularColor 0.897 0.897 0.897
+        shininess 0.38
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.1598 0 }
+        Cone { bottomRadius 0.09437 height 0.3196 }
+      }
+    }
+    DEF VSep16 Separator {
+      Translation { translation 0.6915 28.54 7.32 }
+      Rotation { rotation 0 0.9998 0.02193 -3.142 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.187 0 0.01002
+        diffuseColor 0.298 0.749 0
+        specularColor 0.897 0.897 0.897
+        shininess 0.38
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.1598 0 }
+        Cone { bottomRadius 0.09437 height 0.3196 }
+      }
+    }
+    DEF VSep18 Separator {
+      Translation { translation 0.07405 28.54 7.32 }
+      Rotation { rotation 1 0 0 -3.098 }
+      Scale { scaleFactor 100 100 100 }
+      Material {
+        ambientColor 0.2479 0.2349 0.25
+        diffuseColor 0.9917 0.9395 1
+        specularColor 0 0 0
+        shininess 0.0025
+        transparency 0
+      }
+      Texture2 {}
+      Separator {
+        Translation { translation 0 0.2775 0 }
+        Cylinder { radius 0.04971 height 0.555 }
+      }
+    }
+  }
+}

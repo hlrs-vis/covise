@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline percent & Scalar & Percentage of triangles to be left after simplification\\ \hline max\_normaldeviation & Scalar & maximal normal deviation\\ \hline max\_domaindeviation & Slider & maximal domain deviation\\ \hline data\_relative\_weight & Scalar & data relative weight\\
+\hline \end{longtable}
+

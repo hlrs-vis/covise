@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+    <System>
+       <UserInterface>
+          <QtStyle value="Default" />
+       </UserInterface>
+    </System>
+
+ <COVER>
+    <TabletPC fontsize="24" toolbar="false" >
+       <Server value="localhost" />
+
+       <Blacklist name="Plugins" value="on" />
+       <Blacklist name="Scenegraph-Browser" value="on" />
+       <Blacklist name="Tracking" value="on" />
+       <Blacklist name="ARToolKit" value="on" />
+       <Blacklist name="ColorBars" value="on" />
+
+       <Blacklist name="Walk" parent="COVER" value="on" />
+       <Blacklist name="Drive" parent="COVER" value="on" />
+       <Blacklist name="Wireframe" parent="COVER" value="on" />
+       <Blacklist name="Detect collisions" parent="COVER" value="on" />
+       <Blacklist name="Quit" parent="COVER" value="on" />
+       <Blacklist name="Load file" parent="COVER" value="on" />
+       <Blacklist name="Save file" parent="COVER" value="on" />
+
+       <Blacklist name="Viewer position" parent="COVER" value="on" />
+       <Blacklist name="ViewerX" parent="COVER" value="on" />
+       <Blacklist name="ViewerY" parent="COVER" value="on" />
+       <Blacklist name="ViewerZ" parent="COVER" value="on" />
+
+       <Blacklist name="Navigation speed" parent="COVER" value="on" />
+       <Blacklist name="NavSpeed" parent="COVER" value="on" />
+
+       <Blacklist name="Constant fps" parent="COVER" value="on" />
+       <Blacklist name="cfps" parent="COVER" value="on" />
+       <Blacklist name="Fps" parent="COVER" value="on" />
+
+       <Blacklist name="Background color" parent="COVER" value="on" />
+       <Blacklist name="background" parent="COVER" value="on" />
+
+       <Blacklist name="All inputs" parent="SwitchData" value="on" />
+       <Blacklist name="No output" parent="SwitchData" value="on" />
+
+       <Remap name="View all" parent="COVER" y="2" />
+       <Remap name="Stop headtracking" parent="COVER" x="2" y="2" />
+
+       <Remap name="Scale factor (log10)" parent="COVER" x="0" y="7" />
+       <Remap name="ScaleFactor" parent="COVER" x="1" y="7" />
+    </TabletPC>
+
+    <Specular value="OFF" />
+
+ <WindowConfig>
+ <Window width="1200" comment="FRONT" window="0" pipeIndex="0" height="900" left="0" bottom="0" name="0" decoration="true" />
+ </WindowConfig>
+
+ <Plugin>
+     <SwitchData value="on" />
+     <AKToolbar value="on">
+        <MapAnimationSlider value="true" />
+        <ShortCut value="toggleAnimation" name="ToggleAnimation" />
+        <ShortCut name="Plugin-PickSphere0" value="AttachViewer" plugin="PickSphere" command="AttachViewer" icon="picksphere-attach" toggleButton="true" />
+        <ShortCut name="Plugin-PickSphere1" value="SingleSelect" plugin="PickSphere" command="SingleSelect" icon="picksphere" toggleButton="true" />
+        <ShortCut name="Plugin-PickSphere2" value="MultiSelect" plugin="PickSphere" command="MultiSelect" icon="picksphere-multi" toggleButton="true" />
+        <ShortCut name="Plugin-PickSphere3" value="ClearSelection" plugin="PickSphere" command="ClearSelection" icon="picksphere-clear" />
+     </AKToolbar>
+
+     <Move value="off" />
+     <Molecules value="off" />
+     <Volume value="off" />
+     <ClipPlane value="off" />
+     <SGBrowser value="off" />
+     <Vrml97 value="off" />
+ </Plugin>
+ </COVER>
+ </GLOBAL>
+
+ <INCLUDE>config-rrzk.xml</INCLUDE>
+</COCONFIG>

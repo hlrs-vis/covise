@@ -1,0 +1,315 @@
+
+\begin{htmlonly}
+ 
+\input{../../htmlinc}
+\input{../../usersguide/defines}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Introduction}
+\label{Introduction}
+%=============================================================
+
+\covise\ stands for {\bf CO}laborative {\bf VI}sualization and {\bf S}imulation {\bf E}nvironment. 
+It is an extendable distributed software environment to integrate simulations, postprocessing and 
+visualization functionalities in a seamless manner. From the beginning \covise\ was designed for 
+collaborative working, allowing engineers and
+scientists to spread on a network infrastructure. Processing steps can be arbitrarily distributed across 
+different machine platforms to make optimal use of their varying characteristics. High 
+speed network architectures of different kinds can be properly incorporated into 
+\covise. Industrial or research simulation codes are easily integrated into this distributed 
+software environment by wrapping the code as a
+\covise\ module. If required, the open design allows easy extension of the \covise\ architecture. 
+    
+None of the currently available visualization packages supports all of the following features 
+availabe in \covise.
+
+\begin{itemize}
+\item Distributed Working
+
+\item Supercomputer Usage (parallel or vectorized)
+
+\item Collaborative Working
+
+\item Integration of Custom Codes
+
+\item Virtual Reality 
+
+\item Time Dependent Simulation
+\end{itemize}
+
+\begin{covimg}{intro}{gesamt}{Visualization of Data with \covise}{0.35}\end{covimg}
+
+
+\covise\ is a modular and object-oriented software system. To visualize data 
+several processing steps, called modules, are used. Each module is executed as a 
+seperate operating system process and communicates with the 
+central {\bf Controller} and the local data request broker {\bf CRB} by sending or 
+receiving control messages via TCP/IP sockets. 
+Modules are connected into a strictly unidirectional data flow 
+network also called module map. Loops are not
+allowed, nevertheless, there are possibilities to send feedback messages from
+later to earlier modules in the processing chain. A Qt based user interface 
+the \mapeditor\ gives the user a tool to perform all the necessary interactions.
+
+Data exchange is handled different from control flow. Within a machine
+pointers to shared memory are used to avoid copying of data objects. Between
+machines data objects are transferred by the \covise\ request broker 
+{\bf CRB}, including necessary format conversions.  
+
+
+\section{How \covise\ works}
+
+Most visualization systems currently available focus on the visual programming 
+paradigm in an algorithm-oriented way. Data itself cannot be accessed by the user 
+directly, but exists only internally. Means are provided to connect modules to networks 
+which perform certain visualization tasks, but the access to the underlying 
+data mostly is limited to typing a filename in the input module. 
+
+There is no explicit control of data by users within most of the current dataflow 
+based visualization systems. Thus either data produced by intermediate steps is 
+kept even if it is not needed any more, or this caching mechanism can be switched 
+off globally. As data does not exist as directly accessible data objects, selective 
+handling is not possible. On the other hand a user who wants to examine a certain 
+time interval repeatedly would be delayed by the application creating the same 
+temporary objects over and over again instead of creating the sequence once and 
+then displaying it just from cache.
+
+Based on experience with own developments 
+other packages available commercially or as open source, a system architecture has been
+designed which fits the needs of a high performance distributed visualization application. 
+
+
+\begin{covimg}{intro}{local_a}{Local Working in \covise}{0.5}\end{covimg}
+    
+A modular approach allows for the most flexibility in distributing certain 
+parts of the visualization application to specific computers. The need for excellent 
+high speed network utilization makes it necessary to put emphasis on the management 
+of the network connections depending on the nature of transferred data.
+The database approach makes a data request broker {\bf CRB} necessary.
+This combination defines the \covise\ architecture.
+
+The {\bf Controller} is the central part of this architecture. It has the overall view of the 
+whole application. This  {\bf Controller} supervises the distribution of modules 
+across the involved computers as well as the management of the execution of the 
+application.
+
+
+So an application module only needs 
+connections to the {\bf Controller} and the request broker {\bf CRB}. The {\bf Controller} supplies the 
+application module with the information that is necessary to guarantee the proper 
+execution of the overall application. The data that will be exchanged between subsequent 
+application modules is stored under the control of the request 
+broker {\bf CRB}. This allows a very simple structuring of an application module.
+
+The implementation of the \covise\ system architecture is done in C++. The basic 
+communication functionality is provided as a library. 
+
+For Distributed and Collaborative Working see Chapter 5, COVISE CE.
+
+
+\section{History}
+
+ The development of \covise\ was initiated in 1993 in the CEC RACE project R2031 named PAGEIN (Pilot
+ Applications in a Gigabit European Integrated Network). The aim of PAGEIN was to evaluate possibilities of
+ distributed computing and collaborative engineering on top of European high speed network infrastructures.
+ One of the activities was the design and development of a software architecture as a testbed for the
+ evaluation. The design of this basic architecture was led by the Visualization Department of the University of
+ Stuttgart Computing Center (RUS). It was later called \covise. Also the main components of \covise\ as well
+ as many application modules have been developed at RUS. With the project partners group from the
+ aerospace field the application scenario was the simulation and analysis of air flow in the design phase of
+ new airplanes. While initially industrial partners only defined their requirements they became more involved
+ when they recognized the potential of CSCW (computer supported cooperative working) and \covise\ for the
+ engineering field. 
+
+ As a result \covise\ was used in the Esprit project ADONNIS (E9033) between Daimler-Benz Aerospace
+ Airbus (DBAA, Bremen, Germany) and RUS (Stuttgart, Germany) via a 2 MBit/s leased line (permanent for
+ one year). This allowed engineers of DBAA to evaluate cooperative working in an engineering simulation
+ and design department. 
+
+ In the project EFENDA sponsored by the German ministery of education and research BMBF the integration
+ of modules from the airplane design field into \covise\ as homogeneous software integration platform was
+ performed to increase the productivity of the airplane developer.  
+
+ In the final phase of the ADONNIS project a short demonstration of CSCW applied to the analysis of
+ vibration simulations of satelites was given. This prove of concept led to the definition of an Esprit best
+ practice and demonstration project ACATAD with CASA (CONSTRUCCIONES AERONAUTICAS SA
+ Division Espacioas) as the primary industrial partner in which collaborative analysis of dynamic simulations
+ among satellite producer and sub contractors is introduced. \covise\ will be used across multiplexed ISDN
+ lines. 
+
+ Also the \covise\ development was initated in the aerospace field the underlying concepts and architecture
+ are independent of a certain application field. Thus it was possible to also apply \covise\ to the automotive
+ applications. 
+
+ In the Esprit project (E20184) HPS-ICE, (High Performance Simulation of Internal Combustion Engines),
+ INDEX (E22745), COVAS (E22542), the BMBF-project EFENDA, the G7-Projects SPOCK and GWAAT,
+ the Collaborative Research Center (SFB374) and many other national projects. 
+
+ Since 2004, the development of \covise\ is a joint effort by HLRS at the University of Stuttgart
+ and RRZK at the University of Cologne.
+
+ In 1997 the developers of \covise\ founded the company {\bf Vircinity IT-Consulting} 
+ to bring \covise\ to the market. \covise\ is now distributed by VISENSO GmbH.
+
+\section{First Steps}
+
+
+On Windows, a new \covise\ session can be initiated from the Start menu or by Desktop icons.
+On UNIX systems, the installation process appends the path to the \covise\ executables
+and modules to the environment variable \$PATH.
+Thus, starting \covise\ should be as easy as typing \verb/covise/ in a shell window.
+If the command \verb/covise/ is not found, please contact your system administrator.
+
+Initiating a \covise\ session will start the following processes:
+\begin{enumerate}
+\item {\bf Controller} (\verb/covise/)
+\item {\bf CRB} (\verb/crb/)
+\item \mapeditor\ (\verb/mapeditor/)
+\end{enumerate}
+
+After the starting phase the \mapeditor\ window will 
+appear \latex{(see Fig.\ref{figmapeditor})}. 
+
+
+
+\subsection{Start Parameter}
+
+\covise\ can also be started with parameters. Typing  \verb/covise --help/  will show you the syntax. 
+
+\vspace{0.5cm}
+
+The following start options may be useful for you:
+\begin{itemize}
+\item {\bf -i}  start with \mapeditor\ as icon
+\item {\bf -e}  execute immediately after loading
+\item {\bf -q}  quit after 1st run ({\bf only together with -e})
+\end{itemize}
+
+\subsection{Configuration File}
+\label{config}
+\covise\ has a central configuration file \verb/covise.config/, which resides in
+the \$COVISEDIR directory. The file consists of sections named {\it
+scopes}, which look like :
+
+\begin{verbatim}
+Scope-name { : hostname}
+{
+	Var-Name1	string2
+	Var-Name2	string2
+}
+\end{verbatim}
+
+
+\subsubsection{HostConfig}
+see also Chapter 5, COVISE CE)
+Each computer that will participate in a distribited or collaborative session must be included in the
+scope HostConfig. For each host the hostname, the memoy model, the execution mode and a timeout have to
+be set .
+
+\begin{verbatim}
+HostConfig
+{
+# Hostname   Shared Memory     execution mode      timeout [s] Min. SHM
+#           (shm|mmap|none) (rexec|rsh|ssh|manual) (default 5)  segment
+   mike          shm               ssh               360          32MB
+   peter         shm               manual            360
+   george        shm               rsh               360
+}
+\end{verbatim}
+
+For workstations and PCs the memory model is shm (shared memory). There
+are other memory models for supercomputers like CRAY.
+
+When using shared memory, \covise\ manages multiple shared memory segments
+and tries to put its data object in free spaces of these segments. If no
+memory is left, it will allocate an additional segment. The size of this
+segment is the minimum of the required ize for the object and the minimum
+allocation size specified in the config file.
+
+Small minimal SHM segment sizes will reduce memory consumption, but increase
+the number of segments and add overhead. Both maximum size of shared memory
+usage and number of segments are limited by operationg system and machine
+configuration.
+
+If no value is given, the following defaults are used:
+
+\begin{verbatim}
+Linux:              8 MB
+SGI n32 and HP:    16 MB
+SGI 64bit:         64 MB
+\end{verbatim}
+
+\subsubsection{UIConfig}
+The user interface looks for the scope UIConfig. The variable {\it ShortCuts} contains the name
+of favourite application module names. If the variable {\it ModuleIcons} is set to colored, module icons
+for different host have different colors on the \mapeditor\ canvas.
+
+\begin{verbatim}
+UIConfig
+{
+ShortCuts  RWCovise Colors Collect CuttingSurface IsoSurface Renderer
+ModulIcons colored
+}
+\end{verbatim}
+
+In addition, you can use UIConfig to specify a browser for displaying online help or other
+online documentation; default is  
+\begin{verbatim}
+Browser        netscape
+\end{verbatim}
+Please note that online help and documentation is optimized and tested with Netscape, so there
+might be minor problems with other browsers.
+
+\subsubsection {Additional information for using a MultiPC system:}
+
+In order to improve the performance of COVER under Linux, you can use 2 synchronized PCs 
+running in parallel instead of 1 PC using a dual graphic card. One of them will be the 
+master and will be connected to the tracking system. The PCs will be connected through
+TCP/IP and serial connection. The serial cable will be plugged into one
+of two serial ports which has to be specified in cover.config, section MultiPC, 
+key "Serial\_Port". Master and Slave (names of the machines) are defined in the same
+section. In addition, you have to define the type of connection between the hosts in 
+covise.config, section HostConfig (like in collaborative working).
+
+
+Example:
+\begin {verbatim}
+HostConfig
+{
+#  Hostname    Shared Memory    execution mode    timeout in seconds
+
+      pc1        shm               rsh               -1
+
+      pc2        shm               rsh               -1
+}
+
+MultiPC
+{
+    Master        pc1
+    Slave         pc2
+    Serial_Port  /dev/ttyS0
+}
+\end{verbatim}
+
+\subsubsection{License}
+A very important scope in the configuration file is the license key. Without such a key no \covise\ 
+can be started.
+
+\begin{verbatim}
+License
+{
+Key NFLHOODOLEBLILIEDEMLMNJGAJDPPHHHCDCIDPGDHABJKAKN    visage    31.12.2001 
+}
+\end{verbatim}
+
+
+Most of the currently existing scopes are mainly used by the controller, the user interface, the
+desktop renderer and the VR renderer. You can find more details about single scopes in the
+chapters explaining these central \covise\ parts.
+
+
+

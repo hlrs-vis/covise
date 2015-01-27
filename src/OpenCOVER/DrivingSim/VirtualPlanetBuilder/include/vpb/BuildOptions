@@ -1,0 +1,496 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef BUILDOPTIONS_H
+#define BUILDOPTIONS_H 1
+
+#include <osg/CoordinateSystemNode>
+#include <osgDB/Archive>
+#include <osgTerrain/Terrain>
+#include <osgTerrain/TerrainTile>
+#include <osgDB/Archive>
+
+#include <set>
+
+#include <vpb/SpatialProperties>
+#include <vpb/Source>
+#include <vpb/Destination>
+
+namespace vpb
+{
+
+class VPB_EXPORT ImageOptions : public osg::Object
+{
+    public:
+
+        ImageOptions();
+
+        /** Copy constructor using CopyOp to manage deep vs shallow copy.*/
+        ImageOptions(const ImageOptions&,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+
+        META_Object(vpb, ImageOptions);
+
+        ImageOptions& operator = (const ImageOptions& rhs);
+
+        /** return true if the ImageOptions will lead to the same database structure and options being built.*/
+        bool compatible(ImageOptions& rhs) const;
+
+        void setImageOptions(const ImageOptions& rhs);
+
+
+        void setDestinationImageExtension(const std::string& extension) { _imageExtension = extension; }
+        const std::string& getDestinationImageExtension() const { return _imageExtension; }
+
+        void setPowerOfTwoImages(bool powerOfTwoImages) { _powerOfTwoImages = powerOfTwoImages; }
+        bool getPowerOfTwoImages() const { return _powerOfTwoImages; }
+
+        void setMaximumTileImageSize(unsigned int size) { _maximumTileImageSize = size; }
+        unsigned int getMaximumTileImageSize() const { return _maximumTileImageSize; }
+
+        void setDefaultColor(const osg::Vec4& defaultColor) { _defaultColor = defaultColor; }
+        const osg::Vec4& getDefaultColor() const { return _defaultColor; }
+
+        void setUseInterpolatedImagerySampling(bool flag) { _useInterpolatedImagerySampling = flag; }
+        bool getUseInterpolatedImagerySampling() const { return _useInterpolatedImagerySampling; }
+
+        enum TextureType
+        {
+            RGB_24,
+            RGBA,
+            RGB_16,
+            RGBA_16,
+            RGB_S3TC_DXT1,
+            RGBA_S3TC_DXT1,
+            RGBA_S3TC_DXT3,
+            RGBA_S3TC_DXT5,
+            ARB_COMPRESSED,
+            COMPRESSED_TEXTURE,
+            COMPRESSED_RGBA_TEXTURE,
+            RGB32F,
+            RGBA32F
+        };
+
+        void setTextureType(TextureType type) { _textureType = type; }
+        TextureType getTextureType() const { return _textureType; }
+
+        void setImageryQuantization(unsigned int bits) { _imageryQuantization = bits; }
+        unsigned int getImageryQuantization() const { return _imageryQuantization; }
+
+        void setImageryErrorDiffusion(bool errorDiffusion) { _imageryErrorDiffusion = errorDiffusion; }
+        bool getImageryErrorDiffusion() const { return _imageryErrorDiffusion; }
+
+        void setMaxAnisotropy(float d) { _maxAnisotropy = d; }
+        float getMaxAnisotropy() const { return _maxAnisotropy; }
+
+        enum MipMappingMode
+        {
+            NO_MIP_MAPPING, /// disable mip mapping - use LINEAR, LINEAR filters.
+            MIP_MAPPING_HARDWARE, /// use mip mapping, dynamically compute them in hardware if supported
+            MIP_MAPPING_IMAGERY /// use mip mapping, and store imagery along with associated mip maps.
+        };
+
+        void setMipMappingMode(MipMappingMode mipMappingMode) { _mipMappingMode = mipMappingMode; }
+        MipMappingMode getMipMappingMode() const { return _mipMappingMode; }
+
+    protected:
+
+        unsigned int                                _imageryQuantization;
+        bool                                        _imageryErrorDiffusion;
+        float                                       _maxAnisotropy;
+        osg::Vec4                                   _defaultColor;
+        bool                                        _useInterpolatedImagerySampling;
+        std::string                                 _imageExtension;
+        bool                                        _powerOfTwoImages;
+        TextureType                                 _textureType;
+        unsigned int                                _maximumTileImageSize;
+        MipMappingMode                              _mipMappingMode;
+};
+
+class VPB_EXPORT BuildOptions : public ImageOptions
+{
+    public:
+    
+        BuildOptions();
+
+        /** Copy constructor using CopyOp to manage deep vs shallow copy.*/
+        BuildOptions(const BuildOptions&,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+        
+        META_Object(vpb, BuildOptions);
+
+        BuildOptions& operator = (const BuildOptions& rhs);
+
+        /** return true if the BuildOptions will lead to the same database structure and options being built.*/
+        bool compatible(BuildOptions& rhs) const;
+
+        void setBuildOptions(const BuildOptions& rhs);
+
+        /** Set the Directory, DestinationTileBaseName and DestinationTileExtension from the passed-in filename.*/
+        void setDestinationName(const std::string& filename);
+
+        void setDirectory(const std::string& directory);
+        const std::string& getDirectory() const { return _directory; }
+
+        void setOutputTaskDirectories(bool flag) { _outputTaskDirectories = flag; }
+        bool getOutputTaskDirectories() const { return _outputTaskDirectories; }
+
+        void setDestinationTileBaseName(const std::string& basename) { _tileBasename = basename; }
+        const std::string& getDestinationTileBaseName() const { return _tileBasename; }
+        
+        void setDestinationTileExtension(const std::string& extension) { _tileExtension = extension; }
+        const std::string& getDestinationTileExtension() const { return _tileExtension; }
+
+
+        /** Set the Archive name if one is to be used.*/
+        void setArchiveName(const std::string& filename) { _archiveName = filename; }
+
+        /** Get the Archive name.*/
+        const std::string& getArchiveName() const { return _archiveName; }
+
+        void setIntermediateBuildName(const std::string& buildName) { _intermediateBuildName = buildName; }
+        const std::string& getIntermediateBuildName() const { return _intermediateBuildName; }
+
+        void setLogFileName(const std::string& logFileName) { _logFileName = logFileName; }
+        const std::string& getLogFileName() const { return _logFileName; }
+
+        void setTaskFileName(const std::string& taskFileName) { _taskFileName = taskFileName; }
+        const std::string& getTaskFileName() const { return _taskFileName; }
+
+        void setCommentString(const std::string& comment) { _comment = comment; }
+        const std::string& getCommentString() const { return _comment; }
+
+
+        void setMaximumTileTerrainSize(unsigned int size) { _maximumTileTerrainSize = size; }
+        unsigned int getMaximumTileTerrainSize() const { return _maximumTileTerrainSize; }
+
+        void setMaximumVisibleDistanceOfTopLevel(float d) { _maximumVisiableDistanceOfTopLevel = d; }
+        float getMaximumVisibleDistanceOfTopLevel() const { return _maximumVisiableDistanceOfTopLevel; }
+
+        void setRadiusToMaxVisibleDistanceRatio(float ratio) { _radiusToMaxVisibleDistanceRatio = ratio; }
+        float getRadiusToMaxVisibleDistanceRatio() const { return _radiusToMaxVisibleDistanceRatio; }
+    
+        void setVerticalScale(float verticalScale) { _verticalScale = verticalScale; }
+        float getVerticalScale() const { return _verticalScale; }
+               
+        void setSkirtRatio(float skirtRatio) { _skirtRatio = skirtRatio; }
+        float getSkirtRatio() const { return _skirtRatio; }
+
+
+        void setUseInterpolatedTerrainSampling(bool flag) { _useInterpolatedTerrainSampling = flag; }
+        bool getUseInterpolatedTerrainSampling() const { return _useInterpolatedTerrainSampling; }
+
+        void setBuildOverlays(bool flag) { _buildOverlays = flag; }
+        bool getBuildOverlays() const { return _buildOverlays; }
+
+        void setReprojectSources(bool flag) { _reprojectSources = flag; }
+        bool getReprojectSources() const { return _reprojectSources; }
+
+        void setGenerateTiles(bool flag) { _generateTiles = flag; }
+        bool getGenerateTiles() const { return _generateTiles; }
+
+        void setConvertFromGeographicToGeocentric(bool flag) { _convertFromGeographicToGeocentric = flag; }
+        bool getConvertFromGeographicToGeocentric() const { return _convertFromGeographicToGeocentric; }
+
+
+        void setUseLocalTileTransform(bool flag) { _useLocalTileTransform = flag; }
+        bool getUseLocalTileTransform() const { return _useLocalTileTransform; }
+        
+        void setSimplifyTerrain(bool flag) { _simplifyTerrain = flag; }
+        bool getSimplifyTerrain() const { return _simplifyTerrain; }
+        
+
+        void setDecorateGeneratedSceneGraphWithCoordinateSystemNode(bool flag) { _decorateWithCoordinateSystemNode = flag; }
+        bool getDecorateGeneratedSceneGraphWithCoordinateSystemNode() const { return _decorateWithCoordinateSystemNode; }
+
+
+        void setDecorateGeneratedSceneGraphWithMultiTextureControl(bool flag) { _decorateWithMultiTextureControl = flag; }
+        bool getDecorateGeneratedSceneGraphWithMultiTextureControl() const { return _decorateWithMultiTextureControl; }
+
+
+        void setWriteNodeBeforeSimplification(bool flag) { _writeNodeBeforeSimplification = flag; }
+        bool getWriteNodeBeforeSimplification() const { return _writeNodeBeforeSimplification; }
+
+
+        enum DatabaseType
+        {
+            LOD_DATABASE,
+            PagedLOD_DATABASE
+        };
+        
+        void setDatabaseType(DatabaseType type) { _databaseType = type; }
+        DatabaseType getDatabaseType() const { return _databaseType; }
+
+        enum GeometryType
+        {
+            HEIGHT_FIELD,
+            POLYGONAL,
+            TERRAIN
+        };
+        
+        void setGeometryType(GeometryType type) { _geometryType = type; }
+        GeometryType getGeometryType() const { return _geometryType; }
+
+
+
+        void setDestinationCoordinateSystem(const std::string& wellKnownText);
+        const std::string& getDestinationCoordinateSystem() const { return _destinationCoordinateSystemString; }
+        
+        void setDestinationCoordinateSystemFormat(const std::string& format) { _destinationCoordinateSystem->setFormat(format); }
+        const std::string& getDestinationCoordinateSystemFormat() const { return _destinationCoordinateSystem->getFormat(); }
+        
+        void setRadiusEquator(double radius) { osg::EllipsoidModel* em = getEllipsoidModel(); if (em) em->setRadiusEquator(radius); }
+        double getRadiusEquator() const { const osg::EllipsoidModel* em = getEllipsoidModel(); return em ? em->getRadiusEquator() : 0.0; }
+
+        void setRadiusPolar(double radius) { osg::EllipsoidModel* em = getEllipsoidModel(); if (em) em->setRadiusPolar(radius); }
+        double getRadiusPolar() const { const osg::EllipsoidModel* em = getEllipsoidModel(); return em ? em->getRadiusPolar() : 0.0;  }
+
+        void setDestinationCoordinateSystemNode(osg::CoordinateSystemNode* cs);
+        osg::CoordinateSystemNode* getDestinationCoordinateSystemNode() { return _destinationCoordinateSystem.get(); }
+        
+        void setDestinationExtents(const GeospatialExtents& extents) { _extents = extents; }
+        const GeospatialExtents& getDestinationExtents() const { return _extents; }
+
+        osg::EllipsoidModel* getEllipsoidModel() { return _destinationCoordinateSystem.valid() ? _destinationCoordinateSystem->getEllipsoidModel() : 0; }
+        const osg::EllipsoidModel* getEllipsoidModel() const { return _destinationCoordinateSystem.valid() ? _destinationCoordinateSystem->getEllipsoidModel() : 0; }
+
+        void setMaximumNumOfLevels(unsigned int levels) { _maximumNumOfLevels = levels; }
+        unsigned int getMaximumNumOfLevels() const { return _maximumNumOfLevels; }
+
+        void setDistributedBuildSplitLevel(unsigned int level) { _distributedBuildSplitLevel = level; }
+        unsigned int getDistributedBuildSplitLevel() const { return _distributedBuildSplitLevel; }
+
+        void setDistributedBuildSecondarySplitLevel(unsigned int level) { _distributedBuildSecondarySplitLevel = level; }
+        unsigned int getDistributedBuildSecondarySplitLevel() const { return _distributedBuildSecondarySplitLevel; }
+
+        void setRecordSubtileFileNamesOnLeafTile(bool recordSubtileFileNamesOnLeafTile) { _recordSubtileFileNamesOnLeafTile = recordSubtileFileNamesOnLeafTile; }
+        bool getRecordSubtileFileNamesOnLeafTile() const { return _recordSubtileFileNamesOnLeafTile; }
+
+        void setGenerateSubtile(bool generateSubtile) { _generateSubtile = generateSubtile; }
+        bool getGenerateSubtile() const { return _generateSubtile; }
+
+        void setSubtileLevel(unsigned int level) { _subtileLevel = level; }
+        unsigned int getSubtileLevel() const { return _subtileLevel; }
+
+        void setSubtileX(unsigned int x) { _subtileX = x; }
+        unsigned int getSubtileX() const { return _subtileX; }
+
+        void setSubtileY(unsigned int y) { _subtileY = y; }
+        unsigned int getSubtileY() const { return _subtileY; }
+        
+        enum NotifyLevel {
+            ALWAYS=osg::ALWAYS,
+            FATAL=osg::FATAL,
+            WARN=osg::WARN,
+            NOTICE=osg::NOTICE,
+            INFO=osg::INFO,
+            DEBUG_INFO=osg::DEBUG_INFO,
+            DEBUG_FP=osg::DEBUG_FP
+        };
+
+        void setNotifyLevel(const std::string& level);
+        void setNotifyLevel(NotifyLevel level);
+        NotifyLevel getNotifyLevel() const { return _notifyLevel; }
+        
+        void setDisableWrites(bool flag) { _disableWrites = flag; }
+        bool getDisableWrites() const { return _disableWrites; }
+        
+        void setNumReadThreadsToCoresRatio(float ratio) { _numReadThreadsToCoresRatio = ratio; }
+        float getNumReadThreadsToCoresRatio() const { return _numReadThreadsToCoresRatio; }
+        
+        void setNumWriteThreadsToCoresRatio(float ratio) { _numWriteThreadsToCoresRatio = ratio; }
+        float getNumWriteThreadsToCoresRatio() const { return _numWriteThreadsToCoresRatio; }
+        
+        void setBuildOptionsString(const std::string& str) { _buildOptionsString = str; }
+        const std::string& getBuildOptionsString() const { return _buildOptionsString; }
+
+        void setWriteOptionsString(const std::string& str) { _writeOptionsString = str; }
+        const std::string& getWriteOptionsString() const { return _writeOptionsString; }
+
+        enum LayerInheritance
+        {
+            INHERIT_LOWEST_AVAILABLE,
+            INHERIT_NEAREST_AVAILABLE,
+            NO_INHERITANCE
+        };
+        
+        void setLayerInheritance(LayerInheritance inheritance) { _layerInheritance = inheritance; }
+        LayerInheritance getLayerInheritance() const { return _layerInheritance; }
+
+        void setAbortTaskOnError(bool flag) { _abortTaskOnError = flag; }
+        bool getAbortTaskOnError() const { return _abortTaskOnError; }
+
+        void setAbortRunOnError(bool flag) { _abortRunOnError = flag; }
+        bool getAbortRunOnError() const { return _abortRunOnError; }
+        
+        enum LayerOutputPolicy
+        {
+            INLINE,
+            EXTERNAL_LOCAL_DIRECTORY,
+            EXTERNAL_SET_DIRECTORY
+        };
+        
+        void setDefaultImageLayerOutputPolicy(LayerOutputPolicy policy) { _defaultImageLayerOutputPolicy = policy; }
+        LayerOutputPolicy getDefaultImageLayerOutputPolicy() const { return _defaultImageLayerOutputPolicy; }
+        
+        void setDefaultElevationLayerOutputPolicy(LayerOutputPolicy policy) { _defaultElevationLayerOutputPolicy = policy; }
+        LayerOutputPolicy getDefaultElevationLayerOutputPolicy() const { return _defaultElevationLayerOutputPolicy; }
+        
+        void setOptionalImageLayerOutputPolicy(LayerOutputPolicy policy) { _optionalImageLayerOutputPolicy = policy; }
+        LayerOutputPolicy getOptionalImageLayerOutputPolicy() const { return _optionalImageLayerOutputPolicy; }
+        
+        void setOptionalElevationLayerOutputPolicy(LayerOutputPolicy policy) { _optionalElevationLayerOutputPolicy = policy; }
+        LayerOutputPolicy getOptionalElevationLayerOutputPolicy() const { return _optionalElevationLayerOutputPolicy; }
+
+        void clearOptionalLayerSet() { _optionalLayerSet.clear(); }
+        void addOptionalLayerSet(const std::string& setname) { _optionalLayerSet.insert(setname); }
+        void removeOptionalLayerSet(const std::string& setname) { _optionalLayerSet.erase(setname); }
+        
+        bool isOptionalLayerSet(const std::string& setname) const { return _optionalLayerSet.count(setname)!=0; }
+        
+        typedef std::set<std::string> OptionalLayerSet;
+        void setOptionalLayerSet(const OptionalLayerSet& ols) { _optionalLayerSet = ols; }
+        OptionalLayerSet& getOptionalLayerSet() { return _optionalLayerSet; }
+        const OptionalLayerSet& getOptionalLayerSet() const { return _optionalLayerSet; }
+
+        void setRevisionNumber(unsigned int num) { _revisionNumber = num; }
+        unsigned int getRevisionNumber() const { return _revisionNumber; }
+
+        enum BlendingPolicy
+        {
+            INHERIT = osgTerrain::TerrainTile::INHERIT,
+            DO_NOT_SET_BLENDING = osgTerrain::TerrainTile::DO_NOT_SET_BLENDING,
+            ENABLE_BLENDING = osgTerrain::TerrainTile::ENABLE_BLENDING,
+            ENABLE_BLENDING_WHEN_ALPHA_PRESENT  = osgTerrain::TerrainTile::ENABLE_BLENDING_WHEN_ALPHA_PRESENT
+        };
+
+        /** Set the policy to use when deciding whether to enable/disable blending and use of transparent bin.*/
+        void setBlendingPolicy(BlendingPolicy policy) { _blendingPolicy = policy; }
+
+        /** Get the policy to use when deciding whether to enable/disable blending and use of transparent bin.*/
+        BlendingPolicy getBlendingPolicy() const { return _blendingPolicy; }
+
+        enum CompressionMethod
+        {
+            GL_DRIVER, //Use a GL context to do the compression
+            NVTT, //Use NVTT based compression, using CUDA if available
+            NVTT_NOCUDA //Use NVTT based compression with CUDA disabled
+        };
+
+        void setCompressionMethod(CompressionMethod compressionMethod) { _compressionMethod = compressionMethod; }
+        CompressionMethod getCompressionMethod() const { return _compressionMethod; }        
+
+        //Only applies when using NVVT compression. 
+        enum CompressionQuality
+        {
+            FASTEST,
+            NORMAL,
+            PRODUCTION,
+            HIGHEST
+        };
+
+        void setCompressionQuality(CompressionQuality compressionQuality) { _compressionQuality = compressionQuality; }
+        CompressionQuality getCompressionQuality() const { return _compressionQuality ; } 
+
+
+        void setLayerImageOptions(unsigned int layerNum, vpb::ImageOptions* imageOptions);
+        vpb::ImageOptions* getLayerImageOptions(unsigned int layerNum);
+        const vpb::ImageOptions* getLayerImageOptions(unsigned int layerNum) const;
+        unsigned int getNumLayerImageOptions() const { return _imageOptions.size(); }
+        const vpb::ImageOptions* getValidLayerImageOptions(unsigned int layerNum) const
+        {
+            const vpb::ImageOptions* io = getLayerImageOptions(layerNum);
+            return io ? io : this;
+        }
+
+        unsigned int getLayerMaximumTileImageSize(unsigned int layer) const { return getValidLayerImageOptions(layer)->getMaximumTileImageSize(); }
+
+    protected:
+
+
+        bool                                        _buildOverlays;
+        bool                                        _reprojectSources;
+        bool                                        _generateTiles;
+        bool                                        _convertFromGeographicToGeocentric;
+        bool                                        _decorateWithCoordinateSystemNode;
+        bool                                        _decorateWithMultiTextureControl;
+        bool                                        _simplifyTerrain;
+        bool                                        _useLocalTileTransform;
+        bool                                        _writeNodeBeforeSimplification;
+        DatabaseType                                _databaseType;
+        float                                       _maximumVisiableDistanceOfTopLevel;
+        float                                       _radiusToMaxVisibleDistanceRatio;
+        float                                       _skirtRatio;
+        float                                       _verticalScale;
+        GeometryType                                _geometryType;
+        GeospatialExtents                           _extents;
+        osg::ref_ptr<osg::CoordinateSystemNode>     _destinationCoordinateSystem;
+
+        bool                                        _useInterpolatedTerrainSampling;
+
+        std::string                                 _archiveName;
+        std::string                                 _comment;
+        std::string                                 _destinationCoordinateSystemString;
+        std::string                                 _directory;
+        bool                                        _outputTaskDirectories;
+        std::string                                 _intermediateBuildName;
+        std::string                                 _logFileName;
+        std::string                                 _taskFileName;
+        std::string                                 _tileBasename;
+        std::string                                 _tileExtension;
+        unsigned int                                _maximumNumOfLevels;
+        unsigned int                                _maximumTileTerrainSize;
+        
+        
+        unsigned int                                _distributedBuildSplitLevel;
+        unsigned int                                _distributedBuildSecondarySplitLevel;
+
+        bool                                        _recordSubtileFileNamesOnLeafTile;
+        bool                                        _generateSubtile;
+        unsigned int                                _subtileLevel;
+        unsigned int                                _subtileX;
+        unsigned int                                _subtileY;
+        
+        NotifyLevel                                 _notifyLevel;
+        bool                                        _disableWrites;
+        
+        float                                       _numReadThreadsToCoresRatio;
+        float                                       _numWriteThreadsToCoresRatio;
+        
+        std::string                                 _buildOptionsString;
+        std::string                                 _writeOptionsString;
+
+        LayerInheritance                            _layerInheritance;
+        
+        bool                                        _abortTaskOnError;
+        bool                                        _abortRunOnError;
+        
+        LayerOutputPolicy                           _defaultImageLayerOutputPolicy;
+        LayerOutputPolicy                           _defaultElevationLayerOutputPolicy;
+        LayerOutputPolicy                           _optionalImageLayerOutputPolicy;
+        LayerOutputPolicy                           _optionalElevationLayerOutputPolicy;
+        
+        OptionalLayerSet                            _optionalLayerSet;
+
+        unsigned int                                _revisionNumber;
+
+        BlendingPolicy                              _blendingPolicy;
+
+        CompressionMethod                           _compressionMethod;
+        CompressionQuality                          _compressionQuality;
+
+        typedef std::vector< osg::ref_ptr<ImageOptions> > LayerImageOptions;
+        LayerImageOptions                            _imageOptions;
+};
+
+}
+
+#endif

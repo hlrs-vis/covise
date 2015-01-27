@@ -1,0 +1,66 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+		{isosurface_net}{covise/net/general/examples/IsoSurface.net}{0.6}\end{covimg}
+
+The first example network shows an isosurface generation using data from the GenDat module. The
+meshIn port of the IsoSurface module is connected to the meshOut port of the GenDat module. The isoDataIn is
+connected to the scalar data output port of GenDat. Only the meshOut port of the IsoSurface module has been
+connected to the Collect module in this example to test the normal generation feature of the Inventor renderer. It is
+recommended to use the normal output of the isosurface module in normal cases.  
+
+You find the map in the directory {\bf covise/net/general/examples}.  
+
+The next image is a snapshot of the results in the Inventor Renderer.  
+
+\begin{covimg2}{}{renderer_snapshot}{0.7}\end{covimg2}
+
+\clearpage
+
+The next two images show a slightly more complicated example (IsoSurface2.net) and the
+corresponding renderer output.
+
+\begin{covimg}{}
+		{isosurface2_net}{covise/net/general/examples/IsoSurface2.net}{0.6}\end{covimg}
+
+\begin{covimg2}{}{renderer2_snapshot}{0.7}\end{covimg2}
+%
+%=============================================================
+\clearpage
+
+\subsubsection{Tunable Parameters}
+%=============================================================
+%
+The IsoSurface module algorithm for unstructured grids has to
+allocate memory for the output vertices and the data interpolated
+on it. The size of this allocation is based on heuristics and
+by default set to 20\% of the number of vertices in the input
+data set. However, this might not be enough for some data sets,
+especially if the Isosurface is extremely wrinkled.
+
+In this case, the module terminates execution, submits a message,
+increases the ratio by 5\% and re-executes itself. To prevent
+this procedure, establish a higher starting value by putting
+a section with a higher value (e.g. 50\%) into your covise.config:
+
+\begin{verbatim}
+IsoSurface
+{
+   # Ratio of array size to number of input vertices in Percent
+   VERTEX_RATIO   50
+}
+\end{verbatim}
+
+This value is used by both IsoSurface and IsoSurfaceP. The
+theoretical maximum value is 300\% (VERTEX\_RATIO 300).
+
+%

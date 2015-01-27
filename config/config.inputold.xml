@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<COCONFIG version="1">
+<GLOBAL>
+    <COVER>
+        <Input>
+            <Devices>
+                <NumDevices value = "1"/>
+
+                <Device name="0">
+                    <type value="Some_Device"/>
+                </Device>
+
+            </Devices>
+
+            <TrackingBodies>
+
+                <NumTrackingBodies value="2"/>
+
+                    <TrackingBody name="0">
+                    <device value="OLDSYSTEM"/>
+                    <devidx value="0"/>
+                    <descr  value="PowerWallHeadOld"/>
+                    <Offset x="-105" y="-40" z="-50" />
+                    <Orientation h="0" p="0" r="0" />
+                </TrackingBody>
+
+                <TrackingBody name="1">
+                    <device value="OLDSYSTEM"/>
+                    <devidx value="1"/>
+                    <descr  value="PowerWallHandOld1"/>
+                    <Offset x="-50" y="0" z="0" />
+                    <Orientation h="0" p="-90" r="0" />
+                </TrackingBody>
+
+            </TrackingBodies>
+
+            <ButtonDevices>
+                <NumButtonDevices value="1"/>
+                <ButtonDevice name="0" device="OLDSYSTEM" devidx="1"  descr="PowerWallMouseOld"/>
+            </ButtonDevices>
+
+            <Persons>
+                <NumPersons value="1"/>
+                <Person name="0" headdev="PowerWallHeadOld" handdev="PowerWallHandOld1" btndev="PowerWallMouseOld"/>
+            </Persons>
+        </Input>
+    </COVER>
+</GLOBAL>
+</COCONFIG>

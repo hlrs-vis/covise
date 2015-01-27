@@ -1,0 +1,60 @@
+# @file
+# 
+# CMakeLists.txt for sys ScriptingInterface (_covise)
+#
+# @author Blasius Czink
+
+SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{EXTERNLIBS}/swig")
+COVISE_FIND_PACKAGE(SWIG)
+IF(NOT SWIG_FOUND)
+  MESSAGE("SWIG Executable not found! Skipping ScriptingInterface (_covise)")
+  RETURN()
+ENDIF()
+INCLUDE(${SWIG_USE_FILE})
+
+IF(NOT PYTHONLIBS_FOUND)
+  MESSAGE("PYTHONLIBS not found! Skipping ScriptingInterface (_covise)")
+  RETURN()
+ENDIF()
+
+IF(WIN32)
+  REMOVE_DEFINITIONS(-DDEBUG)
+ENDIF(WIN32)
+
+INCLUDE_DIRECTORIES(
+  ${PYTHON_INCLUDE_DIRS}
+)
+
+IF(MSVC)
+  # arrrgh pyconfig.h contains a #pragma comment(lib,"python27_d.lib")
+  GET_FILENAME_COMPONENT(PYTHON_LIB_DIR "${PYTHON_DEBUG_LIBRARY}" PATH)
+  LINK_DIRECTORIES(${PYTHON_LIB_DIR})
+ENDIF(MSVC)
+
+SET(CMAKE_SWIG_FLAGS "")
+SET(SWIGSOURCE "${CMAKE_CURRENT_SOURCE_DIR}/scriptInterface.i")
+SET(SCRIPTING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/scriptInterface.cpp")
+
+SET_SOURCE_FILES_PROPERTIES(${SWIGSOURCE} PROPERTIES CPLUSPLUS ON)
+#SET_SOURCE_FILES_PROPERTIES(${SWIGSOURCE} PROPERTIES SWIG_FLAGS "-modern -py3")
+
+# ${SWIG_MODULE_covise_REAL_NAME} contains actual targetname
+SWIG_ADD_MODULE(covise python ${SWIGSOURCE} ${SCRIPTING_SRC})
+COVISE_ADJUST_OUTPUT_DIR(${SWIG_MODULE_covise_REAL_NAME})
+SWIG_LINK_LIBRARIES(covise coAppl ${PYTHON_LIBRARIES})
+
+# for VisualStudio it seems we have to rename debug versions to *_d.pyd
+IF(MSVC)
+  IF("${ARCHSUFFIX}" STREQUAL "${BASEARCHSUFFIX}")
+    SET_TARGET_PROPERTIES(${SWIG_MODULE_covise_REAL_NAME} PROPERTIES OUTPUT_NAME_DEBUG "_covise_d")
+  ENDIF()
+ENDIF(MSVC)
+
+# place covise.py in the correct directory
+ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py ${COVISEDIR}/${ARCHSUFFIX}/lib/covise.py
+)
+# place scriptingInterface.py in the output directory
+ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py scriptInterface.py
+)

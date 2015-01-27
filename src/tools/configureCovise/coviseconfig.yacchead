@@ -1,0 +1,118 @@
+%name Parser
+
+
+%header{
+
+// #define YYSTYPE double
+#ifdef __hpux
+#include <alloca.h>
+#include <fstream.h>
+#include <iostream.h>
+#include <iomanip.h>
+#include <string.h>
+#else
+#ifdef __sgi
+#include <alloca.h>
+#endif
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <string>
+#endif
+#include <math.h>
+#include <stdlib.h>
+#include <FlexLexer.h>
+#include "attribute.h"
+#include "scanner.h"
+
+#include "parser.h"
+/* The action class is the interface between parser and the rest of the compiler
+   depending on its implementation
+*/
+
+#include "action.h"
+
+#define THREEINT(section,item,x,y,z) action->section(Parser::item, #item, getCurrHost(), x->getInt(),y->getInt(),z->getInt())
+#define ONESTRING(section,item,s) action->section(Parser::item, #item, getCurrHost(), s->getString())
+#define TWOSTRING(section,item,s1,s2) action->section(Parser::item, #item, getCurrHost(), s1->getString(),s2->getString())
+#define ONEINT(section, item, i) action->section(Parser::item, #item, getCurrHost(), i->getInt())
+#define THREEFLOAT(section,item,x,y,z) action->section(Parser::item, #item, getCurrHost(), x->getDouble(),y->getDouble(),z->getDouble())
+#define FOURFLOAT(section,item,x,y,z,w) action->section(Parser::item, #item, getCurrHost(), x->getDouble(),y->getDouble(),z->getDouble(),w->getDouble())
+#define ONEENUM(section,item,value) action->section(Parser::item, #item, getCurrHost(), Parser::value, #value); 
+#define INTENUM(section,item,intval,enumval) action->section(Parser::item, getCurrHost(), #item, intval->getInt(),Parser::enumval, #enumval); 
+#define ONEBOOL(section,item,value) action->section(Parser::item, #item, getCurrHost(), value->getBoolean()); 
+#define ONEFLOAT(section,item,x) action->section(Parser::item, #item, getCurrHost(), x->getDouble()); 
+#define UNDOCUMENTED
+#define ENUMERATE(section,listname,list)
+//Macros for VRPinboard
+#define VRPONESTRING(item,s) action->COVERPinboard(Parser::item,#item,getCurrHost(),s->getString(),"");
+#define VRPNONE(item) action->COVERPinboard(Parser::item,#item,getCurrHost(),"NONE","");
+#define VRPSTD(item) action->COVERPinboard(Parser::item,#item,getCurrHost(),"","");
+%}
+%union
+{
+        attribute *attr;
+};
+
+%define MEMBERS virtual ~Parser(){delete currHost_;}\
+Parser(actionClass *act,char *fileName) { \
+       currHost_=new char[1+strlen("default")];\
+       colorMapName_=NULL;\
+        unimplementedSectionName_ =NULL;\
+       strcpy(currHost_, "default");\
+       action=act;input.open(fileName, ios::in);\
+       lexer = new Scanner(&input);} \
+ifstream input;\
+Scanner *lexer;\
+char *currHost_;\
+char *colorMapName_;\
+char *unimplementedSectionName_;\
+void setCurrHost(const char *name){ \
+        cout << "addToListForHosts " << name << endl; \
+        delete [] currHost_;\
+        currHost_=new char[1+strlen(name)];\
+         strcpy(currHost_, name);}\
+char *getCurrHost(){return currHost_;}\
+void setColorMapName(const char *name){ \
+        delete [] colorMapName_;\
+        colorMapName_=new char[1+strlen(name)];\
+         strcpy(colorMapName_, name);}\
+char *getColorMapName(){return colorMapName_;}\
+void setUnimplementedSectionName(const char *name){ \
+        if(NULL!= unimplementedSectionName_) delete [] unimplementedSectionName_;\
+        unimplementedSectionName_=new char[1+strlen(name)];\
+         strcpy(unimplementedSectionName_, name);}\
+char *getUnimplementedSectionName(){if(NULL== unimplementedSectionName_){cout << "hamwanich!!!!!" << endl;return "hamwanich!";} return unimplementedSectionName_;}\
+actionClass *action;
+
+
+%define LEX_BODY {return lexer->yylex();}
+%define ERROR_BODY { cout << "lappend errList { Syntax error in line "  << lexer->getLineNo() << " " \
+        << lexer->YYText() << " not recognized "   << "}" << endl; }
+
+
+
+
+
+  /* BISON Declarations */
+%token 
+<attr> INTEGER 
+<attr> FLOAT 
+<attr> STRING 
+<attr> BOOLEAN
+<attr> UNIMPLEMENTED
+<attr> UNIMPLEMENTEDLINE
+%type <attr> string
+%type <attr> number
+%type <attr> boolean
+%type <attr> sharedmemory
+%type <attr> executionmode
+%type <attr> unimplemented
+%type <attr> unimplementedline
+%type <attr> specialname
+%type <attr> name
+
+
+
+%token
+OPENBRACE CLOSEBRACE COMMENT  EMPTYSTRING COLON UNDERSCORE  UNIMPLEMENTED UNIMPLEMENTEDLINE

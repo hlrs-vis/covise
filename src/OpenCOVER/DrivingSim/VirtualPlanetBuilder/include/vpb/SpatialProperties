@@ -1,0 +1,305 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef SPATIALPROPERTIES_H
+#define SPATIALPROPERTIES_H 1
+
+#include <osg/Vec2d>
+#include <osg/CoordinateSystemNode>
+#include <osg/Notify>
+
+#include <float.h>
+
+#include <vpb/Export>
+
+namespace vpb
+{
+
+enum CoordinateSystemType
+{
+    GEOCENTRIC,
+    GEOGRAPHIC,
+    PROJECTED,
+    LOCAL
+};
+
+extern CoordinateSystemType getCoordinateSystemType(const osg::CoordinateSystemNode* lhs);
+extern std::string coordinateSystemStringToWTK(const std::string& coordinateSystem);
+extern double getLinearUnits(const osg::CoordinateSystemNode* lhs);
+extern bool areCoordinateSystemEquivalent(const osg::CoordinateSystemNode* lhs,const osg::CoordinateSystemNode* rhs);
+
+/** GeospatialExtents contains xmin/max and ymin/max for a spatial boundary.
+*/
+class GeospatialExtents
+{
+public:
+
+    osg::Vec2d  _min;
+    osg::Vec2d  _max;
+    bool        _isGeographic;
+    
+    inline GeospatialExtents() : 
+        _min(DBL_MAX,DBL_MAX),
+        _max(-DBL_MAX,-DBL_MAX),
+        _isGeographic(false) {}
+
+    inline GeospatialExtents(const GeospatialExtents& rhs):
+        _min(rhs._min),
+        _max(rhs._max),
+        _isGeographic(rhs._isGeographic) {}
+
+  /** Initialize GeospatialExtents from doubles and Geographic indicator.
+    * Order of xmin vs xmax and ymin vs ymax are significant.
+  */
+    inline GeospatialExtents(double xmin, double ymin, double xmax, double ymax, bool isGeographic) :
+        _min(xmin, ymin),
+        _max(xmax, ymax),
+        _isGeographic(isGeographic) {}
+        
+    GeospatialExtents& operator = (const GeospatialExtents& rhs)
+    {
+        _min = rhs._min;
+        _max = rhs._max;
+        _isGeographic = rhs._isGeographic;
+        return *this;
+    }
+
+    bool operator != (const GeospatialExtents& rhs) const
+    {
+        return (_min != rhs._min) || (_max != rhs._max) || (_isGeographic != rhs._isGeographic);
+    }
+
+    bool operator == (const GeospatialExtents& rhs) const
+    {
+        return (_min == rhs._min) && (_max == rhs._max) && (_isGeographic == rhs._isGeographic);
+    }
+
+    bool equivalent(const GeospatialExtents& rhs, double epsilon=1e-6) const
+    {
+        return osg::equivalent(_min.x(),rhs._min.x(),epsilon) &&
+               osg::equivalent(_min.y(),rhs._min.y(),epsilon) && 
+               osg::equivalent(_max.x(),rhs._max.x(),epsilon) && 
+               osg::equivalent(_max.y(),rhs._max.y(),epsilon) && 
+               _isGeographic == rhs._isGeographic;
+    }
+
+    inline double& xMin() { return _min.x(); }
+    inline double xMin() const { return _min.x(); }
+
+    inline double& yMin() { return _min.y(); }
+    inline double yMin() const { return _min.y(); }
+
+    inline double& xMax() { return _max.x(); }
+    inline double xMax() const { return _max.x(); }
+
+    inline double& yMax() { return _max.y(); }
+    inline double yMax() const { return _max.y(); }
+
+    inline void init()
+    {
+        _min.set(DBL_MAX,DBL_MAX);
+        _max.set(-DBL_MAX,-DBL_MAX);
+    }
+
+    inline bool valid() const
+    {
+        return _max.x()>=_min.x() &&  _max.y()>=_min.y();
+    }
+
+    inline bool nonZeroExtents() const
+    {
+        return valid() && _max.x()!=_min.x() &&  _max.y()!=_min.y();
+    }
+
+    inline double radius() const
+    {
+        return sqrt((radius2()));
+    }
+
+    inline double radius2() const
+    {
+        return 0.25f*((_max-_min).length2());
+    }
+
+    GeospatialExtents intersection(const GeospatialExtents& e, double xoffset) const
+    {
+        return GeospatialExtents(osg::maximum(xMin(),e.xMin()+xoffset),osg::maximum(yMin(),e.yMin()),
+                                 osg::minimum(xMax(),e.xMax()+xoffset),osg::minimum(yMax(),e.yMax()),_isGeographic);
+    }
+
+    /** Return true if this bounding box intersects the specified bounding box. */
+    bool intersects(const GeospatialExtents& bb) const
+    {
+        if (_isGeographic)
+        {
+            // first check vertical axis overlap
+            if (osg::maximum(yMin(),bb.yMin()) > osg::minimum(yMax(),bb.yMax())) return false;
+            
+            // next check if overlaps directly without any 360 degree horizontal shifts.
+            if (osg::maximum(xMin(),bb.xMin()) <= osg::minimum(xMax(),bb.xMax())) return true;
+            
+            // next check if a 360 rotation will produce an overlap
+            float rotationAngle = (xMin() > bb.xMin()) ? 360.0 : -360;
+            return (osg::maximum(xMin(),bb.xMin()+rotationAngle) <= osg::minimum(xMax(),bb.xMax()+rotationAngle));
+        }
+        else
+        {
+            return (osg::maximum(xMin(),bb.xMin()) <= osg::minimum(xMax(),bb.xMax()) &&
+                    osg::maximum(yMin(),bb.yMin()) <= osg::minimum(yMax(),bb.yMax()));
+        }
+    }
+
+ 
+    void expandBy(const osg::BoundingSphere& sh)
+    {
+        if (!sh.valid()) return;
+
+        if(sh._center.x()-sh._radius<_min.x()) _min.x() = sh._center.x()-sh._radius;
+        if(sh._center.x()+sh._radius>_max.x()) _max.x() = sh._center.x()+sh._radius;
+
+        if(sh._center.y()-sh._radius<_min.y()) _min.y() = sh._center.y()-sh._radius;
+        if(sh._center.y()+sh._radius>_max.y()) _max.y() = sh._center.y()+sh._radius;
+    }
+
+    inline void expandBy(const osg::Vec3& v)
+    {
+        if(v.x()<_min.x()) _min.x() = v.x();
+        if(v.x()>_max.x()) _max.x() = v.x();
+
+        if(v.y()<_min.y()) _min.y() = v.y();
+        if(v.y()>_max.y()) _max.y() = v.y();
+    }
+
+    void expandBy(const GeospatialExtents& e)
+    {
+        if (!e.valid()) return;
+
+        if(e._min.x()<_min.x()) _min.x() = e._min.x();
+        if(e._max.x()>_max.x()) _max.x() = e._max.x();
+
+        if(e._min.y()<_min.y()) _min.y() = e._min.y();
+        if(e._max.y()>_max.y()) _max.y() = e._max.y();
+    }
+};
+
+struct VPB_EXPORT SpatialProperties
+{
+    enum DataType
+    {
+        NONE,
+        RASTER,
+        VECTOR
+    };
+
+    SpatialProperties():
+        _dataType(RASTER),
+        _numValuesX(0),
+        _numValuesY(0),
+        _numValuesZ(0) {}
+
+    SpatialProperties(const SpatialProperties& sp):
+        _cs(sp._cs),
+        _geoTransform(sp._geoTransform),
+        _extents(sp._extents),
+        _dataType(sp._dataType),
+        _numValuesX(sp._numValuesX),
+        _numValuesY(sp._numValuesY),
+        _numValuesZ(sp._numValuesZ) {}
+
+     SpatialProperties(osg::CoordinateSystemNode* cs, const GeospatialExtents& extents):
+        _cs(cs),
+        _extents(extents),
+        _dataType(RASTER),
+        _numValuesX(0),
+        _numValuesY(0),
+        _numValuesZ(0) {}
+
+    inline SpatialProperties& assignSpatialProperties(const SpatialProperties& sp)
+    {
+        if (&sp==this) return *this;
+
+        _cs = sp._cs;
+        _geoTransform = sp._geoTransform;
+        _extents = sp._extents;
+        _dataType = sp._dataType;
+        _numValuesX = sp._numValuesX;
+        _numValuesY = sp._numValuesY;
+        _numValuesZ = sp._numValuesZ;
+
+        return *this;
+    }
+
+
+    bool operator == (const SpatialProperties& rhs) const
+    {
+        if (_cs.valid() != rhs._cs.valid()) return false;
+        
+        if (_cs.valid() && (_cs->getCoordinateSystem() != rhs._cs->getCoordinateSystem())) return false;
+
+#if 0
+        osg::notify(osg::NOTICE)<<"  SpatialProperties::operator == () : _geoTransform == rhs._geoTransform"<<(_geoTransform == rhs._geoTransform)<<std::endl;
+        osg::notify(osg::NOTICE)<<"                                    _extents == rhs._extents  "<<(_extents == rhs._extents)<<std::endl;
+        osg::notify(osg::NOTICE)<<"                                    _extents.equivalent(rhs._extents)  "<<_extents.equivalent(rhs._extents)<<std::endl;
+        osg::notify(osg::NOTICE)<<"                                    _dataType == rhs._dataType  "<<(_dataType == rhs._dataType)<<std::endl;
+        osg::notify(osg::NOTICE)<<"                                    _numValuesX == rhs._numValuesX  "<<(_numValuesX == rhs._numValuesX)<<std::endl;
+        osg::notify(osg::NOTICE)<<"                                    _numValuesY == rhs._numValuesY  "<<(_numValuesY == rhs._numValuesY)<<std::endl;
+        osg::notify(osg::NOTICE)<<"                                    _numValuesZ == rhs._numValuesZ  "<<(_numValuesZ == rhs._numValuesZ)<<std::endl;
+#endif
+
+        double epsilon = 1e-6;
+        if (!osg::equivalent(_geoTransform(0,0),rhs._geoTransform(0,0),epsilon) ||
+            !osg::equivalent(_geoTransform(0,1),rhs._geoTransform(0,1),epsilon) ||
+            !osg::equivalent(_geoTransform(1,0),rhs._geoTransform(1,0),epsilon) ||
+            !osg::equivalent(_geoTransform(1,1),rhs._geoTransform(1,1),epsilon) ||
+            !osg::equivalent(_geoTransform(3,0),rhs._geoTransform(3,0),epsilon) ||
+            !osg::equivalent(_geoTransform(3,1),rhs._geoTransform(3,1),epsilon)) return false;
+
+        
+        return _extents.equivalent(rhs._extents) &&
+               _dataType == rhs._dataType &&
+               _numValuesX == rhs._numValuesX &&
+               _numValuesY == rhs._numValuesY &&
+               _numValuesZ == rhs._numValuesZ;
+    }
+    
+    void computeExtents();
+    
+    
+    /** return true if the two SpatialProperties objects have equivalent coordinate systems.*/
+    bool equivalentCoordinateSystem(const SpatialProperties& sp) const;
+    
+    /** return true if the two SpatialProperties objects intersect one another.*/
+    bool intersects(const SpatialProperties& sp) const;
+    
+    /** return true if the two SpatialProperties objects are equivalent.*/
+    bool compatible(const SpatialProperties& sp) const;
+    
+    /** compute the resolution ratio between two SpatialProperties.
+        return a ratio > 1.0 If the this SpatialProporty is of higher resolution than passed in one. */
+    double computeResolutionRatio(const SpatialProperties& sp) const;
+    
+    /** compute the effective resolution.*/
+    double computeResolution() const;
+
+    osg::ref_ptr<osg::CoordinateSystemNode>     _cs;
+    osg::Matrixd                                _geoTransform;
+    GeospatialExtents                           _extents;
+    DataType                                    _dataType;
+    unsigned int                                _numValuesX;
+    unsigned int                                _numValuesY;
+    unsigned int                                _numValuesZ;
+};
+
+}
+
+#endif

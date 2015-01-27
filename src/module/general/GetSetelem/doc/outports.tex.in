@@ -1,0 +1,29 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+\textcolor{output}{output\_0\ldots \newline output\_7} 
+& IntArr \newline
+  UniformGrid \newline
+  RectilinearGrid \newline
+  StructuredGrid \newline
+  UnstructuredGrid \newline
+  Points \newline
+  Lines \newline
+  Polygons \newline
+  TriangleStrips  
+& Output grid or output data for the selected element.  \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

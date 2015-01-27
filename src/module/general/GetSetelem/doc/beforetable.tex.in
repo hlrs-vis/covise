@@ -1,0 +1,36 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+GetSetelem performs the operation of selecting an element out of a set. 
+
+%
+% input of a module icon for example
+% #1    path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{getsetelem}{0.7}\end{covimg2}
+
+The ports are "symmetric". One port (you may select the first one) allows you to 
+perform this operation for a set of unstructured grids (or a tree-like set structure, 
+the leaves of which are grids). The other ports have a similar functionality, but
+work with unstructured data (scalar or vector) objects instead of unstructured grids.
+ 
+
+%\begin{covimg}{/home/sergio/docu/usersguide}{otro}{Here comes the caption}{0.7}\end{covimg}
+
+%
+% short information about versions
+%
+
+It has been tested on SGI platforms.
+
+%Information about versions is not available.
+
+
+%
+%=============================================================

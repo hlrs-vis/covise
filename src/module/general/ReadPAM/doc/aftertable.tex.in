@@ -1,0 +1,91 @@
+
+
+
+\subsubsection{Additional remarks}
+%=============================================================
+This module may fail to read one-dimensional elements
+for files generated with solvers older than version 96.
+
+Some variables of some one-dimensional elements may be
+vectors defined in the global coordinate reference system
+or in a local one. In the first case the label for this
+variable in the choice lists will be terminated with gVEC;
+in the latter case, with lVEC. 
+
+In order to help you 
+identify which kind of element some particular variable
+is defined for in the case of some exotic one-dimensional elements,
+we include in the termination of the variable title between
+parenthesis the following tags:
+\begin{itemize}
+\item
+bar1 stands for bar with material 205.
+\item
+sphJ stands for spherical joint.
+\item
+ftJ stands for flexion-torsion joint.
+\item
+sptW stands for spotwelds.
+\item
+kJ stands for kinematic joint.
+\item
+MIS stands for mesh-independent spotweld.
+\end{itemize}
+Other abbreviations should be clear.
+
+%
+%=============================================================
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+We present below two examples. 
+
+\begin{covimg}{}
+		{ReadPAM_map}{covise/net/examples/ReadPAM.net}{0.7}\end{covimg}
+The model of the first example
+uses three kinds of elements: shells, bars and mesh-independent
+spotwelds. We plot in the three renderers the following magnitudes:
+velocity per node, shell thickness and axial bar force. Note the
+use of \covlink{SplitUsg}{SplitUsg}{../../Filter/SplitUsg/SplitUsg.html}
+to realise the separation of elements of different dimensionality.
+Other modules that you may find useful when trying to visualise
+some parts of your model are
+\covlink{AssembleUsg}{AssembleUsg}{../../Tools/AssembleUsg/AssembleUsg.html},
+\covlink{CropUsg}{CropUsg}{../../Tools/CropUsg/CropUsg.html},
+\covlink{PartSelect}{PartSelect}{../../Tools/PartSelect/PartSelect.html} and
+\covlink{ClipInterval}{ClipInterval}{../../Filter/ClipInterval/ClipInterval.html}.
+Below we produce the renderer output of the shell thickness.
+
+\begin{covimg}{}
+		{ReadPAM_frame}{Shell thickness}{0.7}\end{covimg}
+
+\begin{covimg}{}
+		{ReadPAM1_map}{covise/net/examples/ReadPAM1.net}{0.7}\end{covimg}
+The model of the second example uses shells and tool elements.
+With this example we illustrate the visuallisation of
+non-local variables. We read file for the simulation
+of a multichambered airbag. We need in this case the modules
+\covlink{MakePlots}{MakePlots}{../../Tools/MakePlots/MakePlots.html} and
+\covlink{Plot}{Plot}{../../Renderer/Plot/Plot.html}.
+The Plot output for the temperatures in one of the airbag chambers
+is produced below.
+
+\begin{covimg}{}
+		{ReadPAM_airbag}{Temperature in one airbag chamber}{0.45}\end{covimg}
+
+
+%The above figure shows a map that performs reading the displaced FE meshes 
+%together with scalar state data. The following module \covlink
+%{DomainSurface}{DomainSurface}{../../Tools/DomainSurface/DomainSurface.html}
+%is applied to generate a surface polygon of the data-set.  
+%
+%The last figure is a snapshot of the renderer. It shows one step of an 
+%airbag visualization.  
+%
+%\begin{covimg2}	{modules/IO/ReadDyna3D}{renderer_snapshot}{0.7}\end{covimg2}
+
+
+
+

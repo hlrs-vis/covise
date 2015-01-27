@@ -1,0 +1,58 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}	
+{}{ReadTascflowMap}{covise/net/examples/ReadTascflowTDI.net}{0.7}\end{covimg}
+
+{\bf ReadTascflowTDI} reads a dataset from 3 files /covise/data/examples/general/tascflow/grd for the grid, 
+/covise/data/examples/general/Tascflow/rso for the results file and /covise/data/ examples/general/Tascflow/bcf 
+for block-off and boundary condition. With the choise parameter vector\_data\_1 we have selected \_UVW\_ (velocity) 
+for the output port vector1 and P (pressure) for output port scalar1. {\bf DomainSurfaceStr} is connected to the output port grid  and computes the outer surface of the set of structered grids. The {\bf EliminatePolygons} module 
+is connected with the bcf\_polygons of the {\bf ReadTascflowTDI} module and surface output port of the {\bf DomainSurfaceStr} module and eliminates the walls between the surfaces of the grid. 
+
+If you want to eliminate the block off regions, the second output port (block) should be connected to {\bf StoU} module which will do the conversion from structured to unstructured objects. This objects will be connected to {\bf SelectUsg} module and its parameter Selection will be set to 0. 
+
+The module {\bf Color} maps the selected data to colors and through the {\bf Collect} module 
+which is connected to the {\bf Renderer}, the colored surface is displayed in the Renderer. 
+For visualizing the selected vector data we use the {\bf TracerStr} module which computes particle 
+traces as lines. The particle traces starts on a line defined with startpoint\_1 and startpoint\_2.
+(Hint: To see these particle traces, cut off part of the geometry by using the Renderer
+option Viewing 
+\begin{htmlonly}>>\end{htmlonly} \latexonly $>>$ \endlatexonly clipping plane with Point
+(0.000,0.1500,0.000) and Normal (0.000,1.000,0.000))
+
+For highlighting the regions, you should connect the third port (region) directly to the {\bf Renderer} 
+after selecting the desired region in region\_names parameter (for example PIP\_S). 
+You can select also the color in region\_color parameter.
+(Hint: To see this highlighted region as shown in the second renderer image, cut off part of the geometry by Viewing 
+\begin{htmlonly}>>\end{htmlonly} \latexonly $>>$ \endlatexonly clipping plane with Point
+(0.000,0.0500,0.000) and Normal (0.000,1.000,0.000) and select color=white)
+
+If the data set contains timesteps files and you want to use them, then select the first 
+file of timesteps in steprsopath and write the desired number of steps in timesteps parameter. 
+If you would like to skip some files, indicate the desired number of skipped files for
+each step in skipped\_files 
+parameter (if you write 1, for example, then every second file will be read).
+
+The resulting grid and data can be observed in the next pictures of the Renderer. The second picture 
+shows an interface between grids and a highlighted region.
+    
+
+\begin{covimg2}	{}{ReadTascflowTDIRenderer1}{0.7}\end{covimg2}
+
+\begin{covimg2}	{}{ReadTascflowTDIRenderer2}{0.7}\end{covimg2}
+
+
+If there are some memory allocation problems which can occur in the TDI routines 
+because of some large data sets, you could increase the value of RWK, IWK and CWK 
+in the section ReadTascflowTDI of covise.config file.
+
+%-------------------------------------------------------------
+

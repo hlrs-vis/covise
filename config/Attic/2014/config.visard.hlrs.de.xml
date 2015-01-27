@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL/>
+
+ <LOCAL host="visard,visard.hlrs.de" >
+
+  <COVER>
+
+   <Background r="0" g="0" b="0" />
+
+   <!--SplashScreen value="/mnt/raid/media/images/splash/1600_1200.tif" width="1600" height="1200" /-->
+   
+   <WindowConfig>
+    <Window width="1600" comment="FRONT" window="0" pipeIndex="0" height="1200" left="0" bottom="0" name="0" decoration="false" />
+   </WindowConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+</COCONFIG>

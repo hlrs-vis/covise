@@ -1,0 +1,35 @@
+
+\subsubsection{Input Ports}
+%================================================================================
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{grid} & StructuredGrid \newline
+				     UnstructuredGrid \newline
+				     RectilinearGrid \newline
+				     UniformGrid \newline
+				     Points \newline
+				     Lines \newline
+				     Polygons &
+				     		     Required input port: structured,
+unstructured, rectilinear, uniform grid or a set of points, lines or polygons. \\
+\hline
+	\textcolor{optional}{colors} & Structured\_V3D\_Colors \newline
+				       Unstructured\_V3D\_Colors \newline
+				       RGBA\_Colors \newline
+				       Float
+				       				    & Optional input port:
+colors or data to be mapped. \\
+\hline
+	\textcolor{optional}{normals} & Structured\_V3D\_Normals \newline
+				        Unstructured\_V3D\_Normals
+									& Optional input port:
+structured or unstructured vector data. \\
+\hline
+	\textcolor{optional}{textures} & Textures & Optional input port: texture data. \\
+\hline
+\end{longtable}
+
+%================================================================================

@@ -1,0 +1,30 @@
+
+\subsubsection{Output Ports}
+%================================================================================
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{meshOut} & 
+                                 DO\_Polygons & The outer surface of the grid as polygons.\\
+											\hline
+ 	\textcolor{depend}{dataOut}	& DO\_Float 
+                                 DO\_Vec3 & If the optional input port is connected, the data on the vertices of the
+                                                            polygons of the outer surface are available at this port.
+																				\\
+\hline
+   \textcolor{output}{linesOut} &
+                                 DO\_Lines & Edge lines \\
+\hline
+	\textcolor{depend}{ldataOut} & 
+                                 DO\_Float
+                                 DO\_Vec3 & If the optional input port is connected, the data on the lines are
+                                                            available at this port. \\
+\hline
+\end{longtable}
+
+
+
+%================================================================================

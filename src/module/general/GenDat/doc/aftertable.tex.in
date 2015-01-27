@@ -1,0 +1,26 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+The following COVISE-net generates a uniform grid and maps the function 
+\textbf{Sines} to the surface of the grid. 
+ 
+\begin{covimg}{}
+               {testMap}{GenDat.net}{0.8}\end{covimg}
+
+The ouput on the Open Inventor Renderer is shown in the next picture.
+
+\begin{covimg}{}
+               {testOut}{Renderer output of GenDat.net}{0.65}\end{covimg}
+
+ 
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "~/covise/doc/usersguide/modules/modules"
+%%% End: 

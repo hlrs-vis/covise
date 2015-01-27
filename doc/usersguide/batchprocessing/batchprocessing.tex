@@ -1,0 +1,364 @@
+
+\begin{htmlonly}
+
+\input{../../htmlinc}
+\input{../../usersguide/defines}
+
+\end{htmlonly}
+
+%=============================================================
+\startdocument
+\chapter{Batch Processing in COVISE}
+\label{Batch_Processing}
+%=============================================================
+
+
+The {\bf Batch Processing} function has been provided together with COVISE version 5.3.1., and this Appendix
+provides a short introduction to (actual a presentation of) this topic.  
+
+\section{What does Batch Processing mean?}
+
+\begin{itemize}
+\item {\bf Historically:} A term from the early age of computing: A stack of input-decks (the program) was 
+brought to an operator to be processed.
+\item {\bf Today:} A set of commands which covers the whole functionality of a software to be processed 
+without a Graphical User Interface (GUI)
+\end{itemize}
+
+\section{Applications}
+
+{\bf User:}
+\begin{itemize}
+\item  Creation of individual converters.
+\item  Preparation of huge data-sets for interactive analysis (VR) 
+or presentations. Typical tasks: Cutting (CropUSG), 
+Sampling (Sample), Assembling (BlockCollect)...
+\item Specific animations.
+\end{itemize}
+
+{\bf Developer:}
+\begin{itemize}
+\item Testing
+\item New applications
+\item Rapid prototyping
+\end{itemize}
+
+\section{Implementation}
+
+{\bf New user interface:} the command-line \newline \newline
+
+{\bf Language used:} PYTHON \newline \newline
+
+{\bf Advantages of Python:}
+\begin{itemize}
+\item Open source {\bf (www.python.org)} and widespread in scientific computing
+\item Comprehensive syntax
+\item Rich on features (object orientation, huge package-library)
+\item extensible
+\end{itemize}
+\clearpage
+\section{Mapping of COVISE to PYTHON}
+
+\begin{covimg}{batchprocessing}{mapping}{Mapping of COVISE to PYTHON}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 7.1: Mapping of COVISE to PYTHON
+\vspace{0.5cm}
+\end{htmlonly}
+
+
+{\bf Rule:} Each module on the map-editor corresponds to an object 
+	     in Python; the map itself translates to an object called 
+	     \textit{\textbf{net}}
+
+\clearpage
+
+\section{How to begin?}
+
+{\bf Run Python-interface by typing: covise -- script [filename]}
+
+\begin{verbatim}
+[gromit|SNAP] ~ > covise -- script
+
+***************************************************************
+* COVISE 5.4_a1 starting up, please be patient....            *
+* Flexlm license of type STD_UI checked out...                *
+*                                                             *
+* Starting local request broker...                            *
+* Starting user interface....                                 *
+*  ******* COVISE PYTHON INTERFACE ********                   *
+* ...done initialization                                      *
+***************************************************************
+  COVISE PYTHON INTERFACE ready
+
+covise>
+\end{verbatim}
+
+{\it Note: Using the Python Interpreter provided by your Vendor}
+\newline
+
+On some Linux distributions incompatibilities between existing libraries and 
+the python interpreter included in covise may occur. In those cases  
+using  the python interpreter provided by your linux distributor can resolve 
+the problem. Known are incompatibilities at SuSE 9 and Mandrake 9.0 systems. 
+\newline
+
+In order to circumvent those problems do:
+
+\begin{itemize}
+\item Find out if python is already installed on your system:  
+\begin{verbatim} rpm -qa | grep python\end{verbatim}
+  should show you that the package is installed. If not, install python 
+  according to the rules of your distribution. The packages are currently 
+  included in all known linux distributions.
+\item Find the path to your python binary by typing `which python` 
+\item Set the environment variable COVISE\_LOCAL\_PYTHON to the result of the 
+  previous command (/usr/bin/python in many cases).
+\end{itemize}
+
+After entering covise --script    you should receive the following output:
+
+\begin{verbatim}
+	***************************************************************
+	* COVISE 5.3.2 starting up, please be patient....             *
+	* Flexlm license of type STD_UI checked out...                *
+	*                                                             *
+	* Starting local request broker...                            *
+	* Starting user interface....                                 *
+	* using local python interpreter  /usr/bin/python
+	*  ******* COVISE PYTHON INTERFACE ********                   *
+	* ...done initialization                                      *
+	***************************************************************
+		  COVISE PYTHON INTERFACE ready
+
+	covise>
+\end{verbatim}
+
+On some systems you might obtain a warning like:\newline
+
+\begin{verbatim}
+RuntimeWarning: Python C API version mismatch for module _covise: This Python 
+has API version 1012, module _covise has version 1011
+\end{verbatim}
+
+
+In most cases you can ignore this warning but nevertheless it is recommended to 
+check the proper functionality by converting an example COVISE map with the 
+tool map\_converter:
+
+\begin{verbatim}map\_converter -P -o converted.py $COVISEDIR/net/tutorial/channel.net\end{verbatim} 
+
+and run the resulting python-script  in COVISE-python by typing 
+the command
+ 
+\begin{verbatim}covise --script convertedNet.py\end{verbatim}
+ 
+In case problems occur due to 
+version incompatibilities of covise and the version of python provided by 
+your linux-distributor please contact support@visenso.de.  
+
+\clearpage
+
+\section{Python syntax}
+
+\subsection{Not COVISE related:}
+
+\begin{verbatim}
+covise> a=3                        
+covise> b=14
+\end{verbatim}
+	{\it --------- Assignment}
+\begin{verbatim}
+covise> print a+b		
+17
+\end{verbatim}
+	{\it --------- Output}
+\begin{verbatim}
+covise> i=0
+covise> for i in range(0,3):      
+...     print i
+...
+0
+1
+2
+\end{verbatim}
+	{\it --------- Loop}
+\begin{verbatim}
+covise> s="hello World"		
+covise> print s
+Hello World
+\end{verbatim}
+	{\it --------- String}
+
+
+\vspace{0.5cm}
+{\bf Comprehensive tutorial:}\newline
+	http://www.python.org/doc/2.2p1/tut/tut.html
+
+\clearpage
+
+\subsection{COVISE-related:}
+
+\begin{verbatim}
+covise> myNet=net()
+\end{verbatim}
+   	{\it --------- Create a net object - implicit after opening the map-editor}
+\begin{verbatim}
+covise> rin=RWCovise()
+\end{verbatim}
+	{\it --------- Create a RWCovise object}
+\begin{verbatim}
+covise> myNet.add( rin )
+\end{verbatim}
+	{\it --------- Add module to the net - drag RWCovise module to the visual programming area (VPA)}
+\begin{verbatim}
+covise> rin.showParams()		
+  set_grid_path( x )
+\end{verbatim}  
+  	{\it --------- Utility function}
+\begin{verbatim}
+covise> rin.showPorts()
+mesh_in
+mesh
+\end{verbatim}
+\begin{verbatim}
+covise> rin.set_grid_path("share/covise/example-data/COVISE/airbag.covise")
+\end{verbatim}	
+	{\it --------- Set parameter}
+\begin{verbatim}
+covise> render=Renderer()
+\end{verbatim}		
+	{\it --------- Create Renderer module}
+\begin{verbatim}
+covise> myNet.add( render )
+\end{verbatim}		
+	{\it --------- Add Renderer to net - drag Renderer to the VPA}
+\begin{verbatim}
+covise> myNet.connect(rin, "mesh", render, "RenderData")
+\end{verbatim}	
+	{\it --------- Create connection between modules}
+\begin{verbatim}
+covise> runMap()
+\end{verbatim}			
+	{\it --------- Guess what--} (-;
+\vspace{0.5cm}
+ 
+\subsection{Mapping rules: COVISE - Python}
+
+\begin{itemize}
+\item The Visual Programming Area is represented by the object net()
+\item Each COVISE-module is represented by a Python object of 
+the same name: Renderer \latexonly{$\rightarrow$}\endlatexonly \begin{htmlonly}->\end{htmlonly}Renderer()
+\item Each parameter of a COVISE-module is mapped by a 
+member-function with the prefix set\_   
+\end{itemize}
+
+{\bf Example:}
+
+\begin{verbatim}
+covise> re=ReadEnsightNT()
+covise> re.showParams()
+  set_case_file( x )
+  set_data for sdata1( x )
+  set_data for sdata2( x )
+  set_data for vdata1( x )
+  set_data for vdata2( x )
+  set_choose_parts( x )
+  set_repair connectivity( x )
+\end{verbatim}
+
+{\it Note:}\newline
+{\it Due to technical reasons you MUST set a parameter after you have added the module to the
+network!}
+
+\subsection{Details of the Python net() object:}
+
+\begin{verbatim}
+myNet.add( module )			
+\end{verbatim}
+	{\it --------- Add module to net}
+\begin{verbatim}
+[ mynet.remove( module ) ]		
+\end{verbatim}
+	{\it --------- Remove module from net}
+\begin{verbatim}
+myNet.save( filename )			
+\end{verbatim}
+	{\it --------- Save module into a COVISE net file}
+\begin{verbatim}
+myNet.connect( module1, portName1, module2, prtName2 )	
+\end{verbatim}
+	{\it --------- Connect two modules}
+\begin{verbatim}
+myNet.finishedBarrier() 		
+\end{verbatim}
+	\textit{\textbf{ ---------- Wait until all modules have finished their work !!}}
+\vspace{0.5cm}
+
+\subsection{Details of the Python module objects:}
+
+\begin{itemize}
+\item Parameter methods
+\item Utility methods 
+\end{itemize}
+
+\begin{verbatim}
+module.showParams()
+
+module.showPorts()
+\end{verbatim}
+
+{\it Note:}\newline
+{\it Due to technical reasons you MUST set a parameter after you have added the module to the
+network!}
+\vspace{0.5cm}
+
+\section{One step forward - one step back}
+
+COVISE-net file to Python:
+
+\begin{verbatim}
+    map_converter -P -o myFile.py myFile.net
+\end{verbatim}
+   
+Example airbag.net:
+
+\begin{verbatim}
+#
+#   converted with COVISE (C) map_converter
+#   from /home/ralfm_te/covise_snap/net/examples/Airbag.net
+#
+# create global net
+#
+theNet = net()
+#
+# MODULE: RWCovise
+#
+RWCovise_1 = RWCovise()
+theNet.add( RWCovise_1 )
+#
+# set parameter values
+#
+RWCovise_1.set_grid_path( "share/covise/example-data/COVISE/airbag.covise" )
+#
+# MODULE: Renderer
+#
+Renderer_1 = Renderer()
+theNet.add( Renderer_1 )
+#
+# CONNECTIONS
+#
+theNet.connect( RWCovise_1, "mesh", Renderer_1, "RenderData" )
+#
+# uncomment the following line if you want your script to be executed after loading
+#
+#runMap()
+#
+# uncomment the following line if you want exit the COVISE-Python interface
+#
+#sys.exit()
+\end{verbatim}
+\vspace{0.5cm}
+COVISE-net file to Python:
+	use the save( fileName ) method of the net() object
+
+

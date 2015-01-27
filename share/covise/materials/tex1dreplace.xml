@@ -1,0 +1,31 @@
+<texonedreplace>
+
+  <uniform name="sampler" type="sampler1D" value="0"/>
+
+  <vertexProgram>
+
+  varying float texcoord;
+
+  void main(void)
+  {
+      texcoord = float(gl_MultiTexCoord0);
+      gl_Position    = ftransform();
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+  }
+
+  </vertexProgram>
+
+  <fragmentProgram>
+   uniform sampler1D sampler;
+   varying float texcoord;
+
+   void main(void)
+   { 
+       gl_FragColor = texture1D(sampler, texcoord);
+   }
+   
+  </fragmentProgram>
+
+</texonedreplace>

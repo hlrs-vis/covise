@@ -1,0 +1,4 @@
+Stretch data in transient datasets. This means the amount
+of timesteps is multiplied by the stretch parameter.
+Note that the timesteps are not interpolated but
+existing timesteps are padded in between .

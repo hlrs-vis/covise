@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<INCLUDE global="1" configname="tracking">config.trackingMouse.xml</INCLUDE>
+<INCLUDE global="1" configname="projection">config.projectionSnapshot.xml</INCLUDE>
+<INCLUDE global="1" configname="positions">config.positionsSnapshot.xml</INCLUDE>
+<INCLUDE global="1" configname="vr-prepare">config.vr-prepareSnapshot.xml</INCLUDE>
+<INCLUDE global="1" configname="general">config.generalSnapshot.xml</INCLUDE>
+<INCLUDE global="1" configname="license">../config.license.xml</INCLUDE>
+
+<GLOBAL>
+   <COVER>
+        <Plugin>
+            <SceneEditor value="on" />
+        </Plugin>
+    </COVER>
+    <vr-prepare>
+         <Coxml>
+            <ResourceDirectory value="/data/Kunden/klsmartin/resources" />
+<!--            <InitialFile value="Room/room.coxml" /> -->
+         </Coxml>
+    </vr-prepare>
+</GLOBAL>
+
+
+</COCONFIG>

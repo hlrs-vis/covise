@@ -1,0 +1,642 @@
+1
+LOCAL
+LUSER
+7
+Colors
+1
+LOCAL
+Color
+TITLE=Colors_1
+268
+283
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_1_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_1_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_1_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+-561.116455 103.728775
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Pastell Magma Ansys
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+120
+339
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_1_OUT_00
+0
+0
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+45
+401
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+EliminatePolygons
+1
+LOCAL
+Filter
+TITLE=EliminatePolygons_1
+83
+193
+2
+Polygons
+DO_Polygons
+ 
+req
+none
+Throw_away
+DO_Polygons
+ 
+req
+none
+1
+Poly_Out
+DO_Polygons
+polygons or set of polygons
+default
+EliminatePolygons_1_OUT_00
+0
+0
+DomainSurfaceStr
+1
+LOCAL
+Tools
+TITLE=DomainSurfaceStr_1
+30
+127
+2
+Mesh
+DO_StructuredGrid|DO_RectilinearGrid|DO_UniformGrid
+grid
+req
+none
+Data
+DO_Structured_S3D_Data|DO_Structured_V3D_Data
+data on grid points
+opt
+none
+4
+Surface
+DO_Polygons
+surface of structured grid
+default
+DomainSurfaceStr_1_OUT_00
+SurfDat
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+data on surface
+dep Data
+DomainSurfaceStr_1_OUT_01
+Lines
+DO_Lines
+feature lines 
+default
+DomainSurfaceStr_1_OUT_02
+LinesDat
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+data on feature lines
+default
+DomainSurfaceStr_1_OUT_03
+1
+angle
+Slider
+feature angle
+0 1 0.01
+START
+-1
+0
+Tracer
+1
+LOCAL
+Tracer
+TITLE=Tracer_1
+239
+117
+4
+meshIn
+DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Polygons
+input mesh
+req
+none
+dataIn
+DO_Structured_V3D_Data|DO_Unstructured_V3D_Data
+input velo.
+req
+none
+pointsIn
+DO_Points|DO_UnstructuredGrid|DO_Polygons|                    DO_TriangleStrips|DO_Lines|DO_Unstructured_V3D_Data
+input initial points
+opt
+none
+octtreesIn
+DO_OctTree|DO_OctTreeP
+input octtrees
+opt
+none
+2
+lines
+DO_Lines|DO_Points|DO_TriangleStrips
+output geometry
+default
+Tracer_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data
+output magnitude
+default
+Tracer_1_OUT_01
+25
+no_startp
+Slider
+Number of starting points
+1 10 6
+START
+-1
+startpoint1
+Vector
+First start point
+0.80 0.15 0.12
+IMM
+-1
+startpoint2
+Vector
+Last start point
+0.80 0.15 0.18
+IMM
+-1
+direction
+Vector
+Square of starting points
+0 1 0.
+IMM
+-1
+Displacement
+Vector
+Shift traces
+0 0 0.
+START
+-1
+tdirection
+Choice
+Forward, backward or both
+3 forward backward both
+START
+1
+whatout
+Choice
+v, vx, vy, vz or time
+1 mag v_x v_y v_z time
+START
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+1 Streamlines MovingPoints Pathlines Streaklines
+IMM
+1
+startStyle
+Choice
+Line or square
+1 line plane
+START
+-1
+trace_eps
+Scalar
+relative error control
+0.00000100
+START
+-1
+trace_abs
+Scalar
+absolute error control
+0.000100
+START
+-1
+grid_tol
+Scalar
+grid tolerance for UNSGRD or POLYGN
+0.0100
+START
+-1
+trace_len
+Scalar
+maximum length
+0.7500000
+START
+1
+min_vel
+Scalar
+minimal velocity
+0.001000
+START
+1
+MaxPoints
+Scalar
+maximum number of points
+1000
+START
+1
+stepDuration
+Scalar
+Step duration if no REALTIME available
+0.010000
+START
+-1
+NoCycles
+Scalar
+number of cycles (dynamic data)
+1
+START
+-1
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+START
+-1
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+IMM
+-1
+ParticlesReleaseRate
+Scalar
+Frequency at which new particles are released
+0.000000
+START
+-1
+divideCell
+Scalar
+Step control when out of domain
+0.125000
+START
+-1
+maxOutOfDomain
+Scalar
+Control how far to integrate when out of domain
+0.250
+START
+1
+NoWThreads
+Scalar
+number of worker threads
+1
+IMM
+-1
+SearchLevel
+Scalar
+search level for polygons
+0
+START
+-1
+SkipInitialSteps
+Scalar
+skip initial steps
+0
+START
+-1
+0
+ReadTascflowTDI
+1
+LOCAL
+IO_Module
+TITLE=ReadTascflowTDI_1
+25
+26
+0
+9
+grid
+DO_StructuredGrid|Set_StructuredGrid
+grid out
+default
+ReadTascflowTDI_1_OUT_00
+block
+Set_IntArr
+block off array
+default
+ReadTascflowTDI_1_OUT_01
+region
+Set_DO_Lines|Set_StructuredGrid
+highlighted region
+default
+ReadTascflowTDI_1_OUT_02
+vector1
+Set_Structured_V3D_Data
+vector1 out
+default
+ReadTascflowTDI_1_OUT_03
+vector2
+Set_Structured_V3D_Data
+vector2 out
+default
+ReadTascflowTDI_1_OUT_04
+data1
+Set_Structured_S3D_Data
+data1 out
+default
+ReadTascflowTDI_1_OUT_05
+data2
+Set_Structured_S3D_Data
+data2 out
+default
+ReadTascflowTDI_1_OUT_06
+data3
+DO_Structured_S3D_Data|Set_Structured_S3D_Data
+data3 out || complete region 
+default
+ReadTascflowTDI_1_OUT_07
+bcf_polygons
+DO_Polygons
+polygons out
+default
+ReadTascflowTDI_1_OUT_08
+13
+steprsopath
+Browser
+path of the first timestep rso file
+~/ *
+START
+1
+gridpath
+Browser
+path of the grid file
+data/general/examples/Tascflow//grd *
+IMM
+1
+rsopath
+Browser
+path of the rso file
+data/general/examples/Tascflow//rso *
+IMM
+1
+bcfpath
+Browser
+path of the bcf file
+data/general/examples/Tascflow//bcf *
+IMM
+1
+timesteps
+Scalar
+timesteps
+1
+START
+-1
+skipped_files
+Scalar
+number of skip files for each timestep
+0
+START
+-1
+region_names
+Choice
+names of the regions
+2 none PIP_B_PIPE PIP_DUCT_PIPE PIP_EB_PIPE PIP_EN_PIPE PIP_ES PIP_ES_PIPE PIP_ET_PIPE PIP_E_PIPE PIP_NB_PIPE PIP_NT_PIPE PIP_N_PIPE PIP_S PIP_SB PIP_SB_PIPE PIP_ST PIP_ST_PIPE PIP_S_PIPE PIP_T_PIPE PIP_WB_PIPE PIP_WN_PIPE PIP_WS PIP_WS_PIPE PIP_WT_PIPE PIP_W_PIPE RCT_B RCT_DUCT RCT_E RCT_EB RCT_EN RCT_ES RCT_ET RCT_N RCT_NB RCT_NT RCT_S RCT_SB RCT_ST RCT_T RCT_W RCT_WB RCT_WN RCT_WS RCT_WT  PIP_B_PIPE PIP_DUCT_PIPE PIP_EB_PIPE PIP_EN_PIPE PIP_ES PIP_ES_PIPE PIP_ET_PIPE PIP_E_PIPE PIP_NB_PIPE PIP_NT_PIPE PIP_N_PIPE PIP_S PIP_SB PIP_SB_PIPE PIP_ST PIP_ST_PIPE PIP_S_PIPE PIP_T_PIPE PIP_WB_PIPE PIP_WN_PIPE PIP_WS PIP_WS_PIPE PIP_WT_PIPE PIP_W_PIPE RCT_B RCT_DUCT RCT_E RCT_EB RCT_EN RCT_ES RCT_ET RCT_N RCT_NB RCT_NT RCT_S RCT_SB RCT_ST RCT_T RCT_W RCT_WB RCT_WN RCT_WS RCT_WT PIP_B_PIPE PIP_DUCT_PIPE PIP_EB_PIPE PIP_EN_PIPE PIP_ES PIP_ES_PIPE PIP_ET_PIPE PIP_E_PIPE PIP_NB_PIPE PIP_NT_PIPE PIP_N_PIPE PIP_S PIP_SB PIP_SB_PIPE PIP_ST PIP_ST_PIPE PIP_S_PIPE PIP_T_PIPE PIP_WB_PIPE PIP_WN_PIPE PIP_WS PIP_WS_PIPE PIP_WT_PIPE PIP_W_PIPE RCT_B RCT_DUCT RCT_E RCT_EB RCT_EN RCT_ES RCT_ET RCT_N RCT_NB RCT_NT RCT_S RCT_SB RCT_ST RCT_T RCT_W RCT_WB RCT_WN RCT_WS RCT_WT
+IMM
+-1
+show_region
+Choice
+the way of showing the regions
+2 showcompleteregion whitelines redlines bluelines greenlines greylines blacklines
+START
+-1
+vector_data_1
+Choice
+first vector data
+4 none PAC_UVW_ _XYZ_ _UVW_  PAC_UVW_ _XYZ_ _UVW_ PAC_UVW_ _XYZ_ _UVW_
+IMM
+-1
+vector_data_2
+Choice
+second vector data
+1 none PAC_UVW_ _XYZ_ _UVW_  PAC_UVW_ _XYZ_ _UVW_ PAC_UVW_ _XYZ_ _UVW_
+IMM
+-1
+scalar_data_1
+Choice
+first scalar data
+9 none DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME  DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME
+IMM
+-1
+scalar_data_2
+Choice
+second scalar data
+1 none DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME  DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME
+IMM
+-1
+scalar_data_3
+Choice
+third scalar data (used for complete region too)
+1 none DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME  DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME DENSITY VISC_TURBULENT UNIP PACP PACT _UNIP_IS_MASS SPEED P TKE EPSILON PTOTAL _RUN_TIME
+IMM
+-1
+0
+12
+Colors
+1
+LOCAL
+colors
+Colors_1_OUT_00
+Collect
+1
+LOCAL
+colors
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+EliminatePolygons
+1
+LOCAL
+Poly_Out
+EliminatePolygons_1_OUT_00
+Collect
+1
+LOCAL
+grid
+DomainSurfaceStr
+1
+LOCAL
+Surface
+DomainSurfaceStr_1_OUT_00
+EliminatePolygons
+1
+LOCAL
+Polygons
+DomainSurfaceStr
+1
+LOCAL
+SurfDat
+DomainSurfaceStr_1_OUT_01
+Colors
+1
+LOCAL
+Data
+Tracer
+1
+LOCAL
+lines
+Tracer_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+ReadTascflowTDI
+1
+LOCAL
+grid
+ReadTascflowTDI_1_OUT_00
+DomainSurfaceStr
+1
+LOCAL
+Mesh
+ReadTascflowTDI
+1
+LOCAL
+grid
+ReadTascflowTDI_1_OUT_00
+Tracer
+1
+LOCAL
+meshIn
+ReadTascflowTDI
+1
+LOCAL
+region
+ReadTascflowTDI_1_OUT_02
+Renderer
+1
+LOCAL
+RenderData
+ReadTascflowTDI
+1
+LOCAL
+vector1
+ReadTascflowTDI_1_OUT_03
+Tracer
+1
+LOCAL
+dataIn
+ReadTascflowTDI
+1
+LOCAL
+data1
+ReadTascflowTDI_1_OUT_05
+DomainSurfaceStr
+1
+LOCAL
+Data
+ReadTascflowTDI
+1
+LOCAL
+bcf_polygons
+ReadTascflowTDI_1_OUT_08
+EliminatePolygons
+1
+LOCAL
+Throw_away
+0

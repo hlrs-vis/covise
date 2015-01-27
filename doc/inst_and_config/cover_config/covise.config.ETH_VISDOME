@@ -1,0 +1,223 @@
+#########################################################################
+#									#
+# Covise Configuration file for COVER with screens in any position	#
+#									#
+#########################################################################
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)   
+luxo         shm             rsh                     30
+#X enter a line like one above for your host. 
+#X  hostname		shm		rsh			30
+}
+
+License
+{
+#X enter your Covise license here
+   Key LBNPEGHGCIKHCDAECPCDEBDHPHPHPPPPDJCHMLAEPPJLOOLD    luxo    31.12.2000
+   Key LIMFIGHOKAKPCDIMCHCDMJDPPHPPHPHHOOEGCLIPHCMEFLKP    tintoy    31.12.2000
+   Key PKKJIOHOCACPCLAMKHKDEBDPHPPPPPPPEDKOCEDPDBCLIIAK    red    31.12.2000
+}
+
+
+COVERConfig
+{
+#X the kind of Tracking system you are using one of (POLHEMUS, SPACEPOINTER, PHANTOM, FLOCK,...)
+	TRACKING_SYSTEM		MOTION
+#X special button system, ignore this NONE/DIVISION/IAO
+	BUTTON_SYSTEM		DIVISION
+#X the width of your Wall in mm
+        SCENESIZE		2500
+#X number of graphic pipes you are using
+	NUM_PIPES		3
+#X number of windows you are using
+        NUM_WINDOWS		3
+#ignore
+	AUTO_WIREFRAME		OFF
+#X turn on or off the coordinate axis (on is good for debugging)
+	COORD_AXIS		OFF
+#X turn off or on headtracking  (on is good for debugging)
+#X when the stylus works correctly, you can try to turn it off
+	FREEZE			ON
+
+#X	if your display is already in stereo mode, just ignore this
+#       otherwise, you could enter something like
+# /usr/gfx/ircombine -destination active -source file /usr/gfx/cmb/b_w_992x992_1024x916_114_GVO.cmb
+# so that whenever COVER is started, it switches to stereo mode
+# and back, when it ends
+#	STEREO_COMMAND		/usr/gfx/setmon 1024x768_96s
+#	MONO_COMMAND		/usr/gfx/setmon -n 72
+
+#ignore all the rest
+	NOTIFY			OFF
+	MULTIPROCESS		ON
+	NOSEPARATION		FALSE
+	WHITE_TO_GREY		TRUE
+        MODELPATH               /home/peikert/covise
+        #MODELFILE               autoload.iv
+	#MODELPATH		/mnt/scr/cod/itap
+	#MODELFILE		Geometry1.iv
+	#MODELFILE		flush.iv
+	#MODELPATH		/mnt/scr/cod/VRML
+	#MODELFILE		di_port.iv
+        WELCOME_MESSAGE      Welcome to Covise Virtual Environment
+        #FOOTER_MESSAGE       Covise Virtual Environment
+	TWOSIDE			ON
+}
+
+
+ButtonConfig
+{
+    BUTTON_DEVICE	/dev/ttyd2
+}
+
+
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 256 		1024 768
+       	1	LEFT       	1       	0 256 		1024 768
+       	2	RIGHT       	2       	0 256 		1024 768
+	
+#X	        ignore          pipe number defined in PipeConfig
+
+#X						if you have one chanel
+#X						with two windows
+#X						you can enter the Origin
+#X						in pixels here
+#X								Resolution in pixels
+#X   the line above should be correct for you
+}
+
+
+PipeConfig:
+{
+#	SoftPipe	HardPipe	Display				
+      	0		0		:0.0				
+      	1		1		:0.1		
+      	2		2		:0.2
+#X					the display as in the DISPLAY environment variable
+#X you only have to change this, if you use multiple Pipes
+}
+
+ScreenConfig:
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		4678 4228		0 5042 0			0.0 0.0 0.0
+	1		LEFT		4678 4228		-3615 3565 0			45.0 0.0 0.0
+	2		RIGHT		4678 4228		3615 3565 0			-45.0 0.0 0.0
+#	1		LEFT		4648 4228		-3615 3565 0			45.0 0.0 0.0
+#	2		RIGHT		4648 4228		3615 3565 0			-45.0 0.0 0.0
+#X geometry of the physical projection walls
+#X					enter the size here                      if it is not vertical, then 
+#										 you can rotate it here
+	
+}
+
+
+PolhemusConfig
+{
+
+#X serial port and rate for polhemus
+	SERIAL_PORT		 	/dev/ttyd2	19200
+
+#X the hemisphere of the polhemus, you are working in
+	HEMISPHERE      		1 0 0
+
+#	Polhemus hand device and station
+	HAND	POLHEMUS_STYLUS		3
+#X					this is the station number of the stylus
+#X					this must be 1, the stylus only works on station 1
+
+#	Pohemus headtracking device and station
+	HEAD	POLHEMUS_SENSOR		2
+#X					station number of the sensor at the shutter glasses
+#X					it should be mounted on the left side of the
+					glasses with the cable facing backward
+
+#X   ignore this
+#	LINEAR_MAGNETIC_FIELD_CORRECTION	0.0 0.0 -0.35
+#	LINEAR_MAGNETIC_FIELD_CORRECTION	-0.0003 0.0 0.0
+	LINEAR_MAGNETIC_FIELD_CORRECTION	0.0 0.0 0.0
+
+#X	Position of the transmitter in centimeters from the center of the Wall
+#	TRANSMITTER_OFFSET_POS			0 -10 -100
+#	TRANSMITTER_OFFSET_POS			0 -300 -30
+	TRANSMITTER_OFFSET_POS			0 -300 -100
+
+#	Orientation of the Transmitter in the world coordinate system RPH
+#	heading=rotz, pitch=rotx, roll=roty
+#					         H   P   R
+#X    this rotation transforms the polhemus coordinate system into the performer one
+# which is
+#	Z
+#	|  
+#	| 
+#	|_______X
+#       /
+#      /
+#     Y	
+      TRANSMITTER_OFFSET_EULER		90 180 0 
+
+
+#	Position of the Viewer in the receiver system
+#X	offset of the sensor at the glasses from the nose	
+      SENSOR_OFFSET_POS			10 0 10
+
+#	Orientation of the Viewer in the receiver system
+#X this defines the orientation of the sensor at the glasses, this should
+# be correct, if it is mounted on the left side of the
+# glasses with the cable facing backward
+      SENSOR_OFFSET_EULER			-90 0 -90
+
+
+#ignore all  the rest
+#       Position of the pointer in the receiver system
+	STYLUS_OFFSET_POS			0 0 0
+
+#	Orientation of the Pointer in the receiver system
+      STYLUS_OFFSET_EULER			0 -180 0
+        
+}
+
+Network
+{
+#	IP_ALIAS	visavis		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+
+
+
+
+TrackerCalibration
+{
+#	these settings should be retrieved using  ms  and the TrackerCalibration
+#	application-module
+
+# 	NOTE: if this filter is enabled, it overrides a few settings in
+#		the section PolhemusConfig
+
+
+#	should the filter be used ? (ON / OFF)
+	STATUS			OFF
+        SWAP                    ON
+	ORIGIN			-22.0 29.0 202.0
+	ALPHA			-0.55
+	BETA0			0.5
+	BETA1			0.4
+	GAMMA			30.0
+	DELTA			35.0
+	UP_SCALE		0.4
+        
+        // 1: use given parameters
+        // 2: use hype-parameters retrieved with Solver
+        //
+        FILTER_TYPE             1
+        
+}
+
+	

@@ -1,0 +1,60 @@
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+Example 1 (Structured Grid):
+
+\begin{covimg}{}
+   {ShowGridStructuredMap}{covise/net/examples/ShowGridStructured.net}{0.6}\end{covimg}
+   
+Look at the map ShowGridStructured.net. Make sure to set the parameter Coord\_Type for GenDat to "Half\_cyl" as shown in the
+ControlPanel. With this parameter setting, the module GenDat generates a half cylinder as structured grid (In
+addition, you can change the GenDat parameters xSize, ySize, and zSize in order to modify the grid 
+produced by GenDat.)
+
+The following images show the results for options
+\begin{enumerate}
+\item all\_lines
+\item hull
+\item three\_sides\_+++
+\item Bounding\_box.
+\end{enumerate}
+  
+\begin{covimg}{}
+   {ShowGrid_all_lines}{all\_lines}{0.6}\end{covimg} 
+     
+        
+\begin{covimg}{}
+   {ShowGrid_hull}{hull}{0.6}\end{covimg}
+   
+   
+\begin{covimg}{}
+   {ShowGrid_three_sides_1}{three\_sides\_+++}{0.6}\end{covimg}
+  
+   
+\begin{covimg}{}
+   {ShowGrid_Bounding_box_2}{Bounding\_box}{0.6}\end{covimg}
+
+\clearpage  
+
+Example 2 (Unstructured Grid):
+   
+\begin{covimg}{}
+   {ShowGridUnstructuredMap}{covise/net/examples/ShowGridUnstructured.net}{0.6}\end{covimg}
+   
+In ShowGridUnstructured.net the module RWCovise reads in the unstructured grid of a
+channel with two inlets. The module \covlink
+{DomainSurface}{DomainSurface}{../../Tools/DomainSurface/DomainSurface.html}
+computes the outer surface of the grid and the module \covlink  
+{CutGeometry}{CutGeometry}{../../Tools/CutGeometry/CutGeometry.html} cuts
+the upper sides so that we can look into the channel. The module ShowGrid computes the
+edge lines of the cell at index 200.
+
+\begin{covimg2} {}{ShowGridUnstructuredRenderer}{0.6}\end{covimg2}
+                 
+
+
+
+

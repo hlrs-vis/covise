@@ -1,0 +1,24 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+GridSurface analyzes grids and generates the surfaces as polygons. 
+It shows {\bf all} surfaces, i.e. including the inner ones. 
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}	{}{GridSurfaceModule}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+It´s tested with snapshot 2001-01 on SGI
+%
+%
+%=============================================================

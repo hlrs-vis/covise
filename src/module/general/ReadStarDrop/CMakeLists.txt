@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadStarDrop.cpp
+)
+
+SET(EXTRASOURCES
+  ReadStarDrop.h
+)
+
+ADD_COVISE_MODULE(IO ReadStarDrop ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadStarDrop  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadStarDrop)

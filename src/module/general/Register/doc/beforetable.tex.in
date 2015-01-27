@@ -1,0 +1,45 @@
+%=============================================================
+% short description what the module does
+%=============================================================
+
+The \emph{Registration} module can registrate an image stack. It was created for processing together with the \emph{ReadITK} module.
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{register-modul}{1.0}\end{covimg2}
+
+The module owns four ports for incoming and four ports for outgoing data. The first one delivers an uniform grid, the three following ports the RGB data.
+
+%=============================================================
+% parameter window
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{register-param}{1.0}\end{covimg2}
+
+The registration of an image stack can be modified by a few parameters:
+
+\begin{description}
+\item[Optimizer] You can choose the optimizertype out of a list. It is used to optimize the values of the metric. You can choose between:
+\begin{itemize}
+\item  \texttt{itk::RegularStepGradientDescentOptimizer}
+\item  \texttt{itk::GradientDescentOptimizer}
+\item  \texttt{itk::OnePlusOneEvolutionaryOptimizer}
+\end{itemize}
+\item[MaxStepLength, MinStepLength, MinStepLengthDiv] The parameters of the optimizer modify the minimal and maximal step length, which are used for the search for the optimal metric value.
+\item[Metric] The metric quantitatively measures how well the images fits by comparing the gray-scale intensity of the images. You can choose between:
+\begin{itemize}
+\item  \texttt{itk::MeanSquaresImageToImageMetric}
+\item  \texttt{itk::MattesMutualInformationImageToImageMetric}
+\end{itemize}
+The MeanSquaresImageToImageMetric computes the mean squared pixel-wise difference in intensity between the images. It relies on the assumption that intensity representing the same homologous point must be the same in both images. Hence, its use is restricted to images of the same modality. 
+The MattesMutualInformationImageToImageMetric works with only one set of intensity samples, which is drawn from the images. This way it works much more faster.
+\item[FillColor] The FillColor can be chosen between values of 0 (black) to 255 (white). With this color empty voxels are filled up, in case of transformation and/or rotation cause empty voxels. 
+\item[Iterations] The amount of the iterations of the registration can be restricted by this value. 
+\item[Pyramid] You can choose the amount of levels for the image pyramid in addition to speed up the registration. With every level, the images are scaled to the half size based on the image pyramid level before.
+\end{description}

@@ -1,0 +1,88 @@
+<bladelic>
+<uniform max="50" min="5" name="iterations" type="int" value="30"/>
+<uniform max="1000.0" min="1.0" name="scale" type="float" value="500"/>
+<uniform max="1000.0" min="0.0" name="minV" type="float" value="1.0"/>
+<uniform max="1000.0" min="0.0" name="maxV" type="float" value="30"/>
+<uniform name="Time" type="int" value="0"/>
+<uniform name="noiseSampler" type="sampler2D" value="0"/>
+<uniform name="colorMap" overwrite="true" texture="textures/colormapS.png" type="sampler1D" value="1" wrapMode="CLAMP"/>
+<attribute name="vertexData" type="vec3" value="6"/>
+<attribute name="aTangent" type="tangent" value="7"/>
+<vertexProgram>
+   varying vec3 v;
+   varying vec2 noiseTexCoords;
+   attribute vec3 vertexData;
+   attribute vec3 aTangent;
+   varying vec4 colorValue;
+   varying vec3 tangent;
+   varying vec3 normal,lightDir, eyeVec;
+
+   void main( void )
+   {
+     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+     noiseTexCoords = vec2(gl_MultiTexCoord0);
+     tangent = aTangent;
+     normal = gl_Normal;
+     v = vertexData;
+     vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     eyeVec = -vVertex;
+     colorValue=gl_Color;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+   }
+  </vertexProgram>
+  <fragmentProgram>
+   varying vec3 v;
+   varying vec2 noiseTexCoords;
+   uniform sampler2D noiseSampler;
+   uniform sampler1D colorMap;
+   uniform int Time;
+   uniform int iterations;
+   uniform float scale;
+   uniform float minV;
+   uniform float maxV;
+   varying vec3 tangent;
+   varying vec3 normal, lightDir, eyeVec;
+   varying vec4 colorValue;
+
+   void main( void )
+   {
+     vec3 result = vec3(0.0, 0.0, 0.0);
+     float length = sqrt(v.x * v.x + v.y * v.y);
+     vec3 biNormal = cross(tangent, normal);
+
+     vec3 vsurf = v - dot(normal,v)*normal;
+     vec3 vrot;
+     vrot.x = dot(vsurf,tangent);
+     vrot.y = dot(vsurf,biNormal);
+     vec2 vn = normalize(vrot);
+      //float t = (Time%100)/100.0;
+     vec2 n = noiseTexCoords.st;//+(t*(vn/1000.0));
+     for (int index = 0; index &lt; iterations; index ++)
+     {
+         n = n + ((vrot.xy) /  (scale*1000.0) * float(index));
+         vec3 t = vec3(texture2D(noiseSampler, n.st));
+         result += t / float(iterations);
+     }
+	 		
+     vec4 final_color=vec4(result, 1.0);
+     final_color *= texture1D(colorMap,(sqrt(dot(v,v))-minV)/(maxV-minV));
+	 
+     final_color *= colorValue;
+     vec3 N = normalize(normal); 
+     eyeVec = normalize(eyeVec);
+     vec3 L = normalize(lightDir); 	
+     float lambertTerm = (dot(N,L)+1.0)/2.0;	
+      
+     final_color.rgb  *= lambertTerm;	
+     vec3 R = reflect(-L, N);
+     float specular = pow( max(dot(R, eyeVec), 0.0), 
+      		                 vec4(result, 1.0) );
+     final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;
+	 gl_FragColor = final_color;	
+   }
+  </fragmentProgram></bladelic>

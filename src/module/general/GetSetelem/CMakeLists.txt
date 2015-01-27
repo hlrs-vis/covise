@@ -1,0 +1,19 @@
+ADD_DEFINITIONS(-DGET_SETELEM)
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  GetSetelem.cpp
+)
+
+SET(EXTRASOURCES
+  GetSetelem.h
+)
+
+ADD_COVISE_MODULE(Filter GetSetelem ${EXTRASOURCES} )
+
+TARGET_LINK_LIBRARIES(GetSetelem  coApi coAppl coCore coUtil)
+
+COVISE_INSTALL_TARGET(GetSetelem)

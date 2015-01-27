@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL/>
+
+ <LOCAL host="covise" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+
+   <MultiPC>
+    <NumSlaves value="1" />
+    <Startup value="ssh ${USER}@covise2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors${USER}.log" name="0" />
+   </MultiPC>
+   <WindowConfig>
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="1024" bottom="0" name="0" decoration="false"/>
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="covise2" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="RIGHT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+
+   <MultiPC>
+    <NumSlaves value="1" />
+    <Startup value="ssh ${USER}@covise if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors${USER}.log" name="0" />
+   </MultiPC>
+   <WindowConfig>
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false"/>
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="covise,covise2" >
+
+  <System>
+
+   <HostInfo>
+    <NumProcessors value="1" />
+   </HostInfo>
+
+  </System>
+
+
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+
+     <Audio value="AServer" >
+      <!--Host value="visbussard" /-->
+      <!--Host value="192.108.35.15" /-->
+     </Audio>
+
+    </Vrml97>
+
+   </Plugin>
+
+   <SceneSize value="2500" />
+   <FloorHeight value="-1350" />
+
+   <Menu>
+    <Position x="500" y="0" z="300" />
+    <Size value="1" />
+   </Menu>
+
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+
+   <Input>
+    <MouseNav value="ON" />
+    <TrackingSystem value="VRC" />
+    <!--TrackingSystem value="MOUSE" /-->
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="2" />
+    <HandAddress value="1" />
+    <ButtonAddress value="4" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <TrackingSystem>
+     <Offset x="0" y="-70" z="-800" />
+     <Orientation h="90" p="180" r="180" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="0" z="80" />
+     <Orientation h="-90" p="0" r="80" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="-90" p="0" r="0" />
+    </HandDevice>
+
+    <DebugStation value="0" />
+
+    <VRC>
+     <Port value="7777" />
+    </VRC>
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <Server host="visbussard" />
+    </Tarsus>
+
+   </Input>
+
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <TransparencyMode value="sorted_blended" />
+
+   <ChannelConfig>
+    <Channel comment="FRONT" channel="0" right="1" left="0" windowIndex="0" bottom="0" name="0" top="1" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen width="1720" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1320" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <TabletPC>
+   <!--Server value="141.58.8.89" /-->
+   <Server value="localhost" />
+   </TabletPC>
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

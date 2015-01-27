@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+  <GLOBAL>
+
+    <COVER>
+
+      <NumPipes value="3" />
+      <NumScreens value="3" />
+      <NumWindows value="3" />
+
+      <PipeConfig>
+        <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+        <Pipe display=":0.1" name="1" screen="1" pipe="1" />
+        <Pipe display=":0.2" name="2" screen="2" pipe="2" />
+        <Pipe display=":0.3" name="3" screen="3" pipe="3" />
+      </PipeConfig>
+
+      <WindowConfig>
+       <Window width="2560" comment="LEFT" window="0" pipeIndex="0" height="1600" left="0" bottom="0" name="0" decoration="false" />
+       <Window width="2560" comment="LEFT" window="1" pipeIndex="1" height="1600" left="0" bottom="0" name="1" decoration="false" />
+       <Window width="2560" comment="LEFT" window="2" pipeIndex="2" height="1600" left="0" bottom="0" name="2" decoration="false" />
+       <Window width="2560" comment="LEFT" window="3" pipeIndex="3" height="1600" left="0" bottom="0" name="3" decoration="false" />
+      </WindowConfig>
+
+      <ChannelConfig>
+        <Channel comment="BL" channel="0" left="0" width="2560" bottom="0" height="1600" stereoMode="LEFT" windowIndex="0" name="0" />
+        <Channel comment="BR" channel="1" left="0" width="2560" bottom="0" height="1600" stereoMode="LEFT" windowIndex="1" name="1" />
+        <Channel comment="TL" channel="2" left="0" width="2560" bottom="0" height="1600" stereoMode="LEFT" windowIndex="2" name="2" />
+        <Channel comment="TR" channel="3" left="0" width="2560" bottom="0" height="1600" stereoMode="LEFT" windowIndex="3" name="3" />
+      </ChannelConfig>
+
+      <ScreenConfig>
+        <Screen width="641" comment="BL" h="0.0" originX="-345" originY="0" originZ="-225" height="401" p="0.0" r="0.0" name="0" screen="0" />
+        <Screen width="641" comment="BR" h="0.0" originX="345"  originY="0" originZ="-225" height="401" p="0.0" r="0.0" name="1" screen="1" />
+        <Screen width="641" comment="TL" h="0.0" originX="-345" originY="0" originZ="225"  height="401" p="0.0" r="0.0" name="2" screen="2" />
+        <Screen width="641" comment="TR" h="0.0" originX="345"  originY="0" originZ="225"  height="401" p="0.0" r="0.0" name="3" screen="3" />
+      </ScreenConfig>
+
+      <Input>
+       <ButtonSystem value="MOUSE" />
+       <TrackingSystem value="MOUSE" />
+      </Input>
+
+      <Menu>
+        <Orientation h="0" p="0" r="0" />
+        <Position x="100" y="0" z="-100" />
+        <Size value="0.2" />
+      </Menu>
+
+      <WelcomeMessage value="Welcome to the Research Intelligence Kiosk" />
+      <MultiThreaded value="false" />
+      <SyncToVBlank value="ON" device="DFP-1" />
+      <SyncToVBlank value="ON" device="DFP-0" />
+      <Stereo enable="ON" value="ON" />  <!-- this has to be ON even though running on tiled display wall in mono -->
+      <ScaleAll value="OFF" />
+      <SceneSize value="2000" />
+      <ViewerPosition x="0" y="-2000" z="0" />
+      <CoordAxis value="off" />
+      <Freeze value="on" />
+      <ViewAll value="off" />
+      <StereoCommand value="echo Clearing frame buffer; /home/jschulze/programs/clearfb/clearfb" />
+      <DebugLevel value="1" />
+      <FPS value="true" />
+
+      <Plugin>
+        <RIVis value="on" />
+        <RIVis>
+          <ResourceDir value="/home/covise/trunk/covise/src/renderer/OpenCOVER/plugins/RIVis/resources" />
+          <FundingDir value="/home/covise/trunk/covise/src/renderer/OpenCOVER/plugins/RIVis/funding_data" />
+          <FontName value="verdana.ttf" />
+          <NumTags value="100"/>
+          <DoDestructivePrettying value="true"/>
+          <WiimoteID value="00:19:1D:A0:49:32"/>
+        </RIVis> 
+      </Plugin>
+
+    </COVER>
+
+  </GLOBAL>
+
+</COCONFIG>

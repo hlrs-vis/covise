@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  Colors.cpp
+)
+
+SET(EXTRASOURCES
+  Colors.h
+)
+
+ADD_COVISE_MODULE(Mapper Colors ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(Colors  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(Colors)

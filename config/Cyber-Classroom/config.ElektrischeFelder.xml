@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <SmallFeatureCulling value="0.0" />
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">			  
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="traverseInteractors" name="traverseInteractors" />
+               <!--<ShortCut value="showName" name="showName" />-->
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <ElectricField value="on">
+               <PresentationMode value="on"/>
+            </ElectricField> 
+            <CoviseConfigShader value="on">
+                <Scope name="licht_gelb" regexp="licht_gelb-FACES.*" shader="Glossy9b" />
+                <Scope name="licht_rot" regexp="licht_rot-FACES.*" shader="Glossy9b" />
+                <Scope name="rahmen" regexp="rahmen-FACES.*" shader="Glossy3" />
+                <Scope name="rahmen_hinten" regexp="rahmen_hinten-FACES.*" shader="Glossy3" />
+                <Scope name="bremsen" regexp="brems.*-FACES.*" shader="Glossy1" />
+                <Scope name="sattelstange" regexp="sattelstange-FACES.*" shader="Glossy2b" />
+                <Scope name="Cylinder" regexp="Cylinder.*-FACES.*" shader="Glossy2b" />
+                <Scope name="rahmen_vorne" regexp="rahmen_vorne-FACES.*" shader="Glossy7" />
+                <Scope name="sto_daempfer_vorne" regexp="sto_daempfer_vorne-FACES.*" shader="Glossy3" />
+                <Scope name="rahmen_lenker" regexp="rahmen_lenker-FACES.*" shader="Glossy3" />
+                <Scope name="lenker" regexp="lenker-FACES.*" shader="Glossy4b" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Physik/ElektrischeFelder/locale" />
+         </Localization>
+         
+      </COVER>
+
+   <Colormaps>
+     <Transparent>
+        <Point r="0.8" g="0.8" b="0.8" a="0.5" x="0"        index="0"/>
+        <Point r="0.8" g="0.8" b="0.8" a="0.5" x="1"        index="1"/>
+     </Transparent>
+    </Colormaps>
+
+   </GLOBAL>
+</COCONFIG>

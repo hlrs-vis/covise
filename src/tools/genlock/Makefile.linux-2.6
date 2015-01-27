@@ -1,0 +1,39 @@
+ifneq ($(KERNELRELEASE),)
+obj-m := genlock.o
+else
+MODDIR := /lib/modules/$(shell uname -r)
+KERNELDIR := /lib/modules/$(shell uname -r)/build
+PWD := $(shell pwd)
+
+INCLUDE=-I$(KERNELDIR)/include
+
+all:
+	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules
+endif
+
+
+#MODDIR=/lib/modules/`uname -r`
+#KERNELDIR=$(MODDIR)/build
+#
+#CC=gcc 
+#OPT=-O2 -g -fomit-frame-pointer -Wall
+
+#INCLUDE=-I$(KERNELDIR)/include
+#CFLAGS=$(DEF) $(INCLUDE) $(OPT)
+
+#all: genlock.c
+#$(MAKE) -f `pwd`/Makefile.kbuild -C $(KERNELDIR) SUBDIRS=`pwd` modules
+
+#all: genlock.o
+
+install:
+	-mkdir $(MODDIR)/misc
+	cp genlock.ko $(MODDIR)/misc/
+	depmod -a
+
+#clean:
+#$(RM) genlock.o
+
+
+#genlock.o: genlock.c
+#$(CC) $(CFLAGS) -c $<

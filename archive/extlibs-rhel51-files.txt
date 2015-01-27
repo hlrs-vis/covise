@@ -1,0 +1,9 @@
+ARToolKit
+Cg
+tiff
+ffmpeg
+xerces
+libwww
+qt4/bin/qtconfig
+qt4/lib/*.so.*
+qt4/plugins/*/*.so

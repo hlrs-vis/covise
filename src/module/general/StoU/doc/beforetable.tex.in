@@ -1,0 +1,31 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+StoU transforms rectiliniar, structured or  uniform grids and data received 
+into unstructured grids (which can be composed of 
+tetrahedrons, hexahedrons, pyramids or prisms) and unstructured data. 
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}	{}{StoUModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+StoU is available for all COVISE versions on all supported platforms. 
+
+
+%
+%=============================================================

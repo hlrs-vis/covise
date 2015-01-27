@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+ <GLOBAL>
+
+  <COVER>
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="7" />
+    <Startup value="covRemote ${USERNAME}@viscluster02 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+    <Startup value="covRemote ${USERNAME}@viscluster03 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1" />
+    <Startup value="covRemote ${USERNAME}@viscluster04 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="2" />
+    <Startup value="covRemote ${USERNAME}@viscluster05 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="3" />
+    <Startup value="covRemote ${USERNAME}@viscluster06 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="4" />
+    <Startup value="covRemote ${USERNAME}@viscluster07 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="5" />
+    <Startup value="covRemote ${USERNAME}@viscluster08 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="6" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

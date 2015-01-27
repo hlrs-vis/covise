@@ -1,0 +1,80 @@
+<!DOCTYPE html>   
+<html lang="en">   
+  <head>   
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>COVISE - Server Room Simulation</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/hlrs-covise.png">
+
+    <!-- jquery -->
+    <script src="jquery/jquery-2.0.3.min.js"></script>
+    <script src="jquery/jquery-ui.custom.js"></script>
+    <script src="jquery/jquery.cookie.js"></script>
+    <!-- bootstrap plugins such as tab-->
+    <script src="bootstrap/js/bootstrap.js"></script>
+	
+    <script src="jquery/jquery.dynatree.js"></script>
+    <link href="jquery/skin/ui.dynatree.css" rel="stylesheet">
+
+    <!-- bootstrap -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">     
+    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">    
+    <link href="bootstrap/css/bootstrap-form.css" rel="stylesheet">
+
+    <!-- bootstrap plugins such as tab-->
+    <script src="bootstrap/js/bootstrap.js"></script>
+
+    <!-- bootstrap plugin file upload-->
+    <script src="bootstrap/plugins/bootstrap-fileupload.js"></script>
+    <link href="bootstrap/plugins/bootstrap-fileupload.css" rel="stylesheet">
+
+    <!-- bootstrap slider -->
+    <link href="bootstrap/slider/css/slider.css" rel="stylesheet"> 
+    <script src="bootstrap/slider/js/bootstrap-slider.js"></script>
+
+  </head>
+
+  <body class="container">          
+    <form class="form-horizontal" id="rechenraumOptForm">
+      <div class="row">      
+        <div class="span12">         
+          <!-- Module Parameters -->        
+          <fieldset id="moduleParam"> 
+            <legend>COVISE Module Parameters</legend>  
+                          
+                       
+              <div class="control-group" id="divColorMap">
+                <label> Color Map</label>  
+                <select name="colorMap" id="colorMap">
+                  <option>IAG</option>  
+                  <option>Blue</option>  
+                  <option>Blue-light</option>  
+                  <option>MTransparent</option>  
+                  <option>Star</option> 
+                  <option>ITSM</option>  
+                  <option>Rainbow</option>   
+                </select> 
+              </div>
+
+              <div class="control-group" id="divCutSurface">
+                <label>Cutting Surface</label> 
+                  <!--         
+                  <input type="text" id="cutSurface" class="input-mini">
+                  -->
+              </div>              
+          </fieldset> 
+
+          <p></p>          
+            
+          <div class="pull-right">
+            <button type="button" class="btn btn-primary" onclick="executeNet()">Execute COVISE</button>
+          </div>
+                                
+          
+      </div>
+    </div>
+    </form>
+  </body>
+  
+</html>

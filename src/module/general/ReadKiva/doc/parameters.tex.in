@@ -1,0 +1,32 @@
+
+\subsubsection{Parameters}
+%=============================================================
+% 
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+	path & Browser & The basic data file location.  \\		
+\hline
+	numt & Scalar & The desired number of timesteps.   \\
+\hline
+	skip & Scalar & The desired number of skipped timesteps.
+	                This parameter is optional and it's useful 
+			when you have a big number of timesteps and 
+			you want to skip some of them.  \\		
+\hline
+	format & Choice & The format of the input data: double or float. \\
+\hline
+	pfactor & Scalar & The desired factor for reducing the number of
+	                   particles for each timestep. \\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

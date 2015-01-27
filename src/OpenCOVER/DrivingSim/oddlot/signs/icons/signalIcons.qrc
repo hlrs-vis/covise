@@ -1,0 +1,357 @@
+<RCC>
+    <qresource prefix="/signalIcons">
+        <file>Germany/101.png</file>
+        <file>Germany/102.png</file>
+        <file>Germany/103-10.png</file>
+        <file>Germany/103-20.png</file>
+        <file>Germany/105-10.png</file>
+        <file>Germany/108-54.png</file>
+        <file>Germany/108-56.png</file>
+        <file>Germany/110-58.png</file>
+        <file>Germany/112.png</file>
+        <file>Germany/113.png</file>
+        <file>Germany/114.png</file>
+        <file>Germany/115-10.png</file>
+        <file>Germany/115-20.png</file>
+        <file>Germany/117-20.png</file>
+        <file>Germany/120.png</file>
+        <file>Germany/121-10.png</file>
+        <file>Germany/123.png</file>
+        <file>Germany/124.png</file>
+        <file>Germany/125.png</file>
+        <file>Germany/131.png</file>
+        <file>Germany/133-10.png</file>
+        <file>Germany/134-10.png</file>
+        <file>Germany/134-20.png</file>
+        <file>Germany/136-10.png</file>
+        <file>Germany/138-10.png</file>
+        <file>Germany/142-10.png</file>
+        <file>Germany/142-20.png</file>
+        <file>Germany/151.png</file>
+        <file>Germany/156.png</file>
+        <file>Germany/159-10.png</file>
+        <file>Germany/159-20.png</file>
+        <file>Germany/162-10.png</file>
+        <file>Germany/162-20.png</file>
+        <file>Germany/201-50.png</file>
+        <file>Germany/205.png</file>
+        <file>Germany/206.png</file>
+        <file>Germany/208.png</file>
+        <file>Germany/209-10.png</file>
+        <file>Germany/209-20.png</file>
+        <file>Germany/209-30.png</file>
+        <file>Germany/211-20.png</file>
+        <file>Germany/214-20.png</file>
+        <file>Germany/215.png</file>
+        <file>Germany/220-10.png</file>
+        <file>Germany/220-20.png</file>
+        <file>Germany/222-10.png</file>
+        <file>Germany/222-20.png</file>
+        <file>Germany/223.1.png</file>
+        <file>Germany/223.2.png</file>
+        <file>Germany/223.3.png</file>
+        <file>Germany/224-50.png</file>
+        <file>Germany/229.png</file>
+        <file>Germany/237.png</file>
+        <file>Germany/238.png</file>
+        <file>Germany/239.png</file>
+        <file>Germany/240.png</file>
+        <file>Germany/241-30.png</file>
+        <file>Germany/242.png</file>
+        <file>Germany/242-2.png</file>
+        <file>Germany/244.png</file>
+        <file>Germany/244a.png</file>
+        <file>Germany/245.png</file>
+        <file>Germany/250.png</file>
+        <file>Germany/251.png</file>
+        <file>Germany/253.png</file>
+        <file>Germany/254.png</file>
+        <file>Germany/255.png</file>
+        <file>Germany/259.png</file>
+        <file>Germany/260.png</file>
+        <file>Germany/261.png</file>
+        <file>Germany/262.png</file>
+        <file>Germany/263.png</file>
+        <file>Germany/264.png</file>
+        <file>Germany/265.png</file>
+        <file>Germany/266.png</file>
+        <file>Germany/267.png</file>
+        <file>Germany/268.png</file>
+        <file>Germany/269.png</file>
+        <file>Germany/270.1.png</file>
+        <file>Germany/270.2.png</file>
+        <file>Germany/272.png</file>
+        <file>Germany/273.png</file>
+        <file>Germany/274.1-50.png</file>
+        <file>Germany/274.2-50.png</file>
+        <file>Germany/274-53.png</file>
+        <file>Germany/274-55.png</file>
+        <file>Germany/274-56.png</file>
+        <file>Germany/274-57.png</file>
+        <file>Germany/275.png</file>
+        <file>Germany/276.png</file>
+        <file>Germany/277.png</file>
+        <file>Germany/278-56.png</file>
+        <file>Germany/278-57.png</file>
+        <file>Germany/279.png</file>
+        <file>Germany/280.png</file>
+        <file>Germany/281.png</file>
+        <file>Germany/282.png</file>
+        <file>Germany/283-10.png</file>
+        <file>Germany/283-20.png</file>
+        <file>Germany/283-30.png</file>
+        <file>Germany/283-50.png</file>
+        <file>Germany/286-10.png</file>
+        <file>Germany/286-20.png</file>
+        <file>Germany/286-30.png</file>
+        <file>Germany/286-50.png</file>
+        <file>Germany/290.png</file>
+        <file>Germany/290-2.png</file>
+		<file>Germany/293.png</file>
+		<file>Germany/294.png</file>
+        <file>Germany/301.png</file>
+        <file>Germany/306.png</file>
+        <file>Germany/307.png</file>
+        <file>Germany/308.png</file>
+        <file>Germany/310-50.png</file>
+        <file>Germany/311-50.png</file>
+        <file>Germany/314-10.png</file>
+        <file>Germany/314-20.png</file>
+        <file>Germany/314.1.png</file>
+        <file>Germany/314.2.png</file>
+        <file>Germany/314-50.png</file>
+        <file>Germany/315-51.png</file>
+        <file>Germany/315-52.png</file>
+        <file>Germany/315-55.png</file>
+        <file>Germany/315-56.png</file>
+        <file>Germany/315-57.png</file>
+        <file>Germany/325.png</file>
+        <file>Germany/326-50.png</file>
+        <file>Germany/327.png</file>
+        <file>Germany/328.png</file>
+        <file>Germany/330.png</file>
+        <file>Germany/330-2.png</file>
+        <file>Germany/331.png</file>
+        <file>Germany/331-2.png</file>
+        <file>Germany/332-1.png</file>
+        <file>Germany/332-20.png</file>
+        <file>Germany/333-20.png</file>
+        <file>Germany/340.png</file>
+        <file>Germany/341.png</file>
+        <file>Germany/350-10.png</file>
+        <file>Germany/350-20.png</file>
+        <file>Germany/354.png</file>
+        <file>Germany/356.png</file>
+        <file>Germany/357.png</file>
+        <file>Germany/358.png</file>
+        <file>Germany/360-51.png</file>
+        <file>Germany/363.png</file>
+        <file>Germany/385-50.png</file>
+        <file>Germany/386-2.png</file>
+        <file>Germany/386-3.png</file>
+        <file>Germany/386-50.png</file>
+        <file>Germany/390.png</file>
+        <file>Germany/391.png</file>
+        <file>Germany/392.png</file>
+        <file>Germany/393.png</file>
+        <file>Germany/394-50.png</file>
+        <file>Germany/401.png</file>
+        <file>Germany/405.png</file>
+        <file>Germany/406.png</file>
+        <file>Germany/410.png</file>
+        <file>Germany/415.png</file>
+        <file>Germany/418.png</file>
+        <file>Germany/419.png</file>
+        <file>Germany/421-20.png</file>
+        <file>Germany/422.png</file>
+        <file>Germany/430.png</file>
+        <file>Germany/432.png</file>
+        <file>Germany/434.png</file>
+        <file>Germany/437.png</file>
+        <file>Germany/438.png</file>
+        <file>Germany/439.png</file>
+        <file>Germany/440.png</file>
+        <file>Germany/441.png</file>
+        <file>Germany/442.png</file>
+        <file>Germany/448.1.png</file>
+        <file>Germany/448.png</file>
+        <file>Germany/449.png</file>
+        <file>Germany/450.png</file>
+        <file>Germany/453.png</file>
+        <file>Germany/454-20.png</file>
+        <file>Germany/455-1.png</file>
+        <file>Germany/455-2.png</file>
+        <file>Germany/457.png</file>
+        <file>Germany/457-2.png</file>
+        <file>Germany/458.png</file>
+        <file>Germany/460-30.png</file>
+        <file>Germany/466.png</file>
+        <file>Germany/467.png</file>
+        <file>Germany/467-2.png</file>
+        <file>Germany/501-11.png</file>
+        <file>Germany/531.png</file>
+        <file>Germany/590.png</file>
+        <file>Germany/600-32.png</file>
+        <file>Germany/605.png</file>
+        <file>Germany/610-41.png</file>
+        <file>Germany/615.png</file>
+        <file>Germany/616.png</file>
+        <file>Germany/625.png</file>
+        <file>Germany/620-40.png</file>
+        <file>Germany/620-41.png</file>
+        <file>Germany/625-10.png</file>
+        <file>Germany/625-20.png</file>
+        <file>Germany/626-10.png</file>
+	<file>Germany/626-20.png</file>
+        <file>Germany/627.png</file>
+        <file>Germany/628.png</file>
+        <file>Germany/629.png</file>
+        <file>Germany/630.png</file>
+        <file>Germany/1000-21.png</file>
+        <file>Germany/1000-32.png</file>
+        <file>Germany/1000-33.png</file>
+        <file>Germany/1001-30.png</file>
+        <file>Germany/1001-31.png</file>
+        <file>Germany/1002-10.png</file>
+        <file>Germany/1002-12.png</file>
+        <file>Germany/1002-13.png</file>
+        <file>Germany/1002-14.png</file>
+        <file>Germany/1002-21.png</file>
+        <file>Germany/1002-22.png</file>
+        <file>Germany/1002-24.png</file>
+        <file>Germany/1004-30.png</file>
+        <file>Germany/1004-31.png</file>
+        <file>Germany/1006-33.png</file>
+        <file>Germany/1006-34.png</file>
+        <file>Germany/1006-35.png</file>
+        <file>Germany/1008-30.png</file>
+        <file>Germany/1008-31.png</file>
+        <file>Germany/1010-10.png</file>
+        <file>Germany/1010-11.png</file>
+        <file>Germany/1012-30.png</file>
+	<file>Germany/1012-31.png</file>
+        <file>Germany/1022-10.png</file>
+        <file>Germany/1030-10.png</file>
+        <file>Germany/1031.png</file>
+        <file>Germany/1040-30.png</file>
+        <file>Germany/1040-31.png</file>
+        <file>Germany/1048-12.png</file>
+        <file>Germany/1049-10.png</file>
+        <file>Germany/1052-35.png</file>
+        <file>Germany/1052-36.png</file>
+        <file>Germany/1052-37.png</file>
+        <file>Germany/1052-38.png</file>
+        <file>Germany/1053-38.png</file>
+		<file>Germany/1000001-00.png</file>
+		<file>Germany/1000002-00.png</file>
+
+
+<file>China/102.png</file>
+<file>China/108.png</file>
+<file>China/10.png</file>
+<file>China/114.png</file>
+<file>China/11.png</file>
+<file>China/122.a.png</file>
+<file>China/122.b.png</file>
+<file>China/123.a.png</file>
+<file>China/124.a.png</file>
+<file>China/124.b.png</file>
+<file>China/124.c.png</file>
+<file>China/124.d.png</file>
+<file>China/124.e.png</file>
+<file>China/125.a.png</file>
+<file>China/125.b.png</file>
+
+<file>China/125.c.png</file>
+<file>China/125.d.png</file>
+<file>China/125.e.png</file>
+<file>China/126.a.png</file>
+<file>China/126.b.png</file>
+<file>China/133.b.png</file>
+<file>China/135.c.png</file>
+<file>China/135.d.png</file>
+<file>China/139.a.png</file>
+<file>China/139.b.png</file>
+<file>China/14.m.png</file>
+<file>China/145.b.png</file>
+<file>China/145.d.png</file>
+<file>China/145.e.png</file>
+<file>China/146.png</file>
+
+<file>China/147.a.png</file>
+<file>China/147.b.png</file>
+<file>China/167.a.png</file>
+<file>China/167.b.png</file>
+<file>China/169.png</file>
+<file>China/170.png</file>
+<file>China/171.png</file>
+<file>China/172.a.png</file>
+<file>China/172.b.png</file>
+<file>China/173.c.png</file>
+<file>China/173.e.png</file>
+<file>China/173.f.png</file>
+<file>China/175.a.png</file>
+<file>China/175.c.png</file>
+<file>China/175.d.png</file>
+
+<file>China/177.c.png</file>
+<file>China/179.a.png</file>
+<file>China/179.b.png</file>
+<file>China/179.c.png</file>
+<file>China/179.d.png</file>
+<file>China/180.a.png</file>
+<file>China/180.b.png</file>
+<file>China/180.c.png</file>
+<file>China/181.a.png</file>
+<file>China/181.b.png</file>
+<file>China/181.d.png</file>
+<file>China/181.e.png</file>
+<file>China/181.f.png</file>
+<file>China/182.d.png</file>
+<file>China/183.a.png</file>
+<file>China/183.b.png</file>
+
+<file>China/183.c.png</file>
+<file>China/183.d.png</file>
+<file>China/183.e.png</file>
+<file>China/192.a.png</file>
+<file>China/192.b.png</file>
+<file>China/1.i.png</file>
+<file>China/228.png</file>
+<file>China/229.b.png</file>
+<file>China/231.a.png</file>
+
+<file>China/231.b.png</file>
+<file>China/234.i.png</file>
+<file>China/234.j.png</file>
+<file>China/242.png</file>
+<file>China/249.a.png</file>
+<file>China/249.b.png</file>
+<file>China/249.c.png</file>
+<file>China/2.a.png</file>
+<file>China/35.m.png</file>
+<file>China/38.a.png</file>
+<file>China/38.b.png</file>
+<file>China/38.c.png</file>
+<file>China/38.d.png</file>
+<file>China/38.e.png</file>
+<file>China/38.f.png</file>
+<file>China/44.b.png</file>
+
+<file>China/48.png</file>
+<file>China/52.png</file>
+<file>China/53.png</file>
+<file>China/54.png</file>
+<file>China/57.m.png</file>
+<file>China/60.m.png</file>
+<file>China/61.a.png</file>
+<file>China/61.b.png</file>
+<file>China/63.png</file>
+<file>China/70.png</file>
+<file>China/75.png</file>
+<file>China/80.png</file>
+<file>China/82.png</file>
+<file>China/98.png</file>	
+
+    </qresource>
+</RCC>

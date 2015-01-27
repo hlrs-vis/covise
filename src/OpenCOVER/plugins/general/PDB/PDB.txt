@@ -1,0 +1,40 @@
+Notes 09/12/08:
+
+With the changes to the batch.py script, all wrl files need to be regenerated
+for sequence browsing to work.
+The PDBDir needs to be a folder called "pdb" located in the same directory as
+the cache folder (PDBPluginTempDir).
+
+
+Sample config.xml file entry for PDB plugin:
+
+        <PDB>
+          <BrowserDirectory value="/home/covise/data/PDB/thumbnails" />
+          <PDBPluginTempDir value="/home/covise/data/PDB/cache/" />
+          <PDBPluginPymolDir value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/PDB/pymol/" />
+          <PDBUrl value="www.pdb.org/pdb/files/" />
+          <TopsanDir value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/PDB/Topsan/" />
+          <LayoutDir value="/home/covise/plugins/calit2/PDB/Layout/" />
+          <PDBDir value="/home/covise/data/PDB/pdb" />
+          <AnimationURL value="www.molmovdb.org/uploads/" />
+          <Scale value="3" />
+          <MarkerSize value="80" />
+          <ViewerDistance value="70" />
+          <FadeDistance value="40" />
+          <FileSize value="19500000" />
+          <NumPerRing value="10" />
+          <Radius value="15" />
+          <MaxStructures value="120" />
+          <Structures>
+            <RNA_Editing_Ligase value="1XDN" />
+            <Thermatoga value="2F8J" />
+            <RNA_POLYMERASE_2 value="1I6H" />
+          </Structures>
+          <Animations>
+            <Serotonin_N_Acetyltransferase value="22943-38" />
+            <Calcium_Pump value="396506-12995" />
+            <FecA_transporter value="829808-15750" />
+            <Actin value="763408-1487" />
+            <Calmodulin value="17833-29779" />
+          </Animations>
+        </PDB>

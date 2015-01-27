@@ -1,0 +1,20 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+The example shows a simple map for displaying the geometry of an unstructured grid 
+generated from CFX-5 data sample. Additional pressure data is mapped through the Colors 
+module path onto the geometry. The VectorField module maps the velocity (VEL\_FL1) onto 
+the geometry represented as colored streamlines.
+ 
+\begin{covimg}
+ {}{ReadCFXMap}{covise/examples/ReadCFX.net}{0.6}\end{covimg}
+
+\begin{covimg}
+ {}{ReadCFXRenderer}{Renderer Output}{0.6}\end{covimg}
+
+
+
+

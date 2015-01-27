@@ -1,0 +1,25 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+\begin{covimg}{}
+	{TensorScalMap}{covise/net/examples/TensorScal.net}{0.6}\end{covimg}
+
+From \covlink{ReadPAM}{ReadPAM}{../../IO/ReadPAM/ReadPAM.html}
+we may get the thickness and a tensor field describing the stress
+states of shell elements. This tensor
+field is not directly the stress, but forces per unit of length.
+In order to get the average effective stress over
+the thickness of the shells, we have to divide the output
+of TensorScal by the thickness of the shells. This is done
+by \covlink{Calc}{Calc}{../../Tools/Calc/Calc.html}.
+The output for the last time step is produced below.
+
+\begin{covimg2}	{}{TensorScalRenderer}{0.6}\end{covimg2}
+

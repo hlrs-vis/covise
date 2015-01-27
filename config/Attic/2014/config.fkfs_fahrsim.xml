@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="ivkvz2,ivkvz3,ivkvz4,ivkvz5,ivkvz6" >  
+   <COVER>
+     <Console arch="windows" value="true" file="c:\OpenCOVER" />
+   </COVER>
+ </LOCAL>
+
+ <LOCAL host="ivkvz1,IVKVZ1" >
+
+  <COVER>
+
+   <Input>
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="0" />
+    <HandAddress value="10" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <Transmitter>
+     <Offset x="0" y="0" z="-121" />
+     <Orientation h="0" p="0" r="0" />
+    </Transmitter>
+
+    <HeadSensor>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadSensor>
+
+    <HandSensor>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HandSensor>
+<DTrack>
+   <Startup value="192.168.0.10:5001" />
+   <Port value="5000" />
+  </DTrack>
+
+
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <StationName value="CoviseBrille" name="0" />
+     <StationName value="CoviseMaus" name="1" />
+     <Server host="visadler" />
+    </Tarsus>
+
+   </Input>
+
+  </COVER>
+
+  <Module>
+   <Fenfloss>
+     <LOCAL value="visent.hlrs.de"/>
+   </Fenfloss>
+  </Module>
+
+ </LOCAL>
+
+
+ <LOCAL host="ivkvz1,visent,visent.hlrs.de,ivkvz2,ivkvz3,ivkvz4,ivkvz5,ivkvz6" >
+
+  <System>
+
+   <HostConfig>
+    <Host timeout="30" memory="shm" method="ssh" name="ivkvz1" hostname="ivkvz1" />
+    <Host timeout="30" memory="shm" method="ssh" name="ivkvz2" hostname="ivkvz2" />
+    <Host timeout="30" memory="shm" method="ssh" name="ivkvz3" hostname="ivkvz3" />
+    <Host timeout="30" memory="shm" method="ssh" name="ivkvz4" hostname="ivkvz4" />
+    <Host timeout="30" memory="shm" method="ssh" name="ivkvz5" hostname="ivkvz5" />
+    <Host timeout="30" memory="shm" method="ssh" name="ivkvz6" hostname="ivkvz6" />
+   </HostConfig>
+
+   <covRemote>
+    <Host value="visling" />
+    <Server port="31809" />
+   </covRemote>
+
+  </System>
+
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+    <GenerateTriangleStrips value="true" />
+
+     <!--Audio value="AServer" >
+      <Host value="visadler" />
+     </Audio-->
+
+    </Vrml97>
+
+   </Plugin>
+
+   <TabletPC>
+   <Server value="localhost" />
+   </TabletPC>
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="5" />
+    <Startup arch="x11" value="ssh ${USER}@ivkvz2 cd `pwd` \;opencover 2\> /tmp/errors.log" name="0"/>
+    <Startup arch="x11" value="ssh ${USER}@ivkvz3 cd `pwd` \;opencover 2\> /tmp/errors.log" name="1"/>
+    <Startup arch="x11" value="ssh ${USER}@ivkvz4 cd `pwd` \;opencover 2\> /tmp/errors.log" name="2"/>
+    <Startup arch="x11" value="ssh ${USER}@ivkvz5 cd `pwd` \;opencover 2\> /tmp/errors.log" name="3"/>
+    <Startup arch="x11" value="ssh ${USER}@ivkvz6 cd `pwd` \;opencover 2\> /tmp/errors.log" name="4"/>
+    <Startup arch="windows" value="covRemote OpenCOVER 2;" name="0" />
+    <Startup arch="windows" value="covRemote OpenCOVER 3;" name="1" />
+    <Startup arch="windows" value="covRemote OpenCOVER 4;" name="2" />
+    <Startup arch="windows" value="covRemote OpenCOVER 5;" name="3" />
+    <Startup arch="windows" value="covRemote OpenCOVER 6;" name="4" />
+   </MultiPC>
+
+   <PipeConfig>
+    <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+   </PipeConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="ivkvz1,ivkvz2" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2000" comment="FRONT" h="0.0" originX="0" originY="1000" originZ="0" height="1500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2000" comment="FRONT" h="0.0" originX="0" originY="1000" originZ="0" height="1500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ 
+
+ <LOCAL host="ivkvz3,ivkvz4" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2000" comment="RIGHT" h="-90.0" originX="1000" originY="0" originZ="0" height="1500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2000" comment="RIGHT" h="-90.0" originX="1000" originY="0" originZ="0" height="1500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="ivkvz5,ivkvz6" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2000" comment="LEFT" h="90.0" originX="-1000" originY="0" originZ="0" height="1500" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2000" comment="LEFT" h="90.0" originX="-1000" originY="0" originZ="0" height="1500" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+
+ <LOCAL host="ivkvz1,ivkvz3,ivkvz5" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="ivkvz2,ivkvz4,ivkvz6" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1" stereoMode="RIGHT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+ <LOCAL host="ivkvz1,ivkvz2,ivkvz3,ivkvz4,ivkvz5,ivkvz6" >
+
+
+
+  <COVER>
+
+   <WelcomeMessage value="Welcome to OpenCOVER at FKFS" />
+   <StereoMode coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated, please use ChannelConfig.Channel.stereoMode instead-->
+   </StereoMode>
+   <SyncToVBlank value="ON" device="DFP-1"/>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="OFF" />
+   <Stereo enable="ON" value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition x="0" y="-1300" z="-220" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <Input>
+    <ButtonSystem value="NONE # IAO" />
+    <MouseNav value="ON" />
+    <TrackingSystem value="DTRACK" />
+    <DebugStation value="0" />
+   <DebugTracking value="RAW" />
+   </Input>
+
+   <SceneSize value="1000" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <!-- Menu for mid panel with mouse /-->
+    <Orientation h="-0" p="0" r="0" />
+    <Position x="300" y="1000" z="500" />
+
+    <!-- Menu for left panel with tracking /--> 
+    <!--Orientation h="-90" p="0" r="0" /-->
+    <!--Position x="1000" y="-500" z="500" /-->
+   </Menu>
+
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <Plugin>
+
+  <SteeringWheel>
+
+   <PorscheMouse value="/dev/input/porschemouse" />
+   <PorscheHupe value="/dev/input/porschehupe" />   
+   <PorscheHupe value="/dev/input/porschehupe" />   
+   <FKFS value="OFF" host="192.168.0.20" />   
+   <FKFSDynamics value="ON" host="192.168.0.20" />   
+   <VDServer value="OFF" host="141.58.8.210" />   
+  </SteeringWheel>
+
+    <Volume value="on" />
+
+    <Vrml97>
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+   </Plugin>
+
+   <WindowConfig>
+    <Window width="1400" comment="MAIN" window="0" pipeIndex="0" height="1050" left="1024" bottom="0" name="0" decoration="false" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

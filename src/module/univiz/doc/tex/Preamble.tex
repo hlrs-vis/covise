@@ -1,0 +1,149 @@
+% commands
+\newcommand{\Adjoint}{\mbox{\rm Adj}}
+\newcommand{\Area}{\mbox{\rm Area}}
+\newcommand{\ACos}{{\mbox{\rm Cos}^{-1}}}
+\newcommand{\ASin}{{\mbox{\rm Sin}^{-1}}}
+\newcommand{\ATan}{{\mbox{\rm atan2}}}
+\newcommand{\Code}[1]{{\tt #1}}
+\newcommand{\Complex}{\mbox{\bf C}}
+\newcommand{\Cross}{{\mbox{\rm Cross}}}
+\newcommand{\Mydddot}[1]{\mbox{\shortstack{$.$\hspace*{-1pt}$.$\hspace*{-1pt}$.$\\$#1$}}}
+\newcommand{\Degree}{\mbox{\rm degree}}
+\newcommand{\Diag}{\mbox{\rm Diag}}
+\newcommand{\Dim}{\mbox{\rm dim}}
+\newcommand{\Dist}{\mbox{\rm Distance}}
+\newcommand{\IntTwo}{\int\!\!\int}
+\newcommand{\IntThree}{\int\!\!\int\! \!\int}
+\newcommand{\Kernel}{\mbox{\rm kernel}}
+\newcommand{\Kross}{\mbox{\rm Kross}}
+\newcommand{\Grad}{\nabla}
+\newcommand{\Perp}{\mbox{\rm Perp}}
+\newcommand{\Point}[1]{{\cal #1}}
+\newcommand{\Rank}{\mbox{\rm rank}}
+\newcommand{\Range}{\mbox{\rm range}}
+\newcommand{\Real}{{\mbox{\rm I}\hspace*{-2pt}\mbox{\rm R}}}
+\newcommand{\RealSbt}{{\mbox{\rm\scriptsize I}\hspace*{-2pt}\mbox{\rm\scriptsize R}}}
+\newcommand{\Res}{\mbox{\rm resultant}}
+\newcommand{\Sbt}[1]{{\mbox{\rm\scriptsize #1}}}
+\newcommand{\MySign}{\mbox{\rm Sign}}
+\newcommand{\SignSBT}{\mbox{\rm\scriptsize Sign}}
+\newcommand{\Skew}{\mbox{\rm Skew}}
+\newcommand{\Span}{\mbox{\rm Span}}
+\newcommand{\SqrDist}{\mbox{\rm Distance$^2$}}
+\newcommand{\Trace}{\mbox{\rm Trace}}
+\newcommand{\TRN}{{\mbox{\rm\scriptsize T}}}
+\newcommand{\Vector}[1]{\mbox{\bf #1}}
+\newcommand{\VectorM}[1]{\mbox{\boldmath $#1$}}
+\newcommand{\Volume}{\mbox{\rm Volume}}
+
+\newcommand{\IVec}{\mbox{\boldmath $\imath$}}
+\newcommand{\JVec}{\mbox{\boldmath $\jmath$}}
+\newcommand{\KVec}{\mbox{\boldmath $k$}}
+\newcommand{\LVec}{\mbox{\boldmath $\ell$}}
+\newcommand{\RMat}{{\cal R}}
+\newcommand{\QMat}{{\cal Q}}
+\newcommand{\QCMat}{\overline{\cal Q}}
+
+\newcommand{\Lerp}{\mbox{\rm lerp}}
+\newcommand{\Slerp}{\mbox{\rm slerp}}
+\newcommand{\Quad}{\mbox{\rm quad}}
+\newcommand{\Squad}{\mbox{\rm squad}}
+
+\newcommand{\subsubsubsection}[1]{{\sc #1}}
+
+\newcommand{\ODer}[2]{\frac{d #1}{d #2}}
+\newcommand{\ODerT}[2]{\frac{d^2 #1}{d {#2}^2}}
+\newcommand{\ODerM}[3]{\frac{d #1}{d #2 \, d #3}}
+\newcommand{\PDer}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\PDerT}[2]{\frac{\partial^2 #1}{\partial {#2}^2}}
+\newcommand{\PDerM}[3]{\frac{\partial^2 #1}{\partial #2 \, \partial #3}}
+
+% mass density symbol
+\newcommand{\Den}{\delta}
+
+% environments
+\newenvironment{BArray}[1]{\left\{ \begin{array}{#1}}{\end{array} \right\}}
+\newenvironment{Combin}{\left( \begin{array}{c}}{\end{array} \right)}
+\newenvironment{Matrix}[1]{\left[ \begin{array}{#1}}{\end{array} \right]}
+
+% "Figure" environment
+\newtheorem{localFigure}{Figure}[chapter]
+\newenvironment{Figure}[1]{
+  \begin{center}
+  \begin{minipage}{6in}
+  \par\noindent\hspace*{0pt}\hrulefill
+  
+  \begin{localFigure} \label{#1}
+}{
+  \end{localFigure}
+  \par\noindent\hspace*{0pt}\hrulefill
+  \end{minipage}
+  \end{center}
+}
+
+% "Table" environment
+\newtheorem{localTable}{Table}[chapter]
+\newenvironment{Table}[1]{
+  \begin{center}
+  \begin{minipage}{6in}
+  
+  \begin{localTable} \label{#1}
+}{
+  \end{localTable}
+  \end{minipage}
+  \end{center}
+}
+
+% "CDROM" environment for source code on disk
+\newenvironment{CDROM}[1]{
+  \label{#1} 
+    \includegraphics{cdrom.png} \hspace*{0.1in}{\tt PointShop3D}. \rm
+}{
+  $\bowtie$
+}
+
+% TO DO search symbol
+\newcommand{\TODO}{\mbox{\large\bf TO DO}}
+\newcommand{\REFR}{\mbox{\large\bf REFR}}
+
+%  Terminates current page and paragraph, makes sure next page starts on
+%  an odd-number, and generates a completely blank page, without page markers,
+%  if necessary.
+\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+
+%%% Shoemake's commands
+\DeclareMathOperator{\prp}{\text{\scshape perp}}
+\DeclareMathOperator{\rot}{rot}
+\DeclareMathOperator{\N}{N}
+\providecommand{\vmag}[1]{\lVert#1\rVert}
+\providecommand{\mutate}[1]{\overleftarrow{#1}}
+\providecommand{\T}[1]{{#1}^{\mathrm T}}
+\newcommand{\cross}{\times}
+\newcommand{\by}{\times}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}} % or not
+\newcommand{\quat}[1]{\mathbf{#1}}
+\newcommand{\vV}{\vect{v}}
+\newcommand{\vU}{\vect{u}}
+\newcommand{\vE}{\vect{e}}
+\newcommand{\vUh}{\hat{\vect{u}}}
+\newcommand{\mQ}{\mat{Q}}
+\newcommand{\mR}{\mat{R}}
+\newcommand{\mM}{\mat{M}}
+\newcommand{\mA}{\mat{A}}
+\newcommand{\mB}{\mat{B}}
+\newcommand{\mI}{\mat{I}}
+\newcommand{\mJ}{\mat{J}}
+\newcommand{\mX}{\mat{X}}
+\newcommand{\mY}{\mat{Y}}
+\newcommand{\mZ}{\mat{Z}}
+\newcommand{\qo}{\quat{1}}
+\newcommand{\qi}{\quat{i}}
+\newcommand{\qj}{\quat{j}}
+\newcommand{\qk}{\quat{k}}
+\newcommand{\xh}{{x}}
+\newcommand{\yh}{{y}}
+\newcommand{\zh}{{z}}
+\newcommand{\ch}{c}
+\newcommand{\sh}{s}
+\newcommand{\gt}{\theta}

@@ -1,0 +1,179 @@
+HostConfig
+{
+    puma.reserv.at        shm     ssh                     10
+
+}
+
+TabletPC
+{
+        Server localhost
+}
+
+
+MultiPC: virtualcluster
+{
+   numSlaves 1
+   SyncMode TCP
+   SyncProcess APP
+Command0 ${COVISEDIR}/${ARCHSUFFIX}/bin/cover
+#Startup0 valgrind --num-callers=30 ${COVISEDIR}/${ARCHSUFFIX}/bin/opencover
+Startup0 ${COVISEDIR}/${ARCHSUFFIX}/bin/opencover > /tmp/cover.log 2>&1
+}
+
+COVERConfig
+{
+    MULTITHREAD                 false
+    VISUAL_ID                   0x23
+    #VISUAL_ID                   0x35
+    AUDIO                       Oss
+    AUDIO_VRML_SPATIALIZE_INTENSITY_BUG off
+    VRML_CORRECT_BACKFACE_CULLING OFF
+    AUDIO_HEADPHONES            OFF
+    AUDIO_SURROUND              OFF
+    AUDIO_CHANNELS              4
+    AUDIO_SPEAKER0              -2500.0   500.0 0.0
+    AUDIO_SPEAKER1              +1500.0   500.0 0.0
+    AUDIO_SPEAKER2              -2500.0 -4000.0 0.0
+    AUDIO_SPEAKER3              +1500.0 -4000.0 0.0
+    AUDIO_THREADED              ON
+
+    
+
+    MULTIPROCESS		OFF
+    MULTIPROCESS_MODE		APP_CULLDRAW
+    ARENA_SIZE                  500000000
+
+    TRACKING_SYSTEM		MOUSE
+    #TRACKING_SYSTEM		SPACEBALL
+    #FREEZE			OFF
+    MOUSE_NAV true
+    #MOUSE_NAV false
+    WHEEL_MOUSE ON
+
+    LookAndFeel                 wood
+    SCENESIZE		        600
+
+    #ANTIALIAS ON
+    NUM_PIPES		        1
+    NUM_WINDOWS		        1
+
+    NUM_SCREENS		        1
+    #NUM_SCREENS		        2
+    STEREO                      OFF
+
+    AUTO_WIREFRAME	        OFF
+    COORD_AXIS		        OFF
+
+    VIEWER_POSITION             0.0 -846.0 0.0
+    #DEBUG_TRACKING             RAW
+    #DEBUG_STATION 1
+    DEBUG_LEVEL 1
+    #SPOTLIGHT		        ON
+    TWOSIDE                     ON
+    #LIGHT1		        0 10000 10000 1.0
+
+    #STEREO_SEPARATION          0
+    STEREO_COMMAND              /bin/true
+    MONO_COMMAND                /bin/true
+    NOSEPARATION                TRUE
+
+
+    NEAR 200
+    FAR  1000000
+
+    stateFixLevel               0
+    VRML_LIGHTS                 ON
+    TRANSPARENCY_MODE           sorted_blended
+    VRML_WRITE_VIEWPOINT        ON
+    VRML_LIGHTS                 ON
+    VRML_CREASE                 OFF
+    HEADLIGHT                   ON
+    TextureMode                 MODULATE
+    TextureQuality              High
+    #LOD_SCALE 1000
+    #LOD_SCALE               1
+    MOVE_PARTS                  on
+
+    #MODULE                      akvr
+    MODULE      Volume
+    #MODULE      VRMoleculeViewer
+    MODULE      Demo
+    MODULE ClipPlane
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		    FRONT		480 300	    0 0 0		    0.0 0.0 0.0
+	1		    FRONT		480 300	    0 0 0		    0.0 0.0 0.0
+}
+ScreenConfig: virtualcluster
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		    FRONT		480 320	    0 0 0		    0.0 0.0 0.0
+}
+WindowConfig: virtualcluster
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+#0	FRONT       	0       	0 0 		1920 1200
+0	FRONT       	0        0 0 		1024 768 false
+#       	0	FRONT       	0       	0 0 		2048 768
+}
+#ChannelConfig
+#{
+## nr name window offx offy szx szy
+# 0 FRONT 0 0 0 1024 768
+# 1 FRONT 0 1024 0 1024 768
+#}
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+#0	FRONT       	0       	0 0 		1920 1200
+0	FRONT       	0       	0 0 		1024 768
+#       	0	FRONT       	0       	0 0 		2048 768
+}
+
+TFE
+{
+MenuPosition 0 0 0 
+MenuOrientation 0 0 0
+MenuSize 0.15
+}
+SimianTFE
+{
+MenuPosition 0 0 0 
+MenuOrientation 0 0 0
+MenuSize 0.15
+}
+
+
+VolumeConfig
+{
+    #Renderer PreInt
+    Renderer FragProg
+    #Renderer Simian
+    #Renderer Soft
+    #Renderer Remote
+    #Renderer Slices2D
+    #Renderer Cubic2D
+    #Renderer Tex
+    #VOLUME_FILE /mnt/work/VolData/virvo/10x10x10.rvf
+    REMOTE_BASE_PORT 31050
+    REMOTE_HOST vision
+}
+
+MoleculeConfig
+{
+    DataDir /mnt/raid/data/molecule
+}
+
+License
+{
+SERVER 00e018ed4950 5.4 19.01.2006 0 OEIJBHG puma.reserv.at
+STD_UI 00e018ed4950 5.4 19.01.2006 0 EIOWGSU puma.reserv.at
+VR_MULTI_ANY 00e018ed4950 5.4 19.01.2006 0 CQSXDLE puma.reserv.at
+}
+
+include "config/covise.config.koeln"
+

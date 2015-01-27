@@ -1,0 +1,46 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2cm}|p{4cm}|p{8cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{gridIn} & UnstructuredGrid\newline Polygons \newline Points & The unstructured
+	grid, polygon mesh or points which should be cropped. \\
+\hline
+	\textcolor{optional}{vdata} &  Vec3
+	 & The vector data on the unstructured grid which should
+	be cropped. The data objects have to be vertex-based. If you have cell-based data (for
+	example from ReadFluent) use the module CellToVert to convert the data objects.  \\
+\hline
+	\textcolor{optional}{sdata1...\newline
+	                     sdata5} &  Float & 
+					To the ports sdata1 to sdata5 you can assign up to 5 scalar
+	data objects on the unstructured grid which should be cropped. The data objects have to be vertex-based. \\
+	\hline
+	\textcolor{optional}{param\_in} &  Points & 
+	Set the parameters by two points. You can e.g. read in a file with RW\_ASCII 
+	in the following format: 
+	\begin{verbatim}
+	POINTS 2
+	{  
+	  VERTEX 
+	  #  xmin         ymin          zmin 
+	  0.000000    -2000.000000  -2000.000000 
+	  #  xmax         ymax          zmax   
+	  2000.000000  2000.000000   2000.000000
+	}					
+	\end{verbatim} \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

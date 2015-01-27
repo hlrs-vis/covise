@@ -1,0 +1,31 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+PartSelect is able to manage sets to cull parts of the geometry or data
+based on the {\it part} attribute.
+
+%
+% input of a module icon for example
+% #1    path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{partselect}{0.7}\end{covimg2}
+
+%\begin{covimg}{/home/sergio/docu/usersguide}{otro}{Here comes the caption}{0.7}\end{covimg}
+
+%
+% short information about versions
+%
+
+PartSelect has been tested on SGI platforms.
+
+%Information about versions is not available.
+
+
+%
+%=============================================================

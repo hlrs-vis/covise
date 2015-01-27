@@ -1,0 +1,18 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+Below is an example map used to display an {\bf Isosurface} of the data read by {\bf ReadLat} module and the data on a {\bf CuttingPlane} .
+
+\begin{covimg} {}{ReadLatMap}{covise/net/examples/ReadLat.net}{0.7}\end{covimg}
+
+The next image is a snapshot of the results in the {\bf Inventor Renderer}.
+
+\begin{covimg} {}{ReadLatRenderer}{The result in the Renderer}{0.7}\end{covimg}  
+%

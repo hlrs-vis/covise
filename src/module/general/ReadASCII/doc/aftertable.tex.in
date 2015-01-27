@@ -1,0 +1,177 @@
+
+%=============================================================
+\subsubsection{File Format}
+The file format parameter is the most importent one, because here you can tell the module how the ASCII file is written. The module uses the file format string to parse the ASCII file.\newline
+\newline
+First you have to know how to mark the values in your format string. Therefore are some escape sequences defined, very simular to the sscanf command in the C++ programming language.\newline
+\newline
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} 
+\hline {\bf Escape Symbol} & {\bf Input Type} & {\bf Example} \endhead \hline\hline
+\hline \%XP & the x-part of the coords of an point & {\it file format:} \%XP, \%YP, \%ZP\\
+\hline \%YP & the y-part of the coords of an point & {\it file format:} \%XP, \%YP, \%ZP\\
+\hline \%ZP & the z-part of the coords of an point & {\it file format:} \%XP, \%YP, \%ZP\\
+\hline \%S & a scalar value (i.e. mass of a star) & {\it file format:} point: \%XP \%YP \%ZP value: \%S\\
+\hline \%XV & the x-part of a vector Value (i.e. velocity inside a streaming model) & {\it file format:} (\%XP,\%YP,\%ZP)|(\%XV,\%YV,\%ZV) \\
+\hline \%XV & the y-part of a vector Value (i.e. velocity inside a streaming model) & {\it file format:} (\%XP,\%YP,\%ZP)|(\%XV,\%YV,\%ZV) \\
+\hline \%XV & the z-part of a vector Value (i.e. velocity inside a streaming model) & {\it file format:} (\%XP,\%YP,\%ZP)|(\%XV,\%YV,\%ZV) \\
+\hline \%F & a dummy value. Will be ignored & {\it file format:} \%F. point: \%XP, \%YP, \%ZP\\
+\hline \verb+\+n & a newline, if a reading sequence is expanded to more then one line or data is not interleaved\newline 
+(see also documentation on interleaved or non-interleaved file formats) & {\it file format:} \%XP,\%YP,\%ZP\verb+\+n\%S\\
+\hline \%\% & if your format contains '\%' to skip interpreting it & {\it file format:} in percent: \%F\%\%, absolut value: \%S\\
+\end{longtable}
+{\bf note:} If you have your data in an non-interleaved format, separate the jumps with '\verb+\+n' (see example for non-interleaved data format below)\\ 
+\\
+{\bf Examples for file format strings:}\\
+\begin{longtable}{p{5cm}|p{5cm}|p{5cm}} 
+\hline {\bf File example} & {\bf Format string example} & {\bf Annotations}\endhead \hline\hline
+\hline 	1, 0, 0\newline
+			3, 0, 0\newline
+			1, 2, 0\newline
+			3, 2, 0\newline
+			1, 0, 2\newline
+			3, 0, 2\newline
+			1, 2, 2\newline
+			3, 2, 2
+			& \%XP, \%YP, \%ZP & Defines the edges of a cube in interleaved format\\
+\hline	1, 0, 0\newline
+			14.3\newline
+			3, 0, 0\newline
+			67.22\newline
+			1, 2, 0\newline
+			7878.0\newline
+			3, 2, 0\newline
+			90
+			& \%XP, \%YP, \%ZP\verb+\+n\%S & Defines the edges of a rectangle in interleaved format and corresponding scalar values in a new line\newline
+			\newline
+			Now you could connect a sphere module to the first two ports (points and scalar values) and you\newline
+			get four points with different sizes.\\ 				
+\end{longtable}
+%=============================================================
+
+%=============================================================
+\subsubsection{About the header}
+When creating a grid, you can read the dimensions from the header, so you don't have to care about the right dimensions. You have to mark the {\bf header} box and insert a pattern in the {\bf dim pattern} line. Because the dimension values are integer type, you can only read integers.\\
+The escape symbol is the {\it \%d} to read the dimension value.\\
+\\
+If you click on the {\bf print results} checkbox you can see on the console if your dimensions are recognized correctly everytime you change the pattern.\\
+\\
+{\bf file example:}\\
+dimensions = 3 x 4 x 16\\
+\\
+{\it // data...}\\
+\\
+{\bf pattern example:}\\
+dimensions = \%d x \%d x \%d\\
+\\
+%=============================================================
+
+%=============================================================
+\subsubsection{About the offsets}
+You can skip lines or bytes to the readout point of your choice. This is important if your header is not in the first line or your data does not start in the first line (esp. if you have an header). The counter starts at 1.\\
+
+{\bf Note:} You cannot apply Byte AND line offset at the same time for the header or the data. You can apply Byte offset for header and line offset for data or revers.\\
+%=============================================================
+
+%=============================================================
+\subsubsection{About the dimensions and the uniform distances}
+The dimensions are only usable, if you have a grid creation active in the {\bf geometry} choice box. The UniDist function does only work with a rectangular or a structured grid.\\
+You can read your dimensions from the header of your file (see 'About the header') or type them manually. Note that if the header box is marked, the manual typed dimensions will be overwritten.\\
+With the {\bf UniDist} function, you can create an uniform grid when creating a grid, which can be partly or complete overwriten by the data from the file.\\
+\\
+{\bf Example:}\\
+\begin{covimg2}{}{dim_example}{0.7}\end{covimg2}
+This setting will create a uniform grid with the dimensions 40 x 40 x 16 and an uniform distance of 1 in all directions.
+			From the file comes values for the z-coords, they will replace the preset values.
+			The result will be a uniform grid in x and y direction and a structured grid in z direction. 
+%=============================================================
+
+%=============================================================
+\subsubsection{Data interleaving}
+When reading a file you have to determine how your data is given. There are two basic possibilities:\\
+{\bf Interleaved:} The data is given as a set of values. To read out a file with that format, activate the checkbox {\bf Data interleaving}.\\
+\\
+{\bf Non-interleaved:} If the data is formated in the way, that first all x values, then all y-values, etc. are given we speak of an non-interlived data format. Make sure the above mentioned checkbox is free.\\
+\\
+{\bf Example:}\\
+\begin{longtable}{p{5cm}|p{5cm}} 
+\hline 	(1,2,3)\newline
+			(4,5,6)\newline
+			(7,8,9)\newline
+			& That is an interleaved format.\newline
+			The file format pattern to read that is:\newline
+			{\it (\%XP, \%YP, \%ZP)}\\
+\hline	1\newline4\newline7\newline2\newline5\newline8\newline3\newline6\newline9
+			& That are the same vectors in an non-interleaved format\newline
+			The file format pattern to read that is:\newline
+			{\it (\%XP\verb+\+n\%YP\verb+\+n\%ZP)}\\	
+\end{longtable}
+%=============================================================
+
+%=============================================================
+\subsubsection{Grid Index Iteration Order}
+There are different ways you can sort your coordinates. When reading out just points it is not nesessary to have an eye on this, but when creating a structured grid, the connectivity is really different, because it is just implizit given.\\
+The standard index iteration order is k, j, i (or z, y, x). But some applications write the index in i, j, k order. In that case the module has to re-sort them and you have to choose the i, j, k order in the drop down menue.\\
+If your grid looks weird and you are sure that all other parameters are right, try to resort the vectors by changing the {\bf Grid Index Iteration Order} setting.\\
+\\
+{\bf Example:}
+\begin{longtable}{p{5cm}|p{5cm}} 
+\hline 	That is an 2 x 3 x 3 grid in an {\bf k, j, i} sequence\newline -->iteration sequence z, y, x
+			& The same grid in an {\bf i, j, k} sequence\newline -->iteration sequence x,y,z\\
+\hline	0, 0, 0\newline
+			0, 0, 1\newline
+			0, 0, 2\newline
+			0, 1, 0\newline
+			0, 1, 1\newline
+			0, 1, 2\newline
+			0, 2, 0\newline
+			0, 2, 1\newline
+			0, 2, 2\newline
+			1, 0, 0\newline
+			1, 0, 1\newline
+			1, 0, 2\newline
+			1, 1, 0\newline
+			1, 1, 1\newline
+			1, 1, 2\newline
+			1, 2, 0\newline
+			1, 2, 1\newline
+			1, 2, 2
+			&
+			0, 0, 0\newline
+			1, 0, 0\newline
+			0, 1, 0\newline
+			1, 1, 0\newline
+			0, 2, 0\newline
+			1, 2, 0\newline
+			0, 0, 1\newline
+			1, 0, 1\newline
+			0, 1, 1\newline
+			1, 1, 1\newline
+			0, 2, 1\newline
+			1, 2, 1\newline
+			0, 0, 2\newline
+			1, 0, 2\newline
+			0, 1, 2\newline
+			1, 1, 2\newline
+			0, 2, 2\newline
+			1, 2, 2
+\end{longtable}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

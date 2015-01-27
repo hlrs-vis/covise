@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <COVER> 
+
+   <IconSize value="50"/>
+   <ConstantInteractorSize value="Off"/>
+   <IconOffset value="0"/>
+
+   <PointerDepth value="0"/>
+
+   <PointerAppearance>
+    <IconName value="pointer"/>
+    <Width value="0"/>
+    <Length value="0"/>
+    <Intersection value="1000" />
+   </PointerAppearance>
+
+   <Input>
+
+    <MouseNav value="ON" />
+    <TrackingSystem value="VRC" />
+    <HandAddress value="1" />
+
+    <VRC>
+     <Port value="9898" />
+    </VRC>
+
+   </Input>
+
+  </COVER>
+
+ </GLOBAL>
+
+</COCONFIG>

@@ -1,0 +1,58 @@
+
+\usepackage{html, htmllist}
+\usepackage{longtable}
+
+\bodytext{bgcolor="#ffffff" link="#0033cc" vlink="#0033cc"}
+
+%%%==================================================	
+%%%==================================================	
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newcommand{covlink}[3]{\htmladdnormallink{#2}{#3} \latex{(\ref{#1})} }
+
+
+\newenvironment{covimg}[4]%
+{
+ \begin{figure}[htp]
+  \begin{center}
+   \latexonly
+      \includegraphics[scale=#4]{#1/pict/#2}
+   \endlatexonly  
+   \html{\htmladdimg[align="center"]{pict/#2.png}}
+   \caption{#3}
+  \end{center}
+ \end{figure} 
+}{} 
+
+\newenvironment{covimg2}[3]%
+{ 
+ \begin{figure}[htp]
+  \begin{center}
+     \latexonly
+       \includegraphics[scale=#3]{#1/pict/#2}   
+     \endlatexonly
+     \html{\htmladdimg[align="center"]{pict/#2.png}}
+  \end{center}
+ \end{figure} 
+}{}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\newcommand{\addimage}[1] {\html{\htmladdimg{pict/#1.png}}}
+
+\newcommand{\addpict}[4] {\latexonly
+	     \begin{figure}[!htbp]
+			  \begin{center}
+   	 		  \includegraphics[scale=#1]{#2}
+   	 		  \caption{#3}
+		 		  \label{#4}
+			  \end{center}
+	 		\end{figure}
+	     \endlatexonly}
+
+

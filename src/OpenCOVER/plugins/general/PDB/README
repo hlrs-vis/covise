@@ -1,0 +1,72 @@
+PDB VIEWER INTERFACE OVERVIEW:
+
+	PDB Viewer:
+	
+	Proteins -a sub menu containing pre defined structures
+		  (configured in config.xml see below)
+
+	Protein Morphs - a sub menu containing pre defined protein
+		  morphs (configured in config.xml see below)
+
+	Loader - a loader for individual structures, dial in the four
+		  digit/Alpha PDB ID then load to load the structure
+
+	Protein Fader - a sub menu containing controls to the protein
+		  fader
+
+		  Fade On - enables the fader, it will override
+			High Detail mode
+
+		  Distance from viewer (mtr) - Indicates the distance
+			from the viewer, where the fade will begin
+
+		  Fade distance (mtr) - Indicates the size of the faded
+			section 
+			e.g. settings 1, 1: fade would occur in the 
+			interval 1-2 meters away from the viewer
+
+		  Reset Settings - Resets the Distance from viewer and
+			Fade distance settings
+			(configured in config.xml see below)
+			 
+	High Detail - Enables/disables two different representations of
+		  the loaded structure
+
+	Clear - removes currently structures from the enviroment
+
+
+
+Example PDBPlugin configuartion in the config.xml:
+
+  <PDBPlugin>
+        <PDBPluginMolDir value="/home/johndoe/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/" />
+        <PDBUrl value="www.pdb.org/pdb/files/" />
+        <AnimationURL value="www.molmovdb.org/uploads/" />
+        <ViewerDistance value="1.1" />
+        <FadeDistance value="1.2" />
+        <Structures>
+          Myoglobin 1MBN
+          DNA 1BNA
+          Photosystem_I 1JBO
+          Cytochrome_c_Oxidase 1OCO
+          Collagen 1CAG
+          MHC_Class_II 1DLH
+          Potassium_Channel_A 1BL8
+          Potassium_Channel_B 1FQY
+          SARS 2D2D
+          Glutamate_Receptor 1GR2
+          Acetylcholine_Receptor 2BG9
+          Acetylcholine_Cobratoxin 1YI5
+          Thermus_Thermophilus 1J5E
+        </Structures>
+        <Animations>
+          Serotonin_N-Acetyltransferase 22943-38
+          Calcium_Pump 396506-12995
+          FecA_transporter 829808-15750
+          Actin 763408-1487
+          Calmodulin 17833-29779
+        </Animations>
+  </PDBPlugin>
+
+	
+

@@ -1,0 +1,523 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >  
+   <COVER>
+     <Background r="0.0" g="0.0" b="0.0" />
+     <Console arch="windows" value="true" file="c:\OpenCOVER" />
+   </COVER>
+ </LOCAL>
+
+ <LOCAL host="viscluster70">
+
+  <COVER>
+   <Background r="0.0" g="0.0" b="0.0" />
+   <Input>
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <!-- Tarsus HeadAddress value="0" /-->
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+    
+   <ButtonSystem value="MOUSE" />
+    <TrackingSystem value = "DTRACK">
+     <Offset x="0" y="-1500" z="-1307" />
+     <Orientation h="0" p="0" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="-105" y="-40" z="-50" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="-50" y="0" z="0" />
+     <Orientation h="0" p="-90" r="0" />
+    </HandDevice>
+    
+
+    <DebugStation value="0" />
+
+    <Wii>
+      <Address value="00:23:CC:A1:9D:57" />
+    </Wii>
+  <ButtonConfig>
+   <ButtonDevice value="/dev/input/presenter" />
+        <Map value="1 ACTION_BUTTON" name="1" />
+  	<Map value="8 XFORM_BUTTON" name="2" />
+  	<Map value="2 DRIVE_BUTTON" name="3" />
+   <!--ButtonDevice value="/dev/input/event8" /-->
+  </ButtonConfig>  
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <StationName value="Brille" name="0" />
+     <StationName value="Maus" name="1" />
+     <Server host="visadler" />
+    </Tarsus>
+
+ <!--DTrack>
+                                <Port value="5000" />
+                                                        </DTrack-->
+
+
+   </Input>
+   
+   
+  </COVER>
+
+  <Module>
+   <Fenfloss>
+     <Local value="141.58.8.8"/>
+   </Fenfloss>
+
+   <ReadSim>
+     <Local value="visent.hlrs.de"/>
+   </ReadSim>
+
+   <CFX>
+     <Local value="192.168.0.170"/>
+   </CFX>
+
+  </Module>
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >
+
+  <System>
+
+
+   <VRB>
+    <!--Server value="141.58.8.5" port="31200" /-->
+   </VRB>
+
+   <HostConfig>
+    <Host timeout="300" memory="shm" method="ssh" name="visent.hlrs.de" hostname="visent.hlrs.de" />
+    <Host timeout="300" memory="shm" method="ssh" name="visent" hostname="visent" />  
+    <Host timeout="300" memory="shm" method="ssh" name="viscluster71" hostname="viscluster71" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster72" hostname="viscluster72" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster73" hostname="viscluster73" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster74" hostname="viscluster74" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster75" hostname="viscluster75" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster76" hostname="viscluster76" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster77" hostname="viscluster77" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster78" hostname="viscluster78" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster79" hostname="viscluster79" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster80" hostname="viscluster80" />
+   </HostConfig>
+
+   <covRemote>
+    <Host value="visbat" />
+    <Server port="31809" />
+   </covRemote>
+
+  </System>
+
+
+  <COVER>
+
+   <Spheres><UseVertexArrays value="on"/></Spheres>
+   <OMPThreads value="off"/>
+   <IconSize value="20"/>
+
+   <!--FSAAMode value="0" /-->
+    <Multisample value="OFF" numSamples="4" numBuffers="2" mode="FASTEST" />
+   <AnisotropicFiltering value="0" />
+   <Plugin>
+    <COVERScript value="off"/>
+    <ViewPoint value="on"/>
+    <Joystick>
+      <Device value="/dev/input/js" />
+    </Joystick>
+    <Vrml97 value="on">
+
+     <Lights value="ON" />
+     <Audio value="AServer" >
+      <Host value="141.58.8.32" />
+     </Audio>
+
+    <ViewpointType value = "free"/>
+
+    <NewMovieSupport value="true"/>
+    <UseTextureRectangle value="true"/>
+
+
+    </Vrml97>
+    
+    <StereoVideoPlayer>
+       <Audio value="off"/>
+    </StereoVideoPlayer>
+
+    <ACInterface value="off"/>
+    <WSInterface value="off"/>
+    <PolyLineData value="off"/>
+    <RemoteDT value="off"/>
+
+   </Plugin>
+
+   <TabletPC>
+   <Server value="localhost" />
+   <!--Server value="141.58.8.211" /-->
+   <!--Server value="141.58.8.238" /-->
+   <!--Server value="141.58.8.187" /-->
+   <!--Server value="141.58.8.88" /-->
+   </TabletPC>
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <!--SyncMode value="MPI" hosts="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78"/-->
+    <NumSlaves value="1" />
+    
+    <Multicast>
+     <debugLevel value="2" />
+     <mcastAddr value="224.223.222.221" />
+     <mcastPort value="23232" />
+     <mtu value="1500" />
+     <ttl value="1" />
+     <lback value="off" />
+     <sndBufferSpace value="1000000" />
+     <rcvBufferSpace value="1000000" />
+     <blockSize value="4" />
+     <numParity value="0" />
+     <txCacheSize value="100000000" />
+     <txCacheMin value="1" />
+     <txCacheMax value="128" />
+     <txRate value="1000" />
+     <backoffFactor value="0.0" />
+     <sockBufferSize value="512000" />
+     <readTimeoutSec value="30" />
+     <writeTimeoutMsec value="500" />
+     <retryTimeout value="100" />
+     <maxLength value="1000000" />
+    </Multicast>
+    
+    <MasterInterface value="192.168.2.170" />
+
+    <Startup arch="x11" value="ssh ${USER}@viscluster71 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster72 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="1"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster73 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="2"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster74 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="3"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster75 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="4"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster76 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="5"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster77 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="6"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster78 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="7"/>
+    <Startup arch="x11" value="ssh ${USER}@viscluster79 ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="8"/>
+
+       
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster70" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="3636" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2050" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster71" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="1222" originY="0" originZ="-693" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+ 
+
+ <LOCAL host="viscluster72" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="0" originY="0" originZ="-693" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster73" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="-1222" originY="0" originZ="0" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster74" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="1222" originY="0" originZ="0" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster75" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster76" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="-1222" originY="0" originZ="-693" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster77" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="1222" originY="0" originZ="693" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster78" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="0" originY="0" originZ="693" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="viscluster79" >
+
+  <COVER>
+
+   
+   <ScreenConfig>
+    <Screen width="1212" comment="FRONT" h="0.0" originX="-1222" originY="0" originZ="693" height="683" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+
+
+<LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
+ 
+ 
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1920" stereoMode="HORIZONTAL_SPLIT" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
+   </ChannelConfig>
+   <WindowConfig>
+    <Window arch="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" VisualID="0x23" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster70," >
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+   <WindowConfig>
+   <Window arch="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" VisualID="0x23" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+ <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >
+
+
+
+  <COVER>
+   <Snap value="ON" />
+   <WelcomeMessage value="Welcome to OpenCOVER at HLRS CAVE" />
+   <SyncToVBlank value="ON" device="DFP-0"/>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="OFF" />
+   <Stereo enable="ON" value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition x="0" y="-1500" z="400" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <VRUI>
+     <VNC>
+       <Menu>
+         <Orientation h="0" p="0" r="0" />
+         <Position x="0" y="0" z="0" />
+         <Size value="1" />
+       </Menu>
+     </VNC>
+   </VRUI>
+      
+
+   <Input>
+    <!--ButtonSystem value="WiiMote" /-->
+    <MouseNav value="ON" />
+    <TrackingSystem value="TARSUS" />
+    <ButtonConfig>
+        <Map value="1 ACTION_BUTTON" name="1" />
+  	<Map value="2 XFORM_BUTTON" name="2" />
+  	<Map value="4 DRIVE_BUTTON" name="3" />
+
+    </ButtonConfig>
+   </Input>
+
+   <SceneSize value="2500" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="ON" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <Orientation h="0" p="0" r="0" />
+    <Position x="1300" y="0" z="500" />
+   </Menu>
+
+   <DebugLevel value="1" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <Plugin>
+        <ARToolKit value="Off">
+		   <Capture value="Off" />
+		   <Stereo value="OFF" />
+		   <AdjustCameraParameter value="ON" />
+		   <TrackViewpoint value="OFF" />
+		   <TrackObjects value="On" />
+		   <Threshold value="143" />
+		   <!-- SLK -->
+		   <Marker name="ObjectMarker" >
+			   <Pattern value="/mnt/raid/share/hpcbrait/AR/camera/4x4_56.patt" />
+			   <Size value="50" />
+			   <Offset x="0" y="0" h="0" z="38" p="0" r="-6" />
+			   <VrmlToPf value="TRUE" />
+		   </Marker>
+		   <RemoteAR>
+			   <Transmit value="Off" />
+			   <EncodingStyle value="0" />
+			   <EncodingQuant value="1" />
+			   <UseIRMOS value="1" />
+			   <irmosReceiver value="1" />
+			   <irmosReceiverPort value="31666" />
+			   <irmosReceiverServer value="192.108.38.44" />
+		   </RemoteAR>
+        </ARToolKit>	   
+	   
+   <Bicycle>
+   <LenkMaus value="/dev/input/mouse3"/>
+   <PedalMaus value="/dev/input/mouse4"/>
+   </Bicycle>
+   
+
+    <Volume value="on" />
+    <CUDAIsoSurface value="off" />
+
+   </Plugin>
+
+   <VehicleUtil>
+         <Beckhoff nodeID="22"/>
+      <CANProvider>
+         <CANKomfort channel="rtcan2"/>
+         <CANDisplay channel="rtcan3"/>
+      </CANProvider>
+   </VehicleUtil>
+
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

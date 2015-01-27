@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <IconSize value="50"/>
+         <ConstantInteractorSize value="Off"/>
+         <IconOffset value="0"/>
+
+         <PointerDepth value="0"/>
+         <PointerAppearance>
+            <IconName value="pointer"/>
+            <Width value="10"/>
+            <Length value="1000"/>
+            <Intersection value="1000" />
+         </PointerAppearance>
+
+        <Input>  
+            <DebugButtons value="off" />
+            <DebugStation value="1" />
+            <TrackingSystem value="VRC" />
+            <VRC>
+                <Port value="7777" />
+                <DebugLevel value="0"/>
+            </VRC>
+            
+            <HandAddress value="1" />
+      
+            
+            <TrackingSystem>
+                <Offset x="0" y="-80" z="-600" />
+                <Orientation h="90" p="0" r="180" />
+            </TrackingSystem>
+            
+            <HandDevice>
+                <Offset x="0" y="0" z="0" />
+                <Orientation h="90" p="0" r="180" />
+            </HandDevice>
+
+            <ButtonConfig>
+               <Map value="5 DRIVE_BUTTON" name="5 DRIVE_BUTTON"/>
+               <Map value="6 XFORM_BUTTON"  name="6 XFORM_BUTTON"/>
+               <Map value="7 ACTION_BUTTON"  name="7 ACTION_BUTTON"/>
+            </ButtonConfig> 
+            
+            <MouseNav value="ON" />
+        </Input>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

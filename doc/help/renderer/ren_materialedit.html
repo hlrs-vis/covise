@@ -1,0 +1,139 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Material Editor</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h3>
+<font face="Times New Roman,Times"><font color="#FF9900">Material Editor</font></font></h3>
+<font face="Arial,Helvetica">The <b>Material Editor </b>is used for customizing
+objects by interactively changing values for</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">ambient, diffuse, specular, and emissive color</font></li>
+
+<li>
+<font face="Arial,Helvetica">transparency</font></li>
+
+<li>
+<font face="Arial,Helvetica">shininess</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Before using the Material Editor, select
+a geometry object either by</font>
+<br><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp; clicking in the GeometryObjects
+selection list or</font>
+<br><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp; clicking on the geometry
+object itself (in <a href="ren_pickmode.html">PickMode</a>!)</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">For using the editor look at the <b>Material
+Editor popup</b> together with the description below.</font>
+<br><font face="Arial,Helvetica">The Material Editor provides the Edit
+menu (Material List / Continuous / Manual / Copy / Paste / Help), the Control
+field and the Sliders (Color / Shininess / Transparency):</font>
+<br>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="84%" >
+<tr>
+<td><img SRC="material.gif" height=340 width=530></td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica">The slider values have the following meaning:</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Ambient color:</font></b></li>
+
+<br><font face="Arial,Helvetica">reflected color of an object in response
+to the ambient lighting in the scene</font>
+<br><font face="Arial,Helvetica">default [0.2 0.2 0.2]</font>
+<li>
+<b><font face="Arial,Helvetica">Diffuse color:</font></b></li>
+
+<br><font face="Arial,Helvetica">object's base color (specified in the
+color array of the renderer geometry input data objects)</font>
+<br><font face="Arial,Helvetica">default RGB [1.0 1.0 1.0] = white</font>
+<li>
+<b><font face="Arial,Helvetica">Specular color:</font></b></li>
+
+<br><font face="Arial,Helvetica">color on highly reflecting parts = color
+of the incident light</font>
+<li>
+<b><font face="Arial,Helvetica">Emissive color:</font></b></li>
+
+<br><font face="Arial,Helvetica">color of light caused by self illuminating
+object;</font>
+<br><font face="Arial,Helvetica">default [0.0 0.0 0.0], i. e object is
+emitting no light</font></ul>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">For all kinds of color above you can click
+to get a full&nbsp; <a href="ren_coloredit.html">ColorEditor</a>.</font></td>
+</tr>
+</table>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Shininess:</font></b></li>
+
+<br><font face="Arial,Helvetica">The degree of shininess is for achieving
+e. g. metallic effects;</font>
+<br><font face="Arial,Helvetica">default 0.0 (diffuse surface), 1.0 for
+a highly polished surface</font>
+<li>
+<b><font face="Arial,Helvetica">Transparency:</font></b></li>
+
+<br><font face="Arial,Helvetica">If you have two objects, one covered by
+the other, the transparency level means</font>
+<br>&nbsp;
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="92%" BGCOLOR="#CCCCCC" >
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Arial,Helvetica">0.0</font></td>
+
+<td><font face="Arial,Helvetica">no transparency</font></td>
+
+<td><font face="Arial,Helvetica">you see the covering object only</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">0.0&lt; transparency &lt;1.0</font></td>
+
+<td><font face="Arial,Helvetica">limited transparency</font></td>
+
+<td><font face="Arial,Helvetica">you see both objects</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0</font></td>
+
+<td><font face="Arial,Helvetica">full transparency</font></td>
+
+<td><font face="Arial,Helvetica">you see the covered object only</font></td>
+</tr>
+</table>
+</ul>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Check color and shininess looking at the
+sphere in the control field, check transparency looking how much of the
+squares you see shining thru the sphere.</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">Use the option 'manual' from the <b>Edit
+menu</b> to prevent changes beeing reflected immediately</font>
+<br>&nbsp;
+</body>
+</html>

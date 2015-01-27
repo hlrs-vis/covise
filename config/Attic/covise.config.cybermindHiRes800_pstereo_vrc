@@ -1,0 +1,87 @@
+#--------------------------------------------------------------------------------
+#-- Covise 5.4 Configuration File 
+#-- for Cybermind HMD 1600x600 60 Hz
+#-- passive stereo with 1 pipe, 2 video outputs (nvidia gforce twinview)
+#-- 1 large window, 2 viewports
+#-- integrated InterTrax tracker, Magellan for hand
+#-- ITRAXserver -t 7777 -p 0 (vorerst noch die Parametr der TU Graz)
+#-- MAGELLANserver 2
+#--------------------------------------------------------------------------------
+
+
+#--- INSERT covise.config.base HERE -------------------------------------------
+
+<covise.config.base>
+
+
+COVERConfig: vir6.vircinity vir8.vircinity
+{   
+    ARENA_SIZE                  750000000
+    MULTIPROCESS                OFF
+    NUM_PIPES			           1
+    NUM_WINDOWS			        1
+    NUM_SCREENS                 2
+    MENU_POSITION               0 0 0
+    MENU_ORIENTATION            0 0 0
+    TRACKING_SYSTEM             VRC
+    SCENESIZE		              407
+    NEAR                        10
+    FAR                         10000000
+    VIEWER_POSITION             0 -2000 0
+    floorHeight                 -1800
+    stepSize                    200
+    WELCOME_MESSAGE             Welcome to CYCLOOP   
+    FONT                        FILLED
+    COORD_AXIS                  ON
+    DEBUG_LEVEL                 1
+    TRACKED_HMD                 ON
+    HMD_DISTANCE                2000
+    FREEZE                      OFF
+#   MOUSE_NAV                   ON
+}
+
+PipeConfig:vir6.vircinity vir8.vircinity
+{
+#-- PipeIndex    HardPipe    Display				
+    0		     0		    :0.0
+}
+
+WindowConfig:vir6.vircinity vir8.vircinity
+{
+#-- WinIndex	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0           FRONT       	0       	0  0 		      1600 600
+}
+
+ScreenConfig:vir6.vircinity vir8.vircinity
+{
+#-- ScreenIndex	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		         FRONT		   543 407	      0 0 0			0.0 0.0 0.0
+	1              FRONT		   543 407		   0 0 0			0.0 0.0 0.0
+}
+
+ChannelConfig:vir6.vircinity vir8.vircinity
+{
+#-- ChannelIndex    ChannelName     WindowNo    VPLeft   VPBottom     VPWidth  VPHeight
+    0               FRONT           0           0.0         0.0         0.5       1.0
+    1               FRONT           0           0.5         0.0         1.0       1.0
+}
+
+VRCTracker:vir6.vircinity vir8.vircinity
+{
+    Port 7777
+    DebugLevel 0
+}
+
+TrackerConfig:vir6.vircinity vir8.vircinity
+{
+    NUM_SENSORS                             2
+    HAND_ADDR                               1
+    HEAD_ADDR                               2
+    LINEAR_MAGNETIC_FIELD_CORRECTION        0.0 0.0 0.0
+    TRANSMITTER_OFFSET                      0 -200 0
+    TRANSMITTER_ORIENTATION                 0 0 0
+    HEADSENSOR_OFFSET                       0 0 0
+    HEADSENSOR_ORIENTATION                  0 0 0
+    HANDSENSOR_OFFSET                       0  0 0
+    HANDSENSOR_ORIENTATION                  0 0 0
+}

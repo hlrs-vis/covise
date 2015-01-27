@@ -1,0 +1,89 @@
+\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+	  
+\bodytext{TEXT=#000000 BGCOLOR=#FFFFFF LINK=#0033CC VLINK=#0033CC}
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newenvironment{covlink}[3]%
+{\html{\htmladdnormallink{#1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}%
+}
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[!Hhtp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+%================================================================================
+%================================================================================
+
+
+%================================================================================
+%\startdocument
+
+\chapter{Introduction}
+
+The tensile strength of tissue depends on a lot of influences, e.g. on the material 
+of the tissue, the wear of the press cylinder, the embossing pressure, and the 
+embossing pattern. Frequently loss of tensile strength is detected after the cylinder 
+has been manufactured and the tissue is already in use. The SCA E-Type project is 
+targeted on analyzing this loss of tensile strength by simulation already during 
+design. The intention is to interactively test new designs and to be able to vary 
+parameters for embossing.
+
+Until now the designer sends his pattern as a .pdf-file to the manufacturer of the 
+cylinder, who transforms this pattern into a CAD drawing. Based on this CAD drawing 
+the cylinder is milled, and tissue is embossed using this cylinder. Specialists examine 
+the haptics of the tissue, and then mass production of the tissue starts. Due to the 
+wear of the cylinder the characteristics of the tissue change over time.
+
+In this project, SCA together with the University of the Federal Armed Forces Hamburg 
+and VirCinity have developed a virtual 
+prototype for embossed tissue; with this prototype it will be possible to modify the 
+design as well as to analyse how the design influences the physical properties. 
+Due to the integration in the Virtual Reality environment COVER the user gets a threedimensional and 
+almost photorealistic view of the tissue. With a 3D input device he can move the 
+tissue intuitively, and change the pattern directly. Simulation of the embossing using 
+the LS-Dyna program gives him the  plastic deformation of the tissue after embossing. 
+Then he applies, using Ansys, a simulated traction to the tissue, visualizes the results with COVISE. The values for tensile strength are 
+shown in color in the Virtual Reality environment, and the maximum loss will be 
+shown as number (only partly implemented). The integration of all steps in COVISE and the Virtual Reality user interface 
+does not require a specialist for computation, but a professional for the process of tissue embossing.
+
+Chapter 2 describes the process steps for design, simulation of embossing, simulation 
+of traction, and visualization, and  explains the flow of control.
+
+Chapter 3 introduces the Virtual Reality interface.
+
+The Appendix provides an introduction into the deformation model used to simulate
+embossing (Short version of an internal report by Prof.Dr.-Ing. R. Lammering et
+al., University of the Federal Armed Forces Hamburg).
+
+
+ 

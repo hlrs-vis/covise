@@ -1,0 +1,26 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        whatToDo & Choice & Options:
+                          \begin{itemize}
+                          \item Gradient: Gradient of a scalar field
+                          \item Divergence: Divergence of a vector field
+                          \item Curl: Curl of a vector field
+                          \item Gradient Magnitude: Magnitude of the gradient of a scalar field
+                          \end{itemize} \\
+                             
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

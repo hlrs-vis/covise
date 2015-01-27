@@ -1,0 +1,25 @@
+<script>
+
+var userName="";
+var password="";
+var placeName="test";
+
+var arg= document.URL.split("?");
+if( arg[2]!=null) userName =arg[2];
+if( arg[3]!=null) placeName=arg[3];
+
+function c() { window.close();}
+</script>
+
+<html>
+<head><title>Login to the COVISE Conference Room</title></head>
+
+<frameset ROWS="100%, *">
+<frame SRC="logon.html?alonecher.html" FRAMEBORDER=no NORESIZE> </frame>
+<frame SRC="" FRAMEBORDER=no NORESIZE> </frame>
+</frameset>
+
+</html>
+
+
+

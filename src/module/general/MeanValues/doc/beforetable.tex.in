@@ -1,0 +1,23 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+COVISE application module for calculating Plot3D solution data (data read by ReadPlot3D)
+%
+
+\begin{covimg2}	{}{SolutionsModule}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+
+Solutions has been tested with Covise Release 1 on SGI.
+%
+
+%
+%=============================================================

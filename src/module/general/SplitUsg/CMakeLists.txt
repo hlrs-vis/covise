@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  SplitUsg.cpp
+)
+
+SET(EXTRASOURCES
+  SplitUsg.h
+)
+
+ADD_COVISE_MODULE(Filter SplitUsg ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(SplitUsg  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(SplitUsg)

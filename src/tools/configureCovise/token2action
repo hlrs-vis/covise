@@ -1,0 +1,102 @@
+#!/bin/sh
+
+#first argument is the path for the target files
+#second argument is the class name
+if [ $# -ne 2 ]; then 
+echo usage $0 \<path\> \<classname\>
+exit 1
+fi
+headerfile=${1}/${2}.h
+cppfile=${1}/${2}.cpp
+classname=${2}
+echo >${headerfile}
+#echo >${cppfile}
+echo \#include \"${2}.h\"  >${cppfile}
+echo \#include \<iostream.h\> >>${cppfile}
+echo '#include "action.h"' >>${headerfile} 
+echo >>${headerfile}
+
+echo "class " ${2} ": public actionClass" >>${headerfile}
+echo "{" >> ${headerfile}
+echo "  public:" >>${headerfile}
+cat token/sections | while read l; do
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname,int x, int y, int z);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, double x, double y, double z);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, double x, double y, double z, double w);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int number);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, const char *str);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, const char *str1, const char *str2);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int i, int, const char *specAsString);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int, const char *specAsString);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, bool);" >>${headerfile}
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, double);" >>${headerfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, double x, double y, double z)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l}'," << itemString << ",x," << hostname << ") " << x << endl'  >>${cppfile}
+  echo '       << "set ListForSection('${l}'," << itemString << ",y," << hostname << ") " << y << endl'  >>${cppfile}
+  echo '       << "set ListForSection('${l}'," << itemString << ",z," << hostname << ") " << z << endl;'  >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, double x, double y, double z,double w)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l}'," << itemString << ",x," << hostname << ") " << x << endl' >>${cppfile} 
+  echo '       << "set ListForSection('${l}'," << itemString << ",y," << hostname << ") " << y << endl'  >>${cppfile}
+  echo '       << "set ListForSection('${l}'," << itemString << ",z," << hostname << ") " << z << endl' >>${cppfile} 
+  echo '       << "set ListForSection('${l}'," << itemString << ",w," << hostname << ") " << w << endl;'  >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, int x, int y, int z)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l}'," << itemString << ",x," << hostname << ") " << x << endl' >>${cppfile} 
+  echo '       << "set ListForSection('${l}'," << itemString << ",y," << hostname << ") " << y << endl' >>${cppfile} 
+  echo '       << "set ListForSection('${l}'," << itemString << ",z," << hostname << ") " << z << endl;' >>${cppfile} 
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, int number)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \"\) \" '<<' number '<<' endl \; >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, const char *str)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \"\) \"  '<<' \'\{\' '<<' str '<<' \'\}\' '<<' endl \; >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, const char *str1, const char *str2)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << ",a," << hostname <<' \"\) \"  '<<' \'\{\' '<<' str1 '<<' \'\}\' '<<' endl >>${cppfile}  
+  echo '       << "set ListForSection('${l},\" '<< itemString << ",b," << hostname <<' \"\) \"  '<<' \'\{\' '<<' str2 '<<' \'\}\' '<<' endl\; >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, int spec , const char *specAsString)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \"\) \" '<<' specAsString '<<' endl \; >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, int i, int spec , const char *specAsString)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \",number\) \" '<<' specAsString '<<' endl  >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \",specifier\) \" '<<' specAsString '<<' endl \; >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, bool flag)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '  if(flag) {' >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '        << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \"\) \" '<<' \"ON\" '<<' endl \; >>${cppfile}
+  echo '  } else {' >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '        << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \"\) \" '<<' \"OFF\" '<<' endl \; >>${cppfile}
+  echo '  }' >>${cppfile}
+  echo "}" >>${cppfile}
+  echo "void " ${classname}"::"${l} "(int item, const char *itemString, const char *hostname, double value)" >>${cppfile}
+  echo "{" >>${cppfile}
+  echo '    cout << "global ListForSection ; "  ' >>${cppfile}
+  echo '       << "set ListForSection('${l},\" '<< itemString << "," << hostname <<' \"\) \" '<<' value '<<' endl \; >>${cppfile}
+  echo "}" >>${cppfile}
+done
+
+echo "};" >> ${headerfile}
+
+
+

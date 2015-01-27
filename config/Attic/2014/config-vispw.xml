@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="vispw1" >
+
+  <COVER>
+
+   <MultiPC>
+    <NumSlaves value="1" />
+    <Host value="vispw2" name="0" />
+    <Command value="ssh ${USER}@vispw2 cd `pwd`\;cover" name="0" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw2" >
+
+  <COVER>
+
+   <MultiPC>
+    <NumSlaves value="1" />
+    <Host value="vispw1" name="0" />
+    <Command value="ssh ${USER}@vispw1 cd `pwd`\;cover" name="0" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1,vispw2,vispw1-single,vispw2-single" >
+
+  <COVER>
+
+   <StateFixLevel value="0" />
+   <Lights value="ON" />
+   <TransparencyMode value="sorted_blended" />
+   <WriteVrmlViewpoint value="ON" />
+   <Lights value="ON" />
+   <Crease value="OFF" />
+   <LODScale value="1000" />
+   <Headlight value="ON" />
+   <TextureMode value="MODULATE" />
+   <TextureQuality value="High" />
+   <TextureMode value="MODULATE" />
+   <TwoSide value="ON" />
+
+   <Input>
+    <ButtonSystem value="NONE # IAO" />
+    <MouseNav value="true" />
+    <TrackingSystem value="MOTIONSTAR" />
+   </Input>
+
+   <Far value="100000" />
+   <Near value="100" />
+
+   <WindowConfig>
+    <VisualID value="0x2d" />
+   </WindowConfig>
+
+   <GenStrips value="ON" />
+   <Stereo enable="ON" separation="60" value="ON" command="/bin/true" />
+   <Mono command="/bin/true" />
+   <ViewerPosition x="0" y="-2500" z="0" />
+   <FloorHeight value="-1700" />
+   <StepSize value="400" />
+   <ButtonSystem value="NONE # IAO" />
+   <SceneSize value="1400" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="ON" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="5.0" default="5.0" />
+   <DebugLevel value="0" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1,vispw2,vispw1-single,vispw2-single" >
+
+  <COVER>
+
+   <Input>
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+
+    <TrackingSystem>
+     <Offset x="0" y="550" z="-650" />
+     <Orientation h="90" p="0" r="180" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="60" y="0" z="80" />
+     <Orientation h="-90" p="0" r="-90" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="90" p="0" r="0" />
+    </HandDevice>
+
+   </Input>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1,vispw2,vispw1-single,vispw2-single" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="FRONT" channel="0" right="1024" left="0" windowIndex="0" bottom="0" name="0" top="768" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1,vispw2,vispw1-single,vispw2-single" >
+
+  <COVER>
+
+   <WindowConfig>
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1700" comment="FRONT" h="0.0" originX="850" originY="0" originZ="0" height="1270" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1-single,vispw2-single" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1700" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1270" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw2" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1700" comment="FRONT" h="0.0" originX="-850" originY="0" originZ="0" height="1270" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="vispw1,vispw2,vispw1-single,vispw2-single" >
+
+  <MotionstarConfig>
+
+   <IPAddress value="192.168.1.2" />
+  </MotionstarConfig>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

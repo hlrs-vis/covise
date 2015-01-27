@@ -1,0 +1,22 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+\hline\hline
+	\textcolor{required}{Data} & Set\_Float \newline
+               Set\_Float   & Data to be analyzed. \\	
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

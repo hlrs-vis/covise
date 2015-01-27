@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FA885F74-17B1-4D3D-87EE-A2F77DECEA57}</ProjectGuid>
+    <RootNamespace>interfacecomsollib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>interfacecomsol</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v90</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="..\..\..\properties\directories.props" />
+    <Import Project="..\..\..\properties\general.props" />
+    <Import Project="..\..\..\properties\x64_debug.props" />
+    <Import Project="..\..\..\properties\interfacecomsol.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="..\..\..\properties\directories.props" />
+    <Import Project="..\..\..\properties\general.props" />
+    <Import Project="..\..\..\properties\x64.props" />
+    <Import Project="..\..\..\properties\interfacecomsol.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="sourcecode\communicationcomsol.cxx" />
+    <ClCompile Include="sourcecode\communicationcomsolstandard.cpp" />
+    <ClCompile Include="sourcecode\comsolphysics.cxx" />
+    <ClCompile Include="sourcecode\comsolphysicsstandard.cpp" />
+    <ClCompile Include="sourcecode\dllmain.cpp" />
+    <ClCompile Include="sourcecode\stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\communicationcomsol.hxx" />
+    <ClInclude Include="include\comsolphysics.hxx" />
+    <ClInclude Include="include\interfacecomsollib.hxx" />
+    <ClInclude Include="sourcecode\communicationcomsolstandard.h" />
+    <ClInclude Include="sourcecode\comsolphysicsstandard.h" />
+    <ClInclude Include="sourcecode\dllapi.h" />
+    <ClInclude Include="sourcecode\stdafx.h" />
+    <ClInclude Include="sourcecode\targetver.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

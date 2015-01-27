@@ -1,0 +1,40 @@
+ #PROJECT(PLMXML_Parser)
+
+USING(XERCESC)
+
+ADD_DEFINITIONS(-DCOVISE_COVER)
+
+INCLUDE_DIRECTORIES(../../../renderer/OpenCOVER 
+${OPENSCENEGRAPH_INCLUDE_DIRS}
+./
+)
+
+SET(HEADERS 
+PLMXMLParser.h
+FileReference.h
+functions.h
+NameId.h
+)
+
+SET(SOURCES
+  PLMXMLParser.cpp
+  FileReference.cpp
+  NameId.cpp
+)
+
+#add_library(Parser PLMXMLParser.cpp NameId.cpp FileReference.cpp)
+ADD_COVISE_LIBRARY(Parser SHARED ${SOURCES} ${HEADERS})
+#ADD_COVISE_EXECUTABLE(PLMXML_Parser)
+
+TARGET_LINK_LIBRARIES(
+Parser 
+${EXTRA_LIBS}
+${OPENSCENEGRAPH_LIBRARIES}
+
+)
+
+#COVISE_INSTALL_TARGET(PLMXML_Parser)
+
+IF(MSVC80 OR MSVC90)
+  ADD_COVISE_COMPILE_FLAGS(PLMXML_Parser "/Zc:wchar_t-")
+ENDIF()

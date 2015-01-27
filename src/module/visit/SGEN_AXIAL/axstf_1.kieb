@@ -1,0 +1,63 @@
+c ----------------------------------------------------------------------
+c AXNET VERSION 36 (mit konst. Vorlaufwinkel)
+c GENERIERUNG VON BERECHNUNGSGITTERN FUER AXIALE PROPELLERTURBINEN
+c IHS - M.BURGER - 29.10.98
+c ----------------------------------------------------------------------
+Profil_Datenfile:kieb_1.dat
+Radialkontur beruecksichtigen (TRUE/FALSE):f
+Radialkontur_Datenfile:movfi.dat
+Anzahl Radialschnitte:20
+Ausgabe Radialschnitt:0
+Anzahl Fluegel:6
+Untere Grenze [mm]:-1000
+Obere Grenze [mm]:-300
+Breite Grenzschicht [mm]:12.
+Verschiebung Alpha Nabe [bog]:0.
+Verschiebung Alpha Kranz [bog]:0.
+Verschiebung Beta [bog]:0.
+Aufweitung Eintritt links [bog]:.1
+Aufweitung Eintritt rechts [bog]:.07
+L12 der Stuetzpunkte an der Nabe:10.
+L12 der Stuetzpunkte am Kranz:250.
+Anzahl Stuetzpunkte (ungerade):201
+Stuetzpunkt 1:0
+Stuetzpunkt 2:80
+Stuetzpunkt 3:100
+Stuetzpunkt 4:110
+Stuetzpunkt 5:200
+Anzahl Knoten Gebiet 1 laengs:43
+Anzahl Knoten Grenzschicht quer:7
+Anzahl Knoten Gebiet 2 laengs:11
+Anzahl Knoten Gebiet 3 laengs:7
+Anzahl Knoten Aussenseite quer:21
+Anzahl Knoten Vorlauf laengs:19
+Anzahl Knoten Nachlauf laengs:21
+Verdichtung Gebiet 1 laengs, beidseitig:0.51
+Verdichtung Gebiet 2 laengs, Richt. Staupunkt:3.
+Verdichtung Gebiet 3 laengs, Richt. Hinterkante:0.50
+Verdichtung Gebiet 4 laengs, Richt. Hinterkante:1.
+Verdichtung Nachlauf laengs, Richt. Austritt:0.30
+Verdichtung Mitte laengs, Richt. Vorlauf:1.25
+Verdichtung Vorlauf laengs, Richt. Eintritt:0.3
+Verdichtung Grenzschicht quer, Richt. Profil:1.7
+Verdichtung li. Seite quer Mitt-Ob., Richt. Per. Rand:0.48
+Verdichtung re. Seite quer Mitt-Ob., Richt. Per. Rand:0.48
+Verdichtung li. Seite quer Nachlauf, Richt. Per. Rand:0.68
+Verdichtung re. Seite quer Nachlauf, Richt. Per. Rand:0.48
+Verdichtung in radialer Richtung, beidseitig:.08
+VerschFak fuer Unters. Dreieck:0.05
+VerschFak fuer Schwpu Deck links an der Nabe:0.2
+VerschFak fuer Schwpu Deck rechts an der Nabe:0.1
+VerschFak fuer Schwpu Deck links am Kranz:0.
+VerschFak fuer Schwpu Deck rechts am Kranz:0.
+Randbedingungsfile erstellen (TRUE/FALSE):t
+Betrag der Eintrittsgeschw.:-6.
+Modellaenge (k-eps-model):1.3
+Kraftflaechennr. Profil:10
+Bilanzflaechennr. Eintritt:100
+Bilanzflaechennr. Austritt:110
+Bilanzflaechennr. Per. Rand links:150
+Bilanzflaechennr. Per. Rand rechts:160
+Knotenmarkierung Eintritt:0
+Knotenmarkierung Per. Rand links:99
+Knotenmarkierung Per. Rand rechts:-99

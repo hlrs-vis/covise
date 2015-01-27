@@ -1,0 +1,20 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}
+	{}{IsoLinesMap}{covise/net/examples/IsoLines.net}{0.7}\end{covimg}
+
+RWCovise1 reads in the grid. RWCovise2 reads temperature data. CuttingSurface creates a cutting plane and temperature data on it.
+We use IsoLines to show borders between areas of the same value. 
+Therefore we use the whole range of data values and change the step parameter until 
+the visualisation is satisfactory. The parameter distance is set to -0.005. 
+So the isolines are close to the cutting plane but not in it.
+
+\begin{covimg}
+	{}{IsoLinesRenderer}{Result in the renderer}{0.7}\end{covimg}
+
+ 

@@ -1,0 +1,33 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+MakeTransient generates a specified number of timesteps.
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{MakeTransientModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+MakeTransient allows you to generate a number of timesteps (default 72) out of 'static' data. This 
+number can be specified explicitly as parameter or it can be generated according to the second 
+(optional) input port. Typically you use MakeTransient to replicate the geometry
+and Interpolate to generate the corresponding data, and you get the number of timesteps for
+MakeTransient from Interpolate. With a Timestep Sequencer that shows up in the Renderer 
+you can go thru your timesteps, either step by step or using 'play'.
+
+%
+% short information about versions 
+%
+It's tested with Covise Release 5.2 on SGI
+%
+
+%
+%=============================================================

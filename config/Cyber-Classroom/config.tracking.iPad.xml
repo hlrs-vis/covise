@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <INCLUDE global="1" configname="general">config.tracking.wii.xml</INCLUDE>
+
+   <GLOBAL>
+   
+      <vr-prepare>
+		<RemoteDeviceControll value="on" />
+		<RemoteDeviceHost value="127.0.0.1" />
+		<RemoteDevicePort value="44142" />
+	  </vr-prepare>
+
+   </GLOBAL>
+
+</COCONFIG>

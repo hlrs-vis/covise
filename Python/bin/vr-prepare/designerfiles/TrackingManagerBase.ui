@@ -1,0 +1,760 @@
+<ui version="4.0" >
+ <comment>Python:from Utils import IntInRangeControl
+Python:from Utils import FloatInRangeControl
+Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+ <class>TrackingManagerBase</class>
+ <widget class="QWidget" name="TrackingManagerBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>418</width>
+    <height>547</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>Form1</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>5</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabRotation" >
+      <attribute name="title" >
+       <string>Control</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5" >
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Rotation</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout" >
+          <property name="spacing" >
+           <number>1</number>
+          </property>
+          <property name="leftMargin" >
+           <number>4</number>
+          </property>
+          <property name="topMargin" >
+           <number>0</number>
+          </property>
+          <property name="rightMargin" >
+           <number>4</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="RotateLeftButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>X +</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RotateRightButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>X -</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RotateFrontButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>Y +</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RotateBackButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>Y -</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RotateUpButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>Z +</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RotateDownButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>Z -</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+         <zorder>RotateLeftButton</zorder>
+         <zorder>RotateFrontButton</zorder>
+         <zorder>RotateBackButton</zorder>
+         <zorder>RotateUpButton</zorder>
+         <zorder>RotateDownButton</zorder>
+         <zorder>RotateRightButton</zorder>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QGroupBox" name="groupBox_2" >
+         <property name="title" >
+          <string>Translation</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3" >
+          <property name="spacing" >
+           <number>1</number>
+          </property>
+          <property name="leftMargin" >
+           <number>4</number>
+          </property>
+          <property name="topMargin" >
+           <number>0</number>
+          </property>
+          <property name="rightMargin" >
+           <number>4</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="TranslateLeftButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>left</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="TranslateRightButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>right</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="TranslateFrontButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>front</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="TranslateBackButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>back</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="TranslateUpButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>up</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="TranslateDownButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>down</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QGroupBox" name="groupBox_3" >
+         <property name="title" >
+          <string>Scaling</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <property name="spacing" >
+           <number>1</number>
+          </property>
+          <property name="leftMargin" >
+           <number>4</number>
+          </property>
+          <property name="topMargin" >
+           <number>0</number>
+          </property>
+          <property name="rightMargin" >
+           <number>4</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="ScalePlusButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ScaleMinusButton" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>28</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QGroupBox" name="groupBox_4" >
+         <property name="title" >
+          <string>Navigation</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4" >
+          <item row="0" column="0" colspan="3" >
+           <widget class="QCheckBox" name="checkBoxTracking" >
+            <property name="text" >
+             <string>Tracking Renderer</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3" >
+           <widget class="QCheckBox" name="checkBoxTrackingGUI" >
+            <property name="text" >
+             <string>Tracking GUI</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_5" >
+            <property name="frameShape" >
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="text" >
+             <string>Navigation Mode</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="QComboBox" name="NavigationModeCombo" >
+            <item>
+             <property name="text" >
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>NavNone</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>XForm</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Scale</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Fly</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Walk</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>XFormRotate</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>XFormTranslate</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ShowName</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Measure</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="2" >
+           <spacer name="horizontalSpacer" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>100</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabTranslation" >
+      <attribute name="title" >
+       <string>Rotation</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout" >
+       <item row="0" column="0" colspan="3" >
+        <widget class="QRadioButton" name="RotateFreeRadio" >
+         <property name="text" >
+          <string>Free</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3" >
+        <layout class="QHBoxLayout" name="horizontalLayout_4" >
+         <item>
+          <widget class="QRadioButton" name="RotatePointRadio" >
+           <property name="text" >
+            <string>Point (x/y/z)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="ShowRotPoint" >
+           <property name="text" >
+            <string>Show </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="rotPointSize_label" >
+           <property name="maximumSize" >
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string>Size</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ChangeIndicatedLE" native="1" name="RotationPointSize" />
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" >
+        <widget class="ChangeIndicatedLE" native="1" name="RotatePointX" />
+       </item>
+       <item row="2" column="1" >
+        <widget class="ChangeIndicatedLE" native="1" name="RotatePointY" />
+       </item>
+       <item row="2" column="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="RotatePointZ" />
+       </item>
+       <item row="3" column="0" colspan="3" >
+        <widget class="QRadioButton" name="RotateAxisRadio" >
+         <property name="text" >
+          <string>Axis (x/y/z)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
+        <widget class="ChangeIndicatedLE" native="1" name="RotateAxisX" />
+       </item>
+       <item row="4" column="1" >
+        <widget class="ChangeIndicatedLE" native="1" name="RotateAxisY" />
+       </item>
+       <item row="4" column="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="RotateAxisZ" />
+       </item>
+       <item row="5" column="0" colspan="3" >
+        <spacer name="verticalSpacer" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>228</width>
+           <height>68</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>Translation</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2" >
+       <item row="0" column="0" colspan="3" >
+        <widget class="QCheckBox" name="TranslateRestrictCB" >
+         <property name="text" >
+          <string>Restrict</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label" >
+         <property name="text" >
+          <string>X (Min/Max)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateMinX" />
+       </item>
+       <item row="1" column="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateMaxX" />
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
+          <string>Y (Min/Max)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateMinY" />
+       </item>
+       <item row="2" column="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateMaxY" />
+       </item>
+       <item row="3" column="0" >
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>Z (Min/Max)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateMinZ" />
+       </item>
+       <item row="3" column="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateMaxZ" />
+       </item>
+       <item row="4" column="0" colspan="3" >
+        <spacer name="verticalSpacer_3" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>228</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0" >
+        <widget class="QLabel" name="label_1" >
+         <property name="text" >
+          <string>Factor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="TranslateFactor" />
+       </item>
+       <item row="6" column="0" colspan="3" >
+        <spacer name="verticalSpacer_2" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>228</width>
+           <height>42</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>Scaling</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3" >
+       <item row="0" column="0" colspan="3" >
+        <widget class="QCheckBox" name="ScaleRestrictCB" >
+         <property name="text" >
+          <string>Restrict</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>Min/Max</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="ChangeIndicatedLE" native="1" name="ScaleMin" />
+       </item>
+       <item row="1" column="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="ScaleMax" />
+       </item>
+       <item row="2" column="0" colspan="3" >
+        <spacer name="verticalSpacer_4" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>228</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QLabel" name="TranslateFactor_2" >
+         <property name="text" >
+          <string>Factor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2" >
+        <widget class="ChangeIndicatedLE" native="1" name="ScaleFactor" />
+       </item>
+       <item row="4" column="0" colspan="3" >
+        <spacer name="verticalSpacer_5" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>228</width>
+           <height>86</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>ChangeIndicatedLE</class>
+   <extends>QWidget</extends>
+   <header location="global" >ChangeIndicatedLE</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+ </includes>
+ <resources>
+  <include location="images/StaticImages.qrc" />
+ </resources>
+ <connections/>
+</ui>

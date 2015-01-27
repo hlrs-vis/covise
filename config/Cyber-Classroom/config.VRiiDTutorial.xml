@@ -1,0 +1,48 @@
+
+
+<COCONFIG version="1" >
+   <GLOBAL>
+
+      <COVER>
+         <WelcomeMessage value="Welcome to OpenCOVER" />
+		 <Background r="0.28" g="0.55" b="0.9" />
+         <Plugin>
+            <AKToolbar value="on">
+               <Attachment value="BOTTOM" />
+               <MenuMaxItems value="0"/>
+               <ShortCut value="quit" name="quit" />
+               <ShortCut value="xform" name="xform" />
+               <ShortCut value="toggleDocuments" name="toggleDocuments" plugin="DocumentViewer" icon="document" toggleButton="on" />
+			   <ShortCut value="showName" name="showName" />
+               <ShortCut value="viewall" name="viewall" />
+               <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="traverseInteractors" name="traverseInteractors" />
+               <DebugLevel value="0"/>
+               <CoverMenu value="off"/>
+               <StateButton value="off"/>
+            </AKToolbar>
+			<ElectricField value="on">
+               <PresentationMode value="on"/>
+            </ElectricField> 
+            <CoviseConfigShader value="on">
+               <Scope name="See" regexp="See-FACES.*" shader="Glossy5b" />
+               <Scope name="SchachfigurenWeiss" regexp=".*_Weiss.*-FACES.*" shader="Glossy7" smooth="true" />
+               <Scope name="SchachfigurenSchwarz" regexp=".*_Schwarz.*-FACES.*" shader="Glossy7" smooth="true" />
+            </CoviseConfigShader>
+         </Plugin>
+         <CollisionDist value="1000" />
+		 <StepSize value="250"/>
+		 <FloorHeight value="-3300"/>
+		 <Collide value="ON" />
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/Tutorials/VRiiDTutorial/locale" />
+         </Localization>
+         
+      </COVER>
+
+   </GLOBAL>
+
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+</COCONFIG>

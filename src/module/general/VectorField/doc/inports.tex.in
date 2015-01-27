@@ -1,0 +1,44 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{meshIn} & UnstructuredGrid  \newline
+                                RectilinearGrid  \newline
+                                UniformGrid \newline				
+                                Polygons \newline				
+                                Lines \newline
+                                UnstructuredGrid  \newline
+                                TriangleStrips  & The grid or surface on which vector
+				data are available. \\
+\hline
+	\textcolor{required}{vDataIn} & Vec3  \newline
+                                Vec3  \newline
+                                Structured\_V3D\_Normals  \newline
+                                Unstructured\_V3D\_Normals  \newline
+				& Vector data. The data have to be vertex based. In case you have cell
+                                                              based data (for example simulation results from StarCD) use
+                                 \covlink{CellToVert}{CellToVert}{../../Tools/CellToVert/CellToVert.html} to convert them
+							      to vertex based data.  \\
+\hline
+	\textcolor{optional}{sDataIn} & Float  \newline
+                                Float & Optional Input Port.
+				When the parameter {\it length} is set to
+                                                              {\it according\_to\_data} the scalar data are used to scale the vector lines.
+                                                              The scalar data have to be vertex based.  \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

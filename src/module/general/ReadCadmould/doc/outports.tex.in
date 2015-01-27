@@ -1,0 +1,38 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{4cm}|p{4.5cm}|p{6.5cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \\
+\hline\hline
+	{stMesh} & UnstructuredGrid
+	                               & Stationary mesh \\
+\hline
+	{trMesh} & UnstructuredGrid
+	                               & Mesh for transient magnitudes \\
+\hline
+	{thick} & Float 
+	                               & Element thickness or inlet diamter \\
+\hline
+        {Data\_0\ldots\newline Data\_7} &
+                Float IntArr
+         & Static or transient data.  \\
+\hline\hline
+	{fiMesh} & UnstructuredGrid
+	                               & Transient mesh for filling animation \newline
+				       - use together with parameter fillTimeStep \\
+\hline
+	{fiValuw} & Float
+	                               & display animated fill time \newline
+				       - use together with  parameter fillTimeStep \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+\clearpage
+%=============================================================

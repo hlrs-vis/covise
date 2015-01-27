@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<COCONFIG version="1">
+<GLOBAL scope="global">
+
+<License date="21.02.2014">
+ <SERVER value="001f29009459 7.12 1.1.2020 0 OAELZTS everest" type="SERVER" name="OAELZTS" />
+ <STD_UI value="001f29009459 7.12 1.1.2020 0 EEKYEEG everest" type="STD_UI" name="EEKYEEG" />
+ <COVISE_WINDOWS value="001f29009459 7.12 1.1.2020 0 YMUJHBU everest" type="COVISE_WINDOWS" name="YMUJHBU" />
+ <VR_ONE_PIPE value="001f29009459 7.12 1.1.2020 0 MSUKGIK everest" type="VR_ONE_PIPE" name="MSUKGIK" />
+ <VR_DUAL_CLUSTER value="001f29009459 7.12 1.1.2020 0 QCIKMCQ everest" type="VR_DUAL_CLUSTER" name="QCIKMCQ" />
+ <VR_MULTI_ANY value="001f29009459 7.12 1.1.2020 0 QUQPNPK everest" type="VR_MULTI_ANY" name="QUQPNPK" />
+ <COVISE_VRML value="001f29009459 7.12 1.1.2020 0 CIQXPDI everest" type="COVISE_VRML" name="CIQXPDI" />
+ <COVISE_CFD value="001f29009459 7.12 1.1.2020 0 KIWTPZA everest" type="COVISE_CFD" name="KIWTPZA" />
+ <COVISE_FEM value="001f29009459 7.12 1.1.2020 0 SUSGMUS everest" type="COVISE_FEM" name="SUSGMUS" />
+ <LANGUAGE_DE value="001f29009459 7.12 1.1.2020 0 GKQYIIG everest" type="LANGUAGE_DE" name="GKQYIIG" />
+ <LANGUAGE_EN value="001f29009459 7.12 1.1.2020 0 OEKWYUK everest" type="LANGUAGE_EN" name="OEKWYUK" />
+ <CC_BASE value="001f29009459 7.12 1.1.2020 0 AMYOCME everest" type="CC_BASE" name="AMYOCME" />
+ <CC_ALL value="001f29009459 7.12 1.1.2020 0 YYOIAGQ everest" type="CC_ALL" name="YYOIAGQ" />
+</License>
+
+</GLOBAL>
+</COCONFIG>
+

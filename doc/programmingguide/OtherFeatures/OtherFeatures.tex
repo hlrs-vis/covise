@@ -1,0 +1,337 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+%=============================================================
+%=============================================================
+
+
+
+
+
+%=============================================================
+\startdocument
+\chapter{Other Features}
+\label{OtherFeatures}
+%=============================================================
+
+
+\section{Error, Warning and Info Messages}
+
+The base class coModule delivers a set of methods to send messages to the users.
+Info messages are displayed in the info box at the bottom of the Map Editor, 
+warnings and errors in a pop-up window can be configured to pop up a window.
+The difference between warnings and 
+errors is that after a module has issued an error, no other modules will 
+execute automatically, while warnings only pop up without any impact on the 
+flow control.
+
+The programming interface of the message commands only differs in the endings: 
+
+\begin{longtable}{|p{7cm}|p{7cm}|}
+\hline
+   {\bf Function names } & {\bf Meaning} \endhead
+\hline\hline
+	coModule::sendInfo &  Info message \\
+\hline
+	coModule::sendWarning &  Warning message \\
+\hline
+	coModule::sendError &  Error message \\														
+\hline
+\end{longtable}
+\index{coModule!sendInfo}
+\index{coModule!sendWarning}
+\index{coModule!sendError}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf static void coModule::sendWarning(const char *fmt, \dots);}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Send messages to the user interface} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {fmt} 
+                          & {Message format string}\endhead
+\hline
+\end{longtable}
+\index{coModule!sendWarning}
+
+All of the above message methods accept \texttt{printf} style arguments.
+
+\section{Explicit flow control commands}
+\latexonly
+\index{Explicit flow control}
+\endlatexonly
+
+The control message passing is done internally in the module base class, usually 
+none of the messages has to be sent by the user himself. Nevertheless, users 
+might send own messages for explicit flow control to achieve effects that 
+extend the classical data flow paradigm. Since these explicit calls violate the 
+basic structure of the COVISE system, it is discouraged to use these calls. 
+Explicit flow control calls can both influence stability and performance of 
+the COVISE system and should be used by experienced users only and with special care for internal racing conditions.
+
+\vspace*{1cm}
+{\Large Explicitly stopping the pipeline}
+\vspace*{0.5cm}
+
+The function {\tt void Covise::send\_stop\_pipeline()} explicitly demands that 
+no other modules be started automatically by the controller. It is
+discouraged to use this function: {\tt sendError} accomplishes the same 
+effect and also submits an error message. In all other than error cases the 
+pipeline should run based on object creation and module connections. 
+
+\vspace*{1cm}
+{\Large Implicitly stopping pipeline execution}
+\vspace*{0.5cm}
+
+A module can prevent down-stream modules from being activated by not creating an 
+output object.  Any module is supposed to stop if a connected port receives
+no data. Using the classic module interface from earlier versions, this was 
+the case when an object name was received, but no object could be retrieved
+based on this name. All modules created based on coModule automatically 
+implement this behavior.
+
+\vspace*{1cm}
+{\Large Self-execution}
+\index{Self-execution}
+\vspace*{0.5cm}
+
+Any module callback (except compute) can tell the module that it should 
+`execute' after the callback has been left. To achieve this, the function 
+calls {\tt void coModule::selfExec()}\index{coModule!selfExec}. Multiple calls within a callback will 
+only trigger a single start. \emph{Warning: Executing a module again while the 
+succeeding module is still running may cause COVISE to crash.}
+
+To prevent 'overrun' crashes, the module waits one second after the selfExec 
+call has been submitted. This period can be configured by placing an
+entry `execGracePeriod' (measured in seconds) into the 'System.HostInfo' section of the configuration files or 
+with the call {\tt coModule::setExecGracePeriod(float gracePeriod)}.
+
+
+\section{Re-using objects}
+
+Usually, COVISE objects have an automatic life period: They are created by a 
+module and are destroyed when they are not needed any more. Nevertheless,
+COVISE makes some assumptions about the object usage:
+
+\begin{itemize}
+\item Objects read once at an input port are not used any further
+\item An object created in a module is either put ONCE into an output port 
+or put ONCE  into a Set or Geometry container
+\end{itemize}
+
+If a user wants to violate these assumption, he must tell the object that it 
+is used more than once by incrementing its reference counter. This can be
+useful to
+
+\begin{itemize}
+\item "hand through" an object from an input to an output port by adding it to a container object
+\item add an input object to a container and give this to the output
+\item add an object more than once to a container - e.g. for a constant part 
+within a time series.
+\end{itemize}
+
+To increment the reference counter, call:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf coDistributedObject::incRefCount()}\\
+\hline
+{Description:}  
+           & {add a reference to a distributed object} \\
+\hline
+{Return value}  
+              & {number of references} \\
+\hline
+\end{longtable}
+\index{coDistributedObject!incRefCount}
+
+%\section{Automatic Debugger startup}
+%\latexonly
+%\index{Debugger}
+%\endlatexonly
+%
+%The module can be configured to start a debugger immediately in the coModule 
+%constructor. Any debugger can be used if it is able to attach to a running
+%process. To start the debugger, the environment variable {\tt CO\_DEBUGGER} 
+%must be set to the full command that starts the debugger with a `\%d' dummy
+%variable for the process ID. 
+%
+%Example: On SGI computers, the debugger is attached with 
+%"cvd -pid \begin{htmlonly} <PID> \end{htmlonly} \latexonly $<$PID$>$ \endlatexonly ", so 
+%the environment variable is set to:
+%
+%\begin{verbatim}
+%      sentenv CO_DEBUGGER 'cvd -pid %d'
+%\end{verbatim}
+%
+
+\section{Overriding parameter values}
+
+You may use the class coHideParam in order to override the values of
+some module parameters. For instance, you may wish to adjust the behaviour
+of the module not by directly modifying the module params, but rather
+let the module read their values from a string that the module
+may get for instance through a Text object at an input port,
+or that may be alternatively accessible as the value of some
+attribute given to one of the input objects. The example below
+should make it clear how this coHideParam class is used:
+
+\underline{myModule.h}
+
+\begin{verbatim}
+class myModule
+{
+   private:
+
+      coBooleanParam *p_OneBooleanParam_;
+      coFloatParam *p_OneFloatScalarParam_;
+      coFloatVectorParam *p_OneIntVectorParam_;
+
+      coHideParam *h_distance_of_plane_;
+      coHideParam *h_OneFloatScalarParam_;
+      coHideParam *h_OneIntVectorParam_;
+      std::vector<coHideParam *> hparams_; // a useful container 
+                                      // for the previous
+                                      // coHideParam pointers
+   
+}
+\end{verbatim}
+
+\underline{myModule.cpp}
+
+\begin{verbatim}
+void
+myModule::postInst()
+{
+   // create the hiding objects here 
+   // and keep pointers in the container
+   hparams_.push_back(h_OneBooleanParam_ = 
+                      new coHideParam(p_OneBooleanParam_));
+   hparams_.push_back(h_OneFloatScalarParam_ = 
+                      new coHideParam(p_OneFloatScalarParam_));
+   hparams_.push_back(h_OneIntVectorParam_ = 
+                      new coHideParam(p_OneIntVectorParam_));
+}
+
+
+myModule::myModule()   // ... build ports and parameters as usual
+{
+  // create params here
+  p_OneBooleanParam_ = addBooleanParameter("OneBooleanParamName",
+                                           "a bool param");
+  p_OneFloatScalarParam_ = 
+         addFloatParameter("OneFloatScalarParamName",
+                                         "a float scalar param");
+  p_OneIntVectorParam_ = 
+         addFloatParameter("OneIntVectorParamName",
+                                         "an int vector param");
+ 
+  // and set default values
+  ....
+}
+
+#include <stringstream>
+
+myModule::compute(const char *)   
+{
+  // RESETTING HIDING OBJECTS
+  // first of all reset all hparams_
+  for(int param = 0;param<hparams_.size();++param){
+     hparams_[param]->reset();
+  }
+  ...
+
+  char *values;
+  ...
+
+  // OVERRIDE PARAMETER VALUES (LOADING coHideParam OBJECTS)
+  // assume that after the previous lines 
+  // 'values' points to the string:
+  // "OneBooleanParamName 0\nOneFloatScalarParamName 3.47\n
+  //  OneIntVectorParamName 2 5 3\n"
+  char *oneValue = new char[strlen(values)+1];
+  istringstream pvalues(values);
+  while(pvalues.getline(oneValue,strlen(values)+1)){
+     for(int param=0;param<hparams_.size();++param){
+        hparams_[param]->load(value);
+     }
+  }
+  delete [] value;
+  ...
+  ...
+
+  // AND NOW WE USE THE coHideParam OBJECTS 
+  // INSTEAD OF THE PARAMETERS
+  // whenever you would normally use a port, ...
+  //     float notThisWay = 
+  //                   p_OneFloatScalarParam_->getValue();
+  // ...you use now instead the pertinent
+  // coHideParam object
+  float ratherThisWay = h_OneFloatScalarParam_->getFValue(); // 3.47
+  int intArray[3];
+  intArray[0] = h_OneIntVectorParam_->getIValue(0); // 2
+  intArray[1] = h_OneIntVectorParam_->getIValue(1); // 5
+  intArray[2] = h_OneIntVectorParam_->getIValue(2); // 3
+  if(h_OneBooleanParam_->getIValue()){ // the returned value is 0
+     ...
+  }
+}
+
+\end{verbatim}
+
+Some remarks are here in order. Using the reset() member function
+for all coHideParam objects should always be done before using
+load(). After resetting, the object forgets previously assigned values,
+and if a value is requested using one of the getIValue or getFValue
+functions, the requested value will be that of the hidden parameter,
+i.~e.\ the parameter that was indicated in the constructor
+of the coHideParam object (see myModule::postInst()).
+
+Hiding parameter values is achieved when using the load() member function
+as used in the example. When the string {\sl values} contains no substring
+for a given parameter, the corresponding coHideParam object will
+not hide that parameter. Otherwise, it will take the values that follow
+the parameter name.
+
+If you are deriving myModule from coSimpleModule instead of
+coModule, you may prefer performing the resetting and loading of
+coHideParam objects in preHandleObjects and not in the compute function.
+
+The last part concerns requesting values from these objects.
+For this purpose you have the following member functions at your
+disposal:
+
+\begin{verbatim}
+class coHideParam{
+public:
+   ...
+
+   // get the float value 
+   // when hiding coFloatParam or coFloatSliderParam
+   float getFValue();
+
+   // get the int value 
+   // when hiding coChoiceParam, coBooleanParam, 
+   // coInt32Param or coIntSliderParam
+   int getIValue();
+
+   // get the float value 
+   // when hiding coFloatVectorParam
+   float getFValue(int component);
+
+   // get int values 
+   // when hiding coFloatVectorParam
+   int  getIValue(int);
+
+   // get float values when hiding 
+   // coFloatVectorParam (assuming 3 components)
+   void getFValue(float &data0, float &data1, float &data2);
+}
+\end{verbatim}
+
+

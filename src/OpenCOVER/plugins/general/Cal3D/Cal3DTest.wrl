@@ -1,0 +1,181 @@
+#VRML V2.0 utf8
+
+# Produced by Uwes VRML Plugin, Version 8, Revision 05, .NET
+# MAX File: Lenkrad.max, Date: Sun Dec 04 15:44:58 2005
+
+DEF Global-TIMER TimeSensor { loop TRUE cycleInterval 3.333 },
+NavigationInfo { headlight FALSE }
+
+DEF callyOne Cal3DNode
+{
+ core DEF callyCore Cal3DCore
+ {
+            modelName "/data/cal3d/cally/cally.cfg"
+ 		   scale 0.01
+ }
+ animationId 0
+ animationOffset 0.0
+}
+
+DEF TroutTrans Transform
+{
+translation 2.5 1 0
+children [
+DEF troutOne Cal3DNode
+{
+ core DEF troutCore Cal3DCore
+ {
+            modelName "/data/cal3d/Trout/Trout.cfg"
+ 		   scale 1
+ }
+ animationId 0
+ animationOffset 0.0
+}
+]
+}
+
+DEF callyTrans Transform
+{
+translation 3 0 0
+children [
+DEF skelOne Cal3DNode
+{
+ core DEF skelCore Cal3DCore
+ {
+            modelName "/data/cal3d/CP01_01/CP01_01.cfg"
+ 		   scale 0.04
+ }
+ animationId 3
+ animationOffset 0.00001
+}
+]
+}
+
+DEF korinTrans Transform
+{
+translation -3 0 0
+children [
+DEF skelKorin Cal3DNode
+{
+ core DEF skelCore Cal3DCore
+ {
+            modelName "/data/cal3d/korin/korin.cfg"
+ 		   scale 0.04
+ }
+ animationId 0
+ animationOffset 0.1
+}
+]
+}
+
+
+DEF kidTrans Transform
+{
+translation -2 0 0
+children [
+DEF calKid Cal3DNode
+{
+ core DEF kidCore Cal3DCore
+ {
+            modelName "/data/cal3d/kid/kid.cfg"
+ 		   scale 0.04
+ }
+ animationId 0
+ #animationOffset 0
+}
+]
+}
+
+DEF paladinCore Cal3DCore
+{
+           modelName "/data/cal3d/paladin/paladin.cfg"
+		   scale 0.04
+}
+
+	  Shape {
+
+        geometry        Box {
+          size  10 0.01 10
+        }
+
+      }
+DEF callyTrans Transform
+{
+translation 1 0 0
+children [
+
+DEF cally Cal3DNode
+{
+           core USE callyCore
+		   animationId 0
+ #animationOffset 0
+}
+]
+}
+DEF plaTrans Transform
+{
+translation 2 0 0
+children [
+
+DEF paladin Cal3DNode
+{
+           core USE paladinCore
+		   animationId 0
+		   fadeInTime 0.1
+		   fadeOutTime 0.1
+}
+]
+}
+
+
+DEF Key-SCRIPT Script {
+
+  eventIn SFString key
+  eventOut SFInt32 action
+  eventOut SFInt32 anim
+  eventOut SFFloat offset
+  
+  url "javascript:
+    function key(k,t)
+	{
+        print(k);
+		if(k=='1')
+		{
+		    action=4;
+		    anim=0;
+		}
+		else if(k=='2')
+		{
+		    action=5;
+		    anim=1;
+		}
+		else if(k=='3')
+		{
+		    action=4;
+		    anim=2;
+		}
+		else if(k=='4')
+		{
+		    action=5;
+		    anim=3;
+		}
+		else if(k=='5')
+		{
+		    action=0;
+		    anim=-1;
+		}
+		else if(k=='9')
+		{
+		    offset=0.01;
+		}
+    }
+  "
+}
+DEF myCOVER COVER
+{
+}
+ROUTE myCOVER.keyPressed TO Key-SCRIPT.key
+ROUTE Key-SCRIPT.action TO paladin.executeAction
+ROUTE Key-SCRIPT.action TO calKid.executeAction
+ROUTE Key-SCRIPT.offset TO cally.animationOffset
+ROUTE Key-SCRIPT.anim TO calKid.animationId

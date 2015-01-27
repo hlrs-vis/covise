@@ -1,0 +1,112 @@
+Umstellen der alten Modul Dokumentationen von HTML nach Latex (changed 02/07/01)
+=============================================================
+
+Beispiel von ShowUsg
+
+
+Alle Pfade sind relativ zu covise/doc
+
+
+
+Verzeichnis im userguide erzeugen
+---------------------------------
+    ct co -c "neuer Modul ShowUsg"  usersguide/modules/Tools/
+    ct mkdir usersguide/modules/Tools/ShowUsg
+
+tex template in den userguide-Teil kopieren
+-------------------------------------------
+    cp usersguide/modules/module.tmplate usersguide/modules/Tools/ShowUsg/ShowUsg.tex
+
+gif-Bilder der alten doku ins usersguide... Verzeichnis kopieren
+---------------------------------------------------------
+    cd  modules/html/Tools/ShowUsg
+    cp *.gif usersguide/modules/Tools/ShowUsg
+
+gif Bilder nach eps konvertieren
+---------------------------------
+    xv starten
+    gif laden
+    save as postscript
+    aber *.eps benennen
+    center, a4, preview, compress
+    
+
+alte Moduldoku anschauen
+------------------------
+    netscape  index.html
+
+
+neues userguide-tex-file editieren
+-------------------------------------
+    cd  usersguide/modules/Tools/ShowUsg/ShowUsg.tex
+    nedit ShowUsg.tex
+    Mit cut&paste Text und Bilder aus Netscape  in den tex-File einfügen
+
+
+neuen Modul im modules.tex mit /input einfuegen
+-----------------------------------------------
+    cd usersguide/modules
+    ct co -c "neuer Modul" modules.tex
+    nedit modules.tex
+    ... einfuegen
+
+
+compilieren
+-----------
+    cd usersguide
+    make depend
+    make
+
+Fehler ?
+-------- 
+    bei Fehlern ? korrgieren und nochmals compilieren
+
+anschauen
+---------
+    xdvi manual.dvi
+    netscape online
+    netscape online/modules/Tools/ShowUsg/ShowUsg.html
+
+
+Einchecken
+----------
+    
+
+    cd usersguide/modules/Tools/ShowUsg/
+    ct mkelem -c "new ShowUsg module" * .
+    ct ci *
+
+    	
+
+    cd usersguide/modules/Tools
+    ct ci -c "new ShowUsg module" .	
+
+
+PLEASE NOTE THE FOLLOWING CHANGES:
+ALL ESSENTIAL PARTS OF THE MODULE DOCUMENTATION ARE NOW LOCATED IN 
+covise/doc/usersguide/modules AND THESE AND ONLY THESE ARE CLEARCASE OBJECTS
+-  directory per module in covise/doc/usersguide/modules/category/
+- .tex file containing the documentation text for the print version
+- .eps files containing the images for the print version
+- .gif files containing the images for the online version
+The following objects are generated (derived objects - no longer in ClearCase)
+-  directory per module in covise/doc/online/modules/category/
+-  .html and .gif files in covise/doc/online/modules/category/modulename
+
+
+Tips
+====
+
+Reservierte Zeichen
+-------------------
+    In tex haben bestimmte Zeichen eine Bedeutung, z. B. _
+    wenn man die als - will, muss man \_ schreiben
+    Beispiel:
+
+    DO_Unstructured_V3D_Normals
+    DO\_Unstructured\_V3D\_Normals
+
+Tabellen
+--------
+    wenn die Tabellenbreite nicht reicht und Teile in die naechste
+    spalte geschrieben werden, einfach die Breite aendern

@@ -1,0 +1,314 @@
+begin
+  remote = *
+  button = power
+  prog = pylirc
+  config = power
+end
+
+begin
+  remote = *
+  button = source
+  prog = pylirc
+  config = source
+end
+
+begin
+  remote = *
+  button = off
+  prog = pylirc
+  config = off
+end
+
+begin
+  remote = *
+  button = 1
+  prog = pylirc
+  config = 1
+end
+
+begin
+  remote = *
+  button = 2
+  prog = pylirc
+  config = 2
+end
+
+begin
+  remote = *
+  button = 3
+  prog = pylirc
+  config = 3
+end
+
+begin
+  remote = *
+  button = 4
+  prog = pylirc
+  config = 4
+end
+
+begin
+  remote = *
+  button = 5
+  prog = pylirc
+  config = 5
+end
+
+begin
+  remote = *
+  button = 6
+  prog = pylirc
+  config = 6
+end
+
+begin
+  remote = *
+  button = 7
+  prog = pylirc
+  config = 7
+end
+
+begin
+  remote = *
+  button = 8
+  prog = pylirc
+  config = 8
+end
+
+begin
+  remote = *
+  button = 9
+  prog = pylirc
+  config = 9
+end
+
+begin
+  remote = *
+  button = 0
+  prog = pylirc
+  config = 0
+end
+
+begin
+  remote = *
+  button = underscore
+  prog = pylirc
+  config = underscore
+end
+
+begin
+  remote = *
+  button = dmenu
+  prog = pylirc
+  config = dmenu
+end
+
+begin
+  remote = *
+  button = mute
+  prog = pylirc
+  config = mute
+end
+
+begin
+  remote = *
+  button = home
+  prog = pylirc
+  config = home
+end
+
+begin
+  remote = *
+  button = vol_up
+  prog = pylirc
+  config = vol_up
+end
+
+begin
+  remote = *
+  button = vol_down
+  prog = pylirc
+  config = vol_down
+end
+
+begin
+  remote = *
+  button = ch_up
+  prog = pylirc
+  config = ch_up
+end
+
+begin
+  remote = *
+  button = ch_down
+  prog = pylirc
+  config = ch_down
+end
+
+begin
+  remote = *
+  button = magicinfo_lite
+  prog = pylirc
+  config = magicinfo_lite
+end
+
+begin
+  remote = *
+  button = menu
+  prog = pylirc
+  config = menu
+end
+
+begin
+  remote = *
+  button = blank
+  prog = pylirc
+  config = blank
+end
+
+begin
+  remote = *
+  button = tools
+  prog = pylirc
+  config = tools
+end
+
+begin
+  remote = *
+  button = info
+  prog = pylirc
+  config = info
+end
+
+begin
+  remote = *
+  button = enter
+  prog = pylirc
+  config = enter
+end
+
+begin
+  remote = *
+  button = up
+  prog = pylirc
+  config = up
+end
+
+begin
+  remote = *
+  button = down
+  prog = pylirc
+  config = down
+end
+
+begin
+  remote = *
+  button = left
+  prog = pylirc
+  config = left
+end
+
+begin
+  remote = *
+  button = right
+  prog = pylirc
+  config = right
+end
+
+begin
+  remote = *
+  button = return
+  prog = pylirc
+  config = return
+end
+
+begin
+  remote = *
+  button = exit
+  prog = pylirc
+  config = exit
+end
+
+begin
+  remote = *
+  button = red
+  prog = pylirc
+  config = red
+end
+
+begin
+  remote = *
+  button = green
+  prog = pylirc
+  config = green
+end
+
+begin
+  remote = *
+  button = yellow
+  prog = pylirc
+  config = yellow
+end
+
+begin
+  remote = *
+  button = blue
+  prog = pylirc
+  config = blue
+end
+
+begin
+  remote = *
+  button = magicinfo
+  prog = pylirc
+  config = magicinfo
+end
+
+begin
+  remote = *
+  button = 3D
+  prog = pylirc
+  config = 3D
+end
+
+begin
+  remote = *
+  button = lock
+  prog = pylirc
+  config = lock
+end
+
+begin
+  remote = *
+  button = stop
+  prog = pylirc
+  config = stop
+end
+
+begin
+  remote = *
+  button = rev
+  prog = pylirc
+  config = rev
+end
+
+begin
+  remote = *
+  button = play
+  prog = pylirc
+  config = play
+end
+
+begin
+  remote = *
+  button = pause
+  prog = pylirc
+  config = pause
+end
+
+begin
+  remote = *
+  button = fwd  
+  prog = pylirc
+  config = fwd
+end

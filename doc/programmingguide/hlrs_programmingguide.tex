@@ -1,0 +1,100 @@
+%
+% This text file include all filess neccessary to create
+% the User's Guide
+%
+
+%====== define a new class for layout
+
+\documentclass[a4paper]{../covise}
+
+\usepackage{makeidx}
+\makeindex
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{codoxygen}
+
+%\usepackage{mathpazo}
+%\usepackage{newcent}
+\usepackage{pslatex}
+%\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage[T1]{fontenc}
+%\renewcommand{\sfdefault}{uop}
+
+\newcommand{\code}[1]{{\sffamily #1}}
+\newcommand{\arrow}{-\textgreater}
+
+\setlength\LTleft{0pt}
+\setlength\LTright\fill
+
+%====== start the document
+
+
+\begin{document}
+
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+\begin{titlepage}
+    \setcounter{page}{0}
+	 \thispagestyle{empty}
+    \unitlength1cm
+    
+       \begin{picture}(15,20)
+       \put(0, 14){\includegraphics[scale=0.6]{../hlrs_big}}
+       \put(11, 13.5){\includegraphics[scale=0.6]{../rrzk_medium}}
+       \put(0, 8){\makebox(15,2)[t]{\Huge{COVISE}}}
+       \put(0, 6){\makebox(15,2)[t]{\Huge{Programming Guide}}}
+       \put(0, 4){\makebox(15,2)[t]{\LARGE{October 2013}}}   
+      \end{picture}
+    
+	\newpage
+   \setcounter{page}{0}
+	\thispagestyle{empty}
+   \uppertitleback{\bf{Title:} \\
+			COVISE Programming Guide \\
+         \today }
+   \vfill
+	\lowertitleback{\bf{Authors:} \\
+         Martin Aum\"uller \\
+         Andreas Werner \\
+         Uwe Woessner }
+
+\end{titlepage}
+
+\pagenumbering{arabic}
+\tableofcontents
+	
+\end{latexonly}
+
+
+%====== include the chapters
+
+\include{Basics/Basics}
+\include{ModuleProgramming/ModuleProgramming}
+\include{CoviseDataObjects/CoviseDataObjects}
+\include{SimulationLibrary/SimulationLibrary}
+\include{OtherFeatures/OtherFeatures}
+\include{ExampleModules/ExampleModules}
+\include{COVERPlugin/COVERPlugin}
+\include{QuickReference/QuickReference}
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Index}
+\printindex
+\end{document}

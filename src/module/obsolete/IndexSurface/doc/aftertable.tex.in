@@ -1,0 +1,30 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+% 
+% examples for using this module
+
+Example 1:
+
+
+\begin{covimg}{}{IndexSimpleMap}{Example 1 for IndexSurface (Map)}{0.6}\end{covimg}
+
+We use the example map above together with the parameter settings as shown in the Control Panel. The module GenDat generates a structured grid in 
+cylindrical shape. IndexSurface displays the surface of one area. 
+The result therefore is also a cylinder as you can see in the Renderer output
+below.
+
+
+\begin{covimg}{}{IndexSimpleOut}{Result of Example 1 (Renderer)}{0.7}\end{covimg}
+\clearpage
+
+Example 2:
+
+The second example (covise/net/examples/IndexSurface.net) illustrates the usage of IndexSurface for a rectilinear grid. 
+
+\begin{covimg}{}{IndexSurfaceMap}{covise/net/examples/IndexSurface.net}{0.6}\end{covimg}
+
+\begin{covimg}{}{IndexSurfaceRenderer}{Result of IndexSurface.net (Renderer)}{0.7}\end{covimg}

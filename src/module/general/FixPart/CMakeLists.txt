@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  FixPart.cpp
+)
+
+SET(EXTRASOURCES
+  FixPart.h
+)
+
+ADD_COVISE_MODULE(Tools FixPart ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(FixPart  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(FixPart)

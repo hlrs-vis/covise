@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<INCLUDE global="1" configname="license">config.license.xml</INCLUDE>
+
+<GLOBAL>
+<System>
+  <RemoteDaemon>
+   <Debug value="ON" />
+   <DebugFile value="rrd.dump"/> 
+  </RemoteDaemon>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="rdaemon" name="matthau" hostname="matthau" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vis01" hostname="vis01" />
+   </HostConfig>
+
+
+</System>
+  
+<COVER>
+
+   <MultiPC>
+      <Debug value="ON"/>
+      <NumSlaves value="2" />
+    	<Startup arch="windows" value="startOpenCover" name="0" />   	 
+    	<Startup arch="windows" value="startOpenCover" name="1" />   	 
+	<Host arch="windows" value="matthau" name="0" />	
+	<Host arch="windows" value="vis01" name="1" />	
+   </MultiPC>
+
+   <Background r="0.5" g="0.5" b="1.0" /> 
+   <IconSize value="20"/>
+   <PointerDepth value="0"/>
+   <PointerAppearance>
+      <IconName value="pointer"/>
+      <Width value="10"/>
+      <Length value="2500"/>
+      <Intersection value="2500" />
+   </PointerAppearance>
+   <ConstantInteractorSize value="Off"/>
+   <SceneSize value="1000" />   
+   <FloorHeight value="-1250" />
+   <Freeze value="ON" />   
+   <ViewerPosition x="0" y="-1000" z="0" />
+   <CoordAxis value="off" />
+   <MultiProcess value="OFF" />
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <Stereo separation="60" value="ON" />
+   <TransparencyMode value="sorted_blended" />
+
+   <Plugin>
+      <Vrml97 value="on">
+            <Audio value="AServer" >
+            <!--Host value="visbussard" /-->
+            <!--Host value="192.108.35.15" /-->
+            </Audio>
+            <Lights value="false"/>
+      </Vrml97>
+      <ClipPlane value="on" />
+      <Move value="on" />
+
+      <AKToolbar value="on">
+            <Attachment value="BOTTOM" />
+            <MenuMaxItems value="0"/>
+            <Scale value="0.7" />
+            <Position x="-900" y="0" z="-620" />
+            <ShortCut value="quit" name="quit" />
+            <ShortCut value="xform" name="xform" />
+            <ShortCut value="viewall" name="viewall" />
+            <ShortCut value="scale" name="scale" />
+            <ShortCut value="drive" name="drive" />
+            <ShortCut value="fly" name="fly" />
+            <ShortCut value="walk" name="walk" />
+<!--        <ShortCut value="showName" name="showName" />-->
+<!--        <ShortCut value="Plugin:ClipPlane 1 Icon:schere" name="schere" />-->
+            <ShortCut value="scalePlus" name="scalePlus" />
+            <ShortCut value="scaleMinus" name="scaleMinus" />
+<!--        
+		<ShortCut value="Plugin:ViewPoint loadViewpoint left Icon:leftView" name="left" />
+-->
+<!--        <ShortCut value="Plugin:CfdGui presentationForward Icon:media-seek-forward" name="forward"/> />-->
+<!--        <ShortCut value="Plugin:CfdGui presentationBackward Icon:media-seek-backward" name="backward"/> />-->
+            <DebugLevel value="0"/>
+            <CoverMenu value="on"/>
+            <StateButton value="off"/>
+      </AKToolbar>
+
+   </Plugin>
+
+   <Menu>
+         <Position x="0" y="0" z="0" />
+         <Size value="1" />
+   </Menu>
+
+   <Input>
+      <MouseNav value="ON" />
+            
+       <TrackingSystem value="VRC" />
+
+            <VRC>
+               <Port value="7777" />
+               <DebugLevel value="0"/>
+            </VRC>
+
+<!-- FOB -->
+            <HandAddress value="1" />
+
+            <TrackingSystem>
+               <Offset x="0" y="0" z="-550" />
+               <Orientation h="90" p="0" r="180" />
+            </TrackingSystem>
+
+            <HandDevice>
+               <Offset x="0" y="0" z="0" />
+               <Orientation h="90" p="0" r="180" />
+            </HandDevice>
+
+<!-- ART 	
+	<HandAddress value="1" />
+      <HeadAddress value="3" />
+      <TrackingSystem>
+         <Offset x="0" y="-400" z="-600" />
+         <Orientation h="0" p="0" r="0" />
+      </TrackingSystem>
+
+      <HandDevice>
+         <Offset x="0" y="0" z="0" />
+         <Orientation h="0" p="0" r="0" />
+      </HandDevice>
+
+      <HeadDevice>
+         <Offset x="0" y="0" z="0" />
+         <Orientation h="0" p="0" r="0" />
+      </HeadDevice>
+
+-->
+   </Input>
+   
+   <WindowConfig>
+         <Window comment="FRONT" window="0" pipeIndex="0"  width="1024" height="768" left="0" bottom="0" name="0" decoration="false"/>
+   </WindowConfig>
+
+   <ScreenConfig>
+         <Screen width="1720" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1320" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <TabletPC>
+         <!--Server value="192.168.0.13" /-->
+         <Server value="localhost" />
+   </TabletPC>
+
+</COVER>
+</GLOBAL>
+
+<LOCAL host="apollo" >
+ <COVER>
+   	<WindowConfig>
+         <Window comment="FRONT" window="0" pipeIndex="0"  width="1024" height="768" left="0" bottom="0" name="0" decoration="false"/>
+   	</WindowConfig>
+
+      <ChannelConfig>
+         <Channel comment="FRONT" channel="0" windowIndex="0"  left="0" width="1024" bottom="0" height="768" name="0" stereoMode="LEFT"/>
+      </ChannelConfig>
+   </COVER>
+ 
+ </LOCAL>
+
+<LOCAL host="matthau" >
+   <COVER>
+   	<WindowConfig>
+         <Window comment="FRONT" window="0" pipeIndex="0"  width="1280" height="1024" left="0" bottom="0" name="0" decoration="false"/>
+   	</WindowConfig>
+
+      <ChannelConfig>
+         <Channel comment="FRONT" channel="0" windowIndex="0"  left="0" width="1280" bottom="0" height="1024" name="0" stereoMode="LEFT"   />
+      </ChannelConfig>
+  
+   </COVER>
+</LOCAL>
+
+<LOCAL host="vis01" >
+   <COVER>
+   	<WindowConfig>
+         <Window comment="FRONT" window="0" pipeIndex="0"  width="1280" height="1024" left="0" bottom="0" name="0" decoration="false"/>
+   	</WindowConfig>
+
+      <ChannelConfig>
+         <Channel comment="FRONT" channel="0" windowIndex="0"  left="0" width="1280" bottom="0" height="1024" name="0" stereoMode="RIGHT"   />
+      </ChannelConfig>
+  
+   </COVER>
+</LOCAL>
+
+
+
+</COCONFIG>

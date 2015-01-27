@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL/>
+
+ <LOCAL host="hlrs1" >
+
+  <ButtonConfig>
+   <Map value="1 ACTION_BUTTON" name="1 ACTION_BUTTON" />
+   <Map value="2 XFORM_BUTTON" name="2 XFORM_BUTTON" />
+   <Map value="3 DRIVE_BUTTON" name="3 DRIVE_BUTTON" />
+  </ButtonConfig>
+
+
+  <COVER>
+   <MonoView coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+
+   <MultiPC>
+    <NumSlaves value="1" />
+    <Host value="hlrs2" name="0" />
+    <Command value="ssh ${USER}@hlrs2 if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\&amp; /tmp/errors.log" name="0" />
+    <Startup value="ssh ${USER}@hlrs2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="hlrs2" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="RIGHT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+   
+   <Module value="Vrml97" name="Vrml97" />
+   <Module value="Volume" name="Volume" />
+   
+   
+   <MultiPC>
+    <NumSlaves value="1" />
+    <Host value="hlrs1" name="0" />
+    <Command value="ssh ${USER}@hlrs1 if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\&amp; /tmp/errors.log" name="0" />
+    <Startup value="ssh ${USER}@hlrs1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="hlrs1,hlrs2" >
+
+  <System>
+
+   <HostInfo>
+    <NumProcessors value="1" />
+   </HostInfo>
+   <VRB>
+    <Server port="31800" />
+    <Server value="140.221.250.34" />
+   </VRB>
+
+  </System>
+
+
+  <AServer>
+
+   <Host value="140.221.250.37" />
+  </AServer>
+
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+
+     <Audio value="AServer" >
+      <!--Host value="hlrsaudio" /-->
+     </Audio>
+
+    </Vrml97>
+
+   </Plugin>
+
+   <SceneSize value="1500" />
+   <FloorHeight value="-1490" />
+
+   <Menu>
+    <Position x="500" y="0" z="200" />
+    <Size value="1" />
+   </Menu>
+
+   <MultiProcess value="OFF" />
+
+
+   <Input>
+   
+
+    <MouseNav value="ON" />
+    <!--TrackingSystem value="TARSUS" /-->
+    <TrackingSystem value="VRC" />
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <ButtonAddress value="2" />
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <Transmitter>
+     <Offset x="0" y="-76" z="-70" />
+     <Orientation h="0" p="0" r="0" />
+    </Transmitter>
+
+    <HeadSensor>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadSensor>
+
+    <HandSensor>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HandSensor>
+
+    <DebugStation value="0" />
+
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <Server host="dtrack" />
+    </Tarsus>
+
+   </Input>
+
+   <PipeConfig>
+    <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+   </PipeConfig>
+
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <TransparencyMode value="sorted_blended" />
+
+   <ChannelConfig>
+    <Channel comment="FRONT" channel="0" right="1400" left="0" windowIndex="0" bottom="0" name="0" top="1050" />
+   </ChannelConfig>
+
+   <WindowConfig>
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="1920" bottom="150" name="0" decoration="false"/>
+   </WindowConfig>
+
+   <ScreenConfig>
+    <Screen width="1400" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1000" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <TabletPC>
+   <!--Server value="141.58.8.89" /-->
+   <!--Server value="141.58.8.98" /-->
+   </TabletPC>
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

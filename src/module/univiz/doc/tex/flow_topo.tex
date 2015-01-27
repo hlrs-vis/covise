@@ -1,0 +1,84 @@
+%\chapter{Flow Topo}
+\section{Flow Topo}
+\label{sec:flow-topo}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Extracts critical points from velocity data, in the sense of vector field topology.
+ 
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  data grid (unstructured)
+  \begin{itemize}
+  \item
+    velocity (3-vect)
+  \item
+    wall distance (optional)
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  point type geometry / 1D array of 3D points (the critical points)
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{divide by walldist}: if active, velocity is divided by wall distance. This results in a vector field that is proportional to the wall shear stress at the boundaries.
+
+\item
+  \textbf{interior critical points}: if active, critical points are extracted in the interior of the flow.
+
+\item
+  \textbf{boundary critical points}: if active, critical points are extracted at the boundary of the flow.
+
+\item
+  \textbf{generate seeds}: if active, seeds are generated at each critical point. The seeds are generated on two circles of radius \emph{radius}, \emph{seeds per circle} seeds are generated on each circle. The two circles are parallel to the 2D manifold of the critical point. The centers of the circles are offset by \emph{offset} from the critical point, along the direction of the 1D manifold.
+
+\item
+  \textbf{seeds per circle}: number of seeds per circle.
+
+\item
+  \textbf{radius}: radius of the circles.
+
+\item
+  \textbf{offset}: offset of the circle centers from the critical point.
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2007-01-11
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Filip Sadlo, Ronald Peikert
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................
+
+

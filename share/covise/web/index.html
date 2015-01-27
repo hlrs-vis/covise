@@ -1,0 +1,226 @@
+<html>
+  <head>
+    <title>COVISE Dynamic WebGL</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    
+    <script type="text/javascript" src="sylvester.js"></script>
+    <script type="text/javascript" src="glUtils.js"></script>
+
+    <!------------------------ shaders ------------------------>
+
+    <script id="color-shader-fs" type="x-shader/x-fragment">
+      varying vec3 vLighting;
+      void main(void)
+      {
+        //gl_FragColor = gl_Color;
+        gl_FragColor = vec4(gl_Color.rgb * vLighting, gl_Color.a);
+      }
+    </script>
+
+    <script id="color-flat-shader-fs" type="x-shader/x-fragment">
+
+      void main(void)
+      {
+        gl_FragColor = gl_Color;
+      }
+    </script>
+
+    <!-- 
+         picking is implemented by rendering pickable objects with distinct
+         colors and reading back the color value under the mouse pointer.
+         TODO: render to offscreen buffer
+    -->
+    <script id="color-pick-shader-fs" type="x-shader/x-fragment">
+      uniform vec4 color;
+      void main(void)
+      {
+        gl_FragColor = color;
+      }
+    </script>
+
+    <script id="texture-shader-fs" type="x-shader/x-fragment">
+      varying vec2 vTexCoord;
+      uniform sampler2D uSampler;
+
+      void main(void)
+      {
+        vec4 color = texture2D(uSampler, vTexCoord);
+        gl_FragColor = vec4(gl_Color.x * color.xyz, color.a);
+      }
+    </script>
+
+    <script id="texture-flat-shader-fs" type="x-shader/x-fragment">
+      varying vec2 vTexCoord;
+      uniform sampler2D uSampler;
+
+      void main(void)
+      {
+        gl_FragColor = texture2D(uSampler, vTexCoord);
+        gl_FragColor.a = 1.0;
+      }
+    </script>
+
+    <script id="color-shader-vs" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+      attribute vec4 aVertexColor;
+      attribute vec3 aVertexNormal;
+
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+      uniform vec3 uLightDir;
+
+      varying vec3 vLighting;
+
+      void main(void)
+      {
+        vec3 lightDir = normalize(uLightDir);
+        vec3 normal = normalize(gl_NormalMatrix * aVertexNormal);
+        vec3 inormal = normalize(gl_NormalMatrix * -aVertexNormal);
+        float vDot = max(dot(normal, lightDir), 0.0);
+        float ivDot = max(dot(inormal, lightDir), 0.0);
+
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vLighting = vec3(1.0, 1.0, 1.0) * (vDot + ivDot);
+        //gl_FrontColor = vec4(aVertexColor.xyz * (vDot + ivDot), aVertexColor.a);
+        gl_FrontColor = aVertexColor;
+      }
+    </script>
+
+    <script id="color-flat-shader-vs" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+      attribute vec4 aVertexColor;
+
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+      uniform vec3 uLightDir;
+
+      void main(void)
+      {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        gl_FrontColor = aVertexColor;
+      }
+    </script>
+
+    <script id="texture-shader-vs" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+      attribute vec4 aVertexTexCoord;
+      attribute vec3 aVertexNormal;
+
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+      uniform vec3 uLightDir;     
+
+      varying vec2 vTexCoord;
+      void main(void)
+      {
+        vec3 lightDir = normalize(uLightDir);
+        vec3 normal = normalize(gl_NormalMatrix * aVertexNormal);
+        vec3 inormal = normalize(gl_NormalMatrix * -aVertexNormal);
+        float vDot = max(dot(normal, lightDir), 0.0);
+        float ivDot = max(dot(inormal, lightDir), 0.0);
+
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        gl_FrontColor = vec4(vDot + ivDot, 0.0, 0.0, 0.0);
+        vTexCoord = aVertexTexCoord;
+      }
+    </script>
+
+    <script type="text/javascript" src="/control.js"></script>
+   
+    <link rel="stylesheet" type="text/css" href="/yui/fonts/fonts-min.css" />
+    <link rel="stylesheet" type="text/css" href="/yui/slider/assets/skins/sam/slider.css" />
+
+    <script type="text/javascript" src="/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+    <script type="text/javascript" src="/yui/dragdrop/dragdrop-min.js"></script>
+    <script type="text/javascript" src="/yui/slider/slider-min.js"></script>
+    <script type="text/javascript" src="/firebug.jgz"></script>
+
+    <!--script type="text/javascript" src="http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"></script-->
+
+    <style type="text/css">
+      body {
+        margin:0;
+        padding:0;
+      }
+      #td.border { border-top: 1px solid #000000; }
+    </style>
+
+    <!--style type="text/css">
+      #slider-bg { background:url(/yui/slider/assets/bg-h.gif) 5px 0 no-repeat;}
+    </style-->
+
+  </head>
+
+  <body onload="init()" class="yui-skin-sam">
+    <table>
+      <tr>
+        <td valign="top"><canvas id="canvas" style="border: none;" width="600" height="600"></canvas></td>
+        <td valign="top"><table id="colormaps" width="100" border="0"></table></td>
+      </tr>
+    </table>
+    <br>
+    <table>
+      <tr>
+        <td>Timestep
+          <input autocomplete="off" id="slider-value" type="text" value="0" size="4" maxlength="4"/>
+          <div id="slider-bg" class="yui-h-slider" tabindex="-1" title="Animation">
+            <div id="slider-thumb" class="yui-slider-thumb"><img src="yui/slider/assets/thumb-n.gif"></div>
+          </div>
+        </td>
+        <td>
+          <!-- dynamically generated interactor checkboxes -->
+          <form name="interactor" id="interactor"/>
+        </td>
+      </tr>
+    </table>
+
+    <script type="text/javascript">
+      (function() {
+        var Event = YAHOO.util.Event,
+            Dom   = YAHOO.util.Dom,
+            lang  = YAHOO.lang,
+            bg="slider-bg", thumb="slider-thumb",
+            textfield="slider-value"
+
+        var topConstraint = 0;
+        var bottomConstraint = sliderWidth;
+
+        Event.onDOMReady(function() {
+
+          slider = YAHOO.widget.Slider.getHorizSlider(bg, 
+                         thumb, topConstraint, bottomConstraint);
+
+          slider.animate = true;
+
+          slider.getRealValue = function() {
+            return Math.round(this.getValue() / sliderWidth * (tMax - tMin) + tMin);
+          }
+
+          slider.setRealValue = function(val) {
+            var value = Math.round((sliderWidth / (tMax - tMin) + tMin) * val);
+            if (value < 0)
+              value = 0;
+            if (value >= sliderWidth)
+              value = sliderWidth - 1;
+
+            this.setValue(value);
+          }
+
+          slider.subscribe("change", function(offsetFromStart) {
+
+            timestep = slider.getRealValue();
+            if (timestep < tMin)
+              timestep = tMin * 1.0;
+            if (timestep > tMax)
+              timestep = tMax * 1.0;
+
+            document.getElementById("slider-value").value = timestep;
+            draw();
+          }); 
+        });
+      })();
+    </script>
+
+  </body>
+  
+</html>

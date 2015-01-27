@@ -1,0 +1,37 @@
+# SOME DESCRIPTIVE TITLE."
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Wladimir Lukutin <wladimir.lukutin@visenso.de>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Test\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-25 09:43+0200\n"
+"PO-Revision-Date: 2012-07-02 09:39+0200\n"
+"Last-Translator: Wladimir Lukutin <wladimir.lukutin@visenso.de>\n"
+"Language-Team: German <>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+msgid "Teststring 1"
+msgstr "Teststring 1"
+
+msgid "Teststring 2"
+msgstr "DE Teststring 2"
+
+msgid "Teststring 3"
+msgstr "Teststring 3"
+
+msgid "Empty string"
+msgstr ""
+
+msgid "gruessen"
+msgstr "grüßen"
+
+msgid "GRUESSEN"
+msgstr "GRÜSSEN"

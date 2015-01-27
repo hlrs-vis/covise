@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "atmega8_receiver", "atmega8_receiver\atmega8_receiver.cproj", "{768A223C-B83C-419B-AFD2-37B8EDB3717A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{768A223C-B83C-419B-AFD2-37B8EDB3717A}.Debug|AVR.ActiveCfg = Debug|AVR
+		{768A223C-B83C-419B-AFD2-37B8EDB3717A}.Debug|AVR.Build.0 = Debug|AVR
+		{768A223C-B83C-419B-AFD2-37B8EDB3717A}.Release|AVR.ActiveCfg = Release|AVR
+		{768A223C-B83C-419B-AFD2-37B8EDB3717A}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

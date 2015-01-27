@@ -1,0 +1,829 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="license" >config.license.xml</INCLUDE>
+
+<!-- [[[ -->
+
+
+ <LOCAL host="viscluster01" >
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+     <Audio value="None" />
+    </Vrml97>
+
+   </Plugin>
+
+   <Input>
+    <DebugButtons value="TRUE" />
+    <InterpolationFile value="xcalib_23apr99_posit.data" />
+    <OrientInterpolation value="FALSE" />
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <Joystick zerox="507" zeroy="509" ymin="0" value="false" ymax="1023" xmin="0" xmax="1023" />
+    <Offset x="50" y="50" />
+
+    <TrackingSystem>
+     <Offset x="0" y="0" z="-1210" />
+     <Orientation h="0" p="0" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HandDevice>
+
+    <DebugStation value="0" />
+
+    <Tarsus>
+     <ButtonDevice value="/dev/input/tarsusmouse" />
+     <StationName value="CoviseBrille" name="0" />
+     <StationName value="CoviseMaus" name="1" />
+     <Server host="visadler" />
+    </Tarsus>
+
+   </Input>
+
+   <TabletPC>
+    <Server value="localhost" />
+    <!--Server value="141.58.8.21" /-->
+    
+   </TabletPC>
+
+   <MultiPC>
+    <!--Startup value="ssh ${USER}@viscluster02 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" /-->
+    <Startup value="ssh ${USER}@viscluster09 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+    <Startup value="ssh ${USER}@viscluster10 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1" />
+    <Startup value="ssh ${USER}@viscluster11 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="2" />
+<!--
+    <Startup value="ssh ${USER}@viscluster12 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="4" />
+    <Startup value="ssh ${USER}@viscluster13 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="5" />
+    <Startup value="ssh ${USER}@viscluster14 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="6" />
+-->
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!--TiledDisplay/Window config master nodes -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster01,viscluster02" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="0" number="0" internalCompositor="on" />
+   <NumScreens value="4" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+
+   <WindowConfig>
+    <Window width="1400" window="0" pipeIndex="0" left="0" height="1050" bottom="0" comment="MAIN" name="0" />
+<!--     <Window width="1400" window="0" pipeIndex="0" left="1280" height="1050" bottom="0" comment="MAIN" name="0" /> -->
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!-- walls ScreenConfig -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster01,viscluster02" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="-700" comment="FRONT" originY="1400" r="0.0" name="0" originZ="625" screen="0" />
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="700" comment="FRONT" originY="1400" r="0.0" name="1" originZ="625" screen="1" />
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="-700" comment="FRONT" originY="1400" r="0.0" name="2" originZ="-625" screen="2" />
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="700" comment="FRONT" originY="1400" r="0.0" name="3" originZ="-625" screen="3" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- master nodes walls ChannelConfig -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster01,viscluster03,viscluster07" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel windowIndex="0" stereoMode="RIGHT" width="588" channel="0" left="112" bottom="525" comment="MAIN" name="0" height="525" />
+    <Channel windowIndex="0" stereoMode="RIGHT" width="588" channel="1" left="700" bottom="525" comment="MAIN" name="1" height="525" render="true"/>
+    <Channel windowIndex="0" stereoMode="RIGHT" width="588" channel="2" left="112" bottom="0" comment="MAIN" name="2" height="525" render="true"/>
+    <Channel windowIndex="0" stereoMode="RIGHT" width="588" channel="3" left="700" bottom="0" comment="MAIN" name="3" height="525" render="true"/>
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster02,viscluster04,viscluster08" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel windowIndex="0" stereoMode="LEFT" width="588" channel="0" left="112" bottom="525" comment="MAIN" name="0" height="525" />
+    <Channel windowIndex="0" stereoMode="LEFT" width="588" channel="1" left="700" bottom="525" comment="MAIN" name="1" height="525" />
+    <Channel windowIndex="0" stereoMode="LEFT" width="588" channel="2" left="112" bottom="0" comment="MAIN" name="2" height="525" />
+    <Channel windowIndex="0" stereoMode="LEFT" width="588" channel="3" left="700" bottom="0" comment="MAIN" name="3" height="525" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!-- slave nodes all screens ChannelConfig -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster09,viscluster10,viscluster11,viscluster15,viscluster16,viscluster17,viscluster21,viscluster22,viscluster23,viscluster27,viscluster28,viscluster29" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel windowIndex="0" stereoMode="RIGHT" right="1.0" channel="0" left="0.0" bottom="0.0" comment="MAIN" name="0" top="1.0" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster12,viscluster13,viscluster14,viscluster18,viscluster19,viscluster20,viscluster24,viscluster25,viscluster26,viscluster30,viscluster31,viscluster32" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel windowIndex="0" stereoMode="LEFT" right="1.0" channel="0" left="0.0" bottom="0.0" comment="MAIN" name="0" top="1.0" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!-- slave nodes all screens WindowConfig -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <!-- walls -->
+ 
+
+ <LOCAL host="viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32" >
+
+  <COVER>
+
+   <WindowConfig>
+    <Window width="588" window="0" pipeIndex="0" left="0" height="525" bottom="0" comment="MAIN" name="0" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- floor -->
+ 
+
+ <LOCAL host="viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26" >
+
+  <COVER>
+
+   <WindowConfig>
+    <Window width="537" window="0" pipeIndex="0" left="0" height="525" bottom="0" comment="MAIN" name="0" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!--slave nodes ScreenConfig -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster09,viscluster12" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="700" comment="FRONT" originY="1400" r="0.0" name="0" originZ="625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster10,viscluster13" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="-700" comment="FRONT" originY="1400" r="0.0" name="0" originZ="-625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster11,viscluster14" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1250" p="0.0" originX="700" comment="FRONT" originY="1400" r="0.0" name="0" originZ="-625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster27,viscluster30" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="90.0" height="1250" p="0.0" originX="-1400" comment="LEFT" originY="700" r="0.0" name="0" originZ="625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster28,viscluster31" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="90.0" height="1250" p="0.0" originX="-1400" comment="LEFT" originY="-700" r="0.0" name="0" originZ="-625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster29,viscluster32" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="90.0" height="1250" p="0.0" originX="-1400" comment="LEFT" originY="700" r="0.0" name="0" originZ="-625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster15,viscluster18" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="-90.0" height="1250" p="0.0" originX="1400" comment="RIGHT" originY="-700" r="0.0" name="0" originZ="625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster16,viscluster19" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="-90.0" height="1250" p="0.0" originX="1400" comment="RIGHT" originY="700" r="0.0" name="0" originZ="-625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster17,viscluster20" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="-90.0" height="1250" p="0.0" originX="1400" comment="RIGHT" originY="-700" r="0.0" name="0" originZ="-625" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster21,viscluster24" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1400" p="-90.0" originX="700" comment="BOTTOM" originY="700" r="0.0" name="0" originZ="-1250" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster22,viscluster25" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1400" p="-90.0" originX="-700" comment="BOTTOM" originY="-700" r="0.0" name="0" originZ="-1250" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster23,viscluster26" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="1400" h="0.0" height="1400" p="-90.0" originX="700" comment="BOTTOM" originY="-700" r="0.0" name="0" originZ="-1250" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!-- slave nodes TiledDisplay config -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster09" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster01" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster10" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster01" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster11" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster01" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster12" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster02" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster13" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster02" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster14" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster02" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster15" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster03" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster16" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster03" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster17" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster03" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster18" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster04" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster19" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster04" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster20" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster04" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster21" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster05" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster22" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster05" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster23" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster05" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster24" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster06" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster25" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster06" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster26" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster06" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster27" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster07" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster28" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster07" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster29" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster07" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster30" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster08" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster31" >
+
+  <COVER>
+
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster08" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster32" >
+
+  <COVER>
+
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster08" />
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+ <!-- Settings for all nodes (MultiPC, COVERConfig) -->
+ 
+
+ <!-- [[[ -->
+ 
+
+ <LOCAL host="viscluster01,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08,viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32" >
+
+  <StateFixLevel value="100" />
+
+  <TextureCounter value="ON" />
+
+  <TextureMode value="MODULATE" />
+
+  <TextureQuality value="High" />
+
+  <TransparencyMode value="sorted_blended" />
+
+  <Headlight value="ON" />
+
+  <Lights value="ON" />
+
+  <COVER>
+
+   <Plugin>
+
+    <SteeringWheel>
+     <Mouse value="PorscheMouse" />
+    </SteeringWheel>
+
+   </Plugin>
+
+   <StereoMode coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated, please use ChannelConfig.Channel.stereoMode instead-->
+   
+   </StereoMode>
+
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="ON" />
+   <Stereo enable="ON" value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   
+   <ViewerPosition x="500" y="-3600" z="320" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <Input>
+    <ButtonSystem value="NONE # IAO" />
+    <MouseNav value="ON" />
+    <TrackingSystem value="TARSUS" />
+   </Input>
+
+   <SceneSize value="2500" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed default="24.0" min="0.0" max="25.0" />
+
+   <Menu>
+    <Orientation h="-90" p="0" r="0" />
+    <Position x="1300" y="-1000" z="500" />
+   </Menu>
+
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   
+   <!--Module value="Vic" name="Vic" /-->
+   
+   <!--Module value="vranim" name="vranim" /-->
+   
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="3" />
+   </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="viscluster01,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08,viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32" >
+
+  <COVER>
+
+   <Plugin>
+    <TiledDisplay value="on" />
+   </Plugin>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <!-- ]]] -->
+ 
+
+</COCONFIG>
+
+

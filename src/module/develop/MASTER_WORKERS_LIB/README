@@ -1,0 +1,106 @@
+
+The MasterAndWorkers library hides the synchonisation
+details required in the development of multithreaded
+applications using the pattern of master-worker
+multithreading. You will have to derive classes from
+MasterAndWorkers, TaskGroup and ThreadTask. 
+The files beginning with "My" illustrate the use
+of the library and are not part of it.
+
+MyMasterAndWorkers is a class derived from MasterAndWorkers.
+One object of this class creates a pool of threads
+by implementing CreateThreads (see an implementation
+using posix threads in MyMasterAndWorkers.cpp). The whole computation
+is carried out by calling MasterAndWorkers::compute, which
+you will hopefully not want to modify. The first
+action in compute is the creation of the pool of worker threads.
+In particular, just from the very beginning in compute the number
+of worker threads is fixed by calling the pure virtual function
+MasterAndWorkers::SetCrewSizeInt, which you have to implement
+the way that is more convenient for you. In our exemple
+this functions calls MasterAndWorkers::SetCrewSizeExt.
+Another way of fixing the size of the team of workers 
+would be to implement SetCrewSizeInt
+as a function without any action and calling SetCrewSizeExt
+before the call to compute (in main in our case). 
+
+The required resources used for synchronisation are
+created in the implementation of CreateMutexAndConditions.
+See MyMasterAndWorkers.cpp for details when using
+posix threads.
+
+The member function CreateTaskGroup returns a pointer to 
+one MyTaskGroup object. This object describes the problem 
+to be distributed among workers. The problem is solved 
+in a series of iterations. Function MyTaskGroup::End 
+(see MyTaskGroup.cpp) is used to determine when
+no further iterations are needed. In our example a single
+iteration is carried out. 
+
+The first action of an iteration
+is a call to MyTaskGroup::CreateThreadTasks. In our
+case we create here several ThreadTasks which are to be assigned
+to the available worker threads. The number of ThreadTask objects
+is not related to the number of worker threads.
+TaskGroup::SomeThreadTasksUnserviced is used within
+an iteration in order to test whether some ThreadTasks
+have not yet been assigned to a thread.
+
+In our case the computation carried out by a thread
+when it gets a MyThreadTask object assigned consists
+in the generation of an array of random numbers and
+working out their sum. In general you have to implement
+the function ThreadTask::Solve. When one of the ThreadTasks
+has been completed, the main thread gets a signal and
+it may do something with it in TaskGroup::GatherThreadTask.
+In our example we test in MyTaskGroup::GatherThreadTask
+that the computation was correct. When all ThreadTasks
+have been carried out (i.e. an iteration has been
+completed), the main thread may carry out some cleanup
+or other actions in TaskGroup::GatherStep. You may for
+instance wish to destroy the ThreadTask objects you
+have created and used for this iteration. 
+
+It is also possible that you may wish to reuse these objects
+for a further iteration. In this case you have
+to reset the state of these objects (possibly in GatherStep) so that they
+may be reused. In our example we need not take this
+detail into account, but if that were the case, we
+should use the member function MyThreadTask::Assign with
+the value false (i.e. they are waiting to be assigned to a worker), 
+or otherwise they would never get assigned to a worker 
+thread in a second iteration (actually they would get assigned,
+but the worker thread would ignore them). For the same reason you
+would have to use in this kind of situations the function
+ThreadTask::WaitForGathering with the value false. This is
+so because, when a thread has executed the Solve function
+for a ThreadTask object, it marks it calling WaitForGathering
+with the value true, which means that it (the worker thread)
+is done with that task, which will be eventually processed
+by the main thread in the function GatherThreadTask.
+
+When all iterations are done, some additional actions may
+be defined in MyTaskGroup::GatherAll.
+
+Last but not least, if the number of worker
+threads is set to 0 (see note on SetCrewSizeExt 
+and SetCrewSizeInt above), no multithreading will 
+be used. In this case, within an iteration, the 
+function TaskGroup::Solve will be called. The 
+default implementation of this function consists
+in calling ThreadTask::Solve for all the ThreadTask
+objects referenced by the vector _tasks (see
+TaskGroup.h). That is why we load this vector
+with pointers to the created objects of type
+ThreadTask in MyTaskGroup::CreateThreadTasks. 
+This would be important, in case
+that we tried to solve the whole computation
+without multithreading.
+
+For more details you may take a look at the source
+files of the exemple in this (suggested) order:
+MyMain.cpp
+MyMasterAndWorkers.{h,cpp}
+MyTaskGroup.{h,cpp}
+MyThreadTask.{h,cpp}
+

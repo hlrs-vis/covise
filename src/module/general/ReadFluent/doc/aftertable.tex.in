@@ -1,0 +1,24 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+%
+Below you see an example map for selecting vector data on data1 (velocity) showing 
+vector data as colors on a CuttingSurface (see Renderer output).
+ 
+%Please note: --- obsolete, CuttingSurface changed!!!!-------
+%
+%To avoid possible error messages from CuttingSurface it might be necessary to
+%increase VERTEX\_RATIO, e.g. to set {\tt VERTEX\_RATIO 9.0} in covise.config (see
+%CuttingSurface, subsection 'Tunable Parameters').
+
+\begin{covimg}{}
+		{ReadFluentMap}{covise/net/examples/ReadFluent.net}{0.6}\end{covimg}
+		
+\begin{covimg2}	{}{ReadFluentRenderer}{0.6}\end{covimg2}

@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="MainWindow">
+    <file>Icons/Hlrs-logo.png</file>
+  </qresource>
+</RCC>

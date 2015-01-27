@@ -1,0 +1,98 @@
+
+<parallaxMapping>
+
+  <uniform name="diffuseMap" type="sampler2D" value="0"/>
+
+  <uniform name="parallaxMap" type="sampler2D" value="1"/>
+
+  <uniform name="scale" type="float" value="0.5"/>
+
+  <uniform name="bias" type="float" value="-0.25"/>
+
+  <attribute name="tangent" type="vec3" value="6"/>
+
+  <attribute name="binormal" type="vec3" value="7"/>
+
+  <vertexProgram>
+   varying vec3 lightVec, eyeVec;
+
+   attribute vec3 binormal;
+   attribute vec3 tangent;
+
+   void main( void )
+   {
+      //vector pointing to light 0
+      //vec4 lightPos = gl_LightSource[0].position * gl_ModelViewMatrixInverse - gl_Vertex;
+      vec3 lightPos = gl_LightSource[0].position.xyz;
+      //transform light 0 vector into tangent space (no normalization)
+      lightVec.x = dot(lightPos, tangent);
+      lightVec.y = dot(lightPos, binormal);
+      lightVec.z = dot(lightPos, gl_Normal);
+
+      //vector pointing to eye
+      //vec3 eyePos = vec3(gl_ModelViewMatrixInverseTranspose[3] - gl_Vertex);
+      vec3 eyePos = vec3(gl_ModelViewMatrixInverse[3] - gl_Vertex);
+      //transform eye vector into tangent space (no normalization)
+      eyeVec.x = dot(eyePos, tangent);
+      eyeVec.y = dot(eyePos, binormal);
+      eyeVec.z = dot(eyePos, gl_Normal);
+    
+      //regular
+      gl_TexCoord[0] = gl_MultiTexCoord0;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+      gl_Position = ftransform();
+   }
+  </vertexProgram>
+
+  <fragmentProgram>
+   varying vec3 lightVec, eyeVec;
+
+   uniform sampler2D diffuseMap;
+   uniform sampler2D parallaxMap;
+
+   uniform float scale;
+   uniform float bias;
+
+   void main( void )
+   {
+      //normalize tangent space eye vector
+      vec3 normEyeVec = normalize(eyeVec);
+
+      //calculate offset and new texture coordinate
+      float height = float(texture2D(parallaxMap, gl_TexCoord[0].xy).a)*scale + bias;
+      vec2 newTexCoord = vec2(normEyeVec)*height + gl_TexCoord[0].xy;
+
+      //get texture data
+      vec4 diffuseColor = texture2D(diffuseMap, newTexCoord);
+      vec3 normal = vec3(texture2D(parallaxMap, newTexCoord))*2.0 - vec3(1.0);
+
+      //remove scale and bias from normal map
+      //normal = normal*2.0 - vec3(1.0);
+
+      //normalize the normal map
+      normal = normalize(normal);
+      
+      //normalize the light 0 vector
+      vec3 normLightVec = normalize(lightVec);
+
+      //Ambient light
+      vec4 total = gl_FrontLightProduct[0].ambient*1.0;
+
+      //Diffuse light
+      float diffuse = dot(normal, normLightVec);
+      total += gl_FrontLightProduct[0].diffuse * diffuse*1.0;
+
+      //Specular light
+      float specular = pow(max(dot(reflect(normLightVec, normal), -normEyeVec), 0.0), 0.3*gl_FrontMaterial.shininess);
+      total += gl_FrontLightProduct[0].specular * specular*1.0;	
+
+      //multiply by regular texture map color
+      //gl_FragColor = clamp(diffuseColor*total, 0.0, 1.0);
+      gl_FragColor = gl_FrontLightModelProduct.sceneColor + diffuseColor*total;
+      
+   }
+  </fragmentProgram>
+
+</parallaxMapping>

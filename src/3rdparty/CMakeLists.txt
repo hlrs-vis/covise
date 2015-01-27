@@ -1,0 +1,35 @@
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${COVISEDIR}/${ARCHSUFFIX}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${COVISEDIR}/${ARCHSUFFIX}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${COVISEDIR}/${ARCHSUFFIX}/lib")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${COVISEDIR}/${DBG_ARCHSUFFIX}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${COVISEDIR}/${DBG_ARCHSUFFIX}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${COVISEDIR}/${DBG_ARCHSUFFIX}/lib")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${COVISEDIR}/${DBG_ARCHSUFFIX}opt/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${COVISEDIR}/${DBG_ARCHSUFFIX}opt/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${COVISEDIR}/${DBG_ARCHSUFFIX}opt/lib")
+
+SET(DESKVOX_USE_CUDA ${COVISE_USE_CUDA})
+SET(DESKVOX_USE_QT4 ${COVISE_USE_QT4})
+SET(DESKVOX_USE_RAYREND_BSPLINE OFF)
+SET(DESKVOX_USE_RAYREND_CSPLINE OFF)
+
+if (COVISE_USE_VIRVO)
+   using(GLEW optional)
+   if (NOT GLEW_FOUND)
+      message("Cannot build Virvo: no GLEW - maybe disable COVISE_USE_VIRVO?")
+   endif()
+   # search for Boost components required by Virvo with covise_find_package:
+   # avoids the problem that Virvo does not find Boost in $EXTERNLIBS
+   using(Boost optional)
+   if (NOT Boost_FOUND)
+      message("Cannot build Virvo: no Boost - maybe disable COVISE_USE_VIRVO?")
+   endif()
+   set(saved_prefix_path ${CMAKE_PREFIX_PATH})
+   set(CMAKE_PREFIX_PATH "$ENV{EXTERNLIBS}/volpack" ${CMAKE_PREFIX_PATH})
+   set(CMAKE_PREFIX_PATH "$ENV{EXTERNLIBS}/gdcm" ${CMAKE_PREFIX_PATH})
+   ADD_SUBDIRECTORY(deskvox)
+   set(${CMAKE_PREFIX_PATH} ${saved_prefix_path})
+   covise_export_target(virvo)
+endif()

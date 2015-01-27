@@ -1,0 +1,23 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%                                                                                
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+        expression String & Expression & Arithmetic expression describing the computation
+	 to be done.\newline
+        It complies with the syntax shown below. \\
+                                                                                                                
+%        ....
+%        ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

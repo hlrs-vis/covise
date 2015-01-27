@@ -1,0 +1,388 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+5
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+93
+284
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module VectorField
+VectorField
+1
+LOCAL
+Mapper
+VectorField_1
+110
+209
+3
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|Polygons|Lines|UnstructuredGrid|TriangleStrips|Points
+input mesh
+req
+
+vdataIn
+Vec3|Mat3
+input vector data
+req
+
+sdataIn
+Float
+input scalar data
+opt
+
+2
+linesOut
+Lines
+Vectors (Lines)
+default
+
+dataOut
+Float
+Data on arrows
+default
+
+6
+scale
+FloatSlider
+Scale factor
+-1 1 -0.333
+
+1
+length
+Choice
+Length of vectors
+1
+
+-1
+fasten
+Choice
+on_the_bottom or on_the_middle
+1
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.200000
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+0
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+GenDat_1
+93
+46
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1
+
+-1
+Function
+Choice
+Function for scalar values
+1
+
+-1
+Orientation
+Choice
+Function for vector values
+1
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module IsoSurface
+IsoSurface
+1
+LOCAL
+Mapper
+IsoSurface_1
+93
+102
+4
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+Grid
+req
+
+DataIn0
+Float
+Data for isosurface generation
+req
+
+DataIn1
+Float|Vec3
+Data to be mapped onto the isosurface
+opt
+
+DataIn2
+Text
+this char Array marks cells to be processed or not
+opt
+
+3
+GridOut0
+Polygons|TriangleStrips
+The isosurface
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+6
+gennormals
+Boolean
+Supply normals
+TRUE
+
+-1
+genstrips
+Boolean
+Convert triangles to strips
+FALSE
+
+-1
+Interactor
+Choice
+Point or value working mode
+2 Point Value
+
+-1
+isopoint
+FloatVector
+Point for isosurface
+0 0 0.
+
+-1
+isovalue
+FloatSlider
+Value for isosurfaces
+-0.881765 0.836132 0.5
+
+-1
+autominmax
+Boolean
+Automatic minmax
+TRUE
+
+-1
+0
+# Module ShowFaceNormal
+ShowFaceNormal
+1
+LOCAL
+Tools
+ShowFaceNormal_1
+110
+154
+1
+inPort
+Polygons|TriangleStrips
+surface consisting of polygons or triangle strips
+req
+
+2
+points
+Points
+startpoints for normals (typically polygon center)
+default
+
+vectors
+Vec3
+normals of the polygon or of the first triangle in tristrip
+default
+
+0
+0
+7
+VectorField
+1
+LOCAL
+linesOut
+
+Renderer
+1
+LOCAL
+RenderData
+GenDat
+1
+LOCAL
+GridOut0
+
+IsoSurface
+1
+LOCAL
+GridIn0
+GenDat
+1
+LOCAL
+DataOut0
+
+IsoSurface
+1
+LOCAL
+DataIn0
+IsoSurface
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+IsoSurface
+1
+LOCAL
+GridOut0
+
+ShowFaceNormal
+1
+LOCAL
+inPort
+ShowFaceNormal
+1
+LOCAL
+points
+
+VectorField
+1
+LOCAL
+meshIn
+ShowFaceNormal
+1
+LOCAL
+vectors
+
+VectorField
+1
+LOCAL
+vdataIn
+0

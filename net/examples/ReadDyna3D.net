@@ -1,0 +1,202 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+3
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+DomainSurface_1
+20
+120
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+20
+220
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ReadDyna3D
+ReadDyna3D
+1
+LOCAL
+IO_Module
+ReadDyna3D_1
+20
+21
+0
+3
+out_grid
+UnstructuredGrid
+grid
+default
+
+data_1
+Vec3
+output nodal vector data
+default
+
+data_2
+Float
+output nodal scalar data
+default
+
+10
+data_path
+Browser
+Geometry file path
+share/covise/example-data/Dyna3d/aplot
+
+1
+data_path___filter
+BrowserFilter
+Geometry file path
+data_path *
+
+-1
+nodalDataType
+Choice
+Nodal results data to be read
+1
+
+1
+elementDataType
+Choice
+Element results data to be read
+1
+
+1
+component
+Choice
+stress tensor component
+8
+
+-1
+Selection
+String
+Number selection for parts
+0-9999999
+
+-1
+Min_Num_State
+IntVector
+Time step
+1 7
+
+1
+format
+Choice
+Format of LS-DYNA3D ptf-File
+1
+
+-1
+byteswap
+Choice
+Perform Byteswapping
+3
+
+-1
+OnlyGeometry
+Boolean
+Reading only Geometry? yes|no
+FALSE
+
+-1
+0
+2
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+ReadDyna3D
+1
+LOCAL
+out_grid
+
+DomainSurface
+1
+LOCAL
+GridIn0
+0

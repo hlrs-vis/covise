@@ -1,0 +1,25 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{optional}{FileName} & Text & 
+	String with the path of the results file. This object
+	may have a READ\_ANSYS attribute. In this case
+	the value (string) of this attribute may be used
+	in order to override the values of the module
+	parameters. As you are not likely to use this feature,
+	we ask you to contact VISENSO for more information if you should
+	ever wish to use it. \\
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

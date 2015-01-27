@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+  
+  <Colormaps>
+     <BAW-Sohle>
+       <Point x="0"              r="0"          g="0"           b="0.094"   a="1" index="0" />
+       <Point x="0.0658436"      r="0"          g="0"           b="0.518"   a="1" index="1" />
+       <Point x="0.152263"       r="0"          g="0.224"       b="1"       a="1" index="2" />
+       <Point x="0.22428"        r="0"          g="1"           b="1"       a="1" index="3" />
+       <Point x="0.288066"       r="1"          g="1"           b="0.4"     a="1" index="4" />
+       <Point x="0.403292"       r="0.729"      g="0.447"       b="0.012"   a="1" index="5" />
+       <Point x="0.514403"       r="0.753"      g="1"           b="0"       a="1" index="6" />
+       <Point x="0.650206"       r="0"          g="0.765"       b="0"       a="1" index="7" />
+       <Point x="0.839506"       r="0"          g="0.302087"    b="0"       a="1" index="8" />
+       <Point x="1"              r="0.376"      g="0"           b="0"       a="1" index="9" />
+    </BAW-Sohle>
+
+    <BAW-Wsp>
+      <Point x="0"          r="0"       g="0"       b="0.345"   a="0.519"   index="0" />
+      <Point x="0.0473251"  r="0"       g="0"       b="1"       a="0.5"     index="1" />
+      <Point x="0.257202"   r="0"       g="0.929"   b="1"       a="0.5"     index="2" />
+      <Point x="0.5"        r="0.588"   g="0.741"   b="1"       a="0.5"     index="3" />
+      <Point x="0.740741"   r="0.647"   g="0.824"   b="1"       a="0.506"   index="4" />
+      <Point x="0.950617"   r="0.576"   g="0.765"   b="1"       a="0.5"     index="5" />
+      <Point x="1"          r="0.4"     g="0"       b="0"       a="0.506"   index="6" />
+   </BAW-Wsp>
+
+   <BAW-Evolution>
+      <Point x="0"          r="0"   g="0"       b="0.345"   a="1" index="0" />
+      <Point x="0.05"       r="0"   g="0"       b="1"       a="1" index="1" />
+      <Point x="0.26"       r="0"   g="1"       b="1"       a="1" index="2" />
+      <Point x="0.5"        r="1"   g="1"       b="1"       a="1" index="3" />
+      <Point x="0.738683"   r="1"   g="0.348"   b="0.348"   a="1" index="4" />
+      <Point x="0.950617"   r="1"   g="0"       b="0"       a="1" index="5" />
+      <Point x="1"          r="0.4" g="0"       b="0"       a="1" index="6" />
+   </BAW-Evolution>
+  </Colormaps>
+
+ </GLOBAL>
+
+</COCONFIG>

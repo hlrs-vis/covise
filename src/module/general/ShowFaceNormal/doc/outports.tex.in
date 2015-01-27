@@ -1,0 +1,22 @@
+
+\subsubsection{Output Ports}
+%================================================================================
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+	\textcolor{output}{points} & 
+		Points & 
+        The center of the polygon or the center of the first triangle of a triangle strip. \\
+\hline
+ 	\textcolor{output}{vectors} &
+		Unstructured\_V3D\_Normals & 
+        The normals of the polygon or the normal of the first triangle of a triangle strip. \\
+\hline
+\end{longtable}
+
+
+
+%================================================================================

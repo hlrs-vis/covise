@@ -1,0 +1,31 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+
+\begin{covimg}{}
+	{minmax_example}{covise/net/general/examples/MinMax.net}{0.6}\end{covimg}
+
+In this example the MinMax module is used to set the colormap for Colors module. 
+Thus the color of the resulting isosurface is chosen according to the value in
+relation to the min and max value of the whole data set. If the MinMax module were not
+used, the color would always be the same, independent from the current iso value.
+
+\begin{covimg2}{}{minmax_renderer}{0.7}\end{covimg2}
+
+In the plot window the distribution of the data values over the whole range can be seen.
+The NumBuck value is 50, so 50 different bars will be displayed.
+
+\begin{covimg2}{}{minmax_plot}{0.7}\end{covimg2}
+
+
+
+
+

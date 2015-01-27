@@ -1,0 +1,71 @@
+#VRML V2.0 utf8
+
+DEF scripting Script {
+   eventIn SFString key
+   eventIn SFString parameterChanged
+   eventOut SFString variantchoice
+   field SFNode myScript COVERScript {}
+
+   url "javascript:
+
+   var blockEvent = false;
+
+   function parameterChanged(parameter, time)
+   {
+      print(parameter);
+      var moduleID = parameter[0];
+      var name = parameter[1];
+      var value = parameter[2];
+      print(moduleID + ' ' + name + ' ' + value);
+      if (moduleID.indexOf('CuttingSurface_3') != -1)
+      {
+         if (blockEvent)
+            blockEvent = false;
+         else
+         {
+            blockEvent = true;
+            myScript.command = 'var value = covise.getParameterAsString(\'CuttingSurface_3_141.58.8.21\', \'scalar\');covise.setParameterFromString(\'CuttingSurface_4_141.58.8.21\', \'scalar\', value - 0.05);covise.executeModule(\'CuttingSurface_4_141.58.8.21\');'
+         }
+      }
+      else if (moduleID.indexOf('CuttingSurface_4') != -1)
+      {
+         if (blockEvent)
+            blockEvent = false;
+         else
+         {
+            blockEvent = true;
+            myScript.command = 'var value = covise.getParameterAsString(\'CuttingSurface_4_141.58.8.21\', \'scalar\');covise.setParameterFromString(\'CuttingSurface_3_141.58.8.21\', \'scalar\', value + 0.05);covise.executeModule(\'CuttingSurface_3_141.58.8.21\');'
+         }
+      }
+   }
+
+   function key(k, time)
+   {
+      print(k);
+      if (k == '1')
+      {
+         variantchoice  = 'cover.setVariant(\'v1\', true);cover.setVariant(\'v2\', false);cover.setVariant(\'blubb\', false);';
+         //myScript.command = blubb;
+      }
+      else if (k == '2')
+      {
+         variantchoice = 'cover.setVariant(\'v2\', true);cover.setVariant(\'v1\', false);cover.setVariant(\'blubb\', false);';
+      }
+      else if (k == '3')
+      {
+         variantchoice = 'cover.setVariant(\'blubb\', true);cover.setVariant(\'v2\', false);cover.setVariant(\'v1\', false);';
+      }
+   }
+
+
+   "
+}
+
+DEF scriptNode COVERScript {}
+
+ROUTE scripting.variantchoice TO scriptNode.command
+ROUTE scriptNode.coviseEventParameterChanged TO scripting.parameterChanged
+
+DEF myCOVER COVER {}
+
+ROUTE myCOVER.keyPressed TO	scripting.key

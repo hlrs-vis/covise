@@ -1,0 +1,113 @@
+IF(NOT COVISE_BUILD_DRIVINGSIM)
+  RETURN()
+ENDIF()
+
+USING(VTK optional)
+
+SET(HEADERS
+  RoadTerrainPlugin.h
+  LevelTerrainCallback.h
+  DecoratedGeometryTechnique.h
+  mtrand.h
+)
+SET(SOURCES
+  RoadTerrainPlugin.cpp
+  LevelTerrainCallback.cpp
+  DecoratedGeometryTechnique.cpp
+  mtrand.cpp
+)
+
+USING(XERCESC)
+
+COVISE_FIND_PACKAGE(V8)
+
+INCLUDE_DIRECTORIES(
+   ../../../DrivingSim/VehicleUtil
+   ../../../DrivingSim/gaalet/include
+   ${V8_INCLUDE_DIR}
+)
+
+COVISE_FIND_PACKAGE(osgTerrain)
+IF(NOT OSGTERRAIN_FOUND)
+  RETURN()
+ENDIF()
+
+IF(${OPENSCENEGRAPH_VERSION} VERSION_LESS "2.8.2")
+  RETURN()
+ENDIF()
+
+
+set(GDAL_DIR $ENV{EXTERNLIBS}/gdal)
+COVISE_FIND_PACKAGE(GDAL)
+
+COVISE_FIND_PACKAGE(FFTW)
+
+IF(NOT GDAL_FOUND)
+  RETURN()
+ENDIF()
+
+set(targetname RoadTerrain)
+
+ADD_DEFINITIONS(-DROADTERRAIN_PLUGIN -DIMPORT_PLUGIN)
+
+INCLUDE_DIRECTORIES(
+ ${GDAL_INCLUDE_DIR}
+ ${FFTW_INCLUDE_DIR}
+ ${ZLIB_INCLUDE_DIR}
+ ${JPEG_INCLUDE_DIR}
+ ${PNG_INCLUDE_DIR}
+ ${TIFF_INCLUDE_DIR}
+ ${OPENSCENEGRAPH_INCLUDE_DIRS}
+ "${COVISEDIR}/src/OpenCOVER"
+)
+
+ADD_LIBRARY(${targetname} SHARED ${ARGN} ${SOURCES} ${HEADERS})
+qt_use_modules(${targetname} Core)
+
+IF(APPLE)
+ ADD_COVISE_LINK_FLAGS(${targetname} "-undefined dynamic_lookup")
+ENDIF(APPLE)
+
+# SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
+SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
+SET_TARGET_PROPERTIES(${targetname} PROPERTIES VERSION "${COVISE_MAJOR_VERSION}.${COVISE_MINOR_VERSION}")
+
+COVISE_ADJUST_OUTPUT_DIR(${targetname} "OpenCOVER/plugins")
+
+# set additional COVISE_COMPILE_FLAGS
+SET_TARGET_PROPERTIES(${targetname} PROPERTIES COMPILE_FLAGS "${COVISE_COMPILE_FLAGS}")
+# set additional COVISE_LINK_FLAGS
+SET_TARGET_PROPERTIES(${targetname} PROPERTIES LINK_FLAGS "${COVISE_LINK_FLAGS}")
+
+
+set_target_properties(${targetname} PROPERTIES FOLDER "OpenCOVER_Plugins")
+  
+TARGET_LINK_LIBRARIES(${targetname} coOpenPluginUtil coOpenCOVER coOpenVRUI
+   coOSGVRUI ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_CONFIG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}) # ${CMAKE_THREAD_LIBS_INIT})
+
+UNSET(SOURCES)
+UNSET(HEADERS)
+
+
+TARGET_LINK_LIBRARIES( 
+   RoadTerrain
+   ${OSGTERRAIN_LIBRARIES}
+   ${GDAL_LIBRARIES}
+   ${FFTW_LIBRARIES}
+   coVRML
+   coOpenVehicleUtil
+)
+COVER_INSTALL_PLUGIN(RoadTerrain)
+
+#cover_add_plugin(
+#  RoadTerrain
+#  ${OSGTERRAIN_LIBRARIES}
+#  ${GDAL_LIBRARIES}
+#  coVRML
+#  coOpenVehicleUtil
+#)
+#COVISE_WNOERROR(RoadTerrain)
+
+#TARGET_LINK_LIBRARIES(RoadTerrain)
+
+#COVER_INSTALL_PLUGIN(RoadTerrain)

@@ -1,0 +1,32 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	calctype & choice & VELOCITY \newline P\_STATIC (static pressure)\newline  P\_TOTAL (total pressure)
+	\newline M (momentum)	\newline CP (pressure coefficient) \newline T\_STATIC (static temperature)
+	\newline T\_TOTAL (total temperature) \newline MACH (mach number) \\
+\hline   
+       gamma & float & ratio of specific heats\\
+\hline
+       cp & float & specific heat at constant pressure (not the pressure coefficient)\\
+\hline  
+       base & choice & Chooses which of the following reference bases is used. \\
+ \hline   
+       Tref & float & reference temperature\\
+\hline
+       cref & float & reference sound speed\\      
+    	
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

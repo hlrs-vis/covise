@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="OpenCOVER"
+ targetNamespace="http://www.hlrs.de/organization/vis/ac-opencover"
+ xmlns:tns="http://www.hlrs.de/organization/vis/ac-opencover"
+ xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:opencover="http://www.hlrs.de/organization/vis/ac-opencover"
+ xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
+ xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
+ xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/"
+ xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+<types>
+
+ <schema targetNamespace="http://www.hlrs.de/organization/vis/ac-opencover"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:opencover="http://www.hlrs.de/organization/vis/ac-opencover"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+  <import namespace="http://schemas.xmlsoap.org/soap/encoding/" schemaLocation="http://schemas.xmlsoap.org/soap/encoding/"/>
+  <complexType name="sendMessage">
+   <sequence>
+     <element name="message" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+   </sequence>
+  </complexType>
+  <complexType name="sendMessageResponse">
+   <sequence>
+   </sequence>
+  </complexType>
+  <element name="sendMessage" type="opencover:sendMessage"/>
+  <!-- operation response element -->
+  <element name="sendMessageResponse" type="opencover:sendMessageResponse"/>
+ </schema>
+
+</types>
+
+<message name="sendMessage">
+ <part name="parameters" element="opencover:sendMessage"/>
+</message>
+
+<message name="sendMessageResponse">
+ <part name="parameters" element="opencover:sendMessageResponse"/>
+</message>
+
+<portType name="ServiceSoap">
+ <operation name="sendMessage">
+  <documentation>Service definition of function __opencover__sendMessage</documentation>
+  <input message="tns:sendMessage"/>
+  <output message="tns:sendMessageResponse"/>
+ </operation>
+</portType>
+
+<binding name="OpenCOVER" type="tns:ServiceSoap">
+ <SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+ <operation name="sendMessage">
+  <SOAP:operation soapAction="http://www.hlrs.de/organization/vis/ac-opencover/sendMessage"/>
+  <input>
+     <SOAP:body parts="parameters" use="literal"/>
+  </input>
+  <output>
+     <SOAP:body parts="parameters" use="literal"/>
+  </output>
+ </operation>
+</binding>
+
+<service name="OpenCOVER">
+ <documentation>gSOAP 2.7.15 generated service definition</documentation>
+ <port name="OpenCOVER" binding="tns:OpenCOVER">
+  <SOAP:address location="http://localhost:32091/"/>
+ </port>
+</service>
+
+</definitions>

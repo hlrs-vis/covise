@@ -1,0 +1,26 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{meshOut} & Set\_Polygons & Reduced mesh \\
+\hline
+	\textcolor{depend}{dataOut} & Set\_Float
+                                   Set\_Vec3  & Data values  \\
+\hline
+	\textcolor{output}{normalsOut} & Set\_Vec3 & Normal vectors \\														
+%	....
+%	....
+ 
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

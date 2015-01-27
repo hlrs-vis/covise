@@ -1,0 +1,36 @@
+#VRML V2.0 utf8
+
+DEF keypress Script {
+   eventIn SFString key
+   eventOut SFString variantchoice
+   field SFNode myScript COVERScript {}
+   
+   url "javascript:
+
+   function key(k, time)
+   {
+      print(k);
+      if (k == '1')
+      {
+         variantchoice = 'cover.setVariant(\'v1\', true);cover.setVariant(\'v2\', false);cover.setVariant(\'blubb\', false);';
+         //myScript.command = blubb;
+      }
+      else if (k == '2')
+      {
+         variantchoice = 'cover.setVariant(\'v2\', true);cover.setVariant(\'v1\', false);cover.setVariant(\'blubb\', false);';
+      }
+      else if (k == '3')
+      {
+         variantchoice = 'cover.setVariant(\'blubb\', true);;cover.setVariant(\'v2\', false);cover.setVariant(\'v1\', false);';
+      }
+   }
+   "
+}
+
+DEF scriptNode COVERScript {}
+
+ROUTE keypress.variantchoice TO scriptNode.command
+
+DEF myCOVER COVER {}
+
+ROUTE myCOVER.keyPressed TO	keypress.key

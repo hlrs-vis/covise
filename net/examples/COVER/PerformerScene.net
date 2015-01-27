@@ -1,0 +1,93 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+2
+# Module PerformerScene
+PerformerScene
+1
+LOCAL
+IO_Module
+PerformerScene_1
+159
+76
+0
+1
+model
+Points
+Model
+default
+
+6
+modelPath
+Browser
+modelPath
+share/covise/example-data/Inventor/SgiLogo.iv
+
+1
+modelPath___filter
+BrowserFilter
+modelPath
+modelPath *.wrl;*.vrml;*.wrz;*.wrl.gz;*.WRL/*.ive;*.osg/*.iv/*.obj/*
+
+-1
+scale
+FloatScalar
+Scale factor
+-1.0
+
+-1
+backface
+Boolean
+Backface Culling
+FALSE
+
+-1
+orientation_iv
+Boolean
+Orientation of iv models like in Inventor Renderer
+FALSE
+
+-1
+convert_xforms_iv
+Boolean
+create Performer DCS nodes
+FALSE
+
+-1
+0
+# Module VRRenderer
+VRRenderer
+1
+LOCAL
+Renderer
+VRRenderer_3
+161
+187
+1
+RenderData
+Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres
+render geometry
+req
+
+0
+1
+Viewpoints
+Browser
+Viewpoints
+default.vwp
+
+-1
+0
+1
+PerformerScene
+1
+LOCAL
+model
+
+VRRenderer
+1
+LOCAL
+RenderData
+0

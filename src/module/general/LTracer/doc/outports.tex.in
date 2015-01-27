@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline output1 & Points\newline Lines & usually these are the points\\ \hline output2 & Points\newline Lines\newline Polygons\newline TriangleStrips & these are the lines/ribbons\\ \hline output3 & Vec3\newline Float & data output\\ \hline debugOut & UnstructuredGrid & debugging output\\ \hline debugDataOut & Float & debugging data output\\
+\hline \end{longtable}
+

@@ -1,0 +1,18 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  Sphere.cpp
+)
+
+SET(EXTRASOURCES
+  Sphere.h
+)
+
+USE_VTK(OPTIONAL)
+ADD_COVISE_MODULE(Tools Sphere ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(Sphere  coAlg coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(Sphere)

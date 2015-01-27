@@ -1,0 +1,160 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Module Selection</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#3333FF">Complex Modules</font></font></h2>
+Instead of using the Quickstart feature we recommend to use the Complex
+Modules (more comfortable) instead, if possible; e.g.&nbsp; you can use
+the <b>Complex Module</b> <b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../../online/modules/Filter/CuttingSurfaceComp/CuttingSurfaceComp.html">CuttingSurfaceComp</a></font></font></b>
+instead of the <b>module group <font face="Arial,Helvetica">CuttingSurface-Colors-Collect</font></b><font face="Arial,Helvetica">.</font>
+<p><font face="Arial,Helvetica">With Covise Rel. 5.2.4 you get 3 </font><b><font face="Times New Roman,Times"><font color="#3333FF"><font size=+1>Complex
+Modules</font></font></font></b><font face="Arial,Helvetica">:</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../../online/modules/Filter/CuttingSurfaceComp/CuttingSurfaceComp.html">CuttingSurfaceComp</a></font></font></b></li>
+
+<li>
+<b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../../online/modules/Mapper/IsoSurfaceComp/IsoSurfaceComp.html">IsoSurfaceComp</a></font></font></b></li>
+
+<li>
+<b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../../online/modules/Tracer/TracerComp/TracerComp.html">TracerComp</a></font></font></b></li>
+</ul>
+These 3 Complex Modules provide the functionality of the base module (CuttingSurface,
+IsoSurface, Tracer) plus additional modules (like Colors, Collect) that
+are typically used in a group with the base module;&nbsp; the complex modules
+can be directly connected to the renderer module (see table below).
+<br>&nbsp;
+<table BORDER WIDTH="88%" >
+<tr>
+<td ALIGN=CENTER><b><font size=+1>Complex Module</font></b></td>
+
+<td ALIGN=CENTER><b><font size=+1>New Example Map</font></b></td>
+
+<td ALIGN=CENTER VALIGN=CENTER><b><font size=+1>Replaces</font></b></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>
+<br><b>CuttingSurfaceComp</b>
+<p>equivalent to
+<ul>
+<li>
+<b>CuttingSurface -&nbsp;</b></li>
+
+<br><b>- Colors -&nbsp;</b>
+<br><b>- Collect</b>
+<br>(for scalar data&nbsp;
+<br>- see example maps)
+<br>&nbsp;
+<li>
+<b>CuttingSurface -&nbsp;</b></li>
+
+<br><b>- VectorField&nbsp;</b>
+<br><b>- Colors&nbsp;</b>
+<br><b>- Collect</b>
+<br>(for vector data)</ul>
+</td>
+
+<td ALIGN=CENTER><img SRC="press_1_new_map_80.gif" height=271 width=254></td>
+
+<td ALIGN=CENTER><img SRC="press_1_map_80.gif" height=347 width=253></td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td ALIGN=CENTER><b>tutorial_press_1_new.net</b></td>
+
+<td ALIGN=CENTER><b>tutorial_press_1.net</b></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>
+<br><b>IsoSurfaceComp</b>
+<p>equivalent to
+<ul>
+<li>
+<b>IsoSurface -&nbsp;</b></li>
+
+<br><b>- Colors -</b>
+<br><b>- Collect</b>
+<br>(for scalar data&nbsp;
+<br>- see example maps)</ul>
+
+<ul>
+<li>
+<b>IsoSurface -&nbsp;</b></li>
+
+<br><b>- VectorField -&nbsp;</b>
+<br><b>- Colors -&nbsp;</b>
+<br><b>- Collect</b>
+<br>(for vector data)</ul>
+</td>
+
+<td ALIGN=CENTER><img SRC="pressure_2_new_map_80.gif" height=285 width=258></td>
+
+<td ALIGN=CENTER><img SRC="press_2_net_80.gif" height=330 width=311></td>
+</tr>
+
+<tr>
+<td>
+&nbsp;
+</td>
+
+<td ALIGN=CENTER VALIGN=TOP><b>tutorial_press_2_new.net</b></td>
+
+<td ALIGN=CENTER VALIGN=TOP><b>tutorial_press_2.net</b></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>
+<br><b>TracerComp</b>
+<br>&nbsp;
+<p>equivalent to&nbsp;
+<ul>
+<li>
+<b>Tracer -</b></li>
+
+<br><b>- Sphere -</b>
+<br><b>- Colors -</b>
+<br><b>- Collect&nbsp;</b>
+<br>(for animated particles&nbsp;
+<br>&nbsp;- see example maps)</ul>
+</td>
+
+<td ALIGN=CENTER><img SRC="vel_2_new_map_80.gif" height=252 width=254></td>
+
+<td ALIGN=CENTER><img SRC="vel_2_map_80.gif" height=366 width=246></td>
+</tr>
+
+<tr>
+<td>&nbsp;&nbsp;</td>
+
+<td ALIGN=CENTER><b>tutorial_vel_2_new.net</b></td>
+
+<td ALIGN=CENTER><b>tutorial_vel_2.net</b></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<table COLS=1 WIDTH="88%" BGCOLOR="#FFCCCC" >
+<tr>
+<td>Please note:
+<br>The Colors module is used to specify a colormap (explicitly); the mapping
+of data to colors is done by using the functions of 'Colors' implicitly
+in the complex module!</td>
+</tr>
+</table>
+
+<p>(for more information about complex modules and example maps see <a href="../../online_doc/Tutorial/start/start_3DData.html" target="_top">COVISE
+Tutorial, Analysis of 3D Data</a> and <a href="../mod_overview.html">Module
+Reference Guide</a>)
+</body>
+</html>

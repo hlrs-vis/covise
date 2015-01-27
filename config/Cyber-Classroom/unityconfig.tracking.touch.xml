@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<UnityVRConfig xmlns:xi="http://www.w3.org/2003/XInclude">
+	<Devices> 
+		<Device type="vrcemu">
+			<Offset x="0.0" y="0.0" z="1.25" h="0.0" p="0.0" r="0.0"/>
+		</Device> 
+		<!-- <Device type="KeyboardMouse"/> -->
+	</Devices>	
+</UnityVRConfig>

@@ -1,0 +1,47 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        \textcolor{required}{dataIn} 
+& 
+UnstructuredGrid \newline
+UniformGrid \newline
+Unstructured\_2D\_Data \newline
+Points \newline
+Float \newline
+Float \newline
+Vec3 \newline
+Vec3 \newline
+Unstructured\_T3D\_Data \newline
+Polygons \newline
+Lines \newline
+IntArr \newline
+RGBA\_Colors \newline
+Text \newline
+ColorMap \newline
+Unstructured\_V3D\_Colors \newline
+Unstructured\_V3D\_Normals 
+&   
+Object for which we want to create a report file.
+         \\
+%\hline
+%        \textcolor{optional}{inp2} & type & text  \\
+
+
+%       ....
+%       ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

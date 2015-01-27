@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  SelectUsg.cpp
+)
+
+SET(EXTRASOURCES
+  SelectUsg.h
+)
+
+ADD_COVISE_MODULE(Filter SelectUsg ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(SelectUsg  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(SelectUsg)

@@ -1,0 +1,62 @@
+<cloud opaque="true">
+
+  <uniform name="Time" type="int" value="0"/>
+  <uniform name="Scale" type="float" value="0.001"/>
+  <uniform name="Noise" type="sampler3D" value="1" overwrite="true" texture="textures/noise.jpg"/>
+  <uniform name="SkyColor" type="vec3" value="0.0 0.0 0.8"/>
+  <uniform name="CloudColor" type="vec3" value="0.8 0.8 0.8"/>
+  <uniform name="LightPos" type="vec3" value="10.0 0.0 0.0"/>
+  
+  
+  
+  <vertexProgram>
+  
+  
+  varying float LightIntensity;
+  varying vec3  MCposition;
+  
+  uniform vec3  LightPos;
+  uniform float Scale;
+  
+  void main(void)
+  {
+     // gl_TexCoord[0] = gl_MultiTexCoord0;
+      gl_Position     = ftransform();
+      vec4 ECposition = gl_ModelViewMatrix * gl_Vertex;
+      MCposition      = vec3 (gl_Vertex) * Scale;
+      vec3 tnorm      = normalize(vec3 (gl_NormalMatrix * gl_Normal));
+      LightIntensity  = dot(normalize(LightPos - vec3 (ECposition)), tnorm) * 0.5;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+  
+  }
+
+  </vertexProgram>
+  <fragmentProgram>
+   
+   
+   varying float LightIntensity; 
+   varying vec3  MCposition;
+   uniform int  Time;
+   uniform sampler3D Noise;
+   vec3 Offset = vec3(0,0,0);
+   uniform vec3 SkyColor;    
+   uniform vec3 CloudColor;   
+   
+   void main (void)
+   {  
+     float offset = float(Time) *0.0001;
+     Offset = vec3(-offset,offset,offset); // uncomment this line for animation
+     vec4  noisevec  = texture3D(Noise, MCposition + Offset);  
+     float intensity = (noisevec[0] + noisevec[1] + 
+                        noisevec[2] + noisevec[3] + 0.03125) * 0.3;         
+     vec3 color   = mix(SkyColor, CloudColor, intensity) * LightIntensity;  
+     color  = clamp(color, 0.0, 1.0); 
+     gl_FragColor = vec4 (color, 1.0);
+    
+   }
+   
+
+  </fragmentShader>
+</cloud>

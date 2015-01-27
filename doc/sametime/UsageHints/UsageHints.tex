@@ -1,0 +1,247 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Usage Hints}
+\label{Usage Hints}
+%=============================================================
+
+As a first step you will find below the short User's Guide that developed as part 
+of the EU project ENScube and that can be used as a kind of checklist.
+
+As a second step you get a reference where to find additional and more detailed user information.
+
+\section{Simplified User Guide}
+
+\begin{Large}{\bf Prepare your meeting}\end{Large}
+
+{\bf Define a detailed agenda:}
+
+\begin{itemize}
+\item Date, time and duration
+\item List of participants
+\item Meeting room
+\item Topics to be discussed / supporting documents / who provides the documents ?
+\item Chairperson
+\end{itemize}
+
+{\bf Transfer the documents and data:}
+\vspace{0.5cm}
+
+
+\begin{Large}{\bf Join the meeting}\end{Large}
+
+{\bf Open your desktop on the PC}
+
+\begin{itemize}
+\item Ctrl + Alt + Del
+\item Username
+\item Password
+\end{itemize}
+
+{\bf Join the meeting}
+
+\begin{itemize}
+\item Display the meeting place portal:	click the icon (lower right)
+\item Username
+\item Password
+\item Room
+\end{itemize}
+\vspace{0.5cm}
+
+
+\begin{Large}{\bf Can you hear me ? - AUDIO}\end{Large}
+
+\begin{itemize}
+\item Check carefully that the audio quality is good for each collaborator. Set the microphones and speakers/headsets level.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\begin{Large}{\bf Can you see me ?	 - VIDEO}\end{Large}
+
+\begin{itemize}
+\item Check your camera is correctly focused
+\end{itemize}
+
+{\bf See your collaborators}
+
+\begin{itemize} 
+\item Switch to collaborators video:	select ??? in the menu "users" below the video. 
+\item Confirm using the audio that you can see your collaborator; comment on the quality of the video.
+\end{itemize}
+\vspace{0.5cm}
+
+\begin{Large}{\bf Application Sharing}\end{Large}
+
+{\bf Prepare the document}
+
+{\bf Share the document}
+
+\begin{itemize}
+\item Ask your collaborator what they can see
+\end{itemize}
+
+{\bf Allow control to collaborators}
+
+{\bf Take control}
+
+\begin{itemize}
+\item Ask for control and wait for the agreement of the chairperson
+\end{itemize}
+
+{\bf Switch to a new document}
+
+{\bf Recommendations:}
+
+\begin{itemize}	
+\item Normally, the first part of the meeting, once the Audio/Video is correctly set, 
+is to check collaboratively the Agenda: the Agenda is shared by the chairperson.
+\end{itemize} 
+
+\begin{Large}{\bf Whiteboard}\end{Large}
+
+{\bf Recommendations:}
+
+\begin{itemize}	
+\item use different colors, one for each partner
+\item wait your collaborator is done before adding something
+\item the chairperson organize the use of the whiteboard: who can take hand ...
+\end{itemize}
+\vspace{0.5cm}
+
+\begin{Large}{\bf Collaborative visualization}\end{Large}
+
+{\bf Start the collaborative visualization}
+
+{\bf Basic manipulations (Renderer)}
+
+\begin{longtable}{|p{5cm}|p{8.5cm}|}
+\hline
+        Translate the view &  {\it Click and drag middle mouse} \\
+\hline
+	Rotate the view 
+	&  {\it Rotx toggle OR Roty toggle OR click and drag left mouse} \\
+\hline
+	Zoom in/out the view & {\it Dolly toggle}  \\
+\hline
+        Zoom on one detail &   \\
+\hline
+	View all objects &   \\
+\hline
+	Retrieve the original view &   \\														
+\hline
+	 Pointer (with machine name)\newline
+	 ({\bf Telepointer}) 
+	 &  {\it Press Shift on your keyboard and move your mouse} \\	
+\hline
+\end{longtable}
+
+
+{\bf Exchange control (Master/Slave)}
+
+{\bf Stop the collaborative visualization}
+
+
+{\bf Recommendations:}
+
+\begin{itemize}	
+\item Stop your application sharing to free bandwidth
+\end{itemize}
+
+\vspace{0.5cm}
+
+\begin{Large}{\bf Close the meeting}\end{Large}
+\vspace{0.5cm}
+
+\begin{Large}{\bf Exchange the documents}\end{Large}
+\vspace{0.5cm}
+
+\begin{Large}{\bf Procedures to solve technical difficulties}\end{Large}
+\vspace{0.5cm}
+
+
+\section{Sametime User's Guide}
+
+\begin{htmlonly}N'S³\end{htmlonly}\latexonly N'S$^3$\endlatexonly (Conference
+Room Interface) uses Sametime from IBM Lotus, and the
+information provided in this document is based on the Sametime documentation. If you 
+have problems/questions beyond the scope of this document you can refer to the IBM
+Lotus website: \begin{verbatim}/http: //www.lotus.com/\end{verbatim} 
+
+You will get there following documents
+\begin{itemize}
+\item Lotus Sametime - Quick Start Guide
+\item Lotus Sametime - User's Guide
+\end{itemize}
+
+\vspace{0.5cm}
+
+\begin{itemize}
+\item Use \begin{verbatim}Products > Sametime > Demos & Trials > Quick Start Guide
+\end{verbatim} to get Quick Start Guide or User's Guide as .pdf file   
+\end{itemize}
+
+\begin{itemize}
+\item Use \begin{verbatim}Products > Sametime > Demos & Trials > Demo Site 
+\end{verbatim} to get Quick Start Guide or User's Guide online
+\end{itemize}
+
+
+%\section{S3}
+
+
+%\begin{covimg}{UsageHints}{imagename}{caption}{0.7}\end{covimg}
+%\begin{htmlonly}
+%Figure x.x: caption for html
+%\vspace{0.5cm}
+%\end{htmlonly}

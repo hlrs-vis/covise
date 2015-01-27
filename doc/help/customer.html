@@ -1,0 +1,79 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>ModuleDescriptions</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h1>
+<font face="Times New Roman,Times"><font color="#009900"><font size=+4>Customer
+Module Reference Guide</font></font></font></h1>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">This list contains the names of all customer
+specific modules together with a short description and a link to the complete
+documentation.</font></li>
+
+<li>
+<font face="Arial,Helvetica">You can get a printable description using
+'make customerguide' (.pdf file).</font></li>
+</ul>
+
+<ul><font face="Arial,Helvetica"><a href="../online/modules/Customer/ControlSCA/ControlSCA.html">ControlSCA</a></font>
+<p>The main purpose of this module consists in providing other modules
+with the information they need. In order to fulfill this task, the module
+basically packs the values of several related parameters in the form of
+DO_Text objects, sometimes furnished with apposite attributes, which are
+interpreted by other modules.
+<p><font face="Arial,Helvetica"><a href="../online/modules/Customer/Design/Design.html">Design</a></font>
+<p>The main purpose of this module consists in showing an area of the metal
+tool used in the embossing procedure as large as a paper sheet.
+<p><font face="Arial,Helvetica"><a href="../online/modules/Customer/Embossing/Embossing.html">Embossing</a></font>
+<p>Embossing uses the bump geometries saved in the bump database in order
+to generate a mesh for a whole paper sheet or a paper roll. In the latter
+case a flat, but longer geometry is generated; other modules are required
+in order to produce a roll. Embossing basically runs an ANSYS script in
+order to produce a mesh for a basic cell. This mesh is saved in an ANSYS
+db file, zugmesh.db, which is in its turn read in by the script started
+by the Traction module, when a traction simulation is later eventually
+requested.
+<p><font face="Arial,Helvetica"><a href="../online/modules/Customer/EmbossingSimulation/EmbossingSimulation.html">EmbossingSimulation</a></font>
+<p>EmbossingSimulation&nbsp; takes care that the Embossing module may always
+find the data it needs. The purpose of this module is the visualisation
+of a roll or sheet of paper. This visualisation requires a geometric description
+of paper bumps, which in turn is the output of an LS-DYNA simulation. This
+computation is in general time-consuming, and that is why the output of
+these simulations should be stored in a database. EmbossingSImulation checks
+whether the results for the bump at issue are already available in the
+database. If they are not an LS-DYNA simulation is started and its output
+is saved in the database. The preprocessing for the LS-Dyna is done with
+ANSYS.
+<p><font face="Arial,Helvetica"><a href="../online/modules/Customer/KnobShape/KnobShape.html">KnobShape</a></font>
+<p>KnobShape produces a simplified but quite realistic representation of
+the geometry of a knob.
+<p><font face="Arial,Helvetica"><a href="../online/modules/Customer/MergeAndNormals/MergeAndNormals.html">MergeAndNormals</a></font>
+<p>MergeAndNormals corrects a field of normal vectors calculated by GenNormals.
+GenNormals does not correctly work out the normals if the connectivity
+of the polygon object is not seamless. This is unfortunately the case at
+issue. Here the seams appear between neighbouring basic cells. FixUsg might
+correct this problem, but this solution would not be acceptable because
+the computation of FixUsg is very time-consuming. MergeAndNormals may be
+much faster than FixUsg because it directly looks for the places where
+seams are present, and instead of eliminating them the <i>wrong</i> normal
+values are corrected.
+<p><font face="Arial,Helvetica"><a href="../online/modules/Customer/Traction/Traction.html">Traction</a></font>
+<p>Traction starts an ANSYS traction simulation. The ANSYS script file
+name is zug_driver.log. This script applies on a basic cell a force directed
+along the X axis. The applied force is such that the force per unit length
+has the value 1 in the system of units employed. The value itself is not
+very relevant, because we are looking for the traction resistance loss.
+This number appears in percent in the info message window.
+<br>&nbsp;</ul>
+
+<blockquote>&nbsp;</blockquote>
+
+</body>
+</html>

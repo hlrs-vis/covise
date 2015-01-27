@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline meshIn & UnstructuredGrid\newline UniformGrid\newline StructuredGrid\newline RectilinearGrid & input mesh\\ \hline dataIn & Float\newline Vec3\newline Float\newline Vec3 & input data\\ \hline isoDataIn & Float\newline Float & Data for isolines\\ \hline isoMinMaxIn & MinMax\_Data & MinMax values for isolines\\
+\hline \end{longtable}
+

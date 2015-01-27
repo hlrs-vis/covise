@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+ <LOCAL host="visar,visar2,vispro2,visbits,visavis" >
+
+  <COVER>
+   <WindowConfig>
+    <Window width="1280" window="0" pipeIndex="0" left="0" height="1024" bottom="0" comment="FRONT" name="0" decoration="false" />
+   </WindowConfig>
+   <ChannelConfig>
+    <Channel width="1280" height="1024" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="MONO"  windowIndex="0"  name="0"  />
+   </ChannelConfig>
+   <ViewerPosition x="0.0" y="-975.0" z="0.0" />
+   <ScreenConfig>
+    <Screen width="1280" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1024" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="1280" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1024" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+   <Far value="100000" />
+   <Near value="100" />
+   <Menu>
+    <Orientation h="0" p="0" r="0" />
+    <Position x="0" y="-0" z="0" />
+   </Menu>
+   <Background g="0" r="0" b="0" />
+   <HMD mode="OFF" angle="60.0" />
+
+   <Plugin>
+
+    <ARToolKit value="ON">
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <Freeze value="ON" />
+     <AdjustCameraParameter value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="OFF" />
+     <FlipHorizontal value="FALSE" />
+     <FlipBufferH value="FALSE" />
+     <FlipBufferV value="FALSE" />
+     <VideoConfig value="c:\data\WDM_camera_IDS.xml" />
+     <!--VideoConfig value="-dev=/dev/video1394-0 -mode=1024x768_RGB -balanceU=63 -balanceV=20 -debug -channel=0 -ID=0x00b09d01002f522b -rate=7.5" /-->
+     <VideoConfigRight value="-mode=1024x768_COLOR -ID=0x00b09d01002f522a -channel=1 -debug -rate=7.5" />
+     <MirrorRight value="OFF" />
+     <Threshold value="100" />
+     <!-- Camera value="/data/ARToolKit/cctv_para.dat" /-->
+     <!-- Camera value="/data/ARToolKit/dragonfly.dat" /-->
+     <Camera value="/data/ARToolKit/ueye_calib.dat" />
+
+     <Marker name="ViewpointMarker" >
+      <Pattern value="/data/ARToolKit/patt.hiro" />
+      <Size value="80" />
+      <Offset x="0" y="0" h="0" z="0" p="0" t="0" />
+     </Marker>
+
+     <!-- Calibration marker -->
+     <Marker name="calibMarker" >
+      <Pattern value="/data/ARToolKit/4x4_93.patt" />
+      <Size value="177" />
+      <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+      <VrmlToPf value="FALSE" />
+     </Marker>
+ 
+
+    </ARToolKit>
+
+   </Plugin>
+
+  <Input>
+ 
+   <ButtonSystem value="MOUSE" />
+   <TrackingSystem value="FaroArm" />
+   <DebugButtons value="TRUE" />
+   <HeadAddress value="1" />
+   <HandAddress value="2" />
+   
+   <!--WorldXFormAddress value="0" /-->
+   <CameraAddress value="0" />
+   <HMDAddress value="4" />
+   
+   <ButtonAddress value="2" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+   <DebugStation value="0" />
+   <DebugTracking value="NONE" />
+   
+   <TrackingSystem> 
+    <Offset x="0" y="0" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </TrackingSystem>
+   
+   <HeadDevice>   
+    <Offset x="0" y="0" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HeadDevice>
+   
+   <HandDevice>     
+    <Offset x="10000" y="0" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HandDevice>
+   
+   <HMDDevice>     
+    <Offset x="0" y="0" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HMDDevice>
+   
+   <CameraDevice>     
+    <Offset x="0" y="0" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </CameraDevice>
+            
+   <ObjectDevice>     
+    <Offset x="0" y="0" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </ObjectDevice>
+   
+  <ButtonConfig>
+   <ButtonDevice value="TarsusMouse" />
+  </ButtonConfig>  
+
+  <DTrack>
+   <Startup value="141.58.8.239:5001" />
+  </DTrack>  
+
+  <Faro>
+   <ReferencePoint0 x="0" y="0" z="0" />
+   <ReferencePoint1 x="1" y="0" z="0" />
+   <ReferencePoint2 x="0" y="1" z="0" />
+  </Faro>
+
+  </Input>
+
+  </COVER>
+
+ </LOCAL>
+
+
+ <INCLUDE configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+</COCONFIG>

@@ -1,0 +1,308 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Control Panel</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+<font face="Times New Roman,Times"><font color="#3333FF"><font size=+2><b>Control
+Panel</b> (Mapeditor index card)</font></font></font>
+<p><font face="Arial,Helvetica">The <b>Control Panel</b> is created when
+COVISE starts; switch to this index card by clicking on the corresponding
+entry. Its purpose is the collection of graphical interactors which typically
+represent often used and changed parameters.</font>
+<p><font face="Arial,Helvetica">Parameters are loaded as <b>parameter interactors</b>
+(see below) to the Control Panel</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">by default if requested by a specific module
+or</font></li>
+
+<li>
+<font face="Arial,Helvetica">explicitly if you map a parameter definition
+from page 1 of&nbsp; <a href="map_modinfo.html">Module Information</a>
+window to a parameter interactor in the Control Panel via the button at
+the left of the parameter name (click again if you want to remove it)</font></li>
+</ul>
+
+<br>&nbsp;
+<table WIDTH="73%" >
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><img SRC="newctrlpanel.gif" height=600 width=500></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><b>Map Editor - Control Panel index card</b></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">Panel contains examples for scalar, vector,
+boolean, and choice parameters&nbsp; (DomainSurface) and a scalar parameter
+(Colors)</font>
+<br>&nbsp;
+<p><font face="Arial,Helvetica">Mapping of parameters from Module Setup
+to Control Panel allows you to close the Module Information window if not
+needed otherwise.</font>
+<p><font face="Arial,Helvetica">The default mapping (<b>left</b> mouse
+button) of parameters to parameter interactors in the Control Panel looks
+as follows (proposed delta values are ignored):</font>
+<br>&nbsp;
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="99%" BGCOLOR="#CCCCCC" >
+<tr>
+<td><b><font face="Arial,Helvetica">Scalar</font></b></td>
+
+<td><font face="Arial,Helvetica">scalar value</font>
+<br><font face="Arial,Helvetica">(+ proposed delta value)</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td><font face="Arial,Helvetica"><b>string</b> containing scalar<b> </b>value</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">String</font></b></td>
+
+<td><font face="Arial,Helvetica">string</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td><font face="Arial,Helvetica">string</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Vector</font></b></td>
+
+<td><font face="Arial,Helvetica">triple of scalar values</font></td>
+
+<td><font face="Arial,Helvetica">to&nbsp;</font></td>
+
+<td><font face="Arial,Helvetica">triple of strings containing scalar values</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Boolean</font></b></td>
+
+<td><font face="Arial,Helvetica">ON/OFF switch for TRUE|FALSE</font></td>
+
+<td><font face="Arial,Helvetica">to&nbsp;</font></td>
+
+<td><font face="Arial,Helvetica">ON/OFF switch</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Choice</font></b></td>
+
+<td><font face="Arial,Helvetica">choice menu</font></td>
+
+<td><font face="Arial,Helvetica">to&nbsp;</font></td>
+
+<td><b><font face="Arial,Helvetica">choice menu</font></b></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Slider</font></b></td>
+
+<td><font face="Arial,Helvetica">triple of values (min, max, actual)</font>
+<br><font face="Arial,Helvetica">(+ proposed delta value)</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td><font face="Arial,Helvetica">string with min value,&nbsp;</font>
+<br><font face="Arial,Helvetica"><b>slider</b> with actual value,&nbsp;</font>
+<br><font face="Arial,Helvetica">string with max value</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Browser</font></b></td>
+
+<td><font face="Arial,Helvetica">book icon / filename&nbsp;</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td BGCOLOR="#CCCCCC"><b><font face="Arial,Helvetica">book icon / text
+string</font></b></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">For scalar, slider, and choice you have
+additional possibilities; if you use the <b>right</b> mouse button, one
+of the&nbsp; choice menus below allows you select an <b>appearance type</b></font>
+<br>&nbsp;
+<table BORDER CELLSPACING=0 CELLPADDING=5 COLS=3 WIDTH="99%" BGCOLOR="#CCCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">for <b>Scalar</b>:</font></td>
+
+<td><font face="Arial,Helvetica">for <b>Slider</b>:</font></td>
+
+<td><font face="Arial,Helvetica">for <b>Choice</b>:</font></td>
+</tr>
+
+<tr VALIGN=TOP>
+<td><font face="Arial,Helvetica">String</font>
+<br><font face="Arial,Helvetica">Player</font></td>
+
+<td><font face="Arial,Helvetica">Slider</font>
+<br><font face="Arial,Helvetica">Sequencer</font></td>
+
+<td BGCOLOR="#CCCCCC"><font face="Arial,Helvetica">Choice Menu</font>
+<br><font face="Arial,Helvetica">Combobox</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">The first item of the appearance menu gives
+you the default, the <b>additional</b> possibilities are:</font>
+<br>&nbsp;
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="100%" BGCOLOR="#CCCCCC" >
+<tr>
+<td><b><font face="Arial,Helvetica">Scalar</font></b></td>
+
+<td><font face="Arial,Helvetica">scalar value</font>
+<br><font face="Arial,Helvetica">(+ proposed delta value)</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td><font face="Arial,Helvetica"><b>player </b>with actual value, delta
+as increment/decrement)&nbsp;</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Slider</font></b></td>
+
+<td><font face="Arial,Helvetica">triple of values (min, max, actual) (+
+proposed delta)</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td><font face="Arial,Helvetica"><b>seqencer </b>with actual = value, delta
+as increment/decrement, min and max used as boundaries</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Choice</font></b></td>
+
+<td><font face="Arial,Helvetica">choice menu<b> </b>(button as entry to
+list of choices)</font></td>
+
+<td><font face="Arial,Helvetica">to</font></td>
+
+<td><font face="Arial,Helvetica"><b>combobox</b> (actual choice with arrow
+pointing to list of choices</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica"><u>Notes</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td>
+<br><font face="Arial,Helvetica">If you try the right mouse button for
+other parameters than scalar, slider, or choice&nbsp; you get: There is
+no appearance menu for this parameter!</font>
+<br>&nbsp;
+<p><font face="Arial,Helvetica">If you select spinbox in the appearance
+menu for a a float scalar, you get: Paneltype not supported for float values.</font>
+<br>&nbsp;</td>
+</tr>
+
+<tr>
+<td>
+<br><font face="Arial,Helvetica">The MapEditor suggests you a delta value,
+but normally you will have to adjust it depending on your data.</font></td>
+</tr>
+
+<tr>
+<td>
+<br><i>For Collaborative Working only</i> - please observe the following
+restrictions for scalar/slider parameters if their appearance type has
+been changed to player/sequencer:
+<ul>
+<ul>
+<li>
+a player/sequencer will be stopped if you transfer control to the slave</li>
+
+<li>
+the "delta value" will not be transferred to the slave; so if you don't
+like the default value you have to explicitly set delta at the slave again</li>
+
+<br>&nbsp;</ul>
+</ul>
+</td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica"><b>Slider parameter</b> (mapped as slider
+and as player):</font>
+<p><img SRC="cslider1.gif" height=37 width=368>
+<p><img SRC="cslider2.gif" height=37 width=412>
+<p><font face="Arial,Helvetica"><b>Choice parameter</b> (mapped as choice
+menu and as combobox ):</font>
+<p><img SRC="cchoice2.gif" BORDER=0 height=54 width=365>
+<p><img SRC="cchoice1.gif" BORDER=0 height=39 width=413>
+<p><font face="Arial,Helvetica"><u>Notes</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="99%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Player and sequencer have the same appearance,
+but whereas the player works w/o limits, the sequencer uses the min and
+max values as limits.&nbsp;</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">Browser parameter: If you have selected
+modules before and not used predefined maps, the browser window has already
+come up automatically with the module.</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">The <b>name of the module </b>is copied
+to the Control Panel with the first parameter interactor. Together with
+the modul name you get three <b>additional icons:</b></font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Exec</b> (&nbsp;<img SRC="exec.gif" height=16 width=16>
+icon) to execute the map starting with this module</font></li>
+
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Same function provided by&nbsp;</font>
+<br><font face="Arial,Helvetica"><b>Exec</b> from '<b>Further Actions</b>'
+menu (<a href="map_modwork.html">Working with Modules)</a></font>
+<br><font face="Arial,Helvetica"><b>Execute</b> from the <b><a href="map_modinfo.html">Module
+Information</a></b> window&nbsp;</font></td>
+</tr>
+</table>
+
+<li>
+<font face="Arial,Helvetica"><b>Info</b> (&nbsp;<img SRC="book.gif" height=14 width=16>
+resp.&nbsp;<img SRC="bookopen.gif" height=14 width=16> icon) to get the
+<a href="map_modinfo.html">Module
+Information</a> window (if you like to see Module Information and Control
+Panel in parallel)</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Collapse/Expand parameter window for this
+module</b> (&nbsp;<img SRC="folder.gif" height=16 width=16> resp.&nbsp;<img SRC="folder_open.gif" height=16 width=16>
+icon) to show parameter name(s) only or to show parameter(s) plus interactor(s)</font></li>
+</ul>
+<font face="Arial,Helvetica">The <b>bottom line</b> of the Control Panel
+provides three <b>additional functions:</b></font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Execute All</font></b></li>
+
+<br><font face="Arial,Helvetica">Execute the whole map</font>
+<li>
+<font face="Arial,Helvetica"><b>Execute OnChange </b>sets <b>OnChange</b>
+in the menu item
+<a href="map_exec.html">Execution</a> - initiates execution
+after every single parameter change.</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">Help (see this window)</font></b></li>
+</ul>
+<font face="Arial,Helvetica">To switch back to the Visual Programming index
+card (or to the COVISE Objects index card) just click on the corresponding
+register entry!</font>
+</body>
+</html>

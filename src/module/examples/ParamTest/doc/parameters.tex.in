@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline stringImm & String & Immediate string\\ \hline boolImm & Boolean & Immediate coBooleanParam\\ \hline iScalImm & Scalar & Immediate coIntScalarParam\\ \hline fScalImm & Scalar & Immediate coFloatScalarParam\\ \hline iSlidImm & Slider & Immediate coIntSliderParam\\ \hline fSlidImm & Slider & Immediate coFloatSliderParam\\ \hline fVectImm & Vector & Immediate coFloatVectorParam\\ \hline myFile & Browser & a file browser\\ \hline my2File & Browser & a file browser\\ \hline choImm & Choice & Nun auch noch Choices\\
+\hline \end{longtable}
+

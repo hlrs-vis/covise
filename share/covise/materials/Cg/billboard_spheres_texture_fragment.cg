@@ -1,0 +1,102 @@
+struct vertout
+{
+   float4 color0    : COLOR0;
+   float4 color1    : COLOR1;
+   float4 texcoord0 : TEXCOORD0;
+   float4 texcoord1 : TEXCOORD1;
+
+   float4 xvector:TEXCOORD2;
+   float4 yvector:TEXCOORD3;
+   float4 zvector:TEXCOORD4;
+   float4 lightVect:TEXCOORD5;
+   float4 viewerVect:TEXCOORD6;
+};
+
+struct pixelOut
+{
+   float4 color  : COLOR;
+   float depth   : DEPTH;
+};
+
+//-----------------------------------------------------------------------------
+// IN             - incoming per-vertex data to be processed
+//
+// Note: Only the x and y components of texcoord0 are valid, the z and w 
+//       components contain hidden information. The z component identifies
+//       which vertex of the billboard's quad is currently being processed and 
+//       the w component carries a scaling factor for sizing the billboard.
+//-----------------------------------------------------------------------------
+
+pixelOut main( vertout IN,
+            const uniform float4 lightAmbient,
+            const uniform float4 lightDiffuse,
+            const uniform float4 lightSpecular,
+            const uniform sampler2D texture
+)
+
+{
+   pixelOut OUT;
+
+   //_________________calculating depth_____________//
+
+   float depthVal = -IN.texcoord1.x;
+   float z = (IN.texcoord0.z *  depthVal) + IN.texcoord0.w;
+   float w = (IN.texcoord1.z *  depthVal) + IN.texcoord1.w;
+
+   // setting output depth
+   OUT.depth = z/w; //*0.5 + 0.5 <-- conversion is prepared by vertex program
+   
+   //____________________lighting___________________//
+   float4 lightVect = IN.lightVect;
+
+   // object light properties
+   float objectAmbient = 0.9;
+   float objectDiffuse = 0.9;
+   float objectSpecular = 0.8;
+
+   // generating the inverse transpose billboard matrix
+   // (r u v) r = right vector
+   // (r u v) u = up vector
+   // (r u v) v = look at vector
+   // inverse transpose = original matrix
+   float3x3 billboardMat;
+   billboardMat._m00_m10_m20=IN.xvector.xyz;
+   billboardMat._m01_m11_m21=IN.yvector.xyz;
+   billboardMat._m02_m12_m22=IN.zvector.xyz;
+
+   // creating the normal, pointing in negative z-direction (towards viewer)
+   float3 normal = IN.zvector.xyz;
+   normal = normalize(normal);
+
+   //_______________diffuse component_________________//
+   // calculate cos (angle between normal and lightVect)
+   float NdotL = dot(normal, (lightVect.rgb));
+   if(NdotL < 0.)
+       normal *= -1.;
+   NdotL = dot(normal, (lightVect.rgb));
+   // clamp NdotL to 0..1
+   float satNdotL = saturate(NdotL);
+   float4 ambient = objectAmbient*lightAmbient;
+   float4 diffuse = objectDiffuse*lightDiffuse*satNdotL;
+   float4 color = tex2D(texture, IN.texcoord0.xy*.5+0.5);
+
+   float a = dot(color.rgb, 1.);
+   if(a < 0.2)
+      discard;
+   OUT.color.a = a;
+
+   //______________specular component________________//
+   // calculating reflection vector
+   float3 reflectVec = 2*(NdotL * normal) - lightVect.rgb;
+   // calculate cos \alpha (angle between reflection and light vector)
+   // and clamp it to 0..1
+   float RdotV = saturate(dot(reflectVec, IN.viewerVect.rgb));
+   // calculate cos^n \alpha
+   float4 specular = objectSpecular * lightSpecular*pow(RdotV, 8);
+   color.rgb += specular.rgb;
+
+   //setting output color
+   OUT.color.rgb = color.rgb;
+
+   return OUT;
+}

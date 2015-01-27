@@ -1,0 +1,17 @@
+#!/bin/sh
+if [ -d $1 ]; then
+  cd $1
+fi
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/mvapich2/lib
+export DISPLAY=:0.0
+export ARCHSUFFIX=$2
+export COVISEDIR=$3
+export COCONFIG=$4
+
+echo "DISPLAY    = $DISPLAY"     > /tmp/error_$USER.log
+echo "ARCHSUFFIX = $ARCHSUFFIX" >> /tmp/error_$USER.log
+echo "COVISEDIR  = $COVISEDIR"  >> /tmp/error_$USER.log
+echo "COCONFIG   = $COCONFIG"   >> /tmp/error_$USER.log
+echo >> /tmp/error_$USER.log
+
+$3/bin/opencover $5 $6 $7 $8 $9 2>> /tmp/error_$USER.log

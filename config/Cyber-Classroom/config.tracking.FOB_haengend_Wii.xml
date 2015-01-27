@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <IconSize value="50"/>
+         <ConstantInteractorSize value="Off"/>
+         <IconOffset value="0"/>
+
+         <PointerDepth value="0"/>
+         <PointerAppearance>
+            <IconName value="pointer"/>
+            <Width value="10"/>
+            <Length value="1000"/>
+            <Intersection value="1000" />
+         </PointerAppearance>
+         
+         <MenuMode value="on">
+            <Coloring value="on"/>
+         </MenuMode >         
+
+         <Input> <!-- WII -->
+            <DebugButtons value="FALSE" />
+            <DebugTracking value="TRUE"/>
+            <TrackingSystem value="VRC" />
+            <WiiNavigationVisenso value="off" enable="off" />
+
+            <VRC>
+               <Port value="7777" />
+               <DebugLevel value="0"/>
+            </VRC>
+
+            <HandAddress value="2" />
+            <ButtonAddress value="1" />
+
+            <TrackingSystem>
+               <Offset x="0" y="-80" z="-600" />
+               <Orientation h="90" p="180" r="180" />
+            </TrackingSystem>            
+            
+            <HandDevice>
+               <Offset x="0" y="0" z="0" />
+               <Orientation h="-90" p="90" r="0" />
+            </HandDevice>
+               
+            <VisensoJoystick value="on" >
+               <Analog value="on" />
+            </VisensoJoystick> 
+
+            <MouseNav value="OFF" />
+
+            <ButtonConfig>
+               <Map value="1 NONE" name="1 NONE"/>
+               <Map value="2 BACKWARD_BUTTON"  name="2 BACKWARD_BUTTON"/>
+               <Map value="3 FORWARD_BUTTON"  name="3 FORWARD_BUTTON"/>
+               <Map value="4 MENU_BUTTON"  name="4 MENU_BUTTON"/>
+               <Map value="5 ACTION_BUTTON"  name="5 ACTION_BUTTON"/>
+               <Map value="6 INTER_NEXT"  name="6 INTER_NEXT"/>
+               <Map value="7 INTER_PREV"  name="7 INTER_PREV"/>
+            </ButtonConfig>            
+
+         </Input>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

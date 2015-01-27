@@ -1,0 +1,25 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+VectorField computes lines in a vector field.
+ 
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{VectorFieldModule}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+VectorField is available for all COVISE versions on all supported platforms
+
+%
+%=============================================================

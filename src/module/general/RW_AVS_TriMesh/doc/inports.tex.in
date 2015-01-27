@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline meshIn & Polygons & Geometry to write\\ \hline dataIn & Float\newline Vec3 & Vertice-attached data\\
+\hline \end{longtable}
+

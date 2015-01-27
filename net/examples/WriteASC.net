@@ -1,0 +1,612 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+9
+# Module Plot
+Plot
+1
+LOCAL
+Renderer
+Plot_1
+272
+272
+1
+RenderData
+Vec2|RectilinearGrid
+plot_data
+req
+
+0
+0
+0
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+GenDat_1
+20
+28
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1
+
+-1
+Function
+Choice
+Function for scalar values
+1
+
+-1
+Orientation
+Choice
+Function for vector values
+1
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 64
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 64
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 64
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+17
+272
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+Colors_1
+34
+187
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+-0.132349 0.132339
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+-0.132349 0.132339 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module WriteASC
+WriteASC
+1
+LOCAL
+IO_Module
+WriteASC_1
+357
+272
+1
+dataIn
+UnstructuredGrid|UniformGrid|Vec2|Points|Float|Float|Vec3|Vec3|Tensor|Polygons|Lines|IntArr|RGBA|Text|ColorMap
+Data Input
+req
+
+0
+3
+path
+Browser
+Output file path
+/var/tmp/WriteASC1.asc
+
+-1
+new
+Boolean
+New File
+TRUE
+
+-1
+verbose
+Boolean
+Full Representation
+TRUE
+
+-1
+0
+# Module WriteASC
+WriteASC
+2
+LOCAL
+IO_Module
+WriteASC_2
+119
+272
+1
+dataIn
+UnstructuredGrid|UniformGrid|Vec2|Points|Float|Float|Vec3|Vec3|Tensor|Polygons|Lines|IntArr|RGBA|Text|ColorMap
+Data Input
+req
+
+0
+3
+path
+Browser
+Output file path
+/var/tmp/WriteASC2.asc
+
+1
+new
+Boolean
+New File
+TRUE
+
+1
+verbose
+Boolean
+Full Representation
+TRUE
+
+1
+0
+# Module MinMax
+MinMax
+1
+LOCAL
+Tools
+MinMax_1
+272
+187
+1
+Data
+Float|Vec3
+scalar data
+req
+
+3
+plot2d
+Vec2
+plotdata
+default
+
+DataOut1
+Float
+histogram data
+default
+
+minmax
+MinMax_Data
+minmax
+default
+
+1
+NumBuck
+IntSlider
+Number of Buckets
+5 50 5
+
+-1
+0
+# Module IndexManifolds
+IndexManifolds
+1
+LOCAL
+Filter
+IndexManifolds_1
+20
+106
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid
+Grid
+req
+
+DataIn0
+Float|Vec3|Int|RGBA
+Data
+opt
+
+6
+GridOut0
+Polygons|TriangleStrips
+Layer surface
+default
+
+DataOut0
+Float|Vec3|Int|RGBA
+Data mapped to layer surface
+dep DataIn0
+
+GridOut1
+Lines
+Line
+default
+
+DataOut1
+Float|Vec3|Int|RGBA
+Data mapped to line
+dep DataIn0
+
+GridOut2
+Points
+Point
+default
+
+DataOut2
+Float|Vec3|Int|RGBA
+Data mapped to point
+dep DataIn0
+
+5
+DirChoice
+Choice
+Select direction
+1
+
+-1
+xIndex
+IntSlider
+Index of point in x-direction
+0 63 25
+
+-1
+yIndex
+IntSlider
+Index of point in y-direction
+0 63 29
+
+-1
+zIndex
+IntSlider
+Index of point in z-direction
+0 63 33
+
+-1
+Generate_strips
+Boolean
+generate strips
+FALSE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+17
+357
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+10
+GenDat
+1
+LOCAL
+GridOut0
+
+IndexManifolds
+1
+LOCAL
+GridIn0
+GenDat
+1
+LOCAL
+DataOut0
+
+IndexManifolds
+1
+LOCAL
+DataIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn0
+Colors
+1
+LOCAL
+DataOut0
+
+WriteASC
+2
+LOCAL
+dataIn
+MinMax
+1
+LOCAL
+plot2d
+
+Plot
+1
+LOCAL
+RenderData
+MinMax
+1
+LOCAL
+plot2d
+
+WriteASC
+1
+LOCAL
+dataIn
+IndexManifolds
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+IndexManifolds
+1
+LOCAL
+DataOut0
+
+Colors
+1
+LOCAL
+DataIn0
+IndexManifolds
+1
+LOCAL
+DataOut0
+
+MinMax
+1
+LOCAL
+Data
+0

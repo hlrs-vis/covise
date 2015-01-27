@@ -1,0 +1,187 @@
+<roadMark><uniform name="tarmac" type="sampler2D" value="0"/><uniform name="LineColor" type="vec4" value="1.0 1.0 1.0 1.0"/><attribute name="roadMark" type="vec4" value="5"/><vertexProgram>
+   varying float lane;
+ 	varying float markWidthIn;
+	varying float markWidthOut;
+	varying float markTypeIn;
+	varying float markTypeOut;
+	varying float priority;
+	varying vec4 lineColorIn;
+	varying vec4 lineColorOut;
+   uniform vec4 LineColor;
+
+   attribute vec4 roadMark;
+
+  void main(void)
+  {
+      gl_TexCoord[0] = gl_MultiTexCoord0;
+      gl_Position     = ftransform();
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+
+		lane = sign(roadMark[0]);
+		if(lane==0) {
+			lane = sign(roadMark[1]);
+		}
+		markWidthIn = abs(roadMark[0]);
+		markWidthOut = abs(roadMark[1]);
+
+		markTypeIn = abs(roadMark[2]);
+		lineColorIn = LineColor;
+		lineColorOut = LineColor;
+	   if(markTypeIn &gt;= 1000.0)
+       {
+		    int col = (int)((markTypeIn+0.5)/1000.0);
+			markTypeIn -= col*1000.0;
+			if(col == 1)
+			{
+			lineColorIn = vec4(1,1,0,1);
+			}
+       }	
+	   markTypeOut = abs(roadMark[3]);
+	    if(markTypeOut &gt;= 1000.0)
+       {
+		    int col = (int)((markTypeOut+0.5)/1000.0);
+			markTypeOut -= col*1000.0;
+			if(col == 1)
+			{
+			lineColorOut = vec4(1,1,0,1);
+			}
+       }	
+	   priority=0.0;
+	   if(markTypeOut &gt;= 100.0)
+       {
+		    priority = (int)((markTypeOut+0.5)/100.0);
+			markTypeOut -= priority*100.0;
+			priority = 10 - priority;
+       }	
+  } 
+
+   </vertexProgram><fragmentProgram>
+   
+   varying float lane;
+	varying float markWidthIn;
+	varying float markWidthOut;
+	varying float markTypeIn;
+	varying float markTypeOut;
+	varying float priority;
+	varying vec4 lineColorIn;
+	varying vec4 lineColorOut;
+
+	uniform sampler2D tarmac;
+
+   void main (void)
+   { 
+      vec2 texcoord = gl_TexCoord[0];
+      vec4 tarmacColor  = texture2D(tarmac, texcoord);
+
+	  float zAdd= priority*0.00000005;
+      float line = 0.0;
+		float lineLength = 0.0;
+		float repeatLength = 0.0;
+/*if(priority &gt;0.9 &amp;&amp; priority &lt; 1.1)
+{
+tarmacColor=vec4(0,1,0,1);
+}*/
+
+/*if(priority == 0)
+{
+tarmacColor=vec4(0,1,0,1);
+//zAdd = -0.02;
+}
+if(priority == 1)
+tarmacColor=vec4(1,1,0,1);
+if(priority == 2)
+tarmacColor=vec4(1,1,1,1);
+if(priority == 3)
+tarmacColor=vec4(0,1,1,1);
+if(priority == 4)
+tarmacColor=vec4(1,0,1,1);
+if(priority == 5)
+tarmacColor=vec4(0.5,0,1,1);
+if(priority == 6)
+tarmacColor=vec4(0.5,0,0.5,1);
+if(priority == 7)
+tarmacColor=vec4(0.5,0.5,0.5,1);
+	*/	
+      if(lane&lt;0.0) {
+         if(markTypeIn &lt;= 0.5)	{
+            lineLength = 0.0;
+            repeatLength = 0.0;
+         }
+         else if(markTypeIn &lt;= 1.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+         else if(markTypeIn &lt;= 2.5)	{
+            lineLength = 0.3;
+            repeatLength = 0.9;
+         }
+         else if(markTypeIn &lt;= 11.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+         else if(markTypeIn &lt;= 12.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+         else if(markTypeIn &lt;= 21.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+      }
+      else{
+         	 
+         if(markTypeOut &lt;= 0.5)	{
+            lineLength = 0.0;
+            repeatLength = 0.0;
+         }
+         else if(markTypeOut &lt;= 1.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+         else if(markTypeOut &lt;= 2.5)	{
+            lineLength = 0.3;
+            repeatLength = 0.9;
+         }
+         else if(markTypeOut &lt;= 11.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+         else if(markTypeOut &lt;= 12.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+         else if(markTypeOut &lt;= 21.5)	{
+            lineLength = 1.0;
+            repeatLength = 1.0;
+         }
+      }
+
+		if(lane != 0) {
+    
+      	line = step(mod(texcoord.s,repeatLength),lineLength);
+	//line = mod(texcoord.s,0.8);
+		line *= max(step(lane, -1 + markWidthIn), step( 1 - markWidthOut, lane ));
+		}
+     // line = line*(0.9+noise1(texcoord)*0.1);
+//comment this out, if you want to see all lines in intersections	
+      if(line &gt; 0.9)
+	 {
+	  zAdd= -0.0000005;
+	 }
+      if(lane&lt;0.0)
+	  {
+		gl_FragColor = mix(tarmacColor,lineColorIn,line);
+	  }
+	  else
+	  {
+		gl_FragColor = mix(tarmacColor,lineColorOut,line);
+	  }
+
+		gl_FragDepth = gl_FragCoord[2]+zAdd;
+    
+   }
+ 
+
+  </fragmentProgram></roadMark>

@@ -1,0 +1,51 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	output2\_path & File Browser & Nastran file (output2) location. \\
+\hline
+	plotel\_color & String & The color name to draw the PLOTEL elements.  \\
+\hline
+	conm2\_color & String & The color name to draw the CONM2 elements.   \\
+\hline
+	conm2\_scale & Scalar & The scale factor to draw the CONM2 elements.  \\
+\hline
+	force\_color & String & The color name to draw the FORCE elements.  \\
+\hline
+	grav\_color & String & The color name to draw the GRAV elements.   \\	
+\hline
+	moment\_color & String & The color name to draw the MOMENT elements.  \\
+\hline
+	rbar\_color & String & The color name to draw the RBAR elements. \\
+\hline
+	rbe2\_color & String & The color name to draw the RBE2 elements. \\
+\hline
+	spc1\_color & String & The color name to draw the SPC1 elements.  \\
+\hline
+	spc1\_scale & Scalar & The scale factor to draw the SPC1 elements. \\
+\hline
+	mode & Scalar & If more than one mode was found in the analysis results 
+	(OUGV1 and OES1X), the mode number (starting from 1) can be selected 
+	here.  \\
+\hline
+	fibre\_distance & Scalar & Fibre distance value to calculate 
+	the van Mises stress OES1. Must be either 1 or 2.  \\			
+\hline
+	try\_skipping & Boolean & -  \\											
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+
+
+%
+%=============================================================

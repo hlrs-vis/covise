@@ -1,0 +1,198 @@
+
+
+
+   \subsubsection{Examples}
+   %================================================================================
+
+    \html{\htmladdimg[ALIGN=CENTER]{pict/ReadStarMap.png}}
+    
+    \latexonly
+    \begin{figure}[htp]
+     \begin{center}
+      \includegraphics[scale=0.8]{pict/ReadStarMap}
+	   \caption[]{covise/net/examples/ReadStar\_CuttingSurface\_Tracer.net}
+     \end{center}
+    \end{figure}
+    \endlatexonly
+    
+	%\begin{covimg}{}{ReadStarMap}{0.8}{covise/net/examples/ReadStar\_CuttingSurface\_Tracer.net\end}{covimg}
+
+   The model is a channel with two inlets. 
+
+   {\bf ReadStar} reads a dataset from two files: covise/data/examples/general/tiny16 for the grid and
+   covise/data/examples/general/tiny09 for the data. With the choice parameter field\_0 we selected TE for the output port
+   data\_0 and with field\_1 Velocity for ouput port data\_1. 
+
+   The module DomainSurface is connected to the output port mesh of {\bf ReadStar} and computes the outer surface and edge lines
+   of the computational grid. As the Renderer is connected to the ouput port lines\_out of DomainSurface the edge lines are
+   displayed in the Renderer. 
+
+   The module CutGeometry cuts the bottom of the the surface created by DomainSurface so we can look into the channel. As
+   the output port of CutGeometry is connected to the Renderer the cut surface is displayed in the Renderer. 
+
+   The module combination CuttingSurface - Colors - Collect maps the data selected at output port data\_0 to colors. As Collect
+   is connected to the Renderer the colored cuttingsurface is displayed in the renderer. 
+
+   The module Tracer computes particle traces as lines. 
+
+   Further examples: 
+
+   \begin{itemize}
+   \item ReadStar: Edge lines, cut outer surface, colored cuttingsurface and vector field 
+\item ReadStar\_CuttingSurface: Edge lines, cut outer surface, colored cuttingsurface 
+\item ReadStar\_IsoSurface: Edge lines, cut outer surface, colored isosurface 
+\item ReadStar\_Tracer: Edge lines, cut outer surface, particle traces 
+\item ReadStar\_VectorField: Edge lines, cut outer surface, vector arrays on a cuttingssurface 
+\item ReadStar\_CuttingSurface\_IsoSurface: Edge lines, cut outer surface, colored cuttingsurface, colored isosurface 
+%- if you get error messages (from IsoSurface) running this map, please change covise.config as described in
+%IsoSurface, subsection 'Tunable Parameters'. obsolete - IsoSurface changed!
+\item ReadStar\_CuttingSurface\_Tracer: Edge lines, cut outer surface, colored cuttingsurface, particle traces. 
+\end{itemize}
+
+
+%================================================================================
+
+\subsubsection{Step By Step}
+%================================================================================
+
+This section explains step by step how to do a visualization of STAR-CD data. %without by modifing an example map. 
+
+\begin{enumerate}
+
+\item  {\bf Choose a map:} look at the {\bf ReadStar} example maps under covise/net/examples/ and choose a map which contains the
+    	 visualization elements you want to see. 
+
+\item  {\bf Start covise} by typing 
+
+    		\verb|covise -i <selected map> &|
+
+\item  {\bf Import StarCD Data }
+
+	\begin{covimg2}{}{select_files}{0.7}\end{covimg2}
+
+	\begin{itemize}
+	
+	\item  Scroll to the parameter mesh\_path of {\bf ReadStar} and fill in the full name of the mesh file and press enter. 
+
+	\item  Scroll to the parameter data\_path of {\bf ReadStar} and fill in the full name of the result file and press enter. Now
+   	the choice parameters field\_0,..., field\_15 are updated. This may take a while. 
+
+	\begin{covimg2}{}{select_data}{0.7}\end{covimg2}
+
+
+	\item Scroll to the parameter field\_0 and select a scalar variable like temperature (T), turbulent energy (TE) or
+	  pressure(P). 
+
+	\item   Scroll to the parameter field\_1 and select Velocity. 
+
+	\item  Scroll to the title ReadStar\_1. Next to the title you see threee icons (a gearwheel, a book and a
+	  folder). 
+
+	\item   Press the \parbox[t]{0.6cm}{\latex{\includegraphics{pict/module_execute}} }
+		\html{\htmladdimg{module_execute.png}} icon. This executes the module 
+				{\bf ReadStar} and also all modules below {\bf ReadStar}.
+				 
+
+	\item  Now you should see at least the outer edge lines of the computational grid in the Renderer window. If you
+         	want to adjust the camera to see the whole scene in the renderer window, press the
+		\parbox[t]{1.0cm}{\latex{\includegraphics{pict/view_all}} } \html{\htmladdimg{view_all.png}} button 
+		in the toolbar of the Renderer Window. 
+
+	\end{itemize}
+\vspace{0.2cm}
+\item {\bf Visualization of the grid surface} 
+
+	\begin{itemize}
+	
+ 	\item  CutGeometry cuts the surface produced by Domainsurface. 
+
+	\begin{covimg2}{}{cutgeometry_params}{0.7}\end{covimg2}
+
+   \item  Scroll to the parameter vertex of CutGeometry. vertex is a vector parameter where you enter the x,y,z
+     coordinates of a normal perpendicular to the cuttingsurface. 
+
+   \item  Scroll to the parameter scalar. This parameter positions the plane along the normal. 
+
+   \item  Hint: The module BoundingBox prints the minium and maximum extension of the computational grid into the
+     information area of the Mapeditor. This may help to find the values for parameter scalar. 
+
+	\end{itemize}
+
+\item {\bf Visualization of scalar parameters with a colored cuttingsurface}
+
+	\begin{itemize}
+
+   \item  The combination of the modules CuttingSurface - Colors - Collect produces a colored cuttingplane. 
+
+	\begin{covimg2}{}{cuttingsurface_params}{0.7}\end{covimg2}
+
+   \item  Scroll to the parameter vertex. With vertex the normal of the cuttingplane is defined. The three values are the
+     x, y, z components of the normal vector. If you change the value of one component, press return before %you go
+     changing the next component. 
+
+   \item  Scroll to the parameter scalar. With scalar the distance of the plane from the origin is defined. Enter a new
+     value and then press return. 
+
+   \item  Execute the module with the gearwheel icon. You should see now a colored cuttingsurface in the renderer
+     window. 
+
+   \item Hint: The module BoundingBox prints the minium and maximum extension of the computational grid into the
+     information area of the Mapeditor. This may help to find the values for parameter scalar.
+
+	\end{itemize} 
+
+\item {\bf Visualization of scalar parameters with a colored isosurface} 
+
+	\begin{itemize}
+	
+	\item  The combination of the modules IsoSurface - Colors - Collect produces a colored isosurface. 
+
+	\begin{covimg2}{}{isosurface_params}{0.7}\end{covimg2}
+
+	\item  Scroll to the parameter isovalue and adjust the value, then press return. 
+
+	\item Execute the module with the gearwheel icon. You should see now a colored isosurface in the renderer
+	window. 
+
+	\end{itemize}
+
+\item {\bf Visualize vector data with vector lines }
+	\begin{itemize}
+
+	\item  The combination of a CuttingSurface - VectorField - Colors - Collect produces colored vector arrays. 
+
+	\item  Adjust the parameters of the cuttingsurface as described above. 
+
+	\item  Scroll to the parameter scale 
+
+
+	\begin{covimg2}{}{vectorfield_params}{0.7}\end{covimg2}
+
+	\item  Adjust the scaling of the vector arrays by moving the slider to a new value, then execute the module by
+	pressing the gearwheel button. 
+
+	\end{itemize}
+
+\item {\bf Visualize vector data with particle traces} 
+
+	\begin{itemize}
+
+	\item  The module Tracer computes particle traces. The particles traces start on a line defined with startpoint\_1
+	and startpoint\_2. 
+
+    \begin{covimg2}{}{tracerusg_params}{0.7}\end{covimg2}
+
+	\item  Scroll to the parameter startpoint1. The three values define a point. If you change one value press return
+	before you go to the next value. 
+
+	\item  Scroll to the parameter startpoint\_2 and adjust it 
+
+	\item  Scroll to the parameter no\_startpoints (number of startpoints). The number of startpoints defines how many
+	traces start on the line. 
+
+	\item  Scroll to the parameter direction and select forward, backward or both. 
+
+	\item  Execute the module Tracer by pressing the gearwheel icon. 
+	\end{itemize}
+
+\end{enumerate}

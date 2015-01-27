@@ -1,0 +1,95 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+
+#ifndef COMMANDLINE_H
+#define COMMANDLINE_H 1
+
+#include <osg/ArgumentParser>
+#include <osgTerrain/TerrainTile>
+
+#include <vpb/Source>
+#include <vpb/BuildOptions>
+
+namespace vpb
+{
+
+class VPB_EXPORT Commandline
+{
+    public:
+    
+        Commandline();
+
+        void init();
+
+        void reset();
+
+        void computeGeoTransForRange(double xMin, double xMax, double yMin, double yMax);
+
+        enum LayerOperation
+        {
+            ADD,
+            REMOVE,
+            MODIFIED
+        };
+
+        void processFile(vpb::Source::Type type, const std::string& filename, LayerOperation layerOp);
+
+        void processImageOrHeightField(vpb::Source::Type type, const std::string& filename, LayerOperation layerOp);
+        void processShapeFile(vpb::Source::Type type, const std::string& filename, LayerOperation layerOp);
+        void processModel(const std::string& filename, LayerOperation layerOp);
+
+        void processDirectory(vpb::Source::Type type, const std::string& filename, LayerOperation layerOp);
+
+        void getUsage(osg::ApplicationUsage& usage);
+            
+        bool readImageOptions(int pos, std::ostream& fout, osg::ArgumentParser& arguments, vpb::ImageOptions& imageOptions);
+
+        int read(std::ostream& fout, osg::ArgumentParser& arguments, osgTerrain::TerrainTile* terrainInput);
+
+    protected:
+    
+        unsigned int readMask(const std::string& maskstring);
+    
+        osg::ref_ptr<osgTerrain::TerrainTile>   terrainTile;
+        osg::ref_ptr<BuildOptions>              buildOptions;
+    
+        std::string                             setname;
+    
+        vpb::SpatialProperties::DataType        dataType;
+        std::string                             currentCS;
+        osg::Matrixd                            geoTransform;
+        bool                                    geoTransformSet;
+        bool                                    geoTransformScale;
+
+        LayerOperation                          currentLayerOperation;
+
+        bool minmaxLevelSet;
+        unsigned int maximumPossibleLevel;
+        unsigned int min_level;
+        unsigned int max_level;
+        unsigned int layerNum;
+
+        unsigned int terrainmask;
+        unsigned int mask;
+
+        std::string typeAttributeName;
+        std::string typeAttribute;
+        
+        std::string heightAttributeName;
+        double heightAttribute;
+};
+
+}
+
+#endif

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <License>
+
+   <SERVER type="SERVER" value="0015600f5e22 6.0 14.03.2007 0 QEGPPTI gagarin 2006" name="QEGPPTI" />
+   <STD_UI type="STD_UI" value="0015600f5e22 6.0 14.03.2007 0 GIMCUEW gagarin 2006" name="GIMCUEW" />
+   <VR_ONE_PIPE type="VR_ONE_PIPE" value="0015600f5e22 6.0 14.03.2007 0 CUOMMSO gagarin 2006" name="CUOMMSO" />
+   <VR_MULTI_ANY type="VR_MULTI_ANY" value="0015600f5e22 6.0 14.03.2007 0 CYARJJG gagarin 2006" name="CYARJJG" />
+   <COVISE_VRML type="COVISE_VRML" value="0015600f5e22 6.0 14.03.2007 0 SKKZVNM gagarin 2006" name="SKKZVNM" />
+   <COVISE_CFD type="COVISE_CFD" value="0015600f5e22 6.0 14.03.2007 0 KKAPNHY gagarin 2006" name="KKAPNHY" />
+   <COVISE_FEM type="COVISE_FEM" value="0015600f5e22 6.0 14.03.2007 0 SWWCKCQ gagarin 2006" name="SWWCKCQ" />
+   <VR_DUAL_CLUSTER type="VR_DUAL_CLUSTER" value="0015600f5e22 6.0 14.03.2007 0 SSCWGMQ gagarin 2006" name="SSCWGMQ" />
+  </License>
+
+
+ </GLOBAL>
+
+
+ <!-- this config is required by the OpenSG Renderer-->
+ <INCLUDE global="1" configname="config" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="colormap" >config.colormaps.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="opensg-base" >config.opensg.base.xml</INCLUDE>
+
+</COCONFIG>

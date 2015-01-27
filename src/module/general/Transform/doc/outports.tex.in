@@ -1,0 +1,35 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+\begin{samepage}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+\textcolor{output}{geo\_out} & 
+Polygons  \newline
+TriangleStrips \newline 
+Lines \newline 
+Points  \newline
+UnstructuredGrid   \newline
+UniformGrid  \newline
+RectilinearGrid  \newline
+StructuredGrid & Transformed objects. \\
+\hline
+	\textcolor{depend}{\mbox{data\_out0 \ldots} data\_out3} & 
+   Float  \newline
+   Vec3  \newline
+Float  \newline
+Vec3 & Scalar or vector data on the transformed objects. \\
+% \textcolor{output}{angle\_out} & Float & Used rotation angles. \\
+										
+\hline
+\end{longtable}
+\end{samepage}
+%=============================================================
+
+
+%
+%=============================================================

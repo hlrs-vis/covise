@@ -1,0 +1,68 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+ 
+\begin{covimg} {}{ReadKivaMap}{covise/net/examples/ReadKiva.net}{0.7}\end{covimg}
+
+The next images show the results in the Inventor Renderer of the data read 
+by ReadKiva module and transformed by the other modules of the map. 
+You can see (for different timesteps) the changes of vector fields, data on 
+the plane and the isosurfaces.
+
+\begin{covimg} {}{ReadKivaRenderer1}{Timestep 1}{0.7}\end{covimg}
+    
+\begin{covimg} {}{ReadKivaRenderer2}{Timestep 3}{0.7}\end{covimg}
+
+\begin{covimg} {}{ReadKivaRenderer3}{Timestep 4}{0.7}\end{covimg}
+%
+
+
+
+%\begin{covimg}{}%
+%		{ReadKiva}{covise/net/examples/patran.net}{0.7}\end{covimg}
+%-------------------------------------------------------------
+% Use this type of environment for all figures with caption
+% Note: The proposed scaling factor 0.7 should fit for most images,
+%       but please use 0.6 for maps!  
+%-------------------------------------------------------------
+%Warning: You will get the caption in Latex only, not in HTML
+
+%\begin{verbatim}
+%You can insert here anything - except "\end{verbatim}" - that should not be touched by Latex
+%\end{verbatim}
+%-------------------------------------------------------------
+%Use this verbatim-environment if you want to insert text (e.g. code) that should not be 
+%formatted or changed
+%-------------------------------------------------------------
+% how to make numerated lists
+%\begin{enumerate}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{enumerate}
+
+% how to make non numerated lists
+%\begin{itemize}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{itemize}
+
+%these lists can also be hierarchical
+%-------------------------------------------------------------
+% how to make links for PDF & HTML
+%Please look at module ReadStar for details
+%\begin{covlink}
+%   {ReadStar}{ReadStar}{../../IO/ReadStar/ReadStar.html}\end{covlink} 
+%.
+
+% #1	underlined text for link
+% #2  mark (created by \label)
+% #3  URL
+%-------------------------------------------------------------
+

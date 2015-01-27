@@ -1,0 +1,46 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+The module reads data sets compatible to PATRAN 2.5 file format. 
+It processes information of the neutral file, displacement or force 
+results files, nodal and element results files.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{ReadPatranModule}{0.9}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+{\bf ReadPatran} is available for COVISE snapvir-2001-01 and higher. It's tested on SGI systems. \\
+
+The following Neutral File packages types are supported at the moment:
+\begin{itemize}
+\item Node data
+\item Element data
+\item Named components
+\end{itemize}
+%
+%-------------------------------------------------------------
+% Notes for using the 3 environments for tables below:
+%-------------------------------------------------------------
+% 1. In some cases it may be necessary to increase the size of a column, 
+%    e.g. change the value of p for the type of input or output ports from 3.5cm to 4cm
+% 2. If you have more than one entry in a cell but you don't want to place 
+%    them in the one row, use "\newline", not "\\". For the first column you have
+%    to specify explicitly the size of the coloumn (change "l" to "p{xxcm}") 
+%    in addition.
+%-------------------------------------------------------------
+%
+%=============================================================

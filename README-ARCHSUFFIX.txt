@@ -1,0 +1,155 @@
+i# The meaning of the variable ARCHSUFFIX
+# ======================================
+# 
+# The variable ARCHSUFFIX specifies the system environment for which COVISE
+# is compiled. It depends on the combination of
+# - the system architecture (e.g. ia32, ia64, x86_64, mips4, ...)
+# - the operating system (e.g. Windows XP SP2, Fedora Linux Core 3, Red Hat Enterprise Linux 3, IRIX 6.5.20, ...)
+# - the programming model (e.g. N32, O32, 64 bit, 32 bit, ...)
+# - the version of your system libraries (e.g. glibc 2.3.2, 
+# - the C++ ABI version (e.g. as used by GCC 2.95/2.96, GCC 3.0, GCC 3.1, GCC 3.2/3.3, GCC 3.4/4.0, ...)
+# - the compiler optimization level
+# - ...
+# 
+# You can append 'opt' to every base ARCHSUFFIX name (as listed below) in
+# order to obtain one for optimized builds.  
+# 
+# 
+# Adding a new ARCHSUFFIX
+# =======================
+# 
+# You have to change or create at least the following:
+# common/mkspecs/$BASEARCHSUFFIX/qmake.conf
+# covise/.common.sh
+# covise/.covise-functions.sh
+# covise/README-ARCHSUFFIX.txt (this file)
+# covise/archive/extlibs-$BASEARCHSUFFIX-{files,opt}.txt
+# 
+# 
+# ARCHSUFFIXes currently used
+# ================================
+# 
+# ARCHSUFFIX    Meaning
+# ----------------------------------------------------------------------
+
+win32           Windows 2000/XP with Visual Studio 2003 on ia32
+vista           Windows XP/Vista with Visual Studio 2005 with SP1 on ia32
+zackel          Windows XP/Vista with Visual Studio 2008 on ia32
+amdwin64        Windows XP/Vista with Visual Studio 2005 with SP1 on x86_64
+angus           Windows XP/Vista with Visual Studio 2008 on x86_64
+yoroo           Visual Studio 2010 for ia32
+berrenda        Visual Studio 2010 for x86_64
+tamarau         Visual Studio 2011 for x86_64
+mingw           Windows XP/Vista with gcc 4.4.0 on ia32
+
+hpux_ia64       HP-UX 11 for IA64
+
+linux           Red Hat 7.3 (with GCC 2.96) on ia32
+gcc3            Red Hat 8 with glibc 2.3.2 on ia32
+rhel3           Red Hat Enterprise Linux 3 with updates on x86_64 (64 bit mode)
+rhel4           Red Hat Enterprise Linux 4 with updates on x86_64 (64 bit mode)
+rh5             Red Hat Enterprise Linux 5 with updates on ia32
+rhel5           Red Hat Enterprise Linux 5 with updates on x86_64 (64 bit mode)
+rhel51          Red Hat Enterprise Linux 5.1 with updates on x86_64 (64 bit mode)
+rhel52          Red Hat Enterprise Linux 5.2 with updates on x86_64 (64 bit mode)
+rhel53          Red Hat Enterprise Linux 5.3 with updates on x86_64 (64 bit mode)
+rhel6           Red Hat Enterprise Linux 6 with updates on x86_64 (64 bit mode)
+rhel7           Red Hat Enterprise Linux 7 with updates on x86_64 (64 bit mode)
+
+ia64            Red Hat Enterprise Linux 3 on ia64 (e.g. SGI Prism)
+ia64icc         Red Hat Enterprise Linux 3 on ia64 with Intel Compiler
+ia64_glibc23    SGI ProPack 3SP5 for Linux, ia64, glibc-2.3.2-95.30sgi305r1, libgcc-3.2.3-47
+cayman          SuSE Linux Enterprise Server 9 on ia64 with Intel Compiler
+cayenne         SuSE Linux Enterprise Server 10 on ia64 with Intel Compiler
+
+teck            Fedora Linux Core 3 with updates on ia32
+gcc4            Fedora Linux Core 4 with updates on ia32
+heiner          Fedora Linux Core 5 with updates on ia32
+belchen         Fedora Linux Core 6 with updates on ia32
+monsruemker     Fedora Linux Core 7 with updates on ia32
+neuffen         Fedora Linux Core 8 with updates on ia32
+stromboli       Fedora Linux Core 9 with updates on ia32
+
+amd64           Fedora Linux Core 3 with updates on x86_64
+amd64icc        Fedora Linux Core 3 with updates on x86_64 and Intel Compiler 8.1
+x64             Fedora Linux Core 4 with updates on x86_64
+bishorn         Fedora Linux Core 5 with updates on x86_64
+fujisan         Fedora Linux Core 6 with updates on x86_64
+monshuygens     Fedora Linux Core 7 with updates on x86_64
+lycaeus         Fedora Linux Core 8 with updates on x86_64
+maunaloa        Fedora Linux Core 9 with updates on x86_64
+gorely          Fedora Linux Core 10 with updates on x86_64
+leonidas        Fedora Linux Core 11 with updates on x86_64
+constantine     Fedora Linux Core 12 with updates on x86_64
+goddard         Fedora Linux 13 with updates on x86_64
+laughlin        Fedora Linux 14 with updates on x86_64
+lovelock        Fedora Linux 15 with updates on x86_64
+verne           Fedora Linux 16 with updates on x86_64
+
+chuckwalla      SUSE 9.2 on ia32
+lurchi          SUSE 9.3 on ia32
+leguan          SUSE 9.3 on x86_64
+
+gecko           OpenSUSE 10.0 on ia32
+skink           OpenSUSE 10.1 on ia32
+dornteufel      OpenSUSE 10.2 on ia32
+agame           OpenSUSE 10.3 on ia32
+tiliqua         OpenSUSE 11.0 on ia32
+waran           OpenSUSE 10.0 on x86_64
+basilisk        OpenSUSE 10.1 on x86_64 / SUSE Enterprise Server 10 on x86_64
+iguana          OpenSUSE 10.2 on x86_64
+tuatara         OpenSUSE 10.3 on x86_64
+mabuya          OpenSUSE 11.0 on x86_64
+drusenkopf      OpenSUSE 11.1 on x86_64
+lipinia         OpenSUSE 11.2 on x86_64
+mamba           OpenSUSE 11.3 on x86_64
+indicus         OpenSUSE 12.1 on x86_64
+slowworm        OpenSUSE 12.2 on x86_64
+neolamprologus  OpenSUSE 12.3 on x86_64
+saara           OpenSUSE 13.1 on x86_64
+
+sarge           Debian Linux 3.1 (Sarge) with updates on ia32
+etch32          Debian Linux 4.0 (Etch) with updates on ia32
+etch            Debian Linux 4.0 (Etch) with updates on x86_64
+lenny32         Debian Linux 5.0 (Lenny) with updates on ia32
+lenny           Debian Linux 5.0 (Lenny) with updates on x86_64
+squeeze         Debian Linux 6.0 (Squeeze) with updates on x86_64
+
+dapper          Ubuntu 6.06 Dapper Drake on ia32
+edgy            Ubuntu 6.10 Edgy Eft on ia32
+feisty          Ubuntu 7.04 Feisty Fawn on ia32
+gutsy           Ubuntu 7.10 Gutsy Gibbon on ia32
+hardy           Ubuntu 8.04 Hardy Heron on ia32
+intrepid        Ubuntu 8.10 Intrepid Ibex on ia32
+jaunty          Ubuntu 9.04 Intrepid Ibex on ia32
+karmic          Ubuntu 9.10 Intrepid Ibex on ia32
+lucid           Ubuntu 10.04 Lucid Lynx on ia32
+maverick        Ubuntu 10.10 Maverick Meerkat on ia32
+natty           Ubuntu 11.04 Natty Narwhal on ia32
+oneiric         Ubuntu 11.10 Natty Narwhal on ia32
+precise		    Ubuntu 12.04 LTS Precise Pangolin on ia32
+drake           Ubuntu 6.06 Dapper Drake on x86_64 (64 bit mode)
+eft             Ubuntu 6.10 Edgy Eft on x86_64 (64 bit mode)
+fawn            Ubuntu 7.04 Feisty Fawn on x86_64 (64 bit mode)
+gibbon          Ubuntu 7.10 Gutsy Gibbon on x86_64 (64 bit mode)
+heron           Ubuntu 8.04 Hardy Heron on x86_64 (64 bit mode)
+ibex            Ubuntu 8.10 Intrepid Ibex on x86_64 (64 bit mode)
+jackalope       Ubuntu 9.04 Intrepid Ibex on x86_64 (64 bit mode)
+koala           Ubuntu 9.10 Intrepid Ibex on x86_64 (64 bit mode)
+lynx            Ubuntu 10.04 Lucid Lynx on x86_64 (64 bit mode)
+meerkat         Ubuntu 10.10 Maverick Meerkat on x86_64 (64 bit mode)
+narwhal         Ubuntu 11.04 Natty Narwhal on x86_64 (64 bit mode)
+ocelot          Ubuntu 11.10 Oneiric Ocelot on x86_64 (64 bit mode)
+pangolin        Ubuntu 12.04 Precise Pangolin on x86_64 (64 bit mode)
+tahr            Ubuntu 14.04 Trusty Tahr on x86_64 (64 bit mode)
+
+sgin32          IRIX 6.5, N32, Performer 2.5.2
+sgin32p31       IRIX 6.5, N32, Performer 3.1
+sgi64           IRIX 6.5, 64 bit
+
+macx            Mac OS X 10.3, PPC
+tiger           Mac OS X 10.4
+osx11           Mac OS X 10.4 on ia32 with X11 and fink
+leopard         Mac OS X 10.5 or 10.6, Universal
+lion            Mac OS X 10.7-10.9, x86_64 with libstdc++
+libc++          Mac OS X 10.9-10.10, x86_64 with libc++

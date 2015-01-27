@@ -1,0 +1,641 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+7
+# Module VectorField
+VectorField
+1
+LOCAL
+Mapper
+VectorField_1
+22
+165
+3
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|Polygons|Lines|UnstructuredGrid|TriangleStrips|Points
+input mesh
+req
+
+vdataIn
+Vec3|Mat3
+input vector data
+req
+
+sdataIn
+Float
+input scalar data
+opt
+
+2
+linesOut
+Lines
+Vectors (Lines)
+default
+
+dataOut
+Float
+Data on arrows
+default
+
+6
+scale
+FloatSlider
+Scale factor
+0.0 1.0 1
+
+-3
+length
+Choice
+Length of vectors
+2 1*scale length*scale according_to_data
+
+-5
+fasten
+Choice
+on_the_bottom or on_the_middle
+1 on_the_bottom on_the_middle
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.200000
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+22
+363
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+GenDat_1
+22
+22
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+22
+429
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+Colors_1
+33
+297
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0.55557 1.49417
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0.55557 1.49417 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements 
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Tube
+Tube
+1
+LOCAL
+Tools
+Tube_1
+22
+242
+3
+Lines
+Lines
+lines
+req
+
+Data
+Float
+Data
+opt
+
+Diameter
+Float
+BeamDiameter
+opt
+
+3
+Tubes
+Polygons
+mantle of the tubes
+default
+
+DataOut
+Float
+Data Out
+dep Data
+
+Normals
+Vec3
+Normals
+default
+
+5
+Radius
+FloatScalar
+Radius of tubes
+0.0500000
+
+-1
+Parts
+IntScalar
+No. of sides of the tubes
+6
+
+-1
+Option
+Choice
+open or closed cylinder
+2 open_cylinder closed_cylinder arrows
+
+-1
+LimitRadius
+Boolean
+Limit Radius of Tubes?
+FALSE
+
+-1
+max_Radius
+FloatScalar
+Maximum allowed Radius of tubes
+1.000000
+
+-1
+0
+# Module IndexManifolds
+IndexManifolds
+1
+LOCAL
+Filter
+IndexManifolds_1
+22
+88
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid
+Grid
+req
+
+DataIn0
+Float|Vec3|Int|RGBA
+Data
+opt
+
+6
+GridOut0
+Polygons|TriangleStrips
+Layer surface
+default
+
+DataOut0
+Float|Vec3|Int|RGBA
+Data mapped to layer surface
+dep DataIn0
+
+GridOut1
+Lines
+Line
+default
+
+DataOut1
+Float|Vec3|Int|RGBA
+Data mapped to line
+dep DataIn0
+
+GridOut2
+Points
+Point
+default
+
+DataOut2
+Float|Vec3|Int|RGBA
+Data mapped to point
+dep DataIn0
+
+5
+DirChoice
+Choice
+Select direction
+1 directionx directiony directionz
+
+-1
+xIndex
+IntSlider
+Index of point in x-direction
+0 7 3
+
+-1
+yIndex
+IntSlider
+Index of point in y-direction
+0 7 4
+
+-1
+zIndex
+IntSlider
+Index of point in z-direction
+0 7 4
+
+-1
+Generate_strips
+Boolean
+generate strips
+TRUE
+
+-1
+0
+11
+VectorField
+1
+LOCAL
+linesOut
+
+Tube
+1
+LOCAL
+Lines
+VectorField
+1
+LOCAL
+dataOut
+
+Tube
+1
+LOCAL
+Data
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+GenDat
+1
+LOCAL
+GridOut0
+
+IndexManifolds
+1
+LOCAL
+GridIn0
+GenDat
+1
+LOCAL
+DataOut1
+
+IndexManifolds
+1
+LOCAL
+DataIn0
+Colors
+1
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn0
+Tube
+1
+LOCAL
+Tubes
+
+Collect
+1
+LOCAL
+GridIn0
+Tube
+1
+LOCAL
+DataOut
+
+Colors
+1
+LOCAL
+DataIn0
+Tube
+1
+LOCAL
+Normals
+
+Collect
+1
+LOCAL
+DataIn1
+IndexManifolds
+1
+LOCAL
+GridOut0
+
+VectorField
+1
+LOCAL
+meshIn
+IndexManifolds
+1
+LOCAL
+DataOut0
+
+VectorField
+1
+LOCAL
+vdataIn
+0

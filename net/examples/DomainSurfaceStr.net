@@ -1,0 +1,258 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+4
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+48
+21
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+6 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+3 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+48
+191
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Renderer
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_2
+176
+187
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_2
+48
+106
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.100000
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1 0 0.
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.500000
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+3
+GenDat
+1
+LOCAL
+GridOut0
+
+DomainSurface
+1
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+DomainSurface
+1
+LOCAL
+GridOut1
+
+Renderer
+2
+LOCAL
+RenderData
+0

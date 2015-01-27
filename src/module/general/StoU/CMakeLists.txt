@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  StoU.cpp
+)
+
+SET(EXTRASOURCES
+  StoU.h
+)
+
+ADD_COVISE_MODULE(Converter StoU ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(StoU  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(StoU)

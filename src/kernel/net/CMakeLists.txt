@@ -1,0 +1,45 @@
+# @file
+# 
+# CMakeLists.txt for kernel - net
+#
+# @author Blasius Czink
+
+ADD_DEFINITIONS(-DNET_EXPORT)
+
+if (OPENSSL_FOUND)
+INCLUDE_DIRECTORIES(
+  ${OPENSSL_INCLUDE_DIR}
+)
+add_definitions(-DHAVE_OPENSSL)
+endif()
+
+SET(NET_SOURCES
+  covise_connect.cpp
+  covise_host.cpp
+  covise_socket.cpp
+  message.cpp
+  tokenbuffer.cpp
+)
+
+SET(NET_HEADERS
+  covise_connect.h
+  covise_host.h
+  covise_socket.h
+  message.h
+  message_types.h
+  tokenbuffer.h
+)
+
+ADD_COVISE_LIBRARY(coNet ${COVISE_LIB_TYPE} ${NET_SOURCES} ${NET_HEADERS})
+IF(MSVC)
+ELSE(MSVC)
+   ADD_COVISE_COMPILE_FLAGS(coNet "-Wno-deprecated-declarations")
+ENDIF(MSVC)
+TARGET_LINK_LIBRARIES(coNet coUtil coConfig ${ZLIB_LIBRARIES})
+if (OPENSSL_FOUND)
+TARGET_LINK_LIBRARIES(coNet ${OPENSSL_LIBRARIES})
+endif()
+IF(APPLE)
+   COVISE_WNOERROR(coNet)
+ENDIF()
+COVISE_INSTALL_TARGET(coNet)

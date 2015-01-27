@@ -1,0 +1,771 @@
+# Session file started:  2008/10/20 11:38:43
+# CFX-11.0 build 2007.08.09-22.59
+
+COMMAND FILE:
+  CFX Pre Version = 11.0
+END
+
+>load mode=new
+> update
+
+>gtmImport filename=$(CFXDIR)/cfx_sub/ghostmesh.gtm, \
+type=User, genOpt= -n -e '$(CFXDIR)/cfx_sub/user_import', units=m, nameStrategy= Assembly
+
+LIBRARY:
+  USER ROUTINE DEFINITIONS:
+    &replace     USER ROUTINE: user_export
+      Calling Name = user_export
+      Junction Box Location = End of Coefficient Loop
+      Library Name = user_export
+      Library Path = $(CFXDIR)/cfx_sub
+      Option = Junction Box Routine
+    END # USER ROUTINE:user_export
+  END # USER ROUTINE DEFINITIONS:
+END # LIBRARY:
+
+> update
+LIBRARY:
+   MATERIAL: Air Ideal Gas
+     Material Description = Air Ideal Gas (constant Cp)
+     Material Group = Air Data, Calorically Perfect Ideal Gases
+     Option = Pure Substance
+     Thermodynamic State = Gas
+     PROPERTIES:
+       Option = General Material
+       ABSORPTION COEFFICIENT:
+         Absorption Coefficient = 0.01 [m^-1]
+         Option = Value
+       END
+       DYNAMIC VISCOSITY:
+         Dynamic Viscosity = 1.831E-05 [kg m^-1 s^-1]
+         Option = Value
+       END
+       EQUATION OF STATE:
+         Molar Mass = 28.96 [kg kmol^-1]
+         Option = Ideal Gas
+       END
+       REFERENCE STATE:
+         Option = Specified Point
+         Reference Pressure = 1 [atm]
+         Reference Specific Enthalpy = 0. [J/kg]
+         Reference Specific Entropy = 0. [J/kg/K]
+         Reference Temperature = 25 [C]
+       END
+       REFRACTIVE INDEX:
+         Option = Value
+         Refractive Index = 1.0 [m m^-1]
+       END
+       SCATTERING COEFFICIENT:
+         Option = Value
+         Scattering Coefficient = 0.0 [m^-1]
+       END
+       SPECIFIC HEAT CAPACITY:
+         Option = Value
+         Specific Heat Capacity = 1.0044E+03 [J kg^-1 K^-1]
+         Specific Heat Type = Constant Pressure
+       END
+       THERMAL CONDUCTIVITY:
+         Option = Value
+         Thermal Conductivity = 2.61E-2 [W m^-1 K^-1]
+       END
+     END
+   END
+ END
+
+ FLOW:
+   SOLUTION UNITS:
+     Angle Units = [rad]
+     Length Units = [m]
+     Mass Units = [kg]
+     Solid Angle Units = [sr]
+     Temperature Units = [K]
+     Time Units = [s]
+   END
+   SIMULATION TYPE:
+     Option = Steady State
+     EXTERNAL SOLVER COUPLING:
+       Option = None
+     END
+   END
+   DOMAIN: Default Domain
+     Coord Frame = Coord 0
+     Domain Type = Fluid
+     Fluids List = Air Ideal Gas
+     Location = Primitive 3D
+   END
+ END   
+
+
+FLOW:
+  DOMAIN: Default Domain
+    BOUNDARY: Inlet_1Hole
+      Boundary Type = INLET
+      Interface Boundary = Off
+      Location = balance151
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END
+        HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = 290.15 [K]
+        END
+        MASS AND MOMENTUM:
+#          Normal Speed = 0.80494 [m s^-1]
+          Normal Speed = 3.36 [m s^-1]
+          Option = Normal Speed
+        END
+        TURBULENCE:
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END
+      END
+    END
+  
+    BOUNDARY: Inlet_4Holes
+       Boundary Type = INLET
+       Location = balance150
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = 290.15 [K]
+         END
+         MASS AND MOMENTUM:
+#           Normal Speed = 0.03355 [m s^-1]
+           Normal Speed = 0.14 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END
+
+    BOUNDARY: Inlet_4HolesOpen
+       Boundary Type = INLET
+       Location = balance154
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = 290.15 [K]
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 1.89 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+    END
+     
+    BOUNDARY: Inlet_Lochblech
+       Boundary Type = INLET
+       Location = balance153
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = 290.15 [K]
+         END
+         MASS AND MOMENTUM:
+#           Normal Speed = 0.49349 [m s^-1]
+           Normal Speed = 2.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END
+  
+     BOUNDARY: Inlet_Infrastruktur
+       Boundary Type = INLET
+       Location = balance200
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Infrastruktur+(4000 [W]/\
+             (1.005 [J g^-1 K^-1] * \
+             area()@Inlet_Infrastruktur*0.06 [m s^-1]*\
+             1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END
+
+     BOUNDARY: Inlet_Phoenix
+       Boundary Type = INLET
+       Location = balance201
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Phoenix+(27000 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_Phoenix*\
+             0.2 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.2 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END    
+
+     BOUNDARY: Inlet_NAS
+       Boundary Type = INLET
+       Location = balance202
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_NAS+(1000 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_NAS*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END 
+
+     BOUNDARY: Inlet_DDN
+       Boundary Type = INLET
+       Location = balance203
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_DDN+(1000 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_DDN*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END 
+
+     BOUNDARY: Inlet_Strider
+       Boundary Type = INLET
+       Location = balance204
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Strider+(40000 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_Strider*\
+             0.2 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.2 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END 
+
+     BOUNDARY: Inlet_Blech
+       Boundary Type = INLET
+       Location = balance205
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Blech+(2500 [W] /(1.005 [J g^-1 K^-1]*area()@Inlet_Blech*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END 
+        
+     BOUNDARY: Inlet_Disks1 # Stroeumung in negativer y-Richtung
+       Boundary Type = INLET
+       Location = balance206,balance207,balance208
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Disks1+(55200 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_Disks1*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END           
+
+     BOUNDARY: Inlet_Disks2 # Stroeumung in y-Richtung
+       Boundary Type = INLET
+       Location = balance210
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Disks2+(20700 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_Disks2*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END    
+
+     BOUNDARY: Inlet_Netz1
+       Boundary Type = INLET
+       Location = balance209
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_Netz1+(12800 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_Netz1*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END           
+
+     BOUNDARY: Inlet_IOX
+       Boundary Type = INLET
+       Location = balance211
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         HEAT TRANSFER:
+           Option = Static Temperature
+           Static Temperature = \
+             areaAve(T)@Outlet_IOX+(310 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_IOX*\
+             0.06 [m s^-1] * 1184 [g m^-3]))
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+         TURBULENCE:
+           Option = Medium Intensity and Eddy Viscosity Ratio
+         END
+       END
+     END           
+
+#     BOUNDARY: Inlet_Netz2
+#       Boundary Type = INLET
+#       Location = balance212
+#       BOUNDARY CONDITIONS:
+#         FLOW REGIME:
+#           Option = Subsonic
+#         END
+#         HEAT TRANSFER:
+#           Option = Static Temperature
+#           Static Temperature = \
+#             areaAve(T)@Outlet_Netz2+(3300 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_Netz2*\
+#             0.06 [m s^-1] * 1184 [g m^-3]))
+#         END
+#         MASS AND MOMENTUM:
+#           Normal Speed = 0.06 [m s^-1]
+#           Option = Normal Speed
+#         END
+#         TURBULENCE:
+#           Option = Medium Intensity and Eddy Viscosity Ratio
+#         END
+#       END
+#     END    
+
+#     BOUNDARY: Inlet_FCNetz
+#       Boundary Type = INLET
+#       Location = balance213
+#       BOUNDARY CONDITIONS:
+#         FLOW REGIME:
+#           Option = Subsonic
+#         END
+#         HEAT TRANSFER:
+#           Option = Static Temperature
+#           Static Temperature = \
+#             areaAve(T)@Outlet_FCNetz+(8400 [W]/(1.005 [J g^-1 K^-1]*area()@Inlet_FCNetz*\
+#             0.10 [m s^-1] * 1184 [g m^-3]))
+#         END
+#         MASS AND MOMENTUM:
+#           Normal Speed = 0.10 [m s^-1]
+#           Option = Normal Speed
+#         END
+#         TURBULENCE:
+#           Option = Medium Intensity and Eddy Viscosity Ratio
+#         END
+#       END
+#     END    
+     
+     BOUNDARY: Outlet_Klima_Decke
+       Boundary Type = OUTLET
+       Location = \
+         balance300,balance301,balance302,balance303
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = \
+           (massFlow()@Inlet_4Holes+\
+            massFlow()@Inlet_4HolesOpen+\
+            massFlow()@Inlet_1Hole+\
+            massFlow()@Inlet_Lochblech)/\
+           (areaAve(density)@Outlet_Klima_Decke*area()@Outlet_Klima_Decke)
+           Option = Normal Speed
+         END
+       END
+     END
+     
+     BOUNDARY: Outlet_Infrastruktur
+       Boundary Type = OUTLET
+       Location = \
+         balance100
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_Phoenix
+       Boundary Type = OUTLET
+       Location = \
+         balance101
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.2 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+     
+     BOUNDARY: Outlet_NAS
+       Boundary Type = OUTLET
+       Location = \
+         balance102
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_DDN
+       Boundary Type = OUTLET
+       Location = \
+         balance103
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_Strider
+       Boundary Type = OUTLET
+       Location = \
+         balance104
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.2 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_Blech
+       Boundary Type = OUTLET
+       Location = \
+         balance105
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_Disks1
+       Boundary Type = OUTLET
+       Location = balance106,balance107,balance108
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_Disks2
+       Boundary Type = OUTLET
+       Location = balance110
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+     BOUNDARY: Outlet_Netz1
+       Boundary Type = OUTLET
+       Location = balance109
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+     
+     BOUNDARY: Outlet_IOX
+       Boundary Type = OUTLET
+       Location = balance111
+       BOUNDARY CONDITIONS:
+         FLOW REGIME:
+           Option = Subsonic
+         END
+         MASS AND MOMENTUM:
+           Normal Speed = 0.06 [m s^-1]
+           Option = Normal Speed
+         END
+       END
+     END
+
+#     BOUNDARY: Outlet_Netz2
+#       Boundary Type = OUTLET
+#       Location = balance112
+#       BOUNDARY CONDITIONS:
+#         FLOW REGIME:
+#           Option = Subsonic
+#         END
+#         MASS AND MOMENTUM:
+#           Normal Speed = 0.06 [m s^-1]
+#           Option = Normal Speed
+#         END
+#       END
+#     END
+
+#     BOUNDARY: Outlet_FCNetz
+#       Boundary Type = OUTLET
+#       Location = balance113
+#       BOUNDARY CONDITIONS:
+#         FLOW REGIME:
+#           Option = Subsonic
+#         END
+#         MASS AND MOMENTUM:
+#           Normal Speed = 0.10 [m s^-1]
+#           Option = Normal Speed
+#         END
+#       END
+#     END
+
+     BOUNDARY: Wall
+       Boundary Type = WALL
+       Location = wall55
+       BOUNDARY CONDITIONS:
+         HEAT TRANSFER:
+           Option = Adiabatic
+         END
+         WALL INFLUENCE ON FLOW:
+           Option = No Slip
+         END
+         WALL ROUGHNESS:
+           Option = Smooth Wall
+         END
+       END
+     END
+
+     DOMAIN MODELS:
+       BUOYANCY MODEL:
+         Option = Non Buoyant
+       END
+       DOMAIN MOTION:
+         Option = Stationary
+       END
+       MESH DEFORMATION:
+         Option = None
+       END
+       REFERENCE PRESSURE:
+         Reference Pressure = 1 [atm]
+       END
+     END
+
+     FLUID MODELS:
+       COMBUSTION MODEL:
+         Option = None
+       END
+       HEAT TRANSFER MODEL:
+         Include Viscous Dissipation Term = Off
+         Option = Thermal Energy
+       END
+       THERMAL RADIATION MODEL:
+         Option = None
+       END
+       TURBULENCE MODEL:
+         Option = k epsilon
+       END
+       TURBULENT WALL FUNCTIONS:
+         Option = Scalable
+       END
+     END
+
+     INITIALISATION:
+       Option = Automatic
+       INITIAL CONDITIONS:
+         Velocity Type = Cartesian
+         CARTESIAN VELOCITY COMPONENTS:
+           Option = Automatic
+         END
+         EPSILON:
+           Option = Automatic
+         END
+         K:
+           Option = Automatic
+         END
+         STATIC PRESSURE:
+           Option = Automatic
+         END
+         TEMPERATURE:
+           Option = Automatic
+         END
+       END
+     END
+  
+  
+  END # DOMAIN:Default Domain
+END # FLOW:
+
+
+FLOW:
+  &replace   SOLVER CONTROL:
+    ADVECTION SCHEME:
+      Option = High Resolution
+    END # ADVECTION SCHEME:
+    CONVERGENCE CONTROL:
+      Length Scale Option = Conservative
+      Maximum Number of Iterations = MAXITERATIONS
+      Timescale Control = Auto Timescale
+      Timescale Factor = 1.0
+    END # CONVERGENCE CONTROL:
+    CONVERGENCE CRITERIA:
+      Residual Target = 1.E-4
+      Residual Type = RMS
+    END # CONVERGENCE CRITERIA:
+    DYNAMIC MODEL CONTROL:
+      Global Dynamic Model Control = On
+    END # DYNAMIC MODEL CONTROL:
+    JUNCTION BOX ROUTINES:
+      Junction Box Routine List = user_export
+    END # JUNCTION BOX ROUTINES:
+  END # SOLVER CONTROL:
+END # FLOW:
+> update
+
+
+> update
+
+>writeCaseFile filename=$(CFXDIR)/surfacedemo.def, operation=write solver file
+
+>update
+
+# Session file stopped:  2008/10/20 11:43:59
+

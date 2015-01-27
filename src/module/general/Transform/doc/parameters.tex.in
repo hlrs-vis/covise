@@ -1,0 +1,211 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+Note that the reader may override the values of the parameters
+below, if he gets a geometry object (first port) with the
+attribute TRANSFORM. If this is the case, the module expects
+for each parameter whose value should be overridden a subchain
+with the following structure: first comes the parameter name,
+and, separeted by a blank, another chain indicating the value to be
+used. If several parameters are overridden, these subchains
+are separated by newline characters. As for the subchain indicating
+the value, it is always made out of numbers, even for boolean
+and choice parameters, which may be several
+and separated by blanks in the case of vector parameters.
+
+%=============================================================
+{\em Transform: Mirror}
+%=============================================================
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	normal\_of\_mirror\_plane & Vector & Normal of the mirror plane. \\
+\hline
+	distance\_to\_origin & Scalar & Distance to origin.  \\
+\hline
+	MirroredAndOriginal & Boolean & It determines whether the original model is also included in the output or only the mirrored geometry.  \\
+\hline
+\end{longtable}	
+In this case the output ports deliver a set with two elements if
+the object received by the matching input port is a grid 
+(in a broad sense of the word embracing polygons, triangle strips,
+lines, points and all kinds of grids), a
+vector field or a scalar field.
+In these cases the first element of the set is the original object, 
+and the second one
+is the reflected object. If the input object is a scalar field,
+then the second element is the same as the first, which is also
+the same as the input scalar field.
+
+%=============================================================
+{\em Transform: Translate}
+%=============================================================
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	vector\_of\_translation & Vector & Every object is translated by this vector.  \\
+%The coordinates of this vector describe the new origin. \\									
+\hline
+\end{longtable}
+In this case and when the input is a grid,
+the output contains only the translated
+object and not the
+original one. 
+For scalar or vector fields the output
+is the same as the input.
+%=============================================================
+
+%=============================================================
+{\em Transform: Rotate}
+%=============================================================
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	axis\_of\_rotation & Vector & Direction of the axis. \\
+\hline
+	one\_point\_on\_the\_axis & Vector & One point on the axis.	\\
+\hline
+        angle\_of\_rotation & Scalar & Angle in degrees. \\
+\hline
+\end{longtable}
+In this case and when the input is a grid or a vector field,
+the output contains only the rotated
+object and not the
+original one. 
+For scalar fields the output
+is the same as the input.
+%=============================================================
+
+%\pagebreak
+
+%=============================================================
+{\em Transform: Scale}
+%=============================================================
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	scaling\_factor & Scalar & Scaling factor. \\
+\hline
+	new\_origin & Vector & The object is translated by this vector.	\\
+\hline
+\end{longtable}
+The points of the geometry are first of all translated by the
+vector {\sl new\_origin}, and afterwards, the points are scaled according to
+{\sl scaling\_factor}.
+In this case and when the input is a grid,
+the output contains only the scaled
+object and not the
+original one. 
+For scalar or vector fields the output
+is the same as the input.
+%=============================================================
+
+%=============================================================
+{\em Transform: MultiRotate}
+%=============================================================
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	axis\_of\_(multi-)\_rotation & Vector & Direction of the axis. \\
+\hline
+	\_one\_point\_on\_the\_axis & Vector & One point on the axis.	\\
+\hline
+	angle\_of\_(multi-)rotation & Scalar & Angle in degrees.	\\
+\hline
+	number\_of\_rotations & Scalar & Number of rotations.	\\
+\hline
+\end{longtable}
+In this case 
+the output ports generate a set with as many
+elements as given by {\sl number\_of\_rotations}. 
+In the case of grids or vector fields these output
+elements are those obtained by successive {\sl number\_of\_rotations }
+rotations up to the angle {\sl angle\_of\_(multi-)rotation}.
+In the case of scalar fields {\sl number\_of\_rotations }
+copies of the input scalar field are delivered through the set.
+
+%=============================================================
+
+%=============================================================
+{\em Transform: Tile}
+%=============================================================
+ 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	TilingPlane & Choice & Tiling plane: XY, YZ or ZX. \\
+\hline
+	flipTile & Boolean & It indicates whether the tiles are obtained by flipping the original model (combinations of reflections) or just by simple translation.	\\
+\hline
+	TilingMin & Vector & It describes the position of the tile with the smallest coordinate values.	\\
+\hline
+	TilingMax & Vector & It describes the position of the tile with the largest coordinate values.	\\
+\hline
+\end{longtable}
+In this case 
+the output ports generate a set with as many
+elements as given by the product 
+(TilingMax(0) - TilingMin(0))*(TilingMax(1) - TilingMin(1)).
+The elements of the tiling pattern are obtained by flipping
+or translation according to the parameter {\sl flipTile}.
+The dimensions of a tile are computed from all geometry
+input objects. Nevertheless, you may prevent an object,
+a DistributedObject, from
+contributing to this tile dimension computation, if
+the getAttribute function applied to it with the argument
+"NO\_BBOX" is not NULL.
+
+%=============================================================
+{\em Transform: Other parameters}
+%=============================================================
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	InDataType\_0\ldots 3 & Choice & Magnitude options:\newline
+	                                 TrueVectorOrScalar,\newline 
+					 PseudoVectorOrScalar,\newline 
+					 Displacements. \\
+\hline
+	createSet & Boolean & Its value is only relevant in the case of
+transformations that would create multiple objects for each input object.
+This is namely the default behaviour in the case of tiling and multirotations,
+and mirroring too, when the original geometry is also to be displayed. \newline 
+Sometimes this default behaviour might cause performance problems if the name of element
+objects in the output sets is too large. In this case, you may try setting
+this parameter to {\sl false}, and all these output objects shall be gathered
+in a single object, provided that it is an unstructured one: \newline 
+Points,\newline
+Lines, \newline
+Polygons,\newline 
+TriangStrips, \newline
+UnstructuredGrid,\newline
+Float or \newline 
+Float \\
+\hline
+\end{longtable}
+
+With these parameters you may declare the nature of the magnitudes
+you are transforming. In the pseudovector or pseudoscalar case,
+the output field flips sign with respect to the output using
+the first option if the jacobian of the transformation is negative.
+The third case, Displacements, is only meaningful when you are
+tiling the model; the output is the correct continuation of the input
+vector field if it has the meaning of displacements.
+ 
+%=============================================================
+%
+%=============================================================

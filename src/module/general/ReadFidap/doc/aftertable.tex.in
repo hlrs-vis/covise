@@ -1,0 +1,16 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+\begin{covimg2} {}{map}{0.7}\end{covimg2}
+%
+The first figure shows a map that performs reading the grid from the data file.The module {\bf DomainSurface} determines the outer surface of the grid and the module {\bf CutGeometry} cuts the geometry with a plane.  
+
+The last figure is a snapshot of the renderer. 
+
+\begin{covimg2} {}{renderer}{0.7}\end{covimg2}

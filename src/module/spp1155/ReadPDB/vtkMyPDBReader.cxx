@@ -1,0 +1,123 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    $RCSfile: vtkMyPDBReader.cxx,v $
+  Language:  C++
+  Date:      $Date: 2003/11/07 14:04:58 $
+  Version:   $Revision: 1.4 $
+
+
+Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ * Neither name of Ken Martin, Will Schroeder, or Bill Lorensen nor the names
+   of any contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+ * Modified source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=========================================================================*/
+
+#include "vtkMyPDBReader.h"
+
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkIdTypeArray.h"
+#include "vtkCellArray.h"
+
+vtkCxxRevisionMacro(vtkMyPDBReader, "$Revision: 1.4 $");
+vtkStandardNewMacro(vtkMyPDBReader);
+
+vtkMyPDBReader::vtkMyPDBReader()
+{
+}
+
+vtkMyPDBReader::~vtkMyPDBReader()
+{
+}
+
+void vtkMyPDBReader::ReadSpecificMolecule(FILE *fp)
+{
+    char linebuf[82], dum1[8], dum2[8], dum3[8];
+    char atype[4 + 1];
+    int hydr = 0;
+    int i, j;
+    float x[3];
+
+    this->NumberOfAtoms = 0;
+    this->Points->Allocate(500);
+    this->AtomType->Allocate(500);
+    this->GroupType->Allocate(500);
+
+    vtkDebugMacro(<< "PDB File (" << this->HBScale
+                  << ", " << this->BScale << ")");
+    while (fgets(linebuf, sizeof linebuf, fp) != NULL && strncmp("END", linebuf, 3))
+    {
+        if ((0 == strncmp("ATOM", linebuf, 4) || 0 == strncmp("atom", linebuf, 4)) || (0 == strncmp("HETATM", linebuf, 6) || 0 == strncmp("hetatm", linebuf, 6)))
+        {
+            sscanf(&linebuf[12], "%4s", dum1);
+            sscanf(&linebuf[17], "%3s", dum2);
+            sscanf(&linebuf[22], "%6s", dum3);
+            sscanf(&linebuf[30], "%8f%8f%8f", x, x + 1, x + 2);
+            if (hydr == 0)
+            {
+                this->Points->InsertNextPoint(x);
+
+                for (j = 0, i = static_cast<int>(strspn(dum1, " ")); i < 5; i++)
+                {
+                    atype[j++] = dum1[i];
+                }
+
+                this->NumberOfAtoms++;
+            }
+            else if (!(dum1[0] == 'H' || dum1[0] == 'h'))
+            { /* skip hydrogen */
+                this->Points->InsertNextPoint(x);
+                for (j = 0, i = static_cast<int>(strspn(dum1, " ")); i < 5; i++)
+                {
+                    atype[j++] = dum1[i];
+                }
+
+                //sprintf(aamin[NumberOfAtoms],"%3s", dum2);
+                this->NumberOfAtoms++;
+            }
+            this->AtomType->InsertNextValue(this->MakeAtomType(atype));
+            this->GroupType->InsertNextValue(atoi(dum3));
+        }
+    }
+    this->Points->Squeeze();
+}
+
+void vtkMyPDBReader::PrintSelf(ostream &os, vtkIndent indent)
+{
+    this->Superclass::PrintSelf(os, indent);
+}

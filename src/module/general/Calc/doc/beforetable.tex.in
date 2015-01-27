@@ -1,0 +1,30 @@
+
+%=============================================================
+\begin{samepage} 
+ 
+%
+% short description what the module does
+%
+ 
+This module allows you to make mathematical calculation
+with scalar and/or vector objects. The result may be a scalar
+or a vector. The module interprets a string, whose syntax
+is described in a subsection below.
+ 
+%
+% input of a module icon for example
+% #1        path for eps
+% #2  picture name
+% #3  scale factor 
+
+\begin{covimg2}{}{Calc}{0.7}\end{covimg2}
+ 
+ 
+%
+% short information about versions
+%
+This module has been tested on SGI platforms.
+ 
+ 
+%
+%=============================================================

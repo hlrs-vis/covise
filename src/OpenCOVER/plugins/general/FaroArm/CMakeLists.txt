@@ -1,0 +1,19 @@
+#OpenCOVER plugins general FaroArm
+
+COVISE_FIND_PACKAGE(Faro)
+IF(FARO_FOUND)
+
+INCLUDE_DIRECTORIES(${FARO_INCLUDE_DIR})
+ADD_DEFINITIONS(-DHAVE_FARO)
+
+SET(HEADERS
+  FaroArm.h
+)
+
+SET(SOURCES
+  FaroArm.cpp
+)
+
+cover_add_plugin(FaroArm ${FARO_LIBRARIES})
+
+ENDIF(FARO_FOUND)

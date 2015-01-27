@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+ <GLOBAL>
+  <Module>
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <Fenfloss>
+    <Verbose value="1" />
+    <Timeout value="300" />
+    <Startup value="gate %0 %1 %e" name="v3" />
+    <Startup value="tube %0 %1 %e" name="v4" />
+    <Startup value="axial %0 %1 %e" name="v5" />
+    <Startup value="radial %0 %1 %e" name="v6" />
+    <Startup value="sc2004booth %0 %1 %e" name="v7" />
+    <Startup value="archflow %0 %1 %e" name="v8" />
+    <Startup value="other %0 %1 %e" name="v9" />
+    <Startup value="dgrid /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /usr/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V //data1/HLRS/hlrs/%2/fen_covise_gate'" name="v10" />
+   </Fenfloss>
+
+   <StarCD>
+    <Verbose value="1" />
+    <Timeout value="300" />
+    <Server value="m" />
+    <Startup value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <Startup value="dummy d" name="v2" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+
+   <Material>
+    <MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263"  emissive="0 0 0" shininess="0.0363636" transparency="0" />
+   </Material>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+  </Module>
+
+  <System>
+   <CRB>
+    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
+   </CRB>
+  </System>
+
+  <COVER>
+   <UseVertexBufferObjects value="false" />
+   <UseDisplayLists value="true" />
+   <NavigationMode value="XForm" />
+   <TransparencyMode value="sorted_blended" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+   <MultiThreaded value="off" />
+   <SaveFile value="/tmp/test.osg" />
+   <FileManager>
+           <FileType name="pts" plugin="PointModel" />
+           <FileType name="xyz" plugin="PointModel" />
+           <FileType name="wrl" plugin="Vrml97" />
+           <FileType name="wrl.gz" plugin="Vrml97" />
+           <FileType name="wrz" plugin="Vrml97" />
+           <FileType name="xvf" plugin="Volume" />
+           <FileType name="rvf" plugin="Volume" />
+           <FileType name="avf" plugin="Volume" />
+           <FileType name="js" plugin="Script" />
+           <FileType name="qs" plugin="Script" />
+           <FileType name="plmxml" plugin="PLMXML" />
+           <FileType name="jt" plugin="JTOpen" />
+           <FileType name="top" plugin="Amber" />
+           <FileType name="trj" plugin="Amber" />
+           <FileType name="cgl" plugin="CADCv3D" />
+           <FileType name="via" plugin="Molecules" />
+           <FileType name="vim" plugin="Molecules" />
+           <FileType name="vis" plugin="Molecules" />
+           <FileType name="dyn" plugin="VRAnim" />
+           <FileType name="geoall" plugin="VRAnim" />
+           <FileType name="str" plugin="VRAnim" />
+           <FileType name="sensor" plugin="VRAnim" />
+           <FileType name="xodr" plugin="TrafficSimulation" />
+      </FileManager>
+
+   <Input>
+    <MouseNav value="ON" />
+    <TrackingSystem value="MOUSE" />
+   </Input>
+
+   <Plugin>
+    <SGBrowser value="on" />
+    <Volume value="on">
+      <!-- value=[NO_MESSAGES|FEW_MESSAGES|MOST_MESSAGES|ALL_MESSAGES|0|1|2|3] -->
+      <DebugLevel value="NO_MESSAGES" />
+      <!-- UseHistogram - default: off. Takes very long for large volumes -->
+      <UseHistogram value="on" />
+      <!-- geometry=[Tex2d|Cubic2d|Spherical|Cubic3d|Brick|Tex|Tex3d|Planar] -->
+      <!-- voxelType=[RGBA|Cg|Frag|ARB] -->
+      <!-- gpuProxyGeo=[on|off] -->
+      <!-- lighting=[on|off] -->
+      <Renderer geometry="Brick" voxelType="Frag" gpuProxyGeo="on" imageScaling="on" lighting="on" />
+      <MultiGPU>
+        <!-- value=[BYTE|SHORT|FLOAT|8|16|32] -->
+        <BufferPrecision value="SHORT" />
+        <!-- The following is an example configuration -->
+        <!-- Be sure that the displays you use are configured -->
+        <NumSlaves value="2" />
+        <GPU display=":0.0" name="0" />
+        <GPU display=":0.1" name="1" />
+      </MultiGPU>
+    </Volume>
+
+    <TouchTable value="off" />
+
+    <Vrml97 value="on" >
+     <Audio value="Aserver" />
+    </Vrml97>
+
+    <Move value="on" />
+    <ClipPlane value="on" />
+
+    <PDB value="off" >
+     <PDBPluginPymolDir value="/var/tmp/pymol/" />
+     <PDBPluginTempDir value="/var/tmp/pdb/" />
+     <PDBUrl value="www.pdb.org/pdb/files/" />
+     <AnimationURL value="www.molmovdb.org/uploads/" />
+     <PDBAnimationUrl value="www.molmovdb.org/uploads" />e
+
+     <Scale value="1" />
+     <ViewerDistance value="70" />
+     <FadeDistance value="40" />
+
+     <Structures>
+          <Gleevec value="1XBB" />
+          <Luciferin value="2D1S" />
+          <Hemoglobin value="4HHB" />
+          <HIV_Protease value="1HVR" />
+          <Smad4 value="1YGS" />
+          <Photosystem_I value="1JBO" />
+          <Cytochrome_c_Oxidase value="1OCO" />
+          <MHC_Class_II value="1DLH" />
+          <Potassium_Channel_A value="1BL8" />
+          <Potassium_Channel_B value="1FQY" />
+          <SARS value="2D2D" />
+          <Acetylcholine_Receptor value="2BG9" />
+          <Acetylcholine_Cobratoxin value="1YI5" />
+          <Thermus_Thermophilus value="1J5E" />
+          <Polyketide_Synthase value="1U0M" />
+          <Calcium_Pump value="1SU4" />
+          <Antibody_bound_Influenza value="1KEN" />
+          <Thermatoga value="2F8J" />
+     </Structures>
+
+     <Animations>
+          <Serotonin_N_Acetyltransferase value="22943-38" />
+          <Calcium_Pump value="396506-12995" />
+          <FecA_transporter value="829808-15750" />
+          <Actin value="763408-1487" />
+          <Calmodulin value="17833-29779" />
+     </Animations>
+    </PDB>
+
+    <AKToolbar value="off">
+     <Attachment value="TOP" />
+     <Scale value=".8" />
+     <MinClickTime value="0.2" />
+     <Position x="-980" y="0" z="630" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="walk" name="walk" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+    </AKToolbar>
+
+    <Amber value="off"/>    
+
+   </Plugin>
+
+   <Menu>
+    <Position x="600" y="0" z="500" />
+   </Menu>
+   <ViewerPosition x="0" y="-2000" z="0" />
+   <SceneSize value="1500" />
+   <DebugLevel value="1" />
+   <FPS value="true" />
+
+   <PipeConfig>
+    <Pipe display="not needed any more" server="0" screen="0" name="0" />
+   </PipeConfig>
+
+   <ChannelConfig>
+    <Channel width="1" height="1" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="NONE"  windowIndex="0"  name="0"  />
+   </ChannelConfig>
+            
+   <WindowConfig>
+    <Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="10" bottom="10" name="0" decoration="true" />
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="true" />
+   </WindowConfig>
+
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen width="2000" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1500" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+  </COVER>
+
+
+  <!-- position of transfer editor menu>
+
+      <TFE>
+         <MenuPosition value="-200 0 80" >
+         <MenuSize value="0.15" >
+      </TFE--><!--position of error message window (PDBplugin)>
+
+      <Messages>
+         <MenuPosition value="100 0 120" />
+         <MenuSize value="0.15" />
+      </Messages--> </GLOBAL>
+
+ <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+ <!-- this config is required by the ViNCE Renderer-->
+ <INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE>
+ <INCLUDE global="1" configname="license" >config-license.xml </INCLUDE>
+</COCONFIG>

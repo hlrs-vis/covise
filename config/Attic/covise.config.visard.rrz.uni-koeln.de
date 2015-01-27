@@ -1,0 +1,8 @@
+COVERConfig
+{
+        #MULTITHREAD on
+        AUDIO Oss
+        MODULE Normals
+}
+
+include "config/covise.config.koeln"

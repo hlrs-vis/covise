@@ -1,0 +1,5 @@
+This is a module to read ASCII files to create points (with or without scalar or vector values) or a grid. It is created to handle all (senseful) types of formats. So there are very many parameters, to fit as many formats as possible.\\
+{\bf It is strongly recommended to use the Control Panel instead the Module Parameter list}, because the module maps the available parameters dynamically to the  Control Panel. Due to that, you don't have to worry about parameters that have no influence to the reading process.\\
+The most importent parameter is the {\bf data format}, because the modul reads the file with help from this parameter.\newline
+There are different examples below.
+

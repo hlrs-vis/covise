@@ -1,0 +1,810 @@
+#######################################################################################################
+#                                                         (C) 2001 VirCinity
+#
+#  File:                           translations.txt                                              
+#			  	                                                      
+#  Description:	          	   translation-table for COVISE map_converter         
+#			  	                                                      
+#  Default-location:      	   $COVISEDIR                                         
+#			  	                                                      
+#  map_converter version: 	   1.0 (obtain it with: map_converter -v)             
+#			  	                                                      
+#  Author:                	   Ralf Mikulla                                       
+#			  	                                                      
+#  Date:                  	   April 2001                                         
+#                         	                                                      
+#  Address:                        VirCinity IT Consulting GmbH                              
+#                           	   Nobelstrasse 15                                    
+#                           	   70569 Stuttgart                                    
+#                                                                                     
+######################################################################################################
+
+#=====================================================================================================
+#
+# FORMAT DESCRIPTION:
+#
+# the following words followed by a ":" or a ">" are keywords:
+#
+# "module", "name", "port", "param" "portPolicy"
+#
+#  a "#" at the beginning of a line indicates a comment line
+#
+# the file consists of blocks which start with the phrase "module:" and end if the next 
+# phrase "module:" is found.
+# the word behind the "module:" key indicates the map_converter the name of the module in 
+# the current COVISE distribution as you see it in the map-editor of COVISE. Every line 
+# below the "module:" <name> line belongs gives a translation for the module <name>
+#  
+# TRANSLATIONS:
+#  
+# For each translation category multiple translations are possible
+#
+#
+#
+# "name:" <old name>                           indicates the name of the module <name> in a 
+#                                              COVISE work-flow file (=map) belonging to an old 
+#                                              distribution of COVISE (i.e. the name you have seen 
+#                                              in the map-editor of previous versions of COVISE)
+#
+# "group:" <old group>                         indicates the group (category) of the module in a 
+#                                              COVISE work-flow file (=map) belonging to an old 
+#                                              distribution of COVISE.
+#
+# "portPolicy:" <value>                        The only valid value for this tag is "translations".
+#                                              Other values are interpreted as if the tag was not 
+#                                              there and will have no effect. This tag
+#                                              MUST be used in front of port-translations (see 
+#                                              below). It has only an effect to port-translations 
+#                                              defined below it. The tag indicates that 
+#                                              ONLY PORT TRANSLATIONS GIVEN IN THE TRANSLATION FILE 
+#                                              are used to recognize port names. The only sensible 
+#                                              use is for modules using port-names in the 
+#                                              current version which have been used 
+#                                              in the old version with a different meaning. The use
+#                                              of this option requires a complete translation table 
+#                                              for ports. In this case ports which do NOT appear in 
+#                                              the translation table will be deleted.
+#                      
+#
+#
+# "port:" <current name> > <outdated name>    the port named <outdated name> will be mapped to 
+#                                              the port <current name> 
+#
+# "param:" <current name> > <outdated name>   the parameter named <outdated name> will be mapped 
+#                                              to the parameter <current name> 
+# 
+#  
+# FURTHER REMARKS:
+#
+# - avoid TAB's 
+# - entries of the translation table should begin with the first char of each line
+# - comments behind statements of the translation table are not allowed    
+# - empty lines are ignored
+#
+#
+#=====================================================================================================
+
+module: VRRenderer
+name: COVER
+name: COVER_VRML
+
+module: ReadObj
+port: GridOut0 > polygons
+port: DataOut0 > colors
+port: DataOut1 > normals
+
+module: Colors 
+name: ColorMap
+name: CTex
+name: CMap
+name: StarColorMap
+name: CMapTex
+name: ColorTex
+port: DataOut0 > Colors
+port: TextureOut0 > Textures
+port: ColormapIn0 > minmax
+port: DataIn0 > Data
+port: DataIn1 > alpha
+port: ColormapIn0 > cmapIn
+port: DataOut0 > colors 
+port: TextureOut0 > texture
+port: ColormapOut0 > cmapOut
+param: Min/Max > MinMax
+param: Colormap > EditableColormap
+param: UserColormap > EditableColormap
+
+module: CutGeometry
+param: distance > scalar
+param: normal > vertex
+port: GridIn0 > geo_in
+port: GridOut0 > geo_out
+port: DataIn0 > data_in0 
+port: DataIn1 > data_in1
+port: DataIn2 > data_in2
+port: DataIn3 > data_in3
+port: DataOut0 > data_out0 
+port: DataOut1 > data_out1
+port: DataOut2 > data_out2
+port: DataOut3 > data_out3
+
+	
+module: ReadStar
+name: ReadSTAR
+name: ReadSTAR.new
+port: data_0 > data1
+port: data_1 > data2
+port: data_2 > data3
+param: field_0 > field1
+param: field_1 > field2
+
+
+module: ReadFluvisTS
+name: ReadFluvisTSVel	
+
+
+module: SplitUsg
+name: SplitUSG
+
+
+
+module: DomainSurface
+name: Domainsurface
+name: DomainsurfaceStr
+name: DomainSurfaceStr
+port: GridIn0 > meshIn
+port: DataIn0 > dataIn
+port: GridOut0 > meshOut
+port: GridOut1 > linesOut
+port: DataOut0 > dataOut
+port: DataOut1 > ldataOut
+
+module: FixUsg
+name: FixUSG
+
+
+module: Tracer
+name: TracerUsg
+name: TracerUSG
+name: MagTracer
+name: MagBlockTracer
+name: TracerStr
+name: BlockSTracer
+name: STracer
+
+
+module: IsoSurfaceS
+name: IsosurfaceS
+
+
+module: Collect
+name: CollectMat
+port: GridIn0 > grid
+port: DataIn0 > colors
+port: DataIn1 > normals
+port: TextureIn0 > textures
+port: GeometryOut0 > geometry
+
+
+module: GenNormals
+port: inPort > grid_in
+port: outPort > data_out
+
+
+module: IndexManifolds
+name: IndexSurface
+name: CuttingPlane
+port: Grid > meshIn
+port: Data > dataIn
+port: Surface > meshOut
+port: Surface Data > dataOut
+port: GridIn0 > Grid
+port: DataIn0 > Data
+port: GridOut0 > Surface
+port: DataOut0 > SurfaceData
+port: GridOut1 > Line
+port: DataOut1 > LineData
+port: GridOut2 > Point
+port: DataOut2 > PointData
+
+
+module: Transform
+port: geo_in > poly_in
+port: data_in0 > data_in
+port: geo_out > poly_out
+port: data_out0 > data_out
+param: Transform: > Transform
+param: axis_of_(multi-)rotation > axis_of_multi_rotation
+param: angle_of_(multi-)rotation > angle_of_multi_rotation
+param: EUC_file-filter > EUC_file___filter
+
+module: Sample
+name: SampleNew
+
+
+module: MinMax
+name: Histogram
+group: Filter
+
+
+module: GetSetelem
+portPolicy: translations
+	
+port: DataIn0 > input_0
+port: DataIn1 > input_1
+port: DataIn2 > input_2
+port: DataIn3 > input_3
+port: DataIn4 > input_4
+port: DataIn5 > input_5
+port: DataIn6 > input_6
+port: DataIn7 > input_7
+port: DataOut0 > output_0
+port: DataOut1 > output_1
+port: DataOut2 > output_2
+port: DataOut3 > output_3
+port: DataOut4 > output_4
+port: DataOut5 > output_5
+port: DataOut6 > output_6
+port: DataOut7 > output_7
+
+
+module: ReadPlot3D
+port: data1 > density
+port: data2 > momentum
+port: data3 > energy
+
+
+module: ReadCadmould
+name: ReadCADMould
+param: filename > Fuellbild
+
+
+module: BlockCollect
+port: set_out > outport_0
+
+
+module: AssembleUsg
+port: GridIn0 > GridIn
+port: DataIn0 > DataIn
+port: GridOut0 > GridOut
+port: DataOut0> DataOut
+
+
+module: BoundingBox
+port: GridIn0 > Data 
+port: GridOut0 > BoundingBox
+
+
+module: CheckObj
+port: GridIn0 > meshIn
+
+
+module: Calc
+port: DataIn0 > s_indata1
+port: DataIn1 > s_indata2 
+port: DataIn2 > v_indata1
+port: DataIn3 > v_indata2
+port: DataOut0 > outdata1
+port: DataOut1 > outdata2
+
+
+module: CellToVert
+port: GridIn0 > grid_in
+port: DataIn0 > data_in
+port: DataOut0 > data_out
+
+
+module: ClipInterval
+port: GridIn0 > Geometry_in
+port: GridOut0 > Geometry_out
+port: DataIn0 > Scalar_in
+port: DataIn1 > Field_in_0
+port: DataIn2 > Field_in_1
+port: DataIn3 > Field_in_2
+port: DataIn4 > Field_in_3
+port: DataIn5 > Field_in_4 
+port: DataIn6 > minmax
+port: DataOut0 > Scalar_out
+port: DataOut1 > Field_out_0 
+port: DataOut2 > Field_out_1
+port: DataOut3 > Field_out_2
+port: DataOut4 > Field_out_3
+port: DataOut5 > Field_out_4
+
+module: ComputeTrace
+port: GridIn0 > points
+port: DataIn0 > dataIn
+port: GridOut0 > trace
+port: DataOut0 > colorIndex 
+port: DataOut1 > fadeOutValue
+port: DataOut2 > dataOut
+
+
+module: CropUsg
+port: GridIn0 > gridIn
+port: DataIn0 > vdata
+port: DataIn1 > sdata1
+port: DataIn2 > sdata2
+port: DataIn3 > sdata3
+port: DataIn4 > sdata4
+port: DataIn5 > sdata5 
+port: DataIn6 > param_in
+port: GridOut0 > gridOut
+port: DataOut0 > vodata
+port: DataOut1 > sodata1
+port: DataOut2 > sodata2
+port: DataOut3 > sodata3
+port: DataOut4 > sodata4
+port: DataOut5 > sodata5
+port: DataOut6 > param_out
+
+
+module: CuttingSurface
+port: GridIn0 > meshIn
+port: GridIn1 > SampleGeom
+port: DataIn0 > dataIn 
+port: DataIn1 > isoDataIn
+port: DataIn2 > isoMinMaxIn
+port: DataIn3 > iBlank
+port: DataIn4 > SampleData
+port: GridOut0 > meshOut
+port: DataOut0 > dataOut
+port: DataOut1 > normalsOut
+port: DataOut2 > linesOut
+port: ColormapIn0 > colorMapIn
+port: GeometryOut0 > geometryOut
+
+module: CuttingSurfaceComp
+port: GridIn0 > meshIn
+port: GridIn1 > SampleGeom
+port: DataIn0 > dataIn 
+port: DataIn1 > isoDataIn
+port: DataIn2 > isoMinMaxIn
+port: DataIn3 > iBlank
+port: DataIn4 > SampleData
+port: GridOut0 > meshOut
+port: DataOut0 > dataOut
+port: DataOut1 > normalsOut
+port: DataOut2 > linesOut
+port: ColormapIn0 > colorMapIn
+port: GeometryOut0 > geometryOut
+
+module: CuttingLine
+port: GridIn0 > meshIn
+port: DataIn0 > dataIn
+port: DataOut0 > dataOut
+
+module: DataToGrid
+port: DataIn0 > Data
+port: GridIn0 > TopologyGrid
+port: GridOut0 > Grid
+
+module: DerivOperators
+port: GridIn0 > InGrid
+port: DataIn0 > InData
+port: DataOut0 > OutData
+
+module: DisplaceUsg
+port: GridIn0 > mesh
+port: DataIn0 > dataIn
+port: GridOut0 > meshOut
+
+module: EliminatePolygons
+port: GridIn0 > Polygons
+port: GridIn1 > Throw_away
+port: GridOut0 > Poly_Out
+
+module: FilterCrop
+port: GridIn0 > meshIn
+port: DataIn0 > dataIn
+port: GridOut0 > meshOut
+port: DataOut0 > dataOut
+
+module: FixPart
+port: GridIn0 > Grid_in
+port: GridOut0 > Grid_out
+
+module: FixUsg
+port: GridIn0 > usg_in
+port: DataIn0 > data_00_in
+port: DataIn1 > data_01_in
+port: DataIn2 > data_02_in
+port: DataIn3 > data_03_in
+port: DataIn4 > data_04_in
+port: GridOut0 > usg_out
+port: DataOut0 > data_00_out
+port: DataOut1 > data_01_out
+port: DataOut2 > data_02_out
+port: DataOut3 > data_03_out
+port: DataOut4 > data_04_out
+
+module: GridToData
+port: GridIn0 > Grid
+port: DataOut0 > Data
+
+module: GridSurface
+port: GridIn0 > grid_in
+port: DataIn0 > data_in
+port: GridOut0 > poly_out
+port: DataOut0 > data_out
+
+module: GetSubset
+port: DataIn0 > input_0
+port: DataIn1 > input_1
+port: DataIn2 > input_2
+port: DataIn3 > input_3
+port: DataIn4 > input_4
+port: DataIn5 > input_5
+port: DataIn6 > input_6
+port: DataIn7 > input_7
+port: DataIn0 > input_0
+port: DataOut1 > output_1
+port: DataOut2 > output_2
+port: DataOut3 > output_3
+port: DataOut4 > output_4
+port: DataOut5 > output_5
+port: DataOut6 > output_6
+port: DataOut7 > output_7
+
+module: GenNormals
+port: GridIn0 > inPort
+port: DataOut0 > outPort
+
+module: GenDat
+port: GridOut0 > Grid
+port: DataOut0 > Scalar_Data
+port: DataOut1 > Vector_Data
+
+module: Interpolate
+port: DataIn0 > dataIn_1
+port: DataIn1 > dataIn_2
+port: DataIn2 > indexIn
+port: DataOut0 > dataOut_1
+port: DataOut1 > dataOut_2
+port: DataOut2 > indexOut
+
+module: IsoLines
+port: GridIn0 > geo_in
+port: DataIn0 > data_in
+port: GridOut0 > lines_out
+port: DataOut0 > data_out
+
+module: IsoSurface
+name: Isosurface
+name: IsoSurfaceP
+port: GridIn0 > meshIn
+port: DataIn0 > isoDataIn
+port: DataIn1 > dataIn
+port: DataIn2 > iBlank
+port: ColormapIn0 > colorMapIn
+port: GeometryOut0 > geometryOut
+port: GridOut0 > meshOut
+port: DataOut0 > dataOut
+port: DataOut1 > normalsOut
+
+module: IsoSurfaceComp
+port: GridIn0 > meshIn
+port: DataIn0 > isoDataIn
+port: DataIn1 > dataIn
+port: DataIn2 > iBlank
+port: ColormapIn0 > colorMapIn
+port: GeometryOut0 > geometryOut
+port: GridOut0 > meshOut
+port: DataOut0 > dataOut
+port: DataOut1 > normalsOut
+
+module: ImageToTexture
+port: GridIn0 > GeometryIn
+port: DataIn0 > ShiftIn
+port: TextureOut0 > TextureOut
+
+module: RWCovise
+param: grid_path-filter > grid_path___filter
+
+module: Gate
+port: 2dplot > _2dplot
+param: gate data > gate_data
+param: meridian contour data > meridian_contour data
+param: blade profile data > blade_profile_data
+param: grid data > grid_data
+param: grid point numbers > grid_point numbers
+param: grid length paras > grid_length paras
+param: grid compression paras > grid_compression paras
+param: grid shift paras > grid_shift_paras
+param: make grid? > make_grid
+param: lock make grid button? > lock_make_grid_button
+param: read geometry from file? > read_geometry_from_file
+param: save grid (geo/rb)? > save_grid_geo_rb
+param: radial gate? > radial_gate
+param: Q_opt [m3/s] > Q_opt_m3_s
+param: n_opt [1/s] > n_opt_1_s
+param: H [m] > H_m
+param: Q [m3/s] > Q_m3_s
+param: n [1/s] > n_1_s
+param: number of blades > number_of_blades
+param: blade axis radius > blade_axis_radius
+param: blade angle > blade_angle
+param: inlet: height > inlet_height
+param: inlet: radius > inlet_radius
+param: inlet: z (shroud) > inlet_z_shroud
+param: outlet: inner radius > outlet_inner_radius
+param: outlet: outer radius > outlet_outer_radius
+param: outlet: z > outlet_z
+param: shroud: radius (a, b) > shroud_radius_a_b
+param: hub: radius (a, b) > hub_radius_a_b
+param: n points hub arc > n_points_hub_arc
+param: blade element bias factor > blade_element_bias_factor
+param: blade element bias type > blade_element_bias_type
+param: radial parameter > radial_parameter
+param: chord length > chord_length
+param: pivot location > pivot_location
+param: chord angle > chord_angle
+param: profile thickness > profile_thickness
+param: maximum camber > maximum_camber
+param: blade profile shift > blade_profile_shift
+param: blade ps area border [%] > blade_ps_area_border_percent
+param: blade ss area border [%] > blade_ss_area_border_percent
+param: boundary layer thickness > boundary_layer_thickness
+param: n radial > n_radial
+param: n boundary layer > n_boundary_layer
+param: n outlet > n_outlet
+param: n inlet > n_inlet
+param: n ps back > n_ps_back
+param: n ps front > n_ps_front
+param: n ss back > n_ss_back
+param: n ss front > n_ss_front
+param: outlet hub area start [%] > outlet_hub_area_start_percent
+param: outlet shroud area start [%] > outlet_shroud_area_start_percent
+param: len inlet expansion > len_inlet_expansion
+param: len outlet expansion > len_outlet_expansion
+param: comp ps back > comp_ps_back
+param: comp ps front > comp_ps_front
+param: comp ss back > comp_ss_back
+param: comp ss front > comp_ss_front
+param: comp trail > comp_trail
+param: comp outlet > comp_outlet
+param: comp inlet > comp_inlet
+param: comp boundary layer > comp_boundary_layer
+param: comp middle > comp_middle
+param: comp radial > comp_radial
+param: shift outlet > shift_outlet
+param: subcategories grid > subcategories_grid
+
+module: AxialRunner
+param: use_euler's_equation > use_eulers_equation
+param: machine_dimensions_(normalized_values) > machine_dimensions_normalized_values
+param: shroud_diameter_(reference) > shroud_diameter_reference
+param: semi-vertical_axis_hub_bend >   semi_vertical_axis_hub_bend  
+param: semi-horizontal_axis_hub_bend > semi_horizontal_axis_hub_bend
+param: shroud_bend_radius_(start-end) > shroud_bend_radius_start_end
+param: oulet_section_(draft_tube) > oulet_section_draft_tube
+param: layers_to_show_(min/max) > layers_to_show_min_max
+param: circumf_ discr_at_leading_edge > circumf_discr_at_leading_edge
+param: radial_skew_runner_in/outlet > radial_skew_runner_in_outlet
+param: le_b2b_spline_vector_angles_(ss/ps) > le_b2b_spline_vector_angles_ss_ps
+param: ratio_ssle/blade(hub/shroud) > ratio_ssle_blade_hub_shroud
+param: ratio_psle/blade(hub/shroud) > ratio_psle_blade_hub_shroud
+param: runner_inlet_b2b_angles_(ss/ps) > runner_inlet_b2b_angles_ss_ps
+port: 2DPort > _2DPort
+port: 2DPlot > _2DPlot
+
+module: RadialRunner
+param: use_euler's_equation > use_eulers_equation
+param: outlet_diameter_(absolute) > outlet_diameter_absolute 
+param: inlet_diameter_(relative) > inlet_diameter_relative
+param: conduit_width(in/out) > conduit_width_in_out
+param: contour_angles(in/out) > contour_angles_in_out
+param: inlet_opening_angles_(hub/shroud) > inlet_opening_angles_hub_shroud
+param: outlet_opening_angles_(hub/shroud) > outlet_opening_angles_hub_shroud
+param: extension_shroud_height(in/out) > extension_shroud_height_in_out
+param: extension_shroud_diameter(in/out) > extension_shroud_diameter_in_out
+param: extension_conduit_width(in/out) > extension_conduit_width_in_out
+param: layers_to_show_(min/max) > layers_to_show_min_max
+param: circumf_ discr_at_leading_edge > circumf_discr_at_leading_edge
+param: radial_skew_runner_in/outlet > radial_skew_runner_in_outlet
+param: le_b2b_spline_vector_angles_(ss/ps) > le_b2b_spline_vector_angles_ss_ps
+param: ratio_ssle/blade(hub/shroud) > ratio_ssle_blade_hub_shroud
+param: ratio_psle/blade(hub/shroud) > ratio_psle_blade_hub_shroud
+param: runner_inlet_b2b_angles_(ss/ps) > runner_inlet_b2b_angles_ss_ps
+port: 2DPort > _2DPort
+port: 2DPlot > _2DPlot
+port: meridian_contour_(extended) > meridian_contour_extended
+
+module: Fenfloss
+param: Connection Method > Connection_Method
+param: Startup Script on Client > Startup_Script_on_Client
+param: Globus Simulation Discovery > Globus_Simulation_Discovery
+param: Running Simulations > Running_Simulations
+param: Update SimData every X iterations > Update_SimData_every_X_iterations
+param: grid_path-filter > grid_path___filter
+
+module: VeloIHS
+param: r*vu > r_times_vu
+param: Rotation axis > Rotation_axis
+
+module: relabs
+param: Rotation axis > Rotation_axis
+param: U/min > U_per_s
+param: rel2abs/abs2rel > rel2abs_or_abs2rel
+
+module: ReadEnsight
+param: repair connectivity > repair_connectivity
+
+module: Tracer
+param: Min/Max > MinMax
+
+module: TracerComp
+param: Min/Max > MinMax
+
+module: Material
+param: user defined > user_defined
+port: GridIn0 > grid
+port: DataIn0 > colors
+port: DataIn1 > normals
+port: TextureIn0 > textures
+port: GeometryOut0 > geometry
+
+module: ReadASCII
+param: Max line length > MaxLineLength
+param: SED Pattern (Disabled) > SedPattern
+param: Header Byte Offset > HeaderByteOffset
+param: Header Line Skip > HeaderLineSkip
+param: Dim Pattern > DimPattern
+param: UniDist X > UniDistX
+param: UniDist Y > UniDistY
+param: UniDist Z > UniDistZ
+param: Data interleaving > DataInterleaving
+param: Number of Points > NumberOfPoints
+param: Data Byte Offset > DataByteOffset
+param: Data Line Skip > DataLineSkip
+param: Data Format > DataFormat
+param: Grid Index Iteration Order > GridIndexIterationOrder
+param: Print results to console > PrintResultsToConsole
+param: Print debug info to console > PrintDebugInfoToConsole
+param: Scale factor > ScaleFactor
+
+module: MinMax
+port: 2dplot > plot2d
+
+module: ColorDistance
+param: red > Red
+param: green > Green
+param: blue > Blue
+param: data > Data
+param: reference color > ReferenceColor
+param: metric > Metric
+param: distance base > DistanceBase
+param: distance multiplier > DistanceMultiplier
+
+module: ReadVTF
+param: *.vtf > Filename
+
+module: Tube
+param: limit_Radius? > LimitRadius
+
+module: Sample
+param: point sampling > point_sampling
+
+module: ComputeTrace
+param: leaving bounding box > LeavingBoundingBox
+param: bounding box dimensions > BoundingBoxDimensions
+
+module: Transform
+param: Transform: > Transform
+param: axis_of_(multi-)rotation > axis_of_multi_rotation
+param: angle_of_(multi-)rotation > angle_of_multi_rotation
+
+module: ReadFamu
+param: Start simulation? > StartSimulation
+param: First file > FirstFile
+param: Second file > SecondFile
+param: Third file > ThirdFile
+param: Target file > TargetFile
+param: Famu arguments > FamuArguments
+param: Subdivide elements > SubdivideElements
+param: Displacements x 1000 > DisplacementTimes1000
+param: Symmetry rot. angle (deg) > SymmetryRotAngle
+param: Original symm. steps > OriginalSymmSteps
+param: No. of time steps to read > NoOfTimestepsToRead
+param: No. of time steps to skip > NoOfTimestepsToSkip
+param: Collectors to load > CollectorsToLoad
+param: Bottomleft Point(No.1) > BottomLeftPoint
+param: Bottomright Point(No.2) > BottomRightPoint
+param: Topright Point(No.3) > TopRightPoint
+param: Topleft Point(No.4) > TopLeftPoint
+param: Move Distances > MoveDistances
+param: Scale Factor > ScaleFactor
+param: Rotate Deg(XY) > RotateDegXY 
+param: Rotate Deg(YZ) > RotateDegYZ
+param: Rotate Deg(XZ) > RotateDegXZ
+param: Reset Electrode > ResetElectrode
+param: Move Isolator > MoveIsolator
+param: Scale Isolator > ScaleIsolator
+
+module: ReadANSYS
+param: Solution: > Solution
+
+module: ReadBio
+param: Fill Color > FillColor
+param: Mode for timesteps > ModeForTimesteps
+param: Scale X > ScaleX
+param: Scale Y > ScaleY
+param: Scale Z > ScaleZ
+param: Default is Little Endian > DefaultIsLittleEndian
+
+module: CheckObj
+param: report all errors > ReportAllErrors
+
+module: ReadN3s
+param: n3s geofile > N3sGeofile
+param: n3s result file > N3sResultFile
+
+module: Solutions
+param: x,-,y-, z-momentum > MomentumDirection
+
+module: ReadTecplot
+param: timestep-sequence > TimestepSequence
+
+module: ReadCFX
+param: Regions selection > RegionsSelection
+param: Boundary selection > BoundarySelection
+param: mesh > GridOut0
+param: scalar data > DataOut0
+param: vector data > DataOut1
+param: region mesh > GridOut1
+param: region scal > DataOut2
+param: boundaries > GridOut2
+param: boundaries > DataOut3
+param: angular_velocity, set to 0 for automatic settings > angular_velocity
+
+module: ReadDyna3D
+param: only geometry > OnlyGeometry
+
+module: ReadNeuron
+port: synapse-id > SynapseID
+
+module: archflow
+param: create_geo/rb_file > create_geo_or_rb_file
+param: geofile path > GeofilePath
+param: rbfile path > RbfilePath
+
+module: ReadIdea
+param: lowest frequency > lowest_frequency
+param: highest frequency > highest_frequency
+param: frequency scale > frequency_scale
+param: min angle > min_angle
+param: inverse frequencies > inverse_frequencies
+
+module: ReadMPAPDB
+param: atom type > AtomType
+
+module: ReadSim
+param: Connection Method > ConnectionMethod
+param: Startup Script on Client > StartupScriptOnClient
+ 
+module: ReadSoundVol
+param: laerm_ist.vol > Filename
+param: inbc nodes > InbcNodes
+param: airbc nodes > AirbcNodes
+param: venbc nodes > VenbcNodes
+param: feedback info > FeedbackInfo
+param: create_geo/rb_file > create_geo_or_rb_file
+param: vz_aircond._front > vz_aircond_front
+param: vz_aircond._middle > vz_aircond_middle
+param: vz_aircond._back > vz_aircond_back
+param: geofile path > GeofilePath
+param: rbfile path > RbfilePath
+
+module: ReadIHS2
+param: Read simfile? > ReadSimfile
+param: numbered conn.-list > NumberedConnList
+param: scaling factor > ScalingFactor
+param: show all bilas? >  ShowAllBilas
+param: show all walls? > ShowAllWalls
+param: create boco object? > CreateBocoObject
+param: generate inlet boco? > GenerateInletBoco
+param: transform abs2rel > TransformAbs2Rel
+param: revolutions per second > RevolutionsPerSecond
+param: bilanr inlet > BilanrInlet
+param: bilanr outlet > BilanrOutlet
+param: bilanr1 periodic > Bilanr1Periodic
+param: bilanr2 periodic > Bilanr2Periodic

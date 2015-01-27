@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Superabsorber' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <ShortCut value="showName" name="showName" />			   
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="Behaelter" regexp="Behaelter-FACES.*" shader="Glossy5" />
+               <Scope name="Pipette" regexp="Pipette-FACES.*" shader="Glossy5" />
+               <Scope name="Pipette_0" regexp="Pipette_0-FACES.*" shader="Glossy5" />
+               <Scope name="Pipetten_Kopf" regexp="Pipetten_Kopf-FACES.*" shader="Glossy8" />
+               <Scope name="Wasser" regexp="Wasser-FACES.*" shader="Glossy5" />
+               <Scope name="H2O" regexp="H2O.*" shader="Glossy7" />
+               <Scope name="Acrylsaeure" regexp="Acrylsaeure.*" shader="Glossy7" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+        <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+        <Localization>
+            <LocalePath value="../Demos/VR4Schule/Chemie/Superabsorber/locale" />
+        </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

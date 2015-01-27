@@ -1,0 +1,28 @@
+--- uTouch3D manual ---
+
+Table:
+1. open the door and turn on the switch on the multi-plug; this turns on the IR-lights
+2. remove the camera's protection cap 
+3. turn on the projector with the remote control (works through the projection plane)
+4. the fans are connected to the tracking machine and start working when the machine is started
+
+
+Multi-touch tracking machine:
+1. Start Windows and login as "local" 
+2. Start Community Core Vision (Desktop/CCV/CCV-1.3-win-bin/Community Core Vision.exe)
+3. On the first start, the camera runs on 15fps only; in CCV click on the Camera Settings button in the toolbar, a window of the camera properties pops up; select the Format tab and adjust the camera to the maximum fps (60); close the camera properties window after confirming that change; CCV has to be closed and restarted in order to take the changes into effect;
+4. after CCV has been restarted, check the Camera Framerate, it should be 25-27 fps on the VISARD machine
+5. CCV can be calibrated by clicking the Enter Calibration button in the toolbar; in the calibration, the touch points are assigned to normalized coordinates
+6. The calibration as well as the configuration settings of CCV can be found in the data folder (Desktop/CCV/CCV-1.3-win-bin/data): calibration.xml and config.xml: in the config.xml settings such as maximum blobs and ip-address of the target TUIO client can be adjusted
+
+
+Rendering machine:
+1. Start linux
+2. If the projector shows no changes and just its start screen, restart the X server (Ctrl+Alt+Backspace); now the desktop should be extended to the projector
+3. check if the projector is running in 120Hz mode: System->administration->NVidia X Server Settings; the projector runs in 60Hz mode sometimes and simply openning the NVidia X Server settings triggers it to run in the proper 120Hz mode; you can check this by clicking on the GPU 0 node in the NVidia X Server setting window and then on DFP-4 (Viewsonic PJD6381): Refresh Rate should be at 120Hz there
+4. check the COVISE config file; the uTouch3D plugin has to be enabled; for VISTERIUM machine, covfig.vsiterium.xml is the proper config file
+5. source covise and open a net (cluster-stars-disc-tracks-short.net)
+6. start the net; OpenCOVER should receive the TUIO information from the tracking machine
+7. the blobs are visualised by small white circles on the surface; if the circles are drawn, multi-touch interaction is working properly
+
+

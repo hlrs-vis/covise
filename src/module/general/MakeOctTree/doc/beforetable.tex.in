@@ -1,0 +1,33 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+MakeOctTree generates octrees for unstructured grids and polygons. An object
+of class OctTree is generated for unstructured grids,
+whereis for Polygons
+a OctTreeP object is generated. In general you will never use
+this module except in 2 situations: when you are using
+more than one tracer module for the same data set, and 
+when you want to change the default values which control
+octree construction.
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{MakeOctTree}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+It's available in version 5.2.2.
+%
+
+%
+%=============================================================

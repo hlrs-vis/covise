@@ -1,0 +1,401 @@
+<HTML>
+<HEAD>
+  <TITLE>COVISE - Support - Documentation - COVER - CoverConfig</TITLE>
+  <META Name="Author"      Content="Daniela Rainer, rainer@rus.uni-stuttgart.de">
+  <META Name="Domain"      Content="rus">
+  <META Name="Project"     Content="COVER">
+  <META Name="Description" Content="COVER- COVISE Virtual Environment">
+  <META Name="Keywords"    Content="Virtual Reality">
+  <META Name="Title"       Content="HLRS - Organisation - Visualization - COVISE - Support - Documentation - COVER - CoverConfig">
+  <META Name="Quarter"     Content="Q2">
+  <META Name="Date"        Content="19980604">
+  <META Name="Year"        Content="1998">
+  <META Name="Referencetype" Content="text/html">
+</HEAD>
+<BODY BGCOLOR="#EBF5EB" LINK=#1863B5>
+
+<TABLE BORDER=0>
+<TR>
+    <TD>
+	<IMG SRC="../../hlrs.small.gif">
+    </TD>
+
+    <TD ALIGN=CENTER VALIGN=CENTER>   
+	
+	<FONT SIZE=2>
+	<A HREF="http://www.hlrs.de/structure/organisation/vis/covise/support/releases">[COVISE Releases]</A>
+	<A HREF="http://www.hlrs.de/structure/organisation/vis/covise/support/license">[COVISE License]</A>
+	<A HREF="http://www.hlrs.de/structure/organisation/vis/covise/support/tutorial">[COVISE Tutorial]</A>
+	<A HREF="http://www.hlrs.de/structure/organisation/vis/covise/support/manual">[COVISE Manual]</A>
+	<A HREF="../index.html"><B>[COVISE Modules]</B></A>
+	<BR>
+	<A HREF="../../io/index.html">[I/O]</A>
+	<A HREF="../../sim/index.html">[Simulation]</A>
+	<A HREF="../../filter/index.html">[Filter]</A>
+	<A HREF="../../mapper/index.html">[Mapper]</A>
+	<A HREF="../../color/index.html">[Color]</A>
+	<A HREF="../../tracer/index.html">[Tracer]</A>
+	<A HREF="../../tools/index.html">[Tools]</A>
+	<A HREF="../../renderer/index.html"><B>[Renderer]</B></A>
+	</FONT>
+	
+</TR>
+</TABLE>
+
+<HR>
+
+<H3>Section COVERConfig</H3>
+
+<UL>
+<LI><A HREF="#8">ANTIALIAS</A>
+<LI><A HREF="#9">ARENA_SIZE</A>
+<LI><A HREF="#10">AUTO_WIREFRAME</A>
+<LI><A HREF="#11">BUTTON_SYSTEM</A>
+<LI><A HREF="#12">COORD_AXIS</A>
+<LI>FORCE_FEEDBACK
+<LI>FORCE_SCALE
+<LI>FORCE_FEEDBACK_MODE
+<LI><A HREF="#13">FPS</A>
+<LI><A HREF="#14">FOOTER_MESSAGE</A>
+<LI><A HREF="#15">FREEZE</A>
+<LI><A HREF="#16">LIGHT1</A>
+<LI><A HREF="#16">LIGHT2</A>
+<LI>LOD_SCALE
+<LI>MAX_FORCE
+<LI><A HREF="#17">MENU_POSITION</A>
+<LI><A HREF="#18">MENU_ROTATION</A>
+<LI><A HREF="#19">MODELPATH</A>
+<LI><A HREF="#19">MODELFILE</A>
+<LI><A HREF="#20">MONO_COMMAND</A>
+<LI>MOVE_PARTS
+<LI><A HREF="#21">MULTIPROCESS</A>
+<LI><A HREF="#22">NOSEPARATION</A>
+<LI><A HREF="#23">NOTIFY</A>
+<LI><A HREF="#3">NUM_PIPES</A>
+<LI><A HREF="#4">NUM_WINDOWS</A>
+<LI><A HREF="#7">RELATIVISTIC_MODE</A>
+<LI><A HREF="#6">RELATIVISTIC_PARAMETER_FILE</A>
+<LI>RELATIVISTIC_MULTITHREADING
+<LI>ROTATE
+<LI>SAVE_FILE
+<LI><A HREF="#2">SCENESIZE</A>
+<LI>SCALE_ALL
+<LI><A HREF="#24">SPOTLIGHT</A>
+<LI>STIPPLE_ON
+<LI>SCALE_ROTATION
+<LI>SCALE_TRANSLATION
+<LI><A HREF="#5">STEREO_SEPARATION</A>
+<LI><A HREF="#20">STEREO_COMMAND</A>
+<LI><A HREF="#25">TWOSIDE</A>
+<LI><A HREF="#1">TRACKING_SYSTEM</A>
+<LI><A HREF="#14">WELCOME_MESSAGE</A>
+</UL>
+<P>
+
+<A NAME="8"><H4><FONT COLOR=BLUE>ANTIALIAS &lt;flag&gt;</FONT></H4></A>
+Enables or disables antialiasing. If ANTIALIAS is ON but the 
+graphics board doesn't support multisampling antialiasing is not enabled.
+If the line is ommited but the graphics board supports
+multisampling antialiasing is enabled. If ANTIALIAS is OFF
+the frame buffer is not configured for multisampling. 
+
+<PRE>    <B>ANTIALIAS OFF</B></PRE>
+
+<A NAME="9"><H4><FONT COLOR=BLUE>ARENA_SIZE &lt;size&gt;</FONT></H4></A>
+sets the size of the shared arena Performer uses. The default size is
+256 MB. The size is defined in byte. If you want to increase the shared arena size
+please read the man pages of <B>pfSharedArenaSize</B> before.
+Example:<P>
+increase the shared arena size to 1000 MB:
+<PRE>    <B>ARENA_SIZE 1000000000</B></PRE>
+
+<A NAME="10"><H4><FONT COLOR=BLUE>AUTO_WIREFRAME &lt;flag&gt;</FONT></H4></A>
+enables or disables auto wireframe mode. auto wireframe means that all scene
+objects are drawn in wireframe mode as soon as the user selects the menu.
+Possible values are ON and OFF. If you omit the line it is OFF. 
+
+
+<A NAME="11"><H4><FONT COLOR=BLUE>BUTTON_SYSTEM &lt;system&gt;</FONT></H4></A>
+specifies the use of an extra button devices which doesn't come with the tracking system.
+For example the Motionstar system from Ascension comes with a 3D mouse but
+DVISION offers an own 3D device where the scension sensor is integrated. For using
+the ascension mouse you do not have to specify a button system but
+for using the DVISION mouse you have to specify it in CoverConfig. The device is
+further configured in the section ButtonConfig.
+<P>
+Supported systems are
+<DL>
+<LI>IAO
+<LI>CAVELIB
+<LI>DVISION ???
+</DL>
+Please contact us before you want to use one of the above 3D devices.
+
+
+<A NAME="12"><H4><FONT COLOR=BLUE>COORD_AXIS &lt;flag&gt;</FONT></H4></A>
+ON/OFF enables or disables drawing of an axis system in the renderer window at starting time.
+If the line is omitted the coordinate axis is displayed at starting time.
+
+
+<A NAME="13"><H4><FONT COLOR=BLUE>FPS &lt;flag&gt;</FONT></H4></A>
+ON/OFF enables or disables printing the frame rate (FPS = frames per second) into the terminal window.
+If the line is omited printing the frame rate is disabled.<P>
+Example:
+<PRE>
+    <B>FPS OFF</B>
+</PRE>
+
+
+<A NAME="14"><H4><FONT COLOR=BLUE>WELLCOME_MESSAGE &lt;message&gt;<BR>FOOTER_MESSAGE &lt;message&gt;
+</FONT></H4></A>
+If a wellcome message is specified this message is displayed for some seconds when COVER is started.
+If a footer message is specified, this message is always displayed at the bottom of the renderer window.
+Please note that the text is drawn only in the stereo channel of the right eye.<P>
+Example:
+<PRE>
+    <B>WELLCOME_MESSAGE Wellcome to COVISE-VR</B>
+    <B>FOOTER_MESSAGE Data courtesy of ...</B>
+</PRE>
+
+
+<A NAME="15"><H4><FONT COLOR=BLUE>FREEZE &lt;flag&gt;</FONT></H4></A>
+flag=ON/OFF enables/disables headtracking at starting time. If the line is omitted headtracking is
+ON at starting time.<P>
+Example:
+<PRE>
+    <B>FREEZE OFF</B>
+</PRE>
+
+<A NAME="16"><H4><FONT COLOR=BLUE>LIGHT1 &lt;xpos&gt; &lt;ypos&gt; &lt;zpos&gt; &lt;w&gt; <BR>
+LIGHT2 &lt;xpos&gt; &lt;ypos&gt; &lt;zpos&gt; &lt;w&gt;</FONT></H4></A>
+You can define 2 additional lights. xpos, ypos and zpos define the position and w specifies, if the light is
+local or infinite<P>
+Example:
+<PRE>
+    <B>LIGHT1 0 10000 10000 1.0</B>
+</PRE>
+
+<A NAME="17"><H4><FONT COLOR=BLUE>MENU_POSITION &lt;x&gt; &lt;y&gt; &lt;z&gt;</FONT></H4></A>
+specifies the position of the menu in the world coordinate system. The default position (if the line
+is omitted) is  x=0.6*sceneSize/2.0, y=0.0, z=0.6*sceneSize/2.0.<P>
+Example:
+<PRE>
+    <B>MENU_POSITION 900 0 800</B>
+</PRE>
+
+
+<A NAME="18"><H4><FONT COLOR=BLUE>MENU_ROTATION &lt;angle&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt;</FONT></H4></A>
+specifies the orientation of the menu in the world coordinate system. [x y z] define an axis and angle is 
+the rotation in degree around this axis. The default orientation (if the line
+is omitted) is angle=-30 axis=[0 0 1]. This is a rotation around the z axis.<P>
+Example:
+
+<PRE>
+    <B>MENU_ORIENTATION -30 0 0 1</B>
+</PRE>
+
+<A NAME="19"><H4><FONT COLOR=BLUE>MODELPATH &lt;path&gt; <BR>MODELFILE &lt;file&gt;</FONT></H4></A>
+COVER is based on the graphics library IRIS Performer. Performer is able to load many 3D file formats
+like obj, dxf, iv, etc.. The MODELPATH and MODELFILE entries are a way to load models into the
+renderer without using COVISE. It works if COVER was started inside COVISE or in standalone mode.
+MODELPATH defines the absolute path to a directory with model files, MODELFILE specifies the file.
+<P>
+Example:
+
+<PRE>
+    <B>MODELPATH /usr/share/data/models
+    MODELFILE banana.iv</B>
+</PRE>
+
+<A NAME="20"><H4><FONT COLOR=BLUE>MONO_COMMAND &lt;command&gt; <BR>STEREO_COMMAND &lt;command&gt;</FONT></H4></A>
+For stereo projection the application has to draw two images and the display system has
+to be stereo capable. There are two ways to display the stereo images: 1. display the left and right eye 
+view one after another (shutter glasses mode) or display them at the same time with two polarixed projectors 
+(passive stereo mode with polarized glasses). COVER supports both modes. This sections is about
+the shutter glasses stereo mode.<P>
+COVER always starts in stereo mode this means it draws two images. If the video format is a stereo format
+(for example 1024x768_96s) then you will automatically see two images without setting STEREO_COMAND. 
+<P>
+In the case that the system has a mono video format at starting time you can provide a command to switch
+to stereo for example /usr/gfx/setmon -n 1024x768_96s. If you want to go back to mono after COVER is finished
+you can provide a mono command. Please note that not all video formats can be downloaded with setmon. Read
+the man pages about setmon and ircombine.
+
+<A NAME="21"><H4><FONT COLOR=BLUE>MULTIPROCESS &lt;flag&gt;</FONT></H4></A>
+IRIS Performer can fork separate processes for application, culling and drawing. With
+MULTIPROCESS ON you enable the multiprocessing modell APP_CULL_DRAW (see man pfMultiProcess).
+On multiprocessor systems multiprocessing should be enables. On singleprocessor systems and for
+debugging purposes multiprocessing can be switched off.<P>
+Example:
+<PRE>
+    <B>MULTIPROCESS ON</B>
+</PRE>
+
+
+<A NAME="22"><H4><FONT COLOR=BLUE>NOSEPARATION &lt;flag&gt;</FONT></H4></A>
+For some purposes like making photos or images you don't want to see the two images. If your
+projection system is configured for a mono mode you can simply switch to mono through the 3D menu in 
+COVER. In the case your projections system is configured only for stereo video formats you have to
+can't switch to mono mode. The solution is to set the stereo separation to 0 ot to enable NOSEPARATION<P>
+Example:
+<PRE>
+    <B>NOSEPARATION ON</B>
+</PRE>
+
+
+<A NAME="23"><H4><FONT COLOR=BLUE>NOTIFY &lt;mode&gt;</FONT></H4></A>
+sets different levels of Performer debugging messages. Valid values are 
+<DL>
+<LI>OFF or line omiteed- sets the notify level to PFNFY_FATAL
+<LI>ON - sets the notify level to PFNFY_DEBUG
+<LI>NOTICE - sets the notify level to PFNFY_NOTICE
+</DL><P>
+Example:
+<PRE>
+    <B>NOTIFY OFF</B>
+</PRE>
+
+<A NAME="24"><H4><FONT COLOR=BLUE>SPOTLIGHT &lt;flag&gt;</FONT></H4></A>
+enables/disables the spotlight at starting time. The spotlight can be switched on/off
+also through the 3D menu in COVER.
+<P>
+Example:
+<PRE>
+    <B>SPOTLIGHT OFF</B>
+</PRE>
+
+
+<A NAME="25"><H4><FONT COLOR=BLUE>TWOSIDE &lt;flag&gt;</FONT></H4></A>
+enables/disables twosided lighting. Twosided lighting is a performance penalty but
+necessary if some faces of a model have a wrong orientation or if inner sides should be
+lighted. For COVISE geometry twosided lighting is recommended. If this line is ommited twosided
+lighting is ON<P>
+Example:
+<PRE>
+    <B>TWOSIDE ON</B>
+</PRE>
+
+
+<A NAME="1"><H4><FONT COLOR=BLUE>TRACKING_SYSTEM &lt;system&gt;</FONT></A></H4>
+This parameter describes the tracking system type. 
+Supported systems are:
+<UL>
+<LI>POLHEMUS (FASTRAK with Stylus from Polhemus)
+<LI>FLOCK (Ethernet Motionstar with 6DOF mouse from Ascension)
+<LI>LOGITECH (not supported any more) 
+<LI>SPACEPOINTER (2D mouse steering)
+<LI>SPACEBALL (SPACEMOUSE from DLR)
+<LI>BEEBOX (undocumented)
+<LI>FLYBOX (undocumented)
+<LI>PHANTOM (undocumented)
+</UL>
+Example:
+<PRE>    <B>TRACKING_SYSTEM POLHEMUS</B></PRE>
+If the keyword TRACKING_SYSTEM is missing a default tracking system is used. The
+default tracking system is SPACEPOINTER.
+<P>
+The systems POLHEMUS and FLOCK rquire further configuration in the section 
+<A HREF="polhemus_config.html">PolhemusConfig</A>
+and FlockConfig. Please note that in COVISE 4.5.2 most of the configuration parameters
+of FLOCK have to be in the section PolhemusConfig. This will change in the next release.
+
+<A NAME="2"><H4><FONT COLOR=BLUE>SCENE_SIZE &lt;size&gt;</FONT></H4></A>
+The scene size is used for scaling objects into the visible area. Therefore
+the scene size should be in the same range as the screen size is. 
+It is measured in mm.<P>
+Example:<BR> 
+Screen size of the wall of the RUS CUBE is 2800 x 2500 mm 
+<PRE>    <B>SCENE_SIZE 2500</B></PRE>
+Screen size of a 19" monitor is 340 x 270 mm
+<PRE>    <B>SCENE_SIZE 270</B></PRE>
+
+
+<A NAME="3"><H4><FONT COLOR=BLUE>NUM_PIPES &lt;num&gt;</FONT></H4></A>
+defines the number of grafics pipes you want to use for your 
+application. It doesn't have to be equal to the number of pipes in your
+machine.
+<P>
+Example:<BR> 
+The Onyx which drives the RUS CUBE has 3 graphics pipes but only 2 are
+used for the CAVE: 
+<PRE>    <B>NUM_PIPES 2</B></PRE>
+
+
+<A NAME="4"><H4><FONT COLOR=BLUE>NUM_WINDOWS &lt;num&gt;</FONT></H4></A>
+defines the number of windows. In a 4 wall cave system you
+have 4 windows, on the Holobench you have 2 windows and on an Immersadesk
+or Workbench you have 1 window.
+<P>
+Example:<BR> 
+The RUS CUBE has 4 walls: 
+<PRE>    <B>NUM_WINDOWS 4</B></PRE>
+
+
+<A NAME="5"><H4><FONT COLOR=BLUE>STEREO_SEPARATION &lt;separation&gt;</FONT></A></H4>
+sets the separation between the eyes and is measured in mm.
+Here a good rule to compute a reasonable separation:
+<PRE>
+    sep = 2 * opt_dist * tan( betamax / 2 ) * ((i + 1) / i)
+</PRE>
+opt_dist stands for the optimal viewer distance when the field of view is 45 
+degrees:
+<PRE>
+    opt_dist = scene_size / (2 * tan (22.5)) 
+    betamax = 1.73 degree
+    tan(betamax/2)=0.015098245
+    i=yfar/opt_dist
+</PRE>
+Example: 
+<PRE>
+    scene_size = 2500
+    opt_dist = 3017.767
+    yfar = 2 * scene_size
+    i = 5000/3017.767=1.656
+    sep = 2*3017.767 * 0.015098245 * 1.6= 145.8
+</PRE>
+
+
+
+<A NAME="6"><H4><FONT COLOR=BLUE>RELATIVISTIC_PARAMETER_FILE &lt;file&gt;</FONT></H4></A>
+is the location of an additional
+parameter file with relativistic options. The syntax of 
+this file is:
+<PRE>
+  dummy_value 
+  start_x start_y start_z 
+  direction_x direction_y direction_z
+  begin_time delta_time end_time
+  dummy dummy dummy
+  num_lights
+  { light_x light_y light_z }
+  overall_scale
+  acceleration_scale_x 
+  acceleration_scale_y 
+  acceleration_scale_z
+</PRE>
+start_? is the initial position of the observer with respect
+to the frame of reference of the objects.
+<P>
+direction_? is the initial direction of the motion of the observer with respect
+to the frame of reference of the objects.
+<P>
+begin_time, delta_time, and end_time describe the propagation of
+the proper time of the observer.
+<P>
+num_lights is the number of lights. The direction
+of the lights {light_x light_y light_z} has
+to be specified num_lights times. 
+<P>
+overall_scale is the overall scaling of the three-dimensional model.
+<P>
+acceleration_scale_? is the sensitivity with respect to accelerations.
+
+
+<A NAME="7"><H4><FONT COLOR=BLUE>RELATIVISTIC_Mode &lt;flag&gt;</FONT></H4></A>
+is ON or OFF. Default is off.
+
+
+
+
+</BODY>
+</HTML>

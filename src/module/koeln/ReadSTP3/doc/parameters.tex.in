@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline FilePath & Browser & STP3 file\\ \hline UseVoi & Boolean & Map data outside of volume of interest to constant value\\ \hline NoVoi & Scalar & Number of volume of interest to use\\ \hline IgnoreValue & Scalar & Value data not within the volume of interest is mapped to\\ \hline Volume1FromVoi & Scalar & Number of volume of interest to use for volume 1\\ \hline Volume2FromVoi & Scalar & Number of volume of interest to use for volume 2\\ \hline Volume3FromVoi & Scalar & Number of volume of interest to use for volume 3\\
+\hline \end{longtable}
+

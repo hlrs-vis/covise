@@ -1,0 +1,62 @@
+<P>
+This document is a short introduction to working with COVISE. It is primarily a 
+tutorial for COVISE novices. It doesn't cover advanced topics such as the 
+development of new application modules or the installation and configuration 
+process. We assume that you have a running COVISE on your machine. For installation 
+guide read the files <I>README</I> and <I>INSTALL.TXT</I> which come with your 
+COVISE distribution. For developing new application modules read the 
+<I>COVISE Programming Guide</I>.
+
+<P>
+COVISE is a Collaborative Visualization and Simulation Environment developed 
+at the Computing Center of the University of Stuttgart. It is an
+extendable distributed software environment to integrate supercomputer based 
+simulations, postprocessing, and visualization functionality with
+cooperative working in a seamless manner.
+
+<P>
+The tutorial contains the following section:
+
+<br>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr BGCOLOR="#FFFFCC">
+<tr>
+<td>
+<ul>
+<li><a href="StartCOVISE/StartCOVISE.html">Starting COVISE</a></li>
+<li><a href="Using_the_Renderer/Using_the_Renderer.html">Using the Inventor Renderer</a></li>
+<li><a href="Working_with_Modules/Working_with_Modules.html">Working with Modules</a></li>
+<li><a href="Analysis_of_3D_Data/Analysis_of_3D_Data.html">Analysis of 3D Data</a></li>
+<li><a href="AdvancedTopics/AdvancedTopics.html">Advanced Topics</a></li>
+</ul>
+</td>
+
+<td valign=top>
+<ul>
+<li>How to initiate a single user session and load a saved session.</li>
+<li>A short introduction to the typical work with the Renderer</li>
+<li>Working with module ports and module parameters </li>
+<li>The basic steps in analyzing complex 3D data with the general COVISE modules</li>
+<li>CDistributed computing and collaboratieveuser sessions</li>
+</ul>
+</td>
+</table>
+
+<P>
+File names, path names, and environment variables are printed <I>italic</I>, for example 
+
+<P>
+<I>$(COVISEDIR)/net/general/examples/ReadStar.net</I>
+
+<P>
+Program names and COVISE module names are printed <B>bold</B>, for example the 
+command to start COVISE: <B>covise</B>, or the name of the module that
+computes a cutting plane: <B>CuttingSurface</B>. 
+
+<P>
+Output to the console window which COVISE produces is printed in fixed space font like 
+<PRE>
+Starting COVISE...
+Please be patient...
+</PRE>

@@ -1,0 +1,136 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Audio and Video}
+\label{Audio and Video}
+%=============================================================
+
+%\section{S1}
+
+The upper right corner of your Conference Room Interface is used for Audio/Video Control
+
+\begin{covimg}{AudioVideo}{audiovideo}{Audio and Video Control}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 7.1: Audio and Video Control
+\vspace{0.5cm}
+\end{htmlonly}
+
+With Speaker/Home you select which video you will see (if available).
+ 
+To speak and transmit your video image during meetings, first make sure you have permission to
+speak. If you do not have permission to speak, ask the moderator to grant you permission.
+
+%Note: If you have an audio/video problem, you might need to change your audio/video preferences by
+%clicking the preferences button beside the audio controls and the video window.
+
+\vspace{0.5cm}
+{\bf Testing your Audio and Video}
+\vspace{0.5cm}
+
+Ensure that your microphone, speakers, and video camera work properly by testing your equipment
+before attending your first meeting. 
+
+%You can test your audio and video equipment by choosing option
+%"Test my Audio Video" in the Connect window or by clicking "Test Audio/Video" in the Meeting Center.
+
+The Moderator determines who can speak and transmit video during the meeting. The Moderator also
+determines which of the two types, or modes, of audio is available during meetings:
+\begin{itemize}
+\item Automatic Microphone mode
+\item Request Microphone Mode
+\end{itemize}
+  
+\vspace{0.5cm}
+{\bf Speaking in Automatic Microphone Mode}
+\vspace{0.5cm}
+
+All meetings begin in Automatic Microphone mode. If you have permission to speak, you can speak into
+your microphone at any time and all tne meeting participants hear you. If you have a video camera
+attaced to your computer, your image is transmitted to the other participants while you are speaking.
+Only two participants can speak at once.
+
+\vspace{0.5cm}
+{\bf Speaking in Request Microphone Mode}
+\vspace{0.5cm}
+
+If the moderator switches to Request Microphone Mode, you must request the microphone before you can
+speak. If you do not have permission to speak, you must ask the moderator for permission before you
+can request the microphone.
+\begin{enumerate}
+\item Click Request Microphone. (If there is no Request Microphone button, the meeting is in
+Automatic Microphone mode.)
+\item A "waiting to talk" icon appears next to your name in the Participant List details.
+When the current speaker releases the microphone, the next person who requested the microphone
+can speak.
+\item After you receive the microphone a "currently talking" icon appears next to your name in the
+Participant List.
+\item Speak into your microphone. Everyone in the meeting hears you. If you have a video camera
+attached to your computer, everyone sees your video image when you speak.
+\item When you finish speaking, click Release Microphone to aöllow the next person to speak.
+\end{enumerate}
+
+\vspace{0.5cm}
+If you need more information about the role of a Moderator, please look into the Sametime Quick Start Guide 
+(see Usage Hints)
+
+
+
+%\section{S2}
+%\section{S3}
+
+
+%\begin{covimg}{Summary}{imagename}{caption}{0.7}\end{covimg}
+%\begin{htmlonly}
+%Figure x.x: caption for html
+%\vspace{0.5cm}
+%\end{htmlonly}

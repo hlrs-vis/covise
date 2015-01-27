@@ -1,0 +1,1050 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+10
+# Module RWCovise
+RWCovise
+1
+LOCAL
+IO_Module
+RW:tiny_geo_1
+22
+22
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/tutorial//tiny_geo.covise
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+132
+385
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module RWCovise
+RWCovise
+2
+LOCAL
+IO_Module
+RW:tiny_p_1
+198
+22
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/tutorial//tiny_p.covise
+
+-3
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+22
+253
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Collect
+Collect
+2
+LOCAL
+Tools
+Collect_2
+187
+275
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+Colors_1
+352
+132
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 1
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0 1 RGBAX 15 0.0980392 0 0.898039 1 0 0 0 1 1 0.0714286 0.627451 0.627451 1 1 0.142857 0 0.74902 1 1 0.214286 0 1 1 1 0.285714 0.0980392 0.8 0.698039 1 0.357143 0.0980392 0.898039 0 1 0.428571 0.498039 1 0.627451 1 0.5 0.74902 1 0.247059 1 0.571429 1 1 0 1 0.642857 1 0.8 0.0980392 1 0.714286 1 0.6 0.298039 1 0.785714 1 0.666667 0.94902 1 0.857143 1 0 0.498039 1 0.928572 1 0 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+25
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Colors
+Colors
+2
+LOCAL
+Mapper
+Colors_2
+33
+198
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 0
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0 0 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Colors
+Colors
+3
+LOCAL
+Mapper
+Colors_3
+198
+220
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 0
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0 0 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module CuttingSurface
+CuttingSurface
+1
+LOCAL
+Filter
+CuttingSurface_1
+22
+132
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+0.0 0.0 1.0
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0 0 0.05
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.05
+
+-1
+option
+Choice
+Plane or sphere
+1
+
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+FALSE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.1
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.0
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.1
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+# Module CuttingSurface
+CuttingSurface
+2
+LOCAL
+Filter
+CuttingSurface_2
+187
+132
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+1.0 0.0 0.0
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0.25 0 0
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.25
+
+-1
+option
+Choice
+Plane or sphere
+1
+
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+FALSE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.1
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.0
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.1
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+14
+RWCovise
+1
+LOCAL
+mesh
+
+CuttingSurface
+1
+LOCAL
+GridIn0
+RWCovise
+1
+LOCAL
+mesh
+
+CuttingSurface
+2
+LOCAL
+GridIn0
+RWCovise
+2
+LOCAL
+mesh
+
+CuttingSurface
+1
+LOCAL
+DataIn0
+RWCovise
+2
+LOCAL
+mesh
+
+CuttingSurface
+2
+LOCAL
+DataIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Collect
+2
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+ColormapOut0
+
+Colors
+2
+LOCAL
+ColormapIn0
+Colors
+1
+LOCAL
+ColormapOut0
+
+Colors
+3
+LOCAL
+ColormapIn0
+Colors
+2
+LOCAL
+TextureOut0
+
+Collect
+1
+LOCAL
+TextureIn0
+Colors
+3
+LOCAL
+TextureOut0
+
+Collect
+2
+LOCAL
+TextureIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+DataOut0
+
+Colors
+2
+LOCAL
+DataIn0
+CuttingSurface
+2
+LOCAL
+GridOut0
+
+Collect
+2
+LOCAL
+GridIn0
+CuttingSurface
+2
+LOCAL
+DataOut0
+
+Colors
+3
+LOCAL
+DataIn0
+0

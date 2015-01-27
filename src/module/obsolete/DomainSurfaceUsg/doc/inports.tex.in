@@ -1,0 +1,23 @@
+
+\subsubsection{Input Ports}
+%================================================================================
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{meshIn} & DO\_UnstructuredGrid & The unstructured grid or a set of unstructured grids.\\
+\hline
+   \textcolor{optional}{dataIn} & DO\_Float
+                               DO\_Vec3
+                               DO\_Float
+                               DO\_Vec3 & 
+                               Optional input port: \bf{vertex based} scalar or vector data. 
+			       If you have \bf{cell based} data use the module \bf{CellToVert} 
+			       to convert them to vertex based data.\\
+\hline
+\end{longtable}
+
+
+%================================================================================

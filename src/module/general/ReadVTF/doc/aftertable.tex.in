@@ -1,0 +1,29 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+% examples for using this module
+
+This map shows you how to connect the output ports of ReadVTF if scalar data is provided.
+ 
+\begin{covimg2}
+ {}{ReadVtfMapScalar}{0.7}\end{covimg2}
+\clearpage
+
+This picture shows you the result in the renderer if scalar data is provided.
+\begin{covimg2}
+ {}{ReadVTFRendererScalar}{0.7}\end{covimg2}
+\clearpage
+ 
+% The next map shows you how to connect the output ports of ReadVTF if vector data are provided.
+%\begin{covimg2} 
+%{modules/IO/ReadVTF}{ReadVtfMapVector}{0.7}\end{covimg2}
+%\clearpage
+
+%This picture shows you the result in the renderer if vector data are provided.
+%\begin{covimg2}	{modules/IO/ReadVTF}{ReadVTFRendererVector}{0.7}\end{covimg2}
+%\clearpage
+
+%
+%

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  LoadCadData.cpp
+)
+
+SET(EXTRASOURCES
+  LoadCadData.h
+)
+
+ADD_COVISE_MODULE(IO LoadCadData ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(LoadCadData  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(LoadCadData)

@@ -1,0 +1,29 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The input to this module is an unstructured  grid (or set of grids) and 
+maybe scalar or vector data (node or element centred). It constructs output grids
+with the criterion that they have a well-defined
+dimensionality, thus obtaining an object which contains all 3D
+elements, another one with all 2D elements, and 1D and 0D respectively, i. e. 
+simply speaking SplitUsg separates the incoming grid into points, lines, plygons, etc..
+The scalar or vector data is separated accordingly.
+
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{splitusg}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+This version has been tested under SGI and Linux platforms.
+
+%
+%=============================================================

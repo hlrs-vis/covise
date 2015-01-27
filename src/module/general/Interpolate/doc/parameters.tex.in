@@ -1,0 +1,48 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+  \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead
+  \hline\hline
+
+  motion & choice  & interpolation characteristics either \textbf{linear} or \textbf{sinusoidal} \\
+  \hline
+  type & choice  & type of created (pseudo) time series. If \textbf{linear} is chosen the module 
+  creates \latexonly $n_{s}$ \endlatexonly 
+  \begin{htmlonly} ns \end{htmlonly} steps ranging from the value 0 to 
+  the value of the incoming data at any point. 
+  The option \textbf{cyclic} creates the following sequence:
+  \latexonly
+    $0\rightarrow \mathbf{F}(x,y,z) \rightarrow 0 \rightarrow -\mathbf{F}(x,y,z) \rightarrow 0  $.
+  \endlatexonly  
+  \begin{htmlonly}
+    0 --> F(x,y,z) --> 0 --> -F(x,y,z) --> 0
+  \end{htmlonly} 
+    \textbf{NOTE}: The option \textbf{cyclic} creates \textbf{four} times the 
+    chosen number of steps.\\
+  \hline  
+
+ 
+  steps & Slider & The number \latexonly $n_{s}$ \endlatexonly \begin{htmlonly}
+  ns \end{htmlonly} of interpolation steps per cycle.  \\
+  \hline
+  abs & Boolean  & This option is only effective if the option \textbf{cyclic} is chosen. The 
+  generated interpolation sequence is modified to: 
+  \latexonly
+  $0\rightarrow \mathbf{F}(x,y,z) \rightarrow 0 \rightarrow \mathbf{F}(x,y,z) \rightarrow 0  $.  
+  \endlatexonly
+  \begin{htmlonly}
+    0 --> F(x,y,z) --> 0 --> F(x,y,z) --> 0
+  \end{htmlonly} \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,1225 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+12
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+242
+22
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+1 64 7
+
+-1
+ySize
+IntSlider
+Size in y-direction
+1 64 5
+
+-1
+zSize
+IntSlider
+Size in z-direction
+1 64 3
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_3
+77
+385
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Transform
+Transform
+1
+LOCAL
+Tools
+TITLE=Transform_2
+242
+77
+5
+geo_in
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid input
+req
+
+data_in0
+Float|Vec3
+data output
+opt
+
+data_in1
+Float|Vec3
+data output
+opt
+
+data_in2
+Float|Vec3
+data output
+opt
+
+data_in3
+Float|Vec3
+data output
+opt
+
+5
+geo_out
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid output
+default
+
+data_out0
+Float|Vec3
+data output
+dep data_in0
+
+data_out1
+Float|Vec3
+data output
+dep data_in1
+
+data_out2
+Float|Vec3
+data output
+dep data_in2
+
+data_out3
+Float|Vec3
+data output
+dep data_in3
+
+26
+Transform
+Choice
+Please enter your choice
+7 Pleaseenteryourchoice Mirror Translate Rotate Scale MultiRot Tile
+
+1
+normal_of_mirror_plane
+FloatVector
+normal of mirror-plane
+0 0 1.
+
+-1
+distance_to_origin
+FloatScalar
+distance to the origin
+0.000000
+
+-1
+MirroredAndOriginal
+Boolean
+Transformed object(s) and original
+TRUE
+
+-1
+vector_of_translation
+FloatVector
+transformation
+0 0 0.
+
+-1
+axis_of_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+scale_type
+Choice
+Scale type
+1 Uniform X-axis Y-axis Z-axis
+
+-1
+scaling_factor
+FloatScalar
+scaling factor
+1.000000
+
+-1
+new_origin
+FloatVector
+new origin
+0 0 0.
+
+-1
+axis_of_multi_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+_one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_multi_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+number_of_rotations
+IntScalar
+number of rotations
+1
+
+-1
+TilingPlane
+Choice
+Tiling plane
+1 XY YZ ZX
+
+1
+flipTile
+Boolean
+Flip or else translate tile
+TRUE
+
+1
+TilingMin
+IntVector
+Tiling pattern
+0 0
+
+1
+TilingMax
+IntVector
+Tiling pattern
+1 1
+
+1
+EUC_file
+Browser
+Euclidian motion
+/usr/tmp//
+
+-1
+InDataType_0
+Choice
+Input data type_0
+3 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_1
+Choice
+Input data type_1
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_2
+Choice
+Input data type_2
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+InDataType_3
+Choice
+Input data type_3
+1 TrueVectorOrScalar PseudoVectorOrScalar Displacements
+
+-1
+createSet
+Boolean
+create sets for multiple transformations
+TRUE
+
+-1
+EUC_file___filter
+BrowserFilter
+Euclidian motion
+EUC_file *.euc
+
+-1
+0
+# Module CuttingSurface
+CuttingSurface
+1
+LOCAL
+Filter
+TITLE=CuttingSurface_1
+242
+132
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+0.0 0.0 1.0
+
+1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0.000000 0.000000 0.000000
+
+1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.000000
+
+1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder
+
+1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+FALSE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+TRUE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.1
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.0
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.1
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+# Module ImageToTexture
+ImageToTexture
+1
+LOCAL
+Tools
+TITLE=ImageToTexture_1
+110
+231
+3
+GridIn0
+Polygons
+Input geometry
+req
+
+DataIn0
+Vec3
+Material shift
+opt
+
+InFileName
+Text
+Image file
+opt
+
+1
+TextureOut0
+Texture
+Output texture
+default
+
+15
+TIFF_file
+Browser
+RST file
+share/covise/example-data/Images/auge_blau.tif
+
+1
+ImageSize
+Choice
+Image size
+2 Setmanuallyphysicalimagesize Fittogeometry Tryusingimagesizeinfo,otherwisefittogeometry
+
+-1
+ImageOrientation
+Choice
+Image orientation
+2 Free Portrait Landscape
+
+-1
+PhysImageW
+FloatScalar
+Physical image width
+0.000000
+
+-1
+PhysImageH
+FloatScalar
+Physical image height
+0.000000
+
+-1
+XPixelImageSize
+IntScalar
+X PixelImage Size
+512
+
+-1
+YPixelImageSize
+IntScalar
+Y PixelImage Size
+512
+
+-1
+GroupGeometry
+Boolean
+Group geometry per time step
+TRUE
+
+-1
+MirrorImage
+Boolean
+Mirror image
+TRUE
+
+-1
+Geometry_file
+Browser
+Geometry file
+/var/tmp/foo.txt *.txt
+
+-1
+MinMaxX
+FloatVector
+MinMaxX
+0 1
+
+-1
+MinMaxY
+FloatVector
+MinMaxY
+0 1
+
+-1
+AutoOrManual
+Choice
+Automatic or manual pixel size
+2 Automatic Manual 
+
+-1
+TIFF_file___filter
+BrowserFilter
+RST file
+TIFF_file *.tif;*.tiff
+
+-1
+Geometry_file___filter
+BrowserFilter
+Geometry file
+Geometry_file *.txt
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_2
+77
+319
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Renderer
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_4
+264
+385
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ImageToTexture
+ImageToTexture
+2
+LOCAL
+Tools
+TITLE=ImageToTexture_2
+297
+231
+3
+GridIn0
+Polygons
+Input geometry
+req
+
+DataIn0
+Vec3
+Material shift
+opt
+
+InFileName
+Text
+Image file
+opt
+
+1
+TextureOut0
+Texture
+Output texture
+default
+
+15
+TIFF_file
+Browser
+RST file
+share/covise/example-data/Images/auge_blau.tif
+
+1
+ImageSize
+Choice
+Image size
+2 Setmanuallyphysicalimagesize Fittogeometry Tryusingimagesizeinfo,otherwisefittogeometry
+
+-1
+ImageOrientation
+Choice
+Image orientation
+2 Free Portrait Landscape
+
+-1
+PhysImageW
+FloatScalar
+Physical image width
+0.000000
+
+-1
+PhysImageH
+FloatScalar
+Physical image height
+0.000000
+
+-1
+XPixelImageSize
+IntScalar
+X PixelImage Size
+512
+
+-1
+YPixelImageSize
+IntScalar
+Y PixelImage Size
+512
+
+-1
+GroupGeometry
+Boolean
+Group geometry per time step
+FALSE
+
+-1
+MirrorImage
+Boolean
+Mirror image
+TRUE
+
+-1
+Geometry_file
+Browser
+Geometry file
+/var/tmp/foo.txt *.txt
+
+-1
+MinMaxX
+FloatVector
+MinMaxX
+0 1
+
+-1
+MinMaxY
+FloatVector
+MinMaxY
+0 1
+
+-1
+AutoOrManual
+Choice
+Automatic or manual pixel size
+2 Automatic Manual 
+
+-1
+TIFF_file___filter
+BrowserFilter
+RST file
+TIFF_file *.tif;*.tiff
+
+-1
+Geometry_file___filter
+BrowserFilter
+Geometry file
+Geometry_file *.txt
+
+-1
+0
+# Module Collect
+Collect
+2
+LOCAL
+Tools
+TITLE=Collect_3
+264
+330
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Renderer
+Renderer
+3
+LOCAL
+Renderer
+TITLE=Renderer_5
+451
+385
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ImageToTexture
+ImageToTexture
+3
+LOCAL
+Tools
+TITLE=ImageToTexture_3
+484
+231
+3
+GridIn0
+Polygons
+Input geometry
+req
+
+DataIn0
+Vec3
+Material shift
+opt
+
+InFileName
+Text
+Image file
+opt
+
+1
+TextureOut0
+Texture
+Output texture
+default
+
+15
+TIFF_file
+Browser
+RST file
+share/covise/example-data/Images/auge_blau.tif
+
+1
+ImageSize
+Choice
+Image size
+1 Setmanuallyphysicalimagesize Fittogeometry Tryusingimagesizeinfo,otherwisefittogeometry
+
+-1
+ImageOrientation
+Choice
+Image orientation
+2 Free Portrait Landscape
+
+-1
+PhysImageW
+FloatScalar
+Physical image width
+1.000000
+
+-1
+PhysImageH
+FloatScalar
+Physical image height
+1.000000
+
+-1
+XPixelImageSize
+IntScalar
+X PixelImage Size
+512
+
+-1
+YPixelImageSize
+IntScalar
+Y PixelImage Size
+512
+
+-1
+GroupGeometry
+Boolean
+Group geometry per time step
+TRUE
+
+-1
+MirrorImage
+Boolean
+Mirror image
+TRUE
+
+-1
+Geometry_file
+Browser
+Geometry file
+/var/tmp/foo.txt *.txt
+
+-1
+MinMaxX
+FloatVector
+MinMaxX
+0 1
+
+-1
+MinMaxY
+FloatVector
+MinMaxY
+0 1
+
+-1
+AutoOrManual
+Choice
+Automatic or manual pixel size
+2 Automatic Manual 
+
+-1
+TIFF_file___filter
+BrowserFilter
+RST file
+TIFF_file *.tif;*.tiff
+
+-1
+Geometry_file___filter
+BrowserFilter
+Geometry file
+Geometry_file *.txt
+
+-1
+0
+# Module Collect
+Collect
+3
+LOCAL
+Tools
+TITLE=Collect_4
+451
+308
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+16
+GenDat
+1
+LOCAL
+GridOut0
+
+Transform
+1
+LOCAL
+geo_in
+GenDat
+1
+LOCAL
+DataOut1
+
+Transform
+1
+LOCAL
+data_in0
+Transform
+1
+LOCAL
+geo_out
+
+CuttingSurface
+1
+LOCAL
+GridIn0
+Transform
+1
+LOCAL
+data_out0
+
+CuttingSurface
+1
+LOCAL
+DataIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+ImageToTexture
+1
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+ImageToTexture
+2
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+Collect
+2
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+ImageToTexture
+3
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+Collect
+3
+LOCAL
+GridIn0
+ImageToTexture
+1
+LOCAL
+TextureOut0
+
+Collect
+1
+LOCAL
+TextureIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+ImageToTexture
+2
+LOCAL
+TextureOut0
+
+Collect
+2
+LOCAL
+TextureIn0
+Collect
+2
+LOCAL
+GeometryOut0
+
+Renderer
+2
+LOCAL
+RenderData
+ImageToTexture
+3
+LOCAL
+TextureOut0
+
+Collect
+3
+LOCAL
+TextureIn0
+Collect
+3
+LOCAL
+GeometryOut0
+
+Renderer
+3
+LOCAL
+RenderData
+0

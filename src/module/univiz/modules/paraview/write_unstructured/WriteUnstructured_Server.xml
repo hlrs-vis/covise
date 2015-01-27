@@ -1,0 +1,38 @@
+<ServerManagerConfiguration>
+ <ProxyGroup name="writers">
+
+  <WriterProxy name="WriteUnstructured" 
+      class="vtkWriteUnstructured"
+      label="WriteUnstructured">
+      <Documentation>
+        Writer to write unstructured grid in a Unstructured data file. Cannot be used for parallel writing.
+      </Documentation>
+      <InputProperty name="Input" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type" composite_data_supported="0">
+          <DataType value="vtkUnstructuredGrid" />
+        </DataTypeDomain>
+        <Documentation>
+          The input filter/source whose output dataset is to written to the file.
+        </Documentation>
+      </InputProperty>
+      <StringVectorProperty 
+        name="FileName" 
+        label="File Name"
+        command="SetFileName"
+        number_of_elements="1">
+      </StringVectorProperty>
+      <Hints>
+        <Property name="Input" show="0"/>
+        <Property name="FileName" show="0"/>
+        <Property name="FileType" show="0"/>
+      </Hints>
+      <!-- End of WriteUnstructured -->
+    </WriterProxy>
+
+  </ProxyGroup>
+
+</ServerManagerConfiguration>

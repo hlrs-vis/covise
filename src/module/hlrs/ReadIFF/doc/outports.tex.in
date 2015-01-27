@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline points & Points & points Output\\ \hline colors & RGBA\_Data & Atom Colors Output\\
+\hline \end{longtable}
+

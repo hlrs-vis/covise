@@ -1,0 +1,20 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{Grid\_in} & UnstructuredGrid & FixPart expects a set of objects, one for every timestep. Each of these objects is a set of unstructured grids with attribute "Part". The module was developed depending on the output of the module ReadDyna3D. \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

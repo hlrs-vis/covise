@@ -1,0 +1,19 @@
+
+   %================================================================================
+
+
+   {\bf ReadStar} reads data sets written by Star-CD versions 2.21 thru 3.1b. It needs a 
+   ProSTAR input file (*16, *mdl) and a result file, either stationary 
+   (*09/*pst) or transient (*29/*pstt). 
+
+    
+   \begin{covimg2} {}{ReadStarModule}{0.7}\end{covimg2}
+
+    
+   %{\bf ReadStar} is available for COVISE snap-2000-10 and higher. 
+   It's tested on SGI systems (IRIX 6.5) {\bf and LINUX (since COVISE Rel. 5.2.3)}. 
+     
+   
+
+
+   %================================================================================

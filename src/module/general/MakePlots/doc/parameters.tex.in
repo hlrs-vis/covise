@@ -1,0 +1,35 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+   title & String   & Title for the plot.\\
+\hline
+   xAxis & String & X-axis label.\\
+\hline
+   yAxis & String & Y-axis label.\\
+\hline
+   auto & Boolean & If true, the module calculates some
+        hopefully good values for the plot domain and for the axis ticks.
+        If false, then you may set this values manually.\\
+\hline
+   Xlimits & Float vector & Lower and upper limit of the X axis.\\
+\hline
+   Ylimits & Float vector & Lower and upper limit of the Y axis.\\
+\hline
+   Xticks & Integer vector & Number of major and minor X-ticks.\\
+\hline
+   Yticks & Integer vector & Number of major and minor Y-ticks.\\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

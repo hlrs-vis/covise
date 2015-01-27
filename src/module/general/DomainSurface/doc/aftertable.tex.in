@@ -1,0 +1,17 @@
+
+
+
+
+\subsubsection{Examples}
+%================================================================================
+
+\begin{covimg}{}{DomainSurfaceStrMap}{covise/net/examples/DomainSurfaceStr.net}{0.6}\end{covimg}
+
+We use the map covise/net/examples/DomainSurfaceStr.net. The module GenDat generates a structured grid in shape of a torus. 
+You can see the surface in the first Renderer output. The second Renderer output shows
+feature lines; the angle parameter is set to 0.01. 
+
+
+\begin{covimg}{}{DomainSurfaceStrRenderer2}{Surface }{0.7}\end{covimg}
+\begin{covimg}{}{DomainSurfaceStrRenderer1}{Feature lines }{0.7}\end{covimg}
+

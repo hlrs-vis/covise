@@ -1,0 +1,1046 @@
+1
+LOCAL
+LUSER
+11
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+210
+268
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_1_OUT_00
+0
+0
+Colors
+1
+LOCAL
+Color
+TITLE=Colors_1
+222
+194
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_1_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_1_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_1_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+-314.882202 153.539642
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Pastell Magma Ansys
+IMM
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+0
+IMM
+-1
+0
+Tracer
+1
+LOCAL
+Tracer
+TITLE=Tracer_1
+203
+127
+4
+meshIn
+DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Polygons
+input mesh
+req
+none
+dataIn
+DO_Structured_V3D_Data|DO_Unstructured_V3D_Data
+input velo.
+req
+none
+pointsIn
+DO_Points|DO_UnstructuredGrid|DO_Polygons|                    DO_TriangleStrips|DO_Lines|DO_Unstructured_V3D_Data
+input initial points
+opt
+none
+octtreesIn
+DO_OctTree|DO_OctTreeP
+input octtrees
+opt
+none
+2
+lines
+DO_Lines|DO_Points|DO_TriangleStrips
+output geometry
+default
+Tracer_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data
+output magnitude
+default
+Tracer_1_OUT_01
+26
+no_startp
+Slider
+Number of starting points
+1 10 10
+IMM
+1
+startpoint1
+Vector
+First start point
+27 2 2.01
+IMM
+1
+startpoint2
+Vector
+Last start point
+27 4 2.01
+IMM
+1
+direction
+Vector
+Square of starting points
+1.0 0.0 0.0
+IMM
+-1
+Displacement
+Vector
+Shift traces
+0 0 0.
+START
+-1
+tdirection
+Choice
+Forward, backward or both
+3 forward backward both
+START
+1
+whatout
+Choice
+v, vx, vy, vz or time
+5 mag v_x v_y v_z time
+START
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+1 Streamlines MovingPoints Pathlines Streaklines
+IMM
+1
+startStyle
+Choice
+Line or square
+1 line plane
+IMM
+-1
+trace_eps
+Scalar
+relative error control
+0.00001
+START
+-1
+trace_abs
+Scalar
+absolute error control
+0.000100
+START
+-1
+grid_tol
+Scalar
+grid tolerance for UNSGRD or POLYGN
+0.000100
+START
+-1
+trace_len
+Scalar
+maximum length
+100
+START
+1
+min_vel
+Scalar
+minimal velocity
+0.001000
+START
+1
+MaxPoints
+Scalar
+maximum number of points
+10000
+START
+1
+stepDuration
+Scalar
+Step duration if no REALTIME available
+0.010000
+START
+-1
+NoCycles
+Scalar
+number of cycles (dynamic data)
+1
+START
+-1
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+START
+-1
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+IMM
+-1
+ParticlesReleaseRate
+Scalar
+Frequency at which new particles are released
+0.000000
+START
+-1
+divideCell
+Scalar
+Step control when out of domain
+0.125000
+START
+-1
+maxOutOfDomain
+Scalar
+Control how far to integrate when out of domain
+0.250000
+START
+-1
+NoWThreads
+Scalar
+number of worker threads
+1
+IMM
+-1
+SearchLevel
+Scalar
+search level for polygons
+0
+START
+-1
+SkipInitialSteps
+Scalar
+skip initial steps
+0
+START
+-1
+color
+String
+attribute color
+red
+START
+-1
+0
+ReadAVSucd
+1
+LOCAL
+Filip
+TITLE=ReadAVSucd_1
+426
+25
+0
+3
+outPortGrid
+DO_UnstructuredGrid
+Grid output
+default
+ReadAVSucd_1_OUT_00
+outPortVectorData
+DO_Unstructured_V3D_Data
+VectorData output
+default
+ReadAVSucd_1_OUT_01
+outPortScalarData
+DO_Unstructured_S3D_Data
+ScalarData output
+default
+ReadAVSucd_1_OUT_02
+4
+grid file type
+Choice
+grid file type
+2 Ascii Binary
+START
+-1
+grid file name
+Browser
+grid file name
+/pub/flowvis/sadlof/data//cat_arm_cp20_h90_sstmass_vorticity_allDat_2006-03-28_2.inp *.inp
+START
+1
+vector component
+Choice
+vector component
+3 ---
+START
+1
+scalar component
+Choice
+scalar component
+3 ---
+START
+1
+0
+Colors
+2
+LOCAL
+Color
+TITLE=Colors_2
+603
+96
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_2_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_2_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_2_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.000000 0.089523
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Pastell Magma Ansys
+IMM
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+DomainSurface
+2
+LOCAL
+Tools
+TITLE=DomainSurface_2
+429
+251
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+DomainSurface_2_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+DomainSurface_2_OUT_01
+linesOut
+DO_Lines
+Boundary lines
+default
+DomainSurface_2_OUT_02
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+DomainSurface_2_OUT_03
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_2
+477
+344
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+CuttingSurfaceComp
+1
+LOCAL
+Filter
+TITLE=CuttingSurfaceComp_1
+556
+212
+6
+meshIn
+DO_UnstructuredGrid|DO_UniformGrid|DO_StructuredGrid|DO_RectilinearGrid
+input mesh
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+req
+none
+isoDataIn
+DO_Unstructured_S3D_Data|DO_Structured_S3D_Data
+Data for isolines
+opt
+none
+colorMapIn
+DO_ColorMap
+color map to create geometry
+opt
+none
+SampleGeom
+DO_UniformGrid
+Sample grid
+opt
+none
+SampleData
+DO_Structured_S3D_Data|DO_Structured_V3D_Data
+Sample data
+opt
+none
+5
+geometryOut
+DO_Geometry
+Cutting plane
+default
+CuttingSurfaceComp_1_OUT_00
+meshOut
+DO_Polygons|DO_TriangleStrips
+Cuttingplane
+default
+CuttingSurfaceComp_1_OUT_01
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+interpolated data
+default
+CuttingSurfaceComp_1_OUT_02
+normalsOut
+DO_Unstructured_V3D_Normals
+Surface normals
+default
+CuttingSurfaceComp_1_OUT_03
+linesOut
+Set_Lines
+Isolines
+default
+CuttingSurfaceComp_1_OUT_04
+16
+vertex
+Vector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+1 0 0
+IMM
+-1
+point
+Vector
+Point on cuttingplane, or on sphere or Point on a cylinder
+-0.250000 -0.000000 -0.000000
+IMM
+1
+scalar
+Scalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+-0.250000
+IMM
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+IMM
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+START
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+START
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+TRUE
+START
+-1
+offset
+Scalar
+Offset of the isolines
+0.100000
+START
+-1
+numiso
+Scalar
+Number of isolines
+0
+START
+-1
+isostart
+Scalar
+First isovalue
+0.000000
+START
+-1
+isoend
+Scalar
+Last isovalue
+0.100000
+START
+-1
+color_or_texture
+Boolean
+colors or texture
+TRUE
+START
+-1
+scale
+Slider
+Scale factor
+0 1 1.
+START
+-1
+length
+Choice
+Length of vectors
+1 1*scale length*scale
+START
+-1
+num_sectors
+Scalar
+number of lines for line tip
+0
+START
+-1
+vector
+Choice
+SurfaceOrLines
+1 SurfaceAndLines OnlySurface OnlyLines
+START
+-1
+0
+Sphere
+1
+LOCAL
+Tools
+TITLE=Sphere_1
+110
+297
+3
+points
+DO_Points|DO_UnstructuredGrid|DO_StructuredGrid
+the points to be transformed into spheres
+req
+none
+data
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+data to be multiplied with parameter radius
+opt
+none
+colors_in
+Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+data mapped on the spheres
+opt
+none
+3
+spheres
+DO_TriangleStrips|DO_Polygons
+the spheres
+default
+Sphere_1_OUT_00
+normals
+DO_Unstructured_V3D_Normals
+normals for the spheres
+default
+Sphere_1_OUT_01
+dataOut
+DO_Unstructured_S3D_Data
+the data for the spheres
+default
+Sphere_1_OUT_02
+2
+radius
+Scalar
+radius of the spheres if no scalar data is given
+.01
+START
+-1
+scale
+Scalar
+Scale factor to apply on the data
+0.010000
+START
+-1
+0
+FlowTopo
+2
+LOCAL
+Filip
+TITLE=FlowTopo_2
+107
+137
+3
+grid
+DO_UnstructuredGrid
+Unstructured grid
+req
+none
+velocity
+DO_Unstructured_V3D_Data
+Vector data
+req
+none
+wallDistance
+DO_Unstructured_S3D_Data
+Scalar data
+req
+none
+2
+criticalPoints
+DO_StructuredGrid
+Structured grid
+default
+FlowTopo_2_OUT_00
+criticalPointsData
+DO_Structured_S3D_Data
+Scalar data
+default
+FlowTopo_2_OUT_01
+7
+divideByWallDist
+Boolean
+divide by wall distance
+FALSE
+START
+-1
+interiorCritPoints
+Boolean
+compute interior critical points
+TRUE
+START
+-1
+boundaryCritPoints
+Boolean
+compute boundary critical points
+FALSE
+START
+-1
+generateSeeds
+Boolean
+generate seeds
+FALSE
+START
+1
+seedsPerCircle
+Scalar
+seeds per circle
+3
+START
+-1
+radius
+Scalar
+radius
+0.005000000
+START
+-1
+offset
+Scalar
+offset
+0.00500000
+START
+-1
+0
+ShowGrid
+1
+LOCAL
+Tools
+TITLE=ShowGrid_1
+88
+225
+1
+meshIn
+Set_StructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_UnstructuredGrid
+input mesh
+req
+none
+2
+lines
+Set_Lines
+Grid Lines
+default
+ShowGrid_1_OUT_00
+points
+Set_Points
+Grid Points
+default
+ShowGrid_1_OUT_01
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+START
+-1
+pos
+Slider
+number of unstructured grid element
+0 1 0
+START
+-1
+0
+21
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_00
+Renderer
+2
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+colors
+Colors_1_OUT_00
+Collect
+1
+LOCAL
+colors
+Tracer
+1
+LOCAL
+lines
+Tracer_1_OUT_00
+Collect
+1
+LOCAL
+grid
+Tracer
+1
+LOCAL
+dataOut
+Tracer_1_OUT_01
+Colors
+1
+LOCAL
+Data
+ReadAVSucd
+1
+LOCAL
+outPortGrid
+ReadAVSucd_1_OUT_00
+DomainSurface
+2
+LOCAL
+meshIn
+ReadAVSucd
+1
+LOCAL
+outPortGrid
+ReadAVSucd_1_OUT_00
+CuttingSurfaceComp
+1
+LOCAL
+meshIn
+ReadAVSucd
+1
+LOCAL
+outPortGrid
+ReadAVSucd_1_OUT_00
+Tracer
+1
+LOCAL
+meshIn
+ReadAVSucd
+1
+LOCAL
+outPortGrid
+ReadAVSucd_1_OUT_00
+FlowTopo
+2
+LOCAL
+grid
+ReadAVSucd
+1
+LOCAL
+outPortVectorData
+ReadAVSucd_1_OUT_01
+FlowTopo
+2
+LOCAL
+velocity
+ReadAVSucd
+1
+LOCAL
+outPortVectorData
+ReadAVSucd_1_OUT_01
+Tracer
+1
+LOCAL
+dataIn
+ReadAVSucd
+1
+LOCAL
+outPortScalarData
+ReadAVSucd_1_OUT_02
+Colors
+2
+LOCAL
+Data
+ReadAVSucd
+1
+LOCAL
+outPortScalarData
+ReadAVSucd_1_OUT_02
+CuttingSurfaceComp
+1
+LOCAL
+dataIn
+ReadAVSucd
+1
+LOCAL
+outPortScalarData
+ReadAVSucd_1_OUT_02
+CuttingSurfaceComp
+1
+LOCAL
+isoDataIn
+ReadAVSucd
+1
+LOCAL
+outPortScalarData
+ReadAVSucd_1_OUT_02
+FlowTopo
+2
+LOCAL
+wallDistance
+Colors
+2
+LOCAL
+cmapOut
+Colors_2_OUT_02
+CuttingSurfaceComp
+1
+LOCAL
+colorMapIn
+DomainSurface
+2
+LOCAL
+linesOut
+DomainSurface_2_OUT_02
+Renderer
+2
+LOCAL
+RenderData
+CuttingSurfaceComp
+1
+LOCAL
+geometryOut
+CuttingSurfaceComp_1_OUT_00
+Renderer
+2
+LOCAL
+RenderData
+Sphere
+1
+LOCAL
+spheres
+Sphere_1_OUT_00
+Renderer
+2
+LOCAL
+RenderData
+FlowTopo
+2
+LOCAL
+criticalPoints
+FlowTopo_2_OUT_00
+ShowGrid
+1
+LOCAL
+meshIn
+ShowGrid
+1
+LOCAL
+points
+ShowGrid_1_OUT_01
+Tracer
+1
+LOCAL
+pointsIn
+ShowGrid
+1
+LOCAL
+points
+ShowGrid_1_OUT_01
+Sphere
+1
+LOCAL
+points
+0

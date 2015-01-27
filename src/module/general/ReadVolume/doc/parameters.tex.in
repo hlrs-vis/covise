@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline FilePath & Browser & Volume file (or printf format string for sequence)\\ \hline SequenceBegin & Scalar & First file number in sequence\\ \hline SequenceEnd & Scalar & Last file number in sequence\\ \hline CustomSize & Boolean & Off: use size values from volume file, on: use size values from below\\ \hline VolumeWidth & Scalar & Volume width\\ \hline VolumeHeight & Scalar & Volume height\\ \hline VolumeDepth & Scalar & Volume depth\\ \hline ReadRaw & Boolean & Off: read data according to file format guessed from extension, on: read raw data as specified below\\ \hline NumVoxelX & Scalar & Number of voxels in x direction (width)\\ \hline NumVoxelY & Scalar & Number of voxels in y direction (height)\\ \hline NumVoxelZ & Scalar & Number of voxels in z direction (slices)\\ \hline BytePerChannel & Scalar & Byte per channel\\ \hline NumberOfChannels & Scalar & Number of channels\\ \hline HeaderSize & Scalar & Offset of raw volume data from file beginning\\
+\hline \end{longtable}
+

@@ -1,0 +1,63 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{geoOut\_3D} 
+	& Set|UnstructuredGrid & Grid object or set of UnstructuredGrids containing all 3D parts of the data-set \\
+\hline
+	\textcolor{output}{sdata1\_3D} & Float 
+	                              & Scalar data of 3D parts mapped to this port. \\
+\hline
+	\textcolor{output}{sdata2\_3D} & Float 
+				      & Scalar data of 3D parts mapped to this port. \\
+\hline
+	\textcolor{output}{sdata3\_3D} & Float 
+	                              & Scalar data of 3D parts mapped to this port. \\
+\hline
+	\textcolor{output}{vdata1\_3D} & Vec3 
+	                              & Vector data of 3D parts mapped to this port. \\
+\hline
+	\textcolor{output}{vdata2\_3D} & Vec3 
+	                              & Vector data of 3D parts mapped to this port. \\	
+\hline
+ & & \\
+\hline
+	\textcolor{output}{geoOut\_2D} 
+	& Set|UnstructuredGrid & Grid object or set of UnstructuredGrids containing all 3D parts of the data-set \\
+\hline
+	\textcolor{output}{sdata1\_2D} & Float 
+	                              & Scalar data of 2D parts mapped to this port. \\
+\hline
+	\textcolor{output}{sdata2\_2D} & Float 
+				      & Scalar data of 2D parts mapped to this port. \\
+\hline
+	\textcolor{output}{sdata3\_2D} & Float 
+	                              & Scalar data of 2D parts mapped to this port. \\
+\hline
+	\textcolor{output}{vdata1\_2D} & Vec3 
+	                              & Vector data of 2D parts mapped to this port. \\
+\hline
+	\textcolor{output}{vdata2\_2D} & Vec3 
+	                              & Vector data of 2D parts mapped to this port. \\	
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+{\bf Remark}\\
+All output data is node-based. The module CellToVert after ReadEnsight is not required anymore. 
+
+
+
+
+
+
+%
+%=============================================================

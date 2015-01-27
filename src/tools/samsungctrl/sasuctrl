@@ -1,0 +1,40 @@
+#!/usr/bin/python
+import socket
+import sys
+import getopt
+
+UDP_IP = "141.58.8.59"
+#UDP_IP = "192.168.1.112"
+UDP_PORT = 5005
+
+def printHelp():
+	print "usage   : sasuctrl <command>"
+	print "commands: on        - power on/off"
+	print "          off       - power off"
+	print "          3d_on     - switch to 3D side-by-side mode"
+	print "          3d_off    - switch 3D off"
+	print "          dvi       - select DVI inout"
+	print "          hdmi      - select HDMI input"
+	print "          vwall_on  - video wall on"
+	print "          vwall_off - video wall off"
+
+def main(argv):
+	if (len(sys.argv) == 2):
+		command = sys.argv[1]
+
+		if (command in 'on off 3d_on 3d_off dvi hdmi vwall_on vwall_off'):
+			print "UDP target IP:", UDP_IP
+			print "UDP target port:", UDP_PORT
+			print "message:", command
+			sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+			sock.sendto(command, (UDP_IP, UDP_PORT))
+		else:
+			printHelp()
+	else:
+		printHelp()
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
+
+
+

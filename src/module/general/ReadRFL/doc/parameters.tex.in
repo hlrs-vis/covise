@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline rflFile & Browser & Flotran result file\\ \hline datasetNum & Slider & Dataset number\\ \hline numTimesteps & Slider & Number of timesteps to read\\ \hline numSkip & Scalar & Number of timesteps to skip\\ \hline dof\_0 & Choice & DOF to read for output\\ \hline dof\_1 & Choice & DOF to read for output\\ \hline dof\_2 & Choice & DOF to read for output\\ \hline dof\_3 & Choice & DOF to read for output\\ \hline dof\_4 & Choice & DOF to read for output\\
+\hline \end{longtable}
+

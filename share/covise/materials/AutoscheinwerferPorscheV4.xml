@@ -1,0 +1,188 @@
+<!--
+
+- debug und spaeter release(geht schneller zu compilieren) in visual studio eingeben und speichern
+- fuers debuggen selbst muss debug-attach to progress-breakpoints setzen und debuggen
+- osgmatrix-funktion anschauen und projektionsmatrix erstellen,bzw lightmatrix anpassen
+- ueberlegen wie matrizen multipliziert werden muessen, da von worldcoordinates zu bildschirmkoors. mit basemat, 
+aber rueckwaerts dann ueber inversebasemat
+	const osg::Matrix & 	getBaseMat () const
+ 	transformation matrix from object coordinates to world coordinates 
+
+	const osg::Matrix& coVRPluginSupport::getInvBaseMat 	( 		 )  	const
+	transformation from world coordinates to object coordinates
+
+use this cached value instead of inverting getBaseMat() yourself 
+ - getestet: 
+		- projmat in y-richt fuehrt nur zu licht
+		- projmat in z-richt fuehrt zu licht und textur
+		- projmat in y-richt und vertex*project fuehrt zu licht und textur
+		- test mit verschiedenen werten von lightmat und projmatrix - keine veraenderung
+		- test mit versch groesserem frustum und versch winkeln und anderen parametern - keine veraenderung
+ 
+ Koordinatensystem 
+ - Momentan ist x-Achse die Fahrzeugquerachse(re aus Fahrersicht ist positiv), y-Achse die Fahrzeug-Hochachse, z-Achse die Fahrzeuglaengsachse (positiv bei Fahrzeug)
+ - In 3ds ist x-Achse die Fahrzeugquerachse(li aus Fahrersicht ist positiv), y-Achse die Fahrzeug-Laengsachse, z-Achse die Fahrzeughoch (positiv oberhalb Fahrbahn)
+ 
+ - Lichtkegelberechnung nur mit eyevec, also nur ueber gl-vertex.
+ - texturen nicht gerendert und lightmat bzw. projectmat haben keinen einfluss auf lichtkegel
+ -->
+<AutoscheinwerferPorschefinal>
+
+  <uniform name="constantAttenuation" type="float" value="2"/> <!-- >1 abschwaechung-->
+  <uniform name="linearAttenuation" type="float" value="2"/> <!-- >1 abschwaechung-->
+  <uniform name="quadraticAttenuation" type="float" value="2"/> <!-- >1 abschwaechung-->
+  <uniform name="diffuseMap" type="sampler2D" value="0"/>
+  <uniform name="lightMap" type="sampler2D" value="1"/>
+  <uniform name="shininess" type="float" value="1"/>
+  <uniform name="Light" type="mat4" value="identity"/>
+  <uniform name="Projection" type="mat4" value="identity"/>
+  
+   <!--Projektionsmatrix: Frustum in y-Richtung;	n=1,f=2,r=2,l=1,t=2,b=1; viewangle = 108
+  <uniform name="Projectmat" type="mat4" value="2.0 0.0 0.0 0.0
+											-3.0 -3.0 3.0 1.0
+											0.0 2.0 0.0 0.0
+											0.0 0.0 -4.0 0.0"/>-->
+																		
+<!--Positionsmatrix der Lichtquelle (besteht aus Lightmat = Skal*Rot*Transl): P'=Lightmat*P z.b.
+<uniform name="ModMatrix" type="mat4" value="1.0 0.0 0.0 0.0		
+											0.0 0.0 1.0 0.0 
+											0.0 0.0 0.0 0.0 
+											0.0 0.0 0.0 1.0"/>-->
+  <uniform name="Lightmat" type="mat4" value="1.0 0.0 0.0 0.0		
+											0.0 1.0 0.0 0.0 
+											0.0 0.0 1.0 0.0 
+											0.0 400.0 300.0 1.0"/>
+  <vertexProgram>
+	
+	uniform mat4 Light;
+	uniform mat4 Projection, Lightmat;
+	
+		
+	varying vec3 normal, eyeVec, vVertexaugpronorm,normalobj;
+	varying vec4 vVertexaug, vVertexaugpro,vVertexobj;
+	varying vec2 Texcoord0, Texcoord1,Texcoord2;
+	varying mat4 modelfrag, projectfrag;	       
+	varying mat3 normalmat;
+void main( void )
+  {		
+		
+		<!--Transformation des Normalvektors von Objekt- in Augkoordinatien: gl_NormalMatrix=gl_ModelViewMatrix^-1-->		
+		normal = gl_NormalMatrix * gl_Normal;
+		
+		<!--Transformation von Object- in Welt-/Augkoordinaten-->
+		vVertexaug = gl_ModelViewMatrix*gl_Vertex;
+				
+		<!--Transformation in Clipping Coordinates-->		
+		eyeVec =(-vVertexaug.xyz);
+		vVertexaugpro = Projection * vVertexaug;
+		
+		<!--Normierung: Umwandlung der Augkoordinaten in dreidimensionale Wuerfelkoordinaten (normalized device coordinates)-->
+		vVertexaugpronorm = (vVertexaugpro.xyz)/vVertexaugpro.w;
+		
+		<!--Texturkoordinaten werden berechnet
+		Muss hier .xz oder doch .xy, weil eig projektionsmatrix objekte so transformiert, dass xz-ebene parallele zu near und far ebenen ist-->
+		Texcoord0 = (0.5*vVertexaugpronorm.xy)+0.5;
+		Texcoord1 = (0.5*vVertexaugpronorm.xy)+0.5;
+		
+		projectfrag = gl_ProjectionMatrix;
+		modelfrag = gl_ModelViewMatrix;
+		normalmat = gl_NormalMatrix;
+		Texcoord2 = gl_MultiTexCoord0.xy;	
+		vVertexobj = gl_Vertex;
+		normalobj = gl_Normal;
+		
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+<!--ftransform()=gl_ProjectionMatrix*gl_ModelViewMatrix*gl_Vertex-->
+	gl_Position = ftransform();
+  }
+  </vertexProgram>
+
+  <fragmentProgram>
+  
+	varying vec3 normal, eyeVec, normalobj; 
+	varying vec2 Texcoord0, Texcoord1,Texcoord2;
+	varying mat4 Lightpos, Lightmod, Lightneu, modelfrag;
+	varying vec4 vVertexaug, vVertexaugpro,vVertexobj;
+	varying mat3 normalmat;
+	
+	uniform mat4 Light, Projection, Lightmat;
+
+	uniform float constantAttenuation; 
+	uniform float linearAttenuation;    
+	uniform float quadraticAttenuation;
+	uniform sampler2D diffuseMap;
+	uniform sampler2D lightMap;
+	uniform float shininess;
+			
+   void main( void )
+   {
+	
+		float distance;
+		float attenuation=0.5;
+		int Lights = 2, i;
+		
+		vec3 posvec, lightDir;
+		vec4 ambientdiffuse = vec4(0,0,0,1), specular = vec4(0,0,0,1);
+		
+		<!--ambienter Anteil, evtl abstand zum betrachter statt att und evtl nur oberer teil-->
+		ambientdiffuse = ambientdiffuse+gl_FrontMaterial.ambient;
+			<!--(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient)* attenuation;)-->
+	
+	<!--Schleife fuer 2 Lichter-->
+     for (i=0; i &lt; Lights; i++)
+	 {
+		<!--Anweisungsblock um fuer die beiden Lichter unterschiedliche Positionen zuzuweisen-->
+		switch (i)
+		{
+		case 0: posvec = vec3(100,0,0); break;
+		case 1: posvec = vec3(-100,0,0); break;
+		}
+				
+		<!-- Berechnung des Vektors lightdir vom Vertex zur Lichtquelle und Laengenbestimmung lightDir = vec3(Lightpos[3].xyz + eyeVec + posvec);-->
+		lightDir = vec3(Light[3].xyz - vVertexaug.xyz+posvec);
+		distance = length(lightDir);
+		
+		<!--Lichtabschwaechung durch attenuation
+			Lichtkegel durch if-anweisung-->
+		
+		<!--attenuation = 1.0 / (quadraticAttenuation * distance * distance
+                                + linearAttenuation * distance
+                               + constantAttenuation);-->
+		
+		<!--1.Kugelfoermiges Licht-->	
+		<!--if((distance &lt; 500) &amp; (lightDir.y &gt;0)){	attenuation = 1;}-->
+		if(distance &lt; 380){attenuation = 1;}
+		if(lightDir.y &lt;0){attenuation = 0.5;}
+		
+      	vec3 N = normalize(normal);
+      	vec3 L = normalize(lightDir);
+      	
+		float lambertTerm = dot(N,L);
+      	
+		if(lambertTerm &gt; 0.0)
+      	{
+		<!--diffuser Anteil, vec4 hinten ergibt gelbliche lichrfaerbung-->
+		ambientdiffuse = ambientdiffuse+(gl_FrontMaterial.diffuse * lambertTerm * attenuation*vec4(0.75,0.75,0.45,1));
+			
+		<!--spekularer Anteil-->
+									
+			vec3 E = normalize(eyeVec);
+      		vec3 R = reflect(-L, N);
+			specular = specular + (pow( max(dot(R, E), 0.0),gl_FrontMaterial.shininess)*attenuation * gl_FrontMaterial.specular);
+		}
+	   	}
+      <!-- final color berechnen	
+		 gl_FrontLightModelProduct.sceneColor doch erst am ende als final_color=gl_frontlightmodelproduct.scenecolor+amb+spec+diff
+		 weil definition ist struct gl_LightModelProducts{
+								vec4  sceneColor; // Derived. Ecm + Acm * Acs (materialem+matamb*ambszene)
+										siehe clockword coders};
+		 und daher oben amb = gl_LightSource[0].ambient * gl_FrontMaterial.ambient -->
+
+			 gl_FragColor = ((gl_FrontLightModelProduct.sceneColor + ambientdiffuse)* texture2D(diffuseMap, Texcoord0) * texture2D(lightMap, Texcoord1) ) + specular;
+	
+	gl_FragColor.w = 1.0;
+   }
+  </fragmentShader>
+</AutoscheinwerferPorschefinal>

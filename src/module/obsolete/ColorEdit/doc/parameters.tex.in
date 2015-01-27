@@ -1,0 +1,37 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+   \hline\hline
+        colormap\_file & Browser & Filename of a colormap file. Create such a file by saving the current colormap in
+	                         the extra window. \\
+\hline
+	Map & Choice & color or texture \\
+\hline
+	Min & Scalar & Left scalar border of colormap. If you press Execute in the extra window this
+	              parameter is adapted to the minimun of the colormap which is set in the extra window. \\
+\hline
+	Max & Scalar & Right scalar border of colormap.If you press Execute in the extra window this
+	              parameter is adapted to the maximun of the colormap which is set in the extra window.  \\
+\hline
+	colormap & Colormap & Editor which is started in extra window to edit colormap \\
+\hline
+	Annotation & String & Name which is displayed in renderer with the colormap to sign  
+which component is mapped to color \\
+\hline
+	Steps & Scalar & number of scale values (granularity) shown for the colormap \\
+															
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+%
+%=============================================================

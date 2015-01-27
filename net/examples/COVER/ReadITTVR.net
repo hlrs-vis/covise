@@ -1,0 +1,276 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+4
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+-1258
+204
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Sphere
+Sphere
+1
+LOCAL
+Tools
+Sphere_1
+-1258
+119
+3
+points
+Points|UnstructuredGrid|StructuredGrid
+the points to be transformed into spheres
+req
+
+colors_in
+Float|RGBA|Vec3|IntArr|Int|Byte|Mat3|Tensor|Vec2
+data to be mapped onto the spheres
+opt
+
+data
+Float|Vec3
+data to be added to parameter radius
+opt
+
+3
+spheres
+TriangleStrips|Polygons|Spheres
+the spheres
+default
+
+dataOut
+Float|RGBA|Vec3|IntArr|Int|Byte|Mat3|Tensor|Vec2
+data mapped onto spheres
+default
+
+normals
+Vec3
+normals for the spheres
+default
+
+3
+radius
+FloatScalar
+Base radius of the sphere, used if input radius is not available
+3.
+
+-1
+scale
+FloatScalar
+Scale factor to apply on the data
+1
+
+-1
+render_method
+Choice
+Render method for sphere rendering
+3
+
+-1
+0
+# Module ReadITT
+ReadITT
+1
+LOCAL
+IO_Module
+ReadITT_4
+-1258
+34
+0
+4
+points
+Points
+points Output
+default
+
+radii
+Float
+Atom Radii Output
+default
+
+colors
+RGBA
+Atom Colors Output
+default
+
+Boundingbox
+Lines
+Bounding Box Output
+default
+
+5
+Filename
+Browser
+dummy
+share/covise/example-data/ReadITT/2Tropfen.vis
+
+-1
+Filename___filter
+BrowserFilter
+dummy
+Filename *.via;*.vim;*.vis/*.via/*.vim/*.vis/*
+
+-1
+Lookahead
+Boolean
+lookahead
+FALSE
+
+-1
+LookaheadValue
+IntScalar
+test
+0
+
+-1
+SleepSeconds
+IntScalar
+seconds to sleep
+10
+
+-1
+0
+# Module VRRenderer
+VRRenderer
+1
+LOCAL
+Renderer
+VRRenderer_1
+-1258
+288
+1
+RenderData
+Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres
+render geometry
+req
+
+0
+1
+Viewpoints
+Browser
+Viewpoints
+/raid/home/aumuellm//default.vwp *.vwp
+
+-1
+0
+7
+Collect
+1
+LOCAL
+GeometryOut0
+
+VRRenderer
+1
+LOCAL
+RenderData
+Sphere
+1
+LOCAL
+spheres
+
+Collect
+1
+LOCAL
+GridIn0
+Sphere
+1
+LOCAL
+dataOut
+
+Collect
+1
+LOCAL
+DataIn0
+Sphere
+1
+LOCAL
+normals
+
+Collect
+1
+LOCAL
+DataIn1
+ReadITT
+1
+LOCAL
+points
+
+Sphere
+1
+LOCAL
+points
+ReadITT
+1
+LOCAL
+radii
+
+Sphere
+1
+LOCAL
+data
+ReadITT
+1
+LOCAL
+colors
+
+Sphere
+1
+LOCAL
+colors_in
+0

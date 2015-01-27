@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadLat.cpp
+)
+
+SET(EXTRASOURCES
+  ReadLat.h
+)
+
+ADD_COVISE_MODULE(IO ReadLat ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadLat  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadLat)

@@ -1,0 +1,161 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Working with Modules</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#3333FF">Working with Modules</font></font></h2>
+
+<h3>
+<font face="Arial,Helvetica">Short Information about Modules:</font></h3>
+<font face="Arial,Helvetica">You get</font>
+<blockquote><font face="Arial,Helvetica"><b>module information</b> (function
+and <b>parameters</b> / input data / output data) in a 'book with 3 pages',
+the <a href="map_modinfo.html">Module Information</a> window by</font></blockquote>
+
+<center><table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="85%" BGCOLOR="#CCCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">clicking on the <b><font color="#FF0000">red
+</font>book
+icon</b> of the module with the <b>left </b>mouse button</font></td>
+</tr>
+</table></center>
+
+<h3>
+<font face="Arial,Helvetica">Other Operations with Modules:</font></h3>
+<font face="Arial,Helvetica">You can perform some</font>
+<blockquote><font face="Arial,Helvetica"><b>module operations</b>, called
+<b>Further
+Actions</b> by</font></blockquote>
+
+<center><table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="86%" BGCOLOR="#CCCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">clicking on the <b>module icon </b>(anywhere)
+with the <b>right</b> mouse button to get a selection window</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">selecting the operation with the <b>left</b>
+mouse button</font></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<center><table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="43%" >
+<tr>
+<td><img SRC="modaction.gif" height=193 width=212></td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica"><font size=-1>&nbsp;</font>These operations
+are</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Execute</font></b></li>
+
+<br><font face="Arial,Helvetica">You execute the map <b>starting with this
+module</b>, not from the beginning. It is typically more efficient to execute
+only a part of the module network after having changed some parameters
+instead of executing the whole network. I/O modules often need a lot of
+time to read in large data files which is not necessary if you have just
+modified a module parameter further down in the processing chain.</font>
+<p><u><font face="Arial,Helvetica">Notes:</font></u>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="88%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Same function available from&nbsp;</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">Execute in the <a href="map_modinfo.html">ModuleInformation</a>
+window (bottom line)</font></li>
+
+<li>
+<font face="Arial,Helvetica">Exec icon (&nbsp;<img SRC="exec.gif" height=16 width=16>
+) in the <a href="map_ctrlpanel.html">ControlPanel</a>, if module has a
+parameter interactor attached</font></li>
+
+<br>&nbsp;</ul>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">Map must have been executed completely
+before, using&nbsp;</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica"><a href="map_exec.html">Execution</a> > Execute
+in the Menu Bar or&nbsp;</font></li>
+
+<li>
+<font face="Arial,Helvetica">Exec icon (&nbsp;<img SRC="exec.gif" height=16 width=16>
+) in the <a href="map_toolbar.html">Tool Bar</a></font></li>
+
+<br>&nbsp;</ul>
+</ul>
+</td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Delete</font></b></li>
+
+<br><font face="Arial,Helvetica">You remove a module from the working area.</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Rename</font></b></li>
+
+<br><font face="Arial,Helvetica">Rename a module (also used to generate
+a label for a <a href="map_modgroup.html">module group</a>)</font>
+<br>&nbsp;
+<table COLS=1 WIDTH="63%" >
+<tr>
+<td><img SRC="modaction_rename.gif" height=285 width=500></td>
+</tr>
+</table>
+<br>
+If you press 'OK', 'DomainSurface' will be changed to 'Oberfl&auml;che'.</ul>
+
+<ul>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Move</font></b></li>
+
+<br><font face="Arial,Helvetica">You move this module to another host for
+execution. This is only possible, if an additional host has been added
+to the session via 'Add Host/Partner' (see menu option <a href="map_cscw.html">CSCW</a>).</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Copy</font></b></li>
+
+<br><font face="Arial,Helvetica">You copy this module to another host for
+execution. This is only possible, if an additional host has been added
+to the session via 'Add Host/Partner' (see menu option <a href="map_cscw.html">CSCW</a>).
+The Mapeditor also copies the current values of the parameter and connection
+lines to other modules.</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Help</font></b></li>
+
+<br><font face="Arial,Helvetica">You get the complete documentation about
+this module from the Online Module Documentation (if not available, use
+the <a href="map_modinfo.html">ModuleInformation</a> window to get short
+information for this module or use&nbsp; <font color="#3333FF"><a href="../start_overview.html" target="_top">Modules</a></font><font color="#000000">
+to get information</font><font color="#3333FF">&nbsp;</font> for all modules)</font></ul>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<ul>&nbsp;</ul>
+
+</body>
+</html>

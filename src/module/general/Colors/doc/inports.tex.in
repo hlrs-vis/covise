@@ -1,0 +1,36 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{Data} & Vec3 \newline
+                                     Vec3 \newline
+				     IntArr \newline 
+				     Float \newline
+				     Float				     
+				     & Data on a structured or unstructured grid or set of grid.  \\
+\hline
+        \textcolor{optional}{cmapIn} & ColorMap \newline MinMax\_Data & 
+If this port  is connected, and a colormap data object is received,
+it overrides all setttings of the module.
+If a pair of numbers indicating the minimum and maximum
+levels a the desired color map is received, this information
+is honoured by the output of the module (even if the user tries 
+to use Autoscale). \\
+
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

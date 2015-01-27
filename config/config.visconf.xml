@@ -1,0 +1,336 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<GLOBAL>
+	<Module>
+
+		<Material>
+			<MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263"  emissive="0 0 0" shininess="0.0363636" transparency="0" />
+		</Material>
+
+		<TetraTrace>
+			<BoxIncreaseFactor value="2" />
+		</TetraTrace>
+	</Module>
+
+	<System>
+		<WSInterface value="false" />
+		<CRB>
+			<ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+			<ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+			<ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+			<ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+			<ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+			<ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
+		</CRB>
+	</System>
+
+	<Renderer>
+		<Axis value="on" />
+	</Renderer>
+
+	<COVER>
+	
+		<WelcomeMessage value="Welcome to OpenCOVER at Uni Blubber" />
+	
+		<LODScale value="5.0" />
+
+		<Freeze value="on" />
+		<CoordAxis value="on" />
+		<ViewerPosition x="0" y="-1200" z="1000" />
+		
+		<FloorHeight value="-1150" />
+		
+		<Near value="100" />
+		<Far value="20000000" />
+
+		<Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+		<SyncToVBlank value="ON" device="DFP-0" />
+		
+		<NavigationMode value="drive" />
+		
+		<CudaNumThreads value="128" />        
+		<!--TabletUI>
+			<Server host="localhost" port="31802" name="0" />
+		</TabletUI-->
+		<CheckForOpenGLErrors value="true" />
+		<UseVertexBufferObjects value="false" />
+		<UseDisplayLists value="true" />
+		<NavigationMode value="XForm" />
+		<TransparencyMode value="sorted_blended" />
+		<AnimationSpeed min="0.0" max="25.0" default="24.0" />
+		<MultiThreaded value="off" />
+		<StencilBits value="8" />
+		<Stencil value="true" />
+		<SaveFile value="/tmp/test.osg" />
+		<FileManager>
+			<FileType name="pts" plugin="PointModel" />
+			<FileType name="xyz" plugin="PointModel" />
+			<FileType name="x3dv" plugin="Vrml97" />
+			<FileType name="wrl" plugin="Vrml97" />
+			<FileType name="wrl.gz" plugin="Vrml97" />
+			<FileType name="wrz" plugin="Vrml97" />	
+			<FileType name="avi" plugin="StereoVideoPlayer" />
+			<FileType name="wmv" plugin="StereoVideoPlayer" />
+			<FileType name="mov" plugin="StereoVideoPlayer" />
+			<FileType name="mp4" plugin="StereoVideoPlayer" />
+			<FileType name="xvf" plugin="Volume" />
+			<FileType name="rvf" plugin="Volume" />
+			<FileType name="avf" plugin="Volume" />
+			<FileType name="js" plugin="Script" />
+			<FileType name="qs" plugin="Script" />
+			<FileType name="plmxml" plugin="PLMXML" />
+			<FileType name="jt" plugin="JTOpen" />
+			<FileType name="top" plugin="Amber" />
+			<FileType name="trj" plugin="Amber" />
+			<FileType name="cgl" plugin="CADCv3D" />
+			<FileType name="via" plugin="Molecules" />
+			<FileType name="vim" plugin="Molecules" />
+			<FileType name="vis" plugin="Molecules" />
+			<FileType name="dyn" plugin="VRAnim" />
+			<FileType name="geoall" plugin="VRAnim" />
+			<FileType name="str" plugin="VRAnim" />
+			<FileType name="sensor" plugin="VRAnim" />
+			<FileType name="particle" plugin="Particles" />
+			<FileType name="earth" plugin="Earth" />
+			<FileType name="xodr" plugin="TrafficSimulation" />
+			<FileType name="avi" plugin="StereoVideoPlayer" />
+			<FileType name="wmv" plugin="StereoVideoPlayer" />
+			<FileType name="earth" plugin="Earth" />
+		</FileManager>
+
+		<VRUI>
+			<VNC>
+				<Menu>
+					<Orientation h="-90" p="0" r="0" />
+					<Position x="1300" y="-500" z="500" />
+				</Menu>
+			</VNC>
+		</VRUI>
+
+		<Input>
+
+			<DebugTracking value="FALSE" /> <!-- fuer ANschalten "APP" angeben -->
+			<DebugButtons value="FALSE" />
+			<DebugStation value="0" />
+			<MouseNav value="ON" />
+			<OrientInterpolation value="FALSE" />
+
+			<DTrack>
+				<!--Startup value="134.95.115.227:50105"/--> <!-- visart -->
+				<Startup value="134.95.115.241:50105" />     <!-- visart2 -->
+				<Port value="5000" />
+			</DTrack>
+			
+
+			<!--TrackingSystem value = "DTRACK" >
+				<Offset x="220" y="-2100" z="0" />
+				<Orientation h="0" p="90" r="0" />
+			</TrackingSystem>
+
+			<HandAddress value="0" />
+			<HeadAddress value="1" />
+
+			<HeadDevice>
+				<Offset x="0" y="0" z="0" />
+				<Orientation h="0" p="-100" r="0" />
+			</HeadDevice>
+
+			<HandDevice>
+				<Offset x="0" y="0" z="0" />
+				<Orientation h="0" p="-100" r="0" />
+			</HandDevice-->
+			
+			
+			<!--TrackingSystem value = "DTRACK" >
+				<Offset x="0" y="-1000" z="-1200" />
+				<Orientation h="0" p="90" r="0" />
+			</TrackingSystem>
+
+			<HandAddress value="0" />
+			<HeadAddress value="1" />
+
+			<HeadDevice>
+				<Offset x="0" y="0" z="0" />
+				<Orientation h="0" p="0" r="0" />
+			</HeadDevice>
+
+			<HandDevice>
+				<Offset x="0" y="45" z="330" />
+				<Orientation h="0" p="-45" r="-145" />
+			</HandDevice-->
+
+			
+			<TrackingSystem value = "DTRACK" >
+				<Offset x="-25" y="-1800" z="-780" />
+				<Orientation h="0" p="0" r="0" />
+			</TrackingSystem>
+
+			<HandAddress value="0" />
+			<HeadAddress value="1" />
+
+
+			<HeadDevice>
+				<Offset x="0" y="0" z="0" />
+				<Orientation h="0" p="0" r="0" />
+			</HeadDevice>
+
+			<HandDevice>
+				<Offset x="0" y="0" z="0" />
+				<Orientation h="180" p="68" r="-20" />				
+			</HandDevice>
+			
+			<ButtonSystem value="MOUSE"/>
+
+		</Input>
+
+		<!--Console value="on" file="/tmp/coverlog"/-->
+		
+		<Plugin>
+			<Bullet value="off" />
+			<Earth value="off" />
+			<COVERScript value="off" />
+			<cuCuttingSurface value="off" />
+			<cuIsoSurface value="off" />
+			<SGBrowser value="on" />
+			<Volume value="off" />
+			<TouchTable value="off" />
+
+			<Vrml97 value="on" >    
+				<!--SmallTextures value="true" /-->
+				<!--MaxTextureSize value="1024" /-->
+				<ViewpointType value = "standardNoFov"/>
+				<Audio value="Aserver" />
+				<ViewpointType value = "standardNoFov"/>
+			</Vrml97>
+
+			<DistortViewer value="off" />
+			<Move value="on" />
+			<ClipPlane value="on" />
+
+			<!--PDB value="off" >
+				<PDBPluginPymolDir value="/var/tmp/pymol/" />
+				<PDBPluginTempDir value="/var/tmp/pdb/" />
+				<PDBUrl value="www.pdb.org/pdb/files/" />
+				<AnimationURL value="www.molmovdb.org/uploads/" />
+				<PDBAnimationUrl value="www.molmovdb.org/uploads" />
+
+				<Scale value="1" />
+				<ViewerDistance value="70" />
+				<FadeDistance value="40" />
+
+				<Structures>
+					<Gleevec value="1XBB" />
+					<Luciferin value="2D1S" />
+					<Hemoglobin value="4HHB" />
+					<HIV_Protease value="1HVR" />
+					<Smad4 value="1YGS" />
+					<Photosystem_I value="1JBO" />
+					<Cytochrome_c_Oxidase value="1OCO" />
+					<MHC_Class_II value="1DLH" />
+					<Potassium_Channel_A value="1BL8" />
+					<Potassium_Channel_B value="1FQY" />
+					<SARS value="2D2D" />
+					<Acetylcholine_Receptor value="2BG9" />
+					<Acetylcholine_Cobratoxin value="1YI5" />
+					<Thermus_Thermophilus value="1J5E" />
+					<Polyketide_Synthase value="1U0M" />
+					<Calcium_Pump value="1SU4" />
+					<Antibody_bound_Influenza value="1KEN" />
+					<Thermatoga value="2F8J" />
+				</Structures>
+
+				<Animations>
+					<Serotonin_N_Acetyltransferase value="22943-38" />
+					<Calcium_Pump value="396506-12995" />
+					<FecA_transporter value="829808-15750" />
+					<Actin value="763408-1487" />
+					<Calmodulin value="17833-29779" />
+				</Animations>
+			</PDB-->
+
+			<AKToolbar value="off">
+				<Attachment value="TOP" />
+				<Scale value=".8" />
+				<MinClickTime value="0.2" />
+				<Position x="-980" y="0" z="630" />
+				<ShortCut value="viewall" name="viewall" />
+				<ShortCut value="scale" name="scale" />
+				<ShortCut value="xform" name="xform" />
+				<ShortCut value="walk" name="walk" />
+				<ShortCut value="drive" name="drive" />
+				<ShortCut value="fly" name="fly" />
+			</AKToolbar>
+
+			<Amber value="off"/>   
+
+			<!--StereoVideoPlayer>
+				<MoviePlayer value="ffmpeg"/>
+				<UseTextureRectangle value="true"/>
+				<AudioOffset value="0.0"/>
+			</StereoVideoPlayer>
+
+			<StereoVideoPlayer>
+				<UseTextureRectangle value="on" />
+				<AudioOffset value="0.0" />
+			</StereoVideoPlayer-->
+
+		</Plugin>
+
+		<Menu>
+			<Position x="600" y="0" z="500" />
+		</Menu>
+		
+		<SceneSize value="2300" />
+		<DebugLevel value="0" />
+		<FPS value="false" />
+
+		<Stereo enable="on" value="on" separation="60" />
+		<StereoMode value="QUAD_BUFFER" />
+
+		<NumScreens value="1" />
+		<NumPipes value="1" />
+		<NumWindows value="1" />
+		<NumChannels value="2" />
+
+		<PipeConfig>
+			<Pipe display=":0" name="0" screen="1" pipe="0" />
+		</PipeConfig>
+
+		<WindowConfig>
+			<Window index="0" width="1920" comment="FRONT0" window="0" pipeIndex="0" height="1200" left="-1920" bottom="0" name="0" decoration="off" stereo="true"/>
+		</WindowConfig>
+
+		<ScreenConfig>
+			<Screen originX="0" originY="0" originZ="0" width="3800" height="2375" comment="FRONT0" h="0.0" p="0.0" r="0.0" name="0" screen="0" />
+		</ScreenConfig>
+		
+		<ChannelConfig>
+			<Channel value="1" index="1" comment="FRONT0" stereoMode="QUAD_BUFFER" channel="1" right="1920" left="0" windowIndex="0" bottom="0" name="1" top="1200" />
+			<Channel value="0" index="0" comment="FRONT0" stereoMode="QUAD_BUFFER" channel="0" right="1920" left="0" windowIndex="0" bottom="0" name="0" top="1200" />
+		</ChannelConfig>
+		<!-- Desktop Fenster
+			<Window arch="windows" width="1024" comment="Desktop" window="0" pipeIndex="0" height="768" left="10" bottom="10" name="0" decoration="true" />
+		/-->
+		<!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+
+	</COVER>
+
+
+	<!-- position of transfer editor menu>
+	<TFE>
+		<MenuPosition value="-200 0 80" >
+			<MenuSize value="0.15" >
+	</TFE--><!--position of error message window (PDBplugin)>
+
+	<Messages>
+		<MenuPosition value="100 0 120" />
+		<MenuSize value="0.15" />
+	</Messages-->
+</GLOBAL>
+
+<INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+<!-- this config is required by the ViNCE Renderer-->
+<!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
+</COCONFIG>

@@ -1,0 +1,18 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadStl.cpp
+)
+
+SET(EXTRASOURCES
+  ReadStl.h
+)
+
+USE_VTK(OPTIONAL)
+ADD_COVISE_MODULE(IO ReadStl ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadStl  coAlg coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadStl)

@@ -1,0 +1,41 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+	{CuttingSurface3DTexMap}{covise/net/examples/COVER/3DTexVR.net}{0.6}\end{covimg}
+        
+In 3DTexVR.net the module ReadStar\_1 modules again read in the dataset.
+At the first output port the computational grid is available and at
+the second output port the turbulent energy (TE).
+The module Colors\_3 maps the TE data to colors.
+
+DomainSurface\_1 computes the edges lines of the computational grid.
+
+CuttingSurface\_1 computes an cutting plane and the module Colors\_1 maps
+the data on the plane to colors. It takes the colormap from the module
+Colors\_3.
+
+Sample\_1 transforms the unstructured grid and data on it to a uniform grid
+with data. Colors\_2 maps the data on the uniform grid to colors.
+It takes the colormap from the module
+Colors\_3. 
+
+The module ShowGrid\_1 computes a wireframe representation of three outer surfaces
+of the uniform grid.
+
+CuttingSurface3DTex\_1 combines the unstructured grid and colors and the
+structured grid an colors into a set.
+
+When COVER\_1 gets this object it loads a plugin (CuttingSUrface3DTexPlugin)
+which creates a 3D texture from the uniform grid and provides the
+preview mode for cuttingsurface interaction.
+
+
+

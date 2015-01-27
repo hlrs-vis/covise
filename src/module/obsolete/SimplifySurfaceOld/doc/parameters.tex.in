@@ -1,0 +1,32 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	strategy & Choice & Simplification Strategy: \newline
+                            Edge Collapse \newline 
+			    Vertex Removal \\
+\hline
+	percent & Scalar & Percentage of triangles which shall be left after
+                                           reduction  \\
+\hline
+	volume bound & Scalar &  An upper bound of the volume difference (in data
+                                            set units) which is caused by every removal
+                                            operation \\
+\hline
+	feature angle & Scalar & Angle (in degrees) which shall be preserved in
+                                           feature edges  \\	 															
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,29 @@
+
+%=============================================================
+
+%
+%
+% short description what the module does
+%
+File reader for formatted Fluent(R) files V 0.99b
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{ReadFluentModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+Please make sure that you run ReadFluent only on the same type of system where the data
+have been generated - with SGI data on SGI and with Linux data on Linux
+
+%
+%
+%
+%=============================================================

@@ -1,0 +1,1370 @@
+1
+LOCAL
+LUSER
+18
+DomainSurface
+1
+LOCAL
+Tools
+Extract the Surface of an unstructured Grid
+25
+100
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+DomainSurface_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+DomainSurface_1_OUT_01
+linesOut
+DO_Lines
+Boundary lines
+default
+DomainSurface_1_OUT_02
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+DomainSurface_1_OUT_03
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+105
+343
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+VectorScal
+1
+LOCAL
+Tools
+description missing
+64
+154
+1
+vdataIn
+DO_TriangleStrips|DO_Polygons|DO_UnstructuredGrid|DO_Structured_V3D_Data|DO_Unstructured_V3D_Data
+input vector data
+req
+none
+1
+sdataOut
+DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+output scalar data
+default
+VectorScal_1_OUT_00
+1
+option
+Choice
+Options
+1 Length X-Component Y-Component Z-Component
+START
+-1
+0
+Colors
+1
+LOCAL
+Color
+description missing
+109
+206
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_1_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_1_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_1_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.000000 274.839111
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+Collect
+1
+LOCAL
+Tools
+Combine grid, normals, colors and textures in one data object for rendering
+25
+271
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_1_OUT_00
+0
+0
+GetSetelem
+1
+LOCAL
+Tools
+Grep set-element
+207
+93
+8
+input_0
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_1
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_2
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_3
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_4
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_5
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_6
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+input_7
+DO_Set|DO_IntArr|Set_DO_UniformGrid|Set_DO_RectilinearGrid|Set_DO_StructuredGrid|Set_DO_UnstructuredGrid|Set_DO_Points|Set_DO_Lines|Set_DO_Polygons|Set_DO_TriangleStrips|Set_Structured_S3D_Data|Set_Structured_V3D_Data|Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data
+data set
+opt
+none
+8
+output_0
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_0
+GetSetelem_1_OUT_00
+output_1
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_1
+GetSetelem_1_OUT_01
+output_2
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_2
+GetSetelem_1_OUT_02
+output_3
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_3
+GetSetelem_1_OUT_03
+output_4
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_4
+GetSetelem_1_OUT_04
+output_5
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_5
+GetSetelem_1_OUT_05
+output_6
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_6
+GetSetelem_1_OUT_06
+output_7
+DO_Set|DO_IntArr|DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Points|DO_Lines|DO_Polygons|DO_TriangleStrips|Structured_S3D_Data|Structured_V3D_Data|Unstructured_S3D_Data|Unstructured_V3D_Data
+data set
+dep input_7
+GetSetelem_1_OUT_07
+1
+stepNo
+Scalar
+number of set-element
+1
+START
+-1
+0
+DomainSurface
+2
+LOCAL
+Tools
+Extract the Surface of an unstructured Grid
+207
+161
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+DomainSurface_2_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+DomainSurface_2_OUT_01
+linesOut
+DO_Lines
+Boundary lines
+default
+DomainSurface_2_OUT_02
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+DomainSurface_2_OUT_03
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+Collect
+2
+LOCAL
+Tools
+Combine grid, normals, colors and textures in one data object for rendering
+359
+237
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_2_OUT_00
+0
+0
+Colors
+2
+LOCAL
+Color
+description missing
+369
+168
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_2_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_2_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_2_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+1.451649 5.007628
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+0
+IMM
+-1
+0
+SplitUsg
+1
+LOCAL
+Filter
+Split a grid according to dimensionality
+329
+90
+3
+Grid
+Set_UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+none
+S_Data
+Set_Unstructured_S3D_Data
+scalar data of input grid
+opt
+none
+V_Data
+Set_Unstructured_V3D_Data
+vector data of input grid
+opt
+none
+12
+Grid3D
+Set_UnstructuredGrid
+3D grid
+default
+SplitUsg_1_OUT_00
+S_Grid3D_Data
+Set_Unstructured_S3D_Data
+scalar data of 3D grid
+default
+SplitUsg_1_OUT_01
+V_Grid3D_Data
+Set_Unstructured_V3D_Data
+vector data of 3D grid
+default
+SplitUsg_1_OUT_02
+Grid2D
+Set_Polygons
+2D grid
+default
+SplitUsg_1_OUT_03
+S_Grid2D_Data
+Set_Unstructured_S3D_Data
+scalar data of 2D grid
+default
+SplitUsg_1_OUT_04
+V_Grid2D_Data
+Set_Unstructured_V3D_Data
+vector data of 2D grid
+default
+SplitUsg_1_OUT_05
+Grid1D
+Set_Lines
+1D grid
+default
+SplitUsg_1_OUT_06
+S_Grid1D_Data
+Set_Unstructured_S3D_Data
+scalar data of 1D grid
+default
+SplitUsg_1_OUT_07
+V_Grid1D_Data
+Set_Unstructured_V3D_Data
+vector data of 1D grid
+default
+SplitUsg_1_OUT_08
+Grid0D
+Set_Points
+0D grid
+default
+SplitUsg_1_OUT_09
+S_Grid0D_Data
+Set_Unstructured_S3D_Data
+scalar data of 0D grid
+default
+SplitUsg_1_OUT_10
+V_Grid0D_Data
+Set_Unstructured_V3D_Data
+vector data of 0D grid
+default
+SplitUsg_1_OUT_11
+0
+0
+Collect
+3
+LOCAL
+Tools
+Combine grid, normals, colors and textures in one data object for rendering
+499
+234
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_3_OUT_00
+0
+0
+Colors
+3
+LOCAL
+Color
+description missing
+542
+163
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_3_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_3_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_3_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+-6.371183 1.493850
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+ReadPAM
+1
+LOCAL
+IO_Module
+description missing
+25
+20
+0
+10
+meshOut
+DO_UnstructuredGrid
+output mesh
+default
+ReadPAM_1_OUT_00
+nodalData1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+nodal data 1
+default
+ReadPAM_1_OUT_01
+nodalData2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+nodal data 2
+default
+ReadPAM_1_OUT_02
+cellData1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+cell data 1
+default
+ReadPAM_1_OUT_03
+cellData2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+cell data 2
+default
+ReadPAM_1_OUT_04
+globalData1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+global data 1
+default
+ReadPAM_1_OUT_05
+globalData2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+global data 2
+default
+ReadPAM_1_OUT_06
+tensorData1
+DO_Unstructured_T3D_Data
+tensor data 1
+default
+ReadPAM_1_OUT_07
+Materials
+DO_IntArr
+Element materials
+default
+ReadPAM_1_OUT_08
+Elem_labels
+DO_IntArr
+Element labels
+default
+ReadPAM_1_OUT_09
+21
+DSY_file
+Browser
+DSY file
+data/general/examples/PAM//frameMIS.DSY *.DSY
+IMM
+1
+THP_file
+Browser
+THP file
+data/general/examples/PAM//frameMIS.THP *.THP
+IMM
+1
+scale
+Scalar
+Displacement scale
+1.000000
+START
+-1
+timeSteps
+Vector
+select time steps
+1 41 4
+START
+-1
+Nodal_Var1
+Choice
+Choose nodal variable 1
+2 none Displacements(VEC) Velocity(VEC)
+IMM
+-1
+Nodal_Var2
+Choice
+Choose nodal variable 2
+1 none Displacements(VEC) Velocity(VEC)
+IMM
+-1
+Cell_Var1
+Choice
+Choose cell variable 1
+10 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+Cell_Var2
+Choice
+Choose cell variable 2
+14 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+DSY_or_THP
+Boolean
+DSY or THP
+FALSE
+IMM
+-1
+Global_Var1
+Choice
+Choose global variable 1
+9 none KineticENG Intern.ENG TotalENG Av.XVelo. Av.YVelo. Av.ZVelo. TimeStep Time SHELLMATACIER1PHYSICALPROPERTYTABLE1.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE1.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE2.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE2.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE3.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE3.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE4.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE4.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE5.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE5.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE6.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE6.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE7.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE7.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE8.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE8.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE9.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE9.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE10.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE10.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE11.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE11.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE12.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE12.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE13.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE13.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE14.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE14.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE15.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE15.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE16.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE16.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE17.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE17.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE18.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE18.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE19.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE19.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE20.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE20.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE21.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE21.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE22.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE22.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE23.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE23.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE24.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE24.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE25.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE25.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE26.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE26.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE27.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE27.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE28.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE28.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE29.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE29.Transl.kin.energy MATERIAL31PHYSICALPROPERTYTABLE31.Int.energy MATERIAL31PHYSICALPROPERTYTABLE31.Transl.kin.energy MATERIAL31PHYSICALPROPERTYTABLE32.Int.energy MATERIAL31PHYSICALPROPERTYTABLE32.Transl.kin.energy MATERIAL31PHYSICALPROPERTYTABLE33.Int.energy MATERIAL31PHYSICALPROPERTYTABLE33.Transl.kin.energy spotwelds.Cont.XForce spotwelds.Cont.YForce spotwelds.Cont.ZForce .R.wallXforce .R.wallYforce .R.wallZforce .R.wallveloc.
+IMM
+-1
+Global_Var2
+Choice
+Choose global variable 2
+77 none KineticENG Intern.ENG TotalENG Av.XVelo. Av.YVelo. Av.ZVelo. TimeStep Time SHELLMATACIER1PHYSICALPROPERTYTABLE1.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE1.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE2.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE2.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE3.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE3.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE4.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE4.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE5.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE5.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE6.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE6.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE7.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE7.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE8.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE8.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE9.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE9.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE10.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE10.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE11.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE11.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE12.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE12.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE13.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE13.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE14.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE14.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE15.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE15.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE16.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE16.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE17.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE17.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE18.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE18.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE19.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE19.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE20.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE20.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE21.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE21.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE22.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE22.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE23.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE23.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE24.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE24.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE25.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE25.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE26.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE26.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE27.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE27.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE28.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE28.Transl.kin.energy SHELLMATACIER1PHYSICALPROPERTYTABLE29.Int.energy SHELLMATACIER1PHYSICALPROPERTYTABLE29.Transl.kin.energy MATERIAL31PHYSICALPROPERTYTABLE31.Int.energy MATERIAL31PHYSICALPROPERTYTABLE31.Transl.kin.energy MATERIAL31PHYSICALPROPERTYTABLE32.Int.energy MATERIAL31PHYSICALPROPERTYTABLE32.Transl.kin.energy MATERIAL31PHYSICALPROPERTYTABLE33.Int.energy MATERIAL31PHYSICALPROPERTYTABLE33.Transl.kin.energy spotwelds.Cont.XForce spotwelds.Cont.YForce spotwelds.Cont.ZForce .R.wallXforce .R.wallYforce .R.wallZforce .R.wallveloc.
+IMM
+-1
+Port Select :
+Choice
+use if you want to output a full tensor
+1 useifyouwanttooutputafulltensor Tensorport1 Tensorport2
+IMM
+1
+T1_Component_XX
+Choice
+Component XX
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_XY
+Choice
+Component XY
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_XZ
+Choice
+Component XZ
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_YX
+Choice
+Component YX
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_YY
+Choice
+Component YY
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_YZ
+Choice
+Component YZ
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_ZX
+Choice
+Component ZX
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_ZY
+Choice
+Component ZY
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+T1_Component_ZZ
+Choice
+Component ZZ
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS)
+IMM
+-1
+0
+MakePlots
+1
+LOCAL
+Tools
+Collect scalar objects in objects for Plot
+256
+268
+7
+inPort_x
+DO_Unstructured_S3D_Data
+X magnitude
+req
+none
+inPort_y_0
+DO_Unstructured_S3D_Data
+Y magnitude_0
+opt
+none
+inPort_y_1
+DO_Unstructured_S3D_Data
+Y magnitude_1
+opt
+none
+inPort_y_2
+DO_Unstructured_S3D_Data
+Y magnitude_2
+opt
+none
+inPort_y_3
+DO_Unstructured_S3D_Data
+Y magnitude_3
+opt
+none
+inPort_y_4
+DO_Unstructured_S3D_Data
+Y magnitude_4
+opt
+none
+inPort_y_5
+DO_Unstructured_S3D_Data
+Y magnitude_5
+opt
+none
+1
+outPlots
+DO_Unstructured_2D_Data
+Plots
+default
+MakePlots_1_OUT_00
+8
+title
+String
+Main Title
+Rigidwallforce
+START
+-1
+xAxis
+String
+X-Axis Title
+Time
+START
+-1
+yAxis
+String
+Y-Axis Title
+ForceX
+START
+-1
+auto
+Boolean
+auto or manual
+FALSE
+IMM
+-1
+Xlimits
+Vector
+Min and max for X-axis
+0 5.
+START
+-1
+Ylimits
+Vector
+Min and max for Y-axis
+0 200.
+START
+-1
+Xticks
+Vector
+Major and minor tick for X-axis
+6 12
+START
+-1
+Yticks
+Vector
+Major and minor tick for Y-axis
+5 10
+START
+-1
+0
+Plot
+1
+LOCAL
+Renderer
+XMGR Plot Module
+256
+339
+1
+RenderData
+DO_Unstructured_2D_Data|DO_RectilinearGrid
+plot_data
+req
+none
+0
+0
+0
+SplitUsg
+2
+LOCAL
+Filter
+Split a grid according to dimensionality
+464
+90
+3
+Grid
+Set_UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+none
+S_Data
+Set_Unstructured_S3D_Data
+scalar data of input grid
+opt
+none
+V_Data
+Set_Unstructured_V3D_Data
+vector data of input grid
+opt
+none
+12
+Grid3D
+Set_UnstructuredGrid
+3D grid
+default
+SplitUsg_2_OUT_00
+S_Grid3D_Data
+Set_Unstructured_S3D_Data
+scalar data of 3D grid
+default
+SplitUsg_2_OUT_01
+V_Grid3D_Data
+Set_Unstructured_V3D_Data
+vector data of 3D grid
+default
+SplitUsg_2_OUT_02
+Grid2D
+Set_Polygons
+2D grid
+default
+SplitUsg_2_OUT_03
+S_Grid2D_Data
+Set_Unstructured_S3D_Data
+scalar data of 2D grid
+default
+SplitUsg_2_OUT_04
+V_Grid2D_Data
+Set_Unstructured_V3D_Data
+vector data of 2D grid
+default
+SplitUsg_2_OUT_05
+Grid1D
+Set_Lines
+1D grid
+default
+SplitUsg_2_OUT_06
+S_Grid1D_Data
+Set_Unstructured_S3D_Data
+scalar data of 1D grid
+default
+SplitUsg_2_OUT_07
+V_Grid1D_Data
+Set_Unstructured_V3D_Data
+vector data of 1D grid
+default
+SplitUsg_2_OUT_08
+Grid0D
+Set_Points
+0D grid
+default
+SplitUsg_2_OUT_09
+S_Grid0D_Data
+Set_Unstructured_S3D_Data
+scalar data of 0D grid
+default
+SplitUsg_2_OUT_10
+V_Grid0D_Data
+Set_Unstructured_V3D_Data
+vector data of 0D grid
+default
+SplitUsg_2_OUT_11
+0
+0
+Renderer
+2
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+359
+312
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+Renderer
+3
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+499
+312
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+26
+DomainSurface
+1
+LOCAL
+meshOut
+DomainSurface_1_OUT_00
+Collect
+1
+LOCAL
+grid
+DomainSurface
+1
+LOCAL
+dataOut
+DomainSurface_1_OUT_01
+VectorScal
+1
+LOCAL
+vdataIn
+DomainSurface
+1
+LOCAL
+linesOut
+DomainSurface_1_OUT_02
+Renderer
+3
+LOCAL
+RenderData
+VectorScal
+1
+LOCAL
+sdataOut
+VectorScal_1_OUT_00
+Colors
+1
+LOCAL
+Data
+Colors
+1
+LOCAL
+colors
+Colors_1_OUT_00
+Collect
+1
+LOCAL
+colors
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+GetSetelem
+1
+LOCAL
+output_0
+GetSetelem_1_OUT_00
+DomainSurface
+2
+LOCAL
+meshIn
+DomainSurface
+2
+LOCAL
+linesOut
+DomainSurface_2_OUT_02
+Renderer
+1
+LOCAL
+RenderData
+Collect
+2
+LOCAL
+geometry
+Collect_2_OUT_00
+Renderer
+2
+LOCAL
+RenderData
+Colors
+2
+LOCAL
+colors
+Colors_2_OUT_00
+Collect
+2
+LOCAL
+colors
+SplitUsg
+1
+LOCAL
+Grid2D
+SplitUsg_1_OUT_03
+Collect
+2
+LOCAL
+grid
+SplitUsg
+1
+LOCAL
+S_Grid2D_Data
+SplitUsg_1_OUT_04
+Colors
+2
+LOCAL
+Data
+Collect
+3
+LOCAL
+geometry
+Collect_3_OUT_00
+Renderer
+3
+LOCAL
+RenderData
+Colors
+3
+LOCAL
+colors
+Colors_3_OUT_00
+Collect
+3
+LOCAL
+colors
+ReadPAM
+1
+LOCAL
+meshOut
+ReadPAM_1_OUT_00
+DomainSurface
+1
+LOCAL
+meshIn
+ReadPAM
+1
+LOCAL
+meshOut
+ReadPAM_1_OUT_00
+GetSetelem
+1
+LOCAL
+input_0
+ReadPAM
+1
+LOCAL
+meshOut
+ReadPAM_1_OUT_00
+SplitUsg
+1
+LOCAL
+Grid
+ReadPAM
+1
+LOCAL
+meshOut
+ReadPAM_1_OUT_00
+SplitUsg
+2
+LOCAL
+Grid
+ReadPAM
+1
+LOCAL
+nodalData1
+ReadPAM_1_OUT_01
+DomainSurface
+1
+LOCAL
+dataIn
+ReadPAM
+1
+LOCAL
+cellData1
+ReadPAM_1_OUT_03
+SplitUsg
+1
+LOCAL
+S_Data
+ReadPAM
+1
+LOCAL
+cellData2
+ReadPAM_1_OUT_04
+SplitUsg
+2
+LOCAL
+S_Data
+ReadPAM
+1
+LOCAL
+globalData1
+ReadPAM_1_OUT_05
+MakePlots
+1
+LOCAL
+inPort_x
+ReadPAM
+1
+LOCAL
+globalData2
+ReadPAM_1_OUT_06
+MakePlots
+1
+LOCAL
+inPort_y_0
+MakePlots
+1
+LOCAL
+outPlots
+MakePlots_1_OUT_00
+Plot
+1
+LOCAL
+RenderData
+SplitUsg
+2
+LOCAL
+Grid1D
+SplitUsg_2_OUT_06
+Collect
+3
+LOCAL
+grid
+SplitUsg
+2
+LOCAL
+S_Grid1D_Data
+SplitUsg_2_OUT_07
+Colors
+3
+LOCAL
+Data
+0

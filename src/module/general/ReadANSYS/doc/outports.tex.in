@@ -1,0 +1,39 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{Grid} & UnstructuredGrid & 
+        In general you will get a dynamic set. It may be that
+        there are elements for which the wished output data
+        is not available or simply not meaningful. Then
+        one time step may be itself a set with two elements:
+        one with the grid with data and one for the grid
+        without data.  \\
+\hline
+	\textcolor{output}{Data} & 
+                Float  \newline
+		Vec3 \newline
+		IntArr
+	 & Output data.  \\
+\hline
+	\textcolor{output}{Materials} & 
+                IntArr
+	 & A set of sets with the same structure as the grid with
+           material labels for the elements.
+           You may find this object useful to visualise parts
+           of the grid using \covlink{SelectUsg}{SelectUsg}{../../Tools/SelectUsg/SelectUsg.html}.  \\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+%
+%=============================================================

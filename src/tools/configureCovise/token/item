@@ -1,0 +1,217 @@
+#########################################TrackerConfig
+ TRANSMITTER_OFFSET
+ TRANSMITTER_ORIENTATION
+ HEADSENSOR_OFFSET
+ HEADSENSOR_ORIENTATION
+ HANDSENSOR_OFFSET
+ HANDSENSOR_ORIENTATION
+ NUM_SENSORS
+ HAND_ADDR
+ HEAD_ADDR
+ LINEAR_MAGNETIC_FIELD_CORRECTION
+ INTERPOLATION_FILE
+ ORIENT_INTERPOLATION
+ INTERPOLATION_FILE_X
+ INTERPOLATION_FILE_Y
+ INTERPOLATION_FILE_Z
+ WRITE_CALIBRATION
+ DEBUG_TRACKING
+ DEBUG_STATION
+#########################################COVERConfig
+ DRIVE_SPEED
+ ANIM_SPEED
+ stateFixLevel
+ FPS
+ NoPreload
+ DebugSound
+ SyncInterval
+ TextureMode
+ TextureQuality
+ LookAndFeel
+ MAX_HEAP_BYTES
+ PIPE_LOCKING
+ SCALE_ALL
+ MODULE
+ VIEWER_POSITION
+ FAR
+ NEAR
+ TRACKING_SYSTEM
+ BUTTON_SYSTEM
+ CORRECT_MATRIX
+ MAX_FORCE
+ FORCE_FEEDBACK_MODE
+ FORCE_FEEDBACK
+ FORCE_SCALE
+ SCENESIZE
+ NUM_PIPES
+ NUM_WINDOWS
+ NUM_SCREENS
+ AUTO_WIREFRAME
+ COORD_AXIS
+ FREEZE
+ NOTIFY
+ MULTIPROCESS
+ NOSEPARATION
+ WHITE_TO_GREY
+ ARENA_SIZE
+ MODELPATH
+ MODELFILE
+ WELCOME_MESSAGE
+ FOOTER_MESSAGE
+ NAVIGATION_MODE
+ SYNC_MODE 
+ STEREO_SEPARATION
+ STEREO_COMMAND
+ MONO_COMMAND
+ DEBUG_LEVEL
+ ANTIALIAS
+ MENU_SIZE
+ MENU_POSITION
+ MENU_ORIENTATION
+ BACKGROUND
+ LIGHT1
+ LIGHT2
+ LOD_SCALE
+ MOVE_PARTS
+ NO_SURROUND
+ ROTATE
+ SAVE_FILE
+ SPECULAR
+ SPOTLIGHT
+ STEREO 
+ STIPPLE
+ TWOSIDE
+ VISUAL_ID
+ floorHeight
+ stepSize
+#########################################COVERPinboard
+XFORM
+SCALE
+VIEW_ALL
+#FREEZE
+FLY
+COLLIDE
+DRIVE_SPEED
+DRIVE
+WALK
+SNAP
+REMOVE
+UNDO
+#MOVE_PARTS
+#COORD_AXIS
+#SPECULAR
+#SPOTLIGHT
+STEREO_SEP
+SHOW_AVATAR
+STORE
+RELOAD_VRML
+EXECUTE
+CUTTINGSURFACE
+CUTGEOMETRY
+ISOSURFACEP
+TRACERUSG
+STRACER
+TETRATRACE
+MAGTRACER
+CELLTRACER
+FORWARD
+BACKWARD
+#ANIM_SPEED
+STEADYCAM
+#########################################PolhemusConfig
+ INPUT_DEVICE
+ SERIAL_PORT
+ BAUDRATE
+ HEMISPHERE
+ NUM_STATIONS
+#########################################TrackerCalibration
+STATUS
+ORIGIN
+ALPHA
+BETA0
+BETA1
+GAMMA
+DELTA
+UP_SCALE
+SWAP
+FILTER_TYPE
+#########################################FobConfig
+ #SERIAL_PORT see above
+ #BAUDRATE see above
+ #HEMISPHERE
+ FULLRANGE
+#########################################MotionstarConfig
+ IP_ADDRESS
+#HEMISPHERE
+ DualTransmitter
+ MotionstarButtonSystem
+ AngleMode
+SamplingRate
+BIOS
+Debug
+DebugAll
+#########################################BeeboxConfig
+#SERIAL_PORT
+#########################################FlyboxConfig
+#SERIAL_PORT
+#########################################PhantomConfig
+#SERIAL_PORT
+#########################################CaveLibConfig
+TRACKER_SHMID
+#########################################ButtonConfig
+#SERIAL_PORT see above
+MAP
+#########################################SpaceballConfig
+SCALE_ROTATION
+SCALE_TRANSLATION
+#########################################HostConfig
+#########################################License
+Key
+#########################################UIConfig
+ShortCuts
+ModuleColor
+AutoSaveTime
+AutoSaveFile
+HilightNodes
+UndoBuffer
+#########################################Network
+IP_ALIAS
+COVISE_PORT
+#########################################Colormaps
+#########################################HostInfo
+shm
+mmap
+none
+rexec
+rsh
+ssh
+covised
+manual
+#########################################MultiPC
+SerialPort
+Master
+Slave
+#########################################Colormaps
+RGB
+RGBA
+XRGB
+RGBX
+XRGBA
+RGBAX
+#########################################CollaborativeOptions
+UserName
+Email
+URL
+######################################################################HostInfo
+numProcs
+execGracePeriod
+allowSmp
+IWK
+RWK
+CWK
+######################################################################TRACERConfig
+BOX_INCREASE_FACTOR
+######################################################################VRViewpoints
+FLYING_MODE
+######################################################################Colors
+transparentTextures

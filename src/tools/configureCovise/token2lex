@@ -1,0 +1,12 @@
+
+cat token/item token/specifier | grep -v \# | while read l; do
+	echo "<BODY>$l 		                 return Parser::$l;"
+done
+cat token/sections | grep -v \# | while read l; do
+	echo $l "		               "  return Parser::$l\;
+done
+
+cat token/unimplemented | while read l; do
+        echo "$l                                 BEGIN(UNIMPHEADER);return Parser::UNIMPLEMENTED;"
+
+done

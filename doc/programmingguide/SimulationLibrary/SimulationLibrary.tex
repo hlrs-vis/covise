@@ -1,0 +1,928 @@
+\begin{htmlonly}\begin{htmlonly}
+\input{..\..\htmlinc}
+\end{htmlonly}
+
+
+
+%=============================================================
+\startdocument
+\chapter{Simulation Library}
+\label{SimulationLibrary}
+%=============================================================
+\index{Simulation Library}
+
+\section{Usage models}
+
+{\Large Interactive simulation}
+\vspace*{0.5cm}
+
+The primary focus of the Simulation Library is to allow an easy implementation of 
+interactive simulations. An interactive simulation is a simulation code which is started 
+directly from COVISE, immediately visualizes its results and allows parameter changes 
+during ongoing simulation. It is assumed, that the simulation code is not directly 
+integrated as subroutine into a COVISE module but a client-server coupling to a remote 
+machine is used.
+
+\vspace*{1cm}
+{\Large Control Visualization}
+\vspace*{0.5cm}
+
+Another application of simulation coupling is checking simulations with long execution 
+times. In this case, the simulation start-up is not done by COVISE, but COVISE can 
+connect to the running simulation and display the intermediate results. This allows 
+an engineer to check them and terminate erroneous simulations early, avoiding unnecessary 
+computing costs. Control visualization commands with repeated attachment to and 
+detachment from the simulation is not yet implemented.
+
+
+\section{Basic structure}
+
+The simulation library is split into two parts:
+\begin{itemize}
+\item The simulation server is the COVISE-sided part of the simulation coupling. It is 
+integrated into a module and takes care of the flow control, receives the parameters 
+from the Map-Editor and puts the data from the simulation into the COVISE administered 
+shared memory.
+\item The simulation client is the simulation-sided part of the coupling. It connects 
+the COVISE module to the simulation code, exchanges messages with the module to request 
+parameter values and sends results to the server for visualization. 
+\end{itemize}
+
+
+\section{Language bindings}
+\latexonly
+\index{Simulation!Language bindings}
+\endlatexonly
+
+The simulation client is written in ANSI C and calls only functions of the standard C 
+library, which is automatically linked to every code on UNIX operating systems. This is 
+important, because some simulation codes do not allow additional libraries to be added 
+to the linker line but only object files.
+
+The implementation language of COVISE is C++, which also applies to the COVISE-sided 
+part of CoSimLib used by the simulation server.  Thus it is possible to use all features 
+of the development system.
+
+The simulation library is accessible from multiple languages via appropriate language 
+bindings. At the moment, 4 languages are supported:
+
+\begin{enumerate} 
+\item C as the internally-used `natural' language binding for the client
+\item FORTRAN77 as the most common language used for simulations
+\item Fortran 90 by using backward-compatibility with FORTRAN77
+\item C++ by using header-definitions to map C++ language calls to C language calls
+\end{enumerate} 
+
+Additional language bindings will be supplied if necessary.
+
+ 
+\section{Simulation Server Commands}
+\latexonly
+\index{Simulation!Server Commands}
+\endlatexonly
+
+The Simulation Server is the COVISE-sided part of the simulation coupling. When using 
+interactive simulations, the module has to start the simulation code, for control 
+visualization the module has to connect and authenticate to a running simulation. In 
+both cases a network connection has to be created for control and data flow between 
+the simulation and COVISE.
+
+\vspace*{1cm}
+{\Large Simulation start-up}
+\index{Simulation!start-up}
+\vspace*{0.5cm}
+
+The simulation start-up is highly dependent on the circumstances in which the simulation 
+takes place. To ensure sufficient flexibility for the module programmer as well as for 
+the module user, the start-up procedure can be configured in the covise.config file. 
+The following lines show an excerpt from covise.config.
+
+\begin{verbatim}
+MiniSim
+{
+   STARTUP SGI    CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0; ./miniSim
+   STARTUP MANUAL echo "set CO_SIMLIB_CONN=%e and start MiniSim"
+   PORTS    31000-31999
+   SERVER   Module
+   TIMEOUT  90
+   VERBOSE  1
+}
+\end{verbatim}
+
+For each simulation coupling module, a section with the name of the module executable 
+is searched. This section must include at least one STARTUP line, since no default 
+start-up can be defined. The first word after STARTUP defines a label, the rest is 
+executed by a shell in the active directory where COVISE was started in. If the module 
+is started on a remote host, it is executed in the directory the user enters on login, 
+usually the home directory. It has to define an (exported) environment variable 
+CO\_SIMLIB\_CONN in the shell and then start the simulation job itself. The following
+variables can be used in the STARTUP string:
+
+\begin{verbatim}
+%%        the % character itself
+%e        the value CO_SIMLIB_CONN has to be set to
+%h        The host IP of the simulation host in "1.2.3.4" fashion (user-defined)
+%0 ... %9 User-definable strings
+\end{verbatim}
+
+Every SimLib module automatically creates a choice parameter for selecting the startup 
+line from the possibilities given in the config file.
+
+Examples:
+
+\begin{verbatim}
+STARTUP LOCAL  CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0; ./miniSim
+\end{verbatim}
+
+If the user chooses "LOCAL" on the startup method choice, the environment variable is 
+set, then changes to the module-defined directory (possibly from a string parameter of 
+the module) and starts the program `miniSim'.
+
+\begin{verbatim}
+STARTUP REMOTE xterm -geometry 135x35 -e rsh -l %0 %h 'cd %1;
+                        export CO_SIMLIB_CONN=%s; echo y | star' &
+\end{verbatim}
+This has to be written in one line. Here the user creates a new terminal window, starts 
+a remote shell on a given host with a user-supplied login, changes to a user-supplied 
+directory, sets the environment variable, then changes to the module-defined directory 
+(possibly from a string parameter of the module) and then starts the program 'star', 
+piping a 'y' answer to a 'are you sure' question.
+
+All other parameters in the file are optional:
+\begin{verbatim}
+   PORTS    <minPort>-<maxPort>
+\end{verbatim}
+Sets the range of allowed port numbers for the network connection. For a single port, 
+minimum and maximum has to be set to the same value. If no port range is given, the range
+31000 ... 31999 is used. The explicit setting of port numbers is only required if 
+firewalls are between the simulation host and the COVISE module host. Consult your 
+Network administrators for help with firewalls and port numbers.
+\begin{verbatim}
+   SERVER   Module|Client
+\end{verbatim}
+Defines, which side of the client/server pair should open the TCP connection. As a 
+default, the server is opened by the module. Most firewalls require the server 'outside' 
+of the secure area. Consult your Network administrators for help with TCP socket 
+opening directions.
+\begin{verbatim}
+   TIMEOUT  90
+\end{verbatim}
+Time in seconds to wait for a connection before giving up. Default is 90 sec. Increase 
+the value if the network is extremely slow or if the simulation start-up time before 
+starting the network client is long.
+\begin{verbatim}
+   VERBOSE  1
+\end{verbatim}
+Verbose level: when set to values \latexonly $>$ \endlatexonly \begin{htmlonly}
+> \end{htmlonly} 0, CoSimLib commands create debug output to stderr. 
+Currently, values 1...3 are supported.
+\begin{verbatim}
+   LOCAL  <local machine name>
+\end{verbatim}
+The machine name for the simulation to connect to. By default this is set to the result
+of a nameserver lookup performed by a gethostname system call. This is typically the 
+default network interface. The local machine name can be changed either to use a 
+faster network connection or to connect through firewalls via IP-masquerading. Consult 
+your network administrator for help with firewall connections and IP addresses. The 
+IP number of the local host can also be set by the program. 
+
+The start-up is triggered by the {\tt startupSim()} command:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int coSimLib::startupSim()}\\
+\hline
+{Description:}  
+ & {1. Analyses the parameters given in \newline
+                            the covise.config\newline
+                            2. Sets verbose level\newline
+                            3. Sets \% arguments in STARTUP line\newline
+                            4. Calls shell with STARTUP command\newline
+                            5. Tries to connect with simulation} \\
+\hline
+{COVISE states:}  & {all} \\
+\hline
+{Return value:}  & {-1 on error, 0 on success} \endhead
+\hline
+\end{longtable}
+\index{coSimLib!startupSim}
+
+If the user arguments (\%0 ... \%9) are used in the covise.config START line, they 
+have to be set before the startupSim() command is called.
+
+\vspace*{1cm}
+{\Large Status request}
+\index{Simulation!Status request}
+\vspace*{0.5cm}
+
+All coSimLib commands check for errors, which are usually reported by returning 
+(-1) as result. For further checking, the internal status variable can be accessed:
+
+\latexonly
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int coSimLib::status()}\\
+\hline
+{Description:}  
+           & {Return the error code of the last failed operation} \\
+\hline
+{COVISE states:}  & {all} \\
+\hline
+{Return value:}  
+  & {= 0  no error,\newline 
+                              $>$ 0:  UNIX errno variable value,\newline 
+                              $<$ 0:  unknown Err} \endhead
+\hline
+\end{longtable}
+\endlatexonly
+\index{coSimLib!status}
+
+\begin{htmlonly}
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int coSimLib::status()}\\
+\hline
+{Description:}  
+           & {Return the error code of the last failed operation} \\
+\hline
+{COVISE states:}  & {all} \\
+\hline
+{Return value:}  
+  & {= 0  no error,\newline 
+                               > 0: UNIX errno variable value,\newline 
+                               < 0:  unknown Err} \endhead
+\hline
+\end{longtable}
+\end{htmlonly}
+
+\vspace*{1cm}
+{\Large Setting start-up parameters}
+\index{Simulation!start-up parameters}
+\vspace*{0.5cm}
+
+Both the local and target host IP addresses can be set explicitly. As a default, 
+the local interface to be used is set to the value of the LOCAL variable if
+given, otherwise the host's default interface is used. 
+
+Both functions call the nameserver if the host is not given in dot notation and check 
+whether the requested host name exists. If the name is given in dot notation, no 
+nameserver lookup or host existence testing is performed.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coSimLib::setTargetHost(const char *hostname)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{} \\
+\hline
+{COVISE states:}  
+& \multicolumn{2}{|p{9.5cm}|}{all, only before coSimLib::startupSim()} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {hostname} 
+                          & {name of target host}\\
+\hline
+{Return value:}  
+& \multicolumn{2}{|p{9.5cm}|}{0 = no error, -1 = host unknown} \endhead
+\hline
+\end{longtable}
+\index{coSimLib!setTargetHost}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coSimLib::setLocalHost(const char *hostname)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Set the local hostname} \\
+\hline
+{COVISE states:}  
+& \multicolumn{2}{|p{9.5cm}|}{all, only before coSimLib::startupSim()} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {hostname} 
+                          & {name of local host}\\
+\hline
+{Return value:}  
+& \multicolumn{2}{|p{9.5cm}|}{0 = no error, -1 = host unknown} \endhead
+\hline
+\end{longtable}
+\index{coSimLib!setLocalHost}
+
+The user arguments \%0 ... \%9 must be set explicitly before starting the simulation. 
+This allows simulation specific parameters, e.g. starting directory or startup parameters,
+to be set.
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coSimLib::setUsrArg (int num, const char *argVal)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Set one of the user arguments} \\
+\hline
+{COVISE states:}  
+   & \multicolumn{2}{|p{9.5cm}|}{all, only before coSimLib::startupSim()} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num} 
+                     & {which argument to set: 0...9}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {argVal} 
+                          & {value of the argument}\\
+\hline
+{Return value:}  
+   & \multicolumn{2}{|p{9.5cm}|}{0 = no error, -1 = unknown} \endhead
+\hline
+\end{longtable}
+\index{coSimLib!setUsrArg}
+
+\vspace*{1cm}
+{\Large Starting the Server mode}
+\index{Simulation!Starting the Server mode}
+\vspace*{0.5cm}
+
+Whenever this command is called, the module waits for the simulation to send client commands 
+until a `finish' command is sent. This may only be done from the compute callback.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int coSimLib::serverMode()}\\
+\hline
+{Description:}  
+           & {set server mode: wait for client commands and perform them until a finish command is received} \\
+\hline
+{COVISE states:}  
+   & {Compute} \\
+\hline
+{Return value:}  
+   & {0 = returned by finish command,\newline-1 = returned because of error} \endhead
+\hline
+\end{longtable}
+\index{coSimLib!serverMode}
+
+
+Parameter requests are also handled outside of the server mode, but data creation is only allowed 
+when the simulation server module is in the compute() callback and in server mode.
+
+
+\vspace*{1cm}
+{\Large Requesting and setting verbose mode}
+\vspace*{0.5cm}
+
+The verbose level can be set and requested by the user. It is recommended to request the verbose 
+mode when creating own debug output in simulation coupling modules.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf void coSimLib::setVerbose(int level)}\\
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{set verbose level} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {level} 
+                          & {0=no, 4=max. verbose level}\endhead
+\hline
+\end{longtable}
+\index{coSimLib!setVerbose}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}
+{\bf int coSimLib::getVerboseLevel()}\\
+\hline
+{Description:}  
+           & {get verbose level} \\
+\hline
+{Return value:}  
+         & {verbose level: 0=no, 4=max. verbose level} \endhead
+\hline
+\end{longtable}
+\index{coSimLib!getVerboseLevel}
+
+\section{Simulation Client Commands}
+\latexonly
+\index{Simulation!Client Commands}
+\endlatexonly
+
+{\Large Start-up the connection with COVISE}
+\vspace*{0.5cm}
+
+This command checks the environment for the variable CO\_SIMLIB\_CONN, analyses it and tries to 
+open a connection with the COVISE module. Depending on the setting in the covise.config file, 
+this can be either a client or a server connection on any port in the specified direction. 
+The command tries to open the connection for the period specified in the configuration file and 
+returns with an error message if the connection was not established.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+{\bf C:}  
+           & {\bf coInitConnect()} \\
+\hline
+{\bf FORTRAN:}  
+           & {\bf COVINI()} \\
+\hline
+\hline
+{Description:}  
+           & {Start connection with COVISE} \\
+\hline
+{Return value:}  
+         & {0 = successfully connected, -1 = not connected} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coInitConnect}
+\index{SimClient!COVINI}
+
+\vspace*{1cm}
+{\Large Check whether COVISE is connected}
+\index{Simulation!Check connection}
+\vspace*{0.5cm}
+
+This call checks whether the connection to COVISE is still active. It does not check, whether 
+the module is able to handle data now or whether it is busy.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+{\bf C:}  
+           & {\bf coNotConnected()} \\
+\hline
+{\bf FORTRAN:}  
+           & {\bf CONOCO()} \\
+\hline
+\hline
+{Description:}  
+           & {Check connection with COVISE} \\
+\hline
+{Return value:}  
+   & {0 = connected, -1 = not connected} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coNotConnected}
+\index{SimClient!CONOCO}
+
+\vspace*{1cm}
+{\Large Retrieving parameter values}
+\vspace*{0.5cm}
+
+All parameter calls can be submitted both in the compute and main-loop state of the COVISE 
+coupling module. One should be aware that only immediate mode parameters are updated at the 
+module immediately while non-immediate parameters are only updated before entering the compute()
+callback. 
+
+All parameter requests have the parameter name as input and the requested parameter(s) as output. 
+Returned is an error code: 0 for proper function, -1, if the parameter is not yet available, 
+-2 for an unknown parameter name.
+
+Not all parameter types are currently implemented in the simulation library.
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coGetParaSlider(const char *name,float *min, float *max, float *value)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPSL(name,min,max,val)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE slider parameter: 
+	                  minimum, maximum and value of the slider parameter.} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {min, max, value} 
+                           & {Slider parameters)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaSlider}
+\index{SimClient!COGPSL}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coGetParaFloat(const char *name, float *value)} \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPFL(name,value)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE float parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {parameter value (output)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaFloat}
+\index{SimClient!COGPFL}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coGetParaInt(const char *name, int *value)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPIN(name, value)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE int parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {parameter value (output)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaInt}
+\index{SimClient!COGPIN}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coGetParaChoice(const char *name, int *value)}\\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPCH(name, ivalue)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE choice parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {parameter value (output)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaChoice}
+\index{SimClient!COGPCH}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coGetParaBool(const char *name, int *value)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPBO(name, ivalue)} \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE choice parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {parameter value (output)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaBool}
+\index{SimClient!COGPBO}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coGetParaFile(const char *name, char *filepath)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPFI(name, path)} \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE file-browser parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {filepath} 
+                           & {selected file (output)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaFile}
+\index{SimClient!COGPFI}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coGetParaText(const char *name, char *text)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COGPTX(name, text)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Gets values from a COVISE file-browser parameter} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of parameter}\\
+\hline
+\multicolumn{1}{|r|}{OUT:} & {value} 
+                           & {parameter value (output)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{0 = ok, -1 = not yet available, -2 = unknown} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coGetParaText}
+\index{SimClient!COGPTX}
+
+\vspace*{1cm}
+{\Large Creating data objects}
+\index{Simulation!Creating data objects}
+\vspace*{0.5cm}
+
+Currently only the creation of unstructured scalar and vector data fields  
+({\tt coDoFloat} and {\tt coDoFloat}) is supported.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coSend1Data(const char *name, int num, float *data)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COSU1D(name, num, data)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Create a 1D unstructured data object 
+	                              at a port and copy the data to 
+				      the shared memory} \\
+\hline
+{State:}  & \multicolumn{2}{|p{9.5cm}|}{Compute } \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of output port}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num} 
+                          & {number of data elements}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {data} 
+                          & {Pointer to array containing data}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{=0: ok , otherwise error} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coSend1Data}
+\index{SimClient!COSU1D}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+  {\bf int coSend3Data(const char *name, int num, float *x, float *y, float *z)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COSU3D(name, num, x,y,z)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Create a 3D unstructured data object 
+	                    at a port and copy the data to the shared memory} \\
+\hline
+{State:}  & \multicolumn{2}{|p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                          & {name of output port}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num} 
+                          & {number of data elements}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {x,y,z} 
+                          & {Pointer to arrays containing 
+			                               data components}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{=0: ok , otherwise error} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coSend3Data}
+\index{SimClient!COSU3D}
+
+Other types will be implemented in the future, especially for sending unstructured grids and 
+structured data sets.
+
+
+
+
+\section{Handling data on parallel machines}
+\latexonly
+\index{Simulation!data on parallel machines}
+\endlatexonly
+
+Parallelization of simulations is usually done by domain decomposition: parts of the grid are decomposed to several processors. For these kinds of
+simulations, only one node is connected to COVISE and has to perform the data and parameter propagation.
+
+\vspace*{1cm}
+{\Large Initialisation}
+\vspace*{0.5cm}
+
+The simulation library supports distributed data by supplying a set of additional calls, which prepare and perform the gathering operations. Therefore,
+two different index mappings can be defined for both cell indices and vertex indices. To set these tables, all nodes send their local-to-global mapping
+field (array size of local data size, containing global data indices).
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coParallelInit(int numParts, int numPorts)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COPAIN(numprocs,numports)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{initialise parallel data sending} \\
+\hline
+{State:}  & \multicolumn{2}{|p{9.5cm}|}{All } \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {numParts} 
+                          & {number of domains}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+       & {numPorts} 
+       & {number of ports creating parallel data}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{=0: ok, otherwise error} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coParallelInit}
+\index{SimClient!COPAIN}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+  {\bf int coParallelPort(const char *portname, int isCellData);}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COPAPO(portname, isCellData)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{Declare the named port as parallel data port} \\
+\hline
+{State:}  & \multicolumn{2}{|p{9.5cm}|}{All } \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {Portname} 
+                          & {name of the output data port}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {IsCellData} 
+                          & {whether this is\newline 
+			                               (1)cell- or\newline
+						       (0)vertex-based data}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{=0: ok, otherwise error} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coParallelPort}
+\index{SimClient!COPAPO}
+
+There can be two different tables for mapping local fields into global fields: a cell map and 
+a vertex map. For every node, the cell map gives for each local cell the cell numbers in the 
+global field. Accordingly, the vertex table gives the global coordinate index for every local 
+coordinate.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coParallelCellMap(int node, int numCells, int *locToGlob);}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}
+{\bf int coParallelVertexMap(int node, int numVert, int *locToGlob);}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COPACM(node, numCells, locToGlob)}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COPAVM(node, numVert, locToGlob)}  \\
+\hline
+\hline
+{Description:}  
+      & \multicolumn{2}{|p{9.5cm}|}{Set index mapping for a node's cell/vertex data} \\
+\hline
+{State:}  & \multicolumn{2}{|p{9.5cm}|}{All } \\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {Node} 
+           & {node ID (starting with node 0)}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {NumCells}              
+	   & {number of cells on this node}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {NumVert} 
+           & {number of vertices on this node}\\
+\hline
+\multicolumn{1}{|r|}{IN:} 
+           & {LocToGlob} 
+           & {global index for each local index}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{=0: ok, otherwise error} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coParallelCellMap}
+\index{SimClient!COPACM}
+\index{SimClient!coParallelVertexMap}
+\index{SimClient!COPAVM}
+
+\vspace*{1cm}
+{\Large Data creation}
+\vspace*{0.5cm}
+
+Data is created by telling the COVISE server, which node sends, and then using the standard data 
+object creation calls, which automatically gather the data according to the mapping set during 
+the initialization.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coParallelNode(int node);}  \\
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf COPANO(node)}  \\
+\hline
+\hline
+{Description:}  
+           & \multicolumn{2}{|p{9.5cm}|}{set current processor number} \\
+\hline
+{State:}  & \multicolumn{2}{|p{9.5cm}|}{All } \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {node} 
+                          & {node ID (starting with node 0)}\\
+\hline
+{Return value:}  
+  & \multicolumn{2}{|p{9.5cm}|}{=0: ok, otherwise error} \endhead
+\hline
+\end{longtable}
+\index{SimClient!coParallelNode}
+\index{SimClient!COPANO}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,166 @@
+
+
+
+
+\subsubsection{Header}
+%=============================================================
+
+
+Every COVISE file has a header of six bytes. 
+The string "COV\_BE" indicates that the following files contains byte-swapped data. 
+In addition indicates the string "COV\_LE" that content of the file is non-byte-swapped
+
+
+\subsubsection{General object format}
+Every object is stored by a header of six bytes which contains the type identifyer, 
+the main part which contains all data of the object and the part which contains all 
+attributes of the object. Table "Type Identifyer" shows you all supported data object types.
+
+\begin{longtable}{|p{4.5cm}|p{2.5cm}|} \hline
+\bf{Data object type} & \bf{Type name} \\
+\hline\hline
+  \label{TypeID}Set & SETELE  \\ \hline
+  UniformGrid & UNIGRD \\ \hline
+  RectilinearGrid & RCTGRD \\ \hline
+  StructuredGrid & STRGRD \\ \hline
+  UnstructuredGrid & UNSGRD \\ \hline
+  Polygons & POLYGN \\ \hline
+  TriangleStrips & TRIANG \\ \hline
+  Lines & LINES \\ \hline
+  Points & POINTS \\ \hline
+  Float & STRSDT \\ \hline
+  Vec3 & STRVDT \\ \hline
+  Float & USTSDT \\ \hline
+  Vec3 & USTVDT \\ \hline
+  Text &  DOTEXT \\ \hline
+  RGBA  & RGBADT \\ \hline
+  IntArr & INTARR \\ \hline			
+\caption{\label{TypeID} Type Identifyer}					
+\end{longtable}
+
+
+\subsubsection{Data type dependent format}
+\begin{longtable}{|p{4.5cm}|p{5.25cm}|p{4cm}|}
+\hline
+\bf{Data object type} & \bf{Stored Data} & \bf{Description} \\
+\hline  \hline \endhead
+\bf{Set}	 &  int numsets &  number of elements \\ \cline{2-3}  
+  		&  Element(0), \newline Element(1), \newline ..., \newline Element(numsets-1) &  
+		all elements are completely stored one after the other \\ \hline
+\bf{UniformGrid}	& int x\_size & size in x-dimension  \\ \cline{2-3}
+			& int y\_size & size in y-dimension  \\ \cline{2-3}					& int z\_size & size in z-dimension  \\ \cline{2-3}
+			& float xmin  & minimal x-coordinate \\ \cline{2-3}					& float xmax  & maximal x-coordinate \\ \cline{2-3}
+			& float ymin  & minimal y-coordinate \\ \cline{2-3}					& float ymax  & maximal y-coordinate \\ \cline{2-3}
+			& float zmin  & minimal z-coordinate \\ \cline{2-3}					& float zmax  & maximal z-coordinate \\ \hline
+\bf{RectilinearGrid} & int x\_size & size in x-dimension  \\ \cline{2-3}
+			& int y\_size & size in y-dimension  \\ \cline{2-3}					& int z\_size & size in z-dimension  \\ \cline{2-3}
+			& float x\_coord[x\_size] & grid points on x-axis \\ \cline{2-3}
+			& float y\_coord[y\_size] & grid points on y-axis \\ \cline{2-3}
+			& float z\_coord[z\_size] & grid points on z-axis \\ \hline
+\bf{StructuredGrid}  & int x\_size & size in x-dimension  \\ \cline{2-3}
+			& int y\_size & size in y-dimension  \\ \cline{2-3}					& int z\_size & size in z-dimension  \\ \cline{2-3}
+			& float x\_coord[x\_size*y\_size*z\_size]& x- coordinate of grid points \\ \cline{2-3}
+			& float y\_coord[x\_size*y\_size*z\_size]& y- coordinate of grid points \\ \cline{2-3}
+			& float z\_coord[x\_size*y\_size*z\_size]& z- coordinate of grid points \\ \hline 
+\bf{UnstructuredGrid} & int num\_elem  & number of elements \\ \cline{2-3}
+			& int num\_conn   & length of connectivity list \\ \cline{2-3}
+			& int num\_coord  & number of points \\ \cline{2-3}
+			& int elem\_list[num\_elem]   & list of element \\ \cline{2-3}
+			& int type\_list[num\_elem]   & type of each element\\ \cline{2-3}
+			& int conn\_list[num\_conn]   & list of connectivities \\ \cline{2-3}
+			& float x\_coord[num\_coord]   & x- coordinate of points \\ \cline{2-3}
+			& float y\_coord[num\_coord]   & y- coordinate of points \\ \cline{2-3}
+			& float z\_coord[num\_coord]   & z- coordinate of points \\ \hline
+\bf{Polygons} 	 & int num\_poly 	& number of polygons \\ \cline{2-3}
+			& int num\_corners	& length  of corner list \\ \cline{2-3}
+			& int num\_points 	& number of points \\ \cline{2-3}
+			& int polyList[num\_poly]  & list of polygons \\ \cline{2-3}
+			& int cornerList[num\_corners] & list of corners \\ \cline{2-3}
+			& float x\_coord[num\_points]   & x- coordinate of points \\ \cline{2-3}
+			& float y\_coord[num\_points]   & y- coordinate of points \\ \cline{2-3}
+			& float z\_coord[num\_points]   & z- coordinate of points \\ \hline
+\bf{TriangleStrips}  & int num\_strips 	& number of triangle strips \\ \cline{2-3}
+			& int num\_corners	& length  of cornerlist \\ \cline{2-3}
+			& int num\_points 	& number of points \\ \cline{2-3}
+			& int stripList[num\_poly]  & list of triangle strips  \\ \cline{2-3}
+			& int cornerList[num\_corners] & list of corners  \\ \cline{2-3}
+			& float x\_coord[num\_points]   & x- coordinate of points \\ \cline{2-3}
+			& float y\_coord[num\_points]   & y- coordinate of points \\ \cline{2-3}
+			& float z\_coord[num\_points]   & z- coordinate of points \\ \hline		\bf{Lines}		 & int num\_lines 	& number of lines \\ \cline{2-3}
+			& int num\_corners	& length  of cornerlist \\ \cline{2-3}
+			& int num\_points 	& number of points \\ \cline{2-3}
+			& int lineList[num\_poly]  & line list \\ \cline{2-3}
+			& int cornerList[num\_corners] & list of corners \\ \cline{2-3}
+			& float x\_coord[num\_points]   & x- coordinate of points \\ \cline{2-3}
+			& float y\_coord[num\_points]   & y- coordinate of points \\ \cline{2-3}
+			& float z\_coord[num\_points]   & z- coordinate of points \\ \hline
+\bf{Points} 	 & int num\_points		& number of points \\ \cline{2-3}
+			& float x\_coord[num\_points]   & x- coordinate of points \\ \cline{2-3}
+			& float y\_coord[num\_points]   & y- coordinate of points \\ \cline{2-3}
+			& float z\_coord[num\_points]   & z- coordinate of points \\ \hline
+\bf{Float} &  int x\_size & size in x-dimension  \\ \cline{2-3}
+			& int y\_size & size in y-dimension  \\ \cline{2-3}								& int z\_size & size in z-dimension  \\ \cline{2-3}
+			& float sdata[x\_size*y\_size*z\_size] & data for every grid point \\ \hline
+\bf{Vec3} &  int x\_size & size in x-dimension  \\ \cline{2-3}
+			& int y\_size & size in y-dimension  \\ \cline{2-3}							& int z\_size & size in z-dimension  \\ \cline{2-3}
+			& float xdata[x\_size*y\_size*z\_size] & data for every grid point \\ \cline{2-3}
+			& float ydata[x\_size*y\_size*z\_size] &  \\ \cline{2-3}
+			& float zdata[x\_size*y\_size*z\_size] &   \\ \hline
+\bf{Float} & int num\_points & number of data points \\ \cline{2-3}
+			& float sdata[x\_size*y\_size*z\_size] & data for every point \\ \hline
+\bf{Vec3} & int num\_points & number of data points \\ \cline{2-3}
+			& float xdata[x\_size*y\_size*z\_size] & data for every point \\ \cline{2-3}
+			& float ydata[x\_size*y\_size*z\_size] &  \\ \cline{2-3}
+			& float zdata[x\_size*y\_size*z\_size] &   \\ \hline
+\bf{Text} 		& int size & size of texture in bytes \\ \cline{2-3}
+                       & char data[size] & texture data \\ \hline
+\bf{RGBA\_Data}   	& int num\_points 	& number of points \\ \cline{2-3}
+			& int colors[num\_points] & colors of points \\ \hline 
+\bf{IntArr}		& int num\_dim   	& number of dimensions \\ \cline{2-3}
+			& int num\_elem 	& number of elements \\ \cline{2-3} 
+			& int content[num\_dim] & \\ \cline{2-3}
+			& int dimPtr[num\_dim]  & \\ \hline
+
+\end{longtable}
+
+
+\subsubsection{Attribute format}
+
+At the beginning RWCovise stores the number of attributes as integer. 
+Then it writes one attribute after the other. 
+
+To understand the attribute format you must know following facts.
+An attribute consists of two strings: the name of the attribute and the value 
+of the attribute. RWCovise stores the length of both string as one integer 
+followed by the two strings. 
+
+For example consider the attribute "COLOR" and its value "blue". 
+The length of the name is six because RWCovise also saves the 
+ending \begin{verbatim}'\0'\end{verbatim} of a string. 
+The length of the value is therefore five and RWCovise writes eleven 
+as length of this attribute.
+
+ 
+%=============================================================
+
+%=============================================================
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+	{map}{covise/net/tutorial/tutorial\_pressure\_2.net}{0.6}\end{covimg}
+	
+The figure above shows a map that performs reading from disk files.
+The first RWCovise module reads the grid while the second one reads the pressure data.
+
+\begin{covimg2} {}{Renderer}{0.7}\end{covimg2}
+
+The last figure is a snapshot of the renderer.
+It shows a visualization of the scalar data using isosurfaces.
+
+%=============================================================

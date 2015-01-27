@@ -1,0 +1,33 @@
+# define polys across 8 points
+
+#   7-------
+#   |        \
+#   |            \
+#   3----4----5----6
+#   |    |    |   /
+#   |    |    | /
+#   0----1----2    
+
+
+POLY 4 14 8
+{
+   ATTRIB vertexOrder 0
+   ATTRIB color white
+   
+   VERT 
+   #   fgjk'hjlk;
+      0,0,0
+      0,0,1
+      0,0,2  # ;lfjh
+      0,1,0
+      0,1,1
+      0,1,2 
+      0,1,3
+      0,2,0
+   
+   CONN
+      0,1,4,3
+      1 2 5 4
+      2 6 5
+      3 6 7
+}

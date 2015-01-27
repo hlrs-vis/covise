@@ -1,0 +1,18 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+This example illustrates how the use of this module
+may optimise an anlysis with two Tracer modules.
+The same pipeline might also be used without MakeOctTreeMap
+and the results would be the same.
+
+\begin{covimg}{}%
+		{MakeOctTreeMap}{covise/net/examples/MakeOctTree.net}{0.6}\end{covimg}
+
+\begin{covimg2}	{}{MakeOctTreeRenderer}{0.6}\end{covimg2}
+

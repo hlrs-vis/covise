@@ -1,0 +1,70 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	data\_path & File Browser & LS-DYNA plot file location (Version LS 930). \\
+\hline
+	nodalDataType & Choice & Select the type if additionally nodal results data 
+	should be read like either displacements, velocities, or accelerations.\\
+\hline
+	elementDataType & Choice & Select the type if additionally element 
+	results data should be read like either components of the stress tensor 
+	or the plastic strain.  \\
+\hline
+	component & Choice & Select the component of the stress tensor 
+	[Sxx, Syy, Szz, Txy, Tyz, Txz ]. You may also select the pressure
+        (defined as \latexonly $-\frac{{\rm Tr}\  \sigma}{3}$ \endlatexonly
+	\begin{htmlonly} - Tr sigma / 3 \end{htmlonly}, where 
+        \latexonly ${\rm Tr}\  \sigma $ \endlatexonly 
+	\begin{htmlonly} Tr sigma \end{htmlonly} stands
+        for the trace of the stress tensor) or the Von Mises stress.
+        {\it Only relevant if chosen 
+	"stress tensor" as data type of the second data port.}  \\
+\hline
+	Selection & String & Select parts by ID numbers, e.g. "2-5,10-13". 
+	The material number of the Finite Elements in the plot file defines 
+	the different parts in COVISE.  \\
+\hline
+	Min\_Num\_State & Vector & Select the timestep interval. 
+        %Timesteps are numbered from 1 to number of steps. 
+        The components of the vector
+        determine the minimum and number of time steps that are read in.
+        The second component is the number of
+        time steps that will be read (without counting the first one).
+        %at most (the real number may
+        %be reduced if the third component is lower than the second).
+        If the first component is 1, the first time step to be
+        read is the first available time step. If it is
+        greater than 1, then the first time step to be read depends
+        on how many time steps have been saved per file.
+        %The third component sets an additional limit that may override
+        %the value of the second component, but normally you will
+        %want it to coincide with the second component. 
+        \\
+\hline
+	format & Choice & Select the special format of the plot file. 
+	In CADFEM format all numbers, characters, etc are written as 
+	real numbers. In the original US format they are written as it 
+	should be.\\
+\hline
+	only geometry & Boolean & If set TRUE only the geometry and 
+	topology section are read, i.e. no state data.  \\																
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+
+%
+%=============================================================

@@ -1,0 +1,12 @@
+ <!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+     <file>images/new.png</file>
+     <file>images/open.png</file>
+     <file>images/add.png</file>
+     <file>images/remove.png</file>
+     <file>images/openSchema.png</file>
+     <file>images/ktip.png</file>
+     <file>images/save.png</file>
+     <file>images/saveas.png</file>
+ </qresource>
+ </RCC>

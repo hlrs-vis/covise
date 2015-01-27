@@ -1,0 +1,76 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	outside & Choice & Select if MAX\_FLT or a number should be used to fill
+	the parts of the uniform grid which are not intersected by the input data.
+	The module
+	\covlink{Colors}{Colors}{../../Color/Colors/Colors.html}
+	maps MAX\_FLT to fully transparent in the COVER. \\
+\hline
+	fill\_value & Scalar & This parameter is enabled only if parameter
+	\it{outside} is set to \it{number}.  \\
+\hline
+	algorithm & Choice & You may select one algorithm out of 4 available
+        choices. They have been ordered according to their rapidity. The first
+        choice being the fastest; and the last one, the slowest. We
+        reserve a subsection below for a discussion of these algorithms.\\
+\hline
+        point\_sampling & Choice & Either the number of points (or the sum of the
+        corresponding data values if the data input port is connected) or the
+        logarithm thereof is computed as the value of a cell.
+        This can be normalized so that the value does not change in magnitude when
+        another sampling accuracy (size of the output grid) is chosen.\\
+\hline
+	isize & Choice & Dimension of the uniform grid in i-direction. You can
+	select between predefined sizes or you select user defined and enter the
+	size with the parameter {\it user\_defined\_isize}. The predefined sizes are
+	the sizes needed for the CuttingPlane3DTex plugin. \\
+\hline
+	user\_defined\_isize & Scalar &  This parameter is enabled only if {\it isize} is set to
+	{\it user\_defined}.  \\
+\hline
+	jsize & Choice & Dimension of the uniform grid in j-direction. See parameter
+	{\it isize}. \\
+\hline
+	user\_defined\_jsize & Scalar & See parameter {\it isize}.  \\
+\hline
+	ksize & Choice & Dimension of the uniform grid in k-direction. See parameter
+	{\it isize}. \\
+\hline
+	user\_defined\_ksize & Scalar & See parameter {\it ksize}. \\	
+\hline
+	bounding\_box & Choice & If you select on of the {\it automatic} options,
+        the module creates a uniform grid spanning the bounding box of the
+        input grid. This bounding box can be calculated for each timestep
+        or for all timesteps.
+        By choosing the option {\it manual}, you have
+        to introduce two corner points of the bounding box fixing the
+        dimension of the uniform output grid. \\	
+\hline
+	P1\_bounds & Vector & Coordinates of the first corner point
+        of the bounding box if you choose {\it manual} in parameter
+        {\it bounding\_box}. \\	
+\hline
+	P2\_bounds & Vector & Coordinates of the second corner point
+        of the bounding box if you choose {\it manual} in parameter
+        {\it bounding\_box}. \\	
+\hline
+	eps & Scalar & A small value which can be used to avoid holes inside the data in the case of the slowest algorithm.  \\																	
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

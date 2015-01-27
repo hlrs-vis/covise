@@ -1,0 +1,110 @@
+#--------------------------------------------------------------------------------
+#-- Covise 5.3 Configuration File 
+#-- for Vircinity CYCLOOP
+#-- passive stereo 3 PCs
+#-- devil01, devil02 are rendering pcs
+#-- vr11 is the controlling pc
+#-- fobserver as tracker (fob and 6dof mouse, without erc)
+#-- transmitter location: center, bottom of the screen
+#-- headsensor mounted on the left side of the glasses
+#--------------------------------------------------------------------------------
+
+
+#-- General settings -------------------------------------------------------------
+
+
+#-- Enter default parameters for adding host/partner here
+HostConfig
+{
+#  Hostname        Shared Memory      execution mode       timeout [s]   Min. SHM
+#                 (shm|mmap|none)  (rexec|rsh|ssh|manual)  (default 5)   segment 
+   vr11            shm                rexec                 360             32MB
+   devil01 	       shm                rsh                   360             32MB
+   devil02         shm                rsh                   360             32MB
+}
+
+
+
+#--- INSERT covise.config.base HERE -------------------------------------------
+
+<covise.config.base>
+
+
+
+#------------------------------------------------------------------
+MultiPC: devil01 devil02 vr11
+{
+   SyncMode          TCP
+   SyncProcess       APP
+#  SerialDevice      /dev/ttyS0
+   Master            devil01
+   MasterInterface   devil01
+   Host0             devil02
+   Command0          echo
+   numSlaves         1
+}
+
+#--- devil01-------------------------------------------------------
+#--- devil01-------------------------------------------------------
+COVERConfig: devil01, devil02
+{   
+    MENU_POSITION               500 0 400
+    MENU_ORIENTATION            0 0 0
+    SCENESIZE                   1700
+    VIEWER_POSITION             0 -1000 0
+    floorHeight                 -1800
+    stepSize                    200
+    STEREO                      off
+    FONT                        FILLED
+}
+
+COVERConfig: devil01
+{
+    TRACKING_SYSTEM             VRC
+    MONO_VIEW                   RIGHT
+}
+
+COVERConfig: devil02
+{
+    TRACKING_SYSTEM             NONE
+    MONO_VIEW                   LEFT
+}
+
+WindowConfig:devil01, devil02
+{
+#-- WinIndex	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0           FRONT       	0       	1024  0 		1024 768
+}
+
+ScreenConfig:devil01, devil02
+{
+#-- ScreenIndex	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		    FRONT		1720 1320	    0 0 0			0.0 0.0 0.0
+}
+
+ChannelConfig:devil01, devil02
+{
+#-- ChannelIndex    ChannelName     WindowNo    VPLeft   VPBottom     VPWidth  VPHeight
+    0               FRONT           0           0       0           1       1
+}
+
+VRCTracker:devil01
+{
+    Port 7777
+}
+
+TrackerConfig:devil01
+{
+    NUM_SENSORS                             2
+    HAND_ADDR                               1
+    HEAD_ADDR                               2
+    LINEAR_MAGNETIC_FIELD_CORRECTION        0.0 0.0 0.0
+    TRANSMITTER_OFFSET                      0  -10 -65
+    TRANSMITTER_ORIENTATION                 90 0 180
+    HEADSENSOR_OFFSET                       10 0 0
+    HEADSENSOR_ORIENTATION                  -90 0 -90
+    HANDSENSOR_OFFSET                       0  0 0
+    HANDSENSOR_ORIENTATION                  90 0 0
+}
+
+

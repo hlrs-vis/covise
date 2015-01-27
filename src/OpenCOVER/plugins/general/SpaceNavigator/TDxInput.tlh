@@ -1,0 +1,399 @@
+// Created by Microsoft (R) C/C++ Compiler Version 14.00.50727.42 (3c5f7f19).
+//
+// c:\src\covise\src\renderer\opencover\plugins\general\spacenavigator\objects_vista\TDxInput.tlh
+//
+// C++ source equivalent of Win32 type library TDxInput.Device.1
+// compiler-generated file created 06/05/08 at 10:05:28 - DO NOT EDIT!
+
+#pragma once
+#pragma pack(push, 8)
+
+#include <comdef.h>
+
+//
+// Forward references and typedefs
+//
+
+struct __declspec(uuid("7858b9e0-5793-4be4-9b53-661d922790d2"))
+/* LIBID */ __TDxInput;
+struct /* coclass */ AngleAxis;
+struct __declspec(uuid("1ef2baff-54e9-4706-9f61-078f7134fd35"))
+/* dual interface */ IAngleAxis;
+struct /* coclass */ Vector3D;
+struct __declspec(uuid("8c2aa71d-2b23-43f5-a6ed-4df57e9cd8d5"))
+/* dual interface */ IVector3D;
+struct __declspec(uuid("e6929a4a-6f41-46c6-9252-a8cc53472cb1"))
+/* dispinterface */ _ISensorEvents;
+struct /* coclass */ Sensor;
+struct __declspec(uuid("f3a6775e-6fa1-4829-bf32-5b045c29078f"))
+/* dual interface */ ISensor;
+struct __declspec(uuid("6b6bb0a8-4491-40cf-b1a9-c15a801fe151"))
+/* dispinterface */ _IKeyboardEvents;
+struct /* coclass */ Keyboard;
+struct __declspec(uuid("d6f968e7-2993-48d7-af24-8b602d925b2c"))
+/* dual interface */ IKeyboard;
+struct __declspec(uuid("8fe3a216-e235-49a6-9136-f9d81fdadef5"))
+/* dispinterface */ _ISimpleDeviceEvents;
+struct /* coclass */ Device;
+struct __declspec(uuid("cb3bf65e-0816-482a-bb11-64af1e837812"))
+/* dual interface */ ISimpleDevice;
+struct /* coclass */ TDxInfo;
+struct __declspec(uuid("00612962-8fb6-47b2-bf98-4e8c0ff5f559"))
+/* dual interface */ ITDxInfo;
+
+//
+// Smart pointer typedef declarations
+//
+
+_COM_SMARTPTR_TYPEDEF(IAngleAxis, __uuidof(IAngleAxis));
+_COM_SMARTPTR_TYPEDEF(IVector3D, __uuidof(IVector3D));
+_COM_SMARTPTR_TYPEDEF(_ISensorEvents, __uuidof(_ISensorEvents));
+_COM_SMARTPTR_TYPEDEF(ISensor, __uuidof(ISensor));
+_COM_SMARTPTR_TYPEDEF(_IKeyboardEvents, __uuidof(_IKeyboardEvents));
+_COM_SMARTPTR_TYPEDEF(IKeyboard, __uuidof(IKeyboard));
+_COM_SMARTPTR_TYPEDEF(_ISimpleDeviceEvents, __uuidof(_ISimpleDeviceEvents));
+_COM_SMARTPTR_TYPEDEF(ISimpleDevice, __uuidof(ISimpleDevice));
+_COM_SMARTPTR_TYPEDEF(ITDxInfo, __uuidof(ITDxInfo));
+
+//
+// Type library items
+//
+
+struct __declspec(uuid("512a6c3e-3010-401b-8623-e413e2acc138"))
+AngleAxis;
+    // [ default ] interface IAngleAxis
+
+struct __declspec(uuid("1ef2baff-54e9-4706-9f61-078f7134fd35"))
+IAngleAxis : IDispatch
+{
+    //
+    // Property data
+    //
+
+    __declspec(property(get=GetX,put=PutX))
+    double X;
+    __declspec(property(get=GetY,put=PutY))
+    double Y;
+    __declspec(property(get=GetZ,put=PutZ))
+    double Z;
+    __declspec(property(get=GetAngle,put=PutAngle))
+    double Angle;
+
+    //
+    // Wrapper methods for error-handling
+    //
+
+    double GetX ( );
+    void PutX (
+        double pVal );
+    double GetY ( );
+    void PutY (
+        double pVal );
+    double GetZ ( );
+    void PutZ (
+        double pVal );
+    double GetAngle ( );
+    void PutAngle (
+        double pVal );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall get_X (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_X (
+        /*[in]*/ double pVal ) = 0;
+      virtual HRESULT __stdcall get_Y (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_Y (
+        /*[in]*/ double pVal ) = 0;
+      virtual HRESULT __stdcall get_Z (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_Z (
+        /*[in]*/ double pVal ) = 0;
+      virtual HRESULT __stdcall get_Angle (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_Angle (
+        /*[in]*/ double pVal ) = 0;
+};
+
+struct __declspec(uuid("740a7479-c7c1-44da-8a84-b5de63c78b32"))
+Vector3D;
+    // [ default ] interface IVector3D
+
+struct __declspec(uuid("8c2aa71d-2b23-43f5-a6ed-4df57e9cd8d5"))
+IVector3D : IDispatch
+{
+    //
+    // Property data
+    //
+
+    __declspec(property(get=GetX,put=PutX))
+    double X;
+    __declspec(property(get=GetY,put=PutY))
+    double Y;
+    __declspec(property(get=GetZ,put=PutZ))
+    double Z;
+    __declspec(property(get=GetLength,put=PutLength))
+    double Length;
+
+    //
+    // Wrapper methods for error-handling
+    //
+
+    double GetX ( );
+    void PutX (
+        double pVal );
+    double GetY ( );
+    void PutY (
+        double pVal );
+    double GetZ ( );
+    void PutZ (
+        double pVal );
+    double GetLength ( );
+    void PutLength (
+        double pVal );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall get_X (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_X (
+        /*[in]*/ double pVal ) = 0;
+      virtual HRESULT __stdcall get_Y (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_Y (
+        /*[in]*/ double pVal ) = 0;
+      virtual HRESULT __stdcall get_Z (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_Z (
+        /*[in]*/ double pVal ) = 0;
+      virtual HRESULT __stdcall get_Length (
+        /*[out,retval]*/ double * pVal ) = 0;
+      virtual HRESULT __stdcall put_Length (
+        /*[in]*/ double pVal ) = 0;
+};
+
+struct __declspec(uuid("e6929a4a-6f41-46c6-9252-a8cc53472cb1"))
+_ISensorEvents : IDispatch
+{
+    //
+    // Wrapper methods for error-handling
+    //
+
+    // Methods:
+    HRESULT SensorInput ( );
+};
+
+struct __declspec(uuid("85004b00-1aa7-4777-b1ce-8427301b942d"))
+Sensor;
+    // [ default ] interface ISensor
+    // [ default, source ] dispinterface _ISensorEvents
+
+struct __declspec(uuid("f3a6775e-6fa1-4829-bf32-5b045c29078f"))
+ISensor : IDispatch
+{
+    //
+    // Property data
+    //
+
+    __declspec(property(get=GetTranslation))
+    IVector3DPtr Translation;
+    __declspec(property(get=GetRotation))
+    IAngleAxisPtr Rotation;
+    __declspec(property(get=GetDevice))
+    IDispatchPtr Device;
+    __declspec(property(get=GetPeriod))
+    double Period;
+
+    //
+    // Wrapper methods for error-handling
+    //
+
+    IVector3DPtr GetTranslation ( );
+    IAngleAxisPtr GetRotation ( );
+    IDispatchPtr GetDevice ( );
+    double GetPeriod ( );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall get_Translation (
+        /*[out,retval]*/ struct IVector3D * * pVal ) = 0;
+      virtual HRESULT __stdcall get_Rotation (
+        /*[out,retval]*/ struct IAngleAxis * * pVal ) = 0;
+      virtual HRESULT __stdcall get_Device (
+        /*[out,retval]*/ IDispatch * * pVal ) = 0;
+      virtual HRESULT __stdcall get_Period (
+        /*[out,retval]*/ double * pVal ) = 0;
+};
+
+struct __declspec(uuid("6b6bb0a8-4491-40cf-b1a9-c15a801fe151"))
+_IKeyboardEvents : IDispatch
+{
+    //
+    // Wrapper methods for error-handling
+    //
+
+    // Methods:
+    HRESULT KeyDown (
+        int keyCode );
+    HRESULT KeyUp (
+        int keyCode );
+};
+
+struct __declspec(uuid("25bbe090-583a-4903-a61b-d0ec629ac4ec"))
+Keyboard;
+    // [ default ] interface IKeyboard
+    // [ default, source ] dispinterface _IKeyboardEvents
+
+struct __declspec(uuid("d6f968e7-2993-48d7-af24-8b602d925b2c"))
+IKeyboard : IDispatch
+{
+    //
+    // Property data
+    //
+
+    __declspec(property(get=GetKeys))
+    long Keys;
+    __declspec(property(get=GetProgrammableKeys))
+    long ProgrammableKeys;
+    __declspec(property(get=GetDevice))
+    IDispatchPtr Device;
+
+    //
+    // Wrapper methods for error-handling
+    //
+
+    long GetKeys ( );
+    long GetProgrammableKeys ( );
+    _bstr_t GetKeyLabel (
+        long key );
+    _bstr_t GetKeyName (
+        long key );
+    IDispatchPtr GetDevice ( );
+    VARIANT_BOOL IsKeyDown (
+        long key );
+    VARIANT_BOOL IsKeyUp (
+        long key );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall get_Keys (
+        /*[out,retval]*/ long * pVal ) = 0;
+      virtual HRESULT __stdcall get_ProgrammableKeys (
+        /*[out,retval]*/ long * pVal ) = 0;
+      virtual HRESULT __stdcall raw_GetKeyLabel (
+        /*[in]*/ long key,
+        /*[out,retval]*/ BSTR * label ) = 0;
+      virtual HRESULT __stdcall raw_GetKeyName (
+        /*[in]*/ long key,
+        /*[out,retval]*/ BSTR * name ) = 0;
+      virtual HRESULT __stdcall get_Device (
+        /*[out,retval]*/ IDispatch * * pVal ) = 0;
+      virtual HRESULT __stdcall raw_IsKeyDown (
+        /*[in]*/ long key,
+        /*[out,retval]*/ VARIANT_BOOL * isDown ) = 0;
+      virtual HRESULT __stdcall raw_IsKeyUp (
+        /*[in]*/ long key,
+        /*[out,retval]*/ VARIANT_BOOL * isUp ) = 0;
+};
+
+struct __declspec(uuid("8fe3a216-e235-49a6-9136-f9d81fdadef5"))
+_ISimpleDeviceEvents : IDispatch
+{
+    //
+    // Wrapper methods for error-handling
+    //
+
+    // Methods:
+    HRESULT DeviceChange (
+        long reserved );
+};
+
+struct __declspec(uuid("82c5ab54-c92c-4d52-aac5-27e25e22604c"))
+Device;
+    // [ default ] interface ISimpleDevice
+    // [ default, source ] dispinterface _ISimpleDeviceEvents
+
+struct __declspec(uuid("cb3bf65e-0816-482a-bb11-64af1e837812"))
+ISimpleDevice : IDispatch
+{
+    //
+    // Property data
+    //
+
+    __declspec(property(get=GetSensor))
+    ISensorPtr Sensor;
+    __declspec(property(get=GetKeyboard))
+    IKeyboardPtr Keyboard;
+    __declspec(property(get=GetType))
+    long Type;
+    __declspec(property(get=GetIsConnected))
+    VARIANT_BOOL IsConnected;
+
+    //
+    // Wrapper methods for error-handling
+    //
+
+    HRESULT Connect ( );
+    HRESULT Disconnect ( );
+    ISensorPtr GetSensor ( );
+    IKeyboardPtr GetKeyboard ( );
+    long GetType ( );
+    VARIANT_BOOL GetIsConnected ( );
+    HRESULT LoadPreferences (
+        _bstr_t PreferencesName );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall raw_Connect ( ) = 0;
+      virtual HRESULT __stdcall raw_Disconnect ( ) = 0;
+      virtual HRESULT __stdcall get_Sensor (
+        /*[out,retval]*/ struct ISensor * * pVal ) = 0;
+      virtual HRESULT __stdcall get_Keyboard (
+        /*[out,retval]*/ struct IKeyboard * * pVal ) = 0;
+      virtual HRESULT __stdcall get_Type (
+        /*[out,retval]*/ long * pVal ) = 0;
+      virtual HRESULT __stdcall get_IsConnected (
+        /*[out,retval]*/ VARIANT_BOOL * pVal ) = 0;
+      virtual HRESULT __stdcall raw_LoadPreferences (
+        /*[in]*/ BSTR PreferencesName ) = 0;
+};
+
+struct __declspec(uuid("1a960ece-0e57-4a68-b694-8373114f1ff4"))
+TDxInfo;
+    // [ default ] interface ITDxInfo
+
+struct __declspec(uuid("00612962-8fb6-47b2-bf98-4e8c0ff5f559"))
+ITDxInfo : IDispatch
+{
+    //
+    // Wrapper methods for error-handling
+    //
+
+    _bstr_t RevisionNumber ( );
+
+    //
+    // Raw methods provided by interface
+    //
+
+      virtual HRESULT __stdcall raw_RevisionNumber (
+        /*[out,retval]*/ BSTR * revision ) = 0;
+};
+
+//
+// Wrapper method implementations
+//
+
+#include "TDxInput.tli"
+
+#pragma pack(pop)

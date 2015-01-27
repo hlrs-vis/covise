@@ -1,0 +1,155 @@
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment>Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+  <exportmacro></exportmacro>
+  <class>LogitechDialogBase</class>
+  <widget class="QDialog" name="LogitechDialogBase" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>462</width>
+        <height>274</height>
+      </rect>
+    </property>
+    <property name="sizePolicy" >
+      <sizepolicy>
+        <hsizetype>3</hsizetype>
+        <vsizetype>3</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+      </sizepolicy>
+    </property>
+    <property name="font" >
+      <font>
+        <family>Droid Sans</family>
+        <pointsize>8</pointsize>
+      </font>
+    </property>
+    <property name="windowTitle" >
+      <string>Logitech Input Window</string>
+    </property>
+    <layout class="QVBoxLayout" >
+      <item>
+        <spacer name="spacer5" >
+          <property name="sizeHint" >
+            <size>
+              <width>20</width>
+              <height>20</height>
+            </size>
+          </property>
+          <property name="sizeType" >
+            <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+          </property>
+        </spacer>
+      </item>
+      <item>
+        <widget class="QLabel" name="vrpLabelTitle" >
+          <property name="sizePolicy" >
+            <sizepolicy>
+              <hsizetype>5</hsizetype>
+              <vsizetype>0</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+            </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+            <size>
+              <width>0</width>
+              <height>0</height>
+            </size>
+          </property>
+          <property name="font" >
+            <font>
+              <family>URW Gothic L</family>
+              <pointsize>11</pointsize>
+            </font>
+          </property>
+          <property name="text" >
+            <string>Logitech Input Window</string>
+          </property>
+          <property name="alignment" >
+            <set>Qt::AlignTop|Qt::AlignHCenter</set>
+          </property>
+          <property name="wordWrap" >
+            <bool>false</bool>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <spacer name="spacer6" >
+          <property name="sizeHint" >
+            <size>
+              <width>20</width>
+              <height>21</height>
+            </size>
+          </property>
+          <property name="sizeType" >
+            <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+          </property>
+        </spacer>
+      </item>
+      <item>
+        <widget class="QLabel" name="textLabel1" >
+          <property name="font" >
+            <font>
+              <family>Sans Serif</family>
+              <pointsize>10</pointsize>
+            </font>
+          </property>
+          <property name="text" >
+            <string>Control forward and backward in
+ your presentation by the forward 
+and backward button of the 
+Logitech Presenter</string>
+          </property>
+          <property name="alignment" >
+            <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap" >
+            <bool>false</bool>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <spacer name="spacer4" >
+          <property name="sizeHint" >
+            <size>
+              <width>20</width>
+              <height>30</height>
+            </size>
+          </property>
+          <property name="sizeType" >
+            <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+          </property>
+        </spacer>
+      </item>
+      <item>
+        <widget class="QPushButton" name="pushButton4" >
+          <property name="text" >
+            <string>Close</string>
+          </property>
+        </widget>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <connections>
+    <connection>
+      <sender>pushButton4</sender>
+      <signal>clicked()</signal>
+      <receiver>LogitechDialogBase</receiver>
+      <slot>close()</slot>
+    </connection>
+  </connections>
+</ui>

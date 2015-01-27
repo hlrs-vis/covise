@@ -1,0 +1,785 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>ModuleDescriptions</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h1>
+<font face="Times New Roman,Times"><font color="#009900"><font size=+4>Module
+Reference Guide</font></font></font></h1>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">This list contains the names of all modules
+available with COVISE (<b><font color="#FF0000">except Test or Example
+modules</font></b>) together with a short description and a link to the
+complete documentation.</font></li>
+
+<li>
+<font face="Arial,Helvetica">You can get a short description for a specific
+module from <a href="mapeditor/map_modinfo.html">ModuleInfo</a> (ModuleSetup),
+too.</font></li>
+
+<li>
+<font face="Arial,Helvetica">If you need the complete documentation for
+any available module, j<font color="#000000">ust click on the module name
+in the list or in the navigation in the left frame!</font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000">You can get the complete
+documentation for a specific module via 'help' in '<a href="mapeditor/map_modwork.html">Further
+Actions</a>', too.</font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000">You select your modules
+(usually) from the following categories</font></font></li>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_color.html" target="_top">Color</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_filter.html" target="_top">Filter</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_io_module.html" target="_top">IO_Module</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_mapper.html" target="_top">Mapper</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_renderer_mod.html" target="_top">Renderer
+/ SRenderer</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_simulation.html" target="_top">Simulation</a>
+(documentation only)</font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_tools.html" target="_top">Tools</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="start_tracer.html" target="_top">Tracer</a></font></font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica"><font color="#000000"><u>Notes</u>:</font></font>
+<table CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">If you are looking for a module you might
+have problems starting with the right category. Strictly speaking, '<b>Filter</b>'
+(pass only selected information) and '<b>Mapper</b>' (create an image out
+of data) are subsets of '<b>Tools</b>'; so if you don't find a suitable
+module in 'Filter' or 'Mapper', look up in 'Tools', and vice versa! (use
+the <b>Overview</b> given below)</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">The modules in the categories <b>Renderer</b>
+and <b>SRenderer </b>provide the same functionality - and are therefore
+described only once (see <a href="start_renderer_mod.html" target="_top">Renderer</a>).
+The only difference between the categories shows up in collaborative work:
+You get&nbsp; multiple instances of a <b>Renderer</b> module for the master
+and all collaborating slaves, whereas a <b>SRenderer</b> (S for "single")
+module appears only where it is created.</font></td>
+</tr>
+
+<tr>
+<td>Documentation for <b>obsolete Tracer modules</b> including preprocessing
+modules for TetraTrace has been removed (except Tetrahedronize - kept for
+generating a grid of tetrahedrons).</td>
+</tr>
+
+<tr>
+<td><b>If you have given up searching by category just try the alphabetic
+module list below (Complex Modules are marked with an asterisk):</b></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<table COLS=4 WIDTH="100%" >
+<tr>
+<td ALIGN=LEFT VALIGN=TOP><font face="Arial,Helvetica"><a href="../online/modules/Tools/AssembleUsg/AssembleUsg.html">AssembleUsg</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/BlockCollect/BlockCollect.html">BlockCollect</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/BoundingBox/BoundingBox.html">BoundingBox</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Calc/Calc.html">Calc</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/CellToVert/CellToVert.html">CellToVert</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/CheckObj/CheckObj.html">CheckObj</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/ClipInterval/ClipInterval.html">ClipInterval</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Collect/Collect.html">Collect</a></font>
+<div style="margin-bottom:0cm;margin-bottom:.0001pt"><font face="Arial,Helvetica"><a href="../online/modules/Color/ColorEdit/ColorEdit.html">ColorEdit</a></font></div>
+
+<div style="margin-bottom:0cm;margin-bottom:.0001pt"><font face="Arial,Helvetica"><a href="../online/modules/Color/Colors/Colors.html">Colors</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Renderer/COVER/COVER.html">COVER</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Renderer/COVER_VRML/COVER_VRML.html">COVER_VRML</a></font></div>
+<font face="Arial,Helvetica"><a href="../online/modules/Tools/CropUsg/CropUsg.html">CropUsg</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/CutGeometry/CutGeometry.html">CutGeometry</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/CuttingLine/CuttingLine.html">CuttingLine</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/CuttingSurface/CuttingSurface.html">CuttingSurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/CuttingSurfaceComp/CuttingSurfaceComp.html">CuttingSurfaceComp
+*</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/CuttingSurface3DTex/CuttingSurface3DTex.html">CuttingSurface3DTex</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/DerivOperators/DerivOperators.html">DerivOperators</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/DisplaceUsg/DisplaceUsg.html">DisplaceUsg</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/DomainSurface/DomainSurface.html">DomainSurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/DomainSurfaceStr/DomainSurfaceStr.html">DomainSurfaceStr</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/EliminatePolygons/EliminatePolygons.html">EliminatePolygons</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/FilterCrop/FilterCrop.html">FilterCrop</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/FixPart/FixPart.html">FixPart</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/FixUsg/FixUsg.html">FixUsg</a></font></td>
+
+<td ALIGN=LEFT VALIGN=TOP><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/GenDat/GenDat.html">GenDat</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/GenNormals/GenNormals.html">GenNormals</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/GetSetelem/GetSetelem.html">GetSetelem</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/GridSurface/GridSurface.html">GridSurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Histogram/Histogram.html">Histogram</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/ImageToTexture/ImageToTexture.html">ImageToTexture</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/IndexSurface/IndexSurface.html">IndexSurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Interpolate/Interpolate.html">Interpolate</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoLines/IsoLines.html">IsoLines</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoSurface/IsoSurface.html">IsoSurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoSurfaceComp/IsoSurfaceComp.html">IsoSurfaceComp
+*</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoSurfaceP/IsoSurfaceP.html">(IsoSurfaceP)</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/LineReduce/LineReduce.html">LineReduce</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakeOctTree/MakeOctTree.html">MakeOctTree</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakePlots/MakePlots.html">MakePlots</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakeTransient/MakeTransient.html">MakeTransient</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Material/Material.html">Material</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/MinMax/MinMax.html">MinMax</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/PartSelect/PartSelect.html">PartSelect</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/PerformerScene/PerformerScene.html">PerformerScene</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/PipelineCollect/PipelineCollect.html">PipelineCollect</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Renderer/Plot/Plot.html">Plot</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadABAQUS/ReadABAQUS.html">ReadABAQUS</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadANSYS/ReadANSYS.html">ReadANSYS</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadCadmould/ReadCadmould.html">ReadCadmould</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadCFX/ReadCFX.html">ReadCFX</a></font>
+<br>&nbsp;
+<br>&nbsp;
+<p>&nbsp;</td>
+
+<td ALIGN=LEFT VALIGN=TOP><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadDx/ReadDx.html">ReadDx</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadDyna3D/ReadDyna3D.html">ReadDyna3D</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadEnsight/ReadEnsight.html">ReadEnsight</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadEnsightNT/ReadEnsightNT.html">ReadEnsightNT</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFidap/ReadFidap.html">ReadFidap</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFloWorks/ReadFloWorks.html">ReadFloWorks</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFluent/ReadFluent.html">ReadFluent</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadIv/ReadIv.html">ReadIv</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadKiva/ReadKiva.html">ReadKiva</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadLat/ReadLat.html">ReadLat</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadMovieBYU/ReadMovieBYU.html">ReadMovieBYU</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadNastran/ReadNastran.html">ReadNastran</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadObj/ReadObj.html">ReadObj</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPAM/ReadPAM.html">ReadPAM</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPatran/ReadPatran.html">ReadPatran</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPlot3D/ReadPlot3D.html">ReadPlot3D</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadStar/ReadStar.html">ReadStar</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadStl/ReadStl.html">ReadStl</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadTascflowTDI/ReadTascflowTDI.html">ReadTascflowTDI</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadTecplot/ReadTecplot.html">ReadTecplot</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadVolume/ReadVolume.html">ReadVolume</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadVTF/ReadVTF.html">ReadVTF</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Renderer/Renderer/Renderer.html">Renderer
+(IV)</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RW_ASCII/RW_ASCII.html">RW_ASCII</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RWCovise/RWCovise.html">RWCovise</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RWCoviseGroup/RWCoviseGroup.html">RWCoviseGroup</a></font></td>
+
+<td ALIGN=LEFT VALIGN=TOP><font face="Arial,Helvetica"><a href="../online/modules/Tools/Sample/Sample.html">Sample</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Scalar2Vector/Scalar2Vector.html">Scalar2Vector</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/SelectUsg/SelectUsg.html">SelectUsg</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/ShowFaceNormal/ShowFaceNormal.html">ShowFaceNormal</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/ShowGrid/ShowGrid.html">ShowGrid</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/SimplifySurface/SimplifySurface.html">SimplifySurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/SmoothSurface/SmoothSurface.html">SmoothSurface</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Solutions/Solutions.html">Solutions</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Sphere/Sphere.html">Sphere</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Filter/SplitUsg/SplitUsg.html">SplitUsg</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Simulation/StarCD/StarCD.html">StarCD</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/StoU/StoU.html">StoU</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/TensorScal/TensorScal.html">TensorScal</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Tetrahedronize/Tetrahedronize.html">Tetrahedronize</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tracer/Tracer/Tracer.html">Tracer</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tracer/TracerComp/TracerComp.html">TracerComp
+*</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Transform/Transform.html">Transform</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/Tube/Tube.html">Tube</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Mapper/VectorField/VectorField.html">VectorField</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Tools/VectorScal/VectorScal.html">VectorScal</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/Renderer/VRMLRenderer/VRMLRenderer.html">VRMLRenderer</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WriteASC/WriteASC.html">WriteASC</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WritePatran/WritePatran.html">WritePatran</a></font>
+<br><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WriteVolume/WriteVolume.html">WriteVolume</a></font></td>
+</tr>
+</table>
+
+<p><b><font face="Arial,Helvetica"><font size=+1>Color:</font></font></b>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/Color/ColorEdit/ColorEdit.html">ColorEdit</a></font></b>
+<br><font face="Arial,Helvetica">maps scalar values to colors on isosurfaces,
+cuttingplanes, vectors... (see also <a href="renderer/ren_colormapedit.html">ColorMapEditor</a>)</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Color/Colors/Colors.html">Colors</a></font></b>
+<br><font face="Arial,Helvetica">converts scalar input data into color
+values. It also produces Colormap output objects, which can be used as
+input objects to other Color modules.</font>
+<br>&nbsp;</blockquote>
+<b><font face="Arial,Helvetica"><font size=+1>Examples:</font></font></b>
+<br><font face="Arial,Helvetica">(no documentation)</font>
+<blockquote><b><font face="Arial,Helvetica">Cube</font></b>
+<br><font face="Arial,Helvetica">Simple Cube Generation Module</font>
+<br><b><font face="Arial,Helvetica">Enlarge</font></b>
+<br><font face="Arial,Helvetica">Enlarge, world! program</font>
+<br><b><font face="Arial,Helvetica">Hello</font></b>
+<br><font face="Arial,Helvetica">Hello, world! program</font>
+<br><b><font face="Arial,Helvetica">MiniSim</font></b>
+<br><font face="Arial,Helvetica">MiniSim Simulation</font>
+<br><b><font face="Arial,Helvetica">ParamTest</font></b>
+<br><font face="Arial,Helvetica">Param Program: Show all parameter types</font>
+<br><b><font face="Arial,Helvetica">PolygonSet</font></b>
+<br><font face="Arial,Helvetica">Polygon Set example Module</font>
+<br><b><font face="Arial,Helvetica">ReadObjSimple</font></b>
+<br><font face="Arial,Helvetica">Simple Wavefront OBJ Reader - COVISE Programming
+Example</font>
+<br><b><font face="Arial,Helvetica">TestSoc</font></b>
+<br><font face="Arial,Helvetica">TestSoc Program: Test socket handling</font>
+<br><b><font face="Arial,Helvetica">TestUIF</font></b>
+<br><font face="Arial,Helvetica">TestUIF Program: Show all parameter types</font>
+<br><b><font face="Arial,Helvetica">UpdateChoice</font></b>
+<br><font face="Arial,Helvetica">UpdateChoice Program: Show all parameter
+types</font></blockquote>
+
+<p><br><b><font face="Arial,Helvetica"><font size=+1>Filter:</font></font></b>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/ClipInterval/ClipInterval.html">ClipInterval</a></font></b>
+<br><font face="Arial,Helvetica">clips data and grid according to a specified
+Interval</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/CuttingLine/CuttingLine.html">CuttingLine</a></font></b>
+<br><font face="Arial,Helvetica">extracts a line from a structured data
+set and creates a 2D object. In general you will use the module Plot to
+display this object.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/CuttingSurface/CuttingSurface.html">CuttingSurface</a></font></b>
+<br><font face="Arial,Helvetica">extracts surfaces of different shape (planes,
+cylinders, spheres) and can also map isolines onto the plane. Linear interpolation
+is used to calculate the data values on the grid nodes of the resulting
+cutting surface.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/CuttingSurfaceComp/CuttingSurfaceComp.html">CuttingSurfaceComp</a></font></b>
+<br><font face="Arial,Helvetica">creates a colored CuttingSurface.</font>
+<br>The only difference between CuttingSurface and CuttingSurfaceComp is
+that CuttingSurfaceComp directly produces its output for a Renderer. To
+get a colored output you have the possibility to pass a colormap by an
+input port <font face="Arial,Helvetica">(see also <font color="#000000"><a href="mapeditor/map_modgroup.html">ModuleGroup</a></font>).</font>
+<br>&nbsp;
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/EliminatePolygons/EliminatePolygons.html">EliminatePolygons</a></font></b>
+<br><font face="Arial,Helvetica">eliminates polygons from a surface.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/FilterCrop/FilterCrop.html">FilterCrop</a></font></b>
+<br><font face="Arial,Helvetica">allows you to reduce the number of grid
+lines in structured grids. It can either crop the index space of a grid
+by chosing min and max indices different from 0 and the initial max value,
+by simply omitting all grid points that lie outside this interval (this
+is independent for all three coordinate axes). The other possibility is
+to use the sample parameter to skip a certain number of intermediate grid
+points (this is the same values for all three directions). A sample of
+2 (the default) means that every second grid point will be displayed, in
+the case of 3 every third grid point and so on.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/IndexSurface/IndexSurface.html">IndexSurface</a></font></b>
+<br><font face="Arial,Helvetica">You can choose a dimension and an index
+of a structured grid for this dimension. IndexSurface calculates the surface
+of this area. If you work with uniform or rectilinear grids the result
+will be a plane.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/LineReduce/LineReduce.html">LineReduce</a></font></b>
+<br><font face="Arial,Helvetica">replaces a straight line built up of several
+segment by one line segment, and thus reduces the amount of data. Two neigbouring
+line segments are recognized as parallel if their mutual angle (module
+pi) is smaller than a given limit.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/SelectUsg/SelectUsg.html">SelectUsg</a></font></b>
+<br><font face="Arial,Helvetica">filters an unstructured grid according
+to an index field.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/SimplifySurface/SimplifySurface.html">SimplifySurface</a></font></b>
+<br><font face="Arial,Helvetica">reduces the number of triangles in a surface.</font>
+<br><font face="Arial,Helvetica">If no data values are attached to the
+surface, a geometric reduction algorithm is invoked. Otherwise the reduction
+will be done with respect both to the data values and to the geometric
+properties of the surface. The module generates normals for the simplified
+surface.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/SmoothSurface/SmoothSurface.html">SmoothSurface</a></font></b>
+<br><font face="Arial,Helvetica">smoothes polygonal surfaces which appear
+faceted or bumpy, i.e. isosurface resulting from a marching cubes algorithm.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Filter/SplitUsg/SplitUsg.html">SplitUsg</a></font></b>
+<p><font face="Arial,Helvetica">The input to this module is an unstructured
+grid (or set of grids) and (optional) scalar or vector data (node or element
+centered). It constructs output grids with the criterion that the grids
+at the output have a well-defined dimension, thus obtaining an object which
+contains all 3D elements, another with all 2D elements, and 1D and 0D respectively.
+The scalar or vector data is separated accordingly.</font></blockquote>
+
+<p><br><b><font face="Arial,Helvetica"><font size=+1>IO_Module:</font></font></b>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/GenDat/GenDat.html">GenDat</a></font></b>
+<br><font face="Arial,Helvetica">creates a chunk of a regular grid. It
+generates meshes based on carthesian and cyclic coordinates. It is mainly
+used as a generator of test and reference data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/PerformerScene/PerformerScene.html">PerformerScene</a></font></b>
+<br><font face="Arial,Helvetica">performs fake reading for Performer Models.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadABAQUS/ReadABAQUS.html">ReadABAQUS</a></font></b>
+<br><font face="Arial,Helvetica">reads the results from ABAQUS computations
+as .odb files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadANSYS/ReadANSYS.html">ReadANSYS</a></font></b>
+<br><font face="Arial,Helvetica">reads .rst, .rfl, and .rth files, which
+are the result files of mechanical, FLOTRAN, or thermal analysis. In all
+cases READANSYS finds dynamically the degrees of freedom active in the
+model, from which the user may choose any option for visualisation. As
+for derived data, the module reads stresses and several kinds of strains
+for mechanical files, and the heat flux for thermal analysis.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadCadmould/ReadCadmould.html">ReadCadmould</a></font></b>
+<br><font face="Arial,Helvetica">reads in Cadmould files.</font>
+<p><font face="Arial,Helvetica">It reads in the mesh and may get information
+from</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">the rheology file (&lt;basename>E0),</font></li>
+
+<li>
+<font face="Arial,Helvetica">thickness of the outer layer (&lt;basename>S##),</font></li>
+
+<li>
+<font face="Arial,Helvetica">magnitudes related to the filling process
+(&lt;basename>a), and</font></li>
+
+<li>
+<font face="Arial,Helvetica">data from the intermediate state files (&lt;basename>E##).</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">More over the module reads information from
+files in the CAR format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadCFX/ReadCFX.html">ReadCFX</a></font></b>
+<br><font face="Arial,Helvetica">reads CFX-5 data format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadDx/ReadDx.html">ReadDx</a></font></b>
+<br><font face="Arial,Helvetica">reads Data Explorer Ascii files - <b><font color="#FF0000">experimental
+version, use at your own risk; docu not yet complete.</font></b></font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadDyna3D/ReadDyna3D.html">ReadDyna3D</a>&nbsp;<font color="#FF0000">
+(SGI only - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads the binary plot file "LS930.PTF"
+written by LS-DYNA3D, a software package for Nonlinear Dynamic Analysis
+from Livermore Software Technology Corporation. Attention: <i>Thick shell
+elements are not supported!</i></font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadEnsight/ReadEnsight.html">ReadEnsight</a></font></b>
+<br><font face="Arial,Helvetica">reads data files written by Ensight (versions
+5.0 and gold).</font>
+<p><font face="Arial,Helvetica">Ensight 5.0 data consists of files:</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">description of the geometry (*.geo) - required</font></li>
+
+<li>
+<font face="Arial,Helvetica">result file (*.res) - optional</font></li>
+
+<li>
+<font face="Arial,Helvetica">variable files&nbsp; - optional</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">Ensight gold data consists of files:</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">description of the geometry (*.geo) - required</font></li>
+
+<li>
+<font face="Arial,Helvetica">case file (*.case) - required; in this file
+are pointers to all other necessary files.</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">Timesteps are supported.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadEnsightNT/ReadEnsightNT.html">ReadEnsightNT</a></font></b>
+<br><font face="Arial,Helvetica">reads data files written by Ensight. For
+supported versions see table in module documentation.</font>
+<br><font face="Arial,Helvetica">Note: ReadEnsightNT is planned to replace
+ReadEnsight as soon as it will accept all Ensight formats.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFidap/ReadFidap.html">ReadFidap</a></font></b>
+<br><font face="Arial,Helvetica">reads data from Ihs FENFLOSS.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFloWorks/ReadFloWorks.html">ReadFloWorks</a></font></b>
+<br><font face="Arial,Helvetica">reads FloWorks files - <b><font color="#FF0000">experimental
+version, use at your own risk; docu not yet complete.</font></b></font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFluent/ReadFluent.html">ReadFluent</a></font></b>
+<br><font face="Arial,Helvetica">reads formatted Fluent(R) files V 0.99b.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadIv/ReadIv.html">ReadIv</a></font></b>
+<br><font face="Arial,Helvetica">reads Inventor files. You have to use
+the Open Inventor Renderer to display the file.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadKiva/ReadKiva.html">ReadKiva</a><font color="#FF0000">
+(SGI only - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets written by&nbsp; KIVA.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadLat/ReadLat.html">ReadLat</a></font></b>
+<br><font face="Arial,Helvetica">reads the ASCII latice file written by
+IRIS-Explorer.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadMovieBYU/ReadMovieBYU.html">ReadMovieBYU</a></font></b>
+<br><font face="Arial,Helvetica">reads MovieBYU data in ascii format. It
+supports scala, vector and timestep data additional to the grid data. Optional
+is a color file in ascii format with SGI colors.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadNastran/ReadNastran.html">ReadNastran</a></font></b>
+<br><font face="Arial,Helvetica">reads data written by MSC Nastran in binary
+output2 Version 70 format. It currently supports a subset of the NASTRAN
+data format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadObj/ReadObj.html">ReadObj</a></font></b>
+<br><font face="Arial,Helvetica">reads Wavefront OBJ files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPAM/ReadPAM.html">ReadPAM</a><font color="#FF0000">
+(SGI only, PAM license required - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets DSY and THP files. From
+the DSY file it may read the grid, nodal and cell data. Global data may
+be read from either the DSY or the THP file.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPatran/ReadPatran.html">ReadPatran</a></font></b>
+<br><font face="Arial,Helvetica">reads data sets compatible to&nbsp; PATRAN
+2.5 file format. It processes information of the neutral file, displacement
+or force result files, nodal and element result files.</font>
+<p><font face="Arial,Helvetica"><b><a href="../online/modules/IO_Module/ReadPlot3D/ReadPlot3D.html">ReadPlot3D</a></b>&nbsp;<b><font color="#FF0000">
+(SGI only - not supported on Linux)</font></b></font>
+<br><font face="Arial,Helvetica">reads data sets written by Plot3D.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadStar/ReadStar.html">ReadStar</a><font color="#FF0000">&nbsp;
+(SGI and Linux - since COVISE Rel. 5.2.3)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets written by Star-CD versions
+2.21 thru 3.1b. It needs a ProSTAR input file (*16, *mdl) and a result
+file, either stationary (*09/*pst) or transient (*29/*pstt).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadStl/ReadStl.html">ReadStl</a></font></b>
+<br><font face="Arial,Helvetica">reads Sandia Stl data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadTascflowTDI/ReadTascflowTDI.html">ReadTascflowTDI</a><font color="#FF0000">&nbsp;
+(SGI and HP only - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets written by CFX-TASCflow
+versions 2.7-2.10. It needs the information contained in the grid (GRD),
+block-off and boundary condition (BCF) and results (RSO) files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadTecplot/ReadTecplot.html">ReadTecplot</a></font></b>
+<br><font face="Arial,Helvetica">reads Tecplot V 1.0b files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadVolume/ReadVolume.html">ReadVolume</a></font></b>
+<br><font face="Arial,Helvetica">reads volume data files, and provides
+the scalar volume data as a uniform grid.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadVTF/ReadVTF.html">ReadVTF</a></font></b>
+<br><font face="Arial,Helvetica">converts the representation of a surface
+in ViewTech File format (specified as file browser parameter) to a format
+acceptable for COVISE (on the first output port); in addition, the user
+can choose between scalar and vector results, which are provided by the
+chosen file. These results can be found at the last four output ports.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RW_ASCII/RW_ASCII.html">RW_ASCII</a></font></b>
+<br><font face="Arial,Helvetica">reads or writes COVISE ASCII files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RWCovise/RWCovise.html">RWCovise</a></font></b>
+<br><font face="Arial,Helvetica">reads or writes all data objects that
+are available in&nbsp; COVISE.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RWCoviseGroup/RWCoviseGroup.html">RWCoviseGroup</a></font></b>
+<br><font face="Arial,Helvetica">reads or writes a group of COVISE files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WriteASC/WriteASC.html">WriteASC</a></font></b>
+<br><font face="Arial,Helvetica">generates an ASCII file containing the
+information of a Covise object (accepted types are specified in the list
+of types of the input port). You may use this file for reporting or in
+case you wish to analyse the data with yout own tools.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WritePatran/WritePatran.html">WritePatran</a></font></b>
+<br><font face="Arial,Helvetica">writes a geometry in Patran Format - transforms
+a surface in COVISE format to Patran format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WriteVolume/WriteVolume.html">WriteVolume</a></font></b>
+<br><font face="Arial,Helvetica">writes volume data files from scalar volumetric
+data on uniform grids.</font></blockquote>
+
+<p><br><b><font face="Arial,Helvetica"><font size=+1>Mapper:</font></font></b>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoLines/IsoLines.html">IsoLines</a></font></b>
+<br><font face="Arial,Helvetica">creates isolines in a polygon. You can
+use a range of isovalues.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoSurface/IsoSurface.html">IsoSurface</a></font></b>
+<br><font face="Arial,Helvetica">creates an isosurface from a three dimensional
+structured or unstructured grid-based data set using the marching cubes
+algorithm. Optionally, data input can be mapped on the generated surface
+using interpolation. Each input port also accepts sets of the appropriate
+types.</font>
+<br><b><font face="Arial,Helvetica"><font color="#FF0000">Note: The new
+IsoSurface module provides the functions of the old one plus those of the
+former IsoSurfaceP module!</font></font></b>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoSurfaceComp/IsoSurfaceComp.html">IsoSurfaceComp</a></font></b>
+<br><font face="Arial,Helvetica">creates an isosurface from&nbsp; a three
+dimensional structured or unstructured grid-based data set using the marching
+cubes algorithm. Optionally, data input can be mapped on the generated
+surface using interpolation. This module provide all functionalities of
+IsoSurface but has an important advantage. You may considerably simplify
+your maps by using IsoSurfaceComp, because you may connect its first output
+port directly to a Renderer, thereby relieving you of burden of using Collect,
+Colors, VectorField, etc..</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Mapper/IsoSurfaceP/IsoSurfaceP.html">(IsoSurfaceP)</a></font></b>
+<br><font face="Arial,Helvetica">creates an isosurface from&nbsp; data
+based on a three dimensional unstructured grid.</font>
+<br><b><font face="Arial,Helvetica"><font color="#FF0000">Note: The new
+IsoSurface module provides the functions of the&nbsp; IsoSurfaceP module,
+too;&nbsp; module IsoSurfaceP has been kept for compatibilty reasons only
+!</font></font></b>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Mapper/VectorField/VectorField.html">VectorField</a></font></b>
+<br><font face="Arial,Helvetica">computes lines in a vector field.</font>
+<br>&nbsp;</blockquote>
+<b><font face="Arial,Helvetica"><font size=+1>Renderer / SRenderer:</font></font></b>
+<br><u><font face="Arial,Helvetica">Note:</font></u>
+<table CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">The modules in the categories <b>Renderer</b>
+and <b>SRenderer </b>provide the same functionality - and are therefore
+described only once. The only difference between the categories shows up
+in collaborative work: You get&nbsp; multiple instances of a <b>Renderer</b>
+module for the master and all collaborating slaves, whereas a <b>SRenderer</b>
+(S for "single") module appears only where it is created.</font></td>
+</tr>
+</table>
+
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/Renderer/COVER/COVER.html">(S)COVER</a></font></b>
+<br><font face="Arial,Helvetica">stands for "COVISE Virtual Environment"
+and is an integral part of the COVISE visualization and simulation environment.
+The design of COVER was developed to support technical and scientific applications.
+The rendering of COVER is based on IRIS Performer to make optimal use of
+the SGI rendering hardware.</font>
+<br><font face="Arial,Helvetica">For more information see</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">Online Help for <a href="start_COVER.html" target="_top">COVER</a>&nbsp;
+(introduction) or</font></li>
+
+<li>
+<font face="Arial,Helvetica"><a href="../online/start/start_cover.html" target="_top">User's
+Guide, section COVER</a> (VR Renderer) (detailed).</font></li>
+</ul>
+</ul>
+
+<p><br><b><font face="Arial,Helvetica"><a href="../online/modules/Renderer/COVER_VRML/COVER_VRML.html">(S)COVER_VRML</a></font></b>
+<br><font face="Arial,Helvetica">is a version of COVER for VRML files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Renderer/Plot/Plot.html">(S)Plot</a></font></b>
+<br><font face="Arial,Helvetica">generates plot output for 2D objects (XMGR
+Plot Module).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Renderer/Renderer/Renderer.html">(S)Renderer
+(IV Renderer)</a></font></b>
+<br><font face="Arial,Helvetica">(Open Inventor Renderer or IV Renderer
+for short,&nbsp; also called Desktop Renderer) visualizes the output data.</font>
+<br><font face="Arial,Helvetica">For more information see</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">Online Help for <a href="start_ren.html" target="_top">IV
+Renderer</a>&nbsp; (introduction) or</font></li>
+
+<br><font face="Arial,Helvetica"><a href="../online/start/start_renderer.html" target="_top">User's
+Guide, section Renderer</a> (Desktop Renderer) (detailed).</font></ul>
+</ul>
+</blockquote>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b><font face="Arial,Helvetica"><a href="../online/modules/Renderer/VRMLRenderer/VRMLRenderer.html">(S)VRMLRenderer</a></font></b>
+<br><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+creates a VRML file from its input objects. It can be connected in the
+map like a normal renderer and accepts all graphical objects as input.</font>
+<br>&nbsp;
+<p><b><font face="Arial,Helvetica"><font size=+1>Simulation:</font></font></b>
+<p><font face="Arial,Helvetica"><b><font size=+1>&nbsp;&nbsp;&nbsp; </font></b><font color="#FF0000">not
+part of this Release - information only</font></font>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/Simulation/StarCD/StarCD.html">StarCD</a></font></b>
+<p><font face="Arial,Helvetica">starts a STAR simulation on the same machine
+or a remote one and establishs a TCP connection to the simulation process.
+Via this connection the module can set boundary conditions to the simulation
+and can receive data from the simulation. The exchange of data and boundary
+conditions is implemented in user subroutines which have to be linked with
+the STAR simulation code.</font></blockquote>
+
+<p><br><b><font face="Arial,Helvetica"><font size=+1>Tools</font></font></b>
+<ul><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/AssembleUsg/AssembleUsg.html">AssembleUsg</a></font></b>
+<br><font face="Arial,Helvetica">converts blocks of unstructured grids
+(per timestep) to one unstructured grid (per timestep) without any block
+information. This module has been developed to use the module TetraTrace
+also for blocks of grids.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/BlockCollect/BlockCollect.html">BlockCollect</a></font></b>
+<br><font face="Arial,Helvetica">collects different objects and puts them
+into one set.</font>
+<br><font face="Arial,Helvetica">You can choose among three different rules
+to build up this set:</font>
+<ul><font face="Arial,Helvetica">1. Set of Elements</font>
+<br><font face="Arial,Helvetica">2. Cat Timesteps</font>
+<br><font face="Arial,Helvetica">3. Merge Blocks</font></ul>
+
+<p><br><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/BoundingBox/BoundingBox.html">BoundingBox</a></font></b>
+<br><font face="Arial,Helvetica">writes a message with information about
+the smallest parallelepiped parallel to the globale coordinate system which
+contains an unstructured grid (or set of grids).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Calc/Calc.html">Calc</a></font></b>
+<br><font face="Arial,Helvetica">allows you to perform mathematical calculations
+with scalar and/or vector objects. The result may be a scalar or a vector.
+The module interprets a string according to a syntax described below.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CellToVert/CellToVert.html">CellToVert</a></font></b>
+<br><font face="Arial,Helvetica">interpolates per-cell data to per-vertex
+data</font>
+<br><font face="Arial,Helvetica">(Simulation codes like Fluent or StarCD
+compute results per-cell. Most COVISE modules expect per-vertex data.)</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CheckObj/CheckObj.html">CheckObj</a></font></b>
+<br><font face="Arial,Helvetica">tests the object received at the input
+port (unstructured grid, polygons, lines, triangle strips).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Collect/Collect.html">Collect</a></font></b>
+<br><font face="Arial,Helvetica">combines geometric primitive objects like
+points, lines, polygons, triangle strips with colors, normals and textures.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CropUsg/CropUsg.html">CropUsg</a></font></b>
+<br><font face="Arial,Helvetica">crops the parts of an unstructured grid
+which are outside of a bounding box.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/CutGeometry/CutGeometry.html">CutGeometry</a></font></b>
+<br><font face="Arial,Helvetica">cuts geometry objects. The part which
+should be cut away is defined through a plane. This is usually used to
+make the inner parts of geometry objects visible.</font>
+<p><b><font face="Arial,Helvetica"><a href="/home/pw_te/covise_snap/doc/online/modules/Tools/CuttingSurface3DTex/CuttingSurface3DTex.html">CuttingSurface3DTex</a></font></b>
+<br><font face="Arial,Helvetica">combines a cuttingsurface and colors on
+a cuttingsurface with an uniform grid and color on a uniform grid into
+a set of two geometry objects. The uniform grid and the colors on the uniform
+grid represent the voxels of a 3D texture.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DerivOperators/DerivOperators.html">DerivOperators</a></font></b>
+<br><font face="Arial,Helvetica">works out gradients of scalar fields,
+or the divergence or curl of vector fields.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DisplaceUsg/DisplaceUsg.html">DisplaceUsg</a></font></b>
+<br><font face="Arial,Helvetica">displaces an unstructured grid by using
+displacement vectors for every vertex.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DomainSurface/DomainSurface.html">DomainSurface</a></font></b>
+<br><font face="Arial,Helvetica">computes the outer surface or edges of
+an unstructured grid.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/DomainSurfaceStr/DomainSurfaceStr.html">DomainSurfaceStr</a></font></b>
+<br><font face="Arial,Helvetica">computes the outer surface or edges of
+a structured grid.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/FixPart/FixPart.html">FixPart</a></font></b>
+<br><font face="Arial,Helvetica">fixes one part in a simulation over timesteps
+and moves all other parts relativ to the fixed one.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/FixUsg/FixUsg.html">FixUsg</a></font></b>
+<br><font face="Arial,Helvetica">removes double and unused vertices.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/GenNormals/GenNormals.html">GenNormals</a></font></b>
+<br><font face="Arial,Helvetica">generates normals for a set of polygons.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/GetSetelem/GetSetelem.html">GetSetelem</a></font></b>
+<br><font face="Arial,Helvetica">performs the operation of selecting an
+element out of a set.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/GridSurface/GridSurface.html">GridSurface</a></font></b>
+<br><font face="Arial,Helvetica">analyzes grids and generates surfaces
+as polygons. It shows <b>all</b> surfaces,&nbsp; i.e. including the inner
+ones.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Histogram/Histogram.html">Histogram</a></font></b>
+<br><font face="Arial,Helvetica">generates a histogram from a data set,
+i.e. counts for every data value how often it appears in the data set.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/ImageToTexture/ImageToTexture.html">ImageToTexture</a></font></b>
+<br><font face="Arial,Helvetica">generates </font>a texture for a polygon
+input object given a TIFF file. The default mapping that relates the geometry
+point
+<br>coordinates with the texture coordinates is a simple projection onto
+the XY plane. You may introduce your own mapping if the module
+<br>gets a vector field as input object.
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Interpolate/Interpolate.html">Interpolate</a></font></b>
+<br><font face="Arial,Helvetica">creates a set of unstructured vector or
+scalar data by interpolation of the incoming data. For each point of the
+data set the intervall between zero and the current value is decomposed
+into a given number of segments.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakeOctTree/MakeOctTree.html">MakeOctTree</a></font></b>
+<br><font face="Arial,Helvetica">generates octtrees for unstructured grids
+and polygons.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakePlots/MakePlots.html">MakePlots</a></font></b>
+<br><font face="Arial,Helvetica">generates a set of DO_Unstructured_2D_Data
+objects, which may be&nbsp; plotted by Plot (see Renderer modules) out
+of some scalar fields.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MakeTransient/MakeTransient.html">MakeTransient</a></font></b>
+<br><font face="Arial,Helvetica">allows you to generate a specified number
+of timesteps (default 72) out of 'static' data. With a Timestep Sequencer
+that shows up in the Renderer you can go thru your timesteps, either step
+by step or continuously using 'play'.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Material/Material.html">Material</a></font></b>
+<br><font face="Arial,Helvetica">contains a list of different color values
+from which the user can select.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/MinMax/MinMax.html">MinMax</a></font></b>
+<br><font face="Arial,Helvetica">calculates the minimum and maximum value
+of a scalar dataset. It outputs either a min-max pair that can be used
+for example as input for a colormap module, or a list of x-y pairs that
+shows the distribution of values over the range.</font>
+<br>(has been moved from "Filter" to "Tools")
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/PartSelect/PartSelect.html">PartSelect</a></font></b>
+<br><font face="Arial,Helvetica">is able to manage sets to cull parts of
+the geometry or data based on the <i>part </i>attribute.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/PipelineCollect/PipelineCollect.html">PipelineCollect</a></font></b>
+<br><font face="Arial,Helvetica">reduces the maximum usage of memory by
+executing a pipeline stepwise.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Sample/Sample.html">Sample</a></font></b>
+<br><font face="Arial,Helvetica">transforms an unstructured grid and data
+on the unstructured grid into a uniform grid and data on the uniform grid.
+As the uniform grid has the extension of the bounding box around the unstructured
+grid, data on parts of the uniform grid which are outside the unstructured
+grid are either set to a certain value or max_float. The module Colors
+computes a transparent color for MAX_FLT data so those parts appear transparent
+in the Renderer.</font>
+<br><font face="Arial,Helvetica">A uniform grid and colors on the uniform
+grid can also be seen as a 3D texture. If you cut a plane out of the 3D
+you get a 2D texture (an image). Mapping this texture on a plane gives
+similar information as a cuttingsurface through the 3D grid with data mapped
+on the surface as colors.</font>
+<br><font face="Arial,Helvetica">3D textures are supported by Octane and
+Onyx systems and are computed by the graphics hardware and are thus very
+fast.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Scalar2Vector/Scalar2Vector.html">Scalar2Vector</a></font></b>
+<br><font face="Arial,Helvetica">combines scalar data given at the input
+ports to vector data. If input data have attributes they are summarized
+where it makes sense.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/ShowFaceNormal/ShowFaceNormal.html">ShowFaceNormal</a></font></b>
+<br><font face="Arial,Helvetica">computes the normal of a polygon or a
+triangle strip.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/ShowGrid/ShowGrid.html">ShowGrid</a></font></b>
+<br><font face="Arial,Helvetica">for structured grids: computes the grid
+lines of the grid.</font>
+<br><font face="Arial,Helvetica">There are different display methods:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">show all grid lines</font></li>
+
+<li>
+<font face="Arial,Helvetica">show the grid lines on the outer surface (hull)
+only</font></li>
+
+<li>
+<font face="Arial,Helvetica">show three sides of the hull only (the user
+may choose among 8 options that determine which three sides are selected)</font></li>
+
+<li>
+<font face="Arial,Helvetica">show only the bounding box only</font></li>
+
+<li>
+<font face="Arial,Helvetica">show the edge lines only</font></li>
+</ul>
+<font face="Arial,Helvetica">for unstructured grids: displays only one
+cell; the cell is selected through the parameter position.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Solutions/Solutions.html">Solutions</a></font></b>
+<br><font face="Arial,Helvetica">calculates Plot3D solution data (data
+read by ReadPlot3D).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Sphere/Sphere.html">Sphere</a></font></b>
+<br><font face="Arial,Helvetica">builds spheres (made up of triangle-strips)
+out of points (e. g. retrieved using a particle tracer).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/StoU/StoU.html">StoU</a></font></b>
+<br><font face="Arial,Helvetica">transforms a rectiliniar, structured or
+an uniform grid received to the inout port into an unstructured grid which
+can be composed of tetrahedrons, hexahedrons, pyramids or prisms.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/TensorScal/TensorScal.html">TensorScal</a></font></b>
+<br><font face="Arial,Helvetica">extracts invariants from tensor fields.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Tetrahedronize/Tetrahedronize.html">Tetrahedronize</a></font></b>
+<br><font face="Arial,Helvetica">converts unstructured mixed-cell-type
+grids into tetrahedra grids.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Transform/Transform.html">Transform</a></font></b>
+<br><font face="Arial,Helvetica">manipulates grids and geometry objects.
+Transform makes it possible to mirror, translate, scale, rotate, and tile
+objects and their data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/Tube/Tube.html">Tube</a></font></b>
+<br><font face="Arial,Helvetica">creates cylinders around lines. The shape
+of the tubes depends on the radius, number of sides (scalar parameters)
+and the type of the cylinder (open, closed or arrow).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tools/VectorScal/VectorScal.html">VectorScal</a></font></b>
+<br><font face="Arial,Helvetica">extracts scalar values from vector fields.</font></ul>
+
+<p><br><b><font face="Arial,Helvetica"><font size=+1>Tracer:</font></font></b>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/Tracer/Tracer/Tracer.html">Tracer</a></font></b>
+<br><font face="Arial,Helvetica">performs particle tracing within vector
+fields inside <b>any kind of grids</b>. It can either show Floating Particles
+or connect these to Streamlines, Streaklines, and Pathlines, which are
+different for transient data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/Tracer/TracerComp/TracerComp.html">TracerComp</a></font></b>
+<br><font face="Arial,Helvetica">performs particle tracing within vector
+fields inside <b>any kind of grids</b>,. It can either show Floating Particles
+or connect these to Streamlines, Streaklines, and Pathlines, which are
+different for transient data. The key difference with respect to the normal
+Tracer module is that TracerComp relieves you of the burden of connecting
+the output with Colors, Collect; and Sphere modules. You may directly connect
+the first output port to the Renderer.</font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+
+</body>
+</html>

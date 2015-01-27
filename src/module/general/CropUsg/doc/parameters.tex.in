@@ -1,0 +1,24 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	xMin, yMin, zMin & Scalar & xMin, yMin, zMin define one vertex of the bounding
+	box \\
+\hline
+	xMax, yMax, zMax & Scalar & xMax, yMax, zMax define the diagonal opposite vertex of the bounding
+	box \\
+\hline
+invert\_crop & Boolean & Determine if crop the inside-domain or the outside-domain of the box. \\
+\hline
+\end{longtable}
+%=============================================================
+\clearpage
+
+%
+%=============================================================

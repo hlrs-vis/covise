@@ -1,0 +1,80 @@
+# - Find OPENCRG
+# Find the OPENCRG includes and library
+#
+#  OPENCRG_INCLUDE_DIR - Where to find OPENCRG includes
+#  OPENCRG_LIBRARIES   - List of libraries when using OPENCRG
+#  OPENCRG_FOUND       - True if OPENCRG was found
+
+IF(OPENCRG_INCLUDE_DIR)
+  SET(OPENCRG_FIND_QUIETLY TRUE)
+ENDIF(OPENCRG_INCLUDE_DIR)
+
+FIND_PATH(OPENCRG_INCLUDE_DIR "crgBaseLib.h"
+  PATHS
+  $ENV{OPENCRG_HOME}/include
+  $ENV{EXTERNLIBS}/OpenCRG/include
+  $ENV{EXTERNLIBS}/opencrg/include
+  ~/Library/Frameworks/include
+  /Library/Frameworks/include
+  /usr/local/include
+  /usr/include
+  /sw/include # Fink
+  /opt/local/include # DarwinPorts
+  /opt/csw/include # Blastwave
+  /opt/include
+  DOC "OpenCRG - Headers"
+)
+
+SET(OPENCRG_NAMES OpenCRG)
+SET(OPENCRG_DBG_NAMES OpenCRGD)
+
+FIND_LIBRARY(OPENCRG_LIBRARY NAMES ${OPENCRG_NAMES}
+  PATHS
+  $ENV{OPENCRG_HOME}
+  $ENV{EXTERNLIBS}/OpenCRG
+  $ENV{EXTERNLIBS}/opencrg
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  PATH_SUFFIXES lib lib64
+  DOC "OPENCRG - Library"
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+
+IF(MSVC)
+  # VisualStudio needs a debug version
+  FIND_LIBRARY(OPENCRG_LIBRARY_DEBUG NAMES ${OPENCRG_DBG_NAMES}
+    PATHS
+    $ENV{OPENCRG_HOME}/lib
+    $ENV{EXTERNLIBS}/OpenCRG/lib
+    $ENV{EXTERNLIBS}/opencrg/lib
+    DOC "OPENCRG - Library (Debug)"
+  )
+  
+  IF(OPENCRG_LIBRARY_DEBUG AND OPENCRG_LIBRARY)
+    SET(OPENCRG_LIBRARIES optimized ${OPENCRG_LIBRARY} debug ${OPENCRG_LIBRARY_DEBUG})
+  ENDIF(OPENCRG_LIBRARY_DEBUG AND OPENCRG_LIBRARY)
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(OPENCRG DEFAULT_MSG OPENCRG_LIBRARY OPENCRG_LIBRARY_DEBUG OPENCRG_INCLUDE_DIR)
+
+  MARK_AS_ADVANCED(OPENCRG_LIBRARY OPENCRG_LIBRARY_DEBUG OPENCRG_INCLUDE_DIR)
+  
+ELSE(MSVC)
+  # rest of the world
+  SET(OPENCRG_LIBRARIES ${OPENCRG_LIBRARY})
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(OPENCRG DEFAULT_MSG OPENCRG_LIBRARY OPENCRG_INCLUDE_DIR)
+  
+  MARK_AS_ADVANCED(OPENCRG_LIBRARY OPENCRG_INCLUDE_DIR)
+  
+ENDIF(MSVC)
+
+IF(OPENCRG_FOUND)
+  SET(OPENCRG_INCLUDE_DIRS ${OPENCRG_INCLUDE_DIR})
+ENDIF(OPENCRG_FOUND)

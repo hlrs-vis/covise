@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<COCONFIG version="1">
+<GLOBAL scope="global">
+
+<License>
+<SERVER value="ANY 8.1 07.03.2014 0 EYAOIUI demo" type="SERVER" name="EYAOIUI" />
+ <STD_UI value="ANY 8.1 07.03.2014 0 YCEFZJI demo" type="STD_UI" name="YCEFZJI" />
+ <COVISE_WINDOWS value="ANY 8.1 07.03.2014 0 QGOQGAW demo" type="COVISE_WINDOWS" name="QGOQGAW" />
+ <VR_ONE_PIPE value="ANY 8.1 07.03.2014 0 SSCXBHA demo" type="VR_ONE_PIPE" name="SSCXBHA" />
+ <VR_MULTI_ANY value="ANY 8.1 07.03.2014 0 ICQYEYM demo" type="VR_MULTI_ANY" name="ICQYEYM" />
+ <COVISE_VRML value="ANY 8.1 07.03.2014 0 CYMASCQ demo" type="COVISE_VRML" name="CYMASCQ" />
+ <COVISE_CFD value="ANY 8.1 07.03.2014 0 OAQSIUK demo" type="COVISE_CFD" name="OAQSIUK" />
+ <COVISE_FEM value="ANY 8.1 07.03.2014 0 QUONRTG demo" type="COVISE_FEM" name="QUONRTG" />
+ <VR_DUAL_CLUSTER value="ANY 8.1 07.03.2014 0 IUIZZFQ demo" type="VR_DUAL_CLUSTER" name="IUIZZFQ" />
+</License>
+
+</GLOBAL>
+</COCONFIG>
+

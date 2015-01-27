@@ -1,0 +1,28 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{usg\_out} & UnstructuredGrid \newline
+	                                 Polygons  & Filtered Usg or Polygons. \\
+\hline
+	\textcolor{output}{data\_00\_out ...\newline
+	                     data\_04\_out}  
+	                           & Float \newline
+	                             Vec3 \newline
+				     Unstructured\_V3D\_Normals
+				     & Data.\newline
+				       (Number of ports is defined in the module.) \\
+									
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

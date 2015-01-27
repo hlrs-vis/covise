@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+<LOCAL host="visd800, visit,vistiger,visbits,visfritz" >
+
+  <COVER>
+
+
+
+   <WindowConfig>
+    <Window width="640" comment="FRONT" window="0" pipeIndex="0" height="480" left="0" bottom="168" name="0" decoration="false" />
+   </WindowConfig>
+   <ViewerPosition x="0.0" y="-2000.0" z="0.0" />
+   <ScreenConfig>
+    <Screen width="995" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="686" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="995" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="686" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+   <Plugin>
+
+    <ARToolKit value="on" >
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <DisplayVideo value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="ON" />
+     <Threshold value="128" />
+     <VideoConfig value="-dev=/dev/video0 -debug -channel=0 -rate=30" />
+     <VideoConfigRight value="-mode=1024x768_COLOR -ID=0x00b09d01002f522a -channel=1 -debug -rate=7.5" />
+     <Camera value="/data/ARToolKit/dragonfly.dat" />
+
+     <Marker name="ObjectMarker0" >
+      <Pattern value="/data/ARToolKit/4x4_56.patt" />
+      <Size value="160" />
+      <Offset x="1020" y="360" z="560" h="92" p="-17" r="0" />  
+      <VrmlToPf value="FALSE"/>
+     </Marker>
+     
+     <Marker name="ObjectMarker1" >
+      <Pattern value="/data/ARToolKit/4x4_39.patt" />
+      <Size value="83" />
+      <Offset x="1130" y="-330" z="560" h="90" p="-20" r="0" />  
+      <VrmlToPf value="FALSE"/>
+     </Marker>
+     
+     <Marker name="ObjectMarker2" >
+      <Pattern value="/data/ARToolKit/4x4_1.patt" />
+      <Size value="24" />
+      <Offset x="1830" y="390" z="570" h="-90" p="-15" r="0" />  
+      <VrmlToPf value="FALSE"/>
+     </Marker>
+     
+     <Marker name="CuttingSurface3" >
+      <Pattern value="0 0 0 0 0 0" />
+      <Size value="10000" />
+      <Offset x="0" h="0" y="0" z="0" p="0" r="0" />
+      <VrmlToPf value="TRUE" />
+     </Marker>
+     
+     <Marker name="wand1marker" >
+      <Pattern value="/data/ARToolKit/4x4_1.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     <Marker name="wand2marker" >
+      <Pattern value="/data/ARToolKit/4x4_2.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     <Marker name="wand3marker" >
+      <Pattern value="/data/ARToolKit/4x4_3.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     <Marker name="wand4marker" >
+      <Pattern value="/data/ARToolKit/4x4_4.patt" />
+      <Size value="2400" />
+      <Offset x="-2000" y="0" z="-2000" h="0" p="180" r="0" />
+     </Marker>
+     
+     
+          <Marker name="Haus1" >
+            <Pattern value="/data/ARToolKit/4x4_43.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus2" >
+            <Pattern value="/data/ARToolKit/4x4_64.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus3" >
+            <Pattern value="/data/ARToolKit/4x4_2.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus4" >
+            <Pattern value="/data/ARToolKit/4x4_80.patt" />
+            <Size value="10000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus5" >
+            <Pattern value="/data/ARToolKit/4x4_94.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus6" >
+            <Pattern value="/data/ARToolKit/4x4_56.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus7" >
+            <Pattern value="/data/ARToolKit/4x4_14.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+     
+          <Marker name="Haus8" >
+            <Pattern value="/data/ARToolKit/4x4_89.patt" />
+            <Size value="15000" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+          </Marker>
+          
+	            <Marker name="Auto1" >
+	              <Pattern value="/data/ARToolKit/4x4_2.patt" />
+	              <Size value="1050" />
+	              <Offset x="0" y="0" z="-800" h="0" p="180" r="0" />
+	            </Marker>
+     
+          
+     	            <Marker name="Auto2" >
+     	              <Pattern value="/data/ARToolKit/4x4_14.patt" />
+     	              <Size value="1050" />
+     	              <Offset x="0" y="0" z="-300" h="0" p="180" r="0" />
+     	            </Marker>
+          
+     	            <Marker name="Auto3" >
+     	              <Pattern value="/data/ARToolKit/4x4_55.patt" />
+     	              <Size value="1050" />
+     	              <Offset x="0" y="0" z="-800" h="0" p="180" r="0" />
+     	            </Marker>
+          
+     	            <Marker name="Auto4" >
+     	              <Pattern value="/data/ARToolKit/4x4_64.patt" />
+     	              <Size value="1050" />
+     	              <Offset x="0" y="0" z="0" h="0" p="180" r="0" />
+     	            </Marker>
+          
+     	            <Marker name="VideoWand" >
+     	              <Pattern value="/data/ARToolKit/4x4_89.patt" />
+     	              <Size value="1170" />
+     	              <Offset x="0" y="0" z="0" h="0" p="180" r="0" />
+     	            </Marker>
+     
+     
+         
+    
+     
+    </ARToolKit>
+
+   </Plugin>
+
+  </COVER>
+
+
+  <ARToolKit/>
+
+ </LOCAL>
+
+ <INCLUDE configname="hlrs" >config.hlrsAR.xml</INCLUDE>
+
+ 
+
+</COCONFIG>

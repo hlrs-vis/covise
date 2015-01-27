@@ -1,0 +1,122 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+For structured grids ShowGrid computes the grid lines. There are different display
+methods: show all grid lines, show only the grid lines on the outer surface (hull), show
+only three sides of the hull (the user may choose among 8 options that
+determine which three sides are selected), show only the bounding box
+or show the edge lines.
+
+For unstructured grids ShowGrid displays only one cell. The cell is selected
+through the parameter position.
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2} {}{ShowGridModule}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+ShowGrid is available for all COVISE versions on all supported platforms.
+
+%
+%=============================================================
+\newpage
+\subsubsection*{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{2cm}|p{9cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	options & Choice & The display method:
+	\begin{itemize}
+        \item all\_lines: display all grid lines
+        \item hull: display grid lines on the outer surface
+	\item three\_sides\_+++: display the three sides having in common corner +++ (see explanation below)
+	\item three\_sides\_++-: display the three sides having in common corner ++- (see explanation below)
+	\item three\_sides\_+-+: display the three sides having in common corner +-+ (see explanation below)
+	\item three\_sides\_+--: display the three sides having in common corner +-- (see explanation below)
+	\item three\_sides\_-++: display the three sides having in common corner -++ (see explanation below)
+	\item three\_sides\_-+-: display the three sides having in common corner -+- (see explanation below)
+	\item three\_sides\_--+: display the three sides having in common corner --+ (see explanation below)
+	\item three\_sides\_---: display the three sides having in common corner --- (see explanation below)
+	\item Bounding\_box: display the lines of the smallest parallelepiped
+                             containing the grid
+	\item Edges: display only the edge lines of the grid
+        \end{itemize}
+	 \\
+\hline
+	pos & Slider & This parameter (position) has an effect only for unstructured grids: it
+	is the index of the cell to be displayed.  \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+
+In order to correctly interpret the meaning of the three\_sides
+family of choices a remark is here in order. 
+Any point of a structured, uniform or rectangular grid may be
+fancied to be characterised by three integer labels \latexonly $(n_i,\ n_j,\ n_k)$ 
+\begin{eqnarray}
+0 \leq n_i \leq I_{size}-1 \nonumber \\
+0 \leq n_j \leq J_{size}-1 \nonumber \\
+0 \leq n_k \leq K_{size}-1 . \nonumber
+\end{eqnarray}
+\endlatexonly 
+\begin{htmlonly} ni, nj, nk in the ranges between 0 and Isize-1, Jsize-1, Ksize-1. \end{htmlonly}
+
+
+Corner +++ stands for the corner with \latexonly $(0,\ 0,\ 0)$ \endlatexonly 
+\begin{htmlonly} (0,0,0) \end{htmlonly} labels, 
+corner ++- for the corner with \latexonly $(0,\ 0,\ K_{size}-1)$ \endlatexonly 
+\begin{htmlonly} (0,0,Ksize-1) \end{htmlonly},
+corner +-+ for the corner with \latexonly $(0,\ J_{size}-1,\ 0)$ \endlatexonly
+\begin{htmlonly} (0,Jsize-1,0) \end{htmlonly}, and so on.
+
+
+%=============================================================
+
+
+
+%
+%=============================================================
+%\newpage
+\subsubsection*{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{meshin} & StructuredGrid \newline 
+   RectilinearGrid \newline
+	UniformGrid  \newline
+   UnstructuredGrid & The grid or a set of grids. \\				
+
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

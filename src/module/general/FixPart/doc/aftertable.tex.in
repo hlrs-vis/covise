@@ -1,0 +1,21 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}{FixPartMap}{covise/net/examples/FixPart.net}{0.6}\end{covimg}
+ 
+We use the example of an airbag simulation which you can find 
+in {\tt covise/net/examples/Dyna3D.net}. In this simulation the steering wheel 
+does not move and the head of a person is moving towards the airbag. 
+We add to the original map a new branch in which we use the module FixPart (see
+figure). 
+
+In this example map we fixed the partID nine which refers to the grid 
+displaying the head of the person. The result is a simulation in which the 
+steering wheel is moving to the head of the person and not the other way around 
+as in the original data set. You see the original simulation in Renderer2 and 
+the transformed simulation in Renderer1. 
+

@@ -1,0 +1,52 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+
+Suppose we have a symmetrical object.
+ 
+% examples for using this module
+\begin{covimg}{}
+{TransformRenderer}{One half of the object}{0.7}\end{covimg}
+
+We use Transform in the map covise/net/examples/Transform.net to construct the 
+whole object.
+
+\begin{covimg}{}
+	{TransformMap}{covise/net/examples/Transform.net}{0.6}\end{covimg}
+
+RWCovise\_1 reads in the computational grid of a channel with two
+inlets. RWCovise\_2 reads in the data on the surface.
+DomainSurface computes the outer surface of the channel.
+CutGeometry cuts away one half of the channel. You can see the result in Renderer2. 
+The first figure shows you a screenshot of the original (half) object with wireframes. 
+Transform mirrors the object and its data. The mirror plane is described by the 
+normal vector (0,0,1). The origin is on the mirror plane. Colors translates the 
+data into colors. 
+
+The second figure shows the whole channel in the renderer. Both the
+original non-mirrored and mirrored geometries are shown because
+the value of parameter {\sl MirroredAndOriginal} is {\sl true}.
+
+\begin{covimg}{}
+  {TransformRendererMirrored}{Result in the renderer}{0.7}\end{covimg}
+
+In the next example we illustrate the use of tiling. In this case
+we are using the flipping option. The first renderer snapshot shows
+the effect on a normal vector field. Note that we perform
+the tiling by mirroring. The second image shows the result
+if the input vector field is assumed to be a field of displacements.
+
+\begin{covimg}{}
+	{TransformTileMap}{covise/net/examples/TransformTile.net}{0.6}\end{covimg}
+
+\begin{covimg}{}
+  {TransformTileNormal}{Tiling a normal vector field}{0.7}\end{covimg}
+
+\begin{covimg}{}
+  {TransformTileDisplacements}{Tiling a displacements vector field}{0.7}\end{covimg}
+

@@ -1,0 +1,59 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef DATABASEBUILDER_H
+#define DATABASEBUILDER_H 1
+
+#include <vpb/DataSet>
+
+#include <osgTerrain/TerrainTechnique>
+
+namespace vpb
+{
+
+class VPB_EXPORT DatabaseBuilder : public osgTerrain::TerrainTechnique
+{
+    public:
+
+        DatabaseBuilder();
+
+        /** Copy constructor using CopyOp to manage deep vs shallow copy.*/
+        DatabaseBuilder(const DatabaseBuilder&,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+        
+        META_Object(vpb, DatabaseBuilder);
+        
+        
+        void setBuildOptions(BuildOptions* bo) { _buildOptions = bo; }
+        BuildOptions* getBuildOptions() { return _buildOptions.get(); }
+        const BuildOptions* getBuildOptions() const { return _buildOptions.get(); }
+        
+        void setBuildLog(BuildLog* bl) { _buildLog = bl; }
+        BuildLog* getBuildLog() { return _buildLog.get(); }
+        const BuildLog* getBuildLog() const { return _buildLog.get(); }
+        
+        
+        // dummy implementations for TerrainTechnique
+        virtual void init();
+        virtual void update(osgUtil::UpdateVisitor* nv);
+        virtual void cull(osgUtil::CullVisitor* nv);
+
+    protected:
+    
+        osg::ref_ptr<BuildOptions>  _buildOptions;
+        osg::ref_ptr<BuildLog>      _buildLog;
+
+};
+
+}
+
+#endif

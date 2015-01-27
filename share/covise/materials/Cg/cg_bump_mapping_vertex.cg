@@ -1,0 +1,39 @@
+struct vertexInputs
+{
+    float4 position     : POSITION;
+    float4 tangent      : TEXCOORD1;
+    float4 binormal     : TEXCOORD2;
+    float3 normal       : NORMAL;
+        
+    float4 texcoords : TEXCOORD0;
+};
+
+struct interpolatedValues
+{
+    float4 decalCoords  : TEXCOORD0;
+    float4 normalCoords : TEXCOORD1;
+    float4 lightVec     : TEXCOORD2;
+    float4 halfVec      : TEXCOORD3;
+};
+
+// vertex program
+float4 main(in vertexInputs IN,
+            out interpolatedValues OUT,
+            
+            uniform float3 lightDirection,
+            uniform float3 halfangleDirection,
+            uniform float4x4 modelViewProj) : POSITION
+{
+    OUT.normalCoords = IN.texcoords;
+    OUT.decalCoords = IN.texcoords;
+
+    OUT.lightVec.x = dot(lightDirection, IN.tangent);
+    OUT.lightVec.y = dot(lightDirection, IN.binormal);
+    OUT.lightVec.z = dot(lightDirection, IN.normal);
+ 
+    OUT.halfVec.x = dot(halfangleDirection, IN.tangent);
+    OUT.halfVec.y = dot(halfangleDirection, IN.binormal);
+    OUT.halfVec.z = dot(halfangleDirection, IN.normal);
+
+    return mul(modelViewProj, IN.position);
+}

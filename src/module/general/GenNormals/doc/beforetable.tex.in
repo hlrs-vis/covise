@@ -1,0 +1,30 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+GenNormals generates normals for a set of polygons.
+
+%
+% input of a module icon for example
+% #1    path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{GenNormals}{0.7}\end{covimg2}
+
+%\begin{covimg}{/home/sergio/docu/usersguide}{otro}{Here comes the caption}{0.7}\end{covimg}
+
+%
+% short information about versions
+%
+
+GenNormals is available for Covise version Snap--2000--10 and higher.
+It has been tested on all supported platforms.
+%Information about versions is not available.
+
+
+%
+%=============================================================

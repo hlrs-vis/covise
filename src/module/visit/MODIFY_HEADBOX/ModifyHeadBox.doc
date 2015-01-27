@@ -1,0 +1,19 @@
+user, host: Rechner, auf dem gambit laufen soll
+dir: directory, in dem das skeleton script liegt
+run: script, das gambit startet, pfad relativ zu dir angeben
+generate: startet script
+
+preview on -> fluent wird nicht gestartet ?
+preview off -> fluent wird gestartet ?
+
+Usage:
+enable generate 
+-> valmet_geom.jou.skeleton wird mit parametern versehen 
+   und nach valemt_geom.jou
+-> dann wird gambit mit diesem script aufgerufen
+   ssh -l user host
+   cd dir
+   modifygambit ... das erzeugt ein .msh file
+-> .msh file wird vom remote rechner lokal herkopiert
+
+   

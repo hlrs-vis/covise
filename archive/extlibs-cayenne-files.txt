@@ -1,0 +1,10 @@
+tiff
+xerces
+Cg
+qt4/bin/qtconfig
+qt4/lib/*.so.*
+qt4/plugins/*/*.so
+png
+OpenInventor
+arts
+vtk

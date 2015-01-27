@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/tools">
+        <file>TrackElementLine.svg</file>
+        <file>TrackSpArcS.svg</file>
+		<file>boundingbox.png</file>
+    </qresource>
+    <qresource prefix="/tools/colors">
+        <file>colors/orange.eps</file>
+    </qresource>
+</RCC>

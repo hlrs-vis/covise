@@ -1,0 +1,52 @@
+<lic>
+
+  <attribute name="vertexData" type="vec3" value="6"/>
+  <uniform name="colorSampler" type="sampler1D" value="0"/>
+  <uniform name="noiseSampler" type="sampler2D" value="1"/>
+
+  <vertexProgram>
+   attribute vec3 vertexData;
+   varying vec3 v;
+   varying float colorTexCoords;
+   varying vec2 noiseTexCoords;
+
+   void main( void )
+   {
+     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+     v = vertexData;
+     colorTexCoords = float(gl_MultiTexCoord0);
+     noiseTexCoords = vec2(gl_MultiTexCoord1);
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+   }
+</vertexProgram>
+
+  <fragmentProgram>
+   varying vec3 v;
+   varying float colorTexCoords;
+   varying vec2 noiseTexCoords;
+
+   uniform sampler1D colorSampler;
+   uniform sampler2D noiseSampler;
+
+   void main( void )
+   {
+     vec3 result = vec3(texture1D(colorSampler, colorTexCoords));     
+     float length = sqrt(v.x * v.x + v.y * v.y);
+
+     for (int index = 0; index &lt; 20; index ++)
+     {
+        vec2 n = noiseTexCoords.st;
+        if (v.x != 0 &amp;&amp; v.y != 0)
+           //n = n + v.xy / 2000.0 * float(index);
+           n = n + ((v.xy / length) / 2000.0 * float(index));
+        vec3 t = vec3(texture2D(noiseSampler, n.st));
+        result += t / 40.0;
+     }
+
+     gl_FragColor = vec4(result, 1.0);
+   }
+</fragmentProgram>
+
+</lic>

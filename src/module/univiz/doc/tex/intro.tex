@@ -1,0 +1,40 @@
+\chapter{Introduction}
+\label{sec:introduction}
+This is the documentation for the flow visualization modules based on the unification libraries for modular visualization systems.
+
+
+\section{Limitations}
+\label{sec:limitations}
+%-----------------------------------------------------------------------------
+At this time the following restrictions apply:
+
+\begin{itemize}
+
+\item
+  Supported UNIX (Linux) versions of modular visualization systems: AVS, Covise, Paraview (VTK)
+
+\item
+  Only unstructured fields are supported with \textbf{float}-type data and \textbf{float}-type coordinates
+
+\item
+  Supported cell types: tetrahedron, pyramid, prism (wedge), hexahedron
+
+\item
+  2D cells (such as triangle, quad) are not supported (are skipped)
+
+%\item
+%  Transient data support is experimental, the time steps need to get extracted in binary raw 'DataDict' format to disk. For better efficiency, there is the option to convert the 'DataDict' files to a single file that allows to exploit temporal coherency.
+
+\end{itemize}
+
+
+\section{Compilation}
+\label{sec:compilation}
+%-----------------------------------------------------------------------------
+
+\begin{itemize}
+\item
+  AVS, Covise: a simple 'make' should work
+\item
+  Paraview: please follow the instructions in the README file
+\end{itemize}

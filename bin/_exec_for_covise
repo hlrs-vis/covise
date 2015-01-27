@@ -1,0 +1,190 @@
+#! /bin/bash
+
+## default place for Covise installation: directory above this script
+##                                        if not set otherwise
+if [ -z "$COVISEDIR" ]; then
+    dir=`dirname $0`/..
+    export COVISEDIR=`cd $dir; pwd -P`
+fi
+
+if [ -r "$COVISEDIR/.covise.sh" ]; then
+    . "${COVISEDIR}"/.covise.sh
+fi
+
+if [ -r "$COVISEDIR/scripts/covise-env.sh" ]; then
+    . "${COVISEDIR}"/scripts/covise-env.sh
+else
+    echo "${COVISEDIR}/scripts/covise-env.sh not found"
+    exit 1
+fi
+
+if [ -z "$ARCHSUFFIX" ]; then
+    echo "ARCHSUFFIX not set"
+    exit 1
+fi
+
+
+for value in $COVISEDIR/$ARCHSUFFIX/bin/\
+       $COVISEDIR/$ARCHSUFFIX/lib \
+       $COVISEDIR/Python/bin/vr-prepare/converters \
+       $COVISEDIR/Python/bin/vr-prepare/negotiator\
+       $COVISEDIR/Python/bin/vr-prepare/negotiator/import\
+       $COVISEDIR/Python/bin/vr-prepare ; do
+     export PYTHONPATH=$PYTHONPATH:$value
+   done
+
+basename=`basename $0`
+
+if [ "$basename" = "vr-prepare" ]; then
+   # checks if there are parameters and if the first parameter is an existing file
+   if [ $# -gt 0 ] ; then
+        if [ -e $1 ] ; then
+                export VR_PREPARE_PROJECT=$1
+        else
+            echo "\nERROR: file $1 does not exist.\n"
+            unset VR_PREPARE_PROJECT
+        fi
+   fi
+
+   #TODO
+
+   exec $COVISEDIR/$ARCHSUFFIX/bin/covise --script $COVISEDIR/Python/bin/vr-prepare/vr-prepare.py
+   exit 1
+fi
+
+if [ $basename = "rttCoviseServer" ] ; then
+   export PYTHONPATH=$PYTHONPATH:${COVISEDIR}/Python/bin/RTT/Server/Python
+   exec $COVISEDIR/$ARCHSUFFIX/bin/covise --script $COVISEDIR/Python/bin/RTT/Server/Python/startServer.py
+   exit 1
+fi
+   
+
+if [ $basename = "coCaseEditor" ] ; then
+   for value in ${COVISEDIR}/src/application/ui/auxils\
+       ${COVISEDIR}/Python/bin/vr-prepare/negotiator\
+       ${COVISEDIR}/Python/bin/vr-prepare ; do
+     export PYTHONPATH=$PYTHONPATH:$value
+   done
+   exec $COVISEDIR/$ARCHSUFFIX/bin/covise --script $COVISEDIR/Python/bin/vr-prepare/CocaseEditor.py
+   exit 1
+fi
+
+if [ "$basename" = "tecplot2covise" ]; then
+   exec $COVISEDIR/$ARCHSUFFIX/bin/covise --script $COVISEDIR/Python/bin/vr-prepare/converters/tecplot2covise.py
+   exit 1
+fi
+
+if [ "$basename" = "cfx2covise" ]; then
+   exec $COVISEDIR/$ARCHSUFFIX/bin/covise --script $COVISEDIR/Python/bin/vr-prepare/converters/cfx2covise.py
+   exit 1
+fi
+
+if [ "$basename" = "ensight2covise" ]; then
+   exec $COVISEDIR/$ARCHSUFFIX/bin/covise --script $COVISEDIR/Python/bin/vr-prepare/converters/ensight2covise.py
+   exit 1
+fi
+# assume all converter scripts end with .sh
+if [ ${basename:${#basename}-3:${#basename}} = ".sh" ]; then
+   exec $COVISEDIR/Python/bin/vr-prepare/converters/$basename "$@"
+   exit 1
+fi
+
+function find_executable() {
+   local name="$1"
+   local p="${COVISEDIR}/${ARCHSUFFIX}/bin/${name}"
+   if [ -e "$p" ]; then
+      echo "$p"
+      return 0
+   fi
+   local b="${p}.app/Contents/MacOS/${name}"
+   if [ -e "$b" ]; then
+      echo "$b"
+      return 0
+   fi
+   echo "$p"
+   return 1
+}
+
+if [ "$basename" = "_exec_for_covise" \
+    -o "$basename" = "_ldd_for_covise" \
+    -o "$basename" = "_strace_for_covise" \
+    -o "$basename" = "_ltrace_for_covise" \
+    -o "$basename" = "_debug_for_covise" ]; then
+
+    runcmd=$(find_executable $(basename "$1"))
+    if [ -e "$1" -o ! -e "$runcmd" ]; then
+       runcmd="$1"
+    fi
+    shift
+elif [ "$basename" = "_env_for_covise" ]; then
+    :
+else
+    runcmd=$(find_executable $(basename "$0"))
+    if [ ! -e "$runcmd" ]; then
+       echo $runcmd does not exist
+       exit 1
+    fi
+fi
+
+if [ "$basename" = "_exec_for_covise" ]; then
+    exec "$runcmd" "$@"
+elif [ "$basename" = "_strace_for_covise" ]; then
+    exec strace `which $runcmd` "$@"
+elif [ "$basename" = "_ltrace_for_covise" ]; then
+    exec ltrace `which $runcmd` "$@"
+elif [ "$basename" = "_ldd_for_covise" ]; then
+    case "$ARCHSUFFIX" in
+        macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt)
+            exec otool -L `which $runcmd` "$@"
+            ;;
+        *)
+            exec ldd `which $runcmd` "$@"
+            ;;
+    esac
+elif [ "$basename" = "_env_for_covise" ]; then
+    if [ "$1"  != "" ]; then
+       eval echo \$\{$1\}
+    else
+        envvars="COVISEDIR ARCHSUFFIX COVISE_PATH COCONFIG OIV_PSFONT_PATH VV_SHADER_PATH"
+        case "$ARCHSUFFIX" in
+            macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt)
+                envvars="$envvars DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH"
+                ;;
+            *)
+                envvars="$envvars LD_LIBRARY_PATH"
+                ;;
+        esac
+        for v in $envvars; do
+            eval echo ${v}=\$\{$v\}
+        done
+    fi
+    exit 0
+elif [ "$basename" = "_debug_for_covise" ]; then
+    if [ -z "$DEBUGGER" ]; then
+        case "$ARCHSUFFIX" in
+            lionopt|libc++|libc++opt)
+                DEBUGGER=lldb
+                ;;
+            *)
+                DEBUGGER=gdb
+                ;;
+        esac
+    fi
+    case "$DEBUGGER" in
+        dbx)
+            exec "$DEBUGGER" -r "$runcmd" "$@"
+            ;;
+        gdb|ddd)
+           exec "$DEBUGGER" --args "$runcmd" "$@"
+           ;;
+        lldb)
+           exec "$DEBUGGER" "$runcmd" -- "$@"
+           ;;
+        cvd)
+            exec "$DEBUGGER" "$runcmd" -args "$@"
+            ;;
+    esac
+fi
+
+#exec "${COVISEDIR}"/"${ARCHSUFFIX}"/bin/`$basename | tr : /` "$@"
+exec "$runcmd" "$@"

@@ -1,0 +1,51 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+                {GenNormals1_map}{covise/net/examples/GenNormals1.net}{0.6}\end{covimg}
+
+In this map 
+\covlink{DomainSurface}{DomainSurface}{../../Filter/DomainSurface/DomainSurface.html}
+is used to generate a polygonal grid of the faces of the original 3D grid domain. 
+GenNormals generates the field of normals to these polygons.
+\covlink{Collect}{Collect}{../../Tools/Collect/Collect.html} combines the information 
+of the polygonal grid and normals in a single Geometry object for the renderer.
+Note that the orientation of these normals at the edges between
+two faces are in a way to convey the impression of having
+round edges.
+
+\begin{covimg2}{}{GenNormals1_out}{0.7}\end{covimg2}
+
+
+% examples for using this module
+
+% how to make numerated lists
+%\begin{enumerate}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{enumerate}
+
+% how to make non numerated lists
+%\begin{itemize}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{itemize}
+
+
+%these lists can also be hierarchical
+
+% how to make links for PDF & HTML
+
+%Verwenden Sie hierbei bitte den Modul
+%\begin{covlink}{GenNormals}{ReadStar}{../../IO-Module/ReadStar/ReadStar.html}\end{covlink}
+%um alles genau zu erfahren.
+
+% #1    underlined text for link
+% #2  mark (created by \label)
+% #3  URL
+
+

@@ -1,0 +1,36 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+\begin{covimg}{}
+	{VectorScalMap}{covise/net/tutorial/tutorial\_vel\_4.net (old)}{0.6}\end{covimg}
+
+
+
+Displaying vector lines for each grid point in a 3D volume often leads to very 
+complex visualizations (see covise/net/tutorial/tutorial\_vel\_3.net). 
+Therefore it is often clearer to display vector lines only on a surface, 
+for example on the outer surface of the geometry or on a plane which cuts through 
+the 3D data. In tutorial\_vel\_4.net the first RWCovise module reads in the 
+computational grid of a channel with two inlets. The second RWCovise module 
+reads in the velocity field. The module 
+\covlink{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html} 
+extracts a plane with the velocity data on the plane. VectorField computes 
+a vector arrow on each polygon vertex of the cutting surface. The module 
+{\bf VectorScal} computes the amount of the velocity and the module Colors 
+computes colors from the velocity amount data. The colors and the vector lines 
+are combined with the module \covlink{Collect}{Collect}{../../Tools/Collect/Collect.html} 
+and displayed in the Renderer.
+
+Note: The tutorial net has been modified to show the use of VectorScal; in this special 
+case you could have used the second output port of VectorField instead which
+provides the scalar data anyway. 
+
+
+\begin{covimg2}	{}{VectorScalRenderer}{0.6}\end{covimg2}

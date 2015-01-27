@@ -1,0 +1,98 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+The following pipeline shows a simple example for the use of
+LineReduce. The feature-lines produced by \textit{DomainSurface}
+consists of 1472 line-segments. \textit{LineReduce} collapses the
+feature-lines to 19 Line-segments (as documented in the information about the data
+objects - last figure). 
+
+\begin{covimg}{}
+  {LineReduce_map}{covise/net/examples/LineReduce.net}{0.7}\end{covimg}
+
+\begin{covimg}{}
+  {LineReduce_out}{Image produced by the pipeline shown above.}{0.8}\end{covimg}
+
+\begin{covimg}{}
+  {LineReduce_datacomp}{Comparison of the data structures produced by DomainSurface (left) 
+  and LineReduce (right). LineReduce diminished the number of lines from 1472 to 19. }{0.7}\end{covimg}
+\clearpage 
+ 
+The next example shows you the result if color data is provided. With the parameter 
+maxDifference it is possible to regulate which points should be shown. If the difference of 
+data values at neigbour points is greater than maxDifference, LineReduce doesn't remove 
+these points.
+
+\begin{covimg}{}
+  {LineReduce_mapNew}{covise/net/examples/LineReduceColor.net}{0.7}\end{covimg}
+  
+\begin{covimg}{}
+  {LineReduce_Renderer}{Image produced by the pipeline shown above.}{0.8}\end{covimg}
+  
+\begin{covimg}{}
+  {LineReduce_parameter}{parameters which can be set.}{0.8}\end{covimg}
+
+ 
+% examples for using this module
+
+%
+%=============================================================
+%\subsubsection{XXX}
+%=============================================================
+%
+%If you need an additional section XXX, e.g. Usage Hints etc. , add after Examples
+
+
+%\begin{covimg}{modules/Tools/DomainSurface}%
+%               {DomainSurfaceMap3}{covise/net/examples/Domainsurface.net}{0.7}\end{covimg}
+%-------------------------------------------------------------
+% Use this type of environment for all figures with caption
+% Note: The proposed scaling factor 0.7 should fit for most images,
+%       but please use 0.6 for maps!  
+%-------------------------------------------------------------
+%Warning: You will get the caption in Latex only, not in HTML
+
+%\begin{verbatim}
+%You can insert here anything - except "\end{verbatim}" - that should not be touched by Latex
+%\end{verbatim}
+%-------------------------------------------------------------
+%Use this verbatim-environment if you want to insert text (e.g. code) that should not be 
+%formatted or changed
+%-------------------------------------------------------------
+% how to make numerated lists
+%\begin{enumerate}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{enumerate}
+
+% how to make non numerated lists
+%\begin{itemize}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{itemize}
+
+%these lists can also be hierarchical
+%-------------------------------------------------------------
+% How to make links for PDF & HTML
+% (Please look at module CMapTex with a link to Colors for details)
+% Use "newcommand" (w/o "begin" and "end"!) instead of "newenvironment" 
+% to avoid a newline in Latex after the reference 
+%--------------------------------------------------------------
+%\covlink{Colors}{Colors}{../../Color/Colors/Colors.html} 
+%.
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link
+
+%-------------------------------------------------------------
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "~/covise/doc/usersguide/manual"
+%%% End: 

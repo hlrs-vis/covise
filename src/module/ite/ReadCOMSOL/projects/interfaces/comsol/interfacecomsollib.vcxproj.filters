@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sourcecode">
+      <UniqueIdentifier>{7bbd65ad-962f-472c-ada7-9c39d8f1e05c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{af1fa857-ce17-4d1b-b267-1b34974e4a1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dll">
+      <UniqueIdentifier>{c5120fda-5b64-45e1-9e08-6d8827f03b97}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sourcecode\communicationcomsol.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\comsolphysics.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\comsolphysicsstandard.cpp">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\dllmain.cpp">
+      <Filter>dll</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\stdafx.cpp">
+      <Filter>dll</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\communicationcomsolstandard.cpp">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\communicationcomsol.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\interfacecomsollib.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\comsolphysics.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\comsolphysicsstandard.h">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\dllapi.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\stdafx.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\targetver.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\communicationcomsolstandard.h">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

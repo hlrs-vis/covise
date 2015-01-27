@@ -1,0 +1,17 @@
+%=============================================================
+% examples for using this module
+%=============================================================
+
+\subsubsection{Examples}
+
+A "classical" combination for this module is shown in example ReadITK.net. The module reads an image stack, which is modified by Skalar2Vector and then shown in a renderer.
+
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2}{}{readitk-example}{1.0}\end{covimg2}
+   

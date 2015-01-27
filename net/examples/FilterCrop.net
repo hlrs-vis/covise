@@ -1,0 +1,371 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+6
+# Module ShowGrid
+ShowGrid
+1
+LOCAL
+Tools
+TITLE=ShowGrid_1
+176
+198
+1
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+2
+lines
+Lines
+Grid Lines
+default
+
+points
+Points
+Grid Points
+default
+
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+
+-1
+pos
+IntSlider
+number of unstructured grid element
+0 1 0
+
+-1
+0
+# Module ShowGrid
+ShowGrid
+2
+LOCAL
+Tools
+TITLE=ShowGrid_2
+66
+132
+1
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+2
+lines
+Lines
+Grid Lines
+default
+
+points
+Points
+Grid Points
+default
+
+2
+options
+Choice
+Display options
+1 all_lines hull three_sides_+++ three_sides_++- three_sides_+-+ three_sides_+-- three_sides_-++ three_sides_-+- three_sides_--+ three_sides_--- Bounding_box Edges Element
+
+-1
+pos
+IntSlider
+number of unstructured grid element
+0 1 0
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+176
+286
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+66
+22
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module FilterCrop
+FilterCrop
+1
+LOCAL
+Filter
+TITLE=FilterCrop_1
+176
+132
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid
+input mesh
+req
+
+DataIn0
+Float|Vec3
+input data
+opt
+
+2
+GridOut0
+StructuredGrid|RectilinearGrid|UniformGrid
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+dep DataIn0
+
+7
+i_min
+IntSlider
+min i-index
+1 8 1
+
+1
+i_max
+IntSlider
+max i-index
+1 8 8
+
+1
+j_min
+IntSlider
+min j-index
+1 8 1
+
+1
+j_max
+IntSlider
+max j-index
+1 8 8
+
+1
+k_min
+IntSlider
+min k-index
+1 8 1
+
+1
+k_max
+IntSlider
+max k-index
+1 8 8
+
+1
+sample
+IntScalar
+sampling factor
+2
+
+1
+0
+# Module Renderer
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_2
+66
+286
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+6
+ShowGrid
+1
+LOCAL
+lines
+
+Renderer
+1
+LOCAL
+RenderData
+ShowGrid
+2
+LOCAL
+lines
+
+Renderer
+2
+LOCAL
+RenderData
+GenDat
+1
+LOCAL
+GridOut0
+
+ShowGrid
+2
+LOCAL
+meshIn
+GenDat
+1
+LOCAL
+GridOut0
+
+FilterCrop
+1
+LOCAL
+GridIn0
+GenDat
+1
+LOCAL
+DataOut0
+
+FilterCrop
+1
+LOCAL
+DataIn0
+FilterCrop
+1
+LOCAL
+GridOut0
+
+ShowGrid
+1
+LOCAL
+meshIn
+0

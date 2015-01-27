@@ -1,0 +1,23 @@
+
+%=============================================================
+
+
+
+ 
+ReadDyna3D reads the binary plot file "LS930 .PTF" written by LS-DYNA3D, 
+a software package for Nonlinear Dynamic Analysis from Livermore Software 
+Technology Corporation. Attention: {\it Thick shell elements are not supported!}
+
+
+\begin{covimg2}	{}{ReadDyna3D}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+ReadDyna3D is available for COVISE version 4.5 and higher. 
+It's tested on SGI systems (IRIX 6.2, 6.3, 6.4). 
+
+{\bf SGI only - no LINUX support}
+
+%
+%=============================================================

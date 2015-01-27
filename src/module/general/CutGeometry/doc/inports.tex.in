@@ -1,0 +1,17 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	geo\_in & Polygons\newline TriangleStrips\newline Lines & geometry\\ 
+\hline
+	data\_in1 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	data\_in2 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	data\_in3 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	data\_in4 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	adjustParams & Text & override parameter values\\
+\hline \end{longtable}
+

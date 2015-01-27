@@ -1,0 +1,22 @@
+#ifndef VPBROAD_INCLUDE
+#define VPBROAD_INCLUDE
+
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include "RoadSystem/RoadSystem.h"
+#include "vpb/Export"
+
+class VPB_EXPORT VPBRoad
+{
+    public: 
+    VPBRoad(std::string xodrName);
+    ~VPBRoad();
+
+    //VehicleUtil* vehicleUtil;
+    RoadSystem* system;
+    std::string xodrDirectory;
+    xercesc::DOMElement* rootElement;
+    bool loadRoadSystem(std::string filename);
+    void parseOpenDrive(xercesc::DOMElement* rootElement);
+    xercesc::DOMElement* getOpenDriveRootElement(std::string filename);
+};
+#endif

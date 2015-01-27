@@ -1,0 +1,109 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{3cm}|p{2cm}|p{9cm}|}
+  \hline {\bf Name} & {\bf Type} & {\bf Description} \endhead
+  \hline\hline Coord\_Type & Choice & \begin{minipage}[t]{8.4cm}
+                                  Select the kind of coordinates used. \textbf{Uniform} and
+                                  \textbf{Rectilinear} chose carthesian coordinates which are
+                                  distinguished according their metric (equidistant or
+                                  arbitrary non--equidistant). \textbf{Half\_cycl} and \textbf{Full\_cycle} 
+                                  use zylindric coordinates with a polar angle in the 
+                                  range of \latexonly $[0..\pi]$ \endlatexonly 
+				  \begin{htmlonly}
+				  [0... pi]
+				  \end{htmlonly}
+				  for \textbf{Half\_cycle} and \latexonly $[0..2\pi]$ \endlatexonly
+				  \begin{htmlonly}
+				  [0... 2pi]
+				  \end{htmlonly}
+                                  for \textbf{Full\_cycle}. \textbf{Random} creates a random mesh. 
+                                  The option \textbf{Torus} uses zylindric coordinates where the 
+                                  points corresponding to the minimum and maximum value of the 
+                                  z--coordinate are connected.
+                                  \vspace{2pt}
+                                \end{minipage} \\
+  \hline Coord\_Representation & Choice & 
+                                 \begin{minipage}[t]{8.4cm}
+
+                                    This parameter is only effective for the carthesian systems.  It
+                                    determins the COVISE data structure which is used for output. If a
+                                    Coord\_type different from \textbf{Uniform} or
+                                    \textbf{Rectilinear} is checked structured grid--data appears at
+                                    the corresponding output-port.
+                                    \vspace{2pt} 
+                                  \end{minipage}
+                                  \\
+ \hline Coord\_Range & Choice &
+                                  \begin{minipage}[t]{8.4cm}
+                                    Parameter which determins the extension of the generated grid. 
+                                    It selects the range for the generated cordinates (i.e. the unit).
+                                    \vspace{2pt} 
+                                  \end{minipage} \\
+
+ \hline Function & Choice &
+                                  \begin{minipage}[t]{8.4cm} Chose the
+                                    function which is used to generate
+                                    scalar data:
+
+                            \begin{tabular}{ll}
+                              \textbf{Sines} & \latexonly $f(x,y,z) = sin(xyz)$ \endlatexonly
+			                       \begin{htmlonly} f(x,y,z) = sin(xyz) \end{htmlonly} \\
+                              \textbf{Ramps} & \latexonly $f(x,y,z) = mod_{3}(x) + mod_{3}(y)
+			      + mod_{3}(z)$ \endlatexonly \begin{htmlonly} f(x,y,z) = mod3(x)
+			      + mod3(y) + mod3(z) \end{htmlonly} \\   
+                              \textbf{Random} & uniformly distributed random numbers \\
+                              \textbf{Pipe} & \latexonly $f(x,y,z) = sin(x)sin(y)$ \endlatexonly
+			                      \begin{htmlonly} f(x,y,z) = sin(x)sin(y)\end{htmlonly}
+                            \end{tabular}
+                            
+                         \vspace{2pt} 
+                         \end{minipage} \\
+    \hline
+    Orientation & Choice & \begin{minipage}[t]{8.4cm} 
+                              Chose the type of vector data attached to each point of the grid:
+
+                            \begin{tabular}{ll}
+                              \textbf{Opt1}  &  \latexonly $f_{i}(\mathbf{r}) = sin(r_{i}) \,\,\,
+			      i=x,y,z $ \endlatexonly \begin{htmlonly} fi(r) = sin(ri), i=x,y,z
+			      \end{htmlonly} \\
+                              \textbf{Colin} & hedge hog field \latexonly $f_{i}(\mathbf{r}) = r_{i} \,\,\, i=x,y,z $ \endlatexonly
+			      \begin{htmlonly} fi(r) = ri, i=x,y,z \end{htmlonly} \\
+                              \textbf{Opt3}  & eddy \\
+                              \textbf{Random} & random orientations
+                            \end{tabular}  
+                           \vspace{2pt} 
+                           \end{minipage} \\
+                           \hline xSize & Scalar &
+                           \begin{minipage}[t]{8.4cm} extension of
+                             grid in x-direction or (number of
+                             intersections of the x-interval [-1..1]
+                             -1) if Coord\_Range -1..1 is chosen.
+                             \vspace{2pt}
+                           \end{minipage}\\
+    \hline
+    ySize & Scalar  & see above  \\
+    \hline
+    zSize & Scalar  & see above  \\
+    \hline
+    start & Vector & lower left point of the grid  \\
+    \hline
+    end & Vector & upper right point of the grid  \\
+    \hline
+    timestep & Scalar & not used in current version  \\
+    \hline color & String & sets the color attibute of the generated grid \\
+                                                                                                                
+%       ....
+%       ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

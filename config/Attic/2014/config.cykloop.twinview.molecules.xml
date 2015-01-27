@@ -1,0 +1,280 @@
+
+<COCONFIG version="1" >
+<INCLUDE global="1" configname="license" >config.license.xml</INCLUDE>
+
+<GLOBAL>
+    <License>
+        
+        <SERVER value="001aa0daca3e 6.0 28.02.2012 0 AMCBXJE " type="SERVER" name="AMCBXJE" />
+        <STD_UI value="001aa0daca3e 6.0 28.02.2012 0 QQIOCUS " type="STD_UI" name="QQIOCUS" />
+        <VR_ONE_PIPE value="001aa0daca3e 6.0 28.02.2012 0 QASSYKG " type="VR_ONE_PIPE" name="QASSYKG" />
+        <VR_MULTI_ANY value="001aa0daca3e 6.0 28.02.2012 0 GIGDFZM " type="VR_MULTI_ANY" name="GIGDFZM" />
+        <COVISE_VRML value="001aa0daca3e 6.0 28.02.2012 0 GQOFHFE " type="COVISE_VRML" name="GQOFHFE" />
+        <COVISE_CFD value="001aa0daca3e 6.0 28.02.2012 0 IMMRPDC " type="COVISE_CFD" name="IMMRPDC" />
+        <COVISE_FEM value="001aa0daca3e 6.0 28.02.2012 0 QYIEMYU " type="COVISE_FEM" name="QYIEMYU" />
+        <VR_DUAL_CLUSTER value="001aa0daca3e 6.0 28.02.2012 0 ACUCIIE " type="VR_DUAL_CLUSTER" name="ACUCIIE" />
+        
+     </License>
+      <HostConfig>
+        <Host timeout="60" memory="shm" method="ssh" name="domina" hostname="domina" />
+      </HostConfig>
+
+   <COVER>
+      <!-- enable or display master rendering -->
+      <NavigationMode value="XForm" />
+      <RenderOnMaster value="false" />
+      <CollisionDist value="1500" />
+      <WelcomeMessage value="Welcome to OpenCOVER in Cykloop" />
+      <Background r="0.5" g="0.5" b="1.0" /> 
+      <MultiThreaded value="false" />
+      <AnimationSpeed min="0.0" max="25.0" default="25.0" />
+      <!-- for adjusting how rapidly mipmaps update -->
+      <LODScale value="0.3" />
+
+      <Plugin>
+      <!-- Standard Cover plugins, can always be on: -->
+         <ClipPlane value="on" />
+         <ViewPoint value="on" />
+         <Vrml97 value="on">    
+            <Audio value="AServer" >
+               <Host value="192.168.0.52" />
+            </Audio>
+         </Vrml97>
+         <GeneralGeometry value="on" />
+         <AKToolbar value="on">
+            <Attachment value="BOTTOM" />
+            <MenuMaxItems value="0"/>
+            <Scale value=".5" />
+            <Position x="-950" y="0" z="-600" />
+            <ShortCut value="Plugin:ClipPlane 1 Icon:schere" name="schere" />
+            <ShortCut value="Plugin:ViewPoint loadViewpoint left Icon:leftView" name="left" />
+            <ShortCut value="viewall" name="viewall" />
+            <ShortCut value="xform" name="xform" />
+            <ShortCut value="scale" name="scale" />
+            <ShortCut value="fly" name="fly" />
+            <ShortCut value="walk" name="walk" />
+            <DebugLevel value="0"/>
+            <CoverMenu value="on"/>
+            <StateButton value="off"/>
+         </AKToolbar>
+
+	<Mathematic value="off">
+	 <MenuPosition x="-900" y="0" z="500" />
+	 <Boundary max="10" />
+        </Mathematic>
+
+        <!-- Molecules -->
+        <Molecules value="on" />
+        <Molecules>
+           <DataDir value="/data/Demos/VR4Schule/Molecules" />
+           <!--<SphereRatio value="0.0" />-->
+        </Molecules>
+
+      </Plugin>
+
+      <ScaleAll value="OFF" />
+ 
+      <Stereo enable="ON" value="ON" />
+
+      <Menu>
+         <Orientation h="0" p="0" r="0" />
+         <Position x="1000" y="0" z="0" />
+         <Size value="1" />
+      </Menu>
+
+      <SceneSize value="1320" />
+      <ViewerPosition x="0" y="-1000" z="-100" />
+      <CoordAxis value="off" />
+      <Freeze value="off" />
+      <ViewAll value="off" />
+      <NumPipes value="1" />
+      <NumScreens value="2" />
+      <NumWindows value="1" />
+      <Headlight value="on" />
+    
+      <Lights>
+      <Sun>
+        <Specular value="on" r="1.0" g="1.0" b="1.0" />
+        <Diffuse value="on" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="on" r="0.15" g="0.15" b="0.15" />
+        <Position value="on" x="0.0" y="0.0" z="1.0" w="0.0" />
+        <Spot value="off" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Sun>
+      <Light2>
+          <Specular value="on" r="1.0" g="1.0" b="1.0" />
+          <Diffuse value="on" r="1.0" g="1.0" b="1.0" />
+          <Ambient value="on" r="0.15" g="0.15" b="0.15" />
+          <Position value="on" x="0.0" y="-1.0" z="0.0" w="0.0" />
+          <Spot value="on" x="0.0" y="-1.0" z="0.0" expo="0.0" angle="180.0" />
+      </Light2>
+      </Lights>
+
+      <DebugLevel value="0" /> 
+      <FPS value="false" />
+ 
+
+      <IconSize value="10"/>
+      <ConstantInteractorSize value="Off"/>
+
+      <PointerDepth value="0"/>
+      <PointerAppearance>
+         <IconName value="pointer"/>
+         <Width value="10"/>
+         <Length value="500"/>
+         <Intersection value="13000" />
+      </PointerAppearance>
+
+      <!-- Molecules -->
+      <FileManager>
+         <FileType name="via" plugin="Molecules" />
+         <FileType name="vim" plugin="Molecules" />
+         <FileType name="vis" plugin="Molecules" />
+      </FileManager>
+
+   </COVER>
+
+
+</GLOBAL>
+
+<LOCAL host="voyager" >
+    <COVER>
+        
+        <NumScreens value="2" />
+        <NumWindows value="1" />
+        
+        <PipeConfig>
+            <Pipe name="0" pipe="1" screen="1"/>
+        </PipeConfig>
+        
+        <WindowConfig>
+            <Window width="2800" comment="MAIN" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="true" />
+        </WindowConfig>
+        
+        <ChannelConfig>
+            <Channel channel="0" left="0"    width="1400" bottom="0" height="1050" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+            <Channel channel="1" left="1400" width="1400" bottom="0" height="1050" stereoMode="RIGHT" windowIndex="0" name="1" comment="RIGHT" />
+        </ChannelConfig>
+        
+        <ScreenConfig>
+            <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+            <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+        </ScreenConfig>
+        
+        <Input>  <!-- FobNewHornet -->
+            <DebugButtons value="off" />
+            <DebugStation value="4" />
+            <!--  <TrackingSystem value="MOUSE" />-->
+            <TrackingSystem value="VRC" />
+            <VRC>
+                <Port value="7777" />
+                <DebugLevel value="0"/>
+            </VRC>
+            
+            <HandAddress value="1" />
+            <ButtonAddress value="4" />
+            
+            <TrackingSystem>
+                <Offset x="0" y="-80" z="-600" />
+                <Orientation h="90" p="180" r="180" />
+            </TrackingSystem>
+            
+            <HandDevice>
+                <Offset x="0" y="0" z="0" />
+                <Orientation h="-90" p="0" r="0" />
+            </HandDevice>
+
+            <ButtonConfig>
+               <Map value="5 DRIVE_BUTTON" name="5 DRIVE_BUTTON"/>
+               <Map value="6 XFORM_BUTTON"  name="6 XFORM_BUTTON"/>
+               <Map value="7 ACTION_BUTTON"  name="7 ACTION_BUTTON"/>
+            </ButtonConfig> 
+            
+            <MouseNav value="ON" />
+        </Input>
+       
+    </COVER>
+     
+</LOCAL>
+ 
+
+
+<LOCAL host="everest" >
+   <COVER>
+  
+    <NumScreens value="2" />
+    <NumWindows value="1" />
+
+   <PipeConfig>
+      <Pipe display=":0.1" name="0" screen="1" pipe="1" />
+   </PipeConfig>
+
+   <WindowConfig>
+      <Window width="2048" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="true" />
+   </WindowConfig>
+
+   <ChannelConfig>
+      <Channel channel="0" left="0"    width="1024" bottom="0" height="768" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+      <Channel channel="1" left="1024" width="1024" bottom="0" height="768" stereoMode="RIGHT" windowIndex="0" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+      <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+      <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+   </ScreenConfig>
+    
+   <Input>  <!-- ART -->
+      <DebugButtons value="FALSE" />
+<!--  <TrackingSystem value="MOUSE" />-->
+      <TrackingSystem value="VRC" />
+      <VRC>
+         <Port value="7777" />
+         <DebugLevel value="0"/>
+      </VRC>
+
+      <HandAddress value="1" />
+
+      <TrackingSystem>
+         <Offset x="0" y="-400" z="-600" />
+         <Orientation h="0" p="0" r="0" />
+      </TrackingSystem>
+
+      <HandDevice>
+         <Offset x="0" y="0" z="0" />
+         <Orientation h="0" p="0" r="0" />
+      </HandDevice>
+
+      <MouseNav value="ON" />
+   </Input>
+ 
+  </COVER>
+</LOCAL>
+ 
+
+<LOCAL host="domina" >
+  <COVER>
+    <NumScreens value="2" />
+    <NumWindows value="1" />
+  
+   <PipeConfig>
+      <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+   </PipeConfig>
+
+
+   <WindowConfig>
+      <Window width="2048" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" resize="false" />
+   </WindowConfig>
+
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1024" bottom="0" height="1" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="1024" width="1024" bottom="0" height="1" stereoMode="RIGHT" windowIndex="0" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+    <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+   </ScreenConfig>
+    
+  </COVER>
+ </LOCAL>
+
+</COCONFIG>

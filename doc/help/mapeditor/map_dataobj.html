@@ -1,0 +1,197 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Data Objects</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+<font face="Times New Roman,Times"><font color="#3333FF"><font size=+2><b>COVISE
+Objects / Data Objects List </b>(MapEditor index card)</font></font></font>
+<br>&nbsp;
+<p><font face="Arial,Helvetica">COVISE Objects are created when a map is
+executed. The name of the data objects are generated generically, when
+two ports are connected.</font>
+<br><font face="Arial,Helvetica">The names are shown in the COVISE Objects
+index card (former <b>DataObjects
+</b>selection list) in the MapEditor.</font>
+<p><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="95%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">You have to open COVISE Objects explicitly
+by clicking on the corresponding index entry in the MapEditor.&nbsp;</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<center><table COLS=1 WIDTH="80%" >
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><img SRC="newdataobjects.gif" height=650 width=581></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER><b>Map Editor - COVISE Objects index card
+</b>(corresponding
+map added for explanation)</td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica">To request information about data objects</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">click on the item in the COVISE Objects selection
+list or</font></li>
+
+<li>
+<font face="Arial,Helvetica">press CTRL key and click (with left mouse
+button) on the output port of a module icon</font></li>
+
+<br><font face="Arial,Helvetica"><u>Note (second case only)</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">You must have executed your map before
+you get info about a data object, otherwise you get: not yet created, try
+execute!</font></td>
+</tr>
+</table>
+</ul>
+<font face="Arial,Helvetica">If you have a selected a data object, a window
+pops up with the following info (see example below):</font>
+<br>&nbsp;
+<br>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="56%" >
+<tr>
+<td><img SRC="data1.gif" height=469 width=333></td>
+</tr>
+</table></center>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">General</font></b></li>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">Type (abbreviation):</font></li>
+
+<br><font face="Arial,Helvetica">see table below</font>
+<li>
+<font face="Arial,Helvetica">Location:</font></li>
+
+<br><font face="Arial,Helvetica">IP address (host holding the data)</font></ul>
+
+<li>
+<b><font face="Arial,Helvetica">Attributes</font></b></li>
+
+<br><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e. g. color</font></ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Data</font></b></li>
+
+<br><font face="Arial,Helvetica">depends on type, see <a href="../../online_doc/programmingguide/start/start_DataObj.html" target="_top"><font color="#3333FF">Programming
+Guide</font>, Chapter 3: COVISE Data Objects</a>. If this data object contains
+references to other data objects, these are marked with different color.
+So a path is given until the real data is reached; the data can then be
+examined in an array browser (see <a href="map_dataobj_example.html">example</a>).</font>
+<br><font face="Arial,Helvetica"><font color="#FF0000">Warning: Be careful
+if the data field is large or the data is located on another host, because
+the action will be time consuming!</font></font></ul>
+<font face="Arial,Helvetica">COVISE knows the following data types:</font>
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="100%" BGCOLOR="#CCCCCC" >
+<tr BGCOLOR="#999999">
+<td><b><font face="Arial,Helvetica">Abbreviation</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Data Object type</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Description</font></b></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">UNIGRID</font>
+<br><font face="Arial,Helvetica">RCTGRD</font>
+<br><font face="Arial,Helvetica">STRGRD</font></td>
+
+<td><font face="Arial,Helvetica">DO_UniformGrid</font>
+<br><font face="Arial,Helvetica">DO_RectilinearGrid</font>
+<br><font face="Arial,Helvetica">DO_StructuredGrid</font></td>
+
+<td><font face="Arial,Helvetica">Structured grid types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">UNSGRD</font></td>
+
+<td><font face="Arial,Helvetica">DO_UnstructuredGrid</font></td>
+
+<td><font face="Arial,Helvetica">Unstructured grid types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">STRSDT</font>
+<br><font face="Arial,Helvetica">STRVDT</font></td>
+
+<td><font face="Arial,Helvetica">DO_Structured_S3D_Data</font>
+<br><font face="Arial,Helvetica">DO_Structured_V3D_Data</font></td>
+
+<td><font face="Arial,Helvetica">Structured data types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">USTSDT</font>
+<br><font face="Arial,Helvetica">USTVDT</font></td>
+
+<td><font face="Arial,Helvetica">DO_Unstructured_S3D_Data</font>
+<br><font face="Arial,Helvetica">DO_Unstructured_V3D_Data</font></td>
+
+<td><font face="Arial,Helvetica">Unstructured data types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">RGBADT</font></td>
+
+<td><font face="Arial,Helvetica">DO_RGBA_Data</font></td>
+
+<td><font face="Arial,Helvetica">Color values</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">SETELE</font></td>
+
+<td><font face="Arial,Helvetica">DO_Set</font></td>
+
+<td><font face="Arial,Helvetica">Container type for grouping of data objects</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">GEOMET</font></td>
+
+<td><font face="Arial,Helvetica">DO_Geometry</font></td>
+
+<td><font face="Arial,Helvetica">Renderer geometry container data type</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">POINTS</font>
+<br><font face="Arial,Helvetica">LINES</font>
+<br><font face="Arial,Helvetica">TRIANG</font>
+<br><font face="Arial,Helvetica">POLYGN</font>
+<br><font face="Arial,Helvetica">VOLUMES</font></td>
+
+<td><font face="Arial,Helvetica">DO_Points</font>
+<br><font face="Arial,Helvetica">DO_Lines</font>
+<br><font face="Arial,Helvetica">DO_TriangleStrips</font>
+<br><font face="Arial,Helvetica">DO_Polygons</font>
+<br><font face="Arial,Helvetica">DO_Volumes</font></td>
+
+<td><font face="Arial,Helvetica">Geometry data types</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

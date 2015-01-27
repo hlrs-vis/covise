@@ -1,0 +1,27 @@
+
+%=============================================================
+
+% short description what the module does
+%
+Read module for IBM data explorer.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2} {}{ReadDxModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+ReadDx is available since COVISE release 5.2.3. 
+Experimental version only - use at your own risk!
+
+
+%=============================================================
+

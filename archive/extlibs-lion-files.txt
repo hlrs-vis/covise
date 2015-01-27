@@ -1,0 +1,16 @@
+xercesc
+qt4/lib
+Cg.framework
+tiff
+jpeg
+Inventor.framework
+SoQt.framework
+cuda
+ffmpeg
+glew
+gsoap
+libvncserver
+motif
+inventor
+openscenegraph
+vtk

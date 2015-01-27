@@ -1,0 +1,4 @@
+add_subdirectory(IntToFloat)
+add_subdirectory(MixColors)
+add_subdirectory(RWCoviseBlock)
+add_subdirectory(SetOfReferences)

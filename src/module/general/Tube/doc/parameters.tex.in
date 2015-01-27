@@ -1,0 +1,30 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	Radius & Scalar & Radius of tubes \\
+\hline
+	Parts & Scalar & No. of sides of the tubes \\
+\hline
+	Option & Choice & The type of the cylinder 
+	                  \begin{itemize}
+                          \item open\_cylinder
+                          \item closed\_cylinder 
+			  \item arrows
+                          \end{itemize}\\														
+
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

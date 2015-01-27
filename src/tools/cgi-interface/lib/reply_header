@@ -1,0 +1,200 @@
+<HTML>
+<HEAD>
+  <TITLE>COVISE DemoKeys</TITLE>
+  <META Name="Author"      Content="COVISE, covise@rus.uni-stuttgart.de">
+  <META Name="Domain"      Content="rus">
+  <META Name="Project"     Content="COVISE">
+  <META Name="Description" Content="COVISE - Collaborative Visualization and
+  Simulation Environment">
+  <META Name="Keywords"    Content="Distributed Computing, Collaborative
+  Working, Visualization Tools, Virtual Reality">
+  <META Name="Title"       Content="HLRS - Organisation - Visualization - COVISE - DemoKeys">
+  <META Name="Quarter"     Content="Q2">
+  <META Name="Date"        Content="19980402">
+  <META Name="Year"        Content="1998">
+  <META Name="Referencetype" Content="text/html">
+  <META Name="Browsers"    Content="Netscape 3.0 (created for)
+                                    MS Exploder V3.0 (tested with)">
+</HEAD><P>
+
+<BODY BGCOLOR=#EBF5EB TEXT=#000000 LINK=#0066CC VLINK=#777799 ALINK=#558800 TOPMARGIN=0 LEFTMARGIN=0>
+
+
+<!-- Header der Seite>
+
+
+
+
+<!-- Imagemaps -->
+<MAP NAME="platforms">
+  <AREA SHAPE="RECT" COORDS="0,14,50,33" HREF="/hpc/">
+</MAP>
+<MAP NAME="projects">
+  <AREA SHAPE="RECT" COORDS="15,64,178,80" HREF="/projects/">
+</MAP>
+<MAP NAME="newsorg">
+  <AREA SHAPE="POLY" COORDS="15,72,75,72,75,66,319,66,319,80,15,80,15,72" HREF="/structure/">
+  <AREA SHAPE="RECT" COORDS="3,0,7,66" HREF="/platforms/">
+  <AREA SHAPE="POLY" COORDS="10,66,73,23,73,16,143,16,143,30,76,33,16,71,10,66" HREF="/news/">
+</MAP>
+<MAP NAME="support">
+  <AREA SHAPE="POLY" COORDS="165,3, 126,31, 122,31, 122,24, 18,24, 30,50, 134,50, 134,40, 175,9, 165,3" HREF="/admin/">
+</MAP>
+
+<!-- Beginning of header -->
+<TABLE BORDER=0 BGCOLOR=#000000 CELLSPACING=0 CELLPADDING=0  WIDTH=100%>
+  <TR>
+    <TD ALIGN=LEFT HEIGHT=28 COLSPAN=5>
+      <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=#999999>
+        <TR>
+          <TD ALIGN=CENTER HEIGHT=28><A HREF="/navigation.html"><IMG SRC="/img/nav/navigation.gif" WIDTH=109 HEIGHT=28 BORDER=0 ALT="navigation"></A></TD>
+          <TD ALIGN=CENTER HEIGHT=28><A HREF="/search.html"><IMG SRC="/img/nav/search.gif" WIDTH=80 HEIGHT=28 BORDER=0 ALT="search"></A></TD>
+          <TD ALIGN=CENTER HEIGHT=28><A HREF="/"><IMG SRC="/img/nav/home.gif" WIDTH=64 HEIGHT=28 BORDER=0 ALT="home"></A></TD>
+          
+            
+              <TD ALIGN=CENTER HEIGHT=28><A HREF="/"><IMG SRC="/img/nav/back.gif" WIDTH=59 HEIGHT=28 BORDER=0 ALT="back"></A></TD>
+            
+          
+          
+            <TD ALIGN=CENTER HEIGHT=28><A HREF="/organization/hlrs.html"><IMG SRC="/img/nav/forward.gif" WIDTH=91 HEIGHT=28 BORDER=0 ALT="forward"></A></TD>
+          
+            <TD HEIGHT=28><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=20 HEIGHT=28></TD>
+            <TD ALIGN=CENTER HEIGHT=28><A HREF="http://www.uni-stuttgart.de/Rus/"><IMG SRC="/img/nav/rus.gif" WIDTH=49 HEIGHT=28 BORDER=0 ALT="rus"></A></TD>
+            <TD ALIGN=LEFT HEIGHT=28><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=289 HEIGHT=28></TD>
+        </TR>
+      </TABLE>
+    </TD>
+  </TR>
+
+
+
+<!-- circle-menu of header -->
+
+  <TR>
+    <TD WIDTH=186 HEIGHT=40><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=186 HEIGHT=40></TD>
+    <TD VALIGN=BOTTOM HEIGHT=40><IMG USEMAP=#platforms ISMAP BORDER=0 SRC="/img/head/nohighlight/navigaob.gif" WIDTH=135 HEIGHT=40 ALT="HPC"></TD>
+    <TD WIDTH=120 HEIGHT=40 BGCOLOR=#000000><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=185 HEIGHT=40></TD>
+    <TD ALIGN=LEFT VALIGN=TOP WIDTH=320 HEIGHT=122 ROWSPAN=2 BGCOLOR=#000000>
+      <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=#EBF5EB>
+        <TR>
+          <TD ROWSPAN=2 BGCOLOR=#000000><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=1 HEIGHT=122></TD>
+          <TD><IMG SRC="/img/head/hlrs.gif" WIDTH=220 HEIGHT=62 ALT="HLRS"></TD>
+          <TD ROWSPAN=2 BGCOLOR=#000000><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=50 HEIGHT=122></TD>
+        </TR>
+        <TR>
+          <!-- TD des Platzhalters -->
+          <TD BGCOLOR=#000000><IMG SRC="/img/stuff/pixel_black.gif" WIDTH=220 HEIGHT=60></TD>
+        </TR>
+      </TABLE></TD>
+    <TD WIDTH=100% HEIGHT=62 ROWSPAN=2 BGCOLOR=#000000>&nbsp;</TD>
+  </TR>
+  <TR>
+    <TD ALIGN=RIGHT VALIGN=BOTTOM HEIGHT=82><IMG USEMAP=#projects ISMAP BORDER=0 SRC="/img/head/nohighlight/naviliob.gif" WIDTH=186 HEIGHT=82 ALT="Projects"></TD>
+    <TD ALIGN=LEFT VALIGN=BOTTOM HEIGHT=82 COLSPAN=2><IMG USEMAP=#newsorg ISMAP BORDER=0 SRC="/img/head/highlight/navireobstructure.gif" WIDTH=320 HEIGHT=82 ALT="News, Support-Structure"></TD>
+    <!--TD vom HLRS-->
+    <!--TD vom rechten Rand-->
+  </TR>
+  <TR>
+    <TD ALIGN=RIGHT HEIGHT=110 COLSPAN=1 BGCOLOR=#EBF5EB><IMG USEMAP=#support ISMAP BORDER=0 SRC="/img/head/nohighlight/naviliun.gif" WIDTH=186 HEIGHT=111 ALT="Administration & Access"></TD>
+    <TD ALIGN=LEFT HEIGHT=110 COLSPAN=4 BGCOLOR=#EBF5EB><IMG SRC="/img/head/nohighlight/navireun.gif" WIDTH=65 HEIGHT=111 ALT=""></TD>
+  </TR>
+
+
+
+<!-- Menu itemsa beginning -->
+
+  <TR>
+    <TD ALIGN=RIGHT VALIGN=TOP HEIGHT=28 BGCOLOR=#EBF5EB><IMG SRC="/img/head/naviligaun.gif" WIDTH=186 HEIGHT=28 ALT="NaviGanzUnten"></TD>
+    <TD VALIGN=TOP BGCOLOR=#EBF5EB COLSPAN=4>
+      <TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR>
+
+
+  
+  
+  <!-- Single menu item -->
+
+
+
+
+
+  <TD><A HREF="/structure/organisation/vis/"><IMG SRC="/img/menu/...gif" ALT=".." WIDTH=42 HEIGHT=28 BORDER=0></A></TD>
+
+
+
+  
+  
+
+
+  
+  
+  <!-- Single menu item -->
+
+
+
+
+
+  <TD><A HREF="/structure/organisation/vis/covise/support/license/"><IMG SRC="/img/menu/license.gif" ALT="support" HEIGHT=28 BORDER=0></A></TD>
+
+
+
+
+  
+  
+
+  <!-- Single menu item -->
+
+
+
+
+  <TD><A HREF="/structure/organisation/vis/covise/support/demokeys/"><IMG SRC="/img/menu/trialkeys.gif" ALT="trialkeys" WIDTH=138 HEIGHT=28 BORDER=0></TD>
+
+  <!-- Single menu item -->
+  <TD><IMG SRC="/img/menu/reply.gif" ALT="Reply" HEIGHT=28 BORDER=0></TD>
+
+
+
+  <!-- Menuepunkt Rundung am Ende -->
+
+          <TD><IMG SRC="/img/menu/straight.gif" WIDTH=20 HEIGHT=28 ALT="Straight"></TD>
+        </TR>
+
+
+<!-- Menuepunkte Ende -->
+
+      </TABLE>
+    </TD>
+  </TR>
+
+
+</TABLE>
+
+
+
+
+
+<IMG SRC="/img/stuff/pixel_trans.gif" WIDTH=1 HEIGHT=40>
+
+<! **************** >
+<! Inhalt der Seite >
+<! **************** >
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0>
+  <TR>
+    <TD WIDTH=20><IMG SRC="/img/stuff/pixel_trans.gif" WIDTH=20 HEIGHT=1></TD>
+    <TD><IMG SRC="/img/heading/your_trial_key.gif" WIDTH=145 HEIGHT=29 ALT="Your Trial Key"></TD>
+  </TR>
+</TABLE>
+
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0>
+<TR>
+ <TR><!-- Zwischenraum -->
+    <TD COLSPAN=2>&nbsp;</TD>
+  </TR><!-- Ende Zwischenraum -->
+
+
+    <TD WIDTH=30><IMG SRC="/img/stuff/pixel_trans.gif" WIDTH=30 HEIGHT=1></TD>
+    <TD WIDTH=800>
+      Plead add this line to the <B>License</B> Section of your <B>covise.config</B> file:<BR>
+&nbsp;<BR><TT><B>
+

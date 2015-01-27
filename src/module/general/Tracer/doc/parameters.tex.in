@@ -1,0 +1,108 @@
+% -*- latex -*-
+\subsubsection{Parameters}
+%=============================================================
+%
+For additional and detailed explanations, please consult the notes following this
+table!
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	no\_startp & Slider & Starting point selection: see below \\
+\hline
+	startpoint1 & Vector & Starting point selection: see below \\
+\hline
+        startpoint2 & Vector & Starting point selection: see below \\
+\hline
+        direction   & Vector & Starting plane direction: see below \\
+\hline
+        Displacement & Vector & Constant offset added to all lines \\
+\hline
+        tdirection & Choice & Trace direction: Forward, Backward, Both \\
+\hline	
+	whatout & Choice & mag / v\_x v\_y v\_z / time \\
+\hline
+        taskType & Choice & select between Moving Points, Stream-,
+		                                    Streak- or Pathlines      \\
+\hline	
+	startStyle & Choice & line or plane \\				    
+\hline	
+	trace\_eps & Scalar & Finetuning parameter for Trace integration 
+				{\small (Maximum permitted relative error per integration
+        			step. This parameter is involved in the control of the 
+        			integration step.)} \\	
+\hline	
+	trace\_abs & Scalar & Finetuning parameter for Trace integration 
+			{\small (Maximum permitted absolute error per integration
+        		step. This parameter is involved in the control of the 
+        		integration step.)}\\	
+\hline	
+	grid\_tol & Scalar & Tolerance value for grids with gaps \\
+\hline	 
+	trace\_len & Scalar &  Finetuning parameter for Trace integration 
+				{\small (Maximum length for streamlines.)}\\
+\hline	
+	min\_vel & Scalar &  Finetuning parameter for Trace integration 
+		{\small (Minimum velocity for streamlines.
+        	If along the integration of a streamline, the velocity is found
+        	to be smaller than this value, the integration is interrupted.)}  \\	
+\hline	
+	MaxPoints & Scalar & Number of Steps for Moving Points	\\
+\hline	
+	stepDuration & Scalar & Time stepping used in transient traces and for 
+	                               moving points	\\
+\hline	
+	NoCycles & Scalar & For transient cases: repeat input steps	    \\		    
+\hline	
+	NoInterpolation	& Boolean & Finetuning parameter for Trace integration 
+	{\small (This parameter is only relevant for 
+        moving points or pathlines
+        with static data. The default value is false. This means that the
+        last point of the pathlines, if you have chosen this option
+        in the parameter "taskType", or the points you see, in the case of moving
+        points, have been evaluated by an interpolation between two consecutive
+        points of a calculated streamline. This is faster than the true
+        option, especially if stepDuration is very small. In the case true,
+        the step control of the integration is disturbed in a way that
+        it is forced to calculate values for the times we need for output.
+        The true case is only recommended for rather large values
+        of the stepDuration parameter, otherwise the performance penalty
+        may be important. In most cases the default false value is preferable.)} \\
+\hline	
+	ThrowNewParticles & Boolean & Throw new particles in multiple timesteps	 \\		    	    
+\hline
+	ParticlesReleaseRate &	Scalar & Frequency at which new particles are released \\
+\hline	
+	divideCell & Scalar & Finetuning parameter for Trace integration 
+		{\small (This parameters sets the integration
+        	step when the integrator has detected that the particle is
+        	not far from a wall (the border of a grid), 
+        	so that the distance covered by the particle
+        	in a time step is approximately the value of this parameter
+        	multiplied by a cell typical distance. This number should always
+        	be positive.)}\\
+\hline
+	maxOutOfDomain	& Scalar & Follow particles out of cell 
+	- increase if grid has gaps the particles should fly through \\
+\hline
+        NoWThreads & Scalar & Multi-Threading: 0 means single-thread \\
+\hline
+	SearchLevel & Scalar &	 Search depth for polygon tracing starting points.
+                           Increase when staring points are not found \\  			
+\hline
+        SkipInitialSteps & Scalar & This is relevant on dynamic data sets for pathlines, moving points and streaklines. You may control with this parameter the
+initial step at which particles are released. \\
+%% \hline
+%%         SphereRadius & Scalar & This is only available in the {\sl complex 
+%%         version of the module}, TracerComp. In this case you may control
+%%         the particle size when producing animation of type {\sl moving points}.\\
+\hline
+	color & String & The color of the streamlines. \\
+\hline
+\end{longtable}
+
+\clearpage
+
+%
+%=============================================================

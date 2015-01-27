@@ -1,0 +1,301 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+3
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+20
+165
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+20
+20
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+1 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module IsoSurfaceComp
+IsoSurfaceComp
+1
+LOCAL
+Mapper
+TITLE=IsoSurfaceComp_1
+20
+90
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+Grid
+req
+
+DataIn0
+Float
+Data for isosurface generation
+req
+
+DataIn1
+Float|Vec3
+Data to be mapped onto the isosurface
+opt
+
+DataIn2
+Text
+this char Array marks cells to be processed or not
+opt
+
+ColormapIn0
+ColorMap
+color map to create geometry
+opt
+
+4
+GeometryOut0
+Geometry
+Colored isoSurface
+default
+
+GridOut0
+Polygons|TriangleStrips
+The isosurface
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+11
+gennormals
+Boolean
+Supply normals
+TRUE
+
+-1
+genstrips
+Boolean
+Convert triangles to strips
+TRUE
+
+-1
+Interactor
+Choice
+Point or value working mode
+2 Point Value
+
+-1
+isopoint
+FloatVector
+Point for isosurface
+0 0 0.
+
+-1
+isovalue
+FloatSlider
+Value for isosurfaces
+-0.881765 0.836132 0.000000
+
+-1
+autominmax
+Boolean
+Automatic minmax
+TRUE
+
+-1
+color_or_texture
+Boolean
+colors or texture
+TRUE
+
+-1
+scale
+FloatSlider
+Scale factor
+0 1 0.100000
+
+-1
+length
+Choice
+Length of vectors
+2 1*scale length*scale
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+0
+
+-1
+vector
+Choice
+SurfaceOrLines
+1 SurfaceAndLines OnlySurface OnlyLines
+
+-1
+0
+4
+GenDat
+1
+LOCAL
+GridOut0
+
+IsoSurfaceComp
+1
+LOCAL
+GridIn0
+GenDat
+1
+LOCAL
+DataOut0
+
+IsoSurfaceComp
+1
+LOCAL
+DataIn0
+GenDat
+1
+LOCAL
+DataOut1
+
+IsoSurfaceComp
+1
+LOCAL
+DataIn1
+IsoSurfaceComp
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

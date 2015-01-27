@@ -1,0 +1,25 @@
+
+%=============================================================
+
+%
+
+%
+% short description what the module does
+%
+RWCoviseGroup reads or writes a group of COVISE files.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{RWCoviseGroupModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+RWCoviseGroup is available for COVISE 5.1 and higher and on all
+supported platforms.
+
+%
+%=============================================================

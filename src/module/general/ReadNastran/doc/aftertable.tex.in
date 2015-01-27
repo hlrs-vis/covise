@@ -1,0 +1,24 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+	{ReadNastranMap}{covise/net/examples/ReadNastran.net}{0.7}\end{covimg}
+
+The example shows a simple map for displaying the geometry of an unstructured grid, 
+generated from a NASTRAN structural analysis data sample. 
+Additional temperature data is mapped through the Colors module path onto 
+the geometry. The VectorField module maps the reaction forces 
+OQG1 onto the geometry represented as white lines.  
+
+The next image is a snapshot of the results in the Inventor Renderer.  
+
+\begin{covimg2}{}{ReadNastranRenderer}{0.7}\end{covimg2}
+
+

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ 
+
+
+ <LOCAL host="visar,visar2,vispro2,visbits,visavis" >
+
+  <COVER>
+   <WindowConfig>
+    <Window width="1024" window="0" pipeIndex="0" left="0" height="768" bottom="0" comment="FRONT" name="0" decoration="false" />
+   </WindowConfig>
+   <ChannelConfig>
+    <Channel width="1" height="1" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="MONO"  windowIndex="0"  name="0"  />
+   </ChannelConfig>
+   <ViewerPosition x="0.0" y="-1207.4" z="0.0" />
+   <ScreenConfig>
+    <Screen width="1024" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="768" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="1280" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1024" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+   <Far value="100000" />
+   <Near value="100" />
+   <Background g="0" r="0" b="0" />
+   <HMD mode="OFF" angle="60.0" />
+
+   <Plugin>
+
+    <ARToolKit value="ON">
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="ON" />
+     <xVideoConfig value="r:\data\ARToolKit\Conf\WDM_dmax_hmd.xml" />
+	     <VideoConfig value="-dev=/dev/video1394/0 -mode=1024x768_COLOR -balanceU=63 -balanceV=20 -debug -channel=0 -ID=0x00b09d01002f522b -rate=7.5" />
+     <!--VideoConfig value="C:\data\ARToolKit\Conf\WDM_stk1135.xml" /-->
+     <MirrorRight value="ON" />
+     <Threshold value="100" />
+     <!--Camera value="c:/data/ARToolKit/cctv_para.dat" /-->
+     <Camera value="/data/ARToolKit/dragonfly.dat" />
+
+     <Marker name="ViewpointMarker" >
+      <Pattern value="r:/data/ARToolKit/patt.hiro" />
+      <Size value="80" />
+      <Offset x="0" y="0" h="0" z="0" p="0" t="0" />
+     </Marker>
+
+     <!-- SLK -->
+     <Marker name="ObjectMarker" >
+      <Pattern value="/data/ARToolKit/4x4_56.patt" />
+      <Size value="49" />
+      <Offset x="0" y="0" h="0" z="38" p="0" r="-8" />
+      <VrmlToPf value="TRUE" />
+     </Marker>
+
+     
+    </ARToolKit>
+
+   </Plugin>
+
+
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+
+ <INCLUDE configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+</COCONFIG>

@@ -1,0 +1,392 @@
+# Session file started:  2008/09/08 12:35:39
+# CFX-11.0 build 2007.08.09-22.59
+
+COMMAND FILE:
+  CFX Pre Version = 11.0
+END
+
+>load mode=new
+> update
+
+>gtmImport filename=$(CFXDIR)/cfx_sub/ghostmesh.gtm, \
+type=User, genOpt= -n -e '$(CFXDIR)/cfx_sub/user_import', units=\
+m, nameStrategy= Assembly
+
+> update
+
+LIBRARY:
+  CEL:
+    &replace     FUNCTION: UserFactor
+      Argument Units = []
+      Option = User Function
+      Profile Function = Off
+      Result Units = []
+      User Routine Name = UserFactor
+    END # FUNCTION:UserFactor
+  END # CEL:
+END # LIBRARY:
+
+LIBRARY:
+  CEL:
+    &replace     FUNCTION: UserSinangular
+      Argument Units = []
+      Option = User Function
+      Profile Function = Off
+      Result Units = []
+      User Routine Name = UserSinangular
+    END # FUNCTION:UserSinangular
+  END # CEL:
+END # LIBRARY:
+
+LIBRARY:
+  CEL:
+    &replace     FUNCTION: UserCosangular
+      Argument Units = []
+      Option = User Function
+      Profile Function = Off
+      Result Units = []
+      User Routine Name = UserCosangular
+    END # FUNCTION:UserCosangular
+  END # CEL:
+END # LIBRARY:
+
+LIBRARY:
+  CEL:
+    EXPRESSIONS:
+      factor=UserFactor(1)
+      sinangular=UserSinangular(1)
+      cosangular=UserCosangular(1)
+    END
+  END
+END
+
+EXPRESSION PREVIEW:
+  Preview Expression = factor
+  Preview Mode = Query
+END
+EXPRESSION PREVIEW:
+  Preview Expression = sinangular
+  Preview Mode = Query
+END
+EXPRESSION PREVIEW:
+  Preview Expression = cosangular
+  Preview Mode = Query
+END
+
+LIBRARY:
+  USER ROUTINE DEFINITIONS:
+    &replace     USER ROUTINE: UserFactor
+      Calling Name = factor
+      Library Name = user_factor
+      Library Path = $(CFXDIR)/cfx_sub
+      Option = User CEL Function
+    END # USER ROUTINE:UserFactor
+  END # USER ROUTINE DEFINITIONS:
+END # LIBRARY:
+
+LIBRARY:
+  USER ROUTINE DEFINITIONS:
+    &replace     USER ROUTINE: UserSinangular
+      Calling Name = sinangular
+      Library Name = user_sinangular
+      Library Path = $(CFXDIR)/cfx_sub
+      Option = User CEL Function
+    END # USER ROUTINE:UserSinangular
+  END # USER ROUTINE DEFINITIONS:
+END # LIBRARY:
+
+LIBRARY:
+  USER ROUTINE DEFINITIONS:
+    &replace     USER ROUTINE: UserCosangular
+      Calling Name = cosangular
+      Library Name = user_cosangular
+      Library Path = $(CFXDIR)/cfx_sub
+      Option = User CEL Function
+    END # USER ROUTINE:UserCosangular
+  END # USER ROUTINE DEFINITIONS:
+END # LIBRARY:
+
+
+LIBRARY:
+  USER ROUTINE DEFINITIONS:
+    &replace     USER ROUTINE: user_export
+      Calling Name = user_export
+      Junction Box Location = End of Coefficient Loop
+      Library Name = user_export
+      Library Path = $(CFXDIR)/cfx_sub
+      Option = Junction Box Routine
+    END # USER ROUTINE:user_export
+  END # USER ROUTINE DEFINITIONS:
+END # LIBRARY:
+> update
+
+FLOW:
+  &replace   SOLVER CONTROL:
+    ADVECTION SCHEME:
+      Option = High Resolution
+    END # ADVECTION SCHEME:
+    CONVERGENCE CONTROL:
+      Length Scale Option = Conservative
+      Maximum Number of Iterations = MAXITERATIONS
+      Timescale Control = Auto Timescale
+      Timescale Factor = 1.0
+    END # CONVERGENCE CONTROL:
+    CONVERGENCE CRITERIA:
+      Residual Target = 1.E-4
+      Residual Type = RMS
+    END # CONVERGENCE CRITERIA:
+    DYNAMIC MODEL CONTROL:
+      Global Dynamic Model Control = On
+    END # DYNAMIC MODEL CONTROL:
+    JUNCTION BOX ROUTINES:
+      Junction Box Routine List = user_export
+    END # JUNCTION BOX ROUTINES:
+  END # SOLVER CONTROL:
+END # FLOW:
+> update
+
+
+
+
+
+FLOW:
+  &replace   DOMAIN: Default Domain
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Fluids List = Water
+    Location = LOCATION
+    BOUNDARY: Default Domain Default
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = Primitive 2D AE,Primitive 2D AF,Primitive 2D AG,Primitive \
+2D AH,Primitive 2D AI,Primitive 2D AJ,Primitive 2D AK,Primitive 2D AL,Primitive \
+2D AM,Primitive 2D AN,Primitive 2D AO,Primitive 2D AP,Primitive 2D AQ,Primitive \
+2D AR,Primitive 2D AS,Primitive 2D AT,Primitive 2D AU,Primitive 2D AV,Primitive \
+2D AW,Primitive 2D AX,Primitive 2D AY,Primitive 2D AZ,Primitive 2D BA,Primitive \
+2D BB,Primitive 2D BC,Primitive 2D BD,Primitive 2D BE,Primitive 2D BF,Primitive \
+2D BG,Primitive 2D BH,Primitive 2D BI,Primitive 2D BJ,Primitive 2D C,Primitive \
+2D D,Primitive 2D E,Primitive 2D F,Primitive 2D O,Primitive 2D P,Primitive 2D Q,\
+Primitive 2D R,Primitive 2D W,Primitive 2D X,Primitive 2D Y,Primitive 2D Z
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:Default Domain Default
+    DOMAIN MODELS:
+      BUOYANCY MODEL:
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION:
+        Angular Velocity = REVOLUTIONS [rev min^-1]
+        Option = Rotating
+        AXIS DEFINITION:
+          Option = Coordinate Axis
+          Rotation Axis = Coord 0.3
+        END # AXIS DEFINITION:
+      END # DOMAIN MOTION:
+      MESH DEFORMATION:
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE:
+        Reference Pressure = 1 [atm]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID MODELS:
+      COMBUSTION MODEL:
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL:
+        Fluid Temperature = 25 [C]
+        Option = Isothermal
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL:
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL:
+        Option = k epsilon
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS:
+        Option = Scalable
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:Default Domain
+END # FLOW:
+> update
+
+LIBRARY:
+  CEL:
+    FUNCTION:balance100
+      Option = Profile Data
+      Argument Units = [m], [m], [m]
+      File Name = $(CFXDIR)/inletboco.csv
+      Spatial Fields = x, y, z
+      Profile Function = On
+      DATA FIELD:Velocity u
+        Result Units =   [m s^-1]
+        Field Name = Velocity u
+        Parameter List = U,Velocity r Component,Wall U,Wall Velocity r \
+Component
+      END
+      DATA FIELD:Velocity v
+        Result Units =   [m s^-1]
+        Field Name = Velocity v
+        Parameter List = V,Velocity Theta Component,Wall V,Wall Velocity \
+Theta Component
+      END
+      DATA FIELD:Velocity w
+        Result Units =   [m s^-1]
+        Field Name = Velocity w
+        Parameter List = Velocity Axial Component,W,Wall Velocity Axial \
+Component,Wall W
+      END
+    END
+  END
+END
+> update
+
+FLOW:
+  DOMAIN: Default Domain
+    &replace     BOUNDARY: balance100
+      Boundary Type = INLET
+      Frame Type = Rotating
+      Interface Boundary = Off
+      Location = balance100
+      Use Profile Data = On
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM:
+          Option = Cylindrical Velocity Components
+#          Option = Cartesian Velocity Components
+         Velocity Axial Component = (balance100.Velocity v(x,y,z)*sinangular + balance100.Velocity w(x,y,z)*cosangular)*factor         
+         Velocity Theta Component = (balance100.Velocity v(x,y,z)*cosangular - balance100.Velocity w(x,y,z)*sinangular)*factor
+         Velocity r Component = balance100.Velocity u(x,y,z)
+
+#         Velocity r Component = balance100.Velocity u(x,y,z)
+#         Velocity Theta Component = balance100.Velocity v(x,y,z)
+#         Velocity Axial Component = balance100.Velocity w(x,y,z)
+
+#         U =  balance100.Velocity u(x,y,z)
+#         V =  balance100.Velocity v(x,y,z)
+#         W =  balance100.Velocity w(x,y,z)
+        END # MASS AND MOMENTUM:
+        TURBULENCE:
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+      BOUNDARY PROFILE:
+        Generate Values = false
+        Profile Name = balance100
+      END # BOUNDARY PROFILE:
+    END # BOUNDARY:balance100
+  END # DOMAIN:Default Domain
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: Default Domain
+    &replace     BOUNDARY: balance200
+      Boundary Type = OUTLET
+      Frame Type = Rotating
+      Interface Boundary = Off
+      Location = balance200
+      Use Profile Data = false
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM:
+          Option = Average Static Pressure
+          Relative Pressure = 0 [Pa]
+        END # MASS AND MOMENTUM:
+        PRESSURE AVERAGING:
+          Option = Average Over Whole Outlet
+        END # PRESSURE AVERAGING:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:balance200
+  END # DOMAIN:Default Domain
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: Default Domain
+    &replace     BOUNDARY: wall10
+      Boundary Type = WALL
+      Create Other Side = Off
+      Frame Type = Rotating
+      Interface Boundary = Off
+      Location = wall10
+      Use Profile Data = false
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+          WALL VELOCITY:
+            Option = Counter Rotating Wall
+          END # WALL VELOCITY:
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wall10
+  END # DOMAIN:Default Domain
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: Default Domain
+    &replace     BOUNDARY: wall11
+      Boundary Type = WALL
+      Create Other Side = Off
+      Frame Type = Rotating
+      Interface Boundary = Off
+      Location = wall11
+      Use Profile Data = false
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wall11
+  END # DOMAIN:Default Domain
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN INTERFACE: Domain Interface 1
+    Boundary List1 =
+    Boundary List2 =
+    Filter Domain List1 = -- All Domains --
+    Filter Domain List2 = -- All Domains --
+    Interface Region List1 = balance110
+    Interface Region List2 = balance120
+    Interface Type = Fluid Fluid
+    INTERFACE MODELS:
+      Option = General Connection
+      FRAME CHANGE:
+        Option = None
+      END # FRAME CHANGE:
+      PITCH CHANGE:
+        Option = None
+      END # PITCH CHANGE:
+    END # INTERFACE MODELS:
+    MESH CONNECTION:
+      Option = Automatic
+    END # MESH CONNECTION:
+  END # DOMAIN INTERFACE:Domain Interface 1
+END # FLOW:
+> update
+
+
+>writeCaseFile filename=$(CFXDIR)/axial_machine.def, operation=write solver file
+
+>update

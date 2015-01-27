@@ -1,0 +1,115 @@
+* {
+    background-color: #1e496b;
+    border-color: #d7f3a4;
+    font: #1e496b;
+}
+
+QFrame, QLabel, QToolTip {
+     border: 2px outset #d7f3a4;
+     border-radius: 4px;
+     padding: 2px;
+ }
+
+/* We provide a min-width and min-height for push buttons
+   so that they look elegant regardless of the width of the text. */
+QPushButton {
+    border-width: 2px;
+    border-style: outset;
+    border-radius: 5;
+    padding: 3px;
+    min-width: 9ex;
+    min-height: 2.5ex;
+    background-color: #d7f3a4;
+}
+
+
+/* Increase the padding, so the text is shifted when the button is
+   pressed. */
+QPushButton:pressed {
+    padding-left: 5px;
+    padding-top: 5px;
+    border-width: 1px;
+    border-radius: 2;
+    font: #1e496b;    
+}
+
+QLabel, QAbstractButton {
+    border-width: 2px;
+    border-style: outset;
+    border-radius: 5;
+    font: bold #1e496b;
+    background-color: #d7f3a4;
+}
+
+/* Bold text on status bar looks awful. */
+QStatusBar QLabel {
+   font: normal #1e496b;
+}
+
+QStatusBar::item {
+    border-width: 1;
+    border-style: outset;
+    border-radius: 2;
+}
+
+QComboBox, QLineEdit, QSpinBox, QTextEdit, QListView {
+    selection-color: #1e496b; 
+    selection-background-color: #1e496b;
+    background-color: #d7f3a4;
+}
+
+QListView {
+    show-decoration-selected: 1;
+    background-color: #d7f3a4;
+}
+
+QListView::item:hover {
+    background-color: #9ae21b;
+}
+
+/* We reserve 1 pixel space in padding. When we get the focus,
+   we kill the padding and enlarge the border. This makes the items
+   glow. */
+QLineEdit, QFrame {
+    border-width: 2px;
+    padding: 1px;
+    border-style: outset;
+    border-radius: 5px;
+    font: normal #1e496bM;
+}
+
+/* As mentioned above, eliminate the padding and increase the border. */
+QLineEdit:focus, QFrame:focus {
+    border-width: 3px;
+    padding: 0px;
+}
+
+/* A QLabel is a QFrame ... */
+QLabel {
+    border: none;
+    padding: 0;
+    background: none;
+}
+
+/* A QToolTip is a QLabel ... */
+QToolTip {
+    border: 2px solid;
+    padding: 5px;
+    border-radius: 3px;
+    opacity: 200;
+    background-color: #d7f3a4;
+}
+
+/* Nice to have the background color change when hovered. */
+QRadioButton:hover, QCheckBox:hover {
+    background-color: #9ae21b;
+}
+
+/* Force the dialog's buttons to follow the Windows guidelines. */
+QDialogButtonBox {
+    button-layout: 0;
+}
+
+
+
+

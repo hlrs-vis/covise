@@ -1,0 +1,19 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+ 
+\begin{covimg} {}{ReadPlot3DMap}{covise/net/examples/ReadPlot3D.net}{0.7}\end{covimg}
+
+The next image show the results in the Inventor Renderer of the data read by ReadPlot3D.
+The surface of the structured grid and the data on that surface is obtained from the 
+{\bf DomainSurfaceStr} module.
+
+\begin{covimg} {}{ReadPlot3DRenderer1}{The result in the Renderer}{0.7}\end{covimg}    
+%

@@ -1,0 +1,133 @@
+! This macro creates lines connecting
+! the external nodes of a paper bump
+! or of a quarter of a paper bump
+! Author: Sergio Leseduarte
+! (C) 2002 by VirCinity IT Consulting
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! search for the farthest node
+cmsel,s,bump
+lsel,none
+ksel,all
+*get,kp_mx_i,kp,,num,max
+ksel,none
+kp_co_i=1
+
+nsle
+
+*get,xnodexx,node,0,mxloc,x
+nodexx=node(xnodexx,0,zshift)
+thisnode = nodexx
+prevnode = nodexx
+*get,nodecoun,node,,count
+*dim,node_s,,4
+*dim,node_i,,2
+*do,car31,1,nodecoun,1
+   ! select elements that see thisnode
+   nsel,s,node,,thisnode
+   esln,s
+   cm,nearelem,elem
+   *get,numelem,elem,,count
+   *get,elemmin,elem,,num,min
+   *get,node_1,elem,elemmin,node,1
+   *get,node_2,elem,elemmin,node,2
+   *get,node_3,elem,elemmin,node,3
+   *get,node_4,elem,elemmin,node,4
+   *get,elemmax,elem,,num,max
+   *get,node_5,elem,elemmax,node,1
+   *get,node_6,elem,elemmax,node,2
+   *get,node_7,elem,elemmax,node,3
+   *get,node_8,elem,elemmax,node,4
+   nsle
+   ! we have to remove diagonally opposite nodes
+   first = 0
+   second = 0
+
+   *if,thisnode,eq,node_1,then
+      first = 1
+   *elseif,thisnode,eq,node_2
+      first = 0
+   *elseif,thisnode,eq,node_3
+      first = 1
+   *elseif,thisnode,eq,node_4
+      first = 0
+   *endif
+
+   *if,thisnode,eq,node_5,then
+      second = 1
+   *elseif,thisnode,eq,node_6
+      second = 0
+   *elseif,thisnode,eq,node_7
+      second = 1
+   *elseif,thisnode,eq,node_8
+      second = 0
+   *endif
+
+   *if,first,eq,0,then
+      node_s(1)=node_1
+      node_s(2)=node_3
+   *else
+      node_s(1)=node_2
+      node_s(2)=node_4
+   *endif
+
+   *if,second,eq,0,then
+      node_s(3)=node_5
+      node_s(4)=node_7
+   *else
+      node_s(3)=node_6
+      node_s(4)=node_8
+   *endif
+
+   *if,elemmin,eq,elemmax,then
+      node_i(1) = node_s(1)
+      node_i(2) = node_s(2)
+   *else
+      ! eliminate from node_s the node that is repeated
+      *if,node_s(1),eq,node_s(3),then
+         node_i(1) = node_s(2)
+         node_i(2) = node_s(4)
+      *elseif,node_s(1),eq,node_s(4),then
+         node_i(1) = node_s(2)
+         node_i(2) = node_s(3)
+      *elseif,node_s(2),eq,node_s(3),then
+         node_i(1) = node_s(1)
+         node_i(2) = node_s(4)
+      *else
+         node_i(1) = node_s(1)
+         node_i(2) = node_s(3)
+      *endif
+   *endif
+
+   *if,node_i(1),eq,prevnode,then
+      nextnode = node_i(2)
+   *else
+      nextnode = node_i(1)
+   *endif
+
+   prevnode=thisnode
+
+   ! draw a line from thisnode to nextnode
+   *get,locx,node,thisnode,loc,x
+   *get,locy,node,thisnode,loc,y
+   *get,locz,node,thisnode,loc,z
+   k,kp_mx_i+kp_co_i,locx,locy,locz
+   kp_co_i = kp_co_i+1
+   *get,locx,node,nextnode,loc,x
+   *get,locy,node,nextnode,loc,y
+   *get,locz,node,nextnode,loc,z
+   k,kp_mx_i+kp_co_i,locx,locy,locz
+   kp_co_i = kp_co_i+1
+   l,kp_mx_i+kp_co_i-2,kp_mx_i+kp_co_i-1
+
+   ! if nextnode==nodexx we have gone round the domain
+   *if,nextnode,eq,nodexx,exit
+   
+   ! else continue
+   thisnode = nextnode
+*enddo
+
+ksll
+nummrg,kp
+
+

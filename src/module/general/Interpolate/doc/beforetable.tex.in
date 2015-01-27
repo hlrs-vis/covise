@@ -1,0 +1,65 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{Interpolate_icon}{0.9}
+\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+Interpolate creates a set of unstructured vector or scalar data by
+interpolation of the incoming data. For each point of the data set the
+intervall between zero and the current value is decomposed into a
+given number
+\latexonly
+     $n_{s}$ of segments.
+\endlatexonly
+\begin{htmlonly}
+       ns of segments.
+\end{htmlonly}
+ 
+
+Two different interpolation characteristics
+are available:
+
+\latexonly
+\begin{center}
+  \begin{tabular}[htbp]{lll}
+    \textit{linear} &  $\mathbf{F}_{i}(x,y,z) = \frac{n_{s}}{i}\mathbf{F}(x,y,z)$ & $(i=1..n_{s})$ \\
+    \textit{sinusoidal} &  $\mathbf{F}_{i}(x,y,z) = \sin(\frac{n_{s}\pi}{2i}) \mathbf{F}(x,y,z)$ & $(i=1..n_{s})$
+  \end{tabular}  
+\end{center}
+where $\mathbf{F}_{i}(x,y,z)$ is the value (or component) of the incoming field $\mathbf{F}(x,y,z)$ at any point (x,y,z) and $n_{s}$ is the number of interpolation steps.
+\endlatexonly
+
+\begin{htmlonly}
+
+linear: 
+     
+    Fi(x,y,z) = ns x F(x,y,z) / i               (i = 1...ns)
+    
+sinusoidal:
+
+    Fi(x,y,z) = sin(ns x pi / 2i) x F(x,y,z)    (i = 1...ns)
+    
+where Fi(x,y,z) is the value (or component) of the incoming field F(x,y,z) at any point (x,y,z),
+and ns is the number of interpolation steps.    
+    
+\end{htmlonly}
+
+
+%
+%=============================================================

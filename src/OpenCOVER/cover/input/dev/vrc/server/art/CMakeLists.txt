@@ -1,0 +1,30 @@
+# @file
+# 
+# CMakeLists.txt for sys DevServer art (ARTserver)
+#
+# @author Blasius Czink
+
+if(NOT OPENTHREADS_FOUND)
+   return()
+endif()
+
+ADD_DEFINITIONS(-DSTANDALONE -DCOVISE_DEVSERVER -Dinput_legacy_EXPORTS)
+
+IF(WIN32)
+  ADD_DEFINITIONS(-DUTIL_EXPORTS -DCOVISE_UTIL)
+  SET(EXTRA_LIBS ws2_32)
+ENDIF(WIN32)
+
+SET(ARTSERVER_SOURCES
+  ARTserver.cpp
+  "../../../legacy/DTrack.cpp"
+)
+
+SET(ARTSERVER_HEADERS
+  "../../../legacy/DTrack.h"
+)
+
+ADD_COVISE_EXECUTABLE(ARTserver ${ARTSERVER_SOURCES} ${ARTSERVER_HEADERS})
+TARGET_LINK_LIBRARIES(ARTserver coDevServer ${OPENTHREADS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS}) 
+
+COVISE_INSTALL_TARGET(ARTserver)

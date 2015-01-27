@@ -1,0 +1,53 @@
+
+%=============================================================
+
+%-------------------------------------------------------------
+% General Notes for Latex novices:
+% 1. Please protect any "_" by a backslash "\" to prevent that it is
+%    interpreted by Latex as an order, e. g. write
+%    Vec3. 
+%    Protect "#", "$", "&", "%" , "{" and "}" in the same way by a "\".
+% 2. Use {\bf text} or {\it text} to generate text in bold face resp. italics
+% 3. For Figures, Tables, Lists, Verbatim-Environments (unformatted text), References/Links,
+%    etc. see below.
+% 4. Look at CuttingSurface.tex , ReadSTAR.tex, or Domainsurface.tex as good examples.  
+% 5. A Latex book (Latex Einführung Band 1) is available for further questions
+%    (usually on Peter's desk) 
+%-------------------------------------------------------------
+
+%
+% short description what the module does
+%
+You can choose a dimension and an index of a structured grid refering to this dimension.
+IndexSurface calculates the surface of this area. If you work with uniform or rectilinear
+grids the result will be a plane.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{IndexSurfaceModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+
+IndexSurface is available for COVISE version 4.5 and higher. 
+It's available for all supported platforms.
+%
+%-------------------------------------------------------------
+% Notes for using the 3 environments for tables below:
+%-------------------------------------------------------------
+% 1. In some cases it may be necessary to increase the size of a column, 
+%    e.g. change the value of p for the type of input or output ports from 3.5cm to 4cm
+% 2. If you have more than one entry in a cell but you don't want to place 
+%    them in the one row, use "\newline", not "\\". For the first column you have
+%    to specify explicitly the size of the coloumn (change "l" to "p{xxcm}") 
+%    in addition.
+%-------------------------------------------------------------
+%
+%=============================================================

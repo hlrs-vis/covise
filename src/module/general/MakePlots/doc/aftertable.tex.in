@@ -1,0 +1,28 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+For examples you may take a look at both examples
+of
+\covlink{ReadPAM}{ReadPAM}{../../IO/ReadPAM/ReadPAM.html}.
+But lest you do not have a license for the DSY library, without which
+you will not be able to run these examples, we have used
+\covlink{RWCovise}{RWCovise}{../../IO/RWCovise/RWCovise.html}
+in order to create six files for six scalar quantities used
+in the second of those examples. The first of this quantities
+is the real time for the time steps of a simulation, 
+and the other five stand for the temperature in five chambers
+of an airbag. With these files we may create the map shown below
+using six 
+\covlink{RWCovise}{RWCovise}{../../IO/RWCovise/RWCovise.html}
+modules in the functionality of readers.
+
+\begin{covimg}{}
+                {MakePlots_map}{covise/net/examples/MakePlots.net}{0.7}\end{covimg} 
+
+\begin{covimg}{}
+                {MakePlots_Airbag}{Temperature in five airbag chambers}{0.45}\end{covimg}                                                                          

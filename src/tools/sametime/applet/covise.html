@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<TITLE>Launching covise</TITLE>
+
+<SCRIPT LANGUAGE="JAVASCRIPT">
+
+function launchcovise2()
+{
+}
+
+function launchcovise()
+{
+
+file="file://C:/covise.html";
+window.open(file,"local", "toolbar=0, location=0, directories=0, status=0, scrollbars=0, resizable=0, copyhistory=0, width=100, height=100, left=1000, top=500");
+//window.external.NavigateAndFind("javascript:alert(document.body.innerText);","b","local");
+
+//window.open(url,"covise", "toolbar=no, location=no, directories=no, status=yes, scrollbars=no, resizable=no, copyhistory=no, width=200, height=200, left=1000, top=500");
+window.close();
+}
+
+function Sniff()
+{
+window.external.NavigateAndFind("javascript:alert(document.body.innerText);","b","local");
+}
+
+
+</SCRIPT>
+
+</HEAD>
+<BODY OnLoad='launchcovise()'>
+</BODY>
+</HTML>

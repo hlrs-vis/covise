@@ -1,0 +1,35 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{DO\_Geometry} & DO\_Geometry \newline
+                                             DO\_UnstructuredGrid
+                                             DO\_Points \newline
+                                             DO\_StructuredGrid \newline
+                                             DO\_Polygons \newline
+                                             DO\_TriangleStrips \newline
+                                             DO\_Lines  & Geometry to be rendered \\
+
+
+\hline
+\end{longtable}
+
+As you can see, no parameters can be set or adjusted, and there is currently only
+one input port called DO\_Geometry. In the future there will be additional input
+ports, e.g. for pixel images. Unlike other application modules in the COVISE
+environment, the renderer has it's own Motif based point and click user interface.
+You can connect all modules with geometry output ports to the renderer's input
+port. The renderer will accept any number of input objects. 
+%=============================================================
+
+
+
+
+%
+%

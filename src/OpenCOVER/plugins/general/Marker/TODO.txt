@@ -1,0 +1,17 @@
+Fix scaling issue in GUI
+Add dropdown to list options for each marker
+
+Week 3-4:
+
+Persist location of markers to an xml file
+and be able to reload them
+
+Week 4-8:
+Record and play back audio associated with each marker
+
+Week 8-10:
+Complete GUI implemenation/Test
+
+Update:
+SAXCOUNT example good: use to generate marker data structure 
+from xml file

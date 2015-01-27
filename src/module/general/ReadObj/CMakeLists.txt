@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadObj.cpp
+)
+
+SET(EXTRASOURCES
+  ReadObj.h
+)
+
+ADD_COVISE_MODULE(IO ReadObj ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadObj  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadObj)

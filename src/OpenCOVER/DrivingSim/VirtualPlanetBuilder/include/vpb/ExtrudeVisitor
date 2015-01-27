@@ -1,0 +1,71 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef VPB_EXTRUDEVISITOR
+#define VPB_EXTRUDEVISITOR 1
+
+#include <osg/NodeVisitor>
+#include <osg/Geometry>
+
+#include <vpb/Export>
+
+namespace vpb {
+
+class VPB_EXPORT ExtrudeVisitor : public osg::NodeVisitor
+{
+    public:
+
+        enum OutputMode
+        {
+            Replace,
+            Merge
+        };
+        
+        enum Mode
+        {
+            PER_VERTEX,
+            PER_GEOMETRY
+        };
+        
+        ExtrudeVisitor() : _mode(PER_GEOMETRY), _outputMode(Merge) {}
+        ExtrudeVisitor(Mode mode) : _mode(mode), _outputMode(Merge) {}
+        ExtrudeVisitor(Mode mode, osg::Vec3d & extrudeVector) : _mode(mode), _outputMode(Merge), _extrudeVector(extrudeVector) {}
+        ExtrudeVisitor(Mode mode, OutputMode outputMode, osg::Vec3d & extrudeVector) : _mode(mode), _outputMode(outputMode), _extrudeVector(extrudeVector) {}
+
+        OutputMode getOutputMode() { return _outputMode; }
+        void setOutputMode(OutputMode outputMode) { _outputMode = outputMode; }
+
+        Mode getMode() { return _mode; }
+        void setMode(Mode mode) { _mode = mode; }
+        
+        osg::Vec3d & getExtrudeVector() { return _extrudeVector; }
+        const osg::Vec3d & getExtrudeVector() const { return _extrudeVector; }
+        void setExtrudeVector(osg::Vec3d extrudeVector) { _extrudeVector = extrudeVector; }
+
+        void extrude(osg::Geometry& geometry);
+        
+        virtual void apply(osg::Geode& node);
+        
+    private:
+        
+        osg::DrawElementsUInt * linkAsTriangleStrip(osg::UIntArray & originalIndexArray,
+                                                    osg::UIntArray & extrudeIndexArray);
+        Mode _mode;
+        OutputMode _outputMode;
+        
+        osg::Vec3d _extrudeVector;
+};
+
+} // end vpb namespace
+
+#endif // ** VPB_EXTRUDEVISITOR ** //

@@ -1,0 +1,26 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+Collect combines geometric primitive objects like points, lines, polygons, triangle strips
+with colors, normals and textures
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}	{} {CollectModule} {0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+Collect is available for all COVISE versions on all platforms.
+%
+%=============================================================
+%
+%=============================================================

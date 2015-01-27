@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Kunststoffe' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">               
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="showName" name="showName" />
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="motorhaube" regexp="motorhaube-FACES.*" shader="Glossy9" />
+               <Scope name="auto" regexp="auto-FACES.*" shader="Glossy9" />
+               <Scope name="fahrertuer" regexp="fahrertuer-FACES.*" shader="Glossy9" />
+               <Scope name="fahrerseite_hinten" regexp="fahrerseite_hinten-EOT.*" shader="Glossy9" />
+               <Scope name="Scheibe" regexp="Scheibe-FACES.*" shader="Glossy9" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Chemie/Kunststoffe/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

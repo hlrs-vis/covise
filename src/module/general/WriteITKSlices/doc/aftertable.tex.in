@@ -1,0 +1,16 @@
+%=============================================================
+% examples for using this module
+%=============================================================
+
+\subsubsection{Examples}
+
+A "classical" combination for this module is shown in the example WriteITKSlices.net. An image stack is read by the module ReadITK, registered by the Register module and afterwards saved in files. 
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2}{}{writeitk-example}{1.0}\end{covimg2}
+   

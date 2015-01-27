@@ -1,0 +1,15 @@
+#! /bin/bash
+
+if [ -z "${COVISEDIR}" ]; then
+   self="$(dirname $0)"
+   dotcovise="$self/../.covise.sh"
+else
+   dotcovise="${COVISEDIR}/.covise.sh"
+fi
+
+if [ -r "$dotcovise" ]; then
+   . "$dotcovise"
+   exec "${COVISEDIR}/bin/_env_for_covise" "$@"
+else
+   exit 1
+fi

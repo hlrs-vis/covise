@@ -1,0 +1,37 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+ReadCadmould reads in Cadmould files. 
+It reads in the mesh and 
+may get information from the rheology file 
+ \latexonly ($<$basename$>$E0)\endlatexonly 
+ \begin{htmlonly} (<basename>E0) \end{htmlonly},
+thickness of the outer layer 
+ \latexonly ($<$basename$>$S\#\#) \endlatexonly
+ \begin{htmlonly} (<basename>S##) \end{htmlonly}, 
+magnitudes related to the filling process 
+ \latexonly ($<$basename$>$a)\endlatexonly 
+ \begin{htmlonly} (<basename>a) \end{htmlonly},
+and data from the intermediate state files 
+ \latexonly ($<$basename$>$E\#\#) \endlatexonly
+ \begin{htmlonly} (<basename>E##) \end{htmlonly} .
+Moreover, the module reads information from files in the CAR format.
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}	{}{ReadCadmould_Module}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+% ReadCadmould is provided with COVISE Rel.2
+
+
+%=============================================================

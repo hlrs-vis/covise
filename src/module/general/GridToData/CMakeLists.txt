@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  GridToData.cpp
+)
+
+SET(EXTRASOURCES
+  GridToData.h
+)
+
+ADD_COVISE_MODULE(Converter GridToData ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(GridToData  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(GridToData)

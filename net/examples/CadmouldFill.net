@@ -1,0 +1,1113 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+11
+# Module SplitUsg
+SplitUsg
+1
+LOCAL
+Filter
+TITLE=SplitUsg_1
+119
+306
+3
+Grid
+UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+
+S_Data
+Float
+scalar data of input grid
+opt
+
+V_Data
+Vec3
+vector data of input grid
+opt
+
+12
+Grid3D
+UnstructuredGrid
+3D grid
+default
+
+S_Grid3D_Data
+Float
+scalar data of 3D grid
+dep S_Data
+
+V_Grid3D_Data
+Vec3
+vector data of 3D grid
+dep V_Data
+
+Grid2D
+Polygons
+2D grid
+default
+
+S_Grid2D_Data
+Float
+scalar data of 2D grid
+dep S_Data
+
+V_Grid2D_Data
+Vec3
+vector data of 2D grid
+dep V_Data
+
+Grid1D
+Lines
+1D grid
+default
+
+S_Grid1D_Data
+Float
+scalar data of 1D grid
+dep S_Data
+
+V_Grid1D_Data
+Vec3
+vector data of 1D grid
+dep V_Data
+
+Grid0D
+Points
+0D grid
+default
+
+S_Grid0D_Data
+Float
+scalar data of 0D grid
+dep S_Data
+
+V_Grid0D_Data
+Vec3
+vector data of 0D grid
+dep V_Data
+
+0
+0
+# Module SplitUsg
+SplitUsg
+2
+LOCAL
+Filter
+TITLE=SplitUsg_2
+187
+221
+3
+Grid
+UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+
+S_Data
+Float
+scalar data of input grid
+opt
+
+V_Data
+Vec3
+vector data of input grid
+opt
+
+12
+Grid3D
+UnstructuredGrid
+3D grid
+default
+
+S_Grid3D_Data
+Float
+scalar data of 3D grid
+dep S_Data
+
+V_Grid3D_Data
+Vec3
+vector data of 3D grid
+dep V_Data
+
+Grid2D
+Polygons
+2D grid
+default
+
+S_Grid2D_Data
+Float
+scalar data of 2D grid
+dep S_Data
+
+V_Grid2D_Data
+Vec3
+vector data of 2D grid
+dep V_Data
+
+Grid1D
+Lines
+1D grid
+default
+
+S_Grid1D_Data
+Float
+scalar data of 1D grid
+dep S_Data
+
+V_Grid1D_Data
+Vec3
+vector data of 1D grid
+dep V_Data
+
+Grid0D
+Points
+0D grid
+default
+
+S_Grid0D_Data
+Float
+scalar data of 0D grid
+dep S_Data
+
+V_Grid0D_Data
+Vec3
+vector data of 0D grid
+dep V_Data
+
+0
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+TITLE=Colors_1
+391
+374
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 2.00997
+
+1
+EditableColormap
+Colormap
+Colormap Editor
+0 2.00997 RGBAX 15 0.0980392 0 0.898039 1 0 0 0 1 1 0.0714286 0.627451 0.627451 1 1 0.142857 0 0.74902 1 1 0.214286 0 1 1 1 0.285714 0.0980392 0.8 0.698039 1 0.357143 0.0980392 0.898039 0 1 0.428571 0.498039 1 0.627451 1 0.5 0.74902 1 0.247059 1 0.571429 1 1 0 1 0.642857 1 0.8 0.0980392 1 0.714286 1 0.6 0.298039 1 0.785714 1 0.666667 0.94902 1 0.857143 1 0 0.498039 1 0.928572 1 0 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements 
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+221
+629
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+170
+527
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+2
+LOCAL
+Mapper
+TITLE=Colors_2
+187
+459
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+178.495 511.023
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+178.495 511.023 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements 
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Tube
+Tube
+1
+LOCAL
+Tools
+TITLE=Tube_1
+272
+391
+3
+Lines
+Lines
+lines
+req
+
+Data
+Float
+Data
+opt
+
+Diameter
+Float
+BeamDiameter
+opt
+
+3
+Tubes
+Polygons
+mantle of the tubes
+default
+
+DataOut
+Float
+Data Out
+dep Data
+
+Normals
+Vec3
+Normals
+default
+
+5
+Radius
+FloatScalar
+Radius of tubes
+0.100000
+
+-1
+Parts
+IntScalar
+No. of sides of the tubes
+6
+
+-1
+Option
+Choice
+open or closed cylinder
+2 open_cylinder closed_cylinder arrows
+
+-1
+LimitRadius
+Boolean
+Limit Radius of Tubes?
+FALSE
+
+-1
+max_Radius
+FloatScalar
+Maximum allowed Radius of tubes
+1.000000
+
+-1
+0
+# Module Colors
+Colors
+3
+LOCAL
+Mapper
+TITLE=Colors_3
+289
+459
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0 0
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0 0 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements 
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Collect
+Collect
+2
+LOCAL
+Tools
+TITLE=Collect_2
+272
+527
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module MakeTransient
+MakeTransient
+1
+LOCAL
+Tools
+TITLE=MakeTransient_1
+204
+153
+2
+inport
+coDistributedObject
+input port
+req
+
+accordingTo
+coDistributedObject
+accordingTo
+opt
+
+1
+outport
+coDistributedObject
+output port
+default
+
+1
+timesteps
+IntScalar
+number of time steps
+40
+
+-1
+0
+# Module ReadCadmould
+ReadCadmould
+1
+LOCAL
+IO_Module
+TITLE=ReadCadmould_1
+34
+34
+0
+13
+stMesh
+UnstructuredGrid
+stationary mesh
+default
+
+trMesh
+UnstructuredGrid
+transient mesh
+default
+
+thick
+Float
+thickness of elements
+default
+
+Data_0
+Float|IntArr
+Data_0
+default
+
+Data_1
+Float|IntArr
+Data_1
+default
+
+Data_2
+Float|IntArr
+Data_2
+default
+
+Data_3
+Float|IntArr
+Data_3
+default
+
+Data_4
+Float|IntArr
+Data_4
+default
+
+Data_5
+Float|IntArr
+Data_5
+default
+
+Data_6
+Float|IntArr
+Data_6
+default
+
+Data_7
+Float|IntArr
+Data_7
+default
+
+fiMesh
+UnstructuredGrid
+mesh for filling
+default
+
+fiValuw
+Float
+data for filling
+default
+
+13
+filename
+Browser
+file name of Fuellbild or .cfe file
+share/covise/example-data/Cadmould/car/tt02_001.cfe
+
+1
+Choice_0
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+1
+Choice_1
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+1
+Choice_2
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+1
+Choice_3
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+-1
+Choice_4
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+-1
+Choice_5
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+-1
+Choice_6
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+-1
+Choice_7
+Choice
+Select data for port
+1 --- _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+-1
+fillTimeStep
+IntScalar
+time steps for filling
+40
+
+1
+fillField
+Choice
+Select field for filling
+2 automatic _100_:FüllzeitbeiErreichen[s] _100_:FüllstandbeiErreichen[%] _100_:Gefülltvon _100_:TemperaturbeiErreichen[°C] _100_:Druckverlust[bar] _100_:SchubspannungbeiErreichen[kPa] _100_:GeschwindigkeitbeiErreichen[mm/s _101_:Temperatur[°C] _101_:Druck[bar] _101_:Schubspannung[kPa] _101_:Geschwindigkeit[mm/s] _101_:Randschichtdicke[%] _101_:FreierQuerschnitt[mm] _102_:Max.Temperatur[°C] _102_:Max.Schergeschwindigkeit[1/s] _103_:Knoten _103_:Typ _103_:Vorgänger _104_:Zeit[s] _104_:Füllstand[%] _104_:Druck[bar] _104_:Volumenstrom[cm³/s] _108_:Füllprobleme _108_:Einfallstellen _108_:Entformungszeit[s] _108_:Siegelzeit[s] _108_:Einfrierzeit[s]
+
+-1
+noDataColor
+String
+RGBA color for non-filled elements
+0xd0d0d0ff
+
+-1
+filename___filter
+BrowserFilter
+file name of Fuellbild or .cfe file
+filename ?????;*.cfe
+
+-1
+0
+21
+SplitUsg
+1
+LOCAL
+Grid2D
+
+Collect
+1
+LOCAL
+GridIn0
+SplitUsg
+1
+LOCAL
+S_Grid2D_Data
+
+Colors
+2
+LOCAL
+DataIn0
+SplitUsg
+1
+LOCAL
+Grid1D
+
+Tube
+1
+LOCAL
+Lines
+SplitUsg
+1
+LOCAL
+S_Grid1D_Data
+
+Tube
+1
+LOCAL
+Data
+SplitUsg
+2
+LOCAL
+S_Grid1D_Data
+
+Tube
+1
+LOCAL
+Diameter
+Colors
+1
+LOCAL
+ColormapOut0
+
+Colors
+2
+LOCAL
+ColormapIn0
+Colors
+1
+LOCAL
+ColormapOut0
+
+Colors
+3
+LOCAL
+ColormapIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+2
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn0
+Tube
+1
+LOCAL
+Tubes
+
+Collect
+2
+LOCAL
+GridIn0
+Tube
+1
+LOCAL
+DataOut
+
+Colors
+3
+LOCAL
+DataIn0
+Tube
+1
+LOCAL
+Normals
+
+Collect
+2
+LOCAL
+DataIn1
+Colors
+3
+LOCAL
+DataOut0
+
+Collect
+2
+LOCAL
+DataIn0
+Collect
+2
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+MakeTransient
+1
+LOCAL
+outport
+
+SplitUsg
+2
+LOCAL
+S_Data
+ReadCadmould
+1
+LOCAL
+thick
+
+MakeTransient
+1
+LOCAL
+inport
+ReadCadmould
+1
+LOCAL
+fiMesh
+
+MakeTransient
+1
+LOCAL
+accordingTo
+ReadCadmould
+1
+LOCAL
+fiMesh
+
+SplitUsg
+1
+LOCAL
+Grid
+ReadCadmould
+1
+LOCAL
+fiMesh
+
+SplitUsg
+2
+LOCAL
+Grid
+ReadCadmould
+1
+LOCAL
+fiValuw
+
+SplitUsg
+1
+LOCAL
+S_Data
+ReadCadmould
+1
+LOCAL
+fiValuw
+
+Colors
+1
+LOCAL
+DataIn0
+0

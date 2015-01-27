@@ -1,0 +1,44 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+
+
+TracerUsg performs computation of particle tracks inside 
+unstructured grids or blocks of unstructured grids. It
+uses a Runge--Kutta 2nd- or 4th-order numerical integration method. It may 
+handle also time steps.
+In this latter case the output may not be the physical 
+trace of particles in the fluid, 
+but it may be helpful for the sake visulisation.
+
+{\bf Note:}
+
+Module obsolete - kept for compatibility with 5.1 only, but support 
+discontinued - use {\bf Tracer} (new with 5.2) instead!
+
+
+%Some precomputation {\it (see Examples)} is required in order to be capable of handling
+%larger datasets near real-time.
+
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{TracerUsg}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+
+
+
+%
+%=============================================================

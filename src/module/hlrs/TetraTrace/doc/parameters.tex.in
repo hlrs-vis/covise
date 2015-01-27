@@ -1,0 +1,72 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	startpoint1 & Vector & Start point of a line or of a quads diagonal \\
+\hline
+        startpoint2 & Vector & End point of a line or of a quads diagonal  \\
+\hline
+        normal & Vector & normal of the quad  \\
+\hline
+        direction & Vector & vector describing the direction of one edge of the quad (see
+	figure) \\
+\hline
+	numStart & Scalar & number of particles to trace  \\
+\hline
+	startStep & Scalar & if transient grid/Data: in which step should the traces
+	start  \\
+\hline
+	whatOut & Choice & select which data to output: number, velocity, magnitude;
+	currently only velocity and magnitude are supported  \\														
+\hline
+	startStyle & Choice & how should the particles start positions be arranged: 
+	 \begin{itemize}
+         \item line: connecting line between startpoint1 and startpoint2
+         \item plane: in fact it is a quad defined by its diagonal (startpoint1/2),
+	 normal and direction
+	 \item sphere: sphere through startpoint1/2, where the center is in the middle
+	 between the two startpoints
+         \item box: defining a cuboid by its room-diagonal (startpoint1/2), normal and
+	 direction
+	 \end{itemize} 
+	 NOTE: only line and plane supported at the moment \\
+\hline
+	traceStyle & Choice & How should the particle traces be represented:
+	currently only points is implemented and any other selection will also result in
+	points  \\
+\hline
+	numSteps & Scalar & Number of steps to compute. If tracing on transient grid/data
+	this number representsd the number of complete cycles traced. So if you have a
+	non-cyclic data-set you should set this to 1 \\
+\hline
+	stepDuration & Scalar & stationary: how long should a particle be traced in each
+	step
+	
+	                        transient: what time does one timestep represent \\
+\hline
+	numNodes & Scalar & number of nodes/processors to be used for multiprocessing  \\
+\hline
+	multiProcMode & Choice & Select your machines multiprocessing-mode: currently
+	only SGI-MP is supported, selecting Workstation results in single-processing
+	(default)  \\
+\hline
+	searchMode & Choice & quick is really quick while save is pretty slow but will
+	not run into problems if using grids with holes. Unless you are using pretty
+	weired grids you shouldn't use/need the save-mode.  \\
+	
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

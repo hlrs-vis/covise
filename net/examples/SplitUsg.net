@@ -1,0 +1,543 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+9
+# Module ReadMovieBYU
+ReadMovieBYU
+1
+LOCAL
+IO_Module
+ReadMovieBYU_1
+55
+22
+0
+2
+poly
+UnstructuredGrid
+surface out
+default
+
+data
+Float|Vec3|UnstructuredGrid
+data out
+default
+
+8
+gridpath
+Browser
+file gridpath
+share/covise/example-data/MovieBYU/crash.movie
+
+1
+datapath
+Browser
+file datapath
+share/covise/example-data/MovieBYU/crashdata/displace001
+
+1
+colorpath
+Browser
+file colorpath
+share/covise/example-data/MovieBYU/crash.color
+
+1
+filetype
+Choice
+???
+3
+
+-1
+gridtype
+Choice
+???
+1
+
+-1
+datatype
+Choice
+???
+4
+
+-1
+timesteps
+IntScalar
+???
+20
+
+-1
+delta
+IntScalar
+???
+1
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+206
+362
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module SplitUsg
+SplitUsg
+1
+LOCAL
+Filter
+SplitUsg_1
+66
+77
+3
+Grid
+UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+
+S_Data
+Float
+scalar data of input grid
+opt
+
+V_Data
+Vec3
+vector data of input grid
+opt
+
+12
+Grid3D
+UnstructuredGrid
+3D grid
+default
+
+S_Grid3D_Data
+Float
+scalar data of 3D grid
+dep S_Data
+
+V_Grid3D_Data
+Vec3
+vector data of 3D grid
+dep V_Data
+
+Grid2D
+Polygons
+2D grid
+default
+
+S_Grid2D_Data
+Float
+scalar data of 2D grid
+dep S_Data
+
+V_Grid2D_Data
+Vec3
+vector data of 2D grid
+dep V_Data
+
+Grid1D
+Lines
+1D grid
+default
+
+S_Grid1D_Data
+Float
+scalar data of 1D grid
+dep S_Data
+
+V_Grid1D_Data
+Vec3
+vector data of 1D grid
+dep V_Data
+
+Grid0D
+Points
+0D grid
+default
+
+S_Grid0D_Data
+Float
+scalar data of 0D grid
+dep S_Data
+
+V_Grid0D_Data
+Vec3
+vector data of 0D grid
+dep V_Data
+
+0
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+DomainSurface_1
+66
+165
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module GenNormals
+GenNormals
+1
+LOCAL
+Tools
+GenNormals_1
+88
+242
+1
+GridIn0
+Polygons|Lines
+Grid, polygonal or linear input
+req
+
+1
+DataOut0
+Vec3
+Normals
+default
+
+1
+LineNormalStyle
+Choice
+Which Normal Style For Lines
+1
+
+-1
+0
+# Module Renderer
+Renderer
+2
+LOCAL
+Renderer
+Renderer_2
+66
+363
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+66
+308
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module GenNormals
+GenNormals
+2
+LOCAL
+Tools
+GenNormals_2
+264
+165
+1
+GridIn0
+Polygons|Lines
+Grid, polygonal or linear input
+req
+
+1
+DataOut0
+Vec3
+Normals
+default
+
+1
+LineNormalStyle
+Choice
+Which Normal Style For Lines
+1
+
+-1
+0
+# Module Collect
+Collect
+2
+LOCAL
+Tools
+Collect_2
+242
+242
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+10
+ReadMovieBYU
+1
+LOCAL
+data
+
+SplitUsg
+1
+LOCAL
+Grid
+SplitUsg
+1
+LOCAL
+Grid3D
+
+DomainSurface
+1
+LOCAL
+GridIn0
+SplitUsg
+1
+LOCAL
+Grid2D
+
+GenNormals
+2
+LOCAL
+GridIn0
+SplitUsg
+1
+LOCAL
+Grid2D
+
+Collect
+2
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+GenNormals
+1
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+GenNormals
+1
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn1
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+2
+LOCAL
+RenderData
+GenNormals
+2
+LOCAL
+DataOut0
+
+Collect
+2
+LOCAL
+DataIn1
+Collect
+2
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

@@ -1,0 +1,38 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+This module combines scalar data given at the input ports to vector data. 
+It can also combine structured scalar data to packed RGBA data.
+If input data have attributes they are summarized where it makes sense.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2} {}{Scalar2VectorModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+When combining to packed RGBA data the first three components are interpreted
+as red, green and blue respectively.
+If connected, the opacity (alpha) component is taken from the fourth input port,
+otherwise it is computed as the average of red, green, and blue.
+For generating RGBA data, each component is normalized such that its
+minimum value is mapped to 0 and its maximum value to 1.
+When determining these extremal values, one value (as set by the parameters)
+is ignored.
+
+%
+% short information about versions 
+%
+Scalar2Vector is available since snap-2000-10 on all supported platforms. 
+
+%
+
+%=============================================================

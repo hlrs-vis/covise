@@ -1,0 +1,11 @@
+USING(BOOST)
+SET(HEADERS
+  ReadFOAM.h
+)
+SET(SOURCES
+  ReadFOAM.cpp
+  foamtoolbox.cpp
+)
+ADD_COVISE_MODULE(IO ReadFoam ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadFoam coApi coAppl coCore ${EXTRA_LIBS})
+COVISE_INSTALL_TARGET(ReadFoam)

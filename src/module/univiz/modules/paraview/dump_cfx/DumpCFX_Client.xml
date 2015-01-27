@@ -1,0 +1,8 @@
+<ParaViewReaders>
+
+  <Reader name="DumpCFX"
+          extensions="res"
+          file_description="CFX Result Files, for dump">
+  </Reader>
+
+</ParaViewReaders>

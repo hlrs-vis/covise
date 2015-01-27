@@ -1,0 +1,217 @@
+<ui version="4.0" >
+ <class>frmMainWindow</class>
+ <widget class="QMainWindow" name="frmMainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>398</width>
+    <height>651</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Covise Daemon</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <widget class="QTabWidget" name="tabWidCovise" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>381</width>
+      <height>601</height>
+     </rect>
+    </property>
+    <property name="currentIndex" >
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tabMonitor" >
+     <attribute name="title" >
+      <string>Monitor</string>
+     </attribute>
+     <widget class="QGroupBox" name="grpLog" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>371</width>
+        <height>571</height>
+       </rect>
+      </property>
+      <property name="title" >
+       <string>Log Messages</string>
+      </property>
+      <widget class="QListView" name="lstLog" >
+       <property name="geometry" >
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>351</width>
+         <height>531</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tabConfig" >
+     <attribute name="title" >
+      <string>Config</string>
+     </attribute>
+     <widget class="QGroupBox" name="grpPartner" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>260</y>
+        <width>351</width>
+        <height>261</height>
+       </rect>
+      </property>
+      <property name="title" >
+       <string>Partner Security Settings</string>
+      </property>
+      <widget class="QColumnView" name="columnPartners" >
+       <property name="geometry" >
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>331</width>
+         <height>231</height>
+        </rect>
+       </property>
+       <property name="toolTip" >
+        <string>Shows a list of permanently allowed remote partners identified based on their public key.</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="grpHost" >
+      <property name="geometry" >
+       <rect>
+        <x>11</x>
+        <y>11</y>
+        <width>351</width>
+        <height>241</height>
+       </rect>
+      </property>
+      <property name="title" >
+       <string>Host Security Settings</string>
+      </property>
+      <widget class="QListView" name="lstHost" >
+       <property name="geometry" >
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>331</width>
+         <height>211</height>
+        </rect>
+       </property>
+       <property name="toolTip" >
+        <string>List of permanently allowed remote hosts that can launch applications</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="grpCovise" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>520</y>
+        <width>351</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="title" >
+       <string>Covise Daemon Settings</string>
+      </property>
+      <widget class="QLabel" name="lblPort" >
+       <property name="geometry" >
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>51</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>Port</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtPort" >
+       <property name="geometry" >
+        <rect>
+         <x>70</x>
+         <y>20</y>
+         <width>71</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="toolTip" >
+        <string>Enter the port number at which Covise Daemon should run. A change requires triggering of "Respawn"</string>
+       </property>
+       <property name="text" >
+        <string>31100</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>398</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
+     <string>File</string>
+    </property>
+    <addaction name="actionSave" />
+    <addaction name="actionLoad" />
+    <addaction name="actionRespawn" />
+    <addaction name="separator" />
+    <addaction name="actionExit" />
+   </widget>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout" />
+   </widget>
+   <addaction name="menuFile" />
+   <addaction name="menuHelp" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="actionAbout" >
+   <property name="text" >
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionExit" >
+   <property name="text" >
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionSave" >
+   <property name="text" >
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionLoad" >
+   <property name="text" >
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionRespawn" >
+   <property name="text" >
+    <string>Respawn </string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <IconSize value="50"/>
+         <ConstantInteractorSize value="Off"/>
+
+         <PointerDepth value="0"/>
+         <PointerAppearance>
+            <IconName value="pointer"/>
+            <Width value="10"/>
+            <Length value="1500"/>
+            <Intersection value="1500" />
+         </PointerAppearance>
+
+         <Input>  <!-- MIKE -->
+            <DebugButtons value="FALSE" />
+            <!--  <TrackingSystem value="MOUSE" />-->
+            <TrackingSystem value="VRC" />
+            <ButtonSystem value="VRC" />
+
+            <VRC>
+               <Port value="7777" />
+               <!-- Unit ist fuer VICON -->
+               <!-- <Unit value="0.1" /> -->
+               <DebugLevel value="0"/>
+            </VRC>
+
+            <HandAddress value="1" />
+            <ButtonAddress value="2" />
+
+            <TrackingSystem>
+               <Offset x="0" y="-500" z="-600" />
+               <Orientation h="0" p="0" r="0" />
+            </TrackingSystem>
+
+            <HandDevice>
+               <Offset x="0" y="0" z="0" />
+               <Orientation h="0" p="0" r="0" />
+            </HandDevice>
+
+            <MouseNav value="ON" />
+
+			<ButtonConfig>
+				<Map value="1 ACTION_BUTTON" name="1 ACTION_BUTTON" />
+				<Map value="2 XFORM_BUTTON" name="2 XFORM_BUTTON" />
+			</ButtonConfig>            
+            
+         </Input>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

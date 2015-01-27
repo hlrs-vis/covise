@@ -1,0 +1,8 @@
+SET(HEADERS
+)
+SET(SOURCES
+  ReadNeuron.cpp
+)
+ADD_COVISE_MODULE(IO ReadNeuron ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadNeuron coApi coAppl coCore)
+COVISE_INSTALL_TARGET(ReadNeuron)

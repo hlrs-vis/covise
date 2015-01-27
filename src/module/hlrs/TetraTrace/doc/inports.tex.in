@@ -1,0 +1,33 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{grinIn} & DO\_UnstructuredGrid & Unstructured grid with
+	solely tetrahedra-cells \\
+\hline
+	\textcolor{required}{velIn} & DO\_Vec3 & velocity on the grid
+	nodes \\
+\hline
+	\textcolor{required}{volIn} & DO\_Float & precomputed
+	cell-volumes {\it (use TetraVolume)}  \\														
+\hline
+	\textcolor{required}{neighborIn} & DO\_Float & special
+	neighborlist (with side-to-side and time neighborship information {\it(output of
+	TetraNeighbor)}  \\
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+\begin{covimg}{}
+  {param1}{Meaning of the first 4 parameters with startStyle set to plane}{0.7}\end{covimg}
+
+%
+%=============================================================

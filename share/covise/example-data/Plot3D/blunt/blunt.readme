@@ -1,0 +1,52 @@
+
+Name: Blunt Fin
+
+Files:	Name			Size (bytes)		Type
+	blunt.readme		1781			ASCII
+	blunt.q			819,712			binary
+	blunt.x			492,032			binary
+
+Grid: 	Single, curvilinear, structured block 
+	dimensions = 40 x 32 x 32
+
+Flow Parameters: 
+	Free Stream Mach number = 	2.95
+	Angle of attack = 		0
+	Reynolds number = 		2.1 x 10e6
+	time step number = 		1.3911
+
+To get a copy: LoadToDisk blunt.tar, or click on it.
+
+blunt.tar should "untar" into 3 files, blunt.x containing the grid
+file, blunt.q containing the solution file and blunt.readme, which is
+this file.
+
+Description:
+
+Airflow over a flat plate with a blunt fin rising from the plate.
+Free stream flow direction is parallel to the plate and to the flat
+part of the fin, entirely in the x component direction.  The flow is
+assumed to be symmetrical about a plane through the center of the fin,
+so only one half of the "real" geometry is  present and used in the
+computation.
+
+Interesting features of this flow are the branching structure of the
+shock in front of the leading edge of the fin (called a "lambda shock"
+due to its shape) and the two counter-rotating vortices, separated by
+a branch of the shock.  One vortex is rooted between the shock and the
+edge of the fin; the other vortex is rooted between the shock and the
+plate, just upstream of the fin.
+
+For those unaccustommed to curvilinear grids, examine the image and
+notice not only the curve of the gridplanes of the same orientation as
+the fin, but also the very small cell size near both solid surfaces,
+compared to very large volume cells far from the airfoil.
+
+Reference:
+
+Hung, C.-M. and P.G. Buning, "Simulation of Blunt-Fin Induced Shock
+Wave and Turbulent Boundary Layer Separation," AIAA Paper 84-0457,
+AIAA Aerospace Sciences Conference, Reno, NV, January 1984.
+
+
+

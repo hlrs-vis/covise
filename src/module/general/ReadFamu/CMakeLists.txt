@@ -1,0 +1,93 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  src/archivefilefooter.cxx
+  src/archivefileinfo.cxx
+  src/objectinputstreambinarybasic.cxx
+  src/archivefileheader.cxx
+  src/coordconv.cxx
+  src/objectinputstreambinary.cxx
+  src/BuilderGrid.cpp
+  src/CompleterPeriodicRot.cpp
+  src/compute.cpp
+  src/errorinfo.cpp
+  src/FactoryMeshFileTransParser.cpp
+  src/FactoryResultsFileParser.cpp
+  src/MeshDataStatBinary.cpp
+  src/MeshDataStatStd.cpp
+  src/MeshDataTransBinary.cpp
+  src/MeshFileTransParserBinary.cpp
+  src/MeshFileTransParserHmAscii.cpp
+  src/NodeNoMapper.cpp
+  src/NodeNoMapperCovise.cpp
+  src/NodeNoMapperFmb.cpp
+  src/PeriodicRotMesh.cpp
+  src/PeriodicRotResults.cpp
+  src/ReadFamu.cpp
+  src/ResultsFileParserAscii.cpp
+  src/ResultsFileParserBinary.cpp
+  src/ResultsFileParserBinaryFmb.cpp
+  src/ResultsFileParserCovise.cpp
+  src/ResultsStat.cpp
+  src/ResultsStatFmbCovise.cpp
+  src/Tools.cpp
+  src/Element.cpp
+  src/Plane.cpp
+  src/Functions.cpp
+  src/Node.cpp
+)
+
+SET(EXTRASOURCES
+  src/archivefilefooter.hxx
+  src/MeshDataStat.h
+  src/objectinputstreambinarybasic.hxx
+  src/ResultsFileData.h
+  src/archivefileheader.hxx
+  src/MeshDataStatStd.h
+  src/objectinputstreambinary.hxx
+  src/ResultsFileParserAscii.h
+  src/archivefileinfo.hxx
+  src/MeshDataTransBinary.h
+  src/objectinputstream.hxx
+  src/ResultsFileParserBinaryFmb.h
+  src/BuilderGrid.h
+  src/MeshDataTrans.h
+  src/objectoutputstream.hxx
+  src/ResultsFileParserBinary.h
+  src/CompleterPeriodicRot.h
+  src/MeshFileTransParserBinary.h
+  src/objectstreambinarystructure.hxx
+  src/ResultsFileParserCovise.h
+  src/coordconv.hxx
+  src/MeshFileTransParser.h
+  src/os.h
+  src/ResultsFileParser.h
+  src/errorinfo.h
+  src/MeshFileTransParserHmAscii.h
+  src/OutputHandler.h
+  src/ResultsStatFmbCovise.h
+  src/FactoryMeshFileTransParser.h
+  src/NodeNoMapperCovise.h
+  src/PeriodicRotMesh.h
+  src/ResultsStat.h
+  src/FactoryResultsFileParser.h
+  src/NodeNoMapperFmb.h
+  src/PeriodicRotResults.h
+  src/serializable.hxx
+  src/MeshDataStatBinary.h
+  src/NodeNoMapper.h
+  src/ReadFamu.h
+  src/Tools.h
+  src/Element.h
+  src/Plane.h
+  src/Functions.h
+  src/Node.h
+)
+
+ADD_COVISE_MODULE(IO ReadFamu ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadFamu  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadFamu)

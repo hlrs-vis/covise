@@ -1,0 +1,66 @@
+%====== define a new class for layout
+
+\documentclass[module,a4paper]{../covise}
+
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+%\usepackage{palatino}
+\renewcommand{\familydefault}{\sfdefault}
+
+
+%====== start the document
+\begin{document}
+
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+\begin{titlepage}
+    \setcounter{page}{0}
+	 \thispagestyle{empty}
+    \unitlength1cm
+    
+       \begin{picture}(15,20)
+       \put(0, 14){\includegraphics[scale=0.6]{../hlrs_big}}
+       \put(11, 13.5){\includegraphics[scale=0.6]{../rrzk_medium}}
+       \put(0, 8){\makebox(15,2)[t]{\Huge{COVISE}}}
+       \put(0, 6){\makebox(15,2)[t]{\Huge{Module Reference Guide}}}
+       \put(0, 4){\makebox(15,2)[t]{\LARGE{July 2005}}}   
+      \end{picture}
+    
+	\newpage
+   \setcounter{page}{0}
+	\thispagestyle{empty}
+   \uppertitleback{\bf{Title:} \\
+			COVISE Module Reference Guide \\
+         \today }
+   \vfill
+	\lowertitleback{\bf{Authors:} \\
+ 			Martin Aumueller \\
+         Juergen Schulze-Doebold \\
+         Ruth Lang \\
+         Daniela Rainer \\
+         Andreas Werner \\
+         Uwe Woessner \\
+         Peter Wolf}
+
+\end{titlepage}
+
+\pagenumbering{arabic}
+\tableofcontents
+	
+\end{latexonly}
+
+
+%====== include the chapters
+\include{modules}
+
+\end{document}

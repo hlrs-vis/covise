@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<OpenDRIVE>
+   <header west="-10000" version="1" revMajor="1" south="-10000" revMinor="2" name="Untitled" east="10000" date="Thu Oct 14:57:03 2010" north="10000"/>
+   <road junction="-1" length="224.1539649437413" id="road" name="unnamed">
+      <planView>
+         <geometry x="-106" y="79" hdg="0.3937616073661636" length="224.1539649437413" s="0">
+            <line/>
+         </geometry>
+      </planView>
+      <elevationProfile>
+         <elevation a="0" s="0" b="0.1139941092194998" c="0" d="0"/>
+         <elevation a="9.107142857142858" s="79.89134631164775" b="-5.128316502946516e-17" c="0" d="0"/>
+         <elevation a="9.107142857142858" s="88.44230451911764" b="-5.128316502946516e-17" c="-0.0005" d="0"/>
+         <elevation a="1.731981335267021" s="209.8932124768257" b="-0.1214509079577081" c="0" d="0"/>
+      </elevationProfile>
+      <lateralProfile>
+         <superelevation a="0" s="0" b="0" c="0" d="0"/>
+         <crossfall side="both" a="0" s="0" b="0" c="0" d="0"/>
+      </lateralProfile>
+      <lanes>
+         <laneSection s="0">
+            <right>
+               <lane type="border" id="-2" level="0">
+                  <width a="0.19" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-1" level="0">
+                  <link>
+                     <predecessor id="-1"/>
+                     <successor id="-1"/>
+                  </link>
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="border" id="0" level="0">
+                  <roadMark width="0.12" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+            <left>
+               <lane type="driving" id="1" level="0">
+                  <link>
+                     <predecessor id="1"/>
+                     <successor id="1"/>
+                  </link>
+                  <width a="3.06" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="border" id="2" level="0">
+                  <width a="0.19" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.12" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </left>
+         </laneSection>
+      </lanes>
+      <type type="motorway" s="0"/>
+   </road>
+</OpenDRIVE>

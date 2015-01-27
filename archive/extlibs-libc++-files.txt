@@ -1,0 +1,11 @@
+Inventor.framework
+SoQt.framework
+coin3d
+gsoap
+icet
+libvncserver
+openscenegraph
+qt5
+system
+cudpp
+python

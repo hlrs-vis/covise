@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadStar.cpp
+)
+
+SET(EXTRASOURCES
+  ReadStar.h
+)
+
+ADD_COVISE_MODULE(IO ReadStar ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadStar  coStar coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadStar)

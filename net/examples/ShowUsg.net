@@ -1,0 +1,390 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+4
+# Module ReadNastran
+ReadNastran
+1
+LOCAL
+IO_Module
+TITLE=ReadNastran_1
+22
+22
+0
+15
+MESH
+UnstructuredGrid
+Mesh output
+default
+
+TYPE
+IntArr
+IDs
+default
+
+PLOTEL
+Lines
+PLOTEL output
+default
+
+CONM2
+Polygons
+CONM2 output
+default
+
+FORCE
+Lines
+FORCE output
+default
+
+MOMENT
+Lines
+MOMENT output
+default
+
+GRAV
+Lines
+GRAV output
+default
+
+TEMP
+Float
+TEMP output
+default
+
+RBAR
+Lines
+RBAR output
+default
+
+RBE2
+Lines
+RBE2 output
+default
+
+SPC1
+Lines
+SPC output
+default
+
+OQG1
+Vec3
+reaction forces
+default
+
+OUGV1
+Vec3
+displacements
+default
+
+OEF1
+Vec3
+element forces
+default
+
+OES1
+Float
+element stress
+default
+
+16
+output2_path
+Browser
+NASTRAN output2 file path
+share/covise/example-data/Nastran/adaptor.op2
+
+1
+plotel_color
+String
+colorname for PLOTEL
+orange
+
+-1
+conm2_color
+String
+colorname for CONM2
+purple
+
+-1
+conm2_scale
+FloatScalar
+CONM2 scaling factor
+0.2
+
+-1
+force_color
+String
+colorname for FORCE
+red
+
+-1
+grav_color
+String
+colorname for GRAV
+green
+
+-1
+moment_color
+String
+colorname for MOMENT
+blue
+
+-1
+rbar_color
+String
+colorname for RBAR
+cyan
+
+-1
+rbe2_color
+String
+colorname for RBE2
+magenta
+
+-1
+spc1_color
+String
+colorname for SPC1
+yellow
+
+-1
+spc1_scale
+FloatScalar
+SPC1 scaling factor
+1.0
+
+-1
+mode
+IntScalar
+mode number
+1
+
+-1
+try_skipping
+Boolean
+try
+0
+
+-1
+disp_transient
+Boolean
+transient
+0
+
+-1
+fibre_distance
+IntScalar
+fibre distance
+1
+
+-1
+output2_path___filter
+BrowserFilter
+NASTRAN output2 file path
+output2_path *.op2
+
+-1
+0
+# Module ShowUsg
+ShowUsg
+1
+LOCAL
+Tools
+TITLE=ShowUsg_1
+22
+165
+2
+meshIn
+UnstructuredGrid
+input mesh
+req
+
+colors
+Vec3|RGBA
+colors
+opt
+
+1
+geometry
+Geometry
+Geometry
+default
+
+0
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+TITLE=Colors_1
+99
+88
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+250.000000 300.000000
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+250.000000 300.000000 RGBAX 3 0.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0 0.5 1.0 1.0 0.0 1.0 1.0
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements 
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+22
+242
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+4
+ReadNastran
+1
+LOCAL
+MESH
+
+ShowUsg
+1
+LOCAL
+meshIn
+ReadNastran
+1
+LOCAL
+TEMP
+
+Colors
+1
+LOCAL
+DataIn0
+ShowUsg
+1
+LOCAL
+geometry
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+DataOut0
+
+ShowUsg
+1
+LOCAL
+colors
+0

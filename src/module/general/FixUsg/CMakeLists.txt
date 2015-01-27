@@ -1,0 +1,18 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  FixUsg.cpp
+)
+
+SET(EXTRASOURCES
+  FixUsg.h
+)
+
+USE_VTK(OPTIONAL)
+ADD_COVISE_MODULE(Tools FixUsg ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(FixUsg  coAlg coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(FixUsg)

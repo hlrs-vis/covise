@@ -1,0 +1,564 @@
+1
+LOCAL
+LUSER
+7
+ReadPAM
+1
+LOCAL
+IO_Module
+description missing
+126
+30
+0
+10
+meshOut
+DO_UnstructuredGrid
+output mesh
+default
+ReadPAM_1_OUT_00
+nodalData1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+nodal data 1
+default
+ReadPAM_1_OUT_01
+nodalData2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+nodal data 2
+default
+ReadPAM_1_OUT_02
+cellData1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+cell data 1
+default
+ReadPAM_1_OUT_03
+cellData2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+cell data 2
+default
+ReadPAM_1_OUT_04
+globalData1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+global data 1
+default
+ReadPAM_1_OUT_05
+globalData2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+global data 2
+default
+ReadPAM_1_OUT_06
+tensorData1
+DO_Unstructured_T3D_Data
+tensor data 1
+default
+ReadPAM_1_OUT_07
+Materials
+DO_IntArr
+Element materials
+default
+ReadPAM_1_OUT_08
+Elem_labels
+DO_IntArr
+Element labels
+default
+ReadPAM_1_OUT_09
+21
+DSY_file
+Browser
+DSY file
+data/general/examples/PAM//frameMIS.DSY
+IMM
+1
+THP_file
+Browser
+THP file
+/usr/tmp/thp.THP *.THP
+IMM
+1
+scale
+Scalar
+Displacement scale
+1.000000
+START
+-1
+timeSteps
+Vector
+select time steps
+1 41 1
+START
+-1
+Nodal_Var1
+Choice
+Choose nodal variable 1
+1 none Displacements(VEC) Velocity(VEC)
+IMM
+-1
+Nodal_Var2
+Choice
+Choose nodal variable 2
+1 none Displacements(VEC) Velocity(VEC)
+IMM
+-1
+Cell_Var1
+Choice
+Choose cell variable 1
+10 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+-1
+Cell_Var2
+Choice
+Choose cell variable 2
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+-1
+DSY_or_THP
+Boolean
+DSY or THP
+TRUE
+IMM
+-1
+Global_Var1
+Choice
+Choose global variable 1
+1 none KineticENG Intern.ENG TotalENG Av.XVelo. Av.YVelo. Av.ZVelo. Time rig.wallVar.0,R.wallXforce rig.wallVar.0,R.wallYforce rig.wallVar.0,R.wallZforce framemateriallabel(2),Transl.kin.energy lwrarmrhmateriallabel(3),Int.energy lwrarmrhmateriallabel(3),Transl.kin.energy lwrarmlhmateriallabel(4),Int.energy lwrarmlhmateriallabel(4),Transl.kin.energy uprarmlhmateriallabel(5),Int.energy uprarmlhmateriallabel(5),Transl.kin.energy uprarmrhmateriallabel(6),Int.energy uprarmrhmateriallabel(6),Transl.kin.energy wheelnullmateriallabel(7),Int.energy wheelnullmateriallabel(7),Transl.kin.energy oilpanmateriallabel(9),Int.energy oilpanmateriallabel(9),Transl.kin.energy panmateriallabel(10),Int.energy panmateriallabel(10),Transl.kin.energy hoodmateriallabel(11),Int.energy hoodmateriallabel(11),Transl.kin.energy fenderlhmateriallabel(12),Int.energy fenderlhmateriallabel(12),Transl.kin.energy fenderrhmateriallabel(13),Int.energy fenderrhmateriallabel(13),Transl.kin.energy apronlhmateriallabel(14),Int.energy apronlhmateriallabel(14),Transl.kin.energy apronrhmateriallabel(15),Int.energy apronrhmateriallabel(15),Transl.kin.energy radsuptmateriallabel(16),Int.energy radsuptmateriallabel(16),Transl.kin.energy radsuptctrmateriallabel(17),Int.energy radsuptctrmateriallabel(17),Transl.kin.energy panhsgmateriallabel(20),Int.energy panhsgmateriallabel(20),Transl.kin.energy panhsguprmateriallabel(21),Int.energy panhsguprmateriallabel(21),Transl.kin.energy ctrflrmateriallabel(22),Int.energy ctrflrmateriallabel(22),Transl.kin.energy ctrflrmtgmateriallabel(23),Int.energy ctrflrmtgmateriallabel(23),Transl.kin.energy drotrlhmateriallabel(24),Int.energy drotrlhmateriallabel(24),Transl.kin.energy drotrrhmateriallabel(25),Int.energy drotrrhmateriallabel(25),Transl.kin.energy lugmateriallabel(26),Int.energy lugmateriallabel(26),Transl.kin.energy frsusplh:caliper(null)materiallabel(32),Int.energy frsusplh:caliper(null)materiallabel(32),Transl.kin.energy frsusprh:caliper(null)materiallabel(34),Int.energy frsusprh:caliper(null)materiallabel(34),Transl.kin.energy framecrossmateriallabel(36),Int.energy framecrossmateriallabel(36),Transl.kin.energy framecrossextmateriallabel(37),Int.energy framecrossextmateriallabel(37),Transl.kin.energy tirefrlhmateriallabel(38),Int.energy tirefrlhmateriallabel(38),Transl.kin.energy tirefrrhmateriallabel(39),Int.energy tirefrrhmateriallabel(39),Transl.kin.energy tirerrlhmateriallabel(40),Int.energy tirerrlhmateriallabel(40),Transl.kin.energy tirerrrhmateriallabel(41),Int.energy tirerrrhmateriallabel(41),Transl.kin.energy missionnullmateriallabel(44),Int.energy missionnullmateriallabel(44),Transl.kin.energy mtglhmateriallabel(45),Int.energy mtglhmateriallabel(45),Transl.kin.energy mtgrhmateriallabel(46),Int.energy mtgrhmateriallabel(46),Transl.kin.energy brktlhmateriallabel(47),Int.energy brktlhmateriallabel(47),Transl.kin.energy brktrhmateriallabel(48),Int.energy brktrhmateriallabel(48),Transl.kin.energy SHELL54materiallabel(54),Int.energy SHELL54materiallabel(54),Transl.kin.energy oilpanmateriallabel(60),Int.energy oilpanmateriallabel(60),Transl.kin.energy frsusplh:disk(null)materiallabel(62),Int.energy frsusplh:disk(null)materiallabel(62),Transl.kin.energy frsusprh:disk(null)materiallabel(63),Int.energy frsusprh:disk(null)materiallabel(63),Transl.kin.energy frsusplh:caliper(null)materiallabel(65),Int.energy frsusplh:caliper(null)materiallabel(65),Transl.kin.energy frsusplh:caliper(null)materiallabel(66),Int.energy frsusplh:caliper(null)materiallabel(66),Transl.kin.energy wheelnullmateriallabel(71),Int.energy wheelnullmateriallabel(71),Transl.kin.energy wheelnullmateriallabel(72),Int.energy wheelnullmateriallabel(72),Transl.kin.energy wheelnullmateriallabel(73),Int.energy wheelnullmateriallabel(73),Transl.kin.energy missionnullmateriallabel(77),Int.energy missionnullmateriallabel(77),Transl.kin.energy rrwheelrhnullmateriallabel(79),Int.energy rrwheelrhnullmateriallabel(79),Transl.kin.energy SUSPENSIONSHOCKABSmateriallabel(70),Int.energy SUSPENSIONSHOCKABSmateriallabel(70),Transl.kin.energy rig.wallVar.0,R.wallXforce rig.wallVar.0,R.wallYforce rig.wallVar.0,R.wallZforce rig.wallVar.1,R.wallXforce rig.wallVar.1,R.wallYforce rig.wallVar.1,R.wallZforce
+IMM
+-1
+Global_Var2
+Choice
+Choose global variable 2
+1 none KineticENG Intern.ENG TotalENG Av.XVelo. Av.YVelo. Av.ZVelo. Time rig.wallVar.0,R.wallXforce rig.wallVar.0,R.wallYforce rig.wallVar.0,R.wallZforce framemateriallabel(2),Transl.kin.energy lwrarmrhmateriallabel(3),Int.energy lwrarmrhmateriallabel(3),Transl.kin.energy lwrarmlhmateriallabel(4),Int.energy lwrarmlhmateriallabel(4),Transl.kin.energy uprarmlhmateriallabel(5),Int.energy uprarmlhmateriallabel(5),Transl.kin.energy uprarmrhmateriallabel(6),Int.energy uprarmrhmateriallabel(6),Transl.kin.energy wheelnullmateriallabel(7),Int.energy wheelnullmateriallabel(7),Transl.kin.energy oilpanmateriallabel(9),Int.energy oilpanmateriallabel(9),Transl.kin.energy panmateriallabel(10),Int.energy panmateriallabel(10),Transl.kin.energy hoodmateriallabel(11),Int.energy hoodmateriallabel(11),Transl.kin.energy fenderlhmateriallabel(12),Int.energy fenderlhmateriallabel(12),Transl.kin.energy fenderrhmateriallabel(13),Int.energy fenderrhmateriallabel(13),Transl.kin.energy apronlhmateriallabel(14),Int.energy apronlhmateriallabel(14),Transl.kin.energy apronrhmateriallabel(15),Int.energy apronrhmateriallabel(15),Transl.kin.energy radsuptmateriallabel(16),Int.energy radsuptmateriallabel(16),Transl.kin.energy radsuptctrmateriallabel(17),Int.energy radsuptctrmateriallabel(17),Transl.kin.energy panhsgmateriallabel(20),Int.energy panhsgmateriallabel(20),Transl.kin.energy panhsguprmateriallabel(21),Int.energy panhsguprmateriallabel(21),Transl.kin.energy ctrflrmateriallabel(22),Int.energy ctrflrmateriallabel(22),Transl.kin.energy ctrflrmtgmateriallabel(23),Int.energy ctrflrmtgmateriallabel(23),Transl.kin.energy drotrlhmateriallabel(24),Int.energy drotrlhmateriallabel(24),Transl.kin.energy drotrrhmateriallabel(25),Int.energy drotrrhmateriallabel(25),Transl.kin.energy lugmateriallabel(26),Int.energy lugmateriallabel(26),Transl.kin.energy frsusplh:caliper(null)materiallabel(32),Int.energy frsusplh:caliper(null)materiallabel(32),Transl.kin.energy frsusprh:caliper(null)materiallabel(34),Int.energy frsusprh:caliper(null)materiallabel(34),Transl.kin.energy framecrossmateriallabel(36),Int.energy framecrossmateriallabel(36),Transl.kin.energy framecrossextmateriallabel(37),Int.energy framecrossextmateriallabel(37),Transl.kin.energy tirefrlhmateriallabel(38),Int.energy tirefrlhmateriallabel(38),Transl.kin.energy tirefrrhmateriallabel(39),Int.energy tirefrrhmateriallabel(39),Transl.kin.energy tirerrlhmateriallabel(40),Int.energy tirerrlhmateriallabel(40),Transl.kin.energy tirerrrhmateriallabel(41),Int.energy tirerrrhmateriallabel(41),Transl.kin.energy missionnullmateriallabel(44),Int.energy missionnullmateriallabel(44),Transl.kin.energy mtglhmateriallabel(45),Int.energy mtglhmateriallabel(45),Transl.kin.energy mtgrhmateriallabel(46),Int.energy mtgrhmateriallabel(46),Transl.kin.energy brktlhmateriallabel(47),Int.energy brktlhmateriallabel(47),Transl.kin.energy brktrhmateriallabel(48),Int.energy brktrhmateriallabel(48),Transl.kin.energy SHELL54materiallabel(54),Int.energy SHELL54materiallabel(54),Transl.kin.energy oilpanmateriallabel(60),Int.energy oilpanmateriallabel(60),Transl.kin.energy frsusplh:disk(null)materiallabel(62),Int.energy frsusplh:disk(null)materiallabel(62),Transl.kin.energy frsusprh:disk(null)materiallabel(63),Int.energy frsusprh:disk(null)materiallabel(63),Transl.kin.energy frsusplh:caliper(null)materiallabel(65),Int.energy frsusplh:caliper(null)materiallabel(65),Transl.kin.energy frsusplh:caliper(null)materiallabel(66),Int.energy frsusplh:caliper(null)materiallabel(66),Transl.kin.energy wheelnullmateriallabel(71),Int.energy wheelnullmateriallabel(71),Transl.kin.energy wheelnullmateriallabel(72),Int.energy wheelnullmateriallabel(72),Transl.kin.energy wheelnullmateriallabel(73),Int.energy wheelnullmateriallabel(73),Transl.kin.energy missionnullmateriallabel(77),Int.energy missionnullmateriallabel(77),Transl.kin.energy rrwheelrhnullmateriallabel(79),Int.energy rrwheelrhnullmateriallabel(79),Transl.kin.energy SUSPENSIONSHOCKABSmateriallabel(70),Int.energy SUSPENSIONSHOCKABSmateriallabel(70),Transl.kin.energy rig.wallVar.0,R.wallXforce rig.wallVar.0,R.wallYforce rig.wallVar.0,R.wallZforce rig.wallVar.1,R.wallXforce rig.wallVar.1,R.wallYforce rig.wallVar.1,R.wallZforce
+IMM
+-1
+Port Select :
+Choice
+use if you want to output a full tensor
+2 useifyouwanttooutputafulltensor Tensorport1
+IMM
+1
+T1_Component_XX
+Choice
+Component XX
+7 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_XY
+Choice
+Component XY
+9 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_XZ
+Choice
+Component XZ
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_YX
+Choice
+Component YX
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_YY
+Choice
+Component YY
+8 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_YZ
+Choice
+Component YZ
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_ZX
+Choice
+Component ZX
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_ZY
+Choice
+Component ZY
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+T1_Component_ZZ
+Choice
+Component ZZ
+1 none RES-MXX RES-MYY RES-MXY MXPLASTe MNPLASTe RES-NXX RES-NYY RES-NXY Thickness MAXVMValue MINVMValue IntEnergyDensity Axialforce(bar) Axialelong.(bar) Normalforce(MIS) Shearforce(MIS) Force(MISgVEC) Elem.length(MIS) Contactenergy(MIS) MaxAbsContEnergy(MIS) Rupt.criterion(MIS) AXIALELONGATION TORSIONANGLE S-BENDINGANGLENODE1 T-BENDINGANGLENODE1 S-BENDINGANGLENODE2 T-BENDINGANGLENODE2 Force(kJlVEC) Flex.Mom.(kJ) Flex.Dep.(kJ) Tor.Mom.(kJ) R.disp.(kJlVEC) RAng.(kJ) S'Ang.(kJ) T''Ang.(kJ)
+IMM
+1
+0
+Calc
+1
+LOCAL
+Tools
+Simple calculator module
+156
+141
+4
+s_indata1
+DO_Unstructured_S3D_Data|DO_Structured_S3D_Data
+Scalar Data In1
+opt
+none
+s_indata2
+DO_Unstructured_S3D_Data|DO_Structured_S3D_Data
+Scalar Data In1
+opt
+none
+v_indata1
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_UnstructuredGrid
+Vector Data In1
+opt
+none
+v_indata2
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_UnstructuredGrid
+Vector Data In2
+opt
+none
+2
+outdata1
+DO_Unstructured_S3D_Data|DO_Structured_S3D_Data
+Scalar Data Out
+default
+Calc_1_OUT_00
+outdata2
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data
+Vector Data Out
+default
+Calc_1_OUT_01
+1
+expression
+String
+expression to evaluate
+s1/s2
+START
+-1
+0
+TensorScal
+1
+LOCAL
+Tools
+description missing
+196
+82
+1
+vdataIn
+DO_Unstructured_T3D_Data
+input tensor data
+req
+none
+1
+sdataOut
+DO_Unstructured_S3D_Data
+output scalar data
+default
+TensorScal_1_OUT_00
+1
+option
+Choice
+Options
+2 Spur Stresseffectivevalue
+START
+-1
+0
+SplitUsg
+1
+LOCAL
+Filter
+Split a grid according to dimensionality
+126
+194
+3
+Grid
+Set_UnstructuredGrid
+grid with elements of sundry dimensionalities
+req
+none
+S_Data
+Set_Unstructured_S3D_Data
+scalar data of input grid
+opt
+none
+V_Data
+Set_Unstructured_V3D_Data
+vector data of input grid
+opt
+none
+12
+Grid3D
+Set_UnstructuredGrid
+3D grid
+default
+SplitUsg_1_OUT_00
+S_Grid3D_Data
+Set_Unstructured_S3D_Data
+scalar data of 3D grid
+default
+SplitUsg_1_OUT_01
+V_Grid3D_Data
+Set_Unstructured_V3D_Data
+vector data of 3D grid
+default
+SplitUsg_1_OUT_02
+Grid2D
+Set_Polygons
+2D grid
+default
+SplitUsg_1_OUT_03
+S_Grid2D_Data
+Set_Unstructured_S3D_Data
+scalar data of 2D grid
+default
+SplitUsg_1_OUT_04
+V_Grid2D_Data
+Set_Unstructured_V3D_Data
+vector data of 2D grid
+default
+SplitUsg_1_OUT_05
+Grid1D
+Set_Lines
+1D grid
+default
+SplitUsg_1_OUT_06
+S_Grid1D_Data
+Set_Unstructured_S3D_Data
+scalar data of 1D grid
+default
+SplitUsg_1_OUT_07
+V_Grid1D_Data
+Set_Unstructured_V3D_Data
+vector data of 1D grid
+default
+SplitUsg_1_OUT_08
+Grid0D
+Set_Points
+0D grid
+default
+SplitUsg_1_OUT_09
+S_Grid0D_Data
+Set_Unstructured_S3D_Data
+scalar data of 0D grid
+default
+SplitUsg_1_OUT_10
+V_Grid0D_Data
+Set_Unstructured_V3D_Data
+vector data of 0D grid
+default
+SplitUsg_1_OUT_11
+0
+0
+Collect
+1
+LOCAL
+Tools
+Combine grid, normals, colors and textures in one data object for rendering
+156
+306
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_1_OUT_00
+0
+0
+Colors
+1
+LOCAL
+Color
+description missing
+189
+250
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_1_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_1_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_1_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.000000 0.400435
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+156
+364
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+9
+ReadPAM
+1
+LOCAL
+meshOut
+ReadPAM_1_OUT_00
+SplitUsg
+1
+LOCAL
+Grid
+ReadPAM
+1
+LOCAL
+cellData1
+ReadPAM_1_OUT_03
+Calc
+1
+LOCAL
+s_indata2
+ReadPAM
+1
+LOCAL
+tensorData1
+ReadPAM_1_OUT_07
+TensorScal
+1
+LOCAL
+vdataIn
+Calc
+1
+LOCAL
+outdata1
+Calc_1_OUT_00
+SplitUsg
+1
+LOCAL
+S_Data
+TensorScal
+1
+LOCAL
+sdataOut
+TensorScal_1_OUT_00
+Calc
+1
+LOCAL
+s_indata1
+SplitUsg
+1
+LOCAL
+Grid2D
+SplitUsg_1_OUT_03
+Collect
+1
+LOCAL
+grid
+SplitUsg
+1
+LOCAL
+S_Grid2D_Data
+SplitUsg_1_OUT_04
+Colors
+1
+LOCAL
+Data
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+colors
+Colors_1_OUT_00
+Collect
+1
+LOCAL
+colors
+0

@@ -1,0 +1,947 @@
+1
+LOCAL
+LUSER
+13
+ReadEnsightOld
+1
+LOCAL
+IO_Module
+TITLE=ReadEnsightOld_1
+151
+20
+0
+6
+grid
+DO_UnstructuredGrid
+Grid object
+default
+ReadEnsightOld_1_OUT_00
+polygons
+DO_Polygons
+Polygon object
+default
+ReadEnsightOld_1_OUT_01
+GridScalarOutPort
+DO_Unstructured_S3D_Data
+Scalar data mapped to grids
+default
+ReadEnsightOld_1_OUT_02
+GridVectorOutPort
+DO_Unstructured_V3D_Data
+Vector data mapped to grids
+default
+ReadEnsightOld_1_OUT_03
+PolygonScalarOutPort
+DO_Unstructured_S3D_Data
+Scalar data mapped to polygons
+default
+ReadEnsightOld_1_OUT_04
+PolygonVectorOutPort
+DO_Unstructured_V3D_Data
+Vector data mapped to polygons
+default
+ReadEnsightOld_1_OUT_05
+9
+geoFile
+Browser
+OBJ file
+data/general/examples/Ensight/out.geo.0000 *.*
+IMM
+1
+caseFile
+Browser
+Case file
+data/general/examples/Ensight/out.case *.case
+IMM
+1
+resFile
+Browser
+Result file
+data/general/examples/Ensight/resFile *.res
+IMM
+1
+gridScalarFile
+Browser
+Grid Scalar File
+data/general/examples/Ensight/var1.0000 *.*
+IMM
+1
+gridVectorFile
+Browser
+Grid Vector File
+data/general/examples/Ensight/var3.0000 *.*
+IMM
+1
+polygonScalarFile
+Browser
+Polygon Scalar File
+data/general/examples/Ensight/var7.0000 *.*
+IMM
+1
+polygonVectorFile
+Browser
+Polygon Vector File
+data/general/examples/Ensight/polygonVectorFile *.*
+IMM
+1
+LineElementLength
+Scalar
+Length of the line element in a data file
+12
+START
+-1
+NumberValuesInLine
+Scalar
+Number of values in a line of a data file
+6
+START
+-1
+0
+Colors
+1
+LOCAL
+Color
+TITLE=Colors_1
+289
+155
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_1_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_1_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_1_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.997393 0.998391
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+DomainSurface
+1
+LOCAL
+Tools
+TITLE=DomainSurface_1
+235
+82
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+DomainSurface_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+DomainSurface_1_OUT_01
+linesOut
+DO_Lines
+Boundary lines
+default
+DomainSurface_1_OUT_02
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+DomainSurface_1_OUT_03
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+242
+240
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_1_OUT_00
+0
+0
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+183
+340
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+Colors
+2
+LOCAL
+Color
+TITLE=Colors_2
+83
+134
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_2_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_2_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_2_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.000000 0.000285
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+Collect
+2
+LOCAL
+Tools
+TITLE=Collect_2
+28
+248
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_2_OUT_00
+0
+0
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_2
+58
+339
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+Renderer
+3
+LOCAL
+Renderer
+TITLE=Renderer_3
+407
+494
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+CellToVert
+1
+LOCAL
+Tools
+TITLE=CellToVert_1
+381
+218
+2
+grid_in
+Set_UnstructuredGrid|Set_Polygons
+mesh
+req
+none
+data_in
+Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data|Set_Unstructured_V3D_Normals
+data
+req
+none
+1
+data_out
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Unstructured_V3D_Normals
+data
+default
+CellToVert_1_OUT_00
+1
+algorithm
+Choice
+how to do the interpolation
+2 SqrWeight Simple
+START
+-1
+0
+Tracer
+1
+LOCAL
+Tracer
+TITLE=Tracer_1
+348
+281
+4
+meshIn
+DO_UniformGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_UnstructuredGrid|DO_Polygons
+input mesh
+req
+none
+dataIn
+DO_Structured_V3D_Data|DO_Unstructured_V3D_Data
+input velo.
+req
+none
+pointsIn
+DO_Points|DO_UnstructuredGrid|DO_Polygons|                    DO_TriangleStrips|DO_Lines|DO_Unstructured_V3D_Data
+input initial points
+opt
+none
+octtreesIn
+DO_OctTree|DO_OctTreeP
+input octtrees
+opt
+none
+2
+lines
+DO_Lines|DO_Points|DO_TriangleStrips
+output geometry
+default
+Tracer_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data
+output magnitude
+default
+Tracer_1_OUT_01
+25
+no_startp
+Slider
+Number of starting points
+1 10 2
+START
+3
+startpoint1
+Vector
+First start point
+0.5 0.5 -0.05
+IMM
+1
+startpoint2
+Vector
+Last start point
+0.6 0.6 0.06
+IMM
+1
+direction
+Vector
+Square of starting points
+1.0 0.0 0.0
+IMM
+1
+Displacement
+Vector
+Shift traces
+0 0 0.
+START
+-1
+tdirection
+Choice
+Forward, backward or both
+3 forward backward both
+START
+1
+whatout
+Choice
+v, vx, vy, vz or time
+1 mag v_x v_y v_z time
+START
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+1 Streamlines MovingPoints Pathlines Streaklines
+IMM
+1
+startStyle
+Choice
+Line or square
+1 line plane
+IMM
+-1
+trace_eps
+Scalar
+relative error control
+0.000001
+START
+-1
+trace_abs
+Scalar
+absolute error control
+0.000100
+START
+-1
+grid_tol
+Scalar
+grid tolerance for UNSGRD or POLYGN
+0.000100
+START
+-1
+trace_len
+Scalar
+maximum length
+40
+START
+1
+min_vel
+Scalar
+minimal velocity
+0.00001000
+START
+1
+MaxPoints
+Scalar
+maximum number of points
+10000
+START
+1
+stepDuration
+Scalar
+Step duration if no REALTIME available
+0.010000
+START
+-1
+NoCycles
+Scalar
+number of cycles (dynamic data)
+1
+START
+-1
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+START
+-1
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+IMM
+-1
+ParticlesReleaseRate
+Scalar
+Frequency at which new particles are released
+0.000000
+START
+-1
+divideCell
+Scalar
+Step control when out of domain
+0.125000
+START
+-1
+maxOutOfDomain
+Scalar
+Control how far to integrate when out of domain
+0.250000
+START
+-1
+NoWThreads
+Scalar
+number of worker threads
+1
+IMM
+-1
+SearchLevel
+Scalar
+search level for polygons
+0
+START
+-1
+SkipInitialSteps
+Scalar
+skip initial steps
+0
+START
+-1
+0
+Collect
+3
+LOCAL
+Tools
+TITLE=Collect_3
+336
+433
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_3_OUT_00
+0
+0
+Colors
+3
+LOCAL
+Color
+TITLE=Colors_3
+412
+355
+2
+Data
+DO_Unstructured_V3D_Data|DO_Structured_V3D_Data|DO_IntArr|DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_3_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_3_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_3_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.000126 0.017507
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+18
+ReadEnsightOld
+1
+LOCAL
+grid
+ReadEnsightOld_1_OUT_00
+DomainSurface
+1
+LOCAL
+meshIn
+ReadEnsightOld
+1
+LOCAL
+grid
+ReadEnsightOld_1_OUT_00
+CellToVert
+1
+LOCAL
+grid_in
+ReadEnsightOld
+1
+LOCAL
+grid
+ReadEnsightOld_1_OUT_00
+Tracer
+1
+LOCAL
+meshIn
+ReadEnsightOld
+1
+LOCAL
+polygons
+ReadEnsightOld_1_OUT_01
+Collect
+2
+LOCAL
+grid
+ReadEnsightOld
+1
+LOCAL
+GridScalarOutPort
+ReadEnsightOld_1_OUT_02
+DomainSurface
+1
+LOCAL
+dataIn
+ReadEnsightOld
+1
+LOCAL
+GridVectorOutPort
+ReadEnsightOld_1_OUT_03
+CellToVert
+1
+LOCAL
+data_in
+ReadEnsightOld
+1
+LOCAL
+PolygonScalarOutPort
+ReadEnsightOld_1_OUT_04
+Colors
+2
+LOCAL
+Data
+Colors
+1
+LOCAL
+colors
+Colors_1_OUT_00
+Collect
+1
+LOCAL
+colors
+DomainSurface
+1
+LOCAL
+meshOut
+DomainSurface_1_OUT_00
+Collect
+1
+LOCAL
+grid
+DomainSurface
+1
+LOCAL
+dataOut
+DomainSurface_1_OUT_01
+Colors
+1
+LOCAL
+Data
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+Colors
+2
+LOCAL
+colors
+Colors_2_OUT_00
+Collect
+2
+LOCAL
+colors
+Collect
+2
+LOCAL
+geometry
+Collect_2_OUT_00
+Renderer
+2
+LOCAL
+RenderData
+CellToVert
+1
+LOCAL
+data_out
+CellToVert_1_OUT_00
+Tracer
+1
+LOCAL
+dataIn
+Tracer
+1
+LOCAL
+lines
+Tracer_1_OUT_00
+Collect
+3
+LOCAL
+grid
+Tracer
+1
+LOCAL
+dataOut
+Tracer_1_OUT_01
+Colors
+3
+LOCAL
+Data
+Collect
+3
+LOCAL
+geometry
+Collect_3_OUT_00
+Renderer
+3
+LOCAL
+RenderData
+Colors
+3
+LOCAL
+colors
+Colors_3_OUT_00
+Collect
+3
+LOCAL
+colors
+0

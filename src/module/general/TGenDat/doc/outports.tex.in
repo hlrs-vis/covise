@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline grid & UnstructuredGrid\newline StructuredGrid\newline RectilinearGrid & the generated grid\\ \hline data & Vec3\newline Vec3 & the generated data\\
+\hline \end{longtable}
+

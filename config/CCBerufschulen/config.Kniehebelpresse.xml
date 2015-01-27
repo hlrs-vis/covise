@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Kniehebelpresse' ..." />-->
+	 <UseDisplayLists value="false" />
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <ShortCut value="showName" name="showName" />
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="GehaeuseDeckel" regexp="Deckel-FACES.*" shader="Glossy9" />
+               <Scope name="Gehaeuse" regexp="Gehaeuse_00-FACES.*" shader="Glossy9" />
+               <Scope name="Verbindungsteile_Steuerleitungen" regexp="Verbindungsteile_Steuerleitungen.*" shader="Glossy7" smooth="true" />
+               <Scope name="Luftventile" regexp="Luftventile.*" shader="Glossy7" smooth="true" />
+               <Scope name="T_Stueck" regexp="T_Stueck.*" shader="Glossy7" smooth="true" />
+               <Scope name="Pneumatikschalldaempfer" regexp="Pneumatikschalldaempfer.*" shader="Glossy7" smooth="true" />
+               <Scope name="Wartungseinheit" regexp="Wartungseinheit.*-FACES.*" shader="Glossy7" />
+               <Scope name="Manometer" regexp="Manometer_00-FACES.*" shader="Glossy7" />
+               <Scope name="Drehrad" regexp="Drehrad-FACES.*" shader="Glossy7" />
+               <Scope name="Kniehebel" regexp="Kniehebel01.*" shader="Glossy7" />
+               <Scope name="Welle" regexp="Welle1.*" shader="Glossy7" />
+               <Scope name="Pneumatikzylinder21" regexp="Pneumatikzylinder21-FACES.*" shader="Glossy5" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/CCBerufschulen/Maschinen_Werkzeuge/Kniehebelpresse/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

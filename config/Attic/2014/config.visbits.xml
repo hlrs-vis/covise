@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+<LOCAL host="visbits" >
+  <COVER>
+
+  <Stereo value="on" />
+
+  <Channel comment="MAIN" channel="0" width="1680" stereoMode="QUAD_BUFFER" left="0" windowIndex="0" bottom="0" name="0" height="1050" />
+
+  <WindowConfig>
+    <Window width="1680" comment="MAIN" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="false" stereo="true"/>
+   </WindowConfig>
+
+
+  <Plugin>
+  <Vrml97>
+    <NewMovieSupport value="true"/>
+    <UseTextureRectangle value="true"/>
+  </Vrml97>
+  </Plugin>
+
+  </COVER>
+</LOCAL>
+
+</COCONFIG>

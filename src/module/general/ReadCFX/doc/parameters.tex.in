@@ -1,0 +1,37 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	result & Browser & The CFX5 result file location. \\ 
+\hline
+	domains      & Choice & The domain which will be read. If ALL is selected then all domains will be read.\\
+\hline
+	regions      & Choice & The region which will be available at the last 2 output ports. \\
+\hline
+	scalar\_data & Choice & The scalar data which will be displayed on the domains and region.\\ 	
+\hline
+	vector\_data & Choice & The vector data of the selected domain and region. \\ 	 	
+\hline
+	timesteps    & Scalar & Number of timesteps \\ 	
+%\hline
+%	first\_timestep   & Scalar & Index of the first desired timestep \\
+\hline	 		
+\end{longtable}
+%=============================================================
+
+
+
+Note on timesteps:\newline
+
+ReadCFX looks for numbers as part of filenames and thus determines the number of timesteps.
+You can limit the number of timesteps by using the 'timesteps' parameter.
+
+
+%
+%=============================================================

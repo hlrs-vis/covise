@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline grid & UniformGrid & Grid for volume data\\ \hline channel0 & Float\newline Vec3\newline RGBA\_Data& Scalar/vector volume data\\ \hline channel1 & Float & Scalar volume data channel 1\\ \hline channel2 & Float & Scalar volume data channel 2\\ \hline channel3 & Float & Scalar volume data channel 3\\ \hline channel4 & Float & Scalar volume data channel 4\\ \hline channel5 & Float & Scalar volume data channel 5\\ \hline channel6 & Float & Scalar volume data channel 6\\ \hline channel7 & Float & Scalar volume data channel 7\\
+\hline \end{longtable}
+

@@ -1,0 +1,8 @@
+SET(HEADERS
+  BPA.h
+)
+SET(SOURCES
+  BPA.cpp
+)
+cover_add_plugin(BPA)
+TARGET_LINK_LIBRARIES(BPA)

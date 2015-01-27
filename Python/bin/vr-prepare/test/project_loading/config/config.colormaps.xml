@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<COCONFIG version="1" >
+
+ <GLOBAL>
+  
+  <Colormaps>
+     <Star> 
+        <Point r="0.10" g="0.00" b="0.90" a="1.0" index="0" /> 
+        <Point r="0.00" g="0.00" b="1.00" a="1.0" index="1" /> 
+        <Point r="0.63" g="0.63" b="1.00" a="1.0" index="2" /> 
+        <Point r="0.00" g="0.75" b="1.00" a="1.0" index="3" /> 
+        <Point r="0.00" g="1.00" b="1.00" a="1.0" index="4" /> 
+        <Point r="0.10" g="0.80" b="0.70" a="1.0" index="5" /> 
+        <Point r="0.10" g="0.90" b="0.00" a="1.0" index="6" /> 
+        <Point r="0.50" g="1.00" b="0.63" a="1.0" index="7" /> 
+        <Point r="0.75" g="1.00" b="0.25" a="1.0" index="8" /> 
+        <Point r="1.00" g="1.00" b="0.00" a="1.0" index="9" /> 
+        <Point r="1.00" g="0.80" b="0.10" a="1.0" index="10" /> 
+        <Point r="1.00" g="0.60" b="0.30" a="1.0" index="11" /> 
+        <Point r="1.00" g="0.67" b="0.95" a="1.0" index="12" /> 
+        <Point r="1.00" g="0.00" b="0.50" a="1.0" index="13" /> 
+        <Point r="1.00" g="0.00" b="0.00" a="1.0" index="14" /> 
+     </Star>
+       
+     <ITMS> 
+        <Point r="0.00" g="0.00" b="0.35" a="1.00" x="0.00" index="0"/> 
+        <Point r="0.00" g="0.00" b="1.00" a="1.00" x="0.05" index="1"/> 
+        <Point r="0.00" g="1.00" b="1.00" a="1.00" x="0.26" index="2"/> 
+        <Point r="0.00" g="1.00" b="0.00" a="1.00" x="0.5"  index="3"/> 
+        <Point r="1.00" g="1.00" b="0.00" a="1.00" x="0.74" index="4"/> 
+        <Point r="1.00" g="0.00" b="0.00" a="1.00" x="0.95" index="5"/> 
+        <Point r="0.40" g="0.00" b="0.00" a="1.00" x="1.00" index="6"/>  
+     </ITMS>      
+
+     <Rainbow> 
+        <Point r="0.40" g="0.00" b="0.40" a="1.00" index="0" /> 
+        <Point r="0.00" g="0.00" b="1.00" a="1.00" index="1" /> 
+        <Point r="0.00" g="1.00" b="1.00" a="1.00" index="2" /> 
+        <Point r="0.00" g="1.00" b="0.00" a="1.00" index="3" /> 
+        <Point r="1.00" g="1.00" b="0.00" a="1.00" index="4" /> 
+        <Point r="1.00" g="0.00" b="0.00" a="1.00" index="5" /> 
+     </Rainbow> 
+
+     <IAG> 
+        <Point r="0" g="0" b="0.345" a="1"     x="0"        index="0"/> 
+        <Point r="0" g="0" b="1"     a="1"     x="0.113169" index="1"/> 
+        <Point r="0" g="1" b="1"     a="1"     x="0.26"     index="2"/> 
+        <Point r="0" g="1" b="0"     a="1"     x="0.5"      index="3"/>  
+        <Point r="1" g="1" b="0"     a="1"     x="0.74"     index="4"/> 
+        <Point r="1" g="0" b="0"     a="0.377" x="1"        index="5"/> 
+     </IAG>
+
+     <Blue> 
+        <Point r="0" g="0" b="0" a="0.0" index="0" /> 
+        <Point r="0" g="0" b="1" a="1.0" index="1" /> 
+     </Blue>
+
+     <Blue-Light> 
+        <Point r="1" g="1" b="1" index="0" /> 
+        <Point r="0" g="0" b="1" index="1" />  
+     </Blue-Light> 
+
+     <MTransparent>  
+        <Point r="0"   g="0" b="0.345" a="0.025" x="0"        index="0"/> 
+        <Point r="0"   g="0" b="1"     a="0.049" x="0.193416" index="1"/> 
+        <Point r="0"   g="1" b="1"     a="0.111" x="0.403292" index="2"/> 
+        <Point r="0"   g="1" b="0"     a="0.16"  x="0.596708" index="3"/> 
+        <Point r="1"   g="1" b="0"     a="0.21"  x="0.748971" index="4"/> 
+        <Point r="1"   g="0" b="0"     a="0.278" x="0.90535"  index="5"/> 
+        <Point r="0.4" g="0" b="0"     a="0.346" x="1"        index="6"/> 
+     </MTransparent>       
+
+
+
+  </Colormaps>
+
+ </GLOBAL>
+
+</COCONFIG>

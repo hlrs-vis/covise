@@ -1,0 +1,41 @@
+#!/bin/sh
+
+#first argument the path of the actionclass header
+
+
+################################################################################
+#Now we generate the action class
+echo '#ifndef __ACTION_DEFINED' > $1
+echo '#define __ACTION_DEFINED' >>$1
+
+
+echo '#include "attribute.h"' >>$1
+echo '#include "manualAction.h"' >>$1
+echo >>$1
+
+echo "class actionClass: public manualAction" >>$1
+echo "{" >> $1
+echo "  public:" >>$1
+
+#For all sections possible in covise.config there are standard methods 
+#with different possible parameters
+
+cat token/sections | while read l; do
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int x, int y, int z)=0;" >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, double x, double y, double z)=0;" >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, double x, double y, double z,double w)=0;" >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int number)=0;   " >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, const char *str)=0; " >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, const char *str1, const char *str2)=0; " >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int tokval, const char *specAsString)=0;  " >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, int , int tokval, const char *specAsString)=0;  " >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, bool)=0;  " >>$1
+  echo "    virtual void " $l "(int item, const char *itemString, const char *hostname, double)=0;  " >>$1
+done
+
+echo "};" >> $1
+echo "#endif" >>$1
+
+
+
+

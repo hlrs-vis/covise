@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ 
+
+
+ <LOCAL host="visar,visar2,vispro2" >
+
+  <COVER>
+   <WindowConfig>
+    <Window width="1024" window="0" pipeIndex="0" left="0" height="768" bottom="0" comment="FRONT" name="0" decoration="false" />
+   </WindowConfig>
+   <ChannelConfig>
+    <Channel width="1" height="1" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="MONO"  windowIndex="0"  name="0"  />
+   </ChannelConfig>
+   <ViewerPosition x="0.0" y="-2000.0" z="0.0" />
+   <ScreenConfig>
+    <Screen width="995" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="746" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="995" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="746" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+   <Far value="100000" />
+   <Near value="100" />
+   <Background g="0" r="0" b="0" />
+   <HMD mode="OFF" angle="60.0" />
+
+   <Plugin>
+
+    <ARToolKit value="ON">
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="ON" />
+     <VideoConfig value="-dev=/dev/video1394-0 -mode=1024x768_COLOR -balanceU=63 -balanceV=20 -debug -channel=0 -ID=0x00b09d01002f522b -rate=15" />
+<!-- dragonfly
+     <VideoConfig value="-mode=1024x768_COLOR -balanceU=63 -balanceV=20 -debug -channel=0 -ID=0x00b09d01002f522b -rate=15" />
+-->
+     <VideoConfigRight value="-mode=1024x768_COLOR -ID=0x00b09d01002f522a -channel=1 -debug -rate=7.5" />
+     <MirrorRight value="ON" />
+     <Threshold value="100" />
+     <Camera value="/data/ARToolKit/cctv_para.dat" />
+     <Camera value="/data/ARToolKit/dragonfly.dat" />
+
+     <Marker name="ViewpointMarker" >
+      <Pattern value="/data/ARToolKit/patt.hiro" />
+      <Size value="80" />
+      <Offset x="0" y="0" h="0" z="0" p="0" t="0" />
+     </Marker>
+
+     <!-- Napf -->
+     <Marker name="ObjectMarker0" >
+      <Pattern value="/data/ARToolKit/4x4_20.patt" />
+      <Size value="50" />
+      <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+      <VrmlToPf value="TRUE" />
+     </Marker>
+
+     <Marker name="ObjectMarker1" >
+      <Pattern value="/data/ARToolKit/4x4_10.patt" />
+      <Size value="56" />
+      <Offset x="1" y="-3" z="-5" h="0" p="-180" r="0" />
+      <VrmlToPf value="TRUE" />
+     </Marker>
+     
+    </ARToolKit>
+
+   </Plugin>
+
+
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+
+ <INCLUDE configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+</COCONFIG>
+
+

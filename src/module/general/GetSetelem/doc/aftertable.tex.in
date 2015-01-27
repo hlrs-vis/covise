@@ -1,0 +1,48 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+                {getsetelem_map}{covise/net/examples/GetSetelem.net}{0.6}\end{covimg}
+
+In this map 
+\covlink{ReadKiva}{ReadKiva}{../../IO/ReadKiva/ReadKiva.html}
+is used to extract time step data from a fluidic simulation.
+Five time steps are generated, and GetSetelem is used to extract
+the third time step, whose output is shown below.
+
+\begin{covimg}{}
+                {GetSetelem_out}{Output for the third time step}{0.6}\end{covimg}
+
+
+% examples for using this module
+
+% how to make numerated lists
+%\begin{enumerate}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{enumerate}
+
+% how to make non numerated lists
+%\begin{itemize}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{itemize}
+
+
+%these lists can also be hierarchical
+
+% how to make links for PDF & HTML
+
+%Verwenden Sie hierbei bitte den Modul
+%\begin{covlink}{GenNormals}{ReadStar}{../../IO-Module/ReadStar/ReadStar.html}\end{covlink}
+%um alles genau zu erfahren.
+
+% #1    underlined text for link
+% #2  mark (created by \label)
+% #3  URL
+
+

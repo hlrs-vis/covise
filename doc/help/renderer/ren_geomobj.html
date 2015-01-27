@@ -1,0 +1,184 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Geometry Objects</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900"><font size=+2>Geometry
+Objects</font></font></font></h2>
+<font face="Arial,Helvetica">The <b>GeometryObjects</b> list box in the
+information area of the Renderer contains all geometry objects displayed
+in the viewer area below.</font>
+<br>&nbsp;
+<table CELLSPACING=0 CELLPADDING=5 WIDTH="100%" >
+<tr>
+<td><img SRC="geom.gif" height=507 width=217></td>
+
+<td>
+<br><font face="Arial,Helvetica">You <b>select a geometry object</b> (indicated
+by a red wireframe bounding box) in one of two ways</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">using the <b>GeometryObjects list box</b>:</font></li>
+
+<br><font face="Arial,Helvetica">click on the <b>name </b>of the geometry
+object in question with the left mouse button (works in pick mode and in
+view mode)</font>
+<li>
+<font face="Arial,Helvetica">using the <b>viewer area</b>:</font></li>
+
+<br><font face="Arial,Helvetica">click on the corresponding <b>image</b>
+with the left mouse button</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">select one geometry object by clicking on
+it</font></li>
+
+<li>
+<font face="Arial,Helvetica">select multiple objects by holding down the
+shift key while selecting</font></li>
+
+<li>
+<font face="Arial,Helvetica">remove selection of an object by selecting
+it again</font></li>
+
+<li>
+<font face="Arial,Helvetica">remove selection of all objects by clicking
+on any free part of the viewer area</font></li>
+</ul>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 COLS=1 WIDTH="80%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">You must be in <a href="ren_pickmode.html">Pick
+Mode</a> to select an object in the viewer area!&nbsp;</font></td>
+</tr>
+</table>
+</ul>
+<font face="Arial,Helvetica">You <b>manipulate a geometry object after
+selection</b> with</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><a href="ren_editors.html">Editors</a></font></li>
+
+<li>
+<font face="Arial,Helvetica"><a href="ren_manips.html">Manipulators</a></font></li>
+
+<li>
+<font face="Arial,Helvetica">mouse operations in <a href="ren_viewmode.html">ViewMode</a></font></li>
+
+<li>
+<font face="Arial,Helvetica">thumb <a href="ren_wheels.html">wheels</a></font></li>
+</ul>
+</td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">Since these geometry objects are a subset
+of the data objects listed in the DataObjects selection list of the MapEditor,
+you <b>get the data type of a geometry object</b> just by clicking on the
+corresponding entry in this list box:</font>
+<br><font face="Arial,Helvetica">A window pops up which shows the data
+type (plus other info as described in <a href="../mapeditor/map_dataobj.html">DataObjectList</a>)</font>
+<p><font face="Arial,Helvetica">COVISE knows the following data types:</font>
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="100%" BGCOLOR="#CCCCCC" >
+<tr BGCOLOR="#999999">
+<td><b><font face="Arial,Helvetica">Abbreviation</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Data Object type</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Description</font></b></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">UNIGRID</font>
+<br><font face="Arial,Helvetica">RCTGRD</font>
+<br><font face="Arial,Helvetica">STRGRD</font></td>
+
+<td><font face="Arial,Helvetica">DO_UniformGrid</font>
+<br><font face="Arial,Helvetica">DO_RectilinearGrid</font>
+<br><font face="Arial,Helvetica">DO_StructuredGrid</font></td>
+
+<td><font face="Arial,Helvetica">Structured grid types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">UNSGRD</font></td>
+
+<td><font face="Arial,Helvetica">DO_UnstructuredGrid</font></td>
+
+<td><font face="Arial,Helvetica">Unstructured grid types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">STRSDT</font>
+<br><font face="Arial,Helvetica">STRVDT</font></td>
+
+<td><font face="Arial,Helvetica">DO_Structured_S3D_Data</font>
+<br><font face="Arial,Helvetica">DO_Structured_V3D_Data</font></td>
+
+<td><font face="Arial,Helvetica">Structured data types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">USTSDT</font>
+<br><font face="Arial,Helvetica">USTVDT</font></td>
+
+<td><font face="Arial,Helvetica">DO_Unstructured_S3D_Data</font>
+<br><font face="Arial,Helvetica">DO_Unstructured_V3D_Data</font></td>
+
+<td><font face="Arial,Helvetica">Unstructured data types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">RGBADT</font></td>
+
+<td><font face="Arial,Helvetica">DO_RGBA_Data</font></td>
+
+<td><font face="Arial,Helvetica">Color values</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">SETELE</font></td>
+
+<td><font face="Arial,Helvetica">DO_Set</font></td>
+
+<td><font face="Arial,Helvetica">Container type for grouping of data objects</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">GEOMET</font></td>
+
+<td><font face="Arial,Helvetica">DO_Geometry</font></td>
+
+<td><font face="Arial,Helvetica">Renderer geometry container data type</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">POINTS</font>
+<br><font face="Arial,Helvetica">LINES</font>
+<br><font face="Arial,Helvetica">TRIANG</font>
+<br><font face="Arial,Helvetica">POLYGN</font>
+<br><font face="Arial,Helvetica">VOLUMES</font></td>
+
+<td><font face="Arial,Helvetica">DO_Points</font>
+<br><font face="Arial,Helvetica">DO_Lines</font>
+<br><font face="Arial,Helvetica">DO_TriangleStrips</font>
+<br><font face="Arial,Helvetica">DO_Polygons</font>
+<br><font face="Arial,Helvetica">DO_Volumes</font></td>
+
+<td><font face="Arial,Helvetica">Geometry data types</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

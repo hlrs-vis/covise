@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <ViNCERenderer>
+
+   <Background style="solid"> <!-- style: solid or gradient -->
+      <Color1 r="100" g="90" b="125"/> <!-- C1 for gradient -->
+      <Color2 r="160" g="220" b="255"/> <!-- C2 for gradient -->
+      <Color r="0" g="0" b="0" /> <!-- C for solid -->
+   </Background>
+
+   <Stereo separation="1.0" value="off" />
+   <Cluster value="off" />
+
+   <Backend name="covise" >
+    <PluginDir value="/lib/vcplugins" />
+    <Threaded value="false" />
+   </Backend>
+
+   <Backend name="none" >
+    <PluginDir value="/lib/vcplugins" />
+   </Backend>
+
+   <Backend name="yac" >
+    <PluginDir value="/lib/vcplugins" />
+   </Backend>
+
+   <Backend name="standalone" >
+    <PluginDir value="/lib/vcplugins" />
+   </Backend>
+
+   <ActionModel>
+
+    <ActionContainer name="File" >
+     <Position value="1" name="menu" />
+
+     <Action name="open_file" >
+      <Position value="2" name="menu" />
+      <Position value="1" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+     <Action name="import_file" >
+      <Position value="2" name="menu_desktop" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+     <Action name="save_scene" >
+      <Position value="5" name="menu_desktop" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+     <Action name="save_snap" >
+      <Position value="50" name="menu_desktop" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+     <Action name="save_snap_all" >
+      <Position value="51" name="menu_desktop" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+     <Action name="exit" >
+      <Position value="9999" name="menu" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+    </ActionContainer>
+
+    <ActionContainer name="View" >
+     <Position value="2" name="menu" />
+
+     <Action name="view_all" >
+      <Position value="1" name="menu" />
+      <Position value="1" name="toolbar" />
+      <Position value="3" name="fullscreen" />
+     </Action>
+
+     <Action name="toggle_fs" >
+      <Position value="10" name="menu" />
+      <Position value="10" name="toolbar" />
+      <Position value="2" name="fullscreen" />
+     </Action>
+
+     <Action name="toggle_aa" >
+      <Position value="11" name="menu" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+     <Action name="show_statistics" >
+      <Position value="20" name="menu" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+    </ActionContainer>
+
+    <ActionContainer name="Editors" >
+     <Position value="3" name="menu" />
+
+     <Action name="edit_material" >
+      <Position value="1" name="menu" />
+      <Position value="off" name="toolbar" />
+      <Position value="off" name="fullscreen" />
+     </Action>
+
+    </ActionContainer>
+
+    <ActionContainer name="Lights" >
+     <Position value="6" name="menu" />
+
+     <ActionContainer name="Headlight" >
+      <Position value="1" name="menu" />
+
+      <Action name="toggle_headlight" >
+       <Position value="1" name="menu" />
+       <Position value="off" name="toolbar" />
+       <Position value="off" name="fullscreen" />
+      </Action>
+
+     </ActionContainer>
+
+    </ActionContainer>
+
+    <ActionContainer name="Volume" >
+     <Position value="10" name="menu" />
+
+     <ActionContainer name="Rendering Mode" >
+      <Position value="20" name="menu" />
+     </ActionContainer>
+
+    </ActionContainer>
+
+    <ActionContainer name="Tools" >
+     <Position value="4" name="menu" />
+    </ActionContainer>
+
+   </ActionModel>
+
+  </ViNCERenderer>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

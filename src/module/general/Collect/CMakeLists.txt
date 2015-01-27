@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  Collect.cpp
+)
+
+SET(EXTRASOURCES
+  Collect.h
+)
+
+ADD_COVISE_MODULE(Tools Collect ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(Collect  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(Collect)

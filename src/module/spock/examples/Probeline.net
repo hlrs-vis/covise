@@ -1,0 +1,380 @@
+1
+LOCAL
+LUSER
+7
+RWCovise
+1
+LOCAL
+IO
+Read OR Write COVISE Data
+20
+20
+1
+mesh_in
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh_in
+opt
+none
+1
+mesh
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh
+default
+RWCovise_1_OUT_00
+1
+grid_path
+Browser
+File path
+data/general/tutorial/tiny_geo.covise *.covise
+START
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+85
+339
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+0
+0
+RWCovise
+2
+LOCAL
+IO
+Read OR Write COVISE Data
+163
+20
+1
+mesh_in
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh_in
+opt
+none
+1
+mesh
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh
+default
+RWCovise_2_OUT_00
+1
+grid_path
+Browser
+File path
+data/general/tutorial/tiny_p.covise *.covise
+START
+-3
+0
+DomainSurface
+1
+LOCAL
+Tools
+Extract the Surface of an unstructured Grid
+65
+82
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+DomainSurface_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+DomainSurface_1_OUT_01
+linesOut
+DO_Lines
+Boundary lines
+default
+DomainSurface_1_OUT_02
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+DomainSurface_1_OUT_03
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+ProbeLine
+1
+LOCAL
+Filter
+map data to 2d-data and 3d-graph
+65
+215
+2
+poly_in
+Set_Polygons
+surface input
+req
+none
+data_in
+Set_Unstructured_S3D_Data
+data input
+req
+none
+4
+data2d_out
+DO_Unstructured_2D_Data
+computed data
+default
+ProbeLine_1_OUT_00
+plane_out
+DO_Polygons
+the background-plane
+default
+ProbeLine_1_OUT_01
+lines_out
+Set_Lines
+computed graph
+default
+ProbeLine_1_OUT_02
+probe_line_out
+DO_Lines
+line through the points where we interpolated the data
+default
+ProbeLine_1_OUT_03
+4
+position
+Vector
+point on the plane and on the new x-axis
+2.0 0.0 0.0
+START
+-1
+normal
+Vector
+normal of the plane
+1.0 0.0 0.0
+START
+-1
+normal2
+Vector
+direction of the new x-axis
+0.0 1.0 0.0
+START
+-1
+mode
+Choice
+if a non-VR-mode is chosen, then only the vertex has to be given
+3 VR x y z
+START
+1
+0
+DomainSurface
+2
+LOCAL
+Tools
+Extract the Surface of an unstructured Grid
+265
+183
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+DomainSurface_2_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+DomainSurface_2_OUT_01
+linesOut
+DO_Lines
+Boundary lines
+default
+DomainSurface_2_OUT_02
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+DomainSurface_2_OUT_03
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+Plot
+1
+LOCAL
+Renderer
+XMGR Plot Module
+20
+295
+1
+RenderData
+DO_Unstructured_2D_Data|DO_RectilinearGrid
+plot_data
+req
+none
+0
+0
+0
+9
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_00
+DomainSurface
+1
+LOCAL
+meshIn
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_00
+DomainSurface
+2
+LOCAL
+meshIn
+RWCovise
+2
+LOCAL
+mesh
+RWCovise_2_OUT_00
+DomainSurface
+1
+LOCAL
+dataIn
+DomainSurface
+1
+LOCAL
+meshOut
+DomainSurface_1_OUT_00
+ProbeLine
+1
+LOCAL
+poly_in
+DomainSurface
+1
+LOCAL
+dataOut
+DomainSurface_1_OUT_01
+ProbeLine
+1
+LOCAL
+data_in
+ProbeLine
+1
+LOCAL
+data2d_out
+ProbeLine_1_OUT_00
+Plot
+1
+LOCAL
+RenderData
+ProbeLine
+1
+LOCAL
+plane_out
+ProbeLine_1_OUT_01
+Renderer
+1
+LOCAL
+RenderData
+ProbeLine
+1
+LOCAL
+lines_out
+ProbeLine_1_OUT_02
+Renderer
+1
+LOCAL
+RenderData
+DomainSurface
+2
+LOCAL
+linesOut
+DomainSurface_2_OUT_02
+Renderer
+1
+LOCAL
+RenderData
+0

@@ -1,0 +1,44 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+The TracerComp module performs particle tracing within vector fields.
+It can either show {\bf Floating Particles} or connect these to {\bf Streamlines},
+{\bf Streaklines}, and {\bf Pathlines}, which are different for transient data.
+
+The key difference with respect to the normal Tracer module, is that
+TracerComp relieves you from the burden of connecting the output
+with Colors, Collect and Sphere modules. You may directly connect
+the first output port with the renderer.
+
+The data can be given on structured and unstructured grids and also
+on Polygons. If the data is given on Polygons, the traces are bound
+to the polygons even if the velocities have components pointing out
+of it. The Polygons do not have to be planar.
+
+Starting points can be given equally spaced on either a line or a
+rectangular area in 3D space, either by numerical input or interactive
+by VR manipulators in COVER.
+
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{TracerComp}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+
+TracerComp is available for all supported platforms.
+
+
+%
+%=============================================================

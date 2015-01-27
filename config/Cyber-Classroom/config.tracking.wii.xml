@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <IconSize value="50"/>
+         <ConstantInteractorSize value="Off"/>
+         <IconOffset value="0"/>
+
+         <PointerDepth value="0"/>
+         <PointerAppearance>
+            <IconName value="pointer"/>
+            <Width value="5"/>
+            <Length value="1000"/>
+            <Intersection value="1000" />
+			<Transparent value="on" />
+         </PointerAppearance>
+         
+         <MenuMode value="on">
+            <Coloring value="on"/>
+         </MenuMode >
+
+		 <MenuButtonQuitInterval value="2.0" />
+
+         <Input> <!-- WII -->
+            <DebugButtons value="FALSE" />
+            <DebugTracking value="TRUE"/>
+            <TrackingSystem value="VRC" />
+            <WiiNavigationVisenso value="on" enable="on" />
+
+            <VRC>
+               <Port value="7777" />
+               <DebugLevel value="0"/>
+               <Unit value="0.3"/>
+            </VRC>
+
+            <HandAddress value="1" />
+
+            <HandDevice>
+               <Offset x="0" y="0" z="0" />
+               <Orientation h="0" p="0" r="0" />
+            </HandDevice>
+
+            <VisensoJoystick value="ON" >
+               <Analog value="on" />
+			   <Speed value="15.0" />
+            </VisensoJoystick> 
+
+            <MouseNav value="OFF" />
+
+            <ButtonConfig>
+               <Map value="1 NONE" name="1 NONE"/>
+               <Map value="2 BACKWARD_BUTTON"  name="2 BACKWARD_BUTTON"/>
+               <Map value="3 FORWARD_BUTTON"  name="3 FORWARD_BUTTON"/>
+               <Map value="4 MENU_BUTTON"  name="4 MENU_BUTTON"/>
+               <Map value="5 ACTION_BUTTON"  name="5 ACTION_BUTTON"/>
+               <Map value="6 INTER_NEXT"  name="6 INTER_NEXT"/>
+               <Map value="7 INTER_PREV"  name="7 INTER_PREV"/>
+               <Map value="30 TOGGLE_DOCUMENTS" name="30 TOGGLE_DOCUMENTS"/>
+               <Map value="31 QUIT_BUTTON"  name="31 QUIT_BUTTON"/>
+            </ButtonConfig> 
+            
+         </Input>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

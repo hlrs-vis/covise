@@ -1,0 +1,31 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{geo\_in} & 
+Polygons  \newline
+TriangleStrips \newline 
+Lines \newline 
+Points  \newline
+UnstructuredGrid   \newline
+UniformGrid  \newline
+RectilinearGrid  \newline
+StructuredGrid & Grid or geometry objects. \\
+\hline
+	\textcolor{optional}{\mbox{data\_in0 \ldots} data\_in3} & 
+Float  \newline Vec3  \newline
+Float  \newline Vec3 & Scalar or vector data. \\									
+\hline
+\end{longtable}
+%=============================================================
+
+%\pagebreak
+
+%
+%=============================================================

@@ -1,0 +1,23 @@
+#!/bin/sh
+#This script translates the grammar for covise.config into tcl code
+
+grep '{' coviseconfig.grammar | 
+grep -v ENUMERATE |
+grep -v setCurrHost |
+grep -v cout | grep -v '\$\$' | 
+awk -F '{' -f grammar2tcl.awk  | 
+sed 's/}//g' |sed 's/,\$2//g' |
+sed 's/,\$3//g' |
+sed 's/,\$4//g' |
+sed 's/ ,\$2//g' |
+sed 's/ ,\$3//g' |
+sed 's/ ,\$4//g' |
+sed 's/, \$2//g' |
+sed 's/, \$3//g' |
+sed 's/,\ $4//g' | 
+sed 's/,\ $5//g' | 
+sed 's/,/ /g'| 
+sed 's/(/ /g'| 
+sed 's/UNDOCUMENTED;//g' |
+sed 's/);//g' |
+sort +3

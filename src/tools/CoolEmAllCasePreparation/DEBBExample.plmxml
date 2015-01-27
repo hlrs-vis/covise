@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PLMXML xmlns="http://www.plmxml.org/Schemas/PLMXMLSchema"
+ xmlns:vis="PLMXMLTcVisSchema"
+ schemaVersion="6" date="2012-07-12" time="12:44:47" author="HLRS 0.1.0">
+<ProductDef id="id1" defaultProductViewRef="id3720">
+
+	<InstanceGraph id="id2" rootRefs="inst35833">
+
+		<ProductRevisionView id="id19" name="RackNECWC">
+		 <UserData id="id191">
+		 <UserValue value="Rack" title="Nomenclature"></UserValue>
+		 <UserValue value="1" title="Sequence"></UserValue>
+		 <UserValue value="NECWaterCooledRack.xml" title="CIMType"></UserValue>
+		 </UserData>
+		 <Representation id="id100" format="STL" location=".\RackNECWC.stl"></Representation>
+		</ProductRevisionView>
+		<ProductRevisionView id="id20" name="RackNECFS">
+		 <UserData id="id201">
+		 <UserValue value="Rack" title="Nomenclature"></UserValue>
+		 <UserValue value="2" title="Sequence"></UserValue>
+		 <UserValue value="NECFilesystem.xml" title="CIMType"></UserValue>
+		 </UserData>
+		 <Representation id="id101" format="STL" location=".\RackNECFS.stl"></Representation>
+		</ProductRevisionView>
+
+		<ProductInstance id="inst35834" name="NECRackWC" partRef="#id19">
+		 <UserData id="id191">
+		   <UserValue value="NECWaterCooledRack_1.xml" title="CIMInstance"></UserValue>
+		 </UserData>
+		 <Transform id="id14">1 0 0 0 0 1 0 0 0 0 1 0 8.4 1.7 0. 1</Transform>
+		</ProductInstance>
+		<ProductInstance id="inst35835" name="NECRackWC" partRef="#id19">
+		 <UserData id="id191">
+		 <UserValue value="NECWaterCooledRack_2.xml" title="CIMInstance"></UserValue>
+		 <Transform id="id15">1 0 0 0 0 1 0 0 0 0 1 0 9.4 1.7 0. 1</Transform>
+		 </UserData>
+		</ProductInstance>
+		<ProductInstance id="inst35836" name="NECRackWC" partRef="#id19">
+		 <UserData id="id191">
+		 <UserValue value="NECWaterCooledRack_3.xml" title="CIMInstance"></UserValue>
+		 <Transform id="id16">1 0 0 0 0 1 0 0 0 0 1 0 10.4 1.7 0. 1</Transform>
+		 </UserData>
+		</ProductInstance>
+		<ProductInstance id="inst35837" name="NECRackWC" partRef="#id19">
+		 <UserData id="id191">
+		 <UserValue value="NECWaterCooledRack_4.xml" title="CIMInstance"></UserValue>
+		 <Transform id="id17">1 0 0 0 0 1 0 0 0 0 1 0 11.4 1.7 0. 1</Transform>
+		 </UserData>
+		</ProductInstance>
+		<ProductInstance id="inst35838" name="NECRackWCFS" partRef="#id20">
+		 <UserData id="id191">
+		  <UserValue value="NECFilesystem_2.xml" title="CIMInstance"></UserValue>
+		  <Transform id="id18">1 0 0 0 0 1 0 0 0 0 1 0 12.4 1.7 0. 1</Transform>
+		 </UserData>
+		</ProductInstance>
+
+		<ProductInstance id="inst35833" name="HLRS_SmallServerRoom" partRef="#id4">  </ProductInstance>
+		<ProductRevisionView id="id4" name="HLRS_SmallServerRoom" instanceRefs="inst35834 inst35835 inst35836 inst35837 inst35838" type="assembly">
+		  <Bound id="id5" values="0 0 0 16.0 9.6 3.3"></Bound>
+		  <Representation id="id6" format="VRML" location=".\serverroom.wrl"> </Representation>
+		</ProductRevisionView>
+	</InstanceGraph>
+
+
+</ProductDef></PLMXML>

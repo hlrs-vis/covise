@@ -1,0 +1,41 @@
+
+%=============================================================
+
+%-------------------------------------------------------------
+% General Notes for Latex novices:
+% 1. Please protect any "_" by a backslash "\" to prevent that it is
+%    interpreted by Latex as an order, e. g. write
+%    Vec3. 
+%    Protect "#", "$", "&", "%" , "{" and "}" in the same way by a "\".
+% 2. Use {\bf text} or {\it text} to generate text in bold face resp. italics
+% 3. For Figures, Tables, Lists, Verbatim-Environments (unformatted text), References/Links,
+%    etc. see below.
+% 4. Look at CuttingSurface.tex , ReadSTAR.tex, or Domainsurface.tex as good examples.  
+% 5. A Latex book (Latex Einführung Band 1) is available for further questions
+%    (usually on Peter's desk) 
+%-------------------------------------------------------------
+
+%
+% short description what the module does
+%
+ReadIv reads Inventor files. You have to use the Open Inventor Renderer to 
+display the file.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2} {}{ReadIvModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+ReadIv is available for COVISE version 4.5 and higher.
+It's tested on SGI systems (IRIX 6.2, 6.3, 6.4, 6.5).
+
+
+%=============================================================

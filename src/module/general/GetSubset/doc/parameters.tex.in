@@ -1,0 +1,8 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline selection & String & Subset specifier.  E.g. "2-4 20 42"
+stands for the elements 2, 3, 4, 20 and 42. \\
+\hline
+\end{longtable}
+

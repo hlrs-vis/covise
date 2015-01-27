@@ -1,0 +1,3325 @@
+<?xml version="1.0" standalone="yes"?>
+
+<ODDLot>
+
+	<prototypes>
+
+		<roadTypePrototypes>
+			<roadTypePrototype name = "Unknown" icon = "">
+				<road name="Unknown" length="100.0" id="prototype" junction="-1">
+					<type s="0.0" type="unknown"/>
+				</road>
+			</roadTypePrototype>
+			<roadTypePrototype name = "Pedestrian" icon = "">
+				<road name="Pedestrian" length="100.0" id="prototype" junction="-1">
+					<type s="0.0" type="pedestrian"/>
+				</road>
+			</roadTypePrototype>
+			<roadTypePrototype name = "Low Speed" icon = "">
+				<road name="Low Speed" length="100.0" id="prototype" junction="-1">
+					<type s="0.0" type="lowSpeed"/>
+				</road>
+			</roadTypePrototype>
+			<roadTypePrototype name = "Town" icon = "">
+				<road name="Town" length="100.0" id="prototype" junction="-1">
+					<type s="0.0" type="town"/>
+				</road>
+			</roadTypePrototype>
+			<roadTypePrototype name = "Rural" icon = "">
+				<road name="Rural" length="100.0" id="prototype" junction="-1">
+					<type s="0.0" type="rural"/>
+				</road>
+			</roadTypePrototype>
+			<roadTypePrototype name = "Motorway" icon = "">
+				<road name="Motorway" length="100.0" id="prototype" junction="-1">
+					<type s="0.0" type="motorway"/>
+				</road>
+			</roadTypePrototype>
+		</roadTypePrototypes>
+
+
+
+		<trackPrototypes>
+			<trackPrototype name = "Straight line 100" icon = "">
+				<road name="Straight line" length="100.0" id="prototype" junction="-1">
+					<planView>
+						<geometry s="0.0" x="0.0" y="0.0" hdg="0.0" length="100.0">
+							<line/>
+						</geometry>
+					</planView>
+				</road>
+			</trackPrototype>
+
+			<trackPrototype name = "2 Straight lines 100" icon = "">
+				<road name="2 Straight lines" length="100.0" id="prototype" junction="-1">
+					<planView>
+						<geometry s="0.0" x="0.0" y="0.0" hdg="0.0" length="50.0">
+							<line/>
+						</geometry>
+						<geometry s="50.0" x="50.0" y="0.0" hdg="0.0" length="50.0">
+							<line/>
+						</geometry>
+					</planView>
+				</road>
+			</trackPrototype>
+
+			<trackPrototype name = "Left turn 224" icon = "">
+				<road name="Left turn 224" length="223.65517241523702" id="prototype" junction="-1">
+					<planView>
+						<geometry x="0" y="0" hdg="0" length="49.6551724137931" s="0.0">
+							<spiral curvStart="0.0" curvEnd="0.003448275862068966"/>
+						</geometry>
+						<geometry x="49.61879011646819" y="1.416290576997416" hdg="0.0856123662306776" length="124.3448275876508" s="49.65517241379311">
+							<arc curvature="0.003448275862068966"/>
+						</geometry>
+						<geometry x="167.5020491350196" y="37.88185581403775" hdg="0.5143876337743012" length="49.6551724137931" s="174">
+							<spiral curvStart="0.003448275862068966" curvEnd="0.0"/>
+						</geometry>
+					</planView>
+				</road>
+			</trackPrototype>
+
+			<trackPrototype name = "Right turn 224" icon = "">
+				<road name="Right turn 224" length="223.65517241523702" id="prototype" junction="-1">
+					<planView>
+						<geometry x="0" y="0" hdg="0" length="49.6551724137931" s="0.0">
+							<spiral curvStart="0.0" curvEnd="-0.003448275862068966"/>
+						</geometry>
+						<geometry x="49.61879011646819" y="-1.416290576997416" hdg="-0.0856123662306776" length="124.3448275876508" s="49.65517241379311">
+							<arc curvature="-0.003448275862068966"/>
+						</geometry>
+						<geometry x="167.5020491350196" y="-37.88185581403775" hdg="-0.5143876337743012" length="49.6551724137931" s="174">
+							<spiral curvStart="-0.003448275862068966" curvEnd="0.0"/>
+						</geometry>
+					</planView>
+				</road>
+			</trackPrototype>
+
+		</trackPrototypes>
+
+
+
+		<elevationPrototypes>
+			<elevationPrototype name = "Planar 0.0" icon = "">
+				<road name="Unknown" length="100.0" id="prototype" junction="-1">
+					<elevationProfile>
+						<elevation s="0.0" a="0.0" b="0.0" c="0.0" d="0.0"/>
+					</elevationProfile>
+				</road>
+			</elevationPrototype>
+		</elevationPrototypes>
+
+
+
+		<superelevationPrototypes>
+			<superelevationPrototype name = "Planar 0.0" icon = "">
+				<road name="Unknown" length="100.0" id="prototype" junction="-1">
+					<lateralProfile>
+						<superelevation s="0.0" a="0.0" b="0.0" c="0.0" d="0.0"/>
+					</lateralProfile>
+				</road>
+			</superelevationPrototype>
+		</superelevationPrototypes>
+
+
+
+		<crossfallPrototypes>
+			<crossfallPrototype name = "Planar 0.0" icon = "">
+				<road name="Unknown" length="100.0" id="prototype" junction="-1">
+					<lateralProfile>
+						<crossfall s="0.0" a="0.0" b="0.0" c="0.0" d="0.0" side="both"/>
+					</lateralProfile>
+				</road>
+			</crossfallPrototype>
+		</crossfallPrototypes>
+
+
+
+		<laneSectionPrototypes>
+			<!-- Junction Road right lane -->
+			<laneSectionPrototype name = "RoadJunctionRightLane" icon = "">
+				<road name="RoadJunctionRightLane" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane id="0" type="none" level= "0">
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Junction Road left lane -->
+			<laneSectionPrototype name = "RoadJunctionLeftLane" icon = "">
+				<road name="RoadJunctionLeftLane" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="none" level= "0">
+								</lane>
+							</center>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+									
+			<!-- Junction Road three lanes -->
+			<laneSectionPrototype name = "SimplePrototype" icon = "">
+				<road name="SimplePrototype" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+									
+			<laneSectionPrototype name = "Motorway RQ 36" icon = "">
+				<road name="Motorway RQ 36" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="driving" level= "0">
+									<link>
+										<predecessor id="5"/>
+										<successor id="5"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<link>
+										<predecessor id="4"/>
+										<successor id="4"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<link>
+										<predecessor id="3"/>
+										<successor id="3"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<link>
+										<predecessor id="-3"/>
+										<successor id="-3"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<link>
+										<predecessor id="-4"/>
+										<successor id="-4"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-5" type="driving" level= "0">
+									<link>
+										<predecessor id="-5"/>
+										<successor id="-5"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-6" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+
+			<laneSectionPrototype name = "Motorway RQ 36 to 31" icon = "">
+				<road name="Motorway RQ 36 to 31" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.5" b="0.0" c="6.0e-4" d="-8.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="border" level= "0">
+									<width sOffset="0.0" a="0.5" b="0.0" c="3.0e-4" d="-4.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="driving" level= "0">
+									<link>
+										<predecessor id="5"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="-4.5e-3" d="6.0e-5"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<link>
+										<predecessor id="4"/>
+										<successor id="4"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="3.0e-4" d="-4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<link>
+										<predecessor id="3"/>
+										<successor id="3"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="3.0e-4" d="-4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<link>
+										<predecessor id="-3"/>
+										<successor id="-3"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="3.0e-4" d="-4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<link>
+										<predecessor id="-4"/>
+										<successor id="-4"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="3.0e-4" d="-4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-5" type="driving" level= "0">
+									<link>
+										<predecessor id="-5"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="-4.5e-3" d="6.0e-5"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-6" type="border" level= "0">
+									<width sOffset="0.0" a="0.5" b="0.0" c="3.0e-4" d="-4.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.5" b="0.0" c="6.0e-4" d="-8.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+
+						<laneSection s="50.0">
+							<left>
+								<lane id="7" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="shoulder" level= "0">
+									<width sOffset="0.0" a="3.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<link>
+										<predecessor id="4"/>
+										<successor id="4"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<link>
+										<predecessor id="3"/>
+										<successor id="3"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<link>
+										<predecessor id="-3"/>
+										<successor id="-3"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<link>
+										<predecessor id="-4"/>
+										<successor id="-4"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-5" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-6" type="shoulder" level= "0">
+									<width sOffset="0.0" a="3.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+
+
+			<laneSectionPrototype name = "Motorway RQ 31 to 36" icon = "">
+				<road name="Motorway RQ 31 to 36" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="3.0" b="0.0" c="-6.0e-4" d="8.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="-3.0e-4" d="4.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="driving" level= "0">
+									<link>
+										<successor id="5"/>
+									</link>
+									<width sOffset="0.0" a="0.0" b="0.0" c="4.5e-3" d="-6.0e-5"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<link>
+										<predecessor id="4"/>
+										<successor id="4"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="-3.0e-4" d="4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<link>
+										<predecessor id="3"/>
+										<successor id="3"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="-3.0e-4" d="4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<link>
+										<predecessor id="-3"/>
+										<successor id="-3"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="-3.0e-4" d="4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<link>
+										<predecessor id="-4"/>
+										<successor id="-4"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="-3.0e-4" d="4.0e-6"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-5" type="driving" level= "0">
+									<link>
+										<successor id="-5"/>
+									</link>
+									<width sOffset="0.0" a="0.0" b="0.0" c="4.5e-3" d="-6.0e-5"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-6" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="-3.0e-4" d="4.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="3.0" b="0.0" c="-6.0e-4" d="8.0e-6"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+
+						<laneSection s="50.0">
+							<left>
+								<lane id="8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="driving" level= "0">
+									<link>
+										<predecessor id="5"/>
+										<successor id="5"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<link>
+										<predecessor id="4"/>
+										<successor id="4"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<link>
+										<predecessor id="3"/>
+										<successor id="3"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<link>
+										<predecessor id="-3"/>
+										<successor id="-3"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<link>
+										<predecessor id="-4"/>
+										<successor id="-4"/>
+									</link>
+									<width sOffset="0.0" a="3.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-5" type="driving" level= "0">
+									<link>
+										<predecessor id="-5"/>
+										<successor id="-5"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-6" type="border" level= "0">
+									<width sOffset="0.0" a="0.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="shoulder" level= "0">
+									<width sOffset="0.0" a="2.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-8" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+
+			<laneSectionPrototype name = "Motorway RQ 31" icon = "">
+				<road name="Motorway RQ 31" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="7" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="6" type="shoulder" level= "0">
+									<width sOffset="0.0" a="3.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="5" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="4" type="driving" level= "0">
+									<link>
+										<predecessor id="4"/>
+										<successor id="4"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="3" type="driving" level= "0">
+									<link>
+										<predecessor id="3"/>
+										<successor id="3"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="none" level= "0">
+									<width sOffset="0.0" a="2.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-3" type="driving" level= "0">
+									<link>
+										<predecessor id="-3"/>
+										<successor id="-3"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.15"/>
+								</lane>
+								<lane id="-4" type="driving" level= "0">
+									<link>
+										<predecessor id="-4"/>
+										<successor id="-4"/>
+									</link>
+									<width sOffset="0.0" a="3.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.30"/>
+								</lane>
+								<lane id="-5" type="border" level= "0">
+									<width sOffset="0.0" a="0.75" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-6" type="shoulder" level= "0">
+									<width sOffset="0.0" a="3.00" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-7" type="none" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+			<laneSectionPrototype name = "Rural RQ 10.5" icon = "">
+				<road name="Rural RQ 10.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+			<laneSectionPrototype name = "Rural RQ 10.5 to 9.5" icon = "">
+				<road name="Rural RQ 10.5 to 9.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.56" b="0.0" c="-0.06" d="0.008"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.56" b="0.0" c="-0.06" d="0.008"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+						<laneSection s="5.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+			<laneSectionPrototype name = "Rural RQ 9.5 to 10.5" icon = "">
+				<road name="Rural RQ 9.5 to 10.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.06" d="-0.008"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.06" d="-0.008"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+						<laneSection s="5.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+			<laneSectionPrototype name = "Rural RQ 9.5" icon = "">
+				<road name="Rural RQ 9.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<laneSectionPrototype name = "Hiking Trail 3m" icon = "">
+				<road name="Hiking Trail 3m" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="1" type="sidewalk" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="sidewalk" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+			<laneSectionPrototype name = "Town 9.5 to 6.5" icon = "">
+				<road name="Town 9.5 to 6.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="-4.5e-2" d="3.0e-3"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="-4.5e-2" d="3.0e-3"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+						<laneSection s="10.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+			<laneSectionPrototype name = "Town 6.5 to 9.5" icon = "">
+				<road name="Town 6.5 to 9.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="0.0" b="0.0" c="4.5e-2" d="-3.0e-3"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="0.0" b="0.0" c="4.5e-2" d="-3.0e-3"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+						<laneSection s="10.0">
+							<left>
+								<lane id="3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.50" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-3" type="shoulder" level= "0">
+									<width sOffset="0.0" a="1.56" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+			<laneSectionPrototype name = "Town 6.5" icon = "">
+				<road name="Town 6.5" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.06" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Porschestr., Weissach, 48.853020/8.901167 -->
+			<laneSectionPrototype name = "Porsche" icon = "">
+				<road name="Porsche" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+		
+			<!-- Stuttgarter Str. 2, Eberdingen, 48.880643/8.964205 -->		
+			<!-- Leonberger Str., Mönsheim, 48.860849/8.867589 -->
+			<laneSectionPrototype name = "Leonberger 61" icon = "">
+				<road name="Leonberger 61" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Iptinger Str. 3, Mönsheim, 48.864240/8.864358 -->
+			<laneSectionPrototype name = "Iptinger 3" icon = "">
+				<road name="Iptinger 3" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.2" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Iptinger Str. 17, Mönsheim, 48.865337/8.866304 -->
+			<laneSectionPrototype name = "Iptinger 17" icon = "">
+				<road name="Iptinger 17" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.6" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- K4578, Mönsheim, 48.868464/8.877495 -->
+			<!-- Heimerdinger Str., Weissach, 48.846208/8.934975 -->
+			<laneSectionPrototype name = "K4578" icon = "">
+				<road name="K4578" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Mönsheimer Str. 57, Iptingen, 48.881489/8.9006 -->
+			<!-- Stuttgarter Str. 58, Eberdingen, 48.877090/8.964121 probably -->
+			<laneSectionPrototype name = "Moensheimer 57" icon = "">
+				<road name="Moensheimer 57" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+			<!-- Nußdorfer Str. 7, Iptingen, 48.886909/8.898632 -->
+			<laneSectionPrototype name = "Nussdorfer 7" icon = "">
+				<road name="Nussdorfer 7" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- L1135, Iptingen, 48.889225/8.913384 -->
+			<!-- K1688, Eberdingen, 48.869546/8.967466 -->
+			<laneSectionPrototype name = "L1135" icon = "">
+				<road name="L1135" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Iptinger Str., Nußdorf, 48.89487/8.935587 -->
+			<laneSectionPrototype name = "Iptinger" icon = "">
+				<road name="Iptinger" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.8" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Pfalzstr. 7, Nußdorf, 48.895307/8.938197 -->
+			<laneSectionPrototype name = "Pfalz" icon = "">
+				<road name="Pfalz" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="parking" level= "0">
+									<width sOffset="0.0" a="2.35" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.85" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.85" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Martinstr. 4, Nußdorf, 48.894443/8.939345 -->
+			<laneSectionPrototype name = "Martin" icon = "">
+				<road name="Martin" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- K1651, Eberdingen, 48.889720/8.940229 -->
+			<laneSectionPrototype name = "K1651" icon = "">
+				<road name="K1651" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Nussdorfer Str. 6, Eberdingen, 48.880742/8.963008 -->
+			<laneSectionPrototype name = "Nussdorfer 6" icon = "">
+				<road name="Nussdorfer 6" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.2" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Bahnhofstr. 36, Weissach, 48.846337/8.932397 -->
+			<laneSectionPrototype name = "Bahnhof" icon = "">
+				<road name="Bahnhof" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="3.8" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="4.15" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="4.15" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Hauptstraße, Weissach, 48.846828/8.926395 -->
+			<laneSectionPrototype name = "Bach" icon = "">
+				<road name="Bach" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.6" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.4" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Porschestr. , Weissach, 48.848072/8.925346 -->
+			<laneSectionPrototype name = "Porsche7" icon = "">
+				<road name="Porsche7" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Xizangnanlu, Lujiangbanglu2, Nanchezhanlu, Xietudonglu, Fuxingdonglu-->
+			<laneSectionPrototype name = "Xizang" icon = "">
+				<road name="Xizang" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                                <lane type="sidewalk" id="6" level="0">
+                                                                       <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="5" level="0">
+                                                                       <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="4" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="3" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="2" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="1" level="0">
+                                                                       <link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+								       </link>
+                                                                       <width sOffset="0" a="0.3" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>   
+							</left>
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+							<right>
+                                                                <lane type="restricted" id="-1" level="0">
+                                                                       <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                       </link>
+                                                                       <width sOffset="0" a="0.3" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-3" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane> 
+                                                                <lane type="driving" id="-4" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="-5" level="0">
+                                                                       <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="sidewalk" id="-6" level="0">
+                                                                       <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>        
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Lujiabang1.  -->
+			<laneSectionPrototype name = "Lujiabang1" icon = "">
+				<road name="Lujiabang1" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                                <lane type="sidewalk" id="7" level="0">
+                                                                      <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="6" level="0">
+                                                                      <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="5" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="4" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="3" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="2" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="1" level="0">
+                                                                      <link>
+                                                                           <predecessor id="1"/>
+                                                                           <successor id="1"/>
+                                                                       </link>
+                                                                      <width sOffset="0" a="0.3" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                         </left>
+                                                         <center>
+                                                                <lane type="border" id="0" level="0">
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                         </center>
+                                                         <right>
+                                                                <lane type="restricted" id="-1" level="0">
+                                                                      <link>
+								            <predecessor id="-1"/>
+									    <successor id="-1"/>
+								      </link>
+                                                                      <width sOffset="0" a="0.3" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-3" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-4" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-5" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="-6" level="0">
+                                                                      <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="sidewalk" id="-7" level="0">
+                                                                      <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+	             <!-- Lujiabang3.  -->
+			<laneSectionPrototype name = "Lujiabang3" icon = "">
+				<road name="Lujiabang3" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                                <lane type="sidewalk" id="7" level="0">
+                                                                      <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="6" level="0">
+                                                                      <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="5" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="4" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="3" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="2" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="1" level="0">
+                                                                      <link>
+                                                                           <predecessor id="1"/>
+                                                                           <successor id="1"/>
+                                                                       </link>
+                                                                      <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                         </left>
+                                                         <center>
+                                                                <lane type="border" id="0" level="0">
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                         </center>
+                                                         <right>
+                                                                <lane type="restricted" id="-1" level="0">
+                                                                      <link>
+								            <predecessor id="-1"/>
+									    <successor id="-1"/>
+								      </link>
+                                                                      <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-3" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-4" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-5" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="-6" level="0">
+                                                                      <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="sidewalk" id="-7" level="0">
+                                                                      <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Xujiahui-->
+			<laneSectionPrototype name = "Xujiahui" icon = "">
+				<road name="Xujiahui" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                                <lane type="sidewalk" id="8" level="0">
+                                                                      <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="7" level="0">
+                                                                      <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="6" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="5" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="4" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="3" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="2" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="1" level="0">
+                                                                      <link>
+                                                                           <predecessor id="1"/>
+                                                                           <successor id="1"/>
+                                                                       </link>
+                                                                      <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                         </left>
+                                                         <center>
+                                                                <lane type="border" id="0" level="0">
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                         </center>
+                                                         <right>
+                                                                <lane type="restricted" id="-1" level="0">
+                                                                      <link>
+								            <predecessor id="-1"/>
+									    <successor id="-1"/>
+								      </link>
+                                                                      <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-3" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-4" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-5" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-6" level="0">
+                                                                      <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="-7" level="0">
+                                                                      <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="sidewalk" id="-8" level="0">
+                                                                      <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                      <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                        </right>  
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!--  Dalin -->
+			<laneSectionPrototype name = "Dalin" icon = "">
+				<road name="Dalin" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" level="0" id="2">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>      
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+                                                                           <predecessor id="1"/>
+                                                                           <successor id="1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+								            <predecessor id="-1"/>
+									    <successor id="-1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-2">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Jianguodong -->
+			<laneSectionPrototype name = "Jianguodong" icon = "">
+				<road name="Jiangguodong" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left>
+                                                               <lane type="sidewalk" level="0" id="3">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="parking" level="0" id="2">
+                                                                     <width sOffset="0" a="2.2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                                     <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="-2">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="parking" level="0" id="-3">
+                                                                     <width sOffset="0" a="2.2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-4">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </right>    
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                 
+                        <!-- Daji1 -->
+			<laneSectionPrototype name = "Daji1" icon = "">
+				<road name="Daji1" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left>
+                                                               <lane type="sidewalk" level="0" id="2">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="parking" level="0" id="-2">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>      
+                                                               <lane type="sidewalk" level="0" id="-3">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+        
+                        <!-- Daxing -->
+			<laneSectionPrototype name = "Daxing" icon = "">
+				<road name="Daxing" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" level="0" id="4">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>  
+                                                               <lane type="biking" level="0" id="3">
+                                                                     <width sOffset="0" a="1.2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="driving" level="0" id="2">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="broken" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="biking" level="0" id="-2">
+                                                                     <width sOffset="0" a="1.2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-3">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>      
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Anlan, Daji2, Liyuanlu2, Ximinlilu, Shajiajie-->
+			<laneSectionPrototype name = "Anlan" icon = "">
+				<road name="Anlan" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left>
+                                                               <lane type="sidewalk" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="1.3" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-2">
+                                                                     <width sOffset="0" a="1.3" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>      
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                        
+                        <!-- Fangxielu, Huininglu -->
+			<laneSectionPrototype name = "Fangxie" icon = "">
+				<road name="Fangxie" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" level="0" id="2">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="parking" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="2.2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>      
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="4.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-2">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+ 
+                        <!-- Xilingjiazhailu -->
+			<laneSectionPrototype name = "Xilingjiazhai" icon = "">
+				<road name="Xilingjiazhai" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" level="0" id="2">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>   
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-2">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Yinqinglu, Kualonglu-->
+			<laneSectionPrototype name = "Yinqing" icon = "">
+				<road name="Yinqing" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" level="0" id="2">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>                                                
+                                                        <right> 
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="-2">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="sidewalk" level="0" id="-3">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Zhaozhoulu, Liyuanlu1 -->
+			<laneSectionPrototype name = "Zhaozhou" icon = "">
+				<road name="Zhaozhou" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+						        <left>
+                                                               <lane type="sidewalk" level="0" id="3">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="biking" level="0" id="2">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                                
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>                                                      
+                                                        <right>
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>    
+                                                               <lane type="biking" level="0" id="-2">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>  
+                                                               <lane type="sidewalk" level="0" id="-3">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Xietudonglu2 -->
+			<laneSectionPrototype name = "Xietudong" icon = "">
+				<road name="Xietudong" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" level="0" id="4">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane> 
+                                                               <lane type="biking" level="0" id="3">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="2">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="1">
+                                                                     <link>
+								            <predecessor id="1"/>
+									    <successor id="1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="broken" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>  
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                               <roadMark sOffset="0" type="solid" color="yellow" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>    
+                                                               <lane type="driving" level="0" id="-1">
+                                                                     <link>
+                                                                           <predecessor id="-1"/>
+                                                                           <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="broken" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>  
+                                                               <lane type="driving" level="0" id="-2">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="biking" level="0" id="-3">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="solid" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" level="0" id="-4">
+                                                                     <width sOffset="0" a="1.5" b="0" c="0" d="0"/>
+                                                                     <roadMark sOffset="0" type="none" color="standard" width="0.15" weight="standard" laneChange="both"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                         <!-- Henannan-->
+			<laneSectionPrototype name = "Henannan" icon = "">
+				<road name="Henannan" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="sidewalk" id="3" level="0">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" id="2" level="0">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" id="1" level="0">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                     <link>
+								            <predecessor id="1"/>
+								            <successor id="1"/>
+								     </link>
+                                                               </lane>
+							</left>
+							<center>
+                                                               <lane type="border" id="0" level="0">
+                                                                     <roadMark weight="standard" color="yellow" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+							       <lane type="driving" id="-1" level="0">
+                                                                     <link>
+								            <predecessor id="-1"/>
+								            <successor id="-1"/>
+								     </link>
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" id="-2" level="0">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" id="-3" level="0">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="driving" id="-4" level="0">
+                                                                     <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                               </lane>
+                                                               <lane type="sidewalk" id="-5" level="0">
+                                                                     <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                     <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                               </lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                      
+                        <!-- Highway -->
+			<laneSectionPrototype name = "Highway" icon = "">
+				<road name="Highway" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane type="restricted" level="0" id="7">
+                                                                     <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="shoulder" level="0" id="6">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="5">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="solid" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="4">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="broken" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="3">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="broken" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                                     <lane type="driving" level="0" id="2">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="broken" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="restricted" level="0" id="1">
+                                                                     <link>
+                                                                            <predecessor id="1"/>
+                                                                            <successor id="1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="0.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="solid" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane type="restricted" level="0" id="-1">
+                                                                     <link>
+                                                                            <predecessor id="-1"/>
+                                                                            <successor id="-1"/>
+                                                                     </link>
+                                                                     <width sOffset="0" a="0.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="solid" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="-2">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="broken" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="-3">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="broken" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="driving" level="0" id="-4">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                     <roadMark type="broken" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                                     <lane type="driving" level="0" id="-5">
+                                                                     <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                               <roadMark type="solid" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="shoulder" level="0" id="-6">
+                                                                     <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                               <lane type="restricted" level="0" id="-7">
+                                                                     <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+
+                        <!-- Elevated6 -->
+			<laneSectionPrototype name = "Elevated6" icon = "">
+				<road name="Elevated6" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane id="7" level="0" type="restricted">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="6" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="5" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.75"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="4" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.75"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="3" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.75"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="2" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="1" level="0" type="restricted">
+                                                                     <link>
+                                                                            <predecessor id="1"/>
+                                                                            <successor id="1"/>
+                                                                     </link>
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane id="-1" level="0" type="restricted">
+                                                                     <link>
+                                                                            <predecessor id="1"/>
+                                                                            <successor id="1"/>
+                                                                     </link>
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-2" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-3" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.75"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-4" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.75"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-5" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.75"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>   
+                                                               <lane id="-6" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-7" level="0" type="restricted">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                        
+                        <!-- Elevated8 -->
+			<laneSectionPrototype name = "Elevated8" icon = "">
+				<road name="Elevated8" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                               <lane id="8" level="0" type="restricted">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="7" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="6" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="5" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="4" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="3" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="2" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="1" level="0" type="restricted">
+                                                                     <link>
+                                                                            <predecessor id="1"/>
+                                                                            <successor id="1"/>
+                                                                     </link>
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                        </left>
+                                                        <center>
+                                                               <lane type="border" level="0" id="0">
+                                                                     <roadMark type="none" width="0.15" laneChange="both" sOffset="0" weight="standard" color="standard"/>
+                                                               </lane>
+                                                        </center>
+                                                        <right>
+                                                               <lane id="-1" level="0" type="restricted">
+                                                                     <link>
+                                                                            <predecessor id="1"/>
+                                                                            <successor id="1"/>
+                                                                     </link>
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-2" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-3" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-4" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-5" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="broken" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-6" level="0" type="driving">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="3.25"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="solid" color="standard" width="0.15"/>
+                                                               </lane>   
+                                                               <lane id="-7" level="0" type="shoulder">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                               <lane id="-8" level="0" type="restricted">
+                                                                     <width b="0" c="0" d="0" sOffset="0" a="0.5"/>
+                                                                     <roadMark laneChange="both" weight="standard" sOffset="0" type="none" color="standard" width="0.15"/>
+                                                               </lane>
+                                                        </right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Left junction-->
+			<laneSectionPrototype name = "Left" icon = "">
+				<road name="Left" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+                                                                <lane type="biking" id="4" level="0">
+                                                                       <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="3" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="2" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="1" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</left>
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                        
+                        <!-- Right junction-->
+			<laneSectionPrototype name = "Right" icon = "">
+				<road name="Right" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+                                                        <right>
+                                                                <lane type="driving" id="-1" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-3" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="biking" id="-4" level="0">
+                                                                       <width sOffset="0" a="2" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+                        <!-- Ramp1-->
+			<laneSectionPrototype name = "Ramp1" icon = "">
+				<road name="Ramp" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left>
+                                                                <lane type="restricted" id="2" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="1" level="0">
+                                                                       <width sOffset="0" a="1" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</left>
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+                                                        <right>
+                                                                <lane type="driving" id="-1" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="-2" level="0">
+                                                                       <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="-3" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                      
+                        <!-- Ramp2-->
+			<laneSectionPrototype name = "Ramp2" icon = "">
+				<road name="Ramp" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left> 
+                                                                <lane type="restricted" id="2" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="1" level="0">
+                                                                       <width sOffset="0" a="0.25" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</left>
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+                                                        <right>
+                                                                <lane type="driving" id="-1" level="0">
+                                                                       <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="-3" level="0">
+                                                                       <width sOffset="0" a="0.25" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="-4" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+		</laneSectionPrototypes>
+
+	</prototypes>
+
+</ODDLot>
+
+
+

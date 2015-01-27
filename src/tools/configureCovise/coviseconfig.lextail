@@ -1,0 +1,26 @@
+<UNIMPHEADER>\{                         BEGIN(UNIMP);return Parser::OPENBRACE;
+<UNIMPHEADER>\:                         return Parser::COLON;
+<UNIMPHEADER>[^ _:\t\n"]+               return Parser::STRING;
+<UNIMP>[^\}]*\n                         return Parser::UNIMPLEMENTEDLINE;
+<UNIMP>\}                               BEGIN(INITIAL);return Parser::CLOSEBRACE;
+\/\/.*\n
+#.*\n                
+<BODY>#.*\n                
+<BODY>\/\/.*\n
+<BODY>-?{DIGIT}+                        return Parser::INTEGER;
+<BODY>-?{DIGIT}+"."{DIGIT}*             return Parser::FLOAT;
+[^ _:\t\n"]+                       return Parser::STRING;
+<BODY>[^ \t\n"]+                    return Parser::STRING;
+[ \t\n]+       
+<BODY>[ \t\n]+       
+<BODY>\n
+\n
+<BODY>\"\"   return Parser::EMPTYSTRING;
+\"[^ \:]*\"                 return Parser::STRING;
+<STRINGMODE>[^"]*           return Parser::STRING;
+<STRINGMODE>\"            BEGIN(BODY);
+%%
+
+
+int Scanner::getLineNo() { return yylineno; }
+void Scanner::setHostName(const char *name){}

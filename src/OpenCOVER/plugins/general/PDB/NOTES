@@ -1,0 +1,21 @@
+How to reduce read in vrml models.
+
+1) edit OpenSceneGraph/src/osgPlugins/Inventor/ReaderWriterIV.cpp
+2) add:
+
+ // if a state exists attach it
+    if((ReaderWriterIV::quality >= 0) && (ReaderWriterIV::quality <= 1))
+    {
+        SoComplexity* complexity = new SoComplexity;
+        complexity->value = ReaderWriterIV::quality;
+        rootIVNode->addChild(complexity);
+        printf("Complexity set %f\n", ReaderWriterIV::quality);
+    }
+
+	Note: SoComplexity node needs to be before the read in node
+	also attach it to SoSeperator node... (need to deal with how to
+	set the complexity value
+
+Rendering issue involves the number of nodes in the scenegraph!! :/ 
+
+

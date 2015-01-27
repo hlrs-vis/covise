@@ -1,0 +1,19 @@
+<RCC>
+  <qresource prefix="/">
+    <file>index.html</file>
+    <file>control.js</file>
+    <file>sylvester.js</file>
+    <file>glUtils.js</file>
+    <file>firebug.jgz</file>
+    <file>logo.png</file>
+    <file>yui/fonts/fonts-min.css</file>
+    <file>yui/slider/assets/skins/sam/slider.css</file>
+    <file>yui/yahoo-dom-event/yahoo-dom-event.js</file>
+    <file>yui/dragdrop/dragdrop-min.js</file>
+    <file>yui/slider/slider-min.js</file>
+    <file>yui/slider/assets/bg-h.gif</file>
+    <file>yui/slider/assets/thumb-n.gif</file>
+    <file>yui/dragdrop/dragdrop-min.js</file>
+  </qresource>
+</RCC>
+

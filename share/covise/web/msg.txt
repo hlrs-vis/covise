@@ -1,0 +1,48 @@
+The bootstrap directory contains all files of Bootstrap, which is the front-end framework used for web development. The slider for Bootstrap is included in this directory too.
+
+The directory img includes all images used in the web user interface.
+
+The file rechnerraumOptimierung.html is the user interface for the scenario rechnerraumOptimierung.
+
+The directory css contains the style sheets file hlrs.css used in scenario rechnerraumOptimierung.
+
+The directory js includes all used Javascript files.
+
+- cxf-utils.js is the utilities code. It is a fixed set of JavaScript that provides some browser compatibility and XML management.
+- cxfCoviseService.js is the generated JavaScript files by Apache CXF which is an open source services framework.
+- fabric_0.9.15.min.js is a Javascript canvas library.
+- jquery-1.9.1.min.js is a JavaScript library for simplifies JavaScript programming.
+- rechnerraumOptimierung.js is specific for the scenario rechnerraumOptimierung
+- covise.js is used in covise.html.
+
+
+
+-----------------------------------------------
+
+1.  if a dragging of the slider stops, why the module Iso interface slider first min then value sent from covise too?!
+
+
+
+-------------------------------------------------------
+group behavior 
+
+- moving: center position: 
+
+
+
+-------------------------------------------------------
+TODO: 
+- set scale to 1 before sending modified parameter for group or object
+	group: set group scale 1 and object scale is group scale
+
+- get center point for parameter change event
+
+
+--------------------------------------------------------
+group scaling
+
+- group factor 
+   - set group factor 1
+   
+
+

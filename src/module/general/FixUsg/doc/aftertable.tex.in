@@ -1,0 +1,29 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+% examples for using this module
+%
+\begin{covimg2} {}{FixUsgMap}{0.7}\end{covimg2}
+%
+The figure above shows a map that illustrates usage of FixUsg. (The Renderer module has been
+added to the example map, so you can control the operation of FixUsg both in the Renderer
+window and in the Message area.) 
+Many readers don't care about using the same coordinate twice or not using it at all. 
+But some modules expect such "clean data" for computational reasons. Therefore you should 
+try to use FixUsg if you have a strange behaviour of a module.  \\
+In this example we use the NASTRAN reader. The reader itself does't check the received data. 
+With FixUsg we can remove 220 points. \\
+Hints for using the renderer (see next picture): Use "Edit Background Color" to improve the visibility of the
+remaining points. If you set delta = 1 and maxvertices = 0 1,2,3,4,5,... you can follow up the
+reduction of points. \\
+
+%
+\begin{covimg2} {}{FixUsgOut}{0.7}\end{covimg2}
+%
+%
+
+

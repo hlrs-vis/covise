@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Kerzenkarussell' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <!--<ShortCut value="showName" name="showName" />-->
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Smoothing" regexp="kerze.*" shader="" smooth="true" />
+                <Scope name="Holz1" regexp="Object.*-FACES.*" shader="Glossy9" />
+                <Scope name="Holz2" regexp="Gruppe.*-FACES.*" shader="Glossy9" />
+                <Scope name="Holz3" regexp="Group_001-FACES.*" shader="Glossy9" />
+                <Scope name="Kerze1" regexp="kerze1_00.-FACES.*" shader="Glossy6" />
+                <Scope name="Kerze2" regexp="Object014_001-FACES.*" shader="Glossy6" />
+                <Scope name="Kerzen" regexp="ChamferCyl_006-FACES.*" shader="Glossy6" />
+            </CoviseConfigShader>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Physik/Kerzenkarussell/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

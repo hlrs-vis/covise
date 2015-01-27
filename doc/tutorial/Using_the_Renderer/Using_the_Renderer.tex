@@ -1,0 +1,158 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Using the OpenInventor Renderer}
+\label{Using_the_Renderer}
+%=============================================================
+
+\section{Introduction}
+
+After having read this chapter you will be familiar with: 
+
+\begin{itemize}
+\item Renderer modules in general 
+\item the user interface of the Renderer 
+\item Mouse interaction modes
+\end{itemize}
+
+
+In the previous chapter you have read about some basic steps in working with COVISE. 
+You have already learned how to load a prepared module network. In this chapter we 
+introduce some functionalities of the OpenInventor {\bf Renderer} and their main usages. 
+COVISE comprises other render modules as well but the OpenInventor Renderer can be seen
+as the default desktop renderer. OpenInventor is a high level object oriented graphics 
+toolkit developed by Silicon Graphics. It uses OpenGL, the 3D graphics standard, as its 
+rendering interface. 
+
+You can regard the {\bf Renderer} as a movable window to a virtual world. The displayed 
+scenario contains objects which are typically visual representations of simulation data. 
+Depending on the selected visualization method you can have different visual representations 
+for the same dataset. This allows to explore the various aspects and characteristics of
+a dataset and detect features otherwise not seen. In addition to the mapping of data to 
+visual representations supportive geometries, such as bounding surfaces or reference 
+geometries of machineries provided via CAD models can also be included in combination with 
+the data visualizations. A typical example would be the visualization of a pressure 
+distribution in a combustion chamber of a car engine. Such scenarios can be further 
+examined with all the possibilities that the Renderer provides. 
+
+
+\section{The Render Module}
+
+\begin{covimg}{Using_the_Renderer}{RendererModule}{The Renderer Module Icon}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 2.1 : The Renderer Module Icon
+\vspace{0.5cm}
+\end{htmlonly}
+
+At the end of a module network processing chain there is an output module, which in most 
+cases will be a render module to visualize resulting data. Other output modules are write 
+modules for saving results to disk or a special plot module for xy- charting. In the 
+{\bf MapEditor} working area those output modules are typically placed at the bottom of the
+map. Output modules normally have input ports only (blue rectangle on the left top of the 
+render module in Figure 2.1). 
+
+The module selection and the usage of ports to build module networks will be described 
+in the following chapters
+
+\section{The User Interface}
+
+In Figure 2.2 you can see the OpenInventor Renderer as it will appear on your desktop 
+after you have inserted the Renderer module in the module placing area.
+
+The renderer window consists of three major parts: 
+
+\begin{itemize}
+\item the menubar
+\item the information area
+\item the viewer area.
+\end{itemize}
+
+The menubar will only be explained shortly. It provides functionalities such as saving 
+the current scene to a file or printing the scene. You can also adjust viewing parameters 
+or set material and light properties using the menus. The information area provides 
+information about the current state of the renderer. Beside some text fields for 
+collaboration status there are two list boxes. The ColorMaps list box contains all the 
+colormaps used in the visualization pipeline. The GeometryObjects list box contains all the geometry objects currently displayed. 
+The viewer area holds the main viewer widget where the objects are displayed. The viewer 
+area contains also other user interface elements.
+
+\begin{covimg}{Using_the_Renderer}{RendererUIF}{The Renderer User Interface}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 2.2: The Renderer User Interface
+\vspace{0.5cm}
+\end{htmlonly}
+
+Figure 2.3 shows the toolbar at the right side of the viewer area in greater detail. One 
+feature of the toolbar is the home position. It represents the special camera position and 
+orientation of an initial view. By pressing the home position button in the toolbar the 
+camera will switch to the position and orientation of the viewers home position. With the set
+home position button you can set these values at any time.
+
+\begin{covimg}{Using_the_Renderer}{Toolbar}{The Toolbar}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 2.3: The Toolbar
+\vspace{0.5cm}
+\end{htmlonly}
+
+Another feature of the toolbar is the view all button. Pressing this button causes the 
+{\bf Renderer} to adjust the camera position and orientation to view all objects. 
+
+Pressing the seek mode button changes the cursor to the seek mode symbol. Within this mode 
+you can click on any part of your geometry. This will set the camera position in a way, 
+that the selected point will be in the center of the window with a view orientation 
+orthogonal to the object. 
+
+The button on the bottom of the toolbar selects a projection mode. By pressing this button 
+you can switch between a perspective and an orthogonal projection. The default projection 
+mode is the perspective one.
+
+Arranged at the bottom of the viewer area are some user interface elements for rotating 
+and zooming the camera. On the left side are two thumb wheels to rotate the camera about 
+the x (Rotx) and the y (Roty) axis. 
+
+On the right side is a slider (Zoom) and a thumb wheel (Dolly) to zoom the camera.
+
+
+\clearpage
+\section{Mouse Interaction Mode}
+
+The OpenInventor Renderer knows two fundamental interaction modes of the mouse: 
+
+\begin{covimg2}{Using_the_Renderer}{ViewMode}{1.0}\end{covimg2} 
+The view mode transforms mouse interactions in viewpoint changes and the pick mode is used 
+to change the properties of geometric objects. An active view mode is indicated by an 
+active view mode button in the toolbar on the right side of the window. Also the cursor 
+changes to a hand symbol. Within this mode you can rotate the whole scene about its center 
+using the left mouse button. Move the mouse pointer over the geometry, press the button and 
+move the mouse in that direction you want to rotate to. By releasing the button without 
+moving the mouse simultaneously, the scene will be rendered from the new viewpoint. When 
+you drag the mouse and release the button while you are moving, the scene will spin 
+permanently until you click into to the viewer area. This continuation of the last 
+transformation operation after mouse button release only works with rotations. Using 
+the middle mouse button you can pan the scene. Using the combined left and middle button 
+you can zoom the viewpoint in the same manner. Thus, dragging the mouse to the bottom of 
+the window with the left and middle mouse button pressed, you will zoom into the scene. 
+Dragging to the top will zoom out.
+
+\begin{covimg2}{Using_the_Renderer}{PickMode}{1.0}\end{covimg2} 
+The pick mode is indicated by an active pick button  in the toolbar and the cursor changes 
+to an arrow. In this mode you can select individual geometries for further manipulations. 
+By clicking with the left mouse button on a geometry object you select the geometry. The 
+selection will be indicated by a bounding box (a red wireframed box) around that object. 
+For the selection of multiple objects hold down the shift key while selecting the
+different objects. To remove the selection of the object just select the object again. 
+To remove the whole selection click on any free part of the viewer widget. This working 
+method is just the same you already know from popular drawing programs. 
+
+By clicking with the right mouse button into the viewer area in any of the two interaction 
+modes a popup menu appears. This popup menu will not be further explained here. It provides 
+many functionalities you find on the menubar too.
+
+
+
+

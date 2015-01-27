@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <IconSize value="50"/>
+         <ConstantInteractorSize value="Off"/>
+         <IconOffset value="0"/>
+
+         <PointerDepth value="0"/>
+         <PointerAppearance>
+            <IconName value="pointer"/>
+            <Width value="10"/>
+            <Length value="1000"/>
+            <Intersection value="1000" />
+         </PointerAppearance>
+
+         <Input> <!-- WII -->
+            <DebugButtons value="FALSE" />
+            <DebugTracking value="TRUE"/>
+            <TrackingSystem value="MOUSE" />
+            <WiiNavigationVisenso value="off" enable="off" />
+
+            <VRC>
+               <Port value="7777" />
+               <DebugLevel value="0"/>
+               <Unit value="0.3"/>
+            </VRC>
+
+            <HandAddress value="1" />
+
+            <HandDevice>
+               <Offset x="0" y="0" z="0" />
+               <Orientation h="0" p="0" r="0" />
+            </HandDevice>
+
+            <VisensoJoystick value="ON" >
+               <Analog value="on" />
+            </VisensoJoystick> 
+
+            <MouseNav value="ON" />
+
+         </Input>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

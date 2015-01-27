@@ -1,0 +1,213 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Working with Modules}
+\label{Working_with_Modules}
+%=============================================================
+
+\section{Introduction}
+
+After having read this chapter you will be familiar with:
+
+\begin{itemize}
+\item Module Categories
+\item Input and Output Ports
+\item COVISE Data Object Types
+\item Parameters
+\item Module actions
+\end{itemize}
+
+\section{Categories}
+
+COVISE separates the processing steps of an application into separate modules. A module realizes a certain
+functionality. Modules are grouped into categories. The general categories are:
+
+\begin{itemize}
+\item IO/Modules
+\item Simulation
+\item Mapper
+\item Color
+\item Tracer
+\item Filter
+\item Tools
+\item Renderer
+\end{itemize}
+
+These categories reflect the typical steps in the analysis of 3D data e.g. coming from 
+flow simulations.
+
+\begin{covimg}{Working_with_Modules}{ModuleBrowser}{Category and Module Lists}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 3.1: Category and Module Lists
+\vspace{0.5cm}
+\end{htmlonly}
+
+
+Categories and modules within them are shown in the Module Browser in the MapEditor 
+window (see Figure 3.1).
+
+If the hosts are colored (configurable in the file covise.config), modules running on 
+this host appear in the same color. To start a module click on the category name and then 
+drag the module name to the working area. To remove the module see the section 
+\emph{Actions with Modules} later in this chapter.
+
+Filter modules typically extract data from larger datasets. The {\bf CuttingSurface} module 
+interpolates on a plane or cylinder surface data coming from a 3D data volume.
+
+The computation of an isosurface belongs to the category Mapper, because data is mapped 
+to a geometric object, that can be rendered. 
+
+The category Tools contains many useful functionalities such as the module {\bf DomainSurface} 
+that computes the outer surface of a computational grid or {\bf CutGeometry}, which cuts 
+off portions of polygonal geometric objects like the ones created by {\bf DomainSurface}. 
+
+Modules in the category Renderer display data. The 3D Inventor based {\bf Renderer} belongs
+to this category as well as the 2D Plot module.
+
+\section{Input and Output Ports}
+
+\begin{covimg}{Working_with_Modules}{ModuleIcon}{Module Icon}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 3.2: Module Icon
+\vspace{0.5cm}
+\end{htmlonly}
+
+
+Figure 3.2 shows a typical module icon. The violet and green ports at the top edge are 
+input data ports, the blue and yellow ports at the bottom edge are output data ports. 
+Violet input ports mean that the port has to be connected to another port, green ones 
+mean that the connection is optional.
+
+Be aware that certain green input ports can become violet - and thus have to be connected - when the corresponding
+output port is connected.
+
+Connection lines between the ports indicate the flow of data objects between the modules. 
+You connect modules by clicking with the left mouse button onto the ports. To remove a 
+connection between modules, double-click on the connection line.
+
+
+\section{Data Types}
+
+Data is exchanged between modules through COVISE data objects. If both modules which 
+need to exchange data objects run on the same machine, the data objects are located in 
+shared memory and thus allow an efficient exchange of data. If the modules run on 
+different machines, the data objects are exchanged through tcp socket connections.
+
+Input ports of one module and output ports of another module can only be connected if 
+the data types are compatible. The most important data types are:
+
+\begin{itemize}
+\item Unstructured/Structured/Uniform/Rectilinear Grids
+\item Unstructured/Structured Scalar Data
+\item Unstructured/Structured Vector Data
+\item Lines, Points, Triangle Strips, Polygons
+\item Normals
+\item Colors
+\item Geometry
+\item Sets
+\end{itemize}
+
+Geometry is a container to hold geometric primitives (lines, points, triangle strips, 
+polygons), colors, and normals. A set is used as a container for other objects. Sets can 
+be used to group objects or to hold different time steps of an object. 
+
+\begin{covimg}{Working_with_Modules}{PortData}{Port Data Type}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 3.3: Port Data Type
+\vspace{0.5cm}
+\end{htmlonly}
+
+If you click on the port with the right mouse button, the data type is displayed in the 
+message window. Figure 3.3 shows the result of clicking on the output port of the 
+RWCovise module.
+
+\section{Parameters}
+
+You see the parameter list when you click with the left mouse button on the book icon. 
+The module info window pops up (Figure 3.4).
+
+
+\begin{covimg}{Working_with_Modules}{ModuleInfo}{Module Info Window}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 3.4: Module Info Window
+\vspace{0.5cm}
+\end{htmlonly}
+
+The first page of this notebook contains the parameters. Use the button with the parameter 
+names on the left to attach interactors to this parameter which appear in the control panel. The next column contains the type of the parameters.
+After this you see an area which allows the user to change the  parameter values. The 
+content of each line depends on the parameter type.
+
+If a module has a filebrowser as parameter, a filebrowser window automatically pops up as 
+soon as the module is started.
+
+When you add an interactor to the control panel, you usually have a choice between 
+different types of interactors. To select the interactor click on the "Map to Control 
+Panel Button" with the right mouse button. A small menu window pops up. 
+
+\section{Module Actions}
+
+Clicking with the right mouse button on the module icon pops up a menu with the module 
+actions (Figure 3.5)
+
+\begin{covimg}{Working_with_Modules}{ModuleActions}{Module Actions}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 3.5: Module Actions
+\vspace{0.5cm}
+\end{htmlonly}
+
+The most important actions are "Execute" and "Delete".
+
+\begin{itemize}
+\item Execute 
+\end{itemize}
+
+executes the module pipeline starting from this module. It is typically more efficient 
+to execute only a part of the module network after having changed some parameters instead 
+of executing the whole network. I/O-modules often need a lot of time to read in large data 
+files which is not necessary if you have just modified a module parameter
+further down the processing chain.
+
+\begin{itemize}
+\item Delete
+\end{itemize}
+
+To remove a module from the working area choose this item.
+
+\begin{itemize}
+\item Rename
+\end{itemize}
+
+To rename a module (can also be used to label a module group).
+
+\begin{itemize}
+\item Move 
+\end{itemize}
+
+With this action an user can move this module to another host for execution. This is only 
+possible, if an additional host was added to the session via "Add Host/Partner". All 
+parameters and connection lines are moved too.
+
+\begin{itemize}
+\item Copy 
+\end{itemize}
+
+With this action an user can copy this module to another host for execution. This is only 
+possible, if an additional host was added to the session via "Add Host/Partner". The 
+current parameters values and connection lines are copied too.
+
+\begin{itemize}
+\item Help
+\end{itemize} 
+
+If you click on this item the online module documentation is loaded into the 
+netscape browser. 
+
+All actions can also be used for a group of selected modules.
+
+

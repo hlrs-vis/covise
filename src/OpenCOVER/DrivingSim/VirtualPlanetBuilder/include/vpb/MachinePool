@@ -1,0 +1,282 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef MACHINEPOOL_H
+#define MACHINEPOOL_H 1
+
+#include <osg/Referenced>
+#include <osg/OperationThread>
+#include <float.h>
+
+#include <vpb/Task>
+#include <vpb/BuildLog>
+#include <vpb/BlockOperation>
+
+namespace vpb
+{
+
+class VPB_EXPORT MachineOperation : public osg::Operation
+{
+    public:
+    
+        MachineOperation(Task* task);
+        
+        /** Use TemplateMethod pattern to case calling object to Machine.*/
+        virtual void operator () (osg::Object* object);
+        
+        osg::ref_ptr<Task> _task;
+};
+
+        
+// forward declare to allow MachinePool and TaskManager to be declared as friends
+class MachinePool;
+class TaskManager;
+
+
+
+class TaskStats
+{
+    public:
+    
+        TaskStats():
+            _defaultAverageTime(0.0),
+            _minTime(DBL_MAX),
+            _maxTime(-DBL_MAX),
+            _totalTime(0.0),
+            _numTasks(0) {}
+
+        void logTime(double runningTime)
+        {
+            if (runningTime<_minTime) _minTime = runningTime;
+            if (runningTime>_maxTime) _maxTime = runningTime;
+            _totalTime += runningTime;
+            ++_numTasks;
+        }
+        
+        double averageTime() const { return _numTasks!=0 ? (_totalTime/double(_numTasks)) : _defaultAverageTime; }
+        double minTime() const { return _minTime; }
+        double maxTime() const { return _maxTime; }
+        double totalTime() const { return _totalTime; }
+        unsigned int numTasks() const { return _numTasks; }
+
+    protected:
+    
+        double _defaultAverageTime;
+        double _minTime;
+        double _maxTime;
+        double _totalTime;
+        unsigned int _numTasks;
+};
+
+typedef std::map<std::string, TaskStats> TaskStatsMap;
+
+class VPB_EXPORT Machine : public osg::Object, public Logger
+{
+    public:
+    
+        Machine();
+    
+        Machine(const Machine&, const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+
+        Machine(const std::string& hostname, const std::string& cacheDirectory, const std::string& commandPrefix, const std::string& commandPostfix, int numThreads=-1);
+        
+        META_Object(vpb, Machine)
+        
+        void startThreads();
+        void cancelThreads();
+        
+        void setOperationQueue(osg::OperationQueue* queue);
+        
+        void setHostName(const std::string& hostname) { _hostname = hostname; }
+        const std::string& getHostName() const { return _hostname; }
+
+        void setCacheDirectory(const std::string& directory) { _cacheDirectory = directory; }
+        const std::string& getCacheDirectory() const { return _cacheDirectory; }
+
+        void setCommandPrefix(const std::string& prefix) { _commandPrefix = prefix; }
+        const std::string& getCommandPrefix() const { return _commandPrefix; }
+        
+        void setCommandPostfix(const std::string& postfix) { _commandPostfix = postfix; }
+        const std::string& getCommandPostfix() const { return _commandPostfix; }
+
+        int exec(const std::string& application);
+
+        Threads& getThreads() { return _threads; }
+        
+        unsigned int getNumThreads() const { return _threads.size(); }
+
+        unsigned int getNumThreadsActive() const;
+
+        unsigned int getNumThreadsRunning() const;
+
+        unsigned int getNumThreadsNotDone() const;
+
+        typedef std::map<Task*, double> RunningTasks;
+        
+        void startedTask(Task* task);
+
+        void endedTask(Task* task);
+        
+        void taskFailed(Task* task, int result);
+        
+        OpenThreads::Mutex& getRunningTasksMutex() const { return _runningTasksMutex; }
+        
+        RunningTasks& getRunningTasks() { return _runningTasks; }
+        
+        TaskStatsMap& getTaskStatsMap() { return _taskStatsMap; }
+        const TaskStatsMap& getTaskStatsMap() const { return _taskStatsMap; }
+
+        /** Send a signal to the all running tasks. */
+        void signal(int signal);
+        
+        void setDone(bool done);
+
+        MachinePool* getMachinePool() { return _machinePool; }
+        
+   protected:
+    
+        virtual ~Machine();
+        
+        friend class MachinePool;
+
+        MachinePool*                        _machinePool;
+
+        std::string                         _hostname;
+
+        std::string                         _cacheDirectory;
+
+        std::string                         _commandPrefix;
+        std::string                         _commandPostfix;
+        
+        mutable OpenThreads::Mutex          _threadsMutex;
+        Threads                             _threads;
+
+        mutable OpenThreads::Mutex          _runningTasksMutex;
+        RunningTasks                        _runningTasks;
+        
+        TaskStatsMap                        _taskStatsMap;
+
+        
+
+};
+
+class VPB_EXPORT MachinePool : public osg::Referenced, public Logger
+{
+    public:
+    
+        MachinePool();
+
+        osg::OperationQueue* getOperationQueue() { return _operationQueue.get(); }
+
+        /// override from Logger to be able to pass on to all associated Machine objects
+        void setBuildLog(BuildLog* bl);
+
+
+        void setTaskManager(TaskManager* tm) { _taskManager = tm; }
+        TaskManager* getTaskManager() { return _taskManager; }
+
+        void addMachine(const std::string& hostname, const std::string& cacheDirectory, const std::string& commandPrefix, const std::string& commandPostfix, int numThreads=-1);
+
+        void addMachine(Machine* machine);
+
+        Machine* getMachine(const std::string& hostname);
+        
+        unsigned int getNumMachines() const { return _machines.size(); }
+        
+        void startThreads();
+
+        void cancelThreads();
+
+        void run(Task* Task);
+        
+        void waitForCompletion();
+        
+        void removeAllOperations();
+        
+        unsigned int getNumThreads() const;
+
+        unsigned int getNumThreadsActive() const;
+
+        unsigned int getNumThreadsRunning() const;
+
+        unsigned int getNumThreadsNotDone() const;
+
+        void clear();
+        
+        bool read(const std::string& filename);
+
+        bool write(const std::string& filename) const;
+        
+        bool setUpOnLocalHost();
+
+        /** Send a signal to the all running tasks. */
+        void signal(int signal);
+        
+        void setDone(bool done);
+        
+        bool done() const { return _done; }
+        
+        void release();
+
+        enum TaskFailureOperation
+        {
+            IGNORE_FAILED_TASK,
+            BLACKLIST_MACHINE_AND_RESUBMIT_TASK,
+            COMPLETE_RUNNING_TASKS_THEN_EXIT,
+            TERMINATE_RUNNING_TASKS_THEN_EXIT
+        };
+
+        void setTaskFailureOperation(TaskFailureOperation op) { _taskFailureOperation = op; }
+
+        TaskFailureOperation getTaskFailureOperation() const { return _taskFailureOperation; }
+
+        /** Reset up threading and sharing of operation queue.*/
+        void resetMachinePool();
+        
+        /** Let current tasks complete then re-read the machine pool file.*/
+        void updateMachinePool();
+
+        /** Generate a report of the task timing status, i.e. how long do we expect before completion.*/
+        void reportTimingStatus();
+
+        /** Generate a report of the task timing stats.*/
+        void reportTimingStats();
+
+    protected:
+
+        virtual ~MachinePool();
+        
+        friend class TaskManager;
+
+
+        typedef std::list< osg::ref_ptr<Machine> > Machines;
+
+        std::string                         _machinePoolFileName;
+
+        osg::ref_ptr<osg::OperationQueue>   _operationQueue;
+        
+        mutable OpenThreads::Mutex          _machinesMutex;
+        Machines                            _machines;
+        
+        osg::ref_ptr<BlockOperation>        _blockOp;
+        bool                                _done;
+
+        TaskFailureOperation                _taskFailureOperation;
+
+        TaskManager*                        _taskManager;
+};
+
+}
+
+#endif
+

@@ -1,0 +1,26 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{Data} & Set\_Float  Set\_Float
+ & input scalar data to be mapped to color \\
+\hline
+	\textcolor{optional}{minmax} & MinMax\_Data & input scalar borders of colormap \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

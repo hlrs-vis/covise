@@ -1,0 +1,23 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+ReadLat reads the ASCII latice file written by IRIS-Explorer.
+  
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{ReadLatModule}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+{\bf ReadLat} is available for COVISE VIR-SNAP-2001-01 and higher. It's tested on SGI systems.
+
+%
+%=============================================================

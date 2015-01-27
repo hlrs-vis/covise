@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline n3s geofile & Browser & N3S geofile\\ \hline n3s result file & Browser & N3S result file\\ \hline data0 & Choice & select data0\\
+\hline \end{longtable}
+

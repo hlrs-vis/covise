@@ -1,0 +1,28 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+
+DerivOperators works out gradients of scalar fields, or the divergence or
+curl of vector fields.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{DerivOperators_module}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+DerivOperators is available for all COVISE versions on all supported platforms. 
+
+
+%
+%
+%=============================================================

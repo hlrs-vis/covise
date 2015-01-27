@@ -1,0 +1,607 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+ 
+
+%=============================================================
+
+%\begin{covimg}{modules/Tools/DomainSurface}%
+%		{DomainSurfaceMap3}{covise/net/examples/Domainsurface.net}{0.7}\end{covimg}
+%-------------------------------------------------------------
+% Use this type of environment for all figures with caption
+% Note: The proposed scaling factor 0.7 should fit for most images,
+%       but please use 0.6 for maps!  
+%-------------------------------------------------------------
+%Warning: You will get the caption in Latex only, not in HTML
+
+%\begin{verbatim}
+%You can insert here anything - except "\end{verbatim}" - that should not be touched by Latex
+%\end{verbatim}
+%-------------------------------------------------------------
+%Use this verbatim-environment if you want to insert text (e.g. code) that should not be 
+%formatted or changed
+%-------------------------------------------------------------
+% how to make numerated lists
+%\begin{enumerate}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{enumerate}
+
+% how to make non numerated lists
+%\begin{itemize}
+%\item sdjkldjalsjdl
+%\item sdjkldjalsjdl
+%\end{itemize}
+
+%these lists can also be hierarchical
+%-------------------------------------------------------------
+% How to make links for PDF & HTML
+% (Please look at module CMapTex with a link to Colors for details)
+% Use "newcommand" (w/o "begin" and "end"!) instead of "newenvironment" 
+% to avoid a newline in Latex after the reference 
+%--------------------------------------------------------------
+%\covlink{Colors}{Colors}{../../Color/Colors/Colors.html} 
+%.
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link
+
+%-------------------------------------------------------------
+
+%=============================================================
+\startdocument
+\chapter{Example Modules}
+\label{ExampleModules}
+%=============================================================
+
+
+\section{Hello}
+
+The "Hello" module shows just the minimal framework needed to build a module. 
+It only defines the basic routines without implementing any functionality.
+
+\underline{Hello.h:}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Make sure we never include the header twice} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+#ifndef HELLO_H
+#define HELLO_H
+\end{verbatim}
+
+\begin{verbatim}
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++                                                  (C)2000 RUS  ++
+// ++ Description: "Hello, world!" in COVISE API                    ++
+// ++ Author:                                                       ++
+// ++                         Andreas Werner                        ++
+// ++            Computing Center University of Stuttgart           ++
+// ++                         Allmandring 30                        ++
+// ++                        70550 Stuttgart                        ++
+// ++                                                               ++
+// ++ Date:  10.01.2000  V2.0                                       ++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Basic module header file for API and library calls} \\
+\hline
+\end{longtable}
+
+\begin{verbatim} 
+#include <api/coModule.h>
+
+class Hello : public coModule
+{
+   private:
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf The compute callback reacts on the execute messages} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}   
+     /// this module has only the compute callback
+      virtual void compute(const char *);
+   
+   public:
+\end{verbatim}    
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Construct the module} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+      /// this is the Constructor
+      Hello(int argc, char *argv[]);
+
+};
+
+#endif
+\end{verbatim}
+
+\underline{Hello.cpp:}
+
+\begin{verbatim}
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++ Description: "Hello, world!" in COVISE API        (C)2000 RUS ++
+// ++ Author:                                                       ++
+// ++                         Andreas Werner                        ++
+// ++            Computing Center University of Stuttgart           ++
+// ++                         Allmandring 30                        ++
+// ++                        70550 Stuttgart                        ++
+// ++ Date:  10.01.2000  V2.0                                       ++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+///// this includes our own class's headers
+#include "Hello.h"
+
+///// Constructor : This will set up module port structure
+Hello::Hello(int argc, char *argv[])
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Set a module description} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+      :coModule(argc, argv, "Hello, world! program")
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf This is a really primitive module} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+{    
+      // no parameters, no ports...
+}   
+
+///// compute() is called once for every EXECUTE message
+void Hello::compute(const char *) 
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Just send an INFO message} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+{ 
+      sendInfo("Hello, COVISE!");
+} 
+ 
+// ++++  What's left to do for the Main program: 
+// ++++  create the module and start it 
+
+\hline
+   {\bf Create the module} \\
+   {\bf And start it ...} \\
+\hline
+
+MODULE_MAIN(Examples, Hello)
+\end{verbatim}
+
+\section{Filter}
+
+The second example implements a scaling of an unstructured grid: The structure 
+information (element list, type list and connectivity) are simply copied while the 
+corner coordinates are scaled by a constant factor.
+
+By convention, we name the implementation class and the main source and header 
+file like the module name, in this case "Enlarge". We also always name the ports 
+and parameters "p\_..."
+
+\underline{Enlarge.h:}
+\begin{verbatim}
+#ifndef ENLARGE_H
+#define ENLARGE_H
+ 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++ Description: Filter program in COVISE API        (C)2000 RUS  ++
+// ++ Author:                                                       ++
+// ++                         Andreas Werner                        ++
+// ++            Computer Center University of Stuttgart            ++
+// ++                         Allmandring 30                        ++
+// ++                        70550 Stuttgart                        ++
+// ++ Date:  10.01.2000  V2.0                                       ++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+ 
+#include <api/coModule.h>
+ 
+class Enlarge : public coModule
+{
+   private:
+                                             
+
+      /// this module has only the compute call-back
+      virtual void compute(const char *);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf This will be the slider for the enlargement factor} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}      
+      ////////// parameters
+      coFloatSliderParam *p_scale;
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf An input and an output port.     
+   By convention, all ports start with "p\_"} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}     
+      ////////// ports
+      coInputPort  *p_inPort;
+      coOutputPort *p_outPort;
+\end{verbatim}
+
+\begin{verbatim}          
+   public:
+ 
+      Enlarge(int argc, char *argv[]);
+};
+ 
+#endif
+\end{verbatim}
+
+
+\underline{Enlarge.cpp:}
+\begin{verbatim}
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++ Description: Filter program in COVISE API        (C)2000 RUS  ++
+// ++ Author:                                                       ++
+// ++                         Andreas Werner                        ++
+// ++            Computer Center University of Stuttgart            ++
+// ++                         Allmandring 30                        ++
+// ++                        70550 Stuttgart                        ++
+// ++ Date:  10.01.2000  V2.0                                       ++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+ 
+#include "Enlarge.h"
+ 
+// Construct the module 
+ 
+Enlarge::Enlarge(int argc, char *argv[])
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf The module's description} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}  
+      :coModule(argc, argv, "Enlarge, world! program")
+          
+{    
+   // Parameters
+   
+   // create the parameter
+\end{verbatim}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+   {\bf The parameter is not created with its constructor, but by calling a member
+   of coModule to register it at the module} \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf The parameter's name must be unique, the description doesn't} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}       
+   p_scale = addFloatSliderParam("scale","Scale factor for Grid");
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Default values for the enlargement factor: between 0.1 and 5.0, current
+   value 2.0} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}                                                               
+   // set the default values
+      
+   p_scale->setValue(0.1,5.0,2.0);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Input and output ports: Unique name, Type list (here only one type), and
+   description} \\
+\hline
+\end{longtable}
+   
+\begin{verbatim}
+// Ports
+   p_inPort  =  addInPort("inPort", "UnstructuredGrid",
+                                            "Grid input");
+   p_outPort = addOutputPort("outPort","UnstructuredGrid",
+                                           "Grid output");
+ 					   
+}   
+
+
+// compute callback: called when new input data arrived
+void Enlarge::compute(const char *) 
+{ 
+   int i;
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Retrieve Object from Port} \\
+\hline
+\end{longtable}
+   
+\begin{verbatim}   
+   coDistributedObject *obj = p_inPort->getCurrentObject();
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Check whether we got an object} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+     // we should have an object
+   if (!obj)  
+   {
+      sendError("Did not receive object at port %s",
+                 p_inPort->getName());
+      return;
+   }
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Check the type: This is not guaranteed by the port types!} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}  
+  // it should be the correct type
+   coDoUnstructuredGrid *inGrid = dynamic_cast<coDoUnstructuredGrid *>(obj);
+   if ( !inGrid )
+     
+   {
+      sendError("Received illegal type at port '%s'",
+                 p_inPort->getName());
+      return;
+   }
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf We can safely cast up: we checked the type} \\
+\hline
+\end{longtable}
+
+\begin{verbatim} 
+   // So, this is an unstructured grid
+    
+   // retrieve the size and the list pointers
+   int   numElem,numConn,numCoord,hasTypes;
+   int   *inElemList,*inConnList,*inTypeList;
+   float *inXCoord,*inYCoord,*inZCoord;
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf This call retrieves the field sizes from the object} \\
+\hline
+\end{longtable}
+                                                             
+\begin{verbatim}
+   inGrid->getGridSize(&numElem,&numConn,&numCoord);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Do we have a type list?} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}       
+   hasTypes = inGrid->hasTypeList();
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf This gives us the pointers to the data in shared memory} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}                                            
+   inGrid->getAddresses(&inElemList,&inConnList,
+                        &inXCoord,&inYCoord,&inZCoord);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf If we have a type list, we must copy it, too.} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}    
+   if (hasTypes)
+      inGrid->getTypeList(&inTypeList);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Now allocate a new, empty USG object} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}                                       
+   
+   // allocate new Unstructured grid of same size
+   coDoUnstructuredGrid *outGrid  
+               = new coDoUnstructuredGrid(p_outPort->getObjName(),                                                                                                 numElem,numConn,numCoord,
+                                         hasTypes);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Oops, something went wrong here} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}       
+   if (!outGrid->obj_ok())
+   {
+      sendError("Failed to create object '%s' for port '%s'",
+                 p_outPort->getObjName(),p_outPort->getName());
+  
+      return;
+   }
+   
+   int   *outElemList,*outConnList,*outTypeList;
+   float *outXCoord,*outYCoord,*outZCoord;
+\end{verbatim} 
+
+\begin{longtable}{|p{12cm}|}
+\hline
+   {\bf This gives us access to the data space in shared memory. Beware of
+   overwriting any fields} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+   outGrid->getAddresses(&outElemList,&outConnList,
+                         &outXCoord,&outYCoord,&outZCoord);
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf We have a type list. So here it is:} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}    
+   if (hasTypes)
+      outGrid->getTypeList(&outTypeList);                                        
+\end{verbatim}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+   {\bf We do not change the grid, so we copy all fields except the coordinates} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}      
+   /// copy element list
+   for (i=0;i<numElem;i++)
+      outElemList[i] = inElemList[i];
+   
+   /// if we have one, copy the types list
+   if (hasTypes)
+      for (i=0;i<numElem;i++)
+         outTypeList[i] = inTypeList[i];
+ 
+   /// copy connectivity list
+   for (i=0;i<numConn;i++)
+      outConnList[i] = inConnList[i];
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Get the current value from the slider} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}       
+   /// retrieve parameter
+   float scale = p_scale->getValue();
+\end{verbatim}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+   {\bf Negative or zero values make no sense: correct value and correct parameter
+   on the user interface} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}       
+   if (scale<=0)
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Now put scaled coordinates into new object's memory} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}       
+   {
+      scale = 1.0;
+      p_scale->setValue(1.0)
+   }
+ 
+   /// copy coordinates and scale them
+   for (i=0;i<numCoord;i++)
+   {
+       
+      outXCoord[i] = inXCoord[i] * scale;
+      outYCoord[i] = inYCoord[i] * scale;
+      outZCoord[i] = inZCoord[i] * scale;
+   }
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf This is the output object for the port } \\
+\hline
+\end{longtable}
+
+\begin{verbatim}
+   // finally, assign object to port
+   p_outPort->setCurrentObject(outGrid);
+   
+} 
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+   {\bf Important: Never delete the objects you assigned to a port!} \\
+\hline
+\end{longtable}
+
+\begin{verbatim}     
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++  What's left to do for the Main program: 
+// ++++                         create the module and start it 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+MODULE_MAIN(Examples, Enlarge)
+\end{verbatim}
+
+Try to enhance the module: Different scales for each axis... 

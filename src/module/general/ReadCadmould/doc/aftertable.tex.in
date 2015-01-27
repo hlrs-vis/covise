@@ -1,0 +1,43 @@
+
+
+
+\subsubsection{Example 1}
+%=============================================================
+
+{\bf CadmouldStat.net}
+
+\begin{covimg}{}
+ {CadmouldStat_net}{covise/net/examples/CadmouldStat.net}{0.6}\end{covimg} 
+
+\begin{covimg}{}
+     {CadmouldStat_out}{Output from CadmouldStat.net}{0.6}\end{covimg}
+\clearpage
+%=============================================================
+
+\subsubsection{Example 2}
+%=============================================================
+
+{\bf CadmouldFill.net}
+
+\begin{covimg}{}
+ {CadmouldFill_net}{covise/net/examples/CadmouldFill.net}{0.6}\end{covimg} 
+
+\begin{covimg}{}
+     {CadmouldFill_out}{Output from CadmouldFill.net}{0.6}\end{covimg}
+\clearpage
+%=============================================================
+
+\subsubsection{Example 3}
+%=============================================================
+
+{\bf CadmouldTrans.net}
+
+\begin{covimg}{}
+ {CadmouldTrans_net}{covise/net/examples/CadmouldTrans.net}{0.6}\end{covimg} 
+
+\begin{covimg}{}
+     {CadmouldTrans_out}{Output from CadmouldTrans.net}{0.6}\end{covimg}
+
+
+
+

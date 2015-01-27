@@ -1,0 +1,257 @@
+#########################################################################
+#									#
+# Basic Covise Configuration  File                               	#
+#									#
+#########################################################################
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+# foo	   shm			rexec				30
+sgi01	shm	rsh	30
+}
+
+## HostInfo : enables SMP Multithread Parallelisation
+##            ---> set to 1 if experiencing Memory problems
+##            foo is Multi-Processor, all others are Single.
+
+HostInfo: sgi01
+{
+    numProcs 5
+}
+
+HostInfo
+{
+    numProcs 5
+}
+
+License
+{
+#    Key abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabc    bar@foo    31.12.3909
+Key ALNKFLPFAGFINKEKFJCLMCCIBKFLHHPPEGIBENCKPGJPHMA_    sgi01@tan    1.1.2000
+Key ILFCFDPFIOFIDLAMKHCDMBLPPPHPPPPPMPBDFIJFMANOKHAA    covise@tan    31.12.2000
+}
+TRACERConfig
+{
+	BOX_INCREASE_FACTOR 10.1
+}
+
+COVERConfig
+{
+	MAX_FORCE               0.05
+	FORCE_FEEDBACK_MODE 2 // 2 TEST  1 NORMAL
+	FORCE_FEEDBACK	OFF
+	FORCE_SCALE		1.0
+	TRACKING_SYSTEM		SPACEPOINTER 		
+	BUTTON_SYSTEM		NONE # IAO
+	#PIPE_LOCKING                CHANNEL
+	SCENESIZE		300
+	NUM_PIPES		1
+	NUM_WINDOWS		1
+	AUTO_WIREFRAME		OFF
+	COORD_AXIS		ON
+	FREEZE			ON
+	NOTIFY			NOTICE
+	MULTIPROCESS		ON
+	NOSEPARATION		FALSE
+	WHITE_TO_GREY		TRUE
+	SCALE_ALL		OFF
+	ARENA_SIZE		500000000
+	#MODELPATH               /mnt/scr/cod
+	#MODELFILE               cube.wrl
+	WELCOME_MESSAGE      Welcome to COVER
+	#FOOTER_MESSAGE       Covise Virtual Environment
+}
+
+
+ButtonConfig
+{
+    BUTTON_DEVICE	/dev/ttyd2
+}
+
+### foo is a multi-pipe machine: NUM_PIPES=2 
+#   maybe driving a Cube...
+
+COVERConfig: sgi01
+{
+
+	#MODULE	VRDynamil
+	#MODULE	VRViewPoint
+	#MODULE	VRModuleDesk
+	#MODULE	VRChristmas
+	MODULE	ClipPlane
+	MENU_POSITION	700 550 400
+	MENU_ROTATION	0 0 0
+	ARENA_SIZE		1000000000
+	TRACKING_SYSTEM		POLHEMUS
+	SCENESIZE		1100
+	NUM_PIPES		2
+	NUM_WINDOWS		2
+	AUTO_WIREFRAME		OFF
+	COORD_AXIS		OFF
+	FREEZE			OFF
+	#SPOTLIGHT		ON
+	STEREO_SEPARATION       60
+	NOSEPARATION		FALSE
+	TWOSIDE			ON
+	#MODELPATH              /mnt/scr/cod/boytcheff/PTT
+	#MODELFILE               PTT_Complete_new2.iv
+	LIGHT1		        0 10000 10000 1.0
+	MOVE_PARTS               OFF
+	#RELATIVISTIC_PARAMETER_FILE /mnt/scr/cod/relativity/raum/raum.par
+	#RELATIVISTIC_MODE       OFF
+	WELCOME_MESSAGE         Welcome to COVISE VR
+	LOD_SCALE    		0
+
+}
+
+WindowConfig: sgi01
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1280 1024
+       	1	RIGHT       	1       	0 0 	1280 1024
+       	2	LEFT        	2       	0 0 	1280 1024
+       	3	BOTTOM      	3       	0 0 		1280 1024
+}
+
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:0.0
+}
+PipeConfig: sgi01
+{
+#	SoftPipe	Screen   	Display
+				
+      	0		0		:0.0
+	1		0		:0.1
+	2		0		:0.2
+	3		0		:0.3
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		340 270		0 0 0			0.0 0.0 0.0
+	
+}
+
+#verdreht	3		BOTTOM		3000 3000	0 0 -1490		0.0 -90.0 0.0
+	3		BOTTOM		3000 3000	0 0 -1490		0.0 -90.0 180.0
+	
+}
+ScreenConfig: sgi01
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		1795 1100	0 550 0		0.0 0.0 0.0
+	1		LEFT		1795 1100	0 0 -550 		0.0 -90.0 180.0
+	2		RIGHT		2525 1960	2060 0 0		0.0 0.0 0.0
+#verdreht	3		BOTTOM		3000 3000	0 0 -1490		0.0 -90.0 0.0
+	3		BOTTOM		3000 3000	0 0 -1490		0.0 -90.0 180.0
+	
+}
+
+
+PolhemusConfig: sgi01
+{
+	SERIAL_PORT		 	/dev/ttyd2	38400
+#	SERIAL_PORT		 	phantom.ini
+
+	HEMISPHERE      		1 0 0
+
+#	Polhemus hand device and station
+	HAND	POLHEMUS_STYLUS		1
+
+#	Pohemus headtracking device and station
+	HEAD	POLHEMUS_SENSOR		2
+
+	LINEAR_MAGNETIC_FIELD_CORRECTION	0.0 0.0 -0.35
+
+#	Position of the transmitter in the world coordinate system
+##POL	
+##      TRANSMITTER_OFFSET_POS			0 -185 -25
+# ASC
+	TRANSMITTER_OFFSET_POS			0 -65.5 -58
+#	TRANSMITTER_OFFSET_POS			0 0 0
+
+#	TRANSMITTER_OFFSET_POS			-29.3 -130.3 4.5
+
+#	Orientation of the Transmitter in the world coordinate system RPH
+#	heading=rotz, pitch=rotx, roll=roty
+#					         H   P   R
+##POL	
+##      TRANSMITTER_OFFSET_EULER		90 180 0 
+# ASC
+	TRANSMITTER_OFFSET_EULER		-90 0 -90 
+#	TRANSMITTER_OFFSET_EULER		0 180 -90 
+#	TRANSMITTER_OFFSET_EULER		90 0 -90 
+#	TRANSMITTER_OFFSET_EULER		0 0 0 
+
+
+#	Position of the Viewer in the receiver system
+##POL REC RECHTS	
+##      SENSOR_OFFSET_POS			10 0 10
+# ASC
+	SENSOR_OFFSET_POS			6.5 0 8.5
+
+#	Orientation of the Viewer in the receiver system
+##POL REC RECHTS        
+##      SENSOR_OFFSET_EULER			-90 0 -90
+# ASC
+        SENSOR_OFFSET_EULER			-90 0 -90
+
+#       Position of the pointer in the receiver system
+	STYLUS_OFFSET_POS			0 0 0
+
+#	Orientation of the Pointer in the receiver system
+##POL
+      STYLUS_OFFSET_EULER			-90 0 90
+# ASC
+##	STYLUS_OFFSET_EULER			90 0 0
+        
+}
+
+Network
+{
+#	IP_ALIAS	visavis		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+TrackerCalibration
+{
+#	these settings should be retrieved using  ms  and the TrackerCalibration
+#	application-module
+
+# 	NOTE: if this filter is enabled, it overrides a few settings in
+#		the section PolhemusConfig
+
+
+#	should the filter be used ? (ON / OFF)
+	STATUS			OFF
+        SWAP                    ON
+	ORIGIN			-22.0 29.0 202.0
+	ALPHA			-0.55
+	BETA0			0.5
+	BETA1			0.4
+	GAMMA			30.0
+	DELTA			35.0
+	UP_SCALE		0.4
+        
+        // 1: use given parameters
+        // 2: use hype-parameters retrieved with Solver
+        //
+        FILTER_TYPE             1
+        
+}
+
+Star
+{
+        CONFIG_FILE     /disk2/covise_cube/covise/current_star/starconfig
+        PORT            31500
+
+        START           xwsh -geometry 135x35 -e rsh -l %s %s 'cd %s ; echo %s ; setenv CSTAR_HOST %s; setenv CSTAR_PORT %d ; echo y | $STARDIR/bin/runstar |& tee star.out' &
+        ABORT           (rsh -l %s %s '(cd %s ; touch ABORT ; sleep 20 ; /bin/rm -f ABORT) >& /dev/null' ) &
+}

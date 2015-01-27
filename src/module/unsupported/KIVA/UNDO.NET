@@ -1,0 +1,932 @@
+1
+LOCAL
+LUSER
+11
+ReadTascflowTDI
+1
+LOCAL
+IO
+ReadTascflowTDI
+20
+20
+0
+9
+grid
+DO_StructuredGrid|Set_StructuredGrid
+grid out
+default
+ReadTascflowTDI_1_OUT_00
+block
+Set_IntArr
+block off array
+default
+ReadTascflowTDI_1_OUT_01
+region
+Set_DO_Lines|Set_StructuredGrid
+highlighted region
+default
+ReadTascflowTDI_1_OUT_02
+vector1
+Set_Structured_V3D_Data
+vector1 out
+default
+ReadTascflowTDI_1_OUT_03
+vector2
+Set_Structured_V3D_Data
+vector2 out
+default
+ReadTascflowTDI_1_OUT_04
+data1
+Set_Structured_S3D_Data
+data1 out
+default
+ReadTascflowTDI_1_OUT_05
+data2
+Set_Structured_S3D_Data
+data2 out
+default
+ReadTascflowTDI_1_OUT_06
+data3
+DO_Structured_S3D_Data|Set_Structured_S3D_Data
+data3 out || complete region 
+default
+ReadTascflowTDI_1_OUT_07
+bcf_polygons
+DO_Polygons
+polygons out
+default
+ReadTascflowTDI_1_OUT_08
+13
+steprsopath
+Browser
+path of the first timestep rso file
+~/ *
+START
+1
+gridpath
+Browser
+path of the grid file
+data/general/examples/Tascflow//demo_grd *
+IMM
+1
+rsopath
+Browser
+path of the rso file
+data/general/examples/Tascflow//demo_rso *
+IMM
+1
+bcfpath
+Browser
+path of the bcf file
+data/general/examples/Tascflow//demo_bcf *
+IMM
+1
+timesteps
+Scalar
+timesteps
+1
+START
+-1
+skipped_files
+Scalar
+number of skip files for each timestep
+0
+START
+-1
+region_names
+Choice
+names of the regions
+1 none
+IMM
+-1
+show_region
+Choice
+the way of showing the regions
+2 showcompleteregion whitelines redlines bluelines greenlines greylines blacklines
+START
+-1
+vector_data_1
+Choice
+first vector data
+2 none _UVW_ _UVW_CIRC _UVW_MERID AROT_XYZ_ BROT_XYZ_ _XYZ_ AROT_XYZ_
+IMM
+-1
+vector_data_2
+Choice
+second vector data
+1 none _UVW_ _UVW_CIRC _UVW_MERID AROT_XYZ_ BROT_XYZ_ _XYZ_ AROT_XYZ_
+IMM
+-1
+scalar_data_1
+Choice
+first scalar data
+19 none _CONTROL_SURFACE_RST _GGI_GLOBAL_FACE_LST _GGI_CS2CSG _GGI_ICSEQN _GGI_IUPDWS _GGI_ICSFCL _GGI_CSFCTR _GGI_CSPBAR _GGI_CSPVAL _GGI_CSPAVE _GGI_CSMASS _GGI_CSUNIP _GGI_CSVVAL DENSITY UNIP _UNIP_IS_MASS P PTOTAL_ABS FRAME THETA_ABSOLUTE THETA_SHIFT THETA_EXTENT PTOTAL_REL PRESSURE_REL OMEGA BETA _RUN_TIME SPEED PTOTAL_REL
+IMM
+-1
+scalar_data_2
+Choice
+second scalar data
+1 none _CONTROL_SURFACE_RST _GGI_GLOBAL_FACE_LST _GGI_CS2CSG _GGI_ICSEQN _GGI_IUPDWS _GGI_ICSFCL _GGI_CSFCTR _GGI_CSPBAR _GGI_CSPVAL _GGI_CSPAVE _GGI_CSMASS _GGI_CSUNIP _GGI_CSVVAL DENSITY UNIP _UNIP_IS_MASS P PTOTAL_ABS FRAME THETA_ABSOLUTE THETA_SHIFT THETA_EXTENT PTOTAL_REL PRESSURE_REL OMEGA BETA _RUN_TIME SPEED PTOTAL_REL
+IMM
+-1
+scalar_data_3
+Choice
+third scalar data (used for complete region too)
+1 none _CONTROL_SURFACE_RST _GGI_GLOBAL_FACE_LST _GGI_CS2CSG _GGI_ICSEQN _GGI_IUPDWS _GGI_ICSFCL _GGI_CSFCTR _GGI_CSPBAR _GGI_CSPVAL _GGI_CSPAVE _GGI_CSMASS _GGI_CSUNIP _GGI_CSVVAL DENSITY UNIP _UNIP_IS_MASS P PTOTAL_ABS FRAME THETA_ABSOLUTE THETA_SHIFT THETA_EXTENT PTOTAL_REL PRESSURE_REL OMEGA BETA _RUN_TIME SPEED PTOTAL_REL
+IMM
+-1
+0
+DomainSurfaceStr
+1
+LOCAL
+Tools
+DomainSurfaceStr
+20
+262
+2
+Mesh
+DO_StructuredGrid|DO_RectilinearGrid|DO_UniformGrid
+grid
+req
+none
+Data
+DO_Structured_S3D_Data|DO_Structured_V3D_Data
+data on grid points
+opt
+none
+4
+Surface
+DO_Polygons
+surface of structured grid
+default
+DomainSurfaceStr_1_OUT_00
+SurfDat
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+data on surface
+dep Data
+DomainSurfaceStr_1_OUT_01
+Lines
+DO_Lines
+feature lines 
+default
+DomainSurfaceStr_1_OUT_02
+LinesDat
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+data on feature lines
+default
+DomainSurfaceStr_1_OUT_03
+1
+angle
+Slider
+feature angle
+0 1 0.01
+START
+-1
+0
+CuttingSurface
+1
+LOCAL
+Filter
+Extract a plane from a data set
+40
+104
+3
+meshIn
+DO_CellGrid|DO_UnstructuredGrid|DO_UniformGrid|DO_StructuredGrid|DO_RectilinearGrid
+input mesh
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+req
+none
+isoDataIn
+DO_Unstructured_S3D_Data|DO_Structured_S3D_Data
+data for isolines
+opt
+none
+4
+meshOut
+DO_Polygons|DO_TriangleStrips
+Cuttingplane
+default
+CuttingSurface_1_OUT_00
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+interpolated data
+default
+CuttingSurface_1_OUT_01
+normalsOut
+DO_Unstructured_V3D_Normals
+Surface normals
+default
+CuttingSurface_1_OUT_02
+linesOut
+Set_Lines
+Isolines
+default
+CuttingSurface_1_OUT_03
+11
+vertex
+Vector
+Normal of cuttingplane, center of sphere or Point on a cylinder
+0 0.0 1.0
+START
+1
+cylinder_center
+Vector
+point on cylinder axis
+0.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Distance from the origin to the cuttingplane or radius of the sphere
+0.05
+START
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+START
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+START
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+START
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+FALSE
+START
+-1
+offset
+Scalar
+Offset of the isolines
+0.01
+START
+-1
+numiso
+Scalar
+Number of isolines
+0
+START
+-1
+isostart
+Scalar
+First isovalue
+0.0
+START
+-1
+isoend
+Scalar
+Last isovalue
+0.1
+START
+-1
+0
+Colors
+1
+LOCAL
+Color
+Unified Coloring and Color Texture Module
+173
+214
+2
+Data
+Set_Structured_S3D_Data|Set_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_1_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_1_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_1_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0 0.0000001
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+0
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+0
+IMM
+-1
+0
+Collect
+1
+LOCAL
+Tools
+Combine grid, normals, colors and textures in one data object for rendering
+163
+277
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_1_OUT_00
+0
+0
+VectorScal
+1
+LOCAL
+Tools
+VectorScal
+76
+159
+1
+vdataIn
+DO_Structured_V3D_Data|DO_Unstructured_V3D_Data
+input vector data
+req
+none
+1
+sdataOut
+DO_Structured_S3D_Data|DO_Unstructured_S3D_Data
+output scalar data
+default
+VectorScal_1_OUT_00
+1
+option
+Choice
+Options
+1 Lenght X-Component Y-Component Z-Component
+START
+-1
+0
+Collect
+2
+LOCAL
+Tools
+Combine grid, normals, colors and textures in one data object for rendering
+280
+305
+4
+grid
+Set_StructuredGrid|Set_UnstructuredGrid|Set_RectilinearGrid|Set_UniformGrid|Set_Points|Set_Lines|Set_Polygons
+Grid
+req
+none
+colors
+Set_Structured_V3D_Colors|Set_Unstructured_V3D_Colors|Set_RGBA_Colors|Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+Colors or Scalar Data for Volume Visualization
+opt
+none
+normals
+Set_Structured_V3D_Normals|Set_Unstructured_V3D_Normals
+Normals
+opt
+none
+textures
+Set_Textures
+Textures
+opt
+none
+1
+geometry
+DO_Geometry
+combined object
+default
+Collect_2_OUT_00
+0
+0
+Colors
+2
+LOCAL
+Color
+Unified Coloring and Color Texture Module
+327
+239
+2
+Data
+Set_Structured_S3D_Data|Set_Unstructured_S3D_Data
+scalar data
+opt
+none
+cmapIn
+DO_ColorMap|MinMax_Data
+Colormap Input
+opt
+none
+3
+colors
+Set_RGBA_Colors
+Data as colors
+default
+Colors_2_OUT_00
+texture
+Set_Textures
+Data as texture
+default
+Colors_2_OUT_01
+cmapOut
+DO_ColorMap
+Colormap Output
+default
+Colors_2_OUT_02
+6
+Min/Max
+Vector
+Minimum and Maximum value
+0.004830 2.815076
+IMM
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+START
+-1
+numSteps
+Scalar
+Number of Steps in Map
+256
+START
+-1
+SelectMap
+Choice
+Which Colormap Style
+1 Standard Star ITSM Rainbow Blue Blue-Light
+START
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+START
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+IMM
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+47
+366
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+0
+0
+Tracer
+2
+LOCAL
+Tracer
+General tracer
+280
+95
+3
+meshIn
+DO_StructuredGrid|DO_UnstructuredGrid
+input mesh
+req
+none
+dataIn
+DO_Structured_V3D_Data|DO_Unstructured_V3D_Data
+input velo.
+req
+none
+pointsIn
+DO_Points
+input initial points
+opt
+none
+2
+lines
+DO_Lines|DO_Points|DO_TriangleStrips
+output geometry
+default
+Tracer_2_OUT_00
+dataOut
+DO_Unstructured_S3D_Data
+output magnitude
+default
+Tracer_2_OUT_01
+22
+no_startp
+Slider
+Number of starting points
+1 10 6
+START
+-1
+startpoint1
+Vector
+First start point
+1.5 1 0.05
+START
+-1
+startpoint2
+Vector
+Last start point
+0.05 1 0.05
+START
+-1
+direction
+Vector
+Square of starting points
+ 0 1 0.
+START
+-1
+tdirection
+Choice
+Forward, backward or both
+1 forward backward both
+START
+-1
+whatout
+Choice
+v, vx, vy, vz or time
+1 mag v_x v_y v_z time
+START
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+2 Streamlines MovingPoints Pathlines Streaklines
+IMM
+0
+startStyle
+Choice
+Line or square
+1 line plane
+START
+-1
+trace_eps
+Scalar
+relative error control
+0.000050
+START
+-1
+trace_abs
+Scalar
+absolute error control
+0.000100
+START
+-1
+grid_tol
+Scalar
+grid tolerance for UNSGRD
+0.000100
+START
+-1
+trace_len
+Scalar
+maximum length
+1.000000
+START
+0
+min_vel
+Scalar
+minimal velocity
+0.001000
+START
+0
+MaxPoints
+Scalar
+maximum number of points
+250
+START
+0
+stepDuration
+Scalar
+Step duration if no REALTIME available
+0.010000
+START
+0
+NoCycles
+Scalar
+number of cycles (dynamic data)
+1
+START
+0
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+START
+0
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+IMM
+0
+ParticlesReleaseRate
+Scalar
+Frequency at which new particles are released
+0.000000
+START
+0
+divideCell
+Scalar
+Step control when out of domain
+0.125000
+START
+-1
+maxOutOfDomain
+Scalar
+Control how far to integrate when out of domain
+0.250000
+START
+-1
+NoWThreads
+Scalar
+number of worker threads
+1
+IMM
+-1
+0
+Sphere
+1
+LOCAL
+Tools
+compute spheres
+280
+160
+3
+points
+Set_Points|Set_UnstructuredGrid|Set_StructuredGrid
+the points to be transformed into spheres
+req
+none
+data
+Set_Unstructured_S3D_Data|Set_Unstructured_V3D_Data|Set_Structured_S3D_Data|Set_Structured_V3D_Data
+data to be multiplied with parameter radius
+opt
+none
+colors_in
+Set_Unstructured_S3D_Data|Set_Structured_S3D_Data
+data mapped on the spheres
+opt
+none
+3
+spheres
+Set_TriangleStrips|Set_Polygons
+the spheres
+default
+Sphere_1_OUT_00
+normals
+Set_Unstructured_V3D_Normals
+normals for the spheres
+default
+Sphere_1_OUT_01
+colors_out
+Set_Unstructured_S3D_Data
+the data for the spheres
+default
+Sphere_1_OUT_02
+2
+radius
+Scalar
+radius of the spheres if no scalar data is given
+0.1
+START
+-1
+scale
+Scalar
+factor to apply on the data
+0.01
+START
+-1
+0
+17
+ReadTascflowTDI
+1
+LOCAL
+grid
+ReadTascflowTDI_1_OUT_00
+DomainSurfaceStr
+1
+LOCAL
+Mesh
+ReadTascflowTDI
+1
+LOCAL
+grid
+ReadTascflowTDI_1_OUT_00
+CuttingSurface
+1
+LOCAL
+meshIn
+ReadTascflowTDI
+1
+LOCAL
+grid
+ReadTascflowTDI_1_OUT_00
+Tracer
+2
+LOCAL
+meshIn
+ReadTascflowTDI
+1
+LOCAL
+vector1
+ReadTascflowTDI_1_OUT_03
+CuttingSurface
+1
+LOCAL
+dataIn
+ReadTascflowTDI
+1
+LOCAL
+vector1
+ReadTascflowTDI_1_OUT_03
+Tracer
+2
+LOCAL
+dataIn
+DomainSurfaceStr
+1
+LOCAL
+Lines
+DomainSurfaceStr_1_OUT_02
+Renderer
+1
+LOCAL
+RenderData
+CuttingSurface
+1
+LOCAL
+meshOut
+CuttingSurface_1_OUT_00
+Collect
+1
+LOCAL
+grid
+CuttingSurface
+1
+LOCAL
+dataOut
+CuttingSurface_1_OUT_01
+VectorScal
+1
+LOCAL
+vdataIn
+Colors
+1
+LOCAL
+colors
+Colors_1_OUT_00
+Collect
+1
+LOCAL
+colors
+Collect
+1
+LOCAL
+geometry
+Collect_1_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+VectorScal
+1
+LOCAL
+sdataOut
+VectorScal_1_OUT_00
+Colors
+1
+LOCAL
+Data
+Collect
+2
+LOCAL
+geometry
+Collect_2_OUT_00
+Renderer
+1
+LOCAL
+RenderData
+Colors
+2
+LOCAL
+colors
+Colors_2_OUT_00
+Collect
+2
+LOCAL
+colors
+Tracer
+2
+LOCAL
+lines
+Tracer_2_OUT_00
+Sphere
+1
+LOCAL
+points
+Tracer
+2
+LOCAL
+dataOut
+Tracer_2_OUT_01
+Sphere
+1
+LOCAL
+colors_in
+Sphere
+1
+LOCAL
+spheres
+Sphere_1_OUT_00
+Collect
+2
+LOCAL
+grid
+Sphere
+1
+LOCAL
+colors_out
+Sphere_1_OUT_02
+Colors
+2
+LOCAL
+Data
+0

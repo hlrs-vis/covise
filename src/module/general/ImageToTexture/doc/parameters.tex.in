@@ -1,0 +1,61 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+%\covlink{Colors}{Colors}{../../Color/Colors/Colors.html}
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	RST\_file & Browser & The path of a TIFF file.\\
+\hline
+	ImageSize & Choice & This parameter adjusts the size of
+        the image relative to the size of the geometric object.
+        The image is taken to be a rectangle on the XY plane.
+        You may manually adjust the image size with other parameters,
+        or tell the module to adjust the image size to the projection
+        of the geometry bounding box onto the XY plane. The third
+        option reads in the geometrical hints contained in the TIFF file
+        in centimeters.\\
+\hline
+	ImageOrientation & Choice & The {\sl Free} option means that the
+        resulting orientation is that which minimises shear strains
+        of the image. {\sl Portrait} and {\sl Landscape} have the usual 
+        meaning assuming the Y axis is vertical and the X one horizontal.\\
+\hline
+	PhysimageW & Scalar & X image dimension. This parameter is active
+        if in {\sl ImageSize} you have selected manual image size adjustment.\\
+\hline
+	PhysimageH & Scalar & Y image dimension. This parameter is active
+        if in {\sl ImageSize} you have selected manual image size adjustment.\\
+\hline
+	XPixelImageSize & Scalar & Texture pixel resolution in the X direction. 
+	                          Has to be a power of two if you use COVER later. \\
+\hline
+	YPixelImageSize & Scalar & Texture pixel resolution in the Y direction.
+	                          Has to be a power of two if you use COVER later.\\
+\hline
+	GroupGeometry & Boolean & This parameter is only relevant if the input
+        geometry is structured with a set of several polygon objects. If the
+        value is true, then the module will not generate an image of each
+        polygon object; put it another way, you will see a single image 
+        for the whole set of objects. \\
+\hline
+	MirrorImage & Boolean & This parameter is relevant if the image
+        is smaller than the geometry. In this case we have to continue
+        somehow the image by some sort of tessellation. If the value is true,
+        then additional
+        images are alternatively flipped.\\	
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

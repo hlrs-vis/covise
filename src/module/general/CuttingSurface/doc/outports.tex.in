@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline meshOut & Polygons\newline TriangleStrips & Cuttingplane\\ \hline dataOut & Float\newline Vec3 & interpolated data\\ \hline normalsOut & Vec3 & Surface normals\\ \hline linesOut & Lines & Isolines\\
+\hline \end{longtable}
+

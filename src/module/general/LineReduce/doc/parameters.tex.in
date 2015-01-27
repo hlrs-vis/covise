@@ -1,0 +1,21 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        maxAngle & Scalar & Threshold below which two line-segments are recognized as parallel. \\
+\hline
+        maxDifference & Scalar & maximum difference between two points. \\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

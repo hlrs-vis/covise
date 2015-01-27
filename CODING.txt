@@ -1,0 +1,84 @@
+Please follow the following guidelines.
+
+
+Source Code Formatting
+======================
+
+* UNIX line-feeds
+* no tabs
+* avoid trailing spaces
+* files have to end with a new-line
+* only ASCII characters (no latin1 or unicode - their behaviour depends on character sets)
+* opening and closing braces on their own line
+* indent by 4 spaces
+
+You can use 'scripts/indent.sh' (needs clang-format and dos2unix) for re-indenting the source code.
+If changing source code formatting, then do that as a separate commit:
+this makes it easy to follow the actual code changes.
+
+
+Source Code Management
+======================
+
+This will make your commits easy to follow by others:
+* descriptive commit logs (in the context of the changed files)
+  - summarise what was changed for large commits
+  - when making small changes, don't repeat what was changed but, but state
+    the reason for the change
+* only one change/bug fix/feature per commit
+* try to commit all files belonging to one change together in a single commit
+* separate changed source code formatting from actual code changes into
+  different commits
+* aim for committing only compiling source code and after committing test on other
+  platforms, too (Linux/Windows)
+
+
+Coding Style
+============
+
+* protect your headers with include guards like this:
+  #ifndef MY_PRETTY_HEADER_H
+  #define MY_PRETTY_HEADER_H
+  ...
+  #endif
+* #include all necessary headers at the beginning of the file
+* in order to reduce compile times (and recompilation) you should avoid
+  including headers from headers, instead use forward declarations whenever possible:
+  class MyPrettyClass;
+* also in order to reduce compile times (and recompilation) you should try to restrict
+  headers to declarations and avoid code within headers
+* don't use "using namespace <my_namespace>" or "using ..." in global scope in header files
+* include parameter names in functions prototypes in headers - these serve as
+  documentation
+* think about variable names, don't name them just 'tmp'
+* documenting code helps understand it, therefore documenting code is a real benefit
+* initialize variables as soon as you define them, e.g:
+  int i = 0;
+  instead of
+  int i;
+* make the scope of variables as small as possible - this makes it easy to see
+  until which point the value of a variable has relevance
+  - define another variable, perhaps even with identical name, if necessary for another
+  independent purpose - the compiler will reuse space if possible,
+  e.g.:
+  if(something)
+  {
+     bool important_flag = false;
+     // use important_flag
+  }
+  else
+  {
+     bool important_flag = false;
+     // use important_flag
+  }
+
+  instead of:
+  bool important_flag = false;
+  if(something)
+  {
+     // use important_flag
+  }
+  else
+  {
+     // use important_flag for a different purpose
+  }

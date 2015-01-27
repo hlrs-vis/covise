@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+ <COVER>
+ <WindowConfig>
+ <Window width="1280" comment="FRONT" window="0" pipeIndex="0" height="1024" left="0" bottom="0" name="0" decoration="true" />
+ </WindowConfig>
+ <Plugin>
+    <RRServer value="on"
+       serverPort="31093"
+       threads="6"
+       tilesize="256"
+       interframe="on"
+       cudaread="off"
+       cudayuv2rgb="on"
+       cudapinned="on"
+       sendthread="false"
+       touchEventReceiver="Utouch3DRR"  />
+  <TouchInteraction value="off"
+       handler="ScreenSpace" />
+   <Utouch3DRR value="on" />
+ </Plugin>
+ </COVER>
+ </GLOBAL>
+
+ <INCLUDE>config-rrzk.xml</INCLUDE>
+</COCONFIG>
+

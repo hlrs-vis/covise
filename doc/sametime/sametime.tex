@@ -1,0 +1,130 @@
+%
+% This text file includes all files neccessary to create
+% the Collaboritive Working (Introduction) 
+%
+%====== define a new class for layout
+
+\documentclass{covise}
+
+
+%\usepackage{makeidx}
+%\makeindex
+
+%====== define some nice fonts
+
+%\usepackage{helvetic}
+%\usepackage{bookman}
+%\usepackage{avantgar}
+%\usepackage{palatino}
+\usepackage{times}
+%\usepackage{utopia}
+%\usepackage{ncntrsbk}
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+\usepackage{picins}
+\usepackage[dvipdf]{hyperref}
+
+\setlength\LTleft{0pt}
+\setlength\LTright\fill
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newenvironment{covlink}[3]{ \htmladdnormallink{#2}{#3} \latex{(\ref{#1})} }
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+
+\definecolor{param}{rgb}{1.0,0.4,0.8}
+\definecolor{output}{rgb}{0.4,0.4,1.0}
+\definecolor{depend}{rgb}{0.1,0.4,1.0}
+\definecolor{required}{rgb}{0.8,0.8,0.0}
+\definecolor{optional}{rgb}{0.1,0.8,1.0}
+
+%====== start the document
+\begin{document}
+
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+	\title{}
+	\author{}
+
+         \uppertitleback{\bf{Title:} \\
+                        N'S$^3$ (Conference Room Interface) \\
+%			COVISE Conference Room Interface \\ 
+%			(Sametime) \\
+			(January 2002)\vskip 0.5cm 2001 VirCinity IT\\
+                         2005 VISENSO GmbH}
+	\lowertitleback{\bf{Author:} \\
+ 			Sven Kufer / Peter Wolf}
+	\maketitle
+
+
+	\pagenumbering{arabic}
+	\tableofcontents
+	\listoffigures
+%	\listoftables
+%
+	
+\end{latexonly}
+
+%====== include the chapters
+
+\include{Summary/Summary}
+\clearpage
+\include{GettingStarted/GettingStarted}
+\clearpage
+\include{ConnectList/ConnectList}
+\clearpage
+\include{Whiteboard/Whiteboard}
+\clearpage
+\include{SharedApplication/SharedApplication}
+\clearpage
+\include{ChatMessages/ChatMessages}
+\clearpage
+\include{AudioVideo/AudioVideo}
+\clearpage
+\include{CollabVisual/CollabVisual}
+\clearpage
+\include{UsageHints/UsageHints}
+\clearpage
+
+%\printindex
+
+\end{document}
+
+
+
+

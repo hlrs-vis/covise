@@ -1,0 +1,32 @@
+
+%=============================================================
+
+%
+% short description what the module does
+%
+TetraNeighbor computes a special neighbor-list for tetrahedra grids. This list is necessary for using 
+the module \covlink{TetraTrace}{TetraTrace}{../../Tracer/TetraTrace/TetraTrace.html}.
+
+{\bf Note:}
+
+Module TetraTrace is obsolete - kept for compatibility with 5.1 only, but support 
+discontinued - use {\bf Tracer} (new with 5.2) instead! 
+So there should be no need to use TetraNeighbor for preprocessing any longer.
+
+ 
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{TetraNeighborModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+
+
+%=============================================================

@@ -1,0 +1,95 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	gennormals & Boolean & Generation of surface normals. Since renderers often 
+                                           have problems generating normals on the fly, 
+                                           this option is recommended and TRUE by default. \\
+\hline
+	genstrips & Boolean & Generation of triangle strips. This option can be used to take 
+                                           advantage of graphics hardware in the final rendering steps. 
+                                           Default is TRUE.  \\
+\hline
+        isopoint  & Vector & Point determining the isosurface.\\
+\hline
+	isovalue & Boolean & The isovalue to be extracted from the data set.  
+                                           The default value is 0.0.  \\
+\hline
+	autominmax & Boolean & -  \\
+\hline
+color\_or\_texture
+&
+Boolean
+&
+When true, the output Geometry object will have a an
+object describing colors. Otherwise, it will contain
+a texture.
+\\
+\hline
+scale
+&
+Scalar
+&
+This parameter is relevant if you want to map
+vector fields on your cutting surfaces. In this
+case the vector field is represented by line
+objects. Their length is controled with this
+parameter (see parameter length below for further details).
+\\
+\hline
+length
+&
+Choice
+&
+This is only relevant for vector data.
+You have 2 options: either {\sl 1*scale} or {\sl length*scale}.
+In the first one, all lines representing the vector field
+are the same length, given by parameter scale. In the second one,
+this scale is multiplied by the true length of the vector to
+determine the length for the lines.
+\\
+\hline
+num\_sectors
+&
+Scalar
+&
+This is only relevant for vector data. If you want
+to better visualise the direction of the vector
+field, you may wish to represent the output lines
+as arrows. The complexity of these arrows may be
+controled with this parameter. Do not be too greedy
+using it, the higher it is, the bigger the output
+object shall be.
+\\
+\hline
+vector
+&
+Choice
+&
+SurfaceAndLines\newline
+OnlySurface\newline
+OnlyLines
+\\
+\hline
+interactor
+&
+Choice
+&
+Value\newline
+Point\newline
+(You may determine the isosurface giving an isovalue or a point in 3D space.)
+\\
+\hline
+%	....
+%	....
+
+\end{longtable}
+%=============================================================
+
+%=============================================================

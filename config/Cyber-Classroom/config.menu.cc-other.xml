@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+               <Attachment value="BOTTOM" />
+               <HandleOn value="off" />        
+               <MenuMaxItems value="0"/>
+               <DebugLevel value="0"/>
+               <ShortCut value="quit" name="quit" />
+               <ShortCut value="xform" name="xform" />
+               <ShortCut value="toggleDocuments" name="toggleDocuments" plugin="DocumentViewer" icon="document" toggleButton="on" />
+               <!--<ShortCut value="viewall" name="viewall" />-->
+               <ShortCut value="scalePlus" name="scalePlus" />
+               <ShortCut value="scaleMinus" name="scaleMinus" />
+               <ShortCut value="presentationForward" name="presentationForward" plugin="CfdGui" icon="media-seek-forward" />
+               <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <ShortCut value="presentationBackward" name="presentationBackward" plugin="CfdGui" icon="media-seek-backward" />
+               <CoverMenu value="on"/>
+               <StateButton value="off"/>
+            </AKToolbar>
+         </Plugin>
+      </COVER>
+
+   </GLOBAL> 
+  
+</COCONFIG>

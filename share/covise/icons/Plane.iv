@@ -1,0 +1,35 @@
+#Inventor V2.1 ascii
+
+Separator {
+    Separator {
+	ShapeHints {
+	    vertexOrdering	COUNTERCLOCKWISE
+	    shapeType	SOLID
+	    faceType	CONVEX
+	}
+	#Transform {
+	    #translation	0 65.32 0
+	#}
+	Separator {
+    ShapeHints {
+      shapeType UNKNOWN_SHAPE_TYPE
+    }
+	    Material {
+		ambientColor	0.5 0.5 .50
+		diffuseColor	0.5059 0.9059 0.5059
+		specularColor	0.315 0.315 0.315
+		shininess	0.56
+		transparency	0.5
+	    }
+	    Coordinate3 {
+		point	[ -75  75 0,
+                           75  75 0,
+                           75 -75 0,
+                          -75 -75 0 ]
+	    }
+	    IndexedFaceSet {
+		coordIndex	[ 0, 1, 2, 3, -1 ]
+	    }
+	}
+    }
+}

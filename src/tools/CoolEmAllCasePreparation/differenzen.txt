@@ -1,0 +1,76 @@
+Index: main.cpp
+===================================================================
+--- main.cpp	(revision 24048)
++++ main.cpp	(working copy)
+@@ -8,6 +8,7 @@
+ #include <osg/Group>
+ #include <osg/Node>
+ #include <osg/io_utils>
++#include <fstream>
+ 
+ using namespace std;
+ 
+@@ -69,6 +70,55 @@
+ 							
+ 							std::cout << "stringlaenge=" << laenge << std::endl;
+ 							
++							if (stl_file[laenge-1] == 'l')
++							{
++								if (stl_file[laenge-2] == 't')
++								{
++									if (stl_file[laenge-3] == 's')
++									{
++										std::cout << "wir haben ein stl-file vorliegen" << std::endl;
++										
++										
++										
++										int numLines = 0;
++										
++										ifstream(file1);
++										file1.open(stl_file.c_str());
++										
++										while (file1.good() )
++										{
++										   std::string line;
++										   std::getline(file1, line);
++										   ++numLines;
++										}
++										
++										string el1, el2;
++										file1 >> el1 >> el2;
++										
++										for(int i = 1; i<numLines; i++)
++										{
++											string *s1 = new string[2];
++											file1 >> s1[0] >> s1[1];
++											
++											string *s2 = new string[2];
++											file1 >> s2[0] >> s1[1]
++											
++											
++										}
++										
++										 
++										
++										
++										
++										
++										file1.close();
++									}
++								}
++							}
++							else 
++							{
++								std::cout << "no stl-file specified" << std::cout << endl;
++							}
+ 							//stl_File=M*Stl_File;
+ 							//put stl-file;
+ 							//return foundNode;
+@@ -89,6 +139,7 @@
+ 				std::cout << "Knoten ist keine Gruppe und damit ein Leaf-Node" << std::endl;
+ 				return NULL;
+ 			}
++			
+ 		}
+ }
+ 

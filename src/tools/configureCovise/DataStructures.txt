@@ -1,0 +1,31 @@
+MAXITEMS maximale Anzahl von Items in einer Spalte
+MAXENUM maximale Anzahl von Radiobuttons für Enums, die noch in einer
+        Zeile stehen dürfen.
+sectionList: Liste aller sections z.B. COVERConfig HostConfig etc.
+ListForSection(<sectionName>): 
+ListForSectionSave(<sectionName>):
+Counters(<sectionName>) Zähler, wieviel Entries für eine bestimmte section
+        existieren.
+LabelWidth(<hostname>) Maximal benötigte Länge für die Label in einer 
+        bestimmten Section
+
+
+Je nach dem, ob ein Item für ein section 
+oder mehrere Werte hat 
+existiert in ListForSection ein entsprechender Wert
+ListForSection(<section>(itemname)
+
+ListForSection(<section><itemname>,x)
+ListForSection(<section><itemname>,y)
+ListForSection(<section><itemname>,z)
+ListForSection(<section><itemname>,w)
+ListForSection(<section><itemname>,enumval)
+
+
+ListForSection(HostConfig,hostnames): Liste aller Hostnamen, die
+in HostConfig bearbeitet werden können.
+
+Help(section,itemname): enthält Hilfetext zu diesem Item
+
+statusList Enthalten Warnungen vom Compiler
+errList Fehlermeldungen vom Compiler

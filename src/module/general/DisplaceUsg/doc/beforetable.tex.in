@@ -1,0 +1,25 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+DisplaceUsg displaces an unstructured grid by using displacement vectors for every vertex.
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2} {}{DisplaceUsgModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+DisplaceUsg is available for all COVISE versions and supported platforms.
+
+
+%=============================================================

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  Tube.h
+)
+
+SET(SOURCES
+  Tube.cpp
+)
+
+SET(EXTRASOURCES
+  
+)
+
+ADD_COVISE_MODULE(Tools Tube )
+TARGET_LINK_LIBRARIES(Tube  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(Tube)

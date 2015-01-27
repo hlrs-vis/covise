@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Aerodynamik ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+				<ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+				<ShortCut value="traverseInteractors" name="traverseInteractors" />
+				<!--<ShortCut value="showName" name="showName" />-->
+				<!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+				<!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Felgen" regexp="felgen-GEODE.*" shader="Glossy3" />
+                <Scope name="Scheinwerfer" regexp="scheinwerfe_.*-GEODE.*" shader="Glossy2b" />
+                <Scope name="RuecklichtLi" regexp="FaceSe1091-GEODE.*" shader="Glossy2b" />
+                <Scope name="RuecklichtRe" regexp="FaceSe1086-GEODE.*" shader="Glossy2b" />
+                <Scope name="Nummernschild" regexp="FaceSe1071-GEODE.*" shader="Glossy2b" />
+                <Scope name="Karosserie" regexp="Karosserie-GEODE.*" shader="Glossy2b" />
+                <Scope name="Karosserie_Spiegel" regexp="FaceSe1106-GEODE.*" shader="Glossy2b" />
+                <Scope name="Karosserie_GriffLi" regexp="FaceSe1104-GEODE.*" shader="Glossy2b" />
+                <Scope name="Karosserie_GriffRe" regexp="FaceSe1113-GEODE.*" shader="Glossy2b" />
+                <Scope name="Karosserie_ASaeule" regexp="FaceSe1025-GEODE.*" shader="Glossy2b" />
+                <Scope name="Karosserie_Tankdeckel" regexp="FaceSet951-GEODE.*" shader="Glossy2b" />
+            </CoviseConfigShader>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/WissenWie/Aerodynamik/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

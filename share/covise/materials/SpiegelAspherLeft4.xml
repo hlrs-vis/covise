@@ -1,0 +1,123 @@
+
+<PorscheSpiegel>
+
+  <uniform max="2000" min="500" name="Radius" type="float" value="1260"/>
+
+  <uniform max="0.000009" min="0.000001" name="K" type="float" value="0.000022"/>
+
+  <uniform max="0" min="-250" name="a" type="float" value="-173.195"/>
+
+  <uniform max="100000" min="0" name="dist" type="float" value="100000"/>
+
+  <uniform max="1000" min="0" name="width" type="float" value="44"/>
+
+  <uniform max="1000" min="0" name="height" type="float" value="16"/>
+
+  <uniform name="ViewMatrix" type="mat4" value="585111459 1587923698 0 0  1587923697 585111459 0 0  1086517578 -104948468 0 0  945913797 -1514278039 536870912 0"/>
+
+  <uniform name="ProjectionMatrix" type="mat4" value="-503488824 767687233 1749764685 1495859200  549298625 -1989095343 2026213381 -186701114  2057180141 600283434 261097332 276767242  0 0 -1147383320 0"/>
+
+  <uniform name="ModelMatrix" type="mat4" value="585111431 1587923689 0 0  1473867083 398328488 2000969728 0  -1606199431 -1891482784 -186785068 0  4691184 -149123346 512 0"/>
+
+  <uniform name="height" type="mat4" value="16"/>
+
+  <uniform name="mirrorMap" type="sampler2D" value="0"/>
+
+  <uniform name="testMap" type="sampler2D" value="0"/>
+
+  <vertexProgram>
+    uniform float Radius;
+    uniform float K;
+    uniform float a;
+    uniform float width;
+    uniform float height;
+    uniform float dist;
+  uniform mat4 ModelMatrix;
+  uniform mat4 ViewMatrix;
+  uniform mat4 ProjectionMatrix;
+    varying vec3 normal;
+    varying vec3 lightDir, eyeVec;
+    varying vec4 pos;
+    varying vec4 origPos;
+  varying vec2 Texcoord;
+
+  void main( void )
+  {
+     normal   = gl_NormalMatrix * gl_Normal;
+     Texcoord = gl_MultiTexCoord0.xy;
+
+     vec4 myVertex = gl_Vertex;
+     myVertex[1]= -2*Radius+ sqrt(Radius*Radius - gl_Vertex[0]*gl_Vertex[0])  + sqrt(Radius*Radius - gl_Vertex[2]*gl_Vertex[2]);
+     if(a&gt; 0 &amp;&amp; gl_Vertex[0]&gt;a)
+     {
+        float tmpf = gl_Vertex[0] - a;
+        myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
+     }
+     else if(a&lt; 0 &amp;&amp; gl_Vertex[0]&lt;a)
+     {
+        float tmpf = -(gl_Vertex[0] - a);
+        myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
+     }
+     pos = myVertex;
+     origPos = gl_Vertex;
+     origPos[1]=0;
+     eyeVec = gl_ModelViewMatrixInverse[3] - origPos;
+     gl_Position = gl_ModelViewProjectionMatrix * myVertex;
+
+  }
+
+  </vertexProgram>
+
+  <fragmentProgram>
+    varying vec3 normal;
+    varying vec3 eyeVec;
+    varying vec2 Texcoord;
+    varying vec4 pos;
+    varying vec4 origPos;
+
+    uniform float Radius;
+    uniform float K;
+    uniform float a;
+    uniform float width;
+    uniform float height;
+    uniform float dist;
+    uniform sampler2D mirrorMap;
+    uniform sampler2D testMap;
+    uniform mat4 ModelMatrix;
+    uniform mat4 ViewMatrix;
+    uniform mat4 ProjectionMatrix;
+
+    void main( void )
+    {
+       vec3 mynormal;
+       mynormal=origPos;
+       mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0]);
+       mynormal[1]=1;
+       mynormal[2]=pos[2] / sqrt(Radius*Radius - origPos[2]*origPos[2]);
+
+       if(a&gt; 0 &amp;&amp; pos[0]&gt;a)
+       {
+          mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])+ 3 * K * (pos[0]-a)* (pos[0]-a);
+       }
+       if(a&lt; 0 &amp;&amp; pos[0]&lt;a)
+       {
+          mynormal[0]=pos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])- 3 * K * (pos[0]-a)* (pos[0]-a);
+       }
+       vec2 tpos;
+       vec3 N = normalize(mynormal);
+       vec3 reflVec   = reflect(normalize(-eyeVec), N);
+       reflVec = normalize(reflVec)*dist;
+
+       vec4  myVertex = origPos;
+       myVertex.xyz += reflVec;
+       myVertex[3]=1;
+       myVertex =   ProjectionMatrix * ViewMatrix * ModelMatrix * (myVertex);
+       myVertex = myVertex/myVertex[3];
+       tpos[0]=(myVertex[0]/2)+0.5;
+       tpos[1]=(myVertex[1]/2)+0.5;
+       gl_FragColor = texture2D(testMap, tpos );
+
+    }
+  </fragmentProgram>
+
+</PorscheSpiegel>

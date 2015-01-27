@@ -1,0 +1,11 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{4cm}|p{4cm}|p{9cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	GridOut0 & Polygons\newline UnstructuredGrid & Geo output\\ 
+\hline
+	DataOut0 & Int\newline Float\newline Vec2\newline Vec3\newline RGBA\newline Mat3\newline Tensor & Scalar output\\ 
+\hline
+	DataOut1 & Int\newline Float\newline Vec2\newline Vec3\newline RGBA\newline Mat3\newline Tensor & Vector output\\
+\hline \end{longtable}
+

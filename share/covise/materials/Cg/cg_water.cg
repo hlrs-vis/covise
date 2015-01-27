@@ -1,0 +1,136 @@
+/*********************************************************************NVMH3****
+Path:  NVSDK\Common\media\programs
+File:  cg_water.cg
+
+Copyright NVIDIA Corporation 2002
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED
+*AS IS* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS
+BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES
+WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS,
+BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS)
+ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+
+Comments:
+
+******************************************************************************/
+
+struct app2vert
+{ 
+    float4 Position     : POSITION;
+
+};
+
+struct vert2frag 
+{
+    float4 HPosition    : POSITION;
+    float4 TexCoord0    : TEXCOORD0;
+};
+
+// This is necessary because the built in sincos function expands to too many
+//  instructions. Bad thing about this sincos is that it is inaccurate
+void mySinCos(uniform float4   VecSin, 
+              uniform float4   VecCos,
+              float theta,
+              float x, float out s, float  out c)
+{
+    float4  sineTerms, cosineTerms;
+
+    cosineTerms.x = 1.0f;
+    sineTerms.x   = theta;
+    cosineTerms.y = theta * sineTerms.x;
+    sineTerms.y   = theta * cosineTerms.y;
+    cosineTerms.z = theta * sineTerms.y;
+    sineTerms.z   = theta * cosineTerms.z;
+    cosineTerms.w = theta * sineTerms.z;
+    sineTerms.w   = theta * cosineTerms.w;
+
+    s = dot(sineTerms   * VecSin, x.xxxx);
+    c = dot(cosineTerms * VecCos, x.xxxx);
+    
+}
+
+vert2frag main(
+            app2vert IN, 
+            uniform float4x4 ModelViewProj,
+            uniform float4x4 ModelView,
+            uniform float4x4 ModelViewIT,
+            uniform float4x4 TextureMat,
+            uniform float4   VecSin, 
+            uniform float4   VecCos, 
+            uniform float4   PIs, 
+            uniform float4   Wave1,
+            uniform float4   Wave1Origin,
+            uniform float4   Wave2,
+            uniform float4   Wave2Origin)
+{
+    vert2frag OUT;
+
+    float3  distanceVector1 = IN.Position.xyz * 10;
+    float   distance1 = dot(distanceVector1.xyz, Wave1Origin.xyz);
+    distance1 = distance1;
+
+    float3  distanceVector2 = IN.Position.xyz * 10;
+    float   distance2 = dot(distanceVector2.xyz, Wave2Origin.xyz);
+    distance2 = distance2;
+
+    distance1 = Wave1.y * distance1 + Wave1.x;
+    distance2 = Wave2.y * distance2 + Wave2.x;
+
+    // clamp the scaled distance to [-pi, +pi], ie, 
+    // 1) add PI and divide by 2*PI
+    // 2) get fractional part only 
+    // 3) multiply with 2*PI and subtract PI
+    // IN am leaving out the first 'add PI': it creates a phase shift that is 
+    // not noticable, since phase is shifted by time anyways
+    float   theta1 = PIs.y * frac(distance1 * PIs.z) - PIs.x; 
+    
+    float   sineDistance1,cosineDistance1;
+    mySinCos(VecSin, VecCos, theta1, Wave1.w, 
+        sineDistance1, cosineDistance1);
+
+    float   theta2 = PIs.y * frac(distance2 * PIs.z) - PIs.x;     
+
+    float   sineDistance2, cosineDistance2;
+    mySinCos(VecSin, VecCos, theta2, Wave2.w, 
+        sineDistance2, cosineDistance2);
+
+    
+    // vertex position is (x, y, sin1(x^2 + y^2) + sin2(x^2 + y^2), 1.0)
+    float4 position;
+    
+    position.xz = IN.Position.xy;
+    position.y  = Wave1.z * sineDistance1 + Wave2.z * sineDistance2;
+    position.w  = 1;
+
+    // add dampening to the waves to prevent some of the moire effects in the distance
+    float dampening = (dot(position.xyz, position.xyz)/500+1);
+    Wave1.z = Wave1.z / dampening;
+    Wave2.z = Wave2.z / dampening;
+    position.y = position.y / dampening;
+    
+    OUT.HPosition = mul(ModelViewProj, position);
+
+    // normal is (-d f(x, y)/dx, 1.0, -d f(x, y)/dy) 
+    float4  normal;
+   
+    normal.xz =           - cosineDistance1 * Wave1.z * Wave1.y * (Wave1Origin.xy);
+    normal.xz = normal.xz - cosineDistance2 * Wave2.z * Wave2.y * (Wave2Origin.xy);
+    normal.y  = 1;
+    normal.w  = 1;
+
+    // eyeToVert in eye-space
+    // normal in model space
+    float3  eyeToVert = normalize(mul(ModelView, position).xyz);
+    float4 refl = reflect(eyeToVert, normalize(normal.xyz)).xyzz;
+    refl.w = 1;
+
+    OUT.TexCoord0 = mul(TextureMat, refl);
+    OUT.TexCoord0.w = 1.0;
+
+    return OUT;
+
+}

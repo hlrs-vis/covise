@@ -1,0 +1,1095 @@
+
+\begin{htmlonly}
+
+\input{../../htmlinc}
+\input{../../usersguide/defines}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{COVISE CE (Collaborative Engineering)}
+\label{CollabEngineering}
+%=============================================================
+
+\section{Architecture and Configuration}
+\label{Architecture}
+
+\subsection{Architecture Summary}
+\label{Architecture_Summary }
+
+%{\bf Note:}
+
+{\bf Usage Hints:}
+\vspace{0.5cm}
+
+This short introduction has been prepared for users with basic experience in using
+COVISE VR in a standalone environment only; for this user group it provides the necessary
+background to extend the use of COVISE to Collaborative Engineering, i.e. COVISE CE. The information 
+has been collected from the Tutorial, the first chapters of the (old) User's Guide, and other sources
+to provide one reference chapter for these users. 
+   
+\vspace{0.5cm}
+
+For collaborative working you can either use COVISE CE alone - as described in this document - or
+you can extend a collaborative COVISE session to a complete (virtual) meeting, using  
+{\bf \begin{htmlonly}N'S³\end{htmlonly}\latexonly N'S$^3$\endlatexonly (COVISE Conference
+Room Interface)}.
+The Conference Room Interface (optional feature, described in a separate document)
+\begin{itemize}
+\item has been developed in the framework of the \begin{htmlonly}N'S³\end{htmlonly} 
+\latexonly N'S$^3$\endlatexonly (ENScube) project.
+\item is based on Sametime (Sametime is a trademark of IBM Lotus Corporation)
+\end{itemize} 
+\vspace{0.5cm}
+
+{\bf Architectural Concepts:}
+
+For collaborative working with COVISE you should know the basic architectural concepts of COVISE.
+After having read this chapter you will be familiar with:
+
+\begin{itemize}
+\item The Architecture of COVISE
+\item how to prepare COVISE for a distributed or collaborative session
+\end{itemize}
+
+In COVISE it is possible to run modules on remote computers. This is also known as 
+"Distributed Computing". By distributing modules across a network one can make use 
+of remote resources for example of a compute server with more CPUs or memory than on a 
+local workstation or PC. The COVISE session is controlled from the Mapeditor on the
+local workstation. Remote hosts are included in the session via the menu item 
+CSCW \latexonly $>>$ \endlatexonly \begin{htmlonly} > > \end{htmlonly} AddHost (CSCW = \underline{C}omputer
+\underline{S}upported \underline{C}ollaborative \underline{W}ork).
+
+In a multiuser session each participant has his own Mapeditor and Renderer. The 
+session has to be initiated by one partner who adds the other partners to the 
+session (menu item CSCW \latexonly $>>$ \endlatexonly \begin{htmlonly}> > \end{htmlonly} AddPartner). The initiating partner plays the master role, 
+which means that he has the control over the Mapeditor and the Renderer. If he e.g. 
+changes the camera position in the Renderer all other partner's cameras are synchronised 
+with the master camera. The master role can be exchanged between partners. This way of 
+working together in a multiuser session is also known as "Collaborative Working" or - for COVISE
+applications - as "Collaborative Engineering" where COVISE is regarded as a "Shared Application" 
+which is aware of the sharing.
+
+As the hosts of the partners can also be used for distributed computing COVISE extends 
+far beyond a "Shared Application" such as the ones based on X Windows sharing or a 
+Windows application shared via Netmeeting.
+
+The next sections provide background information on the COVISE architecture and explain how a 
+distributed session (Distributed Computing) or a collaborative 
+session (for Collaborative Engineering) is implemented.
+
+\begin{longtable}{|p{14cm}|}
+\hline
+\newline
+{\bf See also: Additional feature COVISE daemon "covised":}\newline
+The COVISE daemon "covised" - included as a {\bf preversion} in Rel. 5.2 - 
+provides a more general and more comfortable user interface for collaborative 
+working than CSCW, using a concept of "rooms" (working groups - can be {\bf predefined}) 
+like N'S³ (see {\bf 5.6 New Collaborative COVISE})\newline 
+\\									
+\hline
+\end{longtable}
+
+
+\subsection{Distributed Computing}
+\label{distributed}
+
+In {\bf COVISE} it is possible to run modules on remote computers. This is also 
+known as {\it Distributed Computing}. By distributing modules across a network 
+remote resources are used for example of a compute server with 
+more CPUs or memory than o<Zwischenablage leer>n your local workstation or PC. The {\bf COVISE} 
+session is controlled from the {\bf MapEditor} on the local workstation. 
+
+	
+\begin{covimg}{collab}{distr-a}{Distributed Session (Distributed
+Computing)}{0.5}\end{covimg}
+\begin{htmlonly}
+Figure 5.1: Distributed Session (Distributed Computing)
+\vspace{0.5cm}
+\end{htmlonly} 
+  
+The previous figure shows the elements of an example for 
+distributed working in {\bf COVISE}. The 
+application consists of three modules: a module which reads in data (READ) 
+a module which extracts a special feature (FILTER) and a module which displays 
+the extracted data (RENDER). As the filter module consumes much CPU 
+time and memory it will be started on a remote compute server, also the Reader because the data  
+to be read in is on the remote machine. 
+The first process started by {\bf COVISE} is the {\bf Controller} 
+which in turn starts the user interface process {\bf MapEditor} and the data 
+management process {\bf CRB}. As soon as another host is included in the 
+session a {\bf CRB} is started on that computer. The read module is started on the 
+local workstation, the filter module on the remote computer  and the 
+renderer on the local workstation. The green arrows between the processes 
+{\bf Controller}, {\bf MapEditor}, {\bf CRB} and the modules indicate TCP sockets, the blue arrows 
+indicate shared memory access. 
+
+When the module map is executed the {\bf Controller} sends a start message to 
+the remote read module. The read module reads in the data file and creates a 
+{\bf COVISE} data object (1) in shared memory and after processing tells the 
+{\bf Controller}  that the module  has finished. The {\bf Controller} informs the filter module on the 
+remote computer to start. The filter module asks its data management 
+process ({\bf CRB}) for the data object (1). The filter module now reads that data object, computes 
+something and puts the data object (2) into shared memory. It then tells the 
+{\bf Controller} that it has finished. The {\bf Controller} informs the renderer module to 
+start. The renderer asks the {\bf CRB} for object (2) and as this object is not 
+available on the local workstations the {\bf CRB} transfers it from the compute 
+server into the shared memory of the local workstation (2'). Now the renderer can 
+access this object and display the data. 
+
+\subsection{Collaborative Working}
+\label{collaborative}
+
+In a multiuser session each participant has it's own {\bf MapEditor} and {\bf Renderer}. 
+The session has to be initiated by one partner who adds the other partners to 
+the session. The initiating partner plays the 
+master role, which means that he has the control over the {\bf MapEditor} and the 
+{\bf Renderer}. If he e.g. changes the camera position in the {\bf Renderer} all other 
+partner's cameras are synchronised with the master camera. The master role 
+can be exchanged between partners. This way of working together in a 
+multiuser session is also known as {\it Collaborative Working / Collaborative Engineering}.
+The hosts of the partners can also be used for distributed computing.
+
+
+\begin{covimg}{collab}{collab-a}{Collaborative Session (Collaborative
+Engineering in COVISE CE)}{0.5}\end{covimg}
+\begin{htmlonly}
+Figure 5.2: Collaborative Session (Collaborative Engineering in COVISE CE))
+\vspace{1cm}
+\end{htmlonly}
+	 
+In a collaborative session (see figure) a user interface process ({\bf MapEditor}) 
+and a {\bf Renderer} are started also on the remote machine. The {\bf Renderer} 
+module is the only module which is started on all computers in a session.
+
+
+%
+\clearpage
+
+\subsection{Preparing COVISE for a Distributed or a Collaborative Session}
+
+\begin{longtable}{|p{14cm}|}
+\hline
+\newline
+{\bf See also: Additional feature COVISE daemon "covised":}\newline
+The COVISE daemon "covised" - included as a {\bf preversion} in Rel. 5.2 - 
+provides a more general and more comfortable user interface for collaborative 
+working than CSCW, using a concept of "rooms" (working groups - can be {\bf predefined}) 
+like N'S³ (see {\bf 5.6 New Collaborative COVISE})\newline 
+\\									
+\hline
+\end{longtable}
+
+Every computer that will participate in a distributed or collaborative session should be included in the section
+HostConfig in the file covise.config. For each host you have to specify the memory model for data exchange between
+modules on the local machine, the execution mode and a timeout for TCP connections. 
+
+\begin{verbatim}
+HostConfig
+{
+    # Hostname MemoryModel ExecutionMode Timeout
+    vista       shm        rexec       30
+    visit       shm        rexec       30
+}
+\end{verbatim}
+
+For workstations and PCs the memory model is shm which stands for shared memory. There 
+are other memory models like none specifically for machines such as CRAY Y-MP computers.
+
+The execution mode specifies the command which should be used to start the CRB on the remote computer. Possible
+execution modes are:
+
+\begin{itemize}
+\item rexec
+\item rsh
+\item ssh
+\item nqs
+\item manual
+\end{itemize}
+
+For all execution modes besides manual one needs access to the account on the remote 
+computer. For rexec one has to enter the hostname, the user id and the password on the 
+remote machine (similar to logging in on the remote computer using telnet). rsh and ssh 
+can only be used if they allow to log in without password specification (see man rsh and 
+ssh for the files where allowed users are specified). nqs is not recommended, it can be 
+used to put the CRB into a batch queue. Manual means that one has to start the CRB 
+process manually on the remote machine. This can be useful for sessions across a 
+firewall or if one doesn't have access to the remote account. In this case COVISE 
+shows a command in the window where COVISE was started.
+
+The time-out value specifies how many seconds a process will wait to be contacted by a 
+new process that he initiated (e.g. the Controller waiting for a module). The default 
+value is 5 seconds. For slow networks a time-out of 30 seconds is useful. For very 
+slow networks even a higher value is recommended.
+
+
+\subsection{COVISE across Firewalls}
+
+As shown in Figure 5.2 COVISE uses TCP sockets for communication with remote hosts. 
+A socket is defined by an IP address, a port number and the protocol (here tcp). COVISE 
+port numbers start by default at 31000. One can configure the start number in the 
+file covise.config using the keyword COVISE\_PORT in the section network:
+ 
+\begin{verbatim}
+Network
+{
+    COVISE_PORT     5000
+}
+\end{verbatim}
+
+For collaborative or distributed sessions across firewalls the firewall has to allow 
+tcp connections to ports in both directions starting with the number defined in 
+covise.config. You need as many ports as modules started during the whole session +3 
+for distributed sessions or + 4 for collaborative sessions (if you load several maps 
+in a session each map needs new ports). Depending on the execution mode the ports for 
+rexec, rsh or ssh have to be allowed. For the execution mode manual no extra port 
+is required.
+
+Note:
+
+If you use IP forwarding from your firewall to your local computer you
+have to make additional configurations.
+Every host that wants to connect to your session has to know that you
+are behind a firewall and use IP forwarding.
+Therefore you can tell COVISE not to connect to your machine but to your
+firewall instead. This is done by adding an IP\_ALIAS entry on every client side. 
+Assume your IP is 192.168.0.15 and your firewall has the IP 133.168.226.234 
+from the outside. Then you have to add
+
+\begin{verbatim}
+Network {
+   IP_ALIAS    192.168.0.15    133.168.226.234
+   #           <your IP>       <your firewall IP> =
+
+}
+\end{verbatim}
+
+to the config file on every host you want to connect to.
+
+
+\section{CSCW}
+\label{CSCW}
+
+\subsection{CSCW Summary}
+
+After having read this section you will be familiar with:
+
+\begin{itemize}
+\item including a remote host or partner in the session
+\item starting a module on the remote computer
+\end{itemize}
+
+\begin{longtable}{|p{14cm}|}
+\hline
+\newline
+{\bf See also: Additional feature COVISE daemon "covised":}\newline
+The COVISE daemon "covised" - included as a {\bf preversion} in Rel. 5.2 - 
+provides a more general and more comfortable user interface for collaborative 
+working than CSCW, using a concept of "rooms" (working groups - can be {\bf predefined}) 
+like N'S³ (see {\bf 5.6 New Collaborative COVISE})\newline 
+\\									
+\hline
+\end{longtable}
+
+Notes:
+\begin{itemize}
+\item It is strongly recommended to use COVISE version 5.2 (or higher) on all
+participating hosts. Otherwise you may have different sets of options and you may run into
+compatibility problems (e.g. with changes in the implementation of data types).  
+\item Set Mirrors etc: see Section 4, Mirroring
+\item Open Conference Room: By using the COVISE Conference Room Interface (optional feature, based on Sametime - Sametime is a trademark of IBM Lotus
+Corporation) you can extend a Collaborative COVISE Session to a complete meeting - see COVISE Conference
+Room Interface (separate document).
+\end{itemize}
+
+\subsection{Including a remote host or partner in the session}
+
+\begin{covimg}{collab}{HostsMenu}{Hosts(CSCW) Menu}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.3: Hosts(CSCW) Menu
+\vspace{0.5cm}
+\end{htmlonly}
+
+Figure 5.3 shows the menu item for adding a remote host or including a new partner 
+into the session (CSCW = \underline{C}omputer \underline{S}upported \underline{C}ollaborative 
+\underline{W}ork).
+
+The window in Figure 5.4 will pop up. First select a hostname or enter a new one. 
+.gif
+If the selected hostname is available, the window in Figure 5.5 will appear. You 
+can select the parameters for a connection.
+
+Depending on the configuration parameters in {\it covise.config} the execution model 
+and the time-out are adjusted. Now one can change the time-out and the execution mode 
+if other values than the standard are required. 
+
+For execution mode rexec the user id and password on the remote computer has to
+be entered. For execution mode rsh or ssh only the user id is needed
+
+
+In the manual execution mode COVISE writes a message in the window saying how COVISE 
+should be started on the remote computer. It looks like 
+
+\begin{verbatim}
+   start "crb 31005 129.69.29.12 1005" on 
+   visit.rus.uni-stuttgart.de
+\end{verbatim}
+
+
+\begin{covimg}{collab}{ConnectParameters}{Set Connection Parameters}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.5: Set Connection Parameters
+\vspace{0.5cm}
+\end{htmlonly}
+
+The collaboration partner has to type in the following command (which has to be 
+provided to him by means such as phone, video conference or email):
+\begin{verbatim}
+   crb 31005 129.69.29.12 1005
+\end{verbatim}
+
+When the remote  host is successfully added, the remote username and hostname will appear 
+in the list of hostnames of the {\bf Module Browser}.  Depending on the specification 
+in the scope {\it UIConfig} of the  config.file , the new host 
+and his modules are shown either in another color or have the hostname in their label. 
+Here the option is used that hosts are shown colored(see Figure 2.4).                                      
+When the remote computer is added successfully the remote username and hostname will 
+appear in the module browser list (see Figure 2.4). Here the option is used that hosts 
+are shown colored.
+
+\begin{covimg}{collab}{modulebrowser}
+    {Module Browser Windows for Local and Distributed/Collaborative Working}{0.5}\end{covimg}
+\begin{htmlonly}
+Figure 5.6: Module Browser Windows for Local and Distributed/Collaborative Working
+\vspace{1cm}
+\end{htmlonly}
+
+In a multiuser session (CSCW \latexonly $>>$ \endlatexonly \begin{htmlonly} > >
+\end{htmlonly} AddPartner) a Mapeditor will pop up on the remote workstation.
+
+\begin{covimg}{collab}{canvas_l_d}
+           {Module Map for Local and Distributed/Collaborative Working}{0.5}\end{covimg}
+\begin{htmlonly}
+Figure 5.7: Module Map for Local and Distributed/Collaborative Working
+\vspace{1cm}
+\end{htmlonly}
+\clearpage
+
+
+\subsection{Starting a module on the remote computer}
+
+
+When selecting the remote computer in the hosts list the categories and modules 
+available on this computer will be offered. Clicking on a module it is started on the 
+remote computer. This is indicated by the hostname in front of the module 
+name (Figure 2.5), if the hosts are not colored.
+
+                              
+\begin{covimg}{collab}{RemoteIcon}{Icon  for a Remote Module}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.8: Icon  for a Remote Module
+\vspace{0.5cm}
+\end{htmlonly}
+
+Next the module ports have to be connected and parameters adjusted. It does not make 
+any difference whether modules are executed locally or on a remote computer.
+
+When a map is saved (menu File \latexonly $>>$ \endlatexonly \begin{htmlonly} > > \end{htmlonly} Save) the information about the hostname is 
+saved, too. When a map is loaded which was saved including remote modules one is 
+asked to add the remote hosts first
+
+
+
+\section{MasterCtrl}
+\label{Master Control}
+
+\subsection{MasterCtrl Summary}
+
+After having read this chapter you will be familiar with:
+
+\begin{itemize}
+\item sending a Master Request (using MasterCtrl in the MapEditor or the Renderer PopUp Menu)
+\item synchronization of Renderers
+\item using the Telepointer
+\item using the Chat Line
+\end{itemize}
+
+\subsection{Master Request}
+
+CSCW \latexonly $>>$ \endlatexonly \begin{htmlonly} > > \end{htmlonly} AddPartner includes the remote host in the session and starts a Mapeditor 
+on the remote machine. Except for the renderers all other modules are started on the 
+computer which was selected in the hosts list. Renderer modules are started on all 
+workstations.
+
+The partner who initiated the session initially has the master role. He can load maps 
+or start modules and connect them. He also controls the renderers. The slave partners 
+can watch all actions of the master but all menu items besides the menu master and 
+interaction in the Mapeditor are deactivated. This is indicated by grey text on the menu buttons and in
+the modules. The slave partners can request the master role using the menu 
+MasterControl \latexonly $>>$ \endlatexonly \begin{htmlonly} > > \end{htmlonly} Request
+(or use the corresponing item "MasterRequest" of the Viewer Popup Menu in the Renderer).
+Fig. 5.9 and 5.10 below show both possibilities.
+
+\begin{covimg}{collab}{MasterCtrl}{MasterControl from Mapeditor}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.9: MasterControl from MapEditor
+\vspace{0.5cm}
+\end{htmlonly}
+
+\begin{covimg}{collab}{MasterRequest}{MasterRequest from Renderer}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.10: MasterRequest from Renderer
+\vspace{0.5cm}
+\end{htmlonly}
+\clearpage
+
+If you click on MasterCtrl, a question dialog (Figure 5.11) pops up on the master computer:
+
+\begin{covimg}{collab}{Request}{Master Request Window}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.11: Master Request Window
+\vspace{0.5cm}
+\end{htmlonly}
+
+If the master replies {\bf No} you will be informed by the window shown in Fig. 5.12
+
+\begin{covimg}{collab}{RequestDenied}{Negative Response}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.12: Negative Response
+\vspace{0.5cm}
+\end{htmlonly}
+
+If the master replies {\bf Yes}
+\begin{itemize}
+\item all previously grey menu items on the former slave side are now black (selectable), only MasterCtrl becomes grey (not
+selectable)
+\item all previously black menu items on the master side are now grey (not selectable), only MasterCtrl becomes black
+(selectable)
+\end{itemize}
+
+This applies not only to the Mapeditor menu but also to the parameter entries
+in Module Info and Control Panel window - but please note the following
+{\bf restrictions for scalar/slider parameters} if their appearance type has been changed
+to "player"/"sequencer":
+\begin{itemize}
+\item A player/sequencer will be stopped if you transfer control to the slave
+\item the "delta value" is will not be transferred to the slave; so if you don't like the
+default value you have to explicitly set delta at the slave.
+\end{itemize}
+\clearpage
+
+\subsection{Synchronization}
+
+The slave Renderers are synchronised with the master renderer which means that all 
+manipulation actions like changing the camera position, zooming, selecting objects 
+etc. are sent to the slave Renderers. As long as the master doesn't do anything in 
+the Renderer the slave Renderers can be used independently. 
+
+Depending on the line speed of your connection, you can choose your adequate level of synchronization (see Fig.
+5.13); use
+LOOSE coupling if you have a slow connection.
+  
+\begin{covimg}{collab}{Sync}{Increasing levels of Synchronization}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.13: Increasing levels of Synchronization 
+\vspace{0.5cm}
+\end{htmlonly}
+
+This is a summary of the different levels of coupling: 
+\begin{itemize}
+\item {\bf Master/Slave Coupling - Sync Field=SYNC (default value):}
+Normally a master/slave relationship has been established between the partners of a working session. 
+Only the master can change e. g. the camera position in his renderer, and the cameras of all other 
+partners are synchronized with the master camera. In general, manipulators and editors become 
+detached and invisible, the menu bar is set to insensitive in the slave renderers, and the scene in 
+all slave renderers is updated according to the view in the master renderer. 
+(Exception: Light information is not sent to other renderers in a cooperative environment ) 
+The Sync field of the information area is set to {\bf SYNC}.
+\item {\bf Tight Coupling - Sync Field=TIGHT:}
+The only difference between TIGHT and Master/Slave (SYNC) is that 
+TIGHT enforces permanent synchronization whereas Master/Slave updates the slave renderers at 
+endpoints only.
+The Sync field of the information area is set to {\bf TIGHT}.
+\item {\bf Loose Coupling - Sync Field=LOOSE:}
+If the master enables this mode all partners have the same interaction facilities as the master; 
+the camera positions etc. are no longer sent to other renderers. The Sync field of the information 
+area is set to {\bf LOOSE}.
+\end{itemize}
+\clearpage
+
+\subsection{Telepointer}
+
+One can make his own mouse pointer visible for the partners by pressing the SHIFT key 
+and moving the mouse. This functionality is called Telepointer. In all remote renderers 
+the originating hostname appears at the position pointed at (Figure 3.5). This also works
+for Renderer windows having different sizes as the position in 3D space is transmitted 
+and not the 2D pixel coordinates. 
+
+Figure 5.14 shows a snapshot from a collaborative session. The 
+user pw\_te on host richard.visenso.de uses the telepointer to show the other user(s) the 
+backflow zone in a channel. 
+
+\begin{covimg}{collab}{Telepointer}{Telepointer in the Renderer}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.14: Telepointer in the Renderer
+\vspace{0.5cm}
+\end{htmlonly}
+\clearpage
+
+\subsection{Chat Line}
+
+\begin{covimg}{collab}{ChatLine}{Message Area and Chat Line}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.15: Message Area and Chat Line
+\vspace{0.5cm}
+\end{htmlonly}
+
+The {\bf Message Area} is a scrollable text output window (lower part of Map Editor window) that shows warning and
+information text produced by modules during their execution. In addition, this Message Area can be used for receiving
+information sent from other partners. The {\bf Chat Line} is an editable text field (below the Message Area) that can be used
+for sending information to other partners joining a COVISE session. After pressing ENTER, the contents are sent to all other
+message areas of the participating user interfaces. A beep happens on the receiving host, and the information text is
+highlighted (reverse video mode). The layout of these messages is
+
+\begin{verbatim}
+>> hostname >> Text
+\end{verbatim}
+
+\section{Performance Considerations in a Cooperative Session}
+\label{Performance}
+Particularly for performance reasons, it is advantageous to know little
+about what is going on behind the scenes when the mouse is moved around
+in the viewer area, especially when working with the master renderer in
+the environment.
+
+\subsection{Updating the Telepointer}
+
+The telepointer is operating in all directions. If you press the SHIFT
+key on your keyboard, your machine's name will appear at your current
+mouse position in the other renderer's drawing areas. To reposition the
+telepointer to another position, release the SHIFT key, move the mouse
+and press SHIFT again at the new position, or move the mouse while the
+SHIFT key is still pressed. The difference here is, that in the second
+case the new mouse position is sent over the network very often.
+
+%\subsection{Updating the Head Tracker}
+%
+%In head tracking mode, the current tracking update rate can be adjusted
+%by the thumbwheel in the viewer preference sheet. A lower update rate
+%produces less network traffic. The default tracking rate is currently
+%0.1sec. The ideal tracking rate depends heavily on the scene complexity
+%and hardware platform used. Also note that the others partner's graphics
+%hardware might be not able to render at your locally available graphics
+%speed. If you want the head tracking to have only local effect, change
+%to loose coupling in the sync menu of the renderer's menu bar. When you
+%switch back to tight coupling later on, the screens become automatically
+%updated and synchronized again.
+
+
+    
+\subsection{Direct Manipulation}
+
+Normally, new positional information is only sent, when the master
+releases the mouse button in the viewer area. 
+
+\subsection{Using the Decoration Around the Viewer Area}
+
+The same is true for the thumb wheels and the slider around the
+viewer. When you release the mouse button information is sent over
+the network. 
+
+\subsection{Using Sliders}
+
+As far as the sliders in the transform editor are concerned, the situation
+is somewhat different. If you are using the transform sliders by pressing
+the mouse button and moving back and forth, every little movement will
+directly go over the network. If you want to avoid this, click on the
+slider once at the desired position or use the input line. Note that
+renderers running on machines without advanced graphics hardware can
+manually change the scene drawstyle changed to wireframe or points for
+locally doing extensive editing operations. This especially applies to
+the master/slave mode.
+
+
+\section{Mirroring}
+\label{Mirroring}
+
+\subsection{Mirroring Summary}
+
+After reading this chapter you will be able to work with a "mirror" of your map.
+
+{\bf The main purpose of mirroring is to show a map in a slave without copying huge amounts
+of input data.}
+ 
+COVISE allows you to "mirror" a whole pipeline (also distributed) or parts of it completely to 
+another host (and to delete it):
+\begin{itemize}
+\item {\bf Set Mirrors} - Sets the mirror for each host in the session
+\item {\bf Mirror Node} - Mirror nodes (modules) of the current map to the chosen mirror host
+\item {\bf Delete Mirrored Nodes} - Delete all mirrored nodes (modules); the original map remains unchanged
+\end{itemize}
+You can set new mirrors and add more hosts (see next 3 sections with a simple - not
+realistic - example).
+For a motivation to use mirroring see the realistic example in the last section.
+
+
+\subsection{Set Mirrors}
+
+In order to {\bf Set Mirrors}, you should have added at least one partner/host; in case of the example below
+you are working as user "covise@sgi002.vircinity.de" and you have added "pw\_te@sgi001.vircinity.de" as a partner. You can
+specify now sgi001.vircinity.de as mirror of sgi002.vircinity.de (and sgi002.vircinity.de as mirror of
+sgi001.vircinity.de).
+ 
+\begin{covimg}{collab}{setmirror}{Set Mirrors}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.16: Set Mirrors
+\vspace{0.5cm}
+\end{htmlonly}
+
+\clearpage
+
+\subsection{Mirror Nodes}
+
+If you have set mirrors, you can issue {\bf Mirror Nodes} in order to mirror either a complete map (default) or a selected group of
+nodes.
+
+
+\begin{covimg}{collab}{markmirrornodes}{Mark nodes to be mirrored (default: complete map)}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.17: Mark nodes to be mirrored (default: complete map)
+\vspace{0.5cm}
+\end{htmlonly}
+
+\clearpage
+
+Now you can mirror the selected nodes (shown in yellow) and compare e.g. execution times of original and mirrored
+modules. In the example below you see that the mirrored modules run faster, so you might choose to change
+your map accordingly.
+
+\begin{covimg}{collab}{mirrornodes}{Mirror nodes (and compare execution times)}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.18: Mirror Nodes (and compare execution times)
+\vspace{0.5cm}
+\end{htmlonly}
+\clearpage
+
+\subsection{Delete Mirrored Nodes}
+
+{\bf Delete Mirrored Nodes} is just the inverse operation of {\bf Mirror Node}, i.e. it removes the mirrored nodes
+and leaves your original map unchanged.
+
+\subsection{Example}
+
+The advantage of mirroring modules to your partner's host is that you save the time of transferring the whole visualization
+data every time the object changes. Changing the camera position in the renderer doesn't change the visualization data itself.
+Therefore if you only use functions of the Renderer, the visualization data will not be transferred multiple times. You don't need the 
+Mirror mode feature in this case.
+But if you really want to change the visualization data during the session you should use this mode. For example if you want to change the 
+data mapped on the surface from temperature to pressure you can take advantage of the mirror mode.
+
+Suppose you want to share the visualization of a crash with your partner. The data has 53 time steps and the whole data size
+including all these time steps is 20MB. It was computed with 54.800 elements. Assume
+you use an ISDN line and can transfer 8kB/s data in average. Then it takes around 43 minutes to transfer the data to your partner.
+
+You are in the session now and you want perhaps just change the color map of your visualization to analyse a certain
+range of values. Do you really want to wait 43 minutes before you can continue the meeting?
+
+The mirror mode solves this problem in the following way: You have to tranfer once your data to your partner's side. 
+Every execution you do on your side is also done on your partner's machine. Therefore no visualization data has to be transferred.
+All changes are updated on both sides independently. You can see the status of execution on your partner's side in the Mapeditor.
+
+{\b NOTE:} The path- and filenames of your data have to be identical on every machine! The easiest way to create this scenario
+is to put the data in your COVISE directory. All modules of COVISE allow the usage of path names that are relative the current COVISE directory. 
+  
+
+\clearpage
+
+\section{New Collaborative COVISE (Daemon)}
+\label{NewCollab}
+
+This chapter introduces a new concept of Collaborative COVISE that is more general and
+more flexible than using the CSCW operations AddPartner etc.
+
+COVISE Rel. 5.2 provides a first implementation of this approach - 
+
+- {\bf use this preversion at your own risk}.  
+
+Section 1 is a concept paper about this approach that provides the necessary background
+even if it might be obsolete in some details.
+
+Section 2 shows you the implementation (your actual view might be slightly different).
+
+Section 3 provides you the actual information to use the COVISE daemon "covised".
+
+
+\subsection{Concept of Collaborative COVISE}
+
+\subsubsection{What's new?}
+
+
+The goal of this project is to improve the way of using COVISE in collaborative mode 
+and provides the following features:
+\begin{itemize}
+\item every user has the information about his potential partners and is able to ask 
+to be accepted into a certain group. Also, if he wants to show his 
+work to the others, he is able to create a new group (we name it "room") 
+where he is the master. In this case, the others can join or he can invite some 
+partners or "force" the hosts to  work together.
+\item the connection between partners is done once; every COVISE session has 
+already this information and adds automatically the partners or hosts;
+\item the concept is able to handle firewalls.
+\end{itemize}
+
+\subsubsection{Structure and Functionality}
+
+The management of the participants and conference rooms is done by a special 
+application named {\bf "covised"} (COVISE daemon). It can launched by every user and can be 
+configured to run with or without user interface. Every daemon reads from a 
+configuration file (.covised) a list of users he is interested in (masters list) and 
+a list of predefined rooms. A room is a list of potential partners and is directly 
+related to the user who created it (the master of the room) . It can be 
+private (only the name of the room is propagated to the members ), normal 
+(the members are propagated but only inside the room - only this version is currently
+implemented) or public (the name of the members and the name of the room are propagated to everybody who asks).
+
+\begin{verbatim}
+Example of .covised file for user_x@host_j:
+
+#Masters_list  
+  user1@host1
+  user2@host2
+   ...
+
+#Rooms_list
+Room1_user_x{
+  user3@host3
+  user4@host4
+  user4@computeServer  host  "ssh hwwo2k 'covised -host user_x@host_j'" 
+  ...
+ }
+\end{verbatim}
+ 
+When the covised is launched it tries to establish first the connections with every 
+user of his masters list. Some of them are already connected and ready to inform him 
+about the rooms where they take part (entire list of potential participants and 
+those who already work together with a different color). If there are some predefined 
+rooms in his list (he is the master), the application will try to connect to all 
+potential members of the room(s) and if they run covised and he is included in their 
+masters list, a (info) connection will be established and the information about rooms 
+will be sent. 
+
+\begin{covimg}{collab}{concept}{Concept of Collaborative COVISE}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.19: Concept of Collaborative COVISE
+\vspace{0.5cm}
+\end{htmlonly}
+
+
+This is the first step: obtaining the informations about rooms and partners, and it 
+is done automatically by the application opening some permanent connections between 
+the members who have launched covised ("passive members"). That does not mean that they 
+already work together: they need to be invited or to ask to be accepted to become 
+an "active member" of a certain room. In the figure above, the user1@host1 which 
+is not the master of the Room1\_user\_x is also displayed with different color because 
+he was invited  by the user1, he accepted the invitation and he is considered now 
+an active member (and the option "Join a room" will be transformed 
+into "Invite a partner" for the same list). When the user\_x wants to join the 
+Room1\_user\_1 (double click on the room), a request will be sent to the master, which 
+will accept (send a message to all connected members of the room:  user6, user\_x) 
+or will refuse the request (sending a message to user\_x). 
+
+A special situation is with the user5 who does not not have an user interface. 
+In this case he will try to connect  to  user1 (read from .covised) and will 
+become automatically an active member of the rooms which are defined by user1 
+(Room\_1\_user\_1) and include him as member. 
+
+The non-GUI covised will also be used if there is a firewall  between host1 and 
+host5, for example, and host5 can be used as "host". user1 opens a secure 
+shell (ssh) on host5, launches covised without GUI but with an argument "-host". 
+The connection between daemons will be done and a COVISE session will add 
+automatically user5 as "host". If the host is defined in the .covised file, the 
+daemon could also be started automatically by a command in the file as shown in 
+the example file for user4@computeServer.
+
+But the final goal of the users is to have a collaborative COVISE session. It will 
+be launched by the master (does not matter the number of active members), which will 
+press a button attached to the room. The controller, crb and MapEditor will be 
+launched and if there are already some active members, a crb command will be 
+generated (as in manual "AddPartner") and will be transmitted through the directly 
+opened connection to their covised, which will launch the crb, and everything will 
+work as in old collaborative covise. As soon as there are new active members 
+they will be added automatically as partners.
+
+An active member can quit by asking the master or can be eliminated by him. 
+An automatic "remove partner" will be done in the COVISE session, but the connection will 
+be kept because he is still a passive member. An exit from collab\_covise will also close 
+the connection. For detecting crashes,  there will be  an exchange 
+of messages between the master and slaves every 30s.
+
+\subsubsection{Multiuser Concept}   
+ 
+If there is more than one user on the same machine running covised, the usage 
+of a fix port (31000) is not sufficient. The first process, which accepts connections 
+on 31000, will route, in this case all, messages between other users and their 
+partners. If a new user on the same machine launches covised, it will connect to 
+31000 for sending or receiving messages to or from outside through the first user.
+ 
+If the first user terminates covised or crashes, his role should be taken by another 
+daemon of another user. For doing that, there will be a priority list (FIFO principle) 
+which will be sent to all local users.  When the "owner" of 31000 will exit, the 
+first in the list will listen to 31000 and the others will connect there.   
+
+\clearpage
+
+\subsection{Implementation}
+
+The pictures below show you an example of the implementation of Collaborative
+COVISE with "covised" (Your actual view might slightly differ from the images shown below).
+
+
+There are 2 members
+\begin{verbatim}
+ covise@sgi001 
+ covise@sgi001
+\end{verbatim}
+and the following configuration of rooms
+\begin{verbatim}
+active:     Room 2 - Master: active members covise@sgi001 and covise@sgi002
+
+potential: (Room 1 - Master) 
+            Room 3 - Master: potential member covise@sgi001 
+(see Fig. 5.20)
+
+active:     Room 2  - Slave: active members covise@sgi001 and covise@sgi002  
+           (Room 2X - Master)    
+potential: (Room 1X - Master) 
+            Room 3X - Master: potential members covise@sgi002 and covise@sgi001
+(see Fig. 5.21) 
+\end{verbatim}
+
+\begin{covimg}{collab}{implementation1}{active: Room 2 - Master / potential: (Room 1 - Master) Room 3 - Master}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.20: \newline
+active:     Room 2 - Master \newline
+potential: (Room 1 - Master) Room 3 - Master   
+\vspace{0.5cm}
+\end{htmlonly}
+
+\begin{covimg}{collab}{implementation2}{active: Room 2  - Slave (Room 2X - Master) / potential: (Room 1X -
+Master) Room 3X - Master}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.21: \newline
+active:     Room 2  - Slave  (Room 2X - Master) \newline   
+potential: (Room 1X - Master) Room 3X - Master   
+\vspace{0.5cm}
+\end{htmlonly}
+
+\clearpage
+
+\subsection{Instructions for using the COVISE daemon}
+
+The following section provides you the necessary information how to use the COVISE Daemon ("covised")
+as a comfortable and more powerful replacement of the CSCW menu in the MapEditor.
+
+\subsubsection{Introduction to the COVISE daemon ("covised")}
+
+\begin{itemize}
+
+\item Function: \newline
+	The COVISE Daemon "covised" is a special software which allows the creation of
+        working groups of COVISE users in collaborative mode.
+
+\item Terminology:
+    
+    \begin{itemize}
+	\item 	The working groups are called "rooms". They are used for
+              	sharing information within a COVISE session.
+	\item 	The user who has created/predefined a working group is called
+              	"master" of this room (working group)
+	\item 	Any user who is in the list of available partners for
+              	a defined room is called "member" of this room.
+ 	\item   Rooms can have two type of members, displayed in separate lists:
+	
+	 	\begin{itemize}
+	 		\item 	"Active members" are the members which have joined
+                       		the room in order to participate in a COVISE session.
+              		\item 	"Potential members" are the members which have started a "covised"
+                       		session but have not yet joined the room.	
+         	\end{itemize}
+		
+ 	\item 	When launching a "COVISE" session in one of the defined rooms,
+          	the main part of "COVISE" is started for the user which is
+          	the "master" of the room. For the other users from the list
+          	specified for that room,  "COVISE" is started in "partner"|"host"
+          	mode.
+     \end{itemize}
+     
+\end{itemize}
+     
+\subsubsection{Using the COVISE daemon ("covised")}
+
+In order to use the COVISE daemon "covised" the following operations are provided:
+   
+\begin{enumerate}
+
+\item Prepare the environment for using "covised":\newline
+      Before starting "covised", an initialization file can be prepared. 
+      The name of the file has the following format: ".covised[-hostname]",
+      where "hostname" is optional.\newline
+      The initialization file has two sections :
+      	\begin{itemize}
+        	\item 	\#MASTERS\_LIST section with the names of the users and
+        		hosts to which covised tries to establish connection
+         	\item   \#ROOMS\_LIST section which contains predefined
+        		working groups established for using COVISE in collaborative mode.
+	\end{itemize}
+	
+\item Start a "covised" session:
+        \begin{itemize}
+		\item 	After the start, "covised" tries to establish connections to the
+        		COVISE daemons started by the other users specified in the \#MASTERS\_LIST section.
+        	\item 	After connecting to the users from the "\#MASTERS\_LIST", covised
+        		tries to establish connections to the members of the rooms defined in the
+        		initialization file but not yet connected.
+        	\item	If the connection is established the process of exchanging the available
+        		"rooms" is started in both directions. The "rooms" are sent only to
+        		the users which are members of those "rooms".
+	\end{itemize}
+
+\item   Create active rooms:
+        \begin{itemize}
+		\item 	After covised has been started the available rooms including the members 
+			to which connection has been established are displayed in the
+        		room list. The rooms created by the user who has started "covised"
+        	 	have a "M" icon on the left side of the room name. The rooms received
+        		by connected partners don't have this icon.
+        	\item  	If the master of the room joins a room by clicking on "Join",
+        		the room becomes an "active" room and is displayed on the
+        		upper part of the covised user interface. Only the active rooms are
+        		sent to the partners.
+	\end{itemize}
+
+\item   Start a COVISE session:
+	\begin{itemize}
+        	\item  	Click on "Launch": \newline
+			A COVISE session is started including
+        		all the active members of the room.
+	\end{itemize}
+	
+\item   Invite a partner:
+	\begin{itemize}
+        	\item  	Select a potential member of the room and click on "Invite": \newline
+			The selected member becomes an active member of the
+        		room. If a COVISE session has already been started the selected
+        		member is included in the session.
+	\end{itemize}
+	
+\item   Remove a partner:
+        \begin{itemize}
+		\item 	Select an active member of the room and click on the "Remove": \newline
+			The selected member becomes a passive member of
+          		the room. If a COVISE session has already been started 
+			the selected member is removed from the session.
+	
+	\end{itemize}
+\end{enumerate}
+	
+        		
+
+\clearpage
+
+\section{Web Interface}
+\label{WebInterface}
+
+{\bf Please note: This feature is included as a preversion and with draft documentation - use at your own risk!}
+
+  The web\_interface allows a web user to display in his browser
+  the current renderer view from a running covise session.
+  In order to do that execute the following steps:
+  
+  \begin{enumerate}
+  \item Set the configuration file "init.www" : \newline
+        This file contains the next environment variables which have to be set :
+	\begin{itemize}
+         \item HOSTSRV - the name of the host where the web server is running
+         \item SERVER\_PATH( optional) - the path where the files needed to run the web interface are stored
+         \item HTTP\_PORT - the number of the port on which the web interface is accessed from a web browser
+         \item COVISE\_PORT - the number of the port on which the web interface is accessed
+	 from the COVISE session
+        \end{itemize}
+	
+	{\LARGE IMPORTANT:}
+	
+	\begin{longtable}{|p{13cm}|}
+        \hline
+	        Before starting the web\_srv, a COVISE session, or
+        stopping the web\_srv, the environment variables
+        have to be set using command "source init.www"\\
+	\hline
+        \end{longtable}
+        
+
+  \item Start the web\_interface :
+        \begin{itemize}
+         \item execute command web\_srv
+         \item if the following error is displayed
+        \begin{verbatim}
+	       ERROR: bind to port : xxx ... 
+	\end{verbatim}
+        (where xxx is the port number of the HTTP\_PORT or COVISE\_PORT)
+        the corresponding port (HTTP\_PORT or COVISE\_PORT)
+        should be changed to a new value. Set the corresponding environment
+        variable to the new value and restart the web\_interface.
+        \end{itemize}
+	
+  \item Access the web\_interface :
+        \begin{itemize}
+	\item Using a a browser with a VRML plug-in installed (for example CosmoPlayer) the user should access the following URL address:
+        \begin{verbatim}  
+	       http://HOSTSRV:HTTP\PORT/ClientApplet.html
+	\end{verbatim} 
+        \item The web page displayed will contain a display area for VRML objects
+          and a list of "registered renderers". This list contains the
+          identifiers of VRML renderers connected from covise sessions.
+        \item The user can select one of the available VRML\_renderers, and by using
+          Connect button the objects stored in the VRML renderer are displayed
+          in the browser.
+        \item By selecting the "dynamic synchronization" option, the changes of the
+          objects from the selected VRML renderer are also shown in the browser.
+          If the user wants to interact directly with the objects
+          displayed in the browser then he should deselect this option.
+          To restore the synchronization with the COVISE Renderer the COVISE
+          viewpoint should be reselected and the synchronization option
+          reactivated. (After interacting with the objects in the
+          browser area the name of the viewpoint is displayed with different fonts)
+        \end{itemize}
+ 
+ \item Use COVISE with the web\_interface;
+         \begin{itemize}     
+         \item In the COVISE session the objects you want to display in the browser
+         have to be connected to the VRML renderer module.
+         \item For interaction with the objects the IVRenderer module has to
+         be used with the same input objects connected to the VRML renderer.
+         If the web user allows synchronization with the renderer
+         the changes made by user in the IVRenderer are transferred to the
+         web browser.
+         \item In the COVISE session one pair of the IVRenderer/VRML\_renderer modules can
+         be used. If a new map is opened in covise session
+         the identifier of the new VRML\_renderer is sent to the browser.
+         \end{itemize}
+	 
+  \item Stop the web\_interface:
+         \begin{itemize}
+         \item execute command 
+	 \begin{verbatim}
+	        tsc_client
+	 \end{verbatim}
+	 \end{itemize}
+\end{enumerate}
+
+
+
+
+

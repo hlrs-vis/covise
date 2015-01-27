@@ -1,0 +1,39 @@
+/* XPM */
+static const char *filenew[] = {
+/* width height ncolors chars_per_pixel */
+"16 16 16 2",
+/* colors */
+"aa c #DADADA",
+"ba c #000000",
+"ca c #FFFFFF",
+"da c #C2C2C2",
+"ea c #757579",
+"fa c #C83232",
+"ga c #001065",
+"ha c #242440",
+"ia c #969696",
+"ja c #4464FF",
+"ka c #043CCA",
+"la c #69A5E2",
+"ma c #DADAD6",
+"na c #CEC6CE",
+"oa c #F6FFFF",
+"   c None",
+/* pixels */
+"    babahabababahababa          ",
+"    haaaaaaaaaaadahadaba        ",
+"    baaacacacacacajacaaaba      ",
+"    baaacacacacacajaaacadaba    ",
+"    baaacacacacacajajajahaba    ",
+"    baaacacacacacacaaadafaba    ",
+"    baaacacacacacacaaacaaaba    ",
+"    baaacacacacacacacacacaba    ",
+"    baaacacacacaaacaaacaaaba    ",
+"    baaacacacacacacacaaacaba    ",
+"    baaacacaaacaaacaaacaaaba    ",
+"    baaacacacacacaaacaaacaba    ",
+"    haaaaacaaacaaacaaacaaaba    ",
+"    baaacacacaaacaaacaaaaaba    ",
+"    baaaaacaaacaaacaaaaaaaba    ",
+"    babababababahababahababa    "
+};

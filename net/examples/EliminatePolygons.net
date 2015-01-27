@@ -1,0 +1,478 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+6
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+33
+330
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+33
+22
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+1 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+1
+Coord_Representation
+Choice
+Coordinate representation
+1 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+33
+143
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module StoU
+StoU
+1
+LOCAL
+Converter
+TITLE=StoU_1
+33
+88
+5
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid
+Grid
+req
+
+dataIn_1
+Float|Vec3|IntArr
+Data
+opt
+
+dataIn_2
+Float|Vec3|IntArr
+Data
+opt
+
+dataIn_3
+Float|Vec3|IntArr
+Data
+opt
+
+dataIn_4
+Float|Vec3|IntArr
+Data
+opt
+
+5
+meshOut
+UnstructuredGrid
+unstructured Grid
+default
+
+dataOut_1
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_1
+
+dataOut_2
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_2
+
+dataOut_3
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_3
+
+dataOut_4
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_4
+
+1
+option
+Choice
+Conversion Options
+1 tetrahedrons hexahedrons pyramids prisms
+
+-1
+0
+# Module CutGeometry
+CutGeometry
+1
+LOCAL
+Filter
+TITLE=CutGeometry_1
+110
+209
+6
+GridIn0
+Polygons|TriangleStrips|Lines
+geometry
+req
+
+DataIn0
+Float|Vec3|RGBA
+data
+opt
+
+DataIn1
+Float|Vec3|RGBA
+data
+opt
+
+DataIn2
+Float|Vec3|RGBA
+data
+opt
+
+DataIn3
+Float|Vec3|RGBA
+data
+opt
+
+adjustParams
+Text
+override parameter values
+opt
+
+5
+GridOut0
+Polygons|Lines
+geometry
+default
+
+DataOut0
+Float|Vec3|RGBA
+data
+dep DataIn0
+
+DataOut1
+Float|Vec3|RGBA
+data
+dep DataIn1
+
+DataOut2
+Float|Vec3|RGBA
+data
+dep DataIn2
+
+DataOut3
+Float|Vec3|RGBA
+data
+dep DataIn3
+
+9
+distance
+FloatScalar
+distance of plane or cylinder radius - use negative radius to invert cylinder cut!
+-1
+
+-1
+normal
+FloatVector
+normal of plane or cylinder axis
+0 1 -1
+
+-1
+method
+Choice
+cut geometry based on data or based on geometry
+1 GeoCut DataCut 
+
+-1
+data_min
+FloatScalar
+smallest data value, polygons with smaller values will be removed
+0.000000
+
+-1
+data_max
+FloatScalar
+biggest data value, polygons with bigger values will be removed
+1.000000
+
+-1
+invert_cut
+Boolean
+invert selected polygons?
+FALSE
+
+-1
+strict_selection
+Boolean
+one vertex out of bound is enough to erase polygon
+FALSE
+
+-1
+geoMethod
+Choice
+cut with a plane, cylider or sphere
+1 Plane Cylinder Sphere 
+
+-1
+bottom
+FloatVector
+point on cylinder axis or center of sphere
+0 0 0
+
+-1
+0
+# Module EliminatePolygons
+EliminatePolygons
+1
+LOCAL
+Filter
+TITLE=EliminatePolygons_1
+33
+275
+2
+GridIn0
+Polygons
+Polygons
+req
+
+GridIn1
+Polygons
+Polygons to throw away
+req
+
+1
+GridOut0
+Polygons
+polygons or set of polygons
+default
+
+0
+0
+6
+GenDat
+1
+LOCAL
+GridOut0
+
+StoU
+1
+LOCAL
+meshIn
+DomainSurface
+1
+LOCAL
+GridOut0
+
+CutGeometry
+1
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+EliminatePolygons
+1
+LOCAL
+GridIn0
+StoU
+1
+LOCAL
+meshOut
+
+DomainSurface
+1
+LOCAL
+GridIn0
+CutGeometry
+1
+LOCAL
+GridOut0
+
+EliminatePolygons
+1
+LOCAL
+GridIn1
+EliminatePolygons
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

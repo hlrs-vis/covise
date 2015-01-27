@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadIv.cpp
+)
+
+SET(EXTRASOURCES
+  ReadIv.h
+)
+
+ADD_COVISE_MODULE(IO ReadIv ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadIv  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadIv)

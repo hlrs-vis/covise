@@ -1,0 +1,81 @@
+TracerPlugin
+------------
+
+Modul TracerComp muss Feedback mit allen Parametern anhaengen
+- Nur an das DO_Geometry oder auch an die Linien?
+- An den Container oder an das Geometrie-Objekt?
+- Bei Sets and den Timestep Container?
+
+
+Tracer-Submenü
+- B showInteractor
+- S no_startpoints
+- M showColormap
+- B additive
+- B showGeometry
+- M startStyle (point, line, rectangle)
+- M taskType (streamlines, moving path, particle)
+- S sphereRadius (particle)
+
+coVRInit
+- 
+  
+coVRNewInteractor
+- check von welchem Modul (TracerComp)
+- checkt ob dieses Tracer-Object schon in Liste, 
+  wenn ja, wird es aktualisiert
+  wenn nicht, wird es erzeugt
+? Kriterium fuer schon in Liste: Modulename_Instanz, z. B. TracerComp_1
+- aktualisiert Menüs gemäß Parameter
+- erzeugt die colormap
+- hängt die entsprechenden Menüs in den Szenengraphen ein
+- hängt die entsprechenden Interaktoren in den Szenengraphen ein
+
+coVRRemoveObject
+- bei echtem remove (nicht replace):
+  sucht dieses Objekt in Liste und loescht sowohl Menue-Eintrag als auch
+  das Interaction-Objekt
+? Kriterium: Objektname
+
+
+class coVRTracerPlugin
+   - dlinkedlist TracerInteraction
+
+class TracerInteraction
+    - objectname TracerCompl_1_OUT_001
+    - modulename TracerCompl
+    - Instanzname
+    - Menuname, hier muss Objectname ausgewertet werden, z. B. Stromlinien
+
+    Konstruktor
+    - macht Eintrag im COVISE Objects Menü
+    - erzeugt submenü
+    - erzeugt alle möglichen interaktoren und zeigt den aktuellen
+
+    update
+    - aktualisiert menüs und interaktoren
+
+    Destruktor
+    - löscht Menüs und Interaktoren
+
+   compareObject
+   - vergleicht anhand des covise objects, ob ein object von diesem Modul
+     schon verhanden
+
+
+Interaktion CFD im COVER
+------------------------------
+
+Welche Interaktionen dürfen gleichzeitig aktiv sein und welche
+schliessen sich aus:
+
+- Menü Selektion?
+- Navigation und Manipulation von COVISE Objekten
+
+- COVISE Menü
+  Tracer_1 > (submenu)
+  Tracer_2 > (submenu)
+
+  kann man wenn Tracer_1 Interaktion aktiv ist, das Tracer_2 
+  Submenu oeffnen?
+

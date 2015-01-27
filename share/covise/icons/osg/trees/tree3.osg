@@ -1,0 +1,80 @@
+    Billboard {
+      DataVariance DYNAMIC
+      nodeMask 0xffffffff
+      cullingActive TRUE
+      num_drawables 15
+      Geometry {
+        DataVariance DYNAMIC
+        StateSet {
+          UniqueID StateSet_0
+          DataVariance STATIC
+          rendering_hint TRANSPARENT_BIN
+          renderBinMode USE
+          binNumber 10
+          binName DepthSortedBin
+          GL_LIGHTING OFF
+          GL_ALPHA_TEST ON
+          GL_BLEND ON
+          AlphaFunc {
+            DataVariance STATIC
+            comparisonFunc GEQUAL
+            referenceValue 0.05
+          }
+          BlendFunc {
+            DataVariance STATIC
+            source SRC_ALPHA
+            destination ONE_MINUS_SRC_ALPHA
+          }
+          textureUnit 0 {
+            GL_TEXTURE_2D ON
+            Texture2D {
+              DataVariance STATIC
+              file "tree0.rgba"
+              wrap_s CLAMP
+              wrap_t CLAMP
+              wrap_r CLAMP
+              min_filter LINEAR_MIPMAP_LINEAR
+              mag_filter LINEAR
+              maxAnisotropy 1
+              borderColor 0 0 0 0
+              borderWidth 0
+              useHardwareMipMapGeneration TRUE
+              unRefImageDataAfterApply TRUE
+              internalFormatMode USE_IMAGE_DATA_FORMAT
+              resizeNonPowerOfTwo TRUE
+            }
+            TexEnv {
+              UniqueID TexEnv_1
+              DataVariance STATIC
+              mode MODULATE
+            }
+          }
+        }
+        useDisplayList TRUE
+        useVertexBufferObjects FALSE
+        PrimitiveSets 1
+        {
+          DrawArrays QUADS 0 4
+        }
+        VertexArray Vec3Array 4
+        {
+          -8 0 0
+          8 0 0
+          8 0 12
+          -8 0 12
+        }
+        ColorBinding OVERALL
+        ColorArray Vec4Array 1
+        {
+          1 1 1 1
+        }
+        TexCoordArray 0 Vec2Array 4
+        {
+          0 0
+          1 0
+          1 1
+          0 1
+        }
+      }
+    }
+

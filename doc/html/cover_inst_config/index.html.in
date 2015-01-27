@@ -1,0 +1,38 @@
+<p>
+This document describes the configuration of COVER, the virtual reality
+renderer for COVISE.</p>
+
+<p>
+This document contains the following sections:
+
+<br>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr BGCOLOR="#FFFFCC">
+<tr>
+<td>
+<ul>
+<li><a href="introduction/introduction.html">Introduction to configuring COVER</a></li>
+<li><a href="input/input.html">Configuring input devices</a></li>
+<li><a href="display/display.html">Configuring your display devices</a></li>
+</ul>
+</td>
+</table>
+
+<P>
+File names, path names, and environment variables are printed <I>italic</I>, for example 
+
+<P>
+<I>$(COVISEDIR)/net/general/examples/ReadStar.net</I>
+
+<P>
+Program names and COVISE module names are printed <B>bold</B>, for example the 
+command to start COVISE: <B>covise</B>, or the name of the module that
+computes a cutting plane: <B>CuttingSurface</B>. 
+
+<P>
+Output to the console window which COVISE produces is printed in fixed space font like 
+<PRE>
+Starting COVISE...
+Please be patient...
+</PRE>

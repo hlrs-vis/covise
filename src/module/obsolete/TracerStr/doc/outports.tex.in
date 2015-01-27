@@ -1,0 +1,26 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        \textcolor{output}{lines} & DO\_Lines & Stream-lines \\
+\hline
+        \textcolor{depend}{dataOut} & DO\_Float & Scalar magnitude chosen with parameter \textit{whatout}.  \\
+\hline
+        \textcolor{depend}{velocOut} & DO\_Vec3 & Velocity along the trajectory.  \\
+                                                                                                                
+%       ....
+%       ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

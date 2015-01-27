@@ -1,0 +1,16 @@
+abaqus/lib
+alvar
+cal3d
+cuda/include
+cuda/lib64
+cuda/bin
+cudpp
+ffmpeg
+inventor
+openscenegraph
+osgcal
+osgearth
+osgephemeris
+python
+icet
+cg

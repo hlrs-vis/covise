@@ -1,0 +1,49 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead                  
+\hline\hline
+	Min/Max & Vector \newline
+	         (Float[2]) & Minimum and maximum value of Map  \\
+\hline
+	annotation & String & The annotation is written below the color bar in the Renderer.  
+                              If the field contains its default value "Colors" {\it and} an attribute "SPECIES" is found
+                              at the data value, the contents of the species variable are used instead. The
+                              Species attribute is automatically created by several readers, e.g. 
+			      \covlink {ReadStar}{ReadStar}{../../IO/ReadStar/ReadStar.html}   \\
+\hline
+	numSteps & Scalar \newline 
+	           (Integer) & Number of steps in the colormap. \\
+\hline
+	SelectMap & Choice & The Colors module offers at least 4 built-in colormaps plus any number of maps
+                             specified in the covise.config set-up file. Select here which colormap to use. \\
+\hline
+	autoScales & Boolean & Automatically adjust Min/Max fields according to data
+	values. \newline
+	{\it Autoscaling will automatically be performed if minimum and maximum value are
+	equal.}   \\
+\hline
+	scaleNow & Boolean \newline 
+	           (PushButton) & When pressing this button, autoscale is de-activated, minimum and maximum are
+                                set to 0.0 and the {\it module executes}. As the result, minimum and maximum value are
+                                set and autoscale is off. 
+				
+                                If scaleNow is used, the minimum and maximum setting of an incoming colormap
+                                are ignored, however, the next execution will again take the values from the
+                                colormap input.   \\															
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

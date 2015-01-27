@@ -1,0 +1,12 @@
+
+
+CRB
+{	
+	ModuleAlias Renderer/Renderer		Renderer/QtRenderer
+	ModuleAlias SRenderer/SRenderer		SRenderer/SQtRenderer
+	ModuleAlias Renderer/VRRenderer		Renderer/OpenCOVER
+	ModuleAlias SRenderer/SVRRenderer	Renderer/SOpenCOVER
+}
+
+include "config/covise.config.base"
+

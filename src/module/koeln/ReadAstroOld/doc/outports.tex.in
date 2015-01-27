@@ -1,0 +1,13 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	Location & Points & Star location\\ 
+\hline
+	Speed & Vec3 & Star speed\\ 
+\hline
+	Mass & Float & Star mass\\ 
+\hline
+	Galaxy & Float & Galaxy number\\
+\hline \end{longtable}
+

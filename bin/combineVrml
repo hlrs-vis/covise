@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# if called without bif file print usage
+if [ $# = "0" ] ; then
+  echo "Conversion script was called without arguments."
+  echo
+  echo "Usage          : combineVrml [-a] [-i] [-n] -o <outfile.wrl> <infile1.wrl> [<infile2.wrl> ...]"
+  echo
+  echo "Effect: Creates a vrml file that combines all given vrml files."
+  echo "        By default, links are used in the output file so you still need the original files."
+  echo
+  echo "Option -o: sets the output filename"
+  echo "Option -a: writes absolute paths"
+  echo "Option -i: includes the content of the source files in the result file"
+  echo "Option -n: adds navigation info (examine)"
+  exit
+fi
+
+
+# read arguments
+outname=""
+absolute=0
+include=0
+navinfo=0
+# get options
+while getopts "o:ain" options
+do
+  case $options in
+    o ) outname=$OPTARG;;
+    a ) absolute=1;;
+    i ) include=1;;
+    n ) navinfo=1;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+
+
+# basedir
+basedir=`pwd`
+
+
+# add full path to outname
+if [ "$outname" = "" ]
+then
+    echo "No output filename given. Aborting."
+    exit
+else
+      cd $basedir
+      cd `dirname $outname`
+      outname=`pwd`/`basename $outname`
+      cd $basedir
+fi
+
+
+printf "#VRML V2.0 utf8\n" > $outname
+printf "\n" >> $outname
+
+if [ $navinfo = 1 ]
+then
+  printf "NavigationInfo {\n" >> $outname
+  printf "  headlight FALSE\n" >> $outname
+  printf "  type \"EXAMINE\"\n" >> $outname
+  printf "}\n" >> $outname
+  printf "\n" >> $outname
+fi
+
+printf "Transform {\n" >> $outname
+printf "  children [\n" >> $outname
+printf "\n" >> $outname
+
+# loop over arguments
+for i in $@; do
+   cd $basedir
+   # loop over matching files
+   for j in `find $i -maxdepth 0 -printf "%p\n"`; do
+      inbasename=`basename $j`
+      #add full path
+      cd $basedir
+      cd `dirname $j`
+      inname=`pwd`/$inbasename
+      cd $basedir
+      # write into file
+      printf "    DEF ${inbasename%\.*} " >> $outname
+      if [ $include = 1 ]
+      then
+        printf "Transform {\n" >> $outname
+        printf "      children [\n" >> $outname
+        cat $inname | grep -v "#VRML" >> $outname
+        printf "      ]\n" >> $outname
+      else
+        printf "Inline {\n" >> $outname
+        if [ $absolute = 1 ]
+        then
+          printf "      url \"$inname\"\n" >> $outname
+        else
+          printf "      url \"$inbasename\"\n" >> $outname
+        fi
+      fi
+      printf "    }\n" >> $outname
+      printf "\n" >> $outname
+   done
+done
+
+printf "  ]\n" >> $outname
+printf "}\n" >> $outname
+
+echo "$outname written successfully"

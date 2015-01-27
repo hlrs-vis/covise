@@ -1,0 +1,46 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+CuttingSurface3DTex combines a cuttingsurface and colors on a cuttingsurface with
+an uniform grid and color on a uniform grid into a set of two geometry
+objects. The uniform grid and the colors on the uniform grid 
+represents the voxels of a 3D texture. 
+
+\begin{covimg2}	{} {CuttingSurface3DTexModule} {0.7}\end{covimg2}
+
+The purpose is to get a very fast preview mode for the cutting surfaces 
+in the Virtual Reality Renderer COVER. As the computation of a cuttingsurface
+on a unstructured grid needs some time, interactive setting of cutting surfaces
+in impossible in COVER. Therefore the standard cuttingsurface interaction
+in COVER is to position an icon as replacemnet for the real cuttingsurface 
+(called interactor). When the user has finished the interaction he presses a 
+button which then starts the cuttingsurface module with the position an
+orientation of the current cuttingsurface.
+
+3D textures (which are supported in hardware by SGI Onyx Systems), allow to
+move a polygon through the 3D texture and map the colors of the 3D texture on 
+the polygon interactively.
+
+By sampling the unstructured grid and the data on it to a uniform grid
+and interpreting this as a 3D texture, the 3D texture feature of the
+Onyx can be used as a preview mode for cutting surface interaction.
+
+Instead of an interactor icon the user moves a polygon through the dataset,
+on which the colors of the 3D textured are mapped at runtime.
+When he found an interesting cuttingsurface, he presses the button which start the
+CuttingSurface module of COVISE. After a few seconds the cuttingsurface 
+on the unstructured grid is visible.
+
+%
+% short information about versions 
+%
+CuttingSurface3DTex is available for all COVISE versions on all platforms.
+It doesn't support sets at the moment.
+%
+%=============================================================
+%
+%=============================================================

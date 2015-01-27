@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Molekular-Bewegung' ..." />-->
+      </COVER>
+      <!-- Molekularbewegung -->
+      <FileManager>
+         <FileType name="via" plugin="Molecule" />
+         <FileType name="vim" plugin="Molecule" />
+         <FileType name="vis" plugin="Molecule" />
+      </FileManager>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <!--<ShortCut value="showName" name="showName" />-->
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <!-- Molekularbewegung -->
+            <Molecules value="on" />
+            <Molecules>
+               <DataDir value="../Demos/VR4Schule/Chemie/Molekularbewegung" />
+               <SphereRatio value="0.5" /> <!-- Tesselation of spheres -->
+            </Molecules>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Chemie/Molekularbewegung/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

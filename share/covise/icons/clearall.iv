@@ -1,0 +1,44 @@
+#VRML V1.0 ascii
+
+Separator {
+    DEF Viewer Info {
+	string	"Examiner"
+    }
+    DEF Cameras Switch {
+	whichChild	-1
+	DEF Home PerspectiveCamera {
+	    position	-0.0644395 -0.0274334 1.48329
+	}
+    }
+    Group {
+	Separator {
+	    Transform {
+		translation	-0.0585847 0.0254473 0.0242897
+		rotation	0.997233 -0.0537045 -0.051396  1.59151
+		scaleFactor	1.00007 0.999994 0.999929
+		scaleOrientation	0.520891 -0.300474 0.798992  1.40696
+		center	0.0383059 0 -0.0572759
+	    }
+	    Separator {
+		Group {
+		    Info {
+			string	"solid"
+		    }
+		    Material {
+			ambientColor	0.247933 0.234873 0.25
+			diffuseColor	0.991732 0.939493 1
+			emissiveColor	0 0 0
+			shininess	0
+			transparency	0
+		    }
+		}
+		Cylinder {
+		    radius      12.403858
+		    height	0.00207107
+		}
+		Separator {
+		}
+	    }
+	}
+    }
+}

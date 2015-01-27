@@ -1,0 +1,6 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline DataIn & Geometry\newline IntArr\newline Polygons\newline Lines\newline Float\newline Vec3\newline UniformGrid\newline RectilinearGrid\newline TriangleStrips\newline StructuredGrid\newline UnstructuredGrid\newline Points\newline Vec3\newline Float\newline RGBA\_Data\newline USR\_DistFenflossBoco & InputObjects\\
+\hline \end{longtable}
+

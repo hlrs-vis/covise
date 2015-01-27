@@ -1,0 +1,25 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \endhead
+\hline\hline
+	groupfile & Browser & Full filename of the group information file. Every line of this file must be in the format: {\tt<description>:<filename>}. \\
+\hline
+	file\_0 ... file\_15  & Choice & If these file choices are mapped into the control panel you are in the reading mode. With these choices you decide which output object every output port shall get.   \\
+\hline
+	description\_0... description\_15  & String & If you see the description fields in the control panel you are in the writing mode. \newline NOTE: You have to execute the module once to get this object information! \newline  You can now give every object your own description line. \\
+																
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+\clearpage
+%
+%=============================================================

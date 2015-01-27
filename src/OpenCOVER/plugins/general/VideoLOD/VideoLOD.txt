@@ -1,0 +1,28 @@
+VideoLOD 
+
+
+
+sample config file parameters:
+
+    <VideoLOD value="on" >
+      <Files>
+        <GalaxyHD path="/tmp/osga/" prefix="hdgc8-17_4k.10" suffix="" vnums="2" framestart="0" frameend="99" h="1080" w="1920" />
+        <GalaxyHDdxt path="/tmp/osgacom/" prefix="hdgc8-17_4k.10" suffix="" vnums="2" framestart="0" frameend="99" h="1080" w="1920" />
+      </Files>
+    </VideoLOD>
+
+
+path = path where video resides (trailing slash is required)
+prefix = video file prefix before the number
+suffix = file part after number, but before ".osga"
+vnums = number of digits for varying file number, zero filled to this length
+framestart = first frame number to be displayed
+frameend = last frame
+w/h = width, height of video clip
+
+
+Video has to be a continuous sequence of .osga files.
+
+Create .osga files from TIFF files like this:
+
+

@@ -1,0 +1,25 @@
+
+%=============================================================
+
+
+%
+Some Readers provide results per-cell. Most COVISE modules expect
+per-vertex data. CellToVert interpolates per-cell data to per-vertex data.
+%
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}
+		{}{CellToVertModule}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+CellToVert is available for all COVISE versions on all supported platforms
+
+%
+%=============================================================

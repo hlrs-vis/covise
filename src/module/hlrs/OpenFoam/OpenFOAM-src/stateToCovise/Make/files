@@ -1,0 +1,4 @@
+../../OpenFOAM-src/coviseToFoam/coSimClient.C
+stateToCovise.C
+
+LIB = $(FOAM_LIBBIN)/libcovise

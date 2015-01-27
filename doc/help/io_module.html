@@ -1,0 +1,179 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>ModuleDescriptions</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h1>
+<font face="Times New Roman,Times"><font color="#009900"><font size=+4>Module
+Reference Guide</font></font></font></h1>
+<b><font face="Arial,Helvetica"><font size=+1>IO_Module:</font></font></b>
+<blockquote>
+<blockquote><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/GenDat/GenDat.html">GenDat</a></font></b>
+<br><font face="Arial,Helvetica">creates a chunk of a regular grid. It
+generates meshes based on carthesian and cyclic coordinates. It is mainly
+used as a generator of test and reference data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/PerformerScene/PerformerScene.html">PerformerScene</a></font></b>
+<br><font face="Arial,Helvetica">performs fake reading for Performer Models.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadABAQUS/ReadABAQUS.html">ReadABAQUS</a></font></b>
+<br><font face="Arial,Helvetica">reads the results from ABAQUS computations
+as .odb files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadANSYS/ReadANSYS.html">ReadANSYS</a></font></b>
+<br><font face="Arial,Helvetica">reads .rst, .rfl, and .rth files, which
+are the result files of mechanical, FLOTRAN, or thermal analysis. In all
+cases READANSYS finds dynamically the degrees of freedom active in the
+model, from which the user may choose any option for visualisation. As
+for derived data, the module reads stresses and several kinds of strains
+for mechanical files, and the heat flux for thermal analysis.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadCadmould/ReadCadmould.html">ReadCadmould</a></font></b>
+<br><font face="Arial,Helvetica">reads in Cadmould files.</font>
+<p><font face="Arial,Helvetica">It reads in the mesh and may get information
+from</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">the rheology file (&lt;basename>E0),</font></li>
+
+<li>
+<font face="Arial,Helvetica">thickness of the outer layer (&lt;basename>S##),</font></li>
+
+<li>
+<font face="Arial,Helvetica">magnitudes related to the filling process
+(&lt;basename>a), and</font></li>
+
+<li>
+<font face="Arial,Helvetica">data from the intermediate state files (&lt;basename>E##).</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">More over the module reads information from
+files in the CAR format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadCFX/ReadCFX.html">ReadCFX</a></font></b>
+<br><font face="Arial,Helvetica">reads CFX-5 data format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadDx/ReadDx.html">ReadDx</a></font></b>
+<br><font face="Arial,Helvetica">reads Data Explorer Ascii files - <b><font color="#FF0000">experimental
+version, use at your own risk; docu not yet complete.</font></b></font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadDyna3D/ReadDyna3D.html">ReadDyna3D</a>&nbsp;<font color="#FF0000">
+(SGI only - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads the binary plot file "LS930.PTF"
+written by LS-DYNA3D, a software package for Nonlinear Dynamic Analysis
+from Livermore Software Technology Corporation. Attention: <i>Thick shell
+elements are not supported!</i></font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadEnsight/ReadEnsight.html">ReadEnsight</a></font></b>
+<br><font face="Arial,Helvetica">reads data files written by Ensight (versions
+5.0 and gold).</font>
+<p><font face="Arial,Helvetica">Ensight 5.0 data consists of files:</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">description of the geometry (*.geo) - required</font></li>
+
+<li>
+<font face="Arial,Helvetica">result file (*.res) - optional</font></li>
+
+<li>
+<font face="Arial,Helvetica">variable files&nbsp; - optional</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">Ensight gold data consists of files:</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">description of the geometry (*.geo) - required</font></li>
+
+<li>
+<font face="Arial,Helvetica">case file (*.case) - required; in this file
+are pointers to all other necessary files.</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">Timesteps are supported.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadEnsightNT/ReadEnsightNT.html">ReadEnsightNT</a></font></b>
+<br><font face="Arial,Helvetica">reads data files written by Ensight. For
+supported versions see table in module documentation.</font>
+<br><font face="Arial,Helvetica">Note: ReadEnsightNT is planned to replace
+ReadEnsight as soon as it will accept all Ensight formats.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFidap/ReadFidap.html">ReadFidap</a></font></b>
+<br><font face="Arial,Helvetica">reads data from Ihs FENFLOSS.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFloWorks/ReadFloWorks.html">ReadFloWorks</a></font></b>
+<br><font face="Arial,Helvetica">reads FloWorks files - <b><font color="#FF0000">experimental
+version, use at your own risk; docu not yet complete.</font></b></font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadFluent/ReadFluent.html">ReadFluent</a></font></b>
+<br><font face="Arial,Helvetica">reads formatted Fluent(R) files V 0.99b.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadIv/ReadIv.html">ReadIv</a></font></b>
+<br><font face="Arial,Helvetica">reads Inventor files. You have to use
+the Open Inventor Renderer to display the file.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadKiva/ReadKiva.html">ReadKiva</a><font color="#FF0000">&nbsp;
+(SGI only - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets written by&nbsp; KIVA.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadLat/ReadLat.html">ReadLat</a></font></b>
+<br><font face="Arial,Helvetica">reads the ASCII latice file written by
+IRIS-Explorer.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadMovieBYU/ReadMovieBYU.html">ReadMovieBYU</a></font></b>
+<br><font face="Arial,Helvetica">reads MovieBYU data in ascii format. It
+supports scala, vector and timestep data additional to the grid data. Optional
+is a color file in ascii format with SGI colors.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadNastran/ReadNastran.html">ReadNastran</a></font></b>
+<br><font face="Arial,Helvetica">reads data written by MSC Nastran in binary
+output2 Version 70 format. It currently supports a subset of the NASTRAN
+data format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadObj/ReadObj.html">ReadObj</a></font></b>
+<br><font face="Arial,Helvetica">reads Wavefront OBJ files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPAM/ReadPAM.html">ReadPAM</a><font color="#FF0000">&nbsp;
+(SGI only, PAM license required - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets DSY and THP files. From
+the DSY file it may read the grid, nodal and cell data. Global data may
+be read from either the DSY or the THP file.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadPatran/ReadPatran.html">ReadPatran</a></font></b>
+<br><font face="Arial,Helvetica">reads data sets compatible to&nbsp; PATRAN
+2.5 file format. It processes information of the neutral file, displacement
+or force result files, nodal and element result files.</font>
+<p><font face="Arial,Helvetica"><b><a href="../online/modules/IO_Module/ReadPlot3D/ReadPlot3D.html">ReadPlot3D</a></b>&nbsp;<b><font color="#FF0000">
+(SGI only - not supported on Linux)</font></b></font>
+<br><font face="Arial,Helvetica">reads data sets written by Plot3D.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadStar/ReadStar.html">ReadStar</a><font color="#FF0000">&nbsp;
+(SGI and Linux - since COVISE Rel. 5.2.3)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets written by Star-CD versions
+2.21 thru 3.1b. It needs a ProSTAR input file (*16, *mdl) and a result
+file, either stationary (*09/*pst) or transient (*29/*pstt).</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadStl/ReadStl.html">ReadStl</a></font></b>
+<br><font face="Arial,Helvetica">reads Sandia Stl data.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadTascflowTDI/ReadTascflowTDI.html">ReadTascflowTDI</a><font color="#FF0000">&nbsp;
+(SGI and HP only - not supported on Linux)</font></font></b>
+<br><font face="Arial,Helvetica">reads data sets written by CFX-TASCflow
+versions 2.7-2.10. It needs the information contained in the grid (GRD),
+block-off and boundary condition (BCF) and results (RSO) files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadTecplot/ReadTecplot.html">ReadTecplot</a></font></b>
+<br><font face="Arial,Helvetica">reads Tecplot V 1.0b files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadVolume/ReadVolume.html">ReadVolume</a></font></b>
+<br><font face="Arial,Helvetica">reads volume data files, and provides
+the scalar volume data as a uniform grid.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/ReadVTF/ReadVTF.html">ReadVTF</a></font></b>
+<br><font face="Arial,Helvetica">converts the representation of a surface
+in ViewTech File format (specified as file browser parameter) to a format
+acceptable for COVISE (on the first output port); in addition, the user
+can choose between scalar and vector results, which are provided by the
+chosen file. These results can be found at the last four output ports.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RW_ASCII/RW_ASCII.html">RW_ASCII</a></font></b>
+<br><font face="Arial,Helvetica">reads or writes COVISE ASCII files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RWCovise/RWCovise.html">RWCovise</a></font></b>
+<br><font face="Arial,Helvetica">reads or writes all data objects that
+are available in&nbsp; COVISE.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/RWCoviseGroup/RWCoviseGroup.html">RWCoviseGroup</a></font></b>
+<br><font face="Arial,Helvetica">reads or writes a group of COVISE files.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WriteASC/WriteASC.html">WriteASC</a></font></b>
+<br><font face="Arial,Helvetica">generates an ASCII file containing the
+information of a Covise object (accepted types are specified in the list
+of types of the input port). You may use this file for reporting or in
+case you wish to analyse the data with yout own tools.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WritePatran/WritePatran.html">WritePatran</a></font></b>
+<br><font face="Arial,Helvetica">writes a geometry in Patran Format - transforms
+a surface in COVISE format to Patran format.</font>
+<p><b><font face="Arial,Helvetica"><a href="../online/modules/IO_Module/WriteVolume/WriteVolume.html">WriteVolume</a></font></b>
+<br><font face="Arial,Helvetica">writes volume data files from scalar volumetric
+data on uniform grids.</font></blockquote>
+</blockquote>
+
+</body>
+</html>

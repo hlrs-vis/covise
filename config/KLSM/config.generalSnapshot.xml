@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+<GLOBAL>
+
+   <COVER>
+      <WelcomeMessage value="Welcome to OpenCOVER" />
+      <SplashScreen value="off" />
+      <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+      <NavigationMode value="NavNone" />
+      <CollisionDist value="1500" />
+      <Background r="1.0" g="0.0" b="1.0" />
+      <MultiThreaded value="false" />
+      <ShowGeodeName enable="off" value="off"/>
+      <LODScale value="0.3" />
+      <SaveFile value="/tmp/test.osg" />
+      <RotationSpeed value="10" />
+      <ScaleAll value="OFF" />
+      <CoordAxis value="off" />
+      <Freeze value="on" />
+      <Near value="1.0" />
+      <GenStrips value="off" />
+      <DebugLevel value="0" /> 
+      <FPS value="off" />
+      <ConstantInteractorSize value="Off"/>
+      <Restrict value="Off" />
+      <Stencil enable="on" value="on"/>
+      <ScaleWithInteractors value="off"/>
+      <TwoSide value="ON" />
+      <TransparencyMode value="sorted_blended" />
+      <Headlight value="on" />
+      <Turntable value="on" />
+      <Measure scale="0.1" unit="cm" />
+
+<!--
+     
+      <Lights>
+
+      <Sun>
+        <Specular value="on" r="0.8" g="0.8" b="0.8" />
+        <Diffuse value="on" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="on" r="0.8" g="0.8" b="0.8" />
+        <Position value="on" x="0.0" y="0.0" z="1.0" w="0.0" />
+        <Spot value="on" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Sun>
+
+      <Light1>
+        <Specular value="on" r="0.2" g="0.2" b="0.2" />
+        <Diffuse value="on" r="0.2" g="0.2" b="0.2" />
+        <Ambient value="on" r="0.25" g="0.25" b="0.25" />
+        <Position value="on" x="5000.0" y="10000.0" z="5000.0" w="0.0" />
+        <Spot value="on" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Light1>
+
+      <Light2>
+        <Specular value="on" r="0.2" g="0.2" b="0.2" />
+        <Diffuse value="on" r="0.2" g="0.2" b="0.2" />
+        <Ambient value="on" r="0.3" g="0.3" b="0.3" />
+        <Position value="on" x="-5000.0" y="10000.0" z="-5000.0" w="0.0" />
+        <Spot value="on" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Light2> 
+
+      </Lights>
+      
+-->
+
+      <Plugin>
+
+         <Logo value="off" file="icons/logo_klsmartin.rgb" width="150" height="40">
+             <Recording file="icons/logo_klsmartin_recording.png" width="180" height="56" />
+         </Logo>
+
+         <AKToolbar value="off">
+            <Attachment value="BOTTOM" />
+            <MenuMaxItems value="0"/>
+            
+            <ShortCut value="quit" name="quit" />
+            <ShortCut value="xform" name="xform" />
+            <ShortCut value="viewall" name="viewall" />
+            <!-- <ShortCut value="scale" name="scale" /> -->
+            <ShortCut value="scalePlus" name="scalePlus" />
+            <ShortCut value="scaleMinus" name="scaleMinus" />
+            <!-- <ShortCut value="drive" name="drive" /> -->
+            <ShortCut value="fly" name="fly" />
+            <!-- <ShortCut value="walk" name="walk" />-->
+            <ShortCut value="showName" name="showName" />
+            <ShortCut plugin="ClipPlane" value="1" icon="schere" name="schere" />
+            <!-- <ShortCut value="Plugin:ViewPoint loadViewpoint left Icon:leftView" name="left" />-->
+            <ShortCut plugin="CfdGui" value="presentationForward" icon="media-seek-forward" name="forward"/>
+            <ShortCut plugin="CfdGui" value="presentationBackward" icon="media-seek-backward" name="backward"/>
+            <DebugLevel value="0"/>
+            <CoverMenu value="off"/>
+            <StateButton value="off"/>
+         </AKToolbar>
+
+         <ClipPlane value="off" />
+
+         <GeneralGeometry value="on" />
+
+         <ViewPoint value="on">
+            <ViewAll value="on" />
+            <FlyingMode value="on"/>
+            <FlightTime value="2.0"/>
+            <FlyConfig value="off"/>
+            <QuickNav value="off"/>
+            <Loop value="off"/>
+            <WriteVrmlViewpoint value="off"/>
+            <TurntableViewingAngle value="35.0" />
+            <Viewpoints name="left" value="on" />
+            <Viewpoints name="right" value="on" />
+            <Viewpoints name="top" value="on" />
+            <Viewpoints name="bottom" value="on" />
+            <Viewpoints name="front" value="on" />
+            <Viewpoints name="back" value="on" />
+       </ViewPoint>
+
+
+         <DocumentViewer value="off">
+            <DocumentInMenu value="off"/>
+            <DocumentInScene value="off"/>
+         </DocumentViewer>
+
+         <CfdGui value="on"/>
+
+         <PBufferSnapShot value="on"/>
+
+
+         <Video value="on">
+             <Filename value="C:\Capture.wmv" />
+             <Bitrate value="1500" />
+         </Video>
+         
+      </Plugin>
+
+        <Localization>
+            <TranslatorType value="Boost.Locale" />
+            <LocalePrefix value="share/locale" />
+            <LanguageLocale value="en" />
+            <CoviseDomain value="covise" />
+            <ModuleDomain value="module" />
+            <VRMLDomain value="vrml" />
+        </Localization>
+
+
+
+   </COVER>
+
+
+</GLOBAL>
+
+
+</COCONFIG>

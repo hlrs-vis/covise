@@ -1,0 +1,642 @@
+#########################################################################
+#									#
+# Covise Configuration file for COVER with screens in any position	#
+#									#
+#########################################################################
+
+// COVISE ----------------------------------------------------------------------
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+}
+crbProxy
+{
+    Command ssh uw_te@visit crb
+}
+
+PocketPC
+{
+    #TCPPort 700
+    #Server 129.69.29.100
+}
+
+License  
+{
+Key PCCAGNKONEBKCLIEHIELEJDHPHHPPPHPOJJHANHCDINHEIPB    all@visgig    31.12.2005
+Key MIIPOBMMAJINEDAEJGMDMBDHPPHPPPPPKIHAODAKCJEJNHL÷    te    31.12.2003
+Key DAIFLHHPBFKLMKCIBOEDMBLPHPHPPHHHIPJCDLGCGGLGGALD    testit    10.13.2003
+    Key PHCALLKKJDPPGOMKOPLLECKBACFDPPHHMADEDGKLHEAFEKJG  gromit      1.1.2011
+    Key KHBAKALFHGKMLGECHOLLMJLHHPHHHHPPFOMHJCHIMILEPNCH  all@visduo1 1.1.2010
+    Key AIJPNIICECOPKLIMIADLEBLPHHPHHPHHCIAAKAHKJBHKBEMC  VIS-Subnet  31.12.2010
+     Key BFCLGJCKMJIFMDAEBOEDEBDHPHPHHPHHINAKBHHDKGIJOEGA    all@vispw2    31.12.2003
+     Key KHCAGFKGNGJMGLAEHIEDMJLHPHPHPPPPEFINNPIPDIKABCGG    all@vis    31.12.2005
+     Key GKEHOBGOFAIFMDIMPAELMBLPHPPHHPHHKJOEGOIJGIJBANJA    all@192.108    31.12.2005
+     Key JBJFFDEFHAJDADIEIALDMIIHAGLHPHHHANELMNNLEEHFFJFþ    puma    31.12.2010
+
+}
+
+MultiPC
+{
+    SyncMode TCP
+    MulticastAddress 224.2.3.4
+    MulticastPort 2345
+    numSlaves 0
+}
+
+MoleculeConfig
+{
+    DataDir /mnt/cod/itt
+}
+
+DNAConfig
+{
+    DataDir /mnt/cod/sandia/igrid/DNA Drawer/Data
+}
+
+UIConfig
+{
+    QT		false
+    ShortCuts      RWCovise Colors Collect CuttingSurface IsoSurface Renderer
+    #ModuleColor    one
+    AutoSaveTime   30
+    AutoSaveFile   autosave.net
+    HilightNodes   1
+#   QTStyle	Windows
+   QTStyle	Platinum
+#   QTStyle	CDE
+#   QTStyle	Motif
+    HostColors    CadetBlue  salmon2 C goldenrod2  chartreuse2 LightPink 
+}
+
+Network
+{
+#	IP_ALIAS	vir6,vir8		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+
+
+
+// COVISE modules ----------------------------------------------------------------
+
+Colormaps
+{
+   Blue
+   Blue-Light
+   IAG
+   MTransparent
+}
+
+Colormap_IAG
+{
+   RGBAX 0 0 0 0.345 1
+   RGBAX 0.113169 0 0 1 1
+   RGBAX 0.26 0 1 1 1
+   RGBAX 0.5 0 1 0 1
+   RGBAX 0.74 1 1 0 1
+   RGBAX 1 1 0 0 0.377
+}
+
+
+Colormap_Blue
+{
+   RGBA  0 0 0 0.0
+   RGBA  0 0 1 1.0
+}
+
+Colormap_Blue-Light
+{
+   RGB  1 1 1
+   RGB  0 0 1
+}
+
+Colormap_MTransparent
+{
+   RGBAX 0 0 0 0.345 0.025
+   RGBAX 0.193416 0 0 1 0.049
+   RGBAX 0.403292 0 1 1 0.111
+   RGBAX 0.596708 0 1 0 0.16
+   RGBAX 0.748971 1 1 0 0.21
+   RGBAX 0.90535 1 0 0 0.278
+   RGBAX 1 0.4 0 0 0.346
+}
+
+ReadTascflowTDI
+{
+   IWK  20000000
+   RWK  20000000
+   CWK    500000
+}
+
+TRACERConfig
+{
+    BOX_INCREASE_FACTOR 2
+}
+
+# Simulation coupling initialization
+StarCD    
+{
+   # Verbose:  0 = nothing, 
+   #           1 = Obj creation, Port requests
+   #           2 = Mapping files
+   #           3 = data creation details
+   #           4 = all binary send/recv
+   VERBOSE 0
+   TIMEOUT 300
+   # Hippi LOCAL 192.168.155.29
+
+   # Star start-up: %0=dir, %1=case, %2=user, %h=host
+   STARTUP  SGI-par xwsh -geometry 135x35 -e ssh -l %2 %h 'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'
+   STARTUP  SGI-par-linux xterm -geometry 135x35 -e ssh -l %2 %h 'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'
+   STARTUP  T3E-12  xwsh -geometry 135x35 -e ssh rusvisde@hwwt3e.hww.de /hwwt3e/rus/rus/visde/kab12 %e
+   STARTUP  T3E-32  xwsh -geometry 135x35 -e ssh rusvisde@hwwt3e.hww.de /hwwt3e/rus/rus/visde/kab32 %e
+   STARTUP  SGI-seq xwsh -geometry 135x35 -e ssh -l %2 %h 'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT ; echo %1 | %1'
+   STARTUP  T3E     xwsh -geometry 135x35 -e ssh -P %2@%h '$HOME/Star.start %0 %e %3'
+
+} 
+
+
+OpenSGRenderer
+{
+    Cluster true
+    Servers left right l2 r2
+    ClientRendering true
+    numHServers 2
+    numVServers 2
+}
+
+Fenfloss
+{
+   VERBOSE 0
+   TIMEOUT 300
+   STARTUP  local %0 %1 %e
+   STARTUP  SGI %0 "%1 %e"
+   #STARTUP SGI CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; mpirun -np %1 flow
+}
+
+MiniSim
+{
+   PORTS    31000-31999
+   SERVER   Module
+   TIMEOUT  90
+   STARTUP  STANDARD CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; miniSim
+#   STARTUP  echo "setenv CO_SIMLIB_CONN %e ; cd %0 ; miniSim"
+   VERBOSE  1
+}
+
+
+Sunface
+{
+	HOSTNAME vispc8
+}
+
+Star
+{
+        CONFIG_FILE     /mnt/pro/cod/klimetzek/cabin_4/starconfig
+#        CONFIG_FILE     /mnt/raid/cc/users/awi_te/current_star/starconfig
+#        CONFIG_FILE     /mnt/raid/cc/users/awi_te/current_star/starconfig.t3e
+#        CONFIG_FILE     /mnt/raid/cc/users/aw_te/kabine/starconfig
+        CONFIG_FILE_M111     /mnt/raid/cc/users/awi_te/current_star_m111/starconfig
+
+        PORT            31500
+
+#       START parameter:  USER HOST DIR CASE COVISE-HOST PORT
+#                         %s   %s   %s  %s   %s          %d
+
+# Start online-parallel remote
+        START           xwsh -geometry 135x35 -e rsh -l %s %s 'cd %s ; echo %s ; setenv CSTAR_HOST %s; setenv CSTAR_PORT %d ; echo y | $STARDIR/bin/runstar |& tee star.out' &
+
+##U        START           xwsh -geometry 135x35 -e rsh -l %s %s 'cd %s ; echo %s | ./star %s %d |& tee star.out' &
+#        START           xwsh -geometry 135x35 -e rsh -l %s %s 'cd %s ; echo %s ; setenv CSTAR_HOST %s; setenv CSTAR_PORT %d ; echo y | ~/M111_8p/runstar.la |& tee star.out' &
+#        START           xwsh -geometry 135x35 -e rsh -l %s %s 'cd %s ; echo %s ; setenv CSTAR_HOST %s; setenv CSTAR_PORT %d ; echo y | $STARDIR/bin/runstar |& tee star.out' &
+#        START           xwsh -geometry 135x35 -e ssh -l %s %s '. /etc/profile; . /hwwt3e/rus/rus/moeni/.profile; cd %s ; echo %s ; set -x ;echo %s ;export CSTAR_HOST=129.69.200.61; export CSTAR_PORT=%d ; ./run_m111.com.t3e.vision |& tee star.out; sleep 20' &
+
+#       ABORT parameter:  USER HOST DIR
+        ABORT           (rsh -l %s %s '(cd %s ; touch ABORT ; sleep 20 ; /bin/rm -f ABORT) >& /dev/null' ) &
+}
+
+// COVER general ------------------------------------------------------------
+
+VRViewpoints
+{
+1    1    0 0 0 0 0 0
+10   10   0 0 0 0 0 0
+100  100  0 0 0 0 0 0
+1000 1000 0 0 0 0 0 0
+
+}
+
+VRB: vision,visar, visky, visit, visor, viso2, vir6,vir8, visspring, vissummer, visautumn, viswinter, vispw1, vispw2
+{
+    TCPPort 31200
+    Server  129.69.29.17
+}
+
+
+
+
+VRDemo
+{
+    VISiT_Cabin /view/main_latest/vobs/covise/net/VR-StarCD-vision+.net
+    TurbineModeller /view/uwe/vobs/covise/net/ALL/demo_juli99/turbine_modeller_vr.net
+    Nepal /view/uwe/vobs/covise/net/ALL/demo_juli99/ihs_nepal_vr.net
+    Airbag /view/uwe/vobs/covise/net/ALL/demo_juli99/airbag_vr.net
+    ITSM_Aachen /view/uwe/vobs/covise/net/ALL/demo_juli99/itsm_aachen_turbine.net
+    Das_Boot /view/uwe/vobs/covise/net/ALL/ihs/prop/Prop_KEA_80_VR_nabe.net
+    Francis_Turbine /view/uwe/vobs/covise/net/ALL/ihs/francis/Tandemgitter_Laufrad_Saugrohr_VR_Trace_im_Laufrad.net
+    Daimler_Online /view/uwe/vobs/covise/net/ALL/demo_juli99/DaimlerOnline.net
+}
+
+Inputdevices
+{
+   Spaceball   on
+}
+
+spaceMenu
+{
+    #Position 400 0 -200
+    #sensitivityRadius 100
+    #attached FALSE
+}
+
+
+
+
+
+VolumeConfig
+{
+    Renderer Simian
+    #Renderer Soft
+    #Renderer Remote
+    #Renderer Slices2D
+    #Renderer Cubic2D
+    #Renderer Tex
+    #VOLUME_FILE /mnt/work/VolData/virvo/10x10x10.rvf
+    REMOTE_BASE_PORT 31050
+    REMOTE_HOST vision
+}
+
+VolumeFiles
+{
+   /mnt/work/VolData/joe/vissym.nrrd vissym.nrrd
+   data/volume/nchc/osaka3.xvf Osaka
+   data/volume/nchc/osaka3_sub7_str.xvf OsakaLarge
+   data/volume/nchc/osaka3_sub7_str_small.xvf OsakaSmall
+   data/volume/nchc/osaka3_sub7_str_small_1.xvf OsakaSmall1
+   data/VolData/vhd/female-knee-marked3.rvf Knee
+   data/VolData/vhd/fctskull.xvf Skull
+   data/ihf/abs-small2.xvf  abs
+   data/ihf/zj_small.xvf  zj
+   data/VolData/vhd/lunge.xvf Lung
+   data/VolData/virvo/lambda.rvf Lambda
+   data/VolData/klaus/engine256x256x110.rvf
+
+#	  data/VolData/virvo/10x10x10.rvf 10x10x10
+#	  data/VolData/virvo/brainsmaller.rvf brainsmaller
+#	  data/VolData/joe/pw2-small-t1.xvf PW2
+#	  data/VolData/joe/female-knee-marked3.rvf Knee
+#	  data/VolData/joe/fctskull.xvf Frozen CT Skull
+#	  data/VolData/joe/uli-marked1.xvf Uli
+#	  data/VolData/joe/default-cube.rvf Default Cube
+#      data/VolData/joe/oddcube.rvf Odd Cube
+#	  data/VolData/virvo/lambda.rvf Lambda
+	  data/VolData/virvo/softpyramid.rvf Pyramid
+#    data/VolData/ulm/dollhopf2-4.rvf dollhopf2
+    data/VolData/vhd/avm-512-32-stretched.xvf avm-512-32-stretched
+#    data/VolData/vhd/avm2350-2477-16.xvf avm2350-2477-16
+#    data/VolData/hilfer/Fntbl_DM_press.rvf Pressure-Bug
+    data/VolData/hilfer/pressure.rvf Pressure
+#    data/VolData/vhd/face.xvf face
+#    data/VolData/vhd/fctfeet256.xvf fctfeet256
+#    data/VolData/vhd/fctskull.xvf Frozen CT Skull
+#    data/VolData/vhd/female-knee-marked3.rvf Knee
+#    data/VolData/vhd/fctbody.xvf fctbody
+    data/VolData/vhd/kopf-rgb.xvf kopf-rgb
+#    data/VolData/vhd/mvfpd-1014-1174.xvf mvfpd-1014-1174
+#    data/VolData/vhd/ncttorso-cl.xvf ncttorso-cl
+#    data/VolData/vircinity/cut1-7.xvf Balken Animation (7)
+#    data/VolData/vircinity/cut1-16.xvf Balken Animation (16)
+#    data/VolData/virvo/brainsmall.xvf brainsmall
+#    data/VolData/virvo/defanim-op.xvf defanim-op
+#    data/VolData/virvo/mandjul1-cl.xvf mandjul1-cl
+    data/VolData/virvo/rgbcube24.xvf rgbcube24
+#    data/VolData/virvo/roland.xvf roland
+#    data/VolData/behrens/a-rot.xvf a-rot
+#    /mnt/raid/cc/users/js_te/volumes/patient1-2.xvf patient1
+#    /mnt/raid/cc/users/js_te/volumes/patient2-brain.xvf patient2
+#    data/VolData/virvo/mandjul1-cl.xvf mandjul1
+#    data/VolData/virvo/mandjul1a-cl.xvf mandjul1a
+#    data/VolData/virvo/mandjul2-cl.xvf mandjul2
+#    /mnt/raid/pr/rus00390/jsd/volumes/head256.rvf head256
+    data/VolData/klaus/engine.rvf Engine
+    data/VolData/marc/earth3_.xvf earth3_
+#	  data/VolData/olgaele/winkler-vertraulich.xvf winkler-v
+}
+
+HostInfo
+{
+    numProcs 1
+}
+
+Move
+{
+    Explicit ON
+}
+
+MainToolbar
+{
+    MenuPosition 10 10 0
+    VISIBLE False
+    Atachment
+}
+
+ToolbarConfig
+{
+#   callback                MenuEntryName
+
+    XFORM                   "XForm"
+    SCALE                   "Scale"
+    VIEW_ALL                "minmax"
+    FLY                     "minmax"
+    FREEZE                  "Freeze"
+    DRIVE_SPEED             "sehr langer string"
+}
+
+COVERConfig
+{
+   AUDIO                        None
+   rotationAxis 0 0 1
+   frameAngle 0.25423728813
+    StateFix FALSE
+   # FONT, possible values: FILLED, TEXTURED
+   FONT FILLED
+   #noShmInDraw True
+   # VRML_CORRECT_BACKFACE_CULLING ON
+    VRML_WRITE_VIEWPOINT ON
+    VRML_LIGHTS ON
+    VRML_CREASE ON
+    LOD_SCALE 1000
+    MOUSE_NAV ON
+    HEADLIGHT ON
+    TextureMode MODULATE
+    TextureQuality High
+    TextureMode MODULATE
+    #SyncInterval 0.4
+    CORRECT_MATRIX ON
+    CORRECT_MATRIX ON
+    GEN_STRIPS ON
+    #TRANSPARENCY_MODE sorted_blended
+    MODULE Vrml97
+    #MODULE Colors
+    #MODULE Cal3dNode
+
+  #MODULE    VRViewPoint
+    MODULE    Volume
+#MODULE    CuttingSurface
+#  MODULE	DebugTracking
+#  DEB_HANDLE_POSITION       0 0 0
+#  DEB_HANDLE_SIZE           1
+#  DEB_HANDLE_ORIENTATION    0 90 0
+
+#wieder rausmachen, nur zum Testen hier  
+#  CALIBRATE_JOYSTICK          OFF
+#  EV_CALIB_FILE               OFF  
+#  CALIBRATE_JOYSTICK_TMP      OFF
+
+#MODULE	DNA
+#MODULE	VRMoleculeViewer
+#MODULE	Move
+#MODULE	ClipPlane
+#  MODULE	Colors
+  #MODULE AudioTest
+  #MODULE              Marker
+#  MODULE              VRViewPoint
+  #MODULE		VRModuleDesk
+    #MODULE VRUIToolbar
+    
+    SPECULAR            ON
+    MAX_FORCE               0.05
+    FORCE_FEEDBACK_MODE 2 // 2 TEST  1 NORMAL
+    FORCE_FEEDBACK	OFF
+    FORCE_SCALE		1.0
+	TRACKING_SYSTEM		MOUSE 		
+	BUTTON_SYSTEM		NONE # IAO
+    SCENESIZE		300
+	NUM_PIPES		1
+    NUM_WINDOWS		1
+	AUTO_WIREFRAME		OFF
+	COORD_AXIS		ON
+	FREEZE			OFF
+    NOTIFY			FATAL
+	MULTIPROCESS		ON
+	NOSEPARATION		FALSE
+	WHITE_TO_GREY		TRUE
+	SCALE_ALL		OFF
+#	ARENA_SIZE		500000000
+#   MODELPATH               /mnt/scr/cod
+#   MODELFILE               cube.wrl
+#   MODELPATH		/mnt/scr/cod/itap
+#   MODELFILE		Geometry1.iv
+#   MODELFILE		flush.iv
+#   MODELPATH		/mnt/scr/cod/VRML
+#   MODELFILE		di_port.iv
+    WELCOME_MESSAGE      Welcome to COVER
+#   FOOTER_MESSAGE       Covise Virtual Environment
+    FPS ON
+
+    NAVIGATION_MODE     OFF
+    SYNC_MODE           LOOSE_COUPLING
+    FREEZE			    OFF
+    COLLIDE             OFF
+    DRIVE_SPEED         1.0 30.0 1.0
+    SNAP                OFF
+    COORD_AXIS          ON
+    SPOTLIGHT           OFF
+    STEREO_SEP          ON
+    ANIM_SPEED          0.0 5.0 5.0
+    
+    DEBUG_LEVEL         0
+}
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1024 768
+}
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:0.0
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		340 270		0 0 0			0.0 0.0 0.0
+	
+}
+
+COVERPinboard
+{
+#   callback                MenuEntryName           ParentMenu
+
+    XFORM                   "move world"
+    SCALE                   "scale world"
+    VIEW_ALL                "view all"
+    FREEZE                  "stop headtracking"
+    FLY                     "fly"
+    
+    COLLIDE                 NONE
+    DRIVE_SPEED             "speed"                         "nav"
+    DRIVE                   "drive"                         "nav"
+    WALK                    "walk"                          "nav"
+    
+    REMOVE                  "remove"                        "part manip"
+    UNDO                    "undo remove"                   "part manip"
+    MOVE_PARTS              "move part"                     "part manip"
+    
+    COORD_AXIS              "axis"                          "view opt"
+    SPECULAR                "specular"                      "view opt"
+    SPOTLIGHT               "spotlight"                     "view opt"
+    HEADLIGHT               "headlight"                     "view opt"
+    STEREO_SEP              "stereo sep"                    "view opt"
+    STATISTICS              "statistics"                    "view opt"
+    CLUSTER_STATISTICS      "clusterStatistics"             "view opt"
+ 
+    SNAP                    "snap"                          "misc"
+    STORE                   "store scenegraph"              "misc"
+    RELOAD_VRML             "reload vrml"                   "misc"
+        
+    EXECUTE                 "execute"                       "Covise"
+    CUTTINGSURFACE          "CuttingSurface"                "Covise"
+    CUTGEOMETRY             "CutGeometry"                   "Covise"
+    ISOSURFACE              "IsoSurface"                   "Covise"
+    TRACERUSG               "TracerUsg"                     "Covise"
+    TRACER                  "Tracer"                        "Covise"
+    STRACER                 "STracer"                       "Covise"
+    TETRATRACE              "TetraTrace"                    "Covise"
+    MAGTRACER               "MagTracer"                     "Covise"
+    CELLTRACER              "CellTracer"                    "Covise"
+    LTRACER                 "LarsTracer"                    "Covise"
+    
+    FORWARD                 "forward"                       "anim"
+    BACKWARD                "backward"                      "anim"
+    ANIM_SPEED              "anim speed"                    "anim"
+    STEADYCAM               "steady cam"                    "anim"
+
+}
+
+ButtonConfig
+{
+    SERIAL_PORT	/dev/ttyd3
+    #MAP 1 ACTION_BUTTON
+    #MAP 2 DRIVE_BUTTON
+    #MAP 3 XFORM_BUTTON
+    #MAP 1 DRIVE_BUTTON
+    #MAP 2 ACTION_BUTTON
+    #MAP 3 XFORM_BUTTON
+}
+
+
+
+CuttingPlane3DTex
+{
+    VERBOSE                 OFF
+    
+
+#   texture filter can be POINT, LINEAR, BILINEAR, TRILINEAR    
+
+    TEXTURE_FILTER_TYPE             TRILINEAR      
+
+#   plane attachment, 
+#   PLANE_MOVESTO_HAND: the plane move to hand (plane move absolute with hand)
+#   HAND_MOVESTO_PLANE: the hands move to plane (pane moves relative from the initial position)
+
+    PLANE_ATTACHMENT        PLANE_MOVESTO_HAND
+
+#   stop manipulation
+#   PRESS: when button is pressed again
+#   RELEASE: when button is released this means button has to be pressed during manipulation
+
+    STOPMOVE                PRESS
+
+
+#   executeModule
+#   MENU
+#   STOPMOVE
+    
+    EXECUTE_MODULE          STOPMOVE 
+
+#   interactor icon size in [mm]
+    ISIZE                   100     
+    
+}
+
+ModifyHeadBoxPlugin
+{
+#   show the range lines    ALWAYS | ON_TOUCH
+    SHOW_CONSTRAINTS        ON_TOUCH
+
+#   absolute size of the spheres in mm, the spheres don't scale with the scene
+    SPHERE_SIZE             20.0
+}
+
+// vision with 4 pipes ---------------------------------------------------------------------
+
+
+ButtonConfig
+{
+    SERIAL_PORT	/dev/ttyd3
+    #MAP 1 ACTION_BUTTON
+    #MAP 2 DRIVE_BUTTON
+    #MAP 3 XFORM_BUTTON
+    #MAP 1 DRIVE_BUTTON
+    #MAP 2 ACTION_BUTTON
+    #MAP 3 XFORM_BUTTON
+}
+
+
+
+ARToolKit
+{
+    Capture OFF
+}
+
+
+
+
+TrackerCalibration
+{
+#	these settings should be retrieved using  ms  and the TrackerCalibration
+#	application-module
+
+# 	NOTE: if this filter is enabled, it overrides a few settings in
+#		the section PolhemusConfig
+
+
+#	should the filter be used ? (ON / OFF)
+	STATUS			OFF
+        SWAP                    ON
+	ORIGIN			-22.0 29.0 202.0
+	ALPHA			-0.55
+	BETA0			0.5
+	BETA1			0.4
+	GAMMA			30.0
+	DELTA			35.0
+	UP_SCALE		0.4
+        
+        // 1: use given parameters
+        // 2: use hype-parameters retrieved with Solver
+        //
+        FILTER_TYPE             1
+        
+}
+
+    ANIM_SPEED          0.0 5.0 5.0
+    
+        DEBUG_LEVEL         0
+}

@@ -1,0 +1,28 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	modelPath & File Browser & Path of the VRML-File
+        the Cover should read.\\
+\hline\hline
+	scale & Scalar & Scale factor by which the Vrml-World is resized.\\
+\hline\hline
+	backface & Boolean & Switch Backface Culling on or off. \\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+
+%
+%=============================================================

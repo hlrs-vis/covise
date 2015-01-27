@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Bindungen' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+				<ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+				<!-- <ShortCut value="showName" name="showName" /> -->
+				<!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+				<!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Salzstreuer-Glas" regexp="container_001-FACES.*" shader="Glossy5" smooth="true" />
+                <Scope name="Salzstreuer-Deckel" regexp="lid_001-FACES.*" shader="Glossy9" smooth="true" />
+                <Scope name="Feuerzeug" regexp="Feuerzeug-FACES.*" shader="Glossy1" />
+                <Scope name="Group02" regexp="Group02-EOT.*" shader="Glossy8" />
+                <Scope name="Salzgitter" regexp="Salzgitter-EOT.*" shader="Glossy8" />
+                <Scope name="Eisengitter" regexp="Eisengitter-EOT.*" shader="Glossy8" />
+                <Scope name="Eisengitter" regexp="Eisengitter-EOT.*" shader="Glossy8" />
+                <Scope name="Hammerkopf" regexp="Box001-FACES.*" shader="Glossy1b" />
+                <Scope name="Hammergriff" regexp="Cylinder001-FACES.*" shader="Glossy8" />
+                <Scope name="Glas" regexp="Cylinder003-FACES.*" shader="Glossy5" smooth="true" />
+                <Scope name="Glas2" regexp="Cylinder.*Wasser-FACES.*" shader="Glossy5" smooth="true" />
+                <Scope name="Naegel" regexp="nagel.*" shader="Glossy7" smooth="true" />
+                <Scope name="Batterie" regexp="Switch06.*" shader="Glossy1" />
+                <Scope name="Birne_aus" regexp="Bec__Light_bulb_001-FACES.*" shader="Glossy5" />
+                <Scope name="Birne_an" regexp="Bec__Light_bulb_03-FACES.*" shader="Glossy6b" />
+                <Scope name="Octan" regexp="Sphere85-FACES.*" shader="Glossy8" />
+                <Scope name="Octan2" regexp="Sphere71-FACES.*" shader="Glossy8" />
+                <Scope name="Butan" regexp="Butan-EOT.*" shader="Glossy8" />
+            </CoviseConfigShader>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Chemie/Bindungen/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

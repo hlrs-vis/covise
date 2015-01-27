@@ -1,0 +1,8 @@
+SET(HEADERS
+)
+SET(SOURCES
+  TetraVolume.cpp
+)
+ADD_COVISE_MODULE(Obsolete TetraVolume ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(TetraVolume coApi coAppl coCore)
+COVISE_INSTALL_TARGET(TetraVolume)

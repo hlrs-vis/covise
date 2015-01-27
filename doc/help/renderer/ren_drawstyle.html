@@ -1,0 +1,153 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>DrawStyle</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">Draw Style</font></font></h2>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">To get the Draw Style selection menu press
+the <b>right</b> mouse button on the viewer area and select Draw Style
+with the left mouse button</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="56%" >
+<tr>
+<td><img SRC="draw.gif" height=534 width=390></td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica">You can modify <b>Draw Style</b> (and image
+qualitiy) by three groups of options</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">options for static mode (still mode)</font></b></li>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">as is</font></b></li>
+
+<li>
+<font face="Arial,Helvetica"><b>hidden line</b>: bright texture, visible
+lines only</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>discrete</b> <b>mesh</b>: dark texture
+on bright visible surfaces only</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">no texture</font></b></li>
+
+<li>
+<font face="Arial,Helvetica"><b>low volume</b>: low resolution for volume
+rendering</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>low resolution = </b>low resolution no
+texture</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>wireframe</b>: complete grid (bright) including
+hidden lines</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">points</font></b></li>
+
+<li>
+<font face="Arial,Helvetica"><b>bounding box </b>(no depth)</font></li>
+</ul>
+<font face="Arial,Helvetica"><b>default</b>:</font> <font face="Arial,Helvetica">as
+is</font>
+<p><font face="Arial,Helvetica"><u>Hints for use</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="93%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">The option <b>discrete mesh</b> is useful
+to select, e. g. via <font color="#3333FF"><a href="../../online/modules/Filter/SimplifySurface/SimplifySurface.html">SimplifySurface</a></font>),
+a good balance between image quality of a surface and frame rate.</font>
+<br><font face="Arial,Helvetica">The options<b> low</b> <b>resolution</b>
+or <b>points</b> improve performance and are useful for slower machines.</font>
+<br><font face="Arial,Helvetica">Look at an an illustration of possible
+<a href="ren_drawstyle_list.html">draw
+styles</a>, or look into the <u><font color="#3333FF"><a href="../../online_doc/usersguide/start/start_renderer.html" target="_top">User's
+Guide, chapter Inventor Renderer</a></font></u><font color="#000000">,
+or just try!</font></font></td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">options for move mode</font></b></li>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">move <b>same as still</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">move<b> low volume</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>no texture</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>low res</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>wireframe</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>low res wireframe</b> (no depth)</font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>points</b></font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>low res points</b> (no depth)</font></li>
+
+<li>
+<font face="Arial,Helvetica">move <b>bounding box</b>: during move you
+see the red wireframe around your object(s) only, but not the object(s)</font></li>
+</ul>
+<font face="Arial,Helvetica"><b>default</b>: move same as still</font>
+<p><font face="Arial,Helvetica"><u>Hints for use</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="91%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">It makes sense to choose a less expensive
+option (in terms of performance), e.g. <b>low resolution</b> or even <b>bounding
+box</b> during rotate or zoom.&nbsp;</font></td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">buffer options</font></b></li>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>single </b>buffer</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>double </b>buffer: provides 'smoother'
+animation</font></li>
+
+<br><font face="Arial,Helvetica">(One buffer is used to show the actual
+image, the other is used to compute the next image, which nearly doubles
+the frame rate)</font>
+<li>
+<font face="Arial,Helvetica"><b>interactive </b>buffer: switch between
+single buffer during move and double buffer otherwise</font></li>
+</ul>
+<font face="Arial,Helvetica"><b>default</b>: double buffer</font></ul>
+
+</body>
+</html>

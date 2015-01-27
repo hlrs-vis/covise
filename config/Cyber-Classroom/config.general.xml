@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="license" >config.license.xml</INCLUDE>
+   <INCLUDE global="1" configname="setup" >config.setup.xml</INCLUDE>
+   <INCLUDE global="1" configname="colormap">config.colormaps.xml</INCLUDE>
+   <INCLUDE global="1" configname="vr-prepare">config.vr-prepare.xml</INCLUDE>
+   <INCLUDE global="1" configname="language">config.language.xml</INCLUDE>
+   
+   
+   <GLOBAL>
+      <CyberClassroom value="ON" />
+      <COVER>
+
+		<SplashScreen value="off" width="510" height="200">
+			<PanelColor r="0.0" g="0.0" b="0.0" a="0.8" />
+			<TextColor r="0.5451" g="0.7020" b="0.2431" a="1.0" />
+		</SplashScreen>
+
+         <!-- enable or display master rendering -->
+         <RenderOnMaster value="false" />
+         <Stencil value="on" />
+         <CollisionDist value="1500" />
+         <!-- <Background r="0.28" g="0.55" b="0.9" /> -->
+         <Background r="0.0" g="0.0" b="0.0" />
+		 <Font value="DroidSansFallbackFull.ttf" />
+         <MultiThreaded value="false" />
+         <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+         <NavigationMode value="XForm" />
+         <Statistics value="off"/>
+         <showRotationPoint value="off"/>
+         <setNavModeFromGui value="off"/>
+
+         <RotationSpeed value="35" />
+	     <DriveSpeed default="10.0" />
+	     <Collide value="ON" />
+
+         <!-- for adjusting how rapidly mipmaps update -->
+         <LODScale value="0.3" />
+
+         <Menu>
+            <HandleOn value="off" />
+            <Language value="GERMAN" />
+            <MoveMenus value="off" />
+         </Menu>         
+
+         <VRUI>
+             <TextColorDefault r="1.0" g="1.0" b="1.0" />
+             <TextColorHighlighted r="1.0" g="1.0" b="1.0" />
+             <ItemBackgroundNormal r="0.01" g="0.12" b="0.18" />
+             <ItemBackgroundHighlighted r="0.6549" g="0.7683" b="0.8745" />
+			 <!-- <ItemBackgroundHighlighted r="0.55" g="0.7" b="0.24" /> -->
+             <HandleBackgroundNormal r="0.0" g="0.0" b="0.0" />
+             <HandleBackgroundHighlighted r="0.0" g="0.0" b="0.0" />
+         </VRUI>
+
+         <Plugin>
+            <!-- Standard Cover plugins, can always be on: -->
+            <AKToolbar value="on">
+               <Attachment value="BOTTOM" />
+               <HandleOn value="off" />         
+            </AKToolbar>
+            
+            <ClipPlane value="on" />
+
+            <Vrml97 value="on">
+                <Lights value="off" />
+                <Audio value="none" />
+                <TranslateVRMLTextNodes value="true" />
+                <FontResolution value="256.0" />
+            </Vrml97>
+
+            <DocumentViewer value="on">
+               <AspectRatio value="0.4"/>
+               <DocumentInMenu value="off"/>
+               <DocumentInSzene value="on"/>
+            </DocumentViewer>
+            
+            <ViewPoint value="on">
+               <FlyingMode value="on"/>
+               <FlightTime value="0.5"/>
+               <FlyConfig value="off"/>
+               <QuickNav value="on"/>
+               <Loop value="off"/>
+               <WriteVrmlViewpoint value="off"/>
+               <Viewpoints name="front" value="on" />
+               <Viewpoints name="back" value="on" />
+               <Viewpoints name="left" value="on" />
+               <Viewpoints name="right" value="on" />
+               <Viewpoints name="top" value="on" />
+               <Viewpoints name="bottom" value="on" />
+            </ViewPoint>
+
+            <CfdGui value="on">
+               <HideMenuOnNewPresStep value="true"/>
+            </CfdGui>
+
+            <GeneralGeometry value="on"/>
+
+
+         </Plugin>
+         
+            <Localization>
+                <TranslatorType value="Boost.Locale" />
+                <LocalePrefix value="share/locale" />
+                <CoviseDomain value="covise" />
+                <ModuleDomain value="module" />
+                <VrPrepareDomain value="vr-prepare" />
+                <VRMLDomain value="vrml" />
+            </Localization>
+
+         <ScaleAll value="OFF" />
+         <CoordAxis value="off" />
+         <Freeze value="off" />
+         <Headlight value="on" />
+
+         <DebugLevel value="0" />
+		 <Console value="false" />
+         <FPS value="true" />
+
+         <ShowGeodeName enable="off" value="off"/>
+         <TerminateCoviseOnQuit value="on"/>
+            
+      </COVER>
+   </GLOBAL>
+
+</COCONFIG>

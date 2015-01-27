@@ -1,0 +1,12 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline points & Points & points Output\\ 
+\hline atom type & Float\newline & atom type\\ 
+\hline radii & Float & Atoms radii\\ 
+\hline bonds & Lines & Lines (bonds) Output\\ 
+\hline groups & Lines\ & Lines (groups) Output\\ 
+\hline spheres & Spheres & Spheres Output\\ 
+\hline volumebox & Lines & Volume Box Output\\
+\hline \end{longtable}
+

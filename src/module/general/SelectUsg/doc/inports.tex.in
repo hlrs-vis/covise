@@ -1,0 +1,28 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{mesh} & UnstructuredGrid & Unstructured grid to be filtered. \\
+\hline
+ 	\textcolor{required}{index} & IntArr & Index field. Some readers have the index field of their data as output. \\
+\hline
+	\textcolor{optional}{dataIn} & Float  \newline
+				Vec3 & Data on the grid.  \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

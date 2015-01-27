@@ -1,0 +1,69 @@
+body
+{
+	
+	background-color: #FFFFFF;
+	font-family: Verdana, Arial;
+}
+
+#logo-group 
+{
+	float: right;
+}
+
+.modal-large {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  z-index: 1050;
+  width: 800px;
+  margin-left: -400px;
+  background-color: #ffffff;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  *border: 1px solid #999;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+  outline: none;
+  -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+     -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  -webkit-background-clip: padding-box;
+     -moz-background-clip: padding-box;
+          background-clip: padding-box;
+}
+
+.modal-body-large {
+  position: relative;
+  max-height: 700px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+ul.dynatree-container span.td {
+  position: absolute;
+  display: inline;
+  border-size: 1px;
+  overflow: hidden;
+}
+
+ul.dynatree-container span.td:nth-child(1) {
+  position: static;
+}
+
+ul.dynatree-container span.td:nth-child(2) {
+  color: red;
+  right: 215px;
+  width: 200px;
+  text-align: right;
+}
+
+ul.dynatree-container span.td:nth-child(3) {
+  color: green;
+  right: 30px;
+  width: 100px;
+  text-align: right;
+}
+
+
+

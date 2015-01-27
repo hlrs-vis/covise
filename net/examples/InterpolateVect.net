@@ -1,0 +1,429 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+6
+# Module RWCovise
+RWCovise
+1
+LOCAL
+IO_Module
+TITLE=RW:cube_usg_1
+22
+44
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/cube_usg.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+2
+LOCAL
+IO_Module
+TITLE=RW:cube_shear_1
+154
+44
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/cube_shear.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module Interpolate
+Interpolate
+1
+LOCAL
+Interpolator
+TITLE=Interpolate_1
+154
+110
+3
+DataIn0
+Float|Vec3
+Data Input
+req
+
+DataIn1
+Float|Vec3
+Data Input
+opt
+
+DataIn2
+IntArr
+Index Input
+opt
+
+3
+DataOut0
+Float|Vec3
+Output data
+default
+
+DataOut1
+Float|Vec3
+Output data
+dep DataIn1
+
+DataOut2
+IntArr
+Output index
+dep DataIn2
+
+5
+motion
+Choice
+Motion characteristic
+1 linear sinusoidal
+
+-1
+type
+Choice
+Type of animation
+1 linear cyclic
+
+-1
+steps
+IntSlider
+Number of interpolation steps
+1 50 10
+
+-1
+abs
+Boolean
+Absolute value for scalar data? y|n
+TRUE
+
+-1
+oscillate
+Boolean
+full oscillation? y|n
+FALSE
+
+-1
+0
+# Module DisplaceUsg
+DisplaceUsg
+1
+LOCAL
+Tools
+TITLE=DisplaceUsg_1
+22
+187
+2
+GridIn0
+UnstructuredGrid|Polygons|Lines
+Mesh Input
+req
+
+DataIn0
+Vec3
+Data Input
+req
+
+1
+GridOut0
+UnstructuredGrid|Polygons|Lines
+Mesh Output
+default
+
+2
+scale
+FloatScalar
+Scaling factor
+1
+
+-1
+absolute
+Boolean
+Absolute coordinates
+FALSE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+22
+341
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+22
+253
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+5
+RWCovise
+1
+LOCAL
+mesh
+
+DisplaceUsg
+1
+LOCAL
+GridIn0
+RWCovise
+2
+LOCAL
+mesh
+
+Interpolate
+1
+LOCAL
+DataIn0
+Interpolate
+1
+LOCAL
+DataOut0
+
+DisplaceUsg
+1
+LOCAL
+DataIn0
+DisplaceUsg
+1
+LOCAL
+GridOut0
+
+DomainSurface
+1
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

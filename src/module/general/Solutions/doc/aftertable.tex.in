@@ -1,0 +1,17 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+
+The example net below gives you the possiblity to calculate e. g. the pressure, and 
+to display the distribution of the pressure on the surface using a colormap.
+
+\begin{covimg}{}
+		{SolutionsMap}{covise/net/examples/Solutions.net}{0.6}\end{covimg}  
+
+\begin{covimg2}	{}{SolutionsRenderer}{0.7}\end{covimg2}

@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline timer & Timer & Timer Parameter\\ \hline stringImm & String & Immediate string\\ \hline stringCom & String & Compute string\\ \hline top\_switch & Choice & Now switch Parameters\\ \hline boolImm & Boolean & Immediate coBooleanParam\\ \hline boolCom & Boolean & Compute coBooleanParam\\ \hline ScalarSw & Choice & Sub-Cases of Scalar\\ \hline iScalImm & Scalar & Immediate coIntScalarParam\\ \hline iScalCom & Scalar & Compute coIntScalarParam\\ \hline fScalImm & Scalar & Immediate coFloatScalarParam\\ \hline fScalCom & Scalar & Compute coFloatScalarParam\\ \hline iSlidImm & Slider & Immediate coIntSliderParam\\ \hline iSlidCom & Slider & Compute coIntSliderParam\\ \hline fSlidImm & Slider & Immediate coFloatSliderParam\\ \hline fSlidCom & Slider & Compute coFloatSliderParam\\ \hline fVectImm & Vector & Immediate coFloatVectorParam\\ \hline fVectCom & Vector & Compute coFloatVectorParam\\ \hline iVectImm & Vector & Immediate coIntVectorParam\\ \hline iVectCom & Vector & Compute coIntVectorParam\\ \hline myFile & Browser & a file browser\\ \hline choImm & Choice & Nu auch noch Choices\\
+\hline \end{longtable}
+

@@ -1,0 +1,98 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef VPB_HEIGHTFIELDMAPPER_H_
+#define VPB_HEIGHTFIELDMAPPER_H_ 1
+
+
+#include <osg/NodeVisitor>
+#include <osg/ref_ptr>
+
+#include <vpb/Export>
+
+namespace osg
+{
+    class HeightField;
+    class Geometry;
+}
+
+namespace vpb
+{
+
+/// HeightFieldMapper class do a mapping of a geometry on a HeightField.
+/// Geometry have to be in the Xmin-Xmax and Ymin-Ymax of the HeightField to work fine.
+class VPB_EXPORT HeightFieldMapper
+{
+    public:
+        
+        /// in PER_GEOMETRY mode, HeightFieldMapper detect edgebound loop,
+        ///  compute the centroid of this polygon and map this point on the height
+        ///  then adjust the z value of all vertex
+        ///
+        /// in PER_VERTEX mode, all vertices are mapped on the HeightField
+        enum Mode
+        {
+            PER_GEOMETRY,
+            PER_VERTEX
+        };
+        
+        // ** CTOR/DTOR
+        HeightFieldMapper(osg::HeightField & hf);
+        HeightFieldMapper(osg::HeightField & hf, double xMin, double xMax, double yMin, double yMax);
+        virtual ~HeightFieldMapper();
+                
+        // ** map the geometry on heightfield
+        bool map(osg::Geometry & geometry) const;
+        
+        // ** compute z value of HeightField for x y coordinates
+        double getZfromXY(double x, double y) const;
+
+        // set/get mode to use
+        void setMode(Mode mode) { _mappingMode = mode; }
+        Mode getMode() { return _mappingMode; }
+        
+        
+    protected:
+        
+        bool getCentroid(osg::Geometry & geometry, osg::Vec3d & centroid) const;
+        
+    private:
+        
+        Mode _mappingMode;
+        
+        osg::HeightField & _hf;
+        
+        // ** HeightField Min Max
+        double _xMin;
+        double _yMin;
+        double _xMax;
+        double _yMax;
+};
+
+
+class VPB_EXPORT HeightFieldMapperVisitor : public osg::NodeVisitor
+{
+    public:
+        
+        HeightFieldMapperVisitor(HeightFieldMapper & hfm) : _hfm(hfm) {}
+        
+        virtual void apply(osg::Geode& node);
+        
+    private:
+        
+        HeightFieldMapper & _hfm;
+};
+
+} // end vpb namespace
+
+#endif // ** VPB_HEIGHTFIELDMAPPER_H_ ** //

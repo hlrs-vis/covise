@@ -1,0 +1,117 @@
+<testShader>
+    <uniform name="AmbientMaterial" type="vec3" value="0.04 0.04 0.04"/>
+    <uniform name="DiffuseMaterial" type="vec3" value="0.0 0.75 0.75"/>
+    <uniform name="LightPosition" type="vec3" value="0.25 0.25 1.0"/>        
+    <uniform name="TessLevelInner" max="10" min="1" type="int" value="1"/>
+    <uniform name="TessLevelOuter" max="10" min="1" type="int" value="1"/>
+    <vertexProgram>
+        #version 400
+        in vec4 osg_Vertex;
+        out vec3 vPosition;
+        void main()
+        {
+            vPosition = osg_Vertex.xyz;
+        }
+    </vertexProgram>
+    <tessControlProgram>
+        #version 400
+        layout(vertices = 3) out;
+        in vec3 vPosition[];
+        out vec3 tcPosition[];
+        uniform int TessLevelInner;
+        uniform int TessLevelOuter;
+        #define ID gl_InvocationID
+
+        void main()
+        {
+            tcPosition[ID] = vPosition[ID];
+            if (ID == 0) 
+            {
+            gl_TessLevelInner[0] = TessLevelInner;
+            gl_TessLevelOuter[0] = TessLevelOuter;
+            gl_TessLevelOuter[1] = TessLevelOuter;
+            gl_TessLevelOuter[2] = TessLevelOuter;
+            }
+        }
+    </tessControlProgram>
+    <tessEvalProgram>
+        #version 400
+        layout(triangles, equal_spacing, cw) in;
+        in vec3 tcPosition[];
+        out vec3 tePosition;
+        out vec3 tePatchDistance;
+        uniform mat4 osg_ProjectionMatrix;
+        uniform mat4 osg_ModelViewMatrix;
+        void main()
+        {
+            vec3 p0 = gl_TessCoord.x * tcPosition[0];
+            vec3 p1 = gl_TessCoord.y * tcPosition[1];
+            vec3 p2 = gl_TessCoord.z * tcPosition[2];
+            tePatchDistance = gl_TessCoord;
+            tePosition = normalize(p0 + p1 + p2);
+            gl_Position = osg_ProjectionMatrix * osg_ModelViewMatrix * vec4(tePosition, 1);
+        }
+    </tessEvalProgram>
+    <geometryProgram inputType="TRIANGLES" numVertices="3" outputType="TRIANGLE_STRIP">
+        #version 400
+        uniform mat4 osg_ModelViewMatrix;
+        uniform mat3 osg_NormalMatrix;
+        layout(triangles) in;
+        layout(triangle_strip, max_vertices = 3) out;
+        in vec3 tePosition[3];
+        in vec3 tePatchDistance[3];
+        out vec3 gFacetNormal;
+        out vec3 gPatchDistance;
+        out vec3 gTriDistance;
+        out vec4 gColor;
+        void main()
+        {
+            vec3 A = tePosition[2] - tePosition[0];
+            vec3 B = tePosition[1] - tePosition[0];
+            gFacetNormal = osg_NormalMatrix * normalize(cross(A, B));
+            gPatchDistance = tePatchDistance[0];
+            gTriDistance = vec3(1, 0, 0);
+            gColor = osg_ModelViewMatrix[0];
+            gl_Position = gl_in[0].gl_Position; EmitVertex();
+            gPatchDistance = tePatchDistance[1];
+            gTriDistance = vec3(0, 1, 0);
+            gColor = osg_ModelViewMatrix[1];
+            gl_Position = gl_in[1].gl_Position; EmitVertex();
+            gPatchDistance = tePatchDistance[2];
+            gTriDistance = vec3(0, 0, 1);
+            gColor = osg_ModelViewMatrix[2];
+            gl_Position = gl_in[2].gl_Position; EmitVertex();
+            EndPrimitive();
+        }
+    </geometryProgram>
+    <fragmentProgram>
+        #version 400
+        out vec4 FragColor;
+        in vec3 gFacetNormal;
+        in vec3 gTriDistance;
+        in vec3 gPatchDistance;
+        in vec4 gColor;
+        in float gPrimitive;
+        uniform vec3 LightPosition;
+        uniform vec3 DiffuseMaterial;
+        uniform vec3 AmbientMaterial;
+        float amplify(float d, float scale, float offset)
+        {
+            d = scale * d + offset;
+            d = clamp(d, 0, 1);
+            d = 1 - exp2(-2*d*d);
+        return d;
+        }
+        void main()
+        {
+            vec3 N = normalize(gFacetNormal);
+            vec3 L = LightPosition;
+            float df = abs(dot(N, L));
+            vec3 color = AmbientMaterial + df * DiffuseMaterial;
+            float d1 = min(min(gTriDistance.x, gTriDistance.y), gTriDistance.z);
+            float d2 = min(min(gPatchDistance.x, gPatchDistance.y), gPatchDistance.z);
+            color = amplify(d1, 40, -0.5) * amplify(d2, 60, -0.5) * color;
+            FragColor = vec4(color, 1.0);
+        }
+    </fragmentProgram>
+</testShader>

@@ -1,0 +1,54 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+\begin{enumerate}
+\item {\bf Set of Elements}
+
+\begin{covimg}
+{}{BlockCollectMap}{covise/net/examples/BlockCollect.net}{0.7}\end{covimg}
+
+We always want to cut the surface and the outer lines of an object with the same cutting plane.
+Therefore we put these two objects into one set and use just one module CutGeometry.
+
+\begin{covimg}
+{}{BlockCollectOut1}{Renderer output}{0.7}\end{covimg}
+\clearpage
+
+\item {\bf Cat Timesteps} 
+
+\begin{covimg}
+{}{BlockCollect_CatTimesteps}{covise/net/examples/BlockCollect\_CatTimesteps.net}{0.7}\end{covimg}
+
+We want to create a series of time steps using single objects. In this example we create a set of 
+rotated objects with the module Transform, here we rotate the object 35 times by 10 degrees. With the module 
+BlockCollect we reorganize the output so that we get one rotation per time step. More over we add the original
+object at the second input port to complete a cyclic time series.
+ 
+\begin{covimg}
+{}{BlockCollectOut2}{Renderer output (Cat Timesteps)}{0.7}\end{covimg}
+\clearpage
+ 
+\item {\bf Merge Blocks}
+
+\begin{covimg}
+{}{BlockCollect_MergeBlocks}{covise/net/examples/BlockCollect\_MergeBlocks.net}{0.7}\end{covimg}
+
+We know visualise two case studies of the example described in section "Cat Timesteps". We create the same 
+rotation and map on the one hand temperature and on the other hand pressure on the surface. To split
+the two case we use the first Transform module in the right pipeline to translate the output of this
+pipeline.
+The first level of BlockCollect modules uses the mode "Merge Blocks" to tell COVISE that the first rotation
+of the left pipeline and the first rotation of the right pipeline belong to each other.
+The second level of BlockCollect modules creates a series of time steps with the mode "Cat Timesteps".
+We have to use two modules BlockCollect in every level because COVISE handles the geometry and the mapped 
+data on it independently.
+
+\begin{covimg}
+{}{BlockCollectOut3}{Renderer output (MergeBlocks)}{0.7}\end{covimg}
+
+\end{enumerate}  

@@ -1,0 +1,115 @@
+
+<PorscheSpiegel>
+
+  <uniform max="2000" min="500" name="Radius" type="float" value="1300"/>
+
+  <uniform max="0.02" min="0.000022" name="K" type="float" value="0.000022"/>
+
+  <uniform max="240" min="-240" name="a" type="float" value="-300"/>
+
+  <uniform max="100000" min="0" name="dist" type="float" value="1000"/>
+
+  <uniform name="ViewMatrix" unique="true" type="mat4" value="0.864660 0.499110 -0.057028 0.000000  -0.499673 0.842762 -0.200198 0.000000  -0.051860 0.201598 0.978094 0.000000  459.238999 -368.428373 73.368963 1.000000"/>
+
+  <uniform name="ProjectionMatrix" unique="true" type="mat4" value="1.582221 0.515595 0.400909 0.400880  -0.822845 -0.908110 -0.916024 -0.915959  -0.088392 1.881607 -0.017715 -0.017713  0.000000 0.000000 -710.658613 0.000000"/>
+
+  <uniform name="ModelMatrix" unique="true" type="mat4" value="2.981941 -0.321898 -0.066471 0.000000  -0.328603 -2.906093 -0.668305 0.000000  0.007318 0.671562 -2.923856 0.000000  -324.798985 191.728099 -264.482413 1.000000"/>
+
+  <uniform name="mirrorMap" type="sampler2D" value="0"/>
+
+  <uniform name="depthMap" type="sampler2D" value="1"/>
+
+  <vertexProgram>
+  uniform float Radius;
+  uniform float K;
+  uniform float a;
+
+  varying vec4 origPos;
+
+  void main( void )
+  {
+     vec4 myVertex = gl_Vertex;
+     myVertex[1]= -2*Radius+ sqrt(Radius*Radius - gl_Vertex[0]*gl_Vertex[0])  + sqrt(Radius*Radius - gl_Vertex[2]*gl_Vertex[2]);
+     if(a&gt; 0 &amp;&amp; gl_Vertex[0]&gt;a)
+     {
+        float tmpf = gl_Vertex[0] - a;
+        myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
+     }
+     else if(a&lt; 0 &amp;&amp; gl_Vertex[0]&lt;a)
+     {
+        float tmpf = -(gl_Vertex[0] - a);
+        myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
+     }
+     origPos = gl_Vertex;
+     origPos[1]=0;
+     gl_Position = gl_ModelViewProjectionMatrix * myVertex;
+  }
+
+  </vertexProgram>
+
+  <fragmentProgram>
+    varying vec4 origPos;
+
+    uniform float Radius;
+    uniform float K;
+    uniform float a;
+    uniform float dist;
+    uniform sampler2D mirrorMap;
+    uniform sampler2D depthMap;
+    uniform mat4 ModelMatrix;
+    uniform mat4 ViewMatrix;
+    uniform mat4 ProjectionMatrix;
+
+    void main( void )
+    {
+       vec4 myVertex = origPos;
+       myVertex[1]= -2*Radius+ sqrt(Radius*Radius - origPos[0]*origPos[0])  + sqrt(Radius*Radius - origPos[2]*origPos[2]);
+       if(a&gt; 0 &amp;&amp; origPos[0]&gt;a)
+       {
+          float tmpf = origPos[0] - a;
+          myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
+       }
+       else if(a&lt; 0 &amp;&amp; origPos[0]&lt;a)
+       {
+          float tmpf = -(origPos[0] - a);
+          myVertex[1]=myVertex[1] - K*tmpf*tmpf*tmpf;
+       }
+
+       vec3 mynormal=myVertex;
+       mynormal[0]=origPos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0]);
+       mynormal[1]=1;
+       mynormal[2]=origPos[2] / sqrt(Radius*Radius - origPos[2]*origPos[2]);
+
+       if(a&gt; 0 &amp;&amp; origPos[0]&gt;a)
+       {
+          mynormal[0]=origPos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])+ 3 * K * (origPos[0]-a)* (origPos[0]-a);
+       }
+       if(a&lt; 0 &amp;&amp; origPos[0]&lt;a)
+       {
+          mynormal[0]=origPos[0] / sqrt(Radius*Radius - origPos[0]*origPos[0])- 3 * K * (origPos[0]-a)* (origPos[0]-a);
+       }
+
+       vec3 myEyeVec = gl_ModelViewMatrixInverse[3] - myVertex;
+       vec2 tpos;
+       vec3 N = normalize(mynormal);
+       vec3 reflVec   = reflect(normalize(-myEyeVec), N);
+
+       vec4 myDepthVertex =   ProjectionMatrix * ViewMatrix * ModelMatrix * (myVertex);
+       myDepthVertex = myDepthVertex/myDepthVertex[3];
+       tpos[0]=(myDepthVertex[0]/2)+0.5;
+       tpos[1]=(myDepthVertex[1]/2)+0.5;
+       float depth = texture2D(depthMap, tpos );
+
+       reflVec = normalize(reflVec);
+       if(depth &gt; 0.3)
+          reflVec =reflVec*dist;
+       myVertex.xyz += reflVec;
+       myVertex =   ProjectionMatrix * ViewMatrix * ModelMatrix * (myVertex);
+       myVertex = myVertex/myVertex[3];
+       tpos[0]=(myVertex[0]/2)+0.5;
+       tpos[1]=(myVertex[1]/2)+0.5;
+       gl_FragColor = texture2D(mirrorMap, tpos );
+    }
+  </fragmentProgram>
+
+</PorscheSpiegel>

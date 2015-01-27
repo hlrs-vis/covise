@@ -1,0 +1,75 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+2
+# Module VRRenderer
+VRRenderer
+1
+LOCAL
+Renderer
+COVER_1
+148
+161
+1
+RenderData
+Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres
+render geometry
+req
+
+0
+1
+Viewpoints
+Browser
+Viewpoints
+default.vwp
+
+1
+0
+# Module CoverDocument
+CoverDocument
+1
+LOCAL
+IO_Module
+CoverDocument_1
+192
+69
+0
+1
+Document
+Points
+Dummy Object to carry DOCUMENT attriute
+default
+
+3
+Filename
+Browser
+Name of first file
+Renderer.png
+
+1
+Filename___filter
+BrowserFilter
+Name of first file
+Filename *.png;*.PNG;*.rgb;*.RGB;*.tif;*.tiff
+
+-1
+Title
+String
+Title of Document in Menu
+Document
+
+-1
+0
+1
+CoverDocument
+1
+LOCAL
+Document
+
+VRRenderer
+1
+LOCAL
+RenderData
+0

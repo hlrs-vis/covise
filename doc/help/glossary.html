@@ -1,0 +1,313 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Glossary</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h1>
+<font face="Times New Roman,Times"><font color="#3333FF"><font size=+4>Glossary</font></font></font></h1>
+<font face="Arial,Helvetica">called by a term in italics, e. g. <i><u><font color="#3333FF">Antialiasing</font></u></i>
+or by <i><u><font color="#3333FF">Glossary</font></u></i></font>
+<br><font face="Arial,Helvetica">(see&nbsp; <a href="start_overview.html" target="_top">Module
+Reference Guide</a>&nbsp; for information about modules)</font>
+<p><b><font face="Arial,Helvetica">Alpha blending</font></b>
+<br><font face="Arial,Helvetica">Additional information for each pixel
+for creating transparent materials</font>
+<p><b><font face="Arial,Helvetica">Aliasing</font></b>
+<br><font face="Arial,Helvetica">- the familiar "staircase effect". Jagged
+transitions are often formed between adjacent pixels in the representation
+of diagonals or curves. These "jaggies" can be smoothed out by anti-aliasing.</font>
+<p><b><font face="Arial,Helvetica">Antialiasing</font></b>
+<br><font face="Arial,Helvetica">This feature eliminates or reduces jagged
+lines and makes objects drawn on the screen look smoother.</font>
+<br><font face="Arial,Helvetica"><font color="#000000">Warning: Enabling
+Antialiasing reduces drawing speed!</font></font>
+<p><b><font face="Arial,Helvetica">Ambient color</font></b>
+<br><font face="Arial,Helvetica">reflected color of an object in response
+to the ambient lighting in the scene</font>
+<p><b><font face="Arial,Helvetica">BASE COLOR lighting model</font></b>
+<br><font face="Arial,Helvetica">Each object has its own base color also
+called diffuse color; objects are rendered by taking in account their diffuse
+color only (no shading) - see also PHONG lighting model</font>
+<p><b><font face="Arial,Helvetica">Clipping Plane(s)</font></b>
+<br><font face="Arial,Helvetica">You cut off part of your geometry object(s)
+by one or two planes</font>
+<br><font face="Arial,Helvetica">COVISE provides three possibilities:</font>
+<table BORDER CELLSPACING=0 CELLPADDING=5 COLS=2 WIDTH="100%" BGCOLOR="#CCCCCC" >
+<tr>
+<td><font face="Arial,Helvetica"><b>Clipping Plane</b> (<b>Renderer</b>,
+menu item <b><a href="renderer/ren_viewing.html">Viewing</a> ></b> Clipping
+Plane)&nbsp;</font></td>
+
+<td><font face="Arial,Helvetica">1 switchable plane with variable normal
+and a variable point on the plane</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica"><b>Clipping Planes (</b> <b><a href="renderer/ren_preferences.html">PreferenceSheet</a>)</b></font></td>
+
+<td><font face="Arial,Helvetica">2 switchable clipping planes with fixed
+normals, distance varied by a wheel</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../online/modules/Tools/CutGeometry/CutGeometry.html">CutGeometry
+</a></font>(Module)</font></b></td>
+
+<td><font face="Arial,Helvetica">1 permanent plane with variable normal
+and a variable point on the plane</font>
+<br><font face="Arial,Helvetica">(to be supplied as module parameters)</font></td>
+</tr>
+</table>
+
+<p><b><font face="Arial,Helvetica">Control Panel</font></b>
+<br><font face="Arial,Helvetica">The Control Panel is created when COVISE
+starts and appears initially as an icon only. Its purpose is the collection
+of graphical interactors which typically represent often used and changed
+parameters, and it is opened when such an interactor is loaded.</font>
+<p><b><font face="Arial,Helvetica">COVER (Renderer)</font></b>
+<br><font face="Arial,Helvetica">COVER stands for "COVISE Virtual Environment
+Renderer" (also called "VR Renderer"), and is an integral part of the COVISE
+visualization and simulation environment. The design of COVER was developed
+to support technical and scientific applications. The rendering of COVER
+is based on IRIS Performer to make optimal use of the SGI rendering hardware.</font>
+<br><font face="Arial,Helvetica">(also called VR Renderer - see also OpenInventor
+Renderer, IV Renderer or Desktop Renderer)</font>
+<p><b><font face="Arial,Helvetica">COVISE</font></b>
+<br><font face="Arial,Helvetica"><b>CO</b>llaborative <b>VI</b>sualization
+and <b>S</b>imulation <b>E</b>nvironment - extendable distributed software
+environment to integrate supercomputer based simulations, postprocessing
+, multimedia and visualization functionalities with cooperative working
+in a seamless manner</font>
+<p><b><font face="Arial,Helvetica">COVISE Request Broker (CRB)</font></b>
+<br><font face="Arial,Helvetica">COVISE data management process</font>
+<p><b><font face="Arial,Helvetica">Data types</font></b>
+<br><font face="Arial,Helvetica">COVISE knows the following data types:</font>
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="99%" BGCOLOR="#CCCCCC" >
+<tr BGCOLOR="#999999">
+<td><b><font face="Arial,Helvetica">Abbreviation</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Data Object type</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Description</font></b></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">UNIGRID</font>
+<br><font face="Arial,Helvetica">RCTGRD</font>
+<br><font face="Arial,Helvetica">STRGRD</font></td>
+
+<td><font face="Arial,Helvetica">DO_UniformGrid</font>
+<br><font face="Arial,Helvetica">DO_RectilinearGrid</font>
+<br><font face="Arial,Helvetica">DO_StructuredGrid</font></td>
+
+<td><font face="Arial,Helvetica">Structured grid types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">UNSGRD</font></td>
+
+<td><font face="Arial,Helvetica">DO_UnstructuredGrid</font></td>
+
+<td><font face="Arial,Helvetica">Unstructured grid types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">STRSDT</font>
+<br><font face="Arial,Helvetica">STRVDT</font></td>
+
+<td><font face="Arial,Helvetica">DO_Structured_S3D_Data</font>
+<br><font face="Arial,Helvetica">DO_Structured_V3D_Data</font></td>
+
+<td><font face="Arial,Helvetica">Structured data types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">USTSDT</font>
+<br><font face="Arial,Helvetica">USTVDT</font></td>
+
+<td><font face="Arial,Helvetica">DO_Unstructured_S3D_Data</font>
+<br><font face="Arial,Helvetica">DO_Unstructured_V3D_Data</font></td>
+
+<td><font face="Arial,Helvetica">Unstructured data types</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">RGBADT</font></td>
+
+<td><font face="Arial,Helvetica">DO_RGBA_Data</font></td>
+
+<td><font face="Arial,Helvetica">Color values</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">SETELE</font></td>
+
+<td><font face="Arial,Helvetica">DO_Set</font></td>
+
+<td><font face="Arial,Helvetica">Container type for grouping of data objects</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">GEOMET</font></td>
+
+<td><font face="Arial,Helvetica">DO_Geometry</font></td>
+
+<td><font face="Arial,Helvetica">Renderer geometry container data type</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">POINTS</font>
+<br><font face="Arial,Helvetica">LINES</font>
+<br><font face="Arial,Helvetica">TRIANG</font>
+<br><font face="Arial,Helvetica">POLYGN</font>
+<br><font face="Arial,Helvetica">VOLUMES</font></td>
+
+<td><font face="Arial,Helvetica">DO_Points</font>
+<br><font face="Arial,Helvetica">DO_Lines</font>
+<br><font face="Arial,Helvetica">DO_TriangleStrips</font>
+<br><font face="Arial,Helvetica">DO_Polygons</font>
+<br><font face="Arial,Helvetica">DO_Volumes</font></td>
+
+<td><font face="Arial,Helvetica">Geometry data types</font></td>
+</tr>
+</table>
+
+<p><b><font face="Arial,Helvetica">Desktop Renderer</font></b>
+<br><font face="Arial,Helvetica">see Open Inventor Renderer</font>
+<p><b><font face="Arial,Helvetica">Diffuse color</font></b>
+<br><font face="Arial,Helvetica">object's base color (specified in the
+color array of the renderer geometry input data objects)</font>
+<p><b><font face="Arial,Helvetica">Directional light</font></b>
+<br><font face="Arial,Helvetica">This light illuminates uniformly along
+a particular direction.</font>
+<p><b><font face="Arial,Helvetica">Discrete mesh</font></b>
+<br><font face="Arial,Helvetica">draw style: dark texture on bright visible
+surfaces only</font>
+<p><b><font face="Arial,Helvetica">Double buffering</font></b>
+<br><font face="Arial,Helvetica">Two display buffers are used. This means
+that the next image can be drawn in the page of the display buffer, which
+is initially invisible. This image will be be displayed once it is ready
+and the next image will be prepared in the other page of the buffer. Animations
+and games can be made to look more realistic with this technique than with
+simple single buffer.</font>
+<p><b><font face="Arial,Helvetica">Emissive color</font></b>
+<br><font face="Arial,Helvetica">color of light caused by self illuminating
+object</font>
+<p><b><font face="Arial,Helvetica">Hidden line</font></b>
+<br><font face="Arial,Helvetica">draw style: bright texture, visible lines
+only</font>
+<p><b><font face="Arial,Helvetica">Inventor Renderer (IV Renderer)</font></b>
+<br><font face="Arial,Helvetica">see Open Inventor Renderer</font>
+<p><b><font face="Arial,Helvetica">Map</font></b>
+<br><font face="Arial,Helvetica">Dataflow network for postprocessing and
+visualization of simulation data; this network starts usually with one
+or more I/O (Read) modules that accept the simulation data in COVISE format
+(e. g. RWCovise), modifies the geometry by Filter modules (e. g. CutGeometry),
+generates surfaces with equal values by Mapper modules (e. g. Isosurface),
+maps data to color by Color modules (e. g. ColorEdit), generates particle
+traces or streamlines by&nbsp; Tracer modules (e. g. TetraTrace),&nbsp;
+and ends with one or more Renderer or other output modules to visualize
+the results</font>
+<p><b><font face="Arial,Helvetica">Map Editor</font></b>
+<br><font face="Arial,Helvetica">Motif based user interface to build a
+map i. e. a dataflow network for postprocessing and visualization of simulation
+data, and to execute this map. You start it by typing 'covise'. Messages
+from the MapEditor</font>
+<br><font face="Arial,Helvetica">begin with UIF (User Interface)</font>
+<p><b><font face="Arial,Helvetica">OpenGL</font></b>
+<br><font face="Arial,Helvetica">3D software interface (3D API). Based
+on Iris GL from Silicon Graphics.</font>
+<p><b><font face="Arial,Helvetica">OpenInventor Renderer (IV Renderer)</font></b>
+<br><font face="Arial,Helvetica">COVISE Renderer based on the OpenInventor
+graphics toolkit of SGI using OpenGL as its rendering interface - called
+'IV Renderer', 'Desktop Renderer', or 'Renderer' for short (but see also
+COVER Renderer)</font>
+<p><b><font face="Arial,Helvetica">PHONG lighting model</font></b>
+<br><font face="Arial,Helvetica">This light model takes into account all
+light sources in the scene and the object's surface orientation with respect
+to the lights to generate a realistic smooth shaded 3D appearance of an
+object (see also BASE COLOR lighting model).</font>
+<p><b><font face="Arial,Helvetica">Point light</font></b>
+<br><font face="Arial,Helvetica">A point light, like a star, radiates light
+equally in all directions from a given location in 3D space</font>
+<p><b><font face="Arial,Helvetica">Renderer</font></b>
+<br><font face="Arial,Helvetica">Renderer is a category of output modules.
+In the context of Online Help, it is often used as synonym for the OpenInventor
+Renderer or IV Renderer (see above).</font>
+<p><b><font face="Arial,Helvetica">Shutter glasses</font></b>
+<br><font face="Arial,Helvetica">Goggles which use stereoscopic LCD projection
+of 3D scenery to give the observer a strong impression of space</font>
+<p><b><font face="Arial,Helvetica">Single buffer</font></b>
+<br><font face="Arial,Helvetica">By contrast with double buffering, where
+the image buffer is duplicated, the single buffering mode is not able to
+access the next image, which has already been calculated. This means that
+animations will run jerkily.</font>
+<p><b><font face="Arial,Helvetica">Smooth normals</font></b>
+<br><font face="Arial,Helvetica">You approximate a surface by a polygon;
+if you use one normal per vertex you get a smoother surface than if you
+use one normal per polygon face</font>
+<p><b><font face="Arial,Helvetica">Specular color</font></b>
+<br><font face="Arial,Helvetica">color on highly reflecting parts, i. e.
+color of the incident light</font>
+<p><b><font face="Arial,Helvetica">Spot light</font></b>
+<br><font face="Arial,Helvetica">A spot light illuminates from a point
+in space along a primary direction. Its illumination is a cone of light
+diverging from the light's position.</font>
+<p><b><font face="Arial,Helvetica">Textures</font></b>
+<br><font face="Arial,Helvetica">Wrapping a bitmap around an object, including
+perspective correction, for example wallpaper on a wall or a wood texture.</font>
+<p><b><font face="Arial,Helvetica">Transparency, blended T.</font></b>
+<br><font face="Arial,Helvetica">uses GL alpha blending</font>
+<br><b><font face="Arial,Helvetica">Transparency, delayed blended T.</font></b>
+<br><font face="Arial,Helvetica">uses GL alpha blending; opaque objects
+are rendered first, then transparent objects</font>
+<br><b><font face="Arial,Helvetica">Transparency, screen door T.</font></b>
+<br><font face="Arial,Helvetica">This is the default and the only supported
+mode on some machines. It uses GL patterns for achieving the transparency
+effect.</font>
+<br><b><font face="Arial,Helvetica">Transparency, sorted blended T.</font></b>
+<br><font face="Arial,Helvetica">uses GL alpha blending; opaque objects
+are rendered first, then transparent objects; additionally objects are
+sorted by their distance from the camera and are drawn from back to the
+front</font>
+<p><b><font face="Arial,Helvetica">Transparency level</font></b>
+<br><font face="Arial,Helvetica">If you have two objects, one covered by
+the other, the transparency level means</font>
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="92%" BGCOLOR="#CCCCCC" >
+<tr>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font face="Arial,Helvetica">0.0</font></td>
+
+<td><font face="Arial,Helvetica">no transparency</font></td>
+
+<td><font face="Arial,Helvetica">you see the covering object only</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">0.0&lt; transparency &lt;1.0</font></td>
+
+<td><font face="Arial,Helvetica">limited transparency</font></td>
+
+<td><font face="Arial,Helvetica">you see both objects</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.0</font></td>
+
+<td><font face="Arial,Helvetica">full transparency</font></td>
+
+<td><font face="Arial,Helvetica">you see the covered object only</font></td>
+</tr>
+</table>
+
+<p><b><font face="Arial,Helvetica">VR Renderer</font></b>
+<br><font face="Arial,Helvetica">see COVER</font>
+<p><b><font face="Arial,Helvetica">Wireframe</font></b>
+<br><font face="Arial,Helvetica">draw style: complete grid (bright) including
+hidden lines</font>
+</body>
+</html>

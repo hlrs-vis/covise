@@ -1,0 +1,8 @@
+SET(HEADERS
+)
+SET(SOURCES
+  ReadSoundVol.cpp
+)
+ADD_COVISE_MODULE(IO ReadSoundVol ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadSoundVol coApi coAppl coCore)
+COVISE_INSTALL_TARGET(ReadSoundVol)

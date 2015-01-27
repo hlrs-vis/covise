@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>certs/telekom.pem</file>
+        <file>certs/dfn.pem</file>
+        <file>certs/uni-stuttgart.pem</file>
+    </qresource>
+</RCC>

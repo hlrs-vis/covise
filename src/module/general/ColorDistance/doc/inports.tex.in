@@ -1,0 +1,11 @@
+\subsubsection{Input Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	Red & Float & Scalar volume data (red channel)\\ 
+\hline
+	Green & Float & Scalar volume data (green channel)\\ 
+\hline
+	Blue & Float & Scalar volume data (blue channel)\\
+\hline \end{longtable}
+

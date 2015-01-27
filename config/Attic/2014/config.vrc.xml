@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="license" >config.license.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="CAVE" >config.lcave.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="pwall" >config.lpwall.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="holob" >config.lholob.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
+
+ <GLOBAL>
+
+  <License>
+
+   <SERVER type="SERVER" value="ANY 6.1 1.10.2005 0 EYWAAEE Trial License" name="EYWAAEE" />
+   <STD_UI type="STD_UI" value="ANY 6.1 1.10.2005 0 YCARRTE Trial License" name="YCARRTE" />
+   <VR_ONE_PIPE type="VR_ONE_PIPE" value="ANY 6.1 1.10.2005 0 WYKBJTC Trial License" name="WYKBJTC" />
+   <VR_MULTI_ANY type="VR_MULTI_ANY" value="ANY 6.1 1.10.2005 0 WEACMYI Trial License" name="WEACMYI" />
+   <SERVER type="SERVER" value="00e0812d9be2 6.1 12.08.2010 0 MESUOOO HLRS_VRC" name="MESUOOO" />
+   <STD_UI type="STD_UI" value="00e0812d9be2 6.1 12.08.2010 0 CIYHTZC HLRS_VRC" name="CIYHTZC" />
+   <VR_ONE_PIPE type="VR_ONE_PIPE" value="00e0812d9be2 6.1 12.08.2010 0 CCWJLRE HLRS_VRC" name="CCWJLRE" />
+   <VR_MULTI_ANY type="VR_MULTI_ANY" value="00e0812d9be2 6.1 12.08.2010 0 SUGYMYW HLRS_VRC" name="SUGYMYW" />
+  </License>
+
+
+  <COVER>
+
+   <Plugin>
+
+    <Volume>
+     <Files>
+    data/volume/nchc/osaka3.xvf Osaka
+
+    data/volume/nchc/osaka3_sub7_str.xvf OsakaLarge
+    data/volume/nchc/osaka3_sub7_str_small.xvf OsakaSmall
+    data/volume/nchc/osaka3_sub7_str_small_1.xvf OsakaSmall1
+    data/VolData/vhd/female-knee-marked3.xvf Knee
+    data/VolData/vhd/fctskull.xvf Skull
+    data/ihf/abs-small2.xvf abs
+    data/ihf/zj_small.xvf zj
+    data/VolData/vhd/lunge.xvf Lung
+    data/VolData/virvo/lambda.rvf Lambda
+    data/VolData/klaus/engine256x256x110.rvf
+    data/VolData/virvo/softpyramid.rvf Pyramid
+    data/VolData/vhd/avm-512-32-stretched.xvf avm-512-32-stretched
+    data/VolData/hilfer/pressure.rvf Pressure
+    data/VolData/vhd/kopf-rgb.xvf kopf-rgb
+    data/VolData/virvo/rgbcube24.xvf rgbcube24
+    data/Baumgartner/kurbelgeh_small.rvf Baumgartner
+    data/VolData/marc/earth3_.xvf earth3_
+
+  </Files>
+
+
+    </Volume>
+
+    <VRViewpoints>
+     <WriteVrmlViewpoint value="true" />
+    </VRViewpoints>
+
+    <Molecules>
+     <DataDir value="/mnt/raid/cod/itt" />
+    </Molecules>
+
+    <AKToolbar>
+     <Scale value="2" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+
+    <DNA>
+     <DataDir value="/mnt/raid/cod/sandia/igrid/DNA Drawer/Data" />
+    </DNA>
+
+   </Plugin>
+
+   <TabletPC>
+    <Server value="localhost" />
+   </TabletPC>
+
+  </COVER>
+
+
+  <Volume>
+
+  <!--Renderer value="Simian" /-->
+  </Volume>
+
+  <License>
+
+   <SERVER type="SERVER" value="ANY 6.1 1.7.2006 0 GCGWSGO Demo" name="GCGWSGO" />
+   <STD_UI type="STD_UI" value="ANY 6.1 1.7.2006 0 AGKNJVO Demo" name="AGKNJVO" />
+   <VR_ONE_PIPE type="VR_ONE_PIPE" value="ANY 6.1 1.7.2006 0 SIAVLLW Demo" name="SIAVLLW" />
+   <VR_MULTI_ANY type="VR_MULTI_ANY" value="ANY 6.1 1.7.2006 0 QSASKWM Demo" name="QSASKWM" />
+   <COVISE_VRML type="COVISE_VRML" value="ANY 6.1 1.7.2006 0 COKYCGM Demo" name="COKYCGM" />
+   <COVISE_CFD type="COVISE_CFD" value="ANY 6.1 1.7.2006 0 IEUYESO Demo" name="IEUYESO" />
+   <COVISE_FEM type="COVISE_FEM" value="ANY 6.1 1.7.2006 0 KYSTNRK Demo" name="KYSTNRK" />
+   <VR_DUAL_CLUSTER type="VR_DUAL_CLUSTER" value="ANY 6.1 1.7.2006 0 WOMJJVA Demo" name="WOMJJVA" />
+  </License>
+
+
+  <System>
+
+   <CRB>
+
+    <Proxy>
+     <ProxyCommand value="ssh uw_te@visit crb" />
+    </Proxy>
+
+   </CRB>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="ssh" name="viskas" hostname="viskas" />
+    <Host timeout="60" memory="shm" method="ssh" name="visspring" hostname="visspring" />
+    <Host timeout="60" memory="shm" method="ssh" name="vissummer" hostname="vissummer" />
+    <Host timeout="60" memory="shm" method="ssh" name="visautumn" hostname="visautumn" />
+    <Host timeout="60" memory="shm" method="ssh" name="viswinter" hostname="viswinter" />
+    <Host timeout="30" memory="shm" method="ssh" name="vispw1" hostname="vispw1" />
+    <Host timeout="300" memory="shm" method="ssh" name="visard" hostname="visard" />
+    <Host timeout="300" memory="shm" method="ssh" name="viszdf" hostname="viszdf" />
+    <Host timeout="60" memory="shm" method="ssh" name="visper" hostname="visper" />
+    <Host timeout="60" memory="shm" method="ssh" name="vis-mail" hostname="vis-mail" />
+    <Host timeout="60" memory="shm" method="ssh" name="visible" hostname="visible" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="vispw1" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="neptun" />
+    <Host timeout="60" memory="shm" method="ssh" name="hlrssemi7" hostname="hlrssemi7" />
+    <Host timeout="60" memory="shm" method="ssh" name="hlrssemi4" hostname="hlrssemi4" />
+    <Host timeout="60" memory="shm" method="ssh" name="visdragon" hostname="visdragon" />
+   </HostConfig>
+
+   <IpTable>
+    <IP symbolic="visper" value="141.58.8.11" name="visper" />
+    <IP symbolic="vispw1" value="141.58.8.3" name="visper" />
+   </IpTable>
+
+   <VRB>
+    <Server port="31200" />
+    <!--Server value="141.58.8.11" /-->
+    </VRB>
+
+   <RemoteDaemon>
+    <Server port="31090" />
+   </RemoteDaemon>
+
+  </System>
+
+
+  <Module>
+
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+
+   <Fenfloss>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <STARTUP value="gate %0 %1 %e" name="v3" />
+    <STARTUP value="tube %0 %1 %e" name="v4" />
+    <STARTUP value="axial %0 %1 %e" name="v5" />
+    <STARTUP value="radial %0 %1 %e" name="v6" />
+    <STARTUP value="sc2004booth %0 %1 %e" name="v7" />
+    <STARTUP value="archflow %0 %1 %e" name="v8" />
+    <STARTUP value="other %0 %1 %e" name="v9" />
+   </Fenfloss>
+
+   <StarCD>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <SERVER value="m" />
+    <STARTUP value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <STARTUP value="dummy d" name="v2" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+
+   <Material>
+    <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0" />
+   </Material>
+
+  </Module>
+
+
+  <CONFIGEDITOR>
+
+   <COLOR name="global_scope" color="blue" />
+   <COLOR name="global_variable" color="darkslateblue" />
+   <COLOR name="host_scope" color="red" />
+   <COLOR name="host_variable" color="indianred" />
+   <COLOR name="user_scope" color="darkgreen" />
+   <COLOR name="user_variable" color="darkseagreen" />
+   <COLOR name="userhost_scope" color="darkorange" />
+   <COLOR name="userhost_variable" color="goldenrod" />
+  </CONFIGEDITOR>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

@@ -1,0 +1,27 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The MinMax modules calculates the minimum and maximum value of a scalar data set. It outputs
+either a min-max pair that can be used for example as input for a colormap module, or a list
+of x-y pairs that shows the distribution of values over the range.
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{minmax_module}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+MinMax is available for COVISE version 3.1 and higher. It's tested on SGI systems (IRIX
+6.2,6.3,6.4,6.5) and HP systems (HP-UX10.20).
+
+%
+%=============================================================

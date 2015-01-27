@@ -1,0 +1,336 @@
+
+
+\subsubsection{Task Types}
+%=============================================================
+
+{\bf Moving Points}
+
+   A cloud of points is emitted into the flow at given positions and then
+   advanced according to the given vector field. If the field is transient,
+   the number of steps is the number of timesteps in the given field; otherwise
+   it can be selected by the "MaxPoints" parameter.
+
+   The length of the time interval for each step can be chosen with the
+   "stepDuration" parameter unless a REALTIME attribute is  attached to
+   a transient input data set, which overrides user settings.
+
+{\bf Streamlines}
+
+   Streamlines are integration lines across the vector field. From a given
+   starting point, the particle path is integrated in the direction given
+   by the "tdirection" parameter. Streamlines are calculated independently
+   for each timestep in transient fields.
+
+   Streamlines are limited by the "trace\_len" parameter, which is a limit for
+   the maximum length of the line in model coordinates.
+
+{\bf Streaklines}
+
+   Streaklines require transient data. They imitate a smoke probe of a wind
+   channel: At every time step, new particles are emitted from the starting
+   point and connected by lines.
+
+   If the data set does not contain a REALTIME attribute (currently only
+   supported by the StarCD reader), the time spacing of the transient data
+   must be constant and manually be correctly entered in the "stepDuration"
+   field to get a correct streakline.
+
+{\bf Pathlines}
+
+   The Pathlines otion is available for both static and dynamic data sets. 
+   In this case the path of a particle is traced and shown. 
+   For moving grids, this may even create lines outside
+   the geometry in later time-steps. As for the Streaklines, the time stepping
+   must be set correctly.
+
+All traces running on transient data may emit partices multiple times by the
+"ThrowNewParticles" switch. In this case, the "ParticlesReleaseRate" parameter
+defines the release frequency.
+
+With the "NoCycles" parameter the data set can be interpreted as a cyclic
+set of data and repeated multiple times.
+\clearpage
+%=============================================================
+
+\subsubsection{Starting point selection}
+%=============================================================
+
+Two different kinds of starting points can be selected with the "startStyle"
+choice:
+\begin{itemize}
+\item linear: even distribution of "no\_startp" points between  "startpoint1"
+              and "startpoint2"
+
+\item rectangular: rectangle created with the two starting points as opposite
+                  corners and "direction" as the direction of one side. The
+                  selected number of starting points may be slightly corrected
+                  to allow for an NxM pattern
+\end{itemize}
+
+   If a Points object is given at the "pointsIn" port, it overrides the
+   starting point parameters and the points in the data objects are used instead.
+
+%=============================================================
+
+\subsubsection{Displacement}
+%=============================================================
+
+The "displacement" parameter allows to offset the trace by a constant value -
+   this may be used especially with traces along surfaces to make them visible on
+   hardware with z-Buffer.
+   
+%=============================================================
+
+\subsubsection{Multitasking}
+%=============================================================
+On SMP machines, the NoWThreads may be used to parallelize the Tracer across
+   the available CPUs
+
+%=============================================================
+
+\subsubsection{Octrees}
+%=============================================================
+
+The particle tracer uses Octrees to accelerate the tracing of unstructured
+   grids. These can be supplied by an input object, otherwise they are created
+   internally.
+
+   When using multiple Tracers on the same grid it is more efficient to create
+   the octree for the grid once by the "MakeOctree" module and supply it to all
+   Tracers.
+
+\clearpage
+%=============================================================
+
+\subsubsection{Troubleshooting}
+%=============================================================
+
+{\bf When a trace is interrupted before you expect it}, and "taskType" is
+"Streamlines", you should consider either of the following reasons:
+
+\begin{itemize}
+\item The value in parameter "trace\_len"' should be increased. Its default value is
+     on many occasions not apposite for your purposes, so that you will have to
+     change it quite often.
+
+\item The value in parameter "MaxPoints" should be increased. Nevertheless, you
+     will have to change rather seldom the default value.
+
+\item The velocity is below the threshold determined by "min\_vel". You may
+     reduce this threshold if you wish to integrate farther. But do not be too
+     greedy in reducing this parameter, because then the integration time may get
+     unnecessarily large.
+
+\item he trajectory gets out of the domain. Even if you have a wall in your
+     domain, and the velocity is theoretically orthogonal to it, the trajectory may
+     get out of the domain if this property is not preserved in the numbers of your
+     simulation, or as a result of integration errors.
+
+\end{itemize}
+
+{\bf Trace terminates at grid anomalies}
+
+     The tracer stops integration at the boundaries of the grid. Any gap in the
+     meshing may appear as a boundary and thus stop the tracing. There are several
+     parameters to overcome these problems:
+
+\begin{itemize}
+\item grid\_tol:
+                              This value is used when
+                              locating the cell in which a
+                              point is found. Even if the
+                              point is found to be outside
+                              of the cell by an amount
+                              determined by this
+                              parameter relative to the
+                              cell size, the cell is declared
+                              to contain the point.
+
+\item divideCell
+
+                              This parameters sets the
+                              integration step when the
+                              integrator has detected that
+                              the particle is not far from a
+                              wall (the border of a grid),
+                              so that the distance covered
+                              by the particle in a time step
+                              is approximately the value of
+                              this parameter multiplied by
+                              a cell typical distance. This
+                              number should always be
+                              positive.
+\item maxOutOfDomain
+
+                              When the integration goes
+                              beyond a grid, integration is
+                              interrupted if no other grid is
+                              found to pursue the
+                              integration, but this is not
+                              done immediately.
+                              Integration is pursued for a
+                              short distance even the
+                              particle is out of the domain,
+                              this distance is given by the
+                              value of this parameter
+                              relative to a typical cell
+                              length. This value should be
+                              at least twice the value of
+                              "divideCell".
+
+\end{itemize}
+
+
+
+
+{\bf The most basic parameter is "taskType"}, which fixes the kind of task
+to be done. According to this choice, irrelevant parameters are 
+disabled, so that you may concentrate on those parameter that
+might be relevant for your task.
+
+{\bf When a trajectory is interrupted before you expect it to occur}, and
+"taskType"
+is "Streamlines", you should
+consider either of the following reasons:
+
+\begin{itemize}
+\item The value in parameter "trace\_len" should be increased. 
+Its default value is on many occasions not apposite for your purposes,
+so that you will have to change it quite often.
+\item The value in parameter "MaxPoints" should be increased. 
+Nevertheless, you will have to change rather seldom the default value.
+\item The velocity is below the threshold determined
+by "min\_vel". You may reduce this threshold if
+you wish to integrate farther. But do not be too greedy
+in reducing this parameter, because then the integration
+time may get unnecessarily large.
+\item The trajectory gets out of the domain. 
+Even if you have a wall in your domain,
+and the velocity is theoretically orthogonal to it, 
+the trajectory may get out of the domain if this
+property is not preserved in the numbers of your simulation,
+or as a result of integration errors.
+\end{itemize} 
+
+With the {\bf animation options of the "taskType" parameter}
+"Moving points", "Pathlines" or "Streaklines", integration
+is pursued up to the required time or until the integration
+gets out of the domain.
+"trace\_len" and "min\_vel" are irrelevant
+in this case. Parameter "MaxPoints" is still relevant, but
+it has a different meaning, which has nothing to do with
+the interruption of a trajectory. In these cases "MaxPoints"
+is only relevant for static data, and it determines the
+number of time steps of your animation. On the other hand,
+parameter "NoCycles" is only relevant for dynamic data, as
+explained in the section devoted to parameters. Do
+not change its value unless it is meaningful, because
+the computation time will increase accordingly, or the
+integrator may have numerical problems if you do not have a
+whole cycle.
+
+\clearpage
+%=============================================================se 
+
+
+
+%
+%=============================================================
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+% 1st example 
+
+\begin{covimg}{}
+		{TracerCompStreamlines_net}{1st example: covise/net/example/TracerCompStreamlines.net}{0.6}\end{covimg}
+		
+In the first example we integrate the velocity field in a domain for 6
+different initial conditions. This domain is defined by a set with two
+structured grids. 
+Observe in the renderer image below that in the domain there
+are some regions, which coincide with the blades in a rotor, with null velocity.
+This regions are shown in blue.
+The colours on the line map the magnitude
+of the velocity. 
+
+
+\begin{covimg}{}
+		{TracerCompStreamlines_out}{1st example: Streamlines for static data}{0.6}\end{covimg}
+		
+% 2nd example 
+\begin{covimg}{}
+		{TracerCompStaticPoints_net}{2nd example: covise/net/example/TracerCompStaticPoints.net}{0.6}\end{covimg}
+The second example produces an animation with 250 time steps 
+of moving points for the same input static data
+as before. A snapshot of the animation is shown.
+
+\begin{covimg}{}
+		{TracerCompStaticPoints_out}{2nd example: Snapshot of moving points for static data}{0.6}\end{covimg}
+
+% 3rd example 
+\begin{covimg}{}
+		{TracerCompStaticLines_net}{3rd example: covise/net/example/TracerCompStaticPathlines.net}{0.6}\end{covimg}
+The third net file produces an animation with 250 time steps of pathlines for the same input static data
+as before.  A snapshot of the animation is shown.
+
+
+\begin{covimg}{}
+		{TracerCompStaticLines_out}{2nd example: Snapshot of pathlines for static data}{0.6}\end{covimg}
+% 4th example 
+\begin{covimg}{}
+		{TracerCompDynamicStreamlines_net}{4th example: covise/net/example/TracerCompDynamicStreamlines.net}{0.6}\end{covimg}
+In the 4th example we have a dynamical input grid. Streamlines do not represent the physical
+particle motion but may be useful for visualisation, as here. The output for the last 
+time step is shown below. There are no streamlines for the first time step,
+because at that instant of time the velocity is null on the domain.
+
+\begin{covimg}{}
+		{TracerCompDynamicStreamlines_out}{4th example: Streamlines for dynamic data}{0.6}\end{covimg}
+
+% 5th example 
+\begin{covimg}{}
+		{TracerCompDynamicLines_net}{5th example: covise/net/example/TracerCompDynamicPathlines.net}{0.6}\end{covimg}
+In the 5th example we integrate the physical trajectory upon the assumption of some value
+for the real time between time steps (see parameter stepDuration). The last
+time step of the output is shown. Observe that it is different from the previous
+renderer image for streamlines.
+
+\begin{covimg}{}
+		{TracerCompDynamicLines_out}{5th example: Pathlines for dynamic data}{0.6}\end{covimg}
+% 6th example 
+\begin{covimg}{}
+		{TracerCompDoPoints_net}{6th example: covise/net/example/TracerCompDoPoints.net}{0.6}\end{covimg}
+In the 6th example we integrate streamlines on a static domain. Now we are using the
+third input port for the initial points. We generate a Points object with
+the ShowGrid module. The output is shown below.
+
+\begin{covimg}{}
+		{TracerCompDoPoints_out}{6th example: Use the third input port for the initial points}{0.6}\end{covimg}
+% 7th example 
+\begin{covimg}{}
+		{TracerCompDynamicStreaklines_net}{7th example: covise/net/example/TracerCompDynamicStreaklines.net}{0.6}\end{covimg}
+In the 7th example we integrate streaklines for dynamic data.
+Note that we have to set a high enough particle release rate in order to
+get beautiful results.
+The output is shown below for the last time step. Note that the output is not
+the same as that for pathlines (example 5).
+
+\begin{covimg}{}
+		{TracerCompDynamicStreaklines_out}{7th example: Streaklines}{0.6}\end{covimg}
+% 8th example 
+\begin{covimg}{}
+		{TracerCompDynamicPoints_net}{8th example: covise/net/example/TracerCompDynamicPoints.net}{0.6}\end{covimg}
+In the 8th example we integrate moving points for dynamic data.
+The output is shown below for the last time step. Particles are released
+at the same rate used in example 7 for streaklines. The output of example 7
+may be obtained by joining the pertinent points of this 8th example.
+
+\begin{covimg}{}
+		{TracerCompDynamicPoints_out}{8th example: Moving points for dynamic data, points are released at the same rate as in example 7}{0.6}\end{covimg}

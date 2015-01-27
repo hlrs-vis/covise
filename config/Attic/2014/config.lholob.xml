@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="lholob01" >
+
+  <ButtonConfig>
+
+   <SerialPort value="/dev/ttyS15" />
+   <Map value="1 ACTION_BUTTON" name="1 ACTION_BUTTON" />
+   <Map value="2 XFORM_BUTTON" name="2 XFORM_BUTTON" />
+   <Map value="5 ACTION_BUTTON" name="5 ACTION_BUTTON" />
+   <Map value="6 XFORM_BUTTON" name="6 XFORM_BUTTON" />
+  </ButtonConfig>
+
+
+  <COVER>
+
+   <Input>
+
+    <TrackingSystem>
+     <Offset x="0" y="-2550" z="-1320" />
+     <Orientation h="0" p="0" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="-80" z="-60" />
+     <Orientation h="90" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="-70" z="0" />
+     <Orientation h="0" p="90" r="0" />
+    </HandDevice>
+
+    <HandAddress value="1" />
+    <HeadAddress value="0" />
+    <ButtonAddress value="2" />
+   </Input>
+
+   <ChannelConfig>
+    <Channel comment="FRONT" channel="0" right="1" left="0" windowIndex="0" bottom="0" name="0" top="1" />
+   </ChannelConfig>
+
+   <WindowConfig>
+    <Window width="1000" comment="FRONT" window="0" pipeIndex="0" height="500" left="0" bottom="0" name="0" />
+   </WindowConfig>
+
+   <ScreenConfig>
+    <Screen width="6000" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <TabletPC>
+    <Server value="10.0.2.10" />
+   </TabletPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob02,lholob03,lholob04,lholob05" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="FRONT" channel="0" right="1600" left="0" windowIndex="0" bottom="0" name="0" top="1200" />
+   </ChannelConfig>
+
+   <WindowConfig>
+    <Window width="1600" comment="FRONT" window="0" pipeIndex="0" height="1440" left="0" bottom="0" name="0" />
+   </WindowConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob01,lholob02,lholob03,lholob04,lholob05" >
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+
+     <Audio value="AServer" >
+      <Host value="10.0.1.35" />
+     </Audio>
+
+    </Vrml97>
+
+   </Plugin>
+
+   <Input>
+    <TrackingSystem value="VRC" />
+   </Input>
+
+   <Freeze value="ON" />
+   <Module value="VRViewPoint" name="VRViewPoint" />
+
+   <Menu>
+    <Orientation h="0" p="0" r="0" />
+    <Position x="0" y="0" z="0" />
+   </Menu>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob02,lholob03" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="3333" comment="LEFT" h="0.0" originX="-1333" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob04,lholob05" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="3333" comment="RIGHT" h="0.0" originX="1333" originY="0" originZ="0" height="2500" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob02" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="RIGHT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+  </COVER>
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob03" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+  </COVER>
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob04" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="RIGHT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+  </COVER>
+
+ </LOCAL>
+
+
+ <LOCAL host="lholob05" >
+
+  <COVER>
+
+   <MonoView coconfig:deprecated="1" value="LEFT" >
+   <!--This configuration entry is deprecated.-->
+   </MonoView>
+  </COVER>
+
+ </LOCAL>
+
+
+</COCONFIG>

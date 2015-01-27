@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+<COVER>
+
+  <VRUI>
+   <TFE>
+    <Menu>
+     <Position x="220" y="0" z="270" />
+     <Size value="0.4" />
+    </Menu>
+   </TFE>
+  </VRUI>
+
+     <Near value="350" />
+     <Freeze value="off" />
+     <CoordAxis value="off" />
+     <!--Input>
+         <TrackingSystem value="DynaSight">
+           <Offset y="100" z="300" />
+           <Orientation p="100" />
+         </TrackingSystem>
+         <DebugTracking value="APP" />
+         <DebugStation value="0" />
+         <HeadAddress value="0" />
+         <DynaSight serial="/dev/ttyDynaSight" />
+     </Input-->
+     <Stereo value="on" separation="-60.0"/>
+     <NumScreens value="1" />
+     <NumChannels value="2" />
+     <NumWindows value="1" />
+     <NumPipes value="1" />
+ <WindowConfig>
+ <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+ </WindowConfig>
+
+ <StereoMode enable="on" value="HORIZONTAL_INTERLACE" name="HORIZONTAL_INTERLACE"/>
+
+   <ChannelConfig>
+      <Channel channel="0" left="0"    width="1" bottom="0" height="1" stereoMode="HORIZONTAL_INTERLACE"  windowIndex="0" name="0" comment="RIGHT" />
+      <Channel channel="1" left="0" width="1" bottom="0" height="1" stereoMode="HORIZONTAL_INTERLACE" windowIndex="0" name="1" comment="LEFT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+      <Screen originX="0" originY="0" originZ="0" width="1018" height="573" h="0.0" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+   <Plugin>
+     <AKToolbar>
+       <Position x="-500" y="0" z="240" />
+       <Scale value="0.3" />
+     </AKToolbar>
+     <SpaceNavigator value="on" />
+   </Plugin>
+ </COVER>
+    
+
+ </GLOBAL>
+
+ <INCLUDE>config-rrzk.xml</INCLUDE>
+</COCONFIG>
+

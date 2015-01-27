@@ -1,0 +1,27 @@
+  body {  background-color: #FFFFFF; background-repeat:no-repeat; background-attachment: fixed;background-position: left; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: normal; margin-bottom: 40px; padding-bottom: 40px}
+
+.main {  width: 470px; margin-top: 15px; margin-left: 170px}
+ .bigtitle {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold; text-align:left}
+ p {  text-align: left; text-indent: 0pt; margin-top: 12px; margin-bottom: 0px; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt}
+ .lable {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #009999; font-weight: bold; vertical-align: middle}
+.examp {  width: 375px; margin-top: 12px;; color: #000000; font-family: Verdana, Arial, Helvetica, sans-serif;; vertical-align: top; font-size: 10pt}
+.icons { margin-top: 20px;; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8pt; color: #000000; margin-left: 42px}
+ .tip { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8pt }
+.note {  width: 280px; margin-left: 10px; margin-top: 20px; background-color: #Ffcc00; background-attachment: fixed; background-image: url(bullet.gif); background-repeat: no-repeat; background-position: center;; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 32px; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt}
+#width {width:90; margin-left:"35"; vertical-align: top}
+#margin {margin-left:10px; width: 250px}
+.subtitle {  font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold; text-align: left; margin-top: 20px; font-size: 11pt}
+
+.code{  width: 600px; margin-top: 80px; margin-left: 170px}
+ 
+ form { margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14pt}
+
+.button {  height: 25px; width: 75px; clip:   rect(   ); background-position: center center; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt}
+.field {  font-family: Verdana, Arial, Helvetica, sans-serif; background-color: #999999; font-size: 12pt}
+.font {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt}
+
+a:link{ font-family: Arial, Helvetica, sans-serif; font-size: 10pt;color: #009999;            text-decoration: underline}
+ a:visited {font-family: Arial, Helvetica, sans-serif; font-size: 10pt ;color:#990099             ;text-decoration: underline; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px}
+  a:active {font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #ff3333}
+li {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; margin-top: 12px; margin-left:8}
+.logo {margin-left: "9" ;margin-top: "14"; }

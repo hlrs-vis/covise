@@ -1,0 +1,33 @@
+
+
+UIConfig
+{
+    ShortCuts        RWCovise Colors Collect CuttingSurface IsoSurface Renderer OpenCOVER
+    HostColors       goldenrod2 CadetBlue  LimeGreen salmon2 LightPink 
+    AutoSaveTime     60
+    AutoSaveFile     autosave.net
+#     QTStyle        Platinum
+   QT		            true
+   ErrorOutput       off
+   StoragePath       ~
+   DockableModuleInfo true
+}
+
+
+TabletPC
+{
+#       Server localhost
+#       Server vislab01.rrz.uni-koeln.de
+
+       #Server 134.95.83.253
+       Server viskas.rrz.uni-koeln.de
+}
+
+CRB
+{
+        ModuleAlias     Renderer/COVER  Renderer/OpenCOVER
+        ModuleAlias     SRenderer/SCOVER  Renderer/SOpenCOVER
+}
+
+
+include "config/covise.config.koeln"

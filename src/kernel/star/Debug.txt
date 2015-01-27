@@ -1,0 +1,6 @@
+Environment-vars for debugging
+
+
+   VERBOSE_STARLIB_SAMM      Erzeuge Debug-File für SAMM-Auflösung
+   VERBOSE_STARLIB_ILL       Erzeuge Debug-File für ILL-Auflösung
+   VERBOSE_STARLIB_PROSTAR   Erzeuge Debug-File für Mapping Prostar/COVISE

@@ -1,0 +1,18 @@
+FORMAT
+type: ensight
+ 
+GEOMETRY
+model: TINY.GEO
+ 
+VARIABLE
+vector per node: SVEL TINY00001.SVEL
+scalar per node: P    TINY00001.P
+scalar per node: TE   TINY00001.TE
+scalar per node: ED   TINY00001.ED
+scalar per node: VIS  TINY00001.VIS
+scalar per node: T    TINY00001.T
+scalar per node: DENS TINY00001.DENS
+scalar per node: LAMV TINY00001.LAMV
+scalar per node: CP   TINY00001.CP
+scalar per node: COND TINY00001.COND
+ 

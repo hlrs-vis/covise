@@ -1,0 +1,30 @@
+
+SET 4
+{
+   ATTR NAME Set-Attribute 1
+   ATTR NAME Set-Attribute 2
+   ATTR NAME Set-Attribute 3
+
+   ELEM
+   {
+      SCAL-USG 10
+      {
+         ATTRIB VAR_NAME value
+
+         DATA 
+             0.0
+             0.1
+             0.2
+             0.3
+             0.4
+             0.5
+             0.6
+             0.7
+             0.8
+             0.9
+      }
+      REPEAT
+      REPEAT
+      REPEAT
+   }
+}

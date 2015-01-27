@@ -1,0 +1,52 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+ReadNastran reads data written by MSC Nastran in binary output2 Version 70 format.
+
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{ReadNastran}{0.7}\end{covimg2}
+ 
+It currently supports the following subset of the NASTRAN data format:  
+
+\begin{longtable}{|p{5cm}|p{7cm}|}
+\hline
+   \bf{Data block} & \bf{Data Cards} \\
+\hline\hline
+	 GEOM1S & CORD2C, CORD2R, CORD2S, GRID  \\
+\hline
+	 GEOM2S & CBAR, CHEXA, CPENTA, CQUAD4, CTRIA3, PLOTEL, CONM2  \\
+\hline
+	 GEOM3S & FORCE, MOMENT, GRAV, TEMP \\
+\hline
+	 GEOM4S & RBAR, RBE2, SPC1 \\
+\hline\hline
+	 OQG1 & - \\
+\hline
+	 OUGV1 & - \\
+\hline
+	 OEF1X & CQUAD4, CTRIA3, CBAR  \\
+\hline
+	 OES1X & CQUAD4, CTRIA3  \\	 	 	 
+\hline
+\end{longtable}
+
+GEOM1S,GEOM2S, GEOM3S, GEOM4S : {\bf Problem Definition}
+
+OQG1, OUGV1, OEF1X, OES1X : {\bf Analysis Results}
+
+
+
+%
+% short information about versions 
+%
+ReadNastran is available for COVISE version 4.5. It's tested on SGI and HP systems. 
+
+%
+%=============================================================

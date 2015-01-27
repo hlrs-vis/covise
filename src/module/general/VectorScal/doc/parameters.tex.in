@@ -1,0 +1,26 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	length & Choice & Options: 
+                          \begin{itemize}
+                          \item Length: length of vectors of the discrete vector field
+			  \item X-Component: x-coordinate of the discrete vector field
+			  \item Y-Component: y-coordinate of the discrete vector field 
+                          \item Z-Component: z-coordinate of the discrete vector field
+                          \end{itemize} \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,36 @@
+%{
+#include "parser.h"
+%}
+%option yylineno
+%x BODY
+%x STRINGMODE
+%x UNIMP
+%x UNIMPHEADER
+%x STRINGLINEMODE
+%x STRINGLINESTART
+DIGIT [0-9]
+
+%%
+\{                                      BEGIN(BODY);return Parser::OPENBRACE;
+<BODY>\}                                BEGIN(INITIAL);return Parser::CLOSEBRACE;
+\:                                      return Parser::COLON;
+_                                       return Parser::UNDERSCORE;
+<BODY>ON                                return Parser::BOOLEAN;
+<BODY>On                                return Parser::BOOLEAN;
+<BODY>on                                return Parser::BOOLEAN;
+<BODY>True                              return Parser::BOOLEAN;
+<BODY>TRUE                              return Parser::BOOLEAN;
+<BODY>true                              return Parser::BOOLEAN;
+<BODY>Off                              return Parser::BOOLEAN;
+<BODY>OFF                              return Parser::BOOLEAN;
+<BODY>off                              return Parser::BOOLEAN;
+<BODY>False                              return Parser::BOOLEAN;
+<BODY>FALSE                              return Parser::BOOLEAN;
+<BODY>false                              return Parser::BOOLEAN;
+<BODY>\"                                BEGIN(STRINGMODE);
+<BODY>WELCOME_MESSAGE                         BEGIN(STRINGLINESTART);return Parser::WELCOME_MESSAGE;
+<BODY>MODULE                         BEGIN(STRINGLINESTART);return Parser::MODULE;
+<BODY>STEREO_COMMAND                         BEGIN(STRINGLINESTART);return Parser::STEREO_COMMAND;
+<BODY>MONO_COMMAND                         BEGIN(STRINGLINESTART);return Parser::MONO_COMMAND;
+<STRINGLINESTART>[ \t\n]+ BEGIN(STRINGLINEMODE);
+<STRINGLINEMODE>.+                BEGIN(BODY);return Parser::STRING;

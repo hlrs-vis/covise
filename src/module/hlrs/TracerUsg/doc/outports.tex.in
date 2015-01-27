@@ -1,0 +1,28 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{lines} & DO\_Lines & Streamlines\\
+\hline
+	\textcolor{output}{dataOut} & DO\_Float &
+	the output data (as specified by parameter {\it whatout} mapped on the traces \\
+\hline
+	\textcolor{output}{velocOut} & DO\_Vec3 &
+	the velocity mapped on the traces \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

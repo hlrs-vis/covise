@@ -1,0 +1,79 @@
+%====== define a new class for layout
+
+\documentclass[module,a4paper]{../covise}
+
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+%\usepackage{palatino}
+%\renewcommand{\familydefault}{\sfdefault}
+
+\setlength\LTleft{0pt}
+\setlength\LTright\fill
+
+
+\definecolor{param}{rgb}{1.0,0.4,0.8}
+\definecolor{output}{rgb}{0.4,0.4,1.0}
+\definecolor{depend}{rgb}{0.1,0.4,1.0}
+\definecolor{required}{rgb}{0.8,0.8,0.0}
+\definecolor{optional}{rgb}{0.1,0.8,1.0}
+
+%====== start the document
+\begin{document}
+
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+\begin{titlepage}
+    \setcounter{page}{0}
+	 \thispagestyle{empty}
+    \unitlength1cm
+    
+       \begin{picture}(15,17)
+       \put(2, -2.5){\includegraphics[scale=5]{../visenso_title}}     
+       \put(0,-3){\line(1,0){15}}
+       \put(0, 10){\makebox(15,2)[t]{\Huge{COVISE}}}
+       \put(0, 9){\makebox(15,2)[t]{\Huge{Module Reference Guide}}}
+       \put(0, 8){\makebox(15,2)[t]{\LARGE{July 2005}}}   
+       \end{picture}
+    
+	\newpage
+   \setcounter{page}{0}
+	\thispagestyle{empty}
+   \uppertitleback{\bf{Title:} \\
+			COVISE Module Reference Guide \\
+         \today }
+   \vfill
+	\lowertitleback{\bf{Authors:} \\
+ 			Martin Aumueller \\
+         Juergen Schulze-Doebold \\
+         Ruth Lang \\
+         Daniela Rainer \\
+         Andreas Werner \\
+         Uwe Woessner \\
+         Peter Wolf}
+
+\end{titlepage}
+
+
+\pagenumbering{arabic}
+\tableofcontents
+%	\listoffigures
+%	\listoftables
+	
+\end{latexonly}
+
+
+%====== include the chapters
+\include{modules}
+
+\end{document}

@@ -1,0 +1,173 @@
+<ServerManagerConfiguration>
+ <ProxyGroup name="sources">
+
+   <SourceProxy name="DumpCFX" 
+                class="vtkDumpCFX"
+                label="Unstructured reader">
+     <Documentation>
+       The Unstructured reader reads unstructured data. The default file extension is .unst. The output of this reader is unstructured grid.
+     </Documentation>
+     <StringVectorProperty
+        name="FileName"
+        animateable="0"
+        command="SetFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for the Unstructured reader.
+        </Documentation>
+     </StringVectorProperty>
+
+     <StringVectorProperty 
+        name="CellArrayInfo"
+        information_only="1">
+        <ArraySelectionInformationHelper attribute_name="Cell"/>
+     </StringVectorProperty>
+
+     <StringVectorProperty
+        name="CellArrayStatus"
+        command="SetCellArrayStatus"
+        number_of_elements="2" 
+        repeat_command="1"
+        number_of_elements_per_command="2"
+        element_types="2 0" 
+        information_property="CellArrayInfo"
+        label="Cell Arrays">
+       <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+             <Property name="CellArrayInfo" function="ArrayList"/>
+          </RequiredProperties>
+       </ArraySelectionDomain>
+       <Documentation>
+         This property contains a list of the cell-centered arrays to read.
+       </Documentation>
+     </StringVectorProperty>
+
+     <StringVectorProperty 
+        name="PointArrayInfo"
+        information_only="1">
+        <ArraySelectionInformationHelper attribute_name="Point"/>
+     </StringVectorProperty>
+
+     <StringVectorProperty
+        name="PointArrayStatus"
+        command="SetPointArrayStatus"
+        number_of_elements="2" 
+        repeat_command="1"
+        number_of_elements_per_command="2"
+        element_types="2 0" 
+        information_property="PointArrayInfo"
+        label="Point Arrays">
+       <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+             <Property name="PointArrayInfo" function="ArrayList"/>
+          </RequiredProperties>
+       </ArraySelectionDomain>
+       <Documentation>
+         This property contains a list of the point-centered arrays to read.
+       </Documentation>
+     </StringVectorProperty>
+
+     <IntVectorProperty
+        name="Domain"
+        label="Domain"
+        command="SetDomain"
+        number_of_elements="1"
+        default_values="0">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Domain to read, 0 for all domains.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="LevelOfInterest"
+        label="Level Of Interest"
+        command="SetLevelOfInterest"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Level of interest, 3 for all variables.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="FirstTimeStep"
+        label="First Time Step"
+        command="SetFirstTimeStep"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         First time step to read, first step is 1.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="TimeStepNb"
+        label="Time Step Number"
+        command="SetTimeStepNb"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Number of time steps to read, 0 for all time steps.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MMapFileSizeMax"
+        label="Maximum Size of MMap File"
+        command="SetMMapFileSizeMax"
+        number_of_elements="1"
+        default_values="0">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Maximum size of mmap file (in bytes). Set to 0 if address space is large enough (64-bit systems), then only a single file is generated. Otherwise set to e.g. 300 MB, so multiple files are generated.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GenerateMMapFiles" 
+        label="Generate MMap Files"
+        command="SetGenerateMMapFiles" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         GenerateMMapFiles", "generate mmap file(s), used e.g. by the FLE module for path line integration.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="DeleteDumpFiles" 
+        label="Delete Dump Files"
+        command="SetDeleteDumpFiles" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Delete dump files (after generation of mmap files).
+       </Documentation>
+     </IntVectorProperty>
+
+     <!-- TODO: file browser -->
+     <StringVectorProperty
+        name="OutputPath"
+        label="Output Path"
+        animateable="1"
+        command="SetOutputPath"
+        number_of_elements="1">
+        <!--<FileListDomain name="files"/>-->
+       <Documentation>
+         Path for the dump file output.
+       </Documentation>
+     </StringVectorProperty>
+
+   <!-- End DumpCFX -->
+   </SourceProxy>
+
+  </ProxyGroup>
+
+</ServerManagerConfiguration>

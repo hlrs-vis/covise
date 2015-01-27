@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="88">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="PLMXML_Parser">
+      <df name="CMakeFiles">
+        <df name="CompilerIdC">
+          <in>CMakeCCompilerId.c</in>
+        </df>
+        <df name="CompilerIdCXX">
+          <in>CMakeCXXCompilerId.cpp</in>
+        </df>
+      </df>
+      <in>BC_T.cpp</in>
+      <in>BC_T.h</in>
+      <in>BC_U.cpp</in>
+      <in>BC_U.h</in>
+      <in>BC_alphat.cpp</in>
+      <in>BC_alphat.h</in>
+      <in>BC_epsilon.cpp</in>
+      <in>BC_epsilon.h</in>
+      <in>BC_k.cpp</in>
+      <in>BC_k.h</in>
+      <in>BC_nut.cpp</in>
+      <in>BC_nut.h</in>
+      <in>BC_p.cpp</in>
+      <in>BC_p.h</in>
+      <in>CoolEmAll.cpp</in>
+      <in>CoolEmAll.h</in>
+      <in>CoolEmAllClient.cpp</in>
+      <in>CoolEmAllClient.h</in>
+      <in>FileReference.cpp</in>
+      <in>FileReference.h</in>
+      <in>NameId.cpp</in>
+      <in>NameId.h</in>
+      <in>PLMXMLParser.cpp</in>
+      <in>PLMXMLParser.h</in>
+      <in>Part.cpp</in>
+      <in>Part.h</in>
+      <in>SnappyHexmeshDict.cpp</in>
+      <in>SnappyHexmeshDict.h</in>
+      <in>checkForPoint.cpp</in>
+      <in>checkForPoint.h</in>
+      <in>findTransform.cpp</in>
+      <in>functions.h</in>
+      <in>main.cpp</in>
+      <in>transformSTL.cpp</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>CMakeLists.txt</itemPath>
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+        </makeTool>
+      </makefileType>
+      <item path="BC_T.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_T.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="BC_U.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_U.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="BC_alphat.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_alphat.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="BC_epsilon.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_epsilon.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="BC_k.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_k.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="BC_nut.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_nut.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="BC_p.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="BC_p.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CMakeFiles/CompilerIdC/CMakeCCompilerId.c"
+            ex="false"
+            tool="0"
+            flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="CMakeFiles/CompilerIdCXX/CMakeCXXCompilerId.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="CoolEmAll.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CoolEmAll.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CoolEmAllClient.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CoolEmAllClient.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="FileReference.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="FileReference.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="NameId.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="NameId.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="PLMXMLParser.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="PLMXMLParser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Part.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Part.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SnappyHexmeshDict.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SnappyHexmeshDict.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="checkForPoint.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="checkForPoint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findTransform.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="functions.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+        </ccTool>
+      </item>
+      <item path="transformSTL.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

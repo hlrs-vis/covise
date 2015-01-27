@@ -1,0 +1,27 @@
+
+
+
+
+\subsubsection{Example}
+%=============================================================
+%
+% examples for using this module
+
+We redesign the pipeline for {\tt covise/net/tutorial\_pressure\_1.net}.
+
+\begin{covimg}{}{CuttingSurfaceCompMap_prev}{covise/net/tutorial/tutorial\_pressure\_1.net}{0.6}\end{covimg}
+
+\clearpage
+
+We get the same output with the following simplified pipeline.
+
+\begin{covimg}{}{CuttingSurfaceCompMap}{covise/net/examples/CuttingSurfaceComp.net}{0.6}\end{covimg} 
+
+And to conclude this documentation to CuttingSurfaceComp we show
+in the following example how it supersedes old module CuttingSurface3DTex.
+\begin{covimg}{}
+        {3DTex_map}{covise/net/general/examples/CuttingSurfaceComp3DTex.net}{0.6}\end{covimg}
+
+A snapshot of the COVER with the required menu adjustments
+is shown below.
+\begin{covimg}{}{3DTex_COVER}{covise/net/examples/CuttingSurfaceComp3DTex.net}{0.6}\end{covimg}

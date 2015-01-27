@@ -1,0 +1,93 @@
+SET 11
+{
+   ATTR TIMESTEP 1 24
+   
+   POLY <numPoly> <numConn> <numVertex>
+   {
+      ...
+   }
+   POLY
+   {
+      ...
+   } 
+   ...
+}
+
+POLY <numPoly> <numConn> <numVertex>
+{
+   ATTR <name> <value>
+   ...
+   
+   VERTEX
+     <x> <y> <z>
+     <x> <y> <z>
+     <x> <y> <z>
+     ...
+   CONN
+     <v1> <v2> <v3> <v4> ...
+     <v1> <v2> ...
+     ...
+}
+
+LINE <numLines> <numConn> <numVertex>
+{
+   ATTR <name> <value>
+   ...
+   
+   VERTEX
+     <x> <y> <z>
+     <x> <y> <z>
+     <x> <y> <z>
+     ...
+   CONN
+     <v1> <v2> <v3> <v4> ...
+     <v1> <v2> ...
+     ...
+}
+
+UNSGRG <numCells> <numConn> <numVertex>
+{
+   ATTR <name> <value>
+   ...
+   
+   VERTEX
+     <x> <y> <z>
+     <x> <y> <z>
+     <x> <y> <z>
+     ...
+   CONN
+     <v1> <v2> <v3> <v4> ...
+     <v1> <v2> ...
+     ...
+
+}
+
+VECTOR <numValues>
+{
+   ATTR <name> <value>
+   ...
+   DATA
+      <x> <y> <z>
+      <x> <y> <z>
+      <x> <y> <z>
+      
+}
+
+SCALAR <numValues>
+{
+   ATTR <name> <value>
+   ...
+   DATA
+      <x>
+      <x>
+      <x>
+      
+}
+
+STRGRG
+{
+}
+
+STRDAT
+{
+}

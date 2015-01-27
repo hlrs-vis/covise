@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <System>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="ssh" name="medialab1" hostname="medialab1" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab2" hostname="medialab2" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab3" hostname="medialab3" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab4" hostname="medialab4" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab5" hostname="medialab5" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab6" hostname="medialab6" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab7" hostname="medialab7" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab8" hostname="medialab8" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab9" hostname="medialab9" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab10" hostname="medialab10" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab11" hostname="medialab11" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab12" hostname="medialab12" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab13" hostname="medialab13" />
+    <Host timeout="60" memory="shm" method="ssh" name="medialab14" hostname="medialab14" />
+   </HostConfig>
+
+  </System>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

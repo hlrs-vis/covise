@@ -1,0 +1,114 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Whiteboard}
+\label{Whiteboard}
+%=============================================================
+
+%\section{S1}
+
+You have two possibilities to communicate via your computer screen during a meeting:
+\begin{itemize}
+\item the Whiteboard
+\item a Shared Application
+\end{itemize}
+
+\begin{covimg}{Whiteboard}{whiteboard}{Whiteboard}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 4.1: Whiteboard
+\vspace{0.5cm}
+\end{htmlonly}
+\vspace{0.5cm}
+
+{\bf Drawing on the Whiteboard}
+\vspace{0.5cm}
+\begin{enumerate}
+\item Select whiteboard from the drop-down menu near the top of the Meeting Room (if not already active -
+default)
+\item Use the whiteboard tools to draw rectangles, circles, and lines, to use colors, or
+to create graphs, charts, and diagrams - Figure 4.1 shows some of the possibilities. Use the Pointer Tool to display a marker on
+the whiteboard.
+\end{enumerate}
+
+Note: You can copy snapshots of your whiteboard e.g. to your word application.
+\begin{itemize}
+\item use ALT + Print Screen to save whiteboard in your repository - you can temporarily remove the right
+column of the screen (Audio/Video Control and People here) by switching off video 
+\item use Edit/Copy to insert it into your word file
+\end{itemize}
+
+The control fields shown in Fig. 4.2 allow you to
+\begin{itemize}
+\item to switch from the Whiteboard to a Shared Application
+\item to remove the (Audio and) Video Control (plus the Participant list) to get the maximum size for the
+Whiteboard.
+\item to exit the COVISE Conference Room Interface
+\end{itemize}
+
+\begin{covimg}{Whiteboard}{controls}{Control Fields}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 4.2: Control Fields
+\vspace{0.5cm}
+\end{htmlonly}
+\vspace{0.5cm}
+
+\vspace{0.5cm}
+{\bf Give Control to Others}
+\vspace{0.5cm}
+
+see Shared Application
+
+%\section{S2}
+%\section{S3}
+
+

@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline filename & Browser & dummy\\ \hline timesteps & Boolean & test\\ \hline timesteps\_min & Scalar & test\\ \hline timesteps\_max & Scalar & test\\ \hline Lookahead & Boolean & lookahead\\ \hline LookaheadValue & Scalar & test\\ \hline SleepSeconds & Scalar & sleepsecons\\ \hline render\_method & Choice & Render method for direct Spheres rendering\\ \hline Sphere Texture BlendOutColorKey & Boolean & test\\
+\hline \end{longtable}
+

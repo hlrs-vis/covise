@@ -1,0 +1,11 @@
+SET(HEADERS
+  SGBrowser.h
+  LoadFileVisitor.h
+  SimVisitor.h
+)
+SET(SOURCES
+  SGBrowser.cpp
+  LoadFileVisitor.cpp
+  SimVisitor.cpp
+)
+cover_add_plugin(SGBrowser)

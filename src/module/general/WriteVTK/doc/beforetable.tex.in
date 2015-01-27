@@ -1,0 +1,8 @@
+Write any type of vtk dataset to file.
+
+ vtkDataSetWriter is an abstract class for mapper objects that write their 
+ data to disk (or into a communications port). The input to this object is
+ a dataset of any type.
+
+
+This module (including its documentation) was auto-generated and provides the functionality of the Visualization Toolkit (VTK) class vtkDataSetWriter.

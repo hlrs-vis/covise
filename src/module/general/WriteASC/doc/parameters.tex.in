@@ -1,0 +1,30 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        path & Browser & Path of the file \\
+\hline
+        new  & Boolean & If set to TRUE, it creates a new file and
+eventually destroys the contents of an already existing file;
+otherwise the new information is appended to the file.  \\
+\hline
+        verbose  & Boolean & If set to TRUE, you dump a complete
+information of the object; otherwise only a summary is created. \\
+
+
+%       ....
+%       ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

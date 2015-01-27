@@ -1,0 +1,15 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	geo\_out & Polygons\newline Lines & geometry\\ 
+\hline
+	data\_out1 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	data\_out2 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	data\_out3 & Float\newline Vec3\newline RGBA & data\\ 
+\hline
+	data\_out4 & Float\newline Vec3\newline RGBA & data\\
+\hline \end{longtable}
+

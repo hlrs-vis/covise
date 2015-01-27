@@ -1,0 +1,238 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="Colormaps" >config.colormaps.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="itm cycloop" >config.cykloop.xml</INCLUDE>
+
+ <GLOBAL>
+
+
+
+  <COVER>
+
+   <Plugin>
+
+    <Volume>
+     <Files>
+       <Osaka value="data/volume/nchc/osaka3.xvf" />
+       <OsakaLarge value="data/volume/nchc/osaka3_sub7_str.xvf" />
+       <OsakaSmall value="data/volume/nchc/osaka3_sub7_str_small.xvf" />
+       <OsakaSmall1 value="data/volume/nchc/osaka3_sub7_str_small_1.xvf" />
+       <Knee value="data/VolData/vhd/female-knee-marked3.xvf" />
+       <Skull value="data/VolData/vhd/fctskull.xvf" />
+       <abs value="data/ihf/abs-small2.xvf" />
+       <zj value="data/ihf/zj_small.xvf" />
+       <Lung value="data/VolData/vhd/lunge.xvf" />
+       <Lambda value="data/VolData/virvo/lambda.rvf" />
+       <Enging value="data/VolData/klaus/engine256x256x110.rvf" />
+       <Pyramid value="data/VolData/virvo/softpyramid.rvf" />
+       <avm-512-32-stretched value="data/VolData/vhd/avm-512-32-stretched.xvf" />
+       <Pressure value="data/VolData/hilfer/pressure.rvf" />
+       <kopf-rgb value="data/VolData/vhd/kopf-rgb.xvf" />
+       <rgbcube24 value="data/VolData/virvo/rgbcube24.xvf" />
+       <Baumgartner value="data/Baumgartner/kurbelgeh_small.rvf" />
+       <earth3_ value="data/VolData/marc/earth3_.xvf" />
+       <Head_MRT value="/mnt/raid/tmp/hpcmario/DICOM/Dicom_CD2/DICOM/dcm/MR_202/MR202.xvf" />
+     </Files>
+
+
+    </Volume>
+
+    <VRViewpoints>
+     <WriteVrmlViewpoint value="true" />
+    </VRViewpoints>
+
+    <Molecules>
+     <DataDir value="/data/itt" />
+    </Molecules>
+
+    <AKToolbar>
+     <Scale value="2" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+
+    <CCDBVR>
+     <Scale value="1" />
+     <ViewerDistance value="2" />
+     <Mitochondria>
+  	 <mito_inner value="inner_2.wrl" />
+  	          <mito_outer value="outer_2.wrl" />
+  	          <mito_crista_1 value="crista1_2.wrl" />
+  	          <mito_crista14 value="crista14.wrl" />
+  	          <mito_crista15 value="crista15.wrl" />
+  	        </Mitochondria>
+
+     <HPFNode>
+  	          <axon value="axon.synu.iv" />
+  	          <loop1 value="loop1_lower_best.synu.iv" />
+  	          <loop2L value="loop2_lower.synu.iv" />
+  	          <loop2U value="loop2_upper.synu.iv" />
+  	          <loop3L value="loop3_lower.synu.iv" />
+  	          <loop3U value="loop3_upper.synu.iv" />
+  	          <lysosome value="Lysosome_1.synu.iv" />
+  	          <paranode value="paranode.iv" />
+  	        </HPFNode>
+
+     <Complete>
+  	          <Mitochondria value="MITO" />
+  	          <HPFNode value="HPF" />
+  	          <CONNode value="CON" />
+  	          <Take value="TAKE" />
+  	          <Test value="TEST" />
+  	        </Complete>
+    </CCDBVR>
+
+    <DNA>
+     <DataDir value="/mnt/raid/cod/sandia/igrid/DNA Drawer/Data" />
+    </DNA>
+
+    <PDB>
+     <BrowserDirectory value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/thumbnails" />
+     <PDBPluginMolDir value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/" />
+    </PDB>
+
+    <PDBSequenceDisplay>
+     <Scale value="1" />
+    </PDBSequenceDisplay>
+
+   </Plugin>
+
+   <TabletPC>
+    <Server value="localhost" />
+   </TabletPC>
+
+  </COVER>
+
+
+  <Volume>
+
+  <!--Renderer value="Simian" /-->
+  </Volume>
+
+
+  <System>
+
+    <CRB>
+
+    <Proxy>
+     <ProxyCommand value="ssh uw_te@visit crb" />
+    </Proxy>
+
+   </CRB>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="ssh" name="viskas" hostname="viskas" />
+    <Host timeout="60" memory="shm" method="ssh" name="visspring" hostname="visspring" />
+    <Host timeout="60" memory="shm" method="ssh" name="vissummer" hostname="vissummer" />
+    <Host timeout="60" memory="shm" method="ssh" name="visautumn" hostname="visautumn" />
+    <Host timeout="60" memory="shm" method="ssh" name="viswinter" hostname="viswinter" />
+    <Host timeout="30" memory="shm" method="ssh" name="vispw1" hostname="vispw1" />
+    <Host timeout="300" memory="shm" method="ssh" name="visard" hostname="visard" />
+    <Host timeout="300" memory="shm" method="ssh" name="viszdf" hostname="viszdf" />
+    <Host timeout="60" memory="shm" method="ssh" name="visper" hostname="visper" />
+    <Host timeout="60" memory="shm" method="ssh" name="vis-mail" hostname="vis-mail" />
+    <Host timeout="60" memory="shm" method="ssh" name="visible" hostname="visible" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="vispw1" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="neptun" />
+    <Host timeout="10" memory="shm" method="manual" name="vispw1" hostname="10.16.32.161" />
+    <Host timeout="60" memory="shm" method="ssh" name="hlrssemi7" hostname="hlrssemi7" />
+    <Host timeout="60" memory="shm" method="ssh" name="hlrssemi4" hostname="hlrssemi4" />
+    <Host timeout="60" memory="shm" method="ssh" name="vistiger" hostname="vistiger" />
+    <Host timeout="5" memory="shm" method="ssh" name="visdragon" hostname="visdragon" />
+   </HostConfig>
+   
+   <Network>
+    <!--IpAlias value="192.168.0.1 testrechner" name="testalias" /-->
+   </Network>
+
+   <IpTable>
+    <IP symbolic="visper" value="141.58.8.11" name="visper" />
+    <IP symbolic="vispw1" value="141.58.8.3" name="visper" />
+   </IpTable>
+   <Network>
+    <IpAlias value="192.168.178.23 rechner.uwewoessner.de" name="uwesrechner" />
+   </Network>
+
+
+   <VRB>
+    <Server port="31200" />
+	    <Server value="141.58.8.11" />
+    </VRB>
+
+   <RemoteDaemon>
+    <Server port="31090" />
+   </RemoteDaemon>
+
+  </System>
+
+
+  <Module>
+
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+
+   <Fenfloss>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <STARTUP value="gate %0 %1 %e" name="v3" />
+    <STARTUP value="tube %0 %1 %e" name="v4" />
+    <STARTUP value="axial %0 %1 %e" name="v5" />
+    <STARTUP value="radial %0 %1 %e" name="v6" />
+    <STARTUP value="sc2004booth %0 %1 %e" name="v7" />
+    <STARTUP value="archflow %0 %1 %e" name="v8" />
+    <STARTUP value="other %0 %1 %e" name="v9" />
+   </Fenfloss>
+
+   <StarCD>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <SERVER value="m" />
+    <STARTUP value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=1:00:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <STARTUP value="dummy d" name="v2" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+
+   <Material>
+      <UserDefined>
+         <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0"/>
+      </UserDefined>
+   </Material>
+
+  </Module>
+
+
+  <CONFIGEDITOR>
+
+   <COLOR name="global_scope" color="blue" />
+   <COLOR name="global_variable" color="darkslateblue" />
+   <COLOR name="host_scope" color="red" />
+   <COLOR name="host_variable" color="indianred" />
+   <COLOR name="user_scope" color="darkgreen" />
+   <COLOR name="user_variable" color="darkseagreen" />
+   <COLOR name="userhost_scope" color="darkorange" />
+   <COLOR name="userhost_variable" color="goldenrod" />
+  </CONFIGEDITOR>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

@@ -1,0 +1,10 @@
+SET(HEADERS
+  MultitouchPlugin.h
+  MultitouchNavigation.h
+)
+SET(SOURCES
+  MultitouchPlugin.cpp
+  MultitouchNavigation.cpp
+)
+cover_add_plugin(Multitouch)
+#COVER_INSTALL_PLUGIN(Multitouch)

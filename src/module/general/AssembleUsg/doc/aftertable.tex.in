@@ -1,0 +1,22 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}
+{}{AssembleUsgMap}{covise/net/examples/AssembleUsg.net}{0.5}\end{covimg}
+
+We consider a typical example of using AssembleUsg. Our aim is to create particle 
+traces. The Reader output are blocks of structured grids. 
+We  convert the structured grid into an unstructured one. This task is done by 
+the module StoU. Then we use AssembleUsg to assemble all block of 
+grids to one grid. This example is without timesteps so we really have only one 
+grid. You should use FixUsg to delete unnecessary nodes before you start Tracer. 
+Finally the module Sphere makes spheres out of your particles. The following image 
+shows you particles at the end of the pipe.
+
+\begin{covimg}
+{}{AssembleUsgRenderer}{Result in the Renderer}{0.7}\end{covimg} 
+

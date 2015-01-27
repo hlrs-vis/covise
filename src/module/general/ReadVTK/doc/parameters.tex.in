@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline filename & Browser & dummy\\ \hline filenamepattern & String & dummy\\ \hline scalar & Choice & Nun auch noch Choices\\ \hline vector & Choice & Nun auch noch Choices\\ \hline timesteps & Boolean & test\\ \hline timesteps\_min & Slider & test\\ \hline timesteps\_max & Slider & test\\
+\hline \end{longtable}
+

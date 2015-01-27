@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline outPort & Vec3\newline Vec3 & Vector output\\ \hline outPortRGBA & RGBA\_Data & Packed color output\\
+\hline \end{longtable}
+

@@ -1,0 +1,11 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	Filename & Browser & XYZ file\\ 
+\hline
+	ReadBounds & Boolean & Interpret first 8 atoms as bounding box\\ 
+\hline
+	LimitTimestep & IntScalar & Maximum number of timesteps to read (0 = all)\\
+\hline \end{longtable}
+

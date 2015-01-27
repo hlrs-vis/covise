@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/ParaViewResources" >
+    <file>../VortexCores_Client.xml</file>
+  </qresource>
+</RCC>

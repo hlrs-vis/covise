@@ -1,0 +1,24 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{meshIn} & UniformGrid \newline
+				    RectilinearGrid \newline	 
+				StructuredGrid   & Structured grid. \\
+\hline 
+	\textcolor{required}{dataIn} & Float \newline
+                              Vec3   & Data on structured grid points. The use of vector data is not implemented yet.  \\										
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

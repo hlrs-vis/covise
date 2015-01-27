@@ -1,0 +1,486 @@
+<YAC>
+
+
+ <!-- [[[ -->
+ <LOCAL host="viscluster01" >
+
+  <TarsusConfig>
+   <ButtonDevice value="/dev/input/tarsusmouse" />
+   <StationName value="CoviseBrille" name="0" />
+   <StationName value="CoviseMaus" name="1" />
+   <Host value="visadler" />
+  </TarsusConfig>
+ 
+  <TrackerConfig>
+   <DebugButtons value="TRUE" />
+   <InterpolationFile value="xcalib_23apr99_posit.data" />
+   <InterpolationFileX value="ixcalib_23apr99_ori_x.data" />
+   <InterpolationFileY value="xcalib_23apr99_ori_y.data" />
+   <InterpolationFileZ value="xcalib_23apr99_ori_z.data" />
+   <OrientInterpolation value="FALSE" />
+   <WriteCalibration value="FALSE" />
+   <HeadAddress value="0" />
+   <HandAddress value="1" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+alt, tut nicht!!
+   <TrackingSystemOffset value="0 0 -121" />
+   <TrackingSystemOrientation value="0 0 0" />
+   <HeadDeviceOffset value="0 0 0" />
+   <HeadDeviceOrientation value="0 0 0" />
+   <HandDeviceOffset value="0 0 0" />
+   <HandDeviceOrientation value="0 0 0" />
+   <DebugStation value="0" />
+  </TrackerConfig>
+
+  <TabletPC>
+   <Server value="localhost" />
+   <!--Server value="141.58.8.21" /-->
+  </TabletPC>
+
+  <Vrml97Plugin>
+   <Audio value="None" />
+  </Vrml97Plugin>
+
+  <MultiPC>
+   <Startup value="ssh ${USER}@viscluster02 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+   <Startup value="ssh ${USER}@viscluster03 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1" />
+   <Startup value="ssh ${USER}@viscluster04 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="2" />
+   <Startup value="ssh ${USER}@viscluster05 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="3" />
+   <Startup value="ssh ${USER}@viscluster06 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="4" />
+   <Startup value="ssh ${USER}@viscluster07 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="5" />
+   <Startup value="ssh ${USER}@viscluster08 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="6" />
+   <Startup value="ssh ${USER}@viscluster09 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="7" />
+   <Startup value="ssh ${USER}@viscluster10 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="8" />
+   <Startup value="ssh ${USER}@viscluster11 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="9" />
+   <Startup value="ssh ${USER}@viscluster12 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="10" />
+   <Startup value="ssh ${USER}@viscluster13 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="11" />
+   <Startup value="ssh ${USER}@viscluster14 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="12" />
+   <Startup value="ssh ${USER}@viscluster15 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="13" />
+   <Startup value="ssh ${USER}@viscluster16 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="14" />
+   <Startup value="ssh ${USER}@viscluster17 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="15" />
+   <Startup value="ssh ${USER}@viscluster18 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="16" />
+   <Startup value="ssh ${USER}@viscluster19 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="17" />
+   <Startup value="ssh ${USER}@viscluster20 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="18" />
+   <Startup value="ssh ${USER}@viscluster21 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="19" />
+   <Startup value="ssh ${USER}@viscluster22 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="20" />
+   <Startup value="ssh ${USER}@viscluster23 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="21" />
+   <Startup value="ssh ${USER}@viscluster24 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="22" />
+   <Startup value="ssh ${USER}@viscluster25 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="23" />
+   <Startup value="ssh ${USER}@viscluster26 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="24" />
+   <Startup value="ssh ${USER}@viscluster27 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="25" />
+   <Startup value="ssh ${USER}@viscluster28 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="26" />
+   <Startup value="ssh ${USER}@viscluster29 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="27" />
+   <Startup value="ssh ${USER}@viscluster30 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="28" />
+   <Startup value="ssh ${USER}@viscluster31 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="29" />
+   <Startup value="ssh ${USER}@viscluster32 setenv DISPLAY :0.0\; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="30" />
+  </MultiPC>
+
+ </LOCAL>
+ <!-- ]]] -->
+
+ 
+ <!--TiledDisplay/Window config master nodes -->
+ <!-- [[[ -->
+ <LOCAL host="viscluster01,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08" > 
+   <WindowConfig>
+     <Window window="0" value="MAIN 0 1280 0 1400 1050" name="0" />
+   </WindowConfig>
+   <COVERConfig>
+     <TiledDisplay x="0" y="0" number="0" internalCompositor="on"/>
+     <NumScreens value="4" />
+     <NumPipes value="1" />
+     <NumWindows value="1" />
+   </COVERConfig>
+ </LOCAL>
+ <!-- ]]] -->
+ 
+ <!-- walls ScreenConfig -->
+ <!-- [[[ -->
+ <LOCAL host="viscluster01,viscluster02" > 
+  <ScreenConfig>
+   <Screen value="FRONT 1400 1250 -700 1400  625 0.0 0.0 0.0" name="0" screen="0" />
+   <Screen value="FRONT 1400 1250  700 1400  625 0.0 0.0 0.0" name="1" screen="1" />
+   <Screen value="FRONT 1400 1250 -700 1400 -625 0.0 0.0 0.0" name="2" screen="2" />
+   <Screen value="FRONT 1400 1250  700 1400 -625 0.0 0.0 0.0" name="3" screen="3" />
+  </ScreenConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster07,viscluster08" >
+  <ScreenConfig>
+   <Screen value="LEFT 1400 1250 -1400 -700  625 90.0 0.0 0.0" name="0" screen="0" />
+   <Screen value="LEFT 1400 1250 -1400  700  625 90.0 0.0 0.0" name="1" screen="1" />
+   <Screen value="LEFT 1400 1250 -1400 -700 -625 90.0 0.0 0.0" name="2" screen="2" />
+   <Screen value="LEFT 1400 1250 -1400  700 -625 90.0 0.0 0.0" name="3" screen="3" />
+  </ScreenConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster03,viscluster04" >
+  <ScreenConfig>
+   <Screen value="RIGHT 1400 1250 1400  700  625 -90.0 0.0 0.0" name="0" screen="0" />
+   <Screen value="RIGHT 1400 1250 1400 -700  625 -90.0 0.0 0.0" name="1" screen="1" />
+   <Screen value="RIGHT 1400 1250 1400  700 -625 -90.0 0.0 0.0" name="2" screen="2" />
+   <Screen value="RIGHT 1400 1250 1400 -700 -625 -90.0 0.0 0.0" name="3" screen="3" />
+  </ScreenConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster05,viscluster06" >
+  <ScreenConfig>
+   <Screen value="BOTTOM 1400 1400 -700  700 -1250 0.0 -90.0 0.0" name="0" screen="0" />
+   <Screen value="BOTTOM 1400 1400  700  700 -1250 0.0 -90.0 0.0" name="1" screen="1" />
+   <Screen value="BOTTOM 1400 1400 -700 -700 -1250 0.0 -90.0 0.0" name="2" screen="2" />
+   <Screen value="BOTTOM 1400 1400  700 -700 -1250 0.0 -90.0 0.0" name="3" screen="3" />
+  </ScreenConfig>
+ </LOCAL>
+ <!-- ]]] -->
+
+ <!-- master nodes walls ChannelConfig -->
+ <!-- [[[  -->
+ <LOCAL host="viscluster01,viscluster03,viscluster07" >
+  <ChannelConfig>
+   <Channel channel="0" value="MAIN 0 112 525  588  525" stereoMode="RIGHT" name="0" />
+   <Channel channel="1" value="MAIN 0 700 525  588  525" stereoMode="RIGHT" name="1" />
+   <Channel channel="2" value="MAIN 0 112   0  588  525" stereoMode="RIGHT" name="2" />
+   <Channel channel="3" value="MAIN 0 700   0  588  525" stereoMode="RIGHT" name="3" />
+  </ChannelConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster02,viscluster04,viscluster08" >
+  <ChannelConfig>
+   <Channel channel="0" value="MAIN 0 112 525  588  525" stereoMode="LEFT" name="0" />
+   <Channel channel="1" value="MAIN 0 700 525  588  525" stereoMode="LEFT" name="1" />
+   <Channel channel="2" value="MAIN 0 112   0  588  525" stereoMode="LEFT" name="2" />
+   <Channel channel="3" value="MAIN 0 700   0  588  525" stereoMode="LEFT" name="3" />
+  </ChannelConfig>
+ </LOCAL>
+ <!-- ]]] -->
+
+ <!-- master node floor ChannelConfig -->
+ <!-- [[[  -->
+ <LOCAL host="viscluster05" >
+  <ChannelConfig>
+   <Channel channel="0" value="MAIN 0 163 525  537  525" stereoMode="RIGHT" name="0" />
+   <Channel channel="1" value="MAIN 0 700 525  537  525" stereoMode="RIGHT" name="1" />
+   <Channel channel="2" value="MAIN 0 163   0  537  525" stereoMode="RIGHT" name="2" />
+   <Channel channel="3" value="MAIN 0 700   0  537  525" stereoMode="RIGHT" name="3" />
+  </ChannelConfig>
+ </LOCAL>
+ <LOCAL host="viscluster06" >
+  <ChannelConfig>
+   <Channel channel="0" value="MAIN 0 163 525  537  525" stereoMode="LEFT" name="0" />
+   <Channel channel="1" value="MAIN 0 700 525  537  525" stereoMode="LEFT" name="1" />
+   <Channel channel="2" value="MAIN 0 163   0  537  525" stereoMode="LEFT" name="2" />
+   <Channel channel="3" value="MAIN 0 700   0  537  525" stereoMode="LEFT" name="3" />
+  </ChannelConfig>
+ </LOCAL>
+ <!-- ]]] -->
+
+ <!-- slave nodes all screens ChannelConfig -->
+ <!-- [[[  -->
+ <LOCAL host="viscluster09,viscluster10,viscluster11,viscluster15,viscluster16,viscluster17,viscluster21,viscluster22,viscluster23,viscluster27,viscluster28,viscluster29" >
+  <ChannelConfig>
+   <Channel channel="0" value="MAIN 0 0.0 0.0 1.0 1.0" stereoMode="RIGHT" name="0" />
+  </ChannelConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster12,viscluster13,viscluster14,viscluster18,viscluster19,viscluster20,viscluster24,viscluster25,viscluster26,viscluster30,viscluster31,viscluster32" >
+  <ChannelConfig>
+   <Channel channel="0" value="MAIN 0 0.0 0.0 1.0 1.0" stereoMode="LEFT" name="0" />
+  </ChannelConfig>
+</LOCAL>
+ <!-- ]]] -->
+
+ <!-- slave nodes all screens WindowConfig -->
+ <!-- [[[  -->
+ <!-- walls -->
+ <LOCAL host="viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32">
+  <WindowConfig>
+     <Window window="0" value="MAIN 0 0 0 588 525" name="0" />
+  </WindowConfig>
+ </LOCAL>
+ <!-- floor -->
+ <LOCAL host="viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26">
+  <WindowConfig>
+     <Window window="0" value="MAIN 0 0 0 537 525" name="0" />
+  </WindowConfig>
+ </LOCAL>
+ <!-- ]]] -->
+
+ <!--slave nodes ScreenConfig -->
+ <!-- [[[  -->
+ <LOCAL host="viscluster09,viscluster12">
+  <ScreenConfig>
+    <Screen value="FRONT 1400 1250   700 1400   625    0.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster10,viscluster13">
+  <ScreenConfig>
+    <Screen value="FRONT 1400 1250  -700 1400  -625    0.0   0.0 0.0" name="0" screen="0" />
+ </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster11,viscluster14">
+  <ScreenConfig>
+   <Screen value="FRONT 1400 1250    700 1400  -625    0.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster27,viscluster30">
+  <ScreenConfig>
+   <Screen value="LEFT  1400 1250  -1400  700   625   90.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster28,viscluster31">
+  <ScreenConfig>
+   <Screen value="LEFT  1400 1250  -1400 -700  -625   90.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster29,viscluster32">
+  <ScreenConfig>
+   <Screen value="LEFT  1400 1250  -1400  700  -625   90.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster15,viscluster18" >
+  <ScreenConfig>
+   <Screen value="RIGHT 1400 1250   1400 -700   625  -90.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster16,viscluster19" >
+  <ScreenConfig>
+   <Screen value="RIGHT 1400 1250   1400  700  -625  -90.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster17,viscluster20" >
+  <ScreenConfig>
+   <Screen value="RIGHT 1400 1250   1400 -700  -625  -90.0   0.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster21,viscluster24" >
+  <ScreenConfig>
+   <Screen value="BOTTOM 1400 1400   700  700 -1250    0.0 -90.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster22,viscluster25" >
+  <ScreenConfig>
+   <Screen value="BOTTOM 1400 1400  -700 -700 -1250    0.0 -90.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <LOCAL host="viscluster23,viscluster26" >
+  <ScreenConfig>
+   <Screen value="BOTTOM 1400 1400   700 -700 -1250    0.0 -90.0 0.0" name="0" screen="0" />
+  </ScreenConfig>
+ </LOCAL>
+ <!-- ]]] -->
+
+ <!-- slave nodes TiledDisplay config -->
+ <!-- [[[  -->
+ <LOCAL host="viscluster09">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster01" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster10">
+  <COVERConfig>
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster01"/>
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster11" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster01" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster12">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster02" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster13">
+  <COVERConfig>
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster02" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster14" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster02" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster15">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster03" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster16">
+  <COVERConfig>
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster03"/>
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster17" >
+  <COVERConfig>
+    <TiledDisplay x="1" y="1" number="3" compositor="viscluster03" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster18">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster04" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster19">
+  <COVERConfig>
+    <TiledDisplay x="0" y="1" number="2" compositor="viscluster04" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster20" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster04" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster21">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster05" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster22">
+  <COVERConfig>
+    <TiledDisplay x="0" y="1" number="2" compositor="viscluster05"/>
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster23" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster05" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster24">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster06" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster25">
+  <COVERConfig>
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster06" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster26" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster06" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster27">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster07" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster28">
+ <COVERConfig>
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster07"/>
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster29" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster07" />
+  </COVERConfig>
+ </LOCAL>
+
+ <LOCAL host="viscluster30">
+  <COVERConfig>
+   <TiledDisplay x="1" y="0" number="1" compositor="viscluster08" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster31">
+ <COVERConfig>
+   <TiledDisplay x="0" y="1" number="2" compositor="viscluster08" />
+  </COVERConfig>
+ </LOCAL>
+ <LOCAL host="viscluster32" >
+  <COVERConfig>
+   <TiledDisplay x="1" y="1" number="3" compositor="viscluster08" />
+  </COVERConfig>
+ </LOCAL>
+ <!-- ]]] -->
+
+ <!-- Settings for all nodes (MultiPC, COVERConfig) -->
+ <!-- [[[  -->
+ <LOCAL host="viscluster01,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08,viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32">
+
+  <MultiPC>
+     <SyncMode value="TCP" />
+     <NumSlaves value="31" />
+  </MultiPC>
+
+   <StateFixLevel value="100" />
+   <TextureCounter value="ON" />
+   <TextureMode value="MODULATE" />
+   <TextureQuality value="High" />
+   <TransparencyMode value="sorted_blended" />
+   <Headlight value="ON" />
+   <Lights value="ON" />
+  
+  <SteeringWheelPlugin>
+   <Mouse value="PorscheMouse" />
+  </SteeringWheelPlugin>
+
+  <COVERConfig>
+   <StereoMode value="LEFT" />
+   <MouseNav value="ON" />
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <TrackingSystem value="TARSUS" />
+   <Near value="100" />
+   <GenStrips value="ON" />
+   <Stereo value="ON" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition value="500 -3600 320" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+   <ForceFeedbackMode value="2 // 2 TEST 1 NORMAL" />
+   <ForceFeedback value="OFF" />
+   <ForceScale value="1.0" />
+   <ButtonSystem value="NONE # IAO" />
+   <SceneSize value="2500" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+   <SyncMode value="LOOSE_COUPLING" />
+   <Spotlight value="OFF" />
+   <StereoSeparation value="ON" />
+   <AnimationSpeed value="0.0 25.0 24.0" />
+   <MenuPosition value="1300 -1000 500" />
+   <MenuOrientation value="-90 0 0" />
+   <DebugLevel value="0" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+  </COVERConfig>
+
+ </LOCAL>
+
+ <LOCAL host="viscluster01,viscluster02,viscluster03,viscluster04,viscluster05,viscluster06,viscluster07,viscluster08,viscluster09,viscluster10,viscluster11,viscluster12,viscluster13,viscluster14,viscluster15,viscluster16,viscluster17,viscluster18,viscluster19,viscluster20,viscluster21,viscluster22,viscluster23,viscluster24,viscluster25,viscluster26,viscluster27,viscluster28,viscluster29,viscluster30,viscluster31,viscluster32">
+  <COVERConfig>
+   <Module value="TiledDisplay" name="TiledDisplay" />
+  </COVERConfig>
+
+ </LOCAL>
+
+ <!-- ]]] -->
+
+</YAC>

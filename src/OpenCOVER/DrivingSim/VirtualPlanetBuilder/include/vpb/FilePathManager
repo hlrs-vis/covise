@@ -1,0 +1,54 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef FILEPATHMANAGER_H
+#define FILEPATHMANAGER_H 1
+
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
+
+#include <vpb/FileUtils>
+
+namespace vpb
+{
+
+class VPB_EXPORT FilePathManager : public osg::Referenced
+{
+    public:
+    
+        static osg::ref_ptr<FilePathManager>& instance();
+        
+
+        osgDB::FileType getFileType(const std::string& filename);
+
+        bool checkWritePermissionAndEnsurePathAvailability(const std::string& filename);
+
+    protected:
+    
+        FilePathManager();
+        virtual ~FilePathManager();
+        
+        typedef std::map<std::string, osgDB::FileType> FilePathTypeMap;
+        typedef std::map<std::string, bool> FilePathPermissionMap;
+
+        OpenThreads::Mutex      _mutex;
+
+        FilePathTypeMap         _filePathTypeMap;
+        FilePathPermissionMap   _filePathWritePermissionMap;
+
+};
+
+
+}
+
+#endif

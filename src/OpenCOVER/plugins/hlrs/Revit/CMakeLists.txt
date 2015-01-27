@@ -1,0 +1,10 @@
+SET(HEADERS
+  RevitPlugin.h
+  GenNormals.h
+)
+SET(SOURCES
+  RevitPlugin.cpp
+  GenNormals.cpp
+)
+cover_add_plugin(Revit)
+#COVER_INSTALL_PLUGIN(Revit)

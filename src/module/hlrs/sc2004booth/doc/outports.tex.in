@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline grid & UnstructuredGrid & Computation Grid\\ \hline surface & Polygons & Surface Polygons\\ \hline bcin & Polygons & Cells at entry\\ \hline bcout & Polygons & Cells at exit\\ \hline bcwall & Polygons & Cells at walls\\ \hline boco & USR\_FenflossBoco & Boundary Conditions\\ \hline inbc nodes & Points & inbc nodes\\ \hline airbc nodes & Points & airbc nodes\\ \hline venbc nodes & Points & venbc nodes\\ \hline feedback info & Points & Feedback Info\\
+\hline \end{longtable}
+

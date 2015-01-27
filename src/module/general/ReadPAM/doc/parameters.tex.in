@@ -1,0 +1,78 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	DSY\_file & File Browser & DSY file (used mainly for visualisation). \\
+\hline
+	THP\_file  & File Browser & THP file (used mainly for global or
+        non-local data).\\ 
+\hline
+	scale & Scalar & You may modify the default valule (1.0)
+        in order to amplify or suppress the deformation of the grid. \\
+\hline
+	timeSteps & Vector & When you set a DSY file, the components
+        of this vector are automatically set with some default values:
+        the first component is the initial time step for visualisation,
+        and its default value is 1; the second component is the final
+        time step for visualisation and its default value is the
+        number of time steps that have been stored in the file; with the third
+        component you may jump between time steps, the default
+        value is 1, which means that all time steps between the first
+        and the last one that you wish to visualise are read, a value
+        of 2 means that only every second time step is read, and so forth.
+        The time step indicated by the first component is always read in. \\
+\hline
+	Nodal\_Var1\newline 
+	Nodal\_Var2 & Choice & Selection of nodal
+        magnitude. \\ 
+\hline
+	Cell\_Var1\newline 
+	Cell\_Var2 & Choice & Selection of element-based
+        magnitude. \\ 
+\hline
+	DSY\_or\_THP & Boolean & This is only relevant for global variables.
+        When this switch is true, then global variables are read from
+        the DSY file. When it is false, from the THP file.\\
+\hline
+	Global\_Var1\ldots\newline Global\_Var6  & Choice & Selection of non-local 
+        variables. These data are not intended for visualisation with
+        a renderer, but with the \covlink{Plot}{Plot}{../../Renderer/Plot/Plot.html}
+        module.\\ 
+\hline
+        Port select & switch & You may output tensor objects out
+        of cell-based fields. In order to do that you activate
+        one of the options: {\it Tensor port 1} or {\it Tensor port 2}.
+        Then there will appear on the control panel a list of 9
+        choice parameters for a maximum of 9 components. You may
+        produce tensors of 4 types: symmetric 2D (3 independent
+        components), full 2D (4 independent components), symmetric 3D
+        (6 independent components) and full 3D (9 independnet components).
+        For the 2D cases only the XX, XY, YX, and YY are relevant.
+        If you want to produce a symmetric tensor, it is not necessary
+        to repeat a redundant component. \\
+\hline
+	T1\_Component\_XX\ldots\newline T1\_Component\_ZZ & Choice & See
+        parameter {\it Port select}. These are the components
+        for the object of the first tensor port. \\
+\hline
+	T2\_Component\_XX\ldots\newline T2\_Component\_ZZ & Choice & See
+        parameter {\it Port select}. These are the components
+        for the object of the second tensor port. \\
+        
+%	....
+%	....
+
+\hline
+\end{longtable}
+
+%=============================================================
+
+
+%
+%=============================================================

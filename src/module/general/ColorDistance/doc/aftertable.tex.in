@@ -1,0 +1,17 @@
+%=============================================================
+% examples for using this module
+%=============================================================
+
+\subsubsection{Examples}
+
+A "classical" combination for this module is the example ColorDistance.net. It uses the module ColorDistance for adding an alpha channel to the RGB data to handle the opacity.
+
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2}{}{colordistance-example}{1.0}\end{covimg2}
+   

@@ -1,0 +1,193 @@
+
+
+<COCONFIG version="1" >
+   <INCLUDE global="1" configname="license" >config.license.xml</INCLUDE>
+
+   <GLOBAL>
+
+      <HostConfig>
+         <Host timeout="60" memory="shm" method="ssh" name="domina" hostname="domina" />
+      </HostConfig>
+
+      <Module>
+         <Tracer>
+            <ComplexObjectType value="BAR_MAGNET"/>
+         </Tracer>
+      </Module>
+
+      <COVER>
+         <!-- enable or display master rendering -->
+         <RenderOnMaster value="false" />
+         <CollisionDist value="1500" />
+         <WelcomeMessage value="Welcome to OpenCOVER" />
+         <Background r="0.5" g="0.5" b="1.0" /> 
+         <MultiThreaded value="false" />
+         <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+         <NavigationMode value="XForm" />
+         <Statistics value="off"/>
+
+         <!-- for adjusting how rapidly mipmaps update -->
+         <LODScale value="0.3" />
+
+         <SmallSceneAxis value="on" >
+            <Position x="-500" y="0" z="-230" />
+            <Size value="60"/>
+            <FontSize value="20"/>
+         </SmallSceneAxis>
+
+         <Plugin>
+            <!-- Standard Cover plugins, can always be on: -->
+            <ClipPlane value="on" />
+            <Vrml97 value="on">    
+               <Lights value="off" />
+            </Vrml97>
+
+            <AKToolbar value="on">
+               <Attachment value="BOTTOM" />
+               <MenuMaxItems value="0"/>
+               <Scale value=".5" />
+               <Position x="-590" y="0" z="-300" />
+               <ShortCut value="quit" name="quit" />
+               <ShortCut value="xform" name="xform" />
+               <ShortCut value="viewall" name="viewall" />
+               <ShortCut value="scalePlus" name="scalePlus" />
+               <ShortCut value="scaleMinus" name="scaleMinus" />
+               <ShortCut value="Plugin:CfdGui presentationForward Icon:media-seek-forward" name="forward"/>
+               <ShortCut value="Plugin:CfdGui presentationReload Icon:reload" name="reload"/> 
+               <ShortCut value="Plugin:CfdGui presentationBackward Icon:media-seek-backward" name="backward"/>
+               <DebugLevel value="0"/>
+               <CoverMenu value="off"/>
+               <StateButton value="off"/>
+            </AKToolbar>
+
+            <DocumentViewer value="on">
+               <Vsize value="600"/>
+               <AspectRatio value="0.4"/>
+               <DocumentInMenu value="off"/>
+               <DocumentInSzene value="on"/>
+            </DocumentViewer>
+
+            <ViewPoint value="on">
+               <FlyingMode value="on"/>
+               <FlightTime value="2.0"/>
+               <FlyConfig value="off"/>
+               <QuickNav value="on"/>
+               <Loop value="off"/>
+               <WriteVrmlViewpoint value="off"/>
+               <Viewpoints name="left" value="on" />
+               <Viewpoints name="top" value="on" />
+            </ViewPoint>
+
+            <CfdGui value="on"/>
+            <GeneralGeometry value="on"/>
+
+            <!-- Molecules -->
+            <Molecules value="on" />
+            <Molecules>
+               <DataDir value="/data/Demos/VR4Schule/Molecules" />
+               <!--<SphereRatio value="0.0" />-->
+            </Molecules>
+
+         </Plugin>
+
+         <ScaleAll value="OFF" />
+
+         <Stereo enable="ON" value="ON" />
+
+         <Menu>
+            <Orientation h="0" p="0" r="0" />
+            <Position x="0" y="0" z="0" />
+            <Size value="1" />
+         </Menu>
+
+         <SceneSize value="1111" />
+         <ViewerPosition x="0" y="-1000" z="-100" />
+         <CoordAxis value="off" />
+         <Freeze value="off" />
+         <ViewAll value="off" />
+         <NumPipes value="1" />
+         <NumScreens value="2" />
+         <NumWindows value="1" />
+         <Headlight value="on" />
+         <DebugLevel value="0" /> 
+         <FPS value="true" />
+
+         <IconSize value="50"/>
+         <IconOffset value="100"/>
+         <PointerDepth value="0"/>
+         <PointerAppearance>
+            <IconName value="pointer"/>
+            <Width value="10"/>
+            <Length value="1500"/>
+            <Intersection value="1500" />
+         </PointerAppearance>
+         <ConstantInteractorSize value="Off"/>
+         <ShowGeodeName enable="off" value="off"/>
+         <NameMenuPosition value="on" x="-600" y="0" z="200"/>
+
+         <StereoMode name="VERTICAL_INTERLACE" value="VERTICAL_INTERLACE" enable="on" />
+
+         <NumPipes value="1" />
+         <NumScreens value="2" />
+         <NumWindows value="1" />
+
+         <PipeConfig>
+            <Pipe display="not needed any more" server="0" screen="0" name="0" />
+         </PipeConfig>
+
+         <WindowConfig>
+            <Window width="1360" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="true" />
+         </WindowConfig>
+
+         <ChannelConfig>
+            <Channel channel="0" left="0"    width="1" bottom="0" height="768" stereoMode="VERTICAL_INTERLACE"  windowIndex="0" name="0" comment="LEFT" />
+            <Channel channel="1" left="0" width="1" bottom="0" height="768" stereoMode="VERTICAL_INTERLACE" windowIndex="0" name="1" comment="RIGHT" />
+         </ChannelConfig>
+
+         <ScreenConfig>
+            <Screen originX="0" originY="0" originZ="0" width="1111" height="620" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+            <Screen originX="0" originY="0" originZ="0" width="1111" height="620" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+         </ScreenConfig>
+
+         <Input>
+            <!--<TrackingSystem value="MOUSE" />-->
+            <DebugButtons value="FALSE" />
+            <DebugTracking value="TRUE"/>
+            <TrackingSystem value="VRC" />
+            <WiiNavigationVisenso value="on" enable="on" />
+
+            <VRC>
+               <Port value="7777" />
+               <DebugLevel value="0"/>
+               <Unit value="0.3"/>
+            </VRC>
+
+            <HandAddress value="1" />
+
+            <HandDevice>
+               <Offset x="0" y="0" z="0" />
+               <Orientation h="0" p="0" r="0" />
+            </HandDevice>
+
+            <VisensoJoystick value="ON" >
+               <Analog value="on" />
+            </VisensoJoystick> 
+
+            <MouseNav value="ON" />
+
+         </Input>
+
+         <TerminateCoviseOnQuit value="on"/>
+
+         <!-- Molecules -->
+         <FileManager>
+            <FileType name="via" plugin="Molecules" />
+            <FileType name="vim" plugin="Molecules" />
+            <FileType name="vis" plugin="Molecules" />
+         </FileManager>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

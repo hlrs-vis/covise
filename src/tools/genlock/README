@@ -1,0 +1,6 @@
+parport muss frei sein!
+also:
+modprobe -r lp
+modprobe -r parport_pc
+dann erst insmod genlock.ko nv_irq=... (interrupt aus /proc/interrupts)
+

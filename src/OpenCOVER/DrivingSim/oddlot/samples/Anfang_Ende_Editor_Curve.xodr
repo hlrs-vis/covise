@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<OpenDRIVE>
+   <header west="-480" version="1" revMajor="1" south="-1150" revMinor="1" name="VIRES Test" east="3300" date="Wed Dec 10 11:19:55 2008" north="1900"/>
+   <road junction="-1" length="4292.309422545557" id="1" name="Anfangsstueck">
+      <planView>
+         <geometry x="-300" y="0" hdg="0" length="800" s="0">
+            <line/>
+         </geometry>
+         <geometry x="500" y="0" hdg="0" length="209.6169443029345" s="800">
+            <spiral curvStart="0" curvEnd="0.0008834550275610263"/>
+         </geometry>
+         <geometry x="709.437299078448" y="6.46576621784141" hdg="0.09259357165320359" length="524.9158376525135" s="1009.616944302935">
+            <arc curvature="0.000883455027561026"/>
+         </geometry>
+         <geometry x="1202.517883694568" y="172.3135562432931" hdg="0.556333107473724" length="209.6170290045433" s="1534.532781955448">
+            <spiral curvStart="0.000883455027561026" curvEnd="-2.395731129995628e-019"/>
+         </geometry>
+         <geometry x="1373.291002956998" y="293.7316997438985" hdg="0.6489267165419586" length="433.13731358321" s="1744.149810959991">
+            <spiral curvStart="0" curvEnd="-0.001168861954528483"/>
+         </geometry>
+         <geometry x="1738.167149982792" y="524.8319640220404" hdg="0.3957878530749147" length="748.8265063236353" s="2177.287124543202">
+            <arc curvature="-0.001168861954528483"/>
+         </geometry>
+         <geometry x="2462.683251519763" y="494.4935749696471" hdg="-0.4794869607092651" length="266.1388268793348" s="2926.113630866837">
+            <spiral curvStart="-0.001168861954528483" curvEnd="0"/>
+         </geometry>
+         <geometry x="2684.59320068359" y="348.0911254882808" hdg="5.648158571789273" length="337.3645296642813" s="3192.252457746172">
+            <spiral curvStart="0" curvEnd="0.0007765922458059392"/>
+         </geometry>
+         <geometry x="2964.452664432104" y="160.1549361354058" hdg="5.779155910662897" length="565.3437901113634" s="3529.616987410453">
+            <arc curvature="0.0007765922458059393"/>
+         </geometry>
+         <geometry x="3502.721891199393" y="2.742355905695114" hdg="6.218197514277923" length="197.3486450237404" s="4094.960777521817">
+            <spiral curvStart="0.0007765922458059393" curvEnd="-5.592153711910738e-019"/>
+         </geometry>
+      </planView>
+      <lanes>
+         <laneSection s="0">
+            <right>
+               <lane type="driving" id="-3" level="0">
+                  <link>
+                     <predecessor id="-3"/>
+                     <successor id="-3"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-2" level="0">
+                  <link>
+                     <predecessor id="-2"/>
+                     <successor id="-2"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="shoulder" id="-1" level="0">
+                  <width a="0" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="none" id="0" level="0">
+                  <roadMark width="0.13" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+         </laneSection>
+      </lanes>
+   </road>
+   <road junction="-1" length="800" id="20" name="Endstueck">
+      <planView>
+         <geometry x="3700" y="0" hdg="0" length="800" s="0">
+            <line/>
+         </geometry>
+      </planView>
+      <lanes>
+         <laneSection s="0">
+            <right>
+               <lane type="driving" id="-3" level="0">
+                  <link>
+                     <predecessor id="-3"/>
+                     <successor id="-3"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="driving" id="-2" level="0">
+                  <link>
+                     <predecessor id="-2"/>
+                     <successor id="-2"/>
+                  </link>
+                  <width a="3.75" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="broken" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+               <lane type="shoulder" id="-1" level="0">
+                  <width a="0" sOffset="0" b="0" c="0" d="0"/>
+                  <roadMark width="0.13" weight="standard" type="solid" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </right>
+            <center>
+               <lane type="none" id="0" level="0">
+                  <roadMark width="0.13" weight="standard" type="none" sOffset="0" color="standard" laneChange="both"/>
+               </lane>
+            </center>
+         </laneSection>
+      </lanes>
+   </road>
+</OpenDRIVE>

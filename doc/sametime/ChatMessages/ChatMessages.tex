@@ -1,0 +1,94 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Chat Messages}
+\label{ChatMessages}
+%=============================================================
+
+%\section{S1}
+%\section{S2}
+%\section{S3}
+
+You can use Meeting Room chat to send typed messages to everyone els in the meeting. You can also send
+private chat messages to selected participants. Use chat if audio is not available or if you need to ask a
+question and do not want to disturb the audio portion of the meeting. You can also use chat to request
+permissions from the Moderator.
+
+\vspace{0.5cm}
+{\bf Sending a Meeting Room Chat Message to All Participants}
+\vspace{0.5cm}
+
+\begin{enumerate}
+\item Enter your message in the text-entry area at the bottom of the Meeting Room.
+\item Click Send. All meeting participants see the message in the chat-transcript area.
+\end{enumerate}
+
+\vspace{0.5cm}
+{\bf Sending a Private Chat Message to Selected Participants}
+\vspace{0.5cm}
+
+\begin{enumerate}
+\item If you are sending a message to one participant only, double-click on the name in the Participant
+List (Connect List) and go to step 2. If you are sending a message to more than one participant, press CTRL and select
+the appropriate names. Then, choose Meeting - People - New Chat and enter information about the chat
+meeting.
+\item Enter your message and click Send. The message appears in the selected participant's private chat
+window.
+\end{enumerate}
+
+
+\begin{covimg}{ChatMessages}{chat}{Sending chat message from "test" to "covise/guest"}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 6.1: Sending chat message from "test" to "covise/guest"
+\vspace{0.5cm}
+\end{htmlonly}

@@ -1,0 +1,697 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+
+
+%=============================================================
+%=============================================================
+
+
+%=============================================================
+\startdocument
+\chapter{Quick Reference}
+\label{QuickReference}
+%=============================================================
+
+
+\section{coModule}
+
+{\bf Base class for all module programming}
+
+\begin{verbatim}
+coModule(const char *description);
+virtual ~coModule();
+ 
+virtual void start(int argc, char *argv[]);
+virtual int compute(const char*);
+virtual void param(const char *paramName);
+virtual void sockData(int sockNo);
+virtual void quit(void*);
+virtual void postInst();
+virtual void mainLoop();
+
+coBooleanParam *addBooleanParam(const char *name, const char *desc);
+coFileBrowserParam *addFileBrowserParam(const char *name, const char *desc);
+coChoiceParam *addChoiceParam(const char *name, const char *desc);
+coFloatParam *addFloatParam(const char *name, 
+                                        const char *desc);
+coFloatSliderParam *addFloatSliderParam(const char *name, 
+                                        const char *desc);
+coFloatVectorParam *addFloatVectorParam(const char *name, 
+                                        const char *desc);
+coInt32Param *addInt32Param(const char *name, 
+                                    const char *desc);
+coIntSliderParam *addIntSliderParam(const char *name, 
+                                    const char *desc);
+coIntVectorParam *addInt32VectorParam(const char *name, 
+                                    const char *desc);
+coStringParam *addStringParam(const char *name, const char *desc);
+coInputPort *addInPort(const char *name, const char *types, 
+                                      const char *desc);
+coOutputPort *addOutputPort(const char *name, const char *types, 
+                                        const char *desc);
+
+coChoiceParam *paraSwitch(const char *name, const char *desc);
+int paraEndSwitch();
+int paraCase(const char *name);
+int paraEndCase();
+
+static void sendError(const char *format, \dots);
+static void sendWarning(const char *format, \dots);
+static void sendInfo(const char *format, \dots);
+
+void selfExec();
+
+void addSocket(int socket); 
+void removeSocket(int socket); 
+\end{verbatim}
+ 
+
+\section{coSimpleModule}
+
+{\bf This class overloads coModule to automatically recurse through 
+coDoSet hierarchies.}
+
+\begin{verbatim}
+class coSimpleModule : public coModule
+
+void setComputeTimesteps(const int v); 
+void setComputeMultiblock(const int v); 
+void copyAttributes(coDistributedObject *tgt, coDistributedObject *src); 
+void setCopyAttributes(const int v);
+\end{verbatim}
+ 
+
+\section{coSimLib}
+
+{\bf This class overloads coModule to automatically recurse through coDoSet 
+hierarchies.}
+
+\begin{verbatim}
+class coSimLib : public coModule
+
+coSimLib(const char *moduleName);
+int setTargetHost(const char *hostname);
+int setLocalHost(const char *hostname);
+int setUserArg(int num, const char *data);
+int startSim();
+int serverMode();
+int isConnected();
+int recvData(void *buffer, size_t length);  
+int sendData(const void *buffer, size_t length);
+int coParallelInit(int numParts, int numPorts);
+int coParallelPort(const char *portName, int isCellData);
+int setParaMap(int isCell,int isFortran, int nodeNo, int length, 
+               int32 *nodeMap);
+\end{verbatim}
+
+
+\section{Simlib client}
+
+{\bf This is the client-side connectivity for a coSimLib module: These are 
+C, not C++ routines, with additional FORTRAN77 language binding, which have
+the same parameters but 6-char names. The file coSimClient.o from the 
+covise/\$ARCH/bin  directory must be linked to the simulation.}
+
+\begin{verbatim}
+int coNotConnected()                                      F77: CONOCO
+
+/* Logic send/receive calls ******/
+ 
+int coGetParaSlider(const char *name,                     F77: COGPSL
+                    float *min, float *max, float *val);
+int coGetParaFloatScalar(const char *name, float *data);  F77: COGPFL
+int coGetParaIntScalar(const char *name, int *data);F77:  F77: COGPIN
+int coGetParaChoice(const char *name, int *data);         F77: COGPCH
+int coGetParaBool(const char *name, int *data);           F77: COGPBO
+int coGetParaText(const char *name, char *data);          F77: COGPTX
+int coGetParaFile(const char *name, int *data);           F77: COGPFI
+int coSend1Data(const char *portName,                     F77: COSU1D
+                int numElem, float *data);
+int coSend3Data(const char *portName,                     F77: COSU3D
+                int numElem, float *data);
+int coExecModule();                                       F77: COEXEC
+int coFinished();                                         F77: COFINI
+int coParallelInit(int numParts, int numPorts);           F77: COPAIN
+int coParallelPort(const char *portname, int isCellData); F77: COPAPO
+int coParallelCellMap(int node, int numCells,             F77: COPACM
+                      const int *localToGlobal);
+int coParallelVertexMap(int node, int numCells,           F77: COPAVM
+                        const int *localToGlobal);
+int coParallelNode(int node);                             F77: COPANO
+int sendData(const void *buffer, size_t length);          F77: COSEND 
+int recvData(void *buffer, size_t length);                F77: CORECV
+int getVerboseLevel();
+                                                          F77: COVERB
+\end{verbatim}
+
+
+\section{coUifElem}
+
+{\bf Base class for all ports, Parameters and switch groups nodes}
+
+\begin{verbatim}
+enum Kind { SWITCH, PARAM, INPORT, OUTPORT };
+virtual void hide();
+virtual void show();
+virtual Kind kind();
+virtual const char *getName();
+\end{verbatim}
+
+
+\section{coPort}
+
+{\bf Base class for In-, Out- and Parameter ports}
+
+\begin{verbatim}
+class coPort : public coUifElem
+
+virtual const char *getDesc() const;
+\end{verbatim}
+
+ 
+
+\section{coInputPort}
+
+{\bf Input data port}
+
+\begin{verbatim}
+class coInputPort : public coPort
+
+void setRequired(int isRequired);
+coDistributedObject *getCurrentObject();
+\end{verbatim}
+ 
+
+\section{coOutputPort}
+
+{\bf Output data port}
+
+\begin{verbatim}
+class coOutputPort : public coPort
+ 
+void setRequired(int isRequired);
+void setObj(coDistributedObject *obj);
+coDistributedObject *getObj();
+const char *getObjName();
+\end{verbatim}
+
+
+\section{coUifPara} 
+
+{\bf Base class for all parameter ports}
+
+\begin{verbatim}
+class coUifPara : public coPort
+
+void setImmediate(int isImmediate);
+void setActive(int isActive);
+virtual void hide();
+virtual void show();
+void enable();
+void disable();
+int isActive() const;
+\end{verbatim}
+
+ 
+
+\section{coBooleanParam} 
+
+{\bf Boolean value parameter}
+
+\begin{verbatim}
+class coBooleanParam: public coUifPara
+ 
+int setValue(int value);
+int getValue() const;
+\end{verbatim}
+
+ 
+
+\section{coFileBrowserParam}
+
+{\bf File browser parameter}
+
+\begin{verbatim}
+class coFileBrowserParam : public coUifPara
+ 
+int setValue(const char *path, const char *value);
+const char *getValue() const;
+\end{verbatim}
+
+ 
+
+\section{coChoiceParam}
+
+{\bf Parameter to choose values from a list}
+
+\begin{verbatim}
+class coChoiceParam : public coUifPara
+
+int setValue(int numChoices, const char * const* choice, 
+             int actChoice);
+
+int updateValue(int numChoices, const char * const* choice, 
+             int actChoice);
+	     
+int setValue(int actChoice);
+int getValue() const;
+\end{verbatim}
+
+
+\section{coFloatParam}
+
+{\bf single float parameter}
+
+\begin{verbatim}
+class coFloatParam : public coUifPara
+
+int setValue(float val);
+float getValue() const;
+\end{verbatim}
+ 
+
+\section{coFloatSliderParam}
+
+{\bf float slider parameter}
+
+\begin{verbatim}
+class coFloatSliderParam : public coUifPara
+ 
+int setValue(float min, float max, float value);
+int setMin(float min);
+int setMax(float max);
+int setValue(float value);
+void getValue(float &min, float &max, float &value) const;
+float getMin() const;
+float getMax() const;
+float getValue() const;
+\end{verbatim}
+ 
+
+\section{coFloatVectorParam}
+
+{\bf Multiple float parameters}
+
+\begin{verbatim}
+class coFloatVectorParam : public coUifPara
+ 
+int setValue(int pos, float data);
+int setValue(int size, const float *data);
+int setValue(float data0, float data1, float data2);
+float getValue(int pos) const;
+int getValue(float &data0, float &data1, float &data2) const;
+\end{verbatim}
+ 
+
+\section{coInt32Param}
+
+{\bf single integer parameter}
+
+\begin{verbatim}
+class coInt32Param : public coUifPara
+
+int setValue(int val);
+int getValue() const;
+\end{verbatim}
+ 
+
+\section{coIntSliderParam}
+
+{\bf Integer slider parameter}
+
+\begin{verbatim}
+class coIntSliderParam : public coUifPara
+
+int setValue(int min, int max, int value);
+int setMin(int min);
+int setMax(int max);
+int setValue(int value);
+ 
+void getValue(int &min, int &max, int &value) const;
+int getMin() const;
+int getMax() const;
+int getValue() const;
+\end{verbatim}
+
+
+\section{coIntVectorParam}
+
+{\bf Parameter for multiple integers}
+
+\begin{verbatim}
+class coIntVectorParam : public coUifPara
+ 
+int setValue(int pos, int data);
+int setValue(int size, const int *data);
+int setValue(int data0, int data1, int data2);
+int getValue(int pos) const;
+\end{verbatim}
+
+
+\section{coStringParam}
+
+{\bf Implements string parameters}
+
+\begin{verbatim}
+class coStringParam : public coUifPara
+
+int setValue(const char *val);
+const char *getValue() const;
+\end{verbatim}
+ 
+
+\section{coDistributedObject}
+
+{\bf Base class for all data objects}
+ 
+\begin{verbatim}
+void setAttribute(const char *, const char *);
+void setAttributes(int, const char **, const char **);
+const char *getAttribute(const char *);
+int getAllAttributes(const char ***name,
+                     const char ***content);
+const char *getName() { return name; }
+const char *getType() const;
+int isType(const char *reqType);
+char objectOk() const;
+char *getName();
+char *getType();
+\end{verbatim}
+
+
+\section{coDoUniformGrid}
+
+\begin{verbatim} 
+coDoUniformGrid(const char *name, int x, int y, int z,
+               float xmin, float xmax, float ymin,
+               float ymax, float zmin, float zmax);
+void getGridSize(int *x, int *y, int *z);    
+void getPointCoordinates(int i, float *x_c,
+                           int j, float *y_c, 
+                           int k, float *z_c);
+void getDelta(float *dx, float *dy, float *dz);
+void getMinMax(float *xmin, float *xmax,
+                 float *ymin, float *ymax,
+                 float *zmin, float *zmax);   
+\end{verbatim}
+ 
+
+\section{coDoRectilinearGrid}
+
+\begin{verbatim} 
+coDoRectilinearGrid(const char *name, int x, int y, int z);
+coDoRectilinearGrid(const char *name, int x, int y, int z,
+                   float *xc, float *yc, float *zc);
+void getGridSize(int *x, int *y, int *z);
+void getPointCoordinates(int i, float *x_c,
+                           int j, float *y_c, 
+                           int k, float *z_c);
+void getAddresses(float **x_c, float **y_c, float **z_c);
+\end{verbatim}
+         
+
+\section{coDoStructuredGrid}
+
+\begin{verbatim} 
+coDoStructuredGrid(const char *name, int x, int y, int z);
+coDoStructuredGrid(const char *name, int x, int y, int z,
+                     float *xc, float *yc, float *zc);
+void getGridSize(int *x, int *y, int *z);
+void getPointcoordinates(int i, float *x_c,
+                           int j, float *y_c, 
+                           int k, float *z_c);
+void getAddresses(float **x_c, float **y_c, float **z_c);
+\end{verbatim}
+ 
+
+\section{coDoUnstructuredGrid} 
+
+\begin{verbatim} 
+coDoUnstructuredGrid(const char *name, 
+                    int nelem, int nconn, int ncoord, int ht);
+coDoUnstructuredGrid(const char *name, 
+                    int nelem, int nconn, int ncoord, 
+                    int *el, int *cl, 
+                    float *xc, float *yc, float *zc, 
+                    int *tl);
+void getGridSize(int *e, int *c, int *p);
+void getAddresses(int **elem, int **conn, 
+                  float **x_c, float **y_c, float **z_c);
+void getTypeList(int **l);
+int hasTypeList();
+void getNeighborList(int *n, int **l, int **li);
+\end{verbatim}
+
+
+\section{coDoFloat}
+ 
+\begin{verbatim}
+coDoFloat(const char *n, int no, float *s);
+coDoFloat(const char *n, int no);
+ 
+int getNumPoints();
+void getPointValue(int no, float *s);
+void getAddress(float **data);
+\end{verbatim}
+ 
+
+\section{coDoVec2}
+ 
+\begin{verbatim}
+coDoVec2(const char *n, int no, float *s, float *t);
+coDoVec2(const char *n, int no);
+
+int getNumPoints();    // returns gridsize
+void getPointValue(int no, float *s, float *t);
+void getAddresses(float **s_d, float **t_d);
+\end{verbatim}
+ 
+
+\section{coDoVec3}
+ 
+\begin{verbatim}
+coDoVec3(const char *n, int no,
+                        float *xc, float *yc, float *zc);
+coDoVec3(const char *n, int no);
+ 
+int getNumPoints();
+void getPointValue(int no, float *s);
+void getAddresses(float **u_v, float **v_v, float **w_v);      
+\end{verbatim}
+          
+
+\section{coDoTensor}
+ 
+\begin{verbatim}
+coDoTensor(const char *n, int no,
+                        float *data, TensorType ttype);
+coDoTensor(const char *n, int no, TensorType ttype);
+ 
+int getNumPoints();
+coDoTensor::TensorType getTensorType();
+void getPointValue(int no, float *s);
+void getAddress(float **value);      
+\end{verbatim}
+          
+
+\section{coDoRGBA}
+ 
+\begin{verbatim}
+coDoRGBA(const char *n, int no, int *pc);
+coDoRGBA(const char *n, int no);
+ 
+int getNumElements();    // returns gridsize
+void getElementValue(int no, int *s);
+void getAddress(int **pc);                 
+ 
+int setFloatRGBA(int pos, float r, float g, float b, float a = 1.0);
+int setIntRGBA(int pos, int r, int g, int b, int a = 255);
+int getFloatRGBA(int pos, float *r, float *g, float *b, float *a);
+int getIntRGBA(int pos, int *r, int *g, int *b, int *a);
+\end{verbatim}
+ 
+
+\section{coDoGeometry}
+
+\begin{verbatim} 
+coDoGeometry(const char *n, coDistributedObject *geo);
+ 
+void setColor(int cattr, coDistributedObject *c);
+void setNormal(int nattr, coDistributedObject *n);
+void setTexture(int tattr, coDistributedObject *t) ;
+      
+coDistributedObject *getGeometry();
+coDistributedObject *getColors();
+coDistributedObject *getNormals();
+coDistributedObject *getTexture();
+ 
+int getGeometryType();
+int getColorAttributes();
+int getNormalAttributes();
+int getTextureAttributes();
+ 
+void setColorAttributes(int cattr);
+void setNormalAttributes(int nattr);
+void setTextureAttributes(int nattr);
+\end{verbatim}
+
+
+\section{coDoPoints} 
+
+\begin{verbatim}
+coDoPoints(char *n, int no);
+coDoPoints(char *n, int no,
+          float *x, float *y, float *z);
+ 
+int getNumPoints();
+void getPointCoordinates(int no, float *xc, float *yc, float *zc);
+void getAddresses(float **x_c, float **y_c, float **z_c);
+\end{verbatim}
+
+
+\section{coDoLines}
+
+\begin{verbatim}
+coDoLines(char *n, int no_p, int no_v, int no_l);
+coDoLines(char *n, 
+         int no_p, float *x_c, float *y_c, float *z_c, 
+         int no_v, int *v_l, int no_l, int *l_l);
+ 
+int getNumLines();
+int getNumVertices();
+int getNumPoints();
+void getAddresses(float **x_c, float **y_c, float **z_c, 
+                  int **v_l, int **l_l);
+\end{verbatim}
+
+
+\section{coDoPolygons}
+
+\begin{verbatim}
+coDoPolygons(char *n, int no_p, int no_v, int no_l);
+coDoPolygons(char *n, 
+            int no_p, float *x_c, float *y_c, float *z_c, 
+            int no_v, int *v_l, int no_pol, int *pol_l);
+ 
+int getNumPolygons();
+int getNumVertices();
+int getNumPoints();
+void getNeighborList(int *n, int **l, int **li);      
+void getAddresses(float **x_c, float **y_c, float **z_c, 
+                  int **v_l, int **l_l);
+\end{verbatim}
+
+
+\section{coDoTriangleStrips}
+
+\begin{verbatim}
+coDoTriangleStrips(char *n, int no_p, int no_v, int no_l);
+coDoTriangleStrips(char *n, 
+                  int no_p,float *x_c,float *y_c, float *z_c, 
+                  int no_v, int *v_l, int no_pol, int *pol_l);
+ 
+int getNumStrips();
+int getNumVertices();
+int getNumPoints();
+void getAddresses(float **x_c, float **y_c, float **z_c, 
+                  int **v_l, int **l_l) ;
+\end{verbatim}
+
+
+\section{coDoTexture}
+ 
+\begin{verbatim}
+coDoTexture(const char *name,coDoPixelImage* texture,
+           int border, int components, int level,
+           int numVertices, int* vertexIndex,
+           int numCoord, float** coords)
+  
+coDoPixelImage* getBuffer();
+int            getBorder();
+int            getComponents();
+int            getLevel();
+int            getWidth();
+int            getHeight();
+int*           getVertices();
+int            getNumCoordinates();
+float**        getCoordinates();
+\end{verbatim}
+
+
+\section{coDoPixelImage}
+
+\begin{verbatim}
+coDoPixelImage(const char *name, int width, int height, 
+              unsigned format, short pixelsize, const char **buffer);
+coDoPixelImage(const char *name, int width, int height, 
+              unsigned format, short pixelsize, const char *buffer);
+coDoPixelImage(const char *name, int width, int height, 
+              unsigned format, short pixelsize);
+ 
+int getWidth();
+int getHeight();
+short getPixelsize();
+unsigned getFormat();
+char* getPixels(); 
+char& operator() (int x, int y);
+char& operator[] (int i);
+\end{verbatim}
+
+
+\section{coDoText}
+ 
+\begin{verbatim}
+coDoText(const char *n, int s);
+coDoText(const char *n, int s, const char *d);
+int getTextLength();
+void getAddress(char **base);
+\end{verbatim}
+
+
+\section{coDoIntArr}
+
+\begin{verbatim} 
+coDoIntArr(const char *objName, int numDim, const int *dimArray,
+          const int *initdata=NULL);
+int getNumDimensions();
+int getDimension(int i);
+int getSize();
+int *getAddress();
+void getAddress(int **res);
+\end{verbatim}
+
+
+\section{coDoSet}
+
+\begin{verbatim} 
+coDoSet(const char *n, coDistributedObject * const *elem);
+coDistributedObject * const *getAllElements(int *no);
+coDistributedObject *getElement(int no);
+\end{verbatim}
+
+
+\section{coCoviseConfig}
+
+{\bf This class makes the COVISE config-file accessible for the module.}
+
+\begin{verbatim}
+#include <config/CoviseConfig.h>
+
+static const char *coCoviseConfig::getEntry(const char *entry);
+static const char *coCoviseConfig::getEntry(const char *variable, const char *entry);
+static int coCoviseConfig::getInt(const char *entry, int defaultValue, bool *exists=NULL);
+static int coCoviseConfig::getInt(const char *variable, const char *entry, int defaultValue, bool *exists=NULL);
+static long coCoviseConfig::getLong(const char *entry, long defaultValue, bool *exists=NULL);
+static long coCoviseConfig::getLong(const char *variable, const char *entry, long defaultValue, bool *exists=NULL);
+static float coCoviseConfig::getFloat(const char *entry, long defaultValue, float *exists=NULL);
+static float coCoviseConfig::getFloat(const char *variable, const char *entry, float defaultValue, bool *exists=NULL);
+static bool coCoviseConfig::isOn(const char *entry, bool defaultValue, float *exists=NULL);
+static bool coCoviseConfig::isOn(const char *variable, const char *entry, bool defaultValue, bool *exists=NULL);
+static char *coCoviseConfig::getScopeEntry(const char *scope, char *name);
+static char **coCoviseConfig::getScopeEntries(const char *scope);
+static char **coCoviseConfig::getScopeEntries(const char *scope, const char *name);
+\end{verbatim}

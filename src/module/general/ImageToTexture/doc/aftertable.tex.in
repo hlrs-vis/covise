@@ -1,0 +1,64 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+
+%\paragraph{First example}
+%
+\begin{covimg}{}%
+		{ImageToTextureMap1}{covise/net/examples/ImageToTexture.net}{0.6}\end{covimg}
+
+In the first example we show a dynamic geometry. As the geometry moves the image 
+moves with it. In order to achieve this effect, we use the displacement information
+at the second port.
+
+\begin{covimg}{}%
+		{ImageToTextureRend1}{The image is dragged by the material motion.}{0.6}\end{covimg}
+
+\begin{covimg}{}%
+		{ImageToTextureMap2}{covise/net/examples/ImageToTexture2.net}{0.6}\end{covimg}
+
+In the second example we want to illustrate the effect of the parameter {\sl GroupGeometry}
+and of size adjustment. The geometry is a set with 4 Polygon object. When
+the value of {\sl GroupGeometry} is true (default), the image is mapped once onto the
+whole geometry. This effect is seen in the first renderer image. If the value
+of this parameter is false, then we get the second image. Note that here the geometry
+is used separately for each Polygon object. The third image has the default
+value for this parameter, i.e. true. If we are seeing here many eyes, it is because
+we are no longer fitting the image size to that of the geometry. In this case, we
+have manually set the image size to an inferior value, that is why we have to replicate
+the image in order to create a texture for the whole geometry.
+
+\begin{covimg}{}%
+		{ImageToTextureRend2_1}{GroupGeometry is true, the image size is that of the geometry.}{0.6}\end{covimg}
+
+\begin{covimg}{}%
+		{ImageToTextureRend2_2}{GroupGeometry is false.}{0.6}\end{covimg}
+
+\begin{covimg}{}%
+		{ImageToTextureRend2_3}{GroupGeometry is true, but the image size has been manually adjusted to an inferior value.}{0.6}\end{covimg}
+
+%
+%
+%The dimension of the sampled grid was 30x30x30 and the fill value of Sample
+%was set to 0.0.
+%
+%The module \covlink 
+%{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+% computes a cuttingsurface on the uniform grid and the module 
+%\covlink {Colors}{Colors}{../../Color/Colors/Colors.html} maps the
+%data on the surface to colors.
+%
+%The module
+%\covlink{ShowGrid}{ShowGrid}{../../Tools/ShowGrid/ShowGrid.html}
+% displays the uniform grid (in this case 3 sides of the outer surface).
+%
+%\begin{covimg2}{modules/Tools/Sample}{SampleRenderer}{0.7}\end{covimg2}
+%
+%\paragraph{Second example}
+

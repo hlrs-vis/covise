@@ -1,0 +1,66 @@
+
+
+STRUCTURE OF MODULE DOCUMENTATION (changed 02/07/01)
+=================================
+
+Before starting to create or modify module documentation, you should be
+familiar with the basic structures.
+
+Module Documentation is provided in 2 versions:
+
+1. printable/printed version as part of the User's Guide (written  in Latex)
+
+2. online version, accessible e.g. via help (in HTML)
+
+The printable documentation for a module is located in
+
+     covise/doc/usersguide/modules/category/modulename
+e.g. covise/doc/usersguide/modules/Tools/ShowUsg
+
+and consists out of the text file modulename.tex, e.g. ShowUsg.tex and the
+pictures (postscript files of type .eps)  
+
+The online documentation for a module is located in
+
+     covise/doc/online/modules/category/modulename
+e.g. covise/doc/online/modules/Tools/ShowUsg
+
+and consists out of text files of type .html, and the
+pictures (files of type .gif)  
+
+Basically you generate the documentation in Latex (except pictures) using a 
+template (covise/doc/usersguide/modules/module.tmplate) for the text and 
+convert it to HTML using a Latex-to-HTML converter; pictures are usually
+created as .gif-files (which is suitable for HTML) but have to be converted in the
+opposite direction via "XV" to postscript files of type .eps (suitable to print with 
+the Latex text). 
+
+So if you create/modify module documentation
+
+- provide your original pictures as .gif files in 
+  covise/doc/usersguide/modules/category/modulename
+  (no longer in covise/doc/online/modules/category/modulename!)
+  
+- provide your converted pictures as .eps files in 
+  covise/doc/usersguide/modules/category/modulename
+  
+- copy the template to
+  covise/doc/usersguide/modules/category/modulename
+  and fill in your description directly or via cut and
+  paste from an HTML-source  
+
+- convert Latex to HTML and generate derived objects
+
+============================================================  
+For details see the description provided in moduledoc.howto  
+=============================================================
+BUT PLEASE NOTE THE FOLLOWING CHANGES:
+ALL ESSENTIAL PARTS OF THE MODULE DOCUMENTATION ARE NOW LOCATED IN 
+covise/doc/usersguide/modules AND THESE AND ONLY THESE ARE CLEARCASE OBJECTS
+-  directory per module in covise/doc/usersguide/modules/category/
+- .tex file containing the documentation text for the print version
+- .eps files containing the images for the print version
+- .gif files containing the images for the online version
+The following objects are generated (derived objects - no longer in ClearCase)
+-  directory per module in covise/doc/online/modules/category/
+-  .html and .gif files in covise/doc/online/modules/category/modulename

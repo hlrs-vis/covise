@@ -1,0 +1,19 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \endhead
+\hline\hline
+	Filename & Browser & The IRIS-Explorer Latice file.  \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

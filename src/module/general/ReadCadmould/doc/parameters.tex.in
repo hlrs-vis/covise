@@ -1,0 +1,35 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \endhead
+\hline\hline
+	filename & Browser & Fuellbild file name (5 characters) or .cfe file  \\
+\hline
+	Choice\_0\ldots\newline Choice\_7 & Choice & Data selection  \\
+\hline	
+        fillTimeStep & Scalar & for animation only (see two last ports): \newline
+	                     specify number of 
+			     timesteps you want to show     \\
+\hline	
+        fillField & Choice & for animation only (see two last ports): \newline
+	                     specify fill value. The default value "automatic"
+			     should be right in nearly every case. Otherwise you
+			     can set the value which you want to use in the animation.  \\			     
+\hline	
+        noDataColor & String & hexadecimal RGBA representation of the
+                               color to be used for nodes or elements without available data \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+\clearpage
+%=============================================================

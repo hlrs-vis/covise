@@ -1,0 +1,228 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+3
+# Module GenDat
+GenDat
+1
+LOCAL
+IO_Module
+TITLE=GenDat_1
+29
+20
+0
+3
+GridOut0
+UniformGrid|RectilinearGrid|StructuredGrid
+Grid
+default
+
+DataOut0
+Float
+Scalar Data
+default
+
+DataOut1
+Vec3
+Vector Data
+default
+
+14
+Coord_Type
+Choice
+Coordinate type
+2 Uniform Rectilinear Random Half_cyl Full_cyl Torus
+
+-1
+Coord_Representation
+Choice
+Coordinate representation
+2 Uniform Rectilinear Structured
+
+-1
+Coord_Range
+Choice
+Coordinate range
+1 -1_to_1 0_to_size start_to_end
+
+-1
+Function
+Choice
+Function for scalar values
+1 Sines Ramps Random Pipe
+
+-1
+Orientation
+Choice
+Function for vector values
+1 Opt1 Colin Opt3 Random Circular Expand
+
+-1
+xSize
+IntSlider
+Size in x-direction
+2 64 8
+
+-1
+ySize
+IntSlider
+Size in y-direction
+2 64 8
+
+-1
+zSize
+IntSlider
+Size in z-direction
+2 64 8
+
+-1
+start
+FloatVector
+lower left point if coord_range is 'start to end'
+-1 -1 -1
+
+-1
+end
+FloatVector
+upper right point if coord_range is 'start to end'
+1 1 1
+
+-1
+timestep
+IntSlider
+Timestep if orientation is 'Colin'
+0 20 0
+
+-1
+color
+Color
+Color for grid
+0 0 1 1
+
+-1
+AttributeName
+String
+name of attribute to attach to object
+nodefaultval
+
+-1
+AttributeVale
+String
+value of attribute to attach to object
+nodefaultval
+
+-1
+0
+# Module CheckObj
+CheckObj
+1
+LOCAL
+Tools
+TITLE=CheckObj_1
+29
+177
+1
+GridIn0
+UnstructuredGrid|Polygons|Lines|TriangleStrips
+Input type
+req
+
+0
+1
+ReportAllErrors
+Boolean
+Report all errors of the object
+FALSE
+
+-1
+0
+# Module StoU
+StoU
+1
+LOCAL
+Converter
+TITLE=StoU_1
+29
+95
+5
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid
+Grid
+req
+
+dataIn_1
+Float|Vec3|IntArr
+Data
+opt
+
+dataIn_2
+Float|Vec3|IntArr
+Data
+opt
+
+dataIn_3
+Float|Vec3|IntArr
+Data
+opt
+
+dataIn_4
+Float|Vec3|IntArr
+Data
+opt
+
+5
+meshOut
+UnstructuredGrid
+unstructured Grid
+default
+
+dataOut_1
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_1
+
+dataOut_2
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_2
+
+dataOut_3
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_3
+
+dataOut_4
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_4
+
+1
+option
+Choice
+Conversion Options
+2 tetrahedrons hexahedrons pyramids prisms
+
+-1
+0
+2
+GenDat
+1
+LOCAL
+GridOut0
+
+StoU
+1
+LOCAL
+meshIn
+StoU
+1
+LOCAL
+meshOut
+
+CheckObj
+1
+LOCAL
+GridIn0
+0

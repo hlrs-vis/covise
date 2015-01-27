@@ -1,0 +1,286 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+%=============================================================
+%=============================================================
+
+
+%=============================================================
+\startdocument
+\subsection{Design}
+\label{Design}
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+The main purpose of this module consists in showing
+an area of the metal tool used in the embossing
+procedure as large as a paper sheet.
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{modules/Customer/Design}{Design}{0.7}\end{covimg2}
+
+
+
+%
+% short information about versions 
+%
+%Sample is available since COVISE snap-2000-10 on all supported platforms.
+
+%
+%=============================================================
+\subsubsection{Parameters}
+%=============================================================
+%
+
+%\covlink{Colors}{Colors}{../../Color/Colors/Colors.html}
+
+\begin{longtable}{|p{2.5cm}|p{2cm}|p{8.5cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	tolerance & Scalar & This parameter is relevant when checking
+        design rules. If the position of a knob is closer to the line limits
+        of the basic cell than this tolerance, then this knob is
+        assumed to lie exactly on that line, otherwise this knob
+        would generate a spurious design rule violation.\\
+\hline
+\end{longtable}
+
+
+
+%
+%=============================================================
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4.5cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{DesignParam} & DO\_Text & 
+                 This message from ControlSCA
+                 contains the values for the parameters
+                 that are relevant for pattern design of a besic cell.
+                 This module interprets that the user wants to
+                 see a design when the object attached to this port
+                 has got the attribute SHOW\_SCA\_DESIGN.\\
+\hline
+	\textcolor{required}{Knob} & DO\_Polygons
+				       & 
+                    This port is connected with the third port of
+                    KnobShape. This way Design gets a mesh for a knob,
+                    from which several copies are needed in the
+                    mesh generation of a basic cell.\\
+%\covlink{Transform}{Transform}{../../Tools/Transform/Transform.html}.\\
+                     
+                    
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{3.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{Grundzelle} & DO\_Polygons & 
+                   This is a rectangular polygon with 4 points.
+                   This output is not intended to be shown
+                   with the renderer. It is rather a
+                   piece of information for Embossing, from
+                   which this latter module derives the basic
+                   cell size.\\
+\hline
+	\textcolor{required}{NoppenPositionen} & DO\_Points & 
+                   This object contains the knob postions
+                   in a basic cell and this information
+                   is intended for the module Embossing.\\
+\hline
+	\textcolor{required}{NoppenColors} & DO\_Unstructured\_S3D\_Data & 
+                   This is an array of as many floats as knobs in a
+                   basic cell. If any of these array elements is
+                   not 0, a violation of a design rule has occurred.
+                   This port should be connected with the
+                   corresponding input port of Embossing.\\
+\hline
+	\textcolor{required}{ShowGrundzelle} & DO\_Polygons & 
+                   This is a rectangular polygon with 4 points,
+                   and is needed for the visualisation of the design.\\
+\hline
+	\textcolor{required}{ShowKnobs} & DO\_Polygons & 
+                   The object attached to this port describes
+                   the geometry of all knobs present in a basic cell.\\
+\hline
+	\textcolor{required}{ShowNoppenColors} & DO\_Unstructured\_S3D\_Data & 
+                   This is an array of as many floats as knobs in a
+                   basic cell. If any of these array elements is
+                   not 0, a violation of a design rule has occurred.
+                   This object is used for the coloring of border
+                   lines which are produced for each knob in a basic cell.\\
+\hline
+	\textcolor{required}{ShowKnobProfiles} & DO\_Lines & 
+                   Do not use this port.\\
+\hline
+	\textcolor{required}{ShowPhysKnobProfiles} & DO\_Lines & 
+                   The object attached to this port is used
+                   for highlighting design rules for each
+                   knob in a basic cell. These lines may be coloured
+                   with the scalar field attached to ShowNoppenColors.\\
+\hline
+	\textcolor{required}{cutX} & DO\_Text & 
+                   From this message a CutGeometry module
+                   may get the necessary information in order
+                   to automatically adjust its parameters. This
+                   may be necessary because Design generates a
+                   geometry with knob parts, which should be
+                   cropped.\\
+\hline
+	\textcolor{required}{cutX} & DO\_Text & 
+                   From this message a CutGeometry module
+                   may get the necessary information in order
+                   to automatically adjust its parameters. This
+                   may be necessary because Design generates a
+                   geometry with knob parts, which should be
+                   cropped.\\
+                    
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%%=============================================================
+%\subsubsection{Examples}
+%%=============================================================
+%%
+%
+%% examples for using this module
+%
+%%\paragraph{First example}
+%%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureMap1}{covise/net/examples/ImageToTexture.net}{0.6}\end{covimg}
+%
+%In the first example we show a dynamic geometry. As the geometry moves the image 
+%moves with it. In order to achieve this effect, we use the displacement information
+%at the second port.
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend1}{The image is dragged by the material motion.}{0.6}\end{covimg}
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureMap2}{covise/net/examples/ImageToTexture2.net}{0.6}\end{covimg}
+%
+%In the second example we want to illustrate the effect of the parameter {\sl GroupGeometry}
+%and of size adjustment. The geometry is a set with 4 DO\_Polygon object. When
+%the value of {\sl GroupGeometry} is true (default), the image is mapped once onto the
+%whole geometry. This effect is seen in the first renderer image. If the value
+%of this parameter is false, then we get the second image. Note that here the geometry
+%is used separately for each DO\_Polygon object. The third image has the default
+%value for this parameter, i.e. true. If we are seeing here many eyes, it is because
+%we are no longer fitting the image size to that of the geometry. In this case, we
+%have manually set the image size to an inferior value, that is why we have to replicate
+%the image in order to create a texture for the whole geometry.
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend2_1}{GroupGeometry is true, the image size is that of the geometry.}{0.6}\end{covimg}
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend2_2}{GroupGeometry is false.}{0.6}\end{covimg}
+%
+%\begin{covimg}{modules/Tools/ImageToTexture}%
+%		{ImageToTextureRend2_3}{GroupGeometry is true, but the image size has been manually adjusted to an inferior value.}{0.6}\end{covimg}
+%
+%%
+%%
+%%The dimension of the sampled grid was 30x30x30 and the fill value of Sample
+%%was set to 0.0.
+%%
+%%The module \covlink 
+%%{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+%% computes a cuttingsurface on the uniform grid and the module 
+%%\covlink {Colors}{Colors}{../../Color/Colors/Colors.html} maps the
+%%data on the surface to colors.
+%%
+%%The module
+%%\covlink{ShowGrid}{ShowGrid}{../../Tools/ShowGrid/ShowGrid.html}
+%% displays the uniform grid (in this case 3 sides of the outer surface).
+%%
+%%\begin{covimg2}{modules/Tools/Sample}{SampleRenderer}{0.7}\end{covimg2}
+%%
+%%\paragraph{Second example}

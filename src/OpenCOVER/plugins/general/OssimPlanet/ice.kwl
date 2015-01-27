@@ -1,0 +1,170 @@
+archive0.type: wms
+archive0.server: http://wms.telascience.org/cgi-bin/bmng_wms_t?LAYERS=world_topo_bathy&
+archive0.opacity: 255
+archive0.cache_dir: /home/covise/data/cache
+
+
+//archive0.type: wms
+//archive0.server: http://wms.telascience.org/cgi-bin/bmng_wms_t?LAYERS=world_topo_bathy&
+//archive0.opacity: 255
+//archive0.cache_dir: /home/covise/data/cache
+
+//archive0.type: wms
+//archive0.server: http://wms.jpl.nasa.gov/wms.cgi?STYLES=visual&LAYERS=global_mosaic&sharp=0.0&
+//archive0.cache_dir: /home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/OssimPlanet/onEarth
+//archive0.transparent_color: 0 0 0
+//archive0.opacity: 255
+
+//archive0.type: wms
+//archive0.server: http://planet.sr.unh.edu/cgi-bin/ice_land_wms?LAYERS=rasters,vectors&
+//archive0.opacity: 255
+//archive0.cache_dir: /home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/OssimPlanet/onEarth2
+
+
+
+
+
+
+//archive0.type: wms
+//archive0.server: http://zcologia.org/zco/examples/zoom/s1/wms?layers=layers/elevation/mtnwest/auto&styles=&
+//archive0.opacity: 255
+//archive0.cache_dir: ZCOLOGIA
+
+//archive0.type: wms
+//archive0.server: http://firn.sr.unh.edu/cgi-bin/bluemarble_wms?LAYERS=BLUEMARBLE&
+//archive0.cache_dir: Urban
+//archive0.opacity: 60
+
+//archive1.type: local
+//archive1.file0: p011r031_7t19990918_z19_84.tif
+//archive1.cache_dir: PLANET2
+//archive1.opacity: 255
+
+//archive0.type: wms
+//archive0.server: http://cooa.whoi.edu/cw/mapserv?map=etopo2_wms.map&LAYERS=world_line_simp,world_line,gomctr&
+//archive0.cache_dir: COOA
+//archive0.opacity: 64
+
+//archive1.type: wms
+//archive1.server: http://terraservice.net/ogcmap.ashx?SERVICE=wms&LAYERS=UrbanArea&STYLES=&
+//archive1.cache_dir: ./Urban
+//archive1.opacity: 255
+
+//archive0.type: wms
+//archive0.server: http://198.202.74.205/wms.cgi?LAYERS=global_mosaic&styles=visual&sharp=0.0&
+//archive0.cache_dir: ./SDSC
+//archive0.opacity: 255
+
+//archive1.type: wms
+//archive1.server: http://ims.cr.usgs.gov:80/servlet19/com.esri.wms.Esrimap/USGS_EDC_Ortho_Urban?SERVICE=wms&LAYERS=USGS_EDC_Ortho_Urban&
+//archive1.cache_dir: ./Urban
+//archive1.opacity: 255
+
+//archive0.type: wms
+////archive0.server: http://wms.jpl.nasa.gov/cgi-bin/wms.cgi?STYLES=visual&LAYERS=global_mosaic&
+//archive0.server: http://wms.jpl.nasa.gov/cgi-bin/wms.cgi?STYLES=default,visual&LAYERS=modis,global_mosaic&
+//archive0.cache_dir: ./JPL
+////archive0.transparent_color: 0 0 0
+////archive0.opacity: 128
+
+//archive1.type: wms
+//archive1.server: http://citi.sdsu.edu:81/cgi-bin/usgs_1ft_san_diego?SERVICE=wms&LAYERS=USGS_1ft_San_Diego&
+//archive1.cache_dir: ./SAN_DIEGO
+//archive1.opacity: 128
+//archive1.transparent_color: 0 0 0
+
+//archive0.type: wms
+////archive0.server: http://wms.jpl.nasa.gov/cgi-bin/wms.cgi?STYLES=&LAYERS=daily_terra,daily_aqua&
+//archive0.server: http://wms.jpl.nasa.gov/cgi-bin/wms.cgi?STYLES=visual&LAYERS=global_mosaic&
+//archive0.cache_dir: ./MODIS_JPL
+//archive0.transparent_color: 0 0 0
+////archive0.opacity: 255
+//archive0.opacity: 64
+
+//archive1.type: wms
+//archive1.server: http://mesonet.agron.iastate.edu/cgi-bin/mapserv/mapserv.radar?map=/mesonet/www/html/GIS/apps/wms/compradar.map&LAYERS=nexrad&
+//archive1.cache_dir: ./RADAR
+//archive1.transparent_color_flag: true
+//archive1.transparent_color: 0 0 0
+//archive1.opacity: 168
+
+//archive0.type: wms
+//archive0.server: http://map05.gsfc.nasa.gov:80/cgi-bin/modis?STYLES=default&LAYERS=modis20050620&
+//archive0.cache_dir: ./Hurricane
+//archive0.transparent_color: 0 0 0
+////archive0.opacity: 255
+//archive0.opacity: 64
+
+//archive0.type: wms
+//archive0.server: http://www.eogeo.org/cgi-bin/mapserv?map=/home/data/GLC2000_Tiled/glc2000.map&Layers=GLC2000&
+//archive0.cache_dir: ./GLC2000
+
+//archive0.type: background_wms
+//archive0.server: http://wms.jpl.nasa.gov/cgi-bin/wms.cgi?LAYERS=modis,global_mosaic&styles=default,visual&
+//archive0.cache_dir: ./JPL
+//archive0.transparent_color: 0 0 0
+//archive0.opacity: 255
+
+//archive0.type:local
+//archive0.file0:c:/Apache/Apache/htdocs/bathy/data/east.tif
+//archive0.file1:c:/Apache/Apache/htdocs/bathy/data/west.tif
+//archive0.opacity: 255
+
+//archive0.type: wms
+//archive0.server: http://ims.cr.usgs.gov:80/servlet19/com.esri.wms.Esrimap/USGS_EDC_Ortho_133Urban?LAYERS=USGS_EDC_Ortho_133Urban&styles=default
+//archive0.cache_dir: ./USGS_ORTHO
+//archive0.transparent_color: 0 0 0
+//archive0.opacity: 255
+
+//archive0.type: wms
+//archive0.server: http://spatialguru.com/cgi-bin/mapserv?map=/srv/www/vhosts/spatialguru/maps/apps/global/global.map&LAYERS=clouds,world_line_simple&
+//archive0.cache_dir: ./spatialguru
+//archive0.opacity: 5
+
+//archive0.type: wms
+//archive0.server: http://vizlab.sdsu.edu:81/cgi-bin/KatrinaWMS2?LAYERS=KatrinaWMS2&
+//archive0.opacity: 256
+//archive0.cache_dir: Katrina
+
+//station chief vivieros Woods Hole  508 457 3254
+
+
+//archive0.type: background_wms
+//archive0.server: http://sigma.openplans.org:3128/geoserver/wms?LAYERS=topp:poly_landmarks,topp:water_polygon,topp:water_shorelines,topp:roads,topp:major_roads,topp:states,topp:countries,topp:gnis_pop&TRANSPARENT=true&STYLES=freemap_open_space,freemap_water,water_line,freemap_roads,freemap_major_roads,states_ol_sat,world_countries,gnis_pop_ol&
+//archive0.opacity: 256
+//archive0.cache_dir: OpenLayersxd
+
+//archive0.type: local
+//archive0.file: c:/ms4w/Apache/cgi-bin/data/ecbathy5.tif
+//archive0.opacity: 255	
+
+//archive1.type: wms
+//archive1.server: http://127.0.0.1/cgi-bin/mapserv.exe?map=bathy.map&LAYERS=Bathymetry&
+////archive1.server: http://Loki/cgi-bin/mapserv.exe?map=bmv.map&LAYERS=BlueMarble,borders&
+//archive1.cache_dir: Loki
+////./bmv
+//archive1.transparent_color: 255 255 255
+//archive1.opacity: 100
+
+//archive0.type: wms
+//archive0.server: http://127.0.0.1/cgi-bin/mapserv.exe?map=bathy.map&LAYERS=Bathymetry&
+////archive0.server: http://Loki/cgi-bin/mapserv.exe?map=bmv.map&LAYERS=BlueMarble,borders&
+//archive0.cache_dir: Loki
+////./bmv
+//archive0.transparent_color: 255 255 255
+//archive0.opacity: 100
+
+//archive0.type: wms
+//archive0.server: http://127.0.0.1/cgi-bin/mapserv.exe?map=bathy.map&LAYERS=Bathymetry&
+//archive0.cache_dir: Loki
+//archive0.transparent_color: 255 255 255
+//archive0.opacity: 100
+
+//archive0.type: wms
+//archive0.server: http://citi.sdsu.edu:81/cgi-bin/usgs_1ft_san_diego?LAYERS=USGS_1ft_San_Diego&
+//archive0.cache_dir: SanDiego
+//archive0.transparent_color: 128 128 128
+//archive0.opacity: 64
+
+//http://wms.telascience.org/cgi-bin/bmng_wms_t?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
+//http://planet.sr.unh.edu/cgi-bin/ice_land_wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities

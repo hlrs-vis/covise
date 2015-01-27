@@ -1,0 +1,36 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{cuttingsurface} 
+    & DO\_Polygons DO\_TriangleStrips   
+    & cuttingsurface as polygons or tristrips\\
+\hline
+	\textcolor{required}{cuttingsurface\_colors} 
+    & Set\_RGBA\_Colors 
+    & colors on the cuttingsurface\\
+\hline
+	\textcolor{optional}{unigrid} 
+    & Set\_UniformGrid 
+    & sampled grid\\
+\hline
+	\textcolor{optional}{unigrid\_colors} 
+    & Set\_RGBA\_Colors
+    & colors on the sampled grid\\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

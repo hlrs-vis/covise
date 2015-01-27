@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <title>COVISE</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/hlrs-covise.png">
+    <script src="covise.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="/yui/fonts/fonts-min.css" />
+    <link rel="stylesheet" type="text/css" href="/yui/slider/assets/skins/sam/slider.css" />
+    <script type="text/javascript" src="/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+    <script type="text/javascript" src="/yui/dragdrop/dragdrop-min.js"></script>
+    <script type="text/javascript" src="/yui/slider/slider-min.js"></script>
+    <!--script type="text/javascript" src="/firebug.jgz"></script-->
+
+    <style type="text/css" title="modulestyle">
+      .parameterrow { background-color:#F0A000; display:inherit; }
+      .parameterrow_mapped { background-color:#F0A000; display:inherit; }
+      .parametercell { white-space:nowrap }
+      .moduleheader { background-color:#F08000; display:inherit; }
+      .moduleheader_mapped { background-color:#F08000; display:inherit; }
+      .modulesep { display:inherit; }
+      .modulesep_mapped { display:inherit; }
+    </style>
+  </head>
+  <body onload="init()" onunload="stop()" listenerid="" bgcolor="#202020" class="yui-skin-sam">
+    <form name="form" onsubmit="void()">
+      <table>
+        <tr>
+          <td>
+            <input id="filename" type="text" name="filename" value="/home/hpchjob/covise/net/tutorial/tutorial_pressure_2.net" size="50"/>
+          </td>
+          <td style="white-space:nowrap">
+            <span width="4"></span>
+            <image src="img/fileopen32.png" alt="Open File" height="32" onclick="openCoviseNet()"/>
+            <span width="10"></span>
+            <image src="img/execall.png" alt="Execute" height="32" onclick="executeNet()" />
+          </td>
+          <td align="right" rowspan="2" width="800">
+            <span width="400"><img src="img/HLRS_Logo.png" height="48"/></span><img src="img/covise_logo_trans.png" height="48"/>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" valign="middle">
+            <select name="hostselect"   id="hostselect"   size="1" onchange="listModules(this.value)"></select>
+            <select name="catselect"    id="catselect"    size="1" onchange="updateModuleSelect(this.value)"></select>
+            <select name="moduleselect" id="moduleselect" size="1"></select>
+            <span width="50">&nbsp;</span>
+            <image src="img/list-add.png" height="24" align="middle" onclick="instantiateModule()"/>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" style="white-space:nowrap">
+            <span width="4"></span>
+            <image src="img/controlpanel.png" alt="Switch Control Panel Mode" height="24" onclick="controlPanel()"/>
+            <span width="10"></span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" valign="top"><table id="controlpanel" border="0" cellpadding="3" cellspacing="0"></table></td>
+          <td id="WebGLrenderer" valign="top">&nbsp;</td>
+        </tr>
+      </table>
+    </form>
+  </body>
+</html>

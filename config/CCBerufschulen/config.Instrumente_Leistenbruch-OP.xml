@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Instrument Leistenbruch OP' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+               <!--<ShortCut value="showName" name="showName" />-->
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+               <Scope name="Roux1" regexp="Roux1.*" shader="Glossy7" />
+               <Scope name="KocherWundhakenKlein" regexp="KocherWundhakenKlein.*" shader="Glossy7" />
+               <Scope name="KocherWundhakenGross" regexp="KocherWundhakenGross.*" shader="Glossy7" />
+               <Scope name="KocherWundhakenMittel" regexp="KocherWundhakenMittel.*" shader="Glossy7" />
+               <Scope name="anatomischePinzette1" regexp="anatomischePinzette1.*" shader="Glossy7" />
+               <Scope name="DeBakeyPinzette2" regexp="DeBakeyPinzette2.*" shader="Glossy7" />
+               <Scope name="chirurgischePinzette" regexp="chirurgischePinzette.*" shader="Glossy7" />
+               <Scope name="Fadenschere" regexp="Fadenschere.*" shader="Glossy7" />
+               <Scope name="VolkmannWundhaken" regexp="VolkmannWundhaken.*" shader="Glossy7" />
+               <Scope name="Metzenbaumschere" regexp="Metzenbaumschere.*" shader="Glossy7" />
+               <Scope name="Nierenschale" regexp="Nierenschale.*" shader="Glossy7" />
+               <Scope name="SkalpellgriffNr3" regexp="SkalpellgriffNr3.*" shader="Glossy7" />
+               <Scope name="SkalpellgriffNr4" regexp="SkalpellgriffNr4.*" shader="Glossy7" />
+               <Scope name="Kornzange" regexp="Kornzange.*" shader="Glossy7" />
+               <Scope name="Tupferzange" regexp="Tupferzange.*" shader="Glossy7" />
+               <Scope name="Overholtklemme" regexp="Overholtklemme.*" shader="Glossy7" />
+               <Scope name="Tisch" regexp="FACESET_Tisch.*" shader="Glossy5" />
+            </CoviseConfigShader>
+         </Plugin>
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/CCBerufschulen/Medizintechnik/Instrumente_Leistenbruch-OP/locale" />
+         </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

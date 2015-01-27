@@ -1,0 +1,140 @@
+<ModuleInterfaces>
+ <Library name="@PROJECT_NAME@" directory="@LIBRARY_OUTPUT_PATH@"/>
+ <ServerManagerFile name="@PROJECT_NAME@.pvsm"/>
+
+ <!-- Start of ParaView plugin interface specification. -->
+
+
+  <Module name="RidgeSurface"
+          menu_name="Ridge Surface"
+          root_name="RidgeSurface"
+          button_image="PVThresholdButton"
+          module_type="Filter"
+          button_help="Extract ridge surfaces."
+          long_help="Extract ridge surfaces from node (point) scalar data."
+          short_help="Extract ridge surfaces.">
+
+    <Filter class="vtkRidgeSurface">
+      <Input name="Input"
+             class="vtkDataSet">
+        <ArrayRequirement components="1"/>
+      </Input>
+    </Filter>
+
+    <InputMenu trace_name="Input" property="Input"
+               id="im"
+               label="Input"
+               input_name="Input"
+               help="Set the input to this filter." />
+
+    <ArrayMenu id="am" property="SelectInputScalars"
+               trace_name="Scalars"
+               label="Scalar"
+               input_menu="im"
+               help="Choose the scalar array."/>
+
+    <VectorEntry label="Smoothing Range"
+                 trace_name="SmoothingRange"
+                 property="SmoothingRange" type="int"
+                 help="Smoothing range for gradient computation."/>
+
+    <SelectionList trace_name="Mode"
+                   property="Mode"
+                   label="Mode"
+                   option_width="15">
+      <Item name="cell nodes PCA"
+            value="0"/>
+      <Item name="edge nodes PCA"
+            value="1"/>
+    </SelectionList>
+
+    <SelectionList trace_name="Extremum"
+                   property="Extremum"
+                   label="Extremum"
+                   option_width="15">
+      <Item name="maximum ridges"
+            value="0"/>
+      <Item name="minimum ridges"
+            value="1"/>
+    </SelectionList>
+
+    <LabeledToggle label="Exclude FLT_MAX"
+               trace_name="ExcludeFLT_MAX"
+               property="ExcludeFLT_MAX"
+               help="Exclude nodes marked with FLT_MAX from extraction."/>
+
+    <LabeledToggle label="Exclude Lonely Nodes"
+               trace_name="ExcludeLonelyNodes"
+               property="ExcludeLonelyNodes"
+               help="Exclude nodes which do not have enough neighbors (due to FLT_MAX exclusion) from extraction."/>
+
+    <VectorEntry label="Hess. Extremal Eigenval Minimum"
+                 trace_name="HessExtrEigenvalMin"
+                 property="HessExtrEigenvalMin" type="float"
+                 help="Minimum absolute value of second derivative across ridge (used for suppressing flat ridges)."
+                 range="0 1e20"/>
+
+    <VectorEntry label="PCA Subdom. Max. Percentage"
+                 trace_name="PCAsubdomMaxPerc"
+                 property="PCAsubdomMaxPerc" type="float"
+                 help="The second largest absolute eigenvalue must not be larger than this percentage of the largest absolute eigenvalue."
+                 range="0 1"/>
+
+    <VectorEntry label="Scalar Min"
+                 trace_name="ScalarMin"
+                 property="ScalarMin" type="float"
+                 help="Minimum value of the scalar field for ridge extraction."
+                 range="-1e20 1e20"/>
+
+    <VectorEntry label="Scalar Max"
+                 trace_name="ScalarMax"
+                 property="ScalarMax" type="float"
+                 help="Maximum value of the scalar field for ridge extraction."
+                 range="-1e20 1e20"/>
+
+    <VectorEntry label="Clip Scalar Min"
+                 trace_name="ClipScalarMin"
+                 property="ClipScalarMin" type="float"
+                 help="Minimum value of the scalar clipping field for clipped ridge extraction."
+                 range="-1e20 1e20"/>
+
+    <VectorEntry label="Clip Scalar Max"
+                 trace_name="ClipScalarMax"
+                 property="ClipScalarMax" type="float"
+                 help="Maximum value of the scalar clipping field for clipped ridge extraction."
+                 range="-1e20 1e20"/>
+
+    <VectorEntry label="Min Size"
+                 trace_name="MinSize"
+                 property="MinSize" type="int"
+                 help="Ridges with less than this number of triangles are suppressed."/>
+
+    <LabeledToggle label="Filter By Cell"
+               trace_name="FilterByCell"
+               property="FilterByCell"
+               help="Ridge filtering is based on cells. Otherwise it is based on cell edges (recommended)."/>
+
+    <LabeledToggle label="Combine Exceptions"
+               trace_name="CombineExceptions"
+               property="CombineExceptions"
+               help="Instead of rejecting a triangle if a condition is violated at any corner, the violations are summed up and the the triangle is rejected if the count reaches or exceeds maxExceptions."/>
+
+    <VectorEntry label="Max Exceptions"
+                 trace_name="MaxExceptions"
+                 property="MaxExceptions" type="int"
+                 help="A triangle is rejected if it exhibits this count of exceptions."/>
+
+    <LabeledToggle label="Generate Normals"
+               trace_name="GenerateNormals"
+               property="GenerateNormals"
+               help="Generate normals. However it is recommended to use the Normals generation module instead."/>
+
+    <Documentation>
+The RidgeSurface filter extract ridge surfaces from point (node) scalar data. This filter operates on unstructured grid data and produces geometry output.
+    </Documentation>
+  </Module>
+
+
+ <!-- End of ParaView plugin interface specification. -->
+
+</ModuleInterfaces>

@@ -1,0 +1,29 @@
+%=============================================================
+% short description what the module does
+%=============================================================
+
+This module was created for processing together with the \emph{ReadITK} and/or the \emph{Registration} module. It can be used to save images of an image stack in *.png, *.jp(e)g or *.tif(f) files.
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{writeitkslices-modul}{1.0}\end{covimg2}
+
+The module owns four ports for incoming data. The first one accepts a uniform grid, the three following ports RGB data.
+
+%=============================================================
+% parameter window
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2} {}{writeitkslices-param}{1.0}\end{covimg2}
+
+Writing out the slices of an image stack to image files can be modified by a few parameters:
+\begin{description}
+\item[SaveAs] You can choose the file format for the images.
+\item[Output] Here you have to fill in the path for saving the files. For creating the filenames you have to put down a filenamemask with printf expression.
+\end{description}

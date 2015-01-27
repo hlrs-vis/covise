@@ -1,0 +1,21 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	report all errors & Boolean & 
+	                Stop at the first error or report all errors \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

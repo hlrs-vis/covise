@@ -1,0 +1,13 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	FilePath & Browser & First file of sequence or single file\\ 
+\hline
+	Warnings & Boolean & Display warnings when reading files\\ 
+\hline
+	TimestepSets & Boolean & Output sets for time steps\\ 
+\hline
+	NumStarsGalaxy & IntScalar & Number of stars per galaxy\\
+\hline \end{longtable}
+

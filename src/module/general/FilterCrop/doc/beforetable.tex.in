@@ -1,0 +1,31 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+FilterCrop allows to reduce the number of grid lines in structured grids. 
+
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{FilterCrop}{0.7}\end{covimg2}
+
+FilterCrop can either crop the index space of a grid by chosing min and max indices 
+different from 0 and the initial max value, by simply omitting all grid points 
+that lie outside this interval (this is independent for all three coordinate axes).
+The other possibility is to use the sample parameter to skip a certain number 
+of intermediate grid points (this is the same value for all three directions). 
+A sample of 2 (the default) means that every second grid point will
+be displayed, in the case of 3 every third grid point and so on.\\
+
+%
+% short information about versions 
+%
+FilterCrop is available for COVISE version 4.5 and higher. 
+It's tested on all supported platforms.
+
+%
+%=============================================================

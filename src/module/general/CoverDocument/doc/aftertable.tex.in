@@ -1,0 +1,15 @@
+
+
+
+\subsubsection{Example}
+%=============================================================
+
+%\begin{covimg2} {}{map}{0.7}\end{covimg2}
+
+\begin{covimg}{}
+		{map}{covise/net/examples/COVER/CoverDocument.net}{0.7}\end{covimg}
+\begin{htmlonly} net/examples/COVER/CoverDocument.net \end{htmlonly} 		
+		
+\begin{covimg}{}
+     {Renderer}{The picure ( in this case a screenshot of the Cover itself), appears as a window in the Cover}{0.6}\end{covimg}
+\clearpage

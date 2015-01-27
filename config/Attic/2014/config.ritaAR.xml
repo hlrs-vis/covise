@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ 
+ <LOCAL host="visfritz" >
+  <COVER>
+  <MultiPC>
+    <SyncMode value="TCP" />
+   <NumSlaves value="0" />
+  </MultiPC>
+   <ChannelConfig>
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+  </COVER>
+ </LOCAL>
+ 
+ 
+ <LOCAL host="visspring,visbits" >
+
+ <COVER>
+   
+  <Plugin>
+  
+    <ARToolKit value="on">
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <DisplayVideo value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="OFF" />
+     <FlipH value="FALSE" />
+     <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
+     <VideoConfig value="-mode=1024x768_COLOR -balanceU=63 -balanceV=20 -debug -channel=0 -rate=15" />
+     <Threshold value="120" />
+     <Camera value="/data/ARToolKit/camera_para.dat" />
+
+    </ARToolKit>
+   <!--Vrml97Plugin>
+    <Audio value="AServer" />
+    <AudioHost value="141.58.8.229" />
+   </Vrml97Plugin-->
+
+   <SteeringWheelPlugin>
+    <PorscheMouse value="/dev/input/porschemouse" />
+    <PorscheHupe value="/dev/input/porschehupe" />   
+    <PorscheHupe value="/dev/input/porschehupe" />   
+    <FKFS value="OFF" host="192.168.0.95" origin="-1.80877" />   
+    <CAN value="ON" port="1" speed="1000" nodeID="1" origin="0.0" />
+    <!--VDServer value="ON" host="141.58.8.212" /-->
+   </SteeringWheelPlugin>
+
+   <Volume value="on" />
+
+   <Vrml97>
+ 
+     <GenerateTriangleStrips value="false" />
+     <Audio value="AServer" >
+      <Host value="localhost" />
+     </Audio>
+
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+    
+    
+  </Plugin>
+  
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+   
+   
+   <SceneSize value="2500" />
+   <FloorHeight value="-1150" />
+   <MenuPosition value="400 0 500" />
+   <MenuSize value="0.7" />
+   <MultiProcess value="OFF" />
+   <CoordAxis value="OFF" />
+   <MouseNav value="OFF" />
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <Stereo value="OFF" />
+   <DebugLevel value="2" />
+   <Freeze value="ON" />
+   <ViewerPosition value="0 -1675,6364 0" />
+   <NumScreens value="1" />
+   <NumWindows value="1" />
+   <TransparencyMode value="sorted_blended" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+
+  <TabletPC>
+   <Server value="localhost" />
+  </TabletPC>
+  
+  <Input>
+ 
+   <ButtonSystem value="MOUSE" />
+   <TrackingSystem value="DTRACK" />
+   <DebugButtons value="TRUE" />
+   <HeadAddress value="1" />
+   <HandAddress value="2" />
+   
+   <!--WorldXFormAddress value="0" /-->
+   <CameraAddress value="0" />
+   <HMDAddress value="4" />
+   
+   <ButtonAddress value="2" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+   <DebugStation value="0" />
+   <DebugTracking value="NONE" />
+   
+   <TrackingSystem> 
+    <Offset x="0" y="0"  z="43" />
+    <Orientation h="0" p="0" r="0" />
+   </TrackingSystem>
+   
+   <HeadDevice>   
+    <Offset x="0" y="0"  z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HeadDevice>
+   
+   <HandDevice>     
+    <Offset x="0" y="0"  z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HandDevice>
+   
+   <HMDDevice>     
+    <Offset x="0" y="0"  z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HMDDevice>
+   
+   <CameraDevice>     
+    <Offset x="0" y="1675,6364"  z="22" />
+    <Orientation h="0" p="0" r="0" />
+   </CameraDevice>
+            
+   <ObjectDevice>     
+    <Offset x="0" y="0"  z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </ObjectDevice>
+   
+  <ButtonConfig>
+   <ButtonDevice value="TarsusMouse" />
+  </ButtonConfig>  
+  <DTrack>
+	  <Startup value="141.58.8.239:5001" />
+  </DTrack>  
+   
+  </Input>
+    
+   <WindowConfig>
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="0" bottom="150" name="0" decoration="false"/>
+   </WindowConfig>
+  
+  <ScreenConfig>
+   <Screen width="1024" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="768" p="0.0" r="0.0" name="0" screen="0" />
+  </ScreenConfig>
+
+  </COVER>
+
+  <Module>
+   <Fenfloss>
+     <!--LOCAL value="visent.hlrs.de"/-->
+   </Fenfloss>
+  </Module>
+  
+ </LOCAL>
+
+</COCONFIG>

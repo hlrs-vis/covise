@@ -1,0 +1,47 @@
+struct vertout
+{
+   float4 color0    : COLOR0;
+   float4 color1    : COLOR1;
+   float4 texcoord0 : TEXCOORD0;
+   float4 texcoord1 : TEXCOORD1;
+
+   float4 xvector:TEXCOORD2;
+   float4 yvector:TEXCOORD3;
+   float4 zvector:TEXCOORD4;
+   float4 lightVect:TEXCOORD5;
+   float4 viewerVect:TEXCOORD6;
+};
+
+struct pixelOut
+{
+   float4 color  : COLOR;
+};
+
+//-----------------------------------------------------------------------------
+// IN             - incoming per-vertex data to be processed
+//
+// Note: Only the x and y components of texcoord0 are valid, the z and w 
+//       components contain hidden information. The z component identifies
+//       which vertex of the billboard's quad is currently being processed and 
+//       the w component carries a scaling factor for sizing the billboard.
+//-----------------------------------------------------------------------------
+
+pixelOut main( vertout IN,
+            const uniform float4 lightAmbient,
+            const uniform float4 lightDiffuse,
+            const uniform float4 lightSpecular
+)
+
+{
+   pixelOut OUT;
+
+   //_________________calculating depth_____________//
+   float midDist = length(float2(IN.texcoord0.x,IN.texcoord0.y));
+   if (midDist > 1.0) discard;
+
+   //setting output color
+   OUT.color.rgb = IN.color0.rgb;
+   OUT.color.a = IN.color0.a*(1.0-midDist);
+
+   return OUT;
+}

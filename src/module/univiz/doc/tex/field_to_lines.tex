@@ -1,0 +1,77 @@
+\section{Field To Lines}
+\label{sec:field-to-lines}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Converts lines encoded in structured 2-vect fields, as e.g. produced by the \emph{FLE} module with structured sampling grids, to polylines. It also allows for subsampling the lines in order to obtain significant visualizations.
+ 
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  trajectory grid (structured)
+  \begin{itemize}
+  \item
+    trajectory data (2-vect)
+    \begin{itemize}
+    \item
+      1. component: integration time, -1 inidcates end of trajectory
+    \item
+      2. component: unused
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  line-type geometry (the lines)
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{nodes}: only used if \emph{stride} larger than 1. This is the dimension of the sampling grid that the lines originate from. Note that this is the number of nodes, not the number of cells. Hence it must be 1 larger than the number of cells in each dimension.
+
+\item
+  \textbf{stride}: take each stride'th line in each dimension. A value of 1 means that all lines are generated.
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2007-06-06
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Filip Sadlo
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................
+
+\begin{itemize}
+
+\item
+  FLE (Section~\ref{sec:FLE})
+\end{itemize}
+

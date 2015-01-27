@@ -1,0 +1,12 @@
+SET(HEADERS
+   InteractionHandler.h
+   TestRotateInteractionHandler.h
+   TestScaleInteractionHandler.h
+   TwoHandInteractionPlugin.h
+)
+SET(SOURCES
+   TestRotateInteractionHandler.cpp
+   TestScaleInteractionHandler.cpp
+   TwoHandInteractionPlugin.cpp
+)
+cover_add_plugin(TwoHandInteraction)

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{0dac2d8a-8296-48b7-960a-cf0f03982b04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sourcecode">
+      <UniqueIdentifier>{443eb219-669f-4384-a090-7724d8cf47de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Matlab">
+      <UniqueIdentifier>{af9b4c54-7d93-45a7-b2d7-d65beabaaca0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Microsoft">
+      <UniqueIdentifier>{d8d1011d-a38d-41a1-b5c5-b74017bfa263}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dll">
+      <UniqueIdentifier>{6cd61aab-bb20-4b6f-babc-9ae55cc17b3d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\interfacematlab.hxx">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\interfacematlabcom.hxx">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\interfacematlabengine.hxx">
+      <Filter>sourcecode</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="sourcecode\dllapi.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="CDIMLApp.h">
+      <Filter>Matlab</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sourcecode\interfacematlab.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\interfacematlabcom.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="sourcecode\interfacematlabengine.cxx">
+      <Filter>sourcecode</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Microsoft</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

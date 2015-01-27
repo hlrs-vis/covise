@@ -1,0 +1,26 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+This module converts scalar input data into color values. 
+It also produces Colormap output objects, which can be
+used as input objects to other Colors modules.
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{Colors}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+Colors is available since snap-2000-09 on all supported platforms.
+
+%
+%=============================================================

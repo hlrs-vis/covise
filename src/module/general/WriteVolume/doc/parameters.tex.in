@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline FileName & Browser & Volume file or first slice of sequence\\ \hline OverwriteExisting & Boolean & Overwrite existing files?\\ \hline FileType & Choice & File type of volume or slice files\\ \hline DataFormat & Choice & Volume data format\\ \hline MinimumValue & Scalar & Minimum scalar input value\\ \hline MaximumValue & Scalar & Maximum scalar input value\\
+\hline \end{longtable}
+

@@ -1,0 +1,44 @@
+
+
+
+
+\subsubsection{Examples}
+%================================================================================
+
+\begin{covimg}{}
+		{DomainSurfaceMap1}{covise/net/tutorial/tutorial\_grid\_1.net}{0.6}\end{covimg}
+ 
+
+In tutorial\_grid\_1.net (first map) the module RWCovise reads in the 
+computational grid of a channel with two inlets.
+DomainSurface computes the outer surface of the channel. At the first output 
+port the surface polygons are available. When connected to the Renderer module, 
+the surface appears in the renderer window.
+
+
+\begin{covimg2}{}{DomainSurfaceRenderer1}{0.6}\end{covimg2}
+
+\begin{covimg}{}%
+		{DomainSurfaceMap2}{covise/net/tutorial/tutorial\_grid\_2.net}{0.6}\end{covimg}
+
+ 
+In tutorial\_grid\_2.net (second map) the third port is connected to the renderer.
+As a result you see only the outer edges in the renderer window. 
+							 
+
+
+\begin{covimg2}{}{DomainSurfaceRenderer2}{0.6}\end{covimg2}
+
+ 
+\begin{covimg}{}
+		{DomainSurfaceMap3}{covise/net/examples/DomainSurface.net}{0.6}\end{covimg}
+
+If you want to show data on the outer surface you have to connect the data output port of a modul which
+reads/creates the data to the second (optional) input port (third map). The data on the surface/lines are available at the
+second/fourth ouput port. To map them as colors on the surface/lines use a module from the category colors and
+combine the colors with the polygons/lines to a geometry object with the module Collect. In the map
+covise/doc/examples/DomainSurface.net the second RWCovise module reads in the pressure distribution in the
+ unstructured grid. DomainSurface computes the outer surface and the data on the outer surface. 
+
+\begin{covimg2}{}{DomainSurfaceRenderer3}{0.6}\end{covimg2}
+

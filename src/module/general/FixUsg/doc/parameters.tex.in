@@ -1,0 +1,28 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	maxvertices & Scalar & Parameter to control the Bounding Box algorithm: maximal number of vertices in one bounding box.\\
+\hline
+	delta & Scalar & Maximal distance between two vertices.  \\
+\hline
+	algorithm & Choice & Whether we should use the algorithm Bounding Box.  \\
+\hline
+	optimize & Choice & Whether we should optimize the memory usage.  \\																
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

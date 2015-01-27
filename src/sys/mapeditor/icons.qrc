@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="" >
+    <file>icons/covise.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,63 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+2
+# Module ReadIv
+ReadIv
+1
+LOCAL
+IO_Module
+ReadIv_1
+27
+18
+0
+1
+descr
+Text_Cv
+Cv Description
+default
+
+1
+path
+Browser
+file path
+share/covise/example-data/Inventor/SgiLogo.iv
+
+1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+27
+93
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+1
+ReadIv
+1
+LOCAL
+descr
+
+Renderer
+1
+LOCAL
+RenderData
+0

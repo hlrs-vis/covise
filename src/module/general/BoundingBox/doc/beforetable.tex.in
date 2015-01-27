@@ -1,0 +1,30 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+BoundingBox writes a message with information of the
+smallest parallelepiped parallel to the global coordinate
+system containing the input object. More over it creates
+the outer lines of this parallelepiped, which can be shown 
+in a renderer.
+
+%
+% input of a module icon for example
+% #1    path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{boundingbox}{0.7}\end{covimg2}
+
+
+
+BoundingBox is avaiable on all supported platforms.
+%Information about versions is not available.
+
+
+%
+%=============================================================

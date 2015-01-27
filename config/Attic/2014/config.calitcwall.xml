@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="visualtest02" >
+
+  <COVER>
+    <MultiPC>
+     <SyncMode value="TCP" />
+     <NumSlaves value="0" />
+     <Startup arch="x11" value="ssh ${USER}@visualtest02 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+    </MultiPC>
+ 
+    <PipeConfig>
+      <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+      <Pipe display=":0.1" name="1" screen="1" pipe="1" />
+    </PipeConfig>
+
+    <WindowConfig>
+     <Window width="1920" comment="LEFT"  window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+     <Window width="1920" comment="RIGHT" window="1" pipeIndex="1" height="1080" left="0" bottom="0" name="1" decoration="false" />
+    </WindowConfig>
+ 
+    <Stereo enable="ON" value="ON" />
+    <!--
+    <StereoMode value="HORIZONTAL_SPLIT" />
+    -->
+    
+    <Input>
+     <ButtonSystem value="CAVELIB" />
+     <TrackingSystem value="CAVELIB" />
+     <MouseNav value="OFF" />
+
+     <HeadAddress value="2" />
+     <HandAddress value="1" />
+     <Joystick value="true" />
+
+     <Transmitter>
+      <Offset x="0" y="10" z="-75" />
+      <Orientation h="0" p="180" r="0" />
+     </Transmitter>
+
+     <HeadSensor>
+      <Offset x="20" y="-45" z="0" />
+      <Orientation h="-90" p="0" r="0" />
+     </HeadSensor>
+
+     <HandSensor>
+      <Offset x="0" y="0" z="0" />
+      <Orientation h="180" p="0" r="0" />
+     </HandSensor>
+
+     <DebugTracking value="OFF" />
+     <DebugStation value="2" />
+
+     <NumSensors value="3" />
+    </Input>
+ 
+    <Menu>
+      <Orientation h="0" p="0" r="0" />
+      <Position x="100" y="0" z="0" />
+      <Size value="1" />
+    </Menu>
+
+    <SceneSize value="2000" />
+    <ViewerPosition x="0" y="-2000" z="0" />
+    <CoordAxis value="off" />
+    <Freeze value="off" />
+    <ViewAll value="off" />
+    <NumPipes value="2" />
+    <NumScreens value="2" />
+    <NumWindows value="2" />
+    <StereoCommand value="echo Clearing frame buffer; /home/jschulze/programs/clearfb/clearfb" />
+ 
+    <VRUI>
+      <pdbSequenceDisplay>
+        <Menu>
+          <Size value="1.0" />
+          <WindowSize value="10" />
+        </Menu>
+      </pdbSequenceDisplay>
+    </VRUI>
+
+    <Plugin>
+      <Marker value="off" />
+      <Image value="on" />
+      <Image-Praveen value="off" />
+      <WebBrowser value="off" />
+      <PDB value="on" />
+      <SoundPlugin value="off" />
+      <CCDBVR value="off" />
+      <PDBSequenceDisplay value="off" />
+      <OssimPlanet value="off" />
+      <StructView value="off" />
+      <Active value="off" />
+      <Anchorage value="on" />
+      <Cliff value="on" />
+      <EQVis value="on" />
+      <NewProjectName value="off" />
+      <Duy value="off" />
+      <Candels value="off" />
+      <Syamaoka value="off" />
+      <Kponto value="off" />
+      <VanNuys value="on" />
+      <Particles value="off" />
+      <DepthOfFocus value="on" />
+      <Calit2Building value="off" />
+      <MessagePlugin value="off" />
+      <Measure value="off" />
+      <SystemLog value="off" />
+      <ModelViewer value="off" />
+      <AtlasInSilico value="off" />
+      <RIVis value="on" />
+      <Looking value="off" />
+      <CAMERAVis value="off" />
+      <MIPTest value="off">
+	<ImgDir value="/home/jschulze/data/galaxy/resize2/" />
+      </MIPTest>
+      
+      <RIVis> 
+	<ModelFile value="/home/azavodny/stuff/spike.wrl" />
+        <FontName value="/home/azavodny/Desktop/Misc/fonts/verdana.ttf" />
+        <TreeMapData value="/home/azavodny/cplugins/RIVis/funding_data.txt" />
+        <TagCloudData value="/home/azavodny/cplugins/RIVis/tag_cloud_data.txt" />
+        <NumOfEntries value="1500"/>
+        <NumOfGrants value="1000"/>
+          <WiimoteID value="00:17:AB:26:72:5D"/>
+      </RIVis> 
+
+      <Vrml97>
+       <Audio value="none" >
+
+  <!--
+       <Audio value="AServer" >
+        <Host value="137.110.118.28" />
+  -->      
+       </Audio>
+
+      </Vrml97>
+      
+      <PDB>
+        <PDBPluginTempDir value="/home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/PDB/temp1/" />
+      </PDB>
+      <ModelViewer>
+        <ModelFile value="/home/jschulze/data/amit/robot/robot_anim.obj" />
+      </ModelViewer> 
+
+      <SysLog>
+        <ServerAddress value="137.110.119.201" />
+        <ServerPort value="4001" />
+        <LogFileName value="MTB1" />
+      </SysLog>
+
+    </Plugin>
+
+    <DebugLevel value="1" />
+    <FPS value="true" />
+ 
+   </COVER>
+
+  <PDBLoader>
+    <WindowSize value="10" />
+  </PDBLoader>
+
+  <pdbSequenceDisplay>
+    <WindowSize value="10" />
+  </pdbSequenceDisplay>
+
+  <MarkerControl>
+    <WindowSize value="10" />
+  </MarkerControl>
+
+  <AudioControl>
+    <WindowSize value="10" />
+  </AudioControl>
+
+  <Protein>
+    <WindowSize value="10" />
+  </Protein>
+
+  <Messages>
+    <WindowSize value="10" />
+  </Messages>
+
+  <SetControl>
+    <WindowSize value="10" />
+  </SetControl>
+
+  <LayerControl>
+    <WindowSize value="10" />
+  </LayerControl>
+
+  <ProteinControl>
+    <WindowSize value="10" />
+  </ProteinControl>
+
+ </LOCAL>
+
+ <LOCAL host="visualtest02" >
+  <COVER>
+   <ChannelConfig>
+    <Channel comment="FRONTLeft"  channel="0" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT"  windowIndex="0" name="0" />
+    <Channel comment="FRONTRight" channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="LEFT" windowIndex="1" name="1" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen width="2438" comment="FRONTLEFT"  h="0.0" originX="0" originY="0" originZ="0" height="1371" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2438" comment="FRONTRIGHT" h="0.0" originX="0" originY="0" originZ="0" height="1371" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+ 
+</COCONFIG>

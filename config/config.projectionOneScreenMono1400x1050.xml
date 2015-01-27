@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <!-- Mono projection for cykloop screen (1720 mm x 1320 mm) windows resolution 1400 pixels x 1050 pixels-->
+
+         <Stereo enable="OFF" value="OFF" />
+
+         <SceneSize value="1320" />
+         <ViewerPosition x="0" y="-1500" z="-100" />
+         <FloorHeight value="-1250"  />
+         <IconSize value="50"/>
+
+         <NumWindows value="1" />
+         <NumPipes value="1" />
+         <NumScreens value="1" />
+
+         <PipeConfig>
+            <Pipe name="0" screen="0" pipe="0" />
+         </PipeConfig>
+
+         <WindowConfig>
+            <Window width="1400" comment="MAIN" window="0" pipeIndex="0" height="1050" left="0" bottom="0" name="0" decoration="off" />
+         </WindowConfig>
+
+         <ChannelConfig>
+            <Channel channel="0" left="0"  width="1400" bottom="0" height="1050" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+         </ChannelConfig>
+
+         <ScreenConfig>
+            <Screen originX="0" originY="0" originZ="0" width="1720" height="1320" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+         </ScreenConfig>
+
+         <SmallSceneAxis value="on" >
+            <Position x="-750" y="0" z="-500" />
+            <Size value="100"/>
+            <FontSize value="10"/>
+         </SmallSceneAxis>
+
+         <NameMenuPosition value="on" x="-860" y="0" z="660"/> 
+         <NameMenuScale value="2.0"/> 
+
+         <Menu>
+            <Position x="-850" y="0" z="610"/>
+         </Menu>
+
+         <QuitMenu>
+            <Position x="-100" y="-100" z="0" />
+         </QuitMenu>
+
+         <Plugin>
+
+            <AKToolbar value="on">
+               <Scale value=".7" />
+               <Position x="-850" y="0" z="-550" />
+            </AKToolbar>
+
+            <DocumentViewer value="on">
+               <Vsize value="1250" />
+            </DocumentViewer>
+
+         </Plugin>
+
+      </COVER>
+   </GLOBAL>
+
+</COCONFIG>

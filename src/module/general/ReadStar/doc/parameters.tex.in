@@ -1,0 +1,58 @@
+
+   \subsubsection{Parameters}
+   %================================================================================
+
+    
+   \begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+   \hline
+      \bf{Name} & \bf{Type} & \bf{Description} \endhead
+   \hline\hline
+	   mesh\_path & Browser & StarCD mesh file (*16/*mdl) location: Input file with
+					     mesh information. 
+
+					     If a restart file (*09/*pst) from a moving-grid simulation
+					     is visualized, the mesh file (*16/*mdl) must be created for
+					     the specific step. This is not needed if the transient output
+					     file (*29/*pstt) is used. 
+
+					     Immediately after the mesh file was selected, {\bf ReadStar}
+					     starts reading the file to gain information. This might take
+					     some time for large data sets. \\
+   \hline
+	   data\_path &Browser & StarCD result file (*09/*pst or *29/*pstt) location: Input
+					     file with result data. 
+
+					     Immediately after the result file was selected, {\bf ReadStar}
+					     starts reading the file to gain information. This might take
+					     some time for large data sets. As soon as a valid
+					     combination of mesh and data files are found, the mesh
+					     file is scanned for the names of the scalar values and the
+					     data file (if transient) is scanned for the number of
+					     time-steps. Then parameters field\_0,...field\_15 are
+					     updated and you can select now the data you want to have
+					     at the corresponding output ports.  \\
+														   
+   \hline
+	   from\_to\_step & Integer vector & Time-steps to be read: First step, last step, increment.
+					     Time-steps are numbered from 1 (1st step in file) to
+					     number of steps, NOT in Star-CD internal numbering. \\
+   \hline
+   timestep& Slider & not yet used \\
+   \hline
+   cellVert& Choice & Select the data output format: data per vertex or data per cell. Default selection: vertex
+						   based data. 
+
+						   If you select cell based data you have to use the module 
+														   CellToVert to convert them to
+						   vertex based data because the following post-processing modules (IsoSurface,
+					     CuttingSurface, Tracer) support only vertex based data. \\
+   \hline
+   field\_0 ,...\newline
+   field\_15 & Choice & Select which data field to read for the output ports "data\_0,...,
+														   data\_15". This choice is
+					     updated after reading the input files. The value "---" means that no data is sent to
+					     Port "data\_x". \\
+   \hline
+   \end{longtable}
+
+   %================================================================================

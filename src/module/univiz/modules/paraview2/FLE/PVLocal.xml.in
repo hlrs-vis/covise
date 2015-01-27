@@ -1,0 +1,168 @@
+<ModuleInterfaces>
+ <Library name="@PROJECT_NAME@" directory="@LIBRARY_OUTPUT_PATH@"/>
+ <ServerManagerFile name="@PROJECT_NAME@.pvsm"/>
+
+ <!-- Start of ParaView plugin interface specification. -->
+
+  <Module name="FLE"
+          menu_name="FLE"
+          root_name="FLE"
+          button_image="PVThresholdButton"
+          module_type="Filter"
+          button_help="Compute finite Lyapunov exponent variants."
+          long_help="Compute finite Lyapunov exponent variants on node (point) data."
+          short_help="Compute finite Lyapunov exponent variants.">
+
+    <Filter class="vtkFLE">
+      <Input name="Input"
+             class="vtkDataSet">
+        <ArrayRequirement components="3"/>
+      </Input>
+    </Filter>
+
+    <InputMenu trace_name="Input" property="Input"
+               id="im"
+               label="Input"
+               input_name="Input"
+               help="Set the input to this filter." />
+
+    <ArrayMenu id="am" property="SelectInputVectors"
+               trace_name="Vectors"
+               label="Velocity"
+               input_menu="im"
+               help="Choose the velocity array."/>
+
+    <VectorEntry label="Origin"
+                 trace_name="Origin"
+                 property="Origin"
+                 type="float" length="3"
+                 help="Define origin of sampling grid." />
+
+    <VectorEntry label="Cells"
+                 trace_name="Cells"
+                 property="Cells"
+                 type="int" length="3"
+                 help="Define number of cells per dimension of sampling grid." />
+
+    <VectorEntry label="Cell Size"
+                 trace_name="CellSize"
+                 property="CellSize" type="float"
+                 help="Size of a cell of the sampling grid."
+                 range="0 1000000"/>
+
+    <LabeledToggle label="Unsteady"
+               trace_name="Unsteady"
+               property="Unsteady"
+               help="For unsteady velocity data, read data from file."/>
+
+    <!--<FileEntry label="Velocity File"
+               trace_name="VelocityFile"
+               property="VelocityFile" extension="info"
+               keeps_timesteps="0"
+               help="Name of file to read unsteady data from."/>-->
+
+    <StringEntry property="VelocityFile"
+                 trace_name="VelocityFile"
+                 label="Velocity File"
+                 help="Name of file to read unsteady data from."/>
+
+    <VectorEntry label="Start Time"
+                 trace_name="StartTime"
+                 property="StartTime" type="float"
+                 help="Start time for integration of pathlines."
+                 range="-1000000 1000000"/>
+
+    <SelectionList trace_name="Mode"
+               property="Mode"
+               label="Mode"
+               option_width="15">
+      <Item name="FTLE"
+            value="0"/>
+      <Item name="FLLE"
+            value="1"/>
+      <Item name="FSLE"
+            value="2"/>
+      <Item name="FTLEM"
+            value="3"/>
+      <Item name="FTLEA"
+            value="4"/>
+    </SelectionList>
+
+    <LabeledToggle label="Ln"
+               trace_name="Ln"
+               property="Ln"
+               help="Compute logarithm, this conforms to original FTLE definition."/>
+
+    <LabeledToggle label="1 / T"
+               trace_name="DivT"
+               property="DivT"
+               help="Divide by advection time T, this conforms to original FTLE definition."/>
+
+    <VectorEntry label="Integration Time"
+                 trace_name="IntegrationTime"
+                 property="IntegrationTime" type="float"
+                 help="Integration time of trajectories."
+                 range="0 1000000"/>
+
+    <VectorEntry label="Integration Length"
+                 trace_name="IntegrationLength"
+                 property="IntegrationLength" type="float"
+                 help="Integration legth of trajectories."
+                 range="0 1000000"/>
+
+    <VectorEntry label="Time Intervals"
+                 trace_name="TimeIntervals"
+                 property="TimeIntervals" type="int"
+                 help="Number of time intervals. Used e.g. for FSLE, larger values produce better quantization but use more memory."/>
+
+    <VectorEntry label="Minimum Separation Factor"
+                 trace_name="SepFactorMin"
+                 property="SepFactorMin" type="float"
+                 help="Minimum Separation Factor."
+                 range="1 1000000"/>
+
+    <VectorEntry label="Maximum Number of Integration Steps"
+                 trace_name="IntegStepsMax"
+                 property="IntegStepsMax" type="int"
+                 help="Maximum number of integration steps."/>
+
+    <LabeledToggle label="Forward"
+               trace_name="Forward"
+               property="Forward"
+               help="Integration in forward direction."/>
+
+    <VectorEntry label="Smoothing Range"
+                 trace_name="SmoothingRange"
+                 property="SmoothingRange" type="int"
+                 help="Smoothing range for gradient computation."/>
+
+    <LabeledToggle label="Omit Boundary Cells"
+               trace_name="OmitBoundaryCells"
+               property="OmitBoundaryCells"
+               help="Omit boundary cells."/>
+
+    <LabeledToggle label="Gradient Neighbors Disabled"
+               trace_name="GradNeighDisabled"
+               property="GradNeighDisabled"
+               help="Do not compute and mark gradient at undefined flow map nodes."/>
+
+    <LabeledToggle label="Execute"
+               trace_name="Execute"
+               property="Execute"
+               help="Allow execution."/>
+
+    <LabeledToggle label="Resample On Trajectories"
+               trace_name="ResampleOnTrajectories"
+               property="ResampleOnTrajectories"
+               help="Resample field variables at vertices of resulting trajectories."/>
+
+    <Documentation>
+The FLE filter computes variants of finite Lyapunov exponents from point (node) velocity data. This filter operates on unstructured grid data and produces unstructured grid data.
+    </Documentation>
+  </Module>
+
+
+
+ <!-- End of ParaView plugin interface specification. -->
+
+</ModuleInterfaces>

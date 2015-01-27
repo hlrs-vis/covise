@@ -1,0 +1,15 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}
+ {}{ReadIvMap}{covise/examples/ReadIv.net}{0.6}\end{covimg}
+
+We use a simple example map to display an Inventor file.
+ 
+\begin{covimg}
+ {}{ReadIvRenderer}{SGI Logo}{0.6}\end{covimg}
+

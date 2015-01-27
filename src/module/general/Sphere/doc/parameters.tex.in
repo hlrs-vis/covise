@@ -1,0 +1,32 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	radius & Scalar & Radius of each sphere \\
+\hline
+	scale & Scalar & Scale factor for the spheres deformation (see {\it data}
+	input-port description)  \\
+\hline
+        render\_method & Choice & Generate triangle strips (Polygons), texture mapped impostors (CPU
+              Billboards), or pixel shaded impostors (Cg Shader)
+\end{longtable}
+%=============================================================
+
+Note: 
+\begin{itemize}
+\item Use the parameter "radius" to determine the size of your spheres in case you don't
+have connected data input to the Sphere module; in this case the parameter "scale" has no
+effect.
+\item Use the parameter "scale" together with scalar or vector data to determine the size
+resp. the deformation of your spheres (see Input Ports); in this case you have to connect scalar or vector
+data input to Sphere and the parameter "radius" has no effect.
+\end{itemize}
+
+%
+%=============================================================

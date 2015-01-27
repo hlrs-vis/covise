@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ag32.xpm</file>
+    </qresource>
+</RCC>

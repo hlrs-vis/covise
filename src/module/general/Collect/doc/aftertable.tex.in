@@ -1,0 +1,57 @@
+
+
+
+\subsubsection{Example 1}
+%=============================================================
+%
+% examples for using this module
+
+In tutorial\_pressure\_1.net (first map)the left RWCovise module reads in the computational grid of a
+channel with two inlets. The second RWCovise module reads in the pressure distribution.
+The module CuttingSurface cuts the 3D data with a plane and computes the pressure values on the plane. The plane ia a
+list of polygons or trianglestrips. Collect combines the polygons/trianglestrips and 
+the colors into a geometry object for the renderer.
+
+\begin{covimg}{}
+		{CollectMap1}{covise/net/tutorial/tutorial\_pressure\_1.net}{0.6}\end{covimg}
+		
+\begin{covimg}{}
+		{press1out}{Renderer output from covise/net/tutorial/tutorial\_pressure\_1.net}{0.6}\end{covimg}
+\clearpage		
+%=============================================================
+
+\subsubsection{Example 2}
+%=============================================================         		
+
+In tutorial\_pressure\_2.net (second map) the RWCovise modules again read in the computational grid and the
+pressure data on the grid.
+IsoSurface computes an isosurface (a surface connecting all points with a certain 
+pressure value).IsoSurface also computes the surface normals. Collect combines the polygons/tristripes of the isosurface, the colors on the surface and the normals
+into a geometry object.
+
+\begin{covimg}{}
+		{CollectMap2}{covise/net/covise/net/tutorial/tutorial\_pressure\_2.net}{0.6}\end{covimg}
+
+\begin{covimg}{}
+		{press2out}{Renderer output from covise/net/tutorial/tutorial\_pressure\_2.net}{0.6}\end{covimg}
+\clearpage		
+%=============================================================
+
+\subsubsection{Example 3}
+%=============================================================     				
+
+In the third map, the RWCovise modules again read the grid and the pressure data.
+DomainSurface computes the outer surface of the grid as polygons and the data on the
+outer surface. Colors maps the pressure data to colors as a texture. Collect combines the texture and the polygons
+into a geometry object.
+
+\begin{covimg}{}
+		{DomainsurfaceMap3}{covise/net/examples/DomainSurface.net}{0.6}\end{covimg}
+
+\begin{covimg}{}
+		{DomainSurface_out}{Renderer output from covise/net/examples/DomainSurface.net}{0.6}\end{covimg}    				
+
+
+
+
+

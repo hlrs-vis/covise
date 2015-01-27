@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+   
+         <Plugin>
+	         <Birch value="off" />
+	         <Birch>
+		         <!--CONFIG-->
+		         <Config>
+			         <HUD>
+				         <hud_position_x value = "300" />
+				         <hud_position_y value = "-300" />
+				         <hud_position_z value = "300" />
+			         </HUD>
+			         <Fog>
+				         <fog_scale value = "120" />
+				         <fog_offset value = "2" />
+				         <fog_layers value = "4" />
+				         <fog_color_r value = "0.2"/>
+				         <fog_color_g value = "0.2"/>
+				         <fog_color_b value = "0.2"/>
+			         </Fog>
+			         <ROV>
+				         <speed value = "10" />	
+			         </ROV>
+			         <initial_camera_position_x value = "-5"/>
+			         <initial_camera_position_y value = "-1985"/>
+			         <initial_camera_position_z value = "-100"/>
+			         <setup value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/setup.txt"/>
+		         </Config>
+
+		         <!--FONTS-->
+		         <Fonts>
+			         <FontFile value="/mnt/raid/svn/wcs/trunk/covise/fonts/arial.ttf"/>
+		         </Fonts>
+		         <!--LIGHTING-->
+		         <Lighting>
+			         <ROV>
+				         <spotlight_position_x value = "0.0f" />
+				         <spotlight_position_y value = "0.0f" />
+				         <spotlight_position_z value = "0.0f" />
+				         <spotlight_color_r value = "1.0f" />
+				         <spotlight_color_g value = "1.0f" />
+				         <spotlight_color_b value = "1.0f" />
+				         <spotlight_cutoff value = "30.0f" />
+			         </ROV>
+			         <Intersection>
+				         <light_position_x value = "0.0f" />
+				         <light_position_y value = "0.0f" />
+				         <light_position_z value = "0.0f" />
+				         <light_color_r value = "1.0f" />
+				         <light_color_g value = "1.0f" />
+				         <light_color_b value = "1.0f" />
+			         </Intersection>
+		         </Lighting>
+
+		         <!--MODELS-->
+		         <Models>
+			         <Extra>
+				         <SceneryModel value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/phase2/underwater.obj"/>	
+				         <CrabModel value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/phase3/crab.obj"/>
+			         </Extra>
+			         <Plane>
+				         <model value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/phase2/Plane.obj"/> 
+			         </Plane>
+			         <ROV>
+				         <model value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/phase2/ROV.obj"/>
+			         </ROV>
+			         <Test>
+				         <TestModel value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/tests/fogTest.obj"/>
+				         <TestPlane value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/phase1/testPlane.obj"/>
+			         </Test>
+			         <Vent>
+				         <model_0 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent0.obj"/>	
+				         <model_1 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent1.obj"/>
+				         <model_2 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent2.obj"/>	
+				         <model_3 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent3.obj"/>
+				         <model_4 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent4.obj"/>
+				         <model_5 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent5.obj"/>
+				         <model_6 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent6.obj"/>
+				         <model_7 value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/vent7.obj"/>	
+			         </Vent>
+			         <Controller>
+				         <R_arrow value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/rightArrow.obj"/>
+				         <L_arrow value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/leftArrow.obj"/>
+				         <move_button value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/moveButton.obj"/>
+				         <up_button value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/upButton.obj"/>
+				         <down_button value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/downButton.obj"/>
+				         <left_button value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/leftButton.obj"/>
+				         <right_button value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/rightButton.obj"/>
+			         </Controller>
+		         </Models>
+
+		         <!--TEXTURES-->
+		         <Textures>
+			         <Normal_tex value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/normal_test.jpg"/>
+			         <Diffuse_tex value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/vent_detail/diffuse2.jpg"/>	
+			         <HUD_background value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/controlpanel.png"/>
+			         <HUD_map value = "/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/HUD/map.jpg"/>
+			         <Smoke value = "/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/Birch/Images/smoke.rgb"/>
+		         </Textures>
+	         </Birch>
+         </Plugin>
+
+      </COVER>
+
+   </GLOBAL>
+
+
+</COCONFIG>

@@ -1,0 +1,220 @@
+#########################################################################
+#                                                                       #
+# Basic Covise Configuration  File                                      #
+#                                                                       #
+#########################################################################
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+panoramix	   shm			rsh				30
+cacophonix   shm			rsh				30
+}
+
+## HostInfo : enables SMP Multithread Parallelisation
+##            ---> set to 1 if experiencing Memory problems
+##            foo is Multi-Processor, all others are Single.
+
+HostInfo: foo
+{
+    numProcs 5
+}
+
+HostInfo
+{
+    numProcs 1
+}
+
+License
+{
+   Key EOOOLNEFEBHHEKDBDFKLMJLHHHHHHHHHCBFKGGPPCLOAJEEK    panoramix    1.6.2000
+
+   Key PFICLNMFMJPHEKAGNBCDMBLHPPPPPPHPMHAKCNALNMINCOJI    panoramix    1.5.2000
+#    Key abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabc    bar@foo    31.12.3909
+#  Key ELHPPPHHHPHDFCAGFBCDEJDPHHPHPHHHMJDGONJCMAHAMFDJ    146.87.133.42    1.5.2000
+#Key EGGGDFENEBPPECJPHFCLELDGDEJDHHPPAECMCJCNPNMKFLG[    panoramix CoviseDemo@Salford    1.4.2000
+
+#Key PLOODNMNEJPHEKJHHFCLMDLODMBLPHPHEPKAAEDFPDJBFLL_    cacophonix CoviseDemo@Salford    1.4.2000
+}
+
+COVERConfig
+{
+    ANTIALIAS                   ON
+    DEBUG_TRACKING APP
+    DEBUG_STATION	1
+
+#   ARENA_SIZE                  250000000
+#   AUTO_WIREFRAME              OFF
+#   BACKGROUND                  0.0 0.0 0.0
+   BUTTON_SYSTEM               CAVELIB
+    COORD_AXIS                  ON
+    #VIEWER_POSITION             0 -2000 0
+    VIEWER_POSITION             0 0 0
+#   FPS OFF                     OFF
+    WELCOME_MESSAGE             Covise Virtual Environment
+#   FOOTER_MESSAGE              Covise Virtual Environment
+#   FORCE_FEEDBACK	            OFF
+#   FORCE_FEEDBACK_MODE         2
+#   FORCE_SCALE		            1.0
+    FREEZE			          OFF
+#   LIGHT1                      0 1000 1000 1
+#   LIGHT2                      0 1000 1000 1
+#   MAX_FORCE                   0.05
+#   MENU_POSITION               900 0 800
+#   MENU_ORIENTATION            -30 0 0 1
+#   MODELPATH                   /usr/share/data/models
+#   MODELFILE                   banana.iv
+#   MOVE_PARTS                  ON
+#   MODULE                      CUBE
+#   MULTIPROCESS                ON
+#   NOSEPARATION                FALSE
+   NOTIFY                      ON
+#   SPOTLIGHT                   OFF
+#   TWOSIDE                     ON
+    TRACKING_SYSTEM             CAVELIB
+#   COVERConfig.SAVE_FILE       cover.pfb
+    SCENESIZE		        2500
+    NUM_PIPES		            4
+    NUM_WINDOWS		            4
+    PIPE_LOCKING                CHANNEL
+    STEREO_SEPARATION           60
+#   RELATIVISTIC_PARAMETER_FILE xxx
+#   RELATIVISTIC_Mode           xxx   
+    SCALE_ALL		            OFF
+#   VISUAL_ID                   0x6f
+    WHITE_TO_GREY		        TRUE
+		
+}
+
+
+ButtonConfig
+{
+    BUTTON_DEVICE	/dev/ttyd2
+}
+
+### foo is a multi-pipe machine: NUM_PIPES=2 
+#   maybe driving a Cube...
+
+COVERConfig: foo
+{
+
+	ARENA_SIZE		1000000000
+	TRACKING_SYSTEM		FLOCK
+	SCENESIZE		2500
+	NUM_PIPES		2
+	NUM_WINDOWS		4
+	AUTO_WIREFRAME		OFF
+	COORD_AXIS		OFF
+	FREEZE			OFF
+	#SPOTLIGHT		ON
+	STEREO_SEPARATION       60
+	NOSEPARATION		FALSE
+	TWOSIDE			ON
+	#MODELPATH              /mnt/scr/cod/boytcheff/PTT
+	#MODELFILE               PTT_Complete_new2.iv
+	LIGHT1		        0 10000 10000 1.0
+	MOVE_PARTS               OFF
+	#RELATIVISTIC_PARAMETER_FILE /mnt/scr/cod/relativity/raum/raum.par
+	#RELATIVISTIC_MODE       OFF
+	WELCOME_MESSAGE         Welcome to COVER
+	LOD_SCALE    		0
+
+}
+
+WindowConfig: 
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1024 768
+       	1	RIGHT       	2       	0 0 	1024 768
+       	2	LEFT        	1       	0 0 	1024 768
+       	3	BOTTOM      	3       	0 0	1024 768
+}
+
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:1.0
+      	1		1		:1.1
+      	2		2		:1.2
+      	3		3		:1.3
+}
+PipeConfig: foo
+{
+#	SoftPipe	Screen   	Display
+				
+      	0		0		:0.0
+	1		0		:0.2
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		2984 2743	0 1492 0		0.0 0.0 0.0
+	1		RIGHT		2984 2743	1492 0 0 		-90.0 0.0 0.0
+	2		LEFT		2984 2743	-1492 0 0		90.0 0.0 0.0
+	3		BOTTOM		2984 2984       0 0 -1371		0.0 -90.0 0.0
+	
+}
+
+
+PolhemusConfig
+{
+	SERIAL_PORT		 	/dev/ttyd5	19200
+#	SERIAL_PORT		 	phantom.ini
+
+	HEMISPHERE      		1 0 0
+
+#	Polhemus hand device and station
+	HAND	POLHEMUS_STYLUS		1
+
+#	Pohemus headtracking device and station
+	HEAD	POLHEMUS_SENSOR		0
+
+	LINEAR_MAGNETIC_FIELD_CORRECTION	0.0 0.0 -0.35
+
+#	Position of the transmitter in the world coordinate system
+	TRANSMITTER_OFFSET_POS			0 0 -170
+
+#	Orientation of the Transmitter in the world coordinate system RPH
+#	heading=rotz, pitch=rotx, roll=roty
+#					         H   P   R
+	TRANSMITTER_OFFSET_EULER		0 90 0
+
+
+#	Position of the Viewer in the receiver system
+	SENSOR_OFFSET_POS			0 0 0
+
+#	Orientation of the Viewer in the receiver system
+        SENSOR_OFFSET_EULER			-90 0 0
+
+#       Position of the pointer in the receiver system
+	STYLUS_OFFSET_POS			0 0 0
+
+#	Orientation of the Pointer in the receiver system
+	STYLUS_OFFSET_EULER			90 -90 0
+        
+}
+
+
+Network
+{
+#	IP_ALIAS	visavis		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+# Simulation coupling example
+
+MiniSim
+{
+   PORTS    31000-31999
+   SERVER   Module
+   TIMEOUT  90
+   STARTUP  CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; miniSim
+#   STARTUP  echo "setenv CO_SIMLIB_CONN %e ; cd %0 ; miniSim"
+   VERBOSE  1
+}
+
+

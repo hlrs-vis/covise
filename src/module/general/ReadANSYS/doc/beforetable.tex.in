@@ -1,0 +1,34 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+ReadANSYS reads .rst, .rfl, and .rth files, which
+are the results files for mechanical,
+FLOTRAN or thermal analysis. In all
+cases READ\_ANSYS finds dynamically the degrees
+of freedom active in the model, from which the user
+may choose any option for visualisation. As for derived
+data, the module reads stresses and several kinds of strains
+for mechanical files, and the heat flux for thermal analysis.
+
+ 
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{ReadANSYS}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+ReadANSYS is available for COVISE version 5.2 and higher.
+It has been tested on SGI systems (IRIX 6.5).
+
+%
+%=============================================================

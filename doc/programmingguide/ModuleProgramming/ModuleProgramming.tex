@@ -1,0 +1,1785 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Module Programming}
+\label{Module Programming}
+%=============================================================
+\index{coModule}
+
+
+\section{The \code{coModule} Base Class}
+
+The base class for all module programming is {\tt coModule}. An application is created 
+by deriving a class of {\tt coModule}. The constructor of the derived class creates 
+the module layout with input ports, output ports and parameters. Virtual functions are 
+overloaded to implement the module's reactions on events.  Every COVISE
+module based on {\tt coModule} looks like:
+
+\underline{Header file:}
+\begin{verbatim}
+class myMod: public coModule
+{
+   private:
+      ... // parameter and data object ports
+
+   public:
+      myMod(int argc, char *argv[]);     // Constructor: module set-up
+      virtual void compute(const char *);       // Called for every execute
+      virtual void param(const char *, bool inMapLoading);
+                                         // Called for param changes
+      virtual void sockData(int sockNo); // Called for receiving data
+}
+\end{verbatim}
+
+\underline{Source code:}
+\begin{verbatim}
+myMod::myMod(int argc, char *argv[])
+: coModule(argc, argv, "My example module")
+                               {...}    // build ports and parameters
+myMod::compute(const char *)         {...}    // module is executed
+myMod::param(const char *, bool inMapLoading)
+                               {...}    // parameters changed
+myMod::postInst(const char *)  {...}    // between c'tor and main loop
+myMod::quit(const char *)      {...}    // after the end of main loop
+myMod::sockData(int socNo)     {...}    // data arrived on a socket
+
+MODULE_MAIN(SomeCategory, myMod)
+
+\end{verbatim}
+
+To allow future use of threads and multi-linked modules, modules should use neither global nor non-constant
+static variables.
+
+\section{\code{coModule}'s Functions}
+
+{\Large Constructor}
+\index{coModule!constructor}
+\vspace*{0.5cm}
+
+The constructor of a module is used to set up its external connectivity. First, it calls the constructor of the base
+class {\tt coModule}:
+
+\begin{verbatim}
+      void coModule::coModule(int argc, char *argv[], const char *description=NULL, bool propagate=false)
+\end{verbatim}
+
+The constructor of \code{coModule} establishes some basic data structures and pre-sets 
+them with defaults values.
+
+The execution of a module constructor is time-critical. If the constructor is not finished within the timeout period
+given in the config file, the CRB will not accept the module and the user interface will issue an error message
+telling that the module did not start. 
+
+In general, the constructor should never do anything else than defining the 
+ports and parameters of the module.
+
+\vspace*{1cm}
+{\Large postInst}
+\index{coModule!postInst}
+\vspace*{0.5cm}
+
+For any additional functionality required before entering the main loop the routine 
+
+\begin{verbatim}
+      virtual void coModule::postInst()
+\end{verbatim}
+
+should be overloaded by the module. It is called once before entering the main event loop. This avoids timeouts,
+which could occur as described in the constructor paragraph.
+
+\vspace*{1cm}
+{\Large param}
+\index{coModule!param}
+\vspace*{0.5cm}
+
+Since COVISE 6.1, a module is notified immediately unconditionally when a parameter was
+changed by the user (i.~e. all parameters are ``immediate'' now).
+For any changed  parameters, the callback
+
+\begin{verbatim}
+      virtual void coModule::param(const char *paramName, bool inMapLoading)
+\end{verbatim}
+
+is called with the name of the port as the parameter.
+
+\vspace*{1cm}
+{\Large compute}
+\index{coModule!compute}
+\vspace*{0.5cm}
+
+The compute callback is called whenever new input data for a module is available or when the user executes a
+module manually.
+ 
+\begin{verbatim}
+      virtual int coModule::compute(const char *)
+\end{verbatim}
+
+Before calling the user supplied routine,
+the input objects are retrieved from the data manager and the object pointer is stored 
+to be retrieved from the port. The return value of the compute callback must be either 
+CONTINUE\_PIPELINE or STOP\_PIPELINE depending on whether modules below should be 
+executed or not.
+
+Most modules only need a compute function and do not use the other functions. All 
+functions are pre-initialized with empty functions in case the user does not overload 
+them. A warning is submitted if compute(const char *) is executed without being overloaded.
+
+\vspace*{1cm}
+{\Large sockData}
+\index{coModule!sockData}
+\vspace*{0.5cm}
+
+If a module needs to use any other external communication means than the COVISE internal
+networking, e.~g.\ connect to a simulation or use the X Window system, the programmer has to make 
+sure that COVISE messages are still received and handled. Therefore, a file descriptor, 
+e.~g.\ a socket, can be registered with the module via
+
+\begin{verbatim}
+      void addSocket(int fd)
+\end{verbatim}
+
+Once this has been done, COVISE adds the socket to its own sockets and calls the 
+virtual function
+
+\begin{verbatim}
+      virtual void coModule::sockData(int fd)
+\end{verbatim}
+
+with the file descriptor as the argument. The user can then handle the input and return 
+control to COVISE by leaving the callback. After use, the socket is removed using
+
+\begin{verbatim}
+      void removeSocket(int fd)
+\end{verbatim}
+
+\vspace*{1cm}
+{\Large quit}
+\vspace*{0.5cm}
+
+A module terminates either when COVISE terminates, the user deletes a module or a new 
+map is loaded. To allow cleaning up resources, the routine
+
+\begin{verbatim}
+      virtual void coModule::quit()
+\end{verbatim}
+
+is automatically called before the module quits.
+
+\vspace*{1cm}
+{\Large idle}
+\vspace*{0.5cm}
+
+The idle function is called whenever the module waits for COVISE messages.
+
+\begin{verbatim}
+      virtual float coModule::idle()
+\end{verbatim}
+
+You should not block in this function, otherwise the module will never get the chance to
+process incomming messages. If you overwrite this method, you have to return a float 
+value. This value specifies the maximum number of seconds to wait until the idle function
+is called again. If zero is returned, the idle function is called again immediately after
+checking for COVISE messages. If a negative value is returned, the idle function will 
+not be called until any message arrived. If  a positive Value is returned, the idle 
+function will be called after the appropriate time, or earlier if any message arrived.
+
+Remember: You can't create COVISE distributed objects in this callback! 
+
+\vspace*{1cm}
+{\Large Other coModule functions}
+\vspace*{0.5cm}
+
+\begin{verbatim}
+      virtual void feedback(int len, const char *data);
+\end{verbatim}
+
+This function is called when a COVER plugin sends a feedback message.
+
+\begin{verbatim}
+      virtual void feedbacksetInfo(int len, const char *datatext);
+\end{verbatim}
+
+Allows to set an info string in the control panel of the module.
+
+\section{coSimpleModule Set-Handler}
+
+COVISE can handle hierarchical structures of data created by Set containers, e.g. 
+timestep series or data sets consisting of multiple distinct parts. A module handling 
+these data types has to be written recursively to be able to handle arbtrary levels 
+of hierarchy. In most cases, modules work with `corresponding' data, e.g. a set of 
+geometry objects required an identical set of colors and normals, or a set of timesteps of a moving grid simulation
+corresponds to a similar set of data values. 
+
+For easier module development, the class \code{coSimpleModule} has been derived from 
+coModule. It automatically un-packs all level of Set containers until reaching 
+the lowes level, and then calls compute(const char *) for each low-level object. The module 
+developer simply creates the module and writes a compute(const char *) function as if the data was 
+non-hierarchical, which is then called for every corresponding set of low-level object. 
+
+The functions
+
+\begin{verbatim}
+      void setComputeTimesteps(const int off);    // 0 by default
+      void setComputeMultiblock(const int off);   // 0 by default
+\end{verbatim}
+
+can be called if the user wants to handle timesteps or multiblock data  himself, 
+e.g. for particle tracing. 
+
+The simple module also automatically copies all attributes from the input objects to the output objects at the port directly underneath the input port. If
+this is not desired, it can be switched of by calling
+
+\begin{verbatim}
+      void setCopyAttributes(const int on);      // 1 by default
+\end{verbatim}
+
+
+\section{Ports and Parameters}
+%\index{Ports}
+%\index{Parameters}
+
+Ports establish the connection of a module to the rest of the COVISE system. Three 
+different kinds of connections can be defined:
+
+\begin{enumerate}
+\item Parameters:        Values interactively set in the Map-Editor by the user 
+\item Input data ports:  Receive data from other modules
+\item Output data ports: Send data to other modules
+\end{enumerate}
+
+All ports and parameters are created by calling a member function of \code{coModule}
+that returns a pointer to a port class object, which can later be used to set or 
+retrieve port data. These pointers will usually be stored as module
+class private data being usable in the whole module. 
+
+The creation of ports and parameters only possible in the Constructor state, a later 
+creation of ports is not supported. Ports can be hidden or de-activated if not currently
+needed.
+
+\vspace*{0.5cm}
+
+\textbf{Never create Modules with variable numbers of Ports or Parameters: 
+These modules will crash COVISE when being read from a map file!}
+
+\vspace*{0.5cm}
+
+%\begin{covimgpath}{ModuleProgramming}{Warning1}{0.8} \end{covimg2}
+
+All ports and parameters must have a unique name and description, which can be any text 
+explaining the function of the port. Names must not contain blank characters or any 
+special ASCII characters like TAB, CR, LF, DEL, BS. The description may contain blanks, 
+but no special characters like CR, LF or BS characters and need not be unique.
+
+Never construct a port or parameter by its own constructor, COVISE must register it with 
+the module. Instead, the functions \code{add<type>Port} and \code{add<type>Param} have 
+to be used.
+
+All input and parameter ports derive from the same base class coUifElem, which implements
+some base functionality for all kinds of ports. The following subroutines can therefore 
+be called for all parameter and port class objects: 
+\index{Ports!common functions}
+\index{Parameters!common functions}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *coUifElem::getName() const} \\
+\hline
+{Description:}   & {Get port's name} \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  & {Port name} \endhead
+\hline
+\end{longtable}
+\index{coUifElem!getName}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *coUifElem::getDesc() const} \\
+\hline
+{Description:}   & {Get port's description} \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  & {Port description} \endhead
+\hline
+\end{longtable}
+\index{coUifElem!getDesc}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf virtual void coUifElem::print(ostream \&str) const} \endhead
+\hline
+{Description:}   & 
+                       \multicolumn{2}{|p{9.5cm}|}{Print port information into a stream} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {str} & 
+                                  {stream to print into} \\
+\hline
+\end{longtable}
+\index{coUifElem!print}
+
+
+\section{Data Ports}
+
+When replacing modules, data port connections can only be maintained if the ports adhere to a
+common naming scheme.
+A port name should start with a prefix from the following table.
+If the port is able to accept data types from several lines in this table, then choose ``Data'',
+except for when it is Geometry and grid types, then choose ``Grid''.
+As appropriate, append ``In'' or ``Out'' to the prefix.
+Finally you should append the number of the port: start with ``0'' for the first port with a
+certain prefix and direction, and increase the number for each other port with the same prefix
+and direction.
+Also append the final ``0'' if there is only one port of this type.
+
+
+\begin{longtable}{|p{4cm}|p{9.5cm}|}
+\hline
+{Name prefix} & {Data object types} \\
+\hline\hline
+Data & Int, Float, Vec2, Vec3, RGBA, Mat, Tensor \\
+\hline
+Grid & Points, Spheres, Lines, Polygons, TriangleStrips,
+     
+     UniformGrid, RectilinearGrid, StructuredGrid, UnstructuredGrid \\
+\hline
+Geometry & Geometry \\
+\hline
+Texture & Texture \\
+\hline
+\end{longtable}
+
+Data ports are created by:
+
+%\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+%\hline
+%\multicolumn{3}{|p{13.5cm}|}{\bf coInputPort *coModule::addInputPort(const char *name,const char *typeList, 
+%const char *desc)} \\
+%\hline
+%{Description:}   & 
+%                       \multicolumn{2}{|p{9.5cm}|}{Create an Input data port} \\
+%\hline
+%{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+%\hline
+%\multicolumn{1}{|r|}{IN:}  & {name:} & 
+%                                  {Port name} \\
+%\hline
+%\multicolumn{1}{|r|}{IN:}  & {typeList:} & 
+%                                  {Map editor data types} \\
+%\hline
+%\multicolumn{1}{|r|}{IN:}  & {desc:} & 
+%                                  {Parameter description} \\
+%\hline
+%{Return Value:}   & 
+%                       \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+%\hline
+%\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|l|}{\bf coInputPort *coModule::addInputPort(const char *name,const char *typeList, const char *desc)} \\
+\hline
+{Description:}    & \multicolumn{2}{|p{9.5cm}|}{Create an Input data port} \\ \hline
+{COVISE states:}  & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\ \hline
+\multicolumn{1}{|r|}{IN:}        & {name:}      &  {Port name} \\ \hline
+\multicolumn{1}{|r|}{IN:}        & {typeList:}  & {Map editor data types} \\ \hline
+\multicolumn{1}{|r|}{IN:}        & {desc:}      & {Parameter description} \\ \hline
+{Return Value:}   &  \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \\ \hline
+\end{longtable}
+
+
+\index{coModule!addInputPort}
+     
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coOutputPort *coModule::addOutputPort(const char *name, 
+const char *typeList, const char *desc)} \\
+\hline
+{Description:}   & 
+                       \multicolumn{2}{|p{9.5cm}|}{Create an Output data port} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {name:} & 
+                                  {Port name} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {typeList:} & 
+                                  {Map editor data types} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {desc:} & 
+                                  {Parameter description} \\
+\hline
+{Return Value:}   & 
+                       \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+\index{coModule!addOutputPort}
+	     
+The parameter types string lists all type names of objects allowed to connect with this 
+port divided by a \latexonly `$\mid$' \endlatexonly \begin{htmlonly} `|'
+\end{htmlonly} character, e.g.: 
+
+\begin{verbatim}
+      "Float|Vec3"
+\end{verbatim}
+
+The type string must not contain any blanks, otherwise it is not possible to connect 
+the ports in the map editor. This type information is only given to the map editor, 
+which then prohibits connections between ports without common types. The port information
+does not imply any checking of data types assigned to the port by the module, so 
+type-checking must still be implemented in the module. The reason for not checking the 
+data types according to the map editor types is to allow different usage of the same 
+data type by different map editor types enforcing correct connections.
+
+By default, a module only executes (i.e. calls its compute callback) if all input ports 
+of a module are connected. By declaring a port 'not required', the pipeline will also 
+be executed without a connection to this port. The module will then receive a NULL 
+pointer when trying to retrieve the port's data.
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coInputPort::setRequired(int isRequired)} \\
+\hline
+{Description:}   & 
+                        \multicolumn{2}{|p{9.5cm}|}{declare a port (not) required} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Compute} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {isRequired} & 
+                        {=0:not required, else required} \endhead
+\hline
+\end{longtable}
+\index{coInputPort!setRequired}
+
+Whenever the compute(const char *) callback is called by the main loop, the data objects at the 
+input ports are opened and can be read by calling the input port's getCurrentObject() method. 
+If the port is not connected, or if an error occurs, a NULL pointer is returned.
+
+A non-required input port can be declared as a `dependency' of an output port, meaning 
+it becomes required if this output port is connected.
+%This will only work if the output port is created \emph{before} the input port.
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coOutputPort::setDependency(coInputPort *port)} \\
+\hline
+{Description:}   & 
+              \multicolumn{2}{|p{9.5cm}|}{declare an output port dependending on a certain input} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {port} & 
+                        {port depended upon} \\
+\hline
+\end{longtable}
+\index{coOutputPort!setDependency}
+
+If no data is available on a connected port, the compute callback is not called and 
+the start message is silently ignored. This allows a direct flow control by not creating
+some of the defined output objects which leads to branches of the data flow network 
+that are not executed.  
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf coDistributedObject *coInputPort::getCurrentObject()} \\
+\hline
+{Description:}   & {Retrieve input data} \\
+\hline
+{COVISE states:} & {Compute} \\
+\hline
+{Return value:}  & {Object received at the port} \endhead
+\hline
+\end{longtable}
+\index{coInputPort!getCurrentObject}
+
+The resulting object pointer is a pointer to a derived class of  coDistributedObject, which
+can be casted up to the real class. To find the correct type, the base class member 
+function {\tt getType()} can be used. 
+%The {\tt createUnknown()} function of the old 
+%COVISE programming interface is not required any more.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *coOutputPort:: getObjName()} \\
+\hline
+{Description:}   
+                        & {get object name for output objects} \\
+\hline
+{COVISE states:} & {Compute} \\
+\hline
+{Return value:}  
+                        & {pointer to name for new data object} \endhead
+\hline
+\end{longtable}
+\index{coOutputPort!getObjName}
+
+This call delivers the appropriate name to create data objects for an output port. 
+The return value must be given to the constructor of the object, which is then assigned 
+to the port for sending it to all connected modules by
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coOutputPort::setCurrentObject(coDistributedObject *obj)} \\
+\hline
+{Description:}   
+                       & {Assign output data object to port} \\
+\hline
+{COVISE states:} & {Compute} \\
+\hline
+\end{longtable}
+\index{coOutputPort!setCurrentObject}
+
+%\begin{longtable}{|p{13cm}|}
+%\hline
+% \\ 
+%{\huge Never delete objects assigned to a port !} \\
+% \endhead
+%\hline
+%\end{longtable}
+
+\begin{covimgpath}{ModuleProgramming}{Warning2}{0.8} \end{covimgpath}
+
+The output object will be sent to all connected modules after the compute(const char *) callback 
+has finished and is then automatically deleted. Examples for object creation and 
+receiving can be found in the example modules under {\tt covise/src/examples}.
+
+The tool-tip text, which appears when right-clicking on a port, can be set by:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coPort::setInfo(const char *text)} \\
+\hline
+{Description:}   & 
+                        \multicolumn{2}{|p{9.5cm}|}{set tooltip text} \\
+\hline
+{COVISE states:} 
+            & \multicolumn{2}{|p{9.5cm}|}{After initialisation (postInst, compute, ...)} \\
+\hline
+\multicolumn{1}{|r|}{IN:}  & {text} & 
+                        {tooltip text} \endhead
+\hline
+\end{longtable}
+\index{coPort!setInfo}
+
+
+\section{Parameters}
+
+\subsection{Common functions}
+\index{Parameter!Common functions}
+
+All parameter classes are derived from {\tt coUifPara}, which offers common functions 
+for all kinds of parameter ports:
+
+To allow direct interaction with the module, 
+all parameter changes are immediately sent to the module and 
+the module's param() callback is fired. If the callback does not react on the parameter,
+the value is still updated, but no further action is taken.
+
+A parameter can be mapped into the Control Panel by clicking the checkbox in the Module 
+Set-up window. Nevertheless, the module programmer can control the mapping by calls to 
+the functions:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coUifPara::show()} \\
+\hline
+{Description:}   & 
+           {Show/Hide a parameter in the control panel} \\
+\hline
+{COVISE states:} 
+            & {PostInst, all Main-Loop callbacks} \endhead
+\hline	   
+\end{longtable}
+\index{coUifPara!show}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coUifPara::hide()} \\
+\hline
+{Description:}   & 
+           {Show/Hide a parameter in the control panel} \\
+\hline
+{COVISE states:} 
+            & {PostInst, all Main-Loop callbacks} \endhead
+\hline	   
+\end{longtable}
+\index{coUifPara!hide}
+
+Parameters can also be disabled by the module. If a parameter is disabled, it is 
+displayed in gray both in the Module set-up panel and in the control panel and no 
+parameter changes are possible. Parameter disabling is typically used for parameters 
+that are only required under certain circumstances, e.g. in simulation couplings, 
+which can have different sets of parameters depending on the simulation case.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coUifPara::enable()} \\
+\hline
+{Description:}   & 
+           {Enable or disable parameter} \\
+\hline
+{COVISE states:} 
+            & {PostInst, all Main-Loop callbacks} \endhead
+\hline	   
+\end{longtable}
+\index{coUifPara!enable}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coUifPara::disable()} \\
+\hline
+{Description:}   & 
+           {Enable or disable parameter} \\
+\hline
+{COVISE states:} 
+            & {PostInst, all Main-Loop callbacks} \endhead
+\hline	   
+\end{longtable}
+\index{coUifPara!disable}
+
+\subsection{Boolean Parameter}
+\index{Parameter!Boolean}
+
+\begin{covimgpath}{ModuleProgramming}{boolean}{0.7} \end{covimgpath}
+
+A Boolean parameter can only have the values TRUE \latexonly $(\neq0)$ \endlatexonly 
+\begin{htmlonly} (NONZERO) \end{htmlonly} or FALSE (=0).
+
+The default value of a Boolean parameter is FALSE.
+
+A Boolean parameter is created by:
+
+	 
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coBooleanParam *coModule::addBooleanParam 
+(const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Create a Boolean parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to new created port} \endhead
+\hline
+\end{longtable}
+		   
+This function creates a new port and registers it at the module for receiving port 
+messages. The value of a Boolean Parameter can be requested and set by the program using:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int coBooleanParam::getValue()} \\
+\hline
+{Description:}   
+                        & {get Value of a Boolean parameter } \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  
+                        & {Value of the parameter } \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coBooleanParam::setValue(int value)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{set Value of a Boolean parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                             & {value to be set}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+A typical code fragment is:
+
+\underline{myModule.h}
+
+\begin{verbatim}
+class myModule
+{
+   private:
+
+      coBooleanParam *p_shadeFlag;
+      ...
+   
+}
+\end{verbatim} 
+
+\underline{myModule.cpp}
+
+\begin{verbatim}
+myModule::myModule()   // ... build ports and parameters
+{
+  // create the boolean port: declared as member variable
+  p_shadeFlag = addBooleanParameter("shade","apply shading");
+ 
+  // set a default value
+
+  p_shadeFlag->setValue(1);
+}
+
+myModule::compute(const char *)    // ... e.g. in the compute callback
+{
+  int shading = p_shadeFlag->getValue();
+  ...
+}
+\end{verbatim} 
+
+It is a good habit to mark all ports and parameters with a common prefix. In our examples 
+we have chosen names that start with 'p\_'.
+
+\subsection{Scalar Parameter}
+\index{Parameter!Scalar}
+
+
+\begin{covimgpath}{ModuleProgramming}{iscalar}{0.7} \end{covimgpath}
+
+\begin{covimgpath}{ModuleProgramming}{fscalar}{0.7} \end{covimgpath}
+
+There are integer and float scalar parameters. Both represent a single value of the 
+corresponding type. The integer scalar parameter is exactly identical to the float one 
+except for replacing {\it "...Float..."} by {\it "...Int..."} in the names of functions 
+and changing the data types.
+
+Both float and integer scalar parameters default to 0. 
+
+A float scalar parameter is created by:
+
+			  
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coFloatParam *coModule::addFloatParam \newline
+                                  (const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Create a float scalar parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+
+The value of a scalar parameter can be requested/set by the program using:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf float coFloatParam::getValue()} \\
+\hline
+{Description:}   
+                        & {get Value of a float scalar parameter } \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  
+                        & {Value of the parameter } \endhead
+\hline
+\end{longtable}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coFloatParam::setValue(float value)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{set Value of a float scalar parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                             & {value to be set}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+
+The corresponding commands for the integer scalar parameter are:
+
+\begin{verbatim}
+coInt32Param *coModule::addInt32Param(const char *name,
+                                              const char *desc)
+long coInt32Param::getValue()
+int coInt32Param::setValue(long value)
+\end{verbatim}
+ 
+
+A typical code fragment is:
+
+\underline{myModule.h}
+
+\begin{verbatim}
+class myModule
+{
+   private:
+
+      coFloatParam *p_timestep;
+      coInt32Param   *p_numsteps;
+      ...
+        
+}
+\end{verbatim} 
+
+\underline{myModule.cpp}
+
+\begin{verbatim}
+myModule::myModule()   // ... build ports and parameters
+{
+   p_timestep=addFloatParam ("timestep","length of a timestep");
+   p_numsteps=addFloatParam ("numsteps","number of steps");
+  
+   // set a default values
+   p_timestep->setValue(0.001);
+   p_numsteps->setValue(100);
+}
+
+myModule::compute(const char *)    // compute callback
+{
+   float timestep =  p_timestep->getValue();
+   int   numsteps =  p_numsteps->getValue(); // we can access it here!
+   ...
+}
+
+myModule::param(const char *portname)      // param callback
+{
+   if ( strcmp(portname,numsteps->getName()) )  
+      .... do something when the user changes number of steps
+}
+\end{verbatim}
+
+
+
+\subsection{Slider Parameter}
+\index{Parameter!Slider}
+
+
+\begin{covimgpath}{ModuleProgramming}{slider}{0.7} \end{covimgpath}
+
+Sliders can also be either of type float or integer: Both of them have a minimum, maximum 
+and a `current' value, which can be set or requested by the module.
+
+Float sliders default to 0...0.5...1.0, int sliders to 0...127...255.
+
+A Slider parameter is created by:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coFloatSliderParam *coModule::addFloatSliderParam 
+(const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Create a float slider parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+
+The value of a slider parameter can be requested/set by the program using:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coFloatSliderParam::getValue 
+(float \&min, float \&max, float \&value)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{get Value of a float slider parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {min/max} 
+                             & {lower/upper bound of slider}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                            & {current value of slider}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{none} \endhead
+\hline
+\end{longtable}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf void coFloatSliderParam::setValue (float min, float max, float value)} \\
+\hline
+{Description:}   
+                  & \multicolumn{2}{|p{9.5cm}|}{set Value of a float slider parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {min/max/value} 
+                             & {value to be setlike getValue()}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+Single values can also be requested or set:
+
+\begin{verbatim}
+   float coFloatSliderParam::getMin()
+   float coFloatSliderParam::getMax()
+   float coFloatSliderParam::getValue()
+   void  coFloatSliderParam::getMin(float min)
+   void  coFloatSliderParam::getMax(float max)
+   void  coFloatSliderParam::getValue(float value)
+\end{verbatim}
+
+As for the scalar parameter, there are corresponding integer functions, exactly like 
+theirs float counterparts but with "{\tt Int}"  in the name and integer return/param type.
+
+A typical code fragment is:
+
+\underline{myModule.h}
+
+\begin{verbatim}
+class myModule
+{
+   private:
+
+      coFloatSliderParam *p_relax;
+      ...
+         
+}
+\end{verbatim}
+
+\underline{myModule.cpp}
+
+\begin{verbatim}
+myModule::myModule()   // ... build ports and parameters
+{
+   p_relax=addFloatSliderParam ("p_relax","relaxation factor");
+   p_relax->setValue(0.0,1.0,0.95);
+}
+ 
+myModule::compute(const char *)    // compute callback
+{
+   float relax =  p_relax->getValue();
+   ...
+ 
+   // if the relaxation is too high, we push it down...
+   relax = relax * 0.9;
+   p_relax->setValue(relax);
+}
+\end{verbatim}
+
+ 
+
+\subsection{Vector Parameter}
+\index{Parameter!Vector}
+
+\begin{covimgpath}{ModuleProgramming}{vector}{0.7} \end{covimgpath}
+
+
+Vectors are parameters with an arbitrary number of scalar values. The number of fields
+is not limited by the system, but since there is no numbering in the control panel, it
+should be limited to a small number for clarity reasons.
+
+Both integer and float vector parameters default to 3D null vectors.
+
+A vector parameter is created with a default size of 3 elements by:
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coFloatVectorParam *coModule::addFloatVectorParam 
+(const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Create a float vector parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+
+This is the only way for a user to specify vector parameters with another size than 
+three elements.
+
+The value of any vector parameter can be requested by the program using:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf float coFloatVectorParam::getValue (int pos)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get value of one element in a float vector parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {pos} 
+                             & {select which element to get}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{requested value} \endhead
+\hline
+\end{longtable}
+
+If the position parameter is out of bounds, a warning is issued and 0 is returned.
+
+A single value of a scalar parameter can also be set by the module:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coFloatVectorParam::setValue(int pos, float value)} \\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{set value of one element in a vector parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {pos} 
+                             & {select which element to get}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                             & {value to be set}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+To change the number of values in the field, an array can be used to initialize 
+the parameter:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coFloatVectorParam::setValue(int numElem, float *field)} \\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{set number of elements and set all values} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {numElem} 
+                             & {select which element to get}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {field} 
+                             & {value to be set}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+Since 3-dimensional vectors are used very often, commodity functions for dealing with 
+3D vectors are defined:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coFloatVectorParam::setValue (float data0, float data1, float data2)}\\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{set 3-element vector parameter values} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {data1...3} 
+                             & {values to be set}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+All these functions are also defined for integer vectors:
+
+\begin{verbatim}
+coIntVectorParam*coModule::addIntSliderParam(const char *name, const char *desc);
+int coIntVectorParam::getValue(int pos, long &value);
+int coIntVectorParam::setValue(int pos, long value);
+int coIntVectorParam::setValue(int numElem, long *field);
+int coIntVectorParam::setValue(Int data0, long data1, Int data2);
+\end{verbatim}
+
+
+
+\subsection{String Parameter}
+\index{Parameter!String}
+
+
+\begin{covimgpath}{ModuleProgramming}{string}{0.7} \end{covimgpath}
+
+
+A string is a 0-terminated sequence of characters. 
+
+The default value is the string "no default val".
+
+A string parameter is created by:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf CoStringParam *coModule::addStringParam 
+(const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Create a string parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+
+The value of a string parameter can be requested by the program using:
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *coStringParam::getValue()} \\
+\hline
+{Description:}   
+                        & {get value of a string parameter} \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  
+                        & {Value of the parameter} \endhead
+\hline
+\end{longtable}
+
+The value of a string parameter can also be set by the module:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coStringParam::setValue(const char *val)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{set value of a string parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {val} 
+                            & {new value for the parameter}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+
+
+\subsection{File Browser}
+\index{Parameter!File Browser}
+
+
+\begin{covimgpath}{ModuleProgramming}{browser}{0.7} \end{covimgpath}
+
+A File Browser parameter allows the selection of a file on the host the module is running on. 
+
+\emph{The File Browser parameter cannot be updated by the module.}
+{\tt setValue} calls outside the constructors are ignored.
+
+ 
+
+A Browser parameter is created by:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coFileBrowserParam *coModule::addFileBrowserParam 
+(const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Create a browser parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+
+The value of a browser parameter can be requested by the program using:
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf const char *coFileBrowserParam::getValue()} \\
+\hline
+{Description:}   
+                & {get filename selected in a browser parameter} \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  
+                        & {value of the parameter} \endhead
+\hline
+\end{longtable}
+
+The start value of a browser parameter must be set by the module in the constructor
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int void coFileBrowserParam::setValue
+(const char *defaultFile, const char *mask)} \\
+\hline
+{Description:}   
+                   & \multicolumn{2}{|p{9.5cm}|}{set the initial value of a file browser} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {defaultFile} 
+                            & {default file name with path}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {mask} 
+                          & {file selection mask, e.g. "*.dat"}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+
+\subsection{Choice Parameter}
+\index{Parameter!Choice}
+
+
+\begin{covimgpath}{ModuleProgramming}{choice}{0.7}\end{covimgpath}
+
+
+A choice parameter allows to select one entry from a list of given choice strings.
+
+A choice parameter is created by:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coChoiceParam *coModule::addChoiceParam 
+                           (const char *name, const char *desc)} \\
+\hline
+{Description:}   
+                        & \multicolumn{2}{|p{9.5cm}|}{Show a parameter in control panel} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name:} 
+                             & {Parameter name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {desc:} 
+                            & {Parameter description}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{pointer to newly created port} \endhead
+\hline
+\end{longtable}
+
+The active choice list entry can be retrieved by:
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf int coChoiceParam::getValue()}\\
+\hline
+{Description:}   
+                   & {get value of a choice parameter} \\
+\hline
+{COVISE states:} & {all} \\
+\hline
+{Return value:}  
+               & {active choice, count starts with 1} \endhead
+\hline
+\end{longtable}
+
+The choice list can be set by:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coChoiceParam::setValue(const char *val)}\\
+\hline
+{Description:}   
+                   & \multicolumn{2}{|p{9.5cm}|}{set value of a choice parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {val} 
+                     & {new value for the parameter}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coChoiceParam::setValue\newline
+                      (int num, const char * const *label, int active)} \\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{set value of a choice parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num} 
+                             & {number of entries}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {label} 
+                             & {array of strings:\newline
+			                         define as `char *arr[num]'}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {active} 
+                       & {pre-set value: count starts with 1}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+%add update choice parm
+
+If you want to use the same {\bf contents} of a choice parameter, even if it appears at a
+different {\bf position (number)} use the update function:
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coChoiceParam::updateValue\newline
+                      (int num, const char * const *label, int active)} \\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{set value of a choice parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {num} 
+                             & {number of entries}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {label} 
+                             & {array of strings:\newline
+			                         define as `char *arr[num]'}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {active} 
+                       & {pre-set value: count starts with 1, 
+		       use current label if possible. If this is possible, ignore active}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+%end update
+
+The current value can be set by:
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coFloatVectorParam::setValue(int pos, float value)} \\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{set value of one element in a vector parameter} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{all} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {pos} 
+                             & {select which element to get}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {value} 
+                             & {value to be set}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{=0 on error, =1 on success} \endhead
+\hline
+\end{longtable}
+
+See the example code {\tt \$COVISEDIR/src/examples/UpdateChoice} for an example using 
+all features of the Choice parameter.
+
+
+\subsection{Parameter switching groups}
+\index{Parameter switching}
+
+
+Parameters can be grouped in the control panel. The syntax for grouping parameters is:
+
+\begin{verbatim}
+
+paraSwitch("top_switch","Now switch Parameters"); // switch with 
+                                                     name and label
+   paraCase("First possibility label");    // first possibility 
+      // ... all parameters we want to change in this group
+   paraEndCase();
+   paraCase("other possibility");   // Next switch possibility
+      // ... all parameters we want to change in this group
+      // second level of switching 
+      paraSwitch("subSwitch","Sub-Cases"); // nested switch 
+         paraCase("one case");
+            // ...parameters // one case
+         paraEndCase();
+         paraCase("other case");
+            // ...parameters
+         paraEndCase();
+      // second level of switching ends here
+      paraEndSwitch();
+   // The `Scalar' case ends here
+   paraEndCase();
+paraEndSwitch();
+
+\end{verbatim}
+ 
+
+Each {\tt paraSwitch} call creates a `master' choice parameter, which 
+automatically shows and hides the parameters of its {\tt paraCase} groups. The name of the 
+choice is the first parameter of the {\tt paraSwitch} command, while the labels of 
+the {\tt paraSwitch} and all following {\tt paraCase} commands are automatically added to 
+the choice list. As the first choice, the `master' displays its own label and shows none 
+of its cases.
+
+The user can access the switch choices as usual choice parameters using the {\tt setValue}
+command, e.g. to change the choice labels, but the assignment between choice result number
+and {\tt paraCase} can not be influenced, so choice number 1 always is `no parameters', 
+number 2 the first case, number 3 the second and so on. This feature will typically be used 
+to de-activate complete cases from the control panel.
+
+Notice: the module set-up panel will always show ALL parameters of the module.
+
+The example program TestUIF shows the implementation of a 2-level hierarchy of switched 
+parameter groups.
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf coChoiceParam *coModule::paraSwitch(const char *choiceName,
+                       const char *label)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{Start parameter switching group,\newline
+			           define name and top label of choice} \\                     
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {choiceName} 
+                             & {Unique parameter port name}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {label} 
+                            & {Label for the choice}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{Pointer to the `master' choice port} \endhead
+\hline
+\end{longtable}
+\index{coModule!paraSwitch}
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coModule::paraEndSwitch()} \\
+\hline
+{Description:}   
+                        & {End parameter switching group} \\
+\hline
+{COVISE states:} & {Constructor} \endhead
+\hline
+\end{longtable}
+\index{coModule!paraEndSwitch}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int coModule::paraCase(const char *label)}\\
+\hline
+{Description:}   
+               & \multicolumn{2}{|p{9.5cm}|}{Start a case within a switched group and
+	                            give corresponding choice label} \\
+\hline
+{COVISE states:} & \multicolumn{2}{|p{9.5cm}|}{Constructor} \\
+\hline
+\multicolumn{1}{|r|}{IN:} & {label} 
+                             & {Label for the choice}\\
+\hline
+{Return value:}  
+                        & \multicolumn{2}{|p{9.5cm}|}{-1 on error, 0 on success} \endhead
+\hline
+\end{longtable}
+\index{coModule!paraCase}
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+\hline
+\multicolumn{2}{|p{13.5cm}|}{\bf void coModule::paraEndCase()}\\
+\hline
+{Description:}   
+               & {End a group within a switched parameter area} \\
+\hline
+{COVISE states:} & {Constructor} \endhead
+\hline
+\end{longtable}
+\index{coModule!paraEndCase}
+
+\section{COVISE configuration database}
+\index{coCoviseConfig}
+\index{Configuration database}
+\index{Singleton!coCoviseConfig}
+
+COVISE has a central configuration database, which resides in XML files in the 
+{\tt \$COVISEDIR/config} directory or in the {\tt .covise} subdirectory of the user's
+home directory.
+
+The configuration database is accessed by calling static methods of the
+{\tt coCoviseConfig} singleton.
+
+
+Several functions are provided to access entries in the configuration database. Most of 
+these access functions require a single 'entry' parameter {\tt Scope.Var}.
+This 'entry' parameter describes the path along which to descend in the tree of
+nested XML elements.
+Elements are separated by a dot (".").
+However, the first two path elements are defined implictly (e.~g.\ "COCONFIG.GLOBAL") and must
+not be specified.
+For all data types, there are two kinds of query functions.
+Those taking only an 'entry', return the value of the "value" attribute of the corresponding XML
+element.
+For querying another attribute, you have to use the method with 'variable' and 'entry' arguments.
+
+Consider the following configuration file:
+\begin{verbatim}
+<?xml version="1.0"?>
+<COCONFIG version="1">
+ <GLOBAL>
+  <Module>
+   <MyModule>
+    <BufferSize value="1024" />
+   </MyModule>
+  <Module>
+ </GLOBAL>
+</COCONFIG>
+\end{verbatim}
+The "value" attribute of "BufferSize" could be queried with
+{\tt coCoviseConfig::getInt("value", "Module.MyModule.BufferSize")} or
+{\tt coCoviseConfig::getInt("Module.MyModule.BufferSize")}.
+
+  
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf const char *getEntry(const char *entry)} \\
+\multicolumn{3}{|p{13.5cm}|}{\bf const char *getEntry(const char *variable, const char *entry)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get a single string entry} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {entry} 
+                             & {path to XML tag }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {variable} 
+                             & {attribute, the value of which should be returned}\\
+\hline
+{Returns}  
+                        & \multicolumn{2}{|p{9.5cm}|}{value of configuration} \endhead
+\hline
+\end{longtable}
+\index{coCoviseConfig!getEntry}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf int getInt(const char *entry)} \\
+\multicolumn{3}{|p{13.5cm}|}{\bf int getInt(const char *variable, const char *entry)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get a single string entry} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {entry} 
+                             & {path to XML tag }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {variable} 
+                             & {attribute, the value of which should be returned}\\
+\hline
+{Returns}  
+                        & \multicolumn{2}{|p{9.5cm}|}{value of configuration} \endhead
+\hline
+\end{longtable}
+\index{coCoviseConfig!getInt}
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf long getLong(const char *entry)} \\
+\multicolumn{3}{|p{13.5cm}|}{\bf long getLong(const char *variable, const char *entry)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get a single string entry} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {entry} 
+                             & {path to XML tag }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {variable} 
+                             & {attribute, the value of which should be returned}\\
+\hline
+{Returns}  
+                        & \multicolumn{2}{|p{9.5cm}|}{value of configuration} \endhead
+\hline
+\end{longtable}
+\index{coCoviseConfig!getLong}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf float getFloat(const char *entry)} \\
+\multicolumn{3}{|p{13.5cm}|}{\bf float getFloat(const char *variable, const char *entry)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get a single string entry} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {entry} 
+                             & {path to XML tag }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {variable} 
+                             & {attribute, the value of which should be returned}\\
+\hline
+{Returns}  
+                        & \multicolumn{2}{|p{9.5cm}|}{value of configuration} \endhead
+\hline
+\end{longtable}
+\index{coCoviseConfig!getFloat}
+
+
+
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf bool isOn(const char *entry)} \\
+\multicolumn{3}{|p{13.5cm}|}{\bf bool isOn(const char *variable, const char *entry)} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get a single string entry} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {entry} 
+                             & {path to XML tag }\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {variable} 
+                             & {attribute, the value of which should be returned}\\
+\hline
+{Returns}  
+                        & \multicolumn{2}{|p{9.5cm}|}{value of configuration} \endhead
+\hline
+\end{longtable}
+\index{coCoviseConfig!isOn}
+
+
+
+\begin{htmlonly}  
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf const char **getScopeEntries(const char *scope))} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get all entries of one scope} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {scope} 
+                             & {name of scope}\\
+\hline
+{Returns}  
+    & \multicolumn{2}{|p{9.5cm}|}{NULL-terminated array, alternating\newline
+                                 name0,value0,name1,value1,...valuen,NULL} \endhead
+\hline
+\end{longtable}  
+\end{htmlonly}
+
+\latexonly  
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf const char **getScopeEntries(const char *scope))} \\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get all entries of one scope} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {scope} 
+                             & {name of scope}\\
+\hline
+{Returns}  
+    & \multicolumn{2}{|p{9.5cm}|}{NULL-terminated array, alternating\newline
+                               name$_0$,value$_0$,name$_1$,value$_1$,...value$_n$,NULL} \endhead
+\hline
+\end{longtable}  
+\endlatexonly  
+\index{coCoviseConfig!getScopeEntries}
+  
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
+\hline
+\multicolumn{3}{|p{13.5cm}|}{\bf const char *getScopeEntry (const char *scope, const char *name)}\\
+\hline
+{Description:}   
+              & \multicolumn{2}{|p{9.5cm}|}{get a single entry} \\                     
+\hline
+\multicolumn{1}{|r|}{IN:} & {scope} 
+                             & {Scope to be looked in}\\
+\hline
+\multicolumn{1}{|r|}{IN:} & {name} 
+                             & {Name of variable}\\
+\hline
+{Returns}  
+                        & \multicolumn{2}{|p{9.5cm}|}{value of scope.name} \endhead
+\hline
+\end{longtable}  
+\index{coCoviseConfig!getScopeEntry}
+  

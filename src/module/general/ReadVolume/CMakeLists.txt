@@ -1,0 +1,18 @@
+USING(Virvo)
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadVolume.cpp
+)
+
+SET(EXTRASOURCES
+  ReadVolume.h
+)
+
+ADD_COVISE_MODULE(IO ReadVolume ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadVolume  coApi coAppl coCore ${EXTRA_LIBS})
+
+COVISE_INSTALL_TARGET(ReadVolume)

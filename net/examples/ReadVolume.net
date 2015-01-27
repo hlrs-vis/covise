@@ -1,0 +1,295 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+3
+# Module ReadVolume
+ReadVolume
+1
+LOCAL
+IO_Module
+TITLE=ReadVolume_1
+25
+36
+0
+9
+grid
+UniformGrid
+Grid for volume data
+default
+
+channel0
+Float|Byte
+Scalar volume data channel 0
+default
+
+channel1
+Float|Byte
+Scalar volume data channel 1
+default
+
+channel2
+Float|Byte
+Scalar volume data channel 2
+default
+
+channel3
+Float|Byte
+Scalar volume data channel 3
+default
+
+channel4
+Float|Byte
+Scalar volume data channel 4
+default
+
+channel5
+Float|Byte
+Scalar volume data channel 5
+default
+
+channel6
+Float|Byte
+Scalar volume data channel 6
+default
+
+channel7
+Float|Byte
+Scalar volume data channel 7
+default
+
+20
+FilePath
+Browser
+Volume file (or printf format string for sequence)
+share/covise/example-data/ReadVolume/lambda.rvf
+
+-1
+SequenceBegin
+IntScalar
+First file number in sequence
+0
+
+-1
+SequenceEnd
+IntScalar
+Last file number in sequence
+1
+
+-1
+SequenceInc
+IntScalar
+Increment in sequence
+1
+
+-1
+CustomSize
+Boolean
+Off: use size values from volume file, on: use size values from below
+FALSE
+
+-1
+VolumeWidth
+FloatScalar
+Volume width
+1.000000
+
+-1
+VolumeHeight
+FloatScalar
+Volume height
+1.000000
+
+-1
+VolumeDepth
+FloatScalar
+Volume depth
+1.000000
+
+-1
+ReadRaw
+Boolean
+Off: read data according to file format guessed from extension, on: read raw data as specified below
+FALSE
+
+-1
+ReadBS
+Boolean
+Swap Bytes
+FALSE
+
+-1
+NumVoxelX
+IntScalar
+Number of voxels in x direction (width)
+512
+
+-1
+NumVoxelY
+IntScalar
+Number of voxels in y direction (height)
+512
+
+-1
+NumVoxelZ
+IntScalar
+Number of voxels in z direction (slices)
+1
+
+-1
+BytePerChannel
+IntScalar
+Byte per channel
+1
+
+-1
+NumberOfChannels
+IntScalar
+Number of channels
+1
+
+-1
+HeaderSize
+IntScalar
+Offset of raw volume data from file beginning
+0
+
+-1
+FilePath___filter
+BrowserFilter
+Volume file (or printf format string for sequence)
+FilePath *.xvf;*.rvf;*.avf/*.dcm;*.dcom/*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*
+
+-1
+PreferByteData
+Boolean
+Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel
+FALSE
+
+-1
+minValue
+IntScalar
+Minimum values for 16 bit to 0.0-1.0 float values
+0
+
+-1
+maxValue
+IntScalar
+Maximum values for 16 bit to 0.0-1.0 float values
+65535
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+25
+110
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+25
+171
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+3
+ReadVolume
+1
+LOCAL
+grid
+
+Collect
+1
+LOCAL
+GridIn0
+ReadVolume
+1
+LOCAL
+channel0
+
+Collect
+1
+LOCAL
+DataIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

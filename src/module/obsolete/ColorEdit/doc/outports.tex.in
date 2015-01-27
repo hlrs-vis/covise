@@ -1,0 +1,22 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{Colors} & Set\_RGBA\_Colors \newline
+	                               Set\_Textures
+                                     & a colormap with 256 colors and min and max value of  scalar value
+ \\
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

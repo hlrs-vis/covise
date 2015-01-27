@@ -1,0 +1,13 @@
+
+
+RWCovise reads or writes all data objects that are available in COVISE.
+
+\begin{covimg2}	{}{module}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+RWCovise is available for COVISE version 4.5 and higher. It's tested on Linux 6.4 and
+Irix. 
+
+%=============================================================

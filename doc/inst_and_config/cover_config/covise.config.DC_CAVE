@@ -1,0 +1,191 @@
+#########################################################################
+#									#
+# Covise Configuration file for COVER with screens in any position	#
+#									#
+#########################################################################
+
+
+COVERConfig
+{
+    #DEBUG_TRACKING         RAW
+    #PIPE_LOCKING           WINDOW
+    PIPE_LOCKING            CHANNEL
+    #PIPE_LOCKING            CHANNEL_HW
+    #PIPE_LOCKING           NONE
+    
+	#MODULE	VRDynamil
+	#MODULE	VRAnnotator
+	#MODULE	InteractorTest
+	#MODULE	VRViewPoint
+	#MODULE	VRModuleDesk
+	#MODULE	VRPingPong
+	#MODULE	VRVideoTexture
+	#MODULE	VRChristmas
+	MODULE	ClipPlane
+	#MODULE VRCuttingSurface
+	#MODULE	VRMeasure
+	#PAINT_OBJECT data/igp/kerstin/pinsel/e-motion_r30-2500/ell-wolke.iv
+	#MODULE	VRAnnotator
+
+	#NOTIFY			        ON
+    MULTIPROCESS            ON
+	ARENA_SIZE		        1000000000
+	BUTTON_SYSTEM           IAO
+	TRACKING_SYSTEM		FLOCK
+#	TRACKING_SYSTEM			SPACEPOINTER
+    SCENESIZE		        2500
+	NUM_PIPES		        5
+	NUM_WINDOWS		        5
+	AUTO_WIREFRAME		    OFF
+	COORD_AXIS		        OFF
+	FREEZE			        OFF
+	#SPOTLIGHT		        ON
+	STEREO_SEPARATION       60
+	NOSEPARATION		    FALSE
+    BACKGROUND              0.0 0.0 0.0
+#    VIEWER_POSITION         800 -3900 130
+	TWOSIDE			        ON
+	LOD_SCALE               1
+    MOVE_PARTS               on
+	LIGHT1		        0 10000 10000 1.0
+    WELCOME_MESSAGE         Welcome to VirtualReality
+
+
+    #MODELPATH              /usr/people/Thomas/3DMax/2
+    #MODELFILE              face.iv
+    #MODELPATH              /usr/people/Thomas/Demos/W211
+    #MODELFILE              all_rad_bin.iv
+
+    #RELATIVISTIC_PARAMETER_FILE /mnt/pro/cod/igp/kerstin/ellipse_rgb_128/raum.par
+    #RELATIVISTIC_PARAMETER_FILE /mnt/cod/relativity/raum/raum.par
+    #RELATIVISTIC_MODE       FF
+    #RELATIVISTIC_MULTITHREADING  3
+
+}
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+    cave		shm		rsh			60
+}
+
+
+HostInfo
+{
+    numProcs 1
+}
+
+License
+{
+#    Key AIJLHPHHHHHPGMANMGBLEJLPHHPHPHHPBHDFNILAAPCPGBPI    all@SC98    17.11.1998
+#   Key NPNDCCFDHNECKLAEFBFLMJLPHHHHHHPHDHKAIABPKJOIEPPF    root    31.12.1999
+   Key IDBBPCCBDBAPCBGLPNCLMBDPHPPPPHPPEFCIFNKNPLDKEPCO    cave     29.2.2000
+}
+
+
+WindowConfig:
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1020 1020
+       	1	RIGHT       	1       	0 0 		1020 1020
+       	2	LEFT        	2       	0 0 		1020 1020
+       	3	BOTTOM      	3       	0 0 		1020 1020
+       	4	TOP      	4       	0 0 		1020 1020
+}
+
+PipeConfig:
+{
+#	SoftPipe	Screen   	Display
+				
+      	0		0		:0.2
+	1		1		:0.1
+	2		2		:0.3
+	3		3		:0.0
+	4		4		:0.4
+}
+
+ScreenConfig:
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		2500 2500	0 1250 0		0.0 0.0 0.0
+	1		RIGHT		2500 2500	1250 0 0 		-90.0 0.0 0.0
+	2		LEFT		2500 2500	-1250 0 0		90.0 0.0 0.0
+	3		BOTTOM		2500 2500	0 0 -1250		180.0 -90.0 0.0	
+	4		TOP		2500 2500	0 0 1250		0.0 90.0 0.0	
+}
+
+PolhemusConfig
+{
+	SERIAL_PORT		 	/dev/ttyd5	19200
+#	SERIAL_PORT		 	phantom.ini
+
+	HEMISPHERE      		-1 0 0
+
+#       ORIENT_INTERPOLATION		FALSE
+#	WRITE_CALIBRATION		FALSE
+
+        HEAD	POLHEMUS_SENSOR		1
+        HAND    POLHEMUS_STYLUS		2
+        
+	LINEAR_MAGNETIC_FIELD_CORRECTION	0.0 0.0 0.0
+
+#	Position of the transmitter in the world coordinate system
+        TRANSMITTER_OFFSET_POS			0 -145 140
+
+#	Orientation of the Transmitter in the world coordinate system RPH
+#	heading=rotz, pitch=rotx, roll=roty
+#					         H   P   R
+	TRANSMITTER_OFFSET_EULER		 90  0   90 
+
+#	Position of the Viewer in the receiver system
+	SENSOR_OFFSET_POS			8 0 8
+
+#	Orientation of the Viewer in the receiver system
+        SENSOR_OFFSET_EULER			-90 0 90
+
+#       Position of the pointer in the receiver system
+	STYLUS_OFFSET_POS			0 0 0
+
+#	Orientation of the Pointer in the receiver system
+        STYLUS_OFFSET_EULER			-90 0 0
+}
+
+FlockConfig
+{
+        IP_ADDRESS  10.0.2.13
+}
+
+ButtonConfig
+{
+    BUTTON_DEVICE	/dev/ttyd2
+    MAP 1 ACTION_BUTTON
+    MAP 2 XFORM_BUTTON
+}
+
+TrackerCalibration
+{
+#	these settings should be retrieved using  ms  and the TrackerCalibration
+#	application-module
+
+# 	NOTE: if this filter is enabled, it overrides a few settings in
+#		the section PolhemusConfig
+
+
+#	should the filter be used ? (ON / OFF)
+	STATUS			OFF
+        SWAP                    ON
+	ORIGIN			-22.0 29.0 202.0
+	ALPHA			-0.55
+	BETA0			0.5
+	BETA1			0.4
+	GAMMA			30.0
+	DELTA			35.0
+	UP_SCALE		0.4
+        
+        // 1: use given parameters
+        // 2: use hype-parameters retrieved with Solver
+        //
+        FILTER_TYPE             1
+        
+}

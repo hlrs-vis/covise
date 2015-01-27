@@ -1,0 +1,39 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{grid} & DO\_UnstructuredGrid & Grid object. \\
+\hline
+	\textcolor{output}{polygons} & DO\_Set & Polygon object. \\	
+\hline
+	\textcolor{output}{GridScalarOutPort} & DO\_Float 
+	                                        & Scalar data mapped to grids. \\
+\hline
+	\textcolor{output}{GridVectorOutPort} & DO\_Vec3 
+	                                        & Vector data mapped to grids. \\
+\hline
+	\textcolor{output}{PoygonScalarOutPort} & DO\_Float 
+	                                        & Scalar data mapped to polygons. \\
+\hline
+	\textcolor{output}{PolygonVectorOutPort} & DO\_Vec3 
+	                                        & Vector data mapped to polygons. \\																
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+
+
+
+%
+%=============================================================

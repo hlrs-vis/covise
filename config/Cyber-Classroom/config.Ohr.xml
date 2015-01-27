@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Ohr' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="showName" name="showName" />
+               <ShortCut value="activateTouchSensor0" name="HupeRot" plugin="Vrml97" icon="HupeRot"/>
+               <ShortCut value="activateTouchSensor1" name="HupeBlau" plugin="Vrml97" icon="HupeBlau"/>               			  
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Ohrmuschel" regexp="Ohrmuschel-FACES.*" shader="Glossy7" />
+                <Scope name="hupe_rot" regexp="hupe_rot-FACES.*" shader="Glossy1b" />
+                <Scope name="hupe_rot_kugel" regexp="hupe_rot_kugel-FACES.*" shader="Glossy1" />
+                <Scope name="hupe_blau" regexp="hupe_blau-FACES.*" shader="Glossy1b" />
+                <Scope name="hupe_blau_kugel" regexp="hupe_blau_kugel-FACES.*" shader="Glossy1" />
+                <Scope name="Knoecherne_Schnecke" regexp="Knoecherne_Schnecke-FACES.*" shader="Glossy7" />
+                <Scope name="Gehirn" regexp="Gehirn-FACES.*" shader="Glossy1" />
+                <Scope name="Bogengaenge" regexp="Bogengaenge-FACES.*" shader="Glossy7" />
+                <Scope name="Warzenfortsatzzellen" regexp="Warzenfortsatzzellen-FACES.*" shader="Glossy2" />
+                <Scope name="aeusserer_Gehoergang" regexp="aeusserer_Gehoergang-FACES.*" shader="Glossy7b" />
+                <Scope name="Hammer" regexp="Hammer-FACES.*" shader="Glossy7" />
+                <Scope name="Amboss" regexp="Amboss-FACES.*" shader="Glossy7" />
+                <Scope name="Steigbuegel" regexp="Steigbuegel-FACES.*" shader="Glossy7" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+        <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+        <Localization>
+            <LocalePath value="../Demos/VR4Schule/Biologie/Ohr/locale" />
+        </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

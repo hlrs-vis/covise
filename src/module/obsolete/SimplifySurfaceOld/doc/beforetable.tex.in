@@ -1,0 +1,29 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The module SimplifySurface reduces the number of triangles in a surface.
+
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{SimplifySurface}{0.7}\end{covimg2}
+
+If no data values are attached to the surface, a geometric reduction algorithm is invoked. 
+Otherwise the reduction will be done with respect both to the
+data values and to geometric properties of the surface. 
+The module generates normals for the simplified surface.
+
+%
+% short information about versions 
+%
+% This covlink is obsolete
+%In versions 4.4 and 4.5 the module \covlink{SurfaceReduce}{SurfaceReduce}{../../Filter/SurfaceReduce/SurfaceReduce.html} is available. It covers a subset of the functionality of the module
+%SimplifySurface and is recommended to be replaced in versions higher than 4.5 by the latter.
+
+%
+%=============================================================

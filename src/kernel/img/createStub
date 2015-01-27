@@ -1,0 +1,13 @@
+#!/bin/tcsh -f
+
+if ( $#argv != 1) then
+   echo "call: $0 format"
+   exit -1
+endif
+
+set format=`echo $1 | tr '[a-z]' '[A-Z]'`
+
+echo "Creating Class template for Format: $format"
+
+sed -e "s+TEMPL+$format+g" < coImageTEMPL.cpp > coImage$format.cpp 
+sed -e "s+TEMPL+$format+g" < coImageTEMPL.h   > coImage$format.h 

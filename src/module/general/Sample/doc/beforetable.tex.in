@@ -1,0 +1,45 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+Sample resamples point-based, uniform or unstructured data to a uniform grid.
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{SampleModule}{0.7}\end{covimg2}
+
+Data cells in the destination uniform grid that are not intersected
+by the input data are either
+set to a certain value or the maximum float value (see parameter outside). 
+The module \covlink {Colors}{Colors}{../../Color/Colors/Colors.html} computes a
+transparent color for MAX\_FLT data, so that those parts appear transparent in the COVER. If you use
+the Inventor Renderer set the value fill\_value to a value which is in the range of your data set. In this case you will have to activate
+one of the `blended' modes of the Inventor Renderer under the `Viewing' item
+of the menu bar.
+
+A uniform grid and colors on the uniform grid can also be seen as a 3D texture. If
+you cut a plane out of the 3D texture you get a 2D texture (an image). Mapping this
+texture on a plane gives similar information as a cuttingsurface through the 3D grid
+with data mapped on the surface as colors.
+Volume rendering can be used to display the data on all the uniform grid at once.
+
+3D textures are supported by Octane and Onyx systems as well as
+Nvidia Geforce/Quadro 4 or newer and are computed by the
+graphics hardware and are thus very fast.
+   
+
+
+%
+% short information about versions 
+%
+%Sample is available since COVISE snap-2000-10 on all supported platforms.
+Sample has been tested on SGI platforms.
+
+%
+%=============================================================

@@ -1,0 +1,346 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+6
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+22
+154
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+22
+220
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module FixPart
+FixPart
+1
+LOCAL
+Tools
+TITLE=FixPart_1
+22
+88
+1
+GridIn0
+UnstructuredGrid
+set of grids to modify
+req
+
+1
+GridOut0
+UnstructuredGrid
+set of modified grids
+default
+
+1
+PartID
+IntScalar
+Part ID to be fixed
+9
+
+-1
+0
+# Module ReadDyna3D
+ReadDyna3D
+1
+LOCAL
+IO_Module
+TITLE=ReadDyna3D_1
+22
+22
+0
+3
+out_grid
+UnstructuredGrid
+grid
+default
+
+data_1
+Vec3
+output nodal vector data
+default
+
+data_2
+Float
+output nodal scalar data
+default
+
+10
+data_path
+Browser
+Geometry file path
+share/covise/example-data/Dyna3d/aplot
+
+1
+nodalDataType
+Choice
+Nodal results data to be read
+1 None Displacements Velocities Accelerations
+
+0
+elementDataType
+Choice
+Element results data to be read
+1 None StressTensor PlasticStrain Thickness
+
+0
+component
+Choice
+stress tensor component
+8 Sx Sy Sz Txy Tyz Txz Pressure VonMises
+
+-1
+Selection
+String
+Number selection for parts
+0-9999999
+
+-1
+Min_Num_State
+IntVector
+Time step
+1 20
+
+0
+format
+Choice
+Format of LS-DYNA3D ptf-File
+1 cadfem original
+
+-1
+byteswap
+Choice
+Perform Byteswapping
+3 off on auto
+
+-1
+OnlyGeometry
+Boolean
+Reading only Geometry? yes|no
+FALSE
+
+-1
+data_path___filter
+BrowserFilter
+Geometry file path
+data_path *
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+2
+LOCAL
+Filter
+TITLE=DomainSurface_2
+176
+88
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module Renderer
+Renderer
+2
+LOCAL
+Renderer
+TITLE=Renderer_2
+176
+154
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+5
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Renderer
+1
+LOCAL
+RenderData
+FixPart
+1
+LOCAL
+GridOut0
+
+DomainSurface
+1
+LOCAL
+GridIn0
+ReadDyna3D
+1
+LOCAL
+out_grid
+
+FixPart
+1
+LOCAL
+GridIn0
+ReadDyna3D
+1
+LOCAL
+out_grid
+
+DomainSurface
+2
+LOCAL
+GridIn0
+DomainSurface
+2
+LOCAL
+GridOut0
+
+Renderer
+2
+LOCAL
+RenderData
+0

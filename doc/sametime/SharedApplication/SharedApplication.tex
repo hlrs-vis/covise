@@ -1,0 +1,125 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Shared Application}
+\label{SharedApplication}
+%=============================================================
+
+%\section{S1}
+
+You have two possibilities to communicate via your computer screen during a meeting:
+\begin{itemize}
+\item the Whiteboard
+\item a Shared Application
+\end{itemize}
+\vspace{0.5cm}
+
+A typical application to share with all meeting participants could be Word. You could e.g. look at
+a word file containing the Agenda at the beginning of the meeting in order to discuss and modify
+it if necessary, or build up a Summary or a ToDo-List file at the end of the meeting.
+
+In order to make this application a Shared Application use the facilities provided for Screen
+Sharing.
+
+\vspace{0.5cm}
+{\bf Screen Sharing}
+\vspace{0.5cm}  
+
+If you have permission to edit/share, you can share your screen with other participants and even
+allow them to control your screen. Before sharing your screen, make sure that any confidential
+information is secure.
+
+\begin{enumerate}
+\item Click on the screen-sharing button near the top of the Meeting Room.
+\item Open the program(s) that you want to share e. g. Word.
+\item Read the screen-sharing help in the Meeting Room to select one of the following options from
+the screen-sharing toolbar:
+\begin{itemize}
+\item Share a program
+\item Share My Entire Screen
+\item Share Part of My Screen with a Frame
+\end{itemize}
+\item You can be sure that you are sharing when you see the StopSharing button in the upper right
+of the shared area.
+\item To stop sharing at any time, click Stop Sharing.
+\end{enumerate}
+
+\vspace{0.5cm}
+{\bf Give Control to Others} - applies both to Shared Applications and Whiteboard
+\vspace{0.5cm}  
+
+You can allow other participants with permission to edit/share to control your screen. When you
+give control to other participants, they can use their own computers to edit the information on
+your shared screen.
+\begin{enumerate}
+\item Begin Sharing your screen.
+\item Click Allow Control. Other participants can now control your screen. Do not use your
+keyboard or mouse while another participant has control.
+\item To confirm who controls your shared screen, click the Participants List details button at
+the bottom of the Participant List. An arrow appears next to the name of the participant who
+currently controls the shared screen.  
+\item To remove contro from other participants, click Allow Control.
+\end{enumerate}
+
+
+%\section{S2}
+%\section{S3}
+
+Fig. 5. 1. below shows you - as an example - which help information is available for COVISE, and you could use your
+application to display help for the COVISE session.
+
+\begin{covimg}{SharedApplication}{shared}{Use Shared Application to show available Help}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 5.1: Use Shared Application to show available Help
+\vspace{0.5cm}
+\end{htmlonly}

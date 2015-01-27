@@ -1,0 +1,24 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+
+
+        \textcolor{output}{linesOut} & Lines & Reduced line-segments \\
+\hline
+        \textcolor{depend}{dataOut} &  Vec3  \newline
+                                       Float 
+                                    & -  \\                                                                    
+\hline
+\end{longtable}
+%=============================================================
+
+\newpage
+%
+%=============================================================

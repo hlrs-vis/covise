@@ -1,0 +1,32 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+CuttingSurface extracts surfaces of different shape 
+(planes, cylinders, spheres) and can also map
+isolines onto the plane. Linear interpolation is used 
+to calculate the data values on the grid nodes of
+the resulting cutting surface. 
+
+Note: If you like colored output of CuttingSurface that you can connect directly to the
+Renderer, see \covlink{CuttingSurfaceComp}{CuttingSurfaceComp}{../../Filter/CuttingSurfaceComp/CuttingSurfaceComp.html}
+
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{CuttingSurfaceModule}{1.0}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+CuttingSurface is available on all supported platforms. 
+
+%
+%=============================================================

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Blutkreislauf' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">           
+			   <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="showName" name="showName" />
+			   <ShortCut value="ClipPlane 1" name="schere" plugin="ClipPlane" icon="schere" toggleButton="True" />
+               <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Haut" regexp="Haut-FACES.*" shader="Glossy7" />
+                <Scope name="Venen" regexp="Venen-FACES.*" shader="Glossy2" />
+                <Scope name="Arterien" regexp="Arterien-FACES.*" shader="Glossy2" />
+                <Scope name="Duenndarm" regexp="Duenndarm-FACES.*" shader="Glossy2" />
+                <Scope name="Herz" regexp="Herz-FACES.*" shader="Glossy2" />
+                <Scope name="Lunge" regexp="Lunge-FACES.*" shader="Glossy2" />
+                <Scope name="Muskeln" regexp="Muskeln-FACES.*" shader="Glossy2" />
+                <Scope name="Trachea" regexp="Trachea-FACES.*" shader="Glossy2" />
+                <Scope name="Speiseroehre" regexp="Speiseroehre-FACES.*" shader="Glossy2" />
+                <Scope name="Dickdarm" regexp="Dickdarm-FACES.*" shader="Glossy2" />
+                <Scope name="Magen" regexp="Magen-FACES.*" shader="Glossy2" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+         <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+         <Localization>
+             <LocalePath value="../Demos/VR4Schule/Biologie/Blutkreislauf/locale" />
+         </Localization>
+         
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

@@ -1,0 +1,2164 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+7
+# Module BoundingBox
+BoundingBox
+1
+LOCAL
+Tools
+BoundingBox_1
+51
+425
+1
+GridIn0
+UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons|Points|Lines|TriangleStrips
+mesh
+req
+
+1
+GridOut0
+Lines
+bounding box
+default
+
+0
+0
+# Module Sphere
+Sphere
+1
+LOCAL
+Tools
+Sphere_3
+204
+306
+3
+points
+Points|UnstructuredGrid|StructuredGrid
+the points to be transformed into spheres
+req
+
+colors_in
+Float|RGBA|Vec3|IntArr|Int|Byte|Mat3|Tensor|Vec2
+data to be mapped onto the spheres
+opt
+
+data
+Float|Vec3
+data to be added to parameter radius
+opt
+
+3
+spheres
+TriangleStrips|Polygons|Spheres
+the spheres
+default
+
+dataOut
+Float|RGBA|Vec3|IntArr|Int|Byte|Mat3|Tensor|Vec2
+data mapped onto spheres
+default
+
+normals
+Vec3
+normals for the spheres
+default
+
+3
+radius
+FloatScalar
+Base radius of the sphere, used if input radius is not available
+1.
+
+-1
+scale
+FloatScalar
+Scale factor to apply on the data
+1.
+
+-1
+render_method
+Choice
+Render method for sphere rendering
+3 Polygons CPUBillboards CgShader ARBPointSprites
+
+-1
+0
+# Module OpenCOVER
+OpenCOVER
+1
+LOCAL
+Renderer
+OpenCOVER_1
+204
+510
+1
+RenderData
+Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres
+render geometry
+req
+
+0
+1
+Viewpoints
+Browser
+Viewpoints
+"./default.vwp" *.vwp
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+204
+323
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module AtomRadii
+AtomRadii
+1
+LOCAL
+Tools
+AtomRadii_1
+221
+187
+2
+Data
+Int|Float|Text
+Atom type
+req
+
+Points
+Points
+Atom position
+opt
+
+1
+radii
+Float
+Atom radii
+default
+
+148
+H
+FloatScalar
+001  Hydrogen
+1.200000
+
+-1
+He
+FloatScalar
+002  Helium
+1.220000
+
+-1
+Li
+FloatScalar
+003  Lithium
+0.000000
+
+-1
+Be
+FloatScalar
+004  Beryllium
+0.000000
+
+-1
+B
+FloatScalar
+005  Boron
+2.080000
+
+-1
+C
+FloatScalar
+006  Carbon
+1.850000
+
+-1
+N
+FloatScalar
+007  Nitrogen
+1.540000
+
+-1
+O
+FloatScalar
+008  Oxygen
+1.400000
+
+-1
+F
+FloatScalar
+009  Fluorine
+1.350000
+
+-1
+Ne
+FloatScalar
+010  Neon
+1.600000
+
+-1
+Na
+FloatScalar
+011  Sodium
+2.310000
+
+-1
+Mg
+FloatScalar
+012  Magnesium
+0.000000
+
+-1
+Al
+FloatScalar
+013  Aluminium
+2.050000
+
+-1
+Si
+FloatScalar
+014  Silicon
+2.000000
+
+-1
+P
+FloatScalar
+015  Phosphorus
+1.900000
+
+-1
+S
+FloatScalar
+016  Sulfur
+1.850000
+
+-1
+Cl
+FloatScalar
+017  Chlorine
+1.810000
+
+-1
+Ar
+FloatScalar
+018  Argon
+1.910000
+
+-1
+K
+FloatScalar
+019  Potassium
+2.310000
+
+-1
+Ca
+FloatScalar
+020  Calcium
+0.000000
+
+-1
+Sc
+FloatScalar
+021  Scandium
+0.000000
+
+-1
+Ti
+FloatScalar
+022  Titanium
+0.000000
+
+-1
+V
+FloatScalar
+023  Vanadium
+0.000000
+
+-1
+Cr
+FloatScalar
+024  Chromium
+0.000000
+
+-1
+Mn
+FloatScalar
+025  Manganese
+0.000000
+
+-1
+Fe
+FloatScalar
+026  Iron
+0.000000
+
+-1
+Co
+FloatScalar
+027  Cobalt
+0.000000
+
+-1
+Ni
+FloatScalar
+028  Nickel
+0.000000
+
+-1
+Cu
+FloatScalar
+029  Copper
+0.000000
+
+-1
+Zn
+FloatScalar
+030  Zinc
+0.000000
+
+-1
+Ga
+FloatScalar
+031  Gallium
+0.000000
+
+-1
+Ge
+FloatScalar
+032  Germanium
+0.000000
+
+-1
+As
+FloatScalar
+033  Arsenic
+2.000000
+
+-1
+Se
+FloatScalar
+034  Solenium
+2.000000
+
+-1
+Br
+FloatScalar
+035  Bromine
+1.950000
+
+-1
+Kr
+FloatScalar
+036  Krypton
+1.980000
+
+-1
+Rb
+FloatScalar
+037  Rubidium
+2.440000
+
+-1
+Sr
+FloatScalar
+038  Strontium
+0.000000
+
+-1
+Y
+FloatScalar
+039  Yttrium
+0.000000
+
+-1
+Zr
+FloatScalar
+040  Zirconium
+0.000000
+
+-1
+Nb
+FloatScalar
+041  Niobium
+0.000000
+
+-1
+Mo
+FloatScalar
+042  Molybdenum
+0.000000
+
+-1
+Tc
+FloatScalar
+043  Technetium
+0.000000
+
+-1
+Ru
+FloatScalar
+044  Ruthenium
+0.000000
+
+-1
+Rh
+FloatScalar
+045  Rhodium
+0.000000
+
+-1
+Pd
+FloatScalar
+046  Palladium
+0.000000
+
+-1
+Ag
+FloatScalar
+047  Silver
+0.000000
+
+-1
+Cd
+FloatScalar
+048  Cadmium
+0.000000
+
+-1
+In
+FloatScalar
+049  Indium
+0.000000
+
+-1
+Sn
+FloatScalar
+050  Tin
+0.000000
+
+-1
+Sb
+FloatScalar
+051  Antimony
+2.200000
+
+-1
+Te
+FloatScalar
+052  Tellurium
+2.200000
+
+-1
+I
+FloatScalar
+053  Iodine
+2.150000
+
+-1
+Xe
+FloatScalar
+054  Xenon
+2.160000
+
+-1
+Cs
+FloatScalar
+055  Cesium
+2.620000
+
+-1
+Ba
+FloatScalar
+056  Barium
+0.000000
+
+-1
+La
+FloatScalar
+057  Lanthanum
+0.000000
+
+-1
+Ce
+FloatScalar
+058  Cerium
+0.000000
+
+-1
+Pr
+FloatScalar
+059  Praseodymium
+0.000000
+
+-1
+Nd
+FloatScalar
+060  Neodymium
+0.000000
+
+-1
+Pm
+FloatScalar
+061  Promethium
+0.000000
+
+-1
+Sm
+FloatScalar
+062  Samarium
+0.000000
+
+-1
+Eu
+FloatScalar
+063  Europium
+0.000000
+
+-1
+Gd
+FloatScalar
+064  Gadolinium
+0.000000
+
+-1
+Tb
+FloatScalar
+065  Terbium
+0.000000
+
+-1
+Dy
+FloatScalar
+066  Dysprosium
+0.000000
+
+-1
+Ho
+FloatScalar
+067  Holmium
+0.000000
+
+-1
+Er
+FloatScalar
+068  Erbium
+0.000000
+
+-1
+Tm
+FloatScalar
+069  Thulium
+0.000000
+
+-1
+Yb
+FloatScalar
+070  Ytterbium
+0.000000
+
+-1
+Lu
+FloatScalar
+071  Lutetium
+0.000000
+
+-1
+Hf
+FloatScalar
+072  Hafnium
+0.000000
+
+-1
+Ta
+FloatScalar
+073  Tantalum
+0.000000
+
+-1
+W
+FloatScalar
+074  Tungsten
+0.000000
+
+-1
+Re
+FloatScalar
+075  Rhenium
+0.000000
+
+-1
+Os
+FloatScalar
+076  Osmium
+0.000000
+
+-1
+Ir
+FloatScalar
+077  Iridium
+0.000000
+
+-1
+Pt
+FloatScalar
+078  Platinum
+0.000000
+
+-1
+Au
+FloatScalar
+079  Gold
+0.000000
+
+-1
+Hg
+FloatScalar
+080  Mercury
+0.000000
+
+-1
+Tl
+FloatScalar
+081  Thallium
+0.000000
+
+-1
+Pb
+FloatScalar
+082  Lead
+0.000000
+
+-1
+Bi
+FloatScalar
+083  Bismuth
+2.400000
+
+-1
+Po
+FloatScalar
+084  Polonium
+0.000000
+
+-1
+At
+FloatScalar
+085  Astatine
+0.000000
+
+-1
+Rn
+FloatScalar
+086  Radon
+0.000000
+
+-1
+Fr
+FloatScalar
+087  Francium
+0.000000
+
+-1
+Ra
+FloatScalar
+088  Radium
+0.000000
+
+-1
+Ac
+FloatScalar
+089  Actinium
+0.000000
+
+-1
+Th
+FloatScalar
+090  Thorium
+0.000000
+
+-1
+Pa
+FloatScalar
+091  Protactinium
+0.000000
+
+-1
+U
+FloatScalar
+092  Uranium
+0.000000
+
+-1
+Np
+FloatScalar
+093  Neptunium
+0.000000
+
+-1
+Pu
+FloatScalar
+094  Plutonium
+0.000000
+
+-1
+Am
+FloatScalar
+095  Americium
+0.000000
+
+-1
+Cm
+FloatScalar
+096  Curium
+0.000000
+
+-1
+Bk
+FloatScalar
+097  Berkelium
+0.000000
+
+-1
+Cf
+FloatScalar
+098  Californium
+0.000000
+
+-1
+Es
+FloatScalar
+099  Einsteinium
+0.000000
+
+-1
+Fm
+FloatScalar
+100  Fermium
+0.000000
+
+-1
+Md
+FloatScalar
+101  Mendelevium
+0.000000
+
+-1
+No
+FloatScalar
+102  Nobelium
+0.000000
+
+-1
+Lr
+FloatScalar
+103  Lawrencium
+0.000000
+
+-1
+Rf
+FloatScalar
+104  Rutherfordium
+0.000000
+
+-1
+Db
+FloatScalar
+105  Dubnium
+0.000000
+
+-1
+Sg
+FloatScalar
+106  Seaborgium
+0.000000
+
+-1
+Gh
+FloatScalar
+107  Bohrium
+0.000000
+
+-1
+Hs
+FloatScalar
+108  Hassium
+0.000000
+
+-1
+Mt
+FloatScalar
+109  Meitnerium
+0.000000
+
+-1
+Da
+FloatScalar
+110  DD
+0.000000
+
+-1
+D1
+FloatScalar
+111  DD
+0.000000
+
+-1
+Dc
+FloatScalar
+112  DD
+0.000000
+
+-1
+Dd
+FloatScalar
+113  DD
+0.000000
+
+-1
+De
+FloatScalar
+114  DD
+0.000000
+
+-1
+Df
+FloatScalar
+115  DD
+0.000000
+
+-1
+Dg
+FloatScalar
+116  DD
+0.000000
+
+-1
+Dh
+FloatScalar
+117  DD
+0.000000
+
+-1
+Di
+FloatScalar
+118  DD
+0.000000
+
+-1
+Dj
+FloatScalar
+119  DD
+0.000000
+
+-1
+Dk
+FloatScalar
+120  DD
+0.000000
+
+-1
+Dl
+FloatScalar
+121  DD
+0.000000
+
+-1
+Dm
+FloatScalar
+122  DD
+0.000000
+
+-1
+Dn
+FloatScalar
+123  DD
+0.000000
+
+-1
+Do
+FloatScalar
+124  DD
+0.000000
+
+-1
+Dp
+FloatScalar
+125  DD
+0.000000
+
+-1
+Dq
+FloatScalar
+126  DD
+0.000000
+
+-1
+Dr
+FloatScalar
+127  DD
+0.000000
+
+-1
+Ds
+FloatScalar
+128  DD
+0.000000
+
+-1
+Dt
+FloatScalar
+129  DD
+0.000000
+
+-1
+Du
+FloatScalar
+130  DD
+0.000000
+
+-1
+Dv
+FloatScalar
+131  DD
+0.000000
+
+-1
+Dw
+FloatScalar
+132  DD
+0.000000
+
+-1
+Dx
+FloatScalar
+133  DD
+0.000000
+
+-1
+D2
+FloatScalar
+134  DD
+0.000000
+
+-1
+Dz
+FloatScalar
+135  DD
+0.000000
+
+-1
+Ea
+FloatScalar
+136  DD
+0.000000
+
+-1
+Eb
+FloatScalar
+137  DD
+0.000000
+
+-1
+Ee
+FloatScalar
+138  DD
+0.000000
+
+-1
+Me1
+FloatScalar
+139  Me1
+1.000000
+
+-1
+C31
+FloatScalar
+140  C31
+1.000000
+
+-1
+C22
+FloatScalar
+141  C22
+1.000000
+
+-1
+C23
+FloatScalar
+142  C23
+1.000000
+
+-1
+C24
+FloatScalar
+143  C24
+1.000000
+
+-1
+C25
+FloatScalar
+144  C25
+1.000000
+
+-1
+C26
+FloatScalar
+145  C26
+1.000000
+
+-1
+C27
+FloatScalar
+146  C27
+1.000000
+
+-1
+C28
+FloatScalar
+147  C28
+1.000000
+
+-1
+C39
+FloatScalar
+148  C39
+1.000000
+
+-1
+0
+# Module ReadPDB
+ReadPDB
+1
+LOCAL
+IO_Module
+ReadPDB_1
+204
+68
+0
+4
+points
+Points
+points Output
+default
+
+AtomType
+Int
+atom type
+default
+
+bonds
+Lines
+Lines (bonds) Output
+default
+
+groups
+Lines
+Lines (groups) Output
+default
+
+5
+filename
+Browser
+ 
+share/covise/example-data/ReadPDB/1XBB.pdb
+
+-1
+filename___filter
+BrowserFilter
+name of PDB file
+filename *.pdb/*.*
+
+-1
+timesteps
+Boolean
+test
+FALSE
+
+-1
+timesteps_min
+IntScalar
+test
+0
+
+-1
+timesteps_max
+IntScalar
+test
+0
+
+-1
+0
+# Module AtomColors
+AtomColors
+1
+LOCAL
+Mapper
+AtomColors_1
+374
+187
+2
+Data
+Int|Float|Text
+Atom type
+req
+
+Points
+Points
+Atom position
+opt
+
+1
+colors
+RGBA
+Data as colors
+default
+
+148
+H
+Color
+001  Hydrogen
+0.8 0.8 0.8 1
+
+-1
+He
+Color
+002  Helium
+1 0 0 1
+
+-1
+Li
+Color
+003  Lithium
+1 0.5 0 1
+
+-1
+Be
+Color
+004  Beryllium
+1 1 0 1
+
+-1
+B
+Color
+005  Boron
+0.7 1 0 1
+
+-1
+C
+Color
+006  Carbon
+0 1 0 1
+
+-1
+N
+Color
+007  Nitrogen
+0 1 0.5 1
+
+-1
+O
+Color
+008  Oxygen
+1 0 0 1
+
+-1
+F
+Color
+009  Fluorine
+0 0.5 1 1
+
+-1
+Ne
+Color
+010  Neon
+0 0 1 1
+
+-1
+Na
+Color
+011  Sodium
+0.5 0 1 1
+
+-1
+Mg
+Color
+012  Magnesium
+1 0 1 1
+
+-1
+Al
+Color
+013  Aluminium
+1 0 0.5 1
+
+-1
+Si
+Color
+014  Silicon
+0 0 1 1
+
+-1
+P
+Color
+015  Phosphorus
+0 0 1 1
+
+-1
+S
+Color
+016  Sulfur
+0 0 1 1
+
+-1
+Cl
+Color
+017  Chlorine
+0 0 1 1
+
+-1
+Ar
+Color
+018  Argon
+1 0 0 1
+
+-1
+K
+Color
+019  Potassium
+0 0 1 1
+
+-1
+Ca
+Color
+020  Calcium
+0 0 1 1
+
+-1
+Sc
+Color
+021  Scandium
+0 0 1 1
+
+-1
+Ti
+Color
+022  Titanium
+0 0 1 1
+
+-1
+V
+Color
+023  Vanadium
+0 0 1 1
+
+-1
+Cr
+Color
+024  Chromium
+0 0 1 1
+
+-1
+Mn
+Color
+025  Manganese
+0 0 1 1
+
+-1
+Fe
+Color
+026  Iron
+0 0 1 1
+
+-1
+Co
+Color
+027  Cobalt
+0 0 1 1
+
+-1
+Ni
+Color
+028  Nickel
+0 0 1 1
+
+-1
+Cu
+Color
+029  Copper
+0 0 1 1
+
+-1
+Zn
+Color
+030  Zinc
+0 0 1 1
+
+-1
+Ga
+Color
+031  Gallium
+1 1 1 1
+
+-1
+Ge
+Color
+032  Germanium
+1 1 1 1
+
+-1
+As
+Color
+033  Arsenic
+1 1 1 1
+
+-1
+Se
+Color
+034  Solenium
+1 1 1 1
+
+-1
+Br
+Color
+035  Bromine
+1 1 1 1
+
+-1
+Kr
+Color
+036  Krypton
+1 1 1 1
+
+-1
+Rb
+Color
+037  Rubidium
+1 1 1 1
+
+-1
+Sr
+Color
+038  Strontium
+1 1 1 1
+
+-1
+Y
+Color
+039  Yttrium
+1 1 1 1
+
+-1
+Zr
+Color
+040  Zirconium
+1 1 1 1
+
+-1
+Nb
+Color
+041  Niobium
+1 1 1 1
+
+-1
+Mo
+Color
+042  Molybdenum
+1 1 1 1
+
+-1
+Tc
+Color
+043  Technetium
+1 1 1 1
+
+-1
+Ru
+Color
+044  Ruthenium
+1 1 1 1
+
+-1
+Rh
+Color
+045  Rhodium
+1 1 1 1
+
+-1
+Pd
+Color
+046  Palladium
+1 1 1 1
+
+-1
+Ag
+Color
+047  Silver
+1 1 1 1
+
+-1
+Cd
+Color
+048  Cadmium
+1 1 1 1
+
+-1
+In
+Color
+049  Indium
+1 1 1 1
+
+-1
+Sn
+Color
+050  Tin
+1 1 1 1
+
+-1
+Sb
+Color
+051  Antimony
+1 1 1 1
+
+-1
+Te
+Color
+052  Tellurium
+1 1 1 1
+
+-1
+I
+Color
+053  Iodine
+1 1 1 1
+
+-1
+Xe
+Color
+054  Xenon
+1 1 1 1
+
+-1
+Cs
+Color
+055  Cesium
+1 1 1 1
+
+-1
+Ba
+Color
+056  Barium
+1 1 1 1
+
+-1
+La
+Color
+057  Lanthanum
+1 1 1 1
+
+-1
+Ce
+Color
+058  Cerium
+1 1 1 1
+
+-1
+Pr
+Color
+059  Praseodymium
+1 1 1 1
+
+-1
+Nd
+Color
+060  Neodymium
+1 1 1 1
+
+-1
+Pm
+Color
+061  Promethium
+1 1 1 1
+
+-1
+Sm
+Color
+062  Samarium
+1 1 1 1
+
+-1
+Eu
+Color
+063  Europium
+1 1 1 1
+
+-1
+Gd
+Color
+064  Gadolinium
+1 1 1 1
+
+-1
+Tb
+Color
+065  Terbium
+1 1 1 1
+
+-1
+Dy
+Color
+066  Dysprosium
+1 1 1 1
+
+-1
+Ho
+Color
+067  Holmium
+1 1 1 1
+
+-1
+Er
+Color
+068  Erbium
+1 1 1 1
+
+-1
+Tm
+Color
+069  Thulium
+1 1 1 1
+
+-1
+Yb
+Color
+070  Ytterbium
+1 1 1 1
+
+-1
+Lu
+Color
+071  Lutetium
+1 1 1 1
+
+-1
+Hf
+Color
+072  Hafnium
+1 1 1 1
+
+-1
+Ta
+Color
+073  Tantalum
+1 1 1 1
+
+-1
+W
+Color
+074  Tungsten
+1 1 1 1
+
+-1
+Re
+Color
+075  Rhenium
+1 1 1 1
+
+-1
+Os
+Color
+076  Osmium
+1 1 1 1
+
+-1
+Ir
+Color
+077  Iridium
+1 1 1 1
+
+-1
+Pt
+Color
+078  Platinum
+1 1 1 1
+
+-1
+Au
+Color
+079  Gold
+1 1 1 1
+
+-1
+Hg
+Color
+080  Mercury
+1 1 1 1
+
+-1
+Tl
+Color
+081  Thallium
+1 1 1 1
+
+-1
+Pb
+Color
+082  Lead
+1 1 1 1
+
+-1
+Bi
+Color
+083  Bismuth
+1 1 1 1
+
+-1
+Po
+Color
+084  Polonium
+1 1 1 1
+
+-1
+At
+Color
+085  Astatine
+1 1 1 1
+
+-1
+Rn
+Color
+086  Radon
+1 1 1 1
+
+-1
+Fr
+Color
+087  Francium
+1 1 1 1
+
+-1
+Ra
+Color
+088  Radium
+1 1 1 1
+
+-1
+Ac
+Color
+089  Actinium
+1 1 1 1
+
+-1
+Th
+Color
+090  Thorium
+1 1 1 1
+
+-1
+Pa
+Color
+091  Protactinium
+1 1 1 1
+
+-1
+U
+Color
+092  Uranium
+1 1 1 1
+
+-1
+Np
+Color
+093  Neptunium
+1 1 1 1
+
+-1
+Pu
+Color
+094  Plutonium
+1 1 1 1
+
+-1
+Am
+Color
+095  Americium
+1 1 1 1
+
+-1
+Cm
+Color
+096  Curium
+1 1 1 1
+
+-1
+Bk
+Color
+097  Berkelium
+1 1 1 1
+
+-1
+Cf
+Color
+098  Californium
+1 1 1 1
+
+-1
+Es
+Color
+099  Einsteinium
+1 1 1 1
+
+-1
+Fm
+Color
+100  Fermium
+1 1 1 1
+
+-1
+Md
+Color
+101  Mendelevium
+1 1 1 1
+
+-1
+No
+Color
+102  Nobelium
+1 1 1 1
+
+-1
+Lr
+Color
+103  Lawrencium
+1 1 1 1
+
+-1
+Rf
+Color
+104  Rutherfordium
+1 1 1 1
+
+-1
+Db
+Color
+105  Dubnium
+1 1 1 1
+
+-1
+Sg
+Color
+106  Seaborgium
+1 1 1 1
+
+-1
+Gh
+Color
+107  Bohrium
+1 1 1 1
+
+-1
+Hs
+Color
+108  Hassium
+1 1 1 1
+
+-1
+Mt
+Color
+109  Meitnerium
+1 1 1 1
+
+-1
+Da
+Color
+110  DD
+1 1 1 1
+
+-1
+D1
+Color
+111  DD
+1 1 1 1
+
+-1
+Dc
+Color
+112  DD
+1 1 1 1
+
+-1
+Dd
+Color
+113  DD
+1 1 1 1
+
+-1
+De
+Color
+114  DD
+1 1 1 1
+
+-1
+Df
+Color
+115  DD
+1 1 1 1
+
+-1
+Dg
+Color
+116  DD
+1 1 1 1
+
+-1
+Dh
+Color
+117  DD
+1 1 1 1
+
+-1
+Di
+Color
+118  DD
+1 1 1 1
+
+-1
+Dj
+Color
+119  DD
+1 1 1 1
+
+-1
+Dk
+Color
+120  DD
+1 1 1 1
+
+-1
+Dl
+Color
+121  DD
+1 1 1 1
+
+-1
+Dm
+Color
+122  DD
+1 1 1 1
+
+-1
+Dn
+Color
+123  DD
+1 1 1 1
+
+-1
+Do
+Color
+124  DD
+1 1 1 1
+
+-1
+Dp
+Color
+125  DD
+1 1 1 1
+
+-1
+Dq
+Color
+126  DD
+1 1 1 1
+
+-1
+Dr
+Color
+127  DD
+1 1 1 1
+
+-1
+Ds
+Color
+128  DD
+1 1 1 1
+
+-1
+Dt
+Color
+129  DD
+1 1 1 1
+
+-1
+Du
+Color
+130  DD
+1 1 1 1
+
+-1
+Dv
+Color
+131  DD
+1 1 1 1
+
+-1
+Dw
+Color
+132  DD
+1 1 1 1
+
+-1
+Dx
+Color
+133  DD
+1 1 1 1
+
+-1
+D2
+Color
+134  DD
+1 1 1 1
+
+-1
+Dz
+Color
+135  DD
+1 1 1 1
+
+-1
+Ea
+Color
+136  DD
+1 1 1 1
+
+-1
+Eb
+Color
+137  DD
+1 1 1 1
+
+-1
+Ee
+Color
+138  DD
+1 1 1 1
+
+-1
+Me1
+Color
+139  Me1
+0 0.7 0.5 1
+
+-1
+C31
+Color
+140  C31
+0 0.7 0 1
+
+-1
+C22
+Color
+141  C22
+0 0.7 0 1
+
+-1
+C23
+Color
+142  C23
+0 0.7 0 1
+
+-1
+C24
+Color
+143  C24
+0 0.7 0 1
+
+-1
+C25
+Color
+144  C25
+0 0.7 0 1
+
+-1
+C26
+Color
+145  C26
+0 0.7 0 1
+
+-1
+C27
+Color
+146  C27
+0 0.7 0 1
+
+-1
+C28
+Color
+147  C28
+0 0.7 0 1
+
+-1
+C39
+Color
+148  C39
+0 0.7 0 1
+
+-1
+0
+11
+BoundingBox
+1
+LOCAL
+GridOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Sphere
+1
+LOCAL
+spheres
+
+Collect
+1
+LOCAL
+GridIn0
+Sphere
+1
+LOCAL
+dataOut
+
+Collect
+1
+LOCAL
+DataIn0
+Sphere
+1
+LOCAL
+normals
+
+Collect
+1
+LOCAL
+DataIn1
+Collect
+1
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+AtomRadii
+1
+LOCAL
+radii
+
+Sphere
+1
+LOCAL
+data
+ReadPDB
+1
+LOCAL
+points
+
+Sphere
+1
+LOCAL
+points
+ReadPDB
+1
+LOCAL
+points
+
+BoundingBox
+1
+LOCAL
+GridIn0
+ReadPDB
+1
+LOCAL
+AtomType
+
+AtomRadii
+1
+LOCAL
+Data
+ReadPDB
+1
+LOCAL
+AtomType
+
+AtomColors
+1
+LOCAL
+Data
+AtomColors
+1
+LOCAL
+colors
+
+Sphere
+1
+LOCAL
+colors_in
+0

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  DataToGrid.cpp
+)
+
+SET(EXTRASOURCES
+  DataToGrid.h
+)
+
+ADD_COVISE_MODULE(Converter DataToGrid ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(DataToGrid  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(DataToGrid)

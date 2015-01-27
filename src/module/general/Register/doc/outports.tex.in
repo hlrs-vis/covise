@@ -1,0 +1,13 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline
+	VolumeGridOut & UniformGrid & Grid\\ 
+\hline
+	redout & Float & RGB - Red\\ 
+\hline
+	greenout & Float & RGB - Green\\ 
+\hline
+	blueout & Float & RGB - Blue\\
+\hline \end{longtable}
+

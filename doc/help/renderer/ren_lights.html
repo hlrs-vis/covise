@@ -1,0 +1,152 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Lights</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">Lights</font></font></h2>
+
+<blockquote>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="66%" >
+<tr>
+<td><img SRC="lights04.gif" height=384 width=440></td>
+</tr>
+</table></center>
+</blockquote>
+<font face="Arial,Helvetica">With <b><font size=+1>Lights</font></b> you
+change the appearance of an object by changing its illumination.</font>
+<br><font face="Arial,Helvetica">You can create, edit, and remove light
+sources in the viewer area.</font>
+<br><font face="Arial,Helvetica">Use the following options (see above):</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Lightmodel BASE_COLOR</b> (toggle button)</font></li>
+
+<br><font face="Arial,Helvetica">Each object has its own base color also
+called diffuse color. (If no color is specified, objects are colored white
+over all faces or vertices.) If BASE_COLOR is</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">enabled (default): Objects are rendered by
+taking in account their diffuse color only (no shading)</font></li>
+
+<li>
+<font face="Arial,Helvetica">disabled: Objects are PHONG shaded. The PHONG
+lighting model takes into account all light sources in the scene and the
+object's surface orientation with respect to the lights to generate a realistic
+smooth shaded 3D appearance of an object.</font></li>
+
+<br>&nbsp;</ul>
+
+<li>
+<font face="Arial,Helvetica"><b>Create Dir</b>(ectional)
+<b>Light</b></font></li>
+
+<br><font face="Arial,Helvetica">This creates a light which illuminates
+uniformly along a particular direction.</font>
+<li>
+<b><font face="Arial,Helvetica">Create Point Light</font></b></li>
+
+<br><font face="Arial,Helvetica">A point light, like a star, radiates light
+equally in all directions from a given location in 3D space</font>
+<li>
+<b><font face="Arial,Helvetica">Create Spot Light</font></b></li>
+
+<br><font face="Arial,Helvetica">A spot light illuminates from a point
+in space along a primary direction. Its illumination is a cone of light
+diverging from the light's position (hardware dependent: if not supported,
+spotlight appears as point light)</font>
+<p><font face="Arial,Helvetica">The 3 options above</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">create the light source as specified</font></li>
+
+<li>
+<font face="Arial,Helvetica">place the light icon at the default position
+in the scene</font></li>
+
+<li>
+<font face="Arial,Helvetica">create a <b>new lights entry</b> (Directional/Point/Spot)
+in the Lights menu</font></li>
+</ul>
+<font face="Arial,Helvetica">These <b>new lights</b> can be</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">edited interactively with the mouse after
+turning on the Light Edit mode (see option <a href="ren_viewing.html">Viewing</a>)</font></li>
+
+<li>
+<font face="Arial,Helvetica">modified by a submenu of the new lights entry
+which offers</font></li>
+
+<ul><font face="Arial,Helvetica">On/Off</font>
+<br><font face="Arial,Helvetica">Icon (show/hide)</font>
+<br><font face="Arial,Helvetica">Edit Color (gives you access to a <a href="ren_coloredit.html">ColorEditor</a>
+for this type of light)</font>
+<br><font face="Arial,Helvetica">Remove (new lights entry)</font></ul>
+</ul>
+<font face="Arial,Helvetica">(see figure above for an example of a&nbsp;
+new directional light source)</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Ambient Lighting</font></b></li>
+
+<br><font face="Arial,Helvetica">This is used for the PHONG lighting mode.
+It lets you edit the ambient lighting in the scene via a
+<a href="ren_coloredit.html">ColorEditor</a>
+for this type of light.</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Turn all on/off</font></b></li>
+
+<br><font face="Arial,Helvetica">turns all currently defined lights on/off</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Show/Hide all Icons</font></b></li>
+
+<br><font face="Arial,Helvetica">shows/hides the icons of all currently
+defined lights</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Headlights</font></b></li>
+
+<br><font face="Arial,Helvetica">This is the default light. The icon for
+the headlight is turned off by default.</font>
+<br><font face="Arial,Helvetica">Headlights offers a submenu with</font>
+<ul>
+<ul><font face="Arial,Helvetica">On/Off</font>
+<br><font face="Arial,Helvetica">Edit (provides a special
+<b>Headlight
+Editor</b>)</font></ul>
+</ul>
+<font face="Arial,Helvetica">With the Headlight Editor you can</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">change the intensity of the light by moving
+the 'Inten' slider</font></li>
+
+<li>
+<font face="Arial,Helvetica">adjust the angle at which the light shines
+by clicking on the directional arrow and changing its position in the window</font></li>
+
+<li>
+<font face="Arial,Helvetica">edit the color via
+<a href="ren_coloredit.html">ColorEditor</a></font></li>
+</ul>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="78%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">If you create new lights, new entries
+will appear below Headlights.</font></td>
+</tr>
+</table>
+</ul>
+
+<br>&nbsp;
+</body>
+</html>

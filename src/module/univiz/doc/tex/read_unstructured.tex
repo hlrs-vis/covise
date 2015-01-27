@@ -1,0 +1,77 @@
+\section{Read Unstructured}
+\label{sec:read-unstructured}
+
+
+\subsection{Description}
+%-----------------------------------------------------------------------------
+Reads unstructured data from Unstructured file format. Use this module for exchanging (converting) data between the visualization systems, e.g. for making use of the readers for different file formats available in the systems.
+
+
+\subsection{Input}
+%-----------------------------------------------------------------------------
+
+
+\subsection{Output}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+\item
+  data grid (unstructured)
+  \begin{itemize}
+  \item
+    scalar (Covise only, optional)
+  \item
+    vector (Covise only, optional)
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Parameters}
+%-----------------------------------------------------------------------------
+\begin{itemize}
+
+\item
+  \textbf{file name}: the file name of the Unstructured file.
+
+\item
+  \textbf{scalar component}: allows to select one scalar component of the usntructured data (Covise only). AVS: all data is read. ParaView: arbitrary number of components can be selected.
+
+\item
+  \textbf{vector component}: allows to select one vector component of the usntructured data (Covise only). AVS: all data is read. ParaView: arbitrary number of components can be selected.
+
+\end{itemize}
+
+
+\subsection{Implementation}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Version}
+%.............................................................................
+
+2008-04-16
+
+
+\subsubsection{Author}
+%.............................................................................
+
+Filip Sadlo
+
+
+\subsection{See Also}
+%-----------------------------------------------------------------------------
+
+
+\subsubsection{Related Modules}
+%.............................................................................
+
+\begin{itemize}
+
+\item
+  Write Unstructured (Section~\ref{sec:write-unstructured})
+
+\end{itemize}
+
+
+\subsubsection{Example Network}
+%.............................................................................
+

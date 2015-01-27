@@ -1,0 +1,25 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	from & Scalar & IsoLines uses a range of isovalues. from is the beginning of this range. \\
+\hline
+	to  & Scalar & End of the range of isovalues.  \\
+\hline
+	step & Scalar & The range of isovalues is divided up into several values. step is the difference between these values.  \\
+\hline
+	distance & Scalar & Distance between plane of the polygon and the isolines. This parameter can be used to display simultaneously data on the polygons and all isolines. If you use positive distances the isolines are moved "behind" the polygon. Therefore you should use negative values in general.\\												
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

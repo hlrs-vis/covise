@@ -1,0 +1,21 @@
+<html>
+<head>
+  <title> Login to COVISE Conference Room </title>
+<script>
+var arg= document.URL.split("?");
+if( arg[2]!=null) paramName = arg[2];
+else paramName = "";
+</script>
+
+<script>
+function launchcovise()
+{
+url = "http://localhost/Release/index.html" + "??" +paramName; 
+window.open(url,"local", "toolbar=0, location=0, directories=0, status=0, scrollbars=0, resizable=0, copyhistory=0, width=900, height=700, left=100, top=100");
+window.close();
+}
+</script>
+</head>
+<BODY OnLoad='launchcovise()'>
+</BODY>
+</HTML>

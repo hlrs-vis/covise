@@ -1,0 +1,160 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.74 [de] (X11; U; Linux 2.2.16 i686) [Netscape]">
+   <title>Viewing</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">Viewing</font></font></h2>
+
+<blockquote>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="38%" >
+<tr>
+<td><img SRC="viewing01.gif" height=330 width=236></td>
+</tr>
+</table></center>
+</blockquote>
+<font face="Arial,Helvetica">The <font size=+1><b>Viewing</b> </font>menu
+item provides the following functions (see above)</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Pick/Edit </b>: switch between Pick Mode
+and View Mode (Edit mode: old terminology)</font></li>
+
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Same function available via&nbsp;</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">pick mode and view mode icons (<a href="ren_toolbar.html">Toolbar</a>,
+<a href="ren_pickmode.html">PickMode</a>,
+<a href="ren_viewmode.html">ViewMode</a>)&nbsp;</font></li>
+
+<li>
+<font face="Arial,Helvetica">option viewing of the <a href="ren_viewpopup.html">Viewer
+Popup Menu</a> (right mouse button on viewer area)</font></li>
+
+<br>&nbsp;</ul>
+</ul>
+</td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Light Edit Mode</b>: Enabling this mode
+lets you interactively edit the currently visible light sources in the
+scene by using the mouse (see menu item <a href="ren_lights.html">Lights</a>
+> Create...)</font></li>
+</ul>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>View Selection</b>: adjust size and position
+of the object so that it fits exactly in the viewer area (orientation remains
+unchanged)</font></li>
+
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">View Selection can only be selected if
+an object has been selected: switch to pick mode and click on the object
+in the viewer area, or click on the name of the object in the Geometry
+Objects list before you try to use View Selection!&nbsp;</font></td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Fog</b>: simulates various atmospheric
+effects such as fog, haze, pollution, and smoke which are grouped under
+the term fog</font></li>
+
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica"><b>Antialiasing</b>: eliminates or reduces
+jagged lines and makes objects drawn on the screen look smoother (see also:
+<i><a href="../glossary.html">Glossary</a></i>).</font></li>
+
+<br><font face="Arial,Helvetica"><font color="#FF0000">Warning: Enabling
+Antialiasing reduces drawing speed!</font></font>
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica">Modify transparency by selecting</font></li>
+
+<br><font face="Arial,Helvetica"><b>Screen Door Transparency</b>:</font>
+<br><font face="Arial,Helvetica">This is the default and the only supported
+mode on some machines. It uses GL patterns for achieving the transparency
+effect.</font>
+<br><font face="Arial,Helvetica"><b>Blended Transparency</b>:</font>
+<br><font face="Arial,Helvetica">uses GL <i><a href="../glossary.html">alpha
+blending</a></i></font>
+<br><font face="Arial,Helvetica"><b>Delayed Blended Transparency</b>:</font>
+<br><font face="Arial,Helvetica">uses GL <i><a href="../glossary.html">alpha
+blending</a></i>; opaque objects are rendered first, then transparent objects</font>
+<br><font face="Arial,Helvetica"><b>Sorted Blended Transparency</b>:</font>
+<br><font face="Arial,Helvetica">uses GL <i><a href="../glossary.html">alpha
+blending</a></i>; opaque objects are rendered first, then transparent objects;
+additionally objects are sorted by their distance from the camera and are
+drawn from back to the front</font>
+<br><font face="Arial,Helvetica">(for more information about transparency
+refer to the description of the <a href="ren_materialedit.html">MaterialEditor</a>)</font>
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica"><b>Edit Background Color</b>: change background
+color of the Renderer window (default: black) via the Background Color
+popup (see <a href="ren_coloredit.html">ColorEditor</a>)</font></li>
+
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica"><b>Hide Coordinate Axes</b>: toggles between
+hiding and showing the coordinate axes; default is on.</font></li>
+
+<br>&nbsp;
+<li>
+<font face="Arial,Helvetica"><b>Clipping Plane</b>: cut off part of your
+geometry object(s) by a plane; via the Clipping Plane pop up you</font></li>
+
+<ul><font face="Arial,Helvetica">specify a point on the plane and the normal</font>
+<br><font face="Arial,Helvetica">enable the plane via Apply</font>
+<br><font face="Arial,Helvetica">switch it on/off via Clipping Plane</font></ul>
+<font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 WIDTH="91%" BGCOLOR="#FFCCCC" >
+<tr>
+<td COLSPAN="2"><font face="Arial,Helvetica">Similar functions are available
+via</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica"><font color="#3366FF"><a href="../../online/modules/Tools/CutGeometry/CutGeometry.html">CutGeometry</a></font>&nbsp;
+(Module)</font></b></td>
+
+<td><font face="Arial,Helvetica">1 permanent plane with variable normal
+and a variable point on the plane (to be supplied as module parameters)</font></td>
+</tr>
+
+<tr>
+<td><b><font face="Arial,Helvetica">Clipping Planes (<a href="ren_preferences.html">PreferenceSheet</a>)</font></b></td>
+
+<td><font face="Arial,Helvetica">2 switchable clipping planes with fixed
+normals, distance varied by a wheel</font></td>
+</tr>
+</table>
+</ul>
+
+<ul>&nbsp;</ul>
+
+<br>&nbsp;
+<br>&nbsp;
+<ul>&nbsp;</ul>
+
+</body>
+</html>

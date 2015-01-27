@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <!-- Visenso  Powerwall (3040 mm x 2280 mm) -->
+
+         <SceneSize value="2280" />
+         <ViewerPosition x="0" y="-1500" z="0" />
+         <FloorHeight value="-1600"  />
+         <IconSize value="80"/>
+         <NumScreens value="2" />
+
+         <ScreenConfig>
+            <Screen originX="0" originY="0" originZ="0" width="3040" height="2280" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+            <Screen originX="0" originY="0" originZ="0" width="3040" height="2280" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+         </ScreenConfig>
+
+         <SmallSceneAxis value="on" >
+            <Position x="-1250" y="0" z="-950" />
+            <Size value="200"/>
+            <FontSize value="10"/>
+         </SmallSceneAxis>
+
+         <NameMenuPosition value="on" x="-860" y="0" z="660"/> 
+         <NameMenuScale value="2.0"/> 
+
+         <Menu>
+            <Orientation h="0" p="0" r="0" />
+            <Position x="0" y="0" z="0" />
+            <Size value="1" />
+         </Menu>
+
+         <Plugin>
+
+            <AKToolbar value="on">
+               <Scale value="1.0" />
+               <Position x="-1200" y="0" z="-980" />
+            </AKToolbar>
+
+            <DocumentViewer value="on">
+               <Vsize value="1250"/>
+            </DocumentViewer>
+
+         </Plugin>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

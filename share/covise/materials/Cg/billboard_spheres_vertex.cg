@@ -1,0 +1,125 @@
+// struct for application input
+struct appin
+{
+   float4 position  : POSITION;  // binding semantics for position
+   float4 color0    : COLOR0;    // color value
+   float4 texcoord0 : TEXCOORD0; // position on billboard and radius
+};
+
+// struct for vertex program output
+struct vertout
+{
+   float4 position  : POSITION;  // binding semantics for position
+   float4 color0    : COLOR0;    // color
+   float4 texcoord0 : TEXCOORD0; // position on billboard and zw value of radius
+   float4 texcoord1 : TEXCOORD1; // zw value of vertex position
+   float4 xvector:TEXCOORD2;
+   float4 yvector:TEXCOORD3;
+   float4 zvector:TEXCOORD4;
+   float4 lightVect:TEXCOORD5;
+   float4 viewerVect:TEXCOORD6;
+};
+
+//-----------------------------------------------------------------------------
+// IN             - incoming per-vertex data to be processed
+// modelViewProj  - combined world-view-projection matrix
+// modelView      - world-view matrix
+// modelViewIT    - inverse transpose world-view matrix
+//
+// Note: Only the x and y components of texcoord0 are valid, the z  
+//       holds the sphere radius 
+//-----------------------------------------------------------------------------
+
+vertout main( appin IN,
+      const uniform float4x4 modelViewIT,
+      const uniform float4x4 modelViewProj, 
+      const uniform float4x4 modelView,
+      const uniform float4 lightPos,
+      const uniform float4 viewerPos
+      )
+{
+   vertout OUT;
+   //_______calculating billboard corner vertex_______//
+
+   float4 toPoint = IN.position - viewerPos;
+   toPoint = normalize(toPoint);
+
+   //float3 up = normalize(modelViewIT._m02_m12_m22);
+   float3 up = float3(0,0,1); 
+   float3 right = normalize(cross(up, toPoint));
+   up = normalize(cross(right, toPoint));
+
+   // two vectors spanning a plane
+   float4 r4, u4, v4;
+   r4 = float4(right, 0);
+   u4 = float4(up, 0);
+   v4 = float4(toPoint.rgb, 0);
+
+   //calculate the vector to the actual corner specified by texture coordinate
+   float4 quad = IN.texcoord0.x*r4 + IN.texcoord0.y*u4;
+
+   // sending billboard matrix
+   OUT.xvector=r4;            //right vector      )
+   OUT.yvector=u4;            //up vector          >  rotation
+   OUT.zvector=v4;            //look at vector    )
+
+   //___________________setting output_________________//
+
+   // IN.texcoord0.z holds the sphere radius
+   float radius = IN.texcoord0.z;
+   // calculating position of corner
+   float4 movedPos = mul(modelViewProj, IN.position + quad * radius);
+   // setting the new position as output
+   OUT.position = movedPos;
+
+   // calculating a radius by adding the normalized normal vector
+   // multiplied with the radius --> difference of the corner vertex
+   // and this moved vertex results in the adequat transformed radius
+   v4.w = toPoint.w;
+   float4 trafRad = mul(modelViewProj, v4 * radius);
+
+   // correction factor to approximate perspective distortion
+   float4 modelViewPos = mul(modelView, IN.position + radius * quad);
+   float d = length(modelViewPos);
+   float4 radVec = mul(modelView, v4*radius);
+   float rad = length(radVec);
+   OUT.texcoord1.x = rad / d;
+
+   // setting output color as input color
+   OUT.color0 = IN.color0;
+   // setting coordinate value between -1 and 1 on billboard as specified
+   // by input texture
+   OUT.texcoord0.xy = IN.texcoord0.xy; 
+
+   // sphere mapping parallel to projection plane
+   //float4 position3 = mul(modelViewProj, IN.position);
+   //OUT.texcoord0.zw = float2(trafRad.z, position3.z );
+   //OUT.texcoord1.zw = float2(trafRad.w, position3.w );
+
+   // sphere mapping normal to viewer
+   // converting from -1 to 1 clip space values of openGL
+   // to 0 to 1 clip space values of output device
+   OUT.texcoord0.zw = float2(trafRad.z, movedPos.z);
+   OUT.texcoord1.zw = float2(trafRad.w, movedPos.w);
+   OUT.texcoord0.zw = (OUT.texcoord0.zw + OUT.texcoord1.zw)*0.5;
+
+   //____________________lighting__________________//
+   // using midpoint of billboard
+   float4 center = IN.position + quad * radius; // center is not center but a corner
+   // transform lightPos to object coordinates
+   float4 newLightPos = mul(lightPos, modelViewIT);
+   //calculate vector from center to light source in object coordinates
+   float4 lightVect;
+   lightVect = newLightPos - center; 
+   // normalize if length is not 0
+   if (length(lightVect) != 0) lightVect.rgb = normalize(lightVect.rgb);
+   lightVect.w = 0;
+   OUT.lightVect = lightVect;
+   // calculate viewing vector from billboard
+   //float4 viewerPosWorld = modelViewIT._m30_m31_m32_m33;
+   float4 viewerVect = viewerPos - center ;
+   if (length(viewerVect) != 0) viewerVect.rgb = normalize(viewerVect.rgb);
+   viewerVect.w = 0.0;
+   OUT.viewerVect = viewerVect;
+   return OUT;
+}

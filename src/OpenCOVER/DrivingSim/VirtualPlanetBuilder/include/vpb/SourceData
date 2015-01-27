@@ -1,0 +1,78 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef SOURCEDATA_H
+#define SOURCEDATA_H 1
+
+#include <vpb/SpatialProperties>
+#include <vpb/GeospatialDataset>
+#include <vpb/BuildLog>
+
+#include <osg/Shape>
+
+// forward declare so we can avoid tieing vpb to GDAL.
+class GDALDataset;
+class GDALRasterBand;
+
+namespace vpb
+{
+
+class Source;
+struct DestinationData;
+
+typedef std::list< osg::ref_ptr<osg::Node> > ModelList;
+
+struct VPB_EXPORT SourceData : public osg::Referenced, public SpatialProperties
+{
+
+    SourceData(Source* source=0):
+        _source(source),
+        _hasGCPs(false),
+        _hfDataset(0) {}
+
+    virtual ~SourceData();
+
+    static SourceData* readData(Source* source);
+
+    GeospatialExtents getExtents(const osg::CoordinateSystemNode* cs) const;
+
+    const SpatialProperties& computeSpatialProperties(const osg::CoordinateSystemNode* cs) const;
+
+    bool intersects(const SpatialProperties& sp) const;
+
+    void read(DestinationData& destination);
+
+    virtual void readImage(DestinationData& destination);
+    virtual void readHeightField(DestinationData& destination);
+    virtual void readModels(DestinationData& destination);
+    virtual void readShapeFile(DestinationData& destination);
+
+    float getInterpolatedValue(GDALRasterBand *band, double x, double y, float originalHeight);
+    float getInterpolatedValue(osg::HeightField* hf, double x, double y);
+
+    Source*                                     _source;
+
+    bool                                        _hasGCPs;
+
+    osg::ref_ptr<osg::Node>                     _model;
+    osg::ref_ptr<osg::HeightField>              _hfDataset;
+
+    typedef std::map<const osg::CoordinateSystemNode*,SpatialProperties> SpatialPropertiesMap;
+    mutable SpatialPropertiesMap _spatialPropertiesMap;
+
+
+};
+
+}
+
+#endif

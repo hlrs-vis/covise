@@ -1,0 +1,30 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+		{sphere_net}{covise/net/examples/Sphere.net}{0.6}\end{covimg}
+ 
+% examples for using this module
+
+The map covise/net/examples/Sphere.net displays a few spheres arranged in a circle.
+
+The Renderer snapshots show the following cases:
+\begin{itemize}
+\item result without any data applied on the spheres
+\item scalar data (this corresponds to the map)
+\item vector data
+\end{itemize}
+
+\begin{covimg}{}
+		{sphere_usual}{result without any data applied on the spheres}{0.6}\end{covimg}
+		
+\begin{covimg}{}
+		{sphere_radius}{scalar data}{0.6}\end{covimg}
+		
+\begin{covimg}{}
+		{sphere_stretch}{vector data}{0.6}\end{covimg}				
+		

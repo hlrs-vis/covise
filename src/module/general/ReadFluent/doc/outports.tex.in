@@ -1,0 +1,39 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{grid} & StructuredGrid \newline
+	                             UnstructuredGrid & grid \\
+\hline
+	\textcolor{output}{polygons} & Polygons & generated polygons  \\
+\hline
+	\textcolor{output}{data1} & Float \newline
+	                              Vec3 & data1  \\
+\hline
+	\textcolor{output}{data2} & Float \newline
+	                              Vec3 & data2  \\
+\hline
+	\textcolor{output}{data3} & Float \newline
+	                              Vec3 & data3  \\				      				      														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+Directions for use:
+\begin{itemize}
+\item Data of type {\bf CELL\_...} have to be transformed by {\bf CellToVert} (connect CellToVert to output port)
+\item Do {\bf not use CellToVert} to transform data of type {\bf FACE\_...} because these data are already
+vertex-based
+\end{itemize}
+
+%
+%=============================================================

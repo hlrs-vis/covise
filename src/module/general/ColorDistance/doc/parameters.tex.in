@@ -1,0 +1,13 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	ReferenceColor & Color & Color to which the distance is calculated\\ 
+\hline
+	Metric & Choice & Metric for calculation of the distance for transparent values.\\ 
+\hline
+	DistanceBase & FloatSlider & This value is added to the calculated distance.\\ 
+\hline
+	DistanceMultiplier & FloatSlider & This value multiplies the calculated distance.\\
+\hline \end{longtable}
+

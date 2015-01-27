@@ -1,0 +1,39 @@
+
+\subsubsection{Parameters}
+%=============================================================
+% 
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \endhead
+\hline\hline
+	grid\_path & Browser & The basic grid file( neutral file) location.  \\						
+\hline
+	nodal\_displ\_force\_path & Browser & The nodal displacements or force results file location.\newline 
+	                               This parameter is optional. If you use more than one timestep check if your files match the following naming convention: \newline {\it either} the file name includes only one number refering to the timestep \newline {\it or} the file name contains such a number at its end.  \\
+\hline
+	nodal\_result\_path & Browser & The nodal results file location. \newline 
+	                                This parameter is optional. Note the naming convention above. \\		
+\hline
+	elem\_result\_path & Browser & The element results file location. \newline 
+	                               This parameter is optional. Note the naming convention above. \\
+\hline
+	Option & Choice & The type of the results which will be put in the data2 output port. \newline 
+	                  The options are: \newline Nodal\_Results and Element\_Results. 
+			  This choice should be associated with the selection 
+			  of the corresponding input file. \\
+\hline
+	timesteps & Scalar & The desired number of timesteps. \newline This parameter is optional. \\
+\hline
+	skipped\_files & Scalar & The desired number of skipped timesteps files. \newline 
+	                         This parameter is optional. It's useful when you have a 
+				 big number of timesteps files and you want to skip some of them. \\ 
+\hline
+	nb\_columns & Scalar & The number of the column read out from the nodal or element results file. \\
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

@@ -1,0 +1,160 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>ColorMapEditor</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h3>
+<font face="Times New Roman,Times"><font color="#FF9900">ColorMapEditor</font></font></h3>
+<font face="Arial,Helvetica">The <b>ColorMap Editor</b> Panel pops up with
+the ColorEdit module.</font>
+<br><font face="Arial,Helvetica">It contains the facilities to load, edit,
+and save a colormap.</font>
+<p><font face="Arial,Helvetica">Use this description together with the
+editor panel. If you need a more information use the more detailed description
+of the ColorMapEditor in the module documentation of <font color="#3366FF"><a href="../../online/modules/Color/ColorEdit/ColorEdit.html">ColorEdit</a></font>.</font>
+<p><font face="Arial,Helvetica">The <b>ColorMap Editor Panel</b> (see figure
+below) consists out of the following parts</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">Menu Bar</font></li>
+
+<li>
+<font face="Arial,Helvetica">Color Browser and Transparency Slider (together
+with Arrows)</font></li>
+
+<li>
+<font face="Arial,Helvetica">Function Display (information only)</font></li>
+
+<li>
+<font face="Arial,Helvetica">Palette Window and Control Point Slider</font></li>
+
+<li>
+<font face="Arial,Helvetica">Toggle Buttons and Border Dialog Fields</font></li>
+
+<br><font face="Arial,Helvetica">(Display and Interpolation Mode / Min
+and Max)</font></ul>
+<font face="Arial,Helvetica">The central parts for editing are the <b>Palette
+Window</b> with the <b>Control Point Slider</b> and the <b>Color Browser</b>
+(together with the <b>Transparency Slider</b>):</font>
+<br><font face="Arial,Helvetica">The Palette Window contains a true color
+image of the colormap.</font>
+<br><font face="Arial,Helvetica">Your main tools are the Control Points,
+the Color Browser and the Transparency Slider. (Arrows see description
+of menu bar below)</font>
+<blockquote><img SRC="color2.gif" height=750 width=445></blockquote>
+<font face="Arial,Helvetica">You can</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>select a control point</b> (with the left
+mouse button, black line indicates 'selected') on the control point slider
+to choose <b>where you want to edit the colormap</b>.</font></li>
+
+<br><font face="Arial,Helvetica"><b>Color</b>:</font>
+<br><font face="Arial,Helvetica">Use the RGB or HSV sliders of the color
+browser to edit the color at the selected point, and preview the result
+in the rectangle right of the sliders.</font>
+<br><font face="Arial,Helvetica"><b>Transparency</b>/Opacity:</font>
+<br><font face="Arial,Helvetica">Use the transparency slider to select
+the degree of transparency (alpha=0, totally opaque and alpha=1,&nbsp;
+totally transparent), and preview the result in the rectangle left of the
+slider.</font>
+<br><font face="Arial,Helvetica">Color and transparency values between
+controlpoints are <b>interpolated</b>.</font>
+<li>
+<font face="Arial,Helvetica"><b>squeeze resp. stretch the colormap</b>
+by moving a control point with the right mouse button</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>move a control point </b>without modification
+of the colormap with the left mouse button</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>create a new control point</b> by clicking
+with the middle mouse button on an empty area of the slider (controlpoint
+is automatically selected).</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>delete a control point</b> by clicking
+on it with the middle mouse button</font></li>
+</ul>
+<font face="Arial,Helvetica">The <b>Function Display</b> is for information
+only, and shows the interpolated curves for the four values, i. e. red,
+green, and blue in the corresponding color, and opacity in black.</font>
+<p><font face="Arial,Helvetica">The <b>Display Mode Toggle Buttons</b>
+let you switch between opaque and transparency display of the colormap,
+but does not change the colormap itself.</font>
+<br><font face="Arial,Helvetica">The <b>Interpolation Mode Toggle Buttons
+</b>let
+you switch between linear and spline interpolation (check in the function
+display).</font>
+<br><font face="Arial,Helvetica">The <b>Borders Dialog Fields</b> had been
+designed to adjust the Min and Max values (default 0 and 1) - <b><font color="#FF0000">obsolete,
+use parameters in ControlPanel instead!</font></b></font>
+<p><font face="Arial,Helvetica">The <b>Menu Bar</b> offers three submenus</font>
+<table BORDER CELLSPACING=0 CELLPADDING=5 WIDTH="100%" BGCOLOR="#CCCCCC" >
+<tr>
+<td ROWSPAN="3">&nbsp;<b><font face="Arial,Helvetica">File</font></b></td>
+
+<td><font face="Arial,Helvetica">&nbsp;New</font></td>
+
+<td><font face="Arial,Helvetica">The old colormap is deleted and a new
+one created (opaque and with 7 controlpoints, interpolation mode linear,
+borders 0 and 1)</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;Open</font></td>
+
+<td><font face="Arial,Helvetica">After you have selected a colormap file
+via an Open File dialog and pushing OK a new colormap is loaded; the old
+colormap will be lost</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;Save</font></td>
+
+<td><font face="Arial,Helvetica">A dialog box pops up and lets you write
+the filename for saving the actual colormap</font></td>
+</tr>
+
+<tr>
+<td ROWSPAN="2"><font face="Arial,Helvetica">&nbsp;<b>Drag Mode</b></font></td>
+
+<td><font face="Arial,Helvetica">&nbsp;Auto-Apply</font></td>
+
+<td><font face="Arial,Helvetica">dragging the sliders is effective immediately
+(default)</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;ButtonUp-Apply</font></td>
+
+<td><font face="Arial,Helvetica">dragging becomes effective if you release
+the mouse button (choose if performance is low)</font></td>
+</tr>
+
+<tr>
+<td ROWSPAN="2"><font face="Arial,Helvetica">&nbsp;<b>Arrows</b></font></td>
+
+<td><font face="Arial,Helvetica">&nbsp;Off</font></td>
+
+<td><font face="Arial,Helvetica">Color browser and actual controlpoint
+linked: automatic update of control point with color browser</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">&nbsp;On</font></td>
+
+<td><font face="Arial,Helvetica">Color browser and actual control point
+unlinked: manual update via arrows</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+</body>
+</html>

@@ -1,0 +1,16 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+%\hline outside & Choice & fill value for outside - MAXFLT or number\\
+%\hline ignoreValue & Scalar & Value to ignore for min and max\\
+\hline normalizeMode & Choice & Determine the fine-tuning of the normalization of data for the output-port { \em outPortRGBA} \\
+\hline
+&& {\bf Do not:} No normalization \\ \hline
+&& {\bf Ignore MAX\_FLT: } Calculate min/max of all components but do not consider values equal to  MAX\_FLT.  Then normalize the colors in these bounds.\\ \hline
+&& {\bf Ignore user defined value:}Calculate min/max of all components but do not consider values equal to  parmeter {\em userIgnoreValue}.  Then normalize the colors in these bounds.\\ \hline
+&& {\bf User defined bounds:} Normalize the colors in the bounds given by the parameters {\em userNormalizeMin} and {\em userNormalizeMax} \\ \hline
+\hline userIgnoreValue & Scalar & Number for use in {\em normalizeMode} { \bf Ignore user defined value}\\
+\hline userNormalizeMin & Vector & Vector for use in {\em normalizeMode} {\bf User defined bounds} \\
+\hline userNormalizeMax & Vector & Vector for use in {\em normalizeMode} {\bf User defined bounds} \\
+\hline \end{longtable}
+

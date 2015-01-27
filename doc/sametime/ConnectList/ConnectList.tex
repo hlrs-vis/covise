@@ -1,0 +1,76 @@
+\begin{htmlonly}\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+
+	  
+\bodytext{BGCOLOR=FFFFFF LINK=#0033cc VLINK=#0033cc}
+
+\newcommand{\covlink}[3]%
+{\html{\htmladdnormallink{#Architecture.tex1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}}
+
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\chapter{Connect List}
+\label{ConnectList}
+%=============================================================
+
+%\section{S1}
+
+The Connect List (Participant List) shows the participants of the meeting; in case of a COVISE collaborative session these are the
+user who started the session as "Master" and all users that have subsequently been added by an "AddPartner".
+
+The list controls the state and the rights of the participants. 
+
+The services are provided by "Sametime Connect", so you can look for detailed information in the Sametime User's
+Guide (see Usage Hints).
+
+%\section{S2}
+%\section{S3}
+
+
+\begin{covimg}{ConnectList}{connectlist}{Connect or Participant List: People Here}{0.7}\end{covimg}
+\begin{htmlonly}
+Figure 3.1: Connect or Participant List: People Here
+\vspace{0.5cm}
+\end{htmlonly}

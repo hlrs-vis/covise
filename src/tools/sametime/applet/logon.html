@@ -1,0 +1,120 @@
+<script>
+
+var userName = "";
+var password = "";
+var placeName = "";
+
+if (top.userName != null)       userName = top.userName; 
+if (top.password != null)       password = top.password;
+if (top.placeName != null)      placeName = top.placeName;
+
+</script>
+
+<html>
+<head>
+<title>NS Logon</title>
+<LINK REL="stylesheet" TYPE="text/css"
+ HREF="sametime.css">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+</head>
+<body background="title.jpg" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+
+<CENTER>
+<p> <table align="center" width="115" border="0" height="90"> <tr><td></td></tr></table> </p>
+
+<img src="Title1.gif">  
+
+<p> <table align="center" width="115" border="0" height="60"> <tr><td></td></tr></table> </p>
+
+<img src="Title2.gif"> 
+
+
+      <table width="100%" border="0" cellspacing="00" cellpadding="00" height="50%">        
+        <tr align="center"> 
+          <td height="225"> 
+            <table width="260" border="0" cellspacing="00" cellpadding="00" align="center">
+              <tr valign="top"> </tr>
+              <tr align="left"> 
+                <td> <span class="font">In order to enter the system, you need 
+                  to logon. Please provide a valid user name and password.</span> 
+                </td>
+              </tr>
+            </table>
+            <table width="260" border="0" cellspacing="00" cellpadding="00" align="center">
+              <form name=loginForm>
+                <tr> 
+                  <td align="left" width="115" height="20"></td>
+                  <td align="left" height="0" width="10"><img src="transparent.gif"                                                              width="1" height="1"></td>
+                  <td width="125"></td>
+                </tr>
+                <tr> 
+                  <td align="left" class="font" height="20">User Name</td>
+                  <td align="left" width="10">&nbsp;</td>
+                  <td align="left" height="20" > 
+                    <script>document.writeln('<input type="text" name="userName" value="' 				   + userName + '"'); </script>
+                    > </td>
+                </tr>
+                <tr> 
+                  <td align="left" class="font" height="12"></td>
+                  <td align="left" width="10">&nbsp;</td>
+                  <td></td>
+                </tr>
+                <tr> 
+                  <td align="left" height="20" class="font">Password</td>
+                  <td align="left" width="10">&nbsp;</td>
+                  <td valign="middle" align="left" height="20"> 
+                    <script>document.writeln('<input type="password" name="password" value="' 				   + password + '"'); </script>
+                    > </td>
+                </tr>                
+              </form>
+            </table>
+            <table cellpadding="0" cellspacing="0" width="260">
+              <form>
+                <tr> 
+                  <td align="right" width="115" valign="bottom" height="45"> 
+                    <input type="Button" name="submit" value="Log On" onClick="login()" class="button">
+                  </td>
+                  <td align="center" width="30" valign="bottom">&nbsp;</td>
+                  <td align="left" valign="bottom" width="115"> 
+                    <input type="Button" name="cancel" value="Cancel" onClick="goBack()" class="button">
+                  </td>
+                </tr>
+              </form>
+            </table>
+          </td>
+        </tr>
+      </table>
+ 
+</center>
+
+</body>
+</html>
+    
+       
+
+
+<script>
+
+function minimize()
+{
+	
+}
+
+
+function login()
+{
+	top.userName=document.loginForm.userName.value;
+	top.password=document.loginForm.password.value;	
+	if (top.placeName=="") top.placeName = "default";
+	var args = document.URL.split("?");
+	document.location = args[1];
+}
+
+function goBack()
+{
+	location.reload();
+}
+
+</script>

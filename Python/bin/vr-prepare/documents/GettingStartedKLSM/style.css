@@ -1,0 +1,25 @@
+body {
+    background-color: #404040;
+    margin-left: 5px;
+    font-size: 10pt;
+    color: white;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 30px;
+}
+
+p {
+    margin-left: 10px;
+}
+
+table.hiddentable {
+    border-spacing: 5px;
+    border-style: none;
+    border-collapse: separate;
+}
+
+table.hiddentable td {
+    padding: 5px;
+}

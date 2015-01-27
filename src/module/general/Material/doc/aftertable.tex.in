@@ -1,0 +1,122 @@
+
+
+
+\newpage % work around problem with too many floats
+\subsubsection{Examples}
+%================================================================================
+
+\begin{covimg}{}%
+		{MaterialMap}{covise/net/examples/Material.net}{0.8}\end{covimg}
+		
+		
+In Material.net the module RWCovise reads in the computational grid of a channel with two inlets.
+		DomainSurface computes the outer surface of the channel. At the first output port
+		the surface polygons are available. CutGeometry cuts the surface off. With the
+		module Material you can specify the material properties of the surface.\\
+		In addition to the pre-defined materials you can define you own color values and
+		save them under your material name. See therefore the section "User-defined
+		Materials".
+		
+		
+\begin{covimg}{}{MaterialRender}{Results of Material.net
+in the Renderer}{0.8}\end{covimg}
+The example above can be found under covise/net/examples/Material.net.
+\clearpage		
+%================================================================================
+
+\subsubsection{List of available materials (overview)}
+%================================================================================
+%\begin{covimg}{}{artdeco}{artdeco}{0.8}\end{covimg}		
+%\begin{covimg}{}{glass}{glass}{0.8}\end{covimg}		
+%\begin{covimg}{}{metal}{metal}{0.8}\end{covimg}		
+%\begin{covimg}{}{neon}{neon}{0.8}\end{covimg}		
+%\begin{covimg}{}{rococo}{rococo}{0.8}\end{covimg}		
+%\begin{covimg}{}{sheen}{sheen}{0.8}\end{covimg}		
+%\begin{covimg}{}{silky}{silky}{0.8}\end{covimg}		
+%\begin{covimg}{}{spring}{spring}{0.8}\end{covimg}		
+%\begin{covimg}{}{summer}{summer}{0.8}\end{covimg}		
+%\begin{covimg}{}{tropical}{tropical}{0.8}\end{covimg}		
+%\begin{covimg}{}{winter}{winter}{0.8}\end{covimg}		
+%\clearpage
+
+The following overview shows you groups of 'Material' in order to make it easier
+for you to compare and select the material and color you like. The spheres shown for
+each material, e.g. 'metal' represent 
+\begin{verbatim}
+       metal.0  metal.1  metal.2  metal.3  metal.4  metal.5
+       metal.6  metal.7  metal.8  metal.9  metal.10 metal.11
+       metal.12 metal.13 metal.14 metal.15 metal.16 metal.17
+       metal.18 metal.19 metal.20 metal.21 metal.22 metal.23
+       metal.24 metal.25 metal.26 metal.27 metal.28 metal.29
+       metal.30 metal.31 metal.32 metal.33 metal.34 metal.35       
+\end{verbatim}
+\begin{covimg}{}{group1}{metal/glass/silky/sheen}{0.7}\end{covimg}
+
+\begin{htmlonly}
+				metal/glass/silky/sheen
+\vspace{1cm}
+\end{htmlonly}
+
+\clearpage
+
+\begin{covimg}{}{group2}{spring/summer/autumn/winter}{0.7}\end{covimg}
+
+\begin{htmlonly} 
+                            spring/summer/autumn/winter
+\vspace{1cm}
+\end{htmlonly}
+
+\clearpage
+
+\begin{covimg}{}{group3}{rococo/artdeco/santafe}{0.7}\end{covimg}
+
+\begin{htmlonly}
+                                 rococo/artdeco/santafe
+\vspace{1cm}
+\end{htmlonly}
+\begin{covimg}{}{group4}{tropical/neon}{0.7}\end{covimg}
+
+\begin{htmlonly}                
+                                    tropical/neon
+\vspace{1cm}
+\end{htmlonly}
+
+\clearpage
+
+%================================================================================
+
+\subsubsection{User-defined Materials}
+%================================================================================
+
+To add user-defined materials, you must edit your covise.config file. At first you must add a 
+new scope called "Material". Next, you add your materials to this scope. For each material you've
+one separate line which ends with a new-line character. The material-line has the following format:
+
+materialName (string) \\
+ambientColor[0] (float)\\
+ambientColor[1](float)\\
+ambientColor[2] (float)\\
+diffuseColor[0](float)\\
+diffuseColor[1] (float)\\
+diffuseColor[2] (float)\\
+specularColor[0] (float)\\
+specularColor[1] (float)\\
+specularColor[2] (float)\\
+emissiveColor[0] (float)\\
+emissiveColor[1] (float)\\
+emissiveColor[2] (float)\\
+shininess (float)\\
+transparency (float)
+
+The values are separated with a space from each other. Be sure that your material name contains no
+space.
+
+This is an example for a user-defined material in your covise.config:
+\scriptsize
+\begin{verbatim}
+Material
+{
+    glass.0    0.187004 0.155212 0.0 0.748014 0.62085 0.0 0.860606 0.860606 0.860599 0.0 0.0 0.0 0.939394 0.34749
+}
+\end{verbatim}
+\normalsize

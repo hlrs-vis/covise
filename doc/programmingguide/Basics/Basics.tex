@@ -1,0 +1,194 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+
+%=============================================================
+\startdocument
+\chapter{Basics}
+\label{Basics}
+%=============================================================
+\index{Basics}
+
+
+\section{Introduction}
+
+This documentation describes how to integrate new application modules into COVISE.
+There is also a section describing how to write plugins for the VR renderer.
+The programming functionality to interface and communicate with COVISE is explained 
+in detail.
+
+Currently, each COVISE module is realized as an operating system process.
+Future versions may allow to create modules which are modeled as subroutines or
+threads in a single process environment.
+
+\section{Prerequisites}
+\latexonly
+\index{Prerequisites}
+\endlatexonly
+
+To create new COVISE modules, the COVISE development distribution with all the 
+necessary header files and libraries has to be installed on the target platform. 
+For UNIX and similar systems, this includes also a set of scripts for Bourne
+Shell compatible shells
+to set up your compile environment, especially the environment variables necessary
+for compiling COVISE.
+Start a bash by typing \texttt{bash} (if this is not your default shell), change to the
+COVISE top level directory and type \texttt{source .covise.sh}.
+If your current working directory is not the COVISE top level directory
+and if your home directory does not contain the covise top level directory then you have to pass the
+location of this directory as a parameter to this script.
+
+When compiling modules, COVISE automatically creates different directories for 
+platform-specific parts like object files and executables: object files are generated 
+in the objects\_\$ARCHSUFFIX subdirectory of your source directory, while binaries are put in 
+\$COVISEDIR/\$ARCHSUFFIX/bin, where \$ARCHSUFFIX is a platform identifier. Refer to
+\$COVISEDIR/README-ARCHSUFFIX.txt for a full list. Here are some examples:
+
+\begin{longtable}{|p{2.5cm}|p{12cm}|}
+\hline
+   {\bf ARCH} & {\bf Platform}  \endhead
+\hline\hline
+   rhel6 & RedHat Enterprise Linux 6.x or compatible (CentOS, Scientific Linux) \\
+\hline
+	win32 &  Microsoft Windows using the Visual Studio 2003 compiler \\
+\hline
+	lion &  Apple Mac OS X 10.7 (x86\_64)\\
+\hline
+\end{longtable}
+{\bf Table 1: Architecture suffixes}
+\index{Architecture suffix}
+
+There are following requirements before starting to program:
+
+\begin{itemize}
+
+   \item A \texttt{CMakeLists.txt} file \index{CMake} used by CMake to generate a Makefile \index{Makefile} or
+compile instructions for other build environments: examples are available with the example modules, 
+which reside in \verb+$COVISEDIR/src/application/Examples+.
+You can also use the template in \verb+$COVISEDIR/src/template/module+ as a
+starting point.
+
+\item A directory for the source code of the module is required.
+
+\item The {\tt Hello} module in {\tt \$COVISEDIR/src/application/Examples/Hello} defines 
+the complete basic structure of a module. It is recommended to copy this module source 
+code as the base for own developments.
+
+\end{itemize}
+
+For users of the make build system having sourced the .covise.sh setup file,
+compiling the module is as simple as typing \texttt{make} in the module source directory.
+
+COVISE has an object-oriented architecture requiring static initialization of 
+multiple classes. For proper initialization, the main body of each module has to be 
+written in C++. Nevertheless it is possible to integrate FORTRAN and C routines into 
+an application module. 
+
+Each module is executed as a separate operating system process.
+Modules communicate in general 
+using TCP/IP socket connections.
+This applies within a machine as well as between 
+machines.
+Data exchange is handled differently. Within a machine pointers to shared 
+memory are used  to avoid copying of data objects. Between machines data objects are 
+exchanged via TCP/IP socket connections. All this is handled transparently  for  
+the application programmer.
+The COVISE API (Application Programming Interface) is 
+accessible through several libraries, which have to be linked to each new module. 
+This happens automatically, if you specify \texttt{covise\_add\_module} as done
+in the CMakeLists.txt for the module template.
+\index{cmake!template}
+
+The main COVISE library is called {\tt libcoCore.so}
+({\tt .sl} on HP, \texttt{.dll}/\texttt{.lib} on Windows, \texttt{.dylib} on Mac OS X).
+It is used for data management, message communication, starting processes, etc.
+\index{Libraries!coCore}
+
+The Application library, called {\tt libcoAppl.so}, contains the basic functionality to 
+write application programs. It hides the details of packing and receiving COVISE 
+messages and provides a framework for structuring application modules.
+\index{Libraries!coAppl}
+
+The library {\tt libcoApi.so} builds on these libraries and provides the
+Application Programming Interface, which makes programming of applications
+easier and less error-prone.
+Whenever possible, programmers are recommended to use the higher level API
+functions instead of the direct COVISE calls provided with the Application library.
+\index{Libraries!coApi}
+
+\section{Data flow model}
+\latexonly
+\index{Data flow}
+\endlatexonly
+
+COVISE sessions are organized as a collection of modules, which are connected in a 
+strictly unidirectional data flow network.
+
+A typical data flow network is shown in the next figure.  Data and control flows from top to 
+bottom. Loops are not allowed, nevertheless, there are possibilities to send feedback 
+messages from later to earlier modules in the processing chain.
+
+\begin{covimg}{Basics}{Module_and_Dataflow_network}{Module and Dataflow network}{0.7}\
+\end{covimg}
+\begin{htmlonly}
+Figure: Module and Dataflow network
+\vspace*{1cm}
+\end{htmlonly}
+
+Each module in the pipeline communicates with the central controller
+(the process named \texttt{covise}) and a local 
+data-manager (named \texttt{crb}) by sending or receiving control messages via a TCP/IP socket. 
+Data flow between modules is only a visual metaphor. Within a machine data objects are 
+stored in shared memory segments. They are accessible from different modules by mapping
+their storage into the address space of the respective module processes. Between 
+machines, objects are transferred by COVISE request brokers (CRBs), including necessary 
+format conversions. This is transparent for the modules accessing the data objects. 
+Both data and control communication are completely hidden within the
+COVISE libraries.
+
+\section{Execution sequence and module states}
+\latexonly
+\index{Execution sequence} 
+\index{module states}
+\endlatexonly
+
+The sequence of states a COVISE module can have is shown in the following figure.
+
+\begin{covimg}{Basics}{Module_execution_scheme}{Module execution scheme}{0.7}\
+\end{covimg}
+\begin{htmlonly}
+Figure: Module execution scheme
+\vspace*{1cm}
+\end{htmlonly}
+
+The start-up of a module \index{coModule!start-up} is divided into two parts: The Constructor creates the module 
+layout, which is sent to the COVISE controller using the module start message.
+In order to avoid timeout conditions during running the constructor,
+time consuming initialization operations should be put into an additional user subroutine
+which is called after establishing the COVISE connectivity to allow user-supplied start-up routines to 
+be performed without timeout problems. After the start-up sequence, COVISE enters a 
+main event loop, which is only left for the module shut-down. In the main loop, COVISE 
+can receive different events, which are then handled by one of the following event 
+handlers:
+
+\begin{itemize}
+
+\item {\it param}: Every change of a module parameter submits a message 
+to the module. The \texttt{param} subroutine reacts on these change messages.
+
+\item {\it compute}: COVISE tells the module to read its input data and create output data. 
+Only within this routine data objects in shared memory can be read or new data objects 
+in shared memory can be created.
+
+\item {\it sockData}: The user can register open network sockets to be monitored. Whenever 
+data on one of these sockets arrives, sockData is called.
+
+\end{itemize}
+
+It is important to note that several commands are only allowed when COVISE is in the 
+appropriate state. Due to performance reasons these states are not generally checked, 
+thus calling functions during illegal states may result in module crashes.
+

@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ <INCLUDE global="1" configname="motionstar" >config.motionstar-visfritz.xml</INCLUDE>
+ 
+ <LOCAL host="visfritz" >
+  <COVER>
+  <MultiPC>
+    <SyncMode value="TCP" />
+   <NumSlaves value="1" />
+     <Startup arch="x11" value="ssh ${USER}@visbits startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+  </MultiPC>
+   <ChannelConfig>
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+  </COVER>
+ </LOCAL>
+ 
+ <LOCAL host="visbits" >
+  <COVER>
+  <MultiPC>
+    <SyncMode value="TCP" />
+   <NumSlaves value="1" />
+   <Startup arch="x11" value="ssh ${USER}@visfritz startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COCONFIG" name="0"/>
+  </MultiPC>
+   <ChannelConfig>
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ChannelConfig>
+  </COVER>
+ </LOCAL>
+ 
+ 
+ <LOCAL host="visfritz" >
+ <COVER>
+   <WindowConfig>
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="1600" bottom="0" name="0" decoration="false"/>
+   </WindowConfig>
+ </COVER>
+ </LOCAL>
+
+ <LOCAL host="visbits" >
+ <COVER>
+   <WindowConfig>
+    <Window width="1400" comment="FRONT" window="0" pipeIndex="0" height="1050" left="1600" bottom="0" name="0" decoration="false"/>
+   </WindowConfig>
+ </COVER>
+ </LOCAL>
+
+ <LOCAL host="visfritz,visbits" >
+
+ <COVER>
+  
+  <SyncToVBlank value="ON" device="DFP-0" />
+  
+  <WelcomeMessage value="Welcome to OpenCOVER at Leseruni 2008" />
+
+  <Plugin>
+  
+   <Vrml97>
+
+   <MaybeGC value="ON" />
+ 
+     <!--Audio value="AServer" >
+      <Host value="141.30.14.209" />
+     </Audio-->
+
+   </Vrml97>
+
+   <SteeringWheel>
+    <PorscheMouse value="/dev/input/porschemouse" />
+    <PorscheHupe value="/dev/input/porschehupe" />   
+    <PorscheHupe value="/dev/input/porschehupe" />   
+    <FKFS value="OFF" host="192.168.0.95" origin="-1.80877" />   
+    <CAN value="ON" port="2" speed="1000" nodeID="1" origin="0.0" />
+   <InputDevice value="SITZKISTE" />
+
+
+    <!--VDServer value="ON" host="141.58.8.212" /-->
+   </SteeringWheel>
+   <Joystick>
+      <Device value="/dev/input/porschepedal" />
+    </Joystick>
+
+   <Volume value="on" />
+
+   <Vrml97>
+ 
+     <GenerateTriangleStrips value="false" />
+     <!--Audio value="AServer" >
+      <Host value="141.58.8.229" />
+     </Audio-->
+
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+    
+    
+  </Plugin>
+  
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+   
+   
+   <SceneSize value="2500" />
+   <FloorHeight value="-1150" />
+   <MenuPosition value="400 0 500" />
+   <MenuSize value="0.7" />
+   <MultiProcess value="OFF" />
+   <MouseNav value="OFF" />
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <Stereo value="ON" />
+   <DebugLevel value="0" />
+   <Freeze value="OFF" />
+   <ViewerPosition value="-200 -2000 0" />
+   <NumScreens value="1" />
+   <NumWindows value="1" />
+   <TransparencyMode value="sorted_blended" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+
+  <TabletPC>
+   <!--Server value="10.12.247.232" /-->
+  </TabletPC>
+
+ <!--  
+  <Input>
+   <ButtonSystem value="MOUSE" />
+   <TrackingSystem value="DTRACK" />
+   <DebugButtons value="TRUE" />
+   <HeadAddress value="1" />
+   <HandAddress value="0" />
+   <ButtonAddress value="2" />
+   <ButtonSystem value="VRC" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+   <DebugStation value="1" />
+   <DebugTracking value="FALSE" />
+   
+   <TrackingSystem> 
+    <Offset x="-440" y="-800" z="-400" />
+    <Orientation h="0" p="0" r="0" />
+   </TrackingSystem>
+   
+   <HeadDevice>   
+    <Offset x="-80" y="0" z="-115" />
+    <Orientation value="0 0 0" />
+    <Orientation h="0" p="0" r="0" />
+   </HeadDevice>
+     
+   <HandDevice>     
+    <Offset x="0" y="-300" z="0" />
+    <Orientation h="0" p="0" r="0" />
+   </HandDevice>
+  
+  <ButtonConfig>
+   <ButtonDevice value="/dev/input/tarsusmouse" />
+  </ButtonConfig>  
+  <DTrack>
+   <Startup value="141.30.14.209:5001" />
+  </DTrack>  
+  <MotionstarConfig>
+   <IPAddress value="141.58.8.98" />
+  </MotionstarConfig>  
+   
+  </Input>
+  -->
+  <ScreenConfig>
+   <Screen value="FRONT 2100 1600 0 0 0 0.0 0.0 0.0" name="0" screen="0" />
+   <!--Screen value="FRONT 1200 900 0 0 0 0.0 0.0 0.0" name="1" screen="1" /-->
+  </ScreenConfig>
+
+    </COVER>
+
+  <Module>
+   <Fenfloss>
+     <!--LOCAL value="visent.hlrs.de"/-->
+   </Fenfloss>
+  </Module>
+  
+ </LOCAL>
+
+</COCONFIG>

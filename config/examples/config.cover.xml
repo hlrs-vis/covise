@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <COVER>
+
+   <Background g="0" r="0" b="0" />
+   <Shadows value="ON" />
+   <RotationAxis x="1" y="0" z="0" />
+   <FrameAngle value="0.5" />
+   <WriteVrmlViewpoint value="ON" />
+   <LODScale value="1" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+   
+   <Input>
+    <MouseNav value="ON" />
+   </Input>
+
+   <ArenaSize value="840000000" />
+   <!--<Module value="Volume" name="Volume" />-->
+   <Plugin>
+    <VRAnim value="on" />
+    <Vrml97 value="on" >
+   <MaybeGC value="ON" />
+    </Vrml97>
+
+    <Move value="off" >
+     <Explicit value="ON" />
+     <Print value="ON" />
+    </Move>
+
+    <ClipPlane value="off" />
+    
+    <CuttingPlane>
+     <Verbose value="OFF" />
+     <TextureFilterType value="TRILINEAR" />
+     <PlaneAttachment value="PLANE_MOVESTO_HAND" />
+     <StopMove value="PRESS" />
+     <ExecuteModule value="STOPMOVE" />
+     <InterSize value="100" />
+    </CuttingPlane>
+
+   </Plugin>
+
+   <Spheres>
+     <UseVertexArrays value="OFF" />
+   </Spheres>
+
+   <DebugLevel value="0" />
+   <Crease value="ON" />
+   <GenStrips value="OFF" />
+   <Specular value="ON" />
+   <FPS value="OFF" />
+  </COVER>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

@@ -1,0 +1,20 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The module SmoothSurface smoothes polygonal surfaces which appear faceted or bumpy, i.e. isosurfaces resulting
+from a marching cubes algorithm.
+
+\begin{covimg2}
+		{}{SmoothSurface}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+
+%
+%=============================================================

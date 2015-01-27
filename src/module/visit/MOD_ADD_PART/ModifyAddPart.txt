@@ -1,0 +1,47 @@
+dr, 25-sep-2001
+
+Statt Normale jetzt Eingabe der Rotationsmatrix
+-----------------------------------------------
+
+als Vektor mit 9 Komponenten
+
+Performer/Plugin d=[00 01 02 10 11 12 20 21 22]=[x0 x1 x2 y0 y1 y2 z0 z1 z2]
+
+|x0 x1 x2| <-- x Achse
+|y0 y1 y2| <-- y Achse
+|z0 z1 z2| <-- z Achse
+|px py pz|
+
+DomainLib
+
+|x0 y0 z0| 
+|x1 y1 z1|
+|x2 y2 z2|
+
+ ^  ^  ^
+ |  |  |
+ x  y  z
+  Achse
+
+dr, August
+
+Berechnung der Rotationsmatrix aus Achse und Winkel
+---------------------------------------------------
+
+Die Null-Lagen Achse eines Kanals ist die X-Achse.
+
+Der Parameter vent_dir ist die neue X-Asche des Kanals
+
+Die Rotationsmatrix berechnet man dadurch, dass man die
+1. Achse berechnet um die man drehen muss, um die X-Achse
+in die neue Achse zu transformieren
+2. den Winkel um diese Achse berechnet.
+
+Aus Achse und Winkel kann ueber den Umweg Quaternion die 
+Rotationsmatrix berechnen. oder graphics Gems I S 466
+
+Diese Matrix ist aber nicht eindeutig, es gibt fuer die
+beiden anderen Achsen beliebig viele Moeglichkeiten.
+Deshalb muss man die
+
+ 

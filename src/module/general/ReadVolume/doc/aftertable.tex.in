@@ -1,0 +1,23 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+\begin{covimg2}{}{net}{0.55}\end{covimg2}
+
+The figure above shows a map for reading a 57 x 57 x 95 voxels air
+flow simulation data set.
+
+The last figure is a snapshot of the renderer. It shows the
+visualization of the air flow simulation.
+
+(Don't forget to hit "Apply" in the ColorMap Editor Panel, otherwise you will see nothing
+in the Renderer window)
+
+The above data set (lambda.rvf) is courtesy of Ulrich Rist, IAG,
+University of Stuttgart.
+
+\begin{covimg2}{}{renderer}{0.7}\end{covimg2}

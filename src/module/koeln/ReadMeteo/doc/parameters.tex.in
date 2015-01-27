@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline FilePath & Browser & First file of sequence or single file\\ \hline DimX & Scalar & X Dimension\\ \hline DimY & Scalar & Y Dimension\\ \hline DimZ & Scalar & Z Dimension\\ \hline Scale & Scalar & Scale factor\\ \hline DataMode & Boolean & Read files as data (instead of height information)\\ \hline Warnings & Boolean & Display warnings when reading files\\
+\hline \end{longtable}
+

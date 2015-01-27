@@ -1,0 +1,252 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+   
+   <SourceProxy name="RidgeSurface" class="vtkRidgeSurface" label="Plugin Univiz Ridge Surface">
+    <Documentation>
+      The RidgeSurface filter extracts ridge surfaces from point (node) scalar data. This filter operates on unstructured grid data and produces geometry output.
+    </Documentation>
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="1">
+	    <RequiredProperties>
+              <Property name="SelectInputScalars" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <Documentation>
+            The input.
+          </Documentation>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputScalars" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        label="Scalar">
+           <ArrayListDomain name="array_list" attribute_type="Scalars" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <!--<FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>-->
+       <Documentation>
+         The name of the scalar array to extract ridge surfaces from.
+       </Documentation>
+     </StringVectorProperty> 
+
+     <IntVectorProperty
+        name="SmoothingRange"
+        label="Smoothing Range"
+        command="SetSmoothingRange"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Smoothing range for gradient computation.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Mode" 
+        label="Mode"
+        command="SetMode" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="cell nodes PCA"/>
+         <Entry value="1" text="edge nodes PCA"/>
+       </EnumerationDomain>
+       <Documentation>
+         Mode for orienting the eigenvectors. Either the eigenvectors at all nodes of the cell are oriented simultaneously, or pairwise, using the eigenvectors at the nodes that share an edge.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Extremum" 
+        label="Extremum"
+        command="SetExtremum" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="maximum ridges"/>
+         <Entry value="1" text="minimum ridges"/>
+       </EnumerationDomain>
+       <Documentation>
+         Chose maximum ridges for the extraction of ridge surfaces and minimum ridges for the extraction of valley surfaces.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ExcludeFLT_MAX" 
+        label="Exclude FLT_MAX"
+        command="SetExcludeFLT_MAX" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Exclude nodes marked with FLT_MAX from extraction.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="ExcludeLonelyNodes" 
+        label="Exclude Lonely Nodes"
+        command="SetExcludeLonelyNodes" 
+        number_of_elements="1"
+        default_values="1" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Exclude nodes which do not have enough neighbors (due to FLT_MAX exclusion) from extraction.
+       </Documentation>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="HessExtrEigenvalMin"
+        label="Hess. Extremal Eigenval Minimum"
+        command="SetHessExtrEigenvalMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="0" max="1e20"/>
+       <Documentation>
+         Minimum absolute value of second derivative across ridge (used for suppressing flat ridges).
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="PCAsubdomMaxPerc"
+        label="PCA Subdom. Max. Percentage"
+        command="SetPCAsubdomMaxPerc"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="0" max="1"/>
+       <Documentation>
+         The second largest absolute eigenvalue must not be larger than this percentage of the largest absolute eigenvalue.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ScalarMin"
+        label="Scalar Min"
+        command="SetScalarMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+       <Documentation>
+         Minimum value of the scalar field for ridge extraction.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ScalarMax"
+        label="Scalar Max"
+        command="SetScalarMax"
+        number_of_elements="1"
+        default_values="1e20">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+       <Documentation>
+         Maximum value of the scalar field for ridge extraction.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ClipScalarMin"
+        label="Clip Scalar Min"
+        command="SetClipScalarMin"
+        number_of_elements="1"
+        default_values="0.0">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+       <Documentation>
+         Minimum value of the scalar clipping field for clipped ridge extraction.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="ClipScalarMax"
+        label="Clip Scalar Max"
+        command="SetClipScalarMax"
+        number_of_elements="1"
+        default_values="1e20">
+       <DoubleRangeDomain name="range" min="-1e20" max="1e20"/>
+       <Documentation>
+         Maximum value of the scalar clipping field for clipped ridge extraction.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <IntVectorProperty
+        name="MinSize"
+        label="Min Size"
+        command="SetMinSize"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Ridges with less than this number of triangles are suppressed.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="FilterByCell" 
+        label="Filter By Cell"
+        command="SetFilterByCell" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Ridge filtering is based on cells. Otherwise it is based on cell edges (recommended).
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="CombineExceptions" 
+        label="Combine Exceptions"
+        command="SetCombineExceptions" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Instead of rejecting a triangle if a condition is violated at any corner, the violations are summed up and the the triangle is rejected if the count reaches or exceeds maxExceptions.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MaxExceptions"
+        label="Max Exceptions"
+        command="SetMaxExceptions"
+        number_of_elements="1"
+        default_values="1">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         A triangle is rejected if it exhibits this count of exceptions.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="GenerateNormals" 
+        label="Generate Normals"
+        command="SetGenerateNormals" 
+        number_of_elements="1"
+        default_values="0" > 
+       <BooleanDomain name="bool"/>
+       <Documentation>
+         Generate normals. However it is recommended to use the standard normals generation module instead.
+       </Documentation>
+     </IntVectorProperty>
+
+   <!-- End RidgeSurface -->
+   </SourceProxy>
+
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

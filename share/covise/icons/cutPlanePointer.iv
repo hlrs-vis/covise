@@ -1,0 +1,46 @@
+#Inventor V2.1 ascii
+
+Separator {
+   Group 
+   {
+      Separator 
+      {
+	      Transform 
+         {
+		      rotation	1 0 0  -1.5708
+	      }
+	      Transform 
+         {
+		      translation	0 0 0
+#		      rotation	1 0 0  0
+#		      scaleFactor	70 70 70
+#		      scaleOrientation	0 0 1  0
+#		      center	0 0 0
+	      }
+		      
+		   Separator 
+         {
+            Transform 
+            {
+               translation 0 0 0
+            }
+            Material 
+            {
+			      ambientColor	0.419385 0.726102 0.3
+			      diffuseColor	0.2877539 0.604409 0.3
+			      specularColor	0.0955906 0.0955906 0.0955906
+			      emissiveColor	0.4 0.4 0.4
+			      shininess	0.08125
+			      transparency	0.5
+		      }
+            Cylinder
+            {
+               parts BOTTOM
+               radius 0.6
+               height 0.01
+            }
+         }
+         
+      }
+   }
+}

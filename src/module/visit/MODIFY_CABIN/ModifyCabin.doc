@@ -1,0 +1,114 @@
+Anforderungen von DC vis zum Review:
+------------------------------------
+
+1a Duesen auf Konsole verschieben
+1b Sitz/Dummy verschieben
+
+2 Anzeige der verschobeben Teile im Render
+
+3 automatische Neuberechnung des Gitters
+
+4 Star-CD Simulation der Stroemung mit verschobenen Teilen 
+
+
+Begriffe
+--------
+
+ICEMCFD     Produktname und Firmenname. Das Produkt enthaelt ein 
+            CAD-Programm (DDN), mehrerer Gittergenerierer (HEXA, TETRA), 
+            Konverter vom eigenen Gitter-Format zu denen der gaengigen 
+            Simulationsprogramme, Visulaiserungsprogramm u. noch mehr.
+
+HEXA        Gittergenerierer von ICEMCFD. Wir eigentlich ueber eine
+            2D/3D Oberflaeche angesteuert, verfuegbar auf SGI/NT etc.
+            Ansteuerung aber auch ueber Skripte moeglich, d. h. User Interface
+            und Berechnungsprogramm waren weitgehend getrennt. Fuer VISiT
+            sind sie ganz getrennt worden, d. h. es ist jetzt meoglich,
+            dass das Berechnungsprogramm von einem COVISE-Modul angesteuert
+            wird.
+
+Topologie   wird der Aufbau des Gitters genannt. Das Gitter setzt sich
+            aus groesseren Bloecken zusammen
+
+Replay-File Wenn man eine Geometrie vernetzt hat, kann man die notwendigen 
+            Schritte mitprotokollieren und Teile der Geometrie abaendern 
+            und automatisch neu vernetzen lassen, sofern sich die Topologie
+            nicht geandert hat.
+
+tetin-File  Format, dass sowohl CAD Geometrie, als auch Info fuer den
+            Gittergenerierer enthaelt.
+                                            
+
+
+Daten
+-----
+
+data/visit/icem/cabin_icem_2/parts_mesh/mesh/
+                cabin_icem_2/parts_mesh/mesh/block_50k_cell_done ... Topologie Info oder Replay-File?
+                cabin_icem_2/parts_mesh/mesh/boco .................. ?
+                cabin_icem_2/parts_mesh/mesh/cart_file ............. ?
+                cabin_icem_2/parts_mesh/mesh/family_boco ........... ?
+                cabin_icem_2/parts_mesh/mesh/tetin1 ................ Geometrie (tetin-File)
+
+
+
+Source-Code
+-----------
+ 
+src/application/visit/
+                visit/MODIFY_CABIN/*  ....... Geometrie-Modificationsmodul
+                visit/CONTROL_TESSATE/* ..... Beispiel-Modul fuer Ansteuerung IcemTeselate
+                visit/CONTROL_HEXA/* ........ Beispiel-Modul fuer Ansteuerung Hexa
+                tetin/* ..................... tetin-Datentyp
+                
+Executables / (Shared) Objects
+------------------------------                
+
+sgin32/bin/libTetin.so .......... tetin Datentyp
+          Visit/
+          Visit/IcemTesselate ... Tesselierungsmodul (kein Source Code)
+          Visit/Hexa ............ Hexa-Modul (kein Source code)     
+
+src/application/visit/MODIFY_CABIN/IcemProject_int.o ... Projektions-Library            
+
+
+
+
+Realisierung
+------------
+
+Fuer 1 wird ein COVISE Modul geschrieben, das die neue Geometrie
+erzeugt. ICEMCFD stellt dem RUS eine Art CAD-Library zur Verfuegung,
+RUS schreibt den Modul.
+
+Fuer 2. schreibt ICEMCFD ein Tesselierungsmodul
+
+Fuer 3. wird der Gittergenerierer Hexa von ICEMCFD in COVISE
+integriert.
+
+Fuer 4. Integriert das RUS StarCD in COVISE.
+
+Der Datenaustausch zwischen den ICEM-Modulen basiert
+auf einem neuen Datentyp coTetin/coBinary, den das RUS und 
+ICEMCFD zusammen entworfen haben. Dieser Datentyp enthaelt alle
+Kommandos, die in einem tetin File drin sind und noch ein paar
+zusaetzliche Befehle
+--> Andreas
+
+Alle Icem-Module arbeiten auf einer sog. ICEM-Datenbasis.
+Deshalb muessen sie alle mit dem Anfangs-Geometriefile initialisiert 
+werden. Wir man spaeter anedern muessen, entweder, indem man
+das jedes Kommando im Geometriefile implementiert, oder indem man
+die Module zu einem zusammenfasst.
+
+
+Duesen auf Konsole verschieben und Sitz verschieben
+---------------------------------------------------
+
+Die Konsole ist als Spline-Flaeche modelliert, die Duse als Spline-Kurve.
+Wenn man die Duese auf der Konsole verschieben will, muss man sie Kurve
+auf die Flaeche projizieren. Die Projektion liefert ICEMCFD.
+
+Um den Sitz zu verschieben, muss man mehrerer Kurven und Flaechen
+verschieben. Die Funktion zum Verschieben liefert ebenfalls ICEMCFD.
+

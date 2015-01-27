@@ -1,0 +1,7 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline grid & StructuredGrid\newline 
+UnstructuredGrid & vtkStructuredGrid/vtkUnstructuredGrid Output\\ \hline polys & Polygons & vtkPolydata Output\\ \hline colors & RGBA\_Data & Colors Output\\ \hline data1 & Float\newline Float & scalar1\\ \hline data2 & Vec3\newline Vec3 & vector1\\
+\hline \end{longtable}
+

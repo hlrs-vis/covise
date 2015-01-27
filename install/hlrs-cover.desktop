@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0.0
+Encoding=UTF-8
+Name=OpenCOVER
+GenericName=Virtual Environment Renderer
+Exec=opencover %u
+Comment=COVISE Virtual Environment Renderer
+Icon=hlrs-cover
+MimeType=model/vrml;
+Terminal=false
+Categories=Qt;Graphics;Science;DataVisualization;

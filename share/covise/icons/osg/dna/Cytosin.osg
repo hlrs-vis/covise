@@ -1,0 +1,4152 @@
+        MatrixTransform {
+          name "VRMLRoot_SCGR_0"
+          nodeMask 0xffffffff
+          cullingActive TRUE
+          referenceFrame RELATIVE
+          Matrix {
+            0.0125 0 0 0
+            0 0.0125 0 0
+            0 0 0.0125 0
+            0 0 0 1
+          }
+          num_children 1
+          Group {
+            UniqueID Group_285
+            nodeMask 0xffffffff
+            cullingActive TRUE
+            num_children 1
+            Group {
+              UniqueID Group_286
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              num_children 1
+              MatrixTransform {
+                UniqueID MatrixTransform_287
+                name "C_SCGR_1"
+                nodeMask 0xffffffff
+                cullingActive TRUE
+                referenceFrame RELATIVE
+                Matrix {
+                  1 0 0 0
+                  0 -1 0 0
+                  0 0 -1 0
+                  0 0 4 1
+                }
+                num_children 1
+                MatrixTransform {
+                  UniqueID MatrixTransform_295
+                  name "C_0_SCGR_3"
+                  nodeMask 0xffffffff
+                  cullingActive TRUE
+                  referenceFrame RELATIVE
+                  Matrix {
+                    -1 0 0.000407306 0
+                    0 1 0 0
+                    -0.000407306 0 -1 0
+                    7.096 -2 3.827 1
+                  }
+                  num_children 1
+                  Geode {
+                    UniqueID Geode_296
+                    name "C_0-FACES"
+                    nodeMask 0xffffffff
+                    cullingActive TRUE
+                    StateSet {
+                      UniqueID StateSet_297
+                      rendering_hint DEFAULT_BIN
+                      renderBinMode INHERIT
+                      GL_CULL_FACE ON
+                      Use Material_291
+                      CullFace {
+                        mode BACK
+                      }
+                    }
+                    num_drawables 1
+                    Geometry {
+                      UniqueID Geometry_298
+                      name "C_0-FACES"
+                      StateSet {
+                        UniqueID StateSet_299
+                        rendering_hint OPAQUE_BIN
+                        renderBinMode USE
+                        binNumber 0
+                        binName RenderBin
+                        GL_BLEND OFF
+                        Material {
+                          UniqueID Material_300
+                          ColorMode AMBIENT_AND_DIFFUSE
+                          ambientColor 0.2 0.2 0.2 1
+                          diffuseColor 0.8784 0.7765 0.3412 1
+                          specularColor 0 0 0 1
+                          emissionColor 0 0 0 1
+                          shininess 25.6
+                        }
+                      }
+                      useDisplayList TRUE
+                      useVertexBufferObjects FALSE
+                      PrimitiveSets 385
+                      {
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          5 3 4 616 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          11 9 10 618 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          22 20 21 776 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          49 47 48 785 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1124 598 597 599 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          52 50 51 786 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          46 44 45 784 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          25 23 24 777 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          624 622 623 625 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          622 627 625 626 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          627 622 641 642 697 696 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          697 698 641 699 700 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          700 701 641 702 703 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          703 704 641 705 706 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          706 640 641 633 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          640 639 633 638 637 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          637 636 633 635 634 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          634 632 633 629 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          632 620 629 619 630 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          620 621 619 643 644 645 646 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          646 647 644 648 649 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          649 650 644 651 652 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          652 653 644 654 655 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          655 656 644 657 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          656 658 657 659 660 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          660 661 657 662 663 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          663 664 657 665 666 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          666 667 657 668 669 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          669 670 657 671 672 673 674 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          674 675 672 676 677 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          677 678 672 679 680 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          680 681 672 682 683 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          683 684 672 685 642 686 687 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          687 688 642 689 690 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          690 691 642 692 693 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          693 694 642 695 696 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          13 12 2 0 1 615 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          942 54 53 55 940 941 939 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          940 939 938 937 936 921 935 934 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          934 921 933 932 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          932 921 931 930 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          930 921 929 928 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          928 921 927 926 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          926 921 925 924 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          924 921 923 922 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          922 921 919 920 918 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          919 918 917 875 916 915 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          915 875 914 913 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          913 875 912 911 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          911 875 910 909 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          909 875 908 907 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          907 875 906 905 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          905 875 904 903 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          903 875 902 901 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          901 875 900 899 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          899 875 898 897 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          897 875 896 895 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          895 875 894 893 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          893 875 892 891 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          891 875 890 889 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          889 875 888 887 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          887 875 886 885 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          885 875 884 883 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          883 875 882 881 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          881 875 880 879 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          879 875 878 877 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          877 875 876 853 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          875 874 853 846 852 851 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          874 873 846 872 871 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          871 870 846 869 868 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          868 867 846 855 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          867 866 855 865 864 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          864 863 855 862 861 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          861 860 855 859 858 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          858 857 855 856 854 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          855 854 787 788 789 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          787 789 798 800 801 802 803 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          803 804 801 805 806 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          806 807 801 808 809 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          809 810 801 811 812 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          812 813 801 814 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          813 815 814 816 817 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          817 818 814 819 820 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          820 821 814 822 823 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          823 824 814 825 826 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 9
+                        {
+                          826 827 814 828 829 830 831 832 833 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          833 834 831 835 836 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          836 837 831 838 839 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          839 840 831 841 842 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          842 843 831 844 845 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          831 845 846 847 848 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          848 849 846 850 851 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          943 57 56 58 317 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          56 317 316 315 314 313 972 311 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          313 312 311 310 309 308 971 306 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          308 307 306 305 304 303 302 301 970 300
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          301 299 300 297 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          299 298 297 296 969 295 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          296 294 295 293 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          294 292 293 291 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          292 290 291 289 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          290 288 289 286 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          288 287 286 285 284 283 968 281 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          283 282 281 280 279 278 967 276 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          278 277 276 275 966 273 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          275 274 273 272 271 270 965 269 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          270 268 269 267 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          268 266 267 264 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          266 265 264 263 964 262 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          263 261 262 260 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          261 259 260 258 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          259 257 258 256 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          257 255 256 254 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          255 253 254 251 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          253 252 251 250 249 248 247 246 963 245
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          246 244 245 242 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          244 243 242 241 240 239 962 238 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          239 237 238 236 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          237 235 236 234 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          235 233 234 232 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          233 231 232 230 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          231 229 230 227 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 12
+                        {
+                          229 228 227 226 225 224 223 222 221 220
+                          961 218 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          220 219 218 217 216 215 214 213 960 212
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          213 211 212 210 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          211 209 210 207 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          209 208 207 206 205 204 959 202 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          204 203 202 201 200 199 198 196 958 195
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          944 60 59 61 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          829 791 814 794 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          791 793 794 795 796 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          793 791 790 792 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          957 193 192 194 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          31 29 30 779 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          956 191 190 189 188 187 186 185 184 183
+                          182 181 180 179 178 177 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          178 177 175 176 174 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          175 174 955 172 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          174 173 172 171 170 169 168 167 954 165
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          167 166 165 164 953 162 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 14
+                        {
+                          164 163 162 161 160 159 158 157 156 155
+                          154 153 952 152 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          153 151 152 149 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          151 150 149 148 951 147 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          148 146 147 145 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          146 144 145 142 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          144 143 142 141 950 140 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          141 139 140 138 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          139 137 138 136 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          137 135 136 134 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          135 133 134 132 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          133 131 132 129 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          131 130 129 128 127 126 125 124 123 122
+                          121 120 119 118 117 116 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          117 116 949 115 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          116 114 115 112 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          114 113 112 111 110 109 948 107 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          109 108 107 106 105 104 103 102 101 100
+                          99 98 97 96 95 94 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 14
+                        {
+                          95 94 93 92 91 90 89 88 87 86
+                          85 84 947 83 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          84 82 83 80 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          82 81 80 79 78 77 946 75 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          77 76 75 74 73 72 71 70 945 69
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          70 68 69 67 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          68 66 67 65 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          66 63 65 62 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          975 973 974 976 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          973 977 976 978 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          977 979 978 980 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          979 981 980 982 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          981 983 982 984 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          983 985 984 986 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          985 987 986 988 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          987 989 988 990 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          989 991 990 992 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          991 993 992 994 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          993 995 994 996 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          995 997 996 998 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          997 999 998 1000 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          999 1001 1000 1002 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1001 1003 1002 1004 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1003 1005 1004 1006 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1005 1007 1006 1008 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1007 1009 1008 1010 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1009 1011 1010 1012 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1011 1013 1012 1014 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1013 1015 1014 1016 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1015 1017 1016 1018 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1017 1019 1018 1070 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1019 1071 1070 1080 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1071 319 1080 318 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          319 320 318 1111 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          320 1110 1111 1109 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1110 1108 1109 1107 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1108 1106 1107 1105 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1106 1104 1105 1103 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1104 1102 1103 1101 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1102 1100 1101 1099 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1100 1098 1099 1097 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1098 1095 1097 1096 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          1096 1095 1094 1093 1091 1092 1090 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          1091 1090 1089 1088 1087 1086 1085 1083 1084 1082
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1083 1081 1082 1079 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1081 1078 1079 1077 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1078 1076 1077 1074 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          1076 1075 1074 1073 1072 1069 1068 1067 1066 1065
+                          1064 1063 1062 1061 1060 1059 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          1060 1059 1058 1057 1056 1055 1054 1052 1053 1051
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1052 1050 1051 1049 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1050 1048 1049 1047 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1048 1046 1047 1045 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1046 1044 1045 1043 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1044 1042 1043 1041 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1042 1040 1041 1039 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1040 1038 1039 1037 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1038 1036 1037 1035 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1036 1034 1035 1033 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1034 1032 1033 1031 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1032 1030 1031 1029 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1030 1028 1029 1027 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1028 1026 1027 1025 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1026 1024 1025 1023 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1024 1021 1023 1020 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          640 706 707 708 709 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          709 710 707 711 712 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          712 713 707 714 715 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          715 716 707 717 718 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          718 719 707 720 721 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          721 722 707 723 724 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          724 725 707 726 727 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          727 728 707 729 730 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          730 731 707 732 733 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          733 734 707 735 736 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          736 737 707 738 739 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          739 740 707 741 742 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          742 743 707 744 745 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          745 746 707 747 748 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          748 749 707 750 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          749 751 750 752 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          752 751 753 754 755 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          755 756 753 757 758 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          758 759 753 760 761 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          761 762 753 763 764 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          764 765 753 766 767 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          767 768 753 769 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          768 770 769 771 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          770 772 771 773 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          773 772 16 14 15 774 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          37 35 36 781 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          775 18 17 19 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          34 32 33 780 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 9
+                        {
+                          1112 322 321 323 324 325 326 327 328 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          326 328 1113 329 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          328 330 329 331 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          330 332 331 333 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          332 334 333 335 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          334 336 335 337 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          336 338 337 339 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          338 340 339 341 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          340 342 341 343 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          342 344 343 345 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          344 346 345 347 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          346 348 347 349 351 350 353 352 355 354
+                          357 356 359 358 361 360 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 14
+                        {
+                          361 360 363 362 365 364 367 366 369 368
+                          371 370 1114 372 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          370 373 372 374 376 375 378 377 380 379
+                          382 381 384 383 386 385 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          386 385 388 387 390 389 392 391 394 393
+                          396 395 398 397 400 399 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          400 399 402 401 1115 403 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          401 404 403 405 407 406 409 408 411 410
+                          413 412 415 414 417 416 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          417 416 419 418 421 420 423 422 425 424
+                          427 426 429 428 1116 430 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          428 431 430 432 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          431 433 432 434 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          433 435 434 436 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          435 437 436 438 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          437 439 438 440 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          439 441 440 442 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          441 443 442 444 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          443 445 444 446 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          445 447 446 448 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          447 449 448 450 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          449 451 450 452 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          451 453 452 454 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          453 455 454 456 1117 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1251 613 612 614 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          613 1203 614 1204 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1203 1205 1204 1206 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1205 1207 1206 1208 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1207 1209 1208 1210 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1209 1211 1210 1212 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1211 1213 1212 1214 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1213 1215 1214 1216 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1215 1217 1216 1218 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1217 1219 1218 1220 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1219 1221 1220 1222 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1221 1223 1222 1224 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1223 1225 1224 1226 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1225 1227 1226 1228 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1227 1250 1228 609 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1250 610 609 611 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          610 1249 611 1248 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1249 1247 1248 1246 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1247 1245 1246 1244 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1245 1243 1244 1242 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1243 1241 1242 1240 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1241 1239 1240 1238 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1239 1237 1238 1236 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1237 1235 1236 1234 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1235 1233 1234 1232 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1233 1231 1232 1230 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1231 1229 1230 1202 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1229 1183 1202 1182 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 8
+                        {
+                          1183 1181 1182 1188 1189 1190 1191 1192 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1190 1193 1192 1194 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1193 1195 1194 1196 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1195 1197 1196 1198 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1197 1199 1198 1200 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1199 1201 1200 606 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1201 607 606 608 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          607 1187 608 1186 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1187 1185 1186 1184 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1185 1178 1184 1177 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1178 1176 1177 1179 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1176 1180 1179 603 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1180 604 603 605 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          605 604 1126 1125 1127 
+                        }
+                        DrawArrays TRIANGLE_STRIP 1126 16
+                        DrawArrays TRIANGLE_STRIP 1140 12
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1149 1152 1151 1153 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1152 1154 1153 1155 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1154 1156 1155 1157 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1156 1158 1157 1159 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1158 1160 1159 1161 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1160 601 1161 600 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          601 602 600 1175 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          602 1174 1175 1173 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1174 1172 1173 1171 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1172 1170 1171 1169 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1170 1168 1169 1167 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1168 1166 1167 1165 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1166 1163 1165 1162 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          782 39 38 40 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          783 42 41 43 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          462 460 461 464 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          460 463 464 466 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          463 465 466 468 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          465 467 468 470 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          467 469 470 472 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          469 471 472 474 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          471 473 474 476 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          473 475 476 478 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          475 477 478 480 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          477 479 480 482 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          479 481 482 484 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          481 483 484 486 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          483 485 486 488 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          485 487 488 1119 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          1119 487 489 490 491 492 493 494 495 496
+                          497 498 499 500 501 502 
+                        }
+                        DrawArrays TRIANGLE_STRIP 501 16
+                        DrawArrays TRIANGLE_STRIP 515 7
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          519 521 1120 522 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          521 523 522 524 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          523 525 524 526 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          525 527 526 528 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          527 529 528 530 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          529 531 530 532 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          531 533 532 534 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          533 535 534 536 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          535 537 536 538 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          537 539 538 540 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          539 541 540 542 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          541 543 542 544 1121 545 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          544 546 545 547 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          546 548 547 549 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          548 550 549 551 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          550 552 551 553 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          552 554 553 555 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          554 556 555 557 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          556 558 557 559 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          558 560 559 561 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          560 562 561 563 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          562 564 563 565 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          564 566 565 567 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          566 568 567 569 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 16
+                        {
+                          568 570 569 571 573 572 575 574 577 576
+                          579 578 581 580 583 582 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 14
+                        {
+                          583 582 585 584 587 586 589 588 591 590
+                          593 592 1122 594 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          592 595 594 596 1123 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          778 27 26 28 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          787 798 797 799 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          617 7 6 8 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1118 458 457 459 
+                        }
+                        DrawElementsUShort TRIANGLES 18
+                        {
+                          62 63 64 195 196 197 626 627 628 629
+                          630 631 1020 1021 1022 1162 1163 1164 
+                        }
+                      }
+                      VertexArray Vec3Array 1252
+                      {
+                        20 0 0
+                        10.75 4 -16.02
+                        20 4 0
+                        8.5 0 -17.32
+                        -10 4 -17.32
+                        8.5 4 -17.32
+                        -20 0 0
+                        -10 4 17.32
+                        -20 4 0
+                        -10 0 17.32
+                        8.5 4 17.32
+                        -10 4 17.32
+                        10.75 0 16.02
+                        10.75 4 16.02
+                        2.705 0 -9.544
+                        3.849 0 -8.941
+                        4.372 0 -8.549
+                        15.75 0 -24.68
+                        13.5 4 -25.98
+                        15.75 4 -24.68
+                        11.85 4 34.1
+                        9.635 0 32.86
+                        11.85 0 34.1
+                        10.75 0 -16.02
+                        15.75 4 -24.68
+                        10.75 4 -16.02
+                        8.5 4 -17.32
+                        13.5 0 -25.98
+                        8.5 0 -17.32
+                        8.5 0 17.32
+                        13.5 4 25.98
+                        8.5 4 17.32
+                        10.75 4 16.02
+                        15.75 0 24.68
+                        10.75 0 16.02
+                        23.93 0 24.68
+                        23.9 4 27.22
+                        23.9 0 27.22
+                        15.72 4 27.22
+                        11.85 0 34.1
+                        15.72 0 27.22
+                        13.5 4 25.98
+                        9.635 0 32.86
+                        9.635 4 32.86
+                        15.75 0 24.68
+                        23.93 4 24.68
+                        23.93 0 24.68
+                        15.72 0 27.22
+                        23.9 4 27.22
+                        15.72 4 27.22
+                        -20 0 0
+                        -10 4 -17.32
+                        -10 0 -17.32
+                        -3.404 4 -9.544
+                        -4.548 4 -8.941
+                        -5.072 4 -8.549
+                        -10.23 4 -5.973
+                        -10.54 3.129 -4.934
+                        -10.23 3.129 -5.973
+                        -10.54 3.129 -4.934
+                        -7.478 4 -4.163
+                        -7.478 3.129 -4.163
+                        -7.478 4 -4.163
+                        -7.275 3.129 -4.965
+                        -7.478 3.129 -4.163
+                        -7.275 4 -4.965
+                        -7.025 3.129 -5.708
+                        -7.025 4 -5.708
+                        -6.728 3.129 -6.393
+                        -6.728 4 -6.393
+                        -6.384 3.129 -7.02
+                        -5.994 4 -7.588
+                        -5.994 3.129 -7.588
+                        -5.556 4 -8.098
+                        -5.556 3.129 -8.098
+                        -5.072 4 -8.549
+                        -5.072 3.129 -8.549
+                        -4.548 3.129 -8.941
+                        -3.992 4 -9.273
+                        -3.992 3.129 -9.273
+                        -3.404 4 -9.544
+                        -3.404 3.129 -9.544
+                        -2.784 3.129 -9.755
+                        -2.784 4 -9.755
+                        -2.132 3.129 -9.906
+                        -1.448 4 -9.997
+                        -1.448 3.129 -9.997
+                        -0.7317 4 -10.03
+                        -0.7317 3.129 -10.03
+                        -0.1357 4 -10
+                        -0.1357 3.129 -10
+                        0.448 4 -9.938
+                        0.448 3.129 -9.938
+                        1.02 4 -9.828
+                        1.02 3.129 -9.828
+                        1.579 4 -9.673
+                        1.579 3.129 -9.673
+                        2.126 4 -9.473
+                        2.126 3.129 -9.473
+                        2.661 4 -9.23
+                        2.661 3.129 -9.23
+                        3.184 4 -8.942
+                        3.184 3.129 -8.942
+                        3.681 4 -8.61
+                        3.681 3.129 -8.61
+                        4.14 4 -8.232
+                        4.14 3.129 -8.232
+                        4.559 4 -7.809
+                        4.559 3.129 -7.809
+                        4.94 3.129 -7.341
+                        5.282 4 -6.827
+                        5.282 3.129 -6.827
+                        5.585 4 -6.269
+                        5.585 3.129 -6.269
+                        5.849 3.129 -5.665
+                        5.849 4 -5.665
+                        6.077 3.129 -5.023
+                        6.269 4 -4.351
+                        6.269 3.129 -4.351
+                        6.426 4 -3.648
+                        6.426 3.129 -3.648
+                        6.549 4 -2.915
+                        6.549 3.129 -2.915
+                        6.636 4 -2.151
+                        6.636 3.129 -2.151
+                        6.689 4 -1.357
+                        6.689 3.129 -1.357
+                        6.706 4 -0.5324
+                        6.706 3.129 -0.5324
+                        6.691 4 0.1162
+                        6.691 3.129 0.1162
+                        6.647 3.129 0.7594
+                        6.647 4 0.7594
+                        6.573 3.129 1.397
+                        6.573 4 1.397
+                        6.47 3.129 2.029
+                        6.47 4 2.029
+                        6.337 3.129 2.656
+                        6.337 4 2.656
+                        6.174 3.129 3.277
+                        6.174 4 3.277
+                        5.982 3.129 3.893
+                        5.753 4 4.488
+                        5.753 3.129 4.488
+                        5.481 3.129 5.048
+                        5.481 4 5.048
+                        5.166 3.129 5.572
+                        5.166 4 5.572
+                        4.807 3.129 6.06
+                        4.404 4 6.513
+                        4.404 3.129 6.513
+                        3.959 3.129 6.93
+                        3.959 4 6.93
+                        3.47 3.129 7.312
+                        2.941 4 7.65
+                        2.941 3.129 7.65
+                        2.377 4 7.936
+                        2.377 3.129 7.936
+                        1.777 4 8.169
+                        1.777 3.129 8.169
+                        1.141 4 8.351
+                        1.141 3.129 8.351
+                        0.4699 4 8.481
+                        0.4699 3.129 8.481
+                        -0.2371 3.129 8.559
+                        -0.9797 4 8.585
+                        -0.9797 3.129 8.585
+                        -1.625 3.129 8.562
+                        -2.238 4 8.491
+                        -2.238 3.129 8.491
+                        -2.82 4 8.374
+                        -2.82 3.129 8.374
+                        -3.369 4 8.21
+                        -3.369 3.129 8.21
+                        -3.885 3.129 8
+                        -4.37 4 7.742
+                        -4.37 3.129 7.742
+                        -4.823 3.129 7.438
+                        -4.823 4 7.438
+                        -5.244 3.129 7.082
+                        -5.244 4 7.082
+                        -5.637 3.129 6.67
+                        -5.637 4 6.67
+                        -5.999 3.129 6.203
+                        -5.999 4 6.203
+                        -6.332 3.129 5.68
+                        -6.332 4 5.68
+                        -6.636 3.129 5.101
+                        -6.636 4 5.101
+                        -6.909 3.129 4.466
+                        -6.909 4 4.466
+                        -7.154 3.129 3.775
+                        -7.154 3.129 3.775
+                        -10.14 4 4.482
+                        -10.14 3.129 4.482
+                        -10.14 4 4.482
+                        -9.848 3.129 5.367
+                        -10.14 3.129 4.482
+                        -9.495 4 6.194
+                        -9.495 3.129 6.194
+                        -9.084 4 6.962
+                        -9.084 3.129 6.962
+                        -8.615 4 7.671
+                        -8.615 3.129 7.671
+                        -8.087 3.129 8.322
+                        -7.501 4 8.914
+                        -7.501 3.129 8.914
+                        -6.856 4 9.448
+                        -6.856 3.129 9.448
+                        -6.16 3.129 9.916
+                        -6.16 4 9.916
+                        -5.419 3.129 10.31
+                        -5.419 4 10.31
+                        -4.633 3.129 10.64
+                        -3.802 4 10.89
+                        -3.802 3.129 10.89
+                        -2.926 4 11.07
+                        -2.926 3.129 11.07
+                        -2.006 4 11.18
+                        -2.006 3.129 11.18
+                        -1.04 3.129 11.21
+                        -0.179 4 11.18
+                        -0.179 3.129 11.18
+                        0.6611 4 11.1
+                        0.6611 3.129 11.1
+                        1.48 4 10.96
+                        1.48 3.129 10.96
+                        2.279 4 10.76
+                        2.279 3.129 10.76
+                        3.056 3.129 10.5
+                        3.056 4 10.5
+                        3.813 3.129 10.19
+                        3.813 4 10.19
+                        4.549 3.129 9.82
+                        4.549 4 9.82
+                        5.25 3.129 9.395
+                        5.25 4 9.395
+                        5.904 3.129 8.918
+                        5.904 4 8.918
+                        6.511 3.129 8.388
+                        7.07 4 7.806
+                        7.07 3.129 7.806
+                        7.582 4 7.171
+                        7.582 3.129 7.171
+                        8.046 3.129 6.483
+                        8.046 4 6.483
+                        8.463 3.129 5.742
+                        8.828 4 4.956
+                        8.828 3.129 4.956
+                        9.136 4 4.133
+                        9.136 3.129 4.133
+                        9.389 4 3.272
+                        9.389 3.129 3.272
+                        9.586 3.129 2.373
+                        9.586 4 2.373
+                        9.726 3.129 1.437
+                        9.726 4 1.437
+                        9.81 3.129 0.4636
+                        9.81 4 0.4636
+                        9.838 3.129 -0.5476
+                        9.838 4 -0.5476
+                        9.813 3.129 -1.484
+                        9.813 4 -1.484
+                        9.739 3.129 -2.402
+                        9.614 4 -3.304
+                        9.614 3.129 -3.304
+                        9.44 3.129 -4.187
+                        9.44 4 -4.187
+                        9.217 3.129 -5.054
+                        9.217 4 -5.054
+                        8.943 3.129 -5.903
+                        8.62 4 -6.735
+                        8.62 3.129 -6.735
+                        8.249 4 -7.53
+                        8.249 3.129 -7.53
+                        7.833 3.129 -8.27
+                        7.37 4 -8.954
+                        7.37 3.129 -8.954
+                        6.863 3.129 -9.583
+                        6.31 4 -10.16
+                        6.31 3.129 -10.16
+                        5.711 4 -10.67
+                        5.711 3.129 -10.67
+                        5.067 3.129 -11.14
+                        4.371 4 -11.54
+                        4.371 3.129 -11.54
+                        3.619 4 -11.88
+                        3.619 3.129 -11.88
+                        2.81 3.129 -12.16
+                        2.81 4 -12.16
+                        1.944 3.129 -12.38
+                        1.944 4 -12.38
+                        1.021 3.129 -12.53
+                        1.021 4 -12.53
+                        0.04183 3.129 -12.62
+                        0.04183 4 -12.62
+                        -0.9944 3.129 -12.65
+                        -2 4 -12.61
+                        -2 3.129 -12.61
+                        -2.961 3.129 -12.49
+                        -2.961 4 -12.49
+                        -3.877 3.129 -12.29
+                        -4.747 4 -12.01
+                        -4.747 3.129 -12.01
+                        -5.572 4 -11.65
+                        -5.572 3.129 -11.65
+                        -6.352 4 -11.2
+                        -6.352 3.129 -11.2
+                        -7.087 3.129 -10.68
+                        -7.767 4 -10.08
+                        -7.767 3.129 -10.08
+                        -8.386 4 -9.401
+                        -8.386 3.129 -9.401
+                        -8.941 3.129 -8.654
+                        -9.434 4 -7.833
+                        -9.434 3.129 -7.833
+                        -9.865 4 -6.94
+                        -9.865 3.129 -6.94
+                        5.166 3.129 5.572
+                        7.07 3.129 7.806
+                        7.582 3.129 7.171
+                        6.575 1.156 -4.965
+                        6.778 0 -4.163
+                        6.575 0 -4.965
+                        6.325 1.156 -5.708
+                        6.325 0 -5.708
+                        6.028 1.156 -6.393
+                        6.028 0 -6.393
+                        5.685 0 -7.02
+                        5.294 1.156 -7.588
+                        5.294 0 -7.588
+                        4.857 1.156 -8.098
+                        4.857 0 -8.098
+                        4.372 1.156 -8.549
+                        4.372 0 -8.549
+                        3.849 1.156 -8.941
+                        3.849 0 -8.941
+                        3.293 1.156 -9.273
+                        3.293 0 -9.273
+                        2.705 1.156 -9.544
+                        2.705 0 -9.544
+                        2.085 1.156 -9.755
+                        2.085 0 -9.755
+                        1.433 1.156 -9.906
+                        1.433 0 -9.906
+                        0.7485 1.156 -9.997
+                        0.7485 0 -9.997
+                        0.03221 1.156 -10.03
+                        0.03221 0 -10.03
+                        -0.5637 0 -10
+                        -1.147 0 -9.938
+                        -0.5637 1.156 -10
+                        -1.719 0 -9.828
+                        -1.147 1.156 -9.938
+                        -2.278 0 -9.673
+                        -1.719 1.156 -9.828
+                        -2.826 0 -9.473
+                        -2.278 1.156 -9.673
+                        -3.361 0 -9.23
+                        -2.826 1.156 -9.473
+                        -3.883 0 -8.942
+                        -3.361 1.156 -9.23
+                        -4.381 0 -8.61
+                        -3.883 1.156 -8.942
+                        -4.839 0 -8.232
+                        -4.381 1.156 -8.61
+                        -5.259 0 -7.809
+                        -4.839 1.156 -8.232
+                        -5.639 0 -7.341
+                        -5.259 1.156 -7.809
+                        -5.981 0 -6.827
+                        -5.639 1.156 -7.341
+                        -6.284 1.156 -6.269
+                        -6.284 0 -6.269
+                        -6.549 0 -5.665
+                        -6.776 0 -5.023
+                        -6.549 1.156 -5.665
+                        -6.968 0 -4.351
+                        -6.776 1.156 -5.023
+                        -7.126 0 -3.648
+                        -6.968 1.156 -4.351
+                        -7.248 0 -2.915
+                        -7.126 1.156 -3.648
+                        -7.336 0 -2.151
+                        -7.248 1.156 -2.915
+                        -7.388 0 -1.357
+                        -7.336 1.156 -2.151
+                        -7.406 0 -0.5324
+                        -7.388 1.156 -1.357
+                        -7.391 0 0.1162
+                        -7.406 1.156 -0.5324
+                        -7.347 0 0.7594
+                        -7.391 1.156 0.1162
+                        -7.273 0 1.397
+                        -7.347 1.156 0.7594
+                        -7.169 0 2.029
+                        -7.273 1.156 1.397
+                        -7.036 0 2.656
+                        -7.169 1.156 2.029
+                        -6.873 0 3.277
+                        -7.036 1.156 2.656
+                        -6.681 0 3.893
+                        -6.873 1.156 3.277
+                        -6.453 1.156 4.488
+                        -6.453 0 4.488
+                        -6.18 0 5.048
+                        -5.865 0 5.572
+                        -6.18 1.156 5.048
+                        -5.506 0 6.06
+                        -5.865 1.156 5.572
+                        -5.104 0 6.513
+                        -5.506 1.156 6.06
+                        -4.658 0 6.93
+                        -5.104 1.156 6.513
+                        -4.169 0 7.312
+                        -4.658 1.156 6.93
+                        -3.641 0 7.65
+                        -4.169 1.156 7.312
+                        -3.076 0 7.936
+                        -3.641 1.156 7.65
+                        -2.476 0 8.169
+                        -3.076 1.156 7.936
+                        -1.841 0 8.351
+                        -2.476 1.156 8.169
+                        -1.169 0 8.481
+                        -1.841 1.156 8.351
+                        -0.4624 0 8.559
+                        -1.169 1.156 8.481
+                        0.2803 0 8.585
+                        -0.4624 1.156 8.559
+                        0.9257 1.156 8.562
+                        0.9257 0 8.562
+                        1.539 1.156 8.491
+                        1.539 0 8.491
+                        2.12 1.156 8.374
+                        2.12 0 8.374
+                        2.669 1.156 8.21
+                        2.669 0 8.21
+                        3.186 1.156 8
+                        3.186 0 8
+                        3.671 1.156 7.742
+                        3.671 0 7.742
+                        4.123 1.156 7.438
+                        4.123 0 7.438
+                        4.545 1.156 7.082
+                        4.545 0 7.082
+                        4.937 1.156 6.67
+                        4.937 0 6.67
+                        5.3 1.156 6.203
+                        5.3 0 6.203
+                        5.633 1.156 5.68
+                        5.633 0 5.68
+                        5.936 1.156 5.101
+                        5.936 0 5.101
+                        6.21 1.156 4.466
+                        6.21 0 4.466
+                        6.454 0 3.775
+                        9.442 1.156 4.482
+                        6.454 0 3.775
+                        9.442 0 4.482
+                        9.148 0 5.367
+                        9.442 1.156 4.482
+                        9.442 0 4.482
+                        8.795 0 6.194
+                        9.148 1.156 5.367
+                        8.384 0 6.962
+                        8.795 1.156 6.194
+                        7.915 0 7.671
+                        8.384 1.156 6.962
+                        7.387 0 8.322
+                        7.915 1.156 7.671
+                        6.801 0 8.914
+                        7.387 1.156 8.322
+                        6.157 0 9.448
+                        6.801 1.156 8.914
+                        5.461 0 9.916
+                        6.157 1.156 9.448
+                        4.719 0 10.31
+                        5.461 1.156 9.916
+                        3.933 0 10.64
+                        4.719 1.156 10.31
+                        3.103 0 10.89
+                        3.933 1.156 10.64
+                        2.227 0 11.07
+                        3.103 1.156 10.89
+                        1.306 0 11.18
+                        2.227 1.156 11.07
+                        0.3405 0 11.21
+                        1.306 1.156 11.18
+                        -0.5205 1.156 11.18
+                        -0.5205 0 11.18
+                        -1.361 1.156 11.1
+                        -1.361 0 11.1
+                        -2.18 1.156 10.96
+                        -2.18 0 10.96
+                        -2.978 1.156 10.76
+                        -2.978 0 10.76
+                        -3.756 1.156 10.5
+                        -3.756 0 10.5
+                        -4.512 1.156 10.19
+                        -4.512 0 10.19
+                        -5.248 1.156 9.82
+                        -5.248 0 9.82
+                        -5.95 1.156 9.395
+                        -5.95 0 9.395
+                        -6.604 1.156 8.918
+                        -6.604 0 8.918
+                        -7.21 1.156 8.388
+                        -7.21 0 8.388
+                        -7.769 1.156 7.806
+                        -7.769 0 7.806
+                        -8.281 1.156 7.171
+                        -8.281 0 7.171
+                        -8.745 1.156 6.483
+                        -8.745 0 6.483
+                        -9.162 1.156 5.742
+                        -9.162 0 5.742
+                        -9.527 1.156 4.956
+                        -9.527 0 4.956
+                        -9.836 1.156 4.133
+                        -9.836 0 4.133
+                        -10.09 0 3.272
+                        -10.29 1.156 2.373
+                        -10.29 0 2.373
+                        -10.43 1.156 1.437
+                        -10.43 0 1.437
+                        -10.51 1.156 0.4637
+                        -10.51 0 0.4637
+                        -10.54 1.156 -0.5476
+                        -10.54 0 -0.5476
+                        -10.51 1.156 -1.484
+                        -10.51 0 -1.484
+                        -10.44 1.156 -2.402
+                        -10.44 0 -2.402
+                        -10.31 1.156 -3.304
+                        -10.31 0 -3.304
+                        -10.14 1.156 -4.187
+                        -10.14 0 -4.187
+                        -9.916 1.156 -5.054
+                        -9.916 0 -5.054
+                        -9.643 1.156 -5.903
+                        -9.643 0 -5.903
+                        -9.319 1.156 -6.735
+                        -9.319 0 -6.735
+                        -8.948 0 -7.53
+                        -8.532 1.156 -8.27
+                        -8.532 0 -8.27
+                        -8.07 1.156 -8.954
+                        -8.07 0 -8.954
+                        -7.562 1.156 -9.583
+                        -7.562 0 -9.583
+                        -7.009 1.156 -10.16
+                        -7.009 0 -10.16
+                        -6.41 1.156 -10.67
+                        -6.41 0 -10.67
+                        -5.766 1.156 -11.14
+                        -5.766 0 -11.14
+                        -5.071 1.156 -11.54
+                        -5.071 0 -11.54
+                        -4.318 1.156 -11.88
+                        -4.318 0 -11.88
+                        -3.509 1.156 -12.16
+                        -3.509 0 -12.16
+                        -2.643 1.156 -12.38
+                        -2.643 0 -12.38
+                        -1.721 1.156 -12.53
+                        -1.721 0 -12.53
+                        -0.7413 1.156 -12.62
+                        -0.7413 0 -12.62
+                        0.2949 1.156 -12.65
+                        0.2949 0 -12.65
+                        1.301 0 -12.61
+                        2.262 0 -12.49
+                        1.301 1.156 -12.61
+                        3.177 0 -12.29
+                        2.262 1.156 -12.49
+                        4.048 0 -12.01
+                        3.177 1.156 -12.29
+                        4.873 0 -11.65
+                        4.048 1.156 -12.01
+                        5.653 0 -11.2
+                        4.873 1.156 -11.65
+                        6.387 0 -10.68
+                        5.653 1.156 -11.2
+                        7.068 0 -10.08
+                        6.387 1.156 -10.68
+                        7.686 0 -9.401
+                        7.068 1.156 -10.08
+                        8.242 0 -8.654
+                        7.686 1.156 -9.401
+                        8.735 0 -7.833
+                        8.242 1.156 -8.654
+                        9.165 0 -6.94
+                        8.735 1.156 -7.833
+                        9.533 1.156 -5.973
+                        9.533 0 -5.973
+                        9.838 0 -4.934
+                        6.778 0 -4.163
+                        9.838 1.156 -4.934
+                        9.838 0 -4.934
+                        4.372 1.156 -8.549
+                        5.653 1.156 -11.2
+                        6.387 1.156 -10.68
+                        -6.549 1.156 -5.665
+                        -8.948 1.156 -7.53
+                        -6.284 1.156 -6.269
+                        -7.388 1.156 -1.357
+                        -10.44 1.156 -2.402
+                        -7.336 1.156 -2.151
+                        -0.4624 1.156 8.559
+                        -1.361 1.156 11.1
+                        -1.169 1.156 8.481
+                        6.454 1.156 3.775
+                        9.148 1.156 5.367
+                        6.21 1.156 4.466
+                        10.75 0 -16.02
+                        -10 0 -17.32
+                        -10 0 17.32
+                        8.5 0 17.32
+                        8.5 0 -17.32
+                        5.653 0 -11.2
+                        4.873 0 -11.65
+                        13.5 0 25.98
+                        11.85 0 34.1
+                        9.635 0 32.86
+                        15.72 0 27.22
+                        23.9 0 27.22
+                        15.75 0 24.68
+                        23.93 0 24.68
+                        10.75 0 -16.02
+                        13.5 0 -25.98
+                        15.75 0 -24.68
+                        6.387 0 -10.68
+                        20 0 0
+                        7.068 0 -10.08
+                        7.686 0 -9.401
+                        8.242 0 -8.654
+                        8.735 0 -7.833
+                        9.165 0 -6.94
+                        9.533 0 -5.973
+                        9.838 0 -4.934
+                        10.75 0 16.02
+                        8.5 0 17.32
+                        4.048 0 -12.01
+                        -10 0 -17.32
+                        3.177 0 -12.29
+                        2.262 0 -12.49
+                        1.301 0 -12.61
+                        0.2949 0 -12.65
+                        -0.7413 0 -12.62
+                        -1.721 0 -12.53
+                        -2.643 0 -12.38
+                        -3.509 0 -12.16
+                        -4.318 0 -11.88
+                        -5.071 0 -11.54
+                        -5.766 0 -11.14
+                        -6.41 0 -10.67
+                        -20 0 0
+                        -7.009 0 -10.16
+                        -7.562 0 -9.583
+                        -8.07 0 -8.954
+                        -8.532 0 -8.27
+                        -8.948 0 -7.53
+                        -9.319 0 -6.735
+                        -9.643 0 -5.903
+                        -9.916 0 -5.054
+                        -10.14 0 -4.187
+                        -10.31 0 -3.304
+                        -10.44 0 -2.402
+                        -10.51 0 -1.484
+                        -10.54 0 -0.5476
+                        -10.51 0 0.4637
+                        -10 0 17.32
+                        -10.43 0 1.437
+                        -10.29 0 2.373
+                        -10.09 0 3.272
+                        -9.836 0 4.133
+                        -9.527 0 4.956
+                        -9.162 0 5.742
+                        -8.745 0 6.483
+                        -8.281 0 7.171
+                        -7.769 0 7.806
+                        -7.21 0 8.388
+                        -6.604 0 8.918
+                        -5.95 0 9.395
+                        -5.248 0 9.82
+                        -4.512 0 10.19
+                        -3.756 0 10.5
+                        -2.978 0 10.76
+                        -2.18 0 10.96
+                        -1.361 0 11.1
+                        -0.5205 0 11.18
+                        0.3405 0 11.21
+                        1.306 0 11.18
+                        2.227 0 11.07
+                        3.103 0 10.89
+                        3.933 0 10.64
+                        4.719 0 10.31
+                        5.461 0 9.916
+                        6.157 0 9.448
+                        6.801 0 8.914
+                        7.387 0 8.322
+                        7.915 0 7.671
+                        8.384 0 6.962
+                        8.795 0 6.194
+                        9.148 0 5.367
+                        9.442 0 4.482
+                        6.778 0 -4.163
+                        6.454 0 3.775
+                        6.21 0 4.466
+                        5.936 0 5.101
+                        5.633 0 5.68
+                        5.3 0 6.203
+                        4.937 0 6.67
+                        4.545 0 7.082
+                        4.123 0 7.438
+                        3.671 0 7.742
+                        3.186 0 8
+                        2.669 0 8.21
+                        2.12 0 8.374
+                        1.539 0 8.491
+                        0.9257 0 8.562
+                        0.2803 0 8.585
+                        -0.4624 0 8.559
+                        -1.169 0 8.481
+                        -1.841 0 8.351
+                        -2.476 0 8.169
+                        -3.076 0 7.936
+                        -3.641 0 7.65
+                        -4.169 0 7.312
+                        -4.658 0 6.93
+                        -5.104 0 6.513
+                        -5.506 0 6.06
+                        -5.865 0 5.572
+                        -6.18 0 5.048
+                        -6.453 0 4.488
+                        -6.681 0 3.893
+                        -6.873 0 3.277
+                        -7.036 0 2.656
+                        -7.169 0 2.029
+                        -7.273 0 1.397
+                        -7.347 0 0.7594
+                        -7.391 0 0.1162
+                        -7.406 0 -0.5324
+                        -7.388 0 -1.357
+                        -7.336 0 -2.151
+                        -7.248 0 -2.915
+                        -7.126 0 -3.648
+                        -6.968 0 -4.351
+                        -6.776 0 -5.023
+                        6.575 0 -4.965
+                        -6.549 0 -5.665
+                        6.325 0 -5.708
+                        6.028 0 -6.393
+                        -6.284 0 -6.269
+                        -5.981 0 -6.827
+                        -5.639 0 -7.341
+                        -5.259 0 -7.809
+                        -4.839 0 -8.232
+                        -4.381 0 -8.61
+                        -3.883 0 -8.942
+                        -3.361 0 -9.23
+                        -2.826 0 -9.473
+                        -2.278 0 -9.673
+                        -1.719 0 -9.828
+                        -1.147 0 -9.938
+                        -0.5637 0 -10
+                        0.03221 0 -10.03
+                        0.7485 0 -9.997
+                        5.685 0 -7.02
+                        1.433 0 -9.906
+                        5.294 0 -7.588
+                        2.085 0 -9.755
+                        4.857 0 -8.098
+                        3.293 0 -9.273
+                        13.5 0 -25.98
+                        9.635 4 32.86
+                        15.75 0 -24.68
+                        13.5 4 -25.98
+                        13.5 0 25.98
+                        15.75 4 24.68
+                        23.93 4 24.68
+                        11.85 4 34.1
+                        13.5 0 25.98
+                        15.75 4 24.68
+                        23.9 0 27.22
+                        -20 4 0
+                        8.5 4 -17.32
+                        4.371 4 -11.54
+                        5.067 4 -11.14
+                        11.85 4 34.1
+                        13.5 4 25.98
+                        9.635 4 32.86
+                        15.72 4 27.22
+                        15.75 4 24.68
+                        23.9 4 27.22
+                        23.93 4 24.68
+                        13.5 4 -25.98
+                        10.75 4 -16.02
+                        15.75 4 -24.68
+                        5.711 4 -10.67
+                        20 4 0
+                        6.31 4 -10.16
+                        6.863 4 -9.583
+                        7.37 4 -8.954
+                        7.833 4 -8.27
+                        8.249 4 -7.53
+                        8.62 4 -6.735
+                        8.943 4 -5.903
+                        9.217 4 -5.054
+                        9.44 4 -4.187
+                        9.614 4 -3.304
+                        9.739 4 -2.402
+                        9.813 4 -1.484
+                        10.75 4 16.02
+                        9.838 4 -0.5476
+                        9.81 4 0.4636
+                        9.726 4 1.437
+                        9.586 4 2.373
+                        9.389 4 3.272
+                        9.136 4 4.133
+                        8.828 4 4.956
+                        8.463 4 5.742
+                        8.046 4 6.483
+                        7.582 4 7.171
+                        7.07 4 7.806
+                        6.511 4 8.388
+                        5.904 4 8.918
+                        5.25 4 9.395
+                        8.5 4 17.32
+                        4.549 4 9.82
+                        -10 4 17.32
+                        3.813 4 10.19
+                        3.056 4 10.5
+                        2.279 4 10.76
+                        1.48 4 10.96
+                        0.6611 4 11.1
+                        -0.179 4 11.18
+                        -1.04 4 11.21
+                        -2.006 4 11.18
+                        -2.926 4 11.07
+                        -3.802 4 10.89
+                        -4.633 4 10.64
+                        -5.419 4 10.31
+                        -6.16 4 9.916
+                        -6.856 4 9.448
+                        -20 4 0
+                        -7.501 4 8.914
+                        -8.087 4 8.322
+                        -8.615 4 7.671
+                        -9.084 4 6.962
+                        -9.495 4 6.194
+                        -9.848 4 5.367
+                        -10.14 4 4.482
+                        3.619 4 -11.88
+                        -10 4 -17.32
+                        2.81 4 -12.16
+                        1.944 4 -12.38
+                        1.021 4 -12.53
+                        0.04183 4 -12.62
+                        -0.9944 4 -12.65
+                        -2 4 -12.61
+                        -2.961 4 -12.49
+                        -3.877 4 -12.29
+                        -4.747 4 -12.01
+                        -5.572 4 -11.65
+                        -6.352 4 -11.2
+                        -7.087 4 -10.68
+                        -7.767 4 -10.08
+                        -8.386 4 -9.401
+                        -8.941 4 -8.654
+                        -9.434 4 -7.833
+                        -9.865 4 -6.94
+                        -10.23 4 -5.973
+                        -10.54 4 -4.934
+                        -7.478 4 -4.163
+                        -7.154 4 3.775
+                        -6.909 4 4.466
+                        -6.636 4 5.101
+                        -6.332 4 5.68
+                        -5.999 4 6.203
+                        -5.637 4 6.67
+                        -5.244 4 7.082
+                        -4.823 4 7.438
+                        -4.37 4 7.742
+                        -3.885 4 8
+                        -3.369 4 8.21
+                        -2.82 4 8.374
+                        -2.238 4 8.491
+                        -1.625 4 8.562
+                        -0.9797 4 8.585
+                        -0.2371 4 8.559
+                        0.4699 4 8.481
+                        1.141 4 8.351
+                        1.777 4 8.169
+                        2.377 4 7.936
+                        2.941 4 7.65
+                        3.47 4 7.312
+                        3.959 4 6.93
+                        4.404 4 6.513
+                        4.807 4 6.06
+                        5.166 4 5.572
+                        5.481 4 5.048
+                        5.753 4 4.488
+                        5.982 4 3.893
+                        6.174 4 3.277
+                        6.337 4 2.656
+                        6.47 4 2.029
+                        6.573 4 1.397
+                        6.647 4 0.7594
+                        6.691 4 0.1162
+                        6.706 4 -0.5324
+                        6.689 4 -1.357
+                        6.636 4 -2.151
+                        6.549 4 -2.915
+                        6.426 4 -3.648
+                        6.269 4 -4.351
+                        6.077 4 -5.023
+                        -7.275 4 -4.965
+                        5.849 4 -5.665
+                        -7.025 4 -5.708
+                        -6.728 4 -6.393
+                        5.585 4 -6.269
+                        5.282 4 -6.827
+                        4.94 4 -7.341
+                        4.559 4 -7.809
+                        4.14 4 -8.232
+                        3.681 4 -8.61
+                        3.184 4 -8.942
+                        2.661 4 -9.23
+                        2.126 4 -9.473
+                        1.579 4 -9.673
+                        1.02 4 -9.828
+                        0.448 4 -9.938
+                        -0.1357 4 -10
+                        -0.7317 4 -10.03
+                        -1.448 4 -9.997
+                        -6.384 4 -7.02
+                        -2.132 4 -9.906
+                        -5.994 4 -7.588
+                        -2.784 4 -9.755
+                        -5.556 4 -8.098
+                        -3.992 4 -9.273
+                        -10.54 4 -4.934
+                        -10.54 4 -4.934
+                        -6.384 4 -7.02
+                        -4.548 4 -8.941
+                        -2.132 4 -9.906
+                        4.94 4 -7.341
+                        6.077 4 -5.023
+                        5.982 4 3.893
+                        4.807 4 6.06
+                        3.47 4 7.312
+                        -0.2371 4 8.559
+                        -1.625 4 8.562
+                        -3.885 4 8
+                        -7.154 4 3.775
+                        -7.154 4 3.775
+                        -9.848 4 5.367
+                        -8.087 4 8.322
+                        -4.633 4 10.64
+                        -1.04 4 11.21
+                        6.511 4 8.388
+                        8.463 4 5.742
+                        9.739 4 -2.402
+                        8.943 4 -5.903
+                        7.833 4 -8.27
+                        6.863 4 -9.583
+                        5.067 4 -11.14
+                        -0.9944 4 -12.65
+                        -3.877 4 -12.29
+                        -7.087 4 -10.68
+                        -8.941 4 -8.654
+                        -9.848 3.129 5.367
+                        -7.154 3.129 3.775
+                        -10.14 3.129 4.482
+                        -6.909 3.129 4.466
+                        -9.495 3.129 6.194
+                        -6.636 3.129 5.101
+                        -9.084 3.129 6.962
+                        -6.332 3.129 5.68
+                        -8.615 3.129 7.671
+                        -5.999 3.129 6.203
+                        -8.087 3.129 8.322
+                        -5.637 3.129 6.67
+                        -7.501 3.129 8.914
+                        -5.244 3.129 7.082
+                        -6.856 3.129 9.448
+                        -4.823 3.129 7.438
+                        -6.16 3.129 9.916
+                        -4.37 3.129 7.742
+                        -5.419 3.129 10.31
+                        -3.885 3.129 8
+                        -4.633 3.129 10.64
+                        -3.369 3.129 8.21
+                        -3.802 3.129 10.89
+                        -2.82 3.129 8.374
+                        -2.926 3.129 11.07
+                        -2.238 3.129 8.491
+                        -2.006 3.129 11.18
+                        -1.625 3.129 8.562
+                        -1.04 3.129 11.21
+                        -0.9797 3.129 8.585
+                        -0.179 3.129 11.18
+                        -0.2371 3.129 8.559
+                        0.6611 3.129 11.1
+                        0.4699 3.129 8.481
+                        1.48 3.129 10.96
+                        1.141 3.129 8.351
+                        2.279 3.129 10.76
+                        1.777 3.129 8.169
+                        3.056 3.129 10.5
+                        2.377 3.129 7.936
+                        3.813 3.129 10.19
+                        2.941 3.129 7.65
+                        4.549 3.129 9.82
+                        3.47 3.129 7.312
+                        5.25 3.129 9.395
+                        3.959 3.129 6.93
+                        5.904 3.129 8.918
+                        -7.478 3.129 -4.163
+                        -10.23 3.129 -5.973
+                        -10.54 3.129 -4.934
+                        -7.275 3.129 -4.965
+                        -9.865 3.129 -6.94
+                        -7.025 3.129 -5.708
+                        -9.434 3.129 -7.833
+                        -6.728 3.129 -6.393
+                        -8.941 3.129 -8.654
+                        -6.384 3.129 -7.02
+                        -8.386 3.129 -9.401
+                        -5.994 3.129 -7.588
+                        -7.767 3.129 -10.08
+                        -5.556 3.129 -8.098
+                        -7.087 3.129 -10.68
+                        -5.072 3.129 -8.549
+                        -6.352 3.129 -11.2
+                        -4.548 3.129 -8.941
+                        -5.572 3.129 -11.65
+                        -3.992 3.129 -9.273
+                        -4.747 3.129 -12.01
+                        -3.404 3.129 -9.544
+                        -3.877 3.129 -12.29
+                        -2.784 3.129 -9.755
+                        -2.961 3.129 -12.49
+                        -2.132 3.129 -9.906
+                        -2 3.129 -12.61
+                        -1.448 3.129 -9.997
+                        -0.9944 3.129 -12.65
+                        -0.7317 3.129 -10.03
+                        0.04183 3.129 -12.62
+                        -0.1357 3.129 -10
+                        1.021 3.129 -12.53
+                        0.448 3.129 -9.938
+                        1.02 3.129 -9.828
+                        1.944 3.129 -12.38
+                        1.579 3.129 -9.673
+                        2.81 3.129 -12.16
+                        2.126 3.129 -9.473
+                        3.619 3.129 -11.88
+                        2.661 3.129 -9.23
+                        4.371 3.129 -11.54
+                        3.184 3.129 -8.942
+                        5.067 3.129 -11.14
+                        3.681 3.129 -8.61
+                        5.711 3.129 -10.67
+                        4.14 3.129 -8.232
+                        6.31 3.129 -10.16
+                        4.559 3.129 -7.809
+                        6.863 3.129 -9.583
+                        4.404 3.129 6.513
+                        6.511 3.129 8.388
+                        4.94 3.129 -7.341
+                        7.37 3.129 -8.954
+                        5.282 3.129 -6.827
+                        7.833 3.129 -8.27
+                        8.249 3.129 -7.53
+                        5.585 3.129 -6.269
+                        8.62 3.129 -6.735
+                        5.849 3.129 -5.665
+                        4.807 3.129 6.06
+                        8.943 3.129 -5.903
+                        6.077 3.129 -5.023
+                        9.217 3.129 -5.054
+                        6.269 3.129 -4.351
+                        6.426 3.129 -3.648
+                        9.44 3.129 -4.187
+                        6.549 3.129 -2.915
+                        9.614 3.129 -3.304
+                        6.636 3.129 -2.151
+                        9.739 3.129 -2.402
+                        6.689 3.129 -1.357
+                        9.813 3.129 -1.484
+                        9.838 3.129 -0.5476
+                        6.706 3.129 -0.5324
+                        9.81 3.129 0.4636
+                        6.691 3.129 0.1162
+                        6.647 3.129 0.7594
+                        9.726 3.129 1.437
+                        6.573 3.129 1.397
+                        9.586 3.129 2.373
+                        6.47 3.129 2.029
+                        9.389 3.129 3.272
+                        6.337 3.129 2.656
+                        9.136 3.129 4.133
+                        6.174 3.129 3.277
+                        8.828 3.129 4.956
+                        5.982 3.129 3.893
+                        8.463 3.129 5.742
+                        5.753 3.129 4.488
+                        8.046 3.129 6.483
+                        5.481 3.129 5.048
+                        6.778 1.156 -4.163
+                        5.685 1.156 -7.02
+                        -5.981 1.156 -6.827
+                        -6.681 1.156 3.893
+                        0.2803 1.156 8.585
+                        6.454 1.156 3.775
+                        6.454 1.156 3.775
+                        0.3405 1.156 11.21
+                        -10.09 1.156 3.272
+                        -8.948 1.156 -7.53
+                        9.165 1.156 -6.94
+                        9.838 1.156 -4.934
+                        6.778 1.156 -4.163
+                        -8.532 1.156 -8.27
+                        -5.981 1.156 -6.827
+                        -8.07 1.156 -8.954
+                        -5.639 1.156 -7.341
+                        -7.562 1.156 -9.583
+                        -5.259 1.156 -7.809
+                        -7.009 1.156 -10.16
+                        -4.839 1.156 -8.232
+                        -6.41 1.156 -10.67
+                        -4.381 1.156 -8.61
+                        -5.766 1.156 -11.14
+                        -3.883 1.156 -8.942
+                        -5.071 1.156 -11.54
+                        -3.361 1.156 -9.23
+                        -4.318 1.156 -11.88
+                        -2.826 1.156 -9.473
+                        -3.509 1.156 -12.16
+                        -2.278 1.156 -9.673
+                        -2.643 1.156 -12.38
+                        -1.719 1.156 -9.828
+                        -1.721 1.156 -12.53
+                        -1.147 1.156 -9.938
+                        -0.7413 1.156 -12.62
+                        -0.5637 1.156 -10
+                        0.2949 1.156 -12.65
+                        0.03221 1.156 -10.03
+                        0.7485 1.156 -9.997
+                        1.301 1.156 -12.61
+                        1.433 1.156 -9.906
+                        2.262 1.156 -12.49
+                        2.085 1.156 -9.755
+                        3.177 1.156 -12.29
+                        2.705 1.156 -9.544
+                        4.048 1.156 -12.01
+                        3.293 1.156 -9.273
+                        4.873 1.156 -11.65
+                        3.849 1.156 -8.941
+                        6.778 1.156 -4.163
+                        9.533 1.156 -5.973
+                        9.838 1.156 -4.934
+                        6.575 1.156 -4.965
+                        9.165 1.156 -6.94
+                        6.325 1.156 -5.708
+                        8.735 1.156 -7.833
+                        6.028 1.156 -6.393
+                        8.242 1.156 -8.654
+                        5.685 1.156 -7.02
+                        7.686 1.156 -9.401
+                        5.294 1.156 -7.588
+                        7.068 1.156 -10.08
+                        4.857 1.156 -8.098
+                        -9.643 1.156 -5.903
+                        -6.968 1.156 -4.351
+                        -9.916 1.156 -5.054
+                        -6.776 1.156 -5.023
+                        -9.319 1.156 -6.735
+                        -9.527 1.156 4.956
+                        -6.681 1.156 3.893
+                        -9.162 1.156 5.742
+                        -7.126 1.156 -3.648
+                        -10.14 1.156 -4.187
+                        -7.248 1.156 -2.915
+                        -10.31 1.156 -3.304
+                        -9.836 1.156 4.133
+                        -6.873 1.156 3.277
+                        -10.09 1.156 3.272
+                        -7.036 1.156 2.656
+                        -7.169 1.156 2.029
+                        -10.29 1.156 2.373
+                        -7.273 1.156 1.397
+                        -10.43 1.156 1.437
+                        -7.347 1.156 0.7594
+                        -10.51 1.156 0.4637
+                        -7.391 1.156 0.1162
+                        -10.54 1.156 -0.5476
+                        -7.406 1.156 -0.5324
+                        -10.51 1.156 -1.484
+                        -6.453 1.156 4.488
+                        8.795 1.156 6.194
+                        5.936 1.156 5.101
+                        8.384 1.156 6.962
+                        5.633 1.156 5.68
+                        7.915 1.156 7.671
+                        5.3 1.156 6.203
+                        7.387 1.156 8.322
+                        4.937 1.156 6.67
+                        6.801 1.156 8.914
+                        4.545 1.156 7.082
+                        6.157 1.156 9.448
+                        4.123 1.156 7.438
+                        5.461 1.156 9.916
+                        3.671 1.156 7.742
+                        4.719 1.156 10.31
+                        3.186 1.156 8
+                        3.933 1.156 10.64
+                        2.669 1.156 8.21
+                        3.103 1.156 10.89
+                        2.12 1.156 8.374
+                        2.227 1.156 11.07
+                        1.539 1.156 8.491
+                        1.306 1.156 11.18
+                        0.9257 1.156 8.562
+                        0.3405 1.156 11.21
+                        0.2803 1.156 8.585
+                        -8.745 1.156 6.483
+                        -6.18 1.156 5.048
+                        -8.281 1.156 7.171
+                        -5.865 1.156 5.572
+                        -7.769 1.156 7.806
+                        -5.506 1.156 6.06
+                        -7.21 1.156 8.388
+                        -5.104 1.156 6.513
+                        -6.604 1.156 8.918
+                        -4.658 1.156 6.93
+                        -5.95 1.156 9.395
+                        -4.169 1.156 7.312
+                        -5.248 1.156 9.82
+                        -3.641 1.156 7.65
+                        -4.512 1.156 10.19
+                        -3.076 1.156 7.936
+                        -3.756 1.156 10.5
+                        -2.476 1.156 8.169
+                        -2.978 1.156 10.76
+                        -1.841 1.156 8.351
+                        -2.18 1.156 10.96
+                        -0.5205 1.156 11.18
+                        9.442 1.156 4.482
+                      }
+                      NormalBinding PER_VERTEX
+                      NormalArray Vec3Array 1252
+                      {
+                        1 0 0
+                        0.866 0 -0.5
+                        1 0 0
+                        0 0 -1
+                        0 0 -1
+                        0 0 -1
+                        -0.866 0 0.4999
+                        -0.866 0 0.4999
+                        -0.866 0 0.4999
+                        0 0 1
+                        0 0 1
+                        0 0 1
+                        0.866 0 0.5
+                        0.866 0 0.5
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0.4999 0 -0.866
+                        0.4999 0 -0.866
+                        0.4999 0 -0.866
+                        -0.4889 0 0.8722
+                        -0.4889 0 0.8722
+                        -0.4889 0 0.8722
+                        0.866 0 0.4999
+                        0.866 0 0.4999
+                        0.866 0 0.4999
+                        -0.866 0 -0.4999
+                        -0.866 0 -0.4999
+                        -0.866 0 -0.4999
+                        -0.866 0 0.5
+                        -0.866 0 0.5
+                        -0.866 0 0.5
+                        0.866 0 -0.5
+                        0.866 0 -0.5
+                        0.866 0 -0.5
+                        0.9999 0 0.0126
+                        0.9999 0 0.0126
+                        0.9999 0 0.0126
+                        0.8718 0 0.4898
+                        0.8718 0 0.4898
+                        0.8718 0 0.4898
+                        -0.8718 0 -0.4898
+                        -0.8718 0 -0.4898
+                        -0.8718 0 -0.4898
+                        0 0 -1
+                        0 0 -1
+                        0 0 -1
+                        0 0 1
+                        0 0 1
+                        0 0 1
+                        -0.866 0 -0.4999
+                        -0.866 0 -0.4999
+                        -0.866 0 -0.4999
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0.9477 0 0.319
+                        0.9594 0 0.2817
+                        0.9477 0 0.319
+                        0.2442 0 -0.9697
+                        0.2442 0 -0.9697
+                        0.2442 0 -0.9697
+                        -0.9693 0 -0.2455
+                        -0.9593 0 -0.2823
+                        -0.9693 0 -0.2455
+                        -0.9593 0 -0.2823
+                        -0.9335 0 -0.3585
+                        -0.9335 0 -0.3585
+                        -0.8981 0 -0.4397
+                        -0.8981 0 -0.4397
+                        -0.8514 0 -0.5243
+                        -0.7926 0 -0.6096
+                        -0.7926 0 -0.6096
+                        -0.7214 0 -0.6924
+                        -0.7214 0 -0.6924
+                        -0.6414 0 -0.7671
+                        -0.6414 0 -0.7671
+                        -0.5566 0 -0.8307
+                        -0.4664 0 -0.8845
+                        -0.4664 0 -0.8845
+                        -0.3712 0 -0.9285
+                        -0.3712 0 -0.9285
+                        -0.2741 0 -0.9616
+                        -0.2741 0 -0.9616
+                        -0.1783 0 -0.9839
+                        -0.0866 0 -0.9962
+                        -0.0866 0 -0.9962
+                        -0.0024 0 -0.9999
+                        -0.0024 0 -0.9999
+                        0.0751 0 -0.9971
+                        0.0751 0 -0.9971
+                        0.1517 0 -0.9884
+                        0.1517 0 -0.9884
+                        0.2287 0 -0.9734
+                        0.2287 0 -0.9734
+                        0.3048 0 -0.9524
+                        0.3048 0 -0.9524
+                        0.3785 0 -0.9255
+                        0.3785 0 -0.9255
+                        0.4486 0 -0.8937
+                        0.4486 0 -0.8937
+                        0.5195 0 -0.8544
+                        0.5195 0 -0.8544
+                        0.5966 0 -0.8024
+                        0.5966 0 -0.8024
+                        0.6737 0 -0.7389
+                        0.6737 0 -0.7389
+                        0.7437 0 -0.6684
+                        0.7437 0 -0.6684
+                        0.8049 0 -0.5933
+                        0.8565 0 -0.5161
+                        0.8565 0 -0.5161
+                        0.8983 0 -0.4393
+                        0.8983 0 -0.4393
+                        0.9299 0 -0.3676
+                        0.9299 0 -0.3676
+                        0.9524 0 -0.3047
+                        0.969 0 -0.2469
+                        0.969 0 -0.2469
+                        0.9814 0 -0.1917
+                        0.9814 0 -0.1917
+                        0.9902 0 -0.1392
+                        0.9902 0 -0.1392
+                        0.9959 0 -0.0898
+                        0.9959 0 -0.0898
+                        0.999 0 -0.0435
+                        0.999 0 -0.0435
+                        0.9999 0 0.0007
+                        0.9999 0 0.0007
+                        0.9989 0 0.0458
+                        0.9989 0 0.0458
+                        0.9957 0 0.092
+                        0.9957 0 0.092
+                        0.9903 0 0.1383
+                        0.9903 0 0.1383
+                        0.9827 0 0.1846
+                        0.9827 0 0.1846
+                        0.973 0 0.2305
+                        0.973 0 0.2305
+                        0.9612 0 0.2756
+                        0.9612 0 0.2756
+                        0.9445 0 0.3284
+                        0.9172 0 0.3983
+                        0.9172 0 0.3983
+                        0.8789 0 0.4769
+                        0.8789 0 0.4769
+                        0.8321 0 0.5545
+                        0.8321 0 0.5545
+                        0.7775 0 0.6288
+                        0.7162 0 0.6978
+                        0.7162 0 0.6978
+                        0.6499 0 0.7599
+                        0.6499 0 0.7599
+                        0.5774 0 0.8164
+                        0.4957 0 0.8684
+                        0.4957 0 0.8684
+                        0.408 0 0.9129
+                        0.408 0 0.9129
+                        0.3194 0 0.9475
+                        0.3194 0 0.9475
+                        0.2327 0 0.9725
+                        0.2327 0 0.9725
+                        0.1499 0 0.9886
+                        0.1499 0 0.9886
+                        0.0723 0 0.9973
+                        -0.0006 0 0.9999
+                        -0.0006 0 0.9999
+                        -0.075 0 0.9971
+                        -0.1558 0 0.9877
+                        -0.1558 0 0.9877
+                        -0.242 0 0.9702
+                        -0.242 0 0.9702
+                        -0.3322 0 0.9431
+                        -0.3322 0 0.9431
+                        -0.4239 0 0.9056
+                        -0.5144 0 0.8575
+                        -0.5144 0 0.8575
+                        -0.6023 0 0.7982
+                        -0.6023 0 0.7982
+                        -0.6854 0 0.7281
+                        -0.6854 0 0.7281
+                        -0.758 0 0.6522
+                        -0.758 0 0.6522
+                        -0.8177 0 0.5755
+                        -0.8177 0 0.5755
+                        -0.8654 0 0.5009
+                        -0.8654 0 0.5009
+                        -0.9026 0 0.4304
+                        -0.9026 0 0.4304
+                        -0.931 0 0.3649
+                        -0.931 0 0.3649
+                        -0.9427 0 0.3334
+                        0.2302 0 0.9731
+                        0.2302 0 0.9731
+                        0.2302 0 0.9731
+                        0.9489 0 -0.3154
+                        0.9351 0 -0.3542
+                        0.9489 0 -0.3154
+                        0.9016 0 -0.4325
+                        0.9016 0 -0.4325
+                        0.8587 0 -0.5123
+                        0.8587 0 -0.5123
+                        0.8062 0 -0.5915
+                        0.8062 0 -0.5915
+                        0.7446 0 -0.6674
+                        0.675 0 -0.7377
+                        0.675 0 -0.7377
+                        0.5987 0 -0.8009
+                        0.5987 0 -0.8009
+                        0.5155 0 -0.8568
+                        0.5155 0 -0.8568
+                        0.427 0 -0.9042
+                        0.427 0 -0.9042
+                        0.3363 0 -0.9417
+                        0.2462 0 -0.9692
+                        0.2462 0 -0.9692
+                        0.1591 0 -0.9872
+                        0.1591 0 -0.9872
+                        0.0769 0 -0.997
+                        0.0769 0 -0.997
+                        0.0021 0 -0.9999
+                        -0.067 0 -0.9977
+                        -0.067 0 -0.9977
+                        -0.136 0 -0.9906
+                        -0.136 0 -0.9906
+                        -0.2065 0 -0.9784
+                        -0.2065 0 -0.9784
+                        -0.2774 0 -0.9607
+                        -0.2774 0 -0.9607
+                        -0.3475 0 -0.9376
+                        -0.3475 0 -0.9376
+                        -0.4157 0 -0.9094
+                        -0.4157 0 -0.9094
+                        -0.4836 0 -0.8752
+                        -0.4836 0 -0.8752
+                        -0.5539 0 -0.8325
+                        -0.5539 0 -0.8325
+                        -0.6241 0 -0.7812
+                        -0.6241 0 -0.7812
+                        -0.6903 0 -0.7235
+                        -0.7508 0 -0.6605
+                        -0.7508 0 -0.6605
+                        -0.8045 0 -0.5938
+                        -0.8045 0 -0.5938
+                        -0.8509 0 -0.5253
+                        -0.8509 0 -0.5253
+                        -0.8899 0 -0.4561
+                        -0.9222 0 -0.3864
+                        -0.9222 0 -0.3864
+                        -0.9485 0 -0.3165
+                        -0.9485 0 -0.3165
+                        -0.9688 0 -0.2477
+                        -0.9688 0 -0.2477
+                        -0.9834 0 -0.181
+                        -0.9834 0 -0.181
+                        -0.993 0 -0.1172
+                        -0.993 0 -0.1172
+                        -0.9983 0 -0.0569
+                        -0.9983 0 -0.0569
+                        -0.9999 0 -0.0005
+                        -0.9999 0 -0.0005
+                        -0.9985 0 0.0537
+                        -0.9985 0 0.0537
+                        -0.994 0 0.1088
+                        -0.9862 0 0.1649
+                        -0.9862 0 0.1649
+                        -0.9751 0 0.2217
+                        -0.9751 0 0.2217
+                        -0.9604 0 0.2784
+                        -0.9604 0 0.2784
+                        -0.9423 0 0.3345
+                        -0.9197 0 0.3926
+                        -0.9197 0 0.3926
+                        -0.8895 0 0.4569
+                        -0.8895 0 0.4569
+                        -0.8507 0 0.5255
+                        -0.8041 0 0.5944
+                        -0.8041 0 0.5944
+                        -0.7494 0 0.662
+                        -0.6873 0 0.7263
+                        -0.6873 0 0.7263
+                        -0.6188 0 0.7854
+                        -0.6188 0 0.7854
+                        -0.5426 0 0.8399
+                        -0.4577 0 0.889
+                        -0.4577 0 0.889
+                        -0.3698 0 0.929
+                        -0.3698 0 0.929
+                        -0.2848 0 0.9585
+                        -0.2848 0 0.9585
+                        -0.2045 0 0.9788
+                        -0.2045 0 0.9788
+                        -0.1302 0 0.9914
+                        -0.1302 0 0.9914
+                        -0.0622 0 0.998
+                        -0.0622 0 0.998
+                        0.005 0 0.9999
+                        0.0826 0 0.9965
+                        0.0826 0 0.9965
+                        0.1702 0 0.9853
+                        0.1702 0 0.9853
+                        0.2622 0 0.9649
+                        0.3562 0 0.9343
+                        0.3562 0 0.9343
+                        0.4493 0 0.8933
+                        0.4493 0 0.8933
+                        0.5386 0 0.8425
+                        0.5386 0 0.8425
+                        0.6225 0 0.7826
+                        0.7006 0 0.7134
+                        0.7006 0 0.7134
+                        0.7709 0 0.6369
+                        0.7709 0 0.6369
+                        0.8308 0 0.5564
+                        0.8799 0 0.475
+                        0.8799 0 0.475
+                        0.9185 0 0.3952
+                        0.9185 0 0.3952
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0.9593 0 -0.2823
+                        0.9693 0 -0.2455
+                        0.9593 0 -0.2823
+                        0.9335 0 -0.3585
+                        0.9335 0 -0.3585
+                        0.8981 0 -0.4397
+                        0.8981 0 -0.4397
+                        0.8514 0 -0.5243
+                        0.7926 0 -0.6096
+                        0.7926 0 -0.6096
+                        0.7214 0 -0.6924
+                        0.7214 0 -0.6924
+                        0.6414 0 -0.7671
+                        0.6414 0 -0.7671
+                        0.5566 0 -0.8307
+                        0.5566 0 -0.8307
+                        0.4664 0 -0.8845
+                        0.4664 0 -0.8845
+                        0.3712 0 -0.9285
+                        0.3712 0 -0.9285
+                        0.2741 0 -0.9616
+                        0.2741 0 -0.9616
+                        0.1783 0 -0.9839
+                        0.1783 0 -0.9839
+                        0.0866 0 -0.9962
+                        0.0866 0 -0.9962
+                        0.0024 0 -0.9999
+                        0.0024 0 -0.9999
+                        -0.0751 0 -0.9971
+                        -0.1517 0 -0.9884
+                        -0.0751 0 -0.9971
+                        -0.2287 0 -0.9734
+                        -0.1517 0 -0.9884
+                        -0.3048 0 -0.9524
+                        -0.2287 0 -0.9734
+                        -0.3785 0 -0.9255
+                        -0.3048 0 -0.9524
+                        -0.4486 0 -0.8937
+                        -0.3785 0 -0.9255
+                        -0.5195 0 -0.8544
+                        -0.4486 0 -0.8937
+                        -0.5966 0 -0.8024
+                        -0.5195 0 -0.8544
+                        -0.6737 0 -0.7389
+                        -0.5966 0 -0.8024
+                        -0.7437 0 -0.6684
+                        -0.6737 0 -0.7389
+                        -0.8049 0 -0.5933
+                        -0.7437 0 -0.6684
+                        -0.8565 0 -0.5161
+                        -0.8049 0 -0.5933
+                        -0.8983 0 -0.4393
+                        -0.8983 0 -0.4393
+                        -0.9299 0 -0.3676
+                        -0.9524 0 -0.3046
+                        -0.9299 0 -0.3676
+                        -0.969 0 -0.2469
+                        -0.9524 0 -0.3046
+                        -0.9814 0 -0.1917
+                        -0.969 0 -0.2469
+                        -0.9902 0 -0.1392
+                        -0.9814 0 -0.1917
+                        -0.9959 0 -0.0898
+                        -0.9902 0 -0.1392
+                        -0.999 0 -0.0435
+                        -0.9959 0 -0.0898
+                        -0.9999 0 0.0007
+                        -0.999 0 -0.0435
+                        -0.9989 0 0.0458
+                        -0.9999 0 0.0007
+                        -0.9957 0 0.092
+                        -0.9989 0 0.0458
+                        -0.9903 0 0.1383
+                        -0.9957 0 0.092
+                        -0.9827 0 0.1846
+                        -0.9903 0 0.1383
+                        -0.973 0 0.2305
+                        -0.9827 0 0.1846
+                        -0.9612 0 0.2756
+                        -0.973 0 0.2305
+                        -0.9445 0 0.3284
+                        -0.9612 0 0.2756
+                        -0.9172 0 0.3983
+                        -0.9172 0 0.3983
+                        -0.8789 0 0.4769
+                        -0.8321 0 0.5545
+                        -0.8789 0 0.4769
+                        -0.7775 0 0.6288
+                        -0.8321 0 0.5545
+                        -0.7162 0 0.6978
+                        -0.7775 0 0.6288
+                        -0.6499 0 0.7599
+                        -0.7162 0 0.6978
+                        -0.5774 0 0.8164
+                        -0.6499 0 0.7599
+                        -0.4957 0 0.8684
+                        -0.5774 0 0.8164
+                        -0.408 0 0.9129
+                        -0.4957 0 0.8684
+                        -0.3194 0 0.9475
+                        -0.408 0 0.9129
+                        -0.2327 0 0.9725
+                        -0.3194 0 0.9475
+                        -0.1499 0 0.9886
+                        -0.2327 0 0.9725
+                        -0.0723 0 0.9973
+                        -0.1499 0 0.9886
+                        0.0006 0 0.9999
+                        -0.0723 0 0.9973
+                        0.075 0 0.9971
+                        0.075 0 0.9971
+                        0.1558 0 0.9877
+                        0.1558 0 0.9877
+                        0.242 0 0.9702
+                        0.242 0 0.9702
+                        0.3322 0 0.9431
+                        0.3322 0 0.9431
+                        0.4239 0 0.9056
+                        0.4239 0 0.9056
+                        0.5144 0 0.8575
+                        0.5144 0 0.8575
+                        0.6023 0 0.7982
+                        0.6023 0 0.7982
+                        0.6854 0 0.7281
+                        0.6854 0 0.7281
+                        0.758 0 0.6522
+                        0.758 0 0.6522
+                        0.8177 0 0.5755
+                        0.8177 0 0.5755
+                        0.8654 0 0.5009
+                        0.8654 0 0.5009
+                        0.9026 0 0.4304
+                        0.9026 0 0.4304
+                        0.931 0 0.3649
+                        0.931 0 0.3649
+                        0.9427 0 0.3334
+                        -0.2302 0 0.9731
+                        -0.2302 0 0.9731
+                        -0.2302 0 0.9731
+                        -0.9351 0 -0.3542
+                        -0.9489 0 -0.3154
+                        -0.9489 0 -0.3154
+                        -0.9016 0 -0.4325
+                        -0.9351 0 -0.3542
+                        -0.8587 0 -0.5123
+                        -0.9016 0 -0.4325
+                        -0.8062 0 -0.5915
+                        -0.8587 0 -0.5123
+                        -0.7446 0 -0.6674
+                        -0.8062 0 -0.5915
+                        -0.675 0 -0.7377
+                        -0.7446 0 -0.6674
+                        -0.5987 0 -0.8009
+                        -0.675 0 -0.7377
+                        -0.5155 0 -0.8568
+                        -0.5987 0 -0.8009
+                        -0.427 0 -0.9042
+                        -0.5155 0 -0.8568
+                        -0.3363 0 -0.9417
+                        -0.427 0 -0.9042
+                        -0.2462 0 -0.9692
+                        -0.3363 0 -0.9417
+                        -0.1591 0 -0.9872
+                        -0.2462 0 -0.9692
+                        -0.0769 0 -0.997
+                        -0.1591 0 -0.9872
+                        -0.0021 0 -0.9999
+                        -0.0769 0 -0.997
+                        0.067 0 -0.9977
+                        0.067 0 -0.9977
+                        0.136 0 -0.9906
+                        0.136 0 -0.9906
+                        0.2065 0 -0.9784
+                        0.2065 0 -0.9784
+                        0.2774 0 -0.9607
+                        0.2774 0 -0.9607
+                        0.3475 0 -0.9376
+                        0.3475 0 -0.9376
+                        0.4157 0 -0.9094
+                        0.4157 0 -0.9094
+                        0.4836 0 -0.8752
+                        0.4836 0 -0.8752
+                        0.5539 0 -0.8325
+                        0.5539 0 -0.8325
+                        0.6241 0 -0.7812
+                        0.6241 0 -0.7812
+                        0.6902 0 -0.7235
+                        0.6902 0 -0.7235
+                        0.7508 0 -0.6605
+                        0.7508 0 -0.6605
+                        0.8045 0 -0.5938
+                        0.8045 0 -0.5938
+                        0.8509 0 -0.5253
+                        0.8509 0 -0.5253
+                        0.8899 0 -0.4561
+                        0.8899 0 -0.4561
+                        0.9222 0 -0.3864
+                        0.9222 0 -0.3864
+                        0.9485 0 -0.3165
+                        0.9485 0 -0.3165
+                        0.9688 0 -0.2477
+                        0.9834 0 -0.181
+                        0.9834 0 -0.181
+                        0.993 0 -0.1172
+                        0.993 0 -0.1172
+                        0.9983 0 -0.0569
+                        0.9983 0 -0.0569
+                        0.9999 0 -0.0005
+                        0.9999 0 -0.0005
+                        0.9985 0 0.0537
+                        0.9985 0 0.0537
+                        0.994 0 0.1088
+                        0.994 0 0.1088
+                        0.9862 0 0.1649
+                        0.9862 0 0.1649
+                        0.9751 0 0.2217
+                        0.9751 0 0.2217
+                        0.9604 0 0.2784
+                        0.9604 0 0.2784
+                        0.9423 0 0.3345
+                        0.9423 0 0.3345
+                        0.9197 0 0.3926
+                        0.9197 0 0.3926
+                        0.8895 0 0.4569
+                        0.8507 0 0.5255
+                        0.8507 0 0.5255
+                        0.8041 0 0.5944
+                        0.8041 0 0.5944
+                        0.7494 0 0.662
+                        0.7494 0 0.662
+                        0.6873 0 0.7263
+                        0.6873 0 0.7263
+                        0.6188 0 0.7854
+                        0.6188 0 0.7854
+                        0.5426 0 0.8399
+                        0.5426 0 0.8399
+                        0.4577 0 0.889
+                        0.4577 0 0.889
+                        0.3698 0 0.929
+                        0.3698 0 0.929
+                        0.2848 0 0.9585
+                        0.2848 0 0.9585
+                        0.2045 0 0.9788
+                        0.2045 0 0.9788
+                        0.1302 0 0.9914
+                        0.1302 0 0.9914
+                        0.0622 0 0.998
+                        0.0622 0 0.998
+                        -0.005 0 0.9999
+                        -0.005 0 0.9999
+                        -0.0826 0 0.9965
+                        -0.1702 0 0.9853
+                        -0.0826 0 0.9965
+                        -0.2622 0 0.9649
+                        -0.1702 0 0.9853
+                        -0.3562 0 0.9343
+                        -0.2622 0 0.9649
+                        -0.4493 0 0.8933
+                        -0.3562 0 0.9343
+                        -0.5386 0 0.8425
+                        -0.4493 0 0.8933
+                        -0.6225 0 0.7826
+                        -0.5386 0 0.8425
+                        -0.7006 0 0.7134
+                        -0.6225 0 0.7826
+                        -0.7709 0 0.6369
+                        -0.7006 0 0.7134
+                        -0.8308 0 0.5564
+                        -0.7709 0 0.6369
+                        -0.8799 0 0.475
+                        -0.8308 0 0.5564
+                        -0.9185 0 0.3952
+                        -0.8799 0 0.475
+                        -0.9477 0 0.319
+                        -0.9477 0 0.319
+                        -0.9594 0 0.2817
+                        -0.2442 0 -0.9697
+                        -0.2442 0 -0.9697
+                        -0.2442 0 -0.9697
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0.866 0 -0.5
+                        0 0 -1
+                        -0.866 0 0.4999
+                        0 0 1
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0.4999 0 -0.866
+                        -0.4889 0 0.8722
+                        0.866 0 0.4999
+                        -0.866 0 -0.4999
+                        -0.866 0 0.5
+                        0.866 0 -0.5
+                        0.9999 0 0.0126
+                        0.8718 0 0.4898
+                        -0.8718 0 -0.4898
+                        0 0 -1
+                        0 0 1
+                        -0.866 0 -0.4999
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0.9594 0 0.2817
+                        0.2442 0 -0.9697
+                        -0.8514 0 -0.5243
+                        -0.5566 0 -0.8307
+                        -0.1783 0 -0.9839
+                        0.8049 0 -0.5933
+                        0.9524 0 -0.3047
+                        0.9445 0 0.3284
+                        0.7775 0 0.6288
+                        0.5774 0 0.8164
+                        0.0723 0 0.9973
+                        -0.075 0 0.9971
+                        -0.4239 0 0.9056
+                        -0.9427 0 0.3334
+                        0.2302 0 0.9731
+                        0.9351 0 -0.3542
+                        0.7446 0 -0.6674
+                        0.3363 0 -0.9417
+                        0.0021 0 -0.9999
+                        -0.6903 0 -0.7235
+                        -0.8899 0 -0.4561
+                        -0.994 0 0.1088
+                        -0.9423 0 0.3345
+                        -0.8507 0 0.5255
+                        -0.7494 0 0.662
+                        -0.5426 0 0.8399
+                        0.005 0 0.9999
+                        0.2622 0 0.9649
+                        0.6225 0 0.7826
+                        0.8308 0 0.5564
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0 1 0
+                        0.9693 0 -0.2455
+                        0.8514 0 -0.5243
+                        -0.8565 0 -0.5161
+                        -0.9445 0 0.3284
+                        0.0006 0 0.9999
+                        0.9427 0 0.3334
+                        -0.2302 0 0.9731
+                        -0.0021 0 -0.9999
+                        0.9688 0 -0.2477
+                        0.8895 0 0.4569
+                        -0.9185 0 0.3952
+                        -0.9594 0 0.2817
+                        -0.2442 0 -0.9697
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                        0 -1 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }

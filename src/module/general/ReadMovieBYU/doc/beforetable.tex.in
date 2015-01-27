@@ -1,0 +1,27 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+ReadMovieBYU reads MovieBYU data in ascii format. It supports scalar, vector and 
+timestep data additional to the grid data. Optional is a color file in ascii format 
+with SGI colors. 
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{readmoviebyu}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+ReadMovieBYU is available for COVISE version 4.5 and higher. 
+It's tested on SGI systems (IRIX 6.2, 6.3, 6.4) and HP systems (HP-UX 10.20). 
+
+%
+%=============================================================

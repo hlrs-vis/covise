@@ -1,0 +1,27 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{2dplot} & Unstructured\_2D\_Data & 2D array with a list
+	of values (the step size depends on the NumBuck Parameter) and a list with the
+	number of data points that are in the corresponding interval \\
+\hline
+	\textcolor{output}{minmax} & MinMax\_Data & Minimum and maximum value for
+	usage in ColorMap module \\
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

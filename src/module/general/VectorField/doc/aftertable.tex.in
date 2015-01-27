@@ -1,0 +1,46 @@
+
+
+
+
+\subsubsection{Example 1}
+%=============================================================
+%
+
+% examples for using this module
+Example 1 is taken from the tutorial maps (tutorial\_vel\_4.net).
+
+\begin{covimg}{}
+	{VectorFieldMap}{covise/net/tutorial/tutorial\_vel\_4.net}{0.6}\end{covimg}
+
+Displaying vector lines for each grid point point in a 3D volume often leads
+to very complex visualizations (see covise/net/tutorial/tutorial\_vel\_3.net).
+Therefore it is often clearer to display vector lines only on a surface,
+for example on the outer surface of the geometry or on a plane which cuts
+through the 3D data. In tutorial\_vel\_4.net the first RWCovise module reads
+in the computational grid of a channel with two inlets. The second RWCovise
+module reads in the velocity field. The module \covlink{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+extracts a plane with the velocity data on the plane. {\bf VectorField} computes a vector arrow on each polygon vertex of the cutting surface.
+The module VectorScal computes the amount of the velocity and the module
+Colors computes colors from the velocity amount data. The colors
+and the vector lines are combined with the module
+\covlink{Collect}{Collect}{../../Tools/Collect/Collect.html} and displayed in the Renderer.
+
+\begin{covimg2}{}{VectorFieldRenderer}{0.7}\end{covimg2}
+
+
+%
+%=============================================================
+
+\subsubsection{Example 2}
+%=============================================================
+%
+ 
+% examples for using this module
+Example 2 is taken from the example maps (VectorField.net)
+
+\begin{covimg}{}
+	{VectorFieldMap2}{covise/net/examples/VectorField.net}{0.6}\end{covimg}
+	
+\begin{covimg2}{}{VectorFieldRenderer2}{0.7}\end{covimg2}
+
+

@@ -1,0 +1,25 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+Map scalar values to colors on isosurfaces, cuttingplanes, vectors... 
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{ColorEdit}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+ColorEdit is tested on SGI workstations, Linux, and HP workstations. 
+
+
+%
+%=============================================================

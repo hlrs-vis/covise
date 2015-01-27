@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+	
+	<GLOBAL>
+		
+		<COVER>
+			<!--Background r="0.3" g="0.3" b="0.3" /-->
+			
+			<Freeze value="off" />
+			<Plugin>
+				<Volume value="off" />
+				<Vrml97 value="off" />
+				<SGBrowser value="off" />
+				 <Molecules value="off" />
+				 <ClipPlane value="off" />
+                                 <Move value="off" />
+				<AKToolbar value="on" >
+     				   <Position x="-1200" y="0" z="830" />
+				</AKToolbar>
+				
+				<!--Vrml97 value="on" >
+					<Audio value="vishp.rrz.uni-koeln.de" />
+					<TransparencyMode value="sorted_blended_alphatest" />
+					<DefaultCreaseAngle value="30.0" />
+				</Vrml97-->
+			</Plugin>
+			
+			<MultiThreaded value="off" />
+			<NumScreens value="1" />
+			<NumPipes value="2" />
+			<NumWindows value="1" />
+			
+			<Menu>
+				<Position x="800" y="0" z="500" />
+			</Menu>
+			
+			<MultiProcess value="ON" />
+			<!--Near value="100" /-->
+			<!--Far value="1000000" /-->
+			<Far value="20000000" />
+			
+	<Input>
+
+    <!--DebugButtons value="TRUE" /-->
+    <!--DebugTracking value="APP" /-->
+
+                <ButtonSystem value="MOUSE" />
+		<ButtonConfig>
+                   <ButtonDevice value="/dev/input/wiimote" />
+                </ButtonConfig>
+		<MouseNav value="true" />
+		<DTrack>
+			<Startup value="visart.rrz.uni-koeln.de:7010" />
+			<Port value="5000" />
+		</DTrack>
+		<HandAddress value="0" />
+		<HeadAddress value="2" />
+		
+		<TrackingSystem value="DTRACK" >
+			<Offset x="-141" y="-1080" z="-1220" />
+			<Orientation h="0" p="90" r="0" />
+		</TrackingSystem>
+		
+		<HeadDevice>
+			<Offset x="0" y="0" z="0" />
+			<Orientation h="45" p="90" r="0" />
+		</HeadDevice>
+		
+		<HandDevice>
+			<Offset x="0" y="0" z="0" />
+			<Orientation h="0" p="-45" r="-145" />
+    		</HandDevice>
+		<Tarsus>
+			<Server host="vistracker.rrz.uni-koeln.de" />
+			<StationName value="Brille" name="0" />
+			<StationName value="Maus" name="1" />
+			<ButtonDevice value="/dev/input/rfmouse" />
+    		</Tarsus>
+	</Input>
+	
+	<MonoView value="MIDDLE" >
+		<!--This configuration entry is deprecated.-->
+	</MonoView>
+	<Stereo enable="on" separation="-60" value="on" />
+	<StereoMode value="QUAD_BUFFER" />
+	<SceneSize value="1500" />
+	<FloorHeight value="-1100" />
+	<StepSize value="400" />
+	<ViewerPosition x="0" y="-1500" z="320" />
+	<NavigationMode value="Xform" />
+	<LODScale value="5.0" />
+	<DebugLevel value="1" />
+	<CoordAxis value="off" />
+	
+	<PipeConfig>
+		<Pipe display=":0.0" name="0" screen="0" pipe="0" />
+		<Pipe display=":0.1" name="1" screen="1" pipe="1" />
+		<!--Pipe display=":0.2" name="2" screen="2" pipe="2" /-->
+	</PipeConfig>
+	
+	<WindowConfig>
+		<Window width="1400" comment="FRONT0" window="0" pipeIndex="1" visualID="0x14c" height="1050" left="0" bottom="0" name="0" decoration="false" stereo="true"/>
+		<!--Window width="1400" comment="FRONT1" window="1" pipeIndex="2" visualID="0x269" height="1050" left="0" bottom="0" name="1" decoration="false" stereo="true"/-->
+	</WindowConfig>
+	
+	<ScreenConfig>
+		<Screen width="2400" comment="FRONT0" h="0.0" originX="0" originY="0" originZ="0" height="1900" p="0.0" r="0.0" name="0" screen="0" />
+		<!--Screen width="2400" comment="FRONT0" h="0.0" originX="0" originY="0" originZ="0" height="1900" p="0.0" r="0.0" name="1" screen="1" /-->
+		<!--Screen value="FRONT1 2400 1900 0 0 0 0.0 0.0 0.0" name="1" screen="1" /-->
+	</ScreenConfig>
+	
+<ChannelConfig>
+	<Channel comment="FRONT0" stereoMode="QUAD_BUFFER" channel="0" right="1400" left="0" windowIndex="0" bottom="0" name="0" top="1050" />
+	<Channel comment="FRONT0" stereoMode="QUAD_BUFFER" channel="1" right="1400" left="0" windowIndex="0" bottom="0" name="1" top="1050" />
+</ChannelConfig>
+
+<!--ChannelConfig>
+
+<Channel channel="0" value="FRONT0 0 0 0 1280 1024" name="0" />
+<Channel channel="1" value="FRONT1 1 0 0 1400 1050" name="1" />
+<Channel channel="2" value="FRONT2 2 0 0 1400 1050" name="2" />
+</ChannelConfig--> 
+
+<TabletPC>
+	<Server value="visdemom.rrz.uni-koeln.de" />
+	<Timeout value="3.0" />
+</TabletPC>
+
+</COVER>
+
+
+</GLOBAL>
+
+
+<INCLUDE>config-highlights-physik-2009.xml</INCLUDE>
+
+
+</COCONFIG>

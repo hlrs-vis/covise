@@ -1,0 +1,38 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        \textcolor{required}{inport\_1} & 
+	                             StructuredGrid\newline
+                                     Float\newline
+                                     Vec3 \newline
+                                     UnstructuredGrid \newline
+                                     Float \newline
+                                     Vec3
+				     Geometry \newline
+                                     Polygons \newline
+                                     Lines \newline
+				     Points \newline
+				     TriangleStrips \newline
+				     IntArr  &
+                                     Input entities from which we select some parts. \\
+\hline
+        \textcolor{optional}{inport\_2} &  see inport\_1 & see inport\_1  \\
+\hline
+        \textcolor{optional}{inport\_3} &  see inport\_1 & see inport\_1  \\
+\hline
+        \textcolor{optional}{inport\_4} &  see inport\_1 & see inport\_1  \\	
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

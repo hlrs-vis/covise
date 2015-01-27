@@ -1,0 +1,23 @@
+KERNEL=/home/ma/src/linux-2.4.17-rtai-24.1.9
+MODDIR=/lib/modules/`uname -r`
+KERNEL=$(MODDIR)/build
+
+CC=gcc 
+OPT=-O2 -g -fomit-frame-pointer -fno-strict-aliasing -Wall
+
+INCLUDE=-I$(KERNEL)/include
+CFLAGS=$(DEF) $(INCLUDE) $(OPT)
+
+all: genlock.o
+
+install:
+	-mkdir $(MODDIR)/misc
+	cp genlock.o $(MODDIR)/misc/
+	depmod -a
+
+clean:
+	$(RM) genlock.o
+
+
+genlock.o: genlock.c
+	$(CC) $(CFLAGS) -c $<

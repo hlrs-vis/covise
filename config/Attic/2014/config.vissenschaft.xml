@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="vissenschaft" >
+
+<License>
+ <SERVER value="ANY 6.5 31.12.2011 0 YQGWYGM Unlimited VIS License" type="SERVER" name="YQGWYGM" />
+ <STD_UI value="ANY 6.5 31.12.2011 0 SUKNPVM Unlimited VIS License" type="STD_UI" name="SUKNPVM" />
+ <VR_ONE_PIPE value="ANY 6.5 31.12.2011 0 EAYLTTC Unlimited VIS License" type="VR_ONE_PIPE" name="EAYLTTC" />
+ <VR_MULTI_ANY value="ANY 6.5 31.12.2011 0 CYSSEWO Unlimited VIS License" type="VR_MULTI_ANY" name="CYSSEWO" />
+ <COVISE_VRML value="ANY 6.5 31.12.2011 0 OGIOKOS Unlimited VIS License" type="COVISE_VRML" name="OGIOKOS" />
+ <COVISE_CFD value="ANY 6.5 31.12.2011 0 MACOIEY Unlimited VIS License" type="COVISE_CFD" name="MACOIEY" />
+ <COVISE_FEM value="ANY 6.5 31.12.2011 0 OUAJRDU Unlimited VIS License" type="COVISE_FEM" name="OUAJRDU" />
+ <VR_DUAL_CLUSTER value="ANY 6.5 31.12.2011 0 IAWZHFC Unlimited VIS License" type="VR_DUAL_CLUSTER" name="IAWZHFC" />
+</License>
+
+  
+  <COVER>
+    <WindowConfig>
+      <Window width="640" window="0" pipeIndex="0" left="0" height="480" bottom="0" comment="FRONT" name="0" decoration="false" />
+    </WindowConfig>
+    <ChannelConfig>
+      <Channel width="640" height="480" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="MONO"  windowIndex="0"  name="0"  />
+    </ChannelConfig>
+    <!-- <ViewerPosition x="0.0" y="-300" z="0.0" --> 
+   <ScreenConfig> <!-- Definiert die physikalische Groesse meiner Projektionsflaeche/Geraet -->
+    <Screen width="165" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="124" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+   <Background g="0" r="0" b="0" />
+   <HMD mode="OFF" angle="60.0" />
+  
+   <!--Console arch="windows" value="true" file="d:\errors.log" /-->		 
+   <!--ViewerPosition  x="0.0" y="-520" z="0.0" /-->
+   <ViewerPosition x="0.0" y="-185" z="0.0" /> <!-- Position for 640x480 needs Screen config of the same -->
+   <Plugin>
+    <Vrml97>
+     <!--Audio value="none" >
+      <Host value="visadler" />
+     </Audio-->
+    </Vrml97>
+	 <ARToolKit value="On">
+		 <Capture value="Off" />
+		 <Stereo value="OFF" />
+		 <AdjustCameraParameter value="ON" />
+		 <TrackViewpoint value="OFF" />
+		 <TrackObjects value="Off" />
+		 <FlipH value="FALSE" />
+		 <Marker name="ObjectMarker">
+			 <Pattern value="c:\data\ARToolkit\conf\4x4_56.patt" />
+			 <Size value="50" />
+			 <!-- OpenCOVER has z-up, keep in mind when using p,r,h -->
+			 <Offset x="8" h="0" y="0" z="80" p="" r="-8" />
+			 <VRMLtoPf value="TRUE" />
+		 </Marker>
+		 <Camera value="C:\data\ARToolkit\conf\logNotePro.dat" />
+		 <!--Camera value="C:\data\ARToolkit\conf\camera_para.dat" /-->
+		 <VideoConfig arch="windows" value="-width=640 -height=480 -fps=20" />
+		 <Threshold value="143" />
+		 <RemoteAR>
+			<Transmit value="Off" />
+			<DesktopMode value="Off" />
+			<EncodingStyle value="0" />
+			<EncodingQuant value="1" />
+			<UseIRMOS value="1"/>
+			<irmosServer value="192.108.38.43"/>
+			<!--irmosServer value="141.58.8.10"/-->
+			<irmosReceiver value="1" />
+			<!--irmosReceiverServer value="192.108.38.44" /-->
+			<irmosReceiverServer value="141.58.8.10" />
+			<irmosReceiverPort value="8550" />
+		 </RemoteAR>
+	 </ARToolKit>
+   </Plugin>
+
+   <Tmp arch="windows" value="d:\coTmp" />
+   
+   <TabletPC>
+   <Server value="127.0.0.1"/>
+   </TabletPC>
+   
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <Stereo value="OFF" />
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="0" />
+    <Startup arch="windows" value="covRemote OpenCOVER 1;" name="0" />   	 
+    <!--Startup arch="windows" value="startOpenCover" name="0" /-->
+    <Host arch="windows" value="141.58.8.90" name="0" />    
+   </MultiPC>
+
+   
+   
+   <WindowConfig>
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="20" name="0" decoration="true"/>
+   </WindowConfig>
+  
+   <!--Collaborative>
+	   <Sync mode="MS" interval="0.1" />
+   </Collaborative-->	
+
+   <DebugLevel value="0" />   
+  
+  </COVER>
+  
+  <System>
+   <VRB>
+    <!--Server port="31800"/>
+    <Server value="141.58.8.10"/-->
+   </VRB>
+   <WSInterface port="31090" enable="Off"/>   
+  </System>
+ 
+</LOCAL>
+
+
+</COCONFIG>

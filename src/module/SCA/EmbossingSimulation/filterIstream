@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sed "s+class istream;+\#include <covise/covise.h>+g" $1

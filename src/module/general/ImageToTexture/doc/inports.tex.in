@@ -1,0 +1,43 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{GeometryIn} & Polygons & Input polygons
+                 for which you want to generate a texture. \\
+\hline
+	\textcolor{optional}{ShiftIn} & Vec3 
+				       & Optional vector field which determines
+                                         the motion of the input geometry.
+                    If you are using this port, the components of this vector
+                    field are subtracted from the point coordintes of the input
+                     polygons and the resulting positions are mapped onto the
+                     XY plane by simply ignoring the Z coordinate.\\
+\hline
+	\textcolor{optional}{inFileName} & Text
+				       & The path written in the browser
+                     parameter of the module may be overridden through a
+                     Text object. If this object has additionally
+                     the attribute {\sl IMAGE\_TO\_TEXTURE}, the values
+                     of all other module parameters may be overridden,
+                     the same way as 
+\covlink{Transform}{Transform}{../../Tools/Transform/Transform.html}.\\
+                     
+                    
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

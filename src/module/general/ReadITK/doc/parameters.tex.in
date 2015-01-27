@@ -1,0 +1,29 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	FilePath & Browser & Path of series image files including printf format string\\ 
+\hline
+	SequenceBegin & IntScalar & First file number in sequence\\ 
+\hline
+	SequenceEnd & IntScalar & Last file number in sequence\\ 
+\hline
+	SequenceInc & IntScalar & Increment in sequence\\ 
+\hline
+	VoxelSize & Boolean & Off: use default values, on: use voxelsize values from below\\ 
+\hline
+	VoxelWidth & FloatScalar & Voxel width\\ 
+\hline
+	VoxelHeight & FloatScalar & Voxel height\\ 
+\hline
+	VoxelDepth & FloatScalar & Voxel depth\\ 
+\hline
+	ImageOrigin & Boolean & Off: use default values, on: use values from below\\ 
+\hline
+	xorigin & FloatScalar & x origin\\ 
+\hline
+	yorigin & FloatScalar & y origin\\ 
+\hline
+	zorigin & FloatScalar & z origin\\
+\hline \end{longtable}
+

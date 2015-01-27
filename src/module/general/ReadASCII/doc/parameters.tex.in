@@ -1,0 +1,28 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} 
+\hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline FilePath & Browser & File of interest\\ 
+\hline Max line length & Integer & length of the max line in the file\\ 
+\hline Geometry Type & Choice & Geometry of the input data\\ 
+\hline Header & Boolean & Does the file contain an header? (For grids only. Contains the dimensions)\\
+\hline Header Byte Offset & Integer & Skip X Bytes for header readout\\
+\hline Header Line Skip & Integer & Skip X lines for header readout\\
+\hline Dim Pattern & String & Pattern to scan the dimensions from the header\\
+\hline DimX & Integer & X Dimension (grid only)\\
+\hline UniDist X & Integer & Uniform distance in X direction (grid only)\\
+\hline DimY & Integer & Y Dimension (grid only)\\
+\hline UniDist Y & Integer & Uniform distance in Y direction (grid only)\\
+\hline DimZ & Integer & Z Dimension (grid only)\\
+\hline UniDist Z & Integer & Uniform distance in Z direction (grid only)\\
+\hline Data interleaving & Boolean & Is the data input in an interleaved format?\\
+\hline Number of Points & Integer & Number of Points (will be calculated for grids)\\
+\hline Data Byte Offset & Integer & Skip X Bytes for data readout\\
+\hline Data Line Skip & Integer & Skip X lines for data readout\\
+\hline Data Format & String & Format to scan the data\\
+\hline Grid Index Iteration Order & Choice & Iteration order of the index (Structured Grid only)\\
+\hline Print results to console & Boolean & Print the result in Format: x,y,z(coords) - scalar - x,y,z(value)\\
+\hline Print debug info to console & Boolean & Print used parameters and their values\\
+\hline Scale & Float & Scale factor (if factor is 1 it will be ignored)\\
+\hline \end{longtable}
+

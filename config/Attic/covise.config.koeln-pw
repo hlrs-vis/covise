@@ -1,0 +1,237 @@
+TarsusConfig
+{
+  #Host 141.58.8.96
+  #Host vislab01.rrz.uni-koeln.de
+  Host vistracker.rrz.uni-koeln.de
+  StationName0 CoviseBrille
+  StationName1 CoviseMaus
+  #StationName1 ViconInteractionDevice
+  #ButtonDevice ViconMouse
+  ButtonDevice TarsusMouse
+}
+
+TrackerConfig
+{
+   NUM_STATIONS                 2
+      HEAD_ADDR                   0
+      HAND_ADDR                   1
+
+
+
+#DEBUG_TRACKING              APP
+#DEBUG_TRACKING              RAW
+#DEBUG_STATION               2
+
+
+        TRANSMITTER_OFFSET               0 -150 -110
+
+    HEADSENSOR_OFFSET           0 0 0
+    HEADSENSOR_ORIENTATION                  180 0 180
+
+    HANDSENSOR_OFFSET                       0 0 0
+    HANDSENSOR_ORIENTATION                  180 0 180
+
+}
+
+
+
+
+TabletPC
+{
+    Server 134.95.83.253
+    #Server vis03
+    #Server vis03
+    Timeout 2.0
+}
+
+COVERConfig: vis00.rrz.uni-koeln.de
+{
+    AUDIO                       AServer
+    AUDIO_HOST                  vistracker.rrz.uni-koeln.de
+
+  MONO_VIEW             RIGHT
+  STEREO_SEP          ON
+}
+
+
+COVERConfig: vis01.rrz.uni-koeln.de
+{
+  MONO_VIEW             LEFT
+  STEREO_SEP          ON
+}
+
+COVERConfig
+{
+    #NoPreload           true   # for maya vrml
+    MENU_POSITION       800 0 500
+
+    AUDIO                        None
+
+    MULTIPROCESS ON
+
+   NEAR 100
+   #FAR 2000000
+   TRACKING_SYSTEM		TARSUS
+   #TRACKING_SYSTEM	MOUSE
+   MOUSE_NAV               ON
+
+  VISUAL_ID           0x23
+  #VISUAL_ID           0x3c
+  #STEREO_MODE         LEFT_EYE
+  MONO_VIEW             MIDDLE
+    STEREO OFF
+    STEREO_MODE         OFF
+     STEREO_SEPARATION 64
+     STEREO_SEP OFF
+
+     #VRML_CORRECT_BACKFACE_CULLING ON
+
+
+
+    SCENESIZE          1500
+    floorHeight -1100
+    stepSize    400
+    VIEWER_POSITION     0 -1500 320
+
+    NAVIGATION_MODE     Xform
+
+    DEBUG_LEVEL         0
+
+    TRANSPARENCY_MODE sorted_blended_alphatest
+
+    #MODULE TrackerMarker
+    MODULE VRMoleculeViewer
+}
+
+WindowConfig:vis00.rrz.uni-koeln.de,vis01.rrz.uni-koeln.de
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1280 1024 false
+}
+
+ChannelConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+#       	0	FRONT       	0       	0 0 		1280 1024
+}
+
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:0.0
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	#0		FRONT		1800 1350		0 0 0			0.0 0.0 0.0
+	0		FRONT		2500 2000		0 0 0			0.0 0.0 0.0
+	
+}
+
+MultiPC # vis02.rrz.uni-koeln.de,vis03.rrz.uni-koeln.de
+{
+    #SyncMode MULTICAST
+    SyncMode TCP
+    #SyncProcess APP
+    numSlaves 1
+    Command0 ssh ${USER}@vis01.rrz.uni-koeln.de setenv ARCHSUFFIX $ARCHSUFFIX \; source ${COVISEDIR}/.covise \;if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\& /tmp/error.log
+    Command1 ssh ${USER}@vis00.rrz.uni-koeln.de setenv ARCHSUFFIX $ARCHSUFFIX \; source ${COVISEDIR}/.covise \;if \( \{ test -d `pwd` \} \) cd `pwd` \;cover \>\& /tmp/error.log
+    #Startup0 ssh ${USER}@vis00.rrz.uni-koeln.de if \( \{ test -d `pwd` \} \) cd `pwd` \;xterm -display vis03:0 -e opencover
+    #Startup1 ssh ${USER}@vis01.rrz.uni-koeln.de if \( \{ test -d `pwd` \} \) cd `pwd` \;xterm -display vis03:0 -e opencover
+    #Startup0 ssh ${USER}@vis00.rrz.uni-koeln.de setenv ARCHSUFFIX $ARCHSUFFIX \; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\& /tmp/error.log
+    #Startup1 ssh ${USER}@vis01.rrz.uni-koeln.de setenv ARCHSUFFIX $ARCHSUFFIX \; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\& /tmp/error.log
+    Startup0 ssh ${USER}@vis01.rrz.uni-koeln.de setenv ARCHSUFFIX $ARCHSUFFIX \; source ${COVISEDIR}/.covise ${COVISEDIR} \; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\& ${HOME}/opencover.vis00.log
+    Startup1 ssh ${USER}@vishp.rrz.uni-koeln.de setenv ARCHSUFFIX $ARCHSUFFIX \; source ${COVISEDIR}/.covise ${COVISEDIR} \; if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\& ${HOME}/opencover.vishp.log
+}
+
+TFE
+{
+        MenuSize 1.0
+
+}
+
+SimianTFE
+{
+        MenuSize 1.0
+}
+
+#CoverLight1
+#{
+   #Diffusive   0.1 0.1 0.1
+   #Specular    0.04 0.04 0.04
+   #Ambient     0.0 0.0 0.0
+   #Position    2000.0 0.0 10000.0 1.0
+#}
+
+
+
+License
+{
+SERVER 8323328 5.4 13.05.2006 0 QSWBBBS
+STD_UI 8323328 5.4 13.05.2006 0 WCAMWCU
+VR_ONE_PIPE 8323328 5.4 13.05.2006 0 OWSAUOA
+VR_MULTI_ANY 8323328 5.4 13.05.2006 0 ECUPZLM
+
+SERVER 001185ae8ebd 5.4 17.05.2006 0 IAEESCK vishp/HP XW9300
+STD_UI 001185ae8ebd 5.4 17.05.2006 0 YEKRXNY vishp/HP XW9300
+VR_ONE_PIPE 001185ae8ebd 5.4 17.05.2006 0 UQENHZQ vishp/HP XW9300
+VR_MULTI_ANY 001185ae8ebd 5.4 17.05.2006 0 OGYQUQE vishp/HP XW9300
+
+
+}
+
+WindowConfig:vishp,vishp.rrz.uni-koeln.de
+{
+#       WinNo   WinName         SoftPipeNo      Origin[pixel]   Size [pixel]
+        #0      FRONT           0               0 0             800 600
+        0       FRONT0          1               0 0             1400 1050 false 0xc9
+        #1      FRONT1          1               0 0             1024 768 #false 0xc9
+}
+
+ChannelConfig:vishp,vishp.rrz.uni-koeln.de
+{
+#       WinNo   WinName         SoftPipeNo      Origin[pixel]   Size [pixel]
+        0       FRONT0          0               0 0             1400 1050
+        #0      FRONT0          1               1024 0          1024 768
+        #0      FRONT1          0               1024 0          1024 768
+        #1      FRONT1          0               0 0             1024 768
+}
+
+
+PipeConfig:vishp,vishp.rrz.uni-koeln.de
+{
+#       SoftPipe        HardPipe        Display
+
+        0               0               :0.0
+        1               0               :0.0
+}
+
+ScreenConfig:vishp,vishp.rrz.uni-koeln.de
+{
+#       ScreenNo        ScreenName      ScreenSize[mm]  ScreenCenter[mm]        ScreenOrient hpr [degrees]
+
+        0               FRONT0          2400 1900               -1800 -1500 0                   90.0 0.0 0.0
+        1               FRONT0          2400 1900               -1800 -1500 0                   90.0 0.0 0.0
+        #1               FRONT0           400 300         0 0 0                    0.0 0.0 0.0
+        #0               FRONT0           400 300         0 0 0                    0.0 0.0 0.0
+
+
+}
+
+COVERConfig: visph,vishp.rrz.uni-koeln.de
+{
+MULTITHREAD off
+NUM_SCREENS 1
+NUM_PIPES 1
+NUM_WINDOWS 1
+}
+
+
+
+
+
+
+include "config/covise.config.koeln"

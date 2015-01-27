@@ -1,0 +1,31 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+%\begin{covimg2}
+%		{}{CellToVertMap}{0.7}\end{covimg2}
+\begin{covimg}{}%
+		{CellToVertMap}{covise/net/examples/ReadKiva.net}{0.7}\end{covimg}
+%In ReadStar.net (covise/net/examples/ReadStar.net) the module 
+%\covlink {ReadStar}{ReadStar}{../../IO/ReadStar/ReadStar.html} reads in the computational grid
+%(parameter mesh\_path) and the simulation results (parameter data\_path) in STARCD format (file 16 or
+%.mdl) of a channel with two inlets.
+
+%At the first output port the computational grid is available and at the last three output ports the
+%simulation result data selected with the parameters field1, field2 and field3 are available.
+%The module CheckUSG eliminates unnecessary vertices.
+
+%In this example the temperature is available at the 4th port. 
+CellToVert interpolates the per-cell
+data to per-vertex data because the module 
+\covlink{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+ needs per-vertex data.   
+
+%\begin{covimg2}
+%		{modules/Tools/CellToVert}{CellToVertRenderer}{0.7}\end{covimg2}
+ 
+For the corresponding Renderer output see  \covlink
+{ReadKiva}{ReadKiva}{../../IO/ReadKiva/ReadKiva.html}

@@ -1,0 +1,51 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Parts Editor</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h3>
+<font face="Times New Roman,Times"><font color="#FF9900">Part Editor</font></font></h3>
+<font face="Arial,Helvetica">If the geometry objects displayed by the Renderer
+can be identified (in case of modules using finite elements) you can use
+the&nbsp; <b><font color="#000000">Covise Part Editor</font></b> to select
+which parts of the geometry will become visible or invisible and, optionally,
+which part is fixed during movements.</font>
+<br>&nbsp;
+<center><table CELLSPACING=0 CELLPADDING=5 WIDTH="73%" >
+<tr>
+<td ALIGN=CENTER VALIGN=TOP WIDTH="80%"><img SRC="parts.gif" height=631 width=454></td>
+</tr>
+</table></center>
+
+<p>The <b>left side </b>of the Part Editor window provides the functions
+to select which parts are <b>visible</b>; you have 3 possibilities:
+<ul>
+<li>
+Select any subset of parts out of the selection list (toggle switches,
+any subset)</li>
+
+<li>
+Set all parts visible/invisible or invert your selection</li>
+
+<li>
+Specify the subset of parts by a regular expression and press RETURN</li>
+</ul>
+On the <b>right side </b>you can (optionally) select a <b>reference part</b>
+that will be <b>fixed </b>during movements; to specify this reference part
+you can use 2 possibilities:
+<ul>
+<li>
+Select this part from the list (toggle switches, 1 part only)</li>
+
+<li>
+Specify a regular expression and press RETURN; the first part matching
+the regular expression is fixed.</li>
+</ul>
+
+</body>
+</html>

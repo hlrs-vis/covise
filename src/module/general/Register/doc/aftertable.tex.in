@@ -1,0 +1,18 @@
+%=============================================================
+% examples for using this module
+%=============================================================
+
+\subsubsection{Examples}
+
+A "classical" combination for this module is the example Registration.net. A series of images is read in by ReadITK and aligned by Register. While the grid is directly lead to a collect module, an alpha channel is added to the RGB data by the module ColorDistance. After modification by the module Scalar2Vector, the data is lead to the Collect module, which delivers the volume data to a renderer.
+
+
+%=============================================================
+% module icon
+%=============================================================
+% #1  path for eps, #2  picture name, #3  scale factor
+%=============================================================
+
+\begin{covimg2}{}{register-example}{1.0}\end{covimg2}
+   
+

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1">
+	<GLOBAL>
+		<COVER>
+			<Localization>
+			<LanguageLocale value="de.UTF-8"/>
+			</Localization>
+		</COVER>
+	</GLOBAL>
+</COCONFIG>

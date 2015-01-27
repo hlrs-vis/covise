@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<UnityVRConfig xmlns:xi="http://www.w3.org/2003/XInclude">
+	<Devices> 
+		<Device type="vrc">
+			<Port value="7777"/>
+			<host value="127.0.0.1"/>
+			<coverids value="1" />
+		</Device> 
+		<DeviceOffset device="VRC 1">
+			<Transform x="0.0" y="0.0" z="1.25" h="0.0" p="0.0" r="0.0"/>
+		</DeviceOffset>
+		<Device type="KeyboardMouse"/>
+	</Devices>	
+</UnityVRConfig>

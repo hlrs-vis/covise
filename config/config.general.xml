@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<GLOBAL>
+
+   <COVER>
+      <WelcomeMessage value="Welcome to OpenCOVER" />
+      <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+      <NavigationMode value="XForm" />
+      <CollisionDist value="1500" />
+      <Background r="0.5" g="0.5" b="1.0" /> 
+      <MultiThreaded value="false" />
+      <ShowGeodeName enable="off" value="off"/>
+      <LODScale value="0.3" />
+      <SaveFile value="/tmp/test.osg" />
+      <RotationSpeed value="10" />
+      <REGISTER_RAW_SCENEGRAPH value="on" />
+      <ScaleAll value="OFF" />
+      <CoordAxis value="off" />
+      <Freeze value="on" />
+      <GenStrips value="off" />
+      <DebugLevel value="0" /> 
+      <FPS value="off" />
+      <ConstantInteractorSize value="Off"/>
+      <Restrict value="Off" />
+      <Stencil enable="on" value="on"/>
+      <ScaleWithInteractors value="off"/>
+      <TwoSide value="ON" />
+      <TransparencyMode value="sorted_blended" />
+      <Headlight value="on" />
+<!--     
+      <Lights>
+      <Sun>
+        <Specular value="on" r="1.0" g="1.0" b="1.0" />
+        <Diffuse value="on" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="on" r="0.3" g="0.3" b="0.3" />
+        <Position value="on" x="0.0" y="0.0" z="1.0" w="0.0" />
+        <Spot value="on" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Sun>
+
+      <Light1>
+        <Specular value="on" r="1.0" g="1.0" b="1.0" />
+        <Diffuse value="on" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="on" r="0.3" g="0.3" b="0.3" />
+        <Position value="on" x="0.0" y="-1.0" z="0.0" w="0.0" />
+        <Spot value="on" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Light1>
+      
+      <Light2>
+        <Specular value="on" r="1.0" g="1.0" b="1.0" />
+        <Diffuse value="on" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="on" r="0.3" g="0.3" b="0.3" />
+        <Position value="on" x="-1.0" y="0.0" z="0.0" w="0.0" />
+        <Spot value="on" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Light2> 
+
+      </Lights>
+-->      
+
+
+      <Plugin>
+
+         <AKToolbar value="on">
+            <Attachment value="BOTTOM" />
+            <MenuMaxItems value="0"/>
+            
+            <ShortCut value="quit" name="quit" />
+            <ShortCut value="xform" name="xform" />
+            <ShortCut value="viewall" name="viewall" />
+            <!-- <ShortCut value="scale" name="scale" /> -->
+            <ShortCut value="scalePlus" name="scalePlus" />
+            <ShortCut value="scaleMinus" name="scaleMinus" />
+            <!-- <ShortCut value="drive" name="drive" /> -->
+            <ShortCut value="fly" name="fly" />
+            <!-- <ShortCut value="walk" name="walk" />-->
+            <ShortCut value="showName" name="showName" />
+            <ShortCut plugin="ClipPlane" value="1" icon="schere" name="schere" />
+            <!-- <ShortCut value="Plugin:ViewPoint loadViewpoint left Icon:leftView" name="left" />-->
+            <ShortCut plugin="CfdGui" value="presentationForward" icon="media-seek-forward" name="forward"/>
+            <ShortCut plugin="CfdGui" value="presentationBackward" icon="media-seek-backward" name="backward"/>
+            <DebugLevel value="0"/>
+            <CoverMenu value="on"/>
+            <StateButton value="off"/>
+         </AKToolbar>
+         
+
+         <Volume value="off" >
+            <Files>
+               <Skull value="/data/general/examples/ReadVolume/skull.rvf" />
+               <Lobster value="/data/general/examples/ReadVolume/lobster.rvf" />
+               <Aneurism value="/data/general/examples/ReadVolume/aneurism.rvf" />
+            <Lambda value="/data/general/examples/ReadVolume/lambda.rvf" />
+            </Files>
+         </Volume>
+
+         <ClipPlane value="on" />
+
+         <Vrml97 value="on">    
+            <Lights value="off" />
+            <UseFieldOfViewForScaling value="off" />
+<!--
+            <Audio value="AServer" >
+               <Host value="192.168.0.201" />
+            </Audio>
+-->
+         </Vrml97>
+
+         <GeneralGeometry value="on" />
+
+         <Move value="off" />
+
+         <ViewPoint value="on">
+            <FlyingMode value="on"/>
+            <FlightTime value="2.0"/>
+            <FlyConfig value="off"/>
+            <QuickNav value="on"/>
+            <Loop value="off"/>
+            <WriteVrmlViewpoint value="off"/>
+            <Viewpoints name="front" value="on" />
+            <Viewpoints name="back" value="on" />
+            <Viewpoints name="left" value="on" />
+            <Viewpoints name="right" value="on" />
+            <Viewpoints name="top" value="on" />
+            <Viewpoints name="bottom" value="on" />
+         </ViewPoint>
+
+
+         <DocumentViewer value="on">
+            <!-- <Document value="/work/ko_te/Desktop/tshirt.jpg" name="fly"/>
+            <Document value="test2" name="testImage2"/>
+            <Document value="test3" name="testImage3"/> -->
+            <!-- <AspectRatio value="0.4"/> -->
+            <DocumentInMenu value="off"/>
+            <DocumentInScene value="off"/>
+         </DocumentViewer>
+
+         <CfdGui value="on"/>
+		 
+		 <PBufferSnapShot value="on" />
+
+      </Plugin>
+
+        <Localization>
+            <TranslatorType value="Boost.Locale" />
+            <LocalePrefix value="share/locale" />
+            <CoviseDomain value="covise" />
+            <ModuleDomain value="module" />
+            <VrPrepareDomain value="vr-prepare" />
+            <VRMLDomain value="vrml" />
+        </Localization>
+
+   </COVER>
+
+
+</GLOBAL>
+
+
+</COCONFIG>

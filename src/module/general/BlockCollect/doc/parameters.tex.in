@@ -1,0 +1,36 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \endhead
+\hline\hline
+	mode & Choice & \begin{enumerate}
+	                  \item Set of Elements: Put all objects at the ports 
+			    inport0..inport4 into one set.
+			  \item Cat Timesteps: Assume that every object at the 
+			        input ports is one timestep. Collect all objects
+				and make a series of timesteps out of it. \newline
+				Incoming sets are unpacked. This gives you the 
+				possibility to cat a set with timesteps 1 to
+				10 and a set of timesteps 10 to 15 to one series
+				from step 1 to step 15.
+			  \item Merge Blocks: Incoming objects must be sets
+			        with the same number of elements. \newline
+			        Assume that objects on the same level belong to
+				each other, e.g. element of one of set one and 
+				element one of set two. With this option you can
+				merge two case studies to one visualisation.
+	                \end{enumerate}  \\
+\hline
+
+\end{longtable}
+%=============================================================
+
+
+\clearpage
+%
+%=============================================================

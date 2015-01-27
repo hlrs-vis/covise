@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="88">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="PLMXML_Parser">
+      <df name="CMakeFiles">
+        <df name="CMakeTmp">
+          <df name="CMakeFiles">
+            <df name="cmTryCompileExec.dir">
+            </df>
+          </df>
+        </df>
+        <df name="CompilerIdC">
+          <in>CMakeCCompilerId.c</in>
+        </df>
+        <df name="CompilerIdCXX">
+          <in>CMakeCXXCompilerId.cpp</in>
+        </df>
+      </df>
+      <in>BC_T.cpp</in>
+      <in>BC_T.h</in>
+      <in>BC_U.cpp</in>
+      <in>BC_U.h</in>
+      <in>BC_alphat.cpp</in>
+      <in>BC_alphat.h</in>
+      <in>BC_epsilon.cpp</in>
+      <in>BC_epsilon.h</in>
+      <in>BC_k.cpp</in>
+      <in>BC_k.h</in>
+      <in>BC_nut.cpp</in>
+      <in>BC_nut.h</in>
+      <in>BC_p.cpp</in>
+      <in>BC_p.h</in>
+      <in>CoolEmAll.cpp</in>
+      <in>CoolEmAll.h</in>
+      <in>CoolEmAllClient.cpp</in>
+      <in>CoolEmAllClient.h</in>
+      <in>FileReference.cpp</in>
+      <in>FileReference.h</in>
+      <in>NameId.cpp</in>
+      <in>NameId.h</in>
+      <in>PLMXMLParser.cpp</in>
+      <in>PLMXMLParser.h</in>
+      <in>Part.cpp</in>
+      <in>Part.h</in>
+      <in>SnappyHexmeshDict.cpp</in>
+      <in>SnappyHexmeshDict.h</in>
+      <in>checkForPoint.cpp</in>
+      <in>checkForPoint.h</in>
+      <in>findTransform.cpp</in>
+      <in>functions.h</in>
+      <in>main.cpp</in>
+      <in>transformSTL.cpp</in>
+    </df>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>true</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>

@@ -1,0 +1,21 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+% examples for using this module
+
+The example below shows "Triceratops", a dinosaurier (image) that has been taken from
+{\it Avalon 3D Archive, hosted by Viewpoint Corporation}.
+
+You can display the image as shown in the map and renderer picture below. (The Renderer
+image has been improved by turning on lights and editing background color.)
+
+\begin{covimg}{}
+		{ReadObjMap}{covise/net/examples/ReadObj.net}{0.7}\end{covimg}
+
+
+\begin{covimg2}	{}{ReadObjRenderer}{0.7}\end{covimg2}
+

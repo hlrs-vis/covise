@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ShowGrid.cpp
+)
+
+SET(EXTRASOURCES
+  ShowGrid.h
+)
+
+ADD_COVISE_MODULE(Tools ShowGrid ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ShowGrid  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ShowGrid)

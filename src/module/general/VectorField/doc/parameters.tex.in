@@ -1,0 +1,41 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	length & Choice & With this parameter the length of the lines can be set.\newline
+	{\it 1*scale} scales all lines with the value of the {\it scale} parameter.
+	\newline
+	{\it length*scale} means that the amount of the vector is used to compute
+	the length which is then multiplied with {\it scale}.\newline
+	{\it according\_to\_data} scales the lines according to the data from the
+	optional input port.\\
+\hline
+	scale & Slider & Scale factor which is used when length is set to {\it
+	1*scale} or {\it length*scale}.  \\
+\hline
+	fasten & Choice & Point where the vector lines are fastened. Default is {\it
+	on\_the\_bottom} which means, that the lines start at the grid/surface
+	vertices. {\it on\_the\_middle} means that the middle of the line is
+	fastened at the grid/surface vertices.\\														
+\hline
+        num\_sectors & Scalar & arrow head is built using num\_sectors lines - 
+	If you have difficulties in identifying
+        the direction of the vector, you may introduce here a positive
+        value in order to give all vectors an arrow point. This value
+        parametrises the refinement of the graphical representation
+        for the arrow points. In general values of an order of magnitude
+        between 1 and 30 have to be enough for your purposes. \\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,29 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \\
+\hline\hline
+	\textcolor{required}{Polygons} &  Polygons & The polygon of which you want to throw polygons out \\
+\hline
+	\textcolor{required}{Throw\_away} &  Polygons & The polygons you want to throw out. Three cases for elimination polygons are supported: 
+	\begin{itemize}
+	\item one polygon for all 
+	\item one polygon per timestep 
+	\item one polygon per block per timestep 
+	\end{itemize} \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

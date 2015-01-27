@@ -1,0 +1,79 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+ReadPAM reads DSY and THP files. From the DSY file it
+may read the grid, nodal and cell data. Global data may be read
+from either the DSY file or the THP. Before you try using this
+module and the examples below you have to set the
+PAMHOME environment variable. A line setting this variable
+may be already present in your .covise file. In this case
+you may have to correct the value for this variable to
+the path of the directory for your DSY
+library installation directory.
+Your license file, without which this module will not work,
+is found in the subdirectory {\it licenses}
+under this directory.
+
+The module inspects the input file and produces lists
+for the available variables that you may select for output.
+The number of cell or global variables may be sometimes very long.
+There should be no problem with that in principle, but in
+extreme cases, some important time delays may appear. 
+Then you may limit the number of the different categories of variables
+by creating a {\sl ReadPAM\_Limits} section in your covise.config
+file. In this section you may define the following variables:
+\begin{itemize}
+\item
+CellVarLimit limits the maximum number of cell variables.
+\item
+GlobalVarLimit limits the maximum number of global variables.
+\item
+MatGlobalVarLimit limits the maximum number of material global variables.
+\item
+TsGlobalVarLimit limits the maximum number of transmission section global variables.
+\item
+CiGlobalVarLimit limits the maximum number of contact interface global variables.
+\item
+RwGlobalVarLimit limits the maximum number of rigid wall global variables.
+\item
+AbGlobalVarLimit limits the maximum number of airbag global variables.
+\item
+AbChGlobalVarLimit limits the maximum number of airbag chamber global variables.
+\item
+AbWGlobalVarLimit limits the maximum number of airbag wall global variables.
+\end{itemize}
+
+We strongly recommend not to use this section in your covise.config unless
+it is extremely necessary. If you create this section thereby establishing
+some limits, and create a map with them, in the future you will have to use
+the same limits in order to run successfully that net file, otherwise
+ReadPAM will probably crash.
+
+An additional remark about long choice lists is in order. You may have difficulties
+when trying to access some variable if the choice list is too long
+for the dimensions of your screen. That is not a real problem, you may
+also change the appearance of the parameter to a combo box.
+ 
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{ReadPAM}{0.7}\end{covimg2}
+
+%
+% short information about versions 
+%
+ReadPAM is available for COVISE version 5.1 and higher.
+It has been tested on SGI systems (IRIX 6.5).
+
+{\bf SGI only, PAM license required - no LINUX support}
+
+%
+%=============================================================

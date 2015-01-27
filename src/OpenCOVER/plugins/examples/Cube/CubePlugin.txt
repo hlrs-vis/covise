@@ -1,0 +1,62 @@
+Cube Plugin
+-----------
+
+Description
+-----------
+Small example for plugin programming which shows
+- menu access
+- direct manipulation
+- feedback with a module
+
+Functionality
+-------------
+
+The module "Cube" creates a cube object (polygons) with
+the parameters attached as feedback.
+
+If the module is connected to OpenCOVER, it displays the cube.
+
+The attribute MODULE starts the feedback plugin (coVRInit). 
+
+--* coVRInit ?
+
+coVRInit generates a pinboard item, a submenu and a wireframe cube.
+The submenu button is not yet attached to the pinboard. The wireframe
+cube is invisisble.
+
+The submenu contains a slider for the size and a toggle button for
+the "move" interaction.
+
+coVRNewInteractor updates the slider in the menu and the size and center
+of the wireframe cube. if firsttime, add a button "cube" to the pinboard
+and attach the submenu to it, add the wireframe cube to the scenegraph.
+
+--> check menu, slider value, appaerance wireframe cube
+--> check parameter update
+
+If a menu event of the slider is generated, the size of the wireframe
+cube is updated.
+
+--> check size slider, change of cube size
+
+If a menu release event of the slider is generated, the size is sent
+to the module.
+
+--> check slider parameter
+
+If a menu event for the toggle button is generated and the state is true,
+the direct manipulation of the cube is enabled. As soon as the action
+button is pressed, the cube moves relatively to the hand. When the button
+is released, the cube position is sent to the module.
+
+--> check direct manipulation
+--> check parameter update
+
+When the cube is disconnected, the pinboard button, the menu and the wireframe 
+cube are deleted.
+
+--> check second execute, delete of connection, delete of module
+ 
+
+
+

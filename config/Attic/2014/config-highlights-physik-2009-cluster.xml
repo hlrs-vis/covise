@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+    <Module>
+       <SwitchData>
+          <NumberOfInputs value="5" />
+          <Label0 value="Cluster: KS-Paar (13, 20)" />
+          <Label1 value="Cluster: KS-Paar/Spirale (13, 20, 39, 189, 240)" />
+          <Label2 value="Cluster: geradlinig (240, 444)" />
+          <Label3 value="Cluster: verlorene Scheibe (444)" />
+          <Label4 value="Cluster: Wiedersehen (13, 39)" />
+       </SwitchData>
+    </Module>
+
+ <COVER>
+    <Background r="0.0" g="0.0" b="0.0" />
+    <TabletPC fontsize="24" toolbar="false" >
+       <Remap name="Cluster" parent="SwitchData" x="1" y="5" />
+    </TabletPC>
+
+    <AnimationSpeed default="10.0" min="0.0" max="25.0" />
+ </COVER>
+ </GLOBAL>
+
+ <INCLUDE>config.visdemom.xml</INCLUDE>
+</COCONFIG>
+

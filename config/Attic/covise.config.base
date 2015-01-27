@@ -1,0 +1,1090 @@
+#########################################################################
+#                                                                       #
+# Basic Covise 5.3 Configuration File                                   #
+#                                                                       #
+#########################################################################
+
+
+#-- General settings -------------------------------------------------------------
+
+
+#-- Enter default parameters for adding host/partner here
+HostConfig
+{
+#  Hostname        Shared Memory      execution mode       timeout [s]   Min. SHM
+#                 (shm|mmap|none)  (rexec|rsh|ssh|manual)  (default 5)   segment 
+#   mike 	       shm                ssh                360           32MB
+#   peter               shm                manual             360          128KB
+#   bigbrother          shm                rsh                360
+}
+
+
+TabletPC
+{
+    #Server 129.69.29.88
+    #Server 129.69.29.110
+    #Server localhost
+
+    # wait at most 3 seconds for connecting to tablet user interface server
+    Timeout 3
+}
+
+
+#-- Enter license keys here if you don`t use FlexLm.
+#-- Otherwise you need the file license.dat in your COVISE directory
+
+License
+{
+   SERVER ANY 5.4 1.9.2005 0 EUYBVJI Trial License
+   STD_UI ANY 5.4 1.9.2005 0 YYCSMYI Trial License
+   VR_ONE_PIPE ANY 5.4 1.9.2005 0 EUOKAWI Trial License
+   VR_MULTI_ANY ANY 5.4 1.9.2005 0 MGIFVDQ Trial License
+}
+
+REMOTE_DAEMON
+{
+TCPPort 31803
+}
+
+#-- Network specifications
+Network
+{
+#	IP_ALIAS	visavis		129.69.29.1
+
+#-- With this parameter you can set the starting number for used ports.
+#-- For each connection to a different host a new port is used
+#   COVISE_PORT 	5000
+}
+
+
+HostInfo
+{
+#-- enables/disables SMP Multithread Parallelisation on SGI systems
+    allowSmp OFF
+
+#-- Safety time for selfExec call: Prevents deadlock when Module not 
+#   finished and EXEC message arrives
+    execGracePeriod 0.5
+
+#-- numProcs needs to be smaller than the actual number of processors
+#-- set to 1 if experiencing Memory problems
+    numProcs 1
+}
+
+#-- Mapeditor Configuration ----------------------------------------------------
+
+UIConfig
+{
+    HostColors    LightBlue Wheat khaki LightPink goldenrod2 CadetBlue LimeGreen salmon2 
+
+#-- Whether to use the Qt or the Motif based user interface (Windows: Qt only)
+    QT	          true
+
+#-- Modules to have short cuts to
+    ShortCuts      RWCovise Colors Collect CuttingSurface IsoSurface Renderer
+
+#-- Seconds between to automatic saves
+    AutoSaveTime   60
+
+#-- File and directory to store automatic saves. 
+#-- If you don`t specify a path you find the file in your COVISE directory
+    AutoSaveFile   autosave.net
+    StoragePath    ~   
+     
+#-- Error handling output
+    ErrorOutput    off
+
+#-- define the help browser, default is netscape
+    Browser        netscape
+
+#-- make module info/parameter window dockable (Qt only)
+    DockableModuleInfo true
+
+#-- resize selected module ports  (Qt only)
+    PortBlowUp        true
+
+#-- new port width/height (Qt only)
+    PortBlowUpSize    15 
+
+#-- highlight selected module ports (Qt only)
+    PortHighlight     false
+
+#-- hightlight color (Qt only)
+    HighlightColor    red
+}
+
+
+#-- Data Manager Configuration ----------------------------------------------------
+CRB
+{
+    # Renderer is now a general name for your preferred desktop renderer
+    # (IvRenderer, QtRenderer or OpenSG),
+    # VRRenderer is your preferred VRRenderer (COVER or OpenCOVER)
+
+    #           this is another name for that
+    ModuleAlias Renderer/Renderer        Renderer/IvRenderer
+    ModuleAlias SRenderer/SRenderer      SRenderer/SIvRenderer
+    ModuleAlias Renderer/VRRenderer      Renderer/COVER
+    ModuleAlias SRenderer/SVRRenderer    SRenderer/SCOVER
+}
+
+#-- COVISE modules --------------------------------------------------------------
+
+#-- Colors module: user-defined colormaps
+
+
+
+Colormaps
+{
+   Rainbow
+   Pastell
+   Magma
+   Ansys
+   Blue
+   Blue-Light
+   IAG
+   MTransparent
+   Rainbow
+}
+
+Colormap_Rainbow
+{
+   RGBAX 0.40 0.00 0.40 1.00 -1.0
+   RGBAX 0.00 0.00 1.00 1.00 -1.0
+   RGBAX 0.00 1.00 1.00 1.00 -1.0
+   RGBAX 0.00 1.00 0.00 1.00 -1.0
+   RGBAX 1.00 1.00 0.00 1.00 -1.0
+   RGBAX 1.00 0.00 0.00 1.00 -1.0
+}
+
+Colormap_Pastell
+{
+   XRGB  0.0  0.4 0.4 0.7 
+   XRGB  0.2  0.3 0.7 0.4
+   XRGB  0.5  0.5 0.3 0.4
+   XRGB  1.0  0.7 0.2 0.2
+}
+
+Colormap_Magma
+{
+   RGB   0.00 1.00 1.00
+   RGB   0.00 0.80 1.00  
+   RGB   0.00 0.60 1.00
+   RGB   0.00 0.50 1.00
+   RGB   0.00 0.00 1.00
+   RGB   0.35 0.00 0.75
+   RGB   0.45 0.00 0.45
+   RGB   0.85 0.00 0.25
+   RGB   1.00 0.00 0.00
+   RGB   1.00 0.45 0.00
+   RGB   1.00 0.65 0.00
+   RGB   1.00 0.80 0.00
+   RGB   1.00 0.90 0.00
+   RGB   1.00 1.00 0.00
+   RGB   1.00 1.00 0.70
+   RGB   1.00 1.00 1.00
+}
+
+Colormap_Ansys
+{
+   RGB   0.00 0.00 1.00
+   RGB   0.00 1.00 1.00
+   RGB   0.00 1.00 0.00
+   RGB   1.00 1.00 0.00
+   RGB   1.00 0.00 0.00
+}
+
+Colormap_Blue
+{
+   RGBA  0 0 0 0.0
+   RGBA  0 0 1 1.0
+}
+
+Colormap_Blue-Light
+{
+   RGB  1 1 1
+   RGB  0 0 1
+}
+
+Colormap_IAG
+{
+   RGBAX 0 0 0.345 1 0
+   RGBAX 0 0 1 1 0.113169
+   RGBAX 0 1 1 1 0.26
+   RGBAX 0 1 0 1 0.5
+   RGBAX 1 1 0 1 0.74
+   RGBAX 1 0 0 0.377 1
+}
+
+Colormap_MTransparent
+{
+   RGBAX 0 0 0.345 0.025 0
+   RGBAX 0 0 1 0.049 0.193416
+   RGBAX 0 1 1 0.111 0.403292
+   RGBAX 0 1 0 0.16 0.596708
+   RGBAX 1 1 0 0.21 0.748971
+   RGBAX 1 0 0 0.278 0.90535
+   RGBAX 0.4 0 0 0.346 1
+}
+
+Colors
+{
+#-- when setting "FALSE" here, Colors does not use textures with transparency channel
+    transparentTextures     TRUE
+}
+
+ReadTascflowTDI
+{
+   IWK  20000000
+   RWK  20000000
+   CWK  500000
+}
+
+TRACERConfig
+{
+    BOX_INCREASE_FACTOR 2
+}
+
+#-- Simulation coupling initialization
+StarCD    
+{
+   # Verbose:  0 = nothing, 
+   #           1 = Obj creation, Port requests
+   #           2 = Mapping files
+   #           3 = data creation details
+   #           4 = all binary send/recv
+   VERBOSE 0
+   TIMEOUT 300
+   LOCAL 192.168.155.29
+
+   # Star start-up: %0=dir, %1=case, %2=user, %h=host
+   STARTUP  SGI-par xwsh -geometry 135x35 -e rsh -l %2 %h 'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'
+   STARTUP  T3E-12  xwsh -geometry 135x35 -e ssh rusvisde@hwwt3e.hww.de /hwwt3e/rus/rus/visde/kab12 %e
+   STARTUP  T3E-32  xwsh -geometry 135x35 -e ssh rusvisde@hwwt3e.hww.de /hwwt3e/rus/rus/visde/kab32 %e
+   STARTUP  SGI-seq xwsh -geometry 135x35 -e rsh -l %2 %h 'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT ; echo %1 | %1'
+   STARTUP  T3E     xwsh -geometry 135x35 -e ssh -P %2@%h '$HOME/Star.start %0 %e %3'
+} 
+
+
+#-- Simulation coupling example
+
+MiniSim
+{
+   PORTS	31000-31999
+   SERVER	Module
+   TIMEOUT	90
+   STARTUP	STANDARD CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; miniSim
+#  STARTUP	echo "setenv CO_SIMLIB_CONN %e ; cd %0 ; miniSim"
+   VERBOSE	1
+}
+
+
+
+
+
+// COVER -----------------------------------------------------------------------
+
+COVERConfig
+{   
+
+   AUDIO                        None
+   shadows OFF
+   #MODULE    JTOpen
+   rotationAxis 0 0 1
+   frameAngle 0.25423728813
+   StateFix True
+   #AUDIO               AServer
+   #AUDIO_HOST          visaudio
+   AUDIO_VRML_SPATIALIZE_INTENSITY_BUG on
+   TEXTURE_COUNTER ON
+   MOUSE_NAV true
+	TRANSPARENCY_MODE sorted_blended
+	VRML_WRITE_VIEWPOINT ON
+	VRML_CREASE OFF
+   LOD_SCALE 1000
+	HEADLIGHT ON
+	TWOSIDE			        ON
+
+#-- OpenSceneGraph multithreading
+    MULTITHREAD                 ON
+
+#-- Performer multiprocessing
+#-- boolean
+#-- default: ON
+#-- disable on Linux with Performer<2.5 
+    MULTIPROCESS                OFF
+
+#-- multiprocess mode (if multiprocess is on, you can define the mode)
+#-- APPCULLDRAW 
+#-- APPCULL_DL_DRAW 
+#-- APP_CULLDRAW 
+#-- APP_CULL_DL_DRAW
+#-- APPCULL_DRAW
+#-- APPCULLoDRAW
+#-- APP_CULL_DRAW
+#-- APP_CULLoDRAW
+#-- DEFAULT
+#-- default PFMP_APP_CULL_DRAW
+
+#-- Terminate the Covise session if COVER quits?
+#-- boolean
+#-- default: ON
+    TerminateCoviseOnQuit       OFF
+     
+#-- Size of shared arena used for multiprocessing in bytes
+#-- integer 
+#-- default: 250000000
+#-- if you need larger sizes make sure you have enough disk space
+    ARENA_SIZE                  250000000
+ 
+#-- enable/disable antialiasing
+#-- boolean
+#-- default: ON
+#-- antialiasing is automatically disabled if not supported 
+#-- by the graphics board
+#-- check if you have a visual which supports antialiasing and quadbuffer stereo
+#-- use findvis on sgi
+    ANTIALIAS                   ON
+
+#-- enable/disable active (quadbuffer) stereo
+#-- boolean
+#-- default: ON
+#-- stereo is automatically disabled if not supported by the graphics boardo
+    STEREO                      OFF
+
+#-- select framebuffer configuration by visual id
+#-- hex
+#-- default: not set, framebuffer configuration through STEREO and ANTIALIAS
+#-- on sgi you get the available visuals with the command 
+#-- 'findvis -display :0.0'
+#-- select a visual which support doublebuffer (db), zbuffer (Z), rgba (RGBA), 
+#-- stereo (stereo) and multisampling (S)
+#   VISUAL_ID
+
+#-- separation between left and right eye in mm
+#-- float
+#-- default: 64
+#-- don't mix up STEREO_SEPARATION and STEREO_SEP !
+    STEREO_SEPARATION           60
+
+#-- set separation to zero
+#-- boolean
+#-- default: OFF 
+    NOSEPARATION		        OFF
+
+#-- command which switches to the stereo/mono videoformat
+#-- string
+#-- default: not videoformat switching
+#-- usually the stereo videoformat or combination is already loaded
+#-- and you should't change it
+    STEREO_COMMAND		        /bin/true
+    MONO_COMMAND		        /bin/true
+
+#-- stipple stereo, displays right and left eye on even/uneven pixles 
+#-- in x direction
+#-- boolean
+#-- default OFF
+#-- this stereo mode works only with the Dresden3D Display
+    STIPPLE                     OFF
+
+#-- Number of physical pipes used for COVER
+#-- integer
+#-- default 1
+#-- pipes are configured in section PipeConfig
+    NUM_PIPES			        1
+
+#-- synchronisation of swapbuffer of different pipes
+#-- enum: WINDOW, CHANNEL, CHANNEL_HW
+#-- default: CHANNEL 
+#-- WINDOW uses pfPipeWindow::setSwapGroup
+#-- CHANNEL uses pfChannel::setShare(PFCHAN_SWAPBUFFERS)
+#-- CHANNEL_HW uses pfChannel::setShare(PFCHAN_SWAPBUFFERS)
+#-- for CHANNEL_HW the SwapReady cable needs to be connected
+    PIPE_LOCKING                CHANNEL
+
+#-- Number of windows
+#-- integer
+#-- default 1
+#-- usually one window per pipe      
+#-- windows are configured in section WindowConfig
+    NUM_WINDOWS			        1
+
+#-- Number of projections screens (better: number of projectors)
+#-- integer
+#-- default 1
+#-- for active stereo you have one projector per physical screen
+#-- for passive stereo you have two projectors per physical screen
+#-- screens are configured in ScreenConfig     
+    NUM_SCREENS                 1
+
+#-- Look of interactors 
+#-- enum: green | red | wood
+#-- default: green
+#-- icon directory $COVISEDIR/icons/$LookAndFeel
+#-- default icon directory: $COVISEDIR/icons
+    LookAndFeel                 green
+
+#-- background color
+#-- 3 floats (r g b)
+#-- default 0.0 0.0 0.0 (black)
+    BACKGROUND                  0.0 0.0 0.0
+
+#-- two additional lights
+#-- 4 floats x y z w
+#-- position: x y z  and w=1 local, w=0 infinite
+#-- default: no extra lights
+#   LIGHT1                      0 1000 1000 1
+#   LIGHT2                      0 1000 1000 1
+
+#-- enable/disable twosided lighting
+#-- boolean
+#-- default ON
+#-- twosided lighting is needed to display faces whith normals pointng 
+#-- away from the viewer
+    TWOSIDE                     ON
+
+#-- Position of the menu
+#-- 3 floats for x y z 
+#-- the unit is [mm in the rus cube]
+#-- default psoition is 0 0 0
+    MENU_POSITION               800 0 300
+
+#-- Orientation of the menu
+#-- 3 floats (euler angles, h, p, r)
+#-- default 0 0 0
+    MENU_ORIENTATION            0 0 0
+
+#-- attachment of a submenu 
+#-- menu attachment right means the submenu appears left from the parent menu
+#-- LEFT RIGHT BOTTOM TOP
+#-- default RIGHT
+    MENU_ATTACHMENT            RIGHT
+
+#-- menu size
+#-- float
+#-- default 1
+    MENU_SIZE                   1
+
+#-- menu font mode
+#-- TEXTURED FILLED OUTLINED
+#-- default TEXTURED
+    FONT TEXTURED
+
+#-- tracking system type
+#-- POLHEMUS MOTIONSTAR FOB CAVELIB FOB_DAEMON SPACEBALL SPACEPOINTER 
+#-- COVER_BEEBOX COVER_FLYBOX PHANTOM NONE
+#-- default: SPACEPOINTER
+#-- the tracking system is configured with the sections TrackerConfig 
+#-- and <system>config , for example PolhemusConfig
+    TRACKING_SYSTEM             MOUSE
+
+#-- button system type
+#-- enum: [MIKE VIRTUAL_PRESENCE PINCH CEREAL CAVELIB DIVISION NONE]
+#-- configure a button system only if the buttons are not handled 
+#-- by the tracking system
+#-- the button system is configured in section ButtonConfig
+    BUTTON_SYSTEM               NONE
+
+#-- automatic scale scene to the size defined with SCENESIZE if new objects 
+#-- are added to the scene
+#-- boolean
+#-- default: ON
+    SCALE_ALL			        OFF
+
+#-- size in mm to which a scene is scaled
+#-- float
+#-- default 300
+#-- good choose is the smaller dimension of the screen
+    SCENESIZE		            2000
+#-- near plane of the opengl viewing frustum
+#-- float
+#-- default: 10.0
+    NEAR                        10
+
+#-- far plane of the opengl viewing frustum
+#-- float
+#-- default: near+10000000
+    FAR                         10000000
+
+#-- StateFix - workaround for a bug in Performer
+#-- in combination with inventor files sometimes objects in COVER
+#-- get wrong materials or wrong lighting
+#-- in active stereo often only in in one stereo channel
+#-- if performance is a problem you can switch it off and hope that
+#-- state problems don't appear
+#-- values: ON OFF
+#-- default ON
+    StateFix ON
+
+#-- COVER_VRML parameter
+#-- avoid preload of switch nodes in vrml
+#-- boolean
+#-- default: false
+    NoPreload                   False
+
+#-- COVER_VRML parameter
+#-- size of java script heap in MB ?
+#-- default: 8
+    MAX_HEAP_BYTES              8
+
+
+#-- COVER_VRML parameter
+#-- defines to which node in a vrml file a state fix callback is attached
+#-- state fix callbacks are a workaround for a bug in Performer
+#-- integer
+#-- default: 100
+#-- stateFixLevel<0 no callback
+#-- stateFixLevel=1: vrml root dcs
+#-- stateFixLevel=3: group nodes
+#-- stateFixLevel>5: all nodes
+#-- contact woessner@hlrs.de for details
+    stateFixLevel               100
+
+#-- COVER_VRML parameter
+#-- enable/disable surround sound for vrml files
+#-- boolean
+#-- default:ON
+#-- enable surround sound only if you have a surround amplifier
+    NO_SURROUND                 ON
+
+#-- COVER_VRML parameter
+#-- enable/disable debug prints for sound in vrml files
+#-- boolean
+#-- default false
+    DebugSound                  OFF
+
+#-- COVER_VRML parameter
+#-- defines blending of object colors and texture colors in vrml files
+#-- enum [MODULATE BLEND DECAL REPLACE ADD ALPHA]
+#-- default: MODULATE
+    TextureMode                 MODULATE
+
+#-- COVER_VRML parameter
+#-- texture quality for vrml files
+#-- values: High, Low, Normal
+#-- default: High
+    TextureQuality              High
+
+#-- COVER_VRML parameter
+#-- transparency mode for vrml
+#-- values: sorted, sorted_blended, blended
+#-- default: 
+    TRANSPARENCY_MODE sorted_blended
+
+#-- Multiply all LOD scales with this factor
+#-- float
+#-- default: 1.0
+    LOD_SCALE                   1.0
+
+#-- COVER_VRML parameter
+#-- support creaseAngle feature
+#-- default: false
+    VRML_CREASE                     OFF
+
+#-- COVER_VRML parameter
+#-- support for VRML lights
+#-- default false
+    VRML_LIGHTS                     ON
+
+#-- COVER_VRML parameter
+#-- try to generate strips for indexedFaceSets
+#-- default false
+    GEN_STRIPS                      ON
+
+#-- COVER_VRML parameter
+#-- handle backface culling
+#-- default false
+    VRML_CORRECT_BACKFACE_CULLING   OFF
+
+#-- sun-like light
+#-- default ON
+    HEADLIGHT                       ON
+
+#-- store the screnegraph as pfb to this file name 
+#-- when "store scenegraph" is selected from the pinboard
+#-- string
+#-- default: /usr/tmp/COVER.pfb
+    SAVE_FILE                   /usr/tmp/COVER.pfb
+
+#-- enable for environment maps
+#-- boolean
+#-- default ON
+    CORRECT_MATRIX              ON
+
+#-- for phantom force feedback device
+#-- contact woessner@hlrs.de for details
+    FORCE_FEEDBACK              OFF 
+    FORCE_FEEDBACK_MODE         1
+    FORCE_SCALE                 1.0
+    MAX_FORCE                   -1.0
+
+#-- load a geometry file
+#-- supported are all formats which are also supported by performer
+#-- other possibility: cover <modelfile/modelfile>
+#-- or use module PerformerScene in a COVISE map 
+#   MODELPATH                   /usr/share/data/models
+#   MODELFILE                   banana.iv
+
+#-- start value for headtracking
+#-- boolean
+#-- default ON (this means no hedatrcking is off)
+    FREEZE                      ON
+
+#-- viewer position at starttime if headtracking is off (FREEZE ON)
+#-- 3 floats (x, y, z position of viewer)
+#-- default: x=0, y=-450 z=0
+    VIEWER_POSITION             0 -2000 0
+
+#-- show/hide coordinate axis for world, hand and viewer coordinate system
+#-- boolean
+#-- default: OFF
+    COORD_AXIS                  OFF
+
+#-- enable/disable collision detection
+#-- boolean
+#-- default OFF
+    COLLIDE                     OFF
+
+#-- enable/disable hand lamp at starttime
+#-- boolean
+#-- default: OFF
+    SPOTLIGHT                   OFF
+
+#-- enable/disable specular color of lights
+#-- boolean
+#-- default: off
+    SPECULAR			        OFF
+
+#-- enable/disable stereo separation at starttime
+#-- boolean
+#-- default ON
+#-- don't mix up STEREO_SEP and STEREO_SEPARATION, the first one
+#-- is the start mode for a button in the pinboard which switches between
+#-- separation=STEREO_SEPARATION and 0
+    STEREO_SEP                  ON
+
+#-- navigation mode at starttime
+#-- OFF XFORM DRIVE FLY WALK
+#-- default: OFF
+    NAVIGATION_MODE             OFF
+
+#-- navigation speed for fly, drive and walk
+#-- 3 floats (min, max, val)
+#-- default: 0.0 30.0 1.0
+    DRIVE_SPEED                 1.0 30.0 1.0
+
+#-- z position of the floor in relation to the world coordinate system
+#-- float
+#-- default:-1250
+#-- used for walk mode collision detection
+    floorHeight                 -1250
+
+#-- step size (lengths of a step, important for stairs
+#-- float
+#-- default: 400
+    stepSize                    400
+
+#-- start value for animation speed slider
+#-- 3 floats (min, max, val)
+#-- default:  0.0 30.0 1.0
+    ANIM_SPEED			        0.0 5.0 5.
+
+#-- synchronisation mode for collaborative working
+#-- enum: OFF LOOSE_COUPLING TIGHT_COUPLING MS_COUPLING
+#-- default: OFF
+    SYNC_MODE			        LOOSE_COUPLING
+
+#-- synchronisation time intervall in seconds
+#-- integer
+#-- default 0 (which means immediatly)
+    SyncInterval                0
+ 
+#-- enable/disable snapping at start time
+#-- boolean
+#-- default OFF
+#-- snapping is only used by cuttingsurfaces and isosurfaces
+    SNAP                        ON
+
+#-- print out the number of frames per second every frame
+#-- boolean
+#-- default OFF
+    FPS OFF                    
+
+#-- Performer notify level
+#-- enum [ON NOTICE FATAL]
+#-- default: FATAL
+#-- FATAL prints out only fatal errors
+#-- NOTICE prints less than DEBUG
+    NOTIFY                      FATAL
+
+#-- COVER debug level
+#-- enum [0 1 2 3 4 5 6]
+#-- default: 0
+    DEBUG_LEVEL                 0
+
+#-- timing printouts into file COVER.<pid>.tim
+    COTIMER                 OFF
+
+#-- this message is drawn when COVER starts
+#-- default: nothing is printed
+    WELCOME_MESSAGE             Welcome to COVER
+
+#-- this message is drawn on the buttom
+#   FOOTER_MESSAGE              Covise Virtual Environment
+
+#-- plugins which are loaded at start
+#-- string
+#-- default: no plugin
+    MODULE                      Vrml97
+    MODULE                      ClipPlane
+    MODULE                      VRViewPoint
+#   MODULE                      VRProbe
+#   MODULE                      Colors
+    MODULE                      Move
+#   MODULE                      Volume
+#   MODULE	                    Sketcher		
+#   MODULE	                    Snapshot
+#   MODULE	                    AvatarAnimations
+#   MODULE                      MLVideo
+}
+
+##-- settings for snapshot plugin
+#Snapshot
+#{
+##-- this may be a list of screens
+#   SNAPSHOT_SCREEN             FRONT
+##-- directory where snapshots are created
+#   SNAPSHOT_DIR                /usr/tmp
+#}
+
+
+#-- PipeIndex: indices start with 0 and increase by 1
+#-- HardPipe: the corresponding hardware pipe
+#-- Display: :<xserver>.<display>
+PipeConfig
+{
+#-- PipeIndex    HardPipe    Display				
+    0		     0		    :0.0
+}
+
+
+
+#-- for each window (COVERConfig.NUM_WINOWS) you need one line here,
+#-- WinNo starts with 0 and increases by 1
+#-- WinName is a string
+#-- PipeIndex: pipe on which the window is opened
+#-- Origin: location of lower left corner of the window on the screen
+#-- the screen origin is at the lower left corner of the managed area
+#-- Size: xsize and ysize
+WindowConfig
+{
+#-- WinIndex	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0           FRONT       0           0 0             1024 768
+}
+
+
+#-- ScreenIndex: start with 0 and increase by 1.
+#-- ScreenName: string
+#-- ScreenSize: dimension of the screen in millimeters.
+#-- ScreenCenter: center of this screen in [mm], 
+#-- relative to the world-coordinate-origin
+#-- ScreenOrient gives the rotation in [H P R] you have to apply to the
+#-- x-z-Plane in the world-coordinate-system, to match the screens orientation.
+ScreenConfig
+{
+#-- ScreenIndex	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		    FRONT		2000 1500		    0  0  0			    0.0    0.0    0.0
+}
+
+
+
+#  Viewport (VP) definition either relative to the WindowSize (0.0 - 1.0)
+#  or in pixels Values (left, tip, width, height)
+
+ChannelConfig
+{
+#-- ChannelIndex ChannelName WindowNo   VPLeft  VPBottom    VPWidth   VPHeight
+    0           FRONT           0       0       0           1         1
+}
+
+
+COVERPinboard
+{
+#-- callback                MenuEntryName           ParentMenu
+
+    XFORM                   "move world"
+    SCALE                   "scale world"
+    FLY                     "fly"
+    VIEW_ALL                "view all"
+    
+    FREEZE                  "stop headtracking"     "nav"
+    COLLIDE                 NONE
+    DRIVE_SPEED             "speed"                  "nav"
+    DRIVE                   "drive"                  "nav"
+    WALK                    "walk"                   "nav"
+    
+    REMOVE                  "remove"                 "part manip"
+    UNDO                    "undo remove"            "part manip"
+    MOVE_PARTS              "move part"              "part manip"
+    
+    COORD_AXIS              "axis"                   "view opt"
+    SPECULAR                "specular"               "view opt"
+    SPOTLIGHT               "spotlight"              "view opt"
+    HEADLIGHT               "headlight"              "view opt"
+    STEREO_SEP              "stereo sep"             "view opt"
+    STATISTICS              "statistics"                    "view opt"
+    CLUSTER_STATISTICS      "clusterStatistics"             "view opt"
+    
+    SNAP                    "snap"                   "misc"
+    STORE                   "store scenegraph"       "misc"
+    RELOAD_VRML             "reload vrml"            "misc"
+        
+    EXECUTE                 "execute"                "Covise"
+    CUTTINGSURFACE          "CuttingSurface"         "Covise"
+    CUTGEOMETRY             "CutGeometry"            "Covise"
+    TRACERUSG               "TracerUsg"              "Covise"
+    TRACERSTR               "TracerStr"              "Covise"
+    STRACER                 "STracer"                "Covise"
+    TETRATRACE              "TetraTrace"             "Covise"
+    MAGTRACER               "MagTracer"              "Covise"
+    MAGBLOCKTRACER          "MagBlockTracer"         "Covise"
+    CELLTRACER              "CellTracer"             "Covise"
+    
+    STEADYCAM               "steady cam"             "anim"
+    QUIT		    "quit"
+
+}
+
+# --- COVER Light Sources
+# Diffusive/Specular/Ambient: RGB values fo GL Light sources
+# Position:  X/Y/Z/W position, W=1.0 as default
+# Spot:      X/Y/Z direction, spot exponent, spot cutoff
+#            default is cutoff=180, no spot effect
+
+# --- Headlight 
+CoverSun
+{
+   Diffusive   1.0 1.0 1.0
+   Specular    1.0 1.0 1.0
+   Ambient     0.1 0.1 0.1
+   Position    0.0 -10000.0 10000.0 1
+}
+
+# --- the light source used by the 'Spotlight': 
+#     Direction 0/1/0  1.0 attenuation  30 deg opening
+CoverLamp
+{
+   Diffusive   1.0 1.0 1.0
+   Specular    1.0 1.0 1.0
+   Ambient     0.2 0.2 0.2
+   Position    0.0 0.0 0.0 1.0
+   Spot        0.0 1.0 0.0    1.0 30.0
+}
+
+# --- Two other Light sources CoverLight1 + CoverLight2 are possible
+#CoverLight1
+#{
+#   Diffusive   0.1 0.1 0.1
+#   Specular    0.04 0.04 0.04
+#   Ambient     0.0 0.0 0.0
+#}
+
+
+// plugins --------------------------------------------------------------------
+
+VRViewpoints
+{
+#  Name   Scale   X   Y   Z    H   P   R 
+   1      1.0    0.0 0.0 0.0  0.0 0.0 0.0
+   10     10.0   0.0 0.0 0.0  0.0 0.0 0.0
+   100    100.0  0.0 0.0 0.0  0.0 0.0 0.0
+   1000   1000.0 0.0 0.0 0.0  0.0 0.0 0.0
+}
+
+CuttingPlane3DTex
+{
+    VERBOSE                 OFF
+
+#-- texture filter can be POINT, LINEAR, BILINEAR, TRILINEAR    
+    TEXTURE_FILTER_TYPE             TRILINEAR
+
+#-- start values for inside interactors 
+#-- interactors which are visible when plane cuts the grid
+#-- they can be changed in the menu 'Interactor Types'
+
+#-- INSIDE_ICON: small quad  
+    INSIDE_ICON                     false
+
+#-- INSIDE_OUTLINE: intersection lines of the plane with the bounding box
+    INSIDE_OUTLINE                  true
+
+#-- SOLID: textured intersection polygon of the plane with the bounding box 
+    INSIDE_SOLID                    false
+    
+#-- start values for outside interactor 
+#-- outside interactors are visible when plane doesn't cut the grid   
+
+#-- OUTSIDE_ICON: small quad  
+    OUTSIDE_ICON                    true      
+
+#-- plane attachment, 
+#-- PLANE_MOVESTO_HAND: the plane move to hand (plane move absolute with hand)
+#-- HAND_MOVESTO_PLANE: the hands move to plane (pane moves relative from the initial position)
+    PLANE_ATTACHMENT                PLANE_MOVESTO_HAND
+
+#-- stop manipulation
+#-- PRESS: when button is pressed again
+#-- RELEASE: when button is released this means button has to be pressed during manipulation
+    STOPMOVE                        PRESS
+
+#-- executeModule
+#-- MENU
+#-- STOPMOVE   
+    EXECUTE_MODULE                  STOPMOVE 
+
+#-- interactor icon size in [mm]
+    ISIZE                           100     
+}
+
+VRProbe
+{
+   LabelLineLen 90
+   LabelFontSize 7
+   ScalarFormat %s= %.3f
+   VectorFormat %s= %.3f  %.3f %.3f
+   DefaultSpecies Unknown
+}
+
+VolumeFiles
+{
+    data/general/examples/ReadVolume/aneurism.rvf aneurism
+    data/general/examples/ReadVolume/skull.rvf skull
+    data/general/examples/ReadVolume/lambda.rvf lambda
+}
+
+IvRenderer
+{  
+   Autospin          OFF
+   Axis              ON
+   MaxColorLegend    8
+}
+
+Sketcher
+{
+#-- angle [degree] between pointer ray (laser sword) and pencil
+    ANGLE 5.0
+
+#-- offset between pencil icon and hand in direction of pointer ray
+#-- offset is relative to icon size which is set by scale
+    DISPLACEMENT 0.5
+
+#-- size of the pencil in [mm]
+    SCALE 100.0
+}
+
+##-- VR parameters for the interaction with IsoSurface
+#IsoSurfacePlugin
+#{
+#
+##-- angle of the tool icon with respect to the the pointer ray
+#ANGLE 10.0
+#
+##-- offset between tool icon and hand in direction of pointer ray
+##-- offset is relative to icon size, which is set by SCALEFACTOR
+#DISPLACEMENT 0.5
+#
+##-- size of the tool in [mm] if the icon has unity length
+#SCALEFACTOR 70.0
+#}
+
+##-- VR parameters for the interaction with CuttingSurface
+#CuttingSurfacePlugin
+#{
+#
+##-- angle of the tool icon with respect to the the pointer ray
+#ANGLE 0.0
+#
+##-- offset between tool icon and hand in direction of pointer ray
+##-- offset is relative to icon size, which is set by SCALEFACTOR
+#DISPLACEMENT 0.5
+#
+##-- size of the tool in [mm] if the icon has unity length
+#SCALEFACTOR 70.0
+#}
+
+#TracerPlugin
+#{
+##-- Size of the interactor-spheres in mm
+#    SCALEFACTOR 20.0
+#}
+
+#PointerAppearance
+#{
+##-- icon name (.iv extension assumed)
+##   if not specified, use old way
+#IconName pointer
+#
+##-- length (icon is supposed to be oriented along the y-axis)
+##   Default: 200.0 if an icon is specified, otherwise 0.2*sceneSize
+#Length 100.0
+#
+##-- optional width (maximum icon width), if not given,
+##   the icon is not distorted
+#Width  10.0
+#
+##-- pointer action length for intersection
+##   Default: 1000000.0
+#Intersection 100.0
+#}
+
+#AvatarAnimations
+#{
+## -- name is understood as icons/<name>.iv
+## -- icon_scale is a factor applied to the icon. By way of example, 
+##    if the icon describes an object
+##    in meters instead of millimeters, you are likely to set this to 1000.
+## -- device_factor conversion factor between device units and millimeters.
+##    If the device output is in centimeters, then this factor is 10.
+## -- The next 6 parameters: sh ...... sz describe a sensor offset (rotation and translation)
+## -- The last 6 parameters: th ...... tz describe a transmitter offset (rotation and translation)
+## name    port station icon_scale device_factor sh sp sr sx sy sz     th tp tr tx  ty   tz
+#cutSphere 7778    1     25.0       10           90 0 180  0  0 0      90 0 180  0  -10 -65
+#hand      8888    1     0.2        10           90 0 180  0  0 0      90 0 180  0  -10 -65
+## .... other avatars ..............
+#}
+
+#MLVideo
+#{
+#   DEVICE_NAMES   sd-digvid
+#   CONTROL_VIDEO  OFF
+#   START_VISIBLE  TRUE
+#   POSITION       0 0 0
+#}
+
+Material
+{
+    bronze    0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0
+}
+
+tryinclude "config/covise.config.atommapping"
+
+
+Fenfloss
+{
+   VERBOSE 0
+   TIMEOUT 300
+   STARTUP gate %0 %1 %e
+   STARTUP tube %0 %1 %e
+   STARTUP axial %0 %1 %e
+   STARTUP radial %0 %1 %e
+   STARTUP sc2004booth %0 %1 %e
+   STARTUP archflow %0 %1 %e
+   STARTUP other %0 %1 %e
+   #LOCAL 140.221.238.87
+   #STARTUP SGI CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; mpirun -np %1 flow
+}
+
+IHS
+{
+    DataPath /Programme/covise/simulation/IHS/
+}

@@ -1,0 +1,49 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{9cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	caseFile & File Browser & Case file.  \\
+\hline
+	data for sdata1\_2D(3D) & Choice & Name of scalar variable like 
+	                           as given by case file - \newline
+				   only visible after case file is given 
+				   and if the case file contains variables \\
+\hline
+	data for sdata2\_2D(3D) & Choice & see above  \\
+\hline
+	data for sdata3\_2D(3D) & Choice & see above  \\
+\hline
+	data for vdata1\_2D(3D) & Choice & Name of vector variable \\
+\hline
+	data for vdata2\_2D(3D) & Choice & see above  \\
+\hline
+	data\_byte\_swap & Boolean & Choose to explicitly enfore byte-swapping \\
+\hline
+	choose\_parts & String & String for the selection of parts. The syntax is explained below. \\
+\hline
+	repair\_connectivity & Boolean & Experimental parameter to controll the removal of degenerated cells. In most cases faulty grids arise but it may be usefull for the output of VECTIS\copyright \\
+\hline
+	store\_covgrp & Boolean & Controlls the generation of a COVISE project. A directory covise-ensight is created. It contains all covise-binary formatted data and a covise-group file. This output can be loaded with the module {\bf ReadCoviseGroup}. \\  
+\end{longtable}
+%=============================================================
+
+\hspace*{1.5cm}
+
+{\bf Syntax for the part selection string}
+
+\begin{longtable}{p{3cm}p{15cm}}
+	all      & All ENSIGHT-parts are read. This is the default.\\
+        x-y      & All parts starting frm part x to part y are read.\\
+	x,y,z,.. & Part x, part y, part z, .. are read
+\end{longtable}
+
+The counting scheme of parts corresponds to the table which appears in the COVISE log window.
+All options, but {\it all} may be combined with {\bf ,}.
+%
+%=============================================================

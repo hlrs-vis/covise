@@ -1,0 +1,94 @@
+#! /bin/bash
+
+echo ""
+echo \# +++++++++++++++++++++++++++++++++++++++++++++++++++
+echo \# + Auto-generated make-rules:
+echo \# +     create with $0 $*
+echo \# +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+caps=""
+
+if [ -f ../../$1/chapters.txt ]; then
+   navigate="true"
+   chapters="dummy-first "
+   for i in `cat ../../$1/chapters.txt`; do
+       chapters="$chapters ../../$1/$i"
+   done
+   chapters="$chapters dummy-last"
+else
+   chapters="dummy-first "`find ../../$1/*/* -name '*.tex' -print | sed -e 's+\.tex++'`" dummy-last"
+fi
+
+cur=""
+next=""
+curlink=""
+for i in $chapters; do
+   prev="$cur"
+   cur="$next"
+   next="$i"
+
+   if [ "$cur" = "" ]; then
+      continue
+   fi
+   if [ "$cur" = "dummy-first" ]; then
+      continue
+   fi
+   if [ "$cur" = "dummy-last" ]; then
+      continue
+   fi
+
+   prevlink="$curlink"
+
+   if [ "$next" == "dummy-last" ]; then
+      nextlink=""
+   else
+      dir=`dirname $next`
+      name=`basename $next`
+      cap=`basename $dir`
+      nextlink="../${cap}/${name}.html"
+   fi
+
+   dir=`dirname $cur`
+   name=`basename $cur`
+   cap=`basename $dir`
+   caps="$caps $cap"
+   curlink="../${cap}/${name}.html"
+
+   if [ ! $?navigate ]; then
+      set prevlink=""
+      set nextlink=""
+      set curlink=""
+   fi
+  
+   echo ""
+   echo ""
+   echo html: $cap/$name.html
+   echo ""
+
+   echo $cap :
+   printf "\t mkdir -p $cap\n"
+   echo ""
+
+   if [ -f $cur.tex ]; then
+      echo $cap/$name.html: $cur.tex $cap
+      printf "\t-test -d $dir/pict && mkdir -p $cap/pict && cp -f $dir/pict/*.png $cap/pict\n"
+      printf "\t-test -d $dir/pict_ && cp -f $dir/pict_/*.png $cap/pict\n"
+   
+      printf '\t$(CF) < '"$cur.tex > $name.tex2\n"
+      echo ""
+      printf '\t$(L2H3)'" -dir $cap $name.tex2"' > $(DEBUGOUT) 2>&1\n'
+      printf "\trm -f $name.tex2\n"
+      echo ""
+      printf "\tmv $cap/$name.html $cap/$name.html2\n"
+      printf '\t$(HF) -p \"'"${prevlink}"'\" -n \"'"${nextlink}"'\" < '"$cap/$name.html2 > $cap/$name.html\n"
+      printf "\trm -f $cap/$name.html2\n"
+      echo ""
+   
+      echo $cap/index.html: $cap/$name.html
+      printf "\tcp $cap/$name.html $cap/index.html\n"
+      echo ""
+   fi
+done
+
+echo "cleanhtml:"
+printf "\trm -rf $caps\n"

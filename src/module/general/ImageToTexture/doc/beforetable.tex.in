@@ -1,0 +1,30 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+ImageToTexture generates a texture for a polygon input object
+given a TIFF file. The default mapping that relates the geometry
+point coordinates with the texture coordinates is a simple projection
+onto the XY plane. You may introduce your own mapping
+if the module gets a vector field as input object.
+
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}{}{ImageToTexture}{0.7}\end{covimg2}
+
+
+
+%
+% short information about versions 
+%
+%Sample is available since COVISE snap-2000-10 on all supported platforms.
+
+%
+%=============================================================

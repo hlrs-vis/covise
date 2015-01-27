@@ -1,0 +1,112 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef FILECACHE_H
+#define FILECACHE_H 1
+
+#include <osgDB/FileUtils>
+#include <osgTerrain/TerrainTile>
+
+#include <OpenThreads/Mutex>
+
+#include <vpb/FileDetails>
+#include <vpb/MachinePool>
+
+namespace vpb
+{
+
+class VPB_EXPORT FileCache : public osg::Object
+{
+    public:
+    
+        FileCache();
+
+        /** Copy constructor using CopyOp to manage deep vs shallow copy.*/
+        FileCache(const FileCache&,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+        
+        META_Object(vpb, FileCache);
+
+        void setRequiresWrites(bool flag) { _requiresWrite = flag; }
+        bool getRequiresWrites() const { return _requiresWrite; }
+
+        void setFileName(const std::string& filename) { _filename = filename; }
+        std::string& getFileName() { return _filename; }
+        const std::string& getFileName() const { return _filename; }
+
+        /** Read file cache from file.*/
+        bool read(const std::string& filename);
+        
+        /** Read file cache from file if it exists, otherwise just set the filename for future use.*/
+        bool open(const std::string& filename);
+        
+        /** Write file cache to file.*/
+        bool write(const std::string& filename);
+        
+        /** if the FileCache in memory has been modified since last read/write then call write.*/
+        bool sync() { if (_requiresWrite) return write(_filename); else return false; }
+
+        typedef std::list< osg::ref_ptr<FileDetails> > Variants;
+        typedef std::map<std::string, Variants> VariantMap;
+        
+        typedef std::map<std::string, osg::ref_ptr<FileDetails> > FileDetailsMap;
+        
+        void addFileDetails(FileDetails* fd);
+        void removeFileDetails(FileDetails* fd);
+
+        bool getSpatialProperties(const std::string& filename, SpatialProperties& sp);
+
+        std::string getOptimimumFile(const std::string& filename, const SpatialProperties& sp);
+        
+        std::string getOptimimumFile(const std::string& filename, const osg::CoordinateSystemNode* csn);
+
+        /** clear the cache.*/
+        void clear();
+        
+        /** add FileDetails for each source file in specified source.*/
+        void addSource(osgTerrain::TerrainTile* source);
+        
+        /** reproject any source files to the coordinate system required to build the specified source.*/
+        void buildRequiredReprojections(osgTerrain::TerrainTile* source);
+
+        /** build overview levels for each source file.*/
+        void buildOverviews(osgTerrain::TerrainTile* source);
+        
+        /** copy files from the master to the specified machine's cache directory.*/
+        void mirror(Machine* machine, osgTerrain::TerrainTile* source);
+        
+        /** copy an individual file to specificed machine's local cache.*/
+        bool copyFileToMachine(FileDetails* fd, Machine* machine);
+
+        /** List the contents of the FileCache.*/
+        void report(std::ostream& out);
+
+
+    protected:
+    
+        virtual ~FileCache();
+        
+        bool readFileDetails(osgDB::Input& fr, bool& itrAdvanced);
+        bool writeFileDetails(osgDB::Output& fw, const FileDetails& fd);
+
+        bool                _requiresWrite;
+        std::string         _filename;
+
+        OpenThreads::Mutex  _variantMapMutex;
+        VariantMap          _variantMap;
+        FileDetailsMap      _fileDetailsMap;
+        
+};
+
+}
+
+#endif

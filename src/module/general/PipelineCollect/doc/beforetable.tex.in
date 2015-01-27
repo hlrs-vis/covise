@@ -1,0 +1,30 @@
+
+%=============================================================
+
+%
+% short description what the module does
+%
+PipelineCollect reduces the maximum usage of memory by executing a pipeline stepwise. There
+must be a module like GetSetelem in the pipeline that uses this feature. \newline
+At the moment there must not be more than one such module in the pipeline. 
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}
+{}{PipelineCollectModule}{0.7}\end{covimg2}
+
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+PipelineCollect is available for COVISE version 5.2.3 and higher and on all supported platforms.
+
+
+%
+%=============================================================

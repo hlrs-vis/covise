@@ -1,0 +1,489 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+6
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+TITLE=Collect_1
+31
+331
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+TITLE=Colors_1
+46
+255
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0.001471 0.003446
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0.001471 0.003446 RGBAX 3 0.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0 0.5 1.0 1.0 0.0 1.0 1.0
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+1 8 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements 
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+31
+186
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+31
+408
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module ReadANSYS
+ReadANSYS
+1
+LOCAL
+IO_Module
+TITLE=ReadANSYS_1
+31
+36
+1
+FileName
+Text
+File name with extension
+opt
+
+3
+Grid
+UnstructuredGrid
+output grid
+default
+
+Data
+Float|Vec3|IntArr
+output data
+default
+
+Materials
+IntArr
+output material labels
+default
+
+16
+RST_file
+Browser
+RST file
+share/covise/example-data/ANSYS/example3.rst
+
+1
+timeSteps
+IntVector
+select time steps
+1 1 1
+
+1
+ScaleGridDisplacement
+FloatScalar
+scale grid displacement
+1.000000
+
+1
+Solution
+Choice
+Please enter your choice
+3 Pleaseenteryourchoice OnlyGeometry NodeData ElementData
+
+1
+DOF_Solution
+Choice
+Degrees of freedom
+5 none VX VY VZ V PRES ENKE PTOT STRM TAUW
+
+1
+Derived_Solution
+Choice
+Derived variables
+1 none Stresses Elasticstrains Plasticstrains Creepstrains Thermalstrains Fieldfluxes  Stresses Elasticstrains Plasticstrains Creepstrains Thermalstrains Fieldfluxes
+
+-1
+SolidShellComponents
+Choice
+Stress components
+12 none XX YY ZZ XY YZ ZX T1 T2 T3 TI TIGE
+
+1
+BeamComponents
+Choice
+Beam stress components
+1 none Axial Yp Ym Zp Zm
+
+1
+AxiShellComponents
+Choice
+Axisymmetric-shell stress components
+1 none Meridional ThroughThickness Hoop Meridional-hoop
+
+1
+TopBottom
+Choice
+Top, bottom, average
+1 Top Bottom Average
+
+1
+ThermalFlux
+Choice
+Thermal flux
+1 none QX QY QZ Q
+
+-1
+VolEnergy
+Choice
+Volume and energy
+1 Volume SENE KENE
+
+-1
+MagFluxDens
+Choice
+Magnetic Flux Density
+1 B BX BY BZ BSUM
+
+-1
+OutputNodeDecode
+Boolean
+Output Node Decode
+FALSE
+
+-1
+AlwaysVertexBased
+Boolean
+AlwaysVertexBased
+TRUE
+
+-1
+RST_file___filter
+BrowserFilter
+RST file
+RST_file *.rst;*rfl;*rth;*rmg
+
+-1
+0
+# Module VectorScal
+VectorScal
+1
+LOCAL
+Tools
+TITLE=VectorScal_1
+47
+112
+1
+vdataIn
+TriangleStrips|Polygons|UnstructuredGrid|Vec3|RGBA
+input vector data
+req
+
+1
+sdataOut
+Float|Vec3
+output scalar or vector data
+default
+
+1
+option
+Choice
+Options
+1 Length X-Component Y-Component Z-Component
+
+-1
+0
+7
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+Colors
+1
+LOCAL
+DataOut0
+
+Collect
+1
+LOCAL
+DataIn0
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+DomainSurface
+1
+LOCAL
+DataOut0
+
+Colors
+1
+LOCAL
+DataIn0
+ReadANSYS
+1
+LOCAL
+Grid
+
+DomainSurface
+1
+LOCAL
+GridIn0
+ReadANSYS
+1
+LOCAL
+Data
+
+VectorScal
+1
+LOCAL
+vdataIn
+VectorScal
+1
+LOCAL
+sdataOut
+
+DomainSurface
+1
+LOCAL
+DataIn0
+0

@@ -1,0 +1,60 @@
+#!/bin/tcsh -f
+
+echo ""
+echo \# +++++++++++++++++++++++++++++++++++++++++++++++++++
+echo \# + Auto-generated make-rules:
+echo \# +     create with $0 $*
+echo \# +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+foreach i (`find $1/*/* -name '*.tex' -print | sed -e 's+\.tex++'`)
+
+   set dir  = `dirname $i`
+   set category = `dirname $dir`
+   set category = `basename $category`
+   set base = `basename $i`
+  
+   
+   #echo "<html>" > $dir/start.html
+   #echo "<title>COVISE User's Guide</title>" >> $dir/start.html
+   #echo "</head>" >> $dir/start.html
+   #echo "<frameset rows="\"60,1"*"\"" border=0 frameborder=0 framespacing=0>" >> $dir/start.html
+   #echo   "<frameset cols="\"250,1"*"\"" frameborder=0 framespacing=0>" >> $dir/start.html
+   #echo     "<frame name=TopLeftFrame src="../../../start/logo.html">" >> $dir/start.html
+   #echo     "<frame name=TopFrame src="../../../start/toc.html">" >> $dir/start.html
+   #echo   "</frameset>" >> $dir/start.html
+   #echo   "<frameset cols="\"250,1"*"\"" frameborder=0 framespacing=0>" >> $dir/start.html
+   #echo     "<frame name=LeftFrame src="../../../start/tocmodules.html">" >> $dir/start.html
+   #echo     "<frame name=MainFrame src="\"$base.html\"">" >> $dir/start.html
+   #echo   "</frameset>" >> $dir/start.html
+   #echo "</frameset>" >> $dir/start.html
+   #echo "</html>" >> $dir/start.html
+   
+   echo "<html>" > $dir/start.html
+   echo "<title>COVISE Online Help</title>" >> $dir/start.html
+   echo "<frameset cols="\"151,1"*"\"">" >> $dir/start.html
+   echo "<frame name=LeftFrame src="../../../../help/modtoc.html">" >> $dir/start.html
+   echo "<frame name=MainFrame src="\"$base.html\"">" >> $dir/start.html
+   echo "</frameset>" >> $dir/start.html
+   echo "</html>" >> $dir/start.html
+   
+   echo ""
+   echo \# ---- Module: $base  --- Category: $category --- $i
+   echo ""
+   echo refhtml: ../online/$i.html
+   #echo manual.dvi:"  "$i.tex
+   echo ""
+   echo ../online/modules/$category/$base :
+   echo "\t" mkdir -p ../online/modules/$category/$base
+   echo ../online/$i.html: $i.tex ../online/modules/$category/$base
+   echo "\t"-chmod 644 ../online/modules/$category/$base/\*.gif 
+   echo "\t"-cp $dir/\*.gif $dir/start.html ../online/modules/$category/$base
+   echo "\t"\$\(L2H2\) -dir ../online/modules/$category/$base $i.tex \> \$\(DEBUGOUT\) 2\>1
+   
+   #echo "\t"-cp modules/$category/$category.html ../online/modules/$category   
+   #echo "\t"-chmod 644 ../online/modules/$category/$category.html
+   
+
+end
+
+

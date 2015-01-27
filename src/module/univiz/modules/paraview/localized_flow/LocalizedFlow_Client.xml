@@ -1,0 +1,8 @@
+<ParaViewFilters>
+	<Category name="Univiz" menu_label="&amp;Univiz">
+		<Filter name="LocalizedFlow" />
+	</Category>
+		
+	<Filter name="LocalizedFlow" />
+	
+</ParaViewFilters>

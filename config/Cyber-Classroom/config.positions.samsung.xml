@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <SmallSceneAxis value="off" >
+            <Position x="-500" y="0" z="-230" />
+            <Size value="60"/>
+            <FontSize value="20"/>
+         </SmallSceneAxis>
+
+         <NameMenuPosition value="on" x="-560" y="-1" z="315"/>
+         <NameMenuScale value="2.5"/>
+
+         <Menu>
+            <Position x="-558" y="0" z="312"/>
+            <Size value="1.45"/>
+         </Menu>
+
+         <QuitMenu>
+            <Position x="-100" y="-200" z="0"/>
+         </QuitMenu>
+
+         <Plugin>
+
+            <AKToolbar value="on">
+               <Scale value="0.55" />
+               <Position x="-558" y="0" z="-228" /> 
+               <!--<ShortCut value="traverseInteractors" name="traverseInteractors" />-->             
+            </AKToolbar>
+
+            <DocumentViewer value="on">
+               <Vsize value="600"/>
+            </DocumentViewer>
+
+         </Plugin>
+
+      </COVER>
+
+   </GLOBAL>
+
+</COCONFIG>

@@ -1,0 +1,954 @@
+#VRML V2.0 utf8  
+
+
+NavigationInfo {
+    type        "EXAMINE"
+}
+
+DEF VIEWALL Viewpoint {
+  position 0.5 0.5 3 
+  description "View all"
+  orientation 0.0 0.0 1.0  0.0
+  jump FALSE
+}
+
+DEF ROOT Group {
+ 
+
+}
+
+DEF TELE_POINTER Transform {
+   rotation 0.0 0.0 0.0 0.0
+   translation 0.0 0.0 0.0 	
+   children [
+      DEF ROT_V Transform {
+         rotation 0.0 0.0 0.0 0.0
+         translation 0.0 0.0 0.0
+         children [
+            DEF TRANS_V Transform { 
+               rotation 0.0 0.0 0.0 0.0
+               translation 0.0 0.0 0.0 
+               children [ 
+                  Shape {
+                     appearance Appearance {
+                        material Material { diffuseColor  1 0 0 }
+                     }
+                     geometry DEF TELE_TEXT Text {
+                        fontStyle FontStyle { size  0.3 }
+                        string [""]
+                     }
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
+
+
+
+DEF HANDLESPOSITION Transform {
+  children [
+    DEF SCENESIZE Transform {
+      children [
+        Transform {
+          translation 0.0 0.0 -7.0
+          children [ 
+	    DEF HANDLES Switch { }
+
+# Begin Uni-Logo
+Transform {
+  translation 1.8 1.3 3.0
+  children [
+    DEF LOGO Transform {
+   scale 0.3 0.3 0.3
+     children [
+    Shape {
+	  geometry IndexedFaceSet {
+        solid FALSE
+	    coord Coordinate {
+		  point [
+		    1.0  1.0  0.0
+			1.0 -1.0  0.0 
+		   -1.0 -1.0  0.0
+		   -1.0 1.0  0.0
+		  ]
+		}
+		coordIndex [
+		  0, 1, 2, 3, 0, -1
+		]
+	  }
+	  appearance Appearance {
+	    material Material {
+		}
+		texture ImageTexture {
+		  url "unilogo.gif"
+		}
+	  }
+	}
+	DEF OI OrientationInterpolator {
+	  key [0.0 1.0]
+	  keyValue [
+	    0.0 1.0 0.0 0.0
+		0.0 1.0 0.0 3.142
+	  ]
+	}
+	DEF TSENSOR TimeSensor {
+	  loop TRUE
+      cycleInterval 2.0
+	}
+  ]
+}
+
+  ]
+}
+# End Uni-Logo
+
+# Dashboard
+            Transform { 
+              translation 0.0 -1.4 3.0
+              rotation -1.0 0.0 0.0 0.3 
+              children [
+# Begin stepper
+                DEF STEPPER Switch { 
+                  whichChoice -1 
+		  choice [
+                    Group {
+		      children [
+# Begin forward button
+                        Group {
+			  children [
+			    Transform {
+                              translation 1.8 0.0 0.0
+                              scale 0.15 0.15 0.15
+                              children [
+                                Shape {
+                                  geometry  DEF triangle Extrusion {
+                                    beginCap FALSE
+	                            endCap TRUE
+	                            ccw FALSE
+	                            convex TRUE
+	                            solid TRUE
+	                            crossSection [
+	                              0.0 0.5
+	                              0.0 -0.5
+	                              0.86 0.0
+				      0.0 0.5
+                                    ]
+                                    spine [ 0.0 0.0 -0.2 0.0 0.0 0.2 ]
+                                  }
+                                  appearance DEF GREEN Appearance {
+                                    material Material {
+	                              diffuseColor 0.0 1.0 0.0
+	                            }
+                                  }
+                                }
+                              ]
+                            }
+                            Transform {
+			      translation 1.93 0.0 0.0
+                              scale 0.15 0.15 0.15
+			      children [
+                                Shape {
+				  geometry USE triangle
+			          appearance USE GREEN
+				}
+			      ]
+                            }
+			    DEF STARTANIM TouchSensor {}
+			  ]
+			}
+# End forward button
+
+# Begin backward button
+                        Group {
+			  children [
+			    Transform {
+                              rotation 0 0 1  3.14
+                              translation 0.23 0.0 0.0
+                              scale 0.15 0.15 0.15
+                              children [
+                                Shape {
+                                  geometry  DEF b_triangle Extrusion {
+                                    beginCap FALSE
+	                            endCap TRUE
+	                            ccw FALSE
+	                            convex TRUE
+	                            solid TRUE
+	                            crossSection [
+	                              0.0 0.5
+	                              0.0 -0.5
+	                              0.86 0.0
+				      0.0 0.5  
+                                    ]
+                                    spine [ 0.0 0.0 -0.2 0.0 0.0 0.2 ]
+                                  }
+                                  appearance DEF GREEN Appearance {
+                                    material Material {
+	                              diffuseColor 0.0 1.0 0.0
+	                            }
+                                  }
+                                }
+                              ]
+                            }
+                            Transform {
+                              rotation 0 0 1  3.14
+			      translation 0.1 0.0 0.0
+                              scale 0.15 0.15 0.15
+			      children [
+                                Shape {
+				  geometry USE b_triangle
+			          appearance USE GREEN
+				}
+			      ]
+                            }
+			    DEF BACKANIM TouchSensor {}
+			  ]
+			}
+# End backward button
+
+# Begin speed control
+                        Group {
+			  children [
+			    Transform {
+			      translation 2.15 0.02 0.0
+			      rotation 0.0 0.0 1.0 1.57
+			      scale 0.15 0.15 0.15
+			      children [
+			        Shape { 
+				  geometry USE triangle
+				  appearance DEF BLUE Appearance {
+				    material Material { diffuseColor 0.0 0.0 1.0 }
+				  }
+				}
+			      ]
+			    }
+			    DEF FASTERANIM TouchSensor {}
+			  ]
+			}
+		        Group {
+			  children [
+			    Transform {
+			      translation 2.15 -0.02 0.0
+			      rotation 0.0 0.0 -1.0 1.57
+			      scale 0.15 0.15 0.15
+			      children [
+			        Shape {
+				  geometry USE triangle
+				  appearance USE BLUE
+				}
+			      ]
+			    }
+			    DEF SLOWERANIM TouchSensor {}
+			  ]
+			}
+
+                        Transform {
+			  translation 2.05 0.2 0.0 
+			  children [
+                            Shape {
+		              appearance Appearance {
+			        material Material {}
+		              }
+		              geometry DEF speedtext Text {
+			        fontStyle FontStyle { size  0.15 }
+                                string ["4.0 sek"]
+	                      }
+			    } 
+			  ]
+			}
+# End speed control
+
+# Begin stop button
+			Transform {
+                          translation -0.15 0.0 0.0
+                          scale 0.2 0.2 0.2
+                          children [
+			    Shape {
+			      appearance DEF RED Appearance {
+			        material Material {
+				  diffuseColor 1.0 0.0 0.0
+				}
+			      }
+			      geometry Sphere { radius 0.5 }
+			    }
+			    DEF STOPANIM TouchSensor {}
+                          ]
+			}
+# End stop button
+
+# Begin slider
+                        Transform {
+                          translation 1.0 0.0 0.0
+                          rotation 0.0 0.0 -1.0 1.57
+                          scale 1.3 1.3 1.3
+                          children [ 
+                            Transform {
+                              children [
+                                Shape {
+                                  appearance Appearance { material Material { diffuseColor 0.5 0.5 0.5 }}
+                                  geometry Cylinder { radius 0.05 height 1.1 } 
+                                }
+                              ]
+                            }
+                            DEF THUMB Transform { 
+	    	              children [
+                                Transform {
+                                  rotation 0.0 0.0 1.0 1.57
+	                          translation -0.1 0.0 0.0 	
+	                          children Shape {
+		                    appearance Appearance {
+			              material Material {}
+		                    }
+		                    geometry DEF text Text {
+			              fontStyle FontStyle { size  0.15 }
+                                      string ["1"]
+		                    }
+	                          } 
+                                }
+                                Transform {
+                                  scale 1.0 0.5 1.0
+                                  children [
+                                    Shape { 
+                                      appearance Appearance {
+                                        material Material { diffuseColor  1.0 0.0 0.0 }
+                                      }
+                                      geometry Sphere { radius 0.1 }
+                                    }
+                                  ]
+                                }
+                              ] 
+			    }
+                            DEF SPS PlaneSensor {
+                              maxPosition 0.0 0.5
+                              minPosition 0.0 -0.5
+                              autoOffset TRUE
+                            }
+                          ]
+                        }                     
+# End slider
+                      ]  
+                    }
+                  ]
+	        }
+# End stepper
+              ]
+            }
+# End dashboard
+# Begin Telepointer
+            DEF TELEPOINTER Switch {
+              whichChoice -1
+              choice [
+                Group { 
+                  children [ 
+	  	    Group  { 
+                      children [
+                        DEF TRANS Transform {
+	                  children [
+	                    Shape {
+ 	                      geometry Cylinder { radius 0.08 height 1.0 }
+			      appearance USE RED
+                            }
+		            Transform { 
+		              translation 0.0 0.75 0.0 
+		              children Shape { 
+			        geometry Cone { bottomRadius 0.15 height 0.5}
+			        appearance USE RED 
+		              }
+		            }
+		          ]    
+                        }
+		        DEF PS PlaneSensor {}
+                      ]
+	            }
+	            Group { 
+	              children [
+	                DEF ROT Transform {
+	                  children [
+		            Shape { 
+		              geometry Sphere { radius 0.25 }
+	                      appearance Appearance { material Material { diffuseColor 1.0 1.0 0.0 }}
+		            }
+		          ]
+		        }
+                        DEF SS SphereSensor{}
+	              ]
+	            }
+                    Transform { 
+	              translation -1.75 -1.4 3.0 
+	              rotation 0.0 0.0 1.0 1.57
+		      scale 0.1 0.1 0.1
+	              children [
+ DEF Z Transform { children [ Shape {
+  geometry Extrusion {
+    beginCap TRUE
+    endCap TRUE
+    ccw FALSE
+    convex FALSE
+    solid TRUE
+    crossSection [
+       1.0 0.0
+       0.92 0.38
+       0.71 0.71
+       0.38 0.92
+       0.0 1.0
+       -0.38 0.92
+       -0.71 0.71
+       -0.92 0.38
+       -1.0 0.0
+       -0.92 -0.38
+       -0.71 -0.71
+       -0.38 -0.92
+       0.0 -1.0
+       0.38 -0.92
+       0.71 -0.71
+       0.92 -0.38
+       1.0 0.0
+    
+    ]
+    spine [ 0.0 -1.0 0.0 0.0 1.0 0.0 ]
+  }
+  appearance Appearance {
+    material Material {
+      diffuseColor 0.5 0.5 0.5
+    }
+  }
+}]}
+                        DEF PS2 CylinderSensor {}
+	              ]
+	            } 
+	          ]
+	        }   	      
+              ]
+            }
+# End Telepointer
+          ]
+        } 
+      ]
+    }
+  ]
+}
+
+ROUTE TSENSOR.fraction_changed TO OI.set_fraction
+ROUTE OI.value_changed TO LOGO.set_rotation
+
+DEF SC Script { eventIn SFVec3f set_xy eventIn SFRotation set_z field SFVec3f xyz 0.0 0.0 0.0 
+       eventOut SFVec3f xyz_changed url "vrmlscript: function set_xy(xy, ts) 
+       { xyz.x = xy.x; xyz.y = xy.y; xyz_changed = xyz; }
+       function set_z(z, ts) { xyz.z = -z.angle; xyz_changed = xyz; } " }
+
+
+DEF POSITION ProximitySensor {
+  size 10000.0 10000.0 10000.0
+}
+
+DEF CENTER Transform {
+  children 
+    DEF SCALE Transform {
+      children  
+        DEF BOUNDINGBOX Switch { 
+          whichChoice -1
+          choice [
+            Shape {
+              geometry IndexedLineSet {
+	        coord Coordinate {
+	          point [
+	           -0.5 -0.5 -0.5
+		    0.5 -0.5 -0.5  
+		    0.5  0.5 -0.5
+		   -0.5  0.5 -0.5
+		   -0.5 -0.5  0.5  
+		    0.5 -0.5  0.5
+		    0.5  0.5  0.5
+		   -0.5  0.5  0.5
+                  ]
+                }
+	        coordIndex [0, 1, 2, 3, 0,
+			   -1, 4, 5, 6, 7,
+			    4, -1, 0, 4, -1,
+			    1, 5, -1, 2, 6,
+			   -1, 3, 7, -1
+		]
+              }
+              appearance Appearance { 
+	        material Material { emissiveColor 1.0 0.0 0.0 }
+	      }
+            }
+          ]
+        } 
+  }
+}   
+
+
+ROUTE PS.translation_changed TO SC.set_xy
+ROUTE SS.rotation_changed TO TRANS.set_rotation
+ROUTE SS.rotation_changed TO ROT.set_rotation
+ROUTE SC.xyz_changed TO TRANS.set_translation
+ROUTE SC.xyz_changed TO ROT.set_translation
+ROUTE PS2.rotation_changed TO SC.set_z
+ROUTE PS2.rotation_changed TO Z.set_rotation
+
+ROUTE POSITION.position_changed TO HANDLESPOSITION.set_translation
+ROUTE POSITION.orientation_changed  TO HANDLESPOSITION.set_rotation
+
+DEF SC3 Script { 
+  eventIn SFInt32 val
+  eventOut MFString string
+  url "vrmlscript:
+    function val(y, ts) {
+      string[0] = y +1; 
+      
+    }
+  "
+}
+
+DEF SSC Script {
+  eventIn SFVec3f set_translation
+  eventOut SFVec3f translation_changed
+
+  eventIn SFBool set_next
+  eventIn SFBool set_prev
+
+  eventIn SFInt32 set_numTimesteps
+  field SFInt32 numTimesteps 10
+  eventIn SFInt32 set_current
+  field SFInt32 current 0
+  eventOut SFInt32 current_changed
+
+  field SFFloat step 0.0
+  url "vrmlscript:
+    function initialize() {
+      step = 1.0/(numTimesteps-1);
+      current_changed = 0;
+      current = 0;
+      translation_changed[0] = 0;
+      translation_changed[1] = current * step - 0.5;
+      translation_changed[2] = 0;       
+
+    }
+    function set_translation(t, ts) {
+      current = (t[1] + 0.5)*(numTimesteps-1) + 0.5;
+      current_changed = current;
+      translation_changed[0] = 0;
+      translation_changed[1] = current * step - 0.5;
+      translation_changed[2] = 0;       
+    }
+    function set_current(c, ts) {
+      current_changed = c;
+      current = c;
+      translation_changed[0] = 0;
+      translation_changed[1] = c * step - 0.5;
+      translation_changed[2] = 0;       
+    } 
+
+    function set_next(t, ts) {
+      if(t == true)
+      { 
+         if(current<(numTimesteps-1)) current = current + 1;
+         else current = 0;
+         current_changed = current;
+         translation_changed[0] = 0;
+         translation_changed[1] = current * step - 0.5;
+         translation_changed[2] = 0;
+      }
+    }
+
+    function set_prev(t, ts) {
+      if(t == true)
+      { 
+         if(current>0) current = current - 1;
+         else current = numTimesteps-1;
+         current_changed = current;
+         translation_changed[0] = 0;
+         translation_changed[1] = current * step - 0.5;
+         translation_changed[2] = 0;
+      }
+    }
+
+
+
+    function set_numTimesteps(t, ts) {
+      numTimesteps = t;
+      step = 1.0/(numTimesteps-1);
+      translation_changed[0] = 0;
+      translation_changed[1] = current * step - 0.5;
+      translation_changed[2] = 0;       
+    }
+
+  "
+}
+
+DEF STARTB Script {
+  eventIn SFBool set_trigger
+  field SFBool state FALSE
+  eventOut SFBool state_changed
+  eventOut SFColor color_changed
+  url "vrmlscript:
+    function initialize() {
+      state_changed = state;
+    }
+    function set_trigger(t, ts) {
+      if(t==true) state_changed = true;
+    }
+  "
+}
+
+DEF START_B Script {
+  eventIn SFBool set_trigger
+  field SFBool state FALSE
+  eventOut SFBool state_changed
+  eventOut SFColor color_changed
+  url "vrmlscript:
+    function initialize() {
+      state_changed = state;
+    }
+    function set_trigger(t, ts) {
+      if(t==true) state_changed = true;
+    }
+  "
+}
+
+DEF STOPB Script {
+  eventIn SFBool set_trigger
+  field SFBool state FALSE
+  eventOut SFBool state_changed
+  url "vrmlscript:
+    function initialize() {
+      state_changed = state;
+    }
+    function set_trigger(t, ts) {
+      if(t==true) state_changed = false;
+    }    
+  "
+}
+
+DEF STOP_B Script {
+  eventIn SFBool set_trigger
+  field SFBool state FALSE
+  eventOut SFBool state_changed
+  url "vrmlscript:
+    function initialize() {
+      state_changed = state;
+    }
+    function set_trigger(t, ts) {
+      if(t==true) state_changed = false;
+    }    
+  "
+}
+
+DEF ABS Script {
+  eventIn SFFloat set_value
+  field SFInt32 current 0
+  eventOut SFInt32 value_changed
+  url "vrmlscript: 
+    function initialize() {
+      value_changed = current
+    }
+    function set_value(t,ts) {
+      current = t + 1;
+      if(current!=value_changed) value_changed = current;
+    }
+  "
+}
+DEF DEBUGSCRIPT Script { 
+  eventIn SFInt32 val
+  eventOut MFString string
+  url "vrmlscript:
+    function val(y, ts) {
+      string[0] = y; 
+      
+    }
+  "
+}
+
+Transform { 
+  translation 1.0 0.0 0.0 
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {}
+      }
+      geometry DEF DEBUGTEXT Text {
+        fontStyle FontStyle { size  0.5 }
+        string [""]
+      }
+    }
+  ]
+}
+    
+DEF ANIMLOOP TimeSensor { loop TRUE cycleInterval 1.0 }
+DEF BACKLOOP TimeSensor { loop TRUE cycleInterval 1.0 }
+
+DEF ANIM ScalarInterpolator {
+	key [0, 1]
+	keyValue [-0.55 0.55]
+}
+
+DEF BACK ScalarInterpolator {
+	key [0, 1]
+	keyValue [0.55 -0.55]
+}
+
+
+
+
+DEF SC4 Script {
+  eventIn SFFloat set_translation
+  eventOut SFVec3f translation_changed
+  url "vrmlscript:
+    function set_translation(x, ts) {
+      translation_changed[0] = 0.0;
+      if(x<-0.5) x = -0.5; else if (x > 0.5) x = 0.5
+      translation_changed[1] = x;
+      translation_changed[2] = 0.0;
+    }
+  "
+}
+
+DEF ANIMSPEED Script {
+  eventIn SFBool increase
+  eventIn SFBool decrease
+  field SFTime speed 4.0
+  eventOut SFTime speed_changed
+  url "vrmlscript:
+    function increase(b, ts) {
+      if(b==true) { 
+        speed += 0.5;
+	speed_changed = speed;
+      }
+    }
+    function decrease(b, ts) {
+      if(b==true) {
+        speed -= 0.5;
+	speed_changed = speed;
+      }
+    }
+  "
+} 
+
+DEF ST Script {
+  eventIn SFTime set_value
+  eventOut MFString string_changed
+  url "vrmlscript:
+    function set_value(v, ts) {
+      string_changed[0] = v + ' sek';
+    }
+  "
+}
+
+# step through timesteps
+
+# forward animation
+ROUTE STARTANIM.isActive TO STARTB.set_trigger
+ROUTE STARTANIM.isActive TO STOP_B.set_trigger
+ROUTE STARTB.state_changed TO ANIMLOOP.set_enabled
+ROUTE STOPANIM.isActive TO STOPB.set_trigger
+ROUTE STOPB.state_changed TO ANIMLOOP.set_enabled
+ROUTE ANIMLOOP.fraction_changed TO ANIM.set_fraction
+ROUTE ANIM.value_changed TO SC4.set_translation
+
+# backward animation
+#ROUTE BACKANIM.isActive TO START_B.set_trigger
+ROUTE BACKANIM.isActive TO STOPB.set_trigger
+#ROUTE START_B.state_changed TO BACKLOOP.set_enabled
+#ROUTE STOPANIM.isActive TO STOP_B.set_trigger
+#ROUTE STOP_B.state_changed TO BACKLOOP.set_enabled
+#ROUTE BACKLOOP.fraction_changed TO BACK.set_fraction
+#ROUTE BACK.value_changed TO SC4.set_translation
+
+
+ROUTE BACKANIM.isActive TO SSC.set_prev
+
+
+ROUTE SC4.translation_changed TO SSC.set_translation
+
+ROUTE SSC.current_changed TO SC3.val
+ROUTE SC3.string TO text.string 
+ROUTE SPS.translation_changed TO SSC.set_translation
+ROUTE SSC.translation_changed TO THUMB.set_translation
+
+ROUTE FASTERANIM.isActive TO ANIMSPEED.increase
+ROUTE SLOWERANIM.isActive TO ANIMSPEED.decrease
+ROUTE ANIMSPEED.speed_changed TO ST.set_value
+ROUTE ANIMSPEED.speed_changed TO ANIMLOOP.set_cycleInterval
+ROUTE ST.string_changed TO speedtext.set_string
+#ROUTE ANIMSPEED.status TO ANIMLOOP.set_enabled
+
+
+
+Shape {
+	geometry IndexedLineSet {
+		coord Coordinate {
+			point [ 
+				0.0 0.0 0.0
+				0.9 0.0 0.0
+			]
+		}
+		coordIndex [0, 1, -1]
+	} 
+	appearance Appearance {
+		material Material {
+			emissiveColor 1.0 0.0 0.0
+		}
+	}
+}
+
+Transform {
+  translation 0.925 0.0 0.0
+  rotation 0.0 0.0 1.0 -1.57
+  children 
+    Shape {
+	  geometry Cone { bottomRadius 0.05 height 0.15 }
+	  appearance Appearance {
+	    material  Material { diffuseColor 1.0 0.0 0.0 }
+	  }
+	}
+}
+DEF X Transform { translation 1.2 0.0 0.0 children
+Billboard { axisOfRotation 0.0 1.0 0.0 children 
+Billboard { axisOfRotation 1.0 0.0 0.0 children 
+
+Transform {
+ translation 0.0 -0.05 0.0
+ children
+  Shape {
+    appearance Appearance {
+      material Material { diffuseColor 1.0 0.0 0.0 }
+    }
+    geometry Text {
+      string "X"
+	  fontStyle FontStyle {
+	   justify "MIDDLE"
+	   size 0.15	
+	  }
+    }
+  }
+}
+}
+}
+}
+
+    
+Shape {
+	geometry IndexedLineSet {
+		coord Coordinate {
+			point [ 
+				0.0 0.0 0.0
+				0.0 0.9 0.0
+			]
+		}
+		coordIndex [0, 1, -1]
+	} 
+	appearance Appearance {
+		material Material {
+			emissiveColor 0.0 1.0 0.0
+		}
+	}
+}
+
+Transform {
+  translation 0.0 0.925 0.0
+  children 
+    Shape {
+	  geometry Cone { bottomRadius 0.05 height 0.15 }
+	  appearance Appearance {
+	    material  Material { diffuseColor 0.0 1.0 0.0 }
+	  }
+	}
+}
+DEF Y Transform { translation 0.0 1.2 0.0 children
+Billboard { axisOfRotation 0.0 1.0 0.0 children 
+Billboard { axisOfRotation 1.0 0.0 0.0 children 
+
+Transform {
+ translation 0.0 -0.05 0.0
+ children
+  Shape {
+    appearance Appearance {
+      material Material { diffuseColor 0.0 1.0 0.0 }
+    }
+    geometry Text {
+      string "Y"
+	  fontStyle FontStyle {
+	   justify "MIDDLE"
+	   size 0.15	
+	  }
+    }
+  }
+}
+}
+}
+}
+
+
+Shape {
+	geometry IndexedLineSet {
+		coord Coordinate {
+			point [ 
+				0.0 0.0 0.0
+				0.0 0.0 0.9
+			]
+		}
+		coordIndex [0, 1, -1]
+	} 
+	appearance Appearance {
+		material Material {
+			emissiveColor 0.0 0.0 1.0
+		}
+	}
+}
+
+Transform {
+  translation 0.0 0.0 0.925
+  rotation 1.0 0.0 0.0 1.57
+  children 
+    Shape {
+	  geometry Cone { bottomRadius 0.05 height 0.15 }
+	  appearance Appearance {
+	    material  Material { diffuseColor 0.0 0.0 1.0 }
+	  }
+	}
+}
+
+
+DEF Z Transform { translation 0.0 0.0 1.2 children
+Billboard { axisOfRotation 0.0 1.0 0.0 children 
+Billboard { axisOfRotation 1.0 0.0 0.0 children 
+
+Transform {
+ translation 0.0 -0.05 0.0
+ children
+  Shape {
+    appearance Appearance {
+      material Material { diffuseColor 0.0 0.0 1.0 }
+    }
+    geometry Text {
+      string "Z"
+	  fontStyle FontStyle {
+	   justify "MIDDLE"
+	   size 0.15	
+	  }
+    }
+  }
+}
+}
+}
+}
+Shape {
+	geometry PointSet {
+		coord Coordinate {
+			point [ 
+				0.0 0.0 0.0
+			]
+		}
+	}
+	appearance Appearance {
+		material Material {}
+	}
+}
+
+
+ROUTE POSITION.orientation_changed  TO X.set_rotation
+ROUTE POSITION.orientation_changed  TO Y.set_rotation
+ROUTE POSITION.orientation_changed  TO Z.set_rotation
+

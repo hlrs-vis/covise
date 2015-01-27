@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (X11; I; IRIX 6.2 IP22) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>
+Bestimmung der Tracking-System Offsets</H1>
+<IMG SRC="transformationen.gif" ALT="transformationen.gif" HEIGHT=502 WIDTH=541>
+<BR><B><I>Bild1: Transformationen fuer das Trackingsystem im CUBE am RUS</I></B>
+
+<P>Es gibt drei Abbildungen:
+
+<P>A1: Position/Orientierung des Viewers im Receiver-System
+<BR>A2: Position/Orientierung des Receivers im Transmitter-System
+<BR>A3: Position/Orientierung des Transmitters im Welt-System
+
+<P>Die Gesamtabbildung ist A1 A2 A3.
+
+<P>A2 liefert das Tracking-System. A1 und A3 sind fest und muessen in <B>covise.config</B>
+festgelegt werden.
+<BR>&nbsp;
+<H3>
+Bestimmung von A3 (Position und Orientierung des Transmitters im Welt-System)</H3>
+TRANSMITTER_OFFSET_POSITION:
+<BR>Wie muss man den Ursprung des Weltsystems (schwarz) verschieben im
+Weltsystem verschieben, damit er mit dem Ursprung des Transmitters (gruen)
+zusammenfaellt.
+
+<P>TRANSMITTER_OFFSET_EULER:
+<BR>Wie muss man das Welt-System (schwarz) drehen, damit es mit dem Transmitter-System
+(gruen) zusammenfaellt.
+
+<P>Beispiel CUBE:
+
+<P><B><FONT SIZE=-1>PolhemusConfig</FONT></B>
+<BR><B><FONT SIZE=-1>{</FONT></B><B><FONT SIZE=-1></FONT></B>
+
+<P><B><FONT SIZE=-1>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Position of the
+transmitter in the world coordinate system</FONT></B>
+<BR><B><FONT SIZE=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TRANSMITTER_OFFSET_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0 -185 -25</FONT></B><B><FONT SIZE=-1></FONT></B>
+
+<P><B><FONT SIZE=-1>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Orientation of
+the Transmitter in the world coordinate system. Order: RPH</FONT></B>
+<BR><B><FONT SIZE=-1>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; H=rotz, P=rotx,
+R=roty</FONT></B>
+<BR><B><FONT SIZE=-1>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+H&nbsp;&nbsp; P&nbsp;&nbsp; R</FONT></B>
+<BR><B><FONT SIZE=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TRANSMITTER_OFFSET_EULER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+90 180 0</FONT></B>
+<BR><B><FONT SIZE=-1>}</FONT></B>
+<BR>&nbsp;
+<H3>
+Bestimmung von A1 (Position und Orientierung des Receivers im Welt-System)</H3>
+SENSOR_OFFSET_POS:
+<BR>Wie muss man den Ursprung des Receiver-Systems (rot) verschieben, damit
+er mit dem Viewer-System (blau) zusammenfaellt.
+
+<P>SENSOR_OFFSET_EULER:
+<BR>Wie muss man das Receiver-System (rot) drehen, damit es mit dem Viewer-System
+(blau) zusammenfaellt.
+
+<P>Beispiel CUBE:
+
+<P><B><FONT SIZE=-1>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Position of the
+Viewer in the receiver system</FONT></B>
+<BR><B><FONT SIZE=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SENSOR_OFFSET_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10 0 10</FONT></B><B><FONT SIZE=-1></FONT></B>
+
+<P><B><FONT SIZE=-1>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Orientation of
+the Viewer in the receiver system</FONT></B>
+<BR><B><FONT SIZE=-1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SENSOR_OFFSET_EULER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-90 0 90</FONT></B>
+<BR><B><FONT SIZE=-1></FONT></B>&nbsp;
+<H3>
+<FONT COLOR="#FF0000">Anmerkung zu den Euler-Winkeln:</FONT></H3>
+<FONT COLOR="#FF0000">H = rot z</FONT>
+<BR><FONT COLOR="#FF0000">P = rot x</FONT>
+<BR><FONT COLOR="#FF0000">R = rot y</FONT>
+<BR><FONT COLOR="#FF0000">Die Reihenfolge der Multiplikationen ist R P
+H.</FONT>
+<BR><FONT COLOR="#FF0000">Im <B>covise.config</B> ist die Reihenfolge der
+Eingabe H P R.</FONT>
+<BR>&nbsp;
+</BODY>
+</HTML>

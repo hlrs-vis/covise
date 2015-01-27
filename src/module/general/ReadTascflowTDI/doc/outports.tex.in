@@ -1,0 +1,40 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{grid} & StructuredGrid & The grid: a (set of) structured grids \\
+\hline
+	\textcolor{output}{block} & IntArr & Block off information: a set of integer arrays. \\
+\hline
+	\textcolor{output}{region} & Lines \newline
+	                               StructuredGrid
+	                          & The region: a set of lines which emphasize the region. \\
+
+\hline
+	\textcolor{output}{vector1} & Vec3 &  The vector data set as selected with 'vector\_data\_1' parameter. \\
+\hline
+	\textcolor{output}{vector2} & Vec3 &  The vector data set as selected with 'vector\_data\_2' parameter. \\
+\hline
+	\textcolor{output}{data1} & Float &  The scalar data set as selected with 'scalar\_data\_1' parameter. \\
+\hline
+	\textcolor{output}{data2} & Float &  The scalar data set as selected with 'scalar\_data\_2' parameter. \\
+\hline
+	\textcolor{output}{data3} & Float \newline Float &  The scalar data set as selected with 'scalar\_data\_3' parameter. \\		
+\hline
+	\textcolor{output}{bcf\_polygons} & Polygons &  The polygons read from the BCF file to be removed. \\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

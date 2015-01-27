@@ -1,0 +1,56 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	gridpath & File Browser & Required file path of the basic grid file.  \\
+\hline
+	datapath & File Browser & Scalar, vector or displacement data additional 
+	to the grid file. The number of elements must match the number of nodes 
+	in the grid.  \\
+\hline
+	colorpath & File Browser & Optional color path of the color file in ascii format. 
+	If the grid has multiple parts each part gets a different color. 
+	If you want to write a color file take the system colors of sgi and 
+	write each in one line, save the file as ascii format. The system colors can 
+	be found in /usr/share/X11/rgb.txt . Otherwise the default colors red, green and 
+	blue are used.  \\
+\hline
+	filetype & Choice & Choice parameter for the file format. 
+	At the moment only ascii is supported, fortran and binary format not.  \\
+\hline
+	gridtype & Choice & Choice parameter for the grid format. 
+        % As far as I know MovieBYU 
+	% has only unstructered grids, so you can only choose this.  \\
+        You can only choose unstructured grids.\\
+\hline
+	datatype & Choice & Choice parameter for the optional data file. 
+	You can choose scalar, vector or displacement data files. 
+	Displacement data is automaticly computed by the module, scalar and vector 
+	data is only transformed to Covise data, so you must handle them with 
+	other modules to see an effect.  \\
+\hline
+	timesteps & Scalar & The number of timesteps that are computed by the module. 
+	It has only an effect if datatype is displacement and a data file is chosen.  \\
+\hline
+	delta & Scalar & If timesteps are available you can skip particular steps 
+	by setting this parameter greater one.  \\					
+														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+
+%
+%=============================================================

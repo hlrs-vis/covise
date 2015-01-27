@@ -1,0 +1,38 @@
+USING(XERCESC)
+
+
+
+IF(MSVC)
+
+  COVISE_FIND_PACKAGE(WMFSDK)
+
+  ADD_DEFINITIONS(-DNEWOSG)
+  
+  INCLUDE_DIRECTORIES(${WMFSDK_SHARED_INCLUDE_DIR})
+  
+  
+  SET(HEADERS WINAVIVideo.h rgb2rgb.h swscale.h swscale_internal.h Video.h)
+  SET(SOURCES WINWMVVideo.cpp WINAVIVideo.cpp Video.cpp rgb2rgb.c swscale.c yuv2rgb.c)
+
+  IF(WMFSDK_FOUND)
+    INCLUDE_DIRECTORIES(${WMFSDK_INCLUDE_DIR})
+    ADD_DEFINITIONS(-DHAVE_WMFSDK)
+    SET(EXTRA_LIBS ${EXTRA_LIBS} ${WMFSDK_LIBRARIES})
+  ENDIF()
+  
+ELSE(MSVC)
+  
+  using(FFMPEG)
+  ADD_DEFINITIONS("-DHAVE_CODEC_CTX_PTR")
+  
+  SET(HEADERS FFMPEGVideo.h Video.h)
+  SET(SOURCES FFMPEGVideo.cpp Video.cpp)
+  
+ENDIF(MSVC)
+
+cover_add_plugin(Video ${HEADERS} ${SOURCES})
+
+IF(MSVC AND NOT MSVC10)
+  ADD_COVISE_COMPILE_FLAGS(Video "/Zc:wchar_t-")
+ENDIF()
+

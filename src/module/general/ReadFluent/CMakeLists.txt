@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadFluent.cpp
+)
+
+SET(EXTRASOURCES
+  ReadFluent.h
+)
+
+ADD_COVISE_MODULE(IO ReadFluent ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadFluent  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadFluent)

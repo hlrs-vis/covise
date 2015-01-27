@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+
+
+<COCONFIG version="1" >
+<Module>
+<CFX>
+     <Local value="141.58.8.44"/>
+        </CFX>
+        </Module>
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ 
+ <LOCAL host="visquad" >
+  <COVER>
+  <MultiPC>
+    <SyncMode value="TCP" />
+   <NumSlaves value="1" />
+     <Startup arch="x11" value="startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR config.twocovers2.xml" name="0"/>
+  </MultiPC>
+   <ChannelConfig>
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="1" width="1" left="0" windowIndex="1" bottom="0" name="1" height="1" />
+   </ChannelConfig>
+  <ScreenConfig>
+    <Screen width="2320" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1450" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2320" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1450" p="0.0" r="0.0" name="1" screen="1" />
+  </ScreenConfig>
+
+   <WindowConfig>
+       <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1200" left="1600" bottom="0" name="0" decoration="false"/>
+       <Window width="1920" comment="FRONT" window="1" pipeIndex="1" height="1200" left="0" bottom="0" name="1" decoration="false"/>
+   </WindowConfig>
+   
+   <PipeConfig>
+    <Pipe server="0" screen="0" name="0" />
+   </PipeConfig>
+
+  <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+  <SyncToVBlank value="ON" device="DFP-1" />
+  
+  <WelcomeMessage value="Welcome to CoolEmAll at ICT 2013" />
+
+  <Plugin>
+
+   <!--COVERScript value="ON"/-->
+   <!--cuIsoSurface value="ON"/>
+   <cuCuttingSurface value="ON"/-->
+   <cuTracer value="ON"/>
+   <Vrml97>
+     <MaybeGC value="ON" />
+  
+
+     <!-- nicht ausschalten, sonst funktionieren die shader nicht die Binormalen brauchen GenerateTriangleStrips value="false" /-->
+
+     <Audio value="AServer" >
+	 <!--Host value="192.168.0.10" /-->
+     </Audio>
+
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+       
+  </Plugin>
+  
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+   
+   
+   <!--SceneSize value="2669" /-->
+   <SceneSize value="1869" />
+   <FloorHeight value="-1200" />
+   <Menu>
+   	<Position x="750" y="0" z="700" />
+   </Menu>
+   <MenuSize value="0.7" />
+   <MultiProcess value="OFF" />
+   <MouseNav value="OFF" />
+   <TextureCounter value="ON" />
+   <StateFixLevel value="0" />
+   <StereoSep value="ON" />
+   <Stereo value="ON" />
+   <DebugLevel value="0" />
+   <Freeze value="OFF" />
+   <ViewerPosition value="-200 -2000 0" />
+   <NumPipes value="1" />
+   <NumScreens value="1" />
+   <NumWindows value="1" />
+   <TransparencyMode value="sorted_blended" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+
+  <TabletPC>
+   <!--Server value="192.168.1.58" /-->
+   <Server value="192.168.1.2" />
+   <!--Server value="localhost" /-->
+  </TabletPC>
+  
+  <Input>
+ 
+   <ButtonSystem value="MOUSE" />
+   <TrackingSystem value="DTRACK" />
+   <DebugButtons value="TRUE" />
+   <HeadAddress value="1" />
+   <HandAddress value="0" />
+   <ButtonSystem value="MOUSE" />
+   <Joystick value="false" />
+   <JoystickXMax value="1023" />
+   <JoystickYMax value="1023" />
+   <JoystickXMin value="0" />
+   <JoystickYMin value="0" />
+   <JoystickZeroX value="507" />
+   <JoystickZeroY value="509" />
+   <OffsetX value="50" />
+   <OffsetY value="50" />
+   <DebugStation value="0" />
+   <DebugTracking value="false" />
+   
+   <TrackingSystem> 
+    <Offset x="0" y="-1500" z="-1150" />
+    <Orientation h="0" p="0" r="0" />
+   </TrackingSystem>
+   
+   <HeadDevice>   
+    <Offset x="-105" y="-40" z="-50" />
+    <Orientation h="0" p="0" r="0" />
+   </HeadDevice>
+     
+   <HandDevice>     
+    <Offset x="-50" y="0" z="-50" />
+    <Orientation h="0" p="-5" r="0" />
+   </HandDevice>
+   
+  <ButtonConfig>
+   <ButtonDevice value="/dev/input/presenter" />
+   <Map value="1 ACTION_BUTTON" name="1" />
+   <Map value="8 XFORM_BUTTON" name="2" />
+   <Map value="2 DRIVE_BUTTON" name="3" />
+  </ButtonConfig>  
+  <DTrack>
+   <Startup value="192.168.1.10:5001" />
+   <!--Startup value="141.30.14.209:5001" /-->
+  </DTrack>  
+   
+  </Input>
+    
+
+    </COVER>
+
+  <Module>
+   <Fenfloss>
+    <Verbose value="1" />
+    <Timeout value="20" />
+    <Startup value="gate %0 %1 %e" name="v3" />
+    <Startup value="tube %0 %1 %e" name="v4" />
+    <Startup value="axial %0 %1 %e" name="v5" />
+    <Startup value="radial %0 %1 %e" name="v6" />
+    <Startup value="sc2004booth %0 %1 %e" name="v7" />
+    <Startup value="archflow %0 %1 %e" name="v8" />
+    <Startup value="other %0 %1 %e" name="v9" />
+
+    <Application value="p_covise_fen6.3.0.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+    <Application value="p_fen7.0" name="v3"/>
+   </Fenfloss>
+
+  <OpenFoam>
+   <Verbose value="1" />
+   <Server value="m" />
+   <Startup value="blubb %0 %e" name="v1" />
+   <StartUpScript value="/home/hpcyborg/OpenFOAM/OpenFOAM-1.7.1/applications/solvers/incompressible/icoFoamCovise/cavity.sh" />
+   <Local value="195.37.217.230" />
+  </OpenFoam>
+
+  </Module>
+  
+ </LOCAL>
+
+</COCONFIG>

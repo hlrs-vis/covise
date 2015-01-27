@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <COVER>
+
+         <!-- Cykloop screen (1720 mm x 1320 mm) -->
+
+         <SceneSize value="1320" />
+         <ViewerPosition x="0" y="-1100" z="0" />
+         <FloorHeight value="-1250"  />
+         <IconSize value="50"/>
+
+         <ScreenConfig>
+            <Screen originX="0" originY="0" originZ="0" width="1320" height="1320" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+         </ScreenConfig>
+
+         <SmallSceneAxis value="off" >
+            <Position x="-750" y="0" z="-500" />
+            <Size value="100"/>
+            <FontSize value="10"/>
+         </SmallSceneAxis>
+
+         <NameMenuPosition value="on" x="-1860" y="0" z="660"/> 
+         <NameMenuScale value="2.0"/> 
+
+         <Menu>
+            <Position x="-1850" y="0" z="610"/>
+         </Menu>
+
+         <Plugin>
+
+            <AKToolbar value="off">
+               <Scale value=".7" />
+               <Position x="-850" y="0" z="-550" />
+            </AKToolbar>
+
+            <DocumentViewer value="off">
+               <Vsize value="1250" />
+            </DocumentViewer>
+
+         </Plugin>
+
+      </COVER>
+   </GLOBAL>
+
+</COCONFIG>

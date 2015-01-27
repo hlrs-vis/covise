@@ -1,0 +1,8 @@
+<ParaViewFilters>
+	<Category name="Univiz" menu_label="&amp;Univiz">
+		<Filter name="VortexCores" />
+	</Category>
+		
+	<Filter name="VortexCores" />
+	
+</ParaViewFilters>

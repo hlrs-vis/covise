@@ -1,0 +1,105 @@
+
+%=============================================================
+
+%-------------------------------------------------------------
+% General Notes for Latex novices:
+% 1. Please protect any "_" by a backslash "\" to prevent that it is
+%    interpreted by Latex as an order, e. g. write
+%    Vec3.
+%    Protect "#", "$", "&", "%" , "{" and "}" in the same way by a "\".
+% 2. Use {\bf text} or {\it text} to generate text in bold face resp. italics
+% 3. For Figures, Tables, Lists, Verbatim-Environments (unformatted text), References/Links,
+%    etc. see below.
+% 4. Look at CuttingSurface.tex , ReadSTAR.tex, or Domainsurface.tex as good examples.
+% 5. A Latex book (Latex Einf\"{u}hrung Band 1) is available for further questions
+%    (usually on Peter's desk)
+%-------------------------------------------------------------
+
+%
+% short description what the module does
+%
+This module writes volume data files from volumetric
+packed RGBA, vector, or multi-channel scalar
+data on uniform grids. 
+
+For more information about Volume Rendering see COVISE VR \& CE User's Guide, 
+Appendix "Volume Rendering in Covise"
+
+\begin{covimg2}{}{module}{0.7}\end{covimg2}
+
+Files of the following 3D volume data formats can be written:
+
+\begin{itemize}
+
+\item .rvf: Data format for 'raw volume data'.
+This format can easily be created by hand from any voxel data
+array on disk by just adding the appropriate header: 3 x 2 Bytes
+(little endian) = volume width/height/depth (voxels).
+Example for a 256x128x127 volume (hex values): 01 00 00 80 00 7F
+Volume data format: 8 bit per voxel Data order: starting from
+top-left-front, going right first, then down, then back.
+This format does not support time dependent data, and it only supports
+8 bit per voxel.
+
+\item .xvf: Short for 'extended volume data'. 
+This format supports time dependent volume data and between 8 and 32 bits per voxel.
+
+\item .dat: Raw volume data without any header. 
+The data can have 1,2,3, or 4 byte per voxel.
+The program tries to find the volume dimensions automatically, but
+you can help by passing them in the file name, e.g.
+"cthead256x256x64.dat" for a 256 x 256 x 64 voxels data set. Data
+order: starting from top-left-front, going right first, then down,
+then back. All bytes of each voxel must be stored consecutively,
+starting with the most significant byte or in RGBA order,
+depending on the data type.
+
+\item .ppm,.pgm: Portable Pixmap/Graymap files (binary version only).
+If this format is selected, the volume slices are written to disk as 
+a number of 2D image files. The files will be numbered automatically.
+The volume data format decides about the use of PPM or PGM files. For 
+scalar volume data the file format is PGM. PPM files are generated
+for color volume data.
+
+\end{itemize}
+
+These file types can be read by the module ReadVolume.
+
+In the module parameters window, the FileName entry expects the destination file name.
+If OverwriteExisting is checked, the destination file will be overwritten, if it previously existed.
+The file type and data format can be selected with the respective choice menus.
+MinimumValue und MaximumValue allow to constrain the stored data range. All values that are smaller
+or equal to MinimumValue will become zero, values greater or equal to MaximumValue will become
+255 or 65535, depending on the data format (8 or 16 bit per voxel). The remaining values are 
+distributed linearly inbetween.
+
+If packed RGBA or vector data is received on data port for channel 0,
+the other data channels are ignored.
+
+%
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions
+%
+WriteVolume is available for COVISE version snap-2002-07 and higher.
+
+%
+%-------------------------------------------------------------
+% Notes for using the 3 environments for tables below:
+%-------------------------------------------------------------
+% 1. In some cases it may be necessary to increase the size of a column,
+%    e.g. change the value of p for the type of input or output ports from 3.5cm to 4cm
+% 2. If you have more than one entry in a cell but you don't want to place
+%    them in the one row, use "\newline", not "\\". For the first column you have
+%    to specify explicitly the size of the coloumn (change "l" to "p{xxcm}")
+%    in addition.
+%-------------------------------------------------------------
+%
+%=============================================================

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+    <Module>
+       <SwitchData>
+          <NumberOfInputs value="8" />
+          <Label0 value="Stoerer 0.3 Sonnenmassen, 0.3 AE Abstand" />
+          <Label1 value="Stoerer 0.3 Sonnenmassen, 1.0 AE Abstand" />
+          <Label2 value="Stoerer 1.0 Sonnenmassen, 0.3 AE Abstand" />
+          <Label3 value="Stoerer 1.0 Sonnenmassen, 1.0 AE Abstand" />
+          <Label4 value="Stoerer 1.0 Sonnenmassen, 3.0 AE Abstand" />
+          <Label5 value="Stoerer 20.0 Sonnenmassen, 0.3 AE Abstand" />
+          <Label6 value="Stoerer 20.0 Sonnenmassen, 1.0 AE Abstand" />
+          <Label7 value="Stoerer 20.0 Sonnenmassen, 3.0 AE Abstand" />
+       </SwitchData>
+    </Module>
+
+ <COVER>
+    <Background r="0.0" g="0.2" b="0.4" />
+    <TabletPC fontsize="24" toolbar="false" >
+       <Remap name="Cluster" parent="SwitchData" x="1" y="5" />
+    </TabletPC>
+
+    <AnimationSpeed default="10.0" min="0.0" max="25.0" />
+ </COVER>
+ </GLOBAL>
+
+ <INCLUDE>config.visdemom.xml</INCLUDE>
+</COCONFIG>
+

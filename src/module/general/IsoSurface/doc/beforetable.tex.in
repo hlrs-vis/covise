@@ -1,0 +1,27 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The IsoSurface module creates an isosurface from a three dimensional structured or unstructured grid-based data set
+using the marching cubes algorithm. Optionally given data input can be mapped on the generated surface using
+interpolation. Each input port also accepts Sets of the appropriate types. 
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{IsoSurface}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+IsoSurface has been tested on SGI, NEC SX4 and HP
+platforms. 
+
+%
+%=============================================================

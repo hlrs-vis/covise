@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL/>
+
+ <LOCAL host="hlrssemi4" >
+
+  <COVER>
+
+   <Plugin>
+
+    <Vrml97>
+
+     <Audio value="none" >
+      <Host value="visadler" />
+     </Audio>
+
+    </Vrml97>
+
+   </Plugin>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+</COCONFIG>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1">
+	<GLOBAL>
+		<COVER>
+			<Localization>
+ 			<LanguageLocale value="en"/>
+			</Localization>
+			<Font value="DroidSans.ttf"/>
+			<AltFont value="DroidSans-Bold.ttf"/>
+		</COVER>
+	</GLOBAL>
+</COCONFIG>

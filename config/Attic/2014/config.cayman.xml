@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+<LOCAL host="visd800, visit, vispro2" >
+
+  <COVER>
+
+   <!-- Point Grey DragonFly 2 -->
+   
+   <ViewerPosition x="0" y="-2800" z="0" />
+
+   <ScreenConfig>
+   <Screen width="1024" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="768" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+   
+   <!-- other camera
+   <ViewerPosition x="0" y="-2000" z="0" />
+
+   <ScreenConfig>
+   <Screen width="700" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="525" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+	-->
+   <Plugin>
+
+    <ARToolKit value="on" >
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <DisplayVideo value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="ON" />
+     <FlipH value="FALSE" />
+     <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
+     <VideoConfig value="-mode=1024x768_COLOR -balanceU=63 -balanceV=20 -debug -channel=0 -ID=0x00b09d01002f522b -rate=15" />
+     <Threshold value="120" />
+     <Camera value="c:\data\ARToolKit\camera_para.dat" />
+
+     <Marker name="ObjectMarker0" >
+      <Pattern value="c:\data\ARToolKit\4x4_88.patt" />
+      <Size value="1152" />
+      <Offset x="2400" y="0" z="0" h="90" p="180" r="0" />  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+     
+     <Marker name="ObjectMarker1" >
+      <Pattern value="c:\data\ARToolKit\4x4_95.patt" />
+      <Size value="900" />
+      <Offset x="2480" y="0" z="1300" h="90" p="0" r="0" />  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+     
+     <Marker name="ObjectMarker2" >
+      <Pattern value="c:\data\ARToolKit\4x4_43.patt" />
+      <Size value="580" />
+      <Offset x="760" y="0" z="720" h="90" p="-16" r="0" />  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+     
+     <Marker name="CuttingSurface3" >
+      <Pattern value="0 0 0 0 0 0" />
+      <Size value="10000" />
+      <Offset x="0" h="0" y="0" z="0" p="0" r="0" />
+      <VrmlToPf value="TRUE" />
+     </Marker>
+     
+    </ARToolKit>
+
+   </Plugin>
+
+  </COVER>
+
+
+  <ARToolKit/>
+
+ </LOCAL>
+
+ <INCLUDE configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+ 
+
+</COCONFIG>

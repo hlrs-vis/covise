@@ -1,0 +1,105 @@
+
+<fresnelBump>
+
+  <uniform name="FresExp" type="float" value="1.0"/>
+  <uniform name="Bumpiness" type="float" value="0.3"/>
+  <uniform name="KrMin" type="float" value="0.02"/>
+  <uniform name="Kr" type="float" value="1.0"/>
+  <uniform name="diffuseMap" type="sampler2D" value="0"/>
+  <uniform name="maskMap" type="sampler2D" value="3"/>
+  <uniform name="normalMap" type="sampler2D" value="1" overwrite="true" texture="textures/noise.jpg"/>
+  <uniform name="cubeMap" type="samplerCube" value="2" overwrite="true" texture1="textures/posx.jpg" texture2="textures/posy.jpg" texture3="textures/posz.jpg" texture4="textures/negx.jpg" texture5="textures/negy.jpg" texture6="textures/negz.jpg"/>
+  <attribute name="aBinormal" type="binormal" value="6"/>
+  <attribute name="aTangent" type="tangent" value="7"/>
+  
+  <vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+  
+    attribute vec3 aBinormal;
+    attribute vec3 aTangent;
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Binormal = gl_NormalMatrix * aBinormal;
+        Tangent  = gl_NormalMatrix * aTangent; 
+        Texcoord = gl_MultiTexCoord0.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+     
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+	gl_Position = ftransform();	
+    }
+  </vertexProgram>
+  <fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+   
+    uniform float Bumpiness;
+    uniform float KrMin;
+    uniform float Kr;
+    uniform float FresExp;
+    uniform sampler2D diffuseMap;
+    uniform sampler2D normalMap;
+    uniform samplerCube cubeMap;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+      vec3 bumpmap = 2.0 * Bumpiness * texture2D( normalMap, Texcoord ) - vec3(0.5,0.5,0.5);
+      	
+      							
+      float mask = texture2D(maskMap,Texcoord).r;
+      
+      vec3 N = normalize(normal);
+      vec3 Tn = normalize(Tangent);
+      vec3 Bn = normalize(Binormal);
+      N += (bumpmap.x * Tn + bumpmap.y * Bn);
+      N = normalize(N);
+      
+      eyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      vec3 reflVec   = reflect(-eyeVec, N);
+      vec4 reflColor = textureCube( cubeMap, reflVec );
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm > 0.0)
+      {
+      	final_color += gl_LightSource[0].diffuse * 
+      	               texture2D( diffuseMap, Texcoord ) * 
+      				   lambertTerm;	
+        float vdn = dot(eyeVec,N);
+	float fres = KrMin + (Kr-KrMin) * pow(1-abs(vdn),FresExp);
+	final_color = mix(final_color  ,reflColor,fres*mask);
+      		
+      	vec3 E = normalize(eyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+      	final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+      	}
+      
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentShader>
+</fresnelBump>

@@ -1,0 +1,189 @@
+#!/bin/sh
+#####################################################################################
+#  start script for COVISE
+#
+#  RM 24.07.2002  
+#  
+#  all rights reserved VirCinity IT Consulting Stuttgart
+#
+#
+# changes:  
+#          05.11.2002 - added return to starting directory i.e. covise will use the
+#                       covise.config of the directory where covise was launched (RM)
+#
+#          02.04.2003 - added PYTHONPATH to make the covise scripting interface 
+#                       usable (RM)
+#
+#          14.09.2003 - use externally set ARCHSUFFIX if done by user
+#
+#####################################################################################
+
+
+#
+# set ARCHSUFFIX, test.. if not altready given
+#
+arch=`uname`
+test="/usr/bin/test"
+
+# only set if not already done
+case x$ARCHSUFFIX in x)
+
+	case $arch in
+	    # Irixes default to 32-bit - use ARCHSUFFIX=sgi64 explicitly if required
+            IRIX*)  
+		ARCHSUFFIX="sgin32" 
+	    ;;
+	    # Linuxes default to gcc2 - use ARCHSUFFIX=gcc3 explicitly if required
+	    Linux) 
+		ARCHSUFFIX="linux"  
+	    ;;
+	    HP-UX) 
+		ARCHSUFFIX="hp" 
+	    ;;
+	esac
+esac
+
+export ARCHSUFFIX
+
+covise_cwd="`pwd`"
+if $test -L "$0" ; then
+        covise_basename=`basename $0`
+        covise_script=`ls -l $0 | sed "s/.*${covise_basename} -> //g"`
+else
+        covise_script="$0"
+fi
+
+
+startdir="`pwd`"
+cd "`dirname "$covise_script"`/.."
+
+#
+# mname of our executable 
+#
+covise_binary="`basename $0`"     
+
+covise_inst="`pwd`"
+
+
+cd $covise_cwd
+
+
+COVISEDIR="$covise_inst";               export COVISEDIR
+COVISE_PATH="$covise_inst/$ARCHSUFFIX"; export COVISE_PATH
+
+
+ext_lib=$COVISEDIR/extern_libs/$ARCHSUFFIX
+
+#
+# architecture specific settings
+#
+case $ARCHSUFFIX in
+    sgin32) 
+	append_lib="$COVISE_PATH/bin:$ext_lib/qt/lib:$ext_lib/audiofile/lib"
+	if [ $LD_LIBRARYN32_PATH ] ; then
+	    LD_LIBRARYN32_PATH="$LD_LIBRARYN32_PATH:$append_lib"
+	else 
+	    LD_LIBRARYN32_PATH="$append_lib"
+        fi
+	export LD_LIBRARYN32_PATH
+
+    ;;
+    sgi64)
+	append_lib="$COVISE_PATH/bin:$ext_lib/qt/lib:$ext_lib/audiofile/lib"
+	if [ $LD_LIBRARY64_PATH ] ; then
+	    LD_LIBRARY64_PATH="$LD_LIBRARY64_PATH:$append_lib"
+	else 
+	    LD_LIBRARY64_PATH="$append_lib"
+        fi
+	export LD_LIBRARY64_PATH
+
+
+    ;;
+    linux) 
+	append_lib="$COVISE_PATH/bin:$ext_lib/qt/lib:$ext_lib/Performer252/usr/lib:$ext_lib/audiofile/lib"
+	if [ $LD_LIBRARY_PATH ] ; then
+	    LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$append_lib"  
+	else
+	    LD_LIBRARY_PATH="$append_lib" 
+	fi
+	export LD_LIBRARY_PATH
+	linux_OGLHOME=""
+	linux_OIVHOME="${COVISEDIR}/extern_libs/linux/OpenInventor"
+        PERFORMERHOME="${COVISEDIR}/extern_libs/linux/Performer252/usr"
+        AUDIOHOME="${COVISEDIR}/extern_libs/linux/audiofile";          export PERFORMERHOME
+	FL_FONT_PATH="${COVISEDIR}/extern_libs/linux/usr/share/fonts"; export FL_FONT_PATH
+    ;;
+    hp) 
+	append_lib="$COVISE_PATH/bin:$ext_lib/OpenInventor/lib:$ext_lib/qt/lib:$ext_lib/audiofile/lib"
+	if [ $SHLIB_PATH ] ; then
+	    SHLIB_PATH="$LD_LIBRARY_PATH:$append_lib:/opt/graphics/common/lib:$COVISEDIR/extern_libs/hp/OpenInventor"
+	else
+	    SHLIB_PATH="$append_lib:/opt/graphics/common/lib:$COVISEDIR/extern_libs/hp/OpenInventor"
+	fi
+	export SHLIB_PATH
+    ;;
+esac
+
+#
+# general environment
+#
+COVISE_QTDIR="$COVISEDIR/extern_libs/$ARCHSUFFIX/qt";  export COVISE_QTDIR
+
+PATH="$PATH:$COVISE_PATH/bin";                         export PATH
+
+COVISE_HOST="$HOST";                                   export COVISE_HOST
+
+COVISE_SIGNAL_ALL=OFF;                                 export COVISE_SIGNAL_ALL
+
+
+#
+# PYTHONPATH
+#
+PYTHONHOME="$COVISEDIR/extern_libs/shared:$COVISEDIR/extern_libs/$ARCHSUFFIX"; export PYTHONHOME
+PYTHONPATH="$COVISEDIR/Python:$COVISEDIR/$ARCHSUFFIX/bin"; export PYTHONPATH
+
+#
+# license 
+#
+if [ -f "$COVISEDIR/license.dat" ] ; then
+    if [ $LM_LICENSE_FILE ] ; then
+	LM_LICENSE_FILE="$LM_LICENSE_FILE:$COVISEDIR/license.dat"
+        export LM_LICENSE_FILE
+    else
+	LM_LICENSE_FILE="$COVISEDIR/license.dat"
+	export LM_LICENSE_FILE
+    fi
+else
+    if [ ! "$LM_LICENSE_FILE" ] ; then
+	LM_LICENSE_FILE="/var/flexlm/license.dat"
+	export LM_LICENSE_FILE
+    fi
+fi
+
+
+# run it    
+cd $startdir
+
+case x$covise_binary in xcovise)
+
+    echo ""
+    echo "starting up Covise for Architecture $ARCHSUFFIX"
+    echo ""
+    echo "Current shell limits:"
+    ulimit -a | sed -e 's+^+    +'
+    echo ""
+    case x$ARCHSUFFIX in 
+        xsgi*)
+            /usr/sbin/systune | grep shmmax | awk '{ printf("Shared memory limit: %.1f GB\n",$3/1073741824) }'
+        ;;
+        xlinux|xgcc3)
+            (/sbin/sysctl -a 2> /dev/null ) | grep kernel.shmmax| awk '{ printf("Shared memory limit: %.1f GB\n",$3/1073741824) }'
+        ;;
+    esac
+esac
+
+#echo starting: $COVISE_PATH/bin/$covise_binary $*
+
+$COVISE_PATH/bin/$covise_binary $*
+    
+

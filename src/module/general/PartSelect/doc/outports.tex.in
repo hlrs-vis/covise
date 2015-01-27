@@ -1,0 +1,37 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        \textcolor{output}{outport\_1} &
+	                             StructuredGrid\newline
+                                     Float\newline
+                                     Vec3 \newline
+                                     UnstructuredGrid \newline
+                                     Float \newline
+                                     Vec3 \newline
+                                     Geometry \newline
+                                     Polygons \newline
+                                     Lines \newline
+				     Points \newline
+				     TriangleStrips \newline
+				     IntArr  & 
+                                     Output entities with the remaining parts.\\
+\hline
+        \textcolor{depend}{outport\_2} & see outport\_1 & see outport\_1  \\
+\hline
+        \textcolor{depend}{outport\_3} & see outport\_1 & see outport\_1  \\                                     
+\hline
+        \textcolor{depend}{outport\_4} & see outport\_1 & see outport\_1  \\
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

@@ -1,0 +1,183 @@
+        MatrixTransform {
+          name "VRMLRoot_SCGR_0"
+          nodeMask 0xffffffff
+          cullingActive TRUE
+          referenceFrame RELATIVE
+          Matrix {
+            0.0125 0 0 0
+            0 0.0125 0 0
+            0 0 0.0125 0
+            0 0 0 1
+          }
+          num_children 1
+          Group {
+            UniqueID Group_285
+            nodeMask 0xffffffff
+            cullingActive TRUE
+            num_children 1
+            Group {
+              UniqueID Group_286
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              num_children 1
+              MatrixTransform {
+                UniqueID MatrixTransform_287
+                name "C_SCGR_1"
+                nodeMask 0xffffffff
+                cullingActive TRUE
+                referenceFrame RELATIVE
+                Matrix {
+                  1 0 0 0
+                  0 -1 0 0
+                  0 0 -1 0
+                  0 0 4 1
+                }
+                num_children 1
+                MatrixTransform {
+                  UniqueID MatrixTransform_288
+                  name "C_connector_SCGR_2"
+                  nodeMask 0xffffffff
+                  cullingActive TRUE
+                  referenceFrame RELATIVE
+                  Matrix {
+                    1 0 0 0
+                    0 -1 -0.000407306 0
+                    0 0.000407306 -1 0
+                    4.635 -2 3.829 1
+                  }
+                  num_children 1
+                  Geode {
+                    UniqueID Geode_289
+                    name "C_connector-FACES"
+                    nodeMask 0xffffffff
+                    cullingActive TRUE
+                    StateSet {
+                      UniqueID StateSet_290
+                      rendering_hint DEFAULT_BIN
+                      renderBinMode INHERIT
+                      GL_CULL_FACE ON
+                      Material {
+                        UniqueID Material_291
+                        ColorMode AMBIENT_AND_DIFFUSE
+                        ambientColor 0.2 0.2 0.2 1
+                        diffuseColor 0.9 0.9 0.9 1
+                        specularColor 0.9 0.9 0.9 1
+                        emissionColor 0 0 0 1
+                        shininess 16
+                      }
+                      CullFace {
+                        mode BACK
+                      }
+                    }
+                    num_drawables 1
+                    Geometry {
+                      UniqueID Geometry_292
+                      name "C_connector-FACES"
+                      StateSet {
+                        UniqueID StateSet_293
+                        rendering_hint OPAQUE_BIN
+                        renderBinMode USE
+                        binNumber 0
+                        binName RenderBin
+                        GL_BLEND OFF
+                        Material {
+                          UniqueID Material_294
+                          ColorMode AMBIENT_AND_DIFFUSE
+                          ambientColor 0.2 0.2 0.2 1
+                          diffuseColor 1 1 1 1
+                          specularColor 0 0 0 1
+                          emissionColor 0 0 0 1
+                          shininess 25.6
+                        }
+                      }
+                      useDisplayList TRUE
+                      useVertexBufferObjects FALSE
+                      PrimitiveSets 6
+                      {
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          1 2 0 3 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          7 4 6 5 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          23 20 22 21 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          19 16 18 17 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          13 14 12 15 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          9 10 8 11 
+                        }
+                      }
+                      VertexArray Vec3Array 24
+                      {
+                        -31.72 -4 24.68
+                        -31.73 -4 27.29
+                        -31.73 0 27.29
+                        -31.72 0 24.68
+                        -22.98 0 27.29
+                        -31.73 0 27.29
+                        -31.73 -4 27.29
+                        -22.98 -4 27.29
+                        -22.98 -4 24.68
+                        -31.72 -4 24.68
+                        -31.72 0 24.68
+                        -22.98 0 24.68
+                        -22.98 0 24.68
+                        -31.72 0 24.68
+                        -31.73 0 27.29
+                        -22.98 0 27.29
+                        -22.98 -4 27.29
+                        -31.73 -4 27.29
+                        -31.72 -4 24.68
+                        -22.98 -4 24.68
+                        -22.98 -4 27.29
+                        -22.98 -4 24.68
+                        -22.98 0 24.68
+                        -22.98 0 27.29
+                      }
+                      NormalBinding PER_VERTEX
+                      NormalArray Vec3Array 24
+                      {
+                        -0.9999 -0 -0.0028
+                        -0.9999 -0 -0.0028
+                        -0.9999 -0 -0.0028
+                        -0.9999 -0 -0.0028
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        0.9999 -0 -0
+                        0.9999 -0 -0
+                        0.9999 -0 -0
+                        0.9999 -0 -0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }

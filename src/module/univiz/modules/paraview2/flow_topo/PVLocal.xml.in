@@ -1,0 +1,87 @@
+<ModuleInterfaces>
+ <Library name="@PROJECT_NAME@" directory="@LIBRARY_OUTPUT_PATH@"/>
+ <ServerManagerFile name="@PROJECT_NAME@.pvsm"/>
+
+ <!-- Start of ParaView plugin interface specification. -->
+
+  <Module name="FlowTopo"
+          menu_name="Flow Topo"
+          root_name="FlowTopo"
+          button_image="PVThresholdButton"
+          module_type="Filter"
+          button_help="Detect critical points."
+          long_help="Compute critical points of node (point) data."
+          short_help="Compute vortex cores.">
+
+    <Filter class="vtkFlowTopo">
+      <Input name="Input"
+             class="vtkDataSet">
+        <ArrayRequirement components="3"/>
+      </Input>
+    </Filter>
+
+    <InputMenu trace_name="Input" property="Input"
+               id="im"
+               label="Input"
+               input_name="Input"
+               help="Set the input to this filter." />
+
+    <ArrayMenu id="am" property="SelectInputVectors"
+               trace_name="Vectors"
+               label="Velocity"
+               input_menu="im"
+               help="Choose the velocity array."/>
+
+    <LabeledToggle label="Divide by Wall Distance"
+               trace_name="DivideByWallDist"
+               property="DivideByWallDist"
+               help="Divide the field by wall distance."/>
+
+    <LabeledToggle label="Interior Critical Points"
+               trace_name="InteriorCritPts"
+               property="InteriorCritPts"
+               help="Compute critical points in the interior of the field."/>
+
+    <LabeledToggle label="Boundary Critical Points"
+               trace_name="BoundaryCritPts"
+               property="BoundaryCritPts"
+               help="Compute critical points on the boundary of the field."/>
+
+    <LabeledToggle label="Generate Seeds"
+               trace_name="GenerateSeeds"
+               property="GenerateSeeds"
+               help="Generate seeds on two circles, oriented according to the Eigenvector directions."/>
+
+    <VectorEntry label="Seeds per Circle"
+                 trace_name="SeedsPerCircle"
+                 property="SeedsPerCircle" type="int"
+                 help="If generating seeds, this number of seeds is generated on the circles at the critical point."/>
+
+    <VectorEntry label="Circle Radius"
+                 trace_name="Radius"
+                 property="Radius" type="float"
+                 help="Radius of the seed circle."
+                 range="0 1000000"/>
+
+    <VectorEntry label="Circle Offset"
+                 trace_name="Offset"
+                 property="Offset" type="float"
+                 help="Offset of the circles from the critical point."
+                 range="0 1000000"/>
+
+    <VectorEntry label="Glyph Radius"
+                 trace_name="GlyphRadius"
+                 property="GlyphRadius" type="float"
+                 help="Glyph radius."
+                 range="0 1000000"/>
+
+    <Documentation>
+The FlowTopo filter computes critical points of point (node) data. This filter operates on unstructured grid data and produces geometry output.
+    </Documentation>
+  </Module>
+
+
+
+ <!-- End of ParaView plugin interface specification. -->
+
+</ModuleInterfaces>

@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+   <GLOBAL>
+
+      <vr-prepare>
+
+<!--          <QssStyleSheet value="/work/sf_te/vr-prepare/trunk/designerfiles/images/visenso.qss" /> -->
+
+         <InitialDatasetSearchPath value="/work/common/Projekte/DC-CFDGui/datasets" />
+
+         <!-- start cover in qtwidget in vr-prepare -->
+         <EmbeddedOpenCOVER value="off" />
+         
+         <!-- set this parameter to True if you want to use the Performer VR renderer -->
+         <UseCOVERRenderer value="off" />
+         
+         <RendererRestartPreCommand value="clean_cover" />
+         
+         <!-- cache created octtrees to disk -->
+         <CachedOctTrees value="off" />
+         
+         <!-- e.g. for DNA Plugin - flag if we have to check if the puzzle is solved -->
+         <SolvePresentationStep value="off" />
+         
+         <!-- disable sampling modules (e.g. for CuttingSurface, Tracer) -->
+         <UseSamplingModules value="off" />
+         
+         <!-- set here, if initially invisible visualizers will be connected to COVER -->
+         <InvisibleConnectToRenderer value="on" />
+
+         <!-- set here, if the reduction dialog should appear, so that the user may decide if a data reduction should happen or not -->
+         <ShowReductionDialog value="off" />
+
+         <!-- how to handle the startpoints on 2D Parts -->
+         <!-- TRACE_FROM_2D_SAMPLE, TRACE_FROM_2D_RAW, TRACE_FROM_2D_GTS -->
+         <TraceFrom2DStyle value="TRACE_FROM_2D_RAW" />
+         
+         <!-- whether to start the COVER automatically after its crash -->
+         <!-- RENDERER_RESTART_AUTOMATIC, RENDERER_RESTART_MANUAL -->
+<!--          <RendererRestartMode value="RENDERER_RESTART_MANUAL" /> -->
+
+         <!-- names for cutting surface -->
+         <NameArrowsCuttingSurface value="Vectors" />
+         <ArrowsOnCuttingSurfaceText value="Edit Vectors on Section Plane:" />
+         <ArrowsOnCuttingSurfaceAdjustmentText value="Vectors on Section Plane Adjustment" />
+         <NewArrowsCuttingSurfaceText value="New &amp;Vectors on Section Plane..." />
+         <!-- start cutting surface at sampled grid -->
+         <ArrowsOnSampledGrid value="on" />
+
+         <NameColoredCuttingSurface value="Contours" />
+         <NewColoredCuttingSurfaceText value="New &amp;Contours on Section Plane..." />
+         <ColoredCuttingSurfaceText value="Edit Contours on Section Plane:" />
+
+         <ExtendedView value="off" />
+         
+         <!-- HACK -->
+         <!-- To improve speed, we dont do a full deepcopy if we have coPresentationStepParams. -->
+         <!-- The problem is the structure in which the viewpoints are stored and the deepcopy of the status-dict in coPresentationStepParams (which holds the params of all VisItems). -->
+         <!-- Each coPresentationMgr.changeUnconfirmedViewpointID (called for each viewpoint) results in changes of the viewpoint in all presentation steps. -->
+         <!-- So we have num_viewpoints*num_presentationsteps calls of coPresentationStep.changeUnconfirmedViewpointID which uses at least 3 CopyParams. -->
+         <!-- As a result, loading a project takes a considerable amount of time. -->
+         <FastLoading value="off" />
+
+         <DocumentsInGUI value="on" />
+
+         <!-- parameter for do not update cutting surfaces in presentationpoints -->
+         <DoNotUpdateCuttingSurfaces value="off" />
+         
+         <ShowSnapAll value="off" />
+         
+         <PrecisionFloatInRangeControls value="6" />
+         
+         <!-- in Utils.py AxisAlignedRectangleIn3d.__eq__: -->
+         <!-- the computations of a rectangle from Tracer parameter startpoint1, startpoints2 and direction often leed to rounding errors -->
+         <!-- if epsReactangleLength is available in this file, it is used for comparison of rectangle lenghts and middle point  -->
+         <!-- example abs(self.lenghtA-other.lenghtA) < epsRectangleLength instead of self.lengthA == other.lenghtA -->
+         <EpsRectangleLength value="0.000001" />
+         <!-- if epsRectangleAngle is available in this file, it is used to compare rotX, rotY, rotZ -->
+         <EpsRectangleAngle value="0.001" />
+
+         <ProductName value="COVISE CFD-Gui" />
+         
+         <!-- comma separated groups, eg. value="Lightning, Materials" -->
+         <NotShownGroups value="Lightning" />
+         <NotShownShader value="" />
+         
+         <ContinuousResourceCheck value="off" />
+
+         <Panels>
+            <ViewpointManager visible="on" />
+            <PresenterManager visible="on" />
+            <AnimationManager visible="on" />
+            <KeyedTreeView visible="on" dockable="off"/>
+            <!-- start advice outside the mainWindow (undocked) -->
+            <Advice visible="on" docked="on" />
+         </Panels>
+         
+         <TrackingManager>
+            <ButtonMap>
+               <TRANS_LEFT  button="-1" />
+               <TRANS_RIGHT button="-1" />
+               <TRANS_UP    button="-1" />
+               <TRANS_DOWN  button="-1" />
+               <TRANS_FRONT button="-1" />
+               <TRANS_BACK  button="-1" />
+               <ROT_X_PLUS  button="16" />
+               <ROT_X_MINUS button="32" />
+               <ROT_Y_PLUS  button="-1" />
+               <ROT_Y_MINUS button="-1" />
+               <ROT_Z_PLUS  button="-1" />
+               <ROT_Z_MINUS button="-1" />
+               <SCALE_PLUS  button="1" />
+               <SCALE_MINUS button="2" />
+            </ButtonMap>
+            
+            <TranslateBarrier value="1.0" />
+            <VRCJoystick value="on" />
+            
+            <!-- buttons for sensor events -->
+            <ButtonSensor1 value="4" />
+            <ButtonSensor2 value="8" />
+            <ButtonSensor1Sound value="" />
+            <ButtonSensor2Sound value="" />
+            <WrlName value="ohr.wrl" />
+
+         </TrackingManager>
+
+         <ResetPresentation value="512" />
+         <ForwardPresentation value="128" />
+         <BackwardPresentation value="64" />
+
+         <SecondUDP value="off">
+            <IP value="192.168.0.21" />
+            <Port value="6666" />
+         </SecondUDP>
+         
+         <ServerConfig>
+            <Host value="192.168.0.39" />
+            <User value="sk_te" />
+            <Timeout value="30" />
+         </ServerConfig>
+
+      </vr-prepare>
+
+   </GLOBAL>
+
+</COCONFIG>

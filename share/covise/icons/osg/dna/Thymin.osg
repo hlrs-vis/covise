@@ -1,0 +1,598 @@
+        MatrixTransform {
+          name "VRMLRoot_SCGR_0"
+          nodeMask 0xffffffff
+          cullingActive TRUE
+          referenceFrame RELATIVE
+          Matrix {
+            0.013 0 0 0
+            0 0.013 0 0
+            0 0 0.013 0
+            0 0 0 1
+          }
+          num_children 1
+          Group {
+            UniqueID Group_284
+            nodeMask 0xffffffff
+            cullingActive TRUE
+            num_children 1
+            Group {
+              UniqueID Group_285
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              num_children 1
+              MatrixTransform {
+                UniqueID MatrixTransform_286
+                name "T_SCGR_1"
+                nodeMask 0xffffffff
+                cullingActive TRUE
+                referenceFrame RELATIVE
+                Matrix {
+                  -1 0 0 0
+                  0 1 0 0
+                  0 0 -1 0
+                  0 0 2 1
+                }
+                num_children 1
+                MatrixTransform {
+                  UniqueID MatrixTransform_294
+                  name "T_0_SCGR_3"
+                  nodeMask 0xffffffff
+                  cullingActive TRUE
+                  referenceFrame RELATIVE
+                  Matrix {
+                    -1 0 0.000407306 0
+                    0 1 0 0
+                    -0.000407306 0 -1 0
+                    -4.79 2.174 0.0001287 1
+                  }
+                  num_children 1
+                  Geode {
+                    UniqueID Geode_295
+                    name "T_0-FACES"
+                    nodeMask 0xffffffff
+                    cullingActive TRUE
+                    StateSet {
+                      UniqueID StateSet_296
+                      rendering_hint DEFAULT_BIN
+                      renderBinMode INHERIT
+                      GL_CULL_FACE ON
+                      Use Material_290
+                      CullFace {
+                        mode BACK
+                      }
+                    }
+                    num_drawables 1
+                    Geometry {
+                      UniqueID Geometry_297
+                      name "T_0-FACES"
+                      StateSet {
+                        UniqueID StateSet_298
+                        rendering_hint OPAQUE_BIN
+                        renderBinMode USE
+                        binNumber 0
+                        binName RenderBin
+                        GL_BLEND OFF
+                        Material {
+                          UniqueID Material_299
+                          ColorMode AMBIENT_AND_DIFFUSE
+                          ambientColor 0.2 0.2 0.2 1
+                          diffuseColor 0.102 0.6941 0.102 1
+                          specularColor 0 0 0 1
+                          emissionColor 0 0 0 1
+                          shininess 25.6
+                        }
+                      }
+                      useDisplayList TRUE
+                      useVertexBufferObjects FALSE
+                      PrimitiveSets 45
+                      {
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          1 2 0 3 15 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          0 15 14 16 17 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          7 4 6 5 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          57 54 56 55 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          61 58 60 59 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          63 64 62 65 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 10
+                        {
+                          111 110 95 104 96 105 97 106 126 125
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 11
+                        {
+                          125 106 99 101 100 98 99 113 125 123
+                          124 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          106 105 101 98 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          105 104 98 102 107 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          98 103 102 98 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          29 26 28 27 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          104 108 102 109 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          140 138 139 137 152 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          152 149 139 148 147 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          139 147 68 146 69 145 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          146 142 145 136 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          142 141 136 134 135 133 137 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          134 131 133 132 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          67 68 66 69 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          120 121 119 122 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          122 121 128 129 117 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 5
+                        {
+                          122 128 127 97 126 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 7
+                        {
+                          156 155 154 87 86 88 89 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          71 72 70 73 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          97 94 96 95 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          85 82 84 83 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          79 80 78 81 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          77 74 76 75 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          148 149 151 150 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          33 30 32 31 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          51 52 50 53 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          93 90 92 91 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          25 22 24 23 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          49 46 48 47 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          115 116 114 112 98 113 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 6
+                        {
+                          114 98 117 118 128 130 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          35 36 34 37 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          13 10 12 9 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          9 10 8 11 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          45 42 44 43 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          19 20 18 21 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          143 144 142 141 
+                        }
+                        DrawElementsUShort TRIANGLE_STRIP 4
+                        {
+                          41 38 40 39 
+                        }
+                        DrawElementsUShort TRIANGLES 6
+                        {
+                          138 135 137 86 153 154 
+                        }
+                      }
+                      VertexArray Vec3Array 157
+                      {
+                        -19.25 -4 1.299
+                        -10.75 -4 16.02
+                        -10.75 0 16.02
+                        -19.25 0 1.299
+                        8.5 -4 17.32
+                        8.5 0 17.32
+                        -8.5 0 17.32
+                        -8.5 -4 17.32
+                        20 -4 0.000247
+                        10 -4 -17.32
+                        10 0 -17.32
+                        20 0 0.000247
+                        -8.5 -4 -17.32
+                        -8.5 0 -17.32
+                        -19.25 -4 -1.299
+                        -19.25 0 -1.299
+                        -10.75 0 -16.02
+                        -10.75 -4 -16.02
+                        -13.5 -4 25.98
+                        -13.5 0 25.98
+                        -15.75 0 24.68
+                        -15.75 -4 24.68
+                        -15.75 -4 24.68
+                        -15.75 0 24.68
+                        -10.75 0 16.02
+                        -10.75 -4 16.02
+                        -13.5 0 25.98
+                        -13.5 -4 25.98
+                        -8.5 -4 17.32
+                        -8.5 0 17.32
+                        10.75 -4 16.02
+                        20 -4 0.000247
+                        20 0 0.000247
+                        10.75 0 16.02
+                        -13.5 -4 -25.98
+                        -15.75 -4 -24.68
+                        -15.75 0 -24.68
+                        -13.5 0 -25.98
+                        -13.5 -4 -25.98
+                        -13.5 0 -25.98
+                        -8.5 0 -17.32
+                        -8.5 -4 -17.32
+                        -15.75 0 -24.68
+                        -15.75 -4 -24.68
+                        -10.75 -4 -16.02
+                        -10.75 0 -16.02
+                        15.75 -4 24.68
+                        15.75 0 24.68
+                        13.5 0 25.98
+                        13.5 -4 25.98
+                        13.5 0 25.98
+                        8.5 0 17.32
+                        8.5 -4 17.32
+                        13.5 -4 25.98
+                        15.75 -4 24.68
+                        10.75 -4 16.02
+                        10.75 0 16.02
+                        15.75 0 24.68
+                        8.271 -3.129 11.36
+                        8.271 -3.129 8.629
+                        8.271 -4 8.629
+                        8.271 -4 11.36
+                        8.271 -3.129 8.629
+                        0.6749 -3.129 8.629
+                        0.6749 -4 8.629
+                        8.271 -4 8.629
+                        0.6749 -3.129 8.629
+                        0.6749 -3.129 -11.71
+                        0.6749 -4 -11.71
+                        0.6749 -4 8.629
+                        0.6749 -3.129 -11.71
+                        -2.385 -3.129 -11.71
+                        -2.385 -4 -11.71
+                        0.6749 -4 -11.71
+                        -2.385 -4 -11.71
+                        -2.385 -3.129 -11.71
+                        -2.385 -3.129 8.629
+                        -2.385 -4 8.629
+                        -2.385 -3.129 8.629
+                        -9.981 -3.129 8.629
+                        -9.981 -4 8.629
+                        -2.385 -4 8.629
+                        -9.981 -4 8.629
+                        -9.981 -3.129 8.629
+                        -9.981 -3.129 11.36
+                        -9.981 -4 11.36
+                        0.6749 -3.129 8.629
+                        -2.385 -3.129 8.629
+                        -2.385 -3.129 -11.71
+                        0.6749 -3.129 -11.71
+                        -9.981 -4 11.36
+                        -9.981 -3.129 11.36
+                        8.271 -3.129 11.36
+                        8.271 -4 11.36
+                        -2.053 0 -11
+                        -2.053 -1.156 -11
+                        1.007 -1.156 -11
+                        1.007 0 -11
+                        -9.649 0 12.08
+                        8.603 0 12.08
+                        8.603 -1.156 12.08
+                        8.603 -1.156 9.342
+                        -9.649 -1.156 9.342
+                        -9.649 -1.156 12.08
+                        -2.053 -1.156 9.342
+                        1.007 0 9.342
+                        8.603 0 9.342
+                        -9.649 0 9.342
+                        -2.053 0 9.342
+                        -9.649 0 9.342
+                        -2.053 0 9.342
+                        -2.053 0 -11
+                        -8.5 0 17.32
+                        8.5 0 17.32
+                        -10.75 0 16.02
+                        -15.75 0 24.68
+                        -13.5 0 25.98
+                        -19.25 0 1.299
+                        -9.649 0 9.342
+                        -13.5 0 -25.98
+                        -15.75 0 -24.68
+                        -10.75 0 -16.02
+                        -8.5 0 -17.32
+                        13.5 0 25.98
+                        15.75 0 24.68
+                        10.75 0 16.02
+                        20 0 0.000247
+                        10 0 -17.32
+                        -2.053 0 -11
+                        -19.25 0 -1.299
+                        -2.053 0 9.342
+                        -13.5 -4 25.98
+                        -15.75 -4 24.68
+                        -10.75 -4 16.02
+                        -8.5 -4 17.32
+                        -9.981 -4 11.36
+                        8.271 -4 11.36
+                        -19.25 -4 1.299
+                        -9.981 -4 8.629
+                        -2.385 -4 -11.71
+                        -2.385 -4 8.629
+                        8.5 -4 17.32
+                        10.75 -4 16.02
+                        15.75 -4 24.68
+                        13.5 -4 25.98
+                        8.271 -4 8.629
+                        20 -4 0.000247
+                        10 -4 -17.32
+                        -8.5 -4 -17.32
+                        -10.75 -4 -16.02
+                        -15.75 -4 -24.68
+                        -13.5 -4 -25.98
+                        -19.25 -4 -1.299
+                        8.271 -3.129 8.629
+                        8.271 -3.129 11.36
+                        -9.981 -3.129 8.629
+                        -9.981 -3.129 11.36
+                      }
+                      NormalBinding PER_VERTEX
+                      NormalArray Vec3Array 157
+                      {
+                        -0.9659 -0 0.2588
+                        -0.866 -0 0.5
+                        -0.866 -0 0.4999
+                        -0.9659 -0 0.2588
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        0.866 -0 -0.5
+                        0.4999 -0 -0.866
+                        0.4999 -0 -0.866
+                        0.866 -0 -0.5
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0.9659 -0 -0.2588
+                        -0.9659 -0 -0.2588
+                        -0.866 -0 -0.5
+                        -0.866 -0 -0.5
+                        -0.4999 -0 0.866
+                        -0.4999 -0 0.866
+                        -0.4999 -0 0.866
+                        -0.4999 -0 0.866
+                        -0.866 -0 -0.4999
+                        -0.866 -0 -0.4999
+                        -0.866 -0 -0.4999
+                        -0.866 -0 -0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        0.866 -0 0.4999
+                        -0.4999 -0 -0.866
+                        -0.4999 -0 -0.866
+                        -0.4999 -0 -0.866
+                        -0.4999 -0 -0.866
+                        0.866 -0 -0.4999
+                        0.866 -0 -0.4999
+                        0.866 -0 -0.4999
+                        0.866 -0 -0.4999
+                        -0.866 -0 0.4999
+                        -0.866 -0 0.4999
+                        -0.866 -0 0.4999
+                        -0.866 -0 0.4999
+                        0.4999 -0 0.866
+                        0.4999 -0 0.866
+                        0.4999 -0 0.866
+                        0.4999 -0 0.866
+                        -0.866 -0 0.4999
+                        -0.866 -0 0.4999
+                        -0.866 -0 0.4999
+                        -0.866 -0 0.4999
+                        0.866 -0 -0.4999
+                        0.866 -0 -0.4999
+                        0.866 -0 -0.4999
+                        0.866 -0 -0.4999
+                        -1 -0 -0
+                        -1 -0 -0
+                        -1 -0 -0
+                        -1 -0 -0
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -1 -0 -0
+                        -1 -0 -0
+                        -0.3162 -0.9486 -0
+                        -0.7071 -0.7071 -0
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        1 -0 -0
+                        1 -0 -0
+                        1 -0 -0
+                        1 -0 -0
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        -0 -0 1
+                        1 -0 -0
+                        1 -0 -0
+                        1 -0 -0
+                        1 -0 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0 -0 -1
+                        -0 -0 1
+                        0.5773 0.5773 0.5773
+                        -0.5783 0.5784 0.5753
+                        -0.3015 0.9045 0.3015
+                        0.0627 0.9932 -0.0978
+                        -0.3015 0.9045 -0.3015
+                        -0.5603 0.5969 -0.574
+                        -0.5571 0.5984 0.5756
+                        0.5591 0.6909 0.4581
+                        -1 -0 -0
+                        0.1613 0.9643 -0.2096
+                        -0.0558 0.9784 0.1987
+                        -0.3015 0.9045 0.3015
+                        1 -0 -0
+                        -0 -0 1
+                        -0 -0 1
+                        1 -0 -0
+                        1 -0 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                        -0 -1 -0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }

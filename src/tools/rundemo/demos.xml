@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<list>
+<config>
+    <target>visent.hlrs.de</target>
+    <targetaccount>hpcwscho</targetaccount>
+    <env>embedded</env>
+    <tidy-ip>141.58.8.59</tidy-ip>
+    <tidy-port>5005</tidy-port>
+    <projectors>
+      vispro0.hlrs.de
+      vispro1.hlrs.de 
+      vispro2.hlrs.de 
+      vispro3.hlrs.de
+      vispro4.hlrs.de
+    </projectors>
+</config>
+<apps>
+    <!-- =================== -->
+    <!-- ReCOM-->
+    <!-- =================== -->
+    <demo name="HKW2 Altbach" num="1" type="ReCom">
+        <command>opencover /data/recom/HKW2-SM5-SE-V3a_und_SM4/Cavepraesentation-SM4_und_SM5-SE-V3a.wrl</command>
+    </demo>
+    <demo name="Bremer Kessel" num="2" type="ReCom">
+        <command>opencover /data/recom/SWB/Praesentation/Cavepraesentation-SWBremen.wrl</command>
+    </demo>
+    <!-- =================== -->
+    <!-- CFD-->
+    <!-- =================== -->
+    <demo name="Audi" num="11" type="CFD">
+        <command>covise -e /data/covise_net/2009/Audi_Bilder.net</command>
+    </demo>
+    <demo name="Forbach" num="12" type="CFD">
+        <command>covise -e /data/enbw/Comsol/ComsolForbach.net</command>
+    </demo>
+    <demo name="Kiebingen" num="13" type="CFD">
+        <command>covise -e /data/covise_net/2006/kiebingen_viscluster_fischeNeu.net</command>
+    </demo>
+    <demo name="Axialzyklon" num="14" type="CFD">
+        <command>covise -e /data/IET/AXIALZYKLON/130424_ML_Axialcyclone_Steady.net</command>
+    </demo>
+    <demo name="Archflow Stuttgart" num="15" type="CFD">
+        <command>covise -e /data/covise_net/2009/archflow_surface.net</command>
+    </demo>
+    <demo name="CoolEmAll" num="16" type="CFD">
+        <command>covise -e /data/covise_net/2013/Rechenraum_schroot.net</command>
+    </demo>
+    <!-- =================== -->
+    <!-- Archeology -->
+    <!-- =================== -->
+    <demo name="Octagon" num="21" type="Archeology">
+        <command>opencover /data/wien/srl/Kurs/rk/octagon/praesentation_04.wrl</command>
+    </demo>
+    <demo name="Ephesus" num="22" type="Archeology">
+        <command>opencover /data/wien/efes.wrl</command>
+    </demo>
+    <demo name="Pazmanitengasse" num="23" type="Archeology">
+        <command>opencover /data/wien/srl/Kurs/bob/PAZmanitengasse.wrl</command>
+    </demo>
+    <!-- =================== -->
+    <!-- Architecure -->
+    <!-- =================== -->
+    <demo name="Stuttgarter Autohaus" num="31" type="Architecure">
+        <command>opencover /data/architekten/Stuttgart/Arbeitsstand_20050816/praesentation.wrl</command>
+    </demo>
+    <demo name="HLRS und Campus" num="32" type="Architecure">
+        <command>opencover /data/NeubauII/HLRS_Alles0303.wrl</command>
+    </demo>
+    <demo name="DC Filiale" num="33" type="Architecure">
+        <command>opencover /data/dc/desire/arbeitsstand_20050301/praesentation.wrl</command>
+    </demo>
+    <!-- =================== -->
+    <!-- LKA -->
+    <!-- =================== -->
+    <demo name="Gasthaus" num="41" type="LKA">
+        <command>opencover /data/LKA/Gasthaus/Gasthaus2.wrl</command>
+    </demo>
+    <demo name="Schweizer Autobus" num="42" type="LKA">
+        <command>opencover /data/LKA/InternetCafee/ReisebusMrdTimesteps.wrl</command>
+    </demo>
+    <demo name="Autohaus" num="43" type="LKA">
+        <command>opencover /data/LKA/WinWenn/Wendlingen_Ind_Wert.WRL</command>
+    </demo>
+    <demo name="Schule" num="44" type="LKA">
+        <command>opencover /data/LKA/WinWenn/winnenden_schule.WRL</command>
+    </demo>
+    <!-- =================== -->
+    <!-- MolecularDynamics -->
+    <!-- =================== -->
+    <demo name="IMWF" num="51" type="MolecularDynamics">
+        <command>opencover /data/imwf/nptdef.00003.coord</command>
+    </demo>
+    <!-- =================== -->
+    <!-- Volume Rendering -->
+    <!-- =================== -->
+    <demo name="skull" num="61" type="Volume">
+        <command>opencover /data/VolData/vhd/fctskull.xvf</command>
+    </demo>
+    <demo name="knee" num="62" type="Volume">
+        <command>opencover /data/VolData/vhd/female-knee-marked3.xvf</command>
+    </demo>
+    <!-- =================== -->
+    <!-- misc -->
+    <!-- =================== -->
+    <demo name="Draeger OP" num="71" type="misc">
+        <command>opencover /data/draeger/out/op2.wrl</command>
+    </demo>
+    <demo name="ISS" num="72" type="misc">
+        <command>opencover  /data/cite/ISS/demo/issNeu.wrl</command>
+    </demo>
+    <demo name="Haemoglobin" num="73" type="misc">
+        <command>opencover /data/pdb/4HHBhel.wrl</command>
+    </demo>
+    <demo name="Magnetgetriebe" num="74" type="misc">
+        <command>covise -e /data/covise_net/2007/ITE_streufeld_VR2_new.net</command>
+    </demo>
+    <demo name="starDust" num="75" type="misc">
+        <command>opencover /data/irs/sun.wrl</command>
+    </demo>
+    <demo name="Floops" num="76" type="misc">
+        <command>opencover /data/vrml/floops/index/index.wrl</command>
+    </demo>
+    <demo name="OptimaPharma" num="77" type="misc">
+        <command>covise -e /data/covise_net/2013/BaxterPraesentation.net</command>
+    </demo>
+    <demo name="Wasserturbine Taubenlock" num="78" type="misc">
+        <command>opencover /data/ihs/taubenloch/taubenloch.uwe.wrl</command>
+    </demo>
+    <demo name="Buran" num="79" type="misc">
+        <command>opencover /data/shabrov/praesentation.wrl</command>
+    </demo>
+</apps>
+<CAVE>
+    <demo name="CAVE on" num="1" type="CAVE">
+    </demo>
+    <demo name="CAVE-eco on" num="2" type="CAVE">
+    </demo>
+    <demo name="CAVE-seco on" num="3" type="CAVE">
+    </demo>
+    <demo name="CAVE off" num="4" type="CAVE">
+    </demo>
+    <demo name="resync" num="5" type="CAVE">
+    </demo>
+    <demo name="get info" num="6" type="CAVE">
+    </demo>
+    <demo name="framelock on" num="7" type="CAVE">
+    </demo>
+    <demo name="framelock off" num="8" type="CAVE">
+    </demo>
+</CAVE>
+<TIDY>
+    <demo name="TiledDisplay ON" num="1" type="Tiled Display">
+        <command>on</command>
+    </demo>
+    <demo name="TiledDisplay OFF" num="2" type="Tiled Display">
+        <command>off</command>
+    </demo>
+    <demo name="TiledDisplay 3D_ON" num="3" type="Tiled Display">
+        <command>3d_on</command>
+    </demo>
+    <demo name="TiledDisplay 3D_OFF" num="4" type="Tiled Display">
+        <command>3d_off</command>
+    </demo>
+    <demo name="DVI input" num="5" type="Tiled Display">
+        <command>dvi</command>
+    </demo>
+    <demo name="HDMI input" num="6" type="Tiled Display">
+        <command>hdmi</command>
+    </demo>
+    <demo name="Videowall ON" num="7" type="Tiled Display">
+        <command>vwall_on</command>
+    </demo>
+    <demo name="Videowall OFF" num="8" type="Tiled Display">
+        <command>vwall_off</command>
+    </demo>
+</TIDY>
+<FASI>
+    <demo name="start OpenCOVER" num="1" type="FaSi">
+        <command>opencover /data/porsche/TrafficSimulation/maneuver/sample03Lights/sample03_pedestrians_crg.xodr</command>
+    </demo>
+    <demo name="start FaSi" num="2" type="FaSi">
+        <command>ssh covise2@192.168.0.74 "cd /data/porsche/TrafficSimulation/maneuver/sample03Lights/  fasi sample03_pedestrians_crg.xodr  /dev/null"</command>
+    </demo>
+    <demo name="kill FaSi" num="3" type="FaSi">
+        <command>ssh covise2@192.168.0.74 "killall fasi"</command>
+    </demo>
+</FASI>
+</list>

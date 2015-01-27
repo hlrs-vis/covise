@@ -1,0 +1,12 @@
+
+/prep7
+/input,embParams.log
+raise = 0.0 ! raise metal over paper 
+depth = 2.5*hoehe
+auslauf = 1.0
+
+*if,nopForm,eq,1,then
+   /inp,Rectangle.log
+*else
+   /inp,Ellipse.log
+*endif

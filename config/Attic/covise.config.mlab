@@ -1,0 +1,184 @@
+include "config/covise.config.global"
+
+MultiPC: vispw1-multi
+{
+    numSlaves 1
+    Host0 vispw2
+    Command0 ssh ${USER}@vispw2 cd `pwd`\;cover
+}
+MultiPC: vispw2-multi
+{
+    numSlaves 1
+    Host0 vispw1
+    Command0 ssh ${USER}@vispw1 cd `pwd`\;cover
+}
+COVERConfig: vispw1
+{
+    STEREO_SEPARATION   -60
+}
+COVERConfig: vispw2,vispw1-multi,vispw2-multi
+{
+    STEREO_SEPARATION   60
+}
+COVERConfig: vispw1,vispw2,vispw1-multi,vispw2-multi
+{
+    stateFixLevel 0
+    MOUSE_NAV true
+    VRML_LIGHTS ON
+    TRANSPARENCY_MODE sorted_blended
+    VRML_WRITE_VIEWPOINT ON
+    VRML_LIGHTS ON
+    VRML_CREASE OFF
+    LOD_SCALE 1000
+    HEADLIGHT ON
+    TextureMode MODULATE
+    TextureQuality High
+    TextureMode MODULATE
+    TWOSIDE			        ON
+    MOVE_PARTS               on
+
+            #TRACKING_SYSTEM		MOTIONSTAR
+        BUTTON_SYSTEM           NONE
+	TRACKING_SYSTEM		MOUSE
+    FAR 100000
+    NEAR 100
+    # 16bit VISUAL_ID 0x27
+    #TrueColor
+    VISUAL_ID 0x2d
+    #DirectColor
+    #VISUAL_ID 0x44
+   #DebugSound ON
+    GEN_STRIPS ON
+MODULE     Volume
+MODULE Vic
+	#SyncInterval 0.4
+    CORRECT_MATRIX ON
+	ARENA_SIZE		500000000
+
+    #MODULE	VRViewPoint		
+    STEREO ON
+    STEREO_COMMAND          /bin/true
+    MONO_COMMAND            /bin/true
+    #VIEWER_POSITION         500 -3600 320  
+    VIEWER_POSITION         0 -2500 0
+
+    floorHeight -1700
+    stepSize    400
+
+    MAX_FORCE               0.05
+    FORCE_FEEDBACK_MODE 2 // 2 TEST  1 NORMAL
+    FORCE_FEEDBACK	OFF
+    FORCE_SCALE		1.0
+	BUTTON_SYSTEM		NONE # IAO
+    SCENESIZE		1400
+    #SCENESIZE		2500
+    NUM_PIPES		1
+    NUM_WINDOWS		1
+    NUM_SCREENS		1
+	AUTO_WIREFRAME		OFF
+	COORD_AXIS		ON
+	FREEZE			ON
+	MULTIPROCESS		OFF
+	NOSEPARATION		FALSE
+	WHITE_TO_GREY		TRUE
+	SCALE_ALL		OFF
+    WELCOME_MESSAGE      Welcome to COVER
+
+
+    NAVIGATION_MODE     OFF
+    SYNC_MODE           LOOSE_COUPLING
+    COLLIDE             OFF
+    DRIVE_SPEED         1.0 30.0 1.0
+    SNAP                OFF
+    SPOTLIGHT           OFF
+    STEREO_SEP          ON
+    ANIM_SPEED          0.0 5.0 5.0
+    
+        DEBUG_LEVEL         0
+}
+
+TrackerConfig: vispw2,vispw1-multi,vispw2-multi
+{
+        #DEBUG_TRACKING APP
+	#DEBUG_STATION 0
+    
+        HEAD_ADDR                   0
+        HAND_ADDR                   1
+
+	
+	TRANSMITTER_OFFSET		0 55 -65
+	TRANSMITTER_ORIENTATION		90 0 180 
+    
+#	HEADSENSOR_OFFSET			6 0 8 = sensor is 6mm back, 0 up and 8 left from the middle of the glases
+        HEADSENSOR_OFFSET               6 0 8
+        HEADSENSOR_ORIENTATION          -90 0 -90
+
+	HANDSENSOR_OFFSET		0 0 0
+        HANDSENSOR_ORIENTATION		90 0 0
+}
+
+TrackerConfig: vispw1
+{
+        #DEBUG_TRACKING APP
+	#DEBUG_STATION 0
+    
+        HEAD_ADDR                   0
+        HAND_ADDR                   1
+
+	
+	TRANSMITTER_OFFSET		-85 55 -65
+	TRANSMITTER_ORIENTATION		90 0 180 
+    
+#	HEADSENSOR_OFFSET			6 0 8 = sensor is 6mm back, 0 up and 8 left from the middle of the glases
+        HEADSENSOR_OFFSET               6 0 8
+        HEADSENSOR_ORIENTATION          -90 0 -90
+
+	HANDSENSOR_OFFSET		0 0 0
+        HANDSENSOR_ORIENTATION		90 0 0
+}
+
+#PipeConfig: vispw1
+#{
+#	SoftPipe	Screen   	Display				
+    #0		    0		    :0.1
+#}
+
+ChannelConfig: vispw1,vispw2,vispw1-multi,vispw2-multi
+{
+# Viewport  definition either relative to the WindowSize (0.0 - 1.0)
+#  ChannelNo ChannelName WindowNo VieportLeft VieportBottomOffset VieportRight VieportBottom
+# or in pixes Values (left, tip, width, height)
+#  ChannelNo ChannelName WindowNo VieportLeft VieportBottomOffset VieportWidth VieportHeight
+   0         FRONT       0        0           0                   1024         768
+} 
+
+WindowConfig: vispw1,vispw2,vispw1-multi,vispw2-multi
+{
+#       WinNo   WinName         SoftPipeNo      Origin[pixel]   Size [pixel]
+        0       FRONT           0               0 0             1024 768
+} 
+
+ScreenConfig: vispw1-multi
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		    FRONT		1700 1270		850 0 0			    0.0 0.0 0.0
+}
+
+ScreenConfig: vispw1,vispw2
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		    FRONT		1700 1270		0 0 0			    0.0 0.0 0.0
+}
+
+
+ScreenConfig: vispw2-multi
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+    0		    FRONT		1700 1270		-850 0 0			    0.0 0.0 0.0
+}
+
+MotionstarConfig: vispw1,vispw2,vispw1-multi,vispw2-multi
+{
+    IP_ADDRESS 192.168.1.2
+    #DebugAll On
+}

@@ -1,0 +1,21 @@
+cmake_minimum_required (VERSION 2.8)
+project (tests)
+
+include_directories ("../../include/cpp")
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug)
+endif (NOT CMAKE_BUILD_TYPE)
+
+file (GLOB test_sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
+foreach (test_source ${test_sources})
+  string (REPLACE ".cpp" "" test_prefix ${test_source})
+  add_executable (${test_prefix} ${test_source})
+endforeach (test_source)
+
+find_package(CUDA REQUIRED)
+include_directories ("${CUDA_TOOLKIT_INCLUDE}/thrust")
+file (GLOB cuda_test_sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cu")
+foreach (cuda_test_source ${cuda_test_sources})
+  string (REPLACE ".cu" "" cuda_test_prefix ${cuda_test_source})
+  cuda_add_executable (${cuda_test_prefix} ${cuda_test_source})
+endforeach (cuda_test_source)

@@ -1,0 +1,1633 @@
+<ui version="4.0" >
+ <comment>Python:from Utils import FloatInRangeControl
+Python:from ChangeIndicatedLE import ChangeIndicatedLE</comment>
+ <class>GenericVisualizerPanelBase</class>
+ <widget class="QWidget" name="GenericVisualizerPanelBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>738</width>
+    <height>822</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="baseSize" >
+   <size>
+    <width>325</width>
+    <height>715</height>
+   </size>
+  </property>
+  <property name="font" >
+   <font>
+    <family>Droid Sans</family>
+   </font>
+  </property>
+  <property name="windowTitle" >
+   <string>GenericVisualizerPanelBase</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="verticalSpacing" >
+    <number>5</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>9</number>
+   </property>
+   <item row="1" column="0" colspan="3" >
+    <widget class="QGroupBox" name="vrpGroupBoxStatus" >
+     <property name="title" >
+      <string>Status</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>9</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>9</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>5</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
+       <number>5</number>
+      </property>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="vrpLabel0" >
+        <property name="toolTip" >
+         <string>Variable which should be investigated with this visualization object.</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Variable which should be investigated with this visualization object.</string>
+        </property>
+        <property name="text" >
+         <string>Variable:</string>
+        </property>
+        <property name="wordWrap" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QCheckBox" name="checkBox5" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="cursor" >
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip" >
+         <string>Show or hide the interactor in COVER.</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Show or hide the interactor in COVER.</string>
+        </property>
+        <property name="text" >
+         <string>Interactor</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="3" >
+       <widget class="QLineEdit" name="vrpLineEditVariable" >
+        <property name="mouseTracking" >
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="toolTip" >
+         <string>Variable which should be investigated with this visualization object.</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Variable which should be investigated with this visualization object.</string>
+        </property>
+        <property name="text" >
+         <string>VEL</string>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignHCenter</set>
+        </property>
+        <property name="readOnly" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" colspan="2" >
+       <widget class="QCheckBox" name="visibilityCheckBox" >
+        <property name="text" >
+         <string>Visible</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3" >
+    <widget class="QTabWidget" name="TabWidgetGeneralAdvanced" >
+     <property name="tabShape" >
+      <enum>QTabWidget::Rounded</enum>
+     </property>
+     <property name="currentIndex" >
+      <number>5</number>
+     </property>
+     <widget class="QWidget" name="tabPositioning" >
+      <attribute name="title" >
+       <string>Positioning</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxPositioning" >
+         <property name="title" >
+          <string>Domain of Starting Points</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4" >
+          <property name="topMargin" >
+           <number>0</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>0</number>
+          </property>
+          <property name="verticalSpacing" >
+           <number>0</number>
+          </property>
+          <item row="0" column="0" colspan="2" >
+           <widget class="QWidget" native="1" name="groupBoxRectPositioning" >
+            <layout class="QGridLayout" name="gridLayout" >
+             <property name="topMargin" >
+              <number>0</number>
+             </property>
+             <property name="bottomMargin" >
+              <number>5</number>
+             </property>
+             <item row="0" column="0" >
+              <widget class="QLabel" name="textLabel4_4_3" >
+               <property name="toolTip" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>x:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeX" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="textLabel4_4_2_3" >
+               <property name="toolTip" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>y:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeY" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QLabel" name="textLabel4_4_2_2_2" >
+               <property name="toolTip" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>z:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeZ" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" >
+              <widget class="QLabel" name="textEndPointX" >
+               <property name="toolTip" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>End x:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeEndPointX" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" >
+              <widget class="QLabel" name="textEndPointY" >
+               <property name="toolTip" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>End y:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeEndPointY" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0" >
+              <widget class="QLabel" name="textEndPointZ" >
+               <property name="toolTip" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>x, y, z define the center of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>End z:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeEndPointZ" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0" >
+              <widget class="QLabel" name="textLabel4_3_3" >
+               <property name="toolTip" >
+                <string>Width and Height define the size&lt;br> of the rectangle from which streamlines, pathlines and moving points are emitted</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Width and Height define the size&lt;br> of the rectangle from which streamlines, pathlines and moving points are emitted.</string>
+               </property>
+               <property name="text" >
+                <string>Width:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeWidth" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" >
+              <widget class="QLabel" name="textLabel4_3_2_3" >
+               <property name="toolTip" >
+                <string>Width and Height define the size&lt;br> of the rectangle from which streamlines, pathlines and moving points are emitted</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Width and Height define the size&lt;br> of the rectangle from which streamlines, pathlines and moving points are emitted</string>
+               </property>
+               <property name="text" >
+                <string>Height:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeHeight" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0" colspan="2" >
+              <widget class="QGroupBox" name="groupOrientation" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="MinimumExpanding" hsizetype="Preferred" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize" >
+                <size>
+                 <width>0</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="title" >
+                <string>Orientation</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QRadioButton" name="xAxisRadioButton" >
+                  <property name="cursor" >
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Orientation defines the normal of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+                  </property>
+                  <property name="whatsThis" >
+                   <string>Orientation defines the normal of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+                  </property>
+                  <property name="text" >
+                   <string>x-Axis</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="yAxisRadioButton" >
+                  <property name="sizePolicy" >
+                   <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="cursor" >
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Orientation defines the normal of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+                  </property>
+                  <property name="whatsThis" >
+                   <string>Orientation defines the normal of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+                  </property>
+                  <property name="text" >
+                   <string>y-Axis</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="zAxisRadioButton" >
+                  <property name="cursor" >
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Orientation defines the normal of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+                  </property>
+                  <property name="whatsThis" >
+                   <string>Orientation defines the normal of the rectangle&lt;br> from which streamlines, pathlines and moving points are emitted.</string>
+                  </property>
+                  <property name="text" >
+                   <string>z-Axis</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+               <zorder>yAxisRadioButton</zorder>
+               <zorder>zAxisRadioButton</zorder>
+               <zorder>xAxisRadioButton</zorder>
+              </widget>
+             </item>
+             <item row="9" column="0" >
+              <widget class="QLabel" name="textLabelRotX" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="toolTip" >
+                <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+               </property>
+               <property name="text" >
+                <string>Rotation x:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeRotX" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="0" >
+              <widget class="QLabel" name="textLabelRotY" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="toolTip" >
+                <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+               </property>
+               <property name="text" >
+                <string>Rotation y:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeRotY" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="0" >
+              <widget class="QLabel" name="textLabelRotZ" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="toolTip" >
+                <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+               </property>
+               <property name="whatsThis" >
+                <string>For finetuning the orientation&lt;br> of the starting rectangle from which streamlines, pathlines and moving points are emitted, you can add rotations around each axis.</string>
+               </property>
+               <property name="text" >
+                <string>Rotation z:</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1" >
+              <widget class="FloatInRangeControl" native="1" name="floatInRangeRotZ" >
+               <property name="enabled" >
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="0" colspan="2" >
+              <spacer name="verticalSpacer" >
+               <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>328</width>
+                 <height>115</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QComboBox" name="comboBoxDomain" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip" >
+             <string>Use a 2D part as starting points &lt;br>for streamlines, pathlines or moving points instead of the rectangle. Enable &lt;i>Use 2D Part&lt;/i> to activate this choice.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Use a 2D part as starting points &lt;br>for streamlines, pathlines or moving points instead of the rectangle. Enable &lt;i>Use 2D Part&lt;/i> to activate this choice.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QCheckBox" name="checkBoxFreeStartpoints" >
+            <property name="toolTip" >
+             <string>Use a 2D part as starting points &lt;br>for streamlines, pathlines or moving points instead of the rectangle. Select the part with the choice on the right.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Use a 2D part as starting points &lt;br>for streamlines, pathlines or moving points instead of the rectangle. Select the part with the choice on the right.</string>
+            </property>
+            <property name="text" >
+             <string>Interactive Startpoints</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QCheckBox" name="checkBoxDomainFromList" >
+            <property name="toolTip" >
+             <string>Use a 2D part as starting points &lt;br>for streamlines, pathlines or moving points instead of the rectangle. Select the part with the choice on the right.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Use a 2D part as starting points &lt;br>for streamlines, pathlines or moving points instead of the rectangle. Select the part with the choice on the right.</string>
+            </property>
+            <property name="text" >
+             <string>Use 2D Part</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabAdjustmentStreamline" >
+      <attribute name="title" >
+       <string>Adjustment</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxAdjustment" >
+         <property name="title" >
+          <string>Streamline Adjustment</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3" >
+          <item row="0" column="0" >
+           <widget class="QLabel" name="textNumberOfStreamlines" >
+            <property name="toolTip" >
+             <string>Number of startpoints for streamlines, pathlines and moving points which are emitted &lt;br>from the starting rectangle or 2D part.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Number of startpoints for streamlines, pathlines and moving points which are emitted &lt;br>from the starting rectangle or 2D part.</string>
+            </property>
+            <property name="text" >
+             <string>Number of Streamlines:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="numberStartpoints" />
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="textLength" >
+            <property name="toolTip" >
+             <string>Maximum length of the streamlines.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Maximum length of the streamlines.</string>
+            </property>
+            <property name="text" >
+             <string>Length:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="lengthTraces" />
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="textDirection" >
+            <property name="toolTip" >
+             <string>The integration direction can be &lt;br>
+forward, backward or both.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The integration direction can be &lt;br>
+forward, backward or both.</string>
+            </property>
+            <property name="text" >
+             <string>Direction:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="QComboBox" name="tracingDirectionCB" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>32767</width>
+              <height>32767</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <item>
+             <property name="text" >
+              <string>Forward</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Backward</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Both</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="textNumberOfSteps" >
+            <property name="toolTip" >
+             <string>&lt;p>For moving points: &lt;br>number of points where the sphere should appear along the streamline.&lt;/p>
+&lt;p>For pathlines: &lt;br>how many times should the pathline grwo along the streamline.&lt;/p></string>
+            </property>
+            <property name="whatsThis" >
+             <string>&lt;p>For moving points: &lt;br>number of points where the sphere should appear along the streamline.&lt;/p>
+&lt;p>For pathlines: &lt;br>how many times should the pathline grwo along the streamline.&lt;/p></string>
+            </property>
+            <property name="text" >
+             <string>Number of Steps</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="NumberOfSteps" />
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="textDurationOfSteps" >
+            <property name="toolTip" >
+             <string>Time for one step.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Time for one step.</string>
+            </property>
+            <property name="text" >
+             <string>Duration of Steps</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="DurationOfSteps" />
+          </item>
+          <item row="5" column="0" >
+           <widget class="QLabel" name="textTubeWidth" >
+            <property name="toolTip" >
+             <string>Width of Tubes</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Width of the pathline.</string>
+            </property>
+            <property name="text" >
+             <string>Width of Tubes</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="TubeWidth" />
+          </item>
+          <item row="6" column="0" >
+           <widget class="QLabel" name="textRadiusOfSpheres" >
+            <property name="toolTip" >
+             <string>Radius of the moving point (sphere).</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Radius of the moving point (sphere).</string>
+            </property>
+            <property name="text" >
+             <string>Radius of Spheres</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="RadiusOfSpheres" />
+          </item>
+          <item row="7" column="0" colspan="2" >
+           <spacer name="verticalSpacer_3" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>348</width>
+              <height>283</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabAdjustmentCuttingSurface" >
+      <attribute name="title" >
+       <string>Adjustment</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxAdjustment_2" >
+         <property name="title" >
+          <string>CuttingSurface Adjustment</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5" >
+          <item row="0" column="0" >
+           <widget class="QLabel" name="textCuttingSurfaceScale" >
+            <property name="toolTip" >
+             <string>Maximum length of the streamlines.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Maximum length of the streamlines.</string>
+            </property>
+            <property name="text" >
+             <string>Scale:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="cuttingSurfaceScale" >
+            <property name="toolTip" >
+             <string>Scale factor for arrow length.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Scale factor for arrow length.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="textCuttingSurfaceLength" >
+            <property name="toolTip" >
+             <string>The integration direction can be &lt;br>
+forward, backward or both.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The integration direction can be &lt;br>
+forward, backward or both.</string>
+            </property>
+            <property name="text" >
+             <string>Length:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QComboBox" name="cuttingSurfaceLength" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>32767</width>
+              <height>32767</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>The arrow length can be either 1 or the magnitude of the vector.&lt;br> In both cases the length is multiplied with the scale factor.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The arrow length can be either 1 or the magnitude of the vector.&lt;br> In both cases the length is multiplied with the scale factor.</string>
+            </property>
+            <item>
+             <property name="text" >
+              <string>1*scale</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>length*scale</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="textCuttingSurfaceArrowHead" >
+            <property name="toolTip" >
+             <string>Radius of the moving point (sphere).</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Radius of the moving point (sphere).</string>
+            </property>
+            <property name="text" >
+             <string>Length of arrow head:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="cuttingSurfaceArrowHead" >
+            <property name="toolTip" >
+             <string>The relative length of the arrow heads to the arrow length.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>The relative length of the arrow heads to the arrow length.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2" >
+           <widget class="QCheckBox" name="checkBoxProjectArrows" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Project arrows onto the plane.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Project arrows onto the plane.</string>
+            </property>
+            <property name="text" >
+             <string>Project Arrows</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2" >
+           <spacer name="verticalSpacer_3" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>348</width>
+              <height>283</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabAdvanced" >
+      <attribute name="title" >
+       <string>Advanced</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="vrpGroupBoxFinetuning" >
+         <property name="title" >
+          <string>Finetuning Trace Integration</string>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="1" column="0" >
+           <widget class="QLabel" name="textLabel3_2_2" >
+            <property name="toolTip" >
+             <string>Finetuning parameter for integration&lt;br> 
+(Maximum permitted absolute error per integration step).</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Finetuning parameter for integration&lt;br> 
+(Maximum permitted absolute error per integration step).</string>
+            </property>
+            <property name="text" >
+             <string>Absolute errors per step:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="vrpLabelRelativeErrors" >
+            <property name="toolTip" >
+             <string>Finetuning parameter for integration&lt;br> 
+(Maximum permitted relative error per integration step).</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Finetuning parameter for integration&lt;br> 
+(Maximum permitted relative error per integration step).</string>
+            </property>
+            <property name="text" >
+             <string>Relative errors per step:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="vrpLabelMinimumValue" >
+            <property name="toolTip" >
+             <string>Finetuning parameter for integration&lt;br> 
+(Minimum velocity for integration interrupt).</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Finetuning parameter for integration&lt;br> 
+(Minimum velocity for integration interrupt).</string>
+            </property>
+            <property name="text" >
+             <string>Minimum Value:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <spacer name="spacer657" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>23</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditRelativeErrors" />
+          </item>
+          <item row="1" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditAbsoluteErrors" />
+          </item>
+          <item row="2" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditMinimumValue" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QGroupBox" name="vrpGroupBoxFramework" >
+         <property name="minimumSize" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize" >
+          <size>
+           <width>32767</width>
+           <height>32767</height>
+          </size>
+         </property>
+         <property name="toolTip" >
+          <string/>
+         </property>
+         <property name="title" >
+          <string>Streamline Framework</string>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="1" column="0" >
+           <widget class="QLabel" name="vrpLabelMinimumValue_2" >
+            <property name="text" >
+             <string>Gap Size in Grid:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="vrpLabelGridTolerance" >
+            <property name="toolTip" >
+             <string>Tolerance value for grid with gaps.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Tolerance value for grid with gaps.</string>
+            </property>
+            <property name="text" >
+             <string>Grid Tolerance:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" >
+           <spacer name="spacer657_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>45</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditGridTolerance" />
+          </item>
+          <item row="1" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditMinimumValue_2" />
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabClipPlane" >
+      <attribute name="title" >
+       <string>ClipPlane</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QGroupBox" name="vrpGroupBoxFramework_2" >
+         <property name="minimumSize" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize" >
+          <size>
+           <width>32767</width>
+           <height>32767</height>
+          </size>
+         </property>
+         <property name="cursor" >
+          <cursorShape>ArrowCursor</cursorShape>
+         </property>
+         <property name="toolTip" >
+          <string/>
+         </property>
+         <property name="title" >
+          <string>Attached ClipPlane</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2" >
+          <item row="0" column="0" >
+           <widget class="QLabel" name="vrpLabelGridTolerance_2" >
+            <property name="toolTip" >
+             <string>Select the ClipPlane you want to attach to the visualizer.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select the ClipPlane you want to attach to the visualizer.</string>
+            </property>
+            <property name="text" >
+             <string>ClipPlane:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QComboBox" name="ClipPlaneIndexCombo" >
+            <property name="minimumSize" >
+             <size>
+              <width>55</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string>Select the ClipPlane you want to attach to the visualizer.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Select the ClipPlane you want to attach to the visualizer.</string>
+            </property>
+            <item>
+             <property name="text" >
+              <string>Disabled</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClipPlane 0</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClipPlane 1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClipPlane 2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClipPlane 3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClipPlane 4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>ClipPlane 5</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="vrpLabelMinimumValue_2_2" >
+            <property name="toolTip" >
+             <string>Specify an offset between the Visualizer and the ClipPlane.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Specify an offset between the Visualizer and the ClipPlane.</string>
+            </property>
+            <property name="text" >
+             <string>Offset:</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="ChangeIndicatedLE" native="1" name="vrpLineEditClipPlaneOffset" >
+            <property name="toolTip" >
+             <string>Specify an offset between the Visualizer and the ClipPlane.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Specify an offset between the Visualizer and the ClipPlane.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2" >
+           <widget class="QCheckBox" name="ClipPlaneFlipCheckbox" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize" >
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor" >
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="toolTip" >
+             <string/>
+            </property>
+            <property name="whatsThis" >
+             <string/>
+            </property>
+            <property name="text" >
+             <string>Flip ClipPlane</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2" >
+           <spacer name="verticalSpacer_2" >
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>338</width>
+              <height>394</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>Coloring</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6" >
+       <item rowspan="2" row="0" column="0" colspan="2" >
+        <widget class="QLabel" name="vrpLabel0_1" >
+         <property name="toolTip" >
+          <string>Select one of the predefined colormaps</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Select one of the predefined colormaps</string>
+         </property>
+         <property name="text" >
+          <string>Color Map:</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QComboBox" name="colorMapCombobox" >
+         <property name="minimumSize" >
+          <size>
+           <width>55</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip" >
+          <string>Select one of the predefined colormaps</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Select one of the predefined colormaps</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2" >
+        <widget class="QPushButton" name="vrpPushButtonCustomizeColorMap" >
+         <property name="minimumSize" >
+          <size>
+           <width>80</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip" >
+          <string>Customize the range and steps of the colormap.</string>
+         </property>
+         <property name="whatsThis" >
+          <string>Customize the range and steps of the colormap.</string>
+         </property>
+         <property name="text" >
+          <string>C&amp;ustom...</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+U</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QCheckBox" name="vrpCheckBoxMapVariable" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip" >
+          <string>&lt;p>The default variable mapped as color on the visualisation object.&lt;/p>
+
+&lt;p>If you want to color the visualization object with a different variable enable this checkbox.&lt;/p></string>
+         </property>
+         <property name="whatsThis" >
+          <string>&lt;p>The default variable mapped as color on the visualisation object.&lt;/p>
+
+&lt;p>If you want to color the visualization object with a different variable enable this checkbox.&lt;/p></string>
+         </property>
+         <property name="text" >
+          <string>Map 2nd Variable</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="2" >
+        <widget class="QComboBox" name="vrpComboBoxVariable" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="cursor" >
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip" >
+          <string>&lt;p>Select the variable for coloring the visualization object.&lt;/p>
+
+&lt;p>Enable this choice with the checkbox &lt;i>Map 2nd variable&lt;/i>.&lt;/p></string>
+         </property>
+         <property name="whatsThis" >
+          <string>&lt;p>Select the variable for coloring the visualization object.&lt;/p>
+
+&lt;p>Enable this choice with the checkbox &lt;i>Map 2nd variable&lt;/i>.&lt;/p></string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="3" >
+        <spacer name="verticalSpacer_4" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>338</width>
+           <height>501</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3" >
+    <layout class="QGridLayout" >
+     <item row="0" column="0" >
+      <widget class="QCheckBox" name="vrpCheckBoxShow" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="toolTip" >
+        <string>&lt;p>Show an interactive preview &lt;br>
+of the streamlines and pathlines when moving the starting rectangle with the sliders or the interactors in COVER. &lt;/p>
+
+&lt;p>The preview streamlines are computed on a 32x32x32 uniform grid.&lt;/p></string>
+       </property>
+       <property name="whatsThis" >
+        <string>&lt;p>Show an interactive preview &lt;br>
+of the streamlines and pathlines when moving the starting rectangle with the sliders or the interactors in COVER. &lt;/p>
+
+&lt;p>The preview streamlines are computed on a 32x32x32 uniform grid.&lt;/p></string>
+       </property>
+       <property name="text" >
+        <string>Show Smoke</string>
+       </property>
+       <property name="shortcut" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QPushButton" name="vrpPushButtonAdjustPreview" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="minimumSize" >
+        <size>
+         <width>80</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="text" >
+        <string>A&amp;djust...</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+D, Ctrl+S</string>
+       </property>
+       <property name="checkable" >
+        <bool>true</bool>
+       </property>
+       <property name="checked" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" >
+      <spacer name="spacer660" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>190</width>
+         <height>21</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="2" >
+    <widget class="ChangeIndicatedLE" native="1" name="nameWidget" />
+   </item>
+   <item row="0" column="0" colspan="2" >
+    <widget class="QLabel" name="vrpLabelTitle" >
+     <property name="font" >
+      <font>
+       <family>URW Gothic L</family>
+      </font>
+     </property>
+     <property name="toolTip" >
+      <string>Edit the name of the visualization object.</string>
+     </property>
+     <property name="whatsThis" >
+      <string>Edit the name of the visualization object.</string>
+     </property>
+     <property name="text" >
+      <string>Edit Streamline:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>FloatInRangeControl</class>
+   <extends>QWidget</extends>
+   <header location="global" >Utils</header>
+  </customwidget>
+  <customwidget>
+   <class>ChangeIndicatedLE</class>
+   <extends>QWidget</extends>
+   <header location="global" >ChangeIndicatedLE</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >floatinrangecontrol.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+  <include location="local" >changeindicatedle.h</include>
+ </includes>
+ <resources/>
+ <connections/>
+</ui>

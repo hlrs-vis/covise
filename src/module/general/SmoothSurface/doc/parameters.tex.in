@@ -1,0 +1,34 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	method & Choice & Smoothing Method: \newline
+                          Gaussian Smoothing \newline
+			  Taubin Smoothing \\
+\hline
+	iterations & Scalar & Number of smoothing passes to be performed  \\
+\hline
+	scale\_1 & Scalar & Scale factor between 0 and 1, expresses the
+                                          "aggressivity" of the filtering process   \\
+\hline
+	scale\_1 & Scalar & Additional scale factor for the second pass of the
+                                          Taubin smoothing method. It has to be between -1
+                                          and -scale\_1. It is recommended to chose scale\_2
+                                          less than, but near to -scale\_1.  \\															
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

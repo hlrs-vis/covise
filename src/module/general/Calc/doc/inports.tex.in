@@ -1,0 +1,35 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+ 
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead\hline\hline
+        \textcolor{optional}{s\_indata1} & Float \newline
+	                                   Float & Corresponds to
+{\it s1} in the parameter {\it expression} if connected \\
+\hline
+        \textcolor{optional}{s\_indata2} & Float \newline
+	                                   Float & Corresponds to 
+{\it s2} in the parameter {\it expression} if connected \\
+\hline
+        \textcolor{optional}{v\_indata1} & Vec3 \newline
+	                                   Vec3 & Corresponds to 
+{\it v1} in the parameter {\it expression} if connected \\
+\hline
+        \textcolor{optional}{v\_indata2} & Vec3 \newline
+	                                   Vec3 & Corresponds to 
+{\it v2} in the parameter {\it expression} if connected\\
+%        ....
+%        ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,131 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+   
+   <SourceProxy name="VortexCores" class="vtkVortexCores" label="Plugin Univiz Vortex Cores">
+    <Documentation>
+      The VortexCores filter computes vortex core lines of point (node) data. This filter operates on unstructured grid data and produces geometry output.
+    </Documentation>
+    <InputProperty
+       name="Input"
+       command="SetInputConnection">
+          <ProxyGroupDomain name="groups">
+            <Group name="sources"/>
+            <Group name="filters"/>
+          </ProxyGroupDomain>
+          <DataTypeDomain name="input_type">
+            <DataType value="vtkDataSet"/>
+          </DataTypeDomain>
+          <InputArrayDomain name="input_array1" attribute_type="point" number_of_components="3">
+	    <RequiredProperties>
+              <Property name="SelectInputVectors" function="FieldDataSelection"/>
+            </RequiredProperties>
+	  </InputArrayDomain>
+          <Documentation>
+            The input.
+          </Documentation>
+     </InputProperty>
+
+     <StringVectorProperty 
+        name="SelectInputVectors" 
+        command="SetInputArrayToProcess"
+        number_of_elements="5"
+        element_types="0 0 0 0 2"
+        label="Velocity">
+           <ArrayListDomain name="array_list" attribute_type="Vectors" input_domain_name="input_array1">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </ArrayListDomain>
+           <!--<FieldDataDomain name="field_list">
+             <RequiredProperties>
+                <Property name="Input" function="Input"/>
+             </RequiredProperties>
+           </FieldDataDomain>-->
+       <Documentation>
+         The name of the velocity array to extract vortex core lines from.
+       </Documentation>
+     </StringVectorProperty> 
+
+     <IntVectorProperty 
+        name="Method" 
+        label="Method"
+        command="SetMethod" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="Levy"/>
+         <Entry value="1" text="Sujudi-Haimes"/>
+       </EnumerationDomain>
+       <Documentation>
+         Method for vortex core line extraction.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty 
+        name="Variant" 
+        label="Variant"
+        command="SetVariant" 
+        number_of_elements="1"
+        default_values="0" >
+       <EnumerationDomain name="enum">
+         <Entry value="0" text="triangle"/>
+         <Entry value="1" text="quad Newton"/>
+       </EnumerationDomain>
+       <Documentation>
+         Non-planar faces are either decomposed into triangles and the intersections with the core lines are determined directly, or the intersections with the non-planar faces are determined using Newton iterations.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MinimumNumberOfVertices"
+        label="Min Num Of Vertices"
+        command="SetMinimumNumberOfVertices"
+        number_of_elements="1"
+        default_values="10">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Core line segments with fewer vertices than this parameter will be discared.
+       </Documentation>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+        name="MaximumNumberOfExceptions"
+        label="Max Num Of Exceptions"
+        command="SetMaximumNumberOfExceptions"
+        number_of_elements="1"
+        default_values="3">
+       <IntRangeDomain name="range"/>
+       <Documentation>
+         Core line segments with more exceptions than this parameter will be discared.
+       </Documentation>
+     </IntVectorProperty>
+
+     <DoubleVectorProperty
+        name="MinStrength"
+        label="Min Vortex Strength"
+        command="SetMinStrength"
+        number_of_elements="1"
+        default_values="1.0">
+       <DoubleRangeDomain name="range" min="1" max="1000000"/>
+       <Documentation>
+         The minimal required vortex strength. Segment with lower strength will be discarded.
+       </Documentation>
+     </DoubleVectorProperty>
+
+     <DoubleVectorProperty
+        name="MaxAngle"
+        label="Max Angle"
+        command="SetMaxAngle"
+        number_of_elements="1"
+        default_values="30.0">
+       <DoubleRangeDomain name="range" min="1" max="1000000"/>
+       <Documentation>
+         The maximal allowed angle between the vector and the core line tangent. Segments with larger angle will be discarded.
+       </Documentation>
+     </DoubleVectorProperty>
+
+   <!-- End VortexCores -->
+   </SourceProxy>
+
+  </ProxyGroup>
+</ServerManagerConfiguration>

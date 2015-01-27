@@ -1,0 +1,38 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	Mode for timesteps  & Choice  & - \\ 
+\hline
+	timesteps           & Scalar  & - \\
+\hline
+	skipped\_files      & Scalar  & - \\
+\hline
+	fullpath            & Browser & - \\
+\hline
+	Scale X             & Slider  & - \\ 	
+\hline
+	Scale Y             & Slider  & - \\
+\hline
+	Scale Z             & Slider  & - \\
+\hline
+	Default is \newline 
+	Little Endian       & Boolean & - \\ 	 	
+\hline	 		
+\end{longtable}
+%=============================================================
+
+
+
+
+
+
+%
+%=============================================================
+

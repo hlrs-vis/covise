@@ -1,0 +1,30 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+\begin{covimg}{}
+	{tetranet}{covise/net/tutorial/tutorial\_vel\_2.net (obsolete)}{0.6}\end{covimg}
+		
+You have to use this pipeline in order to use TetraTrace with a mixed-celltype
+unstructured grid. Note that you should save the results from Tetrahedronize, TetraVolume
+and TetraNeighbor so you don't have to recompute them. TetraNeighbor will go
+multi-processing (10 nodes) to speed up the process. Still TetraNeighbor is the slowest
+step in this pipeline.
+
+Because no suitable (fast enough) algorithm for determining time-neighborship has yet
+been found those will be computed by TetraTrace {\it (for the passed cells only)} in
+real-time.
+
+{\bf Tetrahedronize requires the grid on the first port and the per-vertex velocity-data
+on the second.} You should not change Tetrahedronize's parameter because that feature has
+not been heavily tested and might result in non-sense output. 		
+
+
+

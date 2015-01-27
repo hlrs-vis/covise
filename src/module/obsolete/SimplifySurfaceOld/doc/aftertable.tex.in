@@ -1,0 +1,176 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+\begin{covimg}{}{SimplifySurfaceNet}{covise/net/general/examples/SimplifySurfaceNet}{0.6}\end{covimg}
+%\begin{covimg2}{}{SimplifySurfaceNet}{0.6}\end{covimg2}
+
+For this example map we show 2 renderer images. The first figure reflects
+a reduction by 20\% (the number of triangles left is 80\% of
+the original surface), the second figure shows the image without
+reduction (100\% case).
+
+\begin{covimg}{}{SimplifySurface_out1}{Number of triangles is reduced to 30\% of the
+initial number}{0.6}\end{covimg}
+ 
+\begin{covimg}{}{SimplifySurface_out2}{Surface without simplification}{0.6}\end{covimg}
+% examples for using this module
+
+%
+%=============================================================
+
+\subsubsection{Strategy}
+%=============================================================
+%
+The choice between two different strategies is offered: Edge collapse or vertex removal. This concerns the basic
+operation performed in each removal iteration.  
+
+In edge collapse algorithms, in each iteration one edge is chosen (according to some priority criterion) and collapsed
+into one new point. The adjacent triangles are changed in such a way, that two of them (sharing both vertices with
+the edge) are removed, while all triangles sharing one vertex with the edge will be merely transformed. The midpoint
+of the collapsed edge proved to be a good choice for the new point. The order of the edges to be removed is
+determined by the priority criterion, which is in our case simply the edge length, assuming that short edges are more
+likely to be removed than long ones. If data values are attached to the surface, the priority criterion is a weighted
+sum of the edge length and the sum of the data gradients in both endpoints of the edge.  
+
+For vertex removal, the situation is different. Here we chose a single vertex per iteration which shall be removed.
+Thus, we get a hole in the surface which has to be re-triangulated. To avoid a great number of thin, long triangles to
+be introduced in this process, we include a triangle compactness measure into the priority criterion. Beside this
+measure, the priority criterion includes estimates of the surface curvature in the neighborhood of the vertex, and of
+the data gradient, if data values are attached to the surface. 
+%
+%=============================================================
+
+\subsubsection{Feature and Topology Preservation}
+%=============================================================
+%
+In engineering applications, surface boundaries, internal holes of the surface, and feature edges are properties which
+users like very much to preserve. To this end, we added a special handling for these edges/vertices. External and
+internal boundaries as well as feature edges will be simplified only where they are straight. Corner vertices or split
+vertices will not be moved. 
+
+%
+%=============================================================
+
+\subsubsection{Module usage}
+%=============================================================
+%
+The module gives the user several possibilities to adapt the parameters to his specific application. This may seem a
+bit complicated. In the following, we give some recommendations as to how to select parameter values.  
+
+The choice of the parameters must be adapted carefully to the individual data set in order to achieve an optimal
+result. Here I can give only a few general hints on how to change the defaults.
+
+%
+%=============================================================
+
+\subsubsection{Comparison of strategies}
+%=============================================================
+%
+\begin{longtable}{|p{7cm}|p{7cm}|}
+\hline
+   \bf{Edge collapse} & \bf{Vertex Removal}  \endhead
+\hline\hline
+	+ fast   & - slower  \\
+\hline
+	+ produces good quality meshes (triangles with a high
+                        compactness value)  &  - meshes tend to contain very thin triangles \\
+\hline
+	+ good feature edge handling   &  - feature edges tend to be handled last due to the
+                                                                          curvature heuristics \\
+\hline
+	- interpolates data values if attached  & + no interpolation, data values are the original ones  \\
+\hline
+	- new points are introduced during the simplification
+                        process   &  + points in the simplified surface are subset of the original
+                                                                          points \\	   	   															
+%	....
+%	....
+
+\hline
+\end{longtable}
+%
+%=============================================================
+
+\subsubsection{Percentage}
+%=============================================================
+%
+The maximal possible reduction rate can be found easily by choosing a very small percentage and waiting when the
+reduction capacity is exceeded. The module posts then a warning containing the percentage of triangles which could
+be removed before the priority queue was exhausted. Usually, this maximal reduction shows serious distortions of
+the surface. The worse ones were produced during the last iterations. Hence, a good method to obtain a nearly
+optimal reduction with a reasonable quality is to set the percentage a few percents higher than this maximally
+possible reduction rate.  
+
+If no radical reduction is necessary, 30\% is a good choice which gives a still good approximation for most surfaces.
+Of course, the reduction rate depends strongly on the resolution of the original surface, also on the complexity and
+the topology of the surface. For large cutting planes reduction rates up to 5-10\% are not unusual, while isosurfaces
+consisting of several disconnected parts may tend to get quite distorted already at 20\%. 
+                      
+
+%
+%=============================================================
+
+\subsubsection{Feature Angle}
+%=============================================================
+%
+The optimal choice of this parameter strongly depends on the characteristics of the surface. For some types of
+surfaces, it makes no sense at all, for others it is indispensable. Here the most important types of surfaces and some
+basic recommendations are given. 
+\begin{enumerate}
+\item CAD surfaces:
+ 
+       Usually, this type of surfaces has sharp feature edges which have to be preserved by all means. 
+       The minimal choice for the feature angle parameter is here \latexonly $100^{\ o}$
+       \endlatexonly \begin{htmlonly} 100° \end{htmlonly}, better
+       is \latexonly $120^{\ o}$ \endlatexonly \begin{htmlonly} 120° \end{htmlonly} or, if more gentle forms like car seats have
+       to be preserved also, even \latexonly $150^{\ o}$ \endlatexonly \begin{htmlonly} 150° \end{htmlonly}.
+\item Cutting surfaces:
+ 
+       For all types of cutting surfaces supported in COVISE (planes, cylindrical or spherical surfaces) this
+       parameter has no great importance, because their curvature is rather constant.
+\item Isosurfaces:
+ 
+       With all surfaces which have no clear features, but rather curved or even wrinkled forms, the parameter
+       feature angle must be handled very carefully. It does not make sense to choose too great a feature angle, it
+       may even lead to distortions, if a globally smooth area in the surface contains triangles whose normal vectors
+       differ strongly locally, in a small neighbourhood. This would be misinterpreted as a feature angle, which will
+       be preserved and can then distort in the simplified surface the originally rather smooth shape. 
+       Hence, it is recommended to start with a small feature angle (like 
+       \latexonly $30^{\ o}$ \endlatexonly \begin{htmlonly} 30° \end{htmlonly},look at the 
+       resulting surface, and increase the feature angle gradually,if necessary. 
+\end{enumerate}
+%
+
+%
+%=============================================================
+
+\subsubsection{Volume bound}
+%=============================================================
+%
+This parameter suits to keep the simplified surface as near to the original surface as possible. Smooth, convex forms
+tend to be flattened by the simplification procedure. To prevent the removal of vertices leading to a visible flattening
+of the neighbourhood, the volume difference which is caused by the removal of a vertex (an edge) can be bounded by
+this parameter.  
+
+Note that the volume difference is calculated in the units of the data set. For instance, if a car surface is modelled in
+millimetres, we will have coordinate values in thousands of millimetres. In contrast, if the same surface is modelled
+in metres, the coordinate values will be in the single-digit range. This means, that in the latter case the volume bound
+parameter should be chosen by a factor of 
+\latexonly $10^{\ o}$ \endlatexonly \begin{htmlonly} 10° \end{htmlonly} smaller than in the first 
+case, according to the unit of measurement.  
+
+It is recommended to start with a large value of the parameter volume bound, which can be decreased gradually with
+respect to the properties of the surface. Thus applied, the parameter can support the priority measure in finding the
+parts of the surface where a finer resolution is appropriate, or enhance the regularity of the vertex distribution on
+smooth, convex parts of a surface 
+		      
+
+
+
+
+

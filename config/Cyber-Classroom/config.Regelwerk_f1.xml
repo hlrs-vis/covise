@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+   <!--==================== BEGIN: SET MODULE SPECIFIC PARAMETERS =====================-->
+   <GLOBAL>
+      <COVER>
+         <!--<WelcomeMessage value="Lade 'Formel1 Regelwerk' ..." />-->
+      </COVER>
+   </GLOBAL>
+   <!--==================== END: SET MODULE SPECIFIC PARAMETERS ========================-->
+
+   <!--=== ATTENTION: ORDER OF SETTINGS IS IMPORTANT, SETTINGS WILL NOT BE OVERWRITTEN =-->
+   <INCLUDE global="1" configname="general">config.general.xml</INCLUDE>
+
+
+   <!--==================== INSERT MENU BUTTONS ON THE LEFT SIDE =======================-->
+   <GLOBAL>
+      <COVER>
+         <Plugin>
+            <AKToolbar value="on">		                        
+               <ShortCut value="presentationReload" name="presentationReload" plugin="CfdGui" icon="reload" />
+			   <ShortCut value="showName" name="showName" />    
+			   <ShortCut value="ClipPlane 1" name="schere" plugin="ClipPlane" icon="schere" toggleButton="True" />			   
+			   <!--<ShortCut value="stereoSeparation" name="stereoSeparation" />-->
+               <!--<ShortCut value="orthographicProjection" name="orthographicProjection" />-->
+            </AKToolbar>
+            <CoviseConfigShader value="on">
+                <Scope name="Ferrari" regexp="Ferrari_20.*" shader="Glossy3" smooth="true" />
+                <Scope name="Spoiler" regexp="Spoiler_.*-FACES.*" shader="Glossy3b" />
+                <Scope name="Seitenkasten" regexp="Seitenkasten_.*-FACES.*" shader="Glossy3b" />
+                <Scope name="Virtuelle_Last" regexp="Virtuelle_Last-FACES.*" shader="Glossy3b" />
+                <Scope name="Patronenkammer" regexp="Patronenkammer-FACES.*" shader="Glossy3b" />
+                <Scope name="Fuehrungsschiene" regexp="Fuehrungsschiene-FACES.*" shader="Glossy3b" />
+            </CoviseConfigShader>
+         </Plugin>
+         
+        <!--======== RELATIVE PATH TO MODULE DIRECTORY USED FOR TRANSLATION ============-->    
+        <Localization>
+            <LocalePath value="../Demos/VR4Schule/WissenWie/F1_in_Schools/Regelwerk_f1/locale" />
+        </Localization>
+      </COVER>
+   </GLOBAL>
+</COCONFIG>

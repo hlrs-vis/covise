@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+  <Module>
+   <Material>
+    <MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263"  emissive="0 0 0" shininess="0.0363636" transparency="0" />
+   </Material>
+  </Module>
+
+  <System>
+   <CRB>
+    <ModuleAlias arch="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
+    <ModuleAlias arch="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias arch="mac" value="Renderer/QtRenderer" name="Renderer/Renderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+   </CRB>
+  </System>
+
+  <COVER>
+   <UseVertexBufferObjects value="false" />
+   <UseDisplayLists value="true" />
+   <NavigationMode value="XForm" />
+   <TransparencyMode value="sorted_blended" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+   <MultiThreaded value="off" />
+   <SaveFile value="/tmp/test.osg" />
+   
+   <IconSize value="30"/>
+   
+   <Menu value="off">
+       <Position x="-5000" y="0" z="0" />
+   </Menu>
+   
+   <MultiThreaded value="false" />
+   <Multisample value="ON" numSamples="4" numBuffers="1" mode="DONT_CARE" />
+   
+   <DebugLevel value="1" />
+   <FPS value="false" />
+
+   <FileManager>
+           <FileType name="wrl" plugin="Vrml97" />
+           <FileType name="wrl.gz" plugin="Vrml97" />
+           <FileType name="wrz" plugin="Vrml97" />
+           <FileType name="xyz" plugin="Point" />
+           <FileType name="pts" plugin="PointModel" />
+           <FileType name="xvf" plugin="Volume" />
+           <FileType name="rvf" plugin="Volume" />
+           <FileType name="avf" plugin="Volume" />
+           <FileType name="plmxml" plugin="PLMXML" />
+           <FileType name="jt" plugin="JTOpen" />
+           <FileType name="top" plugin="Amber" />
+           <FileType name="trj" plugin="Amber" />
+           <FileType name="via" plugin="Molecule" />
+           <FileType name="vim" plugin="Molecule" />
+           <FileType name="vis" plugin="Molecule" />
+           <FileType name="dyn" plugin="VRAnim" />
+           <FileType name="geoall" plugin="VRAnim" />
+           <FileType name="str" plugin="VRAnim" />
+           <FileType name="sensor" plugin="VRAnim" />
+           <FileType name="xodr" plugin="TrafficSimulation" />
+      </FileManager>
+
+   <Plugin>
+    <SGBrowser value="on" />
+
+    <DocumentViewer value="on">
+     <DocumentInMenu value="off"/>
+     <DocumentInSzene value="on"/>
+    </DocumentViewer>
+
+    <Vrml97 value="on" >
+     <Audio value="Aserver" />
+    </Vrml97>
+
+    <Move value="on" />
+    <ClipPlane value="on" />
+
+    <ViewPoint value="on">
+     <FlyingMode value="on"/>
+     <FlightTime value="5.0"/> <!-- FlightTime must not be 0.0! Why? See Neg2Gui.py::test_continue()-->
+    </ViewPoint>
+
+    <CfdGui value="on"/>
+
+    <GeneralGeometry value="on"/>
+
+    <PBufferSnapShot value="on"/>
+
+   </Plugin>
+
+  </COVER>
+
+ </GLOBAL>
+
+ <INCLUDE global="1" configname="colormap" >config.colormaps.xml </INCLUDE>
+ <INCLUDE global="1" configname="license" >config.license.xml </INCLUDE>
+ <INCLUDE global="1" configname="projection" >config.projection.xml </INCLUDE>
+ <INCLUDE global="1" configname="tracking" >config.tracking.xml </INCLUDE>
+ <INCLUDE global="1" configname="vr-prepare" >config.vr-prepare.xml </INCLUDE>
+
+</COCONFIG>

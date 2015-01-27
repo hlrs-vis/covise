@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE>config-sva-job.xml</INCLUDE>
+
+ <INCLUDE>config.xml</INCLUDE>
+
+ <WindowConfig>
+
+  <Window window="0" value="FRONT 0 0 0 640 480" name="0" />
+
+ </WindowConfig>
+
+
+</COCONFIG>

@@ -1,0 +1,191 @@
+License
+{
+SERVER 8323328 5.4 13.05.2006 0 QSWBBBS
+STD_UI 8323328 5.4 13.05.2006 0 WCAMWCU
+VR_ONE_PIPE 8323328 5.4 13.05.2006 0 OWSAUOA
+VR_MULTI_ANY 8323328 5.4 13.05.2006 0 ECUPZLM
+
+SERVER 001185ae8ebd 5.4 17.05.2006 0 IAEESCK vishp/HP XW9300
+STD_UI 001185ae8ebd 5.4 17.05.2006 0 YEKRXNY vishp/HP XW9300
+VR_ONE_PIPE 001185ae8ebd 5.4 17.05.2006 0 UQENHZQ vishp/HP XW9300
+VR_MULTI_ANY 001185ae8ebd 5.4 17.05.2006 0 OGYQUQE vishp/HP XW9300
+
+
+}
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	#0	FRONT       	0       	0 0 		800 600
+       	0	FRONT0       	1       	0 0 		1400 1050 false 0xc9
+       	#1	FRONT1      	1       	0 0 		1024 768 #false 0xc9
+}
+
+ChannelConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT0       	0       	0 0 		1400 1050
+       	#0	FRONT0       	1       	1024 0 		1024 768
+       	#0	FRONT1       	0       	1024 0 		1024 768
+       	#1	FRONT1       	0       	0 0 		1024 768
+}
+
+
+PipeConfig
+{
+#	SoftPipe	HardPipe	Display
+				
+      	0		0		:0.0
+      	1		0		:0.0
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+
+	0		FRONT0		2400 1900		-1800 -1500 0			90.0 0.0 0.0
+	1		FRONT0		2400 1900		-1800 -1500 0			90.0 0.0 0.0
+        #1               FRONT0           400 300         0 0 0                    0.0 0.0 0.0
+        #0               FRONT0           400 300         0 0 0                    0.0 0.0 0.0
+
+	
+}
+
+
+COVERConfig
+{
+        #MODULE Demo
+
+   MULTITHREAD off
+      NUM_SCREENS 1
+      NUM_PIPES 1
+      NUM_WINDOWS 1
+
+      STEREO on
+      STEREO_MODE QUAD_BUFFER
+      STEREO_SEP on
+      STEREO_COMMAND /bin/true
+      MONO_COMMAND /bin/true
+
+      TRACKING_SYSTEM VRC
+#DEBUG_LEVEL 5
+      DEBUG_LEVEL 2
+
+      SCENESIZE          1500
+      floorHeight -1250
+      stepSize    400
+      VIEWER_POSITION     0 -1500 320
+
+      MENU_POSITION 800 0 500
+
+      ANIM_SPEED          0.0 25.0 5.0
+
+
+#COORD_AXIS on
+#FREEZE on
+}
+
+#FobConfig
+#{
+#    SERIAL_PORT                         /dev/ttyS0
+#    BAUDRATE                            19200
+#    #HEMISPHERE                          <FRONT REAR LEFT RIGHT UPPER LOWER>
+#    #FULLRANGE                           <ON OFF>
+#    STREAM_MODE                         ON
+#}
+
+#TrackerConfig
+#{
+#
+#	DEBUG_TRACKING RAW
+#}
+
+TrackerConfig
+{
+
+    HEAD_ADDR                   1
+    HAND_ADDR                   2
+    BUTTON_ADDR                 2
+    #HEAD_ADDR                   1
+    #BUTTON_ADDR                 1
+
+
+        #TRANSMITTER_OFFSET                     -138 -95 20
+        #TRANSMITTER_ORIENTATION                180 0 180
+        #TRANSMITTER_ORIENTATION                90 0 180
+        #TRANSMITTER_OFFSET              0 10 -100
+        #TRANSMITTER_OFFSET              +80 -230 -30
+        #TRANSMITTER_OFFSET               4 -47 -95
+        TRANSMITTER_OFFSET               -120 -110 13
+        TRANSMITTER_ORIENTATION                90 0 180
+
+        #TRANSMITTER_OFFSET              0 -1200 -1300
+        #TRANSMITTER_OFFSET              0 0 1300
+        #TRANSMITTER_OFFSET              15 -104 -93
+        #TRANSMITTER_ORIENTATION         90 0 180
+        #TRANSMITTER_ORIENTATION         180 0 90
+
+    #HEADSENSOR_OFFSET           5 0 10
+    #HEADSENSOR_ORIENTATION      -90 0 -90
+    #HEADSENSOR_OFFSET           0 0 0
+    #HEADSENSOR_ORIENTATION                  180 0 180
+
+    #HANDSENSOR_OFFSET                       0 0 0
+    #HANDSENSOR_ORIENTATION                  180 0 180
+    #HANDSENSOR_ORIENTATION             -90 0 90
+    #HANDSENSOR_ORIENTATION              -90 0 90
+    #HANDSENSOR_ORIENTATION              180 180 180
+
+    HEADSENSOR_OFFSET                       10 0 0
+    HEADSENSOR_ORIENTATION                  -90 0 -90
+    HANDSENSOR_OFFSET                       0  0 0
+    HANDSENSOR_ORIENTATION                  90 0 0
+
+
+   #DEBUG_TRACKING              APP
+   #DEBUG_TRACKING              RAW
+   #DEBUG_TRACKING              APP
+   DEBUG_STATION               2
+
+   NUM_STATIONS                 2
+
+}
+
+FobConfig
+{
+    SERIAL_PORT                         /dev/ttyS0
+    #BAUDRATE                            38400
+    BAUDRATE                            19200
+    #HEMISPHERE                          <FRONT REAR LEFT RIGHT UPPER LOWER>
+    #HEMISPHERE                        LOWER
+    HEMISPHERE                        UPPER
+    FULLRANGE                           ON
+    STREAM_MODE                         ON
+    #STREAM_MODE                         <ON OFF>
+}
+
+VRCTracker
+{
+	DebugLevel 1
+}
+
+TFE
+{
+MenuSize 1.0
+}
+
+
+SimianTFE
+{
+MenuSize 1.0
+}
+
+VRDemos
+{
+  Path /home/vis/covise/net 
+}
+
+
+
+
+include "config/covise.config.koeln"

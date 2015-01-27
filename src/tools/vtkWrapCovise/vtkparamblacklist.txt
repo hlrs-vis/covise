@@ -1,0 +1,8 @@
+AbortExecute
+ErrorCode
+Header
+OutputString
+OutputStringLength
+WriteToOutputString
+Progress
+ProgressText

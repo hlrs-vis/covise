@@ -1,0 +1,197 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+3
+# Module RWCovise
+RWCovise
+1
+LOCAL
+IO_Module
+RW:airbag
+34
+34
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/airbag.covise
+
+2
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+34
+102
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+34
+170
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+2
+RWCovise
+1
+LOCAL
+mesh
+
+Collect
+1
+LOCAL
+GridIn0
+Collect
+1
+LOCAL
+GeometryOut0
+
+Renderer
+1
+LOCAL
+RenderData
+0

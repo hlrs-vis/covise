@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<blobconfig distanceThreshold="250" minDimension="2" maxDimension="250" ghostFrames="0" minDisplacementThreshold="1.500000" />
+<bbox ulX="0.000000" ulY="0.000000" lrX="1.000000" lrY="1.000000" />
+<screen>
+    <point X="0.000000" Y="0.000000" />
+    <point X="160.000000" Y="0.000000" />
+    <point X="320.000000" Y="0.000000" />
+    <point X="480.000000" Y="0.000000" />
+    <point X="640.000000" Y="0.000000" />
+    <point X="0.000000" Y="160.000000" />
+    <point X="160.000000" Y="160.000000" />
+    <point X="320.000000" Y="160.000000" />
+    <point X="480.000000" Y="160.000000" />
+    <point X="640.000000" Y="160.000000" />
+    <point X="0.000000" Y="320.000000" />
+    <point X="160.000000" Y="320.000000" />
+    <point X="320.000000" Y="320.000000" />
+    <point X="480.000000" Y="320.000000" />
+    <point X="640.000000" Y="320.000000" />
+    <point X="0.000000" Y="480.000000" />
+    <point X="160.000000" Y="480.000000" />
+    <point X="320.000000" Y="480.000000" />
+    <point X="480.000000" Y="480.000000" />
+    <point X="640.000000" Y="480.000000" />
+</screen>
+<filtergraph>
+    <dsvlcapture label="dsvlcapture0" />
+    <mono label="mono1" />
+    <invert label="invert2" />
+    <backgroundremove label="backgroundremove3">
+        <threshold value="102" />
+    </backgroundremove>
+    <simplehighpass label="simplehighpass4">
+        <blur value="23" />
+        <noise value="6" />
+        <noiseMethod value="1" />
+    </simplehighpass>
+    <scaler label="scaler5">
+        <level value="44" />
+    </scaler>
+    <rectify label="rectify6">
+        <level value="196" />
+    </rectify>
+</filtergraph>

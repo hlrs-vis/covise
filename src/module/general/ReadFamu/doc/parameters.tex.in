@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline MeshFileName & Browser & dummy\\ \hline ResultFileName & Browser & dummy\\ \hline Subdivide elements & Boolean & Subdivide Tetra10 and Hex20 elements\\ \hline Displacements x 1000 & Boolean & Multiplies displacements with 1000\\ \hline Symmetry rot. angle (deg) & FloatScalar & Symmetry angle for periodic rotations\\ \hline Original symm. steps & IntScalar & number of original time steps computed when periodic rot. is used.\\ \hline No. of time steps to read & IntScalar & Number of time steps to read\\ \hline No. of time steps to skip & IntScalar & Number of time steps to skip\\ \hline Collectors to load & String & Collectors to load\\
+\hline \end{longtable}
+

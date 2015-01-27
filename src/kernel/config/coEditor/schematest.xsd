@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:element name="COCONFIG">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "CoConfig element"</xs:appinfo >
+         <xs:appinfo>elementGroup="COCONFIG" </xs:appinfo >
+         <xs:appinfo>elementName = "COCONFIG"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "This is the Root of the config file"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="LOCAL" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="GLOBAL" minOccurs="0" maxOccurs="unbounded"/>
+           </xs:sequence>
+           <xs:attribute name="version" type="token" use="optional" />
+           <xs:attribute name="global" type="boolean" use="optional" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="GLOBAL">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "GLOBAL Element, not much to say"</xs:appinfo >
+         <xs:appinfo>elementGroup="COCONFIG" </xs:appinfo >
+         <xs:appinfo>elementName = "GLOBAL"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "holds everything that is defiened for all hosts"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+ <!--        <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+            <xs:element ref="VRViewpointPlugin" />
+            <xs:element ref="Schorsch" />
+            <xs:element ref="SERVER" />
+         </xs:sequence>
+ -->
+         <xs:attribute name="configname" type="token" use="optional" />
+         <xs:attribute name="global" type="boolean" use="optional" />
+         <xs:attribute name="scope" type="token" use="optional" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="LOCAL">
+      <xs:annotation>
+         <xs:appinfo>elementDescription="LOCAL Element, defined for some hosts only" </xs:appinfo >
+         <xs:appinfo>elementPath = " "</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+            <!--            <xs:element ref="VRViewpointPlugin" /> -->
+            <xs:element ref="COVER"  />
+         </xs:sequence>
+         <xs:attribute name="host" type="token" use="optional" />
+        </xs:complexType>
+     </xs:element>
+
+   <xs:element name="VRViewpointPlugin">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "VRViewpointPlugin, Plugins are added here "</xs:appinfo >
+         <xs:appinfo>elementGroup="VRViewpointPlugin" </xs:appinfo >
+         <xs:appinfo>elementName = "VRML View Point Plugin"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "only Children allowed"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="WriteVrmlViewpoint" />
+            <xs:element ref="SERVER" />
+            <xs:element ref="Schorsch" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="WriteVrmlViewpoint">
+      <xs:annotation>
+         <xs:appinfo>elementGroup="COVER.VRViewpointPlugin" </xs:appinfo >
+          <xs:appinfo>elementDescription = "WriteVrmlViewpoint, this is one Plugin "</xs:appinfo >
+          <xs:appinfo>elementName = " VRML View Point "</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="name" type="token" use="optional" />
+         <xs:attribute name="value" type="token" use="required" />
+         <xs:attribute name="friday" type="boolean"  />
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="COVER">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "Cover section"</xs:appinfo >
+         <xs:appinfo>elementGroup="COVER" </xs:appinfo >
+         <xs:appinfo>elementName = "Cover"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>  
+         <xs:sequence>
+            <xs:element ref="Plugin"/>
+            <!--      <xs:element ref="TabletPC"/> -->
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="Plugin">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>elementGroup="" </xs:appinfo >
+         <xs:appinfo>elementName = "Name"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>     <xs:complexType>  
+         <xs:sequence>
+            <!--          <xs:element ref="NumSlaves" />
+            <xs:element ref="Host" />
+            <xs:element ref="Command" />      
+            <xs:element ref="VRViewpoints"/>   -->
+            <xs:element ref="AKToolbar"/>
+            <!--          <xs:element ref="CCDBVR"/> -->
+            <xs:element ref="PDBSequenceDisplay"/>
+         </xs:sequence>
+      </xs:complexType>
+  </xs:element>
+
+   <xs:element name="NumSlaves">
+      <xs:annotation>
+         <xs:appinfo>elementGroup="COVER.nichtMultiPC" </xs:appinfo>
+         <xs:appinfo>elementDescription ="numslaver descp "</xs:appinfo>
+         <xs:appinfo>elementName = " Number of Slaves"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "read rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="name" type="token" use="optional" />
+         <xs:attribute name="value" type="token" use="optional"/>
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="Host">
+      <xs:annotation>
+         <xs:appinfo>elementGroup="COVER.nichtMultiPC" </xs:appinfo>
+         <xs:appinfo>elementDescription ="host descp "</xs:appinfo>
+         <xs:appinfo>elementName = "host "</xs:appinfo>
+         <xs:appinfo>readableElementRule = "read rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="value" type="token" use="optional"  />
+         <xs:attribute name="name" type="token" use="optional"  />
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="Command">
+      <xs:annotation>
+         <xs:appinfo>elementGroup="COVER.nichtMultiPC" </xs:appinfo>
+         <xs:appinfo>elementDescription ="Command descp "</xs:appinfo>
+         <xs:appinfo>elementName = "Command "</xs:appinfo>
+         <xs:appinfo>readableElementRule = "read rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="value" type="token" use="optional"  />
+         <xs:attribute name="name" type="token" use="optional"  />
+      </xs:complexType>
+   </xs:element>
+   
+   <xs:element name="Schorsch">
+      <xs:annotation>
+         <xs:appinfo>elementGroup="COVER.VRViewpointPlugin" </xs:appinfo>
+         <xs:appinfo>elementDescription ="Der Schorsch ist ganz speziell, er ist der einzige nicht englische hier "</xs:appinfo>
+         <xs:appinfo>elementName = " Schorsch Egon"</xs:appinfo>
+         <xs:appinfo>readableElementRule = "only Children allowed"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="name" type="token" use="optional" />
+         <xs:attribute name="value" type="iptype" use="optional" default="8.8.8.8" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="SERVER">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "My little Server element  "</xs:appinfo >
+         <xs:appinfo>elementGroup="VRML.gruppe"</xs:appinfo>
+         <xs:appinfo>elementName = "Server" </xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="value" type="iptype" use="required" />
+         <xs:attribute name="host" type="token" use="optional" />
+         <xs:attribute name="name" type="token" use="optional" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="AKToolbar">
+      <xs:annotation>
+         <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+         <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>  
+         <xs:sequence maxOccurs="unbounded" >
+            <xs:element  ref="ShortCut"/>
+            <xs:element name="Scale" type="scaleType" >
+               <xs:annotation>
+                  <xs:appinfo>elementName = "Scale YYYYYYYYYAK"</xs:appinfo>
+                  <xs:appinfo>elementGroup="Cover.Plugin.AKToolbar" </xs:appinfo >
+                  <xs:appinfo>elementDescription = "Scale Element"</xs:appinfo >
+               </xs:annotation> 
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="PDBSequenceDisplay" >
+     <xs:annotation>
+        <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+        <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+     </xs:annotation> 
+     <xs:complexType>
+        <xs:sequence>
+           <xs:element name="Scale" type="scaleType" >
+              <xs:annotation>
+                 <xs:appinfo>elementName = "Scale PDB"</xs:appinfo>
+                 <xs:appinfo>elementGroup="Cover.Plugin.PDBSequenceDisplay" </xs:appinfo >
+                 <xs:appinfo>elementDescription = "Scale Element"</xs:appinfo >
+              </xs:annotation> 
+           </xs:element>
+        </xs:sequence>
+     </xs:complexType>
+ </xs:element>
+  
+  
+  <xs:complexType name="integerValue">
+     <xs:attribute name="value" use="optional" type="integer"/>
+  </xs:complexType>
+  
+  <xs:complexType name="scaleType">
+     <xs:attribute name="value" use="optional" type="integer"/>
+  </xs:complexType>
+  
+  <xs:element name="ScaleBase" type="integerValue">
+     <xs:annotation>
+        <xs:appinfo>elementGroup="ScaleBase"</xs:appinfo >
+        <xs:appinfo>elementDescription = "Scale Element"</xs:appinfo >
+        <xs:appinfo>elementName = "Scale Base"</xs:appinfo>
+        <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+     </xs:annotation> 
+  </xs:element>
+   
+  <xs:element name="ShortCut">
+     <xs:annotation>
+        <xs:appinfo>elementDescription = "Element"</xs:appinfo >
+        <xs:appinfo>elementGroup = "Cover.Plugin.AKToolbar" </xs:appinfo >
+        <xs:appinfo>elementName = "ShortCut"</xs:appinfo>
+        <xs:appinfo>readableElementRule = "readable Rule"</xs:appinfo>
+     </xs:annotation>
+     <xs:complexType>
+        <xs:attribute name="name" use="optional" type="token"/>
+        <xs:attribute name="value" use="required" type="token"/>
+     </xs:complexType>
+  </xs:element>
+  
+   <xs:simpleType name="iptype">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "Facet is IP. allowed Range: 000.000.000.000 to 254.254.254.254" </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="((1?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])" />
+      </xs:restriction>
+   </xs:simpleType>
+   
+   <xs:simpleType name="token">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "mein token Bereich ein Wort"</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="\b\w*" />
+      </xs:restriction>
+   </xs:simpleType>
+   
+   <xs:simpleType name="boolean">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "boolean value</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="(true|false|on|off|1|0)" />
+      </xs:restriction>
+   </xs:simpleType>
+   
+   <xs:simpleType name="integer">
+      <xs:annotation>
+         <xs:appinfo>attributeTypeInfo = "a integer value"</xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="\b\w*" />
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

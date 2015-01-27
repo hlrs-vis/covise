@@ -1,0 +1,21 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+                {boundingbox_net}{covise/net/examples/ReadStar\_CuttingSurface.net}{0.6}\end{covimg}
+
+In this map the user receives a message information of the grid
+constructed by the ReadStar reader as shown below (output port not used in this
+example).
+
+\begin{covimg2}{}{boundingbox_out}{0.65}\end{covimg2}
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+<ParaViewWriters>
+
+  <Writer name="WriteUnstructured"
+          extensions="unst"
+          file_description="Unstructured Files">
+  </Writer>
+
+</ParaViewWriters>

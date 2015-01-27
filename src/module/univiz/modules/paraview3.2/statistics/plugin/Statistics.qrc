@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/ParaViewResources" >
+    <file>../Statistics_Client.xml</file>
+  </qresource>
+</RCC>

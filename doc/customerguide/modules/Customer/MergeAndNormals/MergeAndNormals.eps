@@ -1,0 +1,221 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Title: /home/clearcase/covise/viewstore/peter_snap.vws/vobs/covise/doc/customerguide/modules/Customer/MergeAndNormals/MergeAndNormals.eps
+%%Creator: XV Version 3.10a  Rev: 12/29/94 (PNG patch 1.2)  -  by John Bradley
+%%BoundingBox: 234 396 362 445
+%%Pages: 1
+%%DocumentFonts:
+%%EndComments
+%%EndProlog
+
+%%Page: 1 1
+
+% remember original state
+/origstate save def
+
+% build a temporary dictionary
+20 dict begin
+
+% define space for color conversions
+/grays 128 string def  % space for gray scale line
+/npixls 0 def
+/rgbindx 0 def
+
+% lower left corner
+234 396 translate
+
+% size of image (on paper, in 1/72inch coords)
+128.01600 49.03200 scale
+
+% define 'colorimage' if it isn't defined
+%   ('colortogray' and 'mergeprocs' come from xwd2ps
+%     via xgrab)
+/colorimage where   % do we know about 'colorimage'?
+  { pop }           % yes: pop off the 'dict' returned
+  {                 % no:  define one
+    /colortogray {  % define an RGB->I function
+      /rgbdata exch store    % call input 'rgbdata'
+      rgbdata length 3 idiv
+      /npixls exch store
+      /rgbindx 0 store
+      0 1 npixls 1 sub {
+        grays exch
+        rgbdata rgbindx       get 20 mul    % Red
+        rgbdata rgbindx 1 add get 32 mul    % Green
+        rgbdata rgbindx 2 add get 12 mul    % Blue
+        add add 64 idiv      % I = .5G + .31R + .18B
+        put
+        /rgbindx rgbindx 3 add store
+      } for
+      grays 0 npixls getinterval
+    } bind def
+
+    % Utility procedure for colorimage operator.
+    % This procedure takes two procedures off the
+    % stack and merges them into a single procedure.
+
+    /mergeprocs { % def
+      dup length
+      3 -1 roll
+      dup
+      length
+      dup
+      5 1 roll
+      3 -1 roll
+      add
+      array cvx
+      dup
+      3 -1 roll
+      0 exch
+      putinterval
+      dup
+      4 2 roll
+      putinterval
+    } bind def
+
+    /colorimage { % def
+      pop pop     % remove 'false 3' operands
+      {colortogray} mergeprocs
+      image
+    } bind def
+  } ifelse          % end of 'false' case
+
+
+
+% define the colormap
+/cmap 54 string def
+
+
+% load up the colormap
+currentfile cmap readhexstring
+000073 0000ff 006300 212121 420063 4a944a 637b84 73737b 7bb57b 8484ff 
+9400d6 949494 addee7 ce3131 ce8cef dedede deeff7 ffffff 
+pop pop   % lose return values from readhexstring
+
+
+% rlecmapimage expects to have 'w h bits matrix' on stack
+/rlecmapimage {
+  /buffer 1 string def
+  /rgbval 3 string def
+  /block  384 string def
+
+  % proc to read a block from file, and return RGB data
+  { currentfile buffer readhexstring pop
+    /bcount exch 0 get store
+    bcount 128 ge
+    {  % it's a non-run block
+      0 1 bcount 128 sub
+      { currentfile buffer readhexstring pop pop
+
+        % look up value in color map
+        /rgbval cmap buffer 0 get 3 mul 3 getinterval store
+
+        % and put it in position i*3 in block
+        block exch 3 mul rgbval putinterval
+      } for
+      block  0  bcount 127 sub 3 mul  getinterval
+    }
+
+    { % else it's a run block
+      currentfile buffer readhexstring pop pop
+
+      % look up value in colormap
+      /rgbval cmap buffer 0 get 3 mul 3 getinterval store
+
+      0 1 bcount { block exch 3 mul rgbval putinterval } for
+
+      block 0 bcount 1 add 3 mul getinterval
+    } ifelse
+  } % end of proc
+  false 3 colorimage
+} bind def
+
+
+128 49 8			% dimensions of data
+[128 0 0 -49 0 49]		% mapping matrix
+rlecmapimage
+
+7f10
+7e0c0006
+7e0c0006
+010c050e030c0508030c050e620c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e0a020a81040c020c810802020281050c020c810e0a020a81040c610c0006
+010c810e040304030c8108050305030c810e040304620c0006
+7e0c0006
+7e0c0006
+7e0c0006
+7e0c0006
+750c010d060c0006
+730c040d050c0006
+010c0103040c0103180c02030b0c0103810c0381030c010c0103190c01030e0c0103070c
+070d040c0006
+010c0203020c0203180c02030b0c0103810c030103010c0103190c01030c0c0303050c01
+0b080d030c0006
+010c0203020c0203010c0203010c82030c0382030c0383030c030c810c030103020c0103
+810c0381030c830c030c0381030c010c0303810c030103010c0103010c0203010c82030c
+030103810c0382030c0381030c010c0203010c0103010c0203090c0103060c010b080d02
+0c0006
+010c0303810c030203810c0382030c0382030c030103810c0382030c0382030c0382030c
+0381030c810c0382030c0381030c810c0382030c0382030c0382030c0382030c0384030c
+030c0382030c0382030c0382030c030103810c0382030c0382030c0383030c030c810c03
+82030c0382030c0382030c0381030c070c0103050c820d0c0b810b0d070d010c0006
+010c0103850c030c030c0382030c030303810c0381030c820c030c810c0382030c030303
+010c0103810c0381030c810c0382030c0383030c030c810c0382030c0384030c030c0382
+030c0382030c0382030c0381030c810c0382030c0382030c0381030c810c030203810c03
+81030c810c030103090c0103050c010d810c0b810b0d040d030c0006
+010c0103810c030103810c0382030c0381030c020c0103010c81030c810c0382030c0381
+030c020c0603810c0382030c0383030c030c810c0382030c0381030c810c030103810c03
+82030c0382030c0381030c810c0382030c0382030c0382030c0382030c0382030c038103
+0c020c0103080c0103060c010d810c0b810b0d010d010c8211070c810c06
+010c0103010c81030c810c0382030c0382030c0382030c0381030c810c0382030c038203
+0c0382030c0382030c0381030c010c0103810c0382030c0382030c0382030c0382030c03
+81030c810c030103810c0382030c0382030c0381030c810c0382030c0382030c0382030c
+0382030c0382030c0382030c0382030c0381030c070c0103070c010d810c0b810b0c810c
+1181110781070c810c06
+010c0103010c81030c810c0381030c810c030103010c0103020c0303010c0203010c0103
+020c0103810c0382030c0381030c810c030203810c0381030c010c0103010c0203010c01
+03010c0103810c0382030c0381030c810c0382030c030203010c0203090c0103080c010d
+010c01110107030c0006
+180c0103580c830d0c110781070c040c0006
+160c0203450c0503090c0c0f010c0006
+7e0c0006
+7e0c0006
+7e0c0006
+7e0c0006
+010c0509030c05096c0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c810901020181000c020c810901020181000c6b0c0006
+010c8109000300030c81090003006c0c0006
+7e0c0006
+7e0c0006
+
+%
+% Compression made this file 8.69% of the uncompressed size.
+%
+
+
+showpage
+
+% stop using temporary dictionary
+end
+
+% restore original state
+origstate restore
+
+%%Trailer

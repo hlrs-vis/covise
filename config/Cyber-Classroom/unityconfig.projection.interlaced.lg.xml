@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<UnityVRConfig xmlns:xi="http://www.w3.org/2003/XInclude">
+    <StereoModeButton value="false" />
+    <Stereo stereoOn="true" separation="-0.03" stereoMode="Interlaced"/>
+    <HeadPoint x="0" y="0" z="0" />
+    <WindowConfig width="1920" height="1080" left="0" top="0" decoration="false" fullscreen="false"/>
+    <ScreenConfig>
+        <Screen name="Main" originX="0" originY="0" originZ="2.0" width="3.33" height="1.875" h="0.0" p="0.0" r="0.0" screenLeft="0.0" screenTop="0.0" screenWidth="1.0" screenHeight="1.0"/>
+    </ScreenConfig>
+</UnityVRConfig>

@@ -1,0 +1,185 @@
+\section{News}
+\label{sec:news}
+
+\begin{itemize}
+
+\item
+  2008-09-02:
+  \begin{itemize}
+  \item
+    ParaView 3.3: some problems with the ``Vortex Cores'', ``Ridge Surface'', ``FLE'', and ``Vortex Criteria'' modules on 64-bit systems have been fixed.
+  \item
+    ParaView: please note that using the ``Dump CFX'' module can interfere with other CFX readers (in current ParaView versions it seems to be impossible to have more than one reader for the same data type, although they appear in the list). Possible solutions are: disabling ``Dump CFX'' during cmake configuration and compilation, or an alternative PV\_PLUGIN\_PATH to a directory not containing ``Dump CFX''.
+  \end{itemize}
+
+\item
+  2008-04-24:
+  \begin{itemize}
+  \item
+    New module: DumpCFX: extract time dependent velocity data from CFX result files. The module generates the files needed for efficient path line integration (exploiting temporal coherence) using mmap(), as done by the FLE module.
+  \item
+    Support of unsteady data has moved from experimental to productive state.
+  \item
+    For supporting data not available in CFX format, please see the stand-alone program mentioned in the ``Dump CFX'' module and the ``Write Dump'' module.
+  \end{itemize}
+
+\item
+  2008-04-17:
+  \begin{itemize}
+  \item
+    Now supporting ParaView $\geq$ 3.3 (located in the paraview/ directory). Code for ParaView 3.0 to 3.2 is located in the paraview3.2/ directory. It is recommended to use ParaView3.3 (the CVS version) or larger, since it supports tooltips (pop-up help boxes that appear when the mouse is placed over a parameter).
+  \item
+    ParaView: all modules now test type of input data. No "Extract Datasets" necessary anymore for processing FLE (or any MultiBlock) output.
+  \end{itemize}
+
+\item
+  2008-04-16:
+  \begin{itemize}
+  \item
+    New modules: ReadUnstructured and WriteUnstructured: read and write unstructured data in Unstructured format. Use these for exchanging (converting) data between the visualization systems, e.g. for making use of the readers for different file formats available in the systems.
+  \item
+    ParaView: now supporting ParaView3. ParaView3 modules are in the paraview/ directory, ParaView2 modules are located in the paraview2/ directory.
+  \item
+    ParaView3: plugins went from pv3-plugins/ to paraview/plugins/.
+  \item
+    ParaView3: partial Win32 support.
+  \item
+    RidgeSurface: added spatial clipping (actually AVS version only). This can help to get rid of ridge regions by separating them using clipping and then removing them using connected component filtering (triangle count).
+  \item
+    Added support for rotating zones (experimental).
+  \end{itemize}
+
+\item
+  2007-08-24:
+  \begin{itemize}
+  \item
+    New module: Statistics, computes statistics of node data.
+  \item
+    ParaView: solved problem with non-sequential node coordinate arrays, as e.g. sometimes produced by the CFX reader.
+  \item
+    ParaView: now explictly warning in the case of unsupported cell types, such as polylines.
+  \item
+    VortexCriteria module: now computing absolute value of helicity variants instead of signed values.
+  \end{itemize}
+
+\item
+  2007-08-16:
+  \begin{itemize}
+  \item
+    Paraview: Fixed gradient computation bug at nodes belonging to non-3D (unsupported) cells. TODO: also skip non-3D cells in AVS and Covise versions, or support 2D cells in all versions.
+  \item
+    Fixed problem in vortex cores module with multi-set data.
+  \item
+    Forcing symmetric matrices, this avoids complex eigenvalues/eigenvectors due to numerics.
+  \end{itemize}
+
+\item
+  2007-08-15:
+  \begin{itemize}
+  \item
+    Added support for tensor line integration to Unstructured library.
+  \item
+    Added preliminary support for analytic fields to Unstructured library.
+  \end{itemize}
+
+\item
+  2007-06-13:
+  \begin{itemize}
+  \item
+    module ``ridge surfaces'' released. It extracts ridge surfaces, e.g. used for extracting LCS (Lagrangian coherent structures) from FTLE. It supports hexahedral cells (tested) and may also support tetrahedral cells (untested). Other cell types are not supported.
+  \item
+  \item
+    ``FLE'' module:
+    \begin{itemize}
+    \item
+      steady versions of FTLE, FLLE, and FSLE are verified.
+    \end{itemize}
+    Covise: added min/max functionality for parameters to all modules.
+  \item
+    ``vortex cores'': adapted min/max parameter limits.
+  \item
+    AVS: one makefile for all modules.
+  \item
+    Covise: one makefile for all modules.
+  \item
+    Paraview:
+    \begin{itemize}
+    \item
+      one makefile for all modules in ``shared'' compilation mode.
+    \item
+      please keep in mind that ParaView 3.x is not yet supported.
+    \end{itemize}
+  \end{itemize}
+
+\item
+  2007-06-07:
+  \begin{itemize}
+  \item
+    preliminary release of finite Lyapunov exponent (FLE) module.\\
+    restrictions:
+    \begin{itemize}
+    \item
+      no support for transient data
+    \item
+      only FTLE verified, other FLE variants are untested
+    \item
+      Paraview: no disabling of dependent parameters, output is multi-block (extract output using ``Extract Datasets'' filter)
+    \end{itemize}
+
+  \item
+    module ``field to lines'' released, converting trajectory line field generated by e.g. FLE module to polylines, with subsampling functionality.
+  \end{itemize}
+
+\item
+  2007-05-29: Paraview: ignore ETHUnified when integrating with CSCS modules. Follow instructions in README.txt instead.
+
+\item
+  2007-05-25: TAR distribution available.
+
+\item
+  2007-05-24:
+  \begin{itemize}
+  \item
+  Paraview: ``internal'' and ``external'' compilation methods supported for Paraview 2.4 and Paraview 2.6, see README.txt for details.
+  \item
+  Paraview: entering -DVTK inside cmake is not needed anymore, it is set inside CMakeLists.txt.
+  \end{itemize}
+
+\item
+  2007-05-23:
+  \begin{itemize}
+  \item
+    Paraview: all modules are now passing (resampling) input point data to output, as a work-around for ``input to output passing requirement''-bug of Paraview 2.6. TODO: report the bug to Kitware.
+  \item
+    Paraview: now supporting Paraview 2.6. See README.txt for support of Paraview 2.4 (need to use appropriate version of PVLocal.pvsm.in).
+  \end{itemize}
+
+\item
+  2007-05-22:
+  \begin{itemize}
+  \item
+    Covise: modules now support time series as produced by e.g. ReadCFX.
+  \item
+    Covise: modules category renamed from ``Filip'' to ``Univiz''.
+  \item
+    Paraview: reported ``multiple input'' bug to Kitware.
+  \end{itemize}
+
+\item
+  2007-05-14:
+  \begin{itemize}
+  \item
+    Paraview: now describing how to turn on code optimization.
+  \item
+    ``vortex criteria'': better progress metering.
+  \end{itemize}
+
+\item
+  2007-05-11: module ``vortex criteria'' released. Covise and Paraview versions still need to compute velocity gradient at each execution, even if input data has not changed (a ``nice to have''-feature in Covise and Paraview).
+
+\item
+  2007-05-07: moved everything to a single Subversion repository.
+
+\end{itemize}
+
+More detailed information is available by the ``svn log'' command.

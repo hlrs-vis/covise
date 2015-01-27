@@ -1,0 +1,89 @@
+#--------------------------------------------------------------------------------
+#-- Covise 5.3 Configuration File 
+#-- for RUS Workbench
+#-- active stereo with 1 pipe
+#-- Polhemus FASTRAK with stylus
+#--------------------------------------------------------------------------------
+
+
+#-- General settings -------------------------------------------------------------
+
+
+HostConfig
+{
+#-- Hostname    Shared Memory       execution mode		        timeout in seconds
+#--            (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+    visky		    shm		            rexec				        30
+}
+
+
+
+
+#--- INSERT covise.config.base HERE -------------------------------------------
+
+<covise.config.base>
+
+
+// vision -----------------------------------------------------------------------
+
+COVERConfig: visky
+{       
+    STEREO ON
+    NUM_PIPES                   1
+    PIPE_LOCKING                CHANNEL
+    NUM_WINDOWS			        1
+    NUM_SCREENS                 1
+    MENU_POSITION               1300 -500 500
+    MENU_ORIENTATION            -90 0 0
+    MENU_SIZE                   1
+    SCENESIZE                   1400
+    TRACKING_SYSTEM             POLHEMUS
+    SCENESIZE		            2500
+    FREEZE                      OFF
+    floorHeight                 -1250
+    stepSize                    400
+    DEBUG_LEVEL                 1
+    WELCOME_MESSAGE             Welcome to the CUBE
+
+}
+
+PipeConfig: visky
+{
+#-- PipeIndex   HardPipe    Display				
+    0           0		    :0.0
+}
+
+WindowConfig: visky
+{
+#   WinNo   WinName     SoftPipeNo  Origin[pixel]   Size [pixel]
+    0       FRONT       0               1024 0              1024 768
+}
+
+ScreenConfig: visky
+{
+#   ScreenNo    ScreenName  ScreenSize[mm]  ScreenCenter[mm]    ScreenOrient hpr [degrees]
+    0           FRONT       1700 1270       0 0 0               -10.0 -30.0 0.0
+}
+
+TrackerConfig: vision
+{
+    INTERPOLATION_FILE              calib_23apr99_posit.data
+    INTERPOLATION_FILE_X            calib_23apr99_ori_x.data
+    INTERPOLATION_FILE_Y            calib_23apr99_ori_y.data
+    INTERPOLATION_FILE_Z            calib_23apr99_ori_z.data
+    HAND_ADDR                       0
+    HEAD_ADDR                       1
+    TRANSMITTER_OFFSET              0 -165 -61
+    TRANSMITTER_ORIENTATION         -90 0 180
+    HEADSENSOR_OFFSET               6 0 8
+    HEADSENSOR_ORIENTATION          -90 0 -90
+    HANDSENSOR_OFFSET               0 0 0
+    HANDSENSOR_ORIENTATION          90 0 0
+}
+
+PolhemusConfig: visky
+{
+    SERIAL_PORT             /dev/ttyd2
+    BAUDRATE                19200
+    HEMISPHERE              0 0 -1
+}

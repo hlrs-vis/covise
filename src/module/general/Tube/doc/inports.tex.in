@@ -1,0 +1,27 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{lines} & Lines & Lines \\
+\hline
+	\textcolor{optional}{Data} & Float  \newline
+	                             Float & Data to be mapped on the tubes\\
+\hline
+	\textcolor{optional}{Diameter} & Float & Beam diameter either per Point or Line, scaled by the radius parameter\\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

@@ -1,0 +1,780 @@
+1
+LOCAL
+LUSER
+9
+Sphere
+1
+LOCAL
+Tools
+TITLE=Sphere_1
+176
+308
+3
+points
+Points|UnstructuredGrid|StructuredGrid
+the points to be transformed into spheres
+req
+none
+data
+Float|Vec3
+data to be multiplied with parameter radius
+opt
+none
+colors_in
+Float|RGBA_Data|Vec3
+data to be mapped onto the spheres
+opt
+none
+3
+spheres
+TriangleStrips|Polygons|Spheres
+the spheres
+default
+Sphere_1_OUT_0_
+dataOut
+Float|RGBA_Data
+data mapped onto spheres
+default
+Sphere_1_OUT_1_
+normals
+Vec3
+normals for the spheres
+default
+Sphere_1_OUT_2_
+3
+radius
+FloatScalar
+radius of the spheres if no scalar data is given
+0.02
+IMM
+-1
+scale
+FloatScalar
+Scale factor to apply on the data
+0.01
+IMM
+-1
+render_method
+Choice
+Render method for Spheres rendering
+1 Polygons ManualCPUBillboards ARBPointSprites CGVertexShader
+IMM
+-1
+0
+FixUsg
+1
+LOCAL
+Tools
+TITLE=FixUsg_1
+176
+198
+6
+usg_in
+UnstructuredGrid|Polygons|Lines
+Unstructured Grid or Polygons
+req
+none
+data_00_in
+Float|Vec3
+data
+req
+none
+data_01_in
+Float|Vec3
+data
+opt
+none
+data_02_in
+Float|Vec3
+data
+opt
+none
+data_03_in
+Float|Vec3
+data
+opt
+none
+data_04_in
+Float|Vec3
+data
+opt
+none
+6
+usg_out
+UnstructuredGrid|Polygons|Lines
+filtered USG or Polygons
+default
+FixUsg_1_OUT_0_
+data_00_out
+Float|Vec3
+data
+dep data_00_in
+FixUsg_1_OUT_1_
+data_01_out
+Float|Vec3
+data
+dep data_01_in
+FixUsg_1_OUT_2_
+data_02_out
+Float|Vec3
+data
+dep data_02_in
+FixUsg_1_OUT_3_
+data_03_out
+Float|Vec3
+data
+dep data_03_in
+FixUsg_1_OUT_4_
+data_04_out
+Float|Vec3
+data
+dep data_04_in
+FixUsg_1_OUT_5_
+4
+maxvertices
+IntScalar
+min. number of vertices in box for further recursion
+50
+IMM
+-1
+delta
+FloatScalar
+max. distance between two vertices
+0.000000
+IMM
+-1
+algorithm
+Choice
+choose your favorite algorithm
+1 BoundingBox None
+IMM
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+IMM
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+TITLE=Renderer_1
+55
+363
+1
+RenderData
+Geometry|Points|CellGrid|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+none
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+IMM
+-1
+0
+AssembleUsg
+1
+LOCAL
+Converter
+TITLE=AssembleUsg_1
+176
+143
+2
+GridIn
+UnstructuredGrid|Polygons
+set of grids
+req
+none
+DataIn
+Vec3|Float
+set of data
+req
+none
+2
+GridOut
+UnstructuredGrid|Polygons
+assembled grid
+default
+AssembleUsg_1_OUT_0_
+DataOut
+Vec3|Float
+assembled data
+dep DataIn
+AssembleUsg_1_OUT_1_
+0
+0
+StoU
+1
+LOCAL
+Converter
+TITLE=StoU_1
+176
+88
+5
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid
+Grid
+req
+none
+dataIn_1
+Float|Vec3|IntArr
+Data
+req
+none
+dataIn_2
+Float|Vec3|IntArr
+Data
+opt
+none
+dataIn_3
+Float|Vec3|IntArr
+Data
+opt
+none
+dataIn_4
+Float|Vec3|IntArr
+Data
+opt
+none
+5
+meshOut
+UnstructuredGrid
+unstructured Grid
+default
+StoU_1_OUT_0_
+dataOut_1
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_1
+StoU_1_OUT_1_
+dataOut_2
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_2
+StoU_1_OUT_2_
+dataOut_3
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_3
+StoU_1_OUT_3_
+dataOut_4
+Float|Vec3|IntArr
+unstructured data
+dep dataIn_4
+StoU_1_OUT_4_
+1
+option
+Choice
+Conversion Options
+2 tetrahedrons hexahedrons pyramids prisms
+IMM
+-1
+0
+RWCovise
+1
+LOCAL
+IO_Module
+TITLE=RW:TscOutGrd_1
+33
+22
+1
+mesh_in
+UniformGrid|Text|Points|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA_Data|USR_DistFenflossBoco
+mesh_in
+opt
+none
+1
+mesh
+UniformGrid|Text|Points|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA_Data|USR_DistFenflossBoco
+mesh
+default
+RWCovise_1_OUT_0_
+6
+grid_path
+Browser
+File path
+data/general/examples/Covise//TscOutGrd.covise
+IMM
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+IMM
+-1
+stepNo
+IntScalar
+stepNo
+0
+IMM
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+IMM
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+IMM
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+IMM
+-1
+0
+RWCovise
+2
+LOCAL
+IO_Module
+TITLE=RW:TscOutVect_1
+187
+22
+1
+mesh_in
+UniformGrid|Text|Points|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA_Data|USR_DistFenflossBoco
+mesh_in
+opt
+none
+1
+mesh
+UniformGrid|Text|Points|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA_Data|USR_DistFenflossBoco
+mesh
+default
+RWCovise_2_OUT_0_
+6
+grid_path
+Browser
+File path
+data/general/examples/Covise//TscOutVect.covise
+IMM
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+IMM
+-1
+stepNo
+IntScalar
+stepNo
+0
+IMM
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+IMM
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+IMM
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+IMM
+-1
+0
+Tracer
+1
+LOCAL
+Tracer
+TITLE=Tracer_1
+176
+253
+5
+meshIn
+UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons
+input mesh
+req
+none
+dataIn
+Vec3|Vec3
+input velo.
+req
+none
+pointsIn
+Points|UnstructuredGrid|Polygons|TriangleStrips|Lines|Vec3
+input initial points
+opt
+none
+octtreesIn
+OctTree|OctTreeP
+input octtrees
+opt
+none
+fieldIn
+Float|Float
+input mapped field
+opt
+none
+3
+lines
+Lines|Points|TriangleStrips
+output geometry
+default
+Tracer_1_OUT_0_
+dataOut
+Float
+output magnitude
+default
+Tracer_1_OUT_1_
+startingPoints
+Points
+real used starting points
+default
+Tracer_1_OUT_2_
+26
+no_startp
+IntSlider
+Number of starting points
+1 1000 195
+IMM
+-1
+startpoint1
+FloatVector
+First start point
+0.45 0.850 0.150
+IMM
+-1
+startpoint2
+FloatVector
+Last start point
+0.6 0.85 0.3
+IMM
+-1
+direction
+FloatVector
+Square of starting points
+1 0 0.
+IMM
+1
+Displacement
+FloatVector
+Shift traces
+0 0 0.
+IMM
+-1
+tdirection
+Choice
+Forward, backward or both
+1 forward backward both
+IMM
+-1
+whatout
+Choice
+v, vx, vy, vz, time or id
+1 mag v_x v_y v_z time
+IMM
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+2 Streamlines MovingPoints Pathlines Streaklines
+IMM
+1
+startStyle
+Choice
+Line or square
+2 line plane
+IMM
+-1
+trace_eps
+FloatScalar
+relative error control
+0.000100
+IMM
+-1
+trace_abs
+FloatScalar
+absolute error control
+0.000100
+IMM
+-1
+grid_tol
+FloatScalar
+grid tolerance for UNSGRD or POLYGN
+0.000100
+IMM
+-1
+trace_len
+FloatScalar
+maximum length
+1.000000
+IMM
+-1
+min_vel
+FloatScalar
+minimal velocity
+0.001000
+IMM
+-1
+MaxPoints
+IntScalar
+maximum number of points
+300
+IMM
+1
+stepDuration
+FloatScalar
+Step duration if no REALTIME available
+0.010000
+IMM
+1
+NoCycles
+IntScalar
+number of cycles (dynamic data)
+1
+IMM
+1
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+IMM
+1
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+IMM
+1
+ParticlesReleaseRate
+FloatScalar
+Frequency at which new particles are released
+0.000000
+IMM
+-1
+divideCell
+FloatScalar
+Step control when out of domain
+0.125000
+IMM
+-1
+maxOutOfDomain
+FloatScalar
+Control how far to integrate when out of domain
+0.250000
+IMM
+-1
+NoWThreads
+IntScalar
+number of worker threads
+1
+IMM
+-1
+SearchLevel
+IntScalar
+search level for polygons
+0
+IMM
+-1
+SkipInitialSteps
+IntScalar
+skip initial steps
+0
+IMM
+-1
+color
+String
+attribute color
+red
+IMM
+-1
+0
+DomainSurface
+1
+LOCAL
+Filter
+TITLE=DomainSurface_1
+33
+143
+2
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+none
+dataIn
+Float|Vec3
+data on grid points
+opt
+none
+4
+meshOut
+Polygons
+surface of structured grid
+default
+DomainSurface_1_OUT_0_
+dataOut
+Float|Vec3
+data on surface
+dep dataIn
+DomainSurface_1_OUT_1_
+linesOut
+Lines
+feature lines 
+default
+DomainSurface_1_OUT_2_
+ldataOut
+Float|Vec3
+data on feature lines
+dep dataIn
+DomainSurface_1_OUT_3_
+5
+angle
+FloatScalar
+feature angle
+0.100000
+IMM
+-1
+vertex
+FloatVector
+normal for back-face culling
+ 1 0 0.
+IMM
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.500000
+IMM
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+IMM
+-1
+optimize
+Choice
+optimize for memory or speed
+1 speed memory
+IMM
+-1
+0
+12
+Sphere
+1
+LOCAL
+spheres
+Sphere_1_OUT_0_
+Renderer
+1
+LOCAL
+RenderData
+FixUsg
+1
+LOCAL
+usg_out
+FixUsg_1_OUT_0_
+Tracer
+1
+LOCAL
+meshIn
+FixUsg
+1
+LOCAL
+data_00_out
+FixUsg_1_OUT_1_
+Tracer
+1
+LOCAL
+dataIn
+AssembleUsg
+1
+LOCAL
+GridOut
+AssembleUsg_1_OUT_0_
+FixUsg
+1
+LOCAL
+usg_in
+AssembleUsg
+1
+LOCAL
+DataOut
+AssembleUsg_1_OUT_1_
+FixUsg
+1
+LOCAL
+data_00_in
+StoU
+1
+LOCAL
+meshOut
+StoU_1_OUT_0_
+AssembleUsg
+1
+LOCAL
+GridIn
+StoU
+1
+LOCAL
+dataOut_1
+StoU_1_OUT_1_
+AssembleUsg
+1
+LOCAL
+DataIn
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_0_
+StoU
+1
+LOCAL
+meshIn
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_0_
+DomainSurface
+1
+LOCAL
+meshIn
+RWCovise
+2
+LOCAL
+mesh
+RWCovise_2_OUT_0_
+StoU
+1
+LOCAL
+dataIn_1
+Tracer
+1
+LOCAL
+lines
+Tracer_1_OUT_0_
+Sphere
+1
+LOCAL
+points
+DomainSurface
+1
+LOCAL
+linesOut
+DomainSurface_1_OUT_2_
+Renderer
+1
+LOCAL
+RenderData
+0

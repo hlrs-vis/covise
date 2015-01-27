@@ -1,0 +1,129 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Module Selection</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#3333FF">Module Browser
+(Module Selection)</font></font></h2>
+<font face="Arial,Helvetica"><font color="#000000">If you need <b>information
+about modules before selecting </b>look into the&nbsp;<b> <a href="../start_overview.html" target="_top">Module
+Reference Guide</a></b> . There you get a&nbsp; list with short information
+about all available modules and a reference to the complete description
+of a module, if available.</font></font>
+<p><font face="Arial,Helvetica"><font color="#000000">Use the <b>Module
+Browser</b> to select the modules for your map.</font></font>
+<br><font face="Arial,Helvetica">The</font> <font face="Arial,Helvetica"><font color="#000000">Module
+Browser of the MapEditor contains a tree for hosts, categories (module
+classes) and modules. If COVISE was started in single user mode, only the
+name of your local host is in the tree.</font></font>
+<br>&nbsp;
+<table CELLSPACING=0 CELLPADDING=5 WIDTH="100%" >
+<tr>
+<td VALIGN=TOP><img SRC="modulebrowser.gif" height=489 width=217></td>
+
+<td VALIGN=TOP><font face="Arial,Helvetica"><font color="#000000">1. Select
+your <b>Hostname</b> (if you you have more than one host in the list, but
+you don't need remote modules - for details including an example see <a href="map_cscw_addhost.html">CSCW</a>)</font></font>
+<p><font face="Arial,Helvetica"><font color="#000000">2. Select the <b>Category</b>
+(module class). The available classes are:</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Color&nbsp;</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Examples</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Filter</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+IO_Module</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Mapper</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Renderer</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Simulation (documentation only)</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Test</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Tools</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+Tracer</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;
+(plus private classes if you like)</font></font>
+<p><font face="Arial,Helvetica"><font color="#000000">3. Select your specific
+<b>Module
+</b>from
+the subtree for the category and</font></font>
+<p><font face="Arial,Helvetica"><font color="#000000">4. <b>Drag the module</b>
+name to the place in the working area where you want to place the module
+icon. The module icon appears in the working area, and depending on the
+module this may have the following <b>side effects</b>:</font></font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><font color="#000000">a parameter interactor
+appears in the <a href="map_ctrlpanel.html">ControlPanel</a> and/or</font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000">a File Dialog_popup
+requests the location of a file needed by this module, see documentation
+about the specific module (<a href="../start_overview.html" target="_top">M</a></font><font color="#3333FF"><a href="../start_overview.html" target="_top">odule
+Reference Guide</a></font><font color="#000000">)</font></font></li>
+</ul>
+<font face="Arial,Helvetica"><font color="#000000">You can touch the module
+icon anywhere to move it further.</font></font></td>
+</tr>
+</table>
+<u><font face="Arial,Helvetica">Note:</font></u>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">If you have successfully added a remote
+computer, an entry for this computer is created in your Module Browser,
+and you can use the corresponding additional tree to select a remote module;
+if specified in the the COVISE config file, the module icons get the same
+color as the hostname, otherwise they get a qualified module name; see
+also <b>menu option <a href="map_cscw_addhost.html">CSCW</a> </b>(where
+you&nbsp; get<b> </b>an example for such a Module Browser)</font></td>
+</tr>
+</table>
+
+<p><font face="Arial,Helvetica">For more <font color="#000000"><b>information
+about modules </b>and how to connect them to a map see</font></font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica"><font color="#000000">Module Icon Layout (<a href="map_modicon.html">ModuleIcon</a>)</font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000"><a href="map_modport.html">ModulePorts</a></font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000">Parameters (access via
+left mouse button on book icon, see <a href="map_modwork.html">Working
+with Modules</a>&nbsp; and <a href="map_modinfo.html">ModuleInfo</a>)</font></font></li>
+
+<li>
+<font face="Arial,Helvetica"><font color="#000000">Module Actions (access
+via right mouse button on module label, see&nbsp; <a href="map_modwork.html">Working
+with Modules</a>)</font></font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica"><font color="#000000">Before and after connection
+you can drag the module icon (or group of icons) with the mouse where you
+want to (click with the <b>left</b> mouse button anywhere on the module
+icon)</font></font><font face="Arial,Helvetica"><font color="#000000"></font></font>
+<p><font face="Arial,Helvetica"><font color="#000000">(see also <a href="map_modgroup.html">Module
+Grouping / Quickstart</a> )</font></font>
+<br><font face="Arial,Helvetica"><font color="#000000"></font></font>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

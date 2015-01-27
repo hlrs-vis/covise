@@ -1,0 +1,98 @@
+\begin{htmlonly}
+\documentclass{covise}
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{palatino}
+\usepackage{picins}
+\usepackage[colorlinks,dvips]{hyperref}
+	  
+\bodytext{TEXT=#000000 BGCOLOR=#FFFFFF LINK=#0033CC VLINK=#0033CC}
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newenvironment{covlink}[3]%
+{\html{\htmladdnormallink{#1}{#3}}\latex{\hyperref[#1]{#2} (\ref{#1})}%
+}
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[!Hhtp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+
+
+\definecolor{output}{rgb}{0.,0.,1.}
+\definecolor{depend}{rgb}{1.,0.65,0.}
+\definecolor{required}{rgb}{0.58,0.,0.83}
+\definecolor{optional}{rgb}{0.,0.39,0.}
+
+\end{htmlonly}
+
+%================================================================================
+%================================================================================
+
+
+%================================================================================
+%\startdocument
+
+\chapter{Einf\"uhrung}
+Die Rei\ss festigkeit von Tissue h\"angt von sehr vielen Einfl\"ussen ab, zum
+Beispiel vom Material des Tissue, Abnutzungsgrad der Pr\"agewalze, Druck beim
+Pr\"agen und Pr\"agemuster. Oft werden Festigkeitsverluste erst
+festgestellt, wenn die Walze schon gepr\"agt und das Tissue im 
+Einsatz ist. Das Ziel des SCA E-Type Projekts ist es, durch Simulation 
+den Verlust an Festigkeit schon w\"ahrend des Entwurfs zu analysieren.
+Dabei sollten interaktiv neue Designs getestet werden und die Parameter
+beim Pr\"agevorgang variiert werden k\"onnen.
+
+Bisher wird das Muster vom Designer im PDF-Format zum Walzenhersteller
+geschickt, der das Muster in eine CAD-Zeichnung umsetzt. 
+Wenn sich das Muster als Walze nicht fertigen l\"asst, wird es an den Designer
+zur\"uckgeschickt und ge\"andert. Aufgrund der CAD-Zeichnung wird die Walze 
+gefr\"ast und damit Tissue gepr\"agt. Spezialisten pr\"ufen die Haptik des Tissue. 
+Danach wird das Tissue in Serie produziert. Durch die Abnutzung der Walze
+\"andern sich mit der Zeit die Eigenschaften des Tissue. 
+
+SCA hat in diesem Projekt zusammen mit der Universit\"at der Bundeswehr
+Hamburg und VirCinity einen virtuellen
+Prototyp f\"ur gepr\"agtes Tissue entwickelt, mit dem man sowohl das Design
+ver\"andern  als auch die Auswirkung des Designs auf die physikalischen
+Eigenschaften analysieren kann. Durch die Integration in die Virtual
+Reality Umgebung COVER kann man das Tissue r\"aumlich und beinahe fotorealistisch
+anschauen. Mit einem dreidimensionalen Eingabeger\"at kann das Tissue
+intuitiv bewegt werden und das Muster direkt ge\"andert werden. Eine Simulation
+der Pr\"agung mit dem Programm LS-Dyna liefert die plastische Verformung des
+Tissue nach dem Pr\"agen. Auf das verformte Tissue wird dann eine 
+Zugfestigkeitssimulation  mit Ansys angeschlossen und mit COVISE visualisiert.
+Die Festigkeitswerte werden in der Virtual Reality Umgebung farblich
+angezeigt und der maximale Verlust als Zahl ausgegeben (noch nicht implementiert). 
+Durch die Integration
+aller Schritte in COVISE und die Bedienung \"uber die Virtual Reality
+Schnittstelle muss der Benutzer kein Berechnungsspezialist sein, sondern
+lediglich mit dem Prozess Tissue-Pr\"agung vertraut sein.
+
+Im Kapitel 2 werden die 
+Proze\ss schritte Design, Pr\"agungssimulation, Rei\ss festigkeitssimulation und 
+Visualisierung beschrieben und der Programmablauf erl\"autert.\newline 
+
+In Kapitel 3 wird die Virtual Reality Benutzerschnittstelle vorgestellt.\newline
+
+Der Anhang gibt eine Einf\"uhrung in das f\"ur die Pr\"agesimulation verwendete
+Verformungsmodell (gek\"urzte und \"ubersetzte Fassung eines internen 
+Berichts von Prof. Dr.-Ing. R. Lammering et al., Universit\"at der Bundeswehr
+Hamburg).
+
+
+ 

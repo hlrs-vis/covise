@@ -1,0 +1,21 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+The following map is taken from the COVISE tutorial (tutorial\_vel\_2.net (obsolete)). It shows the use of \textbf{TetraVolume} as a preprocessing module of\textbf{ TetraTrace}.
+ 
+\begin{covimg}{}%
+               {testmap}{covise/net/tutorial/tutorial\_vel\_2.net (obsolete)}{0.7}\end{covimg}
+
+
+% examples for using this module
+
+%
+%
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "~/covise/doc/usersguide/manual"
+%%% End: 

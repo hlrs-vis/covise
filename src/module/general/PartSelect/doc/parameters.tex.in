@@ -1,0 +1,30 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+        numbers & String & 
+        String of integer
+        numbers separated by a `/' character. Each number
+        is then interpreted as the identifier of an entity
+        to be removed. \\
+%\hline
+%        param2 & type & text  \\
+
+
+%       ....
+%       ....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

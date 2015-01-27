@@ -1,0 +1,102 @@
+#--------------------------------------------------------------------------------
+#-- Covise 5.3 Configuration File 
+#-- for RUS CAVE
+#-- active stereo with 4 pipes
+#-- motionstar with erc and 6dof mouse
+#-- transmitter location: on the bottom in front of the the screen, x backwards
+#-- headsensor mounted on the left side of the glasses
+#--------------------------------------------------------------------------------
+
+
+#-- General settings -------------------------------------------------------------
+
+
+HostConfig
+{
+#-- Hostname    Shared Memory       execution mode		        timeout in seconds
+#--            (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+    vision		    shm		            rexec				        30
+}
+
+
+
+
+#--- INSERT covise.config.base HERE -------------------------------------------
+
+<covise.config.base>
+
+
+// vision -----------------------------------------------------------------------
+
+COVERConfig: vision
+{       
+    ARENA_SIZE                  1000000000
+    NUM_PIPES                   2
+    PIPE_LOCKING                CHANNEL
+    NUM_WINDOWS			        2
+    NUM_SCREENS                 4
+    MENU_POSITION               1300 -500 500
+    MENU_ORIENTATION            -90 0 0
+    MENU_SIZE                   1
+    TRACKING_SYSTEM             MOTIONSTAR
+    SCENESIZE		            2500
+    FREEZE                      OFF
+    floorHeight                 -1250
+    stepSize                    400
+    DEBUG_LEVEL                 1
+    WELCOME_MESSAGE             Welcome to the CUBE
+
+}
+
+PipeConfig: vision
+{
+#-- PipeIndex   HardPipe    Display				
+    0		    2		    :0.2
+	1		    0		    :0.1
+}
+
+
+
+WindowConfig: vision
+{
+#-- WinIndex	WinName		    SoftPipeNo	Origin[pixel]	Size [pixel]
+    0	        FRONT_RIGHT     0       	0 0 		    2048 992
+    1           LEFT_BOTTOM     1           0 0             2048 992
+
+}
+
+
+ScreenConfig: vision
+{
+#-- ScreenIndex	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		    FRONT		2800 2500	    0 1400 0		    0.0 0.0 0.0
+	1		    RIGHT		2800 2500	    1400 0 0 		    -90.0 0.0 0.0
+	2		    LEFT		2800 2500	    -1400 0 0		    90.0 0.0 0.0
+	3		    BOTTOM		2800 2800	    0 0 -1250		    0.0 -90.0 0.0	
+}
+
+
+ChannelConfig: vision
+{
+#-- ChannelIndex    ChannelName WindowNo   VPLeft  VPBottom     VPWidth VPHeight
+    0               FRONT       0           0.0     0.0         1.0     1.0
+    1               LEFT        1           0.0     0.0         1.0     1.0
+    2               RIGHT       2           0.0     0.0         1.0     1.0
+    3               BOTTOM      3           0.0     0.0         1.0     1.0
+}
+
+TrackerConfig: vision
+{
+    INTERPOLATION_FILE              calib_23apr99_posit.data
+    INTERPOLATION_FILE_X            calib_23apr99_ori_x.data
+    INTERPOLATION_FILE_Y            calib_23apr99_ori_y.data
+    INTERPOLATION_FILE_Z            calib_23apr99_ori_z.data
+    HAND_ADDR                       0
+    HEAD_ADDR                       1
+    TRANSMITTER_OFFSET              0 -165 -61
+    TRANSMITTER_ORIENTATION         -90 0 180
+    HEADSENSOR_OFFSET               6 0 8
+    HEADSENSOR_ORIENTATION          -90 0 -90
+    HANDSENSOR_OFFSET               0 0 0
+    HANDSENSOR_ORIENTATION          90 0 0
+}

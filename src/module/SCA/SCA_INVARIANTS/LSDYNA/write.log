@@ -1,0 +1,144 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! now prepare topology file
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+csys,0
+nsel,all
+*get,numnodes,node,,count
+*dim,nodeind,,numnodes
+*dim,xnode,,numnodes
+*dim,ynode,,numnodes
+*dim,znode,,numnodes
+
+*vget,xnode(1),node,1,loc,x
+*vget,ynode(1),node,1,loc,y
+*vget,znode(1),node,1,loc,z
+*do,i,1,numnodes
+   nodeind(i) = i
+!   *get,xnode(i),node,i,loc,x
+!   *get,ynode(i),node,i,loc,y
+!   *get,znode(i),node,i,loc,z
+*enddo
+
+! shell connectivity: metal
+esel,s,type,,1
+*get,nodeshl1,elem,,count
+*dim,shell1,,nodeshl1
+*dim,shl1nod1,,nodeshl1
+*dim,shl1nod2,,nodeshl1
+*dim,shl1nod3,,nodeshl1
+*dim,shl1nod4,,nodeshl1
+*do,i,1,nodeshl1
+   shell1(i) = i
+!   *get,shl1nod1(i),elem,i,node,1
+!   *get,shl1nod2(i),elem,i,node,2
+!   *get,shl1nod3(i),elem,i,node,3
+!   *get,shl1nod4(i),elem,i,node,4
+*enddo
+*vget,shl1nod1(1),elem,1,node,1
+*vget,shl1nod2(1),elem,1,node,2
+*vget,shl1nod3(1),elem,1,node,3
+*vget,shl1nod4(1),elem,1,node,4
+
+! shell connectivity: paper
+esel,s,type,,2
+*get,nodeshl2,elem,,count
+*dim,shell2,,nodeshl2
+*dim,shl2nod1,,nodeshl2
+*dim,shl2nod2,,nodeshl2
+*dim,shl2nod3,,nodeshl2
+*dim,shl2nod4,,nodeshl2
+*do,i,1,nodeshl2
+   shell2(i) = i+nodeshl1
+!   *get,shl2nod1(i),elem,i+nodeshl1,node,1
+!   *get,shl2nod2(i),elem,i+nodeshl1,node,2
+!   *get,shl2nod3(i),elem,i+nodeshl1,node,3
+!   *get,shl2nod4(i),elem,i+nodeshl1,node,4
+*enddo
+*vget,shl2nod1(1),elem,1+nodeshl1,node,1
+*vget,shl2nod2(1),elem,1+nodeshl1,node,2
+*vget,shl2nod3(1),elem,1+nodeshl1,node,3
+*vget,shl2nod4(1),elem,1+nodeshl1,node,4
+
+! solid connectivity: gummi
+esel,s,type,,3
+*get,nodeshl3,elem,,count
+*dim,solid,,nodeshl3
+*dim,shl3nod1,,nodeshl3
+*dim,shl3nod2,,nodeshl3
+*dim,shl3nod3,,nodeshl3
+*dim,shl3nod4,,nodeshl3
+*dim,shl3nod5,,nodeshl3
+*dim,shl3nod6,,nodeshl3
+*dim,shl3nod7,,nodeshl3
+*dim,shl3nod8,,nodeshl3
+*do,i,1,nodeshl3
+   solid(i) = i+nodeshl1+nodeshl2
+!   *get,shl3nod1(i),elem,i+nodeshl1+nodeshl2,node,1
+!   *get,shl3nod2(i),elem,i+nodeshl1+nodeshl2,node,2
+!   *get,shl3nod3(i),elem,i+nodeshl1+nodeshl2,node,3
+!   *get,shl3nod4(i),elem,i+nodeshl1+nodeshl2,node,4
+!   *get,shl3nod5(i),elem,i+nodeshl1+nodeshl2,node,5
+!   *get,shl3nod6(i),elem,i+nodeshl1+nodeshl2,node,6
+!   *get,shl3nod7(i),elem,i+nodeshl1+nodeshl2,node,7
+!   *get,shl3nod8(i),elem,i+nodeshl1+nodeshl2,node,8
+*enddo
+*vget,shl3nod1(1),elem,1+nodeshl1+nodeshl2,node,1
+*vget,shl3nod2(1),elem,1+nodeshl1+nodeshl2,node,2
+*vget,shl3nod3(1),elem,1+nodeshl1+nodeshl2,node,3
+*vget,shl3nod4(1),elem,1+nodeshl1+nodeshl2,node,4
+*vget,shl3nod5(1),elem,1+nodeshl1+nodeshl2,node,5
+*vget,shl3nod6(1),elem,1+nodeshl1+nodeshl2,node,6
+*vget,shl3nod7(1),elem,1+nodeshl1+nodeshl2,node,7
+*vget,shl3nod8(1),elem,1+nodeshl1+nodeshl2,node,8
+
+/output,topology,k
+
+*vwrite,'*NODE'
+(A5)
+
+*vwrite,nodeind(1),xnode(1),ynode(1),znode(1),0,0
+(F8.0,3E16.3,2F8.0)
+
+*vwrite,'*ELEMENT','_','SHELL'
+(A8,A1,A5)
+
+*vwrite,shell1(1),1,shl1nod1(1),shl1nod2(1),shl1nod3(1),shl1nod4(1)
+(6F8.0)
+
+*vwrite,shell2(1),2,shl2nod1(1),shl2nod2(1),shl2nod3(1),shl2nod4(1)
+(6F8.0)
+
+*vwrite,'*ELEMENT','_','SOLID'
+(A8,A1,A5)
+
+*vwrite,solid(1),3,shl3nod1(1),shl3nod2(1),shl3nod3(1),shl3nod4(1),shl3nod5(1),shl3nod6(1),shl3nod7(1),shl3nod8(1)
+(10F8.0)
+
+*vwrite,'*END'
+(A4)
+
+/output
+
+nodeind=
+xnode=
+ynode=
+znode=
+shell1=
+shl1nod1=
+shl1nod2=
+shl1nod3=
+shl1nod4=
+shell2=
+shl2nod1=
+shl2nod2=
+shl2nod3=
+shl2nod4=
+solid=
+shl3nod1=
+shl3nod2=
+shl3nod3=
+shl3nod4=
+shl3nod5=
+shl3nod6=
+shl3nod7=
+shl3nod8=

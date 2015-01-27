@@ -1,0 +1,180 @@
+Uebersicht von VRMoleculeViewer Plugin
+======================================
+
+
+in  2-D Arryays x,y,z die die Position angeben
+        spaeter muss noch Orientierung folgen ueber die Quaternionen
+	muss wie x,y,z aufgebaut werden.
+    dann gibt es noch mtype welche den Molekueltyp angibt
+
+Die Arrays sind so aufgebaut: x[Zeitschritt][Molekuelnummer]
+
+Die Anzahl der Molekuele fuer jeden Zeitschritt(=partnumber)
+ist in linenumb gespeichert.
+
+
+Aufbau Scene
+
+		scene
+		  |
+	     CoviseObjectsRoots
+		  |
+		  ViewerDCS
+		  |	   \
+		SwitchDCS   SwitchDCS .... folgt fuer jedes Molekuel
+		  |  	      |
+	        XformDCS    XformDCS  ....
+	              \	     /
+	              PFGeode    ist immer das gleiche
+
+
+Noch zu machen:
+
+
+wenn zweimal loaddata gedrueckt wird dann gibt es zweimal
+den Datensatz hintereinander. Bug oder Feature?
+Initialisieren waere nicht schlecht...
+
+
+
+
+Anhang I 
+
+Fuer Spaeter wenn tolle Molekule aller Art eingeladen werden koennen.
+
+this here is from the itt the potential file layout:
+file:
+  <comment>
+  :
+  <main part>
+
+<comment>:
+  # comment
+  # comment
+  . . . . . . . .
+  # comment
+
+<main part>:
+  number_of_potential_types
+  <potential type description (1)>
+  <potential type description (2)>
+  . . . . . . . .
+  <potential type description (number_of_potential_types)>
+  number_of_rotation_axes
+
+<potential type description>:
+  <name of potential type>
+  number_of_sites
+  <site description (1)>
+  <site description (2)>
+  . . . . . . . .
+  <site description (number_of_sites)>
+
+<name of potential type>:
+  LJ126  or  e  or  D  or  Q
+
+<site description for LJ126>:
+  x  y  z
+  sigma  epsilon
+  mass
+
+<site description for e>:
+
+
+<site description for e>:
+  x  y  z
+  charge
+  mass
+
+<site description for D>:
+  x  y  z
+  dipole_moment
+  mass
+
+<site description for Q>:
+  x  y  z
+  quadrupole_moment
+  mass
+
+
+
+x, y and z are coordinates of sites with respect to coordinates given in
+the data file that contains the coordinates of the position of the centre of
+mass of (:-)) the molecule. sigma specifies size of a site, epsilon - its
+color. The size
+of simulation box (from the data file) will give the length scale.
+
+Example of such file:
+
+==================== start of file =============================
+# OPLS-Methanol nach Jorgensen
+#
+# 2 LJ126-Sites fuer CH3 und O.
+# 3 e-Sites: eine in CH3, eine in O, eine fuer H
+#
+# Geometrie:  |O-H| = 0.945E-10 m
+#                        |CH3-O| = 1.430E-10 m
+#                        <(CH3-O-H) = 108.5^p
+#
+#
+# LJ126-Site Nr. |  Art  |  sig                |  eps/kB          | Masse
+# ------------------------------------------------------------
+#            1              |  CH3  |  3.775E-10 m |  104.16583 K |  15.0
+#            2              |  O      |  3.070E-10 m |  85.546821 K |  16.0
+# ============================================================
+# e-Site Nr.        |  Art  |  q/e      | Masse
+# ----------------------------------------
+#            1              |in CH3 |  0.265  |  0.0
+#            2              |in O    | -0.7      |  0.0
+#            3              |    H    |  0.435  |  1.0
+#
+# Koordinaten der Sites im HAS, welches im COM 'x' liegt:
+#
+#                  l                          lll: y-Hauptachse
+
+
+
+#                  l                          lll: y-Hauptachse
+#                  l                          ---: x-Hauptachse
+#  CH3----l---O                    z-Hauptachse ergaenzt beide als Rechtssystem
+#                x-    \
+#                    --- \
+#                              H
+#
+#
+:
+2
+LJ126
+2
+-0.769455  -0.013229  0.0
+3.775  1.4381739
+15.0
+0.658492  0.063370 0.0
+3.070  1.18110903
+16.0
+e
+3
+-0.769455  -0.013229  0.0
+4.2457699245
+0.0
+0.658492  0.063370 0.0
+-1.121524131
+0.0
+1.005967  -0.815479  0.0
+6.9694713855
+1.0
+3
+==================== end of file ===============================
+
+In file above there are two types of potential: "LJ126" and "e". There are two
+"LJ126" sites and three "e" sites.
+
+Some minor changes will be introduced in this layout later. Some numbers will
+be added to the description of "D" and "Q" sites, and at the end of file. I'll
+tell you when these changes will be made so that you'll be able to change your
+program to skip these additional numbers.
+
+Hope this helps. Do not hesitate to ask me if you have any questions,.
+
+Best regards,
+Sergey.

@@ -1,0 +1,34 @@
+<!-- Yun: No complicating file needed -->
+<ParaViewFilters>
+	<Category name="Univiz" menu_label="&amp;Univiz">
+    <Filter name="FieldToLines" />
+    <Filter name="FLE" />
+    <Filter name="FlowTopo" />
+    <Filter name="RidgeSurface" />
+    <Filter name="VortexCores" />
+    <Filter name="VortexCriteria" />
+	</Category>
+  
+	<Filter name="FieldToLines" />
+  <Filter name="FLE" />
+  <Filter name="FlowTopo" />
+  <Filter name="RidgeSurface" />
+  <Filter name="VortexCores" />
+  <Filter name="VortexCriteria" />
+</ParaViewFilters>
+
+<ParaViewWriters>
+  <Writer name="WriteUnstructured"
+          extensions="unst"
+          file_description="Unstructured Files">
+  </Writer>
+</ParaViewWriters>
+
+<ParaViewReaders>
+
+  <Reader name="ReadUnstructured"
+          extensions="unst"
+          file_description="Unstructured Files">
+  </Reader>
+
+</ParaViewReaders>

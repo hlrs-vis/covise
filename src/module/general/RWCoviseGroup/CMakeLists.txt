@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  RWCoviseGroup.cpp
+)
+
+SET(EXTRASOURCES
+  RWCoviseGroup.h
+)
+
+ADD_COVISE_MODULE(IO RWCoviseGroup ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(RWCoviseGroup  coReader)
+
+COVISE_INSTALL_TARGET(RWCoviseGroup)

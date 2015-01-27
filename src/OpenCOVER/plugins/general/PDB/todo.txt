@@ -1,0 +1,67 @@
+possible future work:
+
+- add flags to determine how the structure is represented when loaded
+- display multiple structures (osgcaveui pickboxes)
+- collaboration between VR environments: synchronize data set loading
+- syncronize animations (tight coupling)
+- ability to display ball-and-stick structures; transition between visualization methods with opacity changes
+
+
+Collaboration:   Manipulate Protein data sets in a mutli client/server enviroment
+		 Implementation based on researcher feedback
+
+Visualisation:
+		transition between different Protein representations (ball and stick, helices and pipes)
+		on view point/manual (google earth effect, going from an overview to a fine view)
+
+
+!!!!!!!!!!Currently implementing
+setting params for the cylinder based on number of structures that need to be loaded (creation adjusted dont need to know amount)
+!!!! change CalcTrans to place structures around in a ring instead of in columns, then the user can specify
+the number of rows in the cylinder (compelted)
+
+loading restriction seems to low for blah (only 82 structures loaded)
+Auto loading has issues when structures dont exist in cache and it fetches them from the pdb
+
+Place a marker (cube) in the plane of the scene as a location for structures to be moved too (complete)
+Adjust the structures using hue once in align mode (complete)
+Reload structures after calling reset in align mode (didnt require reloading structures)
+
+
+// currently working on
+reloading structures (need to also copy contolling id and also unique number).... or when change color do it across boxes and delete structure
+across the machines????
+
+(super computing: does collabrative need to be working??)
+Yes, adding this support
+
+
+(!!!!!!!!!!!!!need to fix bug with messaging system!!!!!!!!!!) (fixed*)
+(need to make remove single structure done via messaging) 
+(Update: I think I have fixed bug but can't test until demo group have left)
+
+(!!!!!!!! Need to come up with a better system for caching morphs, due to translation taking longer !!!!!!)
+(!!!!!!!! Need to add texture of web info (JCSG) to plugin for temporary illustration of what is required !!!!!!!) 
+(!!!!!!!! Need to add output in script file so can monitor progress !!!!!!!) 
+(!!!!!!!! Need to cache pdb files as well (will need to them more for allignments and maybe reconversion) !!!!!!!)
+
+// NOTE: Big demo the following week
+
+// to do....
+1) label the nodes with what structure e.g. setName(CART);  //complete
+2) Adjust so when changing modes it looks for the correct structure  // complete
+3) Disable morphing (that needs to be re-written due to multiple material nodes and overrides in the sub tree) //complete (disabled)
+4) Add different mode changing in the pop up window (individual)  //complete
+5) remove high and low mode from the menu  //complete
+6) reorganise the menu  // complete
+7) set the cache again // complete
+8) by default only load the cartoon structures (the default load should be set in config file)  // complete
+9) allow any combination of modes to be turned on  //complete
+
+
+10) Fade hack: to display the surface in a single color (leave till monday if acceptable, fading only applicable to the surface)
+11) get the browser working, also calculate what can be loaded and rendered on the galaxy
+12) TODO LATER..... ALIGNMENT TOOL .... allowing matrixes to be calculated so proteins can be aligned
+
+
+// clean files not being called from PDBPlugin 

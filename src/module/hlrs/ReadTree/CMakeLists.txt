@@ -1,0 +1,9 @@
+SET(HEADERS
+)
+SET(SOURCES
+  ReadTree.cpp
+  treeconvert.cpp
+)
+ADD_COVISE_MODULE(IO ReadTree ${EXTRASOURCES})
+TARGET_LINK_LIBRARIES(ReadTree coApi coAppl coCore)
+COVISE_INSTALL_TARGET(ReadTree)

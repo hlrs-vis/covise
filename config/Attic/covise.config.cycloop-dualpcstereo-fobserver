@@ -1,0 +1,172 @@
+#--------------------------------------------------------------------------------
+#-- Covise 5.3 Configuration File 
+#-- for Vircinity CYCLOOP
+#-- passive stereo 2 PCs,  -- OLDSTYLE DUALPC --
+#-- each Pc has 2 video outputs (nvidia gforce twinview)
+#-- fobserver as tracker (fob and 6dof mouse, without erc)
+#-- transmitter location: center, bottom of the screen
+#-- headsensor mounted on the left side of the glasses
+#--------------------------------------------------------------------------------
+
+
+#-- General settings -------------------------------------------------------------
+
+
+#-- Enter default parameters for adding host/partner here
+HostConfig
+{
+#-- Hostname    Shared Memory       execution mode		        timeout in seconds
+#--            (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+    devil01		    shm		            rexec				        30
+    devil02		    shm		            rsh				            30
+}
+
+
+#--- INSERT covise.config.base HERE -------------------------------------------
+
+<covise.config.base>
+
+
+
+
+// devils -----------------------------------------------------------------------
+
+
+MultiPC
+{
+    Master        devil01
+    Slave         devil02
+    Serial_Port  /dev/ttyS0
+}
+
+#-- devil01
+
+COVERConfig: devil01
+{   
+    MULTIPROCESS                OFF
+    NUM_PIPES			        1
+    NUM_WINDOWS			        1
+    NUM_SCREENS                 1
+    MENU_POSITION               500 0 400
+    MENU_ORIENTATION            0 0 0
+    TRACKING_SYSTEM             VRC
+    SCENESIZE		            1700
+    NEAR                        10
+    FAR                         10000000
+    VIEWER_POSITION             0 -1000 0
+    floorHeight                 -1800
+    stepSize                    200
+    WELCOME_MESSAGE             Welcome to CYCLOOP
+}
+
+PipeConfig:devil01
+{
+#-- PipeIndex    HardPipe    Display				
+    0		     0		    :0.0
+}
+
+
+
+
+WindowConfig:devil01
+{
+#-- WinIndex	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0           FRONT       	0       	1024  0 		1024 768
+}
+
+
+
+ScreenConfig:devil01
+{
+#-- ScreenIndex	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		    FRONT		1720 1320	    0 0 0			0.0 0.0 0.0
+}
+
+
+
+
+ChannelConfig:devil01
+{
+#-- ChannelIndex    ChannelName     WindowNo    VPLeft   VPBottom     VPWidth  VPHeight
+    0               FRONT           0           0       0           1       1
+}
+
+TrackerConfig:devil01
+{
+    NUM_SENSORS                             2
+    HAND_ADDR                               1
+    HEAD_ADDR                               2
+    LINEAR_MAGNETIC_FIELD_CORRECTION        0.0 0.0 0.0
+    TRANSMITTER_OFFSET                      0  -10 -65
+    TRANSMITTER_ORIENTATION                 90 0 180
+    HEADSENSOR_OFFSET                       10 0 0
+    HEADSENSOR_ORIENTATION                  -90 0 -90
+    HANDSENSOR_OFFSET                       0  0 0
+    HANDSENSOR_ORIENTATION                  90 0 0
+}
+
+FobConfig:devil01
+{
+	SERIAL_PORT                         /dev/ttyS2
+	BAUDRATE		                    19200
+	HEMISPHERE                          FRONT
+	FULLRANGE                           ON
+    STREAM_MODE                         ON
+}
+
+VRCTracker:devil01
+{
+    Port 5555
+}
+
+#-- devil02
+
+COVERConfig: devil02
+{   
+    MULTIPROCESS                OFF
+    NUM_PIPES			        1
+    NUM_WINDOWS			        1
+    NUM_SCREENS                 1
+    MENU_POSITION               500 0 400
+    MENU_ORIENTATION            0 0 0
+    TRACKING_SYSTEM             NONE
+    SCENESIZE		            1700
+    NEAR                        10
+    FAR                         10000000
+    VIEWER_POSITION             0 -1000 0
+    floorHeight                 -1800
+    stepSize                    200
+    WELCOME_MESSAGE             Welcome to CYCLOOP
+}
+
+PipeConfig:devil02
+{
+#-- PipeIndex    HardPipe    Display				
+    0		     0		    :0.0
+}
+
+
+
+
+WindowConfig:devil02
+{
+#-- WinIndex	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+    0           FRONT       	0       	1024  0 		1024 768
+}
+
+
+
+ScreenConfig:devil02
+{
+#-- ScreenIndex	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		    FRONT		1720 1320	    0 0 0			0.0 0.0 0.0
+}
+
+
+
+
+ChannelConfig:devil02
+{
+#-- ChannelIndex    ChannelName     WindowNo    VPLeft   VPBottom     VPWidth  VPHeight
+    0               FRONT           0           0       0           1       1
+}

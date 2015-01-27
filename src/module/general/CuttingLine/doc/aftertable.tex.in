@@ -1,0 +1,34 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+\begin{covimg}
+{}{CuttingLineMap}{covise/net/examples/CuttingLine.net}{0.7}\end{covimg}
+
+With the module GenDat we create a simple structured data set. On the one hand we display 
+the data values on a cutting line by colors. Therefore we use the module FilterCrop 
+to extract one line out of the structured grid. You can see the resulting points and 
+their data values visualised by colors in the first image. To reproduce the same image 
+as shown in the example docu, use the draw option {\tt points} in the renderer or insert the module
+'Sphere' between ShowGrid and Collect to make points visible. More 
+over go to the Colormaps window in the information area of the renderer and click 
+on Collect\_1\_OUT to get the colormap displayed in your renderer window to see 
+the scaling. 
+\\
+One the other hand we use the module CuttingLine to dislay the same values as a 2D plot. The result is shown in the second image. On the x-axis of the plot you can find the used index range, here from zero to eight.
+ 
+\begin{covimg}
+{}{CuttingLineRenderer}{Data values visualised by colors}{0.7}\end{covimg}
+
+\begin{covimg}
+{}{CuttingLinePlot}{Data values displayed as 2D- Plot}{0.7}\end{covimg}
+
+
+
+
+
+

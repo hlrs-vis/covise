@@ -1,0 +1,32 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	gennormals & Boolean & Generation of surface normals. Since renderers often 
+                                           have problems generating normals on the fly, 
+                                           this option is recommended and TRUE by default. \\
+\hline
+	genstrips & Boolean & Generation of triangle strips. This option can be used to take 
+                                           advantage of graphics hardware in the final rendering steps. 
+                                           Default is TRUE.  \\
+\hline
+        isopoint  & Vector & Point determining the isosurface.\\
+\hline
+	isovalue & Boolean & The isovalue to be extracted from the data set.  
+                                           The default value is 0.0.  \\
+\hline
+	autominmax & Boolean & -  \\														
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+%=============================================================

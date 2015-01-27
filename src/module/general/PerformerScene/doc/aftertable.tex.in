@@ -1,0 +1,12 @@
+
+
+
+\subsubsection{Example}
+%=============================================================
+
+%\begin{covimg2} {}{map}{0.7}\end{covimg2}
+
+\begin{covimg}{}
+		{map}{covise/net/examples/COVER/PerformerScene.net}{0.7}\end{covimg}
+\begin{htmlonly} net/examples/COVER/PerformerScene.net \end{htmlonly} 		
+		

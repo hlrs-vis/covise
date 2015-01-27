@@ -1,0 +1,32 @@
+
+%=============================================================
+
+%
+% short description what the module does
+%
+Tetrahedronize converts unstructured-mixed-celltype-grids into tetrahedra-grids 
+(preprocessing for TetraTrace)
+
+{\bf Note:}
+
+Since module TetraTrace is obsolete there should be no need to use 
+Tetrahedronize for preprocessing (for TetraTrace) any longer. 
+Module Tetrahedronize has been kept for special cases where you might need
+a grid of tetrahedrons. 
+
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2} {}{TetrahedronizeModule}{0.7}\end{covimg2}
+%-------------------------------------------------------------
+% You can use this type of environment for all figures w/o caption
+%-------------------------------------------------------------
+
+%
+% short information about versions 
+%
+
+%
+%
+%=============================================================

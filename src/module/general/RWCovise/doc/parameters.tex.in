@@ -1,0 +1,31 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	grid\_path       & Browser & File path \\
+\hline
+	stepNo           & Scalar  & Extract one time step. \\
+\hline
+	rotate\_output    & Boolean & Check if geometry should be rotated. Works only in COVER. \\
+\hline
+	rotation\_axis    & Choice  & Choose rotation axis. COVER only.\\
+\hline
+	rot\_speed        & Scalar  & Choose rotation velocity. COVER only.\\
+\end{longtable}
+
+
+\begin{bf} RWCovise indicates the filename in its icon when it reads the file.\end{bf}
+
+%=============================================================
+
+
+\clearpage
+
+%
+%=============================================================

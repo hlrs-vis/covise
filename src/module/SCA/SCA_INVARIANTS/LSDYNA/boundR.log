@@ -1,0 +1,383 @@
+csys,0
+alls
+lsel,s,loc,z,0
+lsel,u,loc,x,0
+lsel,u,loc,y,0
+nsll,s,1
+nsll,u,0
+*get,maxx,node,,mxloc,x
+*get,maxy,node,,mxloc,y
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  P 2.1, P 2.2, P 2.3, P 2.4
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+asel,s,loc,z,0.5*raise
+lsla
+nsll,s,1
+nsll,u,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,1,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,1,0,1,1,0,1,1,1
+(8F10.0)
+*cfclos
+
+nodelist =
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! (L 2.2), (L 2.4)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+asel,s,loc,z,0.5*raise
+lsla
+lsel,u,loc,x,0
+lsel,u,loc,x,maxx
+nsll,s,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,2,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,2,0,0,1,0,1,0,1
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+! (L 2.1), (L 2.3)
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+asel,s,loc,z,0.5*raise
+lsla
+lsel,u,loc,y,0
+lsel,u,loc,y,maxy
+nsll,s,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,3,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,3,0,1,0,0,0,1,1
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  P 3.5, P 3.6, P 3.7, P 3.8
+asel,s,loc,z,-depth
+lsla
+nsll,s,1
+nsll,u,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,4,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,4,0,1,1,1,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! (L 3.9), (L 3.11)
+asel,s,loc,z,-depth
+lsla
+lsel,u,loc,x,0
+lsel,u,loc,x,maxx
+nsll,s,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,5,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,5,0,1,0,1,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! (L 3.10), (L 3.12)
+asel,s,loc,z,-depth
+lsla
+lsel,u,loc,y,0
+lsel,u,loc,y,maxy
+nsll,s,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,6,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,6,0,0,1,1,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! (F 3.2)
+asel,s,loc,z,-depth
+nsla,s,0
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,7,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,7,0,0,0,1,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! [L 3.5] - P 3.5, [L 3.6] - P 3.6, [L 3.7] - P 3.7, [L 3.8] - P 3.8
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+vsel,s,loc,z,-depth,0
+aslv
+lsla
+nsll,s,1
+nsel,u,loc,z,-depth
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,8,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,8,0,1,1,0,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! [F 3.4] - [L 3.5; 3.6; 3.10], [F 3.6] - [L 3.7; 3.8; 3.12]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+asel,s,loc,y,0
+asel,a,loc,y,maxy
+lsla
+lsel,u,loc,z,0
+nsla,s,1
+nsll,u,1
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,9,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,9,0,0,1,0,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! [F 3.3] - [L 3.5; 3.8; 3.9], [F 3.5] - [L 3.6; 3.7; 3.11]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+asel,s,loc,x,0
+asel,a,loc,x,maxx
+lsla
+lsel,u,loc,z,0
+nsla,s,1
+nsll,u,1
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,10,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*BOUNDAR','Y_SPC','_SET'
+(A8,A5,A4)
+
+*vwrite,10,0,1,0,0,0,0,0
+(8F10.0)
+*cfclos
+
+nodelist =
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  COUPLED NODES:    [L 2.3], [L 2.4]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+asel,s,loc,z,0.5*raise
+lsla
+lsel,u,loc,x,0
+lsel,u,loc,y,0
+nsll,s,1
+
+
+*get,numnode,node,,count
+*dim,nodelist,,numnode
+*do,i,1,numnode
+   *get,thisnode,node,,num,min
+   nodelist(i) = thisnode
+   nsel,u,node,,thisnode
+*enddo 
+
+*cfopen,boundary,k,,APPEND
+*vwrite,'*SET','_','NODE','_','LIST'
+(A4,A1,A4,A1,A4)
+*vwrite,11,0.0,0.0,0.0,0.0
+(F10.0,4F10.3)
+
+*vwrite,nodelist(1)
+(F10.0)
+
+*vwrite,'*CONSTRA','INED_NOD','E_SET'
+(A8,A8,A5)
+
+*vwrite,11,3
+(2F10.0)
+
+*vwrite,'*END'
+(A4)
+
+*cfclos
+
+nodelist =

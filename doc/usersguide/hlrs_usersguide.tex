@@ -1,0 +1,108 @@
+%
+% This text file include all filess neccessary to create
+% the User's Guide
+%
+
+%====== define a new class for layout
+
+\documentclass[a4paper]{../covise}
+
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+%\usepackage{palatino}
+\renewcommand{\familydefault}{\sfdefault}
+
+
+\setlength\LTleft{0pt}
+\setlength\LTright\fill
+
+
+
+%====== start the document
+\begin{document}
+
+%====== for html mode, this is included at the top of each part
+%\begin{latexonly}
+\input{defines}
+%\end{latexonly}
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+\begin{titlepage}
+    \setcounter{page}{0}
+	 \thispagestyle{empty}
+    \unitlength1cm
+    
+       \begin{picture}(15,20)
+       \put(0, 14){\includegraphics[scale=0.6]{../hlrs_big}}
+       \put(11, 13.5){\includegraphics[scale=0.6]{../rrzk_medium}}
+       \put(0, 8){\makebox(15,2)[t]{\Huge{COVISE}}}
+       \put(0, 6){\makebox(15,2)[t]{\Huge{User's Guide}}}
+       \put(0, 4){\makebox(15,2)[t]{\LARGE{February 2008}}}   
+      \end{picture}
+    
+	\newpage
+   \setcounter{page}{0}
+	\thispagestyle{empty}
+   \uppertitleback{\bf{Title:} \\
+			COVISE User's Guide \\
+         \today }
+   \vfill
+	\lowertitleback{\bf{Authors:} \\
+ 			Martin Aumueller \\
+         Juergen Schulze-Doebold \\
+         Ruth Lang \\
+         Daniela Rainer \\
+         Andreas Werner \\
+         Uwe Woessner \\
+         Peter Wolf}
+
+\end{titlepage}
+
+\pagenumbering{arabic}
+\tableofcontents
+
+\chapter*{Organization of this Document}
+Chapter 1
+gives you a brief overview of \covise' architecture and history and shows you
+how to start it.
+
+Chapter 2
+shows you how to build your own module maps, to modify module parameter and how
+to work in a distributed and/or collabarative mode.
+
+Chapter 3
+gives you an introduction into the \covise\  Virtual Reality renderer.
+
+Chapter 4
+makes the \covise\ desktop renderer accessible to you.
+
+Chapter 5
+explains how to visualize volumetric data.
+
+Chapter 6
+details the colloborative features of \covise.
+
+	
+\end{latexonly}
+
+
+%====== include the chapters
+\include{intro/intro}	
+\include{mapeditor/mapeditor}		
+\include{cover/cover}	
+\include{renderer/renderer}
+\include{volumerendering/volumerendering}	
+\include{collab/collab}	
+\include{batchprocessing/batchprocessing}	% Batch Processing (Dr. R. Mikulla)
+
+\end{document}

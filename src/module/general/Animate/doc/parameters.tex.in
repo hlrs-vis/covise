@@ -1,0 +1,6 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline angle & Scalar & angle of rotation in degrees per timestep\\ \hline startAngle & Scalar & start angle of rotation in degrees\\ \hline axis & Vector & axis of rotation\\ \hline pos & Vector & position of rotation axis\\
+\hline \end{longtable}
+

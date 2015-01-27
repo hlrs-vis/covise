@@ -1,0 +1,116 @@
+% -*- latex -*-
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+\bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+vertex 
+& 
+Vector 
+&   
+Normal of the plane, center of the sphere or one point on the axis of the cylinder.
+\\
+\hline
+point 
+& 
+Vector 
+&   
+One point on the cutting surface.
+\\
+
+
+\hline
+scalar
+&
+Scalar
+&
+Distance of the origin to the plane or radius of the sphere or cylinder.
+% This would overdetermine the cylinder
+% or radius of the
+% cylinder.
+\\
+\hline
+option
+&
+Choice
+&
+Select the shape of the surface: plane, sphere, cylinder-x, cylinder-y,
+cylinder-z. cylinder-x means a cylinder with its axis in the direction of the
+x axis.
+\\
+\hline
+gennormals
+&
+Boolean
+&
+Toggle the generation of normals. By default the generation of normals is
+turned off. The generated normals are available at the 3. output port named
+normalsOut. this port has to be connected to the 3. input port of the module
+Collect.
+\\
+\hline
+
+genstrips
+&
+Boolean
+&
+Toggle the generation of triangle strips. By default the generation of triangle
+strips is turned on.
+\\
+\hline
+genDummyS
+&
+Boolean
+&
+Toggle the generation of a dummy surface if the cutting surface doesn't intersect the object. By default the generation of the dummy surface
+strips is turned off.
+\\
+
+\hline
+offset
+&
+Scalar
+&
+Specifies the hight, the isolines are lifted above the cuttingsurface. If you
+don't specify an offset parts of the isolines can be occluded by the surface due
+to the limited accuracy of the Z-buffer. If you specify negative offsets, the
+lines appear on the backside of the plane respectively the inside of the sphere
+or cylinder.
+\\
+\hline
+numiso
+&
+Scalar
+&
+Specifies the number of isolines.
+\\
+\hline
+isostart
+&
+Scalar
+&
+Initial value for isolines.
+\\
+\hline
+isoend
+&
+Scalar
+&
+End value for isolines.
+\\
+\hline
+vertex\_ratio
+&
+Scalar
+&
+Percentage of grid used for memory allocation.  (Details below.)
+\\
+\hline
+\end{longtable}
+%=============================================================
+
+%=============================================================

@@ -1,0 +1,441 @@
+/******************* Hintergrund *******************/
+QWidget{
+	 background-color: transparent;
+}
+
+QMainWindow{
+	background-color: #224466;
+}
+
+/***************** QFrame *****************/
+QFrame{
+	background-color: #ffffff;
+	
+}
+
+QFrame *{
+	background-color:transparent;
+	border: 0px; 	
+} 
+
+QFrame::handle{
+	background-color: #cccccc;
+}
+QFrame QLabel{
+	color: #ffffff;
+}
+
+/******************* Fenster, in dem Renderer ist, etc ************/
+QStackedWidget{
+	background: #ffffff;
+	color: #333333;
+	border: 1px solid rgba(92, 115, 131, 255);
+}
+
+/******************** DockWidget*********************************/
+QDockWidget{
+	color: #000000;
+	font-weight: bold;
+	background-color: #ffffff;
+}
+
+QDockWidget::handle{
+	background-color: red;
+}
+
+QDockWidget::title{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0.977, x2:0, y2:0, stop:0 rgba(118, 142, 106, 255), stop:0.517045 rgba(143, 171, 128, 255), stop:0.522727 rgba(168, 201, 151, 255), stop:1 rgba(206, 219, 199, 255));
+	padding-left: 5px;
+	padding-top: 3px;
+}	
+/*
+QDockWidget::float-button{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:1 rgba(255, 255, 255, 82));
+	border-radius:2px;
+}
+QDockWidget::close-button{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:1 rgba(255, 255, 255, 82));
+	border-radius:2px;
+}*/
+
+
+/**************************** Dialog ************************/	
+QDialog{
+	background-color: #ffffff;
+	color: #333333;	
+}
+QDialog QLabel{ 
+	color: #333333;	
+}
+QDialog QAbstractButton{
+	color: #333333;	
+}
+QDialog QFrame{
+	border: 0px;
+}
+
+
+/******************* Labels ************************/
+QLabel{
+	background: transparent;
+	color: #ffffff;
+}
+
+/******************* Textfeld **********************/
+QLineEdit{
+	background: #ffffff;
+	border: 1px solid #cccccc;
+}
+
+/******************* AbstractButton ****************/
+QAbstractButton{
+	background: transparent;
+	color: #ffffff;
+}
+
+/****************** Buttons ************************/
+ QPushButton {
+	height: 20px;
+    border-radius: 2px;
+	background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(223, 223, 223, 255), stop:0.357955 rgba(187, 187, 187, 255), stop:0.363636 rgba(153, 153, 153, 255), stop:1 rgba(52, 52, 52, 255));	
+	padding: 2px;
+	color: #222222;
+ }
+
+ QPushButton:hover {
+  background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(250, 250, 250, 255), stop:0.357955 rgba(187, 187, 187, 255), stop:0.363636 rgba(153, 153, 153, 255), stop:1 rgba(180, 180, 180, 255));
+  color: #444444;
+ }
+
+ QPushButton:pressed {
+    background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(255, 255, 255, 255), stop:0.284091 rgba(232, 232, 232, 255), stop:0.289773 rgba(198, 198, 198, 255), stop:1 rgba(115, 115, 115, 255));
+	margin: 1px;
+ }
+
+ QPushButton:disabled{
+       background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(255, 255, 255, 255), stop:0.284091 rgba(232, 232, 232, 255), stop:0.289773 rgba(198, 198, 198, 255), stop:1 rgba(115, 115, 115, 255));
+		color: #888888;
+ }
+
+/******************* Tabs *********************/
+QTabWidget::pane { 
+	border: transparent;
+ }
+
+ QTabWidget::tab-bar {
+     left: 5px;
+ }
+ 
+ QTabBar{
+	background: transparent;
+ }
+ 
+  QTabBar::tab {
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(111, 111, 111, 255), stop:0.568182 rgba(171, 171, 171, 255), stop:0.568182 rgba(207, 207, 207, 255), stop:1 rgba(255, 255, 255, 255));	 
+	border-bottom: #005898;
+     border-top-left-radius: 2px;
+     border-top-right-radius: 2px;
+     min-width: 8ex;
+	 padding:3px;
+	 margin-right: 1px;
+	 color: #333333;
+ }
+
+
+ QTabBar::tab:hover {
+     background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(160, 160, 160, 255), stop:0.5625 rgba(183, 183, 183, 255), stop:0.568182 rgba(221, 221, 221, 255), stop:1 rgba(255, 255, 255, 255));
+ }
+
+ QTabBar::tab:selected {
+     background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(160, 160, 160, 255), stop:0.5625 rgba(183, 183, 183, 255), stop:0.568182 rgba(221, 221, 221, 255), stop:1 rgba(255, 255, 255, 255));
+ }
+
+ QTabBar::tab:!selected {
+     margin-top: 3px; 
+ }
+ 
+ QTabWidget QAbstractButton{
+	color: #333333;
+ }
+ 
+  QTabWidget QLabel{
+	color: #333333;
+ }
+ 
+   QTabWidget QPushButton{
+	color: #ffffff;
+ }
+
+/******************* GroupBox 1 *******************/
+QGroupBox{
+	background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(255, 255, 255, 255), stop:0.3125 rgba(219, 219, 219, 255), stop:0.318182 rgba(198, 198, 198, 255), stop:1 rgba(115, 115, 115, 255));  	
+	border-radius: 2px;
+	padding: 4px;
+	margin: 3px;
+	padding-top: 20px;
+	color: #333333;
+}
+/******************* GroupBox  2 ******************/
+QGroupBox QGroupBox{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(82, 82, 82, 255), stop:1 rgba(173, 173, 173, 255));
+	color: #ffffff;
+	padding: 10px;
+}
+
+QGroupBox QGroupBox QLabel{
+	color: #ffffff;
+}
+
+QGroupBox::title {
+	padding: 2px;
+	margin-left: 10px;
+	color: #666666;
+ }
+
+/******************* ComboBox *******************/
+QComboBox{
+	border: 1px solid #CCCCCC;
+}
+
+/******************** Toolbar ********************/
+QToolBar::separator{
+	width: 2px;
+	background-color: transparent;
+	margin: 0px 3px 0px 3px;
+}
+
+QToolBar:handle{
+	width: 5px;
+	height: 20px;
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(178, 178, 178, 255), stop:1 rgba(210, 210, 210, 255));
+	margin-right: 6px;
+}
+
+QToolBar{
+	spacing: 5px;
+	padding: 5px;
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(78, 98, 118, 255), stop:0.494318 rgba(104, 126, 149, 255), stop:0.5 rgba(141, 167, 192, 255), stop:1 rgba(201, 211, 221, 255));
+}
+
+
+/******************** Toolbar-Buttons **************/
+QToolBar QWidget{
+	width: 14px;
+	height: 14px; 
+    border-radius: 2px;
+	background-color: #aacc99;
+	padding:4px;
+}
+
+QToolBar QWidget:disabled{
+	background-color: rgba(255, 255, 255, 100);
+}
+
+
+QToolBar QWidget::hover{
+		background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(223, 223, 223, 255), stop:0.357955 rgba(187, 187, 187, 255), stop:0.363636 rgba(153, 153, 153, 255), stop:1 rgba(52, 52, 52, 255));
+		margin: 1px;
+}
+
+QToolBar QWidget::pressed{
+		margin: 2px;
+}
+
+/******************** Menü Bar ********************/
+QMenuBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #999999, stop:0.5 #777777, stop:0.51 #666666, stop:1 #555555);
+	color: #eeeeee;
+ }
+
+ QMenuBar::item {
+     spacing: 3px;
+     padding: 1px 4px;
+     background: transparent;
+ }
+
+ QMenuBar::item:selected {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.898, stop:0 rgba(210, 210, 210, 255), stop:0.517045 rgba(133, 133, 133, 255), stop:0.528409 rgba(88, 88, 88, 255), stop:1 rgba(0, 0, 0, 255));
+ }
+
+ QMenuBar::item:pressed {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.898, stop:0 rgba(210, 210, 210, 255), stop:0.517045 rgba(133, 133, 133, 255), stop:0.528409 rgba(88, 88, 88, 255), stop:1 rgba(0, 0, 0, 255));
+ }
+
+/******************** Menü ********************/
+QMenu {
+     background-color: #555555;
+     margin: 2px; 
+	 color: #FFFFFF;
+ }
+
+ QMenu::item {
+     padding: 2px 25px 2px 20px;
+ }
+
+ QMenu::item:selected {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.898, stop:0 rgba(210, 210, 210, 255), stop:0.517045 rgba(133, 133, 133, 255), stop:0.528409 rgba(88, 88, 88, 255), stop:1 rgba(0, 0, 0, 255));
+ }
+
+ QMenu::icon:checked {
+     background-color: #7C7C7C;
+     border: 1px inset #7D7D7D;
+     position: absolute;
+     top: 1px;
+     right: 1px;
+     bottom: 1px;
+     left: 1px;
+ }
+
+ QMenu::separator {
+     height: 2px;
+     background: #7C7C7C;
+     margin-left: 10px;
+     margin-right: 5px;
+ }
+ 
+ QMenu::item:disabled {
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:1 rgba(255, 255, 255, 50));
+ }
+
+
+/****************** Infotexte ******************************/
+QTextBrowser{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(199, 219, 239, 255), stop:1 rgba(159, 175, 191, 255));
+	color: #ffffff;
+	/*border: 1px solid #ffffff;*/
+}
+
+/***************** weitere Elemente ****************/
+QAbstractItemView{
+	border: 1px solid #cccccc;
+}
+
+QDateTimeEdit{
+	border: 1px solid #cccccc;
+}
+
+
+QSpinBox{
+	background: #ffffff;
+	border: 1px solid #cccccc;
+}
+
+
+QSlider{
+	 background-color: transparent;
+}
+
+QSizeGrip{ 
+	background: transparent;
+}
+
+/*
+QCheckbox{
+	color: #ffffff;
+}
+*/
+
+QListWidget{
+	background: #ffffff;
+}
+
+/* Statusbar, im Mainwindow unten */
+QStatusBar QFrame{
+	border:0px;
+	padding: 0px;
+	margin: 0px;
+	color: #ffffff;
+}
+
+/**************************************** FileDialog *****************************/
+QFileDialog QComboBox{
+	background-color: #ffffff;
+	color: #333333;
+}
+QFileDialog QFrame{
+	border: 1px solid #aaaaaa;
+	background-color: #ffffff;
+	color: #333333;
+}
+QFileDialog QLabel{
+	border: transparent;
+	background-color: transparent;
+	color: #333333;
+}
+
+
+/*************************************** Statische Elemente **************************/
+/*************************************************************************************/
+
+
+/* Neues Projekt Fenster */
+#StartPreparationBase QStackedWidget{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:1 rgba(255, 255, 255, 20));
+}
+
+#StartPreparationBase QAbstractItemView{
+	border: 1px solid #aaaaaa;
+}
+#StartPreparationBase QLabel{
+	padding: 5px;
+}
+#StartPreparationBase QTextBrowser{
+	padding: 5px;
+}
+
+#vrpFrameInstruction{
+	background-color: #ffffff;
+}
+
+
+/* Neues Projekt, Oben links */
+#vrpFrameSteps {
+	background-color: #ffffff;
+	border-bottom: 1px solid #aaaaaa;
+}
+#vrpFrameSteps QLabel{
+	color: #333333;
+}
+
+
+
+/* Empfangsfenster */
+
+#InitialChooserDialogBase{
+background-color: #ffffff;
+}
+
+#InitialChooserDialogBase QFrame{
+	background-color: transparent;
+}
+#InitialChooserDialogBase QFrame QFrame{
+	background-color: transparent;
+}
+
+
+/* Hauptfenster rechts */
+/*
+#widget{
+	background: transparent;
+}
+*/
+
+/* Hauptfenster Menüleiste unten*/
+#frameButtons{
+	background-color: qradialgradient(spread:reflect, cx:0.505182, cy:0, radius:1.793, fx:0.511682, fy:0, stop:0 rgba(255, 255, 255, 255), stop:0.3125 rgba(219, 219, 219, 255), stop:0.318182 rgba(198, 198, 198, 255), stop:1 rgba(115, 115, 115, 255));	
+	border-radius: 2px;
+}
+#frameButtons QLabel{
+	color: #333333;
+}
+#frameButtons QAbstractButton{
+	color: #333333;
+}
+
+/* Fenster Links und Rechts */
+/*
+#WStackPage{
+	background: red;
+}
+*/
+

@@ -1,0 +1,666 @@
+#########################################################################
+#									#
+# Covise Configuration file for COVER with screens in any position	#
+#									#
+#########################################################################
+
+// COVISE ----------------------------------------------------------------------
+
+include "config/covise.config.atommapping"
+
+
+
+TabletPC
+{
+    Server 134.95.115.200
+    Timeout 2.0
+}
+
+HostConfig
+{
+#  Hostname        Shared Memory     execution mode		timeout in seconds
+#                 (shm|mmap|none)    (rexec|rsh|ssh|covised)	 (default 5; no timeout: -1)
+    vis.rrz.uni-koeln.de        shm     ssh                     10
+    vis00.rrz.uni-koeln.de      shm     ssh                     10
+    vis01.rrz.uni-koeln.de      shm     ssh                     10
+    vislab00.rrz.uni-koeln.de   shm     ssh                     60
+    visactive.rrz.uni-koeln.de   shm     ssh                    60
+    visaglin.rrz.uni-koeln.de   shm     ssh                     60
+    visagwin.rrz.uni-koeln.de   shm     ssh                     60
+
+    visard.rrz.uni-koeln.de     shm     ssh                     150
+    viskas.rrz.uni-koeln.de     shm     ssh                     60
+    visvr.rrz.uni-koeln.de      shm     ssh                     60
+
+    vision.hlrs.de		shm	ssh			60
+    visible.hlrs.de		shm	ssh			60
+    visar.hlrs.de		shm	ssh			60
+    visspring.hlrs.de		shm	ssh			60
+    visper.hlrs.de              shm     ssh                     60
+}
+
+#crbProxy
+#{
+    #Command ssh uw_te@visit crb
+#}
+
+REMOTE_DAEMON
+{
+    TCPPort 31803
+}
+
+
+WMI 
+{
+    CRB c:\crb.bat
+}
+
+License
+{
+SERVER 011a865f73c0 5.4 19.01.2006 0 UGYNTXI 134.95.115.192/26
+STD_UI 011a865f73c0 5.4 19.01.2006 0 KKEAYIW 134.95.115.192/26
+VR_MULTI_ANY 011a865f73c0 5.4 19.01.2006 0 ISIBVBG 134.95.115.192/26
+
+SERVER 000a95c8df14 5.4 19.02.2006 0 SWSEWKE vismac
+STD_UI 000a95c8df14 5.4 19.02.2006 0 IAYRBVS vismac
+VR_ONE_PIPE 000a95c8df14 5.4 19.02.2006 0 KWKZPNY vismac
+VR_MULTI_ANY 000a95c8df14 5.4 19.02.2006 0 QUGEMGE vismac
+
+SERVER 001185ae8ebd 5.4 17.05.2006 0 IAEESCK vishp/HP XW9300
+STD_UI 001185ae8ebd 5.4 17.05.2006 0 YEKRXNY vishp/HP XW9300
+VR_ONE_PIPE 001185ae8ebd 5.4 17.05.2006 0 UQENHZQ vishp/HP XW9300
+VR_MULTI_ANY 001185ae8ebd 5.4 17.05.2006 0 OGYQUQE vishp/HP XW9300
+}
+
+MultiPC
+{
+    SyncMode TCP
+    MulticastAddress 224.2.3.4
+    MulticastPort 2345
+    multicastDebuglevel 2
+    numSlaves 0
+}
+
+MoleculeConfig
+{
+    DataDir /data/chem/itt
+}
+
+DNAConfig
+{
+    DataDir /data/hlrs/dna
+}
+
+UIConfig
+{
+   ShortCuts         RWCovise Colors Collect CuttingSurface IsoSurface Renderer OpenCOVER
+   HostColors        LightBlue Wheat khaki LightPink goldenrod2 CadetBlue LimeGreen salmon2    
+   AutoSaveTime      60
+   AutoSaveFile      autosave.net
+#  QTStyle           CDE
+   QT		            true
+   ErrorOutput       off
+   StoragePath       ~
+   PortBlowUp        true
+   PortBlowUpSize    15 15
+   PortHighlight     false
+   HighlightColor    red
+#  DockableModuleInfo true
+}
+
+
+CRB
+{
+       ModuleAlias Renderer/Renderer      Renderer/IvRenderer
+       ModuleAlias SRenderer/SRenderer    SRenderer/SIvRenderer
+       ModuleAlias Renderer/VRRenderer    Renderer/OpenCOVER
+       ModuleAlias SRenderer/SVRRenderer  SRenderer/SOpenCOVER
+}
+
+
+Network
+{
+#	IP_ALIAS	vir6,vir8		129.69.29.1
+# 	COVISE_PORT 	5000
+}
+
+IvRenderer
+{
+        Axis off
+}
+
+
+
+
+
+
+// COVISE modules ----------------------------------------------------------------
+
+Colormaps
+{
+   Rainbow
+   ITSM
+   Star
+   Blue
+   Blue-Light
+   IAG
+   MTransparent
+}
+
+Colormap_IAG
+{
+   RGBAX 0 0 0.345 1     0
+   RGBAX 0 0 1 1         0.113169
+   RGBAX 0 1 1 1         0.26
+   RGBAX 0 1 0 1         0.5
+   RGBAX 1 1 0 1         0.74
+   RGBAX 1 0 0 0.377     1
+}
+
+
+Colormap_Blue
+{
+   RGBA  0 0 0 0.0
+   RGBA  0 0 1 1.0
+}
+
+Colormap_Blue-Light
+{
+   RGB  1 1 1
+   RGB  0 0 1
+}
+
+Colormap_MTransparent
+{
+   RGBAX 0 0 0.345 0.025        0
+   RGBAX 0 0 1 0.049            0.193416
+   RGBAX 0 1 1 0.111            0.403292
+   RGBAX 0 1 0 0.16             0.596708
+   RGBAX 1 1 0 0.21             0.748971
+   RGBAX 1 0 0 0.278            0.90535
+   RGBAX 0.4 0 0 0.346          1
+}
+
+Colormap_Star
+{
+   RGBAX 0.10 0.00 0.90 1.0 -1.0
+   RGBAX 0.00 0.00 1.00 1.0 -1.0
+   RGBAX 0.63 0.63 1.00 1.0 -1.0
+   RGBAX 0.00 0.75 1.00 1.0 -1.0
+   RGBAX 0.00 1.00 1.00 1.0 -1.0
+   RGBAX 0.10 0.80 0.70 1.0 -1.0
+   RGBAX 0.10 0.90 0.00 1.0 -1.0
+   RGBAX 0.50 1.00 0.63 1.0 -1.0
+   RGBAX 0.75 1.00 0.25 1.0 -1.0
+   RGBAX 1.00 1.00 0.00 1.0 -1.0
+   RGBAX 1.00 0.80 0.10 1.0 -1.0
+   RGBAX 1.00 0.60 0.30 1.0 -1.0
+   RGBAX 1.00 0.67 0.95 1.0 -1.0
+   RGBAX 1.00 0.00 0.50 1.0 -1.0
+   RGBAX 1.00 0.00 0.00 1.0 -1.0
+}
+
+Colormap_ITSM
+{
+   RGBAX 0.00 0.00 0.35  1.00    0.00
+   RGBAX 0.00 0.00 1.00  1.00    0.05
+   RGBAX 0.00 1.00 1.00  1.00    0.26
+   RGBAX 0.00 1.00 0.00  1.00    0.50
+   RGBAX 1.00 1.00 0.00  1.00    0.74
+   RGBAX 1.00 0.00 0.00  1.00    0.95
+   RGBAX 0.40 0.00 0.00  1.00    1.00
+}
+
+Colormap_Rainbow
+{
+   RGBAX 0.40 0.00 0.40 1.00   -1.0
+   RGBAX 0.00 0.00 1.00 1.00   -1.0
+   RGBAX 0.00 1.00 1.00 1.00   -1.0
+   RGBAX 0.00 1.00 0.00 1.00   -1.0
+   RGBAX 1.00 1.00 0.00 1.00   -1.0
+   RGBAX 1.00 0.00 0.00 1.00   -1.0
+}
+
+
+
+ReadTascflowTDI
+{
+   IWK  20000000
+   RWK  20000000
+   CWK    500000
+}
+
+TRACERConfig
+{
+    BOX_INCREASE_FACTOR 2
+}
+
+Fenfloss
+{
+   VERBOSE 0
+   TIMEOUT 300
+   STARTUP gate %0 %1 %e
+   STARTUP tube %0 %1 %e
+   STARTUP axial %0 %1 %e
+   STARTUP radial %0 %1 %e
+   STARTUP other %0 %1 %e
+   #LOCAL 140.221.238.87
+   #STARTUP SGI CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; mpirun -np %1 flow
+}
+
+MiniSim
+{
+   PORTS    31000-31999
+   SERVER   Module
+   TIMEOUT  90
+   STARTUP  STANDARD CO_SIMLIB_CONN=%e ; export CO_SIMLIB_CONN; cd %0 ; miniSim
+#   STARTUP  echo "setenv CO_SIMLIB_CONN %e ; cd %0 ; miniSim"
+   VERBOSE  1
+}
+
+
+// COVER general ------------------------------------------------------------
+
+VRViewpoints
+{
+1    1    0 0 0 0 0 0
+10   10   0 0 0 0 0 0
+100  100  0 0 0 0 0 0
+1000 1000 0 0 0 0 0 0
+
+}
+
+IHS
+{
+    DataPath /home/clearcase/data/fluid/IHS
+}
+
+
+VRDemo
+{
+    Nepa /data/covise_net/snap-2003-04/nepal_vr.net
+    #TurbineModeller /view/uwe/vobs/covise/net/ALL/demo_juli99/turbine_modeller_vr.net
+    #Nepal /view/uwe/vobs/covise/net/ALL/demo_juli99/ihs_nepal_vr.net
+    #Airbag /view/uwe/vobs/covise/net/ALL/demo_juli99/airbag_vr.net
+    #ITSM_Aachen /view/uwe/vobs/covise/net/ALL/demo_juli99/itsm_aachen_turbine.net
+    #Das_Boot /view/uwe/vobs/covise/net/ALL/ihs/prop/Prop_KEA_80_VR_nabe.net
+    #Francis_Turbine /view/uwe/vobs/covise/net/ALL/ihs/francis/Tandemgitter_Laufrad_Saugrohr_VR_Trace_im_Laufrad.net
+    #Daimler_Online /view/uwe/vobs/covise/net/ALL/demo_juli99/DaimlerOnline.net
+}
+
+Inputdevices
+{
+   Spaceball   on
+}
+
+spaceMenu
+{
+    #Position 400 0 -200
+    #sensitivityRadius 100
+    #attached FALSE
+}
+
+
+
+
+VolumeConfig
+{
+    #Renderer Slices2D
+    #Renderer Simian
+    #Renderer Soft
+    #Renderer Remote
+    #Renderer Slices2D
+    #Renderer Cubic2D
+    #Renderer Tex
+    #VOLUME_FILE /mnt/work/VolData/virvo/10x10x10.rvf
+    REMOTE_BASE_PORT 31050
+    #REMOTE_HOST vision
+}
+
+VolumeFiles
+{
+   /data/volume/VolData/fctbody.xvf Body
+   /data/volume/VolData/head256.rvf Head
+   #/data/volume/VolData/frog.xvf Frog
+   /data/volume/VolData/galaxy-254cubed-masses-0to36.xvf Animated galaxy
+}
+
+HostInfo
+{
+    numProcs 1
+}
+
+Move
+{
+    Explicit ON
+    Print ON
+}
+
+MainToolbar
+{
+    MenuPosition 10 10 0
+    VISIBLE False
+    Atachment
+}
+
+ToolbarConfig
+{
+#   callback                MenuEntryName
+
+    XFORM                   "XForm"
+    SCALE                   "Scale"
+    VIEW_ALL                "minmax"
+    FLY                     "minmax"
+    FREEZE                  "Freeze"
+    DRIVE_SPEED             "sehr langer string"
+}
+
+WindowConfig
+{
+#	WinNo	WinName		SoftPipeNo	Origin[pixel]	Size [pixel]
+       	0	FRONT       	0       	0 0 		1024 768
+       	#0	FRONT       	0       	0 0 		1280 1024
+}
+
+PipeConfig
+{
+	#SoftPipe	HardPipe	Display
+      	0		0		:0.0
+}
+
+ScreenConfig
+{
+#	ScreenNo	ScreenName	ScreenSize[mm]	ScreenCenter[mm]	ScreenOrient hpr [degrees]
+	0		FRONT		400 300		0 0 0			0.0 0.0 0.0
+	
+}
+
+COVERConfig     # for desktop use
+{
+   MULTIPROCESS		ON
+      MULTITHREAD OFF
+
+      TEXTURE_COUNTER ON
+
+      NEAR 100
+#FAR 1000000
+      VISUAL_ID           0x23      # rgba/24 z/8 s/db on nvidia
+
+#VISUAL_ID           0x3c
+#VISUAL_ID 0x38
+      STEREO_MODE         OFF
+      STEREO OFF
+      STEREO_SEPARATION 60
+      STEREO_SEP          OFF
+#EnvMapMode fixedToObjectsRoot
+      AUDIO                        None
+#AUDIO_HOST                   vislab01.rrz.uni-koeln.de
+#   rotationAxis 0 0 1
+#   frameAngle 0.25423728813
+      rotationAxis 1 0 0
+      frameAngle 0.5
+      StateFix TRUE
+# FONT, possible values: FILLED, TEXTURED
+      FONT FILLED
+#noShmInDraw True
+#VRML_CORRECT_BACKFACE_CULLING ON
+      VRML_WRITE_VIEWPOINT ON
+      VRML_LIGHTS ON
+      VRML_CREASE ON
+      LOD_SCALE 1000
+      HEADLIGHT ON
+      TextureQuality High
+      TextureMode MODULATE
+#TextureMode DECAL
+#SyncInterval 0.4
+      CORRECT_MATRIX ON
+#GEN_STRIPS ON
+      TRANSPARENCY_MODE sorted_blended
+#MODULE Colors
+      MODULE ClipPlane
+      MODULE    Volume
+      MODULE    Vrml97
+      #MODULE VRMoleculeViewer
+#MODULE Cal3dNode
+#MODULE FlashNode
+
+#MODULE    VRViewPoint
+#MODULE    Marker
+#MODULE    Vic
+#MODULE  Gogol
+#MODULE VrmlGoNode
+#MODULE PocketUITest
+#MODULE    COVERConfig
+#MODULE    Snapshot
+#MODULE akvr
+#  MODULE	DebugTracking
+#  DEB_HANDLE_POSITION       0 0 0
+#  DEB_HANDLE_SIZE           1
+#  DEB_HANDLE_ORIENTATION    0 90 0
+
+#MODULE	DNA
+#MODULE	Move
+#MODULE	ClipPlane
+#MODULE	Tracer
+#  MODULE	Colors
+#MODULE AudioTest
+#MODULE              Marker
+#  MODULE              VRViewPoint
+#MODULE		VRModuleDesk
+#MODULE VRUIToolbar
+#MODULE CuttingSurface
+
+      SPECULAR            ON
+      MAX_FORCE               0.05
+      FORCE_FEEDBACK_MODE 2 # 2 TEST  1 NORMAL
+      FORCE_FEEDBACK	OFF
+      FORCE_SCALE		1.0
+      TRACKING_SYSTEM		MOUSE
+      MOUSE_NAV           ON
+#BUTTON_SYSTEM		NONE # IAO
+      ARENA_SIZE          500000000
+      SCENESIZE		300
+      MENU_POSITION      -80 90 0
+      NUM_PIPES		1
+      NUM_WINDOWS		1
+      AUTO_WIREFRAME		OFF
+      COORD_AXIS		OFF
+      FREEZE			OFF
+      NOTIFY			FATAL
+      NOSEPARATION		FALSE
+      WHITE_TO_GREY		TRUE
+      SCALE_ALL		OFF
+
+#   MODELPATH               /mnt/scr/cod
+#   MODELFILE               cube.wrl
+#   MODELPATH		/mnt/scr/cod/itap
+#   MODELFILE		Geometry1.iv
+#   MODELFILE		flush.iv
+#   MODELPATH		/mnt/scr/cod/VRML
+#   MODELFILE		di_port.iv
+      WELCOME_MESSAGE      Welcome to COVER
+#   FOOTER_MESSAGE       Covise Virtual Environment
+      FPS ON
+      NAVIGATION_MODE     XFORM
+      SYNC_MODE           LOOSE_COUPLING
+      COLLIDE             OFF
+      DRIVE_SPEED         0.5 20.0 1.5
+      SNAP                OFF
+      SPOTLIGHT           OFF
+      ANIM_SPEED          0.0 25.0 24.0
+      VIEWER_POSITION     0 -800 0
+      TWOSIDED            OFF
+
+      shadows             true
+
+      DEBUG_LEVEL         1
+}
+
+COVERPinboard
+{
+#   callback                MenuEntryName           ParentMenu
+
+    VIEW_ALL                "view all"
+    FLY                     "fly"
+    SCALE                   "scale world"
+    WALK                    "walk"
+
+    DRIVE                   "drive"                         "nav"
+    XFORM                   "move world"                "nav"
+    DRIVE_SPEED             "speed"                         "nav"
+    COLLIDE                 "collision"                     "nav"
+    
+    FREEZE                  "stop headtracking"             "view opt"
+    COORD_AXIS              "axis"                          "view opt"
+    SPECULAR                "specular"                      "view opt"
+    SPOTLIGHT               "spotlight"                     "view opt"
+    HEADLIGHT               "headlight"                     "view opt"
+    STEREO_SEP              "stereo sep"                    "view opt"
+    STATISTICS              "statistics"                    "view opt"
+    CLUSTER_STATISTICS      "clusterStatistics"             "view opt"
+ 
+    REMOVE                  "remove"                        "part manip"
+    UNDO                    "undo remove"                   "part manip"
+    MOVE_PARTS              "move part"                     "part manip"
+    
+    SNAP                    "snap"                          "misc"
+    STORE                   "store scenegraph"              "misc"
+    RELOAD_VRML             "reload vrml"                   "misc"
+        
+    EXECUTE                 "execute"                       "Covise"
+    CUTTINGSURFACE          "CuttingSurface"                "Covise"
+    CUTGEOMETRY             "CutGeometry"                   "Covise"
+    ISOSURFACE              "IsoSurface"                   "Covise"
+    TRACERUSG               "TracerUsg"                     "Covise"
+    TRACER                  "Tracer"                        "Covise"
+    STRACER                 "STracer"                       "Covise"
+    TETRATRACE              "TetraTrace"                    "Covise"
+    MAGTRACER               "MagTracer"                     "Covise"
+    CELLTRACER              "CellTracer"                    "Covise"
+    LTRACER                 "LarsTracer"                    "Covise"
+    
+    STEADYCAM               "steady cam"                    "anim"
+
+}
+
+CuttingPlane3DTex
+{
+    VERBOSE                 OFF
+    
+
+#   texture filter can be POINT, LINEAR, BILINEAR, TRILINEAR    
+
+    TEXTURE_FILTER_TYPE             TRILINEAR      
+
+#   plane attachment, 
+#   PLANE_MOVESTO_HAND: the plane move to hand (plane move absolute with hand)
+#   HAND_MOVESTO_PLANE: the hands move to plane (pane moves relative from the initial position)
+
+    PLANE_ATTACHMENT        PLANE_MOVESTO_HAND
+
+#   stop manipulation
+#   PRESS: when button is pressed again
+#   RELEASE: when button is released this means button has to be pressed during manipulation
+
+    STOPMOVE                PRESS
+
+
+#   executeModule
+#   MENU
+#   STOPMOVE
+    
+    EXECUTE_MODULE          STOPMOVE 
+
+#   interactor icon size in [mm]
+    ISIZE                   100     
+    
+}
+
+ModifyHeadBoxPlugin
+{
+#   show the range lines    ALWAYS | ON_TOUCH
+    SHOW_CONSTRAINTS        ON_TOUCH
+
+#   absolute size of the spheres in mm, the spheres don't scale with the scene
+    SPHERE_SIZE             20.0
+}
+
+ARToolKit
+{
+    Capture OFF
+}
+
+TrackerCalibration
+{
+#	these settings should be retrieved using  ms  and the TrackerCalibration
+#	application-module
+
+# 	NOTE: if this filter is enabled, it overrides a few settings in
+#		the section PolhemusConfig
+
+
+#	should the filter be used ? (ON / OFF)
+	STATUS			OFF
+        SWAP                    ON
+	ORIGIN			-22.0 29.0 202.0
+	ALPHA			-0.55
+	BETA0			0.5
+	BETA1			0.4
+	GAMMA			30.0
+	DELTA			35.0
+	UP_SCALE		0.4
+        
+        // 1: use given parameters
+        // 2: use hype-parameters retrieved with Solver
+        //
+        FILTER_TYPE             1
+        
+}
+
+TFE
+{
+MenuPosition 0 0 0 
+MenuOrientation 0 0 0
+#MenuSize 0.15
+}
+SimianTFE
+{
+MenuPosition 0 0 0 
+MenuOrientation 0 0 0
+#MenuSize 0.15
+}
+
+gogol
+{
+# GameArea X Y Z  max 30 each
+#
+GameArea	20 20 20
+}
+
+
+Material
+{
+    bronze    0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0
+}
+
+TFE
+{
+MenuPosition 0 0 0
+MenuOrientation 0 0 0
+MenuSize 0.15
+}
+SimianTFE
+{
+MenuPosition 0 0 0
+MenuOrientation 0 0 0
+MenuSize 0.15
+}
+
+SpaceballConfig
+{
+    SCALE_ROTATION      1.0
+        SCALE_TRANSLATION   5.0
+}
+
+
+

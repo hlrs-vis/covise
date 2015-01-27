@@ -1,0 +1,744 @@
+
+%%
+
+input:
+        | input section
+        | input error CLOSEBRACE
+;
+
+section: polhemusconfig 
+        | trackerconfig
+        | coverconfig
+        | fobconfig
+        | motionstarconfig
+        | beeboxconfig
+        | flyboxconfig
+        | phantomconfig
+        | cavelibconfig
+        | buttonconfig
+        | spaceballconfig
+        | hostconfig
+        | hostinfo
+        | windowconfig
+        | screenconfig
+        | channelconfig
+        | pipeconfig
+        | license
+        | uiconfig
+        | multiPCconfig
+        | networkconfig
+        | trackercalibration
+        | colormaps
+        | colormap
+        | unimplementedsection
+        | collaborativeoptions
+        | readtascflowtdi
+        | tracerconfig
+        | vrviewpoints
+;
+
+
+
+hostspecification: { setCurrHost("default"); }
+|        COLON STRING {setCurrHost(lexer->YYText()); }
+;
+
+number: INTEGER { $$ = new attribute(atoi(lexer->YYText())); } 
+        |FLOAT  { $$ = new attribute(atof(lexer->YYText())); } 
+;
+
+string:  STRING { $$ = new attribute(lexer->YYText());}
+;
+
+boolean: BOOLEAN { $$ = new attribute(lexer->YYText(),true);}
+;
+
+coverconfig: COVERConfig hostspecification OPENBRACE coverbody CLOSEBRACE {cout << "lappend statusList {COVERConfig recognized}" << endl; }
+;
+
+coveritem: TRACKING_SYSTEM POLHEMUS             {ONEENUM(COVERConfig, TRACKING_SYSTEM, POLHEMUS);}
+        | TRACKING_SYSTEM MOTIONSTAR            {ONEENUM(COVERConfig, TRACKING_SYSTEM, MOTIONSTAR);}
+        | TRACKING_SYSTEM FOB                   {ONEENUM(COVERConfig, TRACKING_SYSTEM, FOB);}
+        | TRACKING_SYSTEM CAVELIB               {ONEENUM(COVERConfig, TRACKING_SYSTEM, CAVELIB);}
+        | TRACKING_SYSTEM FOB_DAEMON            {ONEENUM(COVERConfig, TRACKING_SYSTEM, FOB_DAEMON);}
+        | TRACKING_SYSTEM SPACEBALL             {ONEENUM(COVERConfig, TRACKING_SYSTEM, SPACEBALL);}
+        | TRACKING_SYSTEM SPACEPOINTER          {ONEENUM(COVERConfig, TRACKING_SYSTEM, SPACEPOINTER);}
+        | TRACKING_SYSTEM COVER_BEEBOX          {ONEENUM(COVERConfig, TRACKING_SYSTEM, COVER_BEEBOX);}
+        | TRACKING_SYSTEM COVER_FLYBOX          {ONEENUM(COVERConfig, TRACKING_SYSTEM, COVER_FLYBOX);}
+        | TRACKING_SYSTEM PHANTOM               {ONEENUM(COVERConfig, TRACKING_SYSTEM, PHANTOM);}
+        | BUTTON_SYSTEM NONE                    {ONEENUM(COVERConfig, BUTTON_SYSTEM, NONE); }
+        | BUTTON_SYSTEM MIKE                    {ONEENUM(COVERConfig, BUTTON_SYSTEM, MIKE); }
+        | BUTTON_SYSTEM VIRTUAL_PRESENCE        {ONEENUM(COVERConfig, BUTTON_SYSTEM, VIRTUAL_PRESENCE); }
+        | BUTTON_SYSTEM CEREAL                  {ONEENUM(COVERConfig, BUTTON_SYSTEM, CEREAL); }
+        | BUTTON_SYSTEM CAVELIB                 {ONEENUM(COVERConfig, BUTTON_SYSTEM, CAVELIB); }
+        | BUTTON_SYSTEM DIVISION                {ONEENUM(COVERConfig, BUTTON_SYSTEM, DIVISION); }
+        | BUTTON_SYSTEM OLD                     {ONEENUM(COVERConfig, BUTTON_SYSTEM, OLD); }
+        | FPS boolean                               {ONEBOOL(COVERConfig, FPS,$2); }
+        | NoPreload boolean                        {ONEBOOL(COVERConfig, NoPreload, $2); }
+        | DebugSound boolean                    {ONEBOOL(COVERConfig, DebugSound, $2); }
+        | stateFixLevel number                  {ONEINT(COVERConfig, stateFixLevel, $2);}
+        | TextureMode DECAL                     {ONEENUM(COVERConfig, TextureMode, DECAL); }
+        | TextureMode MODULATE                  {ONEENUM(COVERConfig, TextureMode, MODULATE); }
+        | TextureQuality High                   {ONEENUM(COVERConfig, TextureQuality, High); }
+        | TextureQuality Low                    {ONEENUM(COVERConfig, TextureQuality, Low); }
+        | LookAndFeel red                       {ONEENUM(COVERConfig, LookAndFeel, red); }
+        | LookAndFeel green                     {ONEENUM(COVERConfig, LookAndFeel, green); }
+        | LookAndFeel wood                      {ONEENUM(COVERConfig, LookAndFeel, wood); }
+        | MAX_HEAP_BYTES number                 {ONEINT(COVERConfig, MAX_HEAP_BYTES, $2);}
+        | PIPE_LOCKING WINDOW                   {ONEENUM(COVERConfig, PIPE_LOCKING, WINDOW); }
+        | PIPE_LOCKING CHANNEL                  {ONEENUM(COVERConfig, PIPE_LOCKING, CHANNEL); }
+        | PIPE_LOCKING CHANNEL_HW               {ONEENUM(COVERConfig, PIPE_LOCKING, CHANNEL_HW); }
+        | PIPE_LOCKING NONE                     {ONEENUM(COVERConfig, PIPE_LOCKING, NONE); }
+        | SCALE_ALL boolean                     {ONEBOOL(COVERConfig, SCALE_ALL,$2);}
+        | MODULE string                         {ONESTRING(COVERConfig, MODULE,$2);}
+        | VIEWER_POSITION number number number  {THREEFLOAT(COVERConfig, VIEWER_POSITION, $2, $3, $4);}
+        | DRIVE_SPEED number number number  {THREEFLOAT(COVERConfig, DRIVE_SPEED, $2, $3, $4);}
+        | ANIM_SPEED number number number  {THREEFLOAT(COVERConfig, ANIM_SPEED, $2, $3, $4);}
+        | FAR number                            {ONEFLOAT(COVERConfig, FAR, $2);}
+        | NEAR number                           {ONEFLOAT(COVERConfig, NEAR, $2);}
+        | CORRECT_MATRIX boolean                {ONEBOOL(COVERConfig, CORRECT_MATRIX,$2);}
+        | MAX_FORCE number                      {ONEFLOAT(COVERConfig, MAX_FORCE, $2);}
+        | FORCE_FEEDBACK_MODE number            {ONEINT(COVERConfig, FORCE_FEEDBACK_MODE,$2);}
+        | FORCE_FEEDBACK boolean                {ONEBOOL(COVERConfig, FORCE_FEEDBACK,$2);}
+        | FORCE_SCALE number                    {ONEFLOAT(COVERConfig, FORCE_SCALE, $2);}
+        | SCENESIZE number                      {ONEFLOAT(COVERConfig, SCENESIZE, $2);}
+        | NUM_PIPES number                      {ONEINT(COVERConfig, NUM_PIPES, $2);}
+        | NUM_WINDOWS number                    {ONEINT(COVERConfig, NUM_WINDOWS, $2);}
+        | NUM_SCREENS number                    {ONEINT(COVERConfig, NUM_SCREENS, $2);}
+        | AUTO_WIREFRAME boolean                {ONEBOOL(COVERConfig, AUTO_WIREFRAME, $2);}
+        | FREEZE         boolean                {ONEBOOL(COVERConfig, FREEZE,$2);}
+        | COLLIDE         boolean                {ONEBOOL(COVERConfig, COLLIDE,$2);}
+        | SNAP         boolean                {ONEBOOL(COVERConfig, SNAP,$2);}
+        | COORD_AXIS     boolean                {ONEBOOL(COVERConfig, COORD_AXIS,$2);}
+        | SPECULAR         boolean              {ONEBOOL(COVERConfig, SPECULAR,$2);}
+        | SPOTLIGHT         boolean             {ONEBOOL(COVERConfig, SPOTLIGHT,$2);}
+        | STEREO_SEP         boolean             {ONEBOOL(COVERConfig, STEREO_SEP,$2);}
+        | NOTIFY ALWAYS                         {ONEENUM(COVERConfig, NOTIFY, ALWAYS); }
+        | NOTIFY FATAL                         {ONEENUM(COVERConfig, NOTIFY, FATAL); }
+        | NOTIFY WARN                         {ONEENUM(COVERConfig, NOTIFY, WARN); }
+        | NOTIFY NOTICE                         {ONEENUM(COVERConfig, NOTIFY, NOTICE); }
+        | NOTIFY INFO                         {ONEENUM(COVERConfig, NOTIFY, INFO); }
+        | NOTIFY DEBUG                         {ONEENUM(COVERConfig, NOTIFY, DEBUG); }
+        | NOTIFY FP_DEBUG                         {ONEENUM(COVERConfig, NOTIFY, FP_DEBUG); }
+        | MULTIPROCESS         boolean          {ONEBOOL(COVERConfig, MULTIPROCESS,$2);}
+        | NOSEPARATION         boolean          {ONEBOOL(COVERConfig, NOSEPARATION,$2);}
+        | WHITE_TO_GREY         boolean         {ONEBOOL(COVERConfig, WHITE_TO_GREY,$2);}
+        | ARENA_SIZE number                     {ONEINT(COVERConfig, ARENA_SIZE, $2);}
+        | MODELPATH string                      {ONESTRING(COVERConfig, MODELPATH,$2);}
+        | MODELFILE string                      {ONESTRING(COVERConfig, MODELFILE,$2);}
+        | WELCOME_MESSAGE string                {ONESTRING(COVERConfig, WELCOME_MESSAGE,$2);}
+        | FOOTER_MESSAGE string                 {ONESTRING(COVERConfig, FOOTER_MESSAGE,$2);}
+        | NAVIGATION_MODE         boolean       {ONEBOOL(COVERConfig, NAVIGATION_MODE,$2);}
+        | SYNC_MODE LOOSE_COUPLING              {ONEENUM(COVERConfig, SYNC_MODE, LOOSE_COUPLING); }
+        | SYNC_MODE TIGHT_COUPLING              {ONEENUM(COVERConfig, SYNC_MODE, TIGHT_COUPLING); } 
+        | SYNC_MODE MS_COUPLING                 {ONEENUM(COVERConfig, SYNC_MODE, MS_COUPLING); }
+        | SyncInterval number                   {ONEFLOAT(COVERConfig, SyncInterval,$2);}
+        | STEREO_SEPARATION number              {ONEFLOAT(COVERConfig, STEREO_SEPARATION,$2);}
+        | STEREO_SEPARATION AUTO                {
+                //ONEENUM(COVERConfig, STEREO_SEPARATION,AUTO);}
+                action->COVERConfig(Parser::STEREO_SEPARATION, "STEREO_SEPARATION", getCurrHost(),1000.0);
+        }
+        | MENU_SIZE number              {ONEFLOAT(COVERConfig, MENU_SIZE,$2);}
+        | MENU_POSITION    number number number {THREEFLOAT(COVERConfig, MENU_POSITION,$2,$3,$4);}
+        | MENU_ORIENTATION    number number number {THREEFLOAT(COVERConfig, MENU_ORIENTATION,$2,$3,$4);}
+        | STEREO_COMMAND string                 {ONESTRING(COVERConfig, STEREO_COMMAND, $2);}
+        | STEREO_COMMAND boolean       {
+                                         if($2->getBoolean())  {
+                                          action->COVERConfig(Parser::STEREO_COMMAND, "STEREO_COMMAND", getCurrHost(),"true");
+                                         }
+                                         else {
+                                          action->COVERConfig(Parser::STEREO_COMMAND, "STEREO_COMMAND", getCurrHost(),"false");
+                                         }
+                                       }
+        | MONO_COMMAND string                   {ONESTRING(COVERConfig, MONO_COMMAND, $2);}
+        | MONO_COMMAND boolean       {
+                                         if($2->getBoolean())  {
+                                          action->COVERConfig(Parser::MONO_COMMAND, "MONO_COMMAND", getCurrHost(),"true");
+                                         }
+                                         else {
+                                          action->COVERConfig(Parser::MONO_COMMAND, "MONO_COMMAND", getCurrHost(),"false");
+                                         }
+                                       }
+        | DEBUG_LEVEL number                    {ONEINT(COVERConfig, DEBUG_LEVEL, $2);}
+        | ANTIALIAS         boolean             {ONEBOOL(COVERConfig, ANTIALIAS,$2);}
+        | BACKGROUND       number number number {THREEFLOAT(COVERConfig, BACKGROUND, $2, $3, $4);}
+        | LIGHT2   number number number number  {FOURFLOAT(COVERConfig, LIGHT2, $2, $3, $4, $5);}
+        | LIGHT1   number number number number  {FOURFLOAT(COVERConfig, LIGHT1, $2, $3, $4, $5);}
+        | LOD_SCALE number                      {ONEFLOAT(COVERConfig, LOD_SCALE, $2);}
+        | MOVE_PARTS         boolean            {ONEBOOL(COVERConfig, MOVE_PARTS,$2);}
+        | NO_SURROUND         boolean           {ONEBOOL(COVERConfig, NO_SURROUND,$2);}
+        | ROTATE         boolean                {ONEBOOL(COVERConfig, ROTATE,$2);}
+        | STEREO         boolean                {ONEBOOL(COVERConfig, STEREO,$2);}
+        | STIPPLE         boolean               {ONEBOOL(COVERConfig, STIPPLE,$2);}
+        | TWOSIDE         boolean               {ONEBOOL(COVERConfig, TWOSIDE,$2);}
+        | SAVE_FILE string                      {ONESTRING(COVERConfig, SAVE_FILE, $2);}
+        | VISUAL_ID number                      {ONEINT(COVERConfig, VISUAL_ID, $2);}
+        | floorHeight number                    {ONEFLOAT(COVERConfig, floorHeight,$2);} 
+        | stepSize number                       {ONEFLOAT(COVERConfig, stepSize,$2);} 
+;
+coverbody:
+        | coverbody coveritem
+        | coverbody error
+;
+
+
+/*****************************************************************************************************/
+buttonconfig: ButtonConfig hostspecification OPENBRACE buttonbody CLOSEBRACE {cout << "lappend statusList {ButtonConfig erkannt}" << endl; }
+;
+
+buttonitem: SERIAL_PORT string                                {
+                ONESTRING(ButtonConfig,SERIAL_PORT,$2);
+        }
+        | MAP number ACTION_BUTTON                            {
+                action->buttonConfigMAP(getCurrHost(), $2->getInt(),Parser::ACTION_BUTTON, "ACTION_BUTTON");
+        }
+        | MAP number DRIVE_BUTTON                             {
+                action->buttonConfigMAP(getCurrHost(), $2->getInt(),Parser::DRIVE_BUTTON, "DRIVE_BUTTON");
+        }
+        | MAP number XFORM_BUTTON                             {
+                action->buttonConfigMAP(getCurrHost(), $2->getInt(),Parser::XFORM_BUTTON, "XFORM_BUTTON");
+        }
+        | MAP number NONE                                     {
+                action->buttonConfigMAP(getCurrHost(), $2->getInt(),Parser::NONE, "NONE");
+        };
+
+buttonbody:
+        | buttonbody buttonitem
+        | buttonbody error
+;
+
+/*****************************************************************************************************/
+fobconfig: FobConfig hostspecification OPENBRACE fobbody CLOSEBRACE {cout << "lappend statusList {FobConfig erkannt}" << endl; }
+;
+
+fobitem: SERIAL_PORT string                                {ONESTRING(FobConfig,SERIAL_PORT,$2);}
+        | BAUDRATE number                                      {ONEINT(FobConfig,BAUDRATE,$2);}
+        | HEMISPHERE FRONT                                      {ONEENUM(FobConfig,HEMISPHERE,FRONT);}
+        | HEMISPHERE REAR                                      {ONEENUM(FobConfig,HEMISPHERE,REAR);}
+        | HEMISPHERE LEFT                                      {ONEENUM(FobConfig,HEMISPHERE,LEFT);}
+        | HEMISPHERE RIGHT                                      {ONEENUM(FobConfig,HEMISPHERE,RIGHT);}
+        | HEMISPHERE UPPER                                      {ONEENUM(FobConfig,HEMISPHERE,UPPER);}
+        | HEMISPHERE LOWER                                      {ONEENUM(FobConfig,HEMISPHERE,LOWER);}
+        | FULLRANGE boolean                                {ONEBOOL(FobConfig,FULLRANGE,$2);}
+;
+
+fobbody:
+        | fobbody fobitem
+        | fobbody error
+;
+/*****************************************************************************************************/
+collaborativeoptions: CollaborativeOptions hostspecification OPENBRACE collabbody CLOSEBRACE {cout << "lappend statusList {CollaborativeOptions erkannt}" << endl; }
+;
+
+collabitem: UserName string                                {ONESTRING(CollaborativeOptions,UserName,$2);}
+        | Email string                               {ONESTRING(CollaborativeOptions,Email,$2);}
+        | URL string                               {ONESTRING(CollaborativeOptions,URL,$2);}
+;
+collabbody:
+        | collabbody collabitem
+        | collabbody error
+;
+
+/*****************************************************************************************************/
+polhemusconfig: PolhemusConfig hostspecification OPENBRACE polhemusbody CLOSEBRACE {cout << "lappend statusList {Polhemus erkannt}" << endl; }
+;
+
+polhemusitem: INPUT_DEVICE stylus                          {ONEENUM(PolhemusConfig,INPUT_DEVICE,stylus);}
+        | INPUT_DEVICE wand                                {ONEENUM(PolhemusConfig,INPUT_DEVICE,wand);}
+        | SERIAL_PORT string                               {ONESTRING(PolhemusConfig,SERIAL_PORT,$2);}
+        | BAUDRATE number                                      {ONEINT(PolhemusConfig,BAUDRATE,$2);}
+        | HEMISPHERE number number number                      {THREEFLOAT(PolhemusConfig,HEMISPHERE,$2,$3,$4);}
+        | NUM_STATIONS number                                  {ONEINT(PolhemusConfig,NUM_STATIONS,$2);}
+;
+
+polhemusbody:
+        | polhemusbody polhemusitem
+        | polhemusbody error
+;
+
+/*****************************************************************************************************/
+motionstarconfig: MotionstarConfig hostspecification OPENBRACE motionstarbody CLOSEBRACE {cout << "lappend statusList {Motionstar recognized}" << endl; }
+;
+
+motionstaritem: IP_ADDRESS string                                {ONESTRING(MotionstarConfig,IP_ADDRESS,$2);}
+        | HEMISPHERE FRONT                                      {ONEENUM(MotionstarConfig,HEMISPHERE,FRONT);}
+        | HEMISPHERE REAR                                      {ONEENUM(MotionstarConfig,HEMISPHERE,REAR);}
+        | HEMISPHERE LEFT                                      {ONEENUM(MotionstarConfig,HEMISPHERE,LEFT);}
+        | HEMISPHERE RIGHT                                      {ONEENUM(MotionstarConfig,HEMISPHERE,RIGHT);}
+        | HEMISPHERE UPPER                                      {ONEENUM(MotionstarConfig,HEMISPHERE,UPPER);}
+        | HEMISPHERE LOWER                                      {ONEENUM(MotionstarConfig,HEMISPHERE,LOWER);}
+        | DualTransmitter boolean                                {ONEBOOL(MotionstarConfig,DualTransmitter,$2);}
+        | AngleMode string                                      {UNDOCUMENTED;}
+        | AngleMode number                                      {UNDOCUMENTED;}
+        | BIOS OLD                                              {UNDOCUMENTED;}
+;
+
+motionstarbody:
+        | motionstarbody motionstaritem
+        | motionstarbody error
+;
+
+/*****************************************************************************************************/
+beeboxconfig: BeeboxConfig hostspecification OPENBRACE beeboxbody CLOSEBRACE {cout << "lappend statusList {Beebox recognized}" << endl; }
+;
+
+beeboxitem: SERIAL_PORT string                                {ONESTRING(BeeboxConfig,SERIAL_PORT,$2);}
+        | BAUDRATE number                                      {ONEINT(BeeboxConfig,BAUDRATE,$2);}
+        | HEMISPHERE FRONT                                      {ONEENUM(BeeboxConfig,HEMISPHERE,FRONT);}
+        | HEMISPHERE REAR                                      {ONEENUM(BeeboxConfig,HEMISPHERE,REAR);}
+        | HEMISPHERE LEFT                                      {ONEENUM(BeeboxConfig,HEMISPHERE,LEFT);}
+        | HEMISPHERE RIGHT                                      {ONEENUM(BeeboxConfig,HEMISPHERE,RIGHT);}
+        | HEMISPHERE UPPER                                      {ONEENUM(BeeboxConfig,HEMISPHERE,UPPER);}
+        | HEMISPHERE LOWER                                      {ONEENUM(BeeboxConfig,HEMISPHERE,LOWER);}
+;
+
+beeboxbody:
+        | beeboxbody beeboxitem
+        | beeboxbody error
+;
+/*****************************************************************************************************/
+spaceballconfig: SpaceballConfig hostspecification OPENBRACE spaceballbody CLOSEBRACE {cout << "lappend statusList {Spaceball recognized}" << endl; }
+;
+
+spaceballitem: SCALE_ROTATION number                            {ONEFLOAT(SpaceballConfig,SCALE_ROTATION,$2);}
+        SCALE_TRANSLATION number                                   {ONEFLOAT(SpaceballConfig,SCALE_TRANSLATION,$2);}
+;
+
+spaceballbody:
+        | spaceballbody spaceballitem
+        | spaceballbody error
+;
+
+/*****************************************************************************************************/
+flyboxconfig: FlyboxConfig hostspecification OPENBRACE flyboxbody CLOSEBRACE {cout << "lappend statusList {Flybox recognized}" << endl; }
+;
+
+flyboxitem: SERIAL_PORT string                                {ONESTRING(FlyboxConfig,SERIAL_PORT,$2);}
+        | BAUDRATE number                                      {ONEINT(FlyboxConfig,BAUDRATE,$2);}
+        | HEMISPHERE FRONT                                      {ONEENUM(FlyboxConfig,HEMISPHERE,FRONT);}
+        | HEMISPHERE REAR                                      {ONEENUM(FlyboxConfig,HEMISPHERE,REAR);}
+        | HEMISPHERE LEFT                                      {ONEENUM(FlyboxConfig,HEMISPHERE,LEFT);}
+        | HEMISPHERE RIGHT                                      {ONEENUM(FlyboxConfig,HEMISPHERE,RIGHT);}
+        | HEMISPHERE UPPER                                      {ONEENUM(FlyboxConfig,HEMISPHERE,UPPER);}
+        | HEMISPHERE LOWER                                      {ONEENUM(FlyboxConfig,HEMISPHERE,LOWER);}
+;
+
+flyboxbody:
+        | flyboxbody flyboxitem
+        | flyboxbody error
+;
+
+/*****************************************************************************************************/
+phantomconfig: PhantomConfig hostspecification OPENBRACE phantombody CLOSEBRACE {cout << "lappend statusList {Phantom recognized}" << endl; }
+;
+
+phantomitem: SERIAL_PORT string                                {ONESTRING(PhantomConfig,SERIAL_PORT,$2);}
+;
+
+phantombody:
+        | phantombody phantomitem
+        | phantombody error
+;
+
+/*****************************************************************************************************/
+cavelibconfig: CaveLibConfig hostspecification OPENBRACE cavelibbody CLOSEBRACE {cout << "lappend statusList {CaveLib recognized}" << endl; }
+;
+
+cavelibitem: TRACKER_SHMID number                                      {ONEINT(CaveLibConfig,TRACKER_SHMID,$2);}
+;
+
+cavelibbody:
+        | cavelibbody cavelibitem
+        | cavelibbody error
+;
+
+
+
+/*****************************************************************************************************/
+trackerconfig: TrackerConfig  hostspecification OPENBRACE trackerbody CLOSEBRACE {cout << "lappend statusList {Tracker recognized}" << endl; }
+;
+
+trackeritem: TRANSMITTER_OFFSET number number number            {THREEINT(TrackerConfig,TRANSMITTER_OFFSET,$2,$3,$4);}
+        |    TRANSMITTER_ORIENTATION number number number{THREEINT(TrackerConfig,TRANSMITTER_ORIENTATION,$2,$3,$4);}
+        |    HEADSENSOR_OFFSET number number number             {THREEINT(TrackerConfig,HEADSENSOR_OFFSET,$2,$3,$4);}
+        |    HEADSENSOR_ORIENTATION number number number {THREEINT(TrackerConfig,HEADSENSOR_ORIENTATION,$2,$3,$4);}
+        |    HANDSENSOR_OFFSET number number number             {THREEINT(TrackerConfig,HANDSENSOR_OFFSET,$2,$3,$4);}
+        |    HANDSENSOR_ORIENTATION number number number {THREEINT(TrackerConfig,HANDSENSOR_ORIENTATION,$2,$3,$4);}
+        |    HAND_ADDR number                                   {ONEINT(TrackerConfig,HAND_ADDR,$2); }
+        |    HEAD_ADDR number                                   {ONEINT(TrackerConfig,HEAD_ADDR,$2); }
+        | NUM_SENSORS number                                    {ONEINT(TrackerConfig,NUM_SENSORS,$2); }
+        | LINEAR_MAGNETIC_FIELD_CORRECTION number number number {THREEFLOAT(TrackerConfig,LINEAR_MAGNETIC_FIELD_CORRECTION,$2,$3,$4); }
+        | WRITE_CALIBRATION string                              {UNDOCUMENTED; }
+        | ORIENT_INTERPOLATION string                                 {UNDOCUMENTED; }
+        | INTERPOLATION_FILE string                             {UNDOCUMENTED; }
+        | INTERPOLATION_FILE_X string                           {UNDOCUMENTED; }
+        | INTERPOLATION_FILE_Y string                           {UNDOCUMENTED; }
+        | INTERPOLATION_FILE_Z string                           {UNDOCUMENTED; }
+        | WRITE_CALIBRATION boolean                              {UNDOCUMENTED; }
+        | ORIENT_INTERPOLATION boolean                                 {UNDOCUMENTED; }
+        | INTERPOLATION_FILE boolean                             {UNDOCUMENTED; }
+        | INTERPOLATION_FILE_X boolean                           {UNDOCUMENTED; }
+        | INTERPOLATION_FILE_Y boolean                           {UNDOCUMENTED; }
+        | INTERPOLATION_FILE_Z boolean                           {UNDOCUMENTED; }
+        | DEBUG_TRACKING RAW                                    {ONEENUM(TrackerConfig,DEBUG_TRACKING,RAW);}
+        | DEBUG_TRACKING APP                                    {ONEENUM(TrackerConfig,DEBUG_TRACKING,APP);}
+        | DEBUG_STATION number                                  {ONEINT(TrackerConfig,DEBUG_STATION,$2); }
+;
+         
+trackerbody:
+        | trackerbody trackeritem
+        | trackerbody error
+;
+/*****************************************************************************************************/ 
+trackercalibration: TrackerCalibration  hostspecification OPENBRACE trackercalibbody CLOSEBRACE {cout << "lappend statusList {TrackerCalibration recognized}" << endl; }
+;
+
+trackercalibitem: STATUS boolean                        {ONEBOOL(TrackerCalibration,STATUS,$2);}
+        | ORIGIN number number number                   {THREEFLOAT(TrackerCalibration,ORIGIN,$2,$3,$4);}
+        | FILTER_TYPE number                            {ONEINT(TrackerCalibration,FILTER_TYPE,$2);}
+        | ALPHA number                                  {ONEFLOAT(TrackerCalibration,ALPHA,$2);}
+        | BETA0 number                                  {ONEFLOAT(TrackerCalibration,BETA0,$2);}
+        | BETA1 number                                  {ONEFLOAT(TrackerCalibration,BETA1,$2);}
+        | GAMMA number                                  {ONEFLOAT(TrackerCalibration,GAMMA,$2);}
+        | DELTA number                                  {ONEFLOAT(TrackerCalibration,DELTA,$2);}
+        | UP_SCALE number                               {ONEFLOAT(TrackerCalibration,UP_SCALE,$2);}
+        | SWAP boolean                                  {ONEBOOL(TrackerCalibration,SWAP,$2);}
+;
+         
+trackercalibbody:
+        | trackercalibbody trackercalibitem
+        | trackercalibbody error
+;
+/*****************************************************************************************************/ 
+hostconfig: HostConfig OPENBRACE hostconfigbody CLOSEBRACE {cout << "lappend statusList {HostConfig recognized}" << endl; }
+;
+
+executionmode: rexec         { $$ = new attribute("rexec",Parser::rexec);cout << "lappend statusList {executionmode recognized}" << endl;}
+        | rsh           { $$ = new attribute("rsh",Parser::rsh);}
+        | ssh           { $$ = new attribute("ssh",Parser::ssh);}
+        | covised        { $$ = new attribute("covised",Parser::covised);}
+        | manual        { $$ = new attribute("manual",Parser::manual);}
+;
+        //Note that this line is needed since the grammar is parsed 
+        //and translated into tcl code
+        //ENUMERATE HostConfig executionmode "{rexec rsh ssh covised manual}"
+
+sharedmemory: shm           { $$ = new attribute("shm",Parser::shm);cout << "lappend statusList {sharedmemory recognized} " << endl; }
+        | mmap          { $$ = new attribute("mmap",Parser::mmap);}
+        | none          { $$ = new attribute("none",Parser::none);}
+;
+        //Note that this line is needed since the grammar is parsed 
+        //and translated into tcl code
+        //ENUMERATE HostConfig sharedmemory "{ shm map none}"
+
+hostconfigitem: string sharedmemory executionmode number {
+                action->hostConfigItem($1->getString(),$2->getInt(),$2->getString(), $3->getInt(),$3->getString(),$4->getInt(),getCurrHost());
+        }
+;
+
+hostconfigbody:
+        | hostconfigbody hostconfigitem
+        | hostconfigbody error
+;
+/*****************************************************************************************************/ 
+license: License OPENBRACE licensebody CLOSEBRACE {cout << "lappend statusList {License recognized}" << endl; }
+;
+
+licenseitem: Key string string string  {
+                action->licenseItem($2->getString(),$3->getString(),$4->getString(),getCurrHost());
+        }
+;
+
+licensebody:
+        | licensebody licenseitem
+        | licensebody error
+;
+/*****************************************************************************************************/ 
+vrviewpoints: VRViewpoints OPENBRACE vrviewpointsbody CLOSEBRACE {cout << "lappend statusList {Vrviewpoints recognized}" << endl; }
+;
+
+vrviewpointsitem: FLYING_MODE boolean  {ONEBOOL(VRViewpoints,FLYING_MODE,$2);}
+                  | string number number number number number number number {
+                     action->vrviewpointsItem($1->getString(),
+                                              $2->getDouble(),
+                                              $3->getDouble(),
+                                              $4->getDouble(),
+                                              $5->getDouble(),
+                                              $6->getDouble(),
+                                              $7->getDouble(),
+                                              $8->getDouble(),
+                                              getCurrHost());
+                  }
+                  | number number number number number number number number {
+                     action->vrviewpointsItem($1->getString(),
+                                              $2->getDouble(),
+                                              $3->getDouble(),
+                                              $4->getDouble(),
+                                              $5->getDouble(),
+                                              $6->getDouble(),
+                                              $7->getDouble(),
+                                              $8->getDouble(),
+                                              getCurrHost());
+                  }
+;
+
+vrviewpointsbody:
+        | vrviewpointsbody vrviewpointsitem
+        | vrviewpointsbody error
+;
+/*****************************************************************************************************/
+
+
+
+/* Often strings which are keywords in other sections are choosen for a window name or screenname and so on */
+specialname: FRONT { $$ = new attribute("FRONT");}  |
+ REAR  { $$ = new attribute("REAR");} |
+ LEFT  { $$ = new attribute("LEFT");} |
+ RIGHT  { $$ = new attribute("RIGHT");} |
+ UPPER  { $$ = new attribute("UPPER");} |
+ LOWER  { $$ = new attribute("LOWER");}
+;
+
+name: string | specialname 
+;
+/*****************************************************************************************************/
+windowconfig: WindowConfig hostspecification OPENBRACE windowbody CLOSEBRACE {cout << "lappend statusList {WindowConfig recognized}" << endl; }
+;
+
+windowitem: number name number number number number number  {
+                action->windowConfigItem(
+                        $1->getInt(),
+                        $2->getString(),
+                        $3->getInt(),
+                        $4->getInt(),
+                        $5->getInt(),
+                        $6->getInt(),
+                        $7->getInt(),
+                        getCurrHost()
+                )}
+;
+
+windowbody:
+        | windowbody windowitem
+        | windowbody error
+;
+/*****************************************************************************************************/
+screenconfig: ScreenConfig hostspecification OPENBRACE screenbody CLOSEBRACE {cout << "lappend statusList {ScreenConfig recognized}" << endl; }
+;
+
+screenitem: number name number number number number number number number number {
+                action->screenConfigItem(
+                        $1->getInt(),
+                        $2->getString(),
+                        $3->getInt(),
+                        $4->getInt(),
+                        $5->getInt(),
+                        $6->getInt(),
+                        $7->getInt(),
+                        $8->getDouble(),
+                        $9->getDouble(),
+                        $10->getDouble(),
+                        getCurrHost()
+                )}
+;
+
+screenbody:
+        | screenbody screenitem
+        | screenbody error
+;
+/*****************************************************************************************************/
+channelconfig: ChannelConfig hostspecification OPENBRACE channelbody CLOSEBRACE {cout << "lappend statusList {ChannelConfig recognized}" << endl; }
+;
+
+channelitem: number name number number number number number  {
+                action->channelConfigItem(
+                        $1->getInt(),
+                        $2->getString(),
+                        $3->getInt(),
+                        $4->getDouble(),
+                        $5->getDouble(),
+                        $6->getDouble(),
+                        $7->getDouble(),
+                        getCurrHost())} |
+         number name number   {
+                action->channelConfigItem(
+                        $1->getInt(),
+                        $2->getString(),
+                        $3->getInt(),
+                        -1.0,-1.0,-1.0,1.0,
+                        getCurrHost())}
+;
+
+channelbody:
+        | channelbody channelitem
+        | channelbody error
+;
+/*****************************************************************************************************/
+
+pipeconfig: PipeConfig hostspecification OPENBRACE pipebody CLOSEBRACE {cout << "lappend statusList {PipeConfig recognized}" << endl; }
+;
+
+pipeitem: number number string  {
+        action->pipeConfigItem(getCurrHost(), $1->getInt(), $2->getInt(), $3->getString())}
+;
+
+pipebody:
+        | pipebody pipeitem
+        | pipebody error
+;
+/*****************************************************************************************************/
+/*****************************************************************************************************/
+
+uiconfig: UIConfig hostspecification OPENBRACE uibody CLOSEBRACE {cout << "lappend statusList {UiConfig recognized}" << endl; }
+;
+
+strings: string {
+        action->createStringList($1->getString());}
+        |strings string {
+        action->addToStringList($2->getString());}
+;
+
+uiitem: ShortCuts strings                       {
+        action->UIShortCuts(getCurrHost());}    //{ONESTRINGLIST(UIConfig,ShortCuts,$2);}
+        | ModuleColor string                    {ONESTRING(UIConfig,ModuleColor,$2);}
+        | AutoSaveTime number                   {ONEINT(UIConfig,AutoSaveTime,$2);}
+        | UndoBuffer number                   {ONEINT(UIConfig,UndoBuffer,$2);}
+        | AutoSaveFile string                   {ONESTRING(UIConfig,AutoSaveFile,$2);}
+        | HilightNodes boolean                   {ONEBOOL(UIConfig,HilightNodes,$2);}
+;
+
+uibody:
+        | uibody uiitem
+        | uibody error
+;
+/*****************************************************************************************************/
+
+
+
+multiPCconfig: MultiPC hostspecification OPENBRACE multiPCbody CLOSEBRACE {cout << "lappend statusList {MultiPCConfig erkannt}" << endl; }
+;
+
+multiPCitem: SERIAL_PORT string                                {ONESTRING(MultiPC,SERIAL_PORT,$2);}
+        | Master string                                      {ONESTRING(MultiPC,Master,$2);}
+        | Slave string                                      {ONESTRING(MultiPC,Slave,$2);}
+;
+
+multiPCbody:
+        | multiPCbody multiPCitem
+        | multiPCbody error
+;
+/*****************************************************************************************************/
+networkconfig: Network hostspecification OPENBRACE networkbody CLOSEBRACE {cout << "lappend statusList {NetworkConfig erkannt}" << endl; }
+;
+
+networkitem: IP_ALIAS string string                                {TWOSTRING(Network,IP_ALIAS,$2,$3);}
+        | COVISE_PORT number                                      {ONEINT(Network,COVISE_PORT,$2);}
+;
+
+networkbody:
+        | networkbody networkitem
+        | networkbody error
+;
+
+
+//unknownsection: string hostspecification OPENBRACE unknownbody CLOSEBRACE {cout << "lappend statusList {NetworkConfig erkannt}" << endl; }
+//;
+
+
+/******************************************************************************/
+colormaps: Colormaps hostspecification OPENBRACE colormapsbody CLOSEBRACE { cout << "lappend statusList {Colormaps erkannt}" << endl; }
+
+colormapsitem: string                                    {
+        action->colormapsitem($1->getString());}
+
+colormapsbody:
+        | colormapsbody colormapsitem
+        | colormapsbody error
+;
+
+
+colormapid: Colormap UNDERSCORE string { 
+        setColorMapName($3->getString());}
+
+colormap: colormapid hostspecification OPENBRACE colormapbody CLOSEBRACE { cout << "lappend statusList {Colormap  erkannt}" << endl; }
+
+colormapitem:
+        | RGB number number number                      {
+                  action->colormapRGB(getCurrHost(), getColorMapName(), $2->getInt(), $3->getInt(), $4->getInt());}
+        | RGBA number number number number              { 
+                  action->colormapRGBA(getCurrHost(), getColorMapName(), $2->getDouble(), $3->getDouble(), $4->getDouble(), $5->getDouble());}
+        | XRGB number number number number              { 
+                  action->colormapRGBA(getCurrHost(), getColorMapName(), $2->getDouble(), $3->getDouble(), $4->getDouble(), $5->getDouble());}
+        | RGBAX number number number number number      {
+                  action->colormapRGBAX(getCurrHost(), getColorMapName(), $2->getDouble(), $3->getDouble(), $4->getDouble(), $5->getDouble(), $6->getDouble());}
+
+colormapbody:
+        | colormapbody colormapitem
+        | colormapbody error
+;
+/********************************************************************************/
+
+unimplemented: UNIMPLEMENTED { setUnimplementedSectionName(lexer->YYText()); $$ = new attribute(getUnimplementedSectionName());}
+
+
+
+unimplementedline: UNIMPLEMENTEDLINE {$$ = new attribute(lexer->YYText(),false);}
+
+unimplementedsection: unimplemented hostspecification OPENBRACE unimplementedbody CLOSEBRACE { cout << "lappend statusList {unimplemented }" << endl; }
+
+unimplementedbody:
+        | unimplementedbody unimplementedline {
+                cout << "global unimplementedList; lappend unimplementedList {" << getUnimplementedSectionName();
+                if(0!=strcmp("default", getCurrHost())) {
+                        cout << ":" << getCurrHost();
+                }
+                cout << endl <<  "{" << $2->getString() << "}\n}" << endl; }     
+        
+        | unimplementedbody error
+;
+/******************************************************************************/
+
+
+hostinfo: HostInfo hostspecification OPENBRACE hostinfobody CLOSEBRACE {cout << "lappend statusList {HostInfo recognized}" << endl; }
+;
+
+hostinfoitem: allowSmp  boolean                   {ONEBOOL(HostInfo,allowSmp,$2);}
+        | numProcs number                               {ONEINT(HostInfo,numProcs,$2);}
+        | execGracePeriod number                {ONEFLOAT(HostInfo,execGracePeriod,$2);}
+;
+
+hostinfobody:
+        | hostinfobody hostinfoitem
+        | hostinfobody error
+;
+/*****************************************************************************************************/
+readtascflowtdi :ReadTascflowTDI hostspecification OPENBRACE readtascflowtdibody CLOSEBRACE {cout << "lappend statusList {ReadtascflowTDI recognized}" << endl; }
+;
+
+readtascflowtdiitem: IWK number            {ONEINT(ReadTascflowTDI,IWK,$2);}
+        | RWK number                       {ONEINT(ReadTascflowTDI,RWK,$2);}
+        | CWK number                {ONEINT(ReadTascflowTDI,CWK,$2);}
+;
+
+readtascflowtdibody:
+        | readtascflowtdibody readtascflowtdiitem
+        | readtascflowtdibody error
+;
+/*****************************************************************************************************/
+
+
+tracerconfig: TRACERConfig hostspecification OPENBRACE tracerbody CLOSEBRACE {cout << "lappend statusList {Tracer recognized}" << endl; }
+;
+
+traceritem: BOX_INCREASE_FACTOR number   {ONEINT(TRACERConfig,BOX_INCREASE_FACTOR,$2);}
+;
+
+tracerbody:
+        | tracerbody traceritem
+        | tracerbody error
+;
+
+/*****************************************************************************************************/
+
+%%
+

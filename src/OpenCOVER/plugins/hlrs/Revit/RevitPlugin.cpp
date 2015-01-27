@@ -1,0 +1,779 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+/****************************************************************************\ 
+**                                                            (C)2009 HLRS  **
+**                                                                          **
+** Description: Revit Plugin (connection to Autodesk Revit Architecture)    **
+**                                                                          **
+**                                                                          **
+** Author: U.Woessner		                                                  **
+**                                                                          **
+** History:  								                                         **
+** Mar-09  v1	    				       		                                   **
+**                                                                          **
+**                                                                          **
+\****************************************************************************/
+
+#include "RevitPlugin.h"
+#include <cover/coVRPluginSupport.h>
+#include <cover/RenderObject.h>
+#include <cover/coVRMSController.h>
+#include <cover/coVRConfig.h>
+#include "cover/coVRTui.h"
+#include <OpenVRUI/coCheckboxMenuItem.h>
+#include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/coSubMenuItem.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coCheckboxGroup.h>
+#include <OpenVRUI/coButtonMenuItem.h>
+
+#include <osg/Geode>
+#include <osg/Switch>
+#include <osg/Geometry>
+#include <osg/PrimitiveSet>
+#include <osg/Array>
+#include <osg/CullFace>
+#include <osg/MatrixTransform>
+#include "GenNormals.h"
+
+#include <net/covise_host.h>
+#include <net/covise_socket.h>
+#include <net/tokenbuffer.h>
+#include <config/CoviseConfig.h>
+
+using covise::TokenBuffer;
+using covise::coCoviseConfig;
+
+int ElementInfo::yPos = 3;
+
+ElementInfo::ElementInfo()
+{
+    frame = NULL;
+};
+
+ElementInfo::~ElementInfo()
+{
+    for (std::list<RevitParameter *>::iterator it = parameters.begin();
+         it != parameters.end(); it++)
+    {
+        delete *it;
+    }
+    delete frame;
+};
+void ElementInfo::addParameter(RevitParameter *p)
+{
+    if (frame == NULL)
+    {
+        frame = new coTUIFrame(name, RevitPlugin::instance()->revitTab->getID());
+        frame->setPos(0, yPos);
+    }
+    if (yPos > 200)
+    {
+        return;
+    }
+    yPos++;
+    p->createTUI(frame, parameters.size());
+    parameters.push_back(p);
+}
+
+RevitParameter::~RevitParameter()
+{
+    delete tuiLabel;
+    delete tuiElement;
+}
+
+void RevitParameter::tabletEvent(coTUIElement *tUIItem)
+{
+    TokenBuffer tb;
+    tb << element->ID;
+    tb << ID;
+    switch (StorageType)
+    {
+    case RevitPlugin::Double:
+    {
+        coTUIEditFloatField *ef = (coTUIEditFloatField *)tUIItem;
+        tb << (double)ef->getValue();
+    }
+    break;
+    case RevitPlugin::ElementId:
+    {
+        coTUIEditIntField *ef = (coTUIEditIntField *)tUIItem;
+        tb << ef->getValue();
+    }
+    break;
+    case RevitPlugin::Integer:
+    {
+        coTUIEditIntField *ef = (coTUIEditIntField *)tUIItem;
+        tb << ef->getValue();
+    }
+    break;
+    case RevitPlugin::String:
+    {
+        coTUIEditField *ef = (coTUIEditField *)tUIItem;
+        tb << ef->getText();
+    }
+    break;
+    default:
+    {
+        coTUIEditField *ef = (coTUIEditField *)tUIItem;
+        tb << ef->getText();
+    }
+    break;
+    }
+    Message m(tb);
+    m.type = (int)RevitPlugin::MSG_SetParameter;
+    RevitPlugin::instance()->sendMessage(m);
+}
+void RevitParameter::createTUI(coTUIFrame *frame, int pos)
+{
+    tuiLabel = new coTUILabel(name, frame->getID());
+    tuiLabel->setLabel(name);
+    tuiLabel->setPos(0, pos);
+    tuiElement = NULL;
+    switch (StorageType)
+    {
+    case RevitPlugin::Double:
+    {
+        coTUIEditFloatField *ef = new coTUIEditFloatField(name + "ef", frame->getID());
+        ef->setPos(1, pos);
+        ef->setValue(d);
+        tuiElement = ef;
+    }
+    break;
+    case RevitPlugin::ElementId:
+    {
+        coTUIEditIntField *ef = new coTUIEditIntField(name + "ei", frame->getID());
+        ef->setPos(1, pos);
+        ef->setValue(i);
+        tuiElement = ef;
+    }
+    break;
+    case RevitPlugin::Integer:
+    {
+        coTUIEditIntField *ef = new coTUIEditIntField(name + "ei", frame->getID());
+        ef->setPos(1, pos);
+        ef->setValue(i);
+        tuiElement = ef;
+    }
+    break;
+    case RevitPlugin::String:
+    {
+        coTUIEditField *ef = new coTUIEditField(name + "e", frame->getID());
+        ef->setPos(1, pos);
+        ef->setText(s);
+        tuiElement = ef;
+    }
+    break;
+    default:
+    {
+        coTUIEditField *ef = new coTUIEditField(name + "e", frame->getID());
+        ef->setPos(1, pos);
+        ef->setText(s);
+        tuiElement = ef;
+    }
+    break;
+    }
+
+    tuiElement->setEventListener(this);
+}
+
+RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n)
+    : menuItem(NULL)
+{
+    myPlugin = plugin;
+    name = n;
+    entryNumber = plugin->maxEntryNumber++;
+    eyePosition = pos;
+    viewDirection = -dir;
+    upDirection = up;
+
+    tuiItem = new coTUIToggleButton(name.c_str(), plugin->revitTab->getID());
+    tuiItem->setEventListener(plugin);
+    tuiItem->setPos((int)(entryNumber / 10.0) + 1, entryNumber % 10);
+}
+
+RevitViewpointEntry::~RevitViewpointEntry()
+{
+    delete menuItem;
+}
+
+void RevitViewpointEntry::setMenuItem(coCheckboxMenuItem *aButton)
+{
+    menuItem = aButton;
+}
+
+void RevitViewpointEntry::activate()
+{
+    osg::Matrix mat, rotMat;
+    mat.makeTranslate(-eyePosition[0] * 0.3048, -eyePosition[1] * 0.3048, -eyePosition[2] * 0.3048);
+    //rotMat.makeRotate(-ori[3], Vec3(ori[0],ori[1],ori[2]));
+    rotMat.makeIdentity();
+    osg::Vec3 xDir = viewDirection ^ upDirection;
+
+    rotMat(0, 0) = xDir[0];
+    rotMat(0, 1) = xDir[1];
+    rotMat(0, 2) = xDir[2];
+    rotMat(1, 0) = viewDirection[0];
+    rotMat(1, 1) = viewDirection[1];
+    rotMat(1, 2) = viewDirection[2];
+    rotMat(2, 0) = upDirection[0];
+    rotMat(2, 1) = upDirection[1];
+    rotMat(2, 2) = upDirection[2];
+    osg::Matrix irotMat;
+    irotMat.invert(rotMat);
+    mat.postMult(irotMat);
+
+    osg::Matrix scMat;
+    osg::Matrix iscMat;
+    float scaleFactor = 304.8;
+    cover->setScale(scaleFactor);
+    scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
+    iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+    mat.postMult(scMat);
+    mat.preMult(iscMat);
+    osg::Matrix viewerTrans;
+    viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
+    mat.postMult(viewerTrans);
+    cover->setXformMat(mat);
+}
+
+void RevitViewpointEntry::menuEvent(coMenuItem *aButton)
+{
+    if (((coCheckboxMenuItem *)aButton)->getState())
+    {
+        activate();
+    }
+}
+
+void RevitPlugin::createMenu()
+{
+
+    maxEntryNumber = 0;
+    cbg = new coCheckboxGroup();
+    viewpointMenu = new coRowMenu("Revit Viewpoints");
+
+    REVITButton = new coSubMenuItem("Revit");
+    REVITButton->setMenu(viewpointMenu);
+
+    addVPButton = new coButtonMenuItem("SaveViewpoint");
+    addVPButton->setMenuListener(this);
+    viewpointMenu->add(addVPButton);
+    reloadButton = new coButtonMenuItem("Reload");
+    reloadButton->setMenuListener(this);
+    viewpointMenu->add(reloadButton);
+
+    cover->getMenu()->add(REVITButton);
+
+    revitTab = new coTUITab("Revit", coVRTui::instance()->mainFolder->getID());
+    revitTab->setPos(0, 0);
+
+    reload = new coTUIButton("Reload", revitTab->getID());
+    reload->setEventListener(this);
+    reload->setPos(0, 0);
+
+    saveViewpoint = new coTUIButton("Save Viewpoint", revitTab->getID());
+    saveViewpoint->setEventListener(this);
+    saveViewpoint->setPos(0, 1);
+}
+
+void RevitPlugin::destroyMenu()
+{
+    delete viewpointMenu;
+    delete REVITButton;
+    delete cbg;
+
+    delete saveViewpoint;
+    delete reload;
+    delete revitTab;
+}
+
+RevitPlugin::RevitPlugin()
+{
+    fprintf(stderr, "RevitPlugin::RevitPlugin\n");
+    plugin = this;
+    int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
+    toRevit = NULL;
+    serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
+    if (!serverConn->getSocket())
+    {
+        cout << "tried to open server Port " << port << endl;
+        cout << "Creation of server failed!" << endl;
+        cout << "Port-Binding failed! Port already bound?" << endl;
+        delete serverConn;
+        serverConn = NULL;
+    }
+
+    struct linger linger;
+    linger.l_onoff = 0;
+    linger.l_linger = 0;
+    cout << "Set socket options..." << endl;
+    if (serverConn)
+    {
+        setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+        cout << "Set server to listen mode..." << endl;
+        serverConn->listen();
+        if (!serverConn->is_connected()) // could not open server port
+        {
+            fprintf(stderr, "Could not open server port %d\n", port);
+            delete serverConn;
+            serverConn = NULL;
+        }
+    }
+    msg = new Message;
+
+    globalmtl = new osg::Material;
+    globalmtl->ref();
+    globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+    globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    globalmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    revitGroup = new osg::MatrixTransform();
+    revitGroup->setName("RevitGeometry");
+    revitGroup->setMatrix(osg::Matrix::scale(0.3048, 0.3048, 0.3048));
+    currentGroup.push(revitGroup.get());
+    cover->getObjectsRoot()->addChild(revitGroup.get());
+    createMenu();
+}
+
+// this is called if the plugin is removed at runtime
+RevitPlugin::~RevitPlugin()
+{
+    destroyMenu();
+    while (currentGroup.size() > 1)
+        currentGroup.pop();
+
+    revitGroup->removeChild(0, revitGroup->getNumChildren());
+    cover->getObjectsRoot()->removeChild(revitGroup.get());
+
+    delete serverConn;
+    serverConn = NULL;
+    delete toRevit;
+    delete msg;
+    toRevit = NULL;
+}
+
+void RevitPlugin::menuEvent(coMenuItem *aButton)
+{
+    if (aButton == reloadButton)
+    {
+    }
+    if (aButton == addVPButton)
+    {
+    }
+}
+void RevitPlugin::tabletPressEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == reload)
+    {
+    }
+}
+
+void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == saveViewpoint)
+    {
+    }
+    else
+    {
+        for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
+             it != viewpointEntries.end(); it++)
+        {
+            if ((*it)->getTUIItem() == tUIItem)
+            {
+                (*it)->activate();
+                break;
+            }
+        }
+    }
+}
+
+void RevitPlugin::setDefaultMaterial(osg::StateSet *geoState)
+{
+    geoState->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
+}
+
+void RevitPlugin::sendMessage(Message &m)
+{
+    toRevit->send_msg(&m);
+}
+
+RevitPlugin *RevitPlugin::plugin = NULL;
+void
+RevitPlugin::handleMessage(Message *m)
+{
+    //cerr << "got Message" << endl;
+    //m->print();
+    enum MessageTypes type = (enum MessageTypes)m->type;
+
+    switch (type)
+    {
+
+    case MSG_NewParameter:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        tb >> ID;
+        int numParams;
+        tb >> numParams;
+        std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
+        if (it != ElementIDMap.end())
+        {
+            for (int i = 0; i < numParams; i++)
+            {
+                fprintf(stderr, "PFound: %d\n", ID);
+                int pID;
+                tb >> pID;
+                char *name;
+                tb >> name;
+                int StorageType;
+                tb >> StorageType;
+                int ParameterType;
+                tb >> ParameterType;
+                ElementInfo *ei = it->second;
+                RevitParameter *p = new RevitParameter(pID, std::string(name), StorageType, ParameterType, (int)ei->parameters.size(), ei);
+                switch (StorageType)
+                {
+                case Double:
+                    tb >> p->d;
+                    break;
+                case ElementId:
+                    tb >> p->ElementReferenceID;
+                    break;
+                case Integer:
+                    tb >> p->i;
+                    break;
+                case String:
+                    tb >> p->s;
+                    break;
+                default:
+                    tb >> p->s;
+                    break;
+                }
+                ei->addParameter(p);
+            }
+        }
+    }
+    break;
+    case MSG_NewGroup:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        tb >> ID;
+        char *name;
+        tb >> name;
+        osg::Group *newGroup = new osg::Group();
+        newGroup->setName(name);
+        currentGroup.top()->addChild(newGroup);
+        currentGroup.push(newGroup);
+    }
+    break;
+    case MSG_DeleteElement:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        tb >> ID;
+        std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
+        if (it != ElementIDMap.end())
+        {
+            fprintf(stderr, "DFound: %d\n", ID);
+            ElementInfo *ei = it->second;
+            for (std::list<osg::Node *>::iterator nodesIt = ei->nodes.begin(); nodesIt != ei->nodes.end(); nodesIt++)
+            {
+                osg::Node *n = *nodesIt;
+                while (n->getNumParents())
+                {
+                    n->getParent(0)->removeChild(n);
+                }
+                fprintf(stderr, "DeleteID: %d\n", ID);
+            }
+            delete ei;
+            ElementIDMap.erase(it);
+        }
+    }
+    break;
+    case MSG_NewTransform:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        tb >> ID;
+        char *name;
+        tb >> name;
+        osg::MatrixTransform *newTrans = new osg::MatrixTransform();
+        osg::Matrix m;
+        m.makeIdentity();
+        float x, y, z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(0, 0) = x;
+        m(0, 1) = y;
+        m(0, 2) = z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(1, 0) = x;
+        m(1, 1) = y;
+        m(1, 2) = z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(2, 0) = x;
+        m(2, 1) = y;
+        m(2, 2) = z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(3, 0) = x;
+        m(3, 1) = y;
+        m(3, 2) = z;
+        newTrans->setMatrix(m);
+        newTrans->setName(name);
+        currentGroup.top()->addChild(newTrans);
+        currentGroup.push(newTrans);
+    }
+    break;
+    case MSG_EndGroup:
+    {
+        currentGroup.pop();
+    }
+    break;
+    case MSG_ClearAll:
+    {
+        while (currentGroup.size() > 1)
+            currentGroup.pop();
+
+        revitGroup->removeChild(0, revitGroup->getNumChildren());
+
+        // remove viewpoints
+        maxEntryNumber = 0;
+        for (std::list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
+             it != viewpointEntries.end(); it++)
+        {
+            delete *it;
+        }
+        viewpointEntries.clear();
+        for (std::map<int, ElementInfo *>::iterator it = ElementIDMap.begin(); it != ElementIDMap.end(); it++)
+        {
+            delete (it->second);
+        }
+        ElementIDMap.clear();
+    }
+    break;
+    case MSG_AddView:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        tb >> ID;
+        char *name;
+        tb >> name;
+        float x, y, z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        osg::Vec3 pos(x, y, z);
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        osg::Vec3 dir(x, y, z);
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        osg::Vec3 up(x, y, z);
+
+        coCheckboxMenuItem *menuEntry;
+
+        menuEntry = new coCheckboxMenuItem(name, false, cbg);
+        // add viewpoint to menu
+        RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name);
+        menuEntry->setMenuListener(vpe);
+        viewpointMenu->add(menuEntry);
+        vpe->setMenuItem(menuEntry);
+        viewpointEntries.push_back(vpe);
+    }
+    break;
+    case MSG_NewObject:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        int GeometryType;
+        tb >> ID;
+        ElementInfo *ei;
+        std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
+        if (it != ElementIDMap.end())
+        {
+            ei = it->second;
+            fprintf(stderr, "NFound: %d\n", ID);
+        }
+        else
+        {
+            ei = new ElementInfo();
+            ElementIDMap[ID] = ei;
+            fprintf(stderr, "NewID: %d\n", ID);
+        }
+        char *name;
+        tb >> name;
+        ei->name = name;
+        ei->ID = ID;
+        tb >> GeometryType;
+        if (GeometryType == OBJ_TYPE_Mesh)
+        {
+
+            osg::Geode *geode = new osg::Geode();
+            geode->setName(name);
+            osg::Geometry *geom = new osg::Geometry();
+            geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+            geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+            geode->addDrawable(geom);
+            osg::StateSet *geoState = geode->getOrCreateStateSet();
+            setDefaultMaterial(geoState);
+            geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+            geode->setStateSet(geoState);
+
+            // set up geometry
+            bool isTwoSided = false;
+            char tmpChar;
+            tb >> tmpChar;
+            if (tmpChar != '\0')
+                isTwoSided = true;
+            if (!isTwoSided)
+            {
+                osg::CullFace *cullFace = new osg::CullFace();
+                cullFace->setMode(osg::CullFace::BACK);
+                geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+            }
+
+            int numTriangles;
+            tb >> numTriangles;
+
+            osg::Vec3Array *vert = new osg::Vec3Array;
+            osg::DrawArrays *triangles = new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, numTriangles * 3);
+            for (int i = 0; i < numTriangles; i++)
+            {
+                float x, y, z;
+                tb >> x;
+                tb >> y;
+                tb >> z;
+                vert->push_back(osg::Vec3(x, y, z));
+                tb >> x;
+                tb >> y;
+                tb >> z;
+                vert->push_back(osg::Vec3(x, y, z));
+                tb >> x;
+                tb >> y;
+                tb >> z;
+                vert->push_back(osg::Vec3(x, y, z));
+            }
+            unsigned char r, g, b, a;
+            int MaterialID;
+            tb >> r;
+            tb >> g;
+            tb >> b;
+            tb >> a;
+            tb >> MaterialID;
+            if (a < 250)
+            {
+                geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+                geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
+                geoState->setNestRenderBins(false);
+            }
+            else
+            {
+                geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+                geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
+                geoState->setNestRenderBins(false);
+            }
+
+            osg::Material *localmtl = new osg::Material;
+            localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+            localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+            localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+            localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+            localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+            localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+            geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+
+            geom->setVertexArray(vert);
+            geom->addPrimitiveSet(triangles);
+            GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
+            sv->apply(*geode);
+            ei->nodes.push_back(geode);
+            currentGroup.top()->addChild(geode);
+        }
+    }
+    break;
+    default:
+        switch (m->type)
+        {
+        case Message::SOCKET_CLOSED:
+        case Message::CLOSE_SOCKET:
+            delete toRevit;
+            toRevit = NULL;
+
+            cerr << "connection to Revit closed" << endl;
+            break;
+        default:
+            cerr << "Unknown message [" << MSG_NewObject << "] " << m->type << endl;
+            break;
+        }
+    }
+}
+
+void
+RevitPlugin::preFrame()
+{
+    if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
+    {
+        //   std::cout << "Trying serverConn..." << std::endl;
+        toRevit = serverConn->spawn_connection();
+        if (toRevit && toRevit->is_connected())
+        {
+            fprintf(stderr, "Connected to Revit\n");
+        }
+    }
+    char gotMsg = '\0';
+    if (coVRMSController::instance()->isMaster())
+    {
+        while (toRevit && toRevit->check_for_input())
+        {
+            toRevit->recv_msg(msg);
+            if (msg)
+            {
+                gotMsg = '\1';
+                coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
+                coVRMSController::instance()->sendSlaves(msg);
+                handleMessage(msg);
+            }
+            else
+            {
+                gotMsg = '\0';
+                cerr << "could not read message" << endl;
+                break;
+            }
+        }
+        gotMsg = '\0';
+        coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
+    }
+    else
+    {
+        do
+        {
+            coVRMSController::instance()->readMaster(&gotMsg, sizeof(char));
+            if (gotMsg != '\0')
+            {
+                coVRMSController::instance()->readMaster(msg);
+                handleMessage(msg);
+            }
+        } while (gotMsg != '\0');
+    }
+}
+
+COVERPLUGIN(RevitPlugin)

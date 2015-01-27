@@ -1,0 +1,27 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	cutting\_direction & Choice  & You can choose the direction which should be variable. If you imagine a 2D-plot this corresponds to the values used on the x-axis. Therefore the data value at this point is displayed along the y-axis of the plot. More over you can enter a range of indexes on the chosen axis. The range begins at the corresponding index parameter and ends with the maximum index in this direction.\\
+\hline
+	i\_index & Scalar & Constant index in x- direction or start of index range if {\tt cut along i} is chosen.  \\
+\hline
+	j\_index & Scalar & Constant index in y- direction or start of index range if {\tt cut along j} is chosen.  \\										\hline
+	k\_index & Scalar & Constant index in z- direction or start of index range if {\tt cut along k} is chosen.  \\					
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

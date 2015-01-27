@@ -1,0 +1,89 @@
+#VRML V1.0 ascii
+
+Separator {
+    Group {
+	Separator {
+	    Separator {
+		Group {
+		    Separator {
+			Transform {
+			    translation	0 0 0
+			    rotation	0 0 1  0
+			    scaleFactor	1 1 1
+			    scaleOrientation	0 0 1  0
+			    center	0 0 0
+			}
+			Separator {
+			    Group {
+				Info {
+				    string	"solid"
+				}
+				    Texture2Transform {
+					rotation	0
+					scaleFactor	14.3652 7.74927
+					center	0.5 0.5
+				    }
+				    DEF _0 Texture2 {
+					filename	"tile2.rgb"
+					wrapT	REPEAT
+				    }
+				Material {
+				    ambientColor	0.111586 0.111586 0.111586
+				    diffuseColor	0.446344 0.446344 0.446344
+				    specularColor	0.435035 0.435035 0.435035
+				    emissiveColor	0 0 0
+				    shininess	0.488017
+				    transparency	0
+				}
+			    }
+			    Sphere {
+				radius	1.0
+			    }
+			    Separator {
+			    }
+			}
+		    }
+		}
+		Group {
+		    Separator {
+			Transform {
+			    translation 0 -1.8 0
+			    rotation	0 0 1  0
+			    scaleFactor	1 1 1
+			    scaleOrientation	0 0 1  0
+			    center	0 0 0
+			}
+			Separator {
+			    Group {
+				Info {
+				    string	"solid"
+				}Group {
+				    Texture2Transform {
+					rotation	0
+					scaleFactor	9.99555 1
+					center	0.5 0.5
+				    }
+				    USE _0
+				}
+				Material {
+				    ambientColor	0.111586 0.111586 0.111586
+				    diffuseColor	0.446344 0.446344 0.446344
+				    specularColor	0.435035 0.435035 0.435035
+				    emissiveColor	0 0 0
+				    shininess	0.488017
+				    transparency	0
+				}
+			    }
+			    Cylinder {
+				radius	0.3
+				height	2.0
+			    }
+			    Separator {
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+}

@@ -1,0 +1,18 @@
+using(Boost)
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadPlot3D.cpp
+)
+
+SET(EXTRASOURCES
+  ReadPlot3D.h
+)
+
+ADD_COVISE_MODULE(IO ReadPlot3D ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadPlot3D  coApi coAppl coCore ${EXTRA_LIBS})
+
+COVISE_INSTALL_TARGET(ReadPlot3D)

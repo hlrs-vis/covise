@@ -1,0 +1,90 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef VPB_FILEUTILS_H
+#define VPB_FILEUTILS_H
+
+
+// Cross-platform compatibility header.
+// Functions are prefixed by vpb and call their equivalents on Win32.
+
+#include <vpb/Export>
+
+#include <stdio.h>
+#include <fcntl.h>
+    
+#ifdef WIN32
+    #include <sys/types.h>
+    #include <sys/stat.h>
+#if !(defined(__CYGWIN__) || defined(__MINGW32__))
+    #define ssize_t int     // return type of read() is int on Win32
+    #define __const const
+    #define __off_t off_t
+    #define mode_t int
+    
+    // For access() - see _access() docs for the correspondence.
+    #define F_OK 00
+    #define W_OK 02
+    #define R_OK 04
+    #define X_OK 06
+#endif
+    // For fchmod (which doesn't exist on Win32)
+    // S_IREAD and S_IWRITE are in <sys/stat.h>
+    #define S_IRGRP 0
+    #define S_IWGRP 0
+    #define S_IROTH 0
+    #define S_IWOTH 0
+
+#if !(defined(__CYGWIN__) || defined(__MINGW32__))
+    #define S_IRWXU _S_IREAD | _S_IWRITE
+#endif
+    #define S_IRWXG 0
+    #define S_IRWXO 0
+#else
+    #include <unistd.h>
+#endif
+
+#include <string>
+
+namespace vpb
+{
+
+extern VPB_EXPORT int access(const char* path, int amode);
+extern VPB_EXPORT int open(const char* path, int oflag);
+extern VPB_EXPORT FILE* fopen(const char* filename, const char* mode);
+extern VPB_EXPORT ssize_t read(int fildes, void* buf, size_t nbyte);
+extern VPB_EXPORT ssize_t write(int fildes, const void* buf, size_t nbyte);
+extern VPB_EXPORT int close(int fildes);
+extern VPB_EXPORT int fclose(FILE* stream);
+extern VPB_EXPORT int fchmod(int fildes, mode_t mode);
+extern VPB_EXPORT off_t lseek(int fildes, off_t offset, int whence);
+extern VPB_EXPORT int lockf(int fildes, int function, off_t size);
+extern VPB_EXPORT int ftruncate(int fildes, off_t length);
+extern VPB_EXPORT void sync();
+extern VPB_EXPORT int fsync(int fd = 0);
+extern VPB_EXPORT int getpid();
+extern VPB_EXPORT int gethostname(char *name, size_t namelen);
+extern VPB_EXPORT int getdtablesize();
+extern VPB_EXPORT int mkdir(const char *path, int mode);
+extern VPB_EXPORT int chdir(const char *path);
+extern VPB_EXPORT char *getCurrentWorkingDirectory(char *path, int len);
+
+extern VPB_EXPORT int mkpath(const char *path, int mode);
+
+extern VPB_EXPORT bool hasWritePermission(const std::string& filename);
+
+extern VPB_EXPORT std::string simplifyFileName(const std::string& filename);
+
+}
+
+#endif

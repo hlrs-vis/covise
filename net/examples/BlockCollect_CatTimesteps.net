@@ -1,0 +1,546 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+5
+# Module RWCovise
+RWCovise
+1
+LOCAL
+IO_Module
+RW:tiny_geo_1
+66
+22
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/tutorial/tiny_geo.covise
+
+0
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module BlockCollect
+BlockCollect
+1
+LOCAL
+Tools
+BlockCollect_1
+99
+242
+15
+inport_0
+coDistributedObject
+input object
+req
+
+inport_1
+coDistributedObject
+input object
+opt
+
+inport_2
+coDistributedObject
+input object
+opt
+
+inport_3
+coDistributedObject
+input object
+opt
+
+inport_4
+coDistributedObject
+input object
+opt
+
+inport_5
+coDistributedObject
+input object
+opt
+
+inport_6
+coDistributedObject
+input object
+opt
+
+inport_7
+coDistributedObject
+input object
+opt
+
+inport_8
+coDistributedObject
+input object
+opt
+
+inport_9
+coDistributedObject
+input object
+opt
+
+inport_10
+coDistributedObject
+input object
+opt
+
+inport_11
+coDistributedObject
+input object
+opt
+
+inport_12
+coDistributedObject
+input object
+opt
+
+inport_13
+coDistributedObject
+input object
+opt
+
+inport_14
+coDistributedObject
+input object
+opt
+
+1
+set_out
+coDistributedObject
+output object
+default
+
+1
+mode
+Choice
+mode
+2 SetofElements CatTimesteps MergeBlocks SetofTimesteps SetofBlocks
+
+-1
+0
+# Module DomainSurface
+DomainSurface
+1
+LOCAL
+Filter
+DomainSurface_1
+66
+88
+2
+GridIn0
+StructuredGrid|RectilinearGrid|UniformGrid|UnstructuredGrid
+grid
+req
+
+DataIn0
+Float|Vec3|Mat3
+data on grid points
+opt
+
+4
+GridOut0
+Polygons
+surface of structured grid
+default
+
+DataOut0
+Float|Vec3|Mat3
+data on surface
+dep DataIn0
+
+GridOut1
+Lines
+feature lines 
+default
+
+DataOut1
+Float|Vec3|Mat3
+data on feature lines
+dep DataIn0
+
+4
+angle
+FloatScalar
+feature angle
+0.1
+
+-1
+vertex
+FloatVector
+normal for back-face culling
+1.0 0.0 0.0
+
+-1
+scalar
+FloatScalar
+threshold for back-face culling
+1.5
+
+-1
+double
+Boolean
+check for duplicated vertices
+TRUE
+
+-1
+0
+# Module Renderer
+Renderer
+1
+LOCAL
+Renderer
+Renderer_1
+99
+308
+1
+RenderData
+Geometry|Points|Text_Iv|UnstructuredGrid|RectilinearGrid|StructuredGrid|Polygons|TriangleStrips|Lines
+render geometry or Inventor file
+req
+
+0
+1
+AnnotationString
+String
+Annotation descr. string
+empty
+
+-1
+0
+# Module Transform
+Transform
+1
+LOCAL
+Tools
+Transform_1
+99
+154
+5
+geo_in
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid input
+req
+
+data_in0
+Float|Vec3
+data output
+opt
+
+data_in1
+Float|Vec3
+data output
+opt
+
+data_in2
+Float|Vec3
+data output
+opt
+
+data_in3
+Float|Vec3
+data output
+opt
+
+5
+geo_out
+Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid
+polygon/grid output
+default
+
+data_out0
+Float|Vec3
+data output
+dep data_in0
+
+data_out1
+Float|Vec3
+data output
+dep data_in1
+
+data_out2
+Float|Vec3
+data output
+dep data_in2
+
+data_out3
+Float|Vec3
+data output
+dep data_in3
+
+26
+Transform
+Choice
+Please enter your choice
+6
+
+1
+normal_of_mirror_plane
+FloatVector
+normal of mirror-plane
+0 0 1.
+
+-1
+distance_to_origin
+FloatScalar
+distance to the origin
+0.000000
+
+-1
+MirroredAndOriginal
+Boolean
+Transformed object(s) and original
+TRUE
+
+-1
+vector_of_translation
+FloatVector
+transformation
+0 0 0.
+
+-1
+axis_of_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+-1
+one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+-1
+angle_of_rotation
+FloatScalar
+angle of rotation
+1.000000
+
+-1
+scale_type
+Choice
+Scale type
+1
+
+-1
+scaling_factor
+FloatScalar
+scaling factor
+1.000000
+
+-1
+new_origin
+FloatVector
+new origin
+0 0 0.
+
+-1
+axis_of_multi_rotation
+FloatVector
+axis of rotation
+0 0 1.
+
+1
+_one_point_on_the_axis
+FloatVector
+transformation
+0 0 0.
+
+1
+angle_of_multi_rotation
+FloatScalar
+angle of rotation
+10.000000
+
+1
+number_of_rotations
+IntScalar
+number of rotations
+35
+
+1
+TilingPlane
+Choice
+Tiling plane
+1
+
+-1
+flipTile
+Boolean
+Flip or else translate tile
+TRUE
+
+-1
+TilingMin
+IntVector
+Tiling pattern
+0 0
+
+-1
+TilingMax
+IntVector
+Tiling pattern
+3 3
+
+-1
+EUC_file
+Browser
+Euclidian motion
+/usr/tmp/
+
+-1
+EUC_file___filter
+BrowserFilter
+Euclidian motion
+EUC_file *.euc
+
+-1
+InDataType_0
+Choice
+Input data type_0
+1
+
+-1
+InDataType_1
+Choice
+Input data type_1
+1
+
+-1
+InDataType_2
+Choice
+Input data type_2
+1
+
+-1
+InDataType_3
+Choice
+Input data type_3
+1
+
+-1
+createSet
+Boolean
+create sets for multiple transformations
+TRUE
+
+-1
+0
+5
+RWCovise
+1
+LOCAL
+mesh
+
+DomainSurface
+1
+LOCAL
+GridIn0
+BlockCollect
+1
+LOCAL
+set_out
+
+Renderer
+1
+LOCAL
+RenderData
+DomainSurface
+1
+LOCAL
+GridOut0
+
+Transform
+1
+LOCAL
+geo_in
+DomainSurface
+1
+LOCAL
+GridOut0
+
+BlockCollect
+1
+LOCAL
+inport_1
+Transform
+1
+LOCAL
+geo_out
+
+BlockCollect
+1
+LOCAL
+inport_0
+0

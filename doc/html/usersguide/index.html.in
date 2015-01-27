@@ -1,0 +1,28 @@
+<P>
+COVISE is a Collaborative Visualization and Simulation Environment developed 
+at the Computing Center of the University of Stuttgart. It is an
+extendable distributed software environment to integrate supercomputer based 
+simulations, postprocessing, and visualization functionality with
+cooperative working in a seamless manner.
+
+<P>
+The User Guide contains the following sections:
+
+<br>
+
+<table BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%" >
+<tr BGCOLOR="#FFFFCC">
+<tr>
+<td>
+<ul>
+<li><a href="intro/intro.html">Introduction</a></li>
+<li><a href="mapeditor/mapeditor.html">Visual Programming (Map Editor)</a></li>
+<li><a href="renderer/renderer.html">Using the Desktop Renderer</a></li>
+<li><a href="cover/cover.html">Using the VR Renderer</a></li>
+<li><a href="volumerendering/volumerendering.html">Volume Rendering</a></li>
+<li><a href="collab/collab.html">Computer Supported Cooperative Work (CSCW)</a></li>
+<li><a href="batchprocessing/batchprocessing.html">Batch Processing with Python</a></li>
+</ul>
+</td>
+
+</table>

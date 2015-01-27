@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline Points & Points & Points representing cell types\\ \hline TreeLines & Lines & Lines representing closest relationships between cell types\\ \hline Lines & Lines & Lines representing similarities between cell types\\ \hline Diameters & Float & Diameters representing difference from actual similarity\\ \hline Connectivity & Float & Connectivity information within tree\\
+\hline \end{longtable}
+

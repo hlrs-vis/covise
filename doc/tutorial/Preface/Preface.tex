@@ -1,0 +1,72 @@
+
+\begin{htmlonly}
+\input{../../htmlinc}
+\end{htmlonly}
+
+
+%=============================================================
+\startdocument
+\label{Preface}
+%=============================================================
+
+\begin{Huge}{\bf Preface}\end{Huge}
+%{\huge Preface}
+\vspace{0.5cm}
+
+This document is a short introduction to working with COVISE. It is primarily a 
+tutorial for COVISE novices. It doesn't cover advanced topics such as the 
+development of new application modules or the installation and configuration 
+process. We assume that you have a running COVISE on your machine. For installation 
+guide read the files {\it README} and {\it INSTALL.TXT} which come with your 
+COVISE distribution. For developing new application modules read the 
+{\it COVISE Programming Guide}.
+
+\vspace{0.5cm}
+COVISE is a Collaborative Visualization and Simulation Environment developed 
+at the Computing Center of the University of Stuttgart. It is an
+extendable distributed software environment to integrate supercomputer based 
+simulations, postprocessing, and visualization functionality with
+cooperative working in a seamless manner.
+
+\vspace{0.5cm}
+The tutorial contains the five chapters:
+
+In {\it Chapter 1 Starting COVISE} you learn how to initiate a single user 
+session and load a saved session. The functionality of some basic modules
+(RWCovise, DomainSurface, CuttingSurface) is explained. 
+
+{\it Chapter 2 Using the Inventor Renderer} gives a short introduction to the 
+typical work with the Renderer. 
+
+{\it Chapter 3 Working with Modules} covers module ports and module parameters. 
+
+{\it Chapter 4 Analysis of 3D Data} describes the basic steps in analyzing
+complex 3D data with the general COVISE modules. (This chapter has been 
+reworked to make the user familiar with the 'Complex Modules'  
+for building maps quicker and easier.) 
+
+{\it Chapter 5 Advanced Topics} covers distributed computing and multi user 
+sessions. 
+
+\vspace{0.5cm}
+This tutorial uses the following conventions: 
+
+File names, path names, and environment variables are printed {\it italic}, for example 
+
+{\it \$(COVISEDIR)/net/general/examples/ReadStar.net}
+
+Program names and COVISE module names are printed {\bf bold}, for example the 
+command to start COVISE: {\bf covise}, or the name of the module that
+computes a cutting plane: {\bf CuttingSurface}. 
+
+Output to the console window which COVISE produces is printed in fixed space font like 
+\begin{verbatim}
+Starting COVISE...
+Please be patient... 
+\end{verbatim}
+
+\begin{longtable}{|l|}
+\hline
+Some sections are included in a frame, indicating troubleshooting information.\endhead
+\hline
+\end{longtable}

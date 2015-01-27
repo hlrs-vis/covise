@@ -1,0 +1,39 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   {\bf Name} & {\bf Type} & {\bf Description} \endhead
+\hline\hline
+
+\textcolor{output}{outport0...outport4} & StructuredGrid\newline 
+                                            UniformGrid\newline 
+					    RectilinearGrid\newline 
+					    UnstructuredGrid\newline 
+					    Float\newline 
+					    Vec3\newline 
+					    Float  \newline
+					    Vec3 \newline
+					    Normals\newline
+					    Unstructured\_S2D\_Data  \newline
+					    Geometry\newline 
+					    Points\newline 
+					    Lines \newline 
+					    Polygons\newline 
+					    TriangleStrips\newline
+				   	    IntArr\newline
+				 	    Text\newline
+				 	    PixelImage\newline
+				            Texture 					    
+					    & Collected objects. \\
+\hline
+
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

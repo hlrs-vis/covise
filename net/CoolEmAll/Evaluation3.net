@@ -1,0 +1,3303 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+30
+# Module CuttingSurface
+CuttingSurface
+1
+LOCAL
+Filter
+CuttingSurface_1
+-391
+-153
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+1 0 0
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0.28 0 0
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.28
+
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+TRUE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.100000
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.000000
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.100000
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+# Module Colors
+Colors
+1
+LOCAL
+Mapper
+Colors_1
+-357
+-68
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+279.815 287.931
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+279.815 287.931 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+2 10 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 ANSYS 5 0 0 1 1 0 0 1 1 1 0.25 0 1 0 1 0.5 1 1 0 1 0.75 1 0 0 1 1 CoolWarm 5 0.231 0.298 0.752 1 0 0.552 0.69 0.996 1 0.25 0.866 0.866 0.866 1 0.5 0.956 0.603 0.486 1 0.75 0.705 0.015 0.149 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+20
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+0
+# Module Collect
+Collect
+1
+LOCAL
+Tools
+Collect_1
+-425
+17
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+2
+LOCAL
+Mapper
+Colors_2
+-153
+-51
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+opt
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+279.937 339.434
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+279.937 339.434 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+2 10 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 ANSYS 5 0 0 1 1 0 0 1 1 1 0.25 0 1 0 1 0.5 1 1 0 1 0.75 1 0 0 1 1 CoolWarm 5 0.231 0.298 0.752 1 0 0.552 0.69 0.996 1 0.25 0.866 0.866 0.866 1 0.5 0.956 0.603 0.486 1 0.75 0.705 0.015 0.149 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+20
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+0
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+0
+# Module Collect
+Collect
+2
+LOCAL
+Tools
+Collect_2
+-238
+34
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module VectorField
+VectorField
+1
+LOCAL
+Mapper
+VectorField_1
+-17
+-136
+3
+meshIn
+StructuredGrid|RectilinearGrid|UniformGrid|Polygons|Lines|UnstructuredGrid|TriangleStrips|Points
+input mesh
+req
+
+vdataIn
+Vec3|Mat3
+input vector data
+req
+
+sdataIn
+Float
+input scalar data
+opt
+
+2
+linesOut
+Lines
+Vectors (Lines)
+default
+
+dataOut
+Float
+Data on arrows
+default
+
+6
+scale
+FloatSlider
+Scale factor
+0 1 0.002
+
+-1
+length
+Choice
+Length of vectors
+2 1*scale length*scale according_to_data
+
+-1
+fasten
+Choice
+on_the_bottom or on_the_middle
+1 on_the_bottom on_the_middle
+
+-1
+num_sectors
+IntScalar
+number of lines for line tip
+10
+
+-1
+arrow_head_factor
+FloatScalar
+Relative length of arrow head
+0.6
+
+-1
+arrow_head_angle
+FloatScalar
+Opening angle of arrow head
+9.500000
+
+-1
+0
+# Module Colors
+Colors
+3
+LOCAL
+Mapper
+Colors_3
+51
+-68
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+req
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0.000161435 15.0211
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0.000161435 15.0211 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+2 10 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 ANSYS 5 0 0 1 1 0 0 1 1 1 0.25 0 1 0 1 0.5 1 1 0 1 0.75 1 0 0 1 1 CoolWarm 5 0.231 0.298 0.752 1 0 0.552 0.69 0.996 1 0.25 0.866 0.866 0.866 1 0.5 0.956 0.603 0.486 1 0.75 0.705 0.015 0.149 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+0
+# Module Collect
+Collect
+3
+LOCAL
+Tools
+Collect_3
+17
+17
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Collect
+Collect
+4
+LOCAL
+Tools
+Collect_4
+238
+-13
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+3
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Colors
+Colors
+5
+LOCAL
+Mapper
+Colors_4
+255
+-102
+4
+DataIn0
+Vec3|IntArr|Int|Float|Byte
+scalar data
+req
+
+DataIn1
+Vec3|IntArr|Int|Float|Byte
+scalar value
+opt
+
+DataIn2
+Float
+histogram data
+opt
+
+ColormapIn0
+ColorMap|MinMax_Data
+Colormap Input
+opt
+
+3
+DataOut0
+RGBA
+Data as colors
+dep DataIn0
+
+TextureOut0
+Texture
+Data or colormap as texture
+default
+
+ColormapOut0
+ColorMap
+Colormap Output
+default
+
+11
+MinMax
+FloatVector
+Minimum and Maximum value
+0.109678 18.8618
+
+-1
+EditableColormap
+Colormap
+Colormap Editor
+0.109678 18.8618 RGBAX 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1
+
+-1
+Colormap
+ColormapChoice
+Select a Colormap
+2 10 Editable 3 0 0 1 1 0 1 0 0 1 0.5 1 1 0 1 1 Star 15 0.1 0 0.9 1 0 0 0 1 1 0.0714286 0.63 0.63 1 1 0.142857 0 0.75 1 1 0.214286 0 1 1 1 0.285714 0.1 0.8 0.7 1 0.357143 0.1 0.9 0 1 0.428571 0.5 1 0.63 1 0.5 0.75 1 0.25 1 0.571429 1 1 0 1 0.642857 1 0.8 0.1 1 0.714286 1 0.6 0.3 1 0.785714 1 0.67 0.95 1 0.857143 1 0 0.5 1 0.928572 1 0 0 1 1 ITSM 7 0 0 0.35 1 0 0 0 1 1 0.05 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 1 0.95 0.4 0 0 1 1 Rainbow 6 0.4 0 0.4 1 0 0 0 1 1 0.2 0 1 1 1 0.4 0 1 0 1 0.6 1 1 0 1 0.8 1 0 0 1 1 IAG 6 0 0 0.345 1 0 0 0 1 1 0.113169 0 1 1 1 0.26 0 1 0 1 0.5 1 1 0 1 0.74 1 0 0 0.377 1 Blue 2 0 0 0 0 0 0 0 1 1 1 Blue-Light 2 1 1 1 1 0 0 0 1 1 1 MTransparent 7 0 0 0.345 0.025 0 0 0 1 0.049 0.193416 0 1 1 0.111 0.403292 0 1 0 0.16 0.596708 1 1 0 0.21 0.748971 1 0 0 0.278 0.90535 0.4 0 0 0.346 1 ANSYS 5 0 0 1 1 0 0 1 1 1 0.25 0 1 0 1 0.5 1 1 0 1 0.75 1 0 0 1 1 CoolWarm 5 0.231 0.298 0.752 1 0 0.552 0.69 0.996 1 0.25 0.866 0.866 0.866 1 0.5 0.956 0.603 0.486 1 0.75 0.705 0.015 0.149 1 1
+
+-1
+numSteps
+IntScalar
+Number of Steps in Map
+256
+
+-1
+autoScales
+Boolean
+Automatically adjust Min and Max
+TRUE
+
+-1
+scaleNow
+Boolean
+Re-scale and execute immediately
+FALSE
+
+-1
+opacityFactor
+FloatScalar
+Global opacity multiplicator
+1.000000
+
+-1
+annotation
+String
+Colormap Annotation String
+Colors
+
+-1
+SpikeAlgo
+Choice
+Select Spike removal algorithm
+1 None Adaptive Interval Elements
+
+-1
+SpikeLowFract
+FloatScalar
+Spike Ratio for low values
+0.050000
+
+-1
+SpikeTopFract
+FloatScalar
+Spike Ratio for high values
+0.050000
+
+-1
+0
+# Module CuttingSurface
+CuttingSurface
+6
+LOCAL
+Filter
+CuttingSurface_2
+-204
+-151
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+0 0 1
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0 0 0.04
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.04
+
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+TRUE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.100000
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.000000
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.100000
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+# Module ReadEnsight
+ReadEnsight
+2
+LOCAL
+IO_Module
+ReadEnsight_1
+-306
+-339
+0
+18
+geoOut_3D
+UnstructuredGrid
+Geometry
+default
+
+sdata1_3D
+Float
+data1-3d
+default
+
+sdata2_3D
+Float
+data2-3d
+default
+
+sdata3_3D
+Float
+data3-3d
+default
+
+vdata1_3D
+Vec3
+data2-3d
+default
+
+vdata2_3D
+Vec3
+data2-3d
+default
+
+geoOut_2D
+Polygons
+Geometry
+default
+
+sdata1_2D
+Float
+data1-2d
+default
+
+sdata2_2D
+Float
+data2-2d
+default
+
+sdata3_2D
+Float
+data3-2d
+default
+
+vdata1_2D
+Vec3
+data1-2d
+default
+
+vdata2_2D
+Vec3
+data2-2d
+default
+
+geoOut_1D
+Points
+Measured points
+default
+
+sdata1_1D
+Float
+data1-1d
+default
+
+sdata2_1D
+Float
+data2-1d
+default
+
+sdata3_1D
+Float
+data3-1d
+default
+
+vdata1_1D
+Vec3
+data1-1d
+default
+
+vdata2_1D
+Vec3
+data2-1d
+default
+
+23
+case_file
+Browser
+case file
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/EnSight/foam_case.case
+
+-1
+case_file___filter
+BrowserFilter
+case file
+case_file *.case;*.CASE;*.encas
+
+-1
+data_for_sdata1_3D
+Choice
+desc
+4 NONE nut k p T epsilon
+
+-1
+data_for_sdata2_3D
+Choice
+desc
+5 NONE nut k p T epsilon
+
+-1
+data_for_sdata3_3D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_vdata1_3D
+Choice
+desc
+2 NONE U
+
+-1
+data_for_vdata2_3D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_sdata1_2D
+Choice
+desc
+5 NONE nut k p T epsilon
+
+-1
+data_for_sdata2_2D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata3_2D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_vdata1_2D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_vdata2_2D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_sdata1_1D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata2_1D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata3_1D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_vdata1_1D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_vdata2_1D
+Choice
+desc
+1 NONE U
+
+-1
+data_byte_swap
+Boolean
+set if data is byte swapped
+FALSE
+
+-1
+choose_parts
+String
+string to extract parts
+all
+
+-1
+repair_connectivity
+Boolean
+remove degenerated cells from the geometry
+FALSE
+
+-1
+enable_autocoloring
+Boolean
+add automatic coloring to 2D parts
+TRUE
+
+-1
+store_covgrp
+Boolean
+store result in covise group file
+FALSE
+
+-1
+include_polyhedra
+Boolean
+include 3D polyhedral cells in grid output
+TRUE
+
+-1
+0
+# Module CuttingSurface
+CuttingSurface
+7
+LOCAL
+Filter
+CuttingSurface_3
+-51
+-220
+5
+GridIn0
+UnstructuredGrid|UniformGrid|StructuredGrid|RectilinearGrid
+input mesh
+req
+
+DataIn0
+Byte|Float|Vec3
+input data
+req
+
+DataIn1
+Float
+Data for isolines
+opt
+
+DataIn2
+MinMax_Data
+MinMax values for isolines
+opt
+
+DataIn3
+Text
+this char Array marks cells to be processed or not
+opt
+
+4
+GridOut0
+Polygons|TriangleStrips
+Cuttingplane
+default
+
+DataOut0
+Float|Vec3
+interpolated data
+default
+
+DataOut1
+Vec3
+Surface normals
+default
+
+DataOut2
+Lines
+Isolines
+default
+
+12
+vertex
+FloatVector
+Normal of cuttingplane, center of sphere or point on cylinder axis
+0 0 1
+
+-1
+point
+FloatVector
+Point on cuttingplane, or on sphere or Point on a cylinder
+0 0 0.032
+
+-1
+scalar
+FloatScalar
+Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere
+0.032
+
+-1
+option
+Choice
+Plane or sphere
+1 Plane Sphere Cylinder-X Cylinder-Y Cylinder-Z
+
+-1
+gennormals
+Boolean
+Supply normals
+FALSE
+
+-1
+genstrips
+Boolean
+convert triangles to strips
+TRUE
+
+-1
+genDummyS
+Boolean
+generate a dummy surface if the object hasn't been cut
+TRUE
+
+-1
+offset
+FloatScalar
+Offset of the isolines
+0.100000
+
+-1
+numiso
+IntScalar
+Number of isolines
+0
+
+-1
+isostart
+FloatScalar
+First isovalue
+0.000000
+
+-1
+isoend
+FloatScalar
+Last isovalue
+0.100000
+
+-1
+vertex_ratio
+FloatScalar
+Vertex Alloc Ratio
+4.000000
+
+-1
+0
+# Module ReadStl
+ReadStl
+1
+LOCAL
+IO_Module
+Gehaeuse
+-612
+170
+0
+4
+mesh
+Polygons
+Polygons
+default
+
+Normals
+Vec3
+velocity data
+default
+
+Feature_lines
+Lines
+Feature lines
+default
+
+colors
+RGBA
+color data
+default
+
+9
+file_path
+Browser
+Data file path
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/constant/triSurface/RECS_Intel_I7_cut_m.stl
+
+-1
+file_path___filter
+BrowserFilter
+Data file path
+file_path  *.stl;*.STL
+
+-1
+Format
+Choice
+Select STL format
+1 Autodetect ASCII Intel Unix
+
+-1
+color_type
+Choice
+Select coloring type
+1 Autodetect Magicsstyle VisCAMstyle
+
+-1
+color
+String
+color
+white
+
+-1
+RemoveDoubleVertices
+Boolean
+Remove double Vertices
+TRUE
+
+-1
+ShowFeatureLines
+Boolean
+Show feature lines
+TRUE
+
+-1
+FeatureAngle
+FloatSlider
+Feature angle
+10 30 30.
+
+-1
+FlipNormals
+Boolean
+Flip output normals
+FALSE
+
+-1
+0
+# Module ReadStl
+ReadStl
+2
+LOCAL
+IO_Module
+heatsink_1
+-612
+238
+0
+4
+mesh
+Polygons
+Polygons
+default
+
+Normals
+Vec3
+velocity data
+default
+
+Feature_lines
+Lines
+Feature lines
+default
+
+colors
+RGBA
+color data
+default
+
+9
+file_path
+Browser
+Data file path
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/constant/triSurface/heatsink_1_m.stl
+
+-1
+file_path___filter
+BrowserFilter
+Data file path
+file_path  *.stl;*.STL
+
+-1
+Format
+Choice
+Select STL format
+1 Autodetect ASCII Intel Unix
+
+-1
+color_type
+Choice
+Select coloring type
+1 Autodetect Magicsstyle VisCAMstyle
+
+-1
+color
+String
+color
+white
+
+-1
+RemoveDoubleVertices
+Boolean
+Remove double Vertices
+TRUE
+
+-1
+ShowFeatureLines
+Boolean
+Show feature lines
+TRUE
+
+-1
+FeatureAngle
+FloatSlider
+Feature angle
+10 30 30.
+
+-1
+FlipNormals
+Boolean
+Flip output normals
+FALSE
+
+-1
+0
+# Module ReadStl
+ReadStl
+3
+LOCAL
+IO_Module
+heatsink_3
+-612
+119
+0
+4
+mesh
+Polygons
+Polygons
+default
+
+Normals
+Vec3
+velocity data
+default
+
+Feature_lines
+Lines
+Feature lines
+default
+
+colors
+RGBA
+color data
+default
+
+9
+file_path
+Browser
+Data file path
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/constant/triSurface/heatsink_10_m.stl
+
+-1
+file_path___filter
+BrowserFilter
+Data file path
+file_path  *.stl;*.STL
+
+-1
+Format
+Choice
+Select STL format
+1 Autodetect ASCII Intel Unix
+
+-1
+color_type
+Choice
+Select coloring type
+1 Autodetect Magicsstyle VisCAMstyle
+
+-1
+color
+String
+color
+white
+
+-1
+RemoveDoubleVertices
+Boolean
+Remove double Vertices
+TRUE
+
+-1
+ShowFeatureLines
+Boolean
+Show feature lines
+TRUE
+
+-1
+FeatureAngle
+FloatSlider
+Feature angle
+10 30 30.
+
+-1
+FlipNormals
+Boolean
+Flip output normals
+FALSE
+
+-1
+0
+# Module ReadStl
+ReadStl
+4
+LOCAL
+IO_Module
+heatsink_2
+-612
+68
+0
+4
+mesh
+Polygons
+Polygons
+default
+
+Normals
+Vec3
+velocity data
+default
+
+Feature_lines
+Lines
+Feature lines
+default
+
+colors
+RGBA
+color data
+default
+
+9
+file_path
+Browser
+Data file path
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/constant/triSurface/heatsink_2_m.stl
+
+-1
+file_path___filter
+BrowserFilter
+Data file path
+file_path  *.stl;*.STL
+
+-1
+Format
+Choice
+Select STL format
+1 Autodetect ASCII Intel Unix
+
+-1
+color_type
+Choice
+Select coloring type
+1 Autodetect Magicsstyle VisCAMstyle
+
+-1
+color
+String
+color
+white
+
+-1
+RemoveDoubleVertices
+Boolean
+Remove double Vertices
+TRUE
+
+-1
+ShowFeatureLines
+Boolean
+Show feature lines
+TRUE
+
+-1
+FeatureAngle
+FloatSlider
+Feature angle
+10 30 30.
+
+-1
+FlipNormals
+Boolean
+Flip output normals
+FALSE
+
+-1
+0
+# Module ReadStl
+ReadStl
+5
+LOCAL
+IO_Module
+heatsink_4
+-612
+17
+0
+4
+mesh
+Polygons
+Polygons
+default
+
+Normals
+Vec3
+velocity data
+default
+
+Feature_lines
+Lines
+Feature lines
+default
+
+colors
+RGBA
+color data
+default
+
+9
+file_path
+Browser
+Data file path
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/constant/triSurface/heatsink_11_m.stl
+
+-1
+file_path___filter
+BrowserFilter
+Data file path
+file_path  *.stl;*.STL
+
+-1
+Format
+Choice
+Select STL format
+1 Autodetect ASCII Intel Unix
+
+-1
+color_type
+Choice
+Select coloring type
+1 Autodetect Magicsstyle VisCAMstyle
+
+-1
+color
+String
+color
+white
+
+-1
+RemoveDoubleVertices
+Boolean
+Remove double Vertices
+TRUE
+
+-1
+ShowFeatureLines
+Boolean
+Show feature lines
+TRUE
+
+-1
+FeatureAngle
+FloatSlider
+Feature angle
+10 30 30.
+
+-1
+FlipNormals
+Boolean
+Flip output normals
+FALSE
+
+-1
+0
+# Module ReadStl
+ReadStl
+7
+LOCAL
+IO_Module
+Deckel
+-612
+-33
+0
+4
+mesh
+Polygons
+Polygons
+default
+
+Normals
+Vec3
+velocity data
+default
+
+Feature_lines
+Lines
+Feature lines
+default
+
+colors
+RGBA
+color data
+default
+
+9
+file_path
+Browser
+Data file path
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/constant/triSurface/Deckel_cut_m.stl
+
+-1
+file_path___filter
+BrowserFilter
+Data file path
+file_path  *.stl;*.STL
+
+-1
+Format
+Choice
+Select STL format
+1 Autodetect ASCII Intel Unix
+
+-1
+color_type
+Choice
+Select coloring type
+1 Autodetect Magicsstyle VisCAMstyle
+
+-1
+color
+String
+color
+white
+
+-1
+RemoveDoubleVertices
+Boolean
+Remove double Vertices
+TRUE
+
+-1
+ShowFeatureLines
+Boolean
+Show feature lines
+TRUE
+
+-1
+FeatureAngle
+FloatSlider
+Feature angle
+10 30 30.
+
+-1
+FlipNormals
+Boolean
+Flip output normals
+FALSE
+
+-1
+0
+# Module Tracer
+Tracer
+2
+LOCAL
+Tracer
+Tracer_1
+204
+-186
+5
+meshIn
+UniformGrid|RectilinearGrid|StructuredGrid|UnstructuredGrid|Polygons
+input mesh
+req
+
+dataIn
+Vec3
+input velo.
+req
+
+pointsIn
+Points|UnstructuredGrid|Polygons|TriangleStrips|Lines|Vec3
+input initial points
+opt
+
+octtreesIn
+OctTree|OctTreeP
+input octtrees
+opt
+
+fieldIn
+Float
+input mapped field
+opt
+
+3
+lines
+Lines|Points|TriangleStrips
+output geometry
+default
+
+dataOut
+Float|Vec3
+output magnitude
+default
+
+startingPoints
+Points
+real used starting points
+default
+
+32
+no_startp
+IntSlider
+Number of starting points
+1 10000 300
+
+-1
+startpoint1
+FloatVector
+First start point
+0.001 0.0010 0.001
+
+-1
+startpoint2
+FloatVector
+Last start point
+0.001 0.4 0.04
+
+-1
+direction
+FloatVector
+Square of starting points
+0 0 1
+
+-1
+cyl_axis
+FloatVector
+axis of starting cylinder
+0 0 1
+
+-1
+cyl_radius
+FloatScalar
+diameter of starting cylinder
+1.000000
+
+-1
+cyl_height
+FloatScalar
+height of starting cylinder
+1.000000
+
+-1
+cyl_bottompoint_on_axis
+FloatVector
+point on starting cylinder
+1 0 0
+
+-1
+Displacement
+FloatVector
+Shift traces
+0 0 0
+
+-1
+tdirection
+Choice
+Forward, backward or both
+1 forward backward both
+
+-1
+whatout
+Choice
+mag, v, vx, vy, vz, time or id
+7 mag v_x v_y v_z time id v
+
+-1
+taskType
+Choice
+Streamlines, moving points or growing lines
+1 Streamlines MovingPoints Pathlines Streaklines
+
+-1
+startStyle
+Choice
+line, square or cylinder
+2 line plane cylinder
+
+-1
+trace_eps
+FloatScalar
+relative error control
+0.000010
+
+-1
+trace_abs
+FloatScalar
+absolute error control
+0.000100
+
+-1
+grid_tol
+FloatScalar
+grid tolerance for UNSGRD or POLYGN
+0.000100
+
+-1
+trace_len
+FloatScalar
+maximum length
+1
+
+-1
+min_vel
+FloatScalar
+minimal velocity
+0.001000
+
+-1
+MaxPoints
+IntScalar
+maximum number of points
+1000
+
+-1
+stepDuration
+FloatScalar
+Step duration if no REALTIME available
+0.010000
+
+-1
+NoCycles
+IntScalar
+number of cycles (dynamic data)
+1
+
+-1
+NoInterpolation
+Boolean
+If true, do not interpolate results for animations on static data
+FALSE
+
+-1
+ThrowNewParticles
+Boolean
+If true, do throw new particles at the same position for dynamic data
+FALSE
+
+-1
+ParticlesReleaseRate
+FloatScalar
+Frequency at which new particles are released
+0.000000
+
+-1
+RandomOffset
+Boolean
+If true, Particles are started at a random offset in stationary data fields
+FALSE
+
+-1
+RandomStartpoints
+Boolean
+If true, numStartpoints are randomly picked from the overall number of points in an input mesh
+FALSE
+
+-1
+divideCell
+FloatScalar
+Step control when out of domain
+0.125000
+
+-1
+maxOutOfDomain
+FloatScalar
+Control how far to integrate when out of domain
+0.250000
+
+-1
+NoWThreads
+IntScalar
+number of worker threads
+8
+
+-1
+SearchLevel
+IntScalar
+search level for polygons
+0
+
+-1
+SkipInitialSteps
+IntScalar
+skip initial steps
+0
+
+-1
+color
+String
+attribute color
+red
+
+-1
+0
+# Module ReadEnsight
+ReadEnsight
+3
+LOCAL
+IO_Module
+ReadEnsight_3
+29
+-338
+0
+18
+geoOut_3D
+UnstructuredGrid
+Geometry
+default
+
+sdata1_3D
+Float
+data1-3d
+default
+
+sdata2_3D
+Float
+data2-3d
+default
+
+sdata3_3D
+Float
+data3-3d
+default
+
+vdata1_3D
+Vec3
+data2-3d
+default
+
+vdata2_3D
+Vec3
+data2-3d
+default
+
+geoOut_2D
+Polygons
+Geometry
+default
+
+sdata1_2D
+Float
+data1-2d
+default
+
+sdata2_2D
+Float
+data2-2d
+default
+
+sdata3_2D
+Float
+data3-2d
+default
+
+vdata1_2D
+Vec3
+data1-2d
+default
+
+vdata2_2D
+Vec3
+data2-2d
+default
+
+geoOut_1D
+Points
+Measured points
+default
+
+sdata1_1D
+Float
+data1-1d
+default
+
+sdata2_1D
+Float
+data2-1d
+default
+
+sdata3_1D
+Float
+data3-1d
+default
+
+vdata1_1D
+Vec3
+data1-1d
+default
+
+vdata2_1D
+Vec3
+data2-1d
+default
+
+23
+case_file
+Browser
+case file
+/mnt/scratch/hpcdrath/RECS_2.0-1/foam_case/EnSight/foam_case.case
+
+-1
+case_file___filter
+BrowserFilter
+case file
+case_file *.case;*.CASE;*.encas
+
+-1
+data_for_sdata1_3D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata2_3D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata3_3D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_vdata1_3D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_vdata2_3D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_sdata1_2D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata2_2D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata3_2D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_vdata1_2D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_vdata2_2D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_sdata1_1D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata2_1D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_sdata3_1D
+Choice
+desc
+1 NONE nut k p T epsilon
+
+-1
+data_for_vdata1_1D
+Choice
+desc
+1 NONE U
+
+-1
+data_for_vdata2_1D
+Choice
+desc
+1 NONE U
+
+-1
+data_byte_swap
+Boolean
+set if data is byte swapped
+FALSE
+
+-1
+choose_parts
+String
+string to extract parts
+2-3
+
+-1
+repair_connectivity
+Boolean
+remove degenerated cells from the geometry
+FALSE
+
+-1
+enable_autocoloring
+Boolean
+add automatic coloring to 2D parts
+TRUE
+
+-1
+store_covgrp
+Boolean
+store result in covise group file
+FALSE
+
+-1
+include_polyhedra
+Boolean
+include 3D polyhedral cells in grid output
+TRUE
+
+-1
+0
+# Module SmoothSurface
+SmoothSurface
+1
+LOCAL
+Filter
+SmoothSurface_1
+-34
+-289
+1
+meshIn
+Polygons|TriangleStrips
+Geometry
+req
+
+1
+meshOut
+Polygons
+The reduced geometry
+default
+
+4
+method
+Choice
+Which method to use
+3 Gaussian Taubin Uwe
+
+-1
+iterations
+IntScalar
+Number of filtering iterations
+100
+
+-1
+scale_1
+FloatScalar
+Scale factor for smoothing (between 0 and 1)
+0.333333
+
+-1
+scale_2
+FloatScalar
+Scale factor for Taubin's second pass smoothing (between -1 and 0)
+-0.350000
+
+-1
+0
+# Module Material
+Material
+3
+LOCAL
+Tools
+Material_3
+-340
+153
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+4
+Material
+Material
+Material definition for Renderer
+ModuleDefined 0.23125 0.23125 0.23125 0.2775 0.2775 0.2775 0.773911 0.773911 0.773911 0 0 0 0.7 0
+
+-1
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Material
+Material
+4
+LOCAL
+Tools
+Material_4
+-374
+255
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+4
+Material
+Material
+Material definition for Renderer
+ModuleDefined 0.23125 0.23125 0.23125 0.2775 0.2775 0.2775 0.773911 0.773911 0.773911 0 0 0 0.7 0
+
+-1
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Material
+Material
+5
+LOCAL
+Tools
+Material_5
+-459
+170
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+4
+Material
+Material
+Material definition for Renderer
+ModuleDefined 0.23125 0.23125 0.23125 0.2775 0.2775 0.2775 0.773911 0.773911 0.773911 0 0 0 0.7 0
+
+-1
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module Material
+Material
+6
+LOCAL
+Tools
+Material_6
+-442
+85
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+4
+Material
+Material
+Material definition for Renderer
+ModuleDefined 0.23125 0.23125 0.23125 0.2775 0.2775 0.2775 0.773911 0.773911 0.773911 0 0 0 0.7 0
+
+-1
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module OpenCOVER
+OpenCOVER
+1
+LOCAL
+Renderer
+OpenCOVER_1
+374
+255
+1
+RenderData
+Geometry|UnstructuredGrid|Points|Spheres|StructuredGrid|Polygons|TriangleStrips|Lines|Float
+render geometry
+req
+
+0
+3
+Viewpoints
+Browser
+Viewpoints
+/mnt/scratch/hpcdrath/RECS_2.0-1/default.vwp
+
+-1
+Viewpoints___filter
+BrowserFilter
+Viewpoints
+Viewpoints *.vwp/*
+
+-1
+Plugins
+String
+Additional plugins
+
+
+-1
+0
+# Module CutGeometry
+CutGeometry
+2
+LOCAL
+Filter
+CutGeometry_1
+-714
+305
+6
+GridIn0
+Polygons|TriangleStrips|Lines
+geometry
+req
+
+DataIn0
+Float|Vec3|RGBA
+data
+opt
+
+DataIn1
+Float|Vec3|RGBA
+data
+opt
+
+DataIn2
+Float|Vec3|RGBA
+data
+opt
+
+DataIn3
+Float|Vec3|RGBA
+data
+opt
+
+adjustParams
+Text
+override parameter values
+opt
+
+5
+GridOut0
+Polygons|Lines
+geometry
+default
+
+DataOut0
+Float|Vec3|RGBA
+data
+dep DataIn0
+
+DataOut1
+Float|Vec3|RGBA
+data
+dep DataIn1
+
+DataOut2
+Float|Vec3|RGBA
+data
+dep DataIn2
+
+DataOut3
+Float|Vec3|RGBA
+data
+dep DataIn3
+
+9
+method
+Choice
+cut geometry based on data or based on geometry
+1 GeoCut DataCut
+
+-1
+geoMethod
+Choice
+cut with a plane, cylider or sphere
+1 Plane Cylinder Sphere
+
+-1
+distance
+FloatScalar
+distance of plane or cylinder radius - use negative radius to invert cylinder cut!
+0.1
+
+-1
+normal
+FloatVector
+normal of plane or cylinder axis
+1 0 0
+
+-1
+bottom
+FloatVector
+point on cylinder axis or center of sphere
+0 0 0
+
+-1
+data_min
+FloatScalar
+smallest data value, polygons with smaller values will be removed
+0.000000
+
+-1
+data_max
+FloatScalar
+biggest data value, polygons with bigger values will be removed
+1.000000
+
+-1
+invert_cut
+Boolean
+invert selected polygons?
+FALSE
+
+-1
+strict_selection
+Boolean
+one vertex out of bound is enough to erase polygon
+FALSE
+
+-1
+0
+# Module Material
+Material
+8
+LOCAL
+Tools
+Material_7
+-408
+322
+5
+GridIn0
+StructuredGrid|UnstructuredGrid|RectilinearGrid|UniformGrid|Points|Spheres|Lines|Polygons|Quads|Triangles|TriangleStrips
+Grid
+req
+
+DataIn0
+Byte|Float|Vec3|RGBA
+Colors or Scalar Data for Volume Visualization
+opt
+
+DataIn1
+Vec3
+Normals
+opt
+
+TextureIn0
+Texture
+Textures
+opt
+
+VertexAttribIn0
+Vec3|Float
+Vertex Attribute 0
+opt
+
+1
+GeometryOut0
+Geometry
+combined object
+default
+
+4
+Material
+Material
+Material definition for Renderer
+ModuleDefined 0.860488 0.860488 0.9 0.412673 0.455048 0.472727 0.420602 0.431402 0.454545 0 0 0 0.127273 0
+
+-1
+varName
+String
+name of variant
+
+
+-1
+minBound
+FloatVector
+minimum bound
+0 0 0
+
+-1
+maxBound
+FloatVector
+maximum bound
+0 0 0
+
+-1
+0
+# Module CoolEmAllSimulation
+CoolEmAllSimulation
+1
+LOCAL
+Simulation
+CoolEmAllSimulation_1
+-629
+-170
+0
+0
+3
+plmxmlFile
+Browser
+PLMXML file
+/mnt/raid/home/hpcaiyin/DEBB
+
+-1
+plmxmlFile___filter
+BrowserFilter
+PLMXML file
+plmxmlFile *.plmxml
+
+-1
+project_dir
+String
+Project Directory
+/mnt/raid/home/hpcaiyin
+
+-1
+0
+38
+CuttingSurface
+1
+LOCAL
+GridOut0
+
+Collect
+1
+LOCAL
+GridIn0
+CuttingSurface
+1
+LOCAL
+DataOut0
+
+Colors
+1
+LOCAL
+DataIn0
+Colors
+1
+LOCAL
+TextureOut0
+
+Collect
+1
+LOCAL
+TextureIn0
+Colors
+2
+LOCAL
+TextureOut0
+
+Collect
+2
+LOCAL
+TextureIn0
+Colors
+2
+LOCAL
+ColormapOut0
+
+Colors
+1
+LOCAL
+ColormapIn0
+Collect
+2
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+VectorField
+1
+LOCAL
+linesOut
+
+Collect
+3
+LOCAL
+GridIn0
+VectorField
+1
+LOCAL
+dataOut
+
+Colors
+3
+LOCAL
+DataIn0
+Colors
+3
+LOCAL
+DataOut0
+
+Collect
+3
+LOCAL
+DataIn0
+Collect
+3
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Collect
+4
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Colors
+5
+LOCAL
+DataOut0
+
+Collect
+4
+LOCAL
+DataIn0
+CuttingSurface
+6
+LOCAL
+GridOut0
+
+Collect
+2
+LOCAL
+GridIn0
+CuttingSurface
+6
+LOCAL
+DataOut0
+
+Colors
+2
+LOCAL
+DataIn0
+ReadEnsight
+2
+LOCAL
+geoOut_3D
+
+CuttingSurface
+1
+LOCAL
+GridIn0
+ReadEnsight
+2
+LOCAL
+geoOut_3D
+
+CuttingSurface
+6
+LOCAL
+GridIn0
+ReadEnsight
+2
+LOCAL
+geoOut_3D
+
+CuttingSurface
+7
+LOCAL
+GridIn0
+ReadEnsight
+2
+LOCAL
+geoOut_3D
+
+Tracer
+2
+LOCAL
+meshIn
+ReadEnsight
+2
+LOCAL
+sdata2_3D
+
+CuttingSurface
+1
+LOCAL
+DataIn0
+ReadEnsight
+2
+LOCAL
+sdata2_3D
+
+CuttingSurface
+6
+LOCAL
+DataIn0
+ReadEnsight
+2
+LOCAL
+vdata1_3D
+
+CuttingSurface
+7
+LOCAL
+DataIn0
+ReadEnsight
+2
+LOCAL
+vdata1_3D
+
+Tracer
+2
+LOCAL
+dataIn
+CuttingSurface
+7
+LOCAL
+GridOut0
+
+VectorField
+1
+LOCAL
+meshIn
+CuttingSurface
+7
+LOCAL
+DataOut0
+
+VectorField
+1
+LOCAL
+vdataIn
+ReadStl
+1
+LOCAL
+mesh
+
+Material
+8
+LOCAL
+GridIn0
+ReadStl
+2
+LOCAL
+mesh
+
+Material
+4
+LOCAL
+GridIn0
+ReadStl
+3
+LOCAL
+mesh
+
+Material
+3
+LOCAL
+GridIn0
+ReadStl
+4
+LOCAL
+mesh
+
+Material
+6
+LOCAL
+GridIn0
+ReadStl
+5
+LOCAL
+mesh
+
+Material
+5
+LOCAL
+GridIn0
+Tracer
+2
+LOCAL
+lines
+
+Collect
+4
+LOCAL
+GridIn0
+Tracer
+2
+LOCAL
+dataOut
+
+Colors
+5
+LOCAL
+DataIn0
+ReadEnsight
+3
+LOCAL
+geoOut_2D
+
+SmoothSurface
+1
+LOCAL
+meshIn
+ReadEnsight
+3
+LOCAL
+geoOut_2D
+
+Tracer
+2
+LOCAL
+pointsIn
+Material
+3
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Material
+4
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Material
+5
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Material
+6
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData
+Material
+8
+LOCAL
+GeometryOut0
+
+OpenCOVER
+1
+LOCAL
+RenderData

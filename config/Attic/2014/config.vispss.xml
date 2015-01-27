@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+
+<ButtonConfig>
+   <Map value="1 ACTION_BUTTON" name="1 ACTION_BUTTON" />
+   <Map value="2 DRIVE_BUTTON" name="2 DRIVE_BUTTON" />
+   <Map value="3 XFORM_BUTTON" name="3 XFORM_BUTTON" />
+  </ButtonConfig>
+
+  <COVER>
+
+   <Input>
+    <TrackingSystem value="SSD" />
+    <HeadAddress value="0" />
+    <HandAddress value="1" />
+    <WorldXFormAddress value="3" />
+    <NumSensors value="4" />
+
+    <TrackingSystem>
+     <Orientation h="0" p="90" r="0" />
+    </TrackingSystem>
+
+    <SSDConfig>
+     <ButtonDevice value="/dev/input/footpedal" />
+    </SSDConfig>
+
+   </Input>
+
+   <Freeze value="off" />
+   <DebugLevel value="1" />
+
+   <Menu>
+    <Position x="-100" y="0" z="0" />
+   </Menu>
+
+   <SceneSize value="300" />
+   <CoordAxis value="off" />
+   <TrackerPos value="on" />
+   <Plugin>
+    <Volume value="on" />
+    <Vrml97 value="on" />
+    <ShowTrackerObjects value = "off">
+      <HandIcon value="Dodecahedron" />
+      <HandIconSize value = "1.0" />
+      <ObjectsIcon value="Dodecahedron" />
+      <ObjectsIconSize value="1.0"/>
+      <!--Icon_1 value="Walk" /-->
+      <!--IconSize_1 value = "3.0"/-->
+    </ShowTrackerObjects>
+   </Plugin>
+
+   <Stereo enable="ON" separation="60" value="on" />
+   <NumChannels value="2" />
+
+   <ScreenConfig>
+    <Screen index="0" width="400" h="0.0" originX="0" originY="0" originZ="0" height="300" p="-30.0" r="0.0" />
+   </ScreenConfig>
+
+   <WindowConfig>
+    <Window index="0" width="1280" pipeIndex="0" height="1024" left="0" bottom="0" decoration="false" stereo="true" />
+   </WindowConfig>
+
+   <ChannelConfig>
+    <Channel index="0" channel="0" stereoMode="QUAD_BUFFER" right="1280" left="0" windowIndex="0" bottom="0" top="1024" />
+    <Channel index="1" channel="1" stereoMode="QUAD_BUFFER" right="1280" left="0" windowIndex="0" bottom="0" top="1024" />
+   </ChannelConfig>
+
+   <LookAndFeel value="PSS" />
+
+   <!--ViewerPosition x="0" y="-500" z="0" /-->
+
+  <VRUI>
+
+   <TFE>
+    <Menu>
+   <!--MenuPosition value="0 0 0"/-->
+   <!--MenuOrientation value="0 0 0"/-->
+   <Size value="0.2" />
+   </Menu>
+   </TFE>
+  </VRUI>
+  </COVER>
+
+
+  <!--COVERConfig>
+
+   <MultiThreaded value="off" />
+   <NumScreens value="1" />
+   <NumPipes value="2" />
+   <NumWindows value="1" /--> </GLOBAL>
+ <INCLUDE>config-rrzk.xml</INCLUDE>
+
+
+</COCONFIG>

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+<LOCAL host="vispro2, vise" >
+
+  <COVER>
+
+   <Menu>
+    <Position x="300" y="0" z="000" />
+   </Menu>
+
+   <!-- Point Grey DragonFly 2 -->
+   
+   <ViewerPosition x="0" y="-2800" z="0" />
+   <SceneSize value="800" />
+   <ScreenConfig>
+   <Screen width="1024" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="768" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+   
+   <!-- other camera
+   <ViewerPosition x="0" y="-2000" z="0" />
+
+   <ScreenConfig>
+   <Screen width="700" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="525" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+	-->
+   <Plugin>
+    <ARTrace value="off" />
+
+    <ARToolKit value="on" >
+     <Capture value="ON" />
+     <Stereo value="OFF" />
+     <AdjustCameraParameter value="ON" />
+     <DisplayVideo value="ON" />
+     <TrackViewpoint value="OFF" />
+     <TrackObjects value="ON" />
+     <FlipH value="FALSE" />
+     <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
+     <VideoConfig value="-mode=1024x768_COLOR -balanceU=63 -balanceV=20 -debug -channel=0 -ID=0x00b09d01002f522b -rate=15" />
+     <Threshold value="120" />
+     <Camera value="/data/ARToolKit/camera_para.dat" />
+
+     <Marker name="ObjectMarker" >
+      <Pattern value="/data/ARToolKit/4x4_15.patt" />
+      <Size value="75" />
+      <Offset x="-15" y="-110" z="-110" h="18" p="99" r="0" />  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+
+     <Marker name="AngleMarker" >
+      <Pattern value="/data/ARToolKit/4x4_48.patt" />
+      <Size value="60" />
+      <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
+      <VrmlToPf value="TRUE"/>
+     </Marker>
+     
+    </ARToolKit>
+
+   </Plugin>
+
+  </COVER>
+
+
+  <ARToolKit/>
+
+ </LOCAL>
+
+ <INCLUDE configname="hlrs" >config.hlrs.xml</INCLUDE>
+
+ 
+
+</COCONFIG>

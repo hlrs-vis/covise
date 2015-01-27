@@ -1,0 +1,116 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>File</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#FF9900">File</font></font></h2>
+
+<blockquote>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="46%" >
+<tr>
+<td><img SRC="rfile01.gif" height=244 width=298></td>
+</tr>
+</table></center>
+</blockquote>
+<font face="Arial,Helvetica">The <b><font size=+1>File</font></b> option
+provides the following functions(see above):</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Save</font></b></li>
+
+<br><font face="Arial,Helvetica">saves, via the <b>File Dialog_popup</b>,
+the current objects in Inventor3D = VRML1.0 format&nbsp; to a specified
+file. Programs reading this format can load this objects and allow further
+usage and postprocessing of the 3D data.</font>
+<br><font face="Arial,Helvetica">Save remembers the file you specified;
+following Save operations use the same target file.</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Save as...</font></b></li>
+
+<br><font face="Arial,Helvetica">saves, via the the <b>File Dialog_popup</b>,
+the whole scene to a specified file.</font>
+<br><font face="Arial,Helvetica">Use Save as... to store to different target
+files.</font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Snap</font></b></li>
+
+<br><font face="Arial,Helvetica">takes a snapshot of the viewer area.</font>
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Format of the snapshot files is .tiff
+(changed with Rel. 5.2.3). Creates an error dialog if offscreen rendering
+is not possible due to low colordepth. Offscreen rendering requires at
+least a 24bit true color. Same applies to Snap all.</font></td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Snap all</font></b></li>
+
+<br><font face="Arial,Helvetica">takes a sequence of snapshots of the viewer
+area.</font>
+<br><font face="Arial,Helvetica"><u>Note</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Snap all can only be selected if the map
+contains timesteps, e. g. if an animated particle trace is generated. Format
+of snapshot files see Snap.</font></td>
+</tr>
+</table>
+<font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">You can use these snapshots to <b>generate
+a simple movie</b> (<a href="ren_file_snapmovie.html">see example for SGI</a>).</font></ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Copy View</font></b></li>
+
+<br><font face="Arial,Helvetica">copies the currently selected object to
+a buffer from which other programs like IRIS Showcase can paste the 3D
+object into their application.</font>
+<br><font face="Arial,Helvetica"><u>Notes</u>:</font>
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="90%" BGCOLOR="#FFCCCC" >
+<tr>
+<td><font face="Arial,Helvetica">Copy View can only be selected if an object
+has been selected: switch to pick mode and click on the object in the viewer
+area, or click on the name of the object in the Geometry Objects list before
+you try to use Copy View!&nbsp;</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">You can also use Copy View in the <a href="ren_viewpopup.html">Viewer
+Popup Menu</a>&nbsp; (menu COVISE Renderer, option 'Functions', available
+by clicking with the right mouse button on the viewer area)&nbsp;</font></td>
+</tr>
+</table>
+</ul>
+
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Print</font></b></li>
+
+<br><font face="Arial,Helvetica">saves, via the <b>Scene Viewer Printing</b>
+popup, the currently visible scene in a postscript file or sends the postscript
+output directly to a printer. The available printers are listed, the output
+qualitiy and print size in inches can be adjusted, and the page format
+can be chosen between landscape or portrait<font color="#000000">.</font></font>
+<br>&nbsp;
+<li>
+<b><font face="Arial,Helvetica">Read/Save Camera Env...</font></b></li>
+
+<br><font face="Arial,Helvetica">restores/saves, via the <b>File Dialog_popup</b>,
+the camera environment (coordinates, orientation, viewing angle)</font></ul>
+
+</body>
+</html>

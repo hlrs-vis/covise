@@ -1,0 +1,19 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	method & Choice & cut geometry based on data or based on geometry\\ 
+\hline
+	distance & FloatScalar & distance of plane\\ 
+\hline
+	normal & FloatVector & normal of plane\\ 
+\hline
+	data\_min & FloatScalar & smallest data value, polygons with smaller values will be removed\\ 
+\hline
+	data\_max & FloatScalar & biggest data value, polygons with bigger values will be removed\\ 
+\hline
+	invert\_cut & Boolean & invert selected polygons?\\ 
+\hline
+	strict\_selection & Boolean & one vertex out of bound is enough to erase polygon\\
+\hline \end{longtable}
+

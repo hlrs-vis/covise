@@ -1,0 +1,21 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}
+{}{DisplaceUsgMap}{covise/net/examples/DisplaceUsg.net}{0.6}\end{covimg}
+
+We have a NASTRAN data set with displacements. From the module ReadNastran we get grid and displacement information. 
+DisplaceUsg computes the displaced unstructured grid (First Renderer output without, second
+with displacements). 
+
+\begin{covimg}
+{}{DisplaceUsgRenderer1}{Object without using displacements}{0.6}\end{covimg}
+
+\begin{covimg}
+{}{DisplaceUsgRenderer2}{Displaced Object}{0.6}\end{covimg}
+
+

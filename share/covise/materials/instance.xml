@@ -1,0 +1,45 @@
+<instance>
+<uniform name="Alphathreshold" type="float" value="0.65"/>
+<uniform name="objectTexture" type="sampler2D" value="0"/>
+<uniform name="InstanceData" type="samplerBuffer" value="1"/>
+<vertexProgram>
+#version 140 
+  uniform mat4 osg_ModelViewProjectionMatrix;
+  uniform mat4 osg_ModelViewMatrix;
+  uniform samplerBuffer InstanceData;
+  in vec4 osg_Vertex;
+  in vec4 osg_MultiTexCoord0;
+  out vec4 Texcoord;
+
+  
+    void main( void )
+    {
+        Texcoord = osg_MultiTexCoord0;
+		
+	vec4 ObjectSpacePosition = texelFetch(InstanceData, gl_InstanceID) + osg_Vertex;
+		
+    gl_Position = osg_ModelViewProjectionMatrix * ObjectSpacePosition;
+
+    }
+  </vertexProgram><fragmentProgram>
+#version 140
+
+vec4 color1;
+
+in vec4 Texcoord;
+out vec4 glFragColor;
+   
+    uniform float Alphathreshold;
+    uniform sampler2D objectTexture;
+   
+    void main( void )
+    {
+      color1 = vec4( 1.0, 0.5, 0.5, 1.0 );
+      vec4 DiffuseColor = texture2D( objectTexture, Texcoord.xy );
+      //if(DiffuseColor.a &lt; Alphathreshold)
+	  //{
+	  //    discard;
+	  //}
+      glFragColor = color1  ;	
+    }
+</fragmentProgram></instance>

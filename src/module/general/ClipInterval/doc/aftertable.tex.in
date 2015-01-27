@@ -1,0 +1,24 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+% 
+% examples for using this module
+\begin{covimg}{}{ClipIntervalMap}{covise/net/examples/ClipInterval.net}{0.6}\end{covimg}
+
+In this example the output ports containing the geometry and data of
+the DomainSurface module are connected to the input ports of ClipInterval module. 
+Also the MinMax module is used to determine the initial minimum and maximum 
+for the slider parameters. With these extreme values the geometry is not 
+clipped (as shown in the first Renderer image), but after setting for example the interval: [0.019 - 0.212] 
+you can observe that the other values out of this interval are 
+clipped (as shown in the second Renderer image). 
+
+\begin{covimg}{}{ClipIntervalRenderer2}{The initial image before using ClipInterval}{0.7}\end{covimg}
+
+\begin{covimg}{}{ClipIntervalRenderer1}{Result of ClipInterval}{0.7}\end{covimg}
+
+No example available yet for using the additional ports. 
+

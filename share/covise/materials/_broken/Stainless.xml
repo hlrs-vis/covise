@@ -1,0 +1,83 @@
+
+<Stainless opaque="true">
+
+  <uniform name="cubeMap" type="samplerCube" value="1" overwrite="true" texture1="textures/posx.jpg" texture2="textures/posy.jpg" texture3="textures/posz.jpg" texture4="textures/negx.jpg" texture5="textures/negy.jpg" texture6="textures/negz.jpg"/>
+
+  <uniform name="refl" type="float" value="0.8"/>
+  <uniform name="FresExp" type="float" value="3.0" min="0" max="50" />
+  <uniform name="KrMin" type="float" value="0.02"/>
+  <uniform name="Kr" type="float" value="1.0"/>
+
+  <vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+  
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Texcoord = gl_MultiTexCoord0.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+     
+	gl_Position = ftransform();	
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+    }
+  </vertexProgram>
+
+  <fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+   
+    uniform float refl;
+    uniform float KrMin;
+    uniform float Kr;
+    uniform float FresExp;
+    uniform samplerCube cubeMap;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+      							
+      vec3 N = normalize(normal);
+      
+      eyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      vec3 reflVec   = reflect(-eyeVec, N);
+      vec4 reflColor = textureCube( cubeMap, reflVec );
+      	
+      float lambertTerm = dot(N,L)*0.8;
+      if(lambertTerm &gt; 0.0)
+      {
+//      	final_color += gl_LightSource[0].diffuse * 
+      				   lambertTerm;	
+        float vdn = dot(eyeVec,N);
+	float fres = KrMin + (Kr-KrMin) * pow(1-abs(vdn),FresExp);
+//	final_color = mix(final_color  ,reflColor,fres);
+      		
+      	vec3 E = normalize(eyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+//      	final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+      	}
+      
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram>
+
+</Stainless>

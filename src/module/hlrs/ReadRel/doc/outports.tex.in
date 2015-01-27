@@ -1,0 +1,6 @@
+\subsubsection{Output Ports}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type(s)} & \bf{Description} \endhead \hline\hline
+\hline polygons & Polygons & geometry polygons\\ \hline normals & Vec3 & normals\\ \hline data1 & Float\newline Vec3 & data1\\ \hline data2 & Float\newline Vec3 & data2\\ \hline data3 & Float\newline Vec3 & data3\\
+\hline \end{longtable}
+

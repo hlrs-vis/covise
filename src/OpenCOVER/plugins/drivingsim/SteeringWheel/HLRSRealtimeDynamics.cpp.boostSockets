@@ -1,0 +1,169 @@
+#include "HLRSRealtimeDynamics.h"
+
+#include <OpenVRUI/osg/mathUtils.h>
+#include <config/CoviseConfig.h>
+#include "SteeringWheel.h"
+
+#include <kernel/coVRTui.h>
+
+
+#include <string>
+#include <math.h>
+
+#include <fstream>
+#include <ctime>
+#include <iostream>
+#include <string>
+
+using boost::asio::ip::tcp;
+
+// CONSTRUCTOR //
+//
+	HLRSRealtimeDynamics
+	::HLRSRealtimeDynamics()
+{
+
+	// config XML //
+	serverPort = coCoviseConfig::getInt("port","COVER.Plugin.SteeringWheel.Dynamics.HLRSRealtimeServer", 31880);
+	localPort = coCoviseConfig::getInt("localPort","COVER.Plugin.SteeringWheel.Dynamics.HLRSRealtimeServer", 31880);
+	remoteHost = coCoviseConfig::getEntry("host","COVER.Plugin.SteeringWheel.Dynamics.HLRSRealtimeServer");
+
+	boost::asio::io_service io_service;
+	socket = NULL;
+
+    
+	
+	remoteData.chassisTransform.makeIdentity();
+	tryConnect();
+
+	if(coVRMSController::instance()->isMaster())
+	{
+		/*if(!remoteHost.empty() && coVRMSController::instance()->isMaster())
+		{
+			toDSPACE = new UDPComm(remoteHost.c_str(),serverPort,localPort);
+			doRun = true;
+			startThread();
+			cerr << "starting thread" << endl;
+		}*/
+	}
+}
+
+
+	HLRSRealtimeDynamics
+	::~HLRSRealtimeDynamics()
+{
+	if(coVRMSController::instance()->isMaster())
+{
+}
+
+}
+struct my_connect_condition
+{
+  template <typename Iterator>
+  Iterator operator()(
+      const boost::system::error_code& ec,
+      Iterator next)
+  {
+    if (ec) std::cout << "Error: " << ec.message() << std::endl;
+    std::cout << "Trying: " << next->endpoint() << std::endl;
+    return next;
+  }
+};
+
+bool HLRSRealtimeDynamics::tryConnect()
+{
+    tcp::resolver resolver(io_service);
+	char buf[100];
+	sprintf(buf,"%d",serverPort);
+	
+    tcp::resolver::query query(remoteHost, buf);
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+
+    socket = new tcp::socket(io_service);
+    boost::system::error_code ec;
+    tcp::resolver::iterator i = boost::asio::connect(*socket, endpoint_iterator,my_connect_condition(),ec);
+	
+if (ec)
+{
+  delete socket;
+  socket=NULL;
+  return false;
+}
+else
+{
+  std::cout << "Connected to: " << i->endpoint() << std::endl;
+}
+return true;
+}
+
+void
+	HLRSRealtimeDynamics
+	::update()
+{
+    boost::system::error_code ec;
+    if(socket)
+	{
+	  double frameTime = cover->frameTime();
+	  size_t len = boost::asio::write(*socket,(boost::asio::buffer(&frameTime,sizeof(frameTime))));
+	  if((len)!=sizeof(remoteData))
+	  {
+	      delete socket;
+		  socket=NULL;
+	  }
+	  else
+	  {
+	  size_t len = boost::asio::read(*socket,(boost::asio::buffer(&remoteData,sizeof(remoteData))));
+	  if((len)!=sizeof(remoteData))
+	  {
+	      delete socket;
+		  socket=NULL;
+	  }
+	  }
+	}
+    // read data from remote if we have a connection
+	if(coVRMSController::instance()->isMaster())
+	{
+		coVRMSController::instance()->sendSlaves((char *)&remoteData,sizeof(remoteData));
+	}
+	else
+	{
+		coVRMSController::instance()->readMaster((char *)&remoteData,sizeof(remoteData));
+	}
+}
+
+
+void
+	HLRSRealtimeDynamics
+	::move(VrmlNodeVehicle* vehicle)
+{
+
+
+
+	vehicle->setVRMLVehicle(remoteData.chassisTransform);
+	vehicle->setVRMLVehicleBody(remoteData.chassisTransform);
+	//vehicle->setVRMLVehicleFrontWheels(inertialToWheelTransform[0], inertialToWheelTransform[1]);
+	//vehicle->setVRMLVehicleRearWheels(inertialToWheelTransform[2], inertialToWheelTransform[3]);
+
+
+}
+
+
+
+
+void
+	HLRSRealtimeDynamics
+	::setVehicleTransformation(const osg::Matrix &m)
+{
+	//oldHeight = m.getTrans()[2];
+}
+
+
+void
+	HLRSRealtimeDynamics
+	::resetState()
+{
+	//outputData[0]=1;
+	//oldHeight=0;
+	remoteData.chassisTransform.makeIdentity();
+}
+

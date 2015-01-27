@@ -1,0 +1,14 @@
+KEYDOWN-Event - state: 0x0002   code: 76   (0x004c)   ---   Shift - L
+--- coVRKey called (KeyPress, keySym=76, mod=2)
+
+KEYDOWN-Event - state: 0x0000   code: 108   (0x006c)  ---   l
+--- coVRKey called (KeyPress, keySym=108, mod=0)
+
+KEYDOWN-Event - state: 0x0008   code: 12   (0x000c)   ---   Ctrl - l
+--- coVRKey called (KeyPress, keySym=12, mod=8)
+
+KEYDOWN-Event - state: 0x0000   code: 98   (0x0062)   ---   b
+--- coVRKey called (KeyPress, keySym=98, mod=0)
+
+
+

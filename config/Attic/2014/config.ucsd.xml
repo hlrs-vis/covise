@@ -1,0 +1,333 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+  <GLOBAL>
+    <License>
+    </License>
+
+    <COVER>
+      <PipeConfig>
+        <Pipe display=":0.0" name="0" screen="0" pipe="0" />
+      </PipeConfig>
+
+      <WindowConfig>
+        <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" />
+      </WindowConfig>
+
+      <ScreenConfig>
+        <Screen width="400" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="300" p="0.0" r="0.0" name="0" screen="0" />
+      </ScreenConfig>
+    </COVER>
+
+    <System>
+      <CRB>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/IvRenderer" arch="x11"/>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/QtRenderer" arch="windows"/>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/QtRenderer" arch="mac"/>
+        <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+      </CRB>
+    </System>
+
+
+    <System> 
+      <IpTable>
+        <visper symbolic="coutsound" value="137.110.118.24" />
+        <visper symbolic="visualtest01" value="137.110.118.145" />
+        <visper symbolic="visualtest02" value="137.110.118.146" />
+      </IpTable>
+
+      <HostConfig>
+        <Host timeout="60" memory="shm" method="ssh" name="coutsound" hostname="coutsound" />
+        <Host timeout="60" memory="shm" method="ssh" name="visualtest01" hostname="visualtest01" />
+        <Host timeout="60" memory="shm" method="ssh" name="visualtest02" hostname="visualtest02" />
+      </HostConfig>
+
+      <VRB mapping="VRB">
+ <!--    
+        <TCPPort value="31002" />
+        <Server value="coutsound.ucsd.edu" />
+ -->
+      </VRB>
+    </System>  
+
+    <CUI>
+      <ResourcesDirectory value="/home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/osgcaveui/resources" />
+    </CUI>
+
+    <VRUI>
+      <TFE>
+        <ViewerPosition x="0" y="-1500" z="0" />
+        <MenuPosition value="0 100 0" />
+        <MenuSize value="1" />
+      </TFE>
+    </VRUI>
+
+   <COVER>
+
+     <WelcomeMessage value="Welcome to OpenCOVER at Calit2" />
+     <!--Background r="1" g="1" b="1" /-->    <!-- use this for a white background -->
+
+     <Menu>
+       <Orientation h="0" p="0" r="0" />
+       <Position x="-80" y="0" z="0" />
+       <Size value="0.2" />
+     </Menu>
+
+     <Plugin>
+        <ClipPlane value="on" />
+        <Vrml97 value="on" />
+        <Volume value="on" />
+        <Molecules value="on" />
+        <Molecules>
+          <DataDir value="/home/jschulze/data/itt" />
+        </Molecules>
+
+      </Plugin>
+
+      <FrameAngle value="18.0" />
+      <ScaleAll value="OFF" />
+
+     <TabletPC>
+      <Server value="localhost" />
+     </TabletPC>
+
+     <Plugin>
+
+       <VRMoleculeViewerPlugin>
+        <DataDir value="/home/jschulze/data/itt" />
+       </VRMoleculeViewerPlugin>
+
+       <DNAPlugin>
+        <DataDir value="/mnt/raid/cod/sandia/igrid/DNA Drawer/Data" />
+       </DNAPlugin>
+
+       <TetraTrace>
+        <BoxIncreaseFactor value="2" />
+       </TetraTrace>
+
+       <Volume>
+         <Files>
+           <baby value="data/karen/baby-3d-8bit.xvf" />
+           <ultrasound3d value="data/susan/time_all.xvf" />
+           <monkey_mri value="data/jacopo/monkey_mri-half.xvf" />
+           <Looking value="data/sio/graham/256x256x256-crop-flipz.rvf" />
+           <Nima-anat value="data/nima/anat.xvf" />
+           <Nima-func value="data/nima/func.xvf" />
+           <LarryF value="data/LarryFrank/1704.xvf" />
+           <GROEL value="data/kriegman/groel.xvf" />
+           <wt1g value="data/kristi/wt1g.rvf" />
+           <NCHC-Brain value="data/nchc/brain2-8-small-double.rvf" />
+           <Dendrides value="data/nchc/osaka-8.rvf" />
+           <FishEye value="data/behrens/a-rot.rvf" />
+           <VHDSkull value="data/vhd/fctskull.xvf" />
+           <Graham256 value="data/sio/graham/256x256x256-cropped-range.rvf" />
+           <Graham128 value="data/sio/graham/128x128x128.rvf" />
+           <default value="data/virvo/default.xvf" />
+         </Files>
+       </Volume>
+
+       <Image>
+         <ImageDir value="/home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/ImagePlugin/images" />
+         <ImageDist value="2" />
+         <Files>
+           <Campus value="campus" />
+           <Monkey_Brain value="test4" />
+           <Cerebellum value="test10" />
+           <Da_Vinci value="magi.ipp" />
+         </Files>
+       </Image>
+
+       <PDB>
+         <BrowserDirectory value="/home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/thumbnails" />
+         <PDBPluginMolDir value="/home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/" />
+         <PDBUrl value="www.pdb.org/pdb/files/" />
+         <AnimationURL value="www.molmovdb.org/uploads/" />
+         <Scale value="1" />
+         <ViewerDistance value="70" />
+         <FadeDistance value="40" />
+         <FileSize value="350000" />
+         <NumPerRing value="12" />
+         <Radius value="3" />
+         <MaxStructures value="80" />
+         <Structures>
+           <JCSG value="jcsg.pdp" />
+           <Thermatoga value="blah.pdp" />
+           <Gleevec value="1XBB" />
+           <Luciferin value="2D1S" />
+           <Hemoglobin value="4HHB" />
+           <HIV_Protease value="1HVR" />
+           <Smad4 value="1YGS " />
+           <Photosystem_I value="1JBO" />
+           <Cytochrome_c_Oxidase value="1OCO" />
+           <MHC_Class_II value="1DLH" />
+           <Potassium_Channel_A value="1BL8" />
+           <Potassium_Channel_B value="1FQY" />
+           <SARS value="2D2D" />
+           <Acetylcholine_Receptor value="2BG9" />
+           <Acetylcholine_Cobratoxin value="1YI5" />
+           <Thermus_Thermophilus value="1J5E" />
+           <Polyketide_Synthase value="1U0M" />
+           <Calcium_Pump value="1SU4" />
+           <Antibody_bound_Influenza value="1KEN" />
+           <Thermatoga value="2F8J" />
+           <RNA_POLYMERASE_2 value="1I6H" />
+         </Structures>
+         <Animations>
+           <Serotonin_N_Acetyltransferase value="22943-38" />
+           <Calcium_Pump value="396506-12995" />
+           <FecA_transporter value="829808-15750" />
+           <Actin value="763408-1487" />
+           <Calmodulin value="17833-29779" />
+         </Animations>
+       </PDB>
+
+       <PDB_Sequence_Display>
+	     <Scale value="1" />
+       </PDB_Sequence_Display>
+
+       <CCDBVR>
+         <Scale value="1" />
+         <ViewerDistance value="2" />
+         <Mitochondria>
+           <mito_inner value="inner_2.wrl" />
+           <mito_outer value="outer_2.wrl" />
+           <mito_crista_1 value="crista1_2.wrl" />
+           <mito_crista14 value="crista14.wrl" />
+           <mito_crista15 value="crista15.wrl" />
+         </Mitochondria>
+         <HPFNode>
+           <axon value="axon.synu.iv" />
+           <loop1 value="loop1_lower_best.synu.iv" />
+           <loop2L value="loop2_lower.synu.iv" />
+           <loop2U value="loop2_upper.synu.iv" />
+           <loop3L value="loop3_lower.synu.iv" />
+           <loop3U value="loop3_upper.synu.iv" />
+           <lysosome value="Lysosome_1.synu.iv" />
+           <paranode value="paranode.iv" />
+         </HPFNode>
+         <Complete>
+           <Dendrite value="DENDRITE" />
+           <Mitochondrion value="MITO" />
+           <HPFNode value="HPF" />
+           <CONNode value="CON" />
+           <MouseHeart value="TAKE" />
+         </Complete>
+       </CCDBVR>
+
+        <ModelViewer>
+            <ModelFile value="/local/home/jschulze/data/archave/archave-covise.WRL" />
+        </ModelViewer>
+
+      </Plugin>
+
+    </COVER>
+ 
+ </GLOBAL>
+
+  <!-- all lab machines including cave wall -->
+  <LOCAL host="coutsound,rubble,flint,chert,basalt,gneiss,sand,visualtest01,visualtest02">
+    <COVER>
+      <nalldrinPlugin>
+        <ModelFile value="/home/nalldrin/bunny.wrl" />
+      </nalldrinPlugin>
+    </COVER>
+  </LOCAL>
+
+  <!-- all lab machines except cave wall -->
+  <LOCAL host="coutsound,rubble,flint,chert,basalt,gneiss,sand">
+    <COVER>
+      <MenuSize value="0.15" />
+      <Plugin>
+        <PDB>
+          <PDBPluginTempDir value="/home/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/temp2" />
+        </PDB>
+      </Plugin>
+    </COVER>
+    <PDBSequenceDisplay>
+      <MenuSize value="0.1" />
+    </PDBSequenceDisplay>
+
+    <PDBLoader>
+      <MenuSize value="0.1" />
+    </PDBLoader>
+
+    <MarkerControl>
+      <MenuSize value="0.1" />
+    </MarkerControl>
+
+    <Messages>
+      <MenuSize value="0.1" />
+    </Messages>
+
+    <SetControl>
+      <MenuSize value="0.1"/>
+    </SetControl>
+
+    <Protein>
+      <MenuSize value="0.1"/>
+    </Protein>
+
+    <LayerControl>
+      <MenuSize value="0.1"/>
+    </LayerControl>
+
+    <ProteinControl>
+      <MenuSize value="0.1" />
+      <ToggleSize value="0.1" />
+    </ProteinControl>
+  </LOCAL>
+
+  <LOCAL host="coutsound">
+    <COVER>
+      <Plugin>
+        <Marker value="on" />
+        <PDB value="on" />
+        <ImagePlugin value="on" />
+        <CCDBVR value="off" />
+        <p1drohrlic value="off" />
+        <p1cliang value="off" />
+        <p1jmoguill value="off" />
+        <p1nalldrin value="off" />
+        <p1sshaghaf value="off" />
+      </Plugin>
+    </COVER>
+  </LOCAL>
+
+  <LOCAL host="basalt">
+    <COVER>
+      <Plugin>
+        <p1drohrlic value="off" />
+        <p1cliang value="off" />
+        <p1jmoguill value="off" />
+        <p1nalldrin value="off" />
+        <p1sshaghaf value="off" />
+      </Plugin>
+    </COVER>
+  </LOCAL>
+
+  <LOCAL host="chert">
+    <COVER>
+      <Plugin>
+        <WebBrowser value="on" />
+        <BrowserControl>
+          <MenuSize value="0.5" />
+        </BrowserControl>
+      </Plugin>
+    </COVER>
+  </LOCAL>
+
+  <LOCAL host="flint">
+    <COVER>
+      <MenuSize value="0.15" />
+    </COVER>
+
+    <CCDBVR>
+      <MenuSize value="0.1" />
+    </CCDBVR>
+  </LOCAL>
+
+  <INCLUDE global="1" configname="CAVE">config.calitcave.xml</INCLUDE>
+  <INCLUDE global="1" configname="CAVE">config.calit4k-quadroplex.xml</INCLUDE>
+
+</COCONFIG>

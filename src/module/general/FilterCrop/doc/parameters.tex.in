@@ -1,0 +1,34 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	i\_min & Slider & minimum for the range of the i index \\
+\hline
+	i\_max & Slider & maximum for the range of the i index \\
+\hline
+	j\_min & Slider & minimum for the range of the j index \\
+\hline
+	j\_max & Slider & maximum for the range of the j index \\
+\hline
+	k\_min & Slider & minimum for the range of the k index \\
+\hline
+	k\_max & Slider & maximum for the range of the k index \\
+\hline
+	sample & Scalar & reduces to every nth gridline \\																
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

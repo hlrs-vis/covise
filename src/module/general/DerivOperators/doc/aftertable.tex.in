@@ -1,0 +1,34 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+\begin{covimg}{}
+	{DerivOperators_map}{covise/net/examples/DerivOperators.net}{0.6}\end{covimg}
+
+In this example we use data sets from the tutorial. We read in
+an unstructured grid, a scalar field defined on the nodes (pressure),
+and a vectex-defined vector field (velocity). In the map we are
+using two DerivOperator modules in order to calculate and display the gradient
+of the pressure and the curl of the velocity field. Note that different from the
+majority of modules, the output of DerivOperators is defined per cell instead of per vertex.
+As the 
+\covlink{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html}
+module requires vertex-defined data, we have to resort to the
+\covlink{CellToVert}{CellToVert}{../../Filter/CellToVert/CellToVert.html}
+module in this case.
+
+Below we produce the pressure gradient on a cutting surface and 
+the curl of the velocity field on the same surface.
+
+
+\begin{covimg}{}{DerivOperators_grad}
+               {Pressure gradient}{0.6}\end{covimg}
+
+\begin{covimg}{}{DerivOperators_rot}
+               {Rotational of the velocity}{0.6}\end{covimg}

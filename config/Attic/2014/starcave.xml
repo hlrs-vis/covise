@@ -1,0 +1,928 @@
+<COCONFIG version="1" >
+
+  <GLOBAL>
+
+<License>
+ <SERVER value="0019b9465542 6.5 31.12.2015 0 OAOLZJC MAC:0019b9465542" type="SERVER" name="OAOLZJC" />
+ <STD_UI value="0019b9465542 6.5 31.12.2015 0 EEUYEUQ MAC:0019b9465542" type="STD_UI" name="EEUYEUQ" />
+ <VR_ONE_PIPE value="0019b9465542 6.5 31.12.2015 0 SOIKCKE MAC:0019b9465542" type="VR_ONE_PIPE" name="SOIKCKE" />
+ <VR_MULTI_ANY value="0019b9465542 6.5 31.12.2015 0 SEQZZLA MAC:0019b9465542" type="VR_MULTI_ANY" name="SEQZZLA" />
+ <COVISE_VRML value="0019b9465542 6.5 31.12.2015 0 IEEXLFC MAC:0019b9465542" type="COVISE_VRML" name="IEEXLFC" />
+ <COVISE_CFD value="0019b9465542 6.5 31.12.2015 0 KQMFNRC MAC:0019b9465542" type="COVISE_CFD" name="KQMFNRC" />
+ <COVISE_FEM value="0019b9465542 6.5 31.12.2015 0 SCISKMU MAC:0019b9465542" type="COVISE_FEM" name="SCISKMU" />
+ <VR_DUAL_CLUSTER value="0019b9465542 6.5 31.12.2015 0 QQWMCCU MAC:0019b9465542" type="VR_DUAL_CLUSTER" name="QQWMCCU" />
+ <SERVER value="001517248914 6.5 31.12.2015 0 KOYGCUC MAC:001517248914" type="SERVER" name="KOYGCUC" />
+ <STD_UI value="001517248914 6.5 31.12.2015 0 ASETHFQ MAC:001517248914" type="STD_UI" name="ASETHFQ" />
+ <VR_ONE_PIPE value="001517248914 6.5 31.12.2015 0 OCSFFVE MAC:001517248914" type="VR_ONE_PIPE" name="OCSFFVE" />
+ <VR_MULTI_ANY value="001517248914 6.5 31.12.2015 0 OSAUCWA MAC:001517248914" type="VR_MULTI_ANY" name="OSAUCWA" />
+ <COVISE_VRML value="001517248914 6.5 31.12.2015 0 ESOSOQC MAC:001517248914" type="COVISE_VRML" name="ESOSOQC" />
+ <COVISE_CFD value="001517248914 6.5 31.12.2015 0 GEWAQCC MAC:001517248914" type="COVISE_CFD" name="GEWAQCC" />
+ <COVISE_FEM value="001517248914 6.5 31.12.2015 0 OQSNNXU MAC:001517248914" type="COVISE_FEM" name="OQSNNXU" />
+ <VR_DUAL_CLUSTER value="001517248914 6.5 31.12.2015 0 MEGHFNU MAC:001517248914" type="VR_DUAL_CLUSTER" name="MEGHFNU" />
+</License>
+
+    <COVER>
+      <RenderOnMaster value="true" />
+      <PipeConfig>
+ 
+        <Pipe display="n" server="0" screen="1" name="1" />
+      </PipeConfig>
+
+      <WindowConfig>
+        <Window window="0" pipeIndex="0" left="0" bottom="0" width="1920" height="1080" comment="MAIN" name="0" decoration="false" resize="off" />
+        <Window window="1" pipeIndex="1" left="0" bottom="0" width="1920" height="1080" comment="MAIN" name="1" decoration="false" resize="off" />
+      </WindowConfig>
+
+      <CollisionDist value="1500" />
+    </COVER>
+
+    <System>
+      <CRB>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/IvRenderer" arch="x11"/>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/QtRenderer" arch="windows"/>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/QtRenderer" arch="mac"/>
+        <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+      </CRB>
+    </System>
+
+    <System> 
+      <IpTable>
+        <starcave symbolic="starcave" value="137.110.118.36" />
+      </IpTable>
+
+      <HostConfig>
+        <Host timeout="60" memory="shm" method="ssh" name="coutsound" hostname="coutsound" />
+      </HostConfig>
+
+<!--
+      <VRB>
+        <Server port="31200" />
+        <Server value="137.110.118.36" />
+      </VRB>
+-->
+
+    </System>  
+    <CUI>
+      <ResourcesDirectory value="/home/covise/covise/src/renderer/OpenCOVER/osgcaveui/resources" />
+    </CUI>
+
+   <COVER>
+      <WelcomeMessage value="Welcome to OpenCOVER in the StarCAVE" />
+      <Background r="0.0" g="0.0" b="0.0" /> 
+      <Far value="350000" />    <!-- OpenGL far plane, has influence on z-buffer fighting -->
+      <MultiThreaded value="false" />
+      <SyncToVBlank value="ON" device="DFP-1" />
+      <SyncToVBlank value="ON" device="DFP-0" />
+      <SaveFile value="/tmp/OpenCOVER.osg" />
+      <LODScale value="0.25" />  <!-- for adjusting how rapidly mipmaps update -->
+      <AnimationSpeed>
+        <min value="0.0" />
+        <max value="50.0" />
+        <default value="1.0" />
+      </AnimationSpeed>
+      
+      <!-- Enable/disable pluEgins here -->
+      <Plugin>
+      	<HMI value="off" />
+        <ClipPlane value="on" />
+        <Vrml97 value="on" />
+        <FileBrowser value="off" />
+        <PDB value="on" />
+      	<PanoView360 value="on" />
+        <FloorPlan value="on" />
+        <Maze value="off" />
+        <CaveCAD value="off" />
+		<CaveCAD>
+ 			<DataDir value="/home/covise/data/CaveCAD" />
+		</CaveCAD>
+        <EEGListener value="off" />
+		<EEGListener>
+ 			<DataDir value="/home/covise/data/EEGListener" />
+		</EEGListener>
+        <BlackBoxInfo value="on" />
+        <Sound value="on" />
+	<AirCurrents value="off" />
+	<OssimPlanet value="off" />
+	<Image value="off" />
+	<PointModel value="off" />
+	<MipMapVideo value="off" />
+	<MultiVolume value="off" />
+	<Volume value="on" />
+        <ArtifactVis value="off" />
+        <Talha value="off" />
+        <WebMonitor value="off" />
+        <Seismic value="off" /> <!-- under development --> 
+        <StructView value="off" />
+        <ModelLoader value="on" />
+        <PhotosynthVR value="off" />
+        <Hotspot value="off" />
+        <HPWRENViewer value="off" />
+        <ThreadedLoader value="off" />
+      </Plugin>
+
+      <!-- Plugin configuration -->
+      <Plugin>     
+        <Vrml97>
+        <Audio value="none" > 
+<!--          <Audio value="AServer" > -->
+          <Host value="137.110.118.239" />
+        </Audio>
+      </Vrml97>
+
+            <HotSpot>
+                         <LinearShaderFile value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/HotSpot/linear.frag" />
+                    <Lut1DShaderFile value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/HotSpot/lut1d.frag" />
+                    <Lut1DDataFile value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/HotSpot/lut1d.csv" />
+                    <Lut2DShaderFile value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/HotSpot/lut2d.frag" />
+                        <ProjCoordSource value="config" />
+                        <Enabled value="false" />
+                        <UseHeadTrackerData value="true" />
+                        <MarkHotspot value="false" />
+                        <MinAlpha value="0.8" />
+                        <MaxAlpha value="1.5" />
+                </HotSpot>
+
+        <PhotosynthVR>
+          <Slash value = "/" />
+          <DataPath value = "/home/covise/data/PhotosynthVR/" />
+          <English>
+            <MainMenu value = "PhotosynthVR" />
+            <OptionsMenu value = "PhotosynthVR Options" />
+            <CannotLoadFile value = "Cannot load file: " />
+            <LoadFileSets value = "Load File Set" />
+            <FileSets value = "File Sets" />
+          </English>
+        </PhotosynthVR>
+        
+		<HMI>
+          <TempDir value="/home/covise/plugins/calit2/HMI/temp/" />
+          <Datafile value="/home/covise/plugins/calit2/HMI/dir.out" />
+        </HMI>
+
+        <HPWRENViewer>
+          <TempDir value="/home/covise/plugins/calit2/HPWRENViewer/tmp/" />
+        </HPWRENViewer>
+
+        <ThreadedLoader>
+          <Affinity value="3" />
+        </ThreadedLoader>
+
+        <Talha> 
+          <ConfigFile value="/home/covise/data/Talha/sample.tma"/>
+          <TextureFile value="/home/covise/data/Talha/sampleTex.png"/>
+        </Talha>
+
+        <ModelLoader>
+          <ConfigDir value="/home/covise/plugins/calit2/ModelLoader/" />
+          <Files>
+            <hammerhead_full_color path="/home/covise/data/LarryFrank/hammerhead/hammerhead_full_color.obj" mask="1" s="0" />
+            <se_building path="/home/covise/data/falko/se_building.obj" mask="1" />
+            <Moebius path="/home/covise/data/HMC/zach/090708_Cave_Mobius_Pristereo.wrl" mask="1" />
+            <ShowCase path="/state/partition1/optithumper/cglx/data/kaust/Showcase/Showcase.wrl" mask="1" />
+            <Kaust path="/state/partition1/optithumper/cglx/data/3dmodels/KAUST/OverallSite02.wrl" mask="1" />
+          </Files>
+        </ModelLoader>
+
+         <StructView>
+             <Layer0File value="/state/partition1/data/baybridge/T1_Block_01A_One_Quarter_wPiles_StructSteel01.WRL" />
+             <Layer1File value="/state/partition1/data/baybridge/T1Block01B_One_Quarter_Struct_Steel.WRL" />
+             <Layer2File value="/state/partition1/data/baybridge/T1Block02_OneQuarter_TopSlabRebar.wrl" />
+             <Layer3File value="/state/partition1/data/baybridge/T1Block03_OneQuarter_BotSlabRebar.wrl" />
+             <Layer4File value="/state/partition1/data/baybridge/T1Block04_One_Quarter_CutOutRebar.wrl" />
+             <Layer5File value="/state/partition1/data/baybridge/T1Block05_OneQuarter_Walls.WRL" />
+             <Layer6File value="/state/partition1/data/baybridge/T1Block06_One_Quarter_FendersRebars.WRL" />
+             <Layer7File value="/state/partition1/data/baybridge/T1Block07_OneQuarter_SkirtRebar.wrl" />
+             <Layer8File value="/state/partition1/data/baybridge/T1Block08_One_Quarter_SkirtABLayout.WRL" />
+             <Layer9File value="/state/partition1/data/baybridge/T1Block11_One_Quarter_Drainage.WRL" />
+             <Layer10File value="/state/partition1/data/baybridge/T1Block13_FullConcrete.WRL" />
+             <Layer11File value="/state/partition1/data/baybridge/Tower-all.wrl" />
+          </StructView>
+
+        <WebMonitor>
+          <WebcamDataFile value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/WebMonitor/query/WebcamData.out" />
+          <PhotoDataPath value = "/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/WebMonitor/photos/" />
+        </WebMonitor>
+
+        <ArtifactVis>
+          <TopoFile value="/home/covise/data/kyle/3d-model/Ken3dv3.wrl" />
+          <ArtifactsFile value="/home/covise/data/kyle/artifact-databank/artifactslist.txt" />
+          <ObjectFolder value="/home/covise/data/kyle/3d-artifacts/" />
+        </ArtifactVis>
+
+        <Volume>
+          <Files>
+            <MRIHead value="/home/covise/data/mri-head-8bit.xvf" />
+            <HeartR value="/home/covise/data/ramesh-heart/test-8bit-2.xvf" />
+            <Fish value="/home/covise/data/LarryFrank/1704.xvf" />
+            <CTSkull value="/state/partition1/data/vhd/fctskull.xvf" />
+            <CTBody value="/state/partition1/data/vhd/fctbody-scaled.xvf" />
+            <HeartL value="/home/covise/data/larrys-heart/larry-heart.xvf" />
+            <KneeJ value="/home/covise/data/jerrys-knee/jerrys-knee.xvf" />
+            <SonarScan value="/home/covise/data/graham/256x256x256-crop-flipz.rvf" />
+            <NCMIR-f value="/home/covise/data/ncmir/f0001.xvf" />
+            <NCMIR-rwt value="/home/covise/data/ncmir/rwt.xvf" />
+            <Newton value="/state/partition1/data/pnewton/set3.xvf" />
+            <Baby value="/home/covise/data/karen/baby-3d-8bit.xvf" />
+            <Ultrasound3d value="/state/partition1/data/susan/time_all.xvf" />
+            <MonkeyMRI value="/home/covise/data/jacopo/monkey_mri-half.xvf" />
+            <GROEL value="/home/covise/data/kriegman/groel.xvf" />
+            <wt1g value="/home/covise/data/kristi/wt1g.rvf" />
+            <NCHC-Brain value="/home/covise/data/nchc/brain2-8-small-double.rvf" />
+            <NCHC-Dendridic_Spine value="/home/covise/data/nchc/osaka-8.rvf" />
+          </Files>
+        </Volume>
+        
+        <Sound>
+          <SoundConfig value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/Sound/Config/" />
+          <Volume value="0.4" />
+          <Size value="20.0" />
+          <Scale value="1.0" />
+          <!-- <ServerAddress value="137.110.119.188" /> -->
+          <ServerAddress value="137.110.118.77" />
+          <ServerPort value="32000" />
+          <Samples>
+            <Rain value="1" />
+            <Car value="2" />
+            <Crowd value="3" />
+            <Elevator value="4" />
+          </Samples>
+          <Configs>
+            <Mailand value="MaiLand.cfg" />
+          </Configs>
+        </Sound>
+        <Maze>
+          <DataDir value="/home/covise/data/maze" />
+        </Maze> 
+	<AirCurrents>
+          <Exaggeration value="8.0" />
+          <SoundScale value="1.0" />  <!-- sound scale multiplier -->
+          <SoundScaleEnabled value="1" /> <!-- 1 enable or 0 disable -->
+          <DataPath value="/home/covise/data/AirCurrents/" />
+          <Data value="NewModelFinal-1266-low.ive" />
+          <!-- <Data value="KaustFinalSoundSetMedium.ive" /> -->
+          <!-- <Data value="KaustFinalSoundSetLow.ive" /> -->
+          <!-- <Data value="KaustFinalSoundSetHigh.ive" /> -->
+          <Pool value="120" />
+          <Active value="60" />
+          <!-- <Server value="132.239.235.200" /> --> <!-- spat lab -->
+          <Server value="137.110.118.77" /> <!-- new sound server -->
+          <Port value="32001" />
+          <!-- <Server value="137.110.119.188" /> --> <!-- old sound server -->
+          <!-- <Server value="dyn172-19-115-46.ucsd.edu" /> -->
+        </AirCurrents>
+	<OOI>
+          <Exaggeration value="8.0" />
+          <SoundScale value="1.0" />  <!-- sound scale multiplier -->
+          <SoundScaleEnabled value="1" /> <!-- 1 enable or 0 disable -->
+          <DataPath value="/home/covise/data/AirCurrents/" />
+          <Data value="WaterTest2.ive" />
+          <!-- <Data value="NewModelFinal-1266-low.ive" /> -->
+          <!-- <Data value="KaustFinalSoundSetMedium.ive" /> -->
+          <!-- <Data value="KaustFinalSoundSetLow.ive" /> -->
+          <!-- <Data value="KaustFinalSoundSetHigh.ive" /> -->
+          <Pool value="120" />
+          <Active value="60" />
+          <!-- <Server value="132.239.235.200" /> --> <!-- spat lab -->
+          <Server value="137.110.118.77" /> <!-- new sound server -->
+          <Port value="32001" />
+          <!-- <Server value="137.110.119.188" /> --> <!-- old sound server -->
+          <!-- <Server value="dyn172-19-115-46.ucsd.edu" /> -->
+        </OOI>
+ 
+
+	<BlackBoxInfo>
+          <WorldFile value="/home/covise/data/blackbox/metaloader.wrl" />
+          <BlackBoxDir value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/BlackBoxInfo/" />
+          <MetaloaderRootName value="root_SCGR_1" />
+          <TempDir value="/home/covise/plugins/calit2/BlackBoxInfo/tmp/" />
+          <RefreshTime value="10.0" />
+          <PDUlist>
+	    <PDU1 value="PDU10.10.10.11" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.11-" />
+	    <PDU2 value="PDU10.10.10.12" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.12-" />
+            <PDU3 value="PDU10.10.10.13" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.13-" />
+            <PDU4 value="PDU10.10.10.14" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.14-" />
+            <PDU5 value="PDU10.10.10.15" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.15-" />
+            <PDU6 value="PDU10.10.10.16" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.16-" />
+            <PDU7 value="PDU10.10.10.17" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.17-" />
+            <PDU8 value="PDU10.10.10.18" url="https://nm6.calit2.optiputer.net/g48c8bc0d/chart/PDU10.10.10.18-" />
+          </PDUlist>
+        </BlackBoxInfo>
+
+        <FloorPlan>
+          <ModelFile value="/state/partition1/data/floorplan/calit2-study2.wrl" />
+          <GoalFile value="/home/covise/covise/src/renderer/OpenCOVER/plugins/FloorPlan/maps/dollar.bmp" />
+          <FontFile value="/home/covise/covise/fonts/arial.ttf" />
+          <ServerAddress value="137.110.118.239" /> 
+          <ServerPort value="4001" />
+          <SubjectID value="STUDY" />
+          <LogFileDirectory value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/FloorPlan/log/" />
+          <DebugMessages value="on" />
+          <ScreenShotType value=".tiff" />
+          <ScreenShotWidth value="320" />
+          <ScreenShotHeight value="240" />
+          <ScreenShotDirectory value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/FloorPlan/screenshots/" />
+        </FloorPlan>
+      
+      	<PanoView360>
+          <FloorOffset value="1759.425" />
+          <ScreenConfig value="/home/covise/plugins/calit2/PanoView360-temp/starcave.xml" />
+          <Files>
+            <Milwaukee1_8_4 reye="/home/covise/dan/data/MilArtMus/MilwaukeeArtMuseum1R_8_4.jpg" leye="/home/covise/dan/data/MilArtMus/MilwaukeeArtMuseum1L_8_4.jpg" radius="9144" viewanglev="110" camHeight="-1128.0" segments="30" tsize="4096" />
+	    <Milwaukee1_16_8 reye="/home/covise/dan/data/MilArtMus/MilwaukeeArtMuseum1R_16_8.jpg" leye="/home/covise/dan/data/MilArtMus/MilwaukeeArtMuseum1L_16_8.jpg" radius="9144" viewanglev="110" camHeight="-1128.0" segments="30" tsize="4096" />
+            <Milwaukee3_16_8 reye="/home/covise/data/Pans/MilwaukeeArtMuseum3R_16_8.jpg" leye="/home/covise/data/Pans/MilwaukeeArtMuseum3L_16_8.jpg" radius="9144" viewanglev="110" camHeight="-128.0" segments="30" tsize="4096" /> 
+	    <TomWI1_8_4 leye="/home/covise/dan/data/MilArtMus/TomWI1R_8_4.jpg" reye="/home/covise/dan/data/MilArtMus/TomWI1L_8_4.jpg" radius="9144" viewanglev="100" camHeight="0.0" segments="30" tsize="4096" />
+            <TomWI1_16_8 leye="/home/covise/dan/data/MilArtMus/TomWI1R_16_8.jpg" reye="/home/covise/dan/data/MilArtMus/TomWI1L_16_8.jpg" radius="9144" viewanglev="100" camHeight="0.0" segments="30" tsize="4096" />
+            <HOTR_16_4 reye="/home/covise/dan/data/starCaveIM/HOTR_1_R_16_4.png" leye="/home/covise/dan/data/starCaveIM/HOTR_1_L_16_4.png" radius="9144" viewanglev="100" camHeight="-1750.0" segments="30" tsize="4096" />
+            <HOTR_16_8 reye="/home/covise/dan/data/starCaveIM/HOTR_1_R_16_8.png" leye="/home/covise/dan/data/starCaveIM/HOTR_1_L_16_8.png" radius="9144" viewanglev="100" camHeight="-1750.0" segments="30" tsize="4096" />
+            <HOTR_32_8 reye="/state/partition1/data/dan/data/starCaveIM/HOTR_1_R_32_8.png" leye="/state/partition1/data/dan/data/starCaveIM/HOTR_1_L_32_8.png" radius="9144" viewanglev="100" camHeight="-1750.0" segments="30" tsize="4096" />
+            <GDSP_6_16_4 reye="/home/covise/dan/data/starCaveIM/GDSP_6_R16K_4K.jpg" leye="/home/covise/dan/data/starCaveIM/GDSP_6_L16K_4K.jpg" radius="9144" viewanglev="73.7" camHeight="3100.0" segments="30" tsize="4096" />
+            <GDSP_701_16_4 reye="/home/covise/dan/data/ans360A/GDSP_701_16_4.png" leye="/home/covise/dan/data/ans360A/GDSP_702_16_4.png" radius="9144" viewanglev="85" camHeight="0.0" segments="30" tsize="4096" />
+            <FLRT_702_16_4 reye="/home/covise/dan/data/flrt/FLRT_702_R_16_4.png" leye="/home/covise/dan/data/flrt/FLRT_703_L_16_4.png" radius="9144" viewanglev="85" camHeight="250.0" segments="30" tsize="4096" />
+            <FLRT_712_16_4 reye="/home/covise/dan/data/flrt/FLRT_712_R_16_4.png" leye="/home/covise/dan/data/flrt/FLRT_713_L_16_4.png" radius="9144" viewanglev="85" camHeight="2300.0" segments="30" tsize="4096" />
+            <BKfull_16_4 reye="/home/covise/data/Pans/BKfull_16_4.tif" leye="" radius="9144" viewanglev="80" camHeight="1000.0" segments="30" tsize="4096" />
+            <McMurdo1_16_4 reye="/state/partition1/data/dan/data/MarsIm/McMurdo_L257F_16_4.png" leye="" radius="9144" viewanglev="76" camHeight="1000.0" segments="30" tsize="4096" />
+            <McMurdo2_16_4 reye="/state/partition1/data/dan/data/MarsIm/McMurdo_L456atc_16_4.png" leye="" radius="9144" viewanglev="76" camHeight="1000.0" segments="30" tsize="4096" />
+            <Duck_Bay1_16_4 reye="/state/partition1/data/dan/data/MarsIm/Sol953B_Duck_Bay_L256atc_16_4.png" leye="" radius="9144" viewanglev="47" camHeight="-1000.0" segments="30" tsize="4096" />
+            <Duck_Bay2_16_4 reye="/state/partition1/data/dan/data/MarsIm/Sol953B_Duck_Bay_L256F_16_4.png" leye="" radius="9144" viewanglev="47" camHeight="-1000.0" segments="30" tsize="4096" />
+            <Cape_Verdeana1_16_4 reye="/state/partition1/data/dan/data/MarsIm/Sol991B_Cape_Verdeana_16_4.png" leye="" radius="9144" viewanglev="44" camHeight="-850.0" segments="30" tsize="4096" />
+            <Cape_Verdeana2_16_4 reye="/state/partition1/data/dan/data/MarsIm/Sol991B_Cape_Verde_L257atc_16_4.png" leye="" radius="9144" viewanglev="44" camHeight="-850.0" segments="30" tsize="4096" />
+            <Cape_Verdeana3_16_4 reye="/state/partition1/data/dan/data/MarsIm/Sol991B_Cape_Verde_L257F_16_4.png" leye="" radius="9144" viewanglev="44" camHeight="-850.0" segments="30" tsize="4096" />
+            <OvertureHall_16_8 reye="/state/partition1/data/SpherePans/OvertureHall_360x180_16k_8k_R.jpg" leye="/state/partition1/data/SpherePans/OvertureHall_360x180_16k_8k_L.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <RockIsland_16_8 reye="/state/partition1/data/SpherePans/RockIsland_HDR3_250x112_16k_8k_R.jpg" leye="/state/partition1/data/SpherePans/RockIsland_HDR3_250x112_16k_8k_L.jpg" radius="9144" viewanglev="112" viewangleh="250" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <WI_Capitol_16_8 reye="/state/partition1/data/SpherePans/WI_Capitol_360x180_16k_8k_R.jpg" leye="/state/partition1/data/SpherePans/WI_Capitol_360x180_16k_8k_L.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_235_16_8 reye="/state/partition1/data/SpherePans/TAL-235-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-235-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_238_16_8 reye="/state/partition1/data/SpherePans/TAL-238-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-238-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_242_16_8 reye="/state/partition1/data/SpherePans/TAL-242-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-242-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_243_16_8 reye="/state/partition1/data/SpherePans/TAL-243-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-243-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_244_16_8 reye="/state/partition1/data/SpherePans/TAL-244-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-244-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_245_16_8 reye="/state/partition1/data/SpherePans/TAL-245-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-245-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_246_16_8 reye="/state/partition1/data/SpherePans/TAL-246-R16_8.jpg" leye="/state/partition1/data/SpherePans/TAL-246-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+            <TAL_247_16_8 reye="/home/covise/data/SpherePans/TAL-247-R16_8.jpg" leye="/home/covise/data/SpherePans/TAL-247-L16_8.jpg" radius="9144" viewanglev="180" viewangleh="360" camHeight="-1128.0" segments="30" tsize="4096" sphere="1"  />
+          </Files>
+        </PanoView360>
+
+        <PDB>
+          <BrowserDirectory value="/home/covise/data/PDB/thumbnails" />
+          <PDBPluginTempDir value="/home/covise/data/PDB/cache/" />
+          <PDBPluginPymolDir value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/PDB/pymol/" /> 
+          <PDBUrl value="www.pdb.org/pdb/files/" />
+          <TopsanDir value="/home/covise/covise/src/renderer/OpenCOVER/plugins/calit2/PDB/Topsan/" />
+          <LayoutDir value="/home/covise/plugins/calit2/PDB/Layout/" />
+          <PDBDir value="/home/covise/data/PDB/pdb" />
+          <MAMMOTHDir value="/home/covise/plugins/calit2/PDB/MAMMOTH" />
+          <AnimationURL value="www.molmovdb.org/uploads/" />
+          <Scale value="3" />
+          <MarkerSize value="80" />
+          <ViewerDistance value="70" />
+          <FadeDistance value="40" />
+          <FileSize value="19500000" />
+          <NumPerRing value="10" />
+          <Radius value="15" />
+          <MaxStructures value="120" />
+          <Structures>
+<!-- below thursday resserach structures
+	    <p2MAD value="2MAD" /> 
+	    <p2RCR value="2RCR" /> 
+	    <p1UW6 value="1UW6" /> 
+	    <p1YI5 value="1YI5" /> 
+	    <p2HU4 value="2HU4" /> 
+	    <p1RVT value="1RVT" /> 
+	    <p1RVO value="1RV0" /> 
+	    <p3EYM value="3EYM" /> 
+-->
+	    <!--
+            <XLWBuchE value="1XLW" />
+            <JFOZR value="2JFO" />
+            <hAChEFas2 value="HACH" />
+            <nl4-nrx1b-xtalZR value="NRX1" />
+            -->
+            <!--
+            <Achbp-spxIBm value="AAAA" />
+            <Ana value="BBBB" />
+            <Click140Hana value="CCCC" />
+            <Click1 value="DDDD" />
+            <ConoOMIAm value="EEEE" />
+            <DMXBA value="FFFF" />
+            <D-tub value="GGGG" />
+            <EpibatidineM value="HHHH" />
+            <Imida value="IIII" />
+            <Meta1 value="JJJJ" />
+            <Meta2 value="KKKK" />
+            <Meta2SPX value="LLLL" />
+            <Thai value="MMMM" />
+            <Trop value="NNNN" />
+            -->
+            <!-- <Gos1 value="gos1" /> -->
+            <!-- <Gos2 value="gos2" /> -->
+            <!-- <Gos-ferredoxin-like4 value="2OD4" /> -->
+            <!-- <Gos-ferredoxin-like5 value="2OD5" /> -->
+            <!-- <Gos-ferredoxin-like6 value="2OD6" /> -->
+            <!-- <Heme-peroxidase value="2IIZ" /> -->
+	    <!-- <Imi_endTcrave value="imi" /> -->
+	    <!-- <Thi_end value="thi" /> -->
+            <!-- <Phosphatase value="2F46" /> -->
+            <!-- <TM1030 value="1030" /> -->
+            <!-- <TM1030-ligand value="1ZKG" /> -->
+            <!-- <TM1030-apo value="1Z77" />  -->
+            <!-- <TM1030_JCSG value="tm1030_jcsg" /> -->
+            <!-- <TM1030_MCSG value="tm1030_mcsg" /> -->
+            <!-- <JCSG value="jcsg.pdp" /> -->
+            <!-- Thermatoga_group value="blah.pdp" / --> 
+            <Flu value="1RUZ" />
+            <RNA_Editing_Ligase value="1XDN" />
+            <PDBID_2HU4 value="2HU4" />
+            <Hermes value="2BW3" />
+            <TN5-DNA value="1MUS" />
+            <Gleevec value="1XBB" />
+            <Luciferin value="2D1S" />
+            <Hemoglobin value="4HHB" />
+            <HIV_Protease value="1HVR" />
+            <Smad4 value="1YGS" />
+            <Photosystem_I value="1JBO" />
+            <Cytochrome_c_Oxidase value="1OCO" />
+            <MHC_Class_II value="1DLH" />
+            <Potassium_Channel_A value="1BL8" />
+            <Potassium_Channel_B value="1FQY" />
+            <SARS value="2D2D" />
+            <Acetylcholine_Receptor value="2BG9" />
+            <Acetylcholine_Cobratoxin value="1YI5" />
+            <Thermus_Thermophilus value="1J5E" />
+            <Polyketide_Synthase value="1U0M" />
+            <Calcium_Pump value="1SU4" /> 
+            <Antibody_bound_Influenza value="1KEN" />
+            <Thermatoga value="2F8J" />
+            <RNA_POLYMERASE_2 value="1I6H" />
+            <KAUST_1WNH value="1WNH" />
+            <KAUST_1PCV value="1PCV" />
+            <KAUST_2AXD value="2AXD" />
+            <KAUST_3G43 value="3G43" />
+            <!--
+            <P-2BYP value="2BYP" />
+            <P-2BYR value="2BYR" />
+            <P-2BYS value="2BYS" />
+            <P-2BYZ value="2BYZ" />
+            <Xtal value="XTAL" />
+            <HXtal value="HTAL" />
+            -->
+          </Structures>
+          <Animations>
+            <Serotonin_N_Acetyltransferase value="22943-38" />
+            <Calcium_Pump value="396506-12995" />
+            <FecA_transporter value="829808-15750" />
+            <Actin value="763408-1487" />
+            <Calmodulin value="17833-29779" />
+          </Animations>
+        </PDB>
+
+	<MipMapVideo>
+		<ConfigFile value="/state/partition1/data/ncmir/compressed/config.txt"/>
+	</MipMapVideo>
+	<MultiVolume>
+		<ConfigFile value="/state/partition1/data/han/Rapid_Golgi-Astro_crop_volume/config_cover.txt"/>
+	</MultiVolume>
+
+	<Image>
+          <ImageDir value="/home/covise/data/osga/" />
+          <ImageConfig value="/home/covise/plugins/calit2/Image/config/" />
+	  <ThumbStick value="1" />
+          <ImageFadeLowDist value="-700.0" />      <!-- 1000.0 is 1 meter -->
+          <ImageFadeHighDist value="100.0" />
+          <ImageWandTracked value="0" />  <!-- 1= true, means it is enabled -->
+          <ImageDist value="0.5" />
+          <DefaultImageScale value="0.2" />
+          <LockSets value="0" />
+          <AutoTrans value="0" />
+          <MaxScaleFactor value="1.5" />
+          <MarkerSize value="10.0" />
+          <Files>
+            <Campus value="campus.osga" />
+            <Monkey_Brain value="test4.osga" />
+            <Cerebellum value="test10.osga" />
+            <Golden_Gate value="golden.osga" />
+            <Adoration value="tester.ipp" />
+	 <!--   <tester value="bubbles2_1024.jpg" /> -->
+         </Files>
+         <Config>
+         </Config>
+       </Image>
+
+       <PointModel>
+          <Files>
+            <Palazzo_Vecchio_25 value="/state/partition1/data/maurico/binarydata/test5.xyz" />
+            <!-- <Palazzo_Vecchio_50 value="/state/partition1/data/maurico/binarydata/NewRandom5.pts" /> -->
+            <!-- <Palazzo_Vecchio value="/state/partition1/data/maurico/New_10x10x10.xyz" /> -->
+            <!-- <Shake_Table_Tests value="/state/partition1/data/maurico/binarydata/ShakeTableAfter.xyz" /> -->
+            <!-- <Connecting_Hall value="/state/partition1/data/maurico/binarydata/Hall.xyz" /> -->
+            <Court_Yard_1 value="/state/partition1/data/maurico/binarydata/cc12.xyz" />
+            <!-- <Court_Yard_2 value="/state/partition1/data/maurico/binarydata/CP12.xyz" /> -->
+            <!-- <Garden value="/state/partition1/data/maurico/binarydata/G123.pts" /> -->
+            <!-- <Test value="/state/partition1/data/maurico/Largeset3.xyz" /> -->
+          </Files>
+       </PointModel>
+
+
+      </Plugin>
+      
+   <MultiPC>
+     <SyncMode value="TCP" />
+     <NumSlaves value="17" />   <!-- use 17 for all Cave machines -->
+<!--
+     <MasterInterface value="starcave.calit2.optiputer.net" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-0-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-0-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-0-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="2" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-1-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="3" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-1-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="4" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-1-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="5" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-2-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="6" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-2-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="7" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-2-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="8" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-3-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="9" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-3-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="10" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-3-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="11" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-4-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="12" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-4-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="13" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-4-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="14" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-5-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="15" />
+     <Startup arch="x11" value="ssh ${USER}@starcave-5-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="16" /> 
+-->
+
+     <MasterInterface value="calit2-vis06.ucsd.edu" />
+     <Startup arch="x11" value="ssh ${USER}@tile-0-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="0" />  
+     <Startup arch="x11" value="ssh ${USER}@tile-0-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="1" />
+     <Startup arch="x11" value="ssh ${USER}@tile-0-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="2" />
+     <Startup arch="x11" value="ssh ${USER}@tile-1-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="3" />
+     <Startup arch="x11" value="ssh ${USER}@tile-1-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="4" />
+     <Startup arch="x11" value="ssh ${USER}@tile-1-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="5" />
+     <Startup arch="x11" value="ssh ${USER}@tile-2-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="6" />
+     <Startup arch="x11" value="ssh ${USER}@tile-2-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="7" />
+     <Startup arch="x11" value="ssh ${USER}@tile-2-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="8" />
+     <Startup arch="x11" value="ssh ${USER}@tile-3-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="9" />
+     <Startup arch="x11" value="ssh ${USER}@tile-3-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="10" />
+     <Startup arch="x11" value="ssh ${USER}@tile-3-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="11" />
+     <Startup arch="x11" value="ssh ${USER}@tile-4-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="12" />
+     <Startup arch="x11" value="ssh ${USER}@tile-4-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="13" />
+     <Startup arch="x11" value="ssh ${USER}@tile-4-2 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="14" />
+     <Startup arch="x11" value="ssh ${USER}@tile-5-0 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="15" />
+     <Startup arch="x11" value="ssh ${USER}@tile-5-1 if \( \{ test -d `pwd` \} \) cd `pwd` \;opencover \>\&amp; /tmp/errors.log" name="16" />
+    
+    </MultiPC>
+ 
+    <Stereo enable="ON" value="ON" />
+<!--    <StereoMode value="HORIZONTAL_SPLIT" /> -->
+<!--  <StereoMode value="LEFT" /> -->
+
+    <Input>  
+      <DebugButtons value="FALSE" />
+
+      <ButtonSystem value="CAVELIB" />
+      <TrackingSystem value="CAVELIB" />
+
+<!--
+      <ButtonSystem value="MOUSE" />
+      <TrackingSystem value="MOUSE" />
+-->
+
+      <MouseNav value="ON" />
+
+      <HeadAddress value="1" />
+      <HandAddress value="0" />
+      <Joystick value="true" />
+      <NumSensors value="2" />
+
+      <TrackingSystem value="CAVELIB">
+        <Offset x="0" y="0" z="0" />
+        <Orientation h="0" p="90" r="0" />
+      </TrackingSystem>
+
+      <HeadDevice>
+        <Offset x="0" y="0" z="0" />
+        <Orientation h="0" p="-90" r="0" />
+      </HeadDevice>
+
+      <HandDevice>
+        <Offset x="0" y="0" z="0" />
+        <Orientation h="0" p="-90" r="0" />
+      </HandDevice>
+
+      <DebugTracking value="RAW" />
+      <DebugStation value="4" />
+
+    </Input>
+ 
+    <Menu>
+      <Orientation h="0" p="0" r="0" />
+      <Position x="0" y="1000" z="0" />
+      <Size value="0.7" />
+    </Menu>
+
+    <SceneSize value="2000" />
+    <ViewerPosition x="0" y="-500" z="0" />
+    <CoordAxis value="off" />
+    <Freeze value="off" />
+    <ViewAll value="off" />
+    <NumPipes value="2" />
+    <NumScreens value="2" />
+    <NumWindows value="2" />
+    <Headlight value="on" />
+
+
+    
+    </COVER>
+  </GLOBAL>
+    <Lights>
+      <Light1>
+        <Specular value="off" r="1.0" g="1.0" b="1.0" />
+        <Diffuse value="off" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="off" r="0.3" g="0.3" b="0.3" />
+        <Position value="off" x="0.0" y="1.0" z="1.0" w="0.0" />
+        <Spot value="off" x="0.0" y="-1.0" z="0.0" expo="0.0" angle="180.0" />
+      </Light1>
+      <Light2>
+        <Specular value="off" r="1.0" g="1.0" b="1.0" />
+        <Diffuse value="off" r="1.0" g="1.0" b="1.0" />
+        <Ambient value="off" r="0.3" g="0.3" b="0.3" />
+        <Position value="off" x="-1.0" y="-0.1" z="0.0" w="0.0" />
+        <Spot value="off" x="0.0" y="0.0" z="1.0" expo="0.0" angle="180.0" />
+      </Light2> 
+    </Lights>
+ <LOCAL host="calit2-vis06.ucsd.edu" >
+  <COVER>
+   <NumPipes value="1" />
+   <NumScreens value="1" />
+   <NumWindows value="1" />
+
+   <WindowConfig>
+     <Window width="1280" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" />
+   </WindowConfig>
+
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1280" bottom="0" height="768" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <!--<Channel channel="1" left="1920" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="0" name="1" comment="RIGHT" /> -->
+   </ChannelConfig>
+
+   <ScreenConfig>
+<!--
+    <Screen originX="0" originY="3000" originZ="0" width="3840" height="2160" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+    <Screen originX="0" originY="3000" originZ="0" width="3840" height="2160" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+-->
+<!-- PHILIP Reduced screen size to increase performance -->
+    <Screen originX="0" originY="1000" originZ="0" width="2134" height="1200" h="0.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+    <!-- <Screen originX="0" originY="1000" originZ="0" width="2134" height="1200" h="0.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" /> -->
+    </ScreenConfig>
+
+
+  </COVER>
+ </LOCAL>
+ 
+ <LOCAL host="tile-0-0.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="1249" originY="-406" originZ="-1180" width="2134" height="1200" h="-108.0" p="-14.9" r="0.0" name="0" screen="0" px="3139" py="-1020" pz="-1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="1249" originY="-406" originZ="-1180" width="2134" height="1200" h="-108.0" p="-14.9" r="0.0" name="1" screen="1" px="3198" py="-1039" pz="-1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+ 
+ <LOCAL host="tile-0-1.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="1397" originY="-454" originZ="0" width="2134" height="1200" h="-108.0" p="0.0" r="0.0" name="0" screen="0" px="3384" py="-1099" pz="-120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="1397" originY="-454" originZ="0" width="2134" height="1200" h="-108.0" p="0.0" r="0.0" name="1" screen="1" px="3556" py="-1099" pz="120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-0-2.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="1249" originY="-406" originZ="1180" width="2134" height="1200" h="-108.0" p="14.9" r="0.0" name="0" screen="0" px="3198" py="-1039" pz="1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="1249" originY="-406" originZ="1180" width="2134" height="1200" h="-108.0" p="14.9" r="0.0" name="1" screen="1" px="3139" py="-1020" pz="1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-1-0.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="772" originY="1062" originZ="-1180" width="2134" height="1200" h="-36.0" p="-14.9" r="0.0" name="0" screen="0" px="1940" py="2671" pz="-1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="772" originY="1062" originZ="-1180" width="2134" height="1200" h="-36.0" p="-14.9" r="0.0" name="1" screen="1" px="1976" py="2721" pz="-1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-1-1.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="863" originY="1188" originZ="0" width="2134" height="1200" h="-36.0" p="0.0" r="0.0" name="0" screen="0" px="1728" py="2879" pz="-120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="863" originY="1188" originZ="0" width="2134" height="1200" h="-36.0" p="0.0" r="0.0" name="1" screen="1" px="2091" py="2879" pz="120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-1-2.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="772" originY="1062" originZ="1180" width="2134" height="1200" h="-36.0" p="14.9" r="0.0" name="0" screen="0" px="1976" py="2721" pz="1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="772" originY="1062" originZ="1180" width="2134" height="1200" h="-36.0" p="14.9" r="0.0" name="1" screen="1" px="2007" py="2621" pz="1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-2-0.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="-772" originY="1062" originZ="-1180" width="2134" height="1200" h="36.0" p="-14.9" r="0.0" name="0" screen="0" px="-1940" py="2671" pz="-1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="-772" originY="1062" originZ="-1180" width="2134" height="1200" h="36.0" p="-14.9" r="0.0" name="1" screen="1" px="-1976" py="2721" pz="-1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-2-1.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="-863" originY="1188" originZ="0" width="2134" height="1200" h="36.0" p="0.0" r="0.0" name="0" screen="0" px="-1728" py="2879" pz="-120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="-863" originY="1188" originZ="0" width="2134" height="1200" h="36.0" p="0.0" r="0.0" name="1" screen="1" px="-2091" py="2879" pz="120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-2-2.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="-772" originY="1062" originZ="1180" width="2134" height="1200" h="36.0" p="14.9" r="0.0" name="0" screen="0" px="-1976" py="2721" pz="1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="-772" originY="1062" originZ="1180" width="2134" height="1200" h="36.0" p="14.9" r="0.0" name="1" screen="1" px="-2007" py="2621" pz="1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-3-0.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="-1249" originY="-406" originZ="-1180" width="2134" height="1200" h="108.0" p="-14.9" r="0.0" name="0" screen="0" px="-3139" py="-1020" pz="-1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="-1249" originY="-406" originZ="-1180" width="2134" height="1200" h="108.0" p="-14.9" r="0.0" name="1" screen="1" px="-3198" py="-1039" pz="-1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-3-1.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="-1397" originY="-454" originZ="0" width="2134" height="1175" h="108.0" p="0.0" r="0.0" name="0" screen="0" px="-3384" py="-1099" pz="-120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="-1397" originY="-454" originZ="0" width="2134" height="1175" h="108.0" p="0.0" r="0.0" name="1" screen="1" px="-3556" py="-1099" pz="120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-3-2.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="-1249" originY="-406" originZ="1180" width="2134" height="1200" h="108.0" p="14.9" r="0.0" name="0" screen="0" px="-3198" py="-1039" pz="1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="-1249" originY="-406" originZ="1180" width="2134" height="1200" h="108.0" p="14.9" r="0.0" name="1" screen="1" px="-3139" py="-1020" pz="1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+  
+ <LOCAL host="tile-4-0.local" >  <!-- tile-4-? have not been configured -->
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="0" originY="-1313" originZ="-1180" width="2134" height="1200" h="180.0" p="-14.9" r="0.0" name="0" screen="0" px="0" py="-3301" pz="-1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="0" originY="-1313" originZ="-1180" width="2134" height="1200" h="180.0" p="-14.9" r="0.0" name="1" screen="1" px="0" py="-3363" pz="-1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+    <!--
+    <Screen originX="0" originY="-2513" originZ="-1180" width="2134" height="1200" h="180.0" p="-14.9" r="0.0" name="0" screen="0" comment="LEFT" />
+    <Screen originX="0" originY="-2513" originZ="-1180" width="2134" height="1200" h="180.0" p="-14.9" r="0.0" name="1" screen="1" comment="RIGHT" />
+    -->
+    </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-4-1.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="0" originY="-1468" originZ="0" width="2134" height="1200" h="180.0" p="0.0" r="0.0" name="0" screen="0" px="0" py="-3558" pz="-120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="0" originY="-1468" originZ="0" width="2134" height="1200" h="180.0" p="0.0" r="0.0" name="1" screen="1" px="0" py="-3558" pz="120" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+    <!--
+    <Screen originX="0" originY="-2668" originZ="0" width="2134" height="1200" h="180.0" p="0.0" r="0.0" name="0" screen="0" comment="LEFT" />
+    <Screen originX="0" originY="-2668" originZ="0" width="2134" height="1200" h="180.0" p="0.0" r="0.0" name="1" screen="1" comment="RIGHT" />
+    -->
+    </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-4-2.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="0" originY="-1313" originZ="1180" width="2134" height="1200" h="180.0" p="14.9" r="0.0" name="0" screen="0" px="0" py="-3363" pz="1602" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="0" originY="-1313" originZ="1180" width="2134" height="1200" h="180.0" p="14.9" r="0.0" name="1" screen="1" px="0" py="-3301" pz="1837" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+    <!--
+    <Screen originX="0" originY="-2513" originZ="1180" width="2134" height="1200" h="180.0" p="14.9" r="0.0" name="0" screen="0" comment="LEFT" />
+    <Screen originX="0" originY="-2513" originZ="1180" width="2134" height="1200" h="180.0" p="14.9" r="0.0" name="1" screen="1" comment="RIGHT" />
+    -->
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-5-0.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="0" originY="-766" originZ="-1759" width="2723" height="1532" h="0.0" p="-90.0" r="0.0" name="0" screen="0" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="0" originY="-392" originZ="-1759" width="2723" height="1532" h="0.0" p="-90.0" r="0.0" name="1" screen="1" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+ <LOCAL host="tile-5-1.local" >
+  <COVER>
+   <ChannelConfig>
+    <Channel channel="0" left="0"    width="1920" bottom="0" height="1080" stereoMode="LEFT"  windowIndex="0" name="0" comment="LEFT" />
+    <Channel channel="1" left="0" width="1920" bottom="0" height="1080" stereoMode="RIGHT" windowIndex="1" name="1" comment="RIGHT" />
+   </ChannelConfig>
+
+   <ScreenConfig>
+    <Screen originX="0" originY="766" originZ="-1759" width="2723" height="1532" h="0.0" p="-90.0" r="0.0" name="0" screen="0" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="LEFT" />
+    <Screen originX="0" originY="666" originZ="-1759" width="2723" height="1532" h="0.0" p="-90.0" r="0.0" name="1" screen="1" rscale="1.0" bscale="1.0" gscale="1.0" ascale="1.0" comment="RIGHT" />
+   </ScreenConfig>
+  </COVER>
+ </LOCAL>
+
+</COCONFIG>

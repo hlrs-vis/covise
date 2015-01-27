@@ -1,0 +1,24 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+ 
+% examples for using this module
+
+
+\begin{covimg}{}
+	{splitusg_map}{covise/net/general/examples/SplitUsg.net}{0.6}\end{covimg}
+
+In this example we see how a car is separated into its 2D and 3D
+elements.
+
+
+\begin{covimg}{}{splitusg_out2D}{2D elements}{0.7}\end{covimg}
+
+\begin{covimg}{}{splitusg_out3D}{3D elements}{0.7}\end{covimg}
+
+

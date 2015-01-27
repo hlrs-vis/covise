@@ -1,0 +1,16 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}
+{}{PipelineCollectMap}{covise/net/examples/PipelineCollect.net}{0.7}\end{covimg}
+We modified the map {covise/net/examples/ReadANSYS\_flow.net}. We collect the surface and
+the mapped data on it with the module PipelineCollect. The pipeline is executed three times because
+the output of the ReadANSYS module contains three time steps. The module GetSetelem delivers one step after
+the other.
+
+Note: You have to put the module PipelineCollect always in front of the module Collect.
+

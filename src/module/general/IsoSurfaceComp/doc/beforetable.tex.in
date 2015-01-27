@@ -1,0 +1,36 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+The IsoSurfaceComp module creates an isosurface from a three 
+dimensional structured and unstructured grid-based data mapped
+on this isosurface
+using the marching cubes algorithm. This module provides
+all functionalities of IsoSurface, but has an important
+advantage. You may considerably simplify your maps by
+using IsoSurfaceComp, because you may connect directly
+its first output port with a renderer, thereby relieving
+yourself from the burden of using Collect, Colors, VectorField, etc.
+%Optionally given data input can be mapped on the generated surface using
+%interpolation. Each input port also accepts Sets of the appropriate types. 
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{IsoSurfaceComp}{0.7}\end{covimg2}
+
+
+%
+% short information about versions 
+%
+IsoSurfaceComp is available on all supported
+platforms. 
+
+%
+%=============================================================

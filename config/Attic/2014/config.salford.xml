@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" > 
+
+ 
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="license" >config.license.xml</INCLUDE>
+ <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
+ <INCLUDE global="1" configname="VizPC" >config.salford_vizpc.xml</INCLUDE>
+ <INCLUDE global="1" configname="viriato" >config.salford_viriato.xml</INCLUDE>
+ <INCLUDE global="1" configname="tldemo" >config.salford_tldemo.xml</INCLUDE>
+
+ <GLOBAL>
+
+
+
+  <COVER>
+
+   <Plugin>
+
+ 
+
+    <VRViewpoints>
+     <WriteVrmlViewpoint value="true" />
+    </VRViewpoints>
+
+
+
+    <AKToolbar>
+     <Scale value="2" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+
+
+
+   </Plugin>
+
+   <TabletPC>
+    <Server value="localhost" />
+   </TabletPC>
+
+  </COVER>
+
+
+
+
+
+  <System>
+
+    <CRB>
+
+    <Proxy>
+     <ProxyCommand value="ssh uw_te@visit crb" />
+    </Proxy>
+
+   </CRB>
+
+
+   
+
+   <VRB>
+    <Server port="31200" />
+	    <Server value="localhost"/>
+		<!--Server value="10.0.0.12" /-->
+    </VRB>
+
+   <RemoteDaemon>
+    <Server port="31090" />
+   </RemoteDaemon>
+
+  </System>
+
+
+  <Module>
+
+
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+
+
+ 
+   <Fenfloss>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <STARTUP value="gate %0 %1 %e" name="v3" />
+    <STARTUP value="tube %0 %1 %e" name="v4" />
+    <STARTUP value="axial %0 %1 %e" name="v5" />
+    <STARTUP value="radial %0 %1 %e" name="v6" />
+    <STARTUP value="sc2004booth %0 %1 %e" name="v7" />
+    <STARTUP value="archflow %0 %1 %e" name="v8" />
+    <STARTUP value="other %0 %1 %e" name="v9" />
+    <Application value="p_covise_fen6.3.0.0" name="v0"/>
+    <Application value="p_covise_fen7.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+   </Fenfloss>
+
+
+
+   <Material>
+      <UserDefined>
+         <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0"/>
+      </UserDefined>
+   </Material>
+
+  </Module>
+
+
+  <CONFIGEDITOR>
+
+   <COLOR name="global_scope" color="blue" />
+   <COLOR name="global_variable" color="darkslateblue" />
+   <COLOR name="host_scope" color="red" />
+   <COLOR name="host_variable" color="indianred" />
+   <COLOR name="user_scope" color="darkgreen" />
+   <COLOR name="user_variable" color="darkseagreen" />
+   <COLOR name="userhost_scope" color="darkorange" />
+   <COLOR name="userhost_variable" color="goldenrod" />
+  </CONFIGEDITOR>
+
+
+ </GLOBAL>
+
+
+</COCONFIG>

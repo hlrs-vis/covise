@@ -1,0 +1,80 @@
+%
+% This text file include all filess neccessary to create
+% the User's Guide
+%
+
+%====== define a new class for layout
+
+\documentclass[hlrs,a4paper]{../covise}
+
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+%\usepackage{palatino}
+%\renewcommand{\familydefault}{\sfdefault}
+
+
+\setlength\LTleft{0pt}
+\setlength\LTright\fill
+
+
+%====== start the document
+
+
+\begin{document}
+
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+\begin{titlepage}
+    \setcounter{page}{0}
+	 \thispagestyle{empty}
+    \unitlength1cm
+    
+       \begin{picture}(15,17)
+       \put(2, -2.5){\includegraphics[scale=5]{../visenso_title}}     
+       \put(0,-3){\line(1,0){15}}
+       \put(0, 10){\makebox(15,2)[t]{\Huge{COVISE}}}
+       \put(0, 9){\makebox(15,2)[t]{\Huge{Tutorial}}}
+       \put(0, 8){\makebox(15,2)[t]{\LARGE{July 2005}}}   
+       \end{picture}
+    
+	\newpage
+   \setcounter{page}{0}
+	\thispagestyle{empty}
+   \uppertitleback{\bf{Title:} \\
+			COVISE Tutorial \\ 
+			A short introduction in working with COVISE \\
+         \today }
+   \vfill
+	\lowertitleback{\bf{Authors:} \\
+         Daniela Rainer}
+
+\end{titlepage}
+
+
+\pagenumbering{arabic}
+\tableofcontents
+%	\listoffigures
+%	\listoftables
+	
+\end{latexonly}
+
+
+%====== include the chapters
+
+\include{Preface/Preface}
+\include{StartCOVISE/StartCOVISE}
+\include{Using_the_Renderer/Using_the_Renderer}
+\include{Working_with_Modules/Working_with_Modules}
+\include{Analysis_of_3D_Data/Analysis_of_3D_Data}
+\include{AdvancedTopics/AdvancedTopics}
+\end{document}

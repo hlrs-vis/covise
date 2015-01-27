@@ -1,0 +1,26 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{Geometry\_out} & Polygons \newline
+                                    Points & Clipped geometry. \\
+\hline
+	\textcolor{output}{Scalar\_out} & Float & Clipped data on the geometry.  \\
+\hline
+	\textcolor{depend}{Field\_out\_0\ldots \newline Field\_out\_4} & Float 
+Unstrucured\_V3D\_Data 
+Unstrucured\_T3D\_Data &  Data handed through for the output geometry.  \\
+												
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

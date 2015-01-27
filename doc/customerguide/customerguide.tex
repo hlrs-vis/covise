@@ -1,0 +1,98 @@
+%====== define a new class for layout
+
+\documentclass{modules}
+
+
+%\usepackage{makeidx}
+%\makeindex
+
+%====== define some nice fonts
+
+%\usepackage{helvetic}
+%\usepackage{bookman}
+%\usepackage{avantgar}
+%\usepackage{palatino}
+\usepackage{times}
+%\usepackage{utopia}
+%\usepackage{ncntrsbk}
+
+%====== set some useful packages for HTML, color, graphics, longer table
+%====== floating text around images , pdf-links ...
+
+\usepackage{html, htmllist}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+\usepackage{picins}
+\usepackage[ps2pdf]{hyperref}
+
+\setlength\LTleft{0pt}
+\setlength\LTright\fill
+
+% #1  mark defined by \label
+% #2  a linktext 
+% #3  a html link 
+\newenvironment{covlink}[3]{ \htmladdnormallink{#2}{#3} \latex{(\ref{#1})} }
+
+\newenvironment{covimg}[4]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#4]{#1/#2}
+   \caption{#3}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+\newenvironment{covimg2}[3]%
+{ \html{\htmladdimg[ALIGN=CENTER]{#2.gif}}
+ 
+ \latexonly
+ \begin{figure}[htp]
+  \begin{center}
+   \includegraphics[scale=#3]{#1/#2}
+  \end{center}
+ \end{figure}
+ \endlatexonly
+}
+
+
+\definecolor{param}{rgb}{1.0,0.4,0.8}
+\definecolor{output}{rgb}{0.4,0.4,1.0}
+\definecolor{depend}{rgb}{0.1,0.4,1.0}
+\definecolor{required}{rgb}{0.8,0.8,0.0}
+\definecolor{optional}{rgb}{0.1,0.8,1.0}
+
+%====== start the document
+\begin{document}
+
+
+%====== the following tables are only used by PS/PDF
+%====== also the titlepage and the next page
+\begin{latexonly}
+
+	\title{}
+	\author{}
+
+	\uppertitleback{\bf{Title:} \\
+			Customer Module Reference Guide \vskip 0.5cm 2001 Computing Center University of Stuttgart \\ 
+         2001 VirCinity IT Consulting\\
+         2005 VISENSO GmbH}
+	\lowertitleback{\bf{Author:} \\
+ 			Sergio Leseduarte}
+	\maketitle
+
+   \pagenumbering{arabic}
+	\tableofcontents
+	
+\end{latexonly}
+
+
+%====== include the chapters
+\include{modules/modules}
+
+\end{document}

@@ -1,0 +1,43 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{meshIn} & UnstructuredGrid \newline
+                                       UniformGrid \newline
+                                       RectilinearGrid \newline
+                                       StructuredGrid  \newline
+				       Polygons & Input mesh \\
+\hline
+	\textcolor{required}{veloIn} & Vec3 \newline
+                                       Vec3 & velocity on the grid
+	nodes \\
+\hline
+	\textcolor{optional}{pointsIn} & Points & If a Points object is given 
+	                                              at the "pointsIn" port, it overrides the
+                                                      starting point parameters and the points 
+						      in the data objects are used instead.
+						      This way you may achieve an arbitrary
+						      spacial distribution of initial points.\\
+\hline
+	\textcolor{optional}{octtreesIn} & OctTree \newline
+                                           OctTreeP & The tracer builds
+        internally an octree for the input grids upon the first execution.
+        In some cases, for instance, if you are using several tracer modules
+        for the same data set, or if you want to use non-default values
+        for the parameters involved in the octree build-up, you may want to
+        use construct these octrees elsewhere, for instance using the MakeOctTree module,
+        and hand them down to the tracer module.\\
+\hline
+\end{longtable}
+%=============================================================
+
+%\begin{covimg}{modules/Tracer/TetraTrace}
+%  {param1}{Meaning of the first 4 parameters with startStyle set to plane}{0.7}\end{covimg}
+
+%
+%=============================================================

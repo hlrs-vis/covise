@@ -1,0 +1,43 @@
+
+%=============================================================
+
+
+%
+% short description what the module does
+%
+
+TetraTrace performs computation of particle tracks inside {\bf tetrahedra-only} grids. It
+therefore uses a runge-kutta 4th-order numerical integration method with adaptive
+stepsize.
+
+{\bf Note:}
+
+Module obsolete - kept for compatibility with 5.1 only, but support 
+discontinued - use {\bf Tracer} (new with 5.2) instead!
+
+%
+% input of a module icon for example
+% #1	path for eps
+% #2  picture name
+% #3  scale factor
+
+\begin{covimg2}{}{TetraTrace}{0.7}\end{covimg2}
+
+Some precomputation {\it (see Examples)} is required in order to be capable of handling
+larger datasets near real-time.
+
+{\it Notes:}
+\begin{enumerate}
+\item You can convert unstructured-mixed-celltype-grids into tetrahedra-grids with Tetrahedronize.
+\item If you use block-structured grids the particle trace could stop at computational borders of these grids. To solve this problem 
+please use AssembleUsg and FixUsg behind the module Tetrahedronize in the pipeline, and set the parameter searchMode to {\tt Save} if necessary.
+\end{enumerate}
+
+%
+% short information about versions 
+%
+
+
+
+%
+%=============================================================

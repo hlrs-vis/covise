@@ -1,0 +1,126 @@
+/* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2007 Robert Osfield
+ *
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
+ * (at your option) any later version.  The full license is in LICENSE file
+ * included with this distribution, and on the openscenegraph.org website.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * OpenSceneGraph Public License for more details.
+*/
+
+#ifndef PARAMATERFILE_H
+#define PARAMATERFILE_H
+
+
+#include <osg/ArgumentParser>
+#include <osg/OperationThread>
+#include <osg/Object>
+#include <osg/Notify>
+
+#include <OpenThreads/Mutex>
+#include <OpenThreads/Thread>
+
+#include <vpb/Export>
+
+#include <list>
+#include <string>
+#include <sstream>
+#include <fstream>
+
+#include <stdarg.h>
+
+namespace vpb
+{
+
+class VPB_EXPORT Parameter : public osg::ArgumentParser::Parameter
+{
+    public:
+    
+        // non const versions
+        Parameter(bool& value) : osg::ArgumentParser::Parameter(value) {}
+
+        Parameter(float& value) : osg::ArgumentParser::Parameter(value) {}
+
+        Parameter(double& value) : osg::ArgumentParser::Parameter(value) {}
+
+        Parameter(int& value) : osg::ArgumentParser::Parameter(value) {}
+
+        Parameter(unsigned int& value) : osg::ArgumentParser::Parameter(value) {}
+
+        Parameter(std::string& value) : osg::ArgumentParser::Parameter(value) {}
+
+        Parameter(const Parameter& param) : osg::ArgumentParser::Parameter(param) {}
+        
+
+        // const versions - cheat to be able to use Parameter for passing in parameters as well as getting results
+        Parameter(const bool& value) : osg::ArgumentParser::Parameter(const_cast<bool&>(value)) {}
+
+        Parameter(const float& value) : osg::ArgumentParser::Parameter(const_cast<float&>(value)) {}
+
+        Parameter(const double& value) : osg::ArgumentParser::Parameter(const_cast<double&>(value)) {}
+
+        Parameter(const int& value) : osg::ArgumentParser::Parameter(const_cast<int&>(value)) {}
+
+        Parameter(const unsigned int& value) : osg::ArgumentParser::Parameter(const_cast<unsigned int&>(value)) {}
+
+        Parameter(const std::string& value) : osg::ArgumentParser::Parameter(const_cast<std::string&>(value)) {}
+
+
+        bool getString(std::string& str);
+};
+
+class VPB_EXPORT PropertyFile : public osg::Referenced
+{
+    public:
+    
+        enum Type
+        {
+            READ,
+            WRITE
+        };
+
+        PropertyFile(const std::string& filename);
+        
+        const std::string& getFileName() const { return _fileName; }
+        
+        /** return true if this TaskFile object is attached to a valid file.*/
+        bool valid() const { return true; }
+
+        /** Set a property on the TaskFile object.*/
+        void setProperty(const std::string& property, Parameter value);
+
+        /** Get a property from the TaskFile object.*/
+        bool getProperty(const std::string& property, Parameter value) const;
+        
+        /** Read the TaskFile properties from disk.*/
+        bool read();
+
+        /** Write the TaskFile properties to disk.*/
+        bool write();
+
+        void report(std::ostream& out);
+
+    protected:
+
+        virtual ~PropertyFile();
+
+        typedef std::map<std::string, std::string> PropertyMap;
+        PropertyMap _propertyMap;
+        
+        std::string     _fileName;
+        int             _syncCount;
+        bool            _propertiesModified;
+        
+        int             _previousSize;
+        char*           _previousData;
+
+        int             _currentSize;
+        char*           _currentData;
+};
+
+}
+
+#endif

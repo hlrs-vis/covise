@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<GLOBAL>
+
+  <TestValue attribute="testattribute" value="t_value"/>
+  <TestFloat value="1.0" />
+
+
+
+  <OpenSGRenderer>
+    <Stereo separation="1.0" value="on" >
+    </Stereo>
+    <Cluster value="off" >
+      <Servers value="visspring viswinter vissummer visautumn" >
+      </Servers>
+      <ConnectionType value="Multicast" >
+      </ConnectionType>
+      <MultiDisplay value="off" >
+        <numHServers value="4" >
+        </numHServers>
+        <numVServers value="1" >
+        </numVServers>
+        <ClientRendering value="on" >
+        </ClientRendering>
+      </MultiDisplay>
+      <SortFirst value="off" >
+      </SortFirst>
+      <SortLast value="off" >
+      </SortLast>
+    </Cluster>
+    <Backend>
+      <PluginDir version="001" value="/lib/sgplugins" name="none" >
+      </PluginDir>
+      <PluginDir version="001" value="/lib/sgplugins" name="standalone" >
+      </PluginDir>
+      <PluginDir version="001" value="/lib/sgplugins" name="covise" >
+      </PluginDir>
+      <PluginDir version="001" value="/lib/sgplugins" name="yac" >
+      </PluginDir>
+    </Backend>
+    <Plugin name="de.hlrs.BoxPlugin" >
+      <AutoStart value="false" >
+      </AutoStart>
+    </Plugin>
+    <Plugin name="de.hlrs.MaterialEditor" >
+      <AutoStart value="true" >
+      </AutoStart>
+      <Hidden value="true" >
+      </Hidden>
+    </Plugin>
+    <Plugin name="de.hlrs.VolumePlugin" >
+      <AutoStart value="true" >
+      </AutoStart>
+      <Hidden value="false" >
+      </Hidden>
+    </Plugin>
+    <ActionModel>
+      <ActionContainer name="File" >
+        <Position value="1" name="menu" >
+        </Position>
+        <Action name="open_file" >
+          <Position value="2" name="menu" >
+          </Position>
+          <Position value="1" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="import_file" >
+          <Position value="2" name="menu_desktop" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="save_scene" >
+          <Position value="5" name="menu_desktop" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="save_snap" >
+          <Position value="50" name="menu_desktop" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="save_snap_all" >
+          <Position value="51" name="menu_desktop" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="exit" >
+          <Position value="9999" name="menu" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+      </ActionContainer>
+      <ActionContainer name="View" >
+        <Position value="2" name="menu" >
+        </Position>
+        <Action name="view_all" >
+          <Position value="1" name="menu" >
+          </Position>
+          <Position value="1" name="toolbar" >
+          </Position>
+          <Position value="3" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="toggle_fs" >
+          <Position value="10" name="menu" >
+          </Position>
+          <Position value="10" name="toolbar" >
+          </Position>
+          <Position value="2" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="toggle_aa" >
+          <Position value="11" name="menu" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+        <Action name="show_statistics" >
+          <Position value="20" name="menu" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+      </ActionContainer>
+      <ActionContainer name="Editors" >
+        <Position value="3" name="menu" >
+        </Position>
+        <Action name="edit_material" >
+          <Position value="1" name="menu" >
+          </Position>
+          <Position value="off" name="toolbar" >
+          </Position>
+          <Position value="off" name="fullscreen" >
+          </Position>
+        </Action>
+      </ActionContainer>
+      <ActionContainer name="Lights" >
+        <Position value="4" name="menu" >
+        </Position>
+        <ActionContainer name="Headlight" >
+          <Position value="1" name="menu" >
+          </Position>
+          <Action name="toggle_headlight" >
+            <Position value="1" name="menu" >
+            </Position>
+            <Position value="off" name="toolbar" >
+            </Position>
+            <Position value="off" name="fullscreen" >
+            </Position>
+          </Action>
+        </ActionContainer>
+      </ActionContainer>
+      <ActionContainer name="Volume" >
+        <Position value="10" name="menu" >
+        </Position>
+        <ActionContainer name="Rendering Mode" >
+          <Position value="20" name="menu" >
+          </Position>
+        </ActionContainer>
+      </ActionContainer>
+    </ActionModel>
+  </OpenSGRenderer>
+  <CONFIGEDITOR>
+    <COLOR name="global_scope" color="blue" >
+    </COLOR>
+    <COLOR name="global_variable" color="darkslateblue" >
+    </COLOR>
+    <COLOR name="host_scope" color="red" >
+    </COLOR>
+    <COLOR name="host_variable" color="indianred" >
+    </COLOR>
+    <COLOR name="user_scope" color="darkgreen" >
+    </COLOR>
+    <COLOR name="user_variable" color="darkseagreen" >
+    </COLOR>
+    <COLOR name="userhost_scope" color="darkorange" >
+    </COLOR>
+    <COLOR name="userhost_variable" color="goldenrod" >
+    </COLOR>
+  </CONFIGEDITOR>
+  <UICONFIG>
+    <QTSTYLE style="Windows" >
+    </QTSTYLE>
+  </UICONFIG>
+  <Tracker value="off" >
+    <Server value="visspring.rus.uni-stuttgart.de" >
+    </Server>
+    <Device value="de.hlrs.InputDriver.Mouse" >
+    </Device>
+    <Communication value="de.hlrs.CommunicationDriver.RawBinDriver" >
+    </Communication>
+    <Backend>
+      <PluginDir version="001" value="/lib/trackerplugins" name="none" >
+      </PluginDir>
+      <PluginDir version="001" value="/lib/trackerplugins" name="covise" >
+      </PluginDir>
+      <PluginDir version="001" value="/lib/trackerplugins" name="yac" >
+      </PluginDir>
+    </Backend>
+  </Tracker>
+
+ </GLOBAL>
+
+</COCONFIG>

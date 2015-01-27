@@ -1,0 +1,43 @@
+
+\subsubsection{Input Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{required}{meshIn} & UniformGrid  \newline
+                                 RectilinearGrid  \newline
+                                 StructuredGrid  \newline
+                                 UnstructuredGrid & 
+                                                             All kinds of grid-based data is accepted as input including sets.  \\
+\hline
+	\textcolor{required}{isoDataIn} & Float  \newline
+                                 Float  
+                                 & Scalar or vector data is accepted as input for isosurface generation. 
+                                                             The number of elements (or vertices) must match that of the
+                                                             respective grid.  \\
+\hline
+	\textcolor{optional}{dataIn} & Float  \newline
+                                 Float  \newline
+                                 Vec3  \newline
+                                 Vec3 & This optional port can be used to map additional values onto the
+                                                             created isosurface for coloring. \\														
+\hline
+        \textcolor{optional}{colorMapIn} & ColorMap &
+                           Optional color map for the output.
+                           If not used the module generates
+                           a color map based on the output data.\\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

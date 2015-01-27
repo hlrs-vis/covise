@@ -1,0 +1,79 @@
+# - Find osgCal
+# Find the osgCal includes and library
+#
+#  OSGCAL3D_INCLUDE_DIR - Where to find osgCal includes
+#  OSGCAL3D_LIBRARIES   - List of libraries when using osgCal
+#  OSGCAL3D_FOUND       - True if osgCal was found
+
+IF(OSGCAL3D_INCLUDE_DIR)
+  SET(OSGCAL3D_FIND_QUIETLY TRUE)
+ENDIF(OSGCAL3D_INCLUDE_DIR)
+
+FIND_PATH(OSGCAL3D_INCLUDE_DIR "osgCal/CoreMesh"
+  PATHS
+  $ENV{OSGCAL3D_HOME}/include
+  $ENV{EXTERNLIBS}/osgCal/include
+  ~/Library/Frameworks/include
+  /Library/Frameworks/include
+  /usr/local/include
+  /usr/include
+  /sw/include # Fink
+  /opt/local/include # DarwinPorts
+  /opt/csw/include # Blastwave
+  /opt/include
+  DOC "osgCal - Headers"
+)
+
+
+SET(OSGCAL3D_NAMES osgCal)
+SET(OSGCAL3D_DBG_NAMES osgCald)
+
+FIND_LIBRARY(OSGCAL3D_LIBRARY NAMES ${OSGCAL3D_NAMES}
+  PATHS
+  $ENV{OSGCAL3D_HOME}
+  $ENV{EXTERNLIBS}/osgCal
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  PATH_SUFFIXES lib lib64
+  DOC "osgCal - Library"
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+
+IF(MSVC)
+  # VisualStudio needs a debug version
+  FIND_LIBRARY(OSGCAL3D_LIBRARY_DEBUG NAMES ${OSGCAL3D_DBG_NAMES}
+    PATHS
+    $ENV{OSGCAL3D_HOME}
+    $ENV{EXTERNLIBS}/osgCal
+    DOC "osgCal - Library (Debug)"
+  )
+  
+  IF(OSGCAL3D_LIBRARY_DEBUG AND OSGCAL3D_LIBRARY)
+    SET(OSGCAL3D_LIBRARIES optimized ${OSGCAL3D_LIBRARY} debug ${OSGCAL3D_LIBRARY_DEBUG})
+  ENDIF(OSGCAL3D_LIBRARY_DEBUG AND OSGCAL3D_LIBRARY)
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(OSGCAL3D DEFAULT_MSG OSGCAL3D_LIBRARY OSGCAL3D_LIBRARY_DEBUG OSGCAL3D_INCLUDE_DIR)
+
+  MARK_AS_ADVANCED(OSGCAL3D_LIBRARY OSGCAL3D_LIBRARY_DEBUG OSGCAL3D_INCLUDE_DIR)
+  
+ELSE(MSVC)
+  # rest of the world
+  SET(OSGCAL3D_LIBRARIES ${OSGCAL3D_LIBRARY})
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(OSGCAL3D DEFAULT_MSG OSGCAL3D_LIBRARY OSGCAL3D_INCLUDE_DIR)
+  
+  MARK_AS_ADVANCED(OSGCAL3D_LIBRARY OSGCAL3D_INCLUDE_DIR)
+  
+  set(OSGCAL3D_FOUND true)
+ENDIF(MSVC)
+
+IF(OSGCAL3D_FOUND)
+  SET(OSGCAL3D_INCLUDE_DIRS ${OSGCAL3D_INCLUDE_DIR})
+ENDIF(OSGCAL3D_FOUND)

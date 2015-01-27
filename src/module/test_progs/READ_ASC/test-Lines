@@ -1,0 +1,36 @@
+# define a line grid across 10 points
+
+#   x----x----x
+#   |    |    |
+#   |    |    |
+#   x----x----x----x
+#   |    |    |
+#   |    |    |
+#   x----x----x    
+
+
+LINE 6 19 10
+{
+   ATTRIB atribName all this is one Attribute
+   
+   VERT 
+   #   fgjk'hjlk;
+      0,0,0
+      0,0,1
+      0,0,2  # ;lfjh
+      0,1,0
+      0,1,1
+      0,1,2 
+      0,1,3
+      0,2,0
+      0,2,1
+      0,2,2
+   
+   CONN
+      0,1,2
+      3,4,  5,6   # djfsklghdf kj
+      7,8,9
+      0,3,7
+      1,4,8
+      2,5,9
+}

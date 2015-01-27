@@ -1,0 +1,103 @@
+
+<BumpDiffuseLightBrightness>
+
+  <uniform name="Bumpiness" type="float" value="0.3"/>
+  <uniform name="diffuseMap" type="sampler2D" value="0"/>
+  <uniform name="normalMap" type="sampler2D" value="1"/>
+  <uniform name="lightMap" type="sampler2D" value="2"/>
+  <uniform name="Brightness" type="float" value="0.3" min="0.0" max="1.0"/>
+  <uniform name="Contrast" type="float" value="1.8" min="0.5" max="4.0"/>
+  
+  <attribute name="aBinormal" type="binormal" value="6"/>
+  <attribute name="aTangent" type="tangent" value="7"/>
+  
+  <vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+    varying vec2 TexcoordL;
+  
+    attribute vec3 aBinormal;
+    attribute vec3 aTangent;
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Binormal = gl_NormalMatrix * aBinormal;
+        Tangent  = gl_NormalMatrix * aTangent; 
+        Texcoord = gl_MultiTexCoord0.xy;
+        TexcoordL = gl_MultiTexCoord2.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+     
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+	gl_Position = ftransform();	
+    }
+  </vertexProgram>
+  <fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+    varying vec2 TexcoordL;
+    uniform float Brightness;
+    uniform float Contrast;
+   
+    uniform float Bumpiness;
+    uniform sampler2D diffuseMap;
+    uniform sampler2D normalMap;
+    uniform lightMap lightMap;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+      vec3 bumpmap = 2.0 * Bumpiness * texture2D( normalMap, Texcoord ) - vec3(0.5,0.5,0.5);
+      	
+      							
+      vec4 lightColor = texture2D(lightMap,TexcoordL);
+      
+      vec3 N = normalize(normal);
+      vec3 Tn = normalize(Tangent);
+      vec3 Bn = normalize(Binormal);
+      N += (bumpmap.x * Tn + bumpmap.y * Bn);
+      N = normalize(N);
+      
+      vec3 nEyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm > 0.0)
+      {
+      	final_color += gl_LightSource[0].diffuse * 
+      	               texture2D( diffuseMap, Texcoord ) * 
+      	               texture2D( lightMap  , TexcoordL) *
+      				   lambertTerm;	
+      		
+      	vec3 E = normalize(nEyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+      	final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+      	}
+		final_color.rgb  =((final_color.rgb - 0.5f) * Contrast) + 0.5f;
+		final_color.rgb += vec3(Brightness,Brightness,Brightness);
+      
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentShader>
+</BumpDiffuseLightBrightness>

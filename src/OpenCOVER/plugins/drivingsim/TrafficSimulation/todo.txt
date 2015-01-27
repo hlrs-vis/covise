@@ -1,0 +1,12 @@
+TODO List for Traffic Simulation:
+
+- include pointer to junction in road transition list, adapt road transition
+list applications
+- remove code in fiddleyard being introduced for workaround of junction
+  recognition in one single example: motorway.xodr
+- try more efficient virtual acceleration computation by computing all
+  driven lane scenarios at once
+- reworking overtake behaviour, for example no overtakes before junctions
+- better velocity limiting to curvature, more foresight
+- no lane changeat near zero velocity, if there's no space between
+  neighbouring cars anyway

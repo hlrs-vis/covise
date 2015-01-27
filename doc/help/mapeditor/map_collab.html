@@ -1,0 +1,73 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Peter Wolf">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>Collaborative Working</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+
+<h2>
+<font face="Times New Roman,Times"><font color="#3333FF">Distributed and
+Collaborative Working</font></font></h2>
+<font face="Arial,Helvetica">Here you get some background information on
+the COVISE architecture, and you will see the difference between distributed
+and collaborative working; for more information see <font color="#3366FF"><a href="../../online_doc/Tutorial/start/start_Advanced.html" target="_top">Tutorial
+(Advanced Topics)</a></font> and <font color="#3333FF"><a href="../../online_doc/usersguide/start/start_collab.html" target="_top">User's
+Guide, chapter COVISE CE</a></font></font>.
+<p><b><font face="Arial,Helvetica"><font size=+1>Distributed Working</font></font></b>
+<br>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="75%" >
+<tr>
+<td><img SRC="distrib.gif" height=396 width=473></td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica">The figure above shows the elements of
+distributed working in COVISE. The application consists of three modules:</font>
+<ul>
+<ul>
+<li>
+<font face="Arial,Helvetica">a module which reads in data (READ)</font></li>
+
+<li>
+<font face="Arial,Helvetica">a module which extracts a special feature
+(FILTER) and</font></li>
+
+<li>
+<font face="Arial,Helvetica">a module which displays the extracted data
+(Renderer, RENDER).</font></li>
+</ul>
+</ul>
+<font face="Arial,Helvetica">As the filter module consumes much CPU time
+and memory it will be started on a remote compute server.</font>
+<br><font face="Arial,Helvetica">The first process which is started when
+'covise' is typed in is the Controller which in turn starts the interface
+process (MapEditor) and the data management process (CRB, <u>C</u>OVISE
+REQUEST <u>B</u>ROKER). As soon as another host is included in the session
+a CRB is started on that computer. THe read module is started on the local
+workstation, the filter module on the remote computer.</font>
+<br>&nbsp;
+<p><b><font face="Arial,Helvetica"><font size=+1>Collaborative Working</font></font></b>
+<p><font face="Arial,Helvetica"><font size=-1>I</font>n a collaborative
+session (see figure below) a user interface process (MapEditor) and a Renderer
+are started also on the remote machine.</font>
+<br>&nbsp;
+<br>&nbsp;
+<center><table CELLSPACING=0 COLS=1 WIDTH="77%" >
+<tr>
+<td><img SRC="collab.gif" height=385 width=486></td>
+</tr>
+</table></center>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

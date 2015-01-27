@@ -1,0 +1,204 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+\begin{covimg}{}
+		{coloredit_net}{covise/net/examples/ColorEdit.net}{0.6}\end{covimg}
+
+The example network above shows a cuttingplane on which colors are mapped. 
+To map the scalar data of the CuttingPlane its dataOut port is connected to the 
+dataIn port of the ColorEdit module which maps the scalar values according to 
+its colormap to color data. Afterwards the meshOut data of the CuttingPlane module 
+and the color data is combined by the collect module.  
+
+After starting the ColorEdit module an Editor pops up. In the ColorEdit window the 
+colormap can be edited or loaded from file and send to the module by clicking the 
+apply button in the Editor (Please make sure to apply a colormap that gives a visible
+picture in the Renderer - check by clicking in the colormaps list in the information
+area).  
+
+The next image is a snapshot of the results in the Inventor Renderer.  
+
+\begin{covimg2}{}{renderer_snapshot}{0.7}\end{covimg2}
+
+\clearpage 
+%
+%=============================================================
+
+\subsubsection{Editor}
+%=============================================================
+
+% complete set of new images!
+
+The colormap editor is a tool to create colormaps in a fast and comfortable way. 
+This editor is available as an input parameter e.g. through the ColorEdit module.  
+
+A colormap is a function that assigns colors to scalar values. Colormaps can be 
+saved to and read from files. The user can choose between two different interpolations - 
+the linear and the spline one. The interval between the control points is filled by 
+linear or cubic interpolation in RGB space.  
+
+To send the colormap parameter to the module and execute the module the "execute button" on the bottom of 
+the window has to be pushed.  
+
+\begin{covimg}{}
+		{b1}{The ColorMapEditor Panel}{0.7}\end{covimg}
+
+With the colorbrowser you can specify colors by dragging the RGB or HSV sliders. 
+The current color is displayed in a small window. The minimum and maximum values for 
+each component is 0 and 1. The maximum of the hue value is 360.
+
+\begin{covimg}{}
+		{b2}{Color Browser}{0.7}\end{covimg}
+		
+Opacity can be changed with an other slider. It is displayed in an extra window as 
+the current color with the current opacity and a pattern as background shining through 
+more or less. Alpha = 0 means totally opaque, alpha = 1 totally transparent.  
+
+\begin{covimg}{}
+		{b3}{Transparency Slider}{0.7}\end{covimg}
+
+The palette window shows the current spectrum of colors. It can show the three 
+color components or optional the color components plus the opacity. 
+This window is a truecolor window that shows the colors in 16.7 million colors 
+which gives a very good impression of the colormap and the opacity but will only 
+work on work stations with such a visual.  
+		
+\begin{covimg}{}
+		{b4}{Palette Window}{0.7}\end{covimg}
+
+The function display shows the curves of the four components in a frame. 
+The three color component curves of the RGB-model have the corresponding color 
+and the opacity is a black curve. In this window the curves are only displayed 
+and cannot be manipulated directly.  
+
+\begin{covimg}{}
+		{b5}{Function Display}{0.7}\end{covimg}
+
+\begin{covimg}{}
+		{b6}{Control Point Slider}{0.7}\end{covimg}
+		
+With the control point slider the positions of the different control points 
+can be edited. By dragging the mouse with the left mouse button pressed you can move 
+single points. Dragging with the right button squeezes the colormap; this means 
+dragging the mouse to the right stretches the colormap left of the point and 
+compresses it on the right side. Clicking on a slider with the middle button 
+destroys it and clicking in an empty region of the slider creates one with 
+exactly that color of the colormap. There is always one slider selected. 
+You can recognize it by the black line on it. Sliders can be selected 
+by clicking on them with the left or right mouse button. 
+If a new slider is created it will be selected automatically. 
+The color of the selected point is shown in the colorbrowser and can be edited there.  
+						
+\begin{covimg}{}
+		{b7}{Move Control Point (Left Button)}{0.7}\end{covimg}
+		
+\begin{covimg}{}
+		{b8}{Squeeze Control Point (RightButton)}{0.7}\end{covimg}
+				
+\begin{covimg}{}
+                {b9}{ColorEditor Menu Bar}{0.7}\end{covimg}
+		
+The leftmost entry in the menu bar contains all the operations to load and save a colormap.  
+		
+\begin{covimg}{}
+                {b18}{"File" Pulldown Menu}{0.7}\end{covimg}
+
+"new" deletes the old colormap and creates a new default one shown in the following picture. 
+The interpolation mode is set to linear. The borders are 0 and 1.
+		
+\begin{covimg}{}
+                {b21}{The Editor after the "New" Operation}{0.7}\end{covimg}
+
+Selecting "open" pops up a file selector as shown in the figure.  
+				
+
+\begin{covimg}{}
+                {b22}{Open File Dialog}{0.7}\end{covimg}
+		
+After the colormap file on the right has been selected push the O.K. button to load it. 
+The old colormap will be lost.  
+
+"save" pops up a dialog box to write the name of the current colormap for saving it.  
+
+		
+\begin{covimg}{}
+                {b23}{Save a ColorMap}{0.7}\end{covimg}
+
+"quit" exits the programm  
+
+						
+\begin{covimg}{}
+                {b20}{"Arrows" Pulldown Menu}{0.7}\end{covimg}
+
+If the arrows are sensitive the colorbrowser and the current control point are unlinked. 
+So if the user wants to copy the color of the colorbrowser to the current controlpoint 
+the down arrow must be pushed and visa versa. The sensitivity of the arrows can be 
+changed in the arrows menu of the menubar. If the arrows are set unsensitive the 
+current control point is shown in the colorbrowser and will be updated automatically 
+when changing the colorbrowsers color.  
+
+\clearpage
+
+%\begin{covimg}{}
+%                {b19}{"drag mode" Pulldown Menu}{0.7}\end{covimg}
+%
+%If the display performance is too low either due to the network or the machine, 
+%so that changing the colormap by dragging is to slow, you can change the drag 
+%mode to "button-up apply" mode. This means the new colormap will be calculated 
+%and shown if you release the mouse button after dragging the sliders.  
+		
+\begin{covimg}{}
+                {b16}{"display mode" Toggle Button"}{0.7}\end{covimg}
+
+Here the user can switch the display mode of the palette window between 
+the opaque and transparency mode. This does not change the colormap itself. 
+In the opaque mode you only see the three color components. 
+The transparency mode shows the background pattern shining through the 
+colormap less or more. This display mode is slower.  
+
+		
+\begin{covimg}{}
+                {b10}{Opaque display of palette}{0.7}\end{covimg}
+		
+\begin{covimg}{}
+                {b11}{Transparent display of palette}{0.7}\end{covimg}
+																								
+\begin{covimg}{}
+		{b17}{"Interpolation Mode" Toggle Buttons}{0.7}\end{covimg}
+								
+As shown in the figures the toggle changes the kind of interpolation used 
+between the control points. 
+Changing this mode is completely reversible. 
+		
+\begin{covimg}{}
+		{b14}{Linear Interpolation}{0.7}\end{covimg}
+
+\begin{covimg}{}
+		{b12}{Spline Interpolation}{0.7}\end{covimg}
+		
+\begin{covimg}{}
+		{b15}{Borders dialog fields}{0.7}\end{covimg}								
+
+Obsolete:
+In the two entry fields the borders of the colormap can be adjusted. 
+After typing a new border press return to confirm it. The left value must be less the right one. 
+
+%Note: {\bf Please do not use Min and Max in the ColorEditor Panel - 
+%     - obsolete, no function!!! Use parameters in CtrlPanel instead!!!} 
+      
+% how to make links for PDF & HTML
+
+%Verwenden Sie hierbei bitte den Modul 
+%\begin{covlink}
+%   {ReadStar}{ReadStar}{../../IO-Module/ReadStar/ReadStar.html}\end{covlink} 
+%um alles genau zu erfahren.
+
+% #1	underlined text for link
+% #2  mark (created by \label)
+% #3  URLColorEdit.tex
+
+

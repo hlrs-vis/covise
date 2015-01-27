@@ -1,0 +1,274 @@
+#!/bin/awk -f 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  conversion script for fluent 4.3X universal files to
+#  COVISE ASCII format. 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# please edit the tasks section 
+#
+# (C) VirCinity IT Consulting GmbH April 2002 / VISENSO GmbH 2005
+#
+# RM V. 1.0
+#
+BEGIN {
+  #+++++++++++++++++++++++++++++++++++
+  #   T A S K S
+  #+++++++++++++++++++++++++++++++++++
+  # define tasks here
+  #
+  # 0=dont do   1=do it
+  #
+  grid_in      = 0;
+  pressure_in  = 0;
+  vel_in       = 1;
+  celltypes_in = 0;
+
+
+  print "  Converter for fluent universal file v4.3X format to COVISE ASCII format";
+  print "  VISENSO GmbH (c) 2005   v.1.0\n";
+
+  u[0]=0;
+  v[0]=0;
+  w[0]=0;
+}
+
+($1==212 && $2=="GRID" && $3=="SIZE") {
+ getline;
+ maxx=$1-1;
+ maxy=$2-1;
+ maxz=$3-1;
+ maxt = maxx*maxy*maxz;
+ maxt_step = int((maxt*3)/100);
+
+}
+
+($1==9 && $2=="CURVILINEAR" && grid_in==0) { 
+ print "READING GRID skiped"
+}  
+($1==9 && $2=="CURVILINEAR" && grid_in==1) {  
+print "START READING GRID"
+
+  getline;
+  cnt = 0;
+  l=0; n=0; m=0; 
+  while ( $1 != "#") {
+    for (rc=1;rc<6;rc++) { 
+      if ((cnt>=0)      && (cnt<  maxt)) { x[l]=$rc; l++ };
+      if ((cnt>=maxt)   && (cnt<2*maxt)) { y[m]=$rc; m++ };
+      if ((cnt>=2*maxt) && (cnt<3*maxt)) { z[n]=$rc; n++ };
+      cnt++;     
+    }
+    if (NR%maxt_step==0) printf(".");
+    getline;  
+  }
+  printf("\n");
+print "READING GRID FINISHED"
+# write strgrd
+  print "START WRITING GRID"
+  print "STRGRD", maxz, maxy, maxx > "grd.asc" 
+  print "{" > "grd.asc" ;
+  print "VERTEX" > "grd.asc" ;
+  maxt100 = int(maxt/100);
+  for (i=0;i<maxt;i++) { 
+    if (i%maxt100==0) printf(".");
+    print "    ", x[i], y[i], z[i] > "grd.asc" ;
+  }
+  print "}" > "grd.asc" ;
+  close("grd.asc");
+  print "\nWRITING GRID FINISHED"
+}
+
+#  266 STATIC PRESSURE  
+
+($1==266 && $2=="STATIC" && $3 == "PRESSURE" && pressure_in==0) {  
+print "READING PRESSURE skiped"
+}
+($1==266 && $2=="STATIC" && $3 == "PRESSURE" && pressure_in==1) {  
+  
+  filenam=sprintf("%s_%s.asc",$2,$3);  
+  getline;
+  print "WILL READ PRESSURE TO FILE " filenam;
+
+  print "STRSDT", maxz, maxy, maxx > filenam;
+  print "{" > filenam;
+  print "DATA" > filenam;
+  cnt = 0;
+  maxt100 = int(maxt/100);
+  FIELDWIDTHS="15 15 15 15 15";
+  while ( $1 != "#") {
+    for (rc=1;rc<6;rc++) { 
+       print $rc > filenam;
+       cnt++;
+       if (cnt%maxt100==0) printf(".");
+    }
+    getline
+  }
+  printf("\n");
+  print "}" > filenam;
+  close(filenam);
+  print "WRITING PRESSURE FINISHED ";
+}
+
+# VELOCITY
+
+($1==267 && $2=="U-VELOCITY" && vel_in==0) {  
+print "READING VELOCITIES skiped"
+}
+
+($1==267 && $2=="U-VELOCITY" && vel_in==1) {  
+  
+  getline;
+  print "START READING VELOCITIES ";
+  printf("u");
+  cnt = 0;
+  maxt100 = int(maxt/300);
+  FIELDWIDTHS="15 15 15 15 15";
+  while ( $1 != "#") {
+#print ">>>" $1 "<<<"
+    for (rc=1;rc<6;rc++) { 
+       u[cnt]=$rc; 
+       cnt++;
+       if (cnt%maxt100==0) printf(".");
+    }
+    getline
+  }
+  FS=" "
+}
+
+($1==268 && $2=="V-VELOCITY" && vel_in==1) {  
+  
+  getline;
+  cnt = 0;
+  maxt100 = int(maxt/300);
+  FIELDWIDTHS="15 15 15 15 15";
+  printf("v");
+  while ( $1 != "#") {
+    for (rc=1;rc<6;rc++) { 
+       v[cnt]=$rc; 
+       cnt++;
+       if (cnt%maxt100==0) printf(".");
+    }
+    getline
+  }
+  FS=" "
+}
+
+($1==269 && $2=="W-VELOCITY" && vel_in==1) {  
+  
+  getline;
+  cnt = 0;
+  maxt100 = int(maxt/300);
+  FIELDWIDTHS="15 15 15 15 15";
+  printf("w");
+  while ( $1 != "#") {
+    for (rc=1;rc<6;rc++) { 
+       w[cnt]=$rc; 
+       cnt++;
+       if (cnt%maxt100==0) printf(".");
+    }
+    getline
+  }
+  printf("\n");
+  print "READING VELOCITIES FINISHED"
+
+  FS=" "
+
+  filenam="VELOCITIES.asc"
+  print "STRVDT", maxz, maxy, maxx > filenam;
+  print "{" > filenam;
+  print "VERTEX" > filenam;
+  print "START WRITING VELOCITIES ";
+  for (i=0;i<maxt;i++) { 
+    if (i%maxt100==0) printf(".");
+    print "    ", u[i], v[i], w[i] > filenam ;
+  }
+
+  printf("\n");
+  print "}" > filenam;
+  close(filenam);
+  print "WRITING VELOCITIES FINISHED ";
+  exit;
+
+
+
+}
+
+
+
+
+
+# #   264 CELL TYPE TABLE                                                       
+($1==264 && $2=="CELL" && $3 == "TYPE" && $4 == "TABLE") {  
+   getline;
+   n=0;
+   while ( $1 != "#") {    
+    id[n] = $1;
+    name[n] = $2;
+    cntt[n]=0;
+    n++;
+    getline;
+   }
+   num_types = n;
+   print "CTT finished";
+}
+
+# #   265 CELL TYPES                                                            
+($1==265 && $2=="CELL" && $3 == "TYPES" && celltypes_in==1) {  
+    filenam="cells.asc";  
+    getline;
+    print "WILL READ CELL TYPES TO FILE " filenam;
+
+    print "STRSDT", maxz, maxy, maxx > filenam;
+    print "{" > filenam;
+    print "DATA" > filenam;
+
+
+
+    mxx = maxx+1;
+    mxy = maxy+1;
+    mxz = maxz+1;
+    maxt100=int(maxt/100);
+    lc=1;
+    cc=0;
+    for(i=0; i<mxz; i++) 
+      for(j=0; j<mxy; j++) 
+        for(k=0; k<mxx; k++) {
+          val = $lc;
+          lc++;
+          if (lc>10) {lc=1; getline}; 
+          if ((i>0)&&(j>0)&&(k>0)) {
+             print val > filenam;
+             if (cc%maxt100==0) printf(".");
+          }
+          cc++;
+        }
+
+    printf("\n");
+    print "}" > filenam;
+    close(filenam);
+    print "WRITING CELL-TYPES FINISHED ";
+
+
+
+#     while ( $1 != "#") {    
+#       for (i=1;i<11; i++) {
+#   # loop over all types
+#         for (k=0;k<num_types; k++) {
+#           if(id[k] == $i) cntt[k]++;
+#         }
+#       }
+#       if (NR%1000==0) printf(".");
+#       getline;
+#     }
+#     printf("\n");
+#     total = 0;
+#     for (k=0;k<num_types; k++) {
+#        print "TYPE " name[k] " : " cntt[k];
+#        total += cntt[k];
+#     }
+#  print "TOTAL: ", total
+}
+
+END {
+print "       converter finished"
+}

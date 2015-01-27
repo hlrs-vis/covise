@@ -1,0 +1,403 @@
+1
+LOCAL
+LUSER
+7
+RWCovise
+1
+LOCAL
+IO
+Read OR Write COVISE Data
+20
+20
+1
+mesh_in
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh_in
+opt
+none
+1
+mesh
+DO_Text|DO_Points|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data|DO_Polygons|DO_TriangleStrips|DO_Unstructured_V3D_Normals|DO_Geometry|DO_Lines|DO_PixelImage|DO_Texture
+mesh
+default
+RWCovise_1_OUT_0
+1
+grid_path
+Browser
+File path
+data/general/tutorial/tiny_geo.covise *.covise
+START
+-1
+0
+Domainsurface
+1
+LOCAL
+Tools
+Extract the Surface of an unstructured Grid
+20
+322
+2
+meshIn
+DO_UnstructuredGrid
+Unstructured Grid
+req
+none
+dataIn
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data|DO_Structured_S3D_Data|DO_Structured_V3D_Data
+input data
+opt
+none
+4
+meshOut
+DO_Polygons
+Domain Surface
+default
+Domainsurface_1_OUT_0
+dataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of surface polygons
+dep dataIn
+Domainsurface_1_OUT_1
+linesOut
+DO_Lines
+Boundary lines
+default
+Domainsurface_1_OUT_2
+ldataOut
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+output data on vertices of boundary lines
+dep dataIn
+Domainsurface_1_OUT_3
+5
+angle
+Scalar
+Feature angle
+0.1
+START
+-1
+vertex
+Vector
+Normal for backface culling
+1.0 0.0 0.0
+START
+-1
+scalar
+Scalar
+Trashold for backface culling
+1.5
+START
+-1
+double
+Boolean
+Double-Point check
+TRUE
+START
+-1
+optimize
+Choice
+should we care 'bout RAM or not
+1 speed memory
+START
+-1
+0
+Renderer
+1
+LOCAL
+Renderer
+OpenInventor 2.0 Renderer
+20
+388
+1
+RenderData
+DO_Geometry|DO_Points|DO_CellGrid|DO_Text_Iv|DO_UnstructuredGrid|DO_RectilinearGrid|DO_StructuredGrid|DO_Polygons|DO_TriangleStrips|DO_Lines
+render geometry or Invertor file
+req
+none
+0
+0
+0
+CreateDisp
+1
+LOCAL
+NoShip
+Create a displacement field at the points of an unstructured grid
+96
+85
+1
+gridIn
+DO_UnstructuredGrid
+Unstructured Grid or Polygon mesh
+req
+none
+1
+vodata
+Set_Unstructured_V3D_Data
+displacement field
+default
+CreateDisp_1_OUT_00
+6
+Eps_xx
+Scalar
+1st element of the trace of the strain matrix 
+-0.500000
+START
+-1
+Eps_yy
+Scalar
+2st element of the trace of the strain matrix 
+0.200000
+START
+-1
+Eps_zz
+Scalar
+3st element of the trace of the strain matrix 
+0.000000
+START
+-1
+Eps_xy
+Scalar
+shear in the x-y plane
+0.400000
+START
+-1
+Eps_xz
+Scalar
+shear in the x-z plane
+0.300000
+START
+-1
+Eps_yz
+Scalar
+shear in the y-z plane
+0.5000000
+START
+-1
+0
+CreateDisp
+2
+LOCAL
+NoShip
+Create a displacement field at the points of an unstructured grid
+195
+85
+1
+gridIn
+DO_UnstructuredGrid
+Unstructured Grid or Polygon mesh
+req
+none
+1
+vodata
+Set_Unstructured_V3D_Data
+displacement field
+default
+CreateDisp_2_OUT_00
+6
+Eps_xx
+Scalar
+1st element of the trace of the strain matrix 
+0.000000
+START
+-1
+Eps_yy
+Scalar
+2st element of the trace of the strain matrix 
+0.000000
+START
+-1
+Eps_zz
+Scalar
+3st element of the trace of the strain matrix 
+0.000000
+START
+-1
+Eps_xy
+Scalar
+shear in the x-y plane
+0.000000
+START
+-1
+Eps_xz
+Scalar
+shear in the x-z plane
+0.000000
+START
+-1
+Eps_yz
+Scalar
+shear in the y-z plane
+0.000000
+START
+-1
+0
+DisplaceUsg
+1
+LOCAL
+Tools
+Displace USG
+20
+233
+2
+mesh
+DO_UnstructuredGrid
+Mesh Input
+req
+none
+dataIn
+DO_Unstructured_V3D_Data
+Data Input
+req
+none
+1
+meshOut
+DO_UnstructuredGrid
+Mesh Output
+default
+DisplaceUsg_1_OUT_00
+1
+scale
+Scalar
+Scaling factor
+1
+START
+-1
+0
+Interpolate
+1
+LOCAL
+Tools
+Interpolate unstructured data types
+162
+173
+3
+dataIn_1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+Data Input
+req
+none
+dataIn_2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+Data Input
+opt
+none
+indexIn
+DO_IntArr
+Index Input
+opt
+none
+3
+dataOut_1
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+Output data
+default
+Interpolate_1_OUT_00
+dataOut_2
+DO_Unstructured_S3D_Data|DO_Unstructured_V3D_Data
+Output data
+dep dataIn_2
+Interpolate_1_OUT_01
+indexOut
+DO_IntArr
+Output index
+dep indexIn
+Interpolate_1_OUT_02
+4
+motion
+choice
+Motion characteristic
+1 linear sinusoidal
+START
+-1
+type
+choice
+Type of animation
+1 linear cyclic
+START
+-1
+steps
+Slider
+Number of interpolation steps
+1 50 20
+START
+-1
+abs
+Boolean
+Absolute value for scalar data? y|n
+TRUE
+START
+-1
+0
+8
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_0
+DisplaceUsg
+1
+LOCAL
+mesh
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_0
+CreateDisp
+1
+LOCAL
+gridIn
+RWCovise
+1
+LOCAL
+mesh
+RWCovise_1_OUT_0
+CreateDisp
+2
+LOCAL
+gridIn
+Domainsurface
+1
+LOCAL
+meshOut
+Domainsurface_1_OUT_0
+Renderer
+1
+LOCAL
+RenderData
+CreateDisp
+1
+LOCAL
+vodata
+CreateDisp_1_OUT_00
+Interpolate
+1
+LOCAL
+dataIn_1
+CreateDisp
+2
+LOCAL
+vodata
+CreateDisp_2_OUT_00
+Interpolate
+1
+LOCAL
+dataIn_2
+DisplaceUsg
+1
+LOCAL
+meshOut
+DisplaceUsg_1_OUT_00
+Domainsurface
+1
+LOCAL
+meshIn
+Interpolate
+1
+LOCAL
+dataOut_1
+Interpolate_1_OUT_00
+DisplaceUsg
+1
+LOCAL
+dataIn
+0

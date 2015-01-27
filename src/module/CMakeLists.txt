@@ -1,0 +1,23 @@
+# @file
+# 
+# Simply descend to subdirectories
+#
+# @author Blasius Czink
+
+ADD_SUBDIRECTORY(renderer)
+ADD_SUBDIRECTORY(general)
+ADD_SUBDIRECTORY(examples)
+
+  ADD_SUBDIRECTORY(hlrs)
+  ADD_SUBDIRECTORY(univiz)
+  ADD_SUBDIRECTORY(vipar)
+  ADD_SUBDIRECTORY(ivd)
+  ADD_SUBDIRECTORY(koeln)
+  ADD_SUBDIRECTORY(chemnitz)
+  ADD_SUBDIRECTORY(spp1155)
+  ADD_SUBDIRECTORY(ite)
+  ADD_SUBDIRECTORY(spbgpu)
+  ADD_SUBDIRECTORY(visenso)
+  IF(NOT WIN32)
+#    ADD_SUBDIRECTORY(SCA)
+  ENDIF()

@@ -1,0 +1,16 @@
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ReadFidap.cpp
+)
+
+SET(EXTRASOURCES
+  ReadFidap.h
+)
+
+ADD_COVISE_MODULE(IO ReadFidap ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadFidap  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(ReadFidap)

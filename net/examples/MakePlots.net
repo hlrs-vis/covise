@@ -1,0 +1,716 @@
+#632
+1
+LOCAL
+LUSER
+#numModules
+8
+# Module RWCovise
+RWCovise
+1
+LOCAL
+IO_Module
+TITLE=RW:time_1
+4
+40
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/time.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+2
+LOCAL
+IO_Module
+TITLE=RW:temp1_1
+117
+43
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/temp1.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+3
+LOCAL
+IO_Module
+TITLE=RW:temp2_1
+238
+42
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/temp2.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+4
+LOCAL
+IO_Module
+TITLE=RW:temp3_1
+361
+42
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/temp3.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+5
+LOCAL
+IO_Module
+TITLE=RW:temp4_1
+484
+41
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/temp4.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module RWCovise
+RWCovise
+6
+LOCAL
+IO_Module
+TITLE=RW:temp5_1
+605
+39
+1
+mesh_in
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh_in
+opt
+
+1
+mesh
+UniformGrid|Text|Points|Spheres|UnstructuredGrid|RectilinearGrid|StructuredGrid|Tensor|Float|Vec2|Vec3|Polygons|TriangleStrips|Geometry|Lines|PixelImage|Texture|IntArr|RGBA|USR_DistFenflossBoco|Int|OctTree|OctTreeP
+mesh
+default
+
+11
+grid_path
+Browser
+File path
+share/covise/example-data/COVISE/temp5.covise
+
+1
+forceReading
+Boolean
+Force reading (don't whine if COVISE crashes)
+FALSE
+
+-1
+firstStepNo
+IntScalar
+first Step Nr.
+0
+
+-1
+numSteps
+IntScalar
+Number of steps to read (0 reads all)
+0
+
+-1
+skipSteps
+IntScalar
+number of steps to skip between timesteps
+0
+
+-1
+stepNo
+IntScalar
+stepNo
+0
+
+-1
+rotate_output
+Boolean
+Rotate output
+FALSE
+
+-1
+rotation_axis
+Choice
+Rotation axis
+3 x y z
+
+-1
+rot_speed
+FloatScalar
+Rotation speed
+2.000000
+
+-1
+grid_path___filter
+BrowserFilter
+File path
+grid_path *.covise/*
+
+-1
+increment_filename
+Boolean
+use this to add a suffix to the filename which is incremented every time the module is executed
+FALSE
+
+-1
+0
+# Module MakePlots
+MakePlots
+1
+LOCAL
+Tools
+TITLE=MakePlots_1
+263
+223
+7
+inPort_x
+Float
+X magnitude
+req
+
+inPort_y_0
+Float
+Y magnitude_0
+opt
+
+inPort_y_1
+Float
+Y magnitude_1
+opt
+
+inPort_y_2
+Float
+Y magnitude_2
+opt
+
+inPort_y_3
+Float
+Y magnitude_3
+opt
+
+inPort_y_4
+Float
+Y magnitude_4
+opt
+
+inPort_y_5
+Float
+Y magnitude_5
+opt
+
+1
+outPlots
+Vec2
+Plots
+default
+
+8
+title
+String
+Main Title
+Temperaturein5airbagchambers
+
+-1
+xAxis
+String
+X-Axis Title
+Time(milliseconds)
+
+-1
+yAxis
+String
+Y-Axis Title
+Temperature
+
+-1
+auto
+Boolean
+auto or manual
+FALSE
+
+-1
+Xlimits
+FloatVector
+Min and max for X-axis
+0 20
+
+-1
+Ylimits
+FloatVector
+Min and max for Y-axis
+300 1400
+
+-1
+Xticks
+IntVector
+Major and minor tick for X-axis
+4 8
+
+-1
+Yticks
+IntVector
+Major and minor tick for Y-axis
+5 10
+
+-1
+0
+# Module Plot
+Plot
+1
+LOCAL
+Renderer
+TITLE=Plot_1
+263
+357
+1
+RenderData
+Vec2|RectilinearGrid
+plot_data
+req
+
+0
+0
+0
+7
+RWCovise
+1
+LOCAL
+mesh
+
+MakePlots
+1
+LOCAL
+inPort_x
+RWCovise
+2
+LOCAL
+mesh
+
+MakePlots
+1
+LOCAL
+inPort_y_0
+RWCovise
+3
+LOCAL
+mesh
+
+MakePlots
+1
+LOCAL
+inPort_y_1
+RWCovise
+4
+LOCAL
+mesh
+
+MakePlots
+1
+LOCAL
+inPort_y_2
+RWCovise
+5
+LOCAL
+mesh
+
+MakePlots
+1
+LOCAL
+inPort_y_3
+RWCovise
+6
+LOCAL
+mesh
+
+MakePlots
+1
+LOCAL
+inPort_y_4
+MakePlots
+1
+LOCAL
+outPlots
+
+Plot
+1
+LOCAL
+RenderData
+0

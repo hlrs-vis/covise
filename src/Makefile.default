@@ -1,0 +1,85 @@
+CURDIR=$(TOPBUILDDIR)/$(shell unset PWD; /bin/pwd)
+TOPDIR=$(shell echo $(COVISEDIR) | sed -e 's;/*$$;;' -e 's;/[^/]*$$;;')
+PROJSRCDIR=$(TOPDIR)
+RELSRCDIR=../..
+ifeq ($(ARCHSUFFIX),)
+BUILDDIR_PREFIX=$(COVISEDIR)/build
+else
+BUILDDIR_PREFIX=$(COVISEDIR)/$(ARCHSUFFIX)/build
+endif
+INOPENCOVER=$(shell echo $(CURDIR) | grep -i opencover)
+ifeq ($(INOPENCOVER),)
+   PROJBUILDDIR=$(BUILDDIR_PREFIX).covise
+   BUILDDIR=$(PROJBUILDDIR)/$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR);;" -e "s;^$(PROJDIR);;")
+else
+   PROJBUILDDIR=$(BUILDDIR_PREFIX).cover
+   BUILDDIR=$(PROJBUILDDIR)/$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR)/src/OpenCOVER;;" -e "s;^$(PROJDIR);;")
+   PROJSRCDIR=$(TOPDIR)/src/OpenCOVER
+   RELSRCDIR=../../src/OpenCOVER
+endif
+MAKEFILE=$(BUILDDIR)/Makefile
+
+
+first: makefile 
+	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE)
+
+verbose: makefile 
+	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) VERBOSE=1
+
+clean: makefile
+	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) $@
+
+install: makefile
+	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) $@
+
+makefile: $(MAKEFILE)
+
+$(MAKEFILE):
+	echo trying to make $(MAKEFILE)
+	mkdir -p $(PROJBUILDDIR)
+ifeq ($(ARCHSUFFIX),mingw)
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+      -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
+      -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingw \
+      -DCMAKE_BUILD_TYPE=Debug
+else ifeq ($(ARCHSUFFIX),mingwopt)
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+      -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
+      -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingwopt \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+else ifeq ($(ARCHSUFFIX),libc++)
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+      -DCOVISE_USE_QT4=FALSE \
+      -DCMAKE_BUILD_TYPE=Debug
+else ifeq ($(ARCHSUFFIX),libc++opt)
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR) \
+      -DCOVISE_USE_QT4=FALSE \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+else
+	@echo "running 'cmake $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && cmake $(RELSRCDIR)
+endif
+
+$(PROJBUILDDIR):
+	mkdir -p $(PROJBUILDDIR)
+
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
+#
+# TODO these have to be converted to cmake
+#
+
+# tar_bin_core tar_bin_modules tar_bin_plugins tar_dev \
+# tar_dev_examples tar_src_core tar_src_modules tar \
+# src_plugins: makefile
+#     cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) QMAKE=$(QMAKE) QMAKEFLAGS=$(QMAKEFLAGS) $@
+
+# bindist devdist srcdist collectfiles: makefile
+#     cd $(SRCDIR) && $(MAKE) -f $(MAKEFILE) QMAKE=$(QMAKE) QMAKEFLAGS=$(QMAKEFLAGS) $@
+
+# indent html docupdate tex pdf: makefile
+#     $(MAKE) -f $(MAKEFILE) QMAKE=$(QMAKE) QMAKEFLAGS=$(QMAKEFLAGS) $@

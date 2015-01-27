@@ -1,0 +1,175 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+\bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+vertex 
+& 
+Vector 
+&   
+Normal of the plane, center of the sphere or one point on the axis of the cylinder.
+\\
+\hline
+point 
+& 
+Vector 
+&   
+One point on the cutting surface.
+\\
+\hline
+scalar
+&
+Scalar
+&
+Distance of the origin to the plane or radius of the sphere or cylinder.
+% This would overdetermine the cylinder
+% or radius of the
+% cylinder.
+\\
+\hline
+option
+&
+Choice
+&
+Select the shape of the surface: plane, sphere, cylinder-x, cylinder-y,
+cylinder-z. cylinder-x means a cylinder with its axis in the direction of the
+x axis.
+\\
+\hline
+gennormals
+&
+Boolean
+&
+Toggle the generation of normals. By default the generation of normals is
+turned off. The generated normals are available at the 3. output port named
+normalsOut. this port has to be connected to the 3. input port of the module
+Collect.
+\\
+\hline
+
+genstrips
+&
+Boolean
+&
+Toggle the generation of triangle strips. By default the generation of triangle
+strips is turned on.
+\\
+\hline
+genDummyS
+&
+Boolean
+&
+Toggle the generation of a dummy surface if the cutting surface doesn't intersect the object. By default the generation of the dummy surface
+strips is turned off.
+\\
+\hline
+offset
+&
+Scalar
+&
+Specifies the hight, the isolines are lifted above the CuttingSurfaceComp. If you
+don't specify an offset parts of the isolines can be occluded by the surface due
+to the limited accuracy of the Z-buffer. If you specify negative offsets, the
+lines appear on the backside of the plane respectively the inside of the sphere
+or cylinder.
+\\
+\hline
+numiso
+&
+Scalar
+&
+Specifies the number of isolines.
+\\
+\hline
+isostart
+&
+Scalar
+&
+Initial value for isolines.
+\\
+\hline
+isoend
+&
+Scalar
+&
+End value for isolines.
+\\
+\hline
+color\_or\_texture
+&
+Boolean
+&
+When true, the output Geometry object will have a an
+object describing colors. Otherwise, it will contain
+a texture.
+\\
+\hline
+scale
+&
+Scalar
+&
+This parameter is relevant if you want to map
+vector fields on your cutting surfaces. In this
+case the vector field is represented by line
+objects. Their length is controled with this
+parameter (see parameter length below for further details).
+\\
+\hline
+length
+&
+Choice
+&
+This is only relevant for vector data.
+You have 2 options: either {\sl 1*scale} or {\sl length*scale}.
+In the first one, all lines representing the vector field
+are the same length, given by parameter scale. In the second one,
+this scale is multiplied by the true length of the vector to
+determine the length for the lines.
+\\
+\hline
+num\_sectors
+&
+Scalar
+&
+This is only relevant for vector data. If you want
+to better visualise the direction of the vector
+field, you may wish to represent the output lines
+as arrows. The complexity of these arrows may be
+controled with this parameter. Do not be too greedy
+using it, the higher it is, the bigger the output
+object shall be.
+\\
+\hline
+vector
+&
+Choice
+&
+Determine the appearance of vector-data associated with the cutting surface.
+Has an effect only when the input is vector-data. \\
+\hline
+&& { \bf OnlySurface: } Use the vector-length as scalar value.  Nothing more.\\
+\hline
+&&  { \bf OnlyLines: } Use lines.  Nothing more. \\
+\hline
+&&   { \bf SurfaceAndLines: }  Use vector-length and lines combined. \\
+\hline
+vertex\_ratio
+&
+Scalar
+&
+Percentage of grid used for memory allocation.  (See
+\covlink{CuttingSurface}{CuttingSurface}{../../Filter/CuttingSurface/CuttingSurface.html} for more details.)
+\\
+\hline
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

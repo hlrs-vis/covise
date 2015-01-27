@@ -1,0 +1,31 @@
+
+\subsubsection{Parameters}
+%================================================================================
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	
+ 	angle & Slider & This scalar (slider) specifies a bounding for the angle between the face normal of two connected surface parts. If the angle between these normals is less than this parameter, the corresponding feature line is not shown. The angle must be given in radians.   \\
+\hline
+vertex & Vector & Normal for back-face culling
+\\
+\hline
+scalar & Scalar & Threshold for back-face culling
+\\
+\hline
+double & Boolean & Check for duplicated vertices
+\\
+\hline
+optimize & Choice & Optimize for memory or speed
+\\
+
+\hline
+\end{longtable}
+
+
+
+
+%================================================================================

@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  TGenDat.cpp
+)
+
+SET(EXTRASOURCES
+  TGenDat.h
+)
+
+ADD_COVISE_MODULE(UnderDev TGenDat ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(TGenDat  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(TGenDat)

@@ -1,0 +1,23 @@
+
+\subsubsection{Output Ports}
+%=============================================================
+%
+
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	\textcolor{output}{model} & Points & Actually the Vrml model is read
+         by the Cover, so this port is only needed to connect the Module with
+         the Cover\\
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+\clearpage
+%
+%=============================================================

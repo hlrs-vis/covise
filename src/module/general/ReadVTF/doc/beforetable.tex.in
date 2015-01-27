@@ -1,0 +1,27 @@
+
+%=============================================================
+
+
+
+%
+% short description what the module does
+%
+Read module for ViewTech file format data.
+ 
+% input of a module icon for example
+% #1  path for eps
+% #2  picture name
+% #3  scale factor
+\begin{covimg2}	{}{ReadVTFModule}{0.7}\end{covimg2}
+
+ReadVTF converts the representation of a surface in ViewTech File format (specified as file browser parameter) to a format acceptable for COVISE (on the
+first output port); in addition, the user can choose between scalar and vector results, which are provided by the chosen file. These results can be found at the last four output ports.
+
+%
+% short information about versions 
+%
+The module has been tested with Covise 5.2 on SGI.
+
+%
+%
+%=============================================================

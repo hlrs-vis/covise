@@ -1,0 +1,21 @@
+\subsubsection{Parameters}
+
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|} \hline \bf{Name} & \bf{Type} & \bf{Description} \endhead \hline\hline
+\hline
+	Optimizer & Choice & Optimizer type\\ 
+\hline
+	MaxStepLength & FloatScalar & Maximum Step Length for Optimizer\\ 
+\hline
+	MinStepLength & FloatScalar & Minimum Step Length for Optimizer\\ 
+\hline
+	MinStepLengthDiv & FloatScalar & Minimum Step Length Divisor for higher Levels\\ 
+\hline
+	Metric & Choice & Metric type\\ 
+\hline
+	FillColor & IntScalar & Gray scale fill color for background of transformated images\\ 
+\hline
+	Iterations & IntScalar & Number of Iterations\\ 
+\hline
+	Pyramid & IntScalar & Number of Pyramidlevels\\
+\hline \end{longtable}
+

@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="fullscreen">Resources/go-fullscreen.png</file>
+        <file alias="connect">Resources/network-connected.png</file>
+        <file alias="disconnect">Resources/network-disconnected.png</file>
+        <file alias="quit">Resources/quit.png</file>
+        <file alias="yuv2rgb.fsh">Resources/yuv2rgb.fsh</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,798 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+#include <covise/covise.h>
+#include <appl/CoviseBase.h>
+
+#include <util/coFileUtil.h>
+#include <net/covise_host.h>
+
+#ifndef _WIN32
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/time.h>
+#else
+#include <stdio.h>
+#include <process.h>
+#include <io.h>
+#include <direct.h>
+#endif
+
+#include <fcntl.h>
+#include <stdlib.h>
+
+#include <covise/covise_version.h>
+#include "CRB_Module.h"
+#include <dmgr/dmgr.h>
+#include <covise/Covise_Util.h>
+
+#ifdef _NEC
+#include <sys/socke.h>
+#endif
+
+#include <util/environment.h>
+
+using namespace covise;
+
+int proc_id;
+char err_name[20];
+
+bool rendererIsPossible = false;
+bool rendererIsActive = false;
+DataManagerProcess *datamgr;
+Host *host;
+
+int main(int argc, char *argv[])
+{
+    covise::setupEnvironment(argc, argv);
+
+    Message *msg;
+    int key;
+    char *msg_key;
+    moduleList mod;
+
+    if (argc != 4 && argc != 5 && argc != 6)
+    {
+        cerr << "CRB (CoviseRequestBroker) with inappropriate arguments called\n";
+        print_exit(__LINE__, __FILE__, 1);
+    }
+
+//cerr << ".................  " << argc << "  " << argv[argc-1] << endl;
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+    // set the right DISPLAY environment
+    if (argc == 6)
+    {
+        char *dsp = new char[strlen(argv[argc - 1]) + 9];
+        sprintf(dsp, "DISPLAY=%s", argv[argc - 1]);
+        putenv(dsp);
+    }
+    else
+    {
+        if (getenv("DISPLAY") == NULL)
+            putenv((char *)"DISPLAY=:0");
+    }
+#endif
+
+    putenv((char *)"CO_MODULE_BACKEND=covise");
+
+#ifdef _WIN32
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+    wVersionRequested = MAKEWORD(1, 1);
+
+    err = WSAStartup(wVersionRequested, &wsaData);
+#endif
+
+    int port = atoi(argv[1]);
+    host = new Host(argv[2]);
+    int id = atoi(argv[3]);
+    proc_id = id;
+    sprintf(err_name, "err%d", id);
+    int send_back = 0;
+
+    key = 2000 + (id << 24);
+    datamgr = new DataManagerProcess((char *)"CRB", id, &key);
+
+    datamgr->contact_controller(port, host);
+
+    if (!datamgr->is_connected())
+    {
+        cerr << "CRB (CoviseRequestBroker) failed to connect to controller\n" << endl;
+        print_exit(__LINE__, __FILE__, 1);
+    }
+    /* 
+       msg = new Message;
+       msg->type = COVISE_MESSAGE_INIT;
+       msg->data = (char*)CoviseVersion::shortVersion();
+       msg->length = strlen(msg->data)+1;
+       datamgr->send_ctl_msg(msg);
+       delete msg;
+   */
+
+    char *list_content = mod.get_list_message();
+    const char *version = CoviseVersion::shortVersion();
+
+    char *list_body = new char[strlen(list_content) + strlen(version) + 5];
+    sprintf(list_body, "%s@%s", list_content, version);
+    delete[] list_content;
+
+    msg = new Message;
+    msg->type = COVISE_MESSAGE_INIT;
+    msg->data = list_body;
+    msg->length = (int)strlen(msg->data) + 1;
+    datamgr->send_ctl_msg(msg);
+    msg->delete_data();
+    delete msg; // msg->data can be deleted
+
+    msg = new Message;
+    msg->data = datamgr->get_list_of_interfaces();
+    msg->type = COVISE_MESSAGE_INIT;
+    msg->length = (int)strlen(msg->data) + 1;
+    datamgr->send_ctl_msg(msg);
+    msg->delete_data(); // because datamgr allocated data
+    delete msg; // msg->data can be deleted
+
+    bool localAlloc = false;
+    while (1)
+    {
+        msg = datamgr->wait_for_msg();
+        localAlloc = false;
+        switch (msg->type)
+        {
+
+        /////  UI
+
+        case COVISE_MESSAGE_QUIT:
+            delete datamgr;
+            exit(0);
+            break;
+
+        case COVISE_MESSAGE_UI: /* get Message-Keyword */
+        {
+            char bbuf[2000];
+            if ((msg != NULL) && (msg->data != NULL))
+            {
+                strcpy(bbuf, msg->data);
+            }
+            else
+            {
+                break;
+            }
+
+            char *end = msg->data;
+            msg_key = strsep(&end, "\n");
+
+            if (strcmp(msg_key, "QUERY_IMBEDDED_RENDERER") == 0)
+            {
+                char *name = strsep(&end, " ");
+                char *cat = strsep(&end, " ");
+                mod.startRenderer(name, cat);
+            }
+
+            else if (strcmp(msg_key, "RENDERER_IMBEDDED_ACTIVE") == 0)
+            {
+                char *name = strsep(&end, "\n");
+                (void)name;
+                char *cat = strsep(&end, "\n");
+                name = cat = NULL;
+                char *state = strsep(&end, "\n");
+                if (strcmp(state, "TRUE") == 0)
+                    rendererIsActive = true;
+                else
+                    rendererIsActive = false;
+            }
+
+            else if (strcmp(msg_key, "RENDERER_IMBEDDED_POSSIBLE") == 0)
+            {
+                char *name = strsep(&end, "\n");
+                (void)name;
+                char *cat = strsep(&end, "\n");
+                name = cat = NULL;
+                char *state = strsep(&end, "\n");
+                if (strcmp(state, "TRUE") == 0)
+                    rendererIsPossible = true;
+                else
+                    rendererIsPossible = false;
+            }
+
+            else if (strcmp(msg_key, "FILE_SEARCH") == 0)
+            {
+                int i, num;
+                char *tmp;
+                char *hostname = strsep(&end, "\n");
+                char *user = strsep(&end, "\n");
+                char *mod = strsep(&end, "\n");
+                char *inst = strsep(&end, "\n");
+                char *port = strsep(&end, "\n");
+                char *path = strsep(&end, "\n");
+                char *sfilt = strsep(&end, "\n");
+
+                //cerr << "____________FILE_SEARCH  " << path << endl;
+
+                if (sfilt == NULL)
+                {
+                    sfilt = (char *)"*";
+                }
+                while (sfilt[0] && sfilt[0] == ' ')
+                {
+                    strcpy(sfilt, sfilt + 1); //get rid of leeding spaces
+                }
+
+                if (!path)
+                {
+                    break;
+                }
+
+                CharBuffer buf(1000);
+                CharBuffer buf2(1000);
+                CharBuffer buf3(1000);
+
+                buf += "FILE_SEARCH_RESULT\n";
+                buf += hostname;
+                buf += '\n';
+                buf += user;
+                buf += '\n';
+                buf += mod;
+                buf += '\n';
+                buf += inst;
+                buf += '\n';
+                buf += port;
+                buf += '\n';
+
+                num = 0;
+#ifndef _WIN32
+
+                if (path[0] == 0)
+                {
+                    path[0] = '/';
+                    path[1] = 0;
+                }
+#else
+
+                // check for available drives
+                if (path[0] == '/' && path[1] != '\0' && path[2] == ':')
+                    path++;
+
+                if (strcmp(path, "") == 0)
+                {
+                    ULONG uDriveMask = _getdrives();
+                    int num2 = -1;
+                    if (uDriveMask == 0)
+                    {
+                        num = -1;
+                    }
+
+                    else
+                    {
+                        ULONG uDriveMask = _getdrives();
+                        if (uDriveMask != 0)
+                        {
+                            char drive[10];
+                            int currentDriveNumber = 0;
+                            strcpy(drive, "C:");
+                            while (uDriveMask)
+                            {
+                                if (uDriveMask & 1)
+                                {
+                                    drive[0] = 'A' + currentDriveNumber;
+                                    buf2 += drive;
+                                    buf2 += '\n';
+                                    num++;
+                                }
+                                uDriveMask >>= 1;
+                                currentDriveNumber++;
+                            }
+                        }
+                        buf += num;
+                        buf += '\n';
+                        buf += (const char *)buf2;
+                        buf += num2;
+                        buf += '\n';
+                        buf += (const char *)buf3;
+
+                        Message *retmsg = new Message;
+                        retmsg->type = COVISE_MESSAGE_UI;
+                        retmsg->data = (char *)((const char *)buf);
+                        retmsg->length = (int)strlen(retmsg->data) + 1;
+                        datamgr->send_ctl_msg(retmsg);
+                        retmsg->data = NULL;
+                        delete retmsg;
+                    }
+                }
+
+                else
+                {
+#endif
+                coDirectory *dir = coDirectory::open(path);
+                if (dir)
+                {
+                    for (i = 0; i < dir->count(); i++)
+                    {
+                        tmp = dir->full_name(i);
+                        if (dir->is_directory(i))
+                        {
+                            buf2 += tmp;
+                            buf2 += '\n';
+                            num++;
+                        }
+                        delete[] tmp;
+                    }
+                }
+
+                buf += num;
+                buf += '\n';
+                buf += (const char *)buf2;
+
+                num = 0;
+                if (dir)
+                {
+                    for (i = 0; i < dir->count(); i++)
+                    {
+                        tmp = (char *)dir->name(i);
+                        if ((!dir->is_directory(i)) && (dir->match(tmp, sfilt)))
+                        {
+                            buf3 += tmp;
+                            buf3 += '\n';
+                            num++;
+                        }
+                        // the following line seems to be a bad bug
+                        // at least it is not a bed bug
+                        // and is therefore disabled. awi
+                        //delete[] tmp;
+                    }
+                    delete dir;
+                }
+
+                buf += num;
+                buf += '\n';
+                buf += (const char *)buf3;
+                //delete[] path;
+
+                Message *retmsg = new Message;
+                retmsg->type = COVISE_MESSAGE_UI;
+                retmsg->data = (char *)((const char *)buf);
+                //cerr << "____________FILE_SEARCH  " << buf << endl;
+                retmsg->length = (int)strlen(retmsg->data) + 1;
+                datamgr->send_ctl_msg(retmsg);
+                retmsg->data = NULL;
+                delete retmsg;
+
+#ifdef _WIN32
+            }
+#endif
+        }
+            else if (strcmp(msg_key, "FILE_LOOKUP") == 0)
+            {
+
+                char *hostname = strsep(&end, "\n");
+                char *user = strsep(&end, "\n");
+                char *mod = strsep(&end, "\n");
+                char *inst = strsep(&end, "\n");
+                char *port = strsep(&end, "\n");
+                char *currpath = strsep(&end, "\n");
+                char *filename = strsep(&end, "\n");
+
+                CharBuffer buf(1000);
+                buf += "FILE_LOOKUP_RESULT\n";
+                buf += hostname;
+                buf += '\n';
+                buf += user;
+                buf += '\n';
+                buf += mod;
+                buf += '\n';
+                buf += inst;
+                buf += '\n';
+                buf += port;
+                buf += '\n';
+                buf += filename;
+                buf += "\n";
+
+                char slash[2] = "/";
+                if (filename[0] == 0)
+                {
+                    filename = slash;
+                }
+
+                bool absPath = false;
+                bool found = false;
+                // look if filename is absolute or relative
+                if (filename[0] == '/' || filename[0] == '~'
+#ifdef _WIN32
+                    || filename[0] == '\\' || filename[1] == ':'
+#endif
+                    )
+                {
+                    absPath = true;
+                }
+
+                else
+                {
+                    char *path = new char[strlen(currpath) + strlen(filename) + 2];
+                    strcpy(path, currpath);
+                    strcat(path, filename);
+
+                    // make a normal fopen
+                    char *returnPath = NULL;
+                    FILE *fp = CoviseBase::fopen(path, "r", &returnPath);
+                    if (fp)
+                    {
+                        buf += returnPath;
+                        buf += "\n";
+                        buf += "FILE";
+                        found = true;
+                        fclose(fp);
+                    }
+                    delete[] path;
+                }
+
+                if (!found)
+                {
+                    // make a normal fopen
+                    char *returnPath = NULL;
+                    FILE *fp = CoviseBase::fopen(filename, "r", &returnPath);
+                    if (fp)
+                    {
+                        buf += returnPath;
+                        buf += "\n";
+                        buf += "FILE";
+                        found = true;
+                        fclose(fp);
+                    }
+                }
+
+                if (!found)
+                {
+                    if (!absPath)
+                    {
+                        char *path = new char[strlen(currpath) + strlen(filename) + 2];
+                        strcpy(path, currpath);
+                        strcat(path, filename);
+
+                        coDirectory *dir = coDirectory::open(path);
+                        if (dir)
+                        {
+                            buf += dir->path();
+                            if (buf[strlen(buf) - 1] != '/')
+                            {
+                                buf += "/";
+                            }
+                            buf += "\n";
+                            buf += "DIRECTORY";
+                            buf += "\n";
+                            delete dir;
+                            found = true;
+                        }
+                        delete[] path;
+                    }
+
+                    if (!found)
+                    {
+                        coDirectory *dir = coDirectory::open(filename);
+                        if (dir)
+                        {
+                            buf += dir->path();
+                            if (buf[strlen(buf) - 1] != '/')
+                            {
+                                buf += "/";
+                            }
+                            buf += "\n";
+                            buf += "DIRECTORY";
+                            buf += "\n";
+                            delete dir;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        char *request = new char[strlen(filename) + 1];
+                        strcpy(request, filename);
+#ifdef _WIN32
+                        char *pp = request;
+                        while (*pp)
+                        {
+                            if (*pp == '\\')
+                                *pp = '/';
+                            pp++;
+                        }
+#endif
+
+                        char *name = NULL;
+                        char *p = strrchr(request, '/');
+                        if (p)
+                        {
+                            name = p + 1;
+                            *p = '\0';
+                        }
+                        else
+                        {
+                            name = request;
+                            request = (char *)"";
+                        }
+
+                        if (!absPath)
+                        {
+                            char *path = new char[strlen(currpath) + strlen(request) + 2];
+                            strcpy(path, currpath);
+                            strcat(path, request);
+                            coDirectory *dir = coDirectory::open(path);
+                            if (dir)
+                            {
+                                buf += dir->path();
+                                buf += name;
+                                buf += "\n";
+                                buf += "NOENT";
+                                delete dir;
+                                found = true;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            coDirectory *dir = coDirectory::open(request);
+                            if (dir)
+                            {
+                                buf += dir->path();
+                                buf += "/";
+                                buf += name;
+                                buf += "\n";
+                                buf += "NOENT";
+                                delete dir;
+                                found = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    buf += filename;
+                    buf += "\n";
+                    buf += "NOENT";
+                }
+
+                //cerr << "____________FILE_LOOKUP  " << buf << endl;
+
+                Message *retmsg = new Message;
+                retmsg->type = COVISE_MESSAGE_UI;
+                retmsg->data = (char *)((const char *)buf);
+                retmsg->length = (int)strlen(retmsg->data) + 1;
+                datamgr->send_ctl_msg(retmsg);
+                retmsg->data = NULL;
+                delete retmsg;
+            }
+
+            else
+            {
+                cerr << "CRB >> UNKNOWN UI MESSAGE" << msg_key << "  " << bbuf << "\n";
+            }
+        }
+
+        break;
+
+    case COVISE_MESSAGE_CRB_EXEC:
+    case COVISE_MESSAGE_CRB_EXEC_DEBUG:
+    case COVISE_MESSAGE_CRB_EXEC_MEMCHECK:
+    {
+        Start::Flags mode = Start::Normal;
+        if (msg->type == COVISE_MESSAGE_CRB_EXEC_DEBUG)
+            mode = Start::Debug;
+        if (msg->type == COVISE_MESSAGE_CRB_EXEC_MEMCHECK)
+            mode = Start::Memcheck;
+
+        if (msg->data[0] != '\001')
+        {
+            char *name = NULL, *cat = NULL;
+            int i = 0;
+            name = msg->data;
+            while (msg->data[i])
+            {
+                if (msg->data[i] == ' ')
+                {
+                    msg->data[i] = '\0';
+                    i++;
+                    cat = msg->data + i;
+                    break;
+                }
+                i++;
+            }
+            while (msg->data[i])
+            {
+                if (msg->data[i] == ' ')
+                {
+                    msg->data[i] = '\0';
+                    i++;
+                    break;
+                }
+                i++;
+            }
+
+            mod.start(name, cat, msg->data + i, mode);
+        }
+        else
+        {
+            char *args[1000];
+            int i = 1, n = 0;
+            while (msg->data[i])
+            {
+                if (msg->data[i] == ' ')
+                {
+                    msg->data[i] = '\0';
+                    args[n] = msg->data + i + 1;
+                    //fprintf(stderr,"args %d:%s\n",n,args[n]);
+                    n++;
+                }
+                i++;
+            }
+            args[n] = NULL;
+            const char *cmd = args[0];
+            std::string execpath;
+            const char *covisedir = getenv("COVISEDIR");
+            const char *archsuffix = getenv("ARCHSUFFIX");
+            if (covisedir && archsuffix)
+            {
+                execpath += covisedir;
+                execpath += "/";
+                execpath += archsuffix;
+                execpath += "/bin/";
+            }
+#if defined(__APPLE__) && !defined(__USE_WS_X11__)
+            if (args[0] && !strcmp(args[0], "mapeditor"))
+            {
+                execpath += ("COVISE.app/Contents/MacOS/");
+                cmd = "COVISE";
+                args[0] = (char *)cmd;
+            }
+            if (args[0] && !strcmp(args[0], "wsinterface"))
+            {
+                execpath += ("wsinterface.app/Contents/MacOS/");
+            }
+#endif
+            execpath += cmd;
+#ifdef _WIN32
+            //spawnvp(P_NOWAIT,args[0],(const char * const *)args);
+            string win_cmd_line(execpath);
+            for (i = 1; i < n; i++)
+            {
+                win_cmd_line.append(" ");
+                win_cmd_line.append(args[i]);
+            }
+            STARTUPINFO si;
+            PROCESS_INFORMATION pi;
+
+            ZeroMemory(&si, sizeof(si));
+            si.cb = sizeof(si);
+            ZeroMemory(&pi, sizeof(pi));
+
+            // Start the child process.
+            if (!CreateProcess(NULL, // No module name (use command line)
+                               (LPSTR)win_cmd_line.c_str(), // Command line
+                               NULL, // Process handle not inheritable
+                               NULL, // Thread handle not inheritable
+                               FALSE, // Set handle inheritance to FALSE
+                               0, // No creation flags
+                               NULL, // Use parent's environment block
+                               NULL, // Use parent's starting directory
+                               &si, // Pointer to STARTUPINFO structure
+                               &pi) // Pointer to PROCESS_INFORMATION structure
+                )
+            {
+                fprintf(stderr, "Could not launch %s !\nCreateProcess failed (%d).\n", win_cmd_line.c_str(), (int)GetLastError());
+            }
+            else
+            {
+                // Wait until child process exits.
+                //WaitForSingleObject( pi.hProcess, INFINITE );
+                // Close process and thread handles.
+                CloseHandle(pi.hProcess);
+                CloseHandle(pi.hThread);
+            }
+#else
+                int pid = fork();
+                if (pid == 0)
+                {
+                    ///fprintf(stderr,"args0:%s\n",args[n]);
+                    execv(execpath.c_str(), args);
+                    fprintf(stderr, "executing %s failed: %s\n", execpath.c_str(), strerror(errno));
+                    _exit(1);
+                }
+                else if (pid == -1)
+                {
+                    fprintf(stderr, "forking for executing %s failed: %s\n", execpath.c_str(), strerror(errno));
+                    exit(1);
+                }
+                else
+                {
+                    // Needed to prevent zombies
+                    // if childs terminate
+                    signal(SIGCHLD, SIG_IGN);
+                }
+#endif
+        }
+    }
+    break;
+
+    case COVISE_MESSAGE_QUERY_DATA_PATH:
+    {
+        msg->type = COVISE_MESSAGE_SEND_DATA_PATH;
+        int len = 2;
+        if (getenv("COVISE_PATH"))
+        {
+            len = (int)strlen(getenv("COVISE_PATH")) + 2;
+        }
+        msg->data = new char[len];
+#ifdef _WIN32
+        msg->data[0] = ';';
+#else
+            msg->data[0] = ':';
+#endif
+        if (getenv("COVISE_PATH"))
+        {
+            strcpy(msg->data + 1, getenv("COVISE_PATH"));
+#ifdef _WIN32
+            char *p = msg->data + 1;
+            while (*p)
+            {
+                if (*p == '\\')
+                    *p = '/';
+                p++;
+            }
+#endif
+        }
+        else
+        {
+            strcpy(msg->data + 1, "");
+        }
+        msg->length = (int)strlen(msg->data) + 1;
+        msg->conn->send_msg(msg);
+        delete[] msg -> data;
+        msg->data = NULL;
+    }
+    break;
+
+    default:
+
+        send_back = datamgr->handle_msg(msg, localAlloc);
+
+        if (send_back == 3)
+        {
+            delete datamgr;
+            exit(0);
+            //print_exit(__LINE__, __FILE__, 0);
+        }
+        if ((send_back == 2) && (msg->type != COVISE_MESSAGE_EMPTY))
+            msg->conn->send_msg(msg);
+
+        break;
+    }
+    if (localAlloc)
+    {
+        datamgr->deleteMessageData(msg);
+    }
+    else
+    {
+        msg->delete_data();
+    }
+    datamgr->delete_msg(msg);
+
+    if (datamgr->getConnectionList()->count() <= 0)
+    {
+        delete datamgr;
+        exit(0);
+    }
+#ifndef _WIN32
+    int status;
+    while (pid_t pid = waitpid(-1, &status, WNOHANG) > 0)
+    {
+        fprintf(stderr, "pid %ld exited: status=0x%x\n", (long)pid, status);
+    }
+#endif
+}
+}

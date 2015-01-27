@@ -1,0 +1,68 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+% examples for using this module
+
+\begin{covimg}{}
+		{SmoothSurfaceNet}{covise/net/examples/SmoothSurface.net}{0.6}\end{covimg}
+
+The 2 Renderer outputs produced by the map SmoothSurface.net show
+\begin{enumerate}
+\item The original example surface    
+\item Taubin smoothing with scale\_1=0.4, scale\_2=-0.43,and iterations=30
+(as specified in the Control Panel)
+\end{enumerate}		
+\begin{covimg}{}
+		{RendererOrig}{Original example surface (Renderer 2 output)}{0.7}\end{covimg}
+
+\begin{covimg}{}
+    {RendererSmooth}{Surface with Taubin smoothing (Renderer 1 output)} 
+    {0.7}\end{covimg}
+
+\clearpage
+
+%
+%=============================================================
+
+\subsubsection{Method}
+%=============================================================
+%
+The module constitutes the implementation of the standard Gaussian smoothing method and the enhanced smoothing
+method proposed by Gabriel Taubin in his paper "Curve and Surface smoothing without shrinkage", Technical Report
+RC-19536, IBM Research, 1994.  
+
+In Gaussian smoothing, we compute in each iteration the difference vector between each vertex and the average of
+the positions of his neighbors. This difference vector is then multiplied by the scale factor
+scale\_1, which serves to
+tune the aggressivity of the smoothing, and added to the original position. Hence, we do not add or remove vertices,
+but merely modify their coordinates dependent on the position of the first order neighbor vertices.  
+
+Taubin performs two Gaussian smoothing steps per iteration, one with a positive scale factor scale\_1, the second
+with a negative scale factor scale\_2, which is recommended to chose less than, but near to -scale\_1. As he explains
+in his paper, this leads to a linear low pass filter that removes high curvature variations, and does not produce
+shrinkage (in contrast to the Gaussian smoothing). 
+%
+%=============================================================
+
+\subsubsection{Module Usage}
+%=============================================================
+%
+%
+
+The module is recommended to apply, e.g.:  
+\begin{enumerate}
+\item After an Isosurface module, if the output surface appears faceted. It helps then to transform small, thin triangles
+      into more equiangular triangles, and to level out the terraced look of some marching cubes outputs (if the volume
+      resolution was very fine), which results in a smoother appearance of the surface.  
+\item After a SimplifySurface module, if formerly smooth parts of the surface appear bumpy. Then it helps to level out
+      rough places which are not inherent in the surface but were introduced artificially by the reduction algorithm.  
+\end{enumerate}
+Note that the module does not change the connectivity of the mesh, or the number of vertices. Hence, if normals or
+data values are attached to the mesh, these can be connected to the next module in the pipeline without problems.
+
+
+

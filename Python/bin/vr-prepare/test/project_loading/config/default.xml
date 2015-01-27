@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="base" >config.base.xml</INCLUDE>
+
+</COCONFIG>

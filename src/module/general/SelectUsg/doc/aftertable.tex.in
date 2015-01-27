@@ -1,0 +1,14 @@
+
+
+
+
+\subsubsection{Examples}
+%=============================================================
+\begin{covimg}
+{}{SelectUsgMap}{covise/net/examples/SelectUsg.net}{0.7}\end{covimg}
+
+We take our tutorial example that describes a channel and two inlets. With SelectUsg we want to filter the two inlets out. The module ReadStar gives us the possibility to filter our grid according to an index field. In our example we use the selection {\tt 7-19 } to get the two inlets. The result is shown in the following image.
+ 
+\begin{covimg}
+{}{SelectUsgRenderer}{Inlets in the Renderer}{0.7}\end{covimg}
+

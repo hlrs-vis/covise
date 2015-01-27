@@ -1,0 +1,31 @@
+
+
+
+\subsubsection{Examples}
+%=============================================================
+%
+% examples for using this module
+\begin{covimg}{}
+        {CheckObjMap}{covise/net/examples/CheckObj.net}{0.7}\end{covimg}
+%-------------------------------------------------------------
+%
+Examples of errors: 
+\begin{itemize}
+\item If the third element from the element list of the object points out 
+      of the boundaries of the connectivity list,the following error appears: 
+      'ERROR: The 3th element in the list points out of the boundaries of 
+      the connectivity list!' 
+\item If the corner nr. 15 from the connectivity list of the object points out of the boundaries of the coordinate list,
+      the following error appears: 
+      'ERROR: The 15th corner in the list points out of the boundaries of 
+      the coordinate list! 
+
+\item If the number of points of the 10th element of an unstructured grid 
+      doesn't fit with his type (PRISM) the following error appears: 
+      'ERROR: The number of points of the 10th element does not fit with 
+      the type PRISM!' 
+
+\item If the 56th element contains similar points, the following warning appears: 
+      'WARNING: The connectivity list contains the same point more then once 
+      for the 56th element in list (cl [ 124 ] = cl [ 145 ] )' 
+\end{itemize}

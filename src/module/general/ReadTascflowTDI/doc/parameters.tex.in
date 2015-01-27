@@ -1,0 +1,79 @@
+
+\subsubsection{Parameters}
+%=============================================================
+% 
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	steprsopath & Browser & The first timestep results (RSO) file location. 
+	This parameter is optional and it should contain at least one digit. 
+	The following timesteps results files will be detected and read automatically 
+	during the execution and the number of them should be set in 'timesteps' 
+	parameter.   \\
+\hline
+	gridpath & Browser & The basic grid (GRD) file location. 
+	Immediately after the grid file was selected, {\bf ReadTascflowTDI} 
+	starts reading the 'database' to gain information. 
+	This might take some time for large data sets. 
+	The parameters region\_names, vector\_data, scalar\_data are updated 
+	and you can select the data you want to have at the corresponding output 
+	ports after the 'database' is completely indicated (you have introduced 
+	all desired input files: GRD,RSO,BCF).  \\						
+\hline
+	rsopath & Browser & The results (RSO) file location. This parameter is optional.
+	 Immediately after the results file was selected, {\bf ReadTascflowTDI} 
+	 starts reading the 'database' to gain information. This might take some 
+	 time for large data sets. The parameters region\_names, vector\_data, 
+	 scalar\_data are updated and you can select the data you want to have 
+	 at the corresponding output ports after the 'database' is 
+	 completely indicated (you have introduced all desired input 
+	 files: GRD,RSO,BCF).  \\
+\hline
+	bcfpath & Browser & The block-off and boundary condition (BCF) file location.
+	This parameter is optional. Immediately after the BCF file was selected, 
+	{\bf ReadTascflowTDI} starts reading the 'database' to gain information. 
+	This might take some time for large data sets. The parameters region\_names, 
+	vector\_data, scalar\_data are updated and you can select the data 
+	you want to have at the corresponding output ports afterthe 'database' 
+	is completely indicated (you have introduced all desired input 
+	files: GRD,RSO,BCF).  \\		
+\hline
+	timesteps & Scalar & The desired number of timesteps. 
+	This parameter is optional, but when it is used, you should indicate also 
+	the first timesteps results file in 'steprsopath' parameter. \\
+\hline
+	skipped\_files & Scalar & The desired number of skipped timesteps files. 
+	This parameter is optional and it's useful when you have a big number 
+	of timesteps files and you want to skip some of them. \\ 
+\hline
+	region\_names & Choice & The name of the region to be highlighted.\\
+\hline
+ 	show\_region & Choice & The color to be used to highlight the region.\\
+\hline
+ 	vector\_data\_1 & Choice & The first vector data for the corresponding 
+	output port.\\
+\hline
+ 	vector\_data\_1 & Choice & The second vector data for the corresponding 
+	output port. \\
+\hline
+ 	scalar\_data\_1 & Choice & The first scalar data for the corresponding 
+	output port. \\
+\hline
+ 	scalar\_data\_2 & Choice & The second scalar data for the 
+	corresponding output port.\\ 
+\hline
+ 	scalar\_data\_3 & Choice & The third scalar data for the corresponding 
+	output port. \\
+
+%	....
+%	....
+
+\hline
+\end{longtable}
+%=============================================================
+
+
+%
+%=============================================================

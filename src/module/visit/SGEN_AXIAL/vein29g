@@ -1,0 +1,36 @@
+function vx(x,y)
+
+real x,y,z,r,v
+
+r=sqrt((80-sqrt(x**2+y**2))**2)
+v=(-8.78*(1-r/10.2)**.12)/tand(29)
+z=v*y/sqrt(x**2+y**2)+145.25*y/1000
+
+return z
+
+end function
+
+
+function vy(x,y)
+
+real x,y,z,r,v
+
+r=sqrt((80-sqrt(x**2+y**2))**2)
+v=(-8.78*(1-r/10.2)**.12)/tand(29)
+z=-v*x/sqrt(x**2+y**2)-145.25*x/1000
+
+return z
+
+end function
+
+
+function vz(x,y)
+
+real x,y,z,r
+
+r=sqrt((80-sqrt(x**2+y**2))**2)
+z=-8.78*(1-r/10.2)**.12
+
+return z
+
+end function

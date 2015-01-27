@@ -1,0 +1,923 @@
+# Session file started:  2008/08/21 12:53:18
+# CFX-11.0 build 2007.08.09-22.59
+
+COMMAND FILE:
+  CFX Pre Version = 11.0
+END
+
+>load mode=new
+> update
+
+>gtmImport filename=$(CFXDIR)/cfx_sub/ghostmesh.gtm, \
+type=User, genOpt= -n -e '$(CFXDIR)/cfx_sub/user_import', units=\
+m, nameStrategy= Assembly
+
+> update
+
+>gtmImport filename=$(CFXDIR)/rohrturbine/rohrturbine.def, \
+type=GtmDirect, genOpt= -n, units=m, nameStrategy= Assembly
+> update
+
+>gtmAction, op=deleteComposite, LAUF SCHAUF
+>gtmAction, op=deleteAssembly, Assembly 7
+
+> update
+MESH TRANSFORMATION:
+  Angle End = 0 , 0 , 0
+  Angle Start = 0 , 0 , 0
+  Delete Reflected = Off
+  Glue Reflected Assemblies = Off
+  Nonuniform Scale = 1 , 1 , 1
+  Normal = 0 , 0 , 0
+  Option = Rotation
+  Point = 0 , 0 , 0
+  Point 1 = 0 , 0 , 0
+  Point 2 = 0 , 0 , 0
+  Point 3 = 0 , 0 , 0
+  Principal Axis = Y
+  Reflection Option = YZ Plane
+  Rotation Angle = -90 [degree]
+  Rotation Angle Option = Specified
+  Rotation Axis Begin = 0 , 0 , 0
+  Rotation Axis End = 0 , 0 , 0
+  Rotation Option = Principal Axis
+  Scale Option = Uniform
+  Scale Origin = 0 , 0 , 0
+  Target Assemblies = Assembly, Assembly 2, Assembly 3, Assembly 4
+  Translation Deltas = 0 , 0 , 0
+  Translation Option = Deltas
+  Translation Root = 0 , 0 , 0
+  Translation Tip = 0 , 0 , 0
+  Uniform Scale = 1.0
+  Use Coord Frame = Off
+  Use Multiple Copy = Off
+END
+> update
+>gtmTransform Assembly, Assembly 2, Assembly 3, Assembly 4
+> update
+
+MESH TRANSFORMATION:
+  Angle End = 0 , 0 , 0
+  Angle Start = 0 , 0 , 0
+  Delete Reflected = Off
+  Glue Reflected Assemblies = Off
+  Nonuniform Scale = 1 , 1 , 1
+  Normal = 0 , 0 , 0
+  Option = Translation
+  Point = 0 , 0 , 0
+  Point 1 = 0 , 0 , 0
+  Point 2 = 0 , 0 , 0
+  Point 3 = 0 , 0 , 0
+  Principal Axis = X
+  Reflection Option = YZ Plane
+  Rotation Angle = -90 [degree]
+  Rotation Angle Option = Specified
+  Rotation Axis Begin = 0 , 0 , 0
+  Rotation Axis End = 0 , 0 , 0
+  Rotation Option = Principal Axis
+  Scale Option = Uniform
+  Scale Origin = 0 , 0 , 0
+  Target Assemblies = Assembly, Assembly 2, Assembly 3, Assembly 4
+#Translation Deltas = 1.178 , 0 , 0
+  Translation Deltas = 0.871 , 0 , 0
+  Translation Option = Deltas
+  Translation Root = 0 , 0 , 0
+  Translation Tip = 0 , 0 , 0
+  Uniform Scale = 1.0
+  Use Coord Frame = Off
+  Use Multiple Copy = Off
+END
+> update
+>gtmTransform Assembly, Assembly 2, Assembly 3, Assembly 4
+> update
+
+MESH TRANSFORMATION:
+  Angle End = 0 , 0 , 0
+  Angle Start = 0 , 0 , 0
+  Delete Reflected = Off
+  Glue Reflected Assemblies = Off
+  Nonuniform Scale = 1 , 1 , 1
+  Normal = 0 , 0 , 0
+  Option = Translation
+  Point = 0 , 0 , 0
+  Point 1 = 0 , 0 , 0
+  Point 2 = 0 , 0 , 0
+  Point 3 = 0 , 0 , 0
+  Principal Axis = Z
+  Reflection Option = YZ Plane
+  Rotation Angle = 0.0 [degree]
+  Rotation Angle Option = Specified
+  Rotation Axis Begin = 0 , 0 , 0
+  Rotation Axis End = 0 , 0 , 0
+  Rotation Option = Principal Axis
+  Scale Option = Uniform
+  Scale Origin = 0 , 0 , 0
+  Target Assemblies = Assembly 5
+  Translation Deltas = 0.293 , 0 , 0
+  Translation Option = Deltas
+  Translation Root = 0 , 0 , 0
+  Translation Tip = 0 , 0 , 0
+  Uniform Scale = 1.0
+  Use Coord Frame = Off
+  Use Multiple Copy = Off
+END
+> update
+>gtmTransform Assembly 5
+> update
+
+MESH TRANSFORMATION:
+  Angle End = 0 , 0 , 0
+  Angle Start = 0 , 0 , 0
+  Delete Reflected = Off
+  Glue Reflected Assemblies = Off
+  Nonuniform Scale = 1 , 1 , 1
+  Normal = 0 , 0 , 0
+  Option = Translation
+  Point = 0 , 0 , 0
+  Point 1 = 0 , 0 , 0
+  Point 2 = 0 , 0 , 0
+  Point 3 = 0 , 0 , 0
+  Principal Axis = Z
+  Reflection Option = YZ Plane
+  Rotation Angle = 0.0 [degree]
+  Rotation Angle Option = Specified
+  Rotation Axis Begin = 0 , 0 , 0
+  Rotation Axis End = 0 , 0 , 0
+  Rotation Option = Principal Axis
+  Scale Option = Uniform
+  Scale Origin = 0 , 0 , 0
+  Target Assemblies = Assembly 8
+  Translation Deltas = -0.3 , 0 , 0
+  Translation Option = Deltas
+  Translation Root = 0 , 0 , 0
+  Translation Tip = 0 , 0 , 0
+  Uniform Scale = 1.0
+  Use Coord Frame = Off
+  Use Multiple Copy = Off
+END
+> update
+>gtmTransform Assembly 8
+> update
+
+MESH TRANSFORMATION:
+  Angle End = 0 , 0 , 0
+  Angle Start = 0 , 0 , 0
+  Delete Reflected = Off
+  Glue Reflected Assemblies = Off
+  Nonuniform Scale = 1 , 1 , 1
+  Normal = 0 , 0 , 0
+  Option = Translation
+  Point = 0 , 0 , 0
+  Point 1 = 0 , 0 , 0
+  Point 2 = 0 , 0 , 0
+  Point 3 = 0 , 0 , 0
+  Principal Axis = Z
+  Reflection Option = YZ Plane
+  Rotation Angle = 0.0 [degree]
+  Rotation Angle Option = Specified
+  Rotation Axis Begin = 0 , 0 , 0
+  Rotation Axis End = 0 , 0 , 0
+  Rotation Option = Principal Axis
+  Scale Option = Uniform
+  Scale Origin = 0 , 0 , 0
+  Target Assemblies = Assembly 6
+  Translation Deltas = -0.3 , 0 , 0
+  Translation Option = Deltas
+  Translation Root = 0 , 0 , 0
+  Translation Tip = 0 , 0 , 0
+  Uniform Scale = 1.0
+  Use Coord Frame = Off
+  Use Multiple Copy = Off
+END
+> update
+>gtmTransform Assembly 6
+> update
+
+MESH TRANSFORMATION:               #das ist neu
+  Angle End = 0 , 0 , 0
+  Angle Start = 0 , 0 , 0
+  Delete Reflected = Off
+  Glue Reflected Assemblies = Off
+  Nonuniform Scale = 1 , 1 , 1
+  Normal = 0 , 0 , 0
+  Option = Translation
+  Point = 0 , 0 , 0
+  Point 1 = 0 , 0 , 0
+  Point 2 = 0 , 0 , 0
+  Point 3 = 0 , 0 , 0
+  Principal Axis = Z
+  Reflection Option = YZ Plane
+  Rotation Angle = 0.0 [degree]
+  Rotation Angle Option = Specified
+  Rotation Axis Begin = 0 , 0 , 0
+  Rotation Axis End = 0 , 0 , 0
+  Rotation Option = Principal Axis
+  Scale Option = Uniform
+  Scale Origin = 0 , 0 , 0
+  Target Assemblies = Assembly 6, Assembly 8
+  Translation Deltas = -0.2405 , 0 , 0
+  Translation Option = Deltas
+  Translation Root = 0 , 0 , 0
+  Translation Tip = 0 , 0 , 0
+  Uniform Scale = 1.0
+  Use Coord Frame = Off
+  Use Multiple Copy = Off
+END
+> update
+>gtmTransform Assembly 6, Assembly 8
+> update
+
+
+
+
+
+
+
+
+
+LIBRARY:
+  USER ROUTINE DEFINITIONS:
+    &replace     USER ROUTINE: user_export
+      Calling Name = user_export
+      Junction Box Location = End of Coefficient Loop
+      Library Name = user_export
+      Library Path = $(CFXDIR)/cfx_sub
+      Option = Junction Box Routine
+    END # USER ROUTINE:user_export
+  END # USER ROUTINE DEFINITIONS:
+END # LIBRARY:
+> update
+
+FLOW:
+  &replace   SOLVER CONTROL:
+    ADVECTION SCHEME:
+      Option = High Resolution
+    END # ADVECTION SCHEME:
+    CONVERGENCE CONTROL:
+      Length Scale Option = Conservative
+      Maximum Number of Iterations = MAXITERATIONS
+      Timescale Control = Auto Timescale
+      Timescale Factor = 1.0
+    END # CONVERGENCE CONTROL:
+    CONVERGENCE CRITERIA:
+      Residual Target = 1.E-4
+      Residual Type = RMS
+    END # CONVERGENCE CRITERIA:
+    DYNAMIC MODEL CONTROL:
+      Global Dynamic Model Control = On
+    END # DYNAMIC MODEL CONTROL:
+    JUNCTION BOX ROUTINES:
+      Junction Box Routine List = user_export
+    END # JUNCTION BOX ROUTINES:
+  END # SOLVER CONTROL:
+END # FLOW:
+> update
+
+
+
+
+
+
+
+
+FLOW:
+  &replace   DOMAIN INTERFACE: Domain Interface 1
+    Boundary List1 =
+    Boundary List2 =
+    Filter Domain List1 = -- All Domains --
+    Filter Domain List2 = -- All Domains --
+    Interface Region List1 = balance110
+    Interface Region List2 = balance120
+    Interface Type = Fluid Fluid
+    INTERFACE MODELS:
+      Option = General Connection
+      FRAME CHANGE:
+        Option = None
+      END # FRAME CHANGE:
+      PITCH CHANGE:
+        Option = None
+      END # PITCH CHANGE:
+    END # INTERFACE MODELS:
+    MESH CONNECTION:
+      Option = Automatic
+    END # MESH CONNECTION:
+  END # DOMAIN INTERFACE:Domain Interface 1
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN: Default Domain
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Fluids List = Water
+    Location = Primitive 3D A,Primitive 3D B,Primitive 3D C,Primitive 3D D
+    BOUNDARY: Default Domain Default
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = AUS,EIN,INNEN,LEIT AUS,LEIT EIN,LEIT MANTEL,LEIT NABE,\
+LEIT SCHAUF A,LEIT SCHAUF B,LEIT SCHAUF C,LEIT SCHAUF D,LEIT SCHAUF E,LEIT \
+SCHAUF F,LEIT SCHAUF G,LEIT SCHAUF H,LEIT SCHAUF I,LEIT SCHAUF J,LEIT SCHAUF K,\
+LINKS ZULA,OBEN,Primitive 2D AU,Primitive 2D AV,Primitive 2D AW,Primitive 2D AX,\
+Primitive 2D AY,Primitive 2D AZ,Primitive 2D BA,Primitive 2D BB,Primitive 2D BC,\
+Primitive 2D BD,Primitive 2D BE,Primitive 2D BF,Primitive 2D BG,Primitive 2D BH,\
+Primitive 2D BI,Primitive 2D BJ,Primitive 2D C,Primitive 2D D,Primitive 2D E,\
+Primitive 2D F,Primitive 2D O,Primitive 2D P,Primitive 2D Q,Primitive 2D R,\
+Primitive 2D W,Primitive 2D X,Primitive 2D Y,Primitive 2D Z,RECHTS ZULA,SAUG EIN,\
+SAUG WAND,TRICHTER,UNTEN,VERL,ZULA AUS
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:Default Domain Default
+    BOUNDARY: Domain Interface 1 Side 1
+      Boundary Type = INTERFACE
+      Interface Boundary = On
+      Location = Primitive 2D AK,Primitive 2D AE,Primitive 2D AL,Primitive \
+2D AF,Primitive 2D AG,Primitive 2D AH,Primitive 2D AJ,Primitive 2D AI
+      BOUNDARY CONDITIONS:
+        MASS AND MOMENTUM:
+          Option = Conservative Interface Flux
+        END # MASS AND MOMENTUM:
+        TURBULENCE:
+          Option = Conservative Interface Flux
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:Domain Interface 1 Side 1
+    BOUNDARY: Domain Interface 1 Side 2
+      Boundary Type = INTERFACE
+      Interface Boundary = On
+      Location = Primitive 2D AQ,Primitive 2D AM,Primitive 2D AT,Primitive \
+2D AR,Primitive 2D AS,Primitive 2D AO,Primitive 2D AP,Primitive 2D AN
+      BOUNDARY CONDITIONS:
+        MASS AND MOMENTUM:
+          Option = Conservative Interface Flux
+        END # MASS AND MOMENTUM:
+        TURBULENCE:
+          Option = Conservative Interface Flux
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:Domain Interface 1 Side 2
+    DOMAIN MODELS:
+      BUOYANCY MODEL:
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION:
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION:
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE:
+        Reference Pressure = 1 [atm]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID MODELS:
+      COMBUSTION MODEL:
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL:
+        Fluid Temperature = 25 [C]
+        Option = Isothermal
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL:
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL:
+        Option = k epsilon
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS:
+        Option = Scalable
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:Default Domain
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN: LEIT
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Fluids List = Water
+    Location = LEIT
+    DOMAIN MODELS:
+      BUOYANCY MODEL:
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION:
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION:
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE:
+        Reference Pressure = 1 [atm]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID MODELS:
+      COMBUSTION MODEL:
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL:
+        Fluid Temperature = 25 [C]
+        Option = Isothermal
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL:
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL:
+        Option = k epsilon
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS:
+        Option = Scalable
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:LEIT
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN: SAUG
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Fluids List = Water
+    Location = SAUG
+    DOMAIN MODELS:
+      BUOYANCY MODEL:
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION:
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION:
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE:
+        Reference Pressure = 1 [atm]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID MODELS:
+      COMBUSTION MODEL:
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL:
+        Fluid Temperature = 25 [C]
+        Option = Isothermal
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL:
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL:
+        Option = k epsilon
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS:
+        Option = Scalable
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:SAUG
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN: ZULAUF
+    Coord Frame = Coord 0
+    Domain Type = Fluid
+    Fluids List = Water
+    Location = ZULAUF
+    DOMAIN MODELS:
+      BUOYANCY MODEL:
+        Option = Non Buoyant
+      END # BUOYANCY MODEL:
+      DOMAIN MOTION:
+        Option = Stationary
+      END # DOMAIN MOTION:
+      MESH DEFORMATION:
+        Option = None
+      END # MESH DEFORMATION:
+      REFERENCE PRESSURE:
+        Reference Pressure = 1 [atm]
+      END # REFERENCE PRESSURE:
+    END # DOMAIN MODELS:
+    FLUID MODELS:
+      COMBUSTION MODEL:
+        Option = None
+      END # COMBUSTION MODEL:
+      HEAT TRANSFER MODEL:
+        Fluid Temperature = 25 [C]
+        Option = Isothermal
+      END # HEAT TRANSFER MODEL:
+      THERMAL RADIATION MODEL:
+        Option = None
+      END # THERMAL RADIATION MODEL:
+      TURBULENCE MODEL:
+        Option = k epsilon
+      END # TURBULENCE MODEL:
+      TURBULENT WALL FUNCTIONS:
+        Option = Scalable
+      END # TURBULENT WALL FUNCTIONS:
+    END # FLUID MODELS:
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN INTERFACE: Domain Interface 2
+    Boundary List1 =
+    Boundary List2 =
+    Filter Domain List1 = -- All Domains --
+    Filter Domain List2 = -- All Domains --
+    Interface Region List1 = balance100
+    Interface Region List2 = LEIT AUS
+    Interface Type = Fluid Fluid
+    INTERFACE MODELS:
+      Option = General Connection
+      FRAME CHANGE:
+        Option = None
+      END # FRAME CHANGE:
+      PITCH CHANGE:
+        Option = None
+      END # PITCH CHANGE:
+    END # INTERFACE MODELS:
+    MESH CONNECTION:
+      Option = GGI
+    END # MESH CONNECTION:
+  END # DOMAIN INTERFACE:Domain Interface 2
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN INTERFACE: Domain Interface 3
+    Boundary List1 =
+    Boundary List2 =
+    Filter Domain List1 = -- All Domains --
+    Filter Domain List2 = -- All Domains --
+    Interface Region List1 = balance200
+    Interface Region List2 = SAUG EIN
+    Interface Type = Fluid Fluid
+    INTERFACE MODELS:
+      Option = General Connection
+      FRAME CHANGE:
+        Option = None
+      END # FRAME CHANGE:
+      PITCH CHANGE:
+        Option = None
+      END # PITCH CHANGE:
+    END # INTERFACE MODELS:
+    MESH CONNECTION:
+      Option = GGI
+    END # MESH CONNECTION:
+  END # DOMAIN INTERFACE:Domain Interface 3
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: Default Domain Modified
+    &replace     BOUNDARY: wall11
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = wall11
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+           WALL VELOCITY:
+             Angular Velocity = REVOLUTIONS [rev s^-1]
+             Option = Rotating Wall
+             AXIS DEFINITION:
+               Option = Coordinate Axis
+               Rotation Axis = Coord 0.3
+             END # AXIS DEFINITION:
+           END # WALL VELOCITY:
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wall11
+  END # DOMAIN:Default Domain Modified
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: Default Domain Modified
+    &replace     BOUNDARY: wall10
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = wall10
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:wall10
+  END # DOMAIN:Default Domain Modified
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: EIN
+      Boundary Type = INLET
+      Interface Boundary = Off
+      Location = EIN
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM:
+          Normal Speed = 2 [m s^-1]
+          Option = Normal Speed
+        END # MASS AND MOMENTUM:
+        TURBULENCE:
+          Option = Medium Intensity and Eddy Viscosity Ratio
+        END # TURBULENCE:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:EIN
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: INNEN
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = INNEN
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:INNEN
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: LINKS ZULA
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = LINKS ZULA
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:LINKS ZULA
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: OBEN
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = OBEN
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:OBEN
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: RECHTS ZULA
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = RECHTS ZULA
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:RECHTS ZULA
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: TRICHTER
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = TRICHTER
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:TRICHTER
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: ZULAUF
+    &replace     BOUNDARY: UNTEN
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = UNTEN
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:UNTEN
+  END # DOMAIN:ZULAUF
+END # FLOW:
+> update
+
+
+FLOW:
+  DOMAIN: LEIT
+    &replace     BOUNDARY: LEIT SCHAUF
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = LEIT SCHAUF
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:LEIT SCHAUF
+  END # DOMAIN:LEIT
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: LEIT
+    &replace     BOUNDARY: LEIT MANTEL
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = LEIT MANTEL
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:LEIT MANTEL
+  END # DOMAIN:LEIT
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: LEIT
+    &replace     BOUNDARY: LEIT NABE
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = LEIT NABE
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:LEIT NABE
+  END # DOMAIN:LEIT
+END # FLOW:
+> update
+
+FLOW:
+  &replace   DOMAIN INTERFACE: Domain Interface 4
+    Boundary List1 =
+    Boundary List2 =
+    Filter Domain List1 = -- All Domains --
+    Filter Domain List2 = -- All Domains --
+    Interface Region List1 = ZULA AUS
+    Interface Region List2 = LEIT EIN
+    Interface Type = Fluid Fluid
+    INTERFACE MODELS:
+      Option = General Connection
+      FRAME CHANGE:
+        Option = None
+      END # FRAME CHANGE:
+      PITCH CHANGE:
+        Option = None
+      END # PITCH CHANGE:
+    END # INTERFACE MODELS:
+    MESH CONNECTION:
+      Option = GGI
+    END # MESH CONNECTION:
+  END # DOMAIN INTERFACE:Domain Interface 4
+END # FLOW:
+> update
+FLOW:
+  DOMAIN: SAUG
+    &replace     BOUNDARY: SAUG WAND
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = SAUG WAND
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:SAUG WAND
+  END # DOMAIN:SAUG
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: SAUG
+    &replace     BOUNDARY: VERL
+      Boundary Type = WALL
+      Create Other Side = Off
+      Interface Boundary = Off
+      Location = VERL
+      BOUNDARY CONDITIONS:
+        WALL INFLUENCE ON FLOW:
+          Option = No Slip
+        END # WALL INFLUENCE ON FLOW:
+        WALL ROUGHNESS:
+          Option = Smooth Wall
+        END # WALL ROUGHNESS:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:VERL
+  END # DOMAIN:SAUG
+END # FLOW:
+> update
+
+FLOW:
+  DOMAIN: SAUG
+    &replace     BOUNDARY: AUS
+      Boundary Type = OUTLET
+      Interface Boundary = Off
+      Location = AUS
+      BOUNDARY CONDITIONS:
+        FLOW REGIME:
+          Option = Subsonic
+        END # FLOW REGIME:
+        MASS AND MOMENTUM:
+          Option = Average Static Pressure
+          Relative Pressure = 0 [Pa]
+        END # MASS AND MOMENTUM:
+        PRESSURE AVERAGING:
+          Option = Average Over Whole Outlet
+        END # PRESSURE AVERAGING:
+      END # BOUNDARY CONDITIONS:
+    END # BOUNDARY:AUS
+  END # DOMAIN:SAUG
+END # FLOW:
+> update
+
+>writeCaseFile filename=$(CFXDIR)/complete_machine.def, \
+operation=write solver file
+
+> update
+
+# Session file stopped:  2008/08/21 12:53:48
+

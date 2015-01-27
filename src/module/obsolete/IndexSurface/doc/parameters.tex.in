@@ -1,0 +1,23 @@
+
+\subsubsection{Parameters}
+%=============================================================
+%
+
+ 
+\begin{longtable}{|p{2.5cm}|p{4cm}|p{7cm}|}
+\hline
+   \bf{Name} & \bf{Type} & \bf{Description} \endhead
+\hline\hline
+	DirChoice & choice of \newline - direction x \newline - direction y\newline - direction z  & Dimension the index is refering to.\\
+\hline
+     Index & IntSlider & Index of structured grid area. The range of the slider is set acoording to the input grid.  \\
+\hline
+     Generate\_strips & Boolean & Do you want to generate triangle strips? \\
+\hline    										
+\end{longtable}
+%=============================================================
+
+
+
+%
+%=============================================================

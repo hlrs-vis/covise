@@ -1,0 +1,193 @@
+
+
+
+
+\subsubsection{Syntax}
+
+Numeric expressions to be submitted to the module obey the following context free
+grammar: 
+\latexonly
+{\small\it Explanations added where necessary are in small font and not part of the grammar}\
+
+
+
+\begin{syntax}
+\rulescheme{{\it expression}}{\termquote{[} {\it expression } \termquote{,}{\it expression }\termquote{,}{\it expression }\termquote{]}}
+\ruleleft{{\it inputport}}
+\rulerightc{\termquote{s1}}{Scalar data compliant to {\tt s\_indata1}}
+\contrule
+\rulerightc{\termquote{s2}}{Scalar data compliant to {\tt s\_indata2}}
+\contrule
+\rulerightc{\termquote{v1}}{Vector data compliant to {\tt v\_indata1}}
+\contrule
+\rulerightc{\termquote{v2}}{Vector data compliant to {\tt v\_indata2}}
+
+
+\ruleleft{{\it expression}}
+\rulerightc{{\it number}}{Common floating point number}
+\contrule
+\rulerightc{{e}}{The unit vector {\tiny $\left(\begin{array}{c} 1 \\ 1 \\ 1 \end{array} \right) $}}
+\contrule
+\rulerightc{{\it inputport}}{}
+\contrule
+\rulerighta{\termquote{(} {\it expression } \termquote{)}}
+\contrule
+\rulerightc{\termquote{[} {\it number } \termquote{,}{\it number }\termquote{,}{\it number }\termquote{]}}{constant three-dimensional vector}
+\contrule
+\rulerightc{\termquote{neg(} {\it expression } \termquote{)}}{Negation of the expression, dont use the \termquote{-} for this purpose}
+\contrule
+\rulerighta{\termquote{sin(} {\it expression } \termquote{)}}
+\contrule
+\rulerighta{\termquote{cos(} {\it expression } \termquote{)}}
+\contrule
+\rulerighta{\termquote{tan(} {\it expression } \termquote{)}}
+\contrule
+\rulerighta{\termquote{log(} {\it expression } \termquote{)}}
+\contrule
+\rulerighta{\termquote{exp(} {\it expression } \termquote{)}}
+\contrule
+\rulerighta{\termquote{neg(} {\it expression } \termquote{)}}
+\contrule
+\rulerightc{\termquote{vlen(} {\it expression } \termquote{)}}{Norm of the expression, which must be of vector type}
+\contrule
+\rulerightc{\termquote{comp1(} {\it expression } \termquote{)}}{First component of the ( vectorial ) expression}
+\contrule
+\rulerightc{\termquote{comp2(} {\it expression } \termquote{)}}{Second component of the ( vectorial ) expression}
+\contrule
+\rulerightc{\termquote{comp3(} {\it expression } \termquote{)}}{Third component of the ( vectorial ) expression}
+\contrule
+\rulerightc{\termquote{min(} {\it inputport } \termquote{)}}{Minimal scalar value or minimal vector norm of the data}
+\contrule
+\rulerightc{\termquote{max(} {\it inputport } \termquote{)}}{Maximal scalar value or
+ maximal vector norm of the date}
+\contrule
+\rulerighta{{\it expression } \termquote{+} {\it expression}}
+\contrule
+\rulerighta{{\it expression } \termquote{-} {\it expression}}
+\contrule
+\rulerightc{{\it expression } \termquote{*} {\it expression}}{}
+\contrule
+\rulerighta{{\it expression } \termquote{/} {\it expression}}
+\contrule
+\rulerightc{{\it expression } \termquote{\symbol{94}} {\it expression}}{$a^b$}
+\contrule
+\rulerightc{{\it expression } \termquote{\#} {\it expression}}{cross product of the two expressions}
+\contrule
+\rulerightc{{\it expression } \termquote{\symbol{126}} {\it expression}}{$\sqrt[b]{a}$}
+
+
+ 
+\end{syntax}
+\endlatexonly
+
+\begin{htmlonly}
+\begin{verbatim}
+Explanations added where necessary,and not part of the grammar
+
+inputport --> `s1´                             	   | Scalar data compliant to s_indata1
+              `s2´                                 | Scalar data compliant to s_indata2
+              `v1´                                 | Scalar data compliant to v_indata1
+              `v2´                                 | Scalar data compliant to v_indata2
+						   |
+expression --> number				   | Common floating point number
+						   |
+               e				   | The unit vector (1,1,1)
+	       inputport			   | 
+	       `(' expression `)'		   |
+	       `[' number `,' number `,' number `]'| Constant three-dimensional vector
+	       `neg(' expression `)'		   | Negation of the expression, don't use `-'
+	       `sin(' expression `)'		   |
+	       `tan(' expression `)'		   |
+	       `log(' expression `)'		   |
+	       `exp(' expression `)'		   |
+	       `vlen(' expression `)'		   | Norm (expression must be of vector type)
+	       `comp1(' expression `)'		   | 1st component of vector
+	       `comp2(' expression `)'		   | 2nd component of vector
+	       `comp3(' expression `)'		   | 3rd component of vector
+	       `min(' inputport `)'		   | Minimal scalar value or vector norm
+	       `max(' inputport `)'		   | Maximal scalar value or vector norm
+	       expression `+' expression	   |
+	       expression `-' expression	   |
+	       expression `*' expression	   |
+	       expression `/' expression	   |
+	       expression `^' expression	   | power
+	       expression `#' expression	   | cross product
+	       expression `~' expression	   | root
+	              
+\end{verbatim}
+\end{htmlonly}
+
+ 
+
+\subsubsection{Restrictions}
+
+The arithmetic expressions which can be specified are restricted:
+\latexonly
+\begin{itemize}
+\item At least one input port must occur in the expression even if 
+no input port is needed for the computation. This means that the expression
+$3+sin(7.0)$ is invalid while $0*s1+3+sin(7.0)$ is valid.
+\item For negations the minus sign `` $-$ `` is not applicable. Use the function ``{\tt neg}''instead.
+For example the expression $-\sqrt[3]{-s_1}$ is written as  {\tt neg(neg(s1)\symbol{126}3)}
+\end{itemize}
+\endlatexonly
+\begin{htmlonly}
+\begin{verbatim}
+1. At least one input port must occur in the expression even if 
+no input port is needed for the computation. 
+This means that the expression 3+sin(7.0) is invalid while 0*s1+3+sin(7.0) is valid.
+2. Expressions with cubic root and negation have to be written like neg(neg(s1)~3)
+\end{verbatim}
+\end{htmlonly} 
+                               
+
+%
+%=============================================================
+
+\subsubsection{Examples}
+%=============================================================
+%
+
+Consider the first map:\\
+RWCOvise\_1 reads the geometry of the data while RWCovise\_2
+reads in the data. Then we make a Cuttingsurface of the data.
+Scalar data on the surface are now handled by the Calc module.
+The result of this computation is mapped to colors by Colors\_1 and 
+Collect\_1. The module Colors\_2 is only used to get a colormap 
+for the data. In our simple example we take just a multiple of the scalar value on the
+CuttingSurface.
+\label{example1}
+
+
+
+\begin{covimg}{}{CalcNet}{covise/net/examples/Calc1.net}{0.7}\end{covimg}
+
+
+
+\begin{covimg}{}{Calc_map}{covise/net/examples/Calc.net}{0.7}\end{covimg}
+
+In the second map the Calc module is
+used in order to work out the magnitude of the density of
+linear momentum. The density and the velocity fields are
+read at the first and third port, respectively. That is why
+we have written in the {\it expression} string parameter
+{\tt vlen(s1*v1)}; {\tt s1} stands for the mass density, and
+{\tt v1} for the velocity field; {\tt vlen} calculates the
+{\it length} of a vector. This scalar
+magnitude is available at the first output port. The renderer snapshot shows the
+output for the third time step of this calculation.
+ 
+\begin{covimg}{}{Calc_out}{Magnitude of the density of linear momentum}{0.7}\end{covimg}
+
+
+
+
+
+
+As the grammar shows, expressions like max(s1+s2) are not allowed.
+Instead use cascading Calc modules as shown in the last figure where the expression for 
+Calc1 is {\tt s1+s2} and for Calc3 {\tt max(s1)}
+
+\begin{covimg}{}{CalMax}{Using cascading Calc modules}{0.7}\end{covimg}
+
+\end{samepage} 
