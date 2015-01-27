@@ -70,14 +70,6 @@ ELSE()
 ENDIF()
 MESSAGE(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 
-# figure out COVISE version
-FIND_PACKAGE(Subversion)
-FIND_PACKAGE(Git)
-# TODO: get version from COVISE_VERSION environment variable if it is set
-SET(COVISE_MAJOR_VERSION 8)
-SET(COVISE_MINOR_VERSION 1)
-SET(COVISE_PATCH_VERSION 0)
-
 IF(UNIX AND NOT APPLE)
   EXECUTE_PROCESS(COMMAND readlink -e ${COVISEDIR}
       OUTPUT_VARIABLE CANONICAL_COVISE_DIR
@@ -88,69 +80,13 @@ ELSE()
   SET(CANONICAL_COVISE_DIR ${COVISEDIR})
 ENDIF()
 
-# get svn-revision
-IF (Subversion_FOUND)
-  Subversion_WC_INFO("${CANONICAL_COVISE_DIR}" COVISE)
-  IF (NOT ${COVISE_WC_REVISION} STREQUAL "")
-    SET(COVISE_SVN_REVISION ${COVISE_WC_REVISION})
-    STRING(SUBSTRING "${COVISE_WC_LAST_CHANGED_DATE}" 0 10 COVISE_SVN_DATE)
-  ELSE (NOT ${COVISE_WC_REVISION} STREQUAL "")
-    SET(COVISE_SVN_REVISION 0)
-  ENDIF (NOT ${COVISE_WC_REVISION} STREQUAL "")
-ELSE (Subversion_FOUND)
-  SET(COVISE_SVN_REVISION 0)
-ENDIF (Subversion_FOUND)
+# figure out COVISE version
+FIND_PACKAGE(Git)
+# TODO: get version from COVISE_VERSION environment variable if it is set
 
-MACRO(GITSVN_WC_INFO dir prefix)
-   # the subversion commands should be executed with the C locale, otherwise
-   # the message (which are parsed) may be translated, Alex
-   SET(_Subversion_SAVED_LC_ALL "$ENV{LC_ALL}")
-   SET(ENV{LC_ALL} C)
-   #message(dir=${dir})
-
-   EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} svn info
-      WORKING_DIRECTORY ${dir}
-      OUTPUT_VARIABLE ${prefix}_WC_INFO
-      ERROR_VARIABLE Subversion_svn_info_error
-      RESULT_VARIABLE Subversion_svn_info_result
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-   IF(NOT ${Subversion_svn_info_result} EQUAL 0)
-      MESSAGE("Command \"${GIT_EXECUTABLE} svn  info ${dir}\" failed with output:\n${Subversion_svn_info_error}")
-   ELSE(NOT ${Subversion_svn_info_result} EQUAL 0)
-
-      STRING(REGEX REPLACE "^(.*\n)?URL: ([^\n]+).*"
-         "\\2" ${prefix}_WC_URL "${${prefix}_WC_INFO}")
-      STRING(REGEX REPLACE "^(.*\n)?Repository Root: ([^\n]+).*"
-         "\\2" ${prefix}_WC_ROOT "${${prefix}_WC_INFO}")
-      STRING(REGEX REPLACE "^(.*\n)?Revision: ([^\n]+).*"
-         "\\2" ${prefix}_WC_REVISION "${${prefix}_WC_INFO}")
-      STRING(REGEX REPLACE "^(.*\n)?Last Changed Author: ([^\n]+).*"
-         "\\2" ${prefix}_WC_LAST_CHANGED_AUTHOR "${${prefix}_WC_INFO}")
-      STRING(REGEX REPLACE "^(.*\n)?Last Changed Rev: ([^\n]+).*"
-         "\\2" ${prefix}_WC_LAST_CHANGED_REV "${${prefix}_WC_INFO}")
-      STRING(REGEX REPLACE "^(.*\n)?Last Changed Date: ([^\n]+).*"
-         "\\2" ${prefix}_WC_LAST_CHANGED_DATE "${${prefix}_WC_INFO}")
-
-   ENDIF(NOT ${Subversion_svn_info_result} EQUAL 0)
-
-   # restore the previous LC_ALL
-   SET(ENV{LC_ALL} ${_Subversion_SAVED_LC_ALL})
-ENDMACRO(GITSVN_WC_INFO)
-
-# also try with git-svn
-IF(COVISE_SVN_REVISION EQUAL 0)
-  IF(GIT_FOUND)
-  GITSVN_WC_INFO("${CANONICAL_COVISE_DIR}/.." COVISE)
-  IF (NOT ${COVISE_WC_REVISION} STREQUAL "")
-    SET(COVISE_SVN_REVISION ${COVISE_WC_REVISION})
-    STRING(SUBSTRING "${COVISE_WC_LAST_CHANGED_DATE}" 0 10 COVISE_SVN_DATE)
-  ENDIF (NOT ${COVISE_WC_REVISION} STREQUAL "")
-  ENDIF(GIT_FOUND)
-ENDIF(COVISE_SVN_REVISION EQUAL 0)
-SET(COVISE_VERSION "${COVISE_MAJOR_VERSION}.${COVISE_MINOR_VERSION}.${COVISE_PATCH_VERSION}.r${COVISE_SVN_REVISION}")
-set(COVISE_VERSION_YEAR 2014)
-set(COVISE_VERSION_MONTH 12)
+set(COVISE_VERSION_YEAR 2015)
+set(COVISE_VERSION_MONTH 1)
+set(COVISE_VERSION_DAY 0)
 set(COVISE_VERSION_HASH "")
 if (GIT_FOUND)
    execute_process(COMMAND ${GIT_EXECUTABLE} log -n1 --format=%t/%ci
@@ -162,9 +98,10 @@ if (GIT_FOUND)
 
    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
       message("Command \"${GIT_EXECUTABLE} log -n1 --format=%H/%ci ${dir}\" failed with output:\n${GIT_LOG_ERROR}")
-      set(COVISE_VERSION "2014.12")
+      set(COVISE_VERSION "2015.1")
       set(COVISE_VERSION_HASH "unknown")
    else()
+      string(REGEX REPLACE "^([a-z0-9]*)/(....)-(..)-(..).*" "\\2-\\3-\\4" COVISE_GIT_DATE "${GIT_LOG_OUT}")
       string(REGEX REPLACE "^([a-z0-9]*)/(....)-(..)-(..).*" "\\1" COVISE_VERSION_HASH "${GIT_LOG_OUT}")
       string(REGEX REPLACE "^([a-z0-9]*)/(....)-(..)-(..).*" "\\2" COVISE_VERSION_YEAR "${GIT_LOG_OUT}")
       string(REGEX REPLACE "^([a-z0-9]*)/(....)-(..)-(..).*" "\\3" COVISE_VERSION_MONTH "${GIT_LOG_OUT}")
@@ -172,16 +109,16 @@ if (GIT_FOUND)
       string(REGEX REPLACE "^([a-z0-9]*)/(....)-(..)-(..).*" "\\4" COVISE_VERSION_DAY "${GIT_LOG_OUT}")
       string(REGEX REPLACE "^0([0-9]*)" "\\1" COVISE_VERSION_DAY "${COVISE_VERSION_DAY}")
       #message("git log output: ${GIT_LOG_OUT}")
-      SET(COVISE_MAJOR_VERSION "${COVISE_VERSION_YEAR}")
-      SET(COVISE_MINOR_VERSION "${COVISE_VERSION_MONTH}")
-      SET(COVISE_PATCH_VERSION "${COVISE_VERSION_DAY}")
-      SET(COVISE_VERSION "${COVISE_VERSION_YEAR}.${COVISE_VERSION_MONTH}-${COVISE_VERSION_HASH}")
    endif()
 endif()
+SET(COVISE_MAJOR_VERSION "${COVISE_VERSION_YEAR}")
+SET(COVISE_MINOR_VERSION "${COVISE_VERSION_MONTH}")
+SET(COVISE_PATCH_VERSION "${COVISE_VERSION_DAY}")
+SET(COVISE_VERSION "${COVISE_VERSION_YEAR}.${COVISE_VERSION_MONTH}-${COVISE_VERSION_HASH}")
 
 MESSAGE("COVISEDIR=${COVISEDIR}")
 MESSAGE("ARCHSUFFIX=${ARCHSUFFIX}, BASEARCHSUFFIX=${BASEARCHSUFFIX}")
-MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last SVN change on ${COVISE_SVN_DATE}")
+MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DATE}")
 
 # COVISE global options
 OPTION(COVISE_USE_CPP11 "enable C++ 11 features" ON)
