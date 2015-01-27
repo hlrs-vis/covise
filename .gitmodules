@@ -1,0 +1,6 @@
+[submodule "src/3rdparty/deskvox"]
+	path = src/3rdparty/deskvox
+	url = git://github.com/deskvox/deskvox.git
+[submodule "share/covise/web/noVNC"]
+	path = share/covise/web/noVNC
+	url = git://github.com/kanaka/noVNC.git
