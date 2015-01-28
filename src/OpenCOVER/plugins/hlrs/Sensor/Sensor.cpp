@@ -7,7 +7,9 @@
 
 //
 //
-
+#ifdef WIN32
+#include <WinSock2.h>
+#endif
 #include "Sensor.h"
 #include <cover/coVRTui.h>
 #include <cover/coVRCommunication.h>
@@ -325,7 +327,11 @@ bool SensorPlugin::init()
         memset((char *)&si_other, 0, sizeof(si_other));
         si_other.sin_family = AF_INET;
         si_other.sin_port = htons(REMOTE_PORT);
+#ifdef WIN32
+        if (InetPton(AF_INET,REMOTE_IP, &si_other.sin_addr)==0) 
+#else
         if (inet_aton(REMOTE_IP, &si_other.sin_addr) == 0)
+#endif
         {
             printf("bicyce: inet_aton failed\n");
         }
@@ -343,7 +349,7 @@ bool SensorPlugin::init()
         servAddr.sin_family = AF_INET;
         servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servAddr.sin_port = htons(LOCAL_SERVER_PORT);
-        setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(int));
+        setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char *)&y, sizeof(int));
         rc = bind(s, (struct sockaddr *)&servAddr,
                   sizeof(servAddr));
         if (rc < 0)
