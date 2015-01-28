@@ -98,25 +98,94 @@ set BASEARCHSUFFIX=%ARCHSUFFIX:opt=%
 
 cd /d %COVISEDIR%
          
-if exist "%COVISEDIR%"\mycommon.bat (
-   call "%COVISEDIR%"\mycommon.bat
-   echo mycommon.bat was included
+if exist "%COVISEDIR%"\mysetenv.bat (
+   call "%COVISEDIR%"\mysetenv.bat
+   echo mysetenv.bat was included
 )
 
-if /I "%BASEARCHSUFFIX%" EQU "mingw" (
-  set COMPILE_WITH_MAKE=1
-  call "%COVISEDIR%\bin\common-base-mingw.bat"
+
+rem   start microsoft development environment
+rem   =======================================
+rem
+rem If VS2003 or VS2005 was installed in a non-standard location you have to set VCVARS32 !
+rem 
+
+set PROGFILES=%ProgramFiles%
+if defined ProgramFiles(x86)  set PROGFILES=%ProgramFiles(x86)%
+rem echo  %VS100COMNTOOLS%
+cd
+
+if "%ARCHSUFFIX:~0,5%" EQU "win32" (
+    call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
+) else if "%ARCHSUFFIX:~0,5%" EQU "vista" (
+    call "%VS80COMNTOOLS%"\..\..\Vc\bin\vcvars32.bat"
+) else if "%ARCHSUFFIX:~0,6%" EQU "zackel" (
+    cd /d "%VS90COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x86
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,5%" EQU "yoroo" (
+    cd /d "%VS100COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x86
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,7%" EQU "tamarau" (
+    cd /d "%VS110COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,8%" EQU "berrenda" (
+if defined VS110COMNTOOLS  (
+    cd /d "%VS110COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
 ) else (
-  call "%COVISEDIR%\bin\common-base.bat"
+    cd /d "%VS100COMNTOOLS%"\..\..\vc
+	call vcvarsall.bat x64
+	)
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,5%" EQU "angus" (
+    cd /d "%VS90COMNTOOLS%"\..\..\vc
+    call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+) else if "%ARCHSUFFIX:~0,8%" EQU "amdwin64"   (
+    cd /d "%VS80COMNTOOLS%"\..\..\vc
+    call vcvarsall.bat x64
+    cd /d "%COVISEDIR%"\
+) else if defined VCVARS32 (
+    call "%VCVARS32%"
+)
+
+if not defined QT_HOME ( 
+   REM QT_HOME is not set... check QTDIR
+   IF not defined QTDIR (
+     REM QTDIR is not set ! Try in EXTERNLIBS
+     set "QT_HOME=%EXTERNLIBS%\qt5"
+     set "QT_SHAREDHOME=%EXTERNLIBS%\qt5"
+     set "QTDIR=%EXTERNLIBS%\qt5"
+     set "QT_INCPATH=%EXTERNLIBS%\qt5\include"
+     set "QT_LIBPATH=%EXTERNLIBS%\qt5\lib"
+	 set "PATH=%EXTERNLIBS%\qt5\bin;%EXTERNLIBS%\qt5\lib;%PATH%"
+	 set "QT_QPA_PLATFORM_PLUGIN_PATH=%EXTERNLIBS%\qt5\plugins\platforms"   rem tested for qt5 on win7, visual studio 2010
+   ) ELSE (
+     REM QTDIR is set so try to use it !
+     REM Do a simple sanity-check...
+     IF NOT EXIST "%QTDIR%\.qmake.cache" (
+       echo *** WARNING: .qmake.cache NOT found !
+       echo ***          Check QTDIR or simply do NOT set QT_HOME and QTDIR to use the version from EXTERNLIBS!
+       pause
+     )
+     REM Set QT_HOME according to QTDIR. If User ignores any warnings before he will find himself in a world of pain! 
+     set "QT_HOME=%QTDIR%"
+     set "QT_SHAREDHOME=%QTDIR%"
+     set "QT_INCPATH=%QTDIR%\include"
+     set "QT_LIBPATH=%QTDIR%\lib"
+	 set "PATH=%QTDIR%\bin;%QTDIR%\lib;%PATH%"
+	 set "QT_QPA_PLATFORM_PLUGIN_PATH=%QTDIR%\plugins\platforms"  
+   )
 )
 
 set FRAMEWORK=covise
 set QMAKECOVISEDIR=%COVISEDIR%
 set LOGNAME=covise
 set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
-rem no longer used
-rem set PATH=%PATH%;%EXTERNLIBS%\wget\bin;%EXTERNLIBS%\molscript\bin
-rem no longer neededset QMAKESPEC=%COVISEDIR%\mkspecs\%ARCHSUFFIX%
+
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
 if not defined VV_SHADER_PATH  set VV_SHADER_PATH=%COVISEDIR%\src\3rdparty\deskvox\virvo\shader
@@ -124,10 +193,6 @@ if not defined COVISE_PATH     set COVISE_PATH=%COVISEDIR%
 
 
 set RM=rmdir /S /Q
-set BISON=%COVISEDIR%\bin\bison.exe
-set BISONPLUSPLUS=%COVISEDIR%\bin\bison++.exe
-set LEX=%COVISEDIR%\bin\flex.exe
-set YACC=%COVISEDIR%\bin\yacc
 if "%ARCHSUFFIX%" EQU "vista"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "zackel"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "angus"  set COVISE_DEVELOPMENT=YES
