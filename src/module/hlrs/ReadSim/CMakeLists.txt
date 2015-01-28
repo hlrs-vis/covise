@@ -1,4 +1,5 @@
 SET(HEADERS
+  ReadSim.h
 )
 SET(SOURCES
   ReadSim.cpp
