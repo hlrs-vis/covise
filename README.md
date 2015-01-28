@@ -51,13 +51,10 @@ Build Requirements
     - `Qt5Script`
     - `Qt5ScriptTools`
 
-  On Ubuntu 14.04, these packages should suffice:
-    - `qttools5-dev`
-    - `qtscript5-dev`
-    - `libqt5scripttools5`
-    - `libqt5svg5-dev`
-    - `libqt5opengl5-dev`
-    - `libqt5webkit5-dev`
+  On Ubuntu 14.04, you should be able to install the required packages with
+  this command:
+  `sudo apt-get install qttools5-dev qtscript5-dev libqt5scripttools5 libqt5svg5-dev libqt5opengl5-dev libqt5webkit5-dev`
+
 - **Boost**:
   1.52 and newer should work, following boost libraries are required:
     - `chrono`
