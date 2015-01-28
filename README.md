@@ -100,6 +100,11 @@ Building COVISE
       source .covise.sh #set environment variables
       make #invoke cmake followed by make
 
+COVISE and OpenCOVER are built by two separate CMake projects.
+This command sequence sets environment variables necessary while building
+COVISE, invokes `cmake` for the COVISE project, builds COVISE, and then
+continues with invoking `cmake` for the OpenCOVER project followed by `make`.
+
 No installation is required: you can use COVISE directly from the build tree.
 
 ### Windows
