@@ -34,15 +34,58 @@ Build Requirements
   2.8.10 or newer should work
 - **XercesC**:
 - **Qt**:
-  Either Qt 4 or 5 is required by the graphical user interface
+  Either Qt 4 or 5 is required by the graphical user interface.
+
+  For Qt5, you need the following modules:
+    - `Qt5Core`
+    - `Qt5Network`
+    - `Qt5Xml`
+    - `Qt5Widgets`
+    - `Qt5OpenGL`
+    - `Qt5WebKit`
+    - `Qt5WebKitWidgets`
+    - `Qt5Gui`
+    - `Qt5Svg`
+    - `Qt5PrintSupport`
+    - `Qt5UiTools`
+    - `Qt5Script`
+    - `Qt5ScriptTools`
+
+  On Ubuntu 14.04, these packages should suffice:
+    - `qttools5-dev`
+    - `qtscript5-dev`
+    - `libqt5scripttools5`
+    - `libqt5svg5-dev`
+    - `libqt5opengl5-dev`
+    - `libqt5webkit5-dev`
 - **Boost**:
-  1.52 and newer should work
+  1.52 and newer should work, following boost libraries are required:
+    - `chrono`
+    - `date-time`
+    - `filesystem`
+    - `iostreams`
+    - `locale`
+    - `program-options`
+    - `regex`
+    - `serialization`
+    - `system`
+    - `thread`
+  When any of these are missing, you will only get a generic message, that "Boost" is missing. Thus beware!
 - **Python**:
   Python 3 is required for the GUI vr-prepare and for the scripting interface
 - **GLEW**:
-  used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
+  Used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
 - **OpenSceneGraph**:
   3.2 or newer is required
+
+Optional dependencies
+---------------------
+- **TBB**
+  Intel Threading Building Blocks
+- **JPEG Turbo**
+- **LibVncServer**
+- **VTK**
+  Version 6 is required.
 
 CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
