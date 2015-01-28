@@ -78,6 +78,15 @@ Build Requirements
 - **OpenSceneGraph**:
   3.2 or newer is required
 
+Optional dependencies
+---------------------
+- **TBB**
+  Intel Threading Building Blocks
+- **JPEG Turbo**
+- **LibVncServer**
+- **VTK**
+  Version 6 is required.
+
 CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
 
