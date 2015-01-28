@@ -169,6 +169,13 @@ Source Code Organization
     VR renderer with its plug-ins
 
 
+Mailing Lists
+-------------
+
+As a user of COVISE, you might get answers to your questions on the [covise-users][4] mailing list.
+
+
 [1]:   http://www.hlrs.de/organization/av/vis/covise/
 [2]:   http://www.hlrs.de/organization/av/vis/covise/features/opencover/
 [3]:   http://www.hlrs.de/
+[4]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-users
