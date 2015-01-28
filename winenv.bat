@@ -181,6 +181,47 @@ if not defined QT_HOME (
    )
 )
 
+if not defined CUDA_HOME  (
+   if defined CUDA_BIN_PATHDONTBECAUSEOFSPACES  (
+      REM set "CUDA_HOME=%CUDA_INC_PATH%\.."
+      REM set "CUDA_INCPATH=%CUDA_INC_PATH%"
+      set "CUDA_HOME=%EXTERNLIBS%\Cuda"
+      set "CUDA_BIN_PATH=%EXTERNLIBS%\Cuda\bin"
+      set "CUDA_INCPATH=%EXTERNLIBS%\Cuda\include"
+      set "CUDA_DEFINES=HAVE_CUDA"
+      set "CUDA_SDK_HOME=%EXTERNLIBS%\CUDA"
+      set "CUDA_SDK_INCPATH=%EXTERNLIBS%\CUDA\include %EXTERNLIBS%\CUDA\common\inc"
+      set "PATHADD=%PATHADD%;%CUDA_BIN_PATH%"
+      if "%USE_OPT_LIBS%" == "1" (
+	     set "PATHADD=%PATHADD%;%EXTERNLIBS%\Cuda\bin\win32\Release;%EXTERNLIBS%\cudpp\bin"
+         set "CUDA_LIBS=-L%CUDA_LIB_PATH% -L%EXTERNLIBS%\Cuda\common\lib -lcuda -lcudart -lcutil32"
+      ) else (
+	     set "PATHADD=%PATHADD%;%EXTERNLIBS%\Cuda\bin\win32\Debug;%EXTERNLIBS%\cudpp\bin"
+         set "CUDA_LIBS=-L%CUDA_LIB_PATH% -L%EXTERNLIBS%\Cuda\common\lib -lcuda -lcudart -lcutil32D"
+      )
+   ) else if exist %EXTERNLIBS%\Cuda (
+      set "CUDA_HOME=%EXTERNLIBS%\Cuda"
+      set "CUDA_BIN_PATH=%EXTERNLIBS%\Cuda\bin"
+      set "CUDA_INCPATH=%EXTERNLIBS%\Cuda\include"
+      set "CUDA_DEFINES=HAVE_CUDA"
+      set "CUDA_SDK_HOME=%EXTERNLIBS%\CUDA"
+      set "CUDA_SDK_INCPATH=%EXTERNLIBS%\CUDA\include %EXTERNLIBS%\CUDA\common\inc"
+      set "PATHADD=%PATHADD%;%CUDA_BIN_PATH%"
+      if "%USE_OPT_LIBS%" == "1" (
+	     set "PATHADD=%PATHADD%;%EXTERNLIBS%\Cuda\bin\win32\Release"
+         set "CUDA_LIBS=-L%EXTERNLIBS%\Cuda\lib -L%EXTERNLIBS%\Cuda\common\lib -lcuda -lcudart -lcutil64"
+      ) else (
+	     set "PATHADD=%PATHADD%;%EXTERNLIBS%\CUDA\bin\win32\Debug"
+         set "CUDA_LIBS=-L%EXTERNLIBS%\Cuda\lib -L%EXTERNLIBS%\Cuda\common\lib -lcuda -lcudart -lcutil64D"
+      )
+   )
+)
+
+if not defined ALL_EXTLIBS ( 
+  set "ALL_EXTLIBS=%EXTERNLIBS%\all"
+  set "PATH=%EXTERNLIBS%\all;%PATH%"
+)
+
 set FRAMEWORK=covise
 set QMAKECOVISEDIR=%COVISEDIR%
 set LOGNAME=covise
