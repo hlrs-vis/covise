@@ -1,2 +1,2 @@
 net/tutorial/\*
-example-data/tutorial/\*
+share/covise/example-data/tutorial/\*

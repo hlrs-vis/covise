@@ -26,7 +26,7 @@ else
 all: arch shared
 endif
 arch: bindist platform extlibdist instscript
-shared: instscript sharedist devdist docdist datadist tarshared
+shared: instscript sharedist docdist datadist tarshared
 
 always_out_of_date:
 
@@ -49,12 +49,6 @@ $(ARCHDIST)/Platform: $(ARCHDIST) always_out_of_date
 sharedist: $(SHAREDIST)
 	cd $(BASEDIR) && $(BASEDIR)/archive/archiveexpand.sh $(SHAREDIST)/coshared.tar $(BASEDIR)/archive/add-sharedist-files.txt
 
-devbindist: bindist devdist
-	@echo "Collecting other files:"
-#	@cd .. && find net/examples -name "*.net" -print0 | tar --null --no-recursion -uvf $(SHAREDIST)/coexample.maps_data.tar --files-from -
-#	@cd .. && find example-data -print0 | tar --null --no-recursion -uvf $(SHAREDIST)/coexample.maps_data.tar --files-from -
-	@echo "Collecting files done."
-
 bindist: $(ARCHDIST) instscript platform
 	@if [ "`uname`" = "Darwin" ]; then \
 		echo "Retrieving non-standard system libraries..."; \
@@ -66,12 +60,6 @@ bindist: $(ARCHDIST) instscript platform
 	@echo "Collecting binary files:"
 	@cd .. && find $(ARCHSUFFIX)/bin $(ARCHSUFFIX)/lib $(ARCHSUFFIX)/system-lib $(ARCHSUFFIX)/CoviseOptions.cmake $(ARCHSUFFIX)/rpm-package-list.txt -print0 | tar --null --no-recursion -czvf $(ARCHDIST)/co$(ARCHSUFFIX).bin.tar.gz --files-from -
 	@echo "Collecting binary files done."
-
-devdist: $(SHAREDIST)
-	@echo "Collecting development files:"
-	@cd .. && (find cmake scripts -print0; find src/kernel src/renderer/OpenCOVER/{kernel,device,PluginUtil,OpenVRUI,osgcaveui,vrml97,VehicleUtil,plugins/general/Vrml97} '(' -name '*.h' -o -name '*.inl' ')' -print0; find src/template src/application/examples src/renderer/OpenCOVER/plugins/examples src/renderer/OpenCOVER/plugins/gpl -print0) | sort -u -z | tar --null --no-recursion -cvf $(SHAREDIST)/codev.header.tar --files-from -
-	@cd $(BASEDIR) && $(BASEDIR)/archive/archiveexpand.sh $(SHAREDIST)/codev.header.tar $(BASEDIR)/archive/add-devdist-files.txt
-	@echo "Collecting development files done."
 
 raidarch:
 	@echo Covise version is: $(VERSION)

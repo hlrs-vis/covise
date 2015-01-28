@@ -1,4 +1,0 @@
-src/Makefile*
-src/application/examples
-src/renderer/OpenCOVER/plugins/examples
-src/renderer/OpenCOVER/plugins/gpl

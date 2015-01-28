@@ -1,2 +1,2 @@
 net/examples/\*
-example-data/[A-Z]\*
+share/covise/example-data/[A-Z]\*
