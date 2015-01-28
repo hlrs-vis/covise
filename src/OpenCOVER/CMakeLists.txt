@@ -12,7 +12,6 @@ set(COVISE_EXPORTS_FILE "cover-exports.cmake")
 
 set(COVISE_BUILDING_COVER TRUE)
 
-option(COVISE_USE_QT4 "Use Qt 4" ON)
 option(COVISE_USE_CUDA "Use CUDA" ON)
 option(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
 option(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
