@@ -181,6 +181,41 @@ if not defined QT_HOME (
    )
 )
 
+if not defined  OPENSCENEGRAPH_HOME (
+   if exist %EXTERNLIBS%\OpenSceneGraph\bin\osgversion.exe (
+     for /f %%v in ('%EXTERNLIBS%\OpenSceneGraph\bin\osgversion.exe --version-number') do @set OSG_VER_NUM=%%v
+     for /f %%v in ('%EXTERNLIBS%\OpenSceneGraph\bin\osgversion.exe --so-number') do @set OSG_SO_VER=%%v
+     for /f %%v in ('%EXTERNLIBS%\OpenSceneGraph\bin\osgversion.exe --openthreads-soversion-number') do @set OSG_OT_SO_VER=%%v
+   )
+
+   set "OPENSCENEGRAPH_HOME=%EXTERNLIBS%\OpenSceneGraph"
+   set "OSG_DIR=%EXTERNLIBS%\OpenSceneGraph"
+   set "OPENSCENEGRAPH_INCPATH=%EXTERNLIBS%\OpenSceneGraph\include"
+   if "%USE_OPT_LIBS%" == "1" (
+      set "OPENSCENEGRAPH_LIBS=%OSGNV_LIBS% -L%EXTERNLIBS%\OpenSceneGraph\lib -losg -losgDB -losgUtil -losgViewer -losgParticle -losgText -losgSim -losgGA -losgFX -lOpenThreads"
+   ) else (
+      set "OPENSCENEGRAPH_LIBS=%OSGNV_LIBS% -L%EXTERNLIBS%\OpenSceneGraph\lib -losgD -losgDBd -losgUtilD -losgViewerD -losgParticleD -losgTextD -losgSimD -losgGAd -losgFXd -lOpenThreadsD"
+   )
+)
+
+if not defined ALVAR_HOME  (
+   set "ALVAR_HOME=%EXTERNLIBS%\ALVAR"
+   set "ALVAR_DEFINES=HAVE_ALVAR"
+   set "ALVAR_INCPATH=%EXTERNLIBS%\ALVAR\include"
+   set "ALVAR_PLUGIN_PATH=%EXTERNLIBS%\ALVAR\bin\alvarplugins"
+   set "ALVAR_LIBRARY_PATH=%EXTERNLIBS%\ALVAR\bin"
+   
+   
+   set "PATHADD=%PATHADD%;%EXTERNLIBS%\ALVAR\bin"
+   if "%USE_OPT_LIBS%" == "1" (
+      set "ALVAR_LIBS=-L%EXTERNLIBS%\ALVAR\lib -lALVARCollision -lALVARDynamics -lGIMPACTUtils -lLinearMath"
+      set "OSGALVAR_LIBS=-L%EXTERNLIBS%\OpenSceneGraph\lib -losgbALVAR"
+   ) else (
+      set "ALVAR_LIBS=-L%EXTERNLIBS%\ALVAR\lib -lALVARCollisiond -lALVARDynamicsd -lGIMPACTUtilsd -lLinearMathd"
+      set "OSGALVAR_LIBS=-L%EXTERNLIBS%\OpenSceneGraph\lib -losgbALVARd"
+   )
+)
+
 if not defined CUDA_HOME  (
    if defined CUDA_BIN_PATHDONTBECAUSEOFSPACES  (
       REM set "CUDA_HOME=%CUDA_INC_PATH%\.."
