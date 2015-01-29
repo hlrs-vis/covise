@@ -272,7 +272,7 @@ void VrmlNodeSensor::render(Viewer *)
         osg::Matrix m = cover->getViewerMat();
         m = m * cover->getInvBaseMat();
         pos = m.getTrans();
-        fprintf(fp, "pos %f %f %f time %d values %d %d %d\n", pos[0], pos[1], pos[2], currentTime, rpiBPM, rpiSPO2, rpiGSR);
+        fprintf(fp, "pos %f %f %f time %zd values %d %d %d\n", pos[0], pos[1], pos[2], currentTime, rpiBPM, rpiSPO2, rpiGSR);
         fflush(fp);
         oldTime = currentTime;
     }
