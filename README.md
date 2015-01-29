@@ -84,6 +84,8 @@ Optional dependencies
 - **JPEG Turbo**
 - **VTK**
   Version 6 is required.
+- **Flex** and **Bison**
+  Lexer/Parser generators, required to build VRML plugin.
 
 CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
