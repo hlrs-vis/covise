@@ -16,11 +16,15 @@ details.
 Getting COVISE
 --------------
 
+### UNIX
+
 Getting COVISE is as easy as
 
       git clone https://github.com/hlrs-vis/covise.git
       cd covise
       git submodule update --init
+
+### Windows
 
 
 Build Requirements
@@ -99,6 +103,9 @@ COVISE and OpenCOVER are built by two separate CMake projects.
 This command sequence sets environment variables necessary while building
 COVISE, invokes `cmake` for the COVISE project, builds COVISE, and then
 continues with invoking `cmake` for the OpenCOVER project followed by `make`.
+
+After an initial build, it is possible to invoke `make` from within
+subdirectories of `covise/src`.
 
 No installation is required: you can use COVISE directly from the build tree.
 
