@@ -236,13 +236,3 @@ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
 ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO
 PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-
-**
-
-COVISE uses the METIS library with permission from George Karypis:
-
-Copyright 1998, Regents of the University of Minnesota.
-METIS was written by George Karypis (karypis@cs.umn.edu)
-  http://glaros.dtc.umn.edu/gkhome/views/metis
-  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
-
