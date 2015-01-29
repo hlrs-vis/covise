@@ -6,12 +6,7 @@ MACRO(USE_FFMPEG)
       return()
     else()
       message(STATUS "Checking whether we are actually compiling against libav")
-      try_compile(LIBAV_FOUND
-        "${CMAKE_BINARY_DIR}/tmp"
-        SOURCES
-          "${COVISEDIR}/cmake/tests/libav.c"
-        CMAKE_FLAGS
-          "-DINCLUDE_DIRECTORIES=${FFMPEG_INCLUDE_DIRS}"
+      try_compile(LIBAV_FOUND "${CMAKE_BINARY_DIR}/tmp" "${COVISEDIR}/cmake/tests/libav.c" CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${FFMPEG_INCLUDE_DIRS}"
       )
       if (LIBAV_FOUND)
         add_definitions(-DHAVE_LIBAV)
