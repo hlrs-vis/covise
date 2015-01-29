@@ -1,3 +1,6 @@
+The files in this directory are used for building COVISE installers for UNIX
+systems.
+
 How to control what gets archived on UNIX?
 ==========================================
 
@@ -22,11 +25,6 @@ add-docdisthtml-files.txt
 add-docdistpdf-files.txt
 - documentation in PDF formats
   archived into SHARED/codoc.pdf.tar.gz
-
-add-devdist-files.txt
-- additional files necessary for COVISE development,
-  residing in a subdirectory of covise
-  archived into SHARED/codev.header.tar.gz
 
 add-tutorialdist-files.txt
 - .net and data files used in the COVISE tutorial

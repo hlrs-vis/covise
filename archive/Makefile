@@ -12,8 +12,9 @@ MAJOR=`grep "COVISE_VERSION_MAJOR" <  ${AUTOGENH} |  cut -d ' ' -f 3`
 MINOR=`grep "COVISE_VERSION_MINOR" <  ${AUTOGENH} |  cut -d ' ' -f 3`
 PATCH=`grep "COVISE_VERSION_PATCH" <  ${AUTOGENH} |  cut -d ' ' -f 3`
 HASH=`grep "COVISE_VERSION_HASH" <  ${AUTOGENH} |  cut -d '"' -f 2`
+DATE=`grep "COVISE_VERSION_DATE" <  ${AUTOGENH} |  cut -d '"' -f 2`
 #VERSION=${MAJOR}.${MINOR}.${PATCH}`grep "COVISE_VERSION_REVISION" <  ${AUTOGENH} |  cut -d '"' -f 2`
-VERSION=${MAJOR}.${MINOR}-${HASH}
+VERSION="${DATE}"
 BUILDNUMBER=`date +%y%m%d%H%M`
 
 DIST=$(BASEDIR)/DIST
@@ -63,35 +64,35 @@ bindist: $(ARCHDIST) instscript platform
 
 raidarch:
 	@echo Covise version is: $(VERSION)
-	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot$(VERSION)
+	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot-$(VERSION)
 	@echo creating $(ARCHSUFFIX).tar ...
-	@tar -C .. -cvf - DIST/DIST.$(ARCHSUFFIX) | ssh $(RAIDSERVER) "cat - > $(RAIDDIR)/snapshot$(VERSION)/$(ARCHSUFFIX).tar"
+	@tar -C .. -cvf - DIST/DIST.$(ARCHSUFFIX) | ssh $(RAIDSERVER) "cat - > $(RAIDDIR)/snapshot-$(VERSION)/$(ARCHSUFFIX).tar"
 
 raidshared:
 	@echo Covise version is: $(VERSION)
-	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot$(VERSION)
+	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot-$(VERSION)
 	@echo creating shared.tar ...
-	@tar -C .. -cvf - DIST/SHARED DIST/${INSTSCRIPT} | ssh $(RAIDSERVER) "cat - > $(RAIDDIR)/snapshot$(VERSION)/shared.tar"
+	@tar -C .. -cvf - DIST/SHARED DIST/${INSTSCRIPT} | ssh $(RAIDSERVER) "cat - > $(RAIDDIR)/snapshot-$(VERSION)/shared.tar"
 
 raiddmg: $(DMG)
 	@echo Covise version is: $(VERSION)
-	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot$(VERSION)
-	@scp $(DMG) $(RAIDSERVER):$(RAIDDIR)/snapshot$(VERSION)/
+	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot-$(VERSION)
+	@scp $(DMG) $(RAIDSERVER):$(RAIDDIR)/snapshot-$(VERSION)/
 
 raidindex:
-	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot$(VERSION)
-	@scp ../DIST/${INSTSCRIPT} $(RAIDSERVER):$(RAIDDIR)/snapshot$(VERSION)
-	@echo creating index for $(RAIDDIR)/snapshot$(VERSION)
-	@ssh $(RAIDSERVER) "cd $(RAIDDIR)/snapshot$(VERSION); ../genindex.pl > index.html; cd $(RAIDDIR); ./genindex-global.pl > index.html"
+	@ssh $(RAIDSERVER) mkdir -p $(RAIDDIR)/snapshot-$(VERSION)
+	@scp ../DIST/${INSTSCRIPT} $(RAIDSERVER):$(RAIDDIR)/snapshot-$(VERSION)
+	@echo creating index for $(RAIDDIR)/snapshot-$(VERSION)
+	@ssh $(RAIDSERVER) "cd $(RAIDDIR)/snapshot-$(VERSION); ../genindex.pl > index.html; cd $(RAIDDIR); ./genindex-global.pl > index.html"
 
-sync:
+raidsync:
 	-ssh $(RAIDSERVER) "rsync -avz $(RAIDDIR)/ $(FILESERVER):$(FILESERVERDIR) 2> /dev/null"
 	@echo done sync
 
 ifeq ($(shell uname), Darwin)
-www: raiddmg raidindex sync
+www: raiddmg raidindex raidsync
 else
-www: raidarch raidshared raidindex sync
+www: raidarch raidshared raidindex raidsync
 endif
 
 srcdist:
