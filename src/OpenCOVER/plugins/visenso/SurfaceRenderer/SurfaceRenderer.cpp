@@ -117,7 +117,7 @@ SurfaceRenderer::~SurfaceRenderer()
    if(m_Strip!= NULL){
          delete m_Strip;
      }
- /*  if(m_Sattel!= NULL){
+     if(m_Sattel!= NULL){
          delete m_Sattel;
      }
    if(m_Wendel!= NULL){
