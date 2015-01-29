@@ -94,6 +94,7 @@ Building COVISE
 ### UNIX
 
       cd covise
+      git submodule update --init --recursive # update submodules to latest required version
       source .covise.sh #set environment variables
       make #invoke cmake followed by make
 
