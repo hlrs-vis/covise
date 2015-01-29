@@ -295,6 +295,25 @@
       <Offset x="-1040" y="20" z="50" h="-90" p="-5" r="1" />
       <VrmlToPf value="FALSE" />
      </Marker>
+	 <Marker name="ObjectMarker8" >
+      <Pattern value="35" />
+      <Size value="151" />
+      <Offset x="-833" y="0" z="1600" h="0" p="0" r="0" />
+      <VrmlToPf value="FALSE" />
+     </Marker>
+	 <Marker name="ObjectMarker9" >
+      <Pattern value="36" />
+      <Size value="200" />
+      <Offset x="0" y="990" z="1542" h="90" p="0" r="0" />
+      <VrmlToPf value="FALSE" />
+     </Marker>
+	 <Marker name="ObjectMarker10" >
+      <Pattern value="33" />
+      <Size value="200" />
+      <Offset x="0" y="1650" z="1480" h="90" p="0" r="0" />
+      <VrmlToPf value="FALSE" />
+     </Marker>
+	 
 	 <Marker name="Tracer1" >
       <Pattern value="16" />
       <Size value="100" />
@@ -330,11 +349,10 @@
 
     </ARToolKit>
 	
-    <ALVAR value="OFF">
+    <ALVAR value="ON">
      <Capture value="on" />
-     <Device value="0" width="640" height="480" />
-     <!--VideoDevice value="0" width="1920" height="1080" />
-     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" /-->
+     <VideoDevice value="0" width="1920" height="1080" />
+     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
      <!--VideoDevice value="0" width="640" height="480" />
      <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" /-->
     </ALVAR>
@@ -392,7 +410,7 @@
 
     <!--Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" /-->
     <Window arch="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" />
-    <Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="0" bottom="0" name="0" decoration="false" />
+    <Window arch="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
    </WindowConfig>
 
    <ScreenConfig>
