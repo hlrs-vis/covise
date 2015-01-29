@@ -15,9 +15,6 @@
   #define VERSION "RRZK"
 #endif
 
-#if VERSION == "HLRS"
-  #define FAT_DEVEL
-#endif
 
 #if VERSION == "VISENSO"
 ; COVISE_DISTRO_TYPE defines which type of COVISE distribution is to be made
@@ -27,24 +24,13 @@
   #define DISTRO_TYPE GetEnv("COVISE_DISTRO_TYPE")
 #endif
 
-#define GPL_CLEAN GetEnv("COVISE_GPL_CLEAN")
-; GPL_CLEAN == YES means that no GPLicensed Software will be contained
-; GPL_CLEAN == NO means that GPLicensed Software will be contained and therefore
-;    COVISE can only be used internally
-#if GPL_CLEAN == ""
-  #define GPL_CLEAN "NO"
-#endif
+
 
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
 #if ARCHSUFFIX == ""
   #define ARCHSUFFIX GetEnv("ARCHSUFFIX")
 #endif
 
-; get some environment variables
-#define DEVELOPMENT GetEnv("COVISE_DEVELOPMENT")
-#if DEVELOPMENT == ""
-  #define DEVELOPMENT "YES"
-#endif
 
 #define COVISEDOCU GetEnv("COVISE_DIST_DOCU")
 #if COVISEDOCU == ""
@@ -59,48 +45,46 @@
 #define DATA GetEnv("COVISEDIR")+"\example-data"
 
 ; get environment variables for extern libs
-#define OPENSCENEGRAPH GetEnv("OPENSCENEGRAPH_HOME")
+#define OPENSCENEGRAPH GetEnv("EXTERNLIBS")+"\OpenSceneGraph"
 #define OSG_VER_NUM GetEnv("OSG_VER_NUM")
 #define OSG_SO_NUM GetEnv("OSG_SO_NUM")
 #define OSG_OT_SO_NUM GetEnv("OSG_OT_SO_NUM")
 
-#define OSG GetEnv("OSG_HOME")
-#define CG GetEnv("CG_HOME")
-#define QT GetEnv("QT_HOME")
-#define CUDA GetEnv("CUDA_HOME")
+#define CG GetEnv("EXTERNLIBS")+"\cg"
+#define QT GetEnv("EXTERNLIBS")+"\qt5"
+;#define CUDA GetEnv("CUDA_HOME")
 #define CUDAPATH GetEnv("CUDA_PATH")
-#define FFMPEG GetEnv("FFMPEG_HOME")
-#define PNG GetEnv("PNG_HOME")
+#define FFMPEG GetEnv("EXTERNLIBS")+"\ffmpeg"
+#define PNG GetEnv("EXTERNLIBS")+"\png"
 #define GEOS GetEnv("EXTERNLIBS")+"\geos"
-#define AUDIOFILE GetEnv("AUDIOFILE_HOME")
-#define OIV  GetEnv("OIV_HOME")
+#define AUDIOFILE GetEnv("EXTERNLIBS")+"\audiofile"
+#define OIV  GetEnv("EXTERNLIBS")+"\OpenInventor"
 ;#define PERFORMER GetEnv("PERFORMER_HOME")
-#define PTHREAD GetEnv("PTHREAD_HOME")
-#define GLUT GetEnv("GLUT_HOME")
-#define GLEW GetEnv("GLEW_HOME")
-#define GSOAP GetEnv("GSOAP_HOME")
-#define GDAL GetEnv("GDAL_HOME")
-#define FFTW GetEnv("FFTW3_HOME")
-#define ARTOOLKIT GetEnv("ARTOOLKIT_HOME")
-#define COIN3D  GetEnv("COIN3D_HOME")
-#define SOQT GetEnv("SOQT_HOME")
+#define PTHREAD GetEnv("EXTERNLIBS")+"\pthreads"
+#define GLUT GetEnv("EXTERNLIBS")+"\glut"
+#define GLEW GetEnv("EXTERNLIBS")+"\glew"
+#define GSOAP GetEnv("EXTERNLIBS")+"\gsoap"
+#define GDAL GetEnv("EXTERNLIBS")+"\gdal"
+#define FFTW GetEnv("EXTERNLIBS")+"\fftw"
+#define COIN3D  GetEnv("EXTERNLIBS")+"\coin3D"
+#define SOQT GetEnv("EXTERNLIBS")+"\coin3D"
 ;#define CAL3D GetEnv("CAL3D_HOME")
 #define VISSDK GetEnv("VISSDK_HOME")
 #define DSV GetEnv("DSV_HOME")
-#define VTK  GetEnv("VTK_HOME")
-#define ITK  GetEnv("ITK_HOME")
-#define TIFF  GetEnv("TIFF_HOME")
-#define JPEG  GetEnv("JPEG_HOME")
-#define ZLIB  GetEnv("ZLIB_HOME")
-#define BOOST  GetEnv("BOOST_HOME")
-#define XERCES  GetEnv("XERCESC_HOME")
-#define OPENSSL GetEnv("OPENSSL_HOME")
+#define VTK  GetEnv("EXTERNLIBS")+"\vtk"
+#define ITK  GetEnv("EXTERNLIBS")+"\itk"
+#define TIFF  GetEnv("EXTERNLIBS")+"\tiff"
+#define JPEG  GetEnv("EXTERNLIBS")+"\jpeg"
+#define ZLIB  GetEnv("EXTERNLIBS")+"\zlib"
+#define BOOST  GetEnv("EXTERNLIBS")+"\boost"
+#define XERCES  GetEnv("EXTERNLIBS")+"\xerces"
+#define OPENSSL GetEnv("EXTERNLIBS")+"\openssl"
 #if (ARCHSUFFIX == "vista") || (ARCHSUFFIX == "vistaopt")  || (ARCHSUFFIX == "zackelopt") || (ARCHSUFFIX == "zackel")
   #define INTEL GetEnv("F77_HOME")+"\ia32\"
 #else
   #define INTEL GetEnv("F77_HOME")+"\em64t\"
 #endif
-#define PYTHON GetEnv("PYTHONHOME")
+#define PYTHON GetEnv("EXTERNLIBS")+"\python"
 
 #define SIMDATA "R:\data\IHS"
 
@@ -113,18 +97,16 @@
 #define DIST COVISEDIR+"\DIST\DIST."+ARCHSUFFIX
 #define BIN  COVISEDIR+"\"+ARCHSUFFIX+"\bin"
 #define LIB  COVISEDIR+"\"+ARCHSUFFIX+"\lib"
-#define DBIN "{app}\covise\"+ARCHSUFFIX+"\bin"
-#define DLIB "{app}\covise\"+ARCHSUFFIX+"\lib"
+#define DBIN "{app}\"+ARCHSUFFIX+"\bin"
+#define DLIB "{app}\"+ARCHSUFFIX+"\lib"
 
-#define DSRC "{app}\covise\src"
-;#define DCOVER "{app}\covise\src\renderer\COVER"
-#define DOPENCOVER "{app}\covise\src\renderer\OpenCOVER"
-#define DEXT "{app}\covise\extern_libs"
-#define DEXAMPLE "{app}\covise\src\application\examples"
-#define DDAT "{app}\covise\example-data"
-#define COVISEDATA "{app}\covise\data"
-#define SIMDATAOUT "{app}\covise\simulation"
-#define ICONFILE GetEnv("COVISEDIR")+"\icons\covise_install.ico"
+#define DSRC "{app}\src"
+#define DOPENCOVER "{app}\src\OpenCOVER"
+#define DEXT "{app}\extern_libs"
+#define DEXAMPLE "{app}\src\application\examples"
+#define COVISEDATA "{app}\share\covise\data"
+#define SIMDATAOUT "{app}\simulation"
+#define ICONFILE GetEnv("COVISEDIR")+"\share\covise\icons\covise_install.ico"
 
 #define SYSTEMROOT GetEnv("SystemRoot")
 #if ARCHSUFFIX == "win32opt"
@@ -192,17 +174,6 @@ PrivilegesRequired=None
 ArchitecturesInstallIn64BitMode="x64"
 #endif
 
-#if GPL_CLEAN == "YES"
-  #define SUFFIX_GPL ""
-#else
-  #define SUFFIX_GPL "_internal_only"
-#endif
-
-#if DEVELOPMENT != "YES"
-  #define SUFFIX_DEV "_nodev"
-#else
-  #define SUFFIX_DEV ""
-#endif
 
 OutputDir={#DIST}
 
@@ -228,7 +199,7 @@ WizardImageFile={#COVISEDIR}\install\VISENSOinstall.bmp
 #else
   #define SUFFIX_VERSION "810"
 #endif
-OutputBaseFilename={#TIMEPREFIX}covise_{#SUFFIX_VERSION}{#LABEL}{#SUFFIX_DEV}{#SUFFIX_GPL}
+OutputBaseFilename={#TIMEPREFIX}covise_{#SUFFIX_VERSION}{#LABEL}
 
 ;installer-related
 #if (ARCHSUFFIX == "amdwin64") || (ARCHSUFFIX == "amdwin64opt") || (ARCHSUFFIX == "angus") || (ARCHSUFFIX == "angusopt")
@@ -255,24 +226,10 @@ AppName=COVISE
 AppVerName=COVISE 8.1.0
 #endif
 
-#if VERSION == "RRZK"
-AppPublisher=RRZK
-AppPublisherURL=http://vis.rrz.uni-koeln.de/covise
-AppSupportURL=http://vis.rrz.uni-koeln.de/covise
-AppUpdatesURL=http://vis.rrz.uni-koeln.de/covise
-#else
-#if VERSION == "VISENSO"
-AppPublisher=VISENSO
-AppPublisherURL=http://www.visenso.de
-AppSupportURL=http://www.visenso.de
-AppUpdatesURL=http://www.visenso.de
-#else
 AppPublisher=HLRS
 AppPublisherURL=http://www.hlrs.de
 AppSupportURL=http://www.hlrs.de
 AppUpdatesURL=http://www.hlrs.de
-#endif
-#endif
 ChangesAssociations=true
 ChangesEnvironment=true
 DefaultDirName={reg:HKLM\SOFTWARE\COVISE,Path|{pf}\COVISE}
@@ -284,158 +241,94 @@ ShowLanguageDialog=yes
 
 [Types]
 Name: standard; Description: COVISE Standard Installation
-Name: devel; Description: COVISE Developer Installation
 Name: custom; Description: Custom Installation; Flags: iscustom
 Name: retistry; Description: Registry only, don�t install any files
 [Components]
 
-Name: core; Description: COVISE core system; Types: standard devel custom
-Name: help; Description: COVISE help and tutorial system; Types: standard devel custom
-Name: example; Description: COVISE example modules, maps and data; Types: standard devel custom
-Name: opencover; Description: OpenSceneGraph based VR renderer; Types: standard devel custom
+Name: core; Description: COVISE core system; Types: standard custom
+Name: help; Description: COVISE help and tutorial system; Types: standard custom
+Name: example; Description: COVISE example modules, maps and data; Types: standard custom
+Name: opencover; Description: OpenSceneGraph based VR renderer; Types: standard custom
+Name: vrprepare4; Description: User interface for VR preparation; Types: standard custom
 #if VERSION != "VISENSO"
-Name: surfacecover; Description: MS Surface VR renderer; Types: standard devel custom
-Name: opensg; Description: OpenSG Renderer; Types: standard devel custom
-
-#if VERSION == "HLRS"
-;Name: visit; Description: VISiT modules; Types: standard devel custom
-;Name: cover; Description: COVISE VR Renderer; Types: standard devel custom
-#endif
-
+Name: surfacecover; Description: MS Surface VR renderer; Types: standard custom
 #else
 ; VISENSO-specific from here on
 
 #if DISTRO_TYPE == "CC"
-Name: cyberclassroom; Description: CyberClassroom; Types: standard devel custom; Flags: fixed
-Name: ccModuleDev; Description: CyberClassroom Module Development
+Name: cyberclassroom; Description: CyberClassroom; Types: standard custom; Flags: fixed
+Name: ccModuleDev; Description: CyberClassroom Module
 #endif
 #if DISTRO_TYPE == "RTT"
-Name: deltagen; Description: Extensions for RTT Deltagen; Types: standard devel custom; Flags: fixed
+Name: deltagen; Description: Extensions for RTT Deltagen; Types: standard custom; Flags: fixed
 #endif
 
-Name: vrprepare4; Description: User interface for VR preparation; Types: standard devel custom
 
-Name: runtimes; Description: Runtime files of external dependencies of COVISE; Types: standard devel custom
-;Name: runtimes/abaqus; Description: Runtime files of Abaqus; Types: standard devel custom
-Name: runtimes/audiofile; Description: Runtime files of audiofile; Types: standard devel custom
-;Name: runtimes/berkeleydb; Description: Runtime files of BerkeleyDB; Types: standard devel custom
-;Name: runtimes/cal3d; Description: Runtime files of Cal3D; Types: standard devel custom
-Name: runtimes/cg; Description: Runtime files of Cg; Types: standard devel custom
-;Name: runtimes/coin3d; Description: Runtime files of Coin3D; Types: standard devel custom
-Name: runtimes/collada; Description: Runtime files of Collada; Types: standard devel custom
-;Name: runtimes/cuda; Description: Runtime files of CUDA; Types: standard devel custom
-;Name: runtimes/cudpp; Description: Runtime files of cudpp; Types: standard devel custom
-;Name: runtimes/curl; Description: Runtime files of curl; Types: standard devel custom
-;Name: runtimes/dbus; Description: Runtime files of dbus; Types: standard devel custom
-;Name: runtimes/dsvl; Description: Runtime files of DSVL; Types: standard devel custom
-;Name: runtimes/dsyproject; Description: Runtime files of DSY Project; Types: standard devel custom
-;Name: runtimes/dxsdk; Description: Runtime files of DirectX; Types: standard devel custom
-;Name: runtimes/expat; Description: Runtime files of expat; Types: standard devel custom
-;Name: runtimes/faro; Description: Runtime files of Faro; Types: standard devel custom
-Name: runtimes/freeglut; Description: Runtime files of FreeGLUT; Types: standard devel custom
-Name: runtimes/freetype; Description: Runtime files of FreeType; Types: standard devel custom
-;Name: runtimes/gdal; Description: Runtime files of gdal; Types: standard devel custom
-;Name: runtimes/glut; Description: Runtime files of GLUT; Types: standard devel custom
-Name: runtimes/gsoap; Description: Runtime files of gsoap; Types: standard devel custom
-Name: runtimes/jpeg; Description: Runtime files of JPEG library; Types: standard devel custom
-;Name: runtimes/jt; Description: Runtime files of JT; Types: standard devel custom
-Name: runtimes/libxml2; Description: Runtime files of libXML2; Types: standard devel custom
-;Name: runtimes/molscript; Description: Runtime files of molscript; Types: standard devel custom
-;Name: runtimes/nvparse; Description: Runtime files of nvparse; Types: standard devel custom
-;Name: runtimes/nvsdk95; Description: Runtime files of NVSDK95; Types: standard devel custom
-;Name: runtimes/nvsgsdk; Description: Runtime files of NVSGSDK; Types: standard devel custom
-Name: runtimes/openal; Description: Runtime files of OpenAL; Types: standard devel custom
-Name: runtimes/opencv; Description: Runtime files of OpenCV; Types: standard devel custom
-;Name: runtimes/openinventor; Description: Runtime files of OpenInventor; Types: standard devel custom
-Name: runtimes/openscenegraph; Description: Runtime files of OpenSceneGraph; Types: standard devel custom
-;Name: runtimes/opensg; Description: Runtime files of OpenSG; Types: standard devel custom
-Name: runtimes/openssl; Description: Runtime files of OpenSSL; Types: standard devel custom
-;Name: runtimes/openthreads; Description: Runtime files of OpenThreads; Types: standard devel custom
-;Name: runtimes/osgephemeris; Description: Runtime files of OSG Ephemeris; Types: standard devel custom
-;Name: runtimes/osgnv; Description: Runtime files of OSG NV; Types: standard devel custom
-;Name: runtimes/performer; Description: Runtime files of Performer; Types: standard devel custom
-Name: runtimes/png; Description: Runtime files of PNG library; Types: standard devel custom
-Name: runtimes/geos; Description: Runtime files of GEOS library; Types: standard devel custom
-;Name: runtimes/producer; Description: Runtime files of Producer; Types: standard devel custom
-;Name: runtimes/ptgrey; Description: Runtime files of PtGrey; Types: standard devel custom
-Name: runtimes/pthreads; Description: Runtime files of PThreads library; Types: standard devel custom
-Name: runtimes/python; Description: Runtime files of Python; Types: standard devel custom
-Name: runtimes/qt; Description: Runtime files of Qt; Types: standard devel custom
-Name: runtimes/sed; Description: Runtime files of sed; Types: standard devel custom
-Name: runtimes/gdcm; Description: Runtime files of gdcm; Types: standard devel custom
-;Name: runtimes/spatial; Description: Runtime files of Spatial; Types: standard devel custom
-Name: runtimes/swig; Description: Runtime files of SWIG; Types: standard devel custom
-Name: runtimes/tcl; Description: Runtime files of Tcl/Tk; Types: standard devel custom
-Name: runtimes/tiff; Description: Runtime files of TIFF library; Types: standard devel custom
-;Name: runtimes/trackdAPI; Description: Runtime files of trackd API; Types: standard devel custom
-Name: runtimes/unixutils; Description: Runtime files of UnixUtils; Types: standard devel custom
-;Name: runtimes/wget; Description: Runtime files of wget; Types: standard devel custom
-Name: runtimes/xerces; Description: Runtime files of Xerces library; Types: standard devel custom
-Name: runtimes/zlib; Description: Runtime files of zlib; Types: standard devel custom
-Name: runtimes/abaqus; Description: Runtime files of abaqus; Types: standard devel custom
+Name: runtimes; Description: Runtime files of external dependencies of COVISE; Types: standard custom
+;Name: runtimes/abaqus; Description: Runtime files of Abaqus; Types: standard custom
+Name: runtimes/audiofile; Description: Runtime files of audiofile; Types: standard custom
+;Name: runtimes/berkeleydb; Description: Runtime files of BerkeleyDB; Types: standard custom
+;Name: runtimes/cal3d; Description: Runtime files of Cal3D; Types: standard custom
+Name: runtimes/cg; Description: Runtime files of Cg; Types: standard custom
+;Name: runtimes/coin3d; Description: Runtime files of Coin3D; Types: standard custom
+Name: runtimes/collada; Description: Runtime files of Collada; Types: standard custom
+Name: runtimes/freeglut; Description: Runtime files of FreeGLUT; Types: standard custom
+Name: runtimes/freetype; Description: Runtime files of FreeType; Types: standard custom
+;Name: runtimes/gdal; Description: Runtime files of gdal; Types: standard custom
+;Name: runtimes/glut; Description: Runtime files of GLUT; Types: standard custom
+Name: runtimes/gsoap; Description: Runtime files of gsoap; Types: standard custom
+Name: runtimes/jpeg; Description: Runtime files of JPEG library; Types: standard custom
+;Name: runtimes/jt; Description: Runtime files of JT; Types: standard custom
+Name: runtimes/libxml2; Description: Runtime files of libXML2; Types: standard custom
+;Name: runtimes/molscript; Description: Runtime files of molscript; Types: standard custom
+;Name: runtimes/nvparse; Description: Runtime files of nvparse; Types: standard custom
+;Name: runtimes/nvsdk95; Description: Runtime files of NVSDK95; Types: standard custom
+;Name: runtimes/nvsgsdk; Description: Runtime files of NVSGSDK; Types: standard custom
+Name: runtimes/openal; Description: Runtime files of OpenAL; Types: standard custom
+Name: runtimes/opencv; Description: Runtime files of OpenCV; Types: standard custom
+;Name: runtimes/openinventor; Description: Runtime files of OpenInventor; Types: standard custom
+Name: runtimes/openscenegraph; Description: Runtime files of OpenSceneGraph; Types: standard custom
+Name: runtimes/openssl; Description: Runtime files of OpenSSL; Types: standard custom
+;Name: runtimes/openthreads; Description: Runtime files of OpenThreads; Types: standard custom
+;Name: runtimes/osgephemeris; Description: Runtime files of OSG Ephemeris; Types: standard custom
+;Name: runtimes/osgnv; Description: Runtime files of OSG NV; Types: standard custom
+;Name: runtimes/performer; Description: Runtime files of Performer; Types: standard custom
+Name: runtimes/png; Description: Runtime files of PNG library; Types: standard custom
+Name: runtimes/geos; Description: Runtime files of GEOS library; Types: standard custom
+;Name: runtimes/producer; Description: Runtime files of Producer; Types: standard custom
+;Name: runtimes/ptgrey; Description: Runtime files of PtGrey; Types: standard custom
+Name: runtimes/pthreads; Description: Runtime files of PThreads library; Types: standard custom
+Name: runtimes/python; Description: Runtime files of Python; Types: standard custom
+Name: runtimes/qt; Description: Runtime files of Qt; Types: standard custom
+Name: runtimes/sed; Description: Runtime files of sed; Types: standard custom
+Name: runtimes/gdcm; Description: Runtime files of gdcm; Types: standard custom
+;Name: runtimes/spatial; Description: Runtime files of Spatial; Types: standard custom
+Name: runtimes/swig; Description: Runtime files of SWIG; Types: standard custom
+Name: runtimes/tcl; Description: Runtime files of Tcl/Tk; Types: standard custom
+Name: runtimes/tiff; Description: Runtime files of TIFF library; Types: standard custom
+;Name: runtimes/trackdAPI; Description: Runtime files of trackd API; Types: standard custom
+Name: runtimes/unixutils; Description: Runtime files of UnixUtils; Types: standard custom
+;Name: runtimes/wget; Description: Runtime files of wget; Types: standard custom
+Name: runtimes/xerces; Description: Runtime files of Xerces library; Types: standard custom
+Name: runtimes/zlib; Description: Runtime files of zlib; Types: standard custom
+Name: runtimes/abaqus; Description: Runtime files of abaqus; Types: standard custom
 
 ;end of VISENSO-specific
 #endif
 
 #if SIMULATION == "YES"
-;Name: application/simulation; Description: "COVISE Simulation project "; Types: standard devel custom
+;Name: application/simulation; Description: "COVISE Simulation project "; Types: standard custom
 #endif
 
-#if DEVELOPMENT == "YES"
-Name: develop; Description: COVISE development environment; Types: devel
-
-Name: externlibs; Description: COVISE external libraries (development only)
-Name: externlibs/OpenSceneGraph; Description: "OpenSceneGraph for Windows "; Types: devel
-Name: externlibs/ARToolKit; Description: "ARToolKit for Windows "; Types: devel
-Name: externlibs/PtGrey; Description: PtGrey development for Windows; Types: devel
-Name: externlibs/OpenSG; Description: "OpenSG for Windows "; Types: devel
-#ifdef FAT_DEVEL
-;Name: externlibs/cal3d; Description: "Cal3d character animation"; Types: devel
-Name: externlibs/audiofile; Description: "Audiofile libraries "; Types: devel
-Name: externlibs/Cg; Description: Cg development for Windows; Types: devel
-Name: externlibs/tiff; Description: Tiff development for Windows; Types: devel
-Name: externlibs/zlib; Description: zlib development for Windows; Types: devel
-Name: externlibs/tcl; Description: TCL development for Windows; Types: devel
-Name: externlibs/pthreads; Description: pthreads development for Windows; Types: devel
-Name: externlibs/png; Description: png development for Windows; Types: devel
-Name: externlibs/jpeg; Description: jpeg development for Windows; Types: devel
-Name: externlibs/glew; Description: glew development for Windows; Types: devel
-Name: externlibs/glut; Description: glut development for Windows; Types: devel
-Name: externlibs/giflib; Description: giflib development for Windows; Types: devel
-Name: externlibs/freetype; Description: freetype development for Windows; Types: devel
-;Name: externlibs/DSVL; Description: DSVL development for Windows; Types: devel
-Name: externlibs/Xerces; Description: Xerces development for Windows; Types: devel
-Name: externlibs/OpenSSL; Description: OpenSSL development for Windows; Types: devel
-Name: externlibs/GDCM; Description: GDCM(dicom) development for Windows; Types: devel
-#endif
-
-#if GPL_CLEAN == "NO"
-Name: externlibs/Coin3D; Description: "Coin3D for Windows (development only) "; Types: devel
-#endif
-
-#if VERSION ==  "HLRS"
-Name: externlibs/qt; Description: "Qt 4/5 libraries "; Types: devel
-#ifdef FAT_DEVEL
-;Name: externlibs/OpenInventor; Description: OpenInventor for Windows; Types: devel
-#endif
-#endif
-#endif
 
 [Files]
 
-;Source: {#COVISEDIR}\README.windows; DestDir: {app}\covise; DestName: README.txt; Components: core
-Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\covise\config; Components: core
-;Source: {#COVISEDIR}\config\config.license.xml; DestDir: {app}\covise\config; Components: core
-;Source: {#COVISEDIR}\config\config-license.xml; DestDir: {app}\covise\config; Components: core
-Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\covise\config; Components: core
-Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\covise\config\examples; Excludes: config.xml config-*.xml; Components: core
+;Source: {#COVISEDIR}\README.windows; DestDir: {app}; DestName: README.txt; Components: core
+Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
-Source: {#COVISEDIR}\icons\*; DestDir: {app}\covise\icons; Excludes: .svn\*; Flags: recursesubdirs; Components: core
-Source: {#COVISEDIR}\bitmaps\*; DestDir: {app}\covise\bitmaps; Excludes: .svn\*; Flags: recursesubdirs; Components: core
-Source: {#COVISEDIR}\fonts\*; DestDir: {app}\covise\fonts; Excludes: .svn\*; Flags: recursesubdirs; Components: core
-Source: {#COVISEDIR}\materials\*; DestDir: {app}\covise\materials; Excludes: .svn\*; Flags: recursesubdirs; Components: core
-Source: {#COVISEDIR}\CgPrograms\*; DestDir: {app}\covise\CgPrograms; Excludes: .svn\*; Flags: recursesubdirs; Components: core
-Source: {#COVISEDIR}\rgb.txt; DestDir: {app}\covise; Components: core
+Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
 #if VERSION ==  "HLRS"
 ;Source: {#EXTERNLIBS}\sed\*.exe; DestDir: {#DBIN}; Components: core
 ;Source: {#EXTERNLIBS}\sed\*.dll; DestDir: {#DBIN}; Components: core
@@ -443,42 +336,42 @@ Source: {#COVISEDIR}\rgb.txt; DestDir: {app}\covise; Components: core
 #if VERSION == "VISENSO"
 ; note: the common.local.bat to be installed is not to be the developer�s version but a distinct one
 ;    copied to {#COVISEDIR}\install\ in advance of calling setup compilation!
-Source: {#COVISEDIR}\install\common.local.bat; DestDir: {app}\covise; Flags: skipifsourcedoesntexist; Components: core
-Source: {#COVISEDIR}\install\common.VISENSO.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\get8dot3path.vbs; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runOpenCOVER.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runCOVISE.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runVRPrepare4.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runCOVISErdaemon.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runCoCaseEditor.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runTecplot2Covise.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\runCfx2Covise.bat; DestDir: {app}\covise; Components: core
+Source: {#COVISEDIR}\install\common.local.bat; DestDir: {app}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#COVISEDIR}\install\common.VISENSO.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\get8dot3path.vbs; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runOpenCOVER.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runCOVISE.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runVRPrepare4.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runCOVISErdaemon.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runCoCaseEditor.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runTecplot2Covise.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\runCfx2Covise.bat; DestDir: {app}; Components: core
 
 ; common Python scripting interface of COVISE
 ; note: of all python scripts of VISENSO only the binaries are to be shipped (*.pyc or *.pyd) but not the scripts itself (*.py)
-Source: {#COVISEDIR}\runCoviseScriptIF.bat; DestDir: {app}\covise; Components: vrprepare4
-Source: {#COVISEDIR}\runVRPrepare4.bat; DestDir: {app}\covise; Components: vrprepare4
-Source: {#COVISEDIR}\runTecplot2Covise.bat; DestDir: {app}\covise; Components: vrprepare4
-Source: {#COVISEDIR}\runCoCaseEditor.bat; DestDir: {app}\covise; Components: vrprepare4
-Source: {#COVISEDIR}\runCfx2Covise.bat; DestDir: {app}\covise; Components: vrprepare4
-Source: {#COVISEDIR}\Python\*.pyc; DestDir: {app}\covise\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
-Source: {#COVISEDIR}\Python\*.py; DestDir: {app}\covise\Python; Components: vrprepare4
-Source: {#COVISEDIR}\Python\scriptInterface.bat; DestDir: {app}\covise\Python; Components: vrprepare4
-Source: {#COVISEDIR}\Python\coPyModules.py; DestDir: {app}\covise\Python; Components: vrprepare4
-Source: {#LIB}\*.pyc; DestDir: {app}\covise\Python; Flags: recursesubdirs; Components: vrprepare4
-Source: {#LIB}\*.pyd; DestDir: {app}\covise\Python; Flags: recursesubdirs; Components: vrprepare4
-Source: {#LIB}\*.py; DestDir: {app}\covise\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
+Source: {#COVISEDIR}\runCoviseScriptIF.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\runVRPrepare4.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\runTecplot2Covise.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\runCoCaseEditor.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\runCfx2Covise.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\Python\*.pyc; DestDir: {app}\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
+Source: {#COVISEDIR}\Python\*.py; DestDir: {app}\Python; Components: vrprepare4
+Source: {#COVISEDIR}\Python\scriptInterface.bat; DestDir: {app}\Python; Components: vrprepare4
+Source: {#COVISEDIR}\Python\coPyModules.py; DestDir: {app}\Python; Components: vrprepare4
+Source: {#LIB}\*.pyc; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
+Source: {#LIB}\*.pyd; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
+Source: {#LIB}\*.py; DestDir: {app}\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
 
 ; files related to vr-prepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\*.pyc; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-;Source: {#COVISEDIR}\Python\bin\vr-prepare\*.py; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\vr-prepare.py; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\InternalConfig.py; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialogManager.py; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialog.py; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\CocaseEditor.py; DestDir: {app}\covise\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\converters\tecplot2covise.py; DestDir: {app}\covise\Python\bin\vr-prepare\converters; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\converters\cfx2covise.py; DestDir: {app}\covise\Python\bin\vr-prepare\converters; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\*.pyc; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+;Source: {#COVISEDIR}\Python\bin\vr-prepare\*.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\vr-prepare.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\InternalConfig.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialogManager.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialog.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\CocaseEditor.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\converters\tecplot2covise.py; DestDir: {app}\Python\bin\vr-prepare\converters; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\converters\cfx2covise.py; DestDir: {app}\Python\bin\vr-prepare\converters; Flags: recursesubdirs; Components: vrprepare4
 
 #if DISTRO_TYPE == "CC"
 ; files related to CyberClassroom
@@ -547,10 +440,36 @@ Source: {#BIN}\Tools\*.exe; DestDir: {#DBIN}\Tools; Flags: recursesubdirs; Compo
 Source: {#BIN}\Tracer\*.exe; DestDir: {#DBIN}\Tracer; Flags: recursesubdirs; Components: core
 Source: {#BIN}\Obsolete\*.exe; DestDir: {#DBIN}\Obsolete; Flags: recursesubdirs skipifsourcedoesntexist; Components: core
 
-#if GPL_CLEAN == "NO"
 Source: {#BIN}\Renderer\QtRenderer.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs; Components: core
-Source: {#COIN3D}\bin\*.dll; DestDir: {#DLIB}; Components: core
-#endif
+Source: {#EXTERNLIBS}\coin3d\bin\*.dll; DestDir: {#DLIB}; Components: core
+
+
+; common Python scripting interface of COVISE
+; note: of all python scripts of VISENSO only the binaries are to be shipped (*.pyc or *.pyd) but not the scripts itself (*.py)
+Source: {#COVISEDIR}\bin\runCoviseScriptIF.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\bin\runVRPrepare4.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\bin\runTecplot2Covise.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\bin\runCoCaseEditor.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\bin\runCfx2Covise.bat; DestDir: {app}; Components: vrprepare4
+Source: {#COVISEDIR}\Python\*.pyc; DestDir: {app}\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
+Source: {#COVISEDIR}\Python\*.py; DestDir: {app}\Python; Components: vrprepare4
+Source: {#COVISEDIR}\Python\scriptInterface.bat; DestDir: {app}\Python; Components: vrprepare4
+Source: {#COVISEDIR}\Python\coPyModules.py; DestDir: {app}\Python; Components: vrprepare4
+Source: {#LIB}\*.pyc; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
+Source: {#LIB}\*.pyd; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
+Source: {#LIB}\*.py; DestDir: {app}\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
+
+; files related to vr-prepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\*.pyc; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+;Source: {#COVISEDIR}\Python\bin\vr-prepare\*.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\vr-prepare.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\InternalConfig.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialogManager.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialog.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\CocaseEditor.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\converters\tecplot2covise.py; DestDir: {app}\Python\bin\vr-prepare\converters; Flags: recursesubdirs; Components: vrprepare4
+Source: {#COVISEDIR}\Python\bin\vr-prepare\converters\cfx2covise.py; DestDir: {app}\Python\bin\vr-prepare\converters; Flags: recursesubdirs; Components: vrprepare4
+
 
 #if VERSION == "HLRS"
 Source: {#BIN}\UnderDev\*.exe; DestDir: {#DBIN}\UnderDev; Flags: recursesubdirs; Components: core
@@ -559,9 +478,9 @@ Source: {#BIN}\VISiT\*.exe; DestDir: {#DBIN}\VISiT; Flags: recursesubdirs; Compo
 Source: {#BIN}\Simulation\*.exe; DestDir: {#DBIN}\Simulation; Flags: recursesubdirs skipifsourcedoesntexist; Components: core
 #endif
 
-Source: {#COVISEDIR}\common.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\compile.bat; DestDir: {app}\covise; Components: core
-Source: {#COVISEDIR}\bin\*.bat; DestDir: {app}\covise\bin; Components: core
+Source: {#COVISEDIR}\scripts\windowsEnv.bat; DestDir: {app}; Components: core
+Source: {#COVISEDIR}\bin\*.bat; DestDir: {app}\bin; Components: core
+Source: {#COVISEDIR}\scripts\*; DestDir: {app}\scripts; Components: core
 
 #if VERSION != "VISENSO"
 ; we are using Qt version >= 4.5.0 LGPL
@@ -576,7 +495,7 @@ Source: {#CG}\bin\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#CUDAPATH}\bin\cudart*.dll; DestDir: {#DLIB}; Components: core
 Source: {#GLEW}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#GLEW}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#CUDA}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#CUDAPATH}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#FFMPEG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#BOOST}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 #if VERSION == "HLRS"
@@ -590,14 +509,12 @@ Source: {#XERCES}\lib\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#OPENSSL}\bin\*.dll; DestDir: {#DLIB}; Components: core
 #endif
 
-Source: {#COVISEDOCU}\doc\html\*; DestDir: {app}\covise\doc\html; Excludes: .svn\*,*.tex,*.aux,*.log,*.pl,WARNINGS; Flags: recursesubdirs; Components: help
-Source: {#COVISEDOCU}\doc\pdf\*; DestDir: {app}\covise\doc\pdf; Excludes: .svn\*; Flags: skipifsourcedoesntexist; Components: help
-Source: {#COVISEDIR}\net\tutorial\*; DestDir: {app}\covise\net\tutorial; Excludes: .svn\*; Flags: recursesubdirs; Components: help
-Source: {#DATA}\tutorial\*; DestDir: {#DDAT}\tutorial; Excludes: .svn\*; Flags: recursesubdirs; Components: help
+Source: {#COVISEDOCU}\doc\html\*; DestDir: {app}\doc\html; Excludes: .svn\*,*.tex,*.aux,*.log,*.pl,WARNINGS; Flags: recursesubdirs; Components: help
+Source: {#COVISEDOCU}\doc\pdf\*; DestDir: {app}\doc\pdf; Excludes: .svn\*; Flags: skipifsourcedoesntexist; Components: help
+Source: {#COVISEDIR}\net\tutorial\*; DestDir: {app}\net\tutorial; Excludes: .svn\*; Flags: recursesubdirs; Components: help
 Source: c:\data\cal3d\*; DestDir: {#COVISEDATA}\; Excludes: .svn\*; Flags: recursesubdirs; Components: help
 
-Source: {#COVISEDIR}\net\examples\*; DestDir: {app}\covise\net\examples; Excludes: .svn\*; Flags: recursesubdirs; Components: example
-Source: {#DATA}\*; DestDir: {#DDAT}; Excludes: .svn\*,tutorial; Flags: recursesubdirs; Components: example
+Source: {#COVISEDIR}\net\examples\*; DestDir: {app}\net\examples; Excludes: .svn\*; Flags: recursesubdirs; Components: example
 
 Source: {#BIN}\Renderer\OpenCOVER.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs; Components: opencover
 #if VERSION != "VISENSO"
@@ -653,24 +570,7 @@ Source: {#EXTERNLIBS}\PCAN-Light\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#OIV}\lib\*.dll; DestDir: {#DLIB}; Components: opencover
 #endif
 
-#if VERSION != "VISENSO"
-Source: {#BIN}\Renderer\OpenSG.exe; DestDir: {#DBIN}\Renderer; Flags: skipifsourcedoesntexist; Components: opensg
-Source: {#EXTERNLIBS}\tiff\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opensg
-Source: {#OSG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opensg
-Source: {#LIB}\sgplugins\*.dll; DestDir: {#DLIB}\sgplugins\plugins; Flags: skipifsourcedoesntexist recursesubdirs; Components: opensg
-Source: {#LIB}\sgplugins\*.lib; DestDir: {#DLIB}\sgplugins\plugins; Flags: skipifsourcedoesntexist recursesubdirs; Components: opensg
-#endif
 
-#if VERSION == "HLRS"
-;Source: {#BIN}\Renderer\COVER.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs; Components: cover
-;Source: {#LIB}\cover\plugins\*.dll; DestDir: {#DLIB}\cover\plugins; Flags: recursesubdirs; Components: cover
-;Source: {#LIB}\cover\plugins\*.lib; DestDir: {#DLIB}\cover\plugins; Flags: recursesubdirs; Components: cover
-
-;Source: {#EXTERNLIBS}\DSV\bin\*.ax; DestDir: {#DLIB}; Components: cover
-;Source: {#EXTERNLIBS}\DSV\bin\*.bat; DestDir: {#DLIB}; Components: cover
-;Source: {#PERFORMER}\lib\*.dll; DestDir: {#DLIB}; Components: cover
-;Source: {#PERFORMER}\license.dat; DestDir: {#DEXT}\Performer; Components: cover
-#endif
 
 #if SIMULATION == "YES"
 Source: {#BIN}\ViSIT\*.exe; DestDir: {#DBIN}\ViSIT; Components: application/simulation
@@ -691,143 +591,6 @@ Source: {#SIMDATA}\example_data\my_dummy.bc; DestDir: {#SIMDATAOUT}\example_data
 #endif
 
 
-#if DEVELOPMENT == "YES"
-Source: {#BIN}\Examples\*.exe; DestDir: {#DBIN}\Examples; Flags: recursesubdirs; Components: develop
-Source: {#COVISEDOCU}\doc\doxygen\*; DestDir: {app}\covise\doc\doxygen; Excludes: .svn\*,*.tex,*.aux,*.log; Flags: recursesubdirs skipifsourcedoesntexist; Components: develop
-
-Source: {#COVISEDIR}\cmake\*; DestDir: {app}\covise\cmake; Components: develop; Flags: recursesubdirs
-; using Qt version >= 4.5.0 LGPL
-Source: {#QT}\bin\qmake.exe; DestDir: {#DEXT}\qt\bin; Components: develop
-Source: {#QT}\lib\*; DestDir: {#DEXT}\qt\lib; Components: develop; Flags: recursesubdirs
-Source: {#EXTERNLIBS}\glew\lib\*; DestDir: {#DEXT}\glew\lib; Components: develop; Flags: recursesubdirs
-Source: {#EXTERNLIBS}\glew\include\*; DestDir: {#DEXT}\glew\include; Components: develop; Flags: recursesubdirs
-Source: {#QT}\mkspecs\*; DestDir: {#DEXT}\qt\mkspecs; Components: externlibs; Flags: recursesubdirs
-
-Source: {#src}\sys\ScriptingInterface\*.h; DestDir: {#DSRC}\sys\ScriptingInterface; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\net\*.h; DestDir: {#DSRC}\kernel\net; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\api\*.h; DestDir: {#DSRC}\kernel\api; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\alg\*.h; DestDir: {#DSRC}\kernel\alg; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\appl\*.h; DestDir: {#DSRC}\kernel\appl; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\covise\*.h; DestDir: {#DSRC}\kernel\covise; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\config\*.h; DestDir: {#DSRC}\kernel\config; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\config\coConfigValue.inl; DestDir: {#DSRC}\kernel\config; Components: develop
-Source: {#src}\kernel\tui\*.h; DestDir: {#DSRC}\kernel\tui; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\do\*.h; DestDir: {#DSRC}\kernel\do; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\shm\*.h; DestDir: {#DSRC}\kernel\shm; Flags: recursesubdirs; Components: develop
-Source: {#src}\3rdparty\deskvox\virvo\virvo\*.h; DestDir: {#DSRC}\3rdparty\deskvox\virvo\virvo; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\dmgr\*.h; DestDir: {#DSRC}\kernel\dmgr; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\file\*.h; DestDir: {#DSRC}\kernel\file; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\img\*.h; DestDir: {#DSRC}\kernel\img; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\reader\*.h; DestDir: {#DSRC}\kernel\reader; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\star\*.h; DestDir: {#DSRC}\kernel\star; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\tui\*.h; DestDir: {#DSRC}\kernel\tui; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\OpenVRUI\*.h; DestDir: {#DSRC}\renderer\OpenCOVER\OpenVRUI; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\OpenVRUI\sginterface\*.h; DestDir: {#DSRC}\renderer\OpenCOVER\OpenVRUI\sginterface; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\OpenVRUI\osg\*.h; DestDir: {#DSRC}\renderer\OpenCOVER\OpenVRUI\osg; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\OpenVRUI\opensg\*.h; DestDir: {#DSRC}\renderer\OpenCOVER\OpenVRUI\opensg; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\util\*.h; DestDir: {#DSRC}\kernel\util; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\sysdep\*.h; DestDir: {#DSRC}\kernel\sysdep; Flags: recursesubdirs; Components: develop
-Source: {#src}\kernel\vrbclient\*.h; DestDir: {#DSRC}\kernel\vrbclient; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\vrml97\*.h; DestDir: {#DSRC}\renderer\OpenCOVER\vrml97; Flags: recursesubdirs; Components: develop
-
-Source: {#src}\renderer\OpenCOVER\device\*.h; DestDir: {#DOPENCOVER}\device; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\kernel\*.h; DestDir: {#DOPENCOVER}\kernel; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\PluginUtil\*.h; DestDir: {#DOPENCOVER}\PluginUtil; Flags: recursesubdirs; Components: develop
-Source: {#src}\template\*; DestDir: {#DSRC}\template; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\examples\Cube\*.cpp; DestDir: {#DOPENCOVER}\plugins\Cube; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\examples\Cube\*.h; DestDir: {#DOPENCOVER}\plugins\Cube; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\obsolete\TextureSample\*.cpp; DestDir: {#DOPENCOVER}\plugins\TextureSample; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\obsolete\TextureSample\*.h; DestDir: {#DOPENCOVER}\plugins\TextureSample; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\general\TangiblePosition\*.cpp; DestDir: {#DOPENCOVER}\plugins\TangiblePosition; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\general\TangiblePosition\*.h; DestDir: {#DOPENCOVER}\plugins\TangiblePosition; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\gpl\WiiMote\*.cpp; DestDir: {#DOPENCOVER}\plugins\WiiMote; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\gpl\WiiMote\*.h; DestDir: {#DOPENCOVER}\plugins\WiiMote; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\gpl\ARToolKit\*.cpp; DestDir: {#DOPENCOVER}\plugins\ARToolKit; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\gpl\ARToolKit\*.h; DestDir: {#DOPENCOVER}\plugins\ARToolKit; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\hlrs\SteeringWheel\*.cpp; DestDir: {#DOPENCOVER}\plugins\hlrs\SteeringWheel; Flags: recursesubdirs; Components: develop
-Source: {#src}\renderer\OpenCOVER\plugins\hlrs\SteeringWheel\*.h; DestDir: {#DOPENCOVER}\plugins\hlrs\SteeringWheel; Flags: recursesubdirs; Components: develop
-
-Source: {#EXAMPLE}\Cube\*.h; DestDir: {#DEXAMPLE}\Cube; Components: develop
-Source: {#EXAMPLE}\Cube\*.cpp; DestDir: {#DEXAMPLE}\Cube; Components: develop
-
-Source: {#EXAMPLE}\Hello\*.h; DestDir: {#DEXAMPLE}\Hello; Components: develop
-Source: {#EXAMPLE}\Hello\*.cpp; DestDir: {#DEXAMPLE}\Hello; Components: develop
-
-Source: {#EXAMPLE}\ParamTest\*.h; DestDir: {#DEXAMPLE}\ParamTest; Components: develop
-Source: {#EXAMPLE}\ParamTest\*.cpp; DestDir: {#DEXAMPLE}\ParamTest; Components: develop
-
-Source: {#EXAMPLE}\PolygonSet\*.h; DestDir: {#DEXAMPLE}\PolygonSet; Components: develop
-Source: {#EXAMPLE}\PolygonSet\*.cpp; DestDir: {#DEXAMPLE}\PolygonSet; Components: develop
-
-Source: {#EXAMPLE}\Enlarge\*.h; DestDir: {#DEXAMPLE}\Enlarge; Components: develop
-Source: {#EXAMPLE}\Enlarge\*.cpp; DestDir: {#DEXAMPLE}\Enlarge; Components: develop
-
-Source: {#EXAMPLE}\ReadObjSimple\*.h; DestDir: {#DEXAMPLE}\ReadObjSimple; Components: develop
-Source: {#EXAMPLE}\ReadObjSimple\*.cpp; DestDir: {#DEXAMPLE}\ReadObjSimple; Components: develop
-
-Source: {#EXAMPLE}\TestSoc\*.h; DestDir: {#DEXAMPLE}\TestSoc; Components: develop
-Source: {#EXAMPLE}\TestSoc\*.cpp; DestDir: {#DEXAMPLE}\TestSoc; Components: develop
-
-Source: {#EXAMPLE}\UpdateChoice\*.h; DestDir: {#DEXAMPLE}\UpdateChoice; Components: develop
-Source: {#EXAMPLE}\UpdateChoice\*.cpp; DestDir: {#DEXAMPLE}\UpdateChoice; Components: develop
-
-Source: {#EXAMPLE}\TestUIF\*.h; DestDir: {#DEXAMPLE}\TestUIF; Components: develop
-Source: {#EXAMPLE}\TestUIF\*.cpp; DestDir: {#DEXAMPLE}\TestUIF; Components: develop
-
-#ifdef FAT_DEVEL
-Source: {#PTHREAD}\*; DestDir: {#DEXT}\pthreads; Flags: recursesubdirs; Components: externlibs/pthreads
-Source: {#PNG}\*; DestDir: {#DEXT}\png; Flags: recursesubdirs; Components: externlibs/png
-Source: {#AUDIOFILE}\*; DestDir: {#DEXT}\audiofile; Flags: recursesubdirs; Components: externlibs/audiofile
-Source: {#CG}\lib\*; DestDir: {#DEXT}\Cg\lib; Flags: recursesubdirs; Components: externlibs/Cg
-Source: {#CG}\include\*; DestDir: {#DEXT}\Cg\include\; Flags: recursesubdirs; Components: externlibs/Cg
-#endif
-#if VERSION == "HLRS"
-;Source: {#CAL3D}\lib\*; DestDir: {#DEXT}\cal3d\lib; Flags: recursesubdirs; Components: externlibs/cal3d
-;Source: {#CAL3D}\include\*; DestDir: {#DEXT}\cal3d\include; Flags: recursesubdirs; Components: externlibs/cal3d
-#endif
-Source: {#OPENSCENEGRAPH}\lib\*.lib; DestDir: {#DEXT}\OpenSceneGraph\lib; Flags: recursesubdirs; Components: externlibs/OpenSceneGraph
-Source: {#OPENSCENEGRAPH}\include\*; DestDir: {#DEXT}\OpenSceneGraph\include; Flags: recursesubdirs; Components: externlibs/OpenSceneGraph
-;Source: {#OSG}\lib\*.lib; DestDir: {#DEXT}\OpenSG\lib; Flags: recursesubdirs; Components: externlibs/OpenSG
-;Source: {#OSG}\include\*; DestDir: {#DEXT}\OpenSG\include; Flags: recursesubdirs; Components: externlibs/OpenSG
-;Source: {#EXTERNLIBS}\DSVL\*; DestDir: {#DEXT}\DSVL; Flags: recursesubdirs; Components: externlibs/ARToolKit
-; ALVAR is way betterSource: {#ARTOOLKIT}\*; DestDir: {#DEXT}\ARToolKit; Flags: recursesubdirs; Components: externlibs/ARToolKit
-#ifdef FAT_DEVEL
-Source: {#EXTERNLIBS}\zlib\*; DestDir: {#DEXT}\zlib; Flags: recursesubdirs; Components: externlibs/zlib
-Source: {#EXTERNLIBS}\jpeg\*; DestDir: {#DEXT}\jpeg; Flags: recursesubdirs; Components: externlibs/jpeg
-Source: {#EXTERNLIBS}\giflib\*; DestDir: {#DEXT}\giflib; Flags: recursesubdirs; Components: externlibs/giflib
-Source: {#EXTERNLIBS}\tiff\*; DestDir: {#DEXT}\tiff; Flags: recursesubdirs; Components: externlibs/tiff
-Source: {#EXTERNLIBS}\freetype\*; DestDir: {#DEXT}\zlib; Flags: recursesubdirs; Components: externlibs/freetype
-Source: {#EXTERNLIBS}\glew\*; DestDir: {#DEXT}\glew; Flags: recursesubdirs; Components: externlibs/glew
-Source: {#EXTERNLIBS}\glut\*; DestDir: {#DEXT}\glut; Flags: recursesubdirs; Components: externlibs/glut
-Source: {#EXTERNLIBS}\Xerces\*; DestDir: {#DEXT}\Xerces; Flags: recursesubdirs; Components: externlibs/Xerces
-Source: {#EXTERNLIBS}\OpenSSL\*; DestDir: {#DEXT}\OpenSSL; Flags: recursesubdirs; Components: externlibs/OpenSSL
-#endif
-
-#if GPL_CLEAN == "NO"
-Source: {#COIN3D}\include\*; DestDir: {#DEXT}\Coin3D\include; Flags: recursesubdirs; Components: externlibs/Coin3D
-#endif
-
-#if VERSION == "HLRS"
-Source: {#QT}\include\*; DestDir: {#DEXT}\qt\include; Flags: recursesubdirs; Components: externlibs/qt
-Source: {#QT}\plugins\*; DestDir: {#DEXT}\qt\plugins; Flags: recursesubdirs; Components: externlibs/qt
-#ifdef FAT_DEVEL
-;Source: {#OIV}\lib\*; DestDir: {#DEXT}\OpenInventor\lib; Flags: recursesubdirs; Components: externlibs/OpenInventor
-;Source: {#OIV}\include\*; DestDir: {#DEXT}\OpenInventor\include; Flags: recursesubdirs; Components: externlibs/OpenInventor
-#endif
-;Source: {#PERFORMER}\*; DestDir: {#DEXT}\Performer; Flags: recursesubdirs; Components: externlibs/Performer
-
-Source: {#src}\sys\tabletUI\*.h; DestDir: {#DSRC}\sys\tabletUI; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\cover\*.h; DestDir: {#DCOVER}\cover; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\vrui\*.h; DestDir: {#DCOVER}\vrui; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\PluginUtil\*.h; DestDir: {#DCOVER}\PluginUtil; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\plugins\Cube\*.h; DestDir: {#DCOVER}\plugins\Cube; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\plugins\Cube\*.cpp; DestDir: {#DCOVER}\plugins\Cube; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\plugins\Cube\*.pro; DestDir: {#DCOVER}\plugins\Cube; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\plugins\template\*.h; DestDir: {#DCOVER}\plugins\template; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\plugins\template\*.cpp; DestDir: {#DCOVER}\plugins\template; Flags: recursesubdirs; Components: develop
-;Source: {#src}\renderer\COVER\plugins\template\*.pro; DestDir: {#DCOVER}\plugins\template; Flags: recursesubdirs; Components: develop
-#endif
-#endif
 
 
 
@@ -845,47 +608,43 @@ Root: HKCU; Subkey: Environment; ValueType: string; ValueName: PATH; ValueData: 
 #endif
 #else
 ; not VISENSO from here on
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib\alvarplugins; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib\alvarplugins; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 
-#if DEVELOPMENT == "YES"
 ; for user installation
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ARCHSUFFIX; ValueData: {#ARCHSUFFIX}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\covise\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: PATH; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin;{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\renderer;{code:GetShortName|{app}}\covise\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{code:GetShortName|{app}}\covise\{#ARCHSUFFIX}\lib\sgplugins;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: PATH; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\renderer;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\sgplugins;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\covise\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_BRANCH; ValueData: {#BRANCH}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 ; end for user installation
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: ARCHSUFFIX; ValueData: {#ARCHSUFFIX}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\covise\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISE_BRANCH; ValueData: {#BRANCH}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\covise\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-#endif
+Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib\alvarplugins; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\TabletUI.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\Renderer\SurfaceCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\coLicenseID.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\coLicenseID.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\covise.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib\alvarplugins; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\TabletUI.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\SurfaceCOVER.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\covise.exe; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;{app}\covise\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;{app}\covise\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;{app}\covise\{#ARCHSUFFIX}\bin\renderer;{app}\covise\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;{app}\covise\{#ARCHSUFFIX}\bin\renderer;{app}\covise\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;{app}\covise\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\coLicenseID.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RemoteDaemon.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tabletui.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\OpenCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SurfaceCOVER.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\OpenCOVER\plugins;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\covise.exe; ValueType: string; ValueName: Path; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 #endif
 
 Root: HKCR; Subkey: .wrl; ValueType: string; ValueName: ; ValueData: VRMLFile; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
@@ -893,26 +652,26 @@ Root: HKCR; Subkey: .wrz; ValueType: string; ValueName: ; ValueData: VRMLFile; F
 Root: HKCR; Subkey: .wrl.gz; ValueType: string; ValueName: ; ValueData: VRMLFile; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 #if VERSION=="VISENSO"
 Root: HKCR; Subkey: .net; ValueType: string; ValueName: ; ValueData: CoviseFile; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:GetShortName|{app}}\runOpenCOVER.bat %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKCR; Subkey: CoviseFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:GetShortName|{app}}\runCOVISE.bat %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:GetShortName|{app}}\bin\runOpenCOVER.bat %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKCR; Subkey: CoviseFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:GetShortName|{app}}\bin\runCOVISE.bat %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 #else
-Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKCR; Subkey: .net; ValueType: string; ValueName: ; ValueData: CoviseFile; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKCR; Subkey: CoviseFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\covise.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+Root: HKCR; Subkey: CoviseFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\covise.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 #endif
 
 ; end for global installation
 
 #if VERSION != "VISENSO"
 #if VERSION == "HLRS"
-;Root: HKCU; Subkey: Environment; ValueType: string; ValueName: LM_LICENSE_FILE; ValueData: "{app}\covise\extern_libs\Performer\license.dat;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue
-;Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\cover.exe; ValueType: string; ValueData: {app}\covise\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Flags: uninsdeletekeyifempty uninsdeletevalue
-;Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\cover.exe; ValueType: string; ValueName: Path; ValueData: "{app}\covise\{#ARCHSUFFIX}\lib;{app}\covise\{#ARCHSUFFIX}\bin;{app}\covise\{#ARCHSUFFIX}\bin\renderer;{app}\covise\{#ARCHSUFFIX}\lib\cover\plugins;"; Flags: uninsdeletekeyifempty
-Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\Renderer\opencover.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
+;Root: HKCU; Subkey: Environment; ValueType: string; ValueName: LM_LICENSE_FILE; ValueData: "{app}\extern_libs\Performer\license.dat;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue
+;Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\cover.exe; ValueType: string; ValueData: {app}\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Flags: uninsdeletekeyifempty uninsdeletevalue
+;Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\cover.exe; ValueType: string; ValueName: Path; ValueData: "{app}\{#ARCHSUFFIX}\lib;{app}\{#ARCHSUFFIX}\bin;{app}\{#ARCHSUFFIX}\bin\renderer;{app}\{#ARCHSUFFIX}\lib\cover\plugins;"; Flags: uninsdeletekeyifempty
+Root: HKCR; Subkey: VRMLFile\shell\Open\command; ValueType: string; ValueName: ; ValueData: {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\Renderer\opencover.exe %1; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 #endif
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\common.bat && start /min {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\RemoteDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallRemoteDaemonForAll()
+Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\scripts\windowsEnv.bat && start /min {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallRemoteDaemonForAll()
 
-Root: HKCU; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\common.bat && start /min {code:getShortAppDir|{app}}\covise\{#ARCHSUFFIX}\bin\RemoteDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallRemoteDaemonForUser()
+Root: HKCU; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: CoviseDaemon; ValueData: "{sys}\cmd /c ""%COVISEDIR%\scripts\windowsEnv.bat && start /min {code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe"""; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallRemoteDaemonForUser()
 #endif
 
 
@@ -952,93 +711,93 @@ Name: startupcion; Description: Icons into &Startup; GroupDescription: Startup I
 #if VERSION == "VISENSO"
 #if DISTRO_TYPE != "RTT"
 ; RTT Icons have to go separate from {group}
-Name: {group}\Visit the VISENSO Homepage; Filename: http://www.visenso.de/; IconFilename: {app}\covise\icons\covise.ico; Comment: Visit the Visual Engineering Solutions Homepage!
+Name: {group}\Visit the VISENSO Homepage; Filename: http://www.visenso.de/; IconFilename: {app}\share\covise\icons\covise.ico; Comment: Visit the Visual Engineering Solutions Homepage!
 #endif
 
 #if DISTRO_TYPE == "RTT"
 ; only add icons to existing RTT Software group - no individual COVISE icon group
-Name: {group}\RealFluid Server\Start RealFluid Server; Filename: {app}\covise\RealFluid.bat; WorkingDir: {app}\covise; IconFilename: {app}\covise\icons\covise.ico; Comment: Starts RealFluid Server
-;Name: {group}\RealFluid Server\Server Models; Filename: {app}\covise\Python\bin\RTT\Server\Models; WorkingDir: {app}\covise; IconFilename: {app}\covise\icons\covise.ico; Comment: Opens RealFluid Server Models Directory
-Name: {group}\RealFluid Server\Server Models; Filename: {app}\covise\Python\bin\RTT\Server\Models; WorkingDir: {app}\covise; IconFilename: {#SYSTEMROOT}\system32\SHELL32.dll; IconIndex: 4; Comment: Opens RealFluid Server Models Directory
-Name: {group}\RealFluid Server\Visit the VISENSO Homepage; Filename: http://www.visenso.de/; IconFilename: {app}\covise\icons\covise.ico; Comment: Visit the Visual Engineering Solutions Homepage!
+Name: {group}\RealFluid Server\Start RealFluid Server; Filename: {app}\RealFluid.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Comment: Starts RealFluid Server
+;Name: {group}\RealFluid Server\Server Models; Filename: {app}\Python\bin\RTT\Server\Models; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Comment: Opens RealFluid Server Models Directory
+Name: {group}\RealFluid Server\Server Models; Filename: {app}\Python\bin\RTT\Server\Models; WorkingDir: {app}; IconFilename: {#SYSTEMROOT}\system32\SHELL32.dll; IconIndex: 4; Comment: Opens RealFluid Server Models Directory
+Name: {group}\RealFluid Server\Visit the VISENSO Homepage; Filename: http://www.visenso.de/; IconFilename: {app}\share\covise\icons\covise.ico; Comment: Visit the Visual Engineering Solutions Homepage!
 
 #elif DISTRO_TYPE == "CC"
 ; CyberClassroom Shortcuts
 Name: {group}\Visit the CyberClassroom Homepage; Filename: http://www.cyber-classroom.de/; IconFilename: {app}\CyberClassroom.ico; Comment: Visit the CyberClassroom Homepage!
 Name: {group}\Start COVISE CyberClassroom; Filename: {app}\startCyberClassroom.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE CyberClassroom
-Name: {group}\Start COVISE; Filename: {app}\covise\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Flags: createonlyiffileexists; Comment: Starts COVISE; Components: ccModuleDev
-Name: {group}\Start Wii Server; Filename: {app}\covise\vistaopt\bin\Wii\WII_HSG_IMIT.exe; WorkingDir: {app}\covise\vistaopt\bin\Wii; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server
-Name: {group}\Start WiiMotionPlus Server; Filename: {app}\covise\vistaopt\bin\WiiMotionPlus\WII_HSG_IMIT.exe; WorkingDir: {app}\covise\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server Motion Plus
-Name: {group}\Start WiiAutoConnect; Filename: {app}\covise\vistaopt\bin\WiiMotionPlus\sdksample.exe; WorkingDir: {app}\covise\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts WiiAutoConnect
-;Name: {group}\Start COVISE ARTServer; Filename: {app}\covise\startART.bat; WorkingDir: {app}\covise; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE ARTServer
-;Name: {group}\Start COVISE MIKEServer; Filename: {app}\covise\startMIKE.bat; WorkingDir: {app}\covise; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE MIKEServer
+Name: {group}\Start COVISE; Filename: {app}\bin\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Flags: createonlyiffileexists; Comment: Starts COVISE; Components: ccModuleDev
+Name: {group}\Start Wii Server; Filename: {app}\vistaopt\bin\Wii\WII_HSG_IMIT.exe; WorkingDir: {app}\vistaopt\bin\Wii; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server
+Name: {group}\Start WiiMotionPlus Server; Filename: {app}\vistaopt\bin\WiiMotionPlus\WII_HSG_IMIT.exe; WorkingDir: {app}\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server Motion Plus
+Name: {group}\Start WiiAutoConnect; Filename: {app}\vistaopt\bin\WiiMotionPlus\sdksample.exe; WorkingDir: {app}\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts WiiAutoConnect
+;Name: {group}\Start COVISE ARTServer; Filename: {app}\startART.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE ARTServer
+;Name: {group}\Start COVISE MIKEServer; Filename: {app}\startMIKE.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE MIKEServer
 Name: {group}\Uninstall CyberClassroom; Filename: {uninstallexe}; Comment: Uninstalls COVISE CyberClassroom
 
 ; CyberClassroom Shortcuts Desktop
 ;Name: {commondesktop}\Visit the CyberClassroom Homepage; Filename: http://www.cyber-classroom.de/; IconFilename: {app}\CyberClassroom.ico; Comment: Visit the CyberClassroom Homepage!; Tasks: desktopicon
 Name: {commondesktop}\Start COVISE CyberClassroom; Filename: {app}\startCyberClassroom.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE CyberClassroom; Tasks: desktopicon
-Name: {commondesktop}\Start COVISE; Filename: {app}\covise\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Flags: createonlyiffileexists; Comment: Starts COVISE; Tasks: desktopicon; Components: ccModuleDev
-;Name: {commondesktop}\Start Wii Server; Filename: {app}\covise\vistaopt\bin\Wii\WII_HSG_IMIT.exe; WorkingDir: {app}\covise\vistaopt\bin\Wii; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server; Tasks: desktopicon
-;Name: {commondesktop}\Start WiiMotionPlus Server; Filename: {app}\covise\vistaopt\bin\WiiMotionPlus\WII_HSG_IMIT.exe; WorkingDir: {app}\covise\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server Motion Plus; Tasks: desktopicon
-Name: {commondesktop}\Start WiiAutoConnect; Filename: {app}\covise\vistaopt\bin\WiiMotionPlus\sdksample.exe; WorkingDir: {app}\covise\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts WiiAutoConnect; Tasks: desktopicon
+Name: {commondesktop}\Start COVISE; Filename: {app}\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Flags: createonlyiffileexists; Comment: Starts COVISE; Tasks: desktopicon; Components: ccModuleDev
+;Name: {commondesktop}\Start Wii Server; Filename: {app}\vistaopt\bin\Wii\WII_HSG_IMIT.exe; WorkingDir: {app}\vistaopt\bin\Wii; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server; Tasks: desktopicon
+;Name: {commondesktop}\Start WiiMotionPlus Server; Filename: {app}\vistaopt\bin\WiiMotionPlus\WII_HSG_IMIT.exe; WorkingDir: {app}\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server Motion Plus; Tasks: desktopicon
+Name: {commondesktop}\Start WiiAutoConnect; Filename: {app}\vistaopt\bin\WiiMotionPlus\sdksample.exe; WorkingDir: {app}\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts WiiAutoConnect; Tasks: desktopicon
 ;Name: {commondesktop}\Uninstall CyberClassroom; Filename: {uninstallexe}; Comment: Uninstalls COVISE CyberClassroom
-;Name: {commondesktop}\Start COVISE MIKEServer; Filename: {app}\covise\startMIKE.bat; WorkingDir: {app}\covise; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE MIKEServer; Tasks: desktopicon
-;Name: {commondesktop}\Start COVISE ARTServer; Filename: {app}\covise\startART.bat; WorkingDir: {app}\covise; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE ARTServer; Tasks: desktopicon
+;Name: {commondesktop}\Start COVISE MIKEServer; Filename: {app}\startMIKE.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE MIKEServer; Tasks: desktopicon
+;Name: {commondesktop}\Start COVISE ARTServer; Filename: {app}\startART.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE ARTServer; Tasks: desktopicon
 
 ; CyberClassroom Shortcuts Autostart
-Name: {commonstartup}\Start WiiAutoConnect; Filename: {app}\covise\vistaopt\bin\WiiMotionPlus\sdksample.exe; WorkingDir: {app}\covise\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts WiiAutoConnect; Tasks: startupcion
-;Name: {commonstartup}\Start WiiMotionPlus Server; Filename: {app}\covise\vistaopt\bin\WiiMotionPlus\WII_HSG_IMIT.exe; WorkingDir: {app}\covise\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server Motion Plus; Tasks: startupcion
+Name: {commonstartup}\Start WiiAutoConnect; Filename: {app}\vistaopt\bin\WiiMotionPlus\sdksample.exe; WorkingDir: {app}\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts WiiAutoConnect; Tasks: startupcion
+;Name: {commonstartup}\Start WiiMotionPlus Server; Filename: {app}\vistaopt\bin\WiiMotionPlus\WII_HSG_IMIT.exe; WorkingDir: {app}\vistaopt\bin\WiiMotionPlus; IconFilename: {app}\CyberClassroom.ico; Comment: Starts Wii Server Motion Plus; Tasks: startupcion
 Name: {commonstartup}\Start COVISE CyberClassroom; Filename: {app}\startCyberClassroom.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE CyberClassroom; Tasks: startupcion
-;Name: {commondesktop}\Start COVISE MIKEServer; Filename: {app}\covise\startMIKE.bat; WorkingDir: {app}\covise; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE MIKEServer; Tasks: startupcion
-;Name: {commondesktop}\Start COVISE ARTServer; Filename: {app}\covise\startART.bat; WorkingDir: {app}\covise; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE ARTServer; Tasks: startupcion
+;Name: {commondesktop}\Start COVISE MIKEServer; Filename: {app}\startMIKE.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE MIKEServer; Tasks: startupcion
+;Name: {commondesktop}\Start COVISE ARTServer; Filename: {app}\startART.bat; WorkingDir: {app}; IconFilename: {app}\CyberClassroom.ico; Comment: Starts COVISE ARTServer; Tasks: startupcion
 
 #else
 ; regular VISENSO COVISE shortcuts
 
 ; install icons in startmenu
-;Name: {group}\vrprepare4; Filename: {app}\covise\{#ARCHSUFFIX}\bin\scriptInterface.bat; WorkingDir: {app}\covise\Python; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE Scripting Interface
-Name: {group}\Run COVISE; Filename: {app}\covise\runCOVISE.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE
-Name: {group}\Run vr-prepare; Filename: {app}\covise\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts vr-prepare
-Name: {group}\Run coCaseEditor; Filename: {app}\covise\runCoCaseEditor.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts CoCaseEditor
-Name: {group}\Run tecplot2covise; Filename: {app}\covise\runTecplot2Covise.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts tecplot2covise
-Name: {group}\Run cfx2covise; Filename: {app}\covise\runCfx2Covise.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts cfx2covise
-Name: {group}\Run COVISE Remote Daemon; Filename: {app}\covise\runCOVISErdaemon.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE Remote Daemon
-Name: {group}\Run OpenCOVER; Filename: {app}\covise\runOpenCOVER.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts OpenCOVER
+;Name: {group}\vrprepare4; Filename: {app}\{#ARCHSUFFIX}\bin\scriptInterface.bat; WorkingDir: {app}\Python; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE Scripting Interface
+Name: {group}\Run COVISE; Filename: {app}\runCOVISE.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE
+Name: {group}\Run vr-prepare; Filename: {app}\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts vr-prepare
+Name: {group}\Run coCaseEditor; Filename: {app}\runCoCaseEditor.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts CoCaseEditor
+Name: {group}\Run tecplot2covise; Filename: {app}\runTecplot2Covise.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts tecplot2covise
+Name: {group}\Run cfx2covise; Filename: {app}\runCfx2Covise.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts cfx2covise
+Name: {group}\Run COVISE Remote Daemon; Filename: {app}\runCOVISErdaemon.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE Remote Daemon
+Name: {group}\Run OpenCOVER; Filename: {app}\runOpenCOVER.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts OpenCOVER
 Name: {group}\Uninstall COVISE; Filename: {uninstallexe}; Comment: Uninstalls COVISE
 
 ;also install these icons on desktop
-Name: {commondesktop}\Run COVISE; Filename: {app}\covise\runCOVISE.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE; Tasks: desktopicon
-Name: {commondesktop}\Run vr-prepare; Filename: {app}\covise\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts vr-prepare; Tasks: desktopicon
-Name: {commondesktop}\Run COVISE Remote Daemon; Filename: {app}\covise\runCOVISErdaemon.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE Remote Daemon; Tasks: desktopicon
-Name: {commondesktop}\Run OpenCOVER; Filename: {app}\covise\runOpenCOVER.bat; WorkingDir: {app}; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts OpenCOVER; Tasks: desktopicon
+Name: {commondesktop}\Run COVISE; Filename: {app}\runCOVISE.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE; Tasks: desktopicon
+Name: {commondesktop}\Run vr-prepare; Filename: {app}\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts vr-prepare; Tasks: desktopicon
+Name: {commondesktop}\Run COVISE Remote Daemon; Filename: {app}\runCOVISErdaemon.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts COVISE Remote Daemon; Tasks: desktopicon
+Name: {commondesktop}\Run OpenCOVER; Filename: {app}\runOpenCOVER.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts OpenCOVER; Tasks: desktopicon
 Name: {commondesktop}\Uninstall COVISE; Filename: {uninstallexe}; Comment: Uninstalls COVISE; Tasks: desktopicon
 #endif
 #else
 ; not VISENSO from here on
 
-Name: {group}\COVISE; Filename: {app}\covise\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists dontcloseonexit
-Name: {group}\OpenCOVER; Filename: {app}\covise\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\covise\icons\cover.ico; Flags: createonlyiffileexists
-Name: {group}\Tablet UI; Filename: {app}\covise\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\covise\icons\tabletui.ico; Flags: createonlyiffileexists
-Name: {group}\License ID; Filename: {app}\covise\{#ARCHSUFFIX}\bin\coLicenseID.exe; Comment: COVISE License ID; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists
-Name: {group}\COVISE Shell; Filename: {cmd}; Parameters: /K cd %COVISEDIR% && common.bat; WorkingDir: {app}\covise; Comment: Command Prompt with COVISE Environment; IconFilename: {app}\covise\icons\covise_shell.ico
-Name: {group}\COVISE Daemon; Filename: {app}\covise\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}\covise; Comment: COVISE Daemon, starts COVISE or Fenfloss; IconFilename: {app}\covise\icons\covise.ico
+Name: {group}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists dontcloseonexit
+Name: {group}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists
+Name: {group}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists
+Name: {group}\COVISE Shell; Filename: {cmd}; Parameters: /K cd %COVISEDIR% && scripts\windowsEnv.bat; WorkingDir: {app}; Comment: Command Prompt with COVISE Environment; IconFilename: {app}\share\covise\icons\covise_shell.ico
+Name: {group}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts COVISE or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
+Name: {group}\VRPrepare; Filename: {app}\bin\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts VRPrepare; Components: vrprepare4
 
-Name: {group}\Documentation\Tutorial; Filename: {app}\covise\doc\pdf\tutorial.pdf; Flags: createonlyiffileexists
-Name: {group}\Documentation\Users' Guide; Filename: {app}\covise\doc\pdf\usersguide.pdf; Flags: createonlyiffileexists
-Name: {group}\Documentation\Reference Guide; Filename: {app}\covise\doc\pdf\refguide.pdf; Flags: createonlyiffileexists
-Name: {group}\Documentation\Programming Guide; Filename: {app}\covise\doc\pdf\programmingguide.pdf; Flags: createonlyiffileexists
-Name: {group}\Documentation\COVER Config Guide; Filename: {app}\covise\doc\pdf\cover_inst_config.pdf; Flags: createonlyiffileexists
+Name: {group}\Documentation\Tutorial; Filename: {app}\doc\pdf\tutorial.pdf; Flags: createonlyiffileexists
+Name: {group}\Documentation\Users' Guide; Filename: {app}\doc\pdf\usersguide.pdf; Flags: createonlyiffileexists
+Name: {group}\Documentation\Reference Guide; Filename: {app}\doc\pdf\refguide.pdf; Flags: createonlyiffileexists
+Name: {group}\Documentation\Programming Guide; Filename: {app}\doc\pdf\programmingguide.pdf; Flags: createonlyiffileexists
+Name: {group}\Documentation\COVER Config Guide; Filename: {app}\doc\pdf\cover_inst_config.pdf; Flags: createonlyiffileexists
 Name: {group}\Uninstall COVISE; Filename: {uninstallexe}
 
-Name: {commondesktop}\COVISE; Filename: {app}\covise\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\covise\icons\covise.ico; Flags: createonlyiffileexists
-Name: {commondesktop}\OpenCOVER; Filename: {app}\covise\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\covise\icons\cover.ico; Flags: createonlyiffileexists
-Name: {commondesktop}\Tablet UI; Filename: {app}\covise\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\covise\icons\tabletui.ico; Flags: createonlyiffileexists
-Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\covise\bin; Comment: Clean COVISE Processes; IconFilename: {app}\covise\icons\covise_clean.ico
-Name: {commondesktop}\COVISE Daemon; Filename: {app}\covise\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}\covise; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\covise\icons\covise.ico
+Name: {commondesktop}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists
+Name: {commondesktop}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists
+Name: {commondesktop}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists
+Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\bin; Comment: Clean COVISE Processes; IconFilename: {app}\share\covise\icons\covise_clean.ico
+Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
 
 #if VERSION == "HLRS"
-;Name: {group}\cover; Filename: {app}\covise\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Comment: COVISE VR Renderer; IconFilename: {app}\covise\icons\cover.ico Flags: createonlyiffileexist
-;Name: {commondesktop}\COVER; Filename: {app}\covise\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Comment: COVISE VR Renderer; IconFilename: {app}\covise\icons\cover.ico Flags: createonlyiffileexist
+;Name: {group}\cover; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Comment: COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico Flags: createonlyiffileexist
+;Name: {commondesktop}\COVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Comment: COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico Flags: createonlyiffileexist
 #endif
 
 #endif
@@ -1046,33 +805,33 @@ Name: {commondesktop}\COVISE Daemon; Filename: {app}\covise\{#ARCHSUFFIX}\bin\Re
 [Run]
 ; Filename: regsvr32.exe; Parameters: /s {#DLIB}\DsRendererd.ax; Description: Register Rendering filter; Flags: nowait postinstall
 #if VERSION != "VISENSO"
-;Filename: Explorer.exe; Parameters: {app}\covise\; Description: Show COVISE installation directory; Flags: nowait postinstall skipifsilent
-;Filename: notepad.exe; Parameters: {app}\covise\README.txt; Description: Show COVISE README; Flags: nowait postinstall skipifsilent
+;Filename: Explorer.exe; Parameters: {app}\; Description: Show COVISE installation directory; Flags: nowait postinstall skipifsilent
+;Filename: notepad.exe; Parameters: {app}\README.txt; Description: Show COVISE README; Flags: nowait postinstall skipifsilent
 #endif
 #if ARCHSUFFIX == "vista"
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
 #elif ARCHSUFFIX == "vistaopt"
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
 #elif ARCHSUFFIX == "amdwin64"
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
 #elif ARCHSUFFIX == "tamarau"
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
-Filename: msiexec; Parameters: /i {app}\covise\{#ARCHSUFFIX}\lib\mpi_x64.Msi; Description: Installint MS-MPI Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
+Filename: msiexec; Parameters: /I {app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi; Description: Installint MS-MPI Runtime; Flags: postinstall
 #elif ARCHSUFFIX == "tamarauopt"
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
-Filename: msiexec; Parameters: /i {app}\covise\{#ARCHSUFFIX}\lib\mpi_x64.Msi; Description: Installint MS-MPI Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 Runtime; Flags: postinstall
+Filename: msiexec; Parameters: /I {app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi; Description: Installint MS-MPI Runtime; Flags: postinstall
 #elif ARCHSUFFIX == "amdwin64opt"
-Filename: {app}\covise\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
 #endif
 #if VERSION == "VISENSO" && DISTRO_TYPE == "CC"
 Filename: {#PROJECTDIR}\installer\OOo_3.2.1_Win_x86_install-wJRE_de.exe; Parameters: /Q; Description: Install OpenOffice; Flags: postinstall unchecked
 Filename: {#PROJECTDIR}\installer\ImageMagick-6.6.3-0-Q16-windows-static.exe; Parameters: /Q; Description: Install ImageMagic; Flags: postinstall unchecked
 #endif
-; don�t run because environment is not yet up to date...Filename: {app}\covise\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall
+; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall
 
 [Code]
 
@@ -1292,289 +1051,6 @@ end;
 
 
 
-procedure PerformLicenseImport(Sender: TObject);
-var
-   Vendorsupport: String;
-   LicenseFile: String;
-   TrgLicenseFile: String;
-   TargetFile: String;
-   XMLHTTP: Variant;
-   XMLLicenseDoc: Variant;
-   XMLTargetDoc: Variant;
-   XMLRootNodeName: String;
-   SrcRootNode: Variant;
-   TrgRootNode: Variant;
-   SrcLicenseNode: Variant;
-   TrgLicenseNode: Variant;
-   SupportNode: Variant;
-   CopySuccess: Boolean;
-   nRun: Integer;
-   ImportedAnything: Boolean; {got any valid license tag imported? if so: true, otherwise: false}
-   ServerNode, StdUiNode, VROnePipeNode, VRMultiAnyNode, COVISEVRMLNode, COVISECFDNode, COVISEFEMNode, VRDualClusterNode: Variant;
-   SupportErrorCode: String; {some error code, that the user can tell support people on the phone, so that they got a clue what�s up}
-begin
-
-   SupportErrorCode := 'Lic'; {support: has to do sth. w/ licensing}
-   ImportedAnything := False;
-#if VERSION == 'VISENSO'
-   Vendorsupport := 'support@visenso.de';
-#else
-  Vendorsupport := 'HLRS';
-#endif
-
-   { create a MSXML COM automation object that will handle all XML parsing}
-   try
-      XMLHTTP := CreateOleObject('MSXML2.ServerXMLHTTP');
-   except
-      SupportErrorCode := SupportErrorCode + 'MSXML';
-      RaiseException('Error: Please install MSXML first.'#13#13'(Error ' + GetExceptionMessage + ' occurred)'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode);
-   end;
-
-   { load the license to be imported}
-   LicenseFile := LicenseImportPage.Values[0];
-   if ((VarIsNull(LicenseFile)) or (not FileExists(LicenseFile))) then begin
-      if VarIsNull(LicenseFile) then
-         LicenseFile := '<null>';
-      SupportErrorCode := SupportErrorCode + 'Nullfile';
-      MsgBox('Error'#13#13'File ' + LicenseFile + ' does not seem to exist.'#13#13'Please contact' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbError, mb_Ok);
-      Exit;
-   end;
-   LicenseFile := ExpandConstant(LicenseFile);
-
-   XMLLicenseDoc := CreateOleObject('MSXML2.DOMDocument');
-   XMLLicenseDoc.async := False;
-   XMLLicenseDoc.resolveExternals := False;
-   XMLLicenseDoc.load(LicenseFile);
-   if XMLLicenseDoc.parseError.errorCode <> 0 then begin
-      // cannot load xml file... possibly no xml file at all?! loaded the completely wrong file?!
-      SupportErrorCode := SupportErrorCode + 'Corrupt';
-      MsgBox('Error: Cannot import License.'#13'License file ' + LicenseFile + ' seems to be corrupt.'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbError, mb_Ok);
-      Exit;
-   end;
-
-   { load the empty sample license to be modified}
-#if VERSION == 'VISENSO'
-   TargetFile := '{app}\covise\config\config.license.xml';
-#else
-   TargetFile := '{app}\covise\config\config-license.xml';
-#endif
-   TargetFile := ExpandConstant(TargetFile);
-   XMLTargetDoc := CreateOleObject('MSXML2.DOMDocument');
-   XMLTargetDoc.async := False;
-   XMLTargetDoc.resolveExternals := False;
-   XMLTargetDoc.load(TargetFile);
-   if XMLTargetDoc.parseError.errorCode <> 0 then begin
-      // note: xml syntax of license is incorrect; this is not an error in the code;
-      //    user does not need to know what exactly is wrong; just needs to
-      //    know that import failed
-      //RaiseException(TargetFile + ': Error on line ' + IntToStr(XMLTargetDoc.parseError.line) + ', position ' + IntToStr(XMLTargetDoc.parseError.linepos) + ': ' + XMLTargetDoc.parseError.reason);
-      SupportErrorCode := SupportErrorCode + 'Targ';
-      MsgBox('Warning: Cannot read target license file: '#13'' + TargetFile +
-             ''#13'Current Installation seems to be corrupt. Trying to copy License file anyway.'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbInformation, mb_Ok);
-#if VERSION == 'VISENSO'
-      CopySuccess := FileCopy(TargetFile, ExpandConstant('{app}\covise\config\config.license.xml'), True);
-#else
-      CopySuccess := FileCopy(TargetFile, ExpandConstant('{app}\covise\config\config-license.xml'), True);
-#endif
-      if (CopySuccess = True) then begin
-         MsgBox('Successfully activated COVISE license!', mbInformation, mb_Ok);
-      end else begin
-         // note: if CopySuccess = False then it is normally due to config.license.xml already existing.
-         //    This happens whenever COVISE gets installed over an existing installation.
-         SupportErrorCode := SupportErrorCode + 'Copy';
-         MsgBox('Error: COVISE license activation failed!'#13'Installation seems to be corrupt.'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbInformation, mb_Ok);
-      end;
-      Exit;
-   end
-
-   { modify the XML document - first get stuff to copy and then insert it into
-     target file
-     note: the SupportErrorCode}
-   XMLRootNodeName := '//GLOBAL';
-   SrcRootNode := XMLLicenseDoc.documentElement.selectSingleNode(XMLRootNodeName);
-   TrgRootNode := XMLTargetDoc.documentElement.selectSingleNode(XMLRootNodeName);
-   TrgLicenseNode := XMLTargetDoc.createElement('License');
-   if (VarIsEmpty(TrgLicenseNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'a';
-      MsgBox('Error: COVISE license activation failed!'#13'XML error.'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbInformation, mb_Ok);
-      Exit;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'A';
-   end
-
-   ServerNode := SrcRootNode.selectSingleNode('License/SERVER');
-   if (not VarIsEmpty(ServerNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'B';
-      TrgLicenseNode.appendChild(ServerNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'b';
-   end
-
-   StdUiNode := SrcRootNode.selectSingleNode('License/STD_UI');
-   if (not VarIsEmpty(StdUiNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'C';
-      TrgLicenseNode.appendChild(StdUiNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'c';
-   end
-
-   VROnePipeNode := SrcRootNode.selectSingleNode('License/VR_ONE_PIPE');
-   if (not VarIsEmpty(VROnePipeNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'D';
-      TrgLicenseNode.appendChild(VROnePipeNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'd';
-   end
-
-   VRMultiAnyNode := SrcRootNode.selectSingleNode('License/VR_MULTI_ANY');
-   if (not VarIsEmpty(VRMultiAnyNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'E';
-      TrgLicenseNode.appendChild(VRMultiAnyNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'e';
-   end
-
-   COVISEVRMLNode := SrcRootNode.selectSingleNode('License/COVISE_VRML');
-   if (not VarIsEmpty(COVISEVRMLNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'F';
-      TrgLicenseNode.appendChild(COVISEVRMLNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'f';
-   end
-
-   COVISECFDNode := SrcRootNode.selectSingleNode('License/COVISE_CFD');
-   if (not VarIsEmpty(COVISECFDNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'G';
-      TrgLicenseNode.appendChild(COVISECFDNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'g';
-   end
-
-   COVISEFEMNode := SrcRootNode.selectSingleNode('License/COVISE_FEM');
-   if (not VarIsEmpty(COVISEFEMNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'H';
-      TrgLicenseNode.appendChild(COVISEFEMNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'h';
-   end
-
-   VRDualClusterNode := SrcRootNode.selectSingleNode('License/VR_DUAL_CLUSTER');
-   if (not VarIsEmpty(VRDualClusterNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'I';
-      TrgLicenseNode.appendChild(VRDualClusterNode);
-      ImportedAnything := True;
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'i';
-   end
-
-   // check if any licenses were imported at all
-   if (not ImportedAnything = True) then begin
-      MsgBox('Error: COVISE license activation failed!'#13'License seems to be corrupt.'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbInformation, mb_Ok);
-      Exit;
-   end;
-
-   // also add some log info for possible future support
-   SupportNode := XMLTargetDoc.createElement('Support');
-   if (VarIsEmpty(TrgLicenseNode)) then begin
-      SupportErrorCode := SupportErrorCode + 'x';
-      // do not fail though
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'X';
-      SupportNode.text := 'inserted by COVISE installer on ' + GetDateTimeString('yyyy/mm/dd hh:nn:ss', '-', ':') +
-         '; source: ' + LicenseFile + '; Supportcode: ' + SupportErrorCode;
-      TrgLicenseNode.appendChild(SupportNode);
-   end;
-
-   TrgRootNode.appendChild(TrgLicenseNode);
-   if (VarIsEmpty(TrgRootNode.lastChild)) then begin
-      // no content at all... append operation cannot have succeeded
-      SupportErrorCode := SupportErrorCode + 'z';
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'Z';
-   end;
-
-   { save the XML document and copy the license to alternative name}
-   XMLTargetDoc.Save(TargetFile);
-   TrgLicenseFile := ExpandConstant('{app}\covise\config\config.license.xml');
-   CopySuccess := FileCopy(TargetFile, TrgLicenseFile, True);
-   if (CopySuccess = False) then begin
-      // note: if CopySuccess = False then it is normally due to config.license.xml already existing.
-      //    This happens whenever COVISE gets installed over an existing installation.
-      // make a save copy and retry
-      nRun := 0;
-      while ((nRun < 100) and (not CopySuccess)) do begin
-         CopySuccess := FileCopy(ExpandConstant(TrgLicenseFile), ExpandConstant('{app}\covise\config\config.license.' + IntToStr(nRun) + '.bak'), True);
-	 nRun := nRun + 1;
-      end;
-      if (CopySuccess = True) then begin // could copy existing license -> go on and overwrite
-         CopySuccess := FileCopy(TargetFile, ExpandConstant(TrgLicenseFile), False);
-      end;
-   end;
-
-   if (CopySuccess = True) then begin
-      MsgBox('Successfully activated COVISE license!', mbInformation, mb_Ok);
-   end else begin
-      SupportErrorCode := SupportErrorCode + 'Copy';
-      MsgBox('Error: COVISE license activation failed!'#13'Please clean up config folder. You have got too much license copies.'#13#13'Please contact ' +
-             Vendorsupport + ' to solve this problem.'#13#13'Errorcode: ' + SupportErrorCode, mbInformation, mb_Ok);
-      Exit;
-   end;
-
-end;
-
-
-
-{if user has a valid license, let her import it at this page}
-procedure ImportCOVISElicense();
-var
-   Vendorsupport : String;
-   Productname : String;
-   ImportButton : TButton;
-begin
-Productname := 'COVISE';
-#if VERSION == 'VISENSO'
-   Vendorsupport := 'support@visenso.de';
-#if  (DISTRO_TYPE == "CC")
-  Productname := 'CyberClassroom';
-#endif
-#else
-  Vendorsupport := 'HLRS';
-#endif
-   // place a custom wizard page after the installing page, so that user can
-   // select and import license
-   LicenseImportPage := CreateInputFilePage(wpInstalling,
-     'Select a License file to be imported.', 'Here you can import a valid ' + Productname + ' license.',
-     'Select the ' + Productname + ' license file, then click the import button.'#13'If no license file is available, contact ' + Vendorsupport + '.'#13'Click Next to continue.');
-   LicenseImportPage.Add('Location of license file:',         // caption
-      'XML files|*.xml|All files|*.*',    // filters
-      '.xml');// default extension
-   LicenseImportPage.Values[0] := ExpandConstant('{src}\config.license.xml');
-
-   ImportButton := TButton.Create(LicenseImportPage);
-   ImportButton.Left := 10;
-   ImportButton.Top := 110;
-   ImportButton.Width := 120;
-   ImportButton.Height := 20;
-   ImportButton.Caption := '&Import License';
-   ImportButton.OnClick := @PerformLicenseImport;
-   ImportButton.Parent := LicenseImportPage.Surface;
-
-end;
-
 
 
 procedure InitializeWizard();
@@ -1634,12 +1110,6 @@ begin
   BackgroundBitmapText.Caption := 'TBitmapImage';
   BackgroundBitmapText.Parent := MainForm;
 
-#if VERSION == "VISENSO"
-// in RTT distros licenses cannot be imported during setup
-#if  (DISTRO_TYPE != "RTT")
-  ImportCOVISElicense();
-#endif
-#endif
 
 end;
 
