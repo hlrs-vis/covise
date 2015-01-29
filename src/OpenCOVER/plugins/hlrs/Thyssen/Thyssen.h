@@ -42,11 +42,14 @@
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
 
+#include <net/tokenbuffer.h>
+
 using namespace vrui;
 using namespace vrml;
 using namespace opencover;
 using covise::ServerConnection;
 using covise::SimpleServerConnection;
+using covise::TokenBuffer;
 
 class PLUGINEXPORT VrmlNodeThyssen : public VrmlNodeChild
 {
@@ -86,8 +89,63 @@ private:
     VrmlMFFloat d_floats;
     VrmlMFInt d_ints;
     VrmlSFVec3f d_car0Pos;
+    VrmlSFVec3f d_car1Pos;
+    VrmlSFVec3f d_car2Pos;
 };
 
+class brakeData
+{
+public:
+	brakeData(int id);
+	~brakeData();
+	int brakeID;
+	void setData(TokenBuffer &tb);
+	int type;
+	int status;
+};
+
+class carData
+{
+public:
+	carData(int id);
+	~carData();
+	int carID;
+	void setData(TokenBuffer &tb);
+	float posY;
+	float posZ;
+	float speed;
+	float accel;
+	int doorState;
+	int direction;
+	int floor;
+	int hzllockState;
+	int vtllockState;
+	int hzlproxState;
+	int vtlproxState;
+	
+	std::vector<brakeData> brakes;
+};
+
+class exchangerData
+{
+public:
+	exchangerData(int id);
+	~exchangerData();
+	int exID;
+	void setData(TokenBuffer &tb);
+	float posY;
+	float posZ;
+	int swvlhzllckStatus;
+	int swvlvtllckStatus;
+	int swvlproxStatus;
+	int cbnlckStatus;
+	int cbnlckproxStatus;
+	float swvlRotaryMotor;
+	int linkedCar;
+	float destnPos;
+
+	std::vector<brakeData> brakes;
+};
 class ThyssenPlugin : public coVRPlugin
 {
 public:
@@ -105,6 +163,8 @@ public:
     static ThyssenPlugin *plugin;
     float zpos;
     float ypos;
+	std::vector<carData> cars;
+	std::vector<exchangerData> exchangers;
 
     // this will be called in PreFrame
     void preFrame();
