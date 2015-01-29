@@ -1,4 +1,5 @@
 USING(Pthreads)
+USING(VRML)
 
 if(APPLE)
    return()
@@ -14,6 +15,6 @@ SET(SOURCES
 )
 include_directories("../../drivingsim/SteeringWheel")
 cover_add_plugin(Sensor)
-TARGET_LINK_LIBRARIES(Sensor coVRML ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(Sensor ${EXTRA_LIBS})
 #COVER_INSTALL_PLUGIN(Sensor)
 

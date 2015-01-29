@@ -1,3 +1,4 @@
+using(VRML)
 COVISE_FIND_PACKAGE(CUDPP)
 
 USING(CUDPP GLEW)
@@ -33,4 +34,4 @@ CUDA_COMPILE(starDust_CUDA_OBJ ${starDust_CUDA_SOURCES} SHARED OPTIONS "-D__buil
   
 #message("starDust_CUDA_OBJ")
 #message(${starDust_CUDA_OBJ})
-cover_add_plugin(starDust ${starDust_CUDA_OBJ} coVRML)
+cover_add_plugin(starDust ${starDust_CUDA_OBJ})

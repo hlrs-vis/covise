@@ -6,6 +6,7 @@ COVISE_FIND_PACKAGE(OSGCAL)
 COVISE_FIND_PACKAGE(CAL3D)
 
 USING(XERCESC OSGCAL CAL3D)
+using(VRML)
 
 IF(NOT OSGCAL_FOUND)
   RETURN()
@@ -75,7 +76,7 @@ cover_add_plugin(TrafficSimulation
    ${OSGCAL_LIBRARIES}
    ${EXTRA_LIBS}
    SteeringWheel #required for vrmlNodeVehicle (windows)
-   coVRML
+   ${EXTRA_LIBS}
    coOpenVehicleUtil
 )
 qt_use_modules(TrafficSimulation Script ScriptTools)

@@ -1,5 +1,6 @@
 USING(LibUSB)
 USING(Pthreads)
+using(VRML)
 
 if(APPLE)
    return()
@@ -19,6 +20,6 @@ SET(SOURCES
 )
 include_directories("../../drivingsim/SteeringWheel")
 cover_add_plugin(Bicycle)
-TARGET_LINK_LIBRARIES(Bicycle coVRML ${EXTRA_LIBS})
+TARGET_LINK_LIBRARIES(Bicycle ${EXTRA_LIBS})
 #COVER_INSTALL_PLUGIN(Bicycle)
 

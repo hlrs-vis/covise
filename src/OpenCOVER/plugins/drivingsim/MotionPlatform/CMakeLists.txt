@@ -5,6 +5,7 @@ if(NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
   RETURN()
 endif(NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
 
+using(VRML)
 USING(XERCESC BOOST)
 SET(HEADERS
  MotionPlatformPlugin.h
@@ -42,7 +43,7 @@ endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 cover_add_plugin_TARGET(MotionPlatform)
 
 TARGET_LINK_LIBRARIES(MotionPlatform
-   coVRML
+    ${EXTRA_LIBS}
    coOpenVehicleUtil
 )
 COVISE_WNOERROR(MotionPlatform)
@@ -54,11 +55,3 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
    ${XENOMAI_LIBRARY_RTDM}
  )
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
-
-
-#cover_add_plugin(MotionPlatform
-#   coVRML
-#   coOpenVehicleUtil
-#)
-
-#COVER_INSTALL_PLUGIN(MotionPlatform)

@@ -3,6 +3,7 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
 ENDIF()
 
 USING(VTK optional)
+using(VRML)
 
 SET(HEADERS
   RoadTerrainPlugin.h
@@ -94,20 +95,9 @@ TARGET_LINK_LIBRARIES(
    ${OSGTERRAIN_LIBRARIES}
    ${GDAL_LIBRARIES}
    ${FFTW_LIBRARIES}
-   coVRML
+   ${EXTRA_LIBS}
    coOpenVehicleUtil
 )
 COVER_INSTALL_PLUGIN(RoadTerrain)
 
-#cover_add_plugin(
-#  RoadTerrain
-#  ${OSGTERRAIN_LIBRARIES}
-#  ${GDAL_LIBRARIES}
-#  coVRML
-#  coOpenVehicleUtil
-#)
 #COVISE_WNOERROR(RoadTerrain)
-
-#TARGET_LINK_LIBRARIES(RoadTerrain)
-
-#COVER_INSTALL_PLUGIN(RoadTerrain)

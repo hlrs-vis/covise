@@ -2,6 +2,7 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
 USING(XERCESC)
+using(VRML)
 
 #find_package(Boost 1.40 REQUIRED COMPONENTS date_time)
 #find_package(Boost 1.40)
@@ -103,14 +104,14 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 IF(WIN32)
 TARGET_LINK_LIBRARIES(SteeringWheel
-   coVRML
+   ${EXTRA_LIBS}
    coOpenVehicleUtil
    dinput8 comctl32
 )
 #dxguid nor required on Win7 (added #include <InitGuid.h> #define DIRECTINPUT_VERSION 0x0800 #include <dinput.h> #include <dsound.h> instead)
 ELSE(WIN32)
 TARGET_LINK_LIBRARIES(SteeringWheel
-   coVRML
+    ${EXTRA_LIBS}
    coOpenVehicleUtil
 )
 ENDIF(WIN32)
@@ -123,11 +124,3 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
    ${XENOMAI_LIBRARY_RTDM}
  )
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
-
-
-#cover_add_plugin(SteeringWheel
-#   coVRML
-#   coOpenVehicleUtil
-#)
-
-#COVER_INSTALL_PLUGIN(SteeringWheel)

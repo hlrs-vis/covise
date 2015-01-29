@@ -88,6 +88,11 @@ message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 
 
 USING(MPI optional)
+
+# find dependencies for coVRML library
+using(FLEX optional)
+covise_find_package(BISON)
+
 include_directories(${COVISE_INCLUDE_DIRS})
 include_directories(.)
 

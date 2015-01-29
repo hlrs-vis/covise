@@ -1,7 +1,7 @@
 #OpenCOVER plugins general Highscore
 
 USING(XERCESC)
-
+using(VRML)
 
 SET(HEADERS
   Highscore.h

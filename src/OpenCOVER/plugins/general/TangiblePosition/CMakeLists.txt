@@ -1,5 +1,7 @@
 #OpenCOVER plugins general TangiblePosition
 
+using(VRML)
+
 SET(HEADERS
   TangiblePositionPlugin.h
 )
