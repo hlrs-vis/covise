@@ -141,11 +141,13 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
     codecCtx->bit_rate_tolerance = 4000 * 1000;
     codecCtx->rc_buffer_aggressivity = 1.0;
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
+#if !defined(HAVE_LIBAV)
+# if LIBAVFORMAT_VERSION_MAJOR < 54
     oc->mux_rate = 2352 * 75 * 8;
     oc->preload = (int)(100 * AV_TIME_BASE);
-#else
+# else
     oc->audio_preload = (int)(100 * AV_TIME_BASE);
+# endif
 #endif
 
     oc->max_delay = (int)(0.7 * AV_TIME_BASE);
