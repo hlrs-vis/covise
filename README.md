@@ -2,7 +2,7 @@ COVISE and OpenCOVER
 ====================
 
 [COVISE][1], the collaborative visualization and simulation environment, is a modular distributed visualization system.
-As it's focus is on visualization of scientific data in virtual environments, it comprises the VR renderer [OpenCOVER][2].
+As its focus is on visualization of scientific data in virtual environments, it comprises the VR renderer [OpenCOVER][2].
 COVISE development is headed by [HLRS][3].
 It is portable to Windows and UNIX. We do regular builds on x86_64 Windows, Linux and Mac OS X.
 
@@ -77,10 +77,7 @@ Build Requirements
 
 Optional dependencies
 ---------------------
-- **TBB**
-  Intel Threading Building Blocks
 - **JPEG Turbo**
-- **LibVncServer**
 - **VTK**
   Version 6 is required.
 
