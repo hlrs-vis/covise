@@ -1,7 +1,7 @@
 MACRO(USE_VIRVO)
   if (COVISE_USE_VIRVO)
   USE_BOOST()
-  USE_FFMPEG()
+  USE_FFMPEG(optional)
   USE_GLEW()
   USE_JPEGTURBO(optional)
   covise_find_package(GDCM)
