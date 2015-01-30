@@ -1,6 +1,4 @@
-if (COVISE_USE_VIRVO)
-   USING(Virvo) # for transfer function editor
-endif()
+USING(Virvo optional) # for transfer function editor
 
 # set TUI_SOURCES, TUI_HEADERS and TUI_MOC_HEADERS
 
