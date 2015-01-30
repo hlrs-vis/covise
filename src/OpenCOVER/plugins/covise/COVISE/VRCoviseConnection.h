@@ -58,7 +58,8 @@ private:
     void setMaterial(osg::Node *node, int *ambient, int *diffuse, int *specular, float shininess, float transparency);
     void setMaterial(const char *objectName, int *ambient, int *diffuse, int *specular, float shininess, float transparency);
     void setTransparency(osg::Node *node, float transparency);
-    void setShader(const char *objectName, const char *shaderName, const char *paraFloat, const char *paraVec2, const char *paraVec3, const char *paraVec4, const char *paraInt, const char *paraBool, const char *paraMat2, const char *paraMat3, const char *paraMat4);
+    void setTransparency(const char *objectName, float transparency);
+    void setShader(const char *objectName, const char *shaderName);
 
 public:
     static VRCoviseConnection *covconn;
@@ -67,7 +68,7 @@ public:
 
     ~VRCoviseConnection();
 
-    void update();
+    void update(bool handleOneMessageOnly = false);
     void sendQuit();
 
     static void executeCallback(void *sceneGraph, buttonSpecCell *);

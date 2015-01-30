@@ -50,6 +50,8 @@
 #include <cover/coVRAnimationManager.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
+#include <cover/VRRegisterSceneGraph.h>
+#include <cover/coLOD.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 
@@ -62,6 +64,7 @@
 #include <osg/MatrixTransform>
 #include <osg/PolygonOffset>
 #include <osg/Texture2D>
+#include <osg/LOD>
 
 #include <stdio.h>
 #include <cstring>
@@ -396,6 +399,8 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
 
     if (ro != NULL)
     {
+        //fprintf(stderr, "++++++ObjectManager(%s)::addObject %s  data_obj=%s renderObj=%s\n", getenv("HOST"), object,data_obj->getName(), ro->getName() );
+
         gtype = ro->getType();
         if (strcmp(gtype, "DOTEXT") == 0)
         {
@@ -403,7 +408,7 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
         else
         {
             // also send container object 'ro' for plugin usage
-            if (osg::Node *n = addGeometry(object, NULL, ro, NULL, NULL, NULL, NULL, ro))
+            if (osg::Node *n = addGeometry(object, NULL, ro, NULL, NULL, NULL, NULL, ro, NULL))
             {
                 VRSceneGraph::instance()->addNode(n, (osg::Group *)NULL, ro);
             }
@@ -613,7 +618,7 @@ static int create_named_color(const char *cname)
 //
 //----------------------------------------------------------------
 osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, CoviseRenderObject *geometry,
-                                      CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container)
+                                      CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container, const char *lod)
 {
     CoviseRenderObject *const *dobjsg = NULL; // Geometry Set elements
     CoviseRenderObject *const *dobjsc = NULL; // Color Set elements
@@ -668,6 +673,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     int pixS = 0; // size of pixels in texture map (= number of bytes per pixel)
     unsigned char *texImage = NULL; // texture map
 
+//fprintf(stderr, "++++++ObjectManager::addGeometry1  container=%s geometry=%s object =%s\n", container->getName(), geometry->getName(), object );
 #ifdef DBGPRINT
     printf("... ObjectManager::addGeometry=s\n", object);
 #endif
@@ -678,6 +684,11 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     if (const char *pluginName = geometry->getAttribute("MODULE"))
     {
         cover->addPlugin(pluginName);
+    }
+
+    if (const char *currentLod = geometry->getAttribute("LOD"))
+    {
+        lod = currentLod;
     }
 
     // check for FRAME_ANGLE attribute
@@ -850,7 +861,8 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         CoviseRenderObject *dobjt = geometry->getTexture();
         CoviseRenderObject *dobjv = geometry->getVertexAttribute();
         gtype = dobjg->getType();
-        return addGeometry(object, root, dobjg, dobjn, dobjc, dobjt, dobjv, container);
+        // use correct name for container object (necessary for COVER-GUI comunication)
+        return addGeometry(object, root, dobjg, dobjn, dobjc, dobjt, dobjv, container, lod);
     }
     else if (strcmp(gtype, "SETELE") == 0)
     {
@@ -861,6 +873,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
         // TODO change all Plugins to user RenderObjects
         handleInteractors(container, geometry, normals, colors, texture);
+        //fprintf(stderr, "++++++ObjectManager::addGeometry3  container=%s geometry=%s\n", container->getName(), geometry->getName() );
         coVRPluginList::instance()->addObject(container, geometry, normals, colors, texture, root,
                                               no_c, colorbinding, colorpacking, rc, gc, bc, pc,
                                               no_n, normalbinding, xn, yn, zn, transparency);
@@ -1019,7 +1032,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                                           no_c > 0 ? dobjsc[i] : NULL,
                                           no_t > 0 ? dobjst[i] : NULL,
                                           no_va > 0 ? dobjsva[i] : NULL,
-                                          container);
+                                          container, lod);
             if (groupNode && node)
                 groupNode->addChild(node);
             else
@@ -1684,6 +1697,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                }
                }
                */
+                // SceneGraphItems startID
+                const char *startIndex = geometry->getAttribute("SCENEGRAPHITEMS_STARTINDEX");
+                if (startIndex)
+                {
+                    VRRegisterSceneGraph::instance()->setRegisterStartIndex(atoi(startIndex));
+                }
                 osg::Node *modelNode = NULL;
 
                 if (modelPath)
@@ -1692,12 +1711,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                     strcpy(tmpName, modelPath);
                     strcat(tmpName, "/");
                     strcat(tmpName, modelName);
-                    modelNode = coVRFileManager::instance()->loadFile(tmpName);
+                    modelNode = coVRFileManager::instance()->loadFile(tmpName, NULL, NULL, geometry->getName());
                     delete[] tmpName;
                 }
                 else
                 {
-                    modelNode = coVRFileManager::instance()->loadFile(modelName);
+                    modelNode = coVRFileManager::instance()->loadFile(modelName, NULL, NULL, geometry->getName());
                 }
 
                 VRSceneGraph::instance()->attachNode(object, modelNode);
@@ -1774,7 +1793,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 // new Node <mt> under ObjectRoot
                 cover->getObjectsRoot()->addChild(mt);
                 //reading CAD-File and adding the new CAD-File structure under the <mt> node
-                coVRFileManager::instance()->loadFile(CAD_FILE, NULL, mt);
+                coVRFileManager::instance()->loadFile(CAD_FILE, NULL, mt, geometry->getName());
                 //attaching <mt> with <object> to get the correct name of the node in the SceneGraphBrowser
                 VRSceneGraph::instance()->attachNode(object, mt);
             }
@@ -1806,6 +1825,20 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             SliderList::instance()->add(geometry, newNode);
             vectorList.add(geometry, newNode);
             tuiParamList.add(geometry, newNode);
+
+            if (lod)
+            {
+                float min, max;
+                if (sscanf(lod, "%f %f", &min, &max) == 2)
+                {
+                    coLOD *lodNode = new coLOD();
+                    lodNode->addChild(newNode, min, max);
+                    lodNode->setName(newNode->getName());
+                    newNode->setName(newNode->getName() + "_LOD");
+                    newNode = lodNode;
+                }
+            }
+
             bool addNode = coVRMenuList::instance()->add(geometry, newNode);
             if (addNode)
                 return newNode;

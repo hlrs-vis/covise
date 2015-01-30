@@ -55,12 +55,13 @@ private:
 
     int sequential;
 
-    osg::ref_ptr<osg::Material> globalmtl;
+    osg::ref_ptr<osg::Material> globalDefaultMaterial;
 
-    void setDefaultMaterial(osg::StateSet *geoState, bool transparent, coMaterial *material = NULL);
-    void setUnlightedMaterial(osg::StateSet *geoState, bool transparent, coMaterial *material = NULL);
+    void setDefaultMaterial(osg::StateSet *geoState, bool transparent, coMaterial *material = NULL, bool isLightingOn = true);
 
     void setTexture(const unsigned char *image, int pixelSize, int width, int height, osg::StateSet *geoState, osg::Texture::WrapMode wm, osg::Texture::FilterMode minfm, osg::Texture::FilterMode magfm);
+
+    osg::Vec4 coviseGeometryDefaultColor;
 
 public:
     static GeometryManager *instance();

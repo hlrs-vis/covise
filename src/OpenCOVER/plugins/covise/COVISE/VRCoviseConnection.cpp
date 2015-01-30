@@ -32,6 +32,9 @@
 #include "VRCoviseConnection.h"
 #include <cover/coVRCommunication.h>
 #include <cover/coCommandLine.h>
+#include <cover/coVRShader.h>
+#include <cover/coVRConfig.h>
+#include <config/CoviseConfig.h>
 
 #include <util/coTimer.h>
 #include <appl/RenderInterface.h>
@@ -52,12 +55,14 @@
 #include <grmsg/coGRObjColorObjMsg.h>
 #include <grmsg/coGRObjMaterialObjMsg.h>
 #include <grmsg/coGRObjShaderObjMsg.h>
+#include <grmsg/coGRObjSetTransparencyMsg.h>
 #include <grmsg/coGRAnimationOnMsg.h>
 #include <grmsg/coGRSetAnimationSpeedMsg.h>
 #include <grmsg/coGRSetTimestepMsg.h>
 #include <grmsg/coGRSetTrackingParamsMsg.h>
 #include <grmsg/coGRObjMoveObjMsg.h>
 #include <grmsg/coGRObjTransformSGItemMsg.h>
+#include <grmsg/coGRObjSetNameMsg.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -85,6 +90,10 @@ VRCoviseConnection::VRCoviseConnection()
     CoviseRender::set_port_default("Viewpoints___filter", "Viewpoints *.vwp/*");
     CoviseRender::add_port(PARIN, "Plugins", "String", "Additional plugins");
     CoviseRender::set_port_default("Plugins", "");
+
+    // only used, when embedded="true" in WindowConfig
+    CoviseRender::add_port(PARIN, "WindowID", "IntScalar", "window ID to render to");
+    CoviseRender::set_port_default("WindowID", "0");
 
     if (coVRMSController::instance()->isMaster())
         CoviseRender::init(coCommandLine::argc(), coCommandLine::argv());
@@ -188,7 +197,7 @@ static void checkAndHandle()
 }
 
 void
-VRCoviseConnection::update()
+VRCoviseConnection::update(bool handleOneMessageOnly)
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "VRCoviseConnection::update\n");
@@ -207,7 +216,7 @@ VRCoviseConnection::update()
     }
     else
     {
-        while ((CoviseRender::check_and_handle_event()) && (!exitFlag))
+        while ((CoviseRender::check_and_handle_event()) && (!handleOneMessageOnly) && (!exitFlag))
             ;
     }
     if (ObjectManager::instance())
@@ -333,10 +342,30 @@ VRCoviseConnection::localParam(bool inMapLoading, void *callbackData)
         return;
     }
 
-    if (!strstr(paramname, "___filter") && strcmp(paramname, "Viewpoints"))
+    /*    if (!strstr(paramname, "___filter") && strcmp(paramname, "Viewpoints"))
     {
         // ignore non-registered filebrowser filters
         CoviseBase::sendWarning("Received message for non-registered parameter '%s'", paramname);
+    }
+*/
+
+    if (strcmp(paramname, "WindowID") == 0)
+    {
+        long int windowID;
+        CoviseRender::get_reply_int_scalar(&windowID);
+        // TODO: check for valid windowID
+        for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
+        {
+            if (coVRConfig::instance()->windows[i].embedded)
+            {
+#ifdef _WINDOWS
+                HWND win = (HWND)windowID;
+                OpenCOVER::instance()->parentWindow = win;
+#else
+                OpenCOVER::instance()->parentWindow = windowID;
+#endif
+            }
+        }
     }
 
     coVRPluginList::instance()->param(paramname, inMapLoading);
@@ -491,39 +520,39 @@ VRCoviseConnection::receiveRenderMessage()
                 setMaterial(objectName, ambient, diffuse, specular, shininess, transparency);
             }
 
-            // is used for transparency at the moment
+            else if (grMsg.getType() == coGRMsg::SET_TRANSPARENCY)
+            {
+                coGRObjSetTransparencyMsg setTransparencyMsg(fullMsg.c_str());
+                const char *objectName = setTransparencyMsg.getObjName();
+
+                if (cover->debugLevel(3))
+                    fprintf(stderr, "in VRCoviseConnection  coGRMsg::SET_TRANSPARENCY object=%s\n", objectName);
+
+                setTransparency(objectName, setTransparencyMsg.getTransparency());
+            }
             else if (grMsg.getType() == coGRMsg::SHADER_OBJECT)
             {
                 coGRObjShaderObjMsg shaderObjMsg(fullMsg.c_str());
                 const char *objectName = shaderObjMsg.getObjName();
+                const char *shaderName = shaderObjMsg.getShaderName();
 
                 if (cover->debugLevel(3))
                     fprintf(stderr, "in VRCoviseConnection  coGRMsg::SHADER_OBJECT object=%s\n", objectName);
 
-                const char *shaderName = shaderObjMsg.getShaderName();
-                const char *mapFloat = shaderObjMsg.getParaFloatName();
-                const char *mapVec2 = shaderObjMsg.getParaVec2Name();
-                const char *mapVec3 = shaderObjMsg.getParaVec3Name();
-                const char *mapVec4 = shaderObjMsg.getParaVec4Name();
-                const char *mapBool = shaderObjMsg.getParaBoolName();
-                const char *mapInt = shaderObjMsg.getParaIntName();
-                const char *mapMat2 = shaderObjMsg.getParaMat2Name();
-                const char *mapMat3 = shaderObjMsg.getParaMat3Name();
-                const char *mapMat4 = shaderObjMsg.getParaMat4Name();
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "coGRMsg::SHADER_OBJECT object=%s\n", objectName);
-                setShader(objectName, shaderName, mapFloat, mapVec2, mapVec3, mapVec4, mapInt, mapBool, mapMat2, mapMat3, mapMat4);
+                setShader(objectName, shaderName);
             }
-
             else if (grMsg.getType() == coGRMsg::SET_TRACKING_PARAMS)
             {
                 coGRSetTrackingParamsMsg trackingMsg(fullMsg.c_str());
                 // restrict rotation
                 if (trackingMsg.isRotatePoint())
-                    coVRNavigationManager::instance()->setRotationPoint(trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ());
+                    coVRNavigationManager::instance()->setRotationPoint(trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ(), trackingMsg.getRotationPointSize());
                 else
                     coVRNavigationManager::instance()->disableRotationPoint();
-                coVRNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
+                if (coCoviseConfig::isOn("COVER.showRotationPoint", true))
+                    coVRNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
+                else
+                    coVRNavigationManager::instance()->setRotationPointVisible(false);
                 if (trackingMsg.isRotateAxis())
                     coVRNavigationManager::instance()->setRotationAxis(trackingMsg.getRotateAxisX(), trackingMsg.getRotateAxisY(), trackingMsg.getRotateAxisZ());
                 else
@@ -544,6 +573,20 @@ VRCoviseConnection::receiveRenderMessage()
                 // navigation
                 // enable navigationmode showName
                 //coVRNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
+                // set navigationMode
+                if (strcmp(trackingMsg.getNavigationMode(), "") == 0)
+                {
+                    // do nothing
+                }
+                else if (strcmp(trackingMsg.getNavigationMode(), "NavNone") == 0)
+                {
+                    cover->enableNavigation("XForm");
+                    cover->disableNavigation("XForm");
+                }
+                else
+                {
+                    cover->enableNavigation(trackingMsg.getNavigationMode());
+                }
                 //enable tracking in opencover
 
                 //vld: VRTracker use. Enable tracking. Add the method in input?
@@ -594,6 +637,45 @@ VRCoviseConnection::receiveRenderMessage()
                     row3[i] = transformMsg.getMatrix(3, i);
                 }
                 transformSGItem(objectName, row0, row1, row2, row3);
+            }
+            else if (grMsg.getType() == coGRMsg::SET_NAME)
+            {
+                coGRObjSetNameMsg setNameMsg(fullMsg.c_str());
+                const char *coviseObjectName = setNameMsg.getObjName();
+                const char *newName = setNameMsg.getNewName();
+                //fprintf(stderr,"COVER got a SET_NAME msg from gui. objectname=%s newname=%s\n", coviseObjectName, newName);
+
+                // if the coviseObjectName contains _SCGR_, it is a geometry loaded from file
+                // else it is geometry from a covise module.
+                // covise geomtry objects are handled in the plugins and their base class Modulefeedbackmanager
+                // because here it is impossible to find the geode in the sg only with the coviseObjectName
+                string coname(coviseObjectName);
+                if (coname.find("_SCGR_") != string::npos) // this is geometry from a file
+                {
+                    //fprintf(stderr,"this is geomtry from a file\n");
+                    osg::Node *node = VRSceneGraph::instance()->findFirstNode<osg::Node>(coviseObjectName);
+                    if (node)
+                    {
+                        if (node->getNumDescriptions())
+                        {
+                            // if there is already a description which contains SCGR_ replace it
+                            std::vector<std::string> dl = node->getDescriptions();
+                            for (int i = 0; i < dl.size(); i++)
+                            {
+                                std::string descr = dl[i];
+                                if (descr.find("_SCGR_") != string::npos)
+                                {
+                                    dl[i] = std::string(newName) + "_SCGR_";
+                                }
+                            }
+                            node->setDescriptions(dl);
+                        }
+                        else // add a description
+                            node->addDescription(string(newName) + "_SCGR_");
+                    }
+                }
+                // else
+                //    fprintf(stderr,"covise module geometry is handled in the plugins\n");
             }
         }
 
@@ -737,39 +819,54 @@ VRCoviseConnection::transformSGItem(const char *objName, float *row0, float *row
           row0[1], row1[1], row2[1], row3[1],
           row0[2], row1[2], row2[2], row3[2],
           row0[3], row1[3], row2[3], 1.0);
-    bool transformNeeded = !m.isIdentity();
-    osg::ref_ptr<osg::MatrixTransform> transformNode = dynamic_cast<osg::MatrixTransform *>(node->getParent(0));
-    bool transformPresent = transformNode.valid() && (transformNode->getName() == "#_TRANSFORM_SGITEM_#");
 
-    if (transformNeeded)
+    if (node->getParent(0) == cover->getObjectsRoot())
     {
-        if (!transformPresent)
-        {
-            // insert a new MatrixTransform
-            transformNode = new osg::MatrixTransform();
-            transformNode->setName("#_TRANSFORM_SGITEM_#");
-            while (node->getNumParents() > 0)
-            {
-                osg::Group *parent = node->getParent(0);
-                parent->removeChild(node.get());
-                parent->addChild(transformNode.get());
-            }
-            transformNode->addChild(node.get());
-        }
-        transformNode->setMatrix(m);
+
+        // If we want to transform the "top" node of a vrml/osg/... model, we don't add an additional node.
+        // Adding a node would cause problems with VRSceneGraphs m_attachedNode / m_addedNodes which would affect deleting the model.
+        // Unfortunately, if the top node is not already a MatrixTransform, transformation will not work.
+        osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform *>(node.get());
+        if (mt.valid())
+            mt->setMatrix(m);
     }
     else
     {
-        if (transformPresent)
+
+        bool transformNeeded = !m.isIdentity();
+        osg::ref_ptr<osg::MatrixTransform> transformNode = dynamic_cast<osg::MatrixTransform *>(node->getParent(0));
+        bool transformPresent = transformNode.valid() && (transformNode->getName() == "#_TRANSFORM_SGITEM_#");
+
+        if (transformNeeded)
         {
-            // remove existing MatrixTransform
-            while (transformNode->getNumParents() > 0)
+            if (!transformPresent)
             {
-                osg::Group *parent = transformNode->getParent(0);
-                parent->removeChild(transformNode);
-                parent->addChild(node.get());
+                // insert a new MatrixTransform
+                transformNode = new osg::MatrixTransform();
+                transformNode->setName("#_TRANSFORM_SGITEM_#");
+                while (node->getNumParents() > 0)
+                {
+                    osg::Group *parent = node->getParent(0);
+                    parent->removeChild(node.get());
+                    parent->addChild(transformNode.get());
+                }
+                transformNode->addChild(node.get());
             }
-            transformNode->removeChild(node.get());
+            transformNode->setMatrix(m);
+        }
+        else
+        {
+            if (transformPresent)
+            {
+                // remove existing MatrixTransform
+                while (transformNode->getNumParents() > 0)
+                {
+                    osg::Group *parent = transformNode->getParent(0);
+                    parent->removeChild(transformNode);
+                    parent->addChild(node.get());
+                }
+                transformNode->removeChild(node.get());
+            }
         }
     }
 }
@@ -799,7 +896,7 @@ VRCoviseConnection::setColor(osg::Node *node, int *color)
 void
 VRCoviseConnection::setMaterial(osg::Node *node, int *ambient, int *diffuse, int *specular, float shininess, float transparency)
 {
-    fprintf(stderr, "VRCoviseConnection::setMaterial %f\n", transparency);
+    //    fprintf(stderr, "VRCoviseConnection::setMaterial %f\n", transparency);
     if (node)
     {
         osg::Geode *geode = dynamic_cast<osg::Geode *>(node);
@@ -867,38 +964,31 @@ VRCoviseConnection::setMaterial(const char *objectName, int *ambient, int *diffu
 }
 
 void
-VRCoviseConnection::setShader(const char *objectName, const char *, const char *paraFloat, const char *, const char *, const char *, const char *, const char *, const char *, const char *, const char *)
+VRCoviseConnection::setTransparency(const char *objectName, float transparency)
 {
-    //fprintf(stderr, "*****VRCoviseConnection::setShader %s\n", paraFloat);
     osg::Node *node;
     node = VRSceneGraph::instance()->findFirstNode<osg::Node>(objectName);
+    setTransparency(node, transparency);
+}
 
-    // look for the transparency in the shader
-    std::string param;
-    std::string varName;
-    float fvalue;
-    //the float variable
-    param = paraFloat;
-    std::string::size_type erg = param.find(':');
-    std::string::size_type erg2;
-    //found one variable
-    while (erg != std::string::npos)
+void
+VRCoviseConnection::setShader(const char *objectName, const char *shaderName)
+{
+    osg::Node *node = VRSceneGraph::instance()->findFirstNode<osg::Node>(objectName);
+    if (!node)
     {
-        varName = param.substr(0, erg);
-        erg2 = param.find(' ', erg + 1);
-        fvalue = atof(param.substr(erg + 1, erg2).c_str());
-        if (varName == "transparency")
-        {
-            setTransparency(node, fvalue);
-            break;
-        }
-        //there are more variables
-        if (erg2 != std::string::npos)
-        {
-            param = param.substr(erg2 + 1);
-            erg = param.find(':', 0);
-        }
-        else
-            erg = erg2;
+        return;
+    }
+
+    if (!shaderName || strcmp(shaderName, "") == 0)
+    {
+        coVRShaderList::instance()->remove(node);
+        return;
+    }
+
+    coVRShader *shader = coVRShaderList::instance()->get(shaderName);
+    if (shader)
+    {
+        shader->apply(node);
     }
 }

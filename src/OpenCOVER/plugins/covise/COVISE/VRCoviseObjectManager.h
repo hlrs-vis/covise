@@ -86,7 +86,7 @@ private:
     //		     coDistributedObject *normals,
     //	     coDistributedObject *colors);
     osg::Node *addGeometry(const char *object, osg::Group *root, CoviseRenderObject *geometry,
-                           CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container);
+                           CoviseRenderObject *normals, CoviseRenderObject *colors, CoviseRenderObject *texture, CoviseRenderObject *vertexAttribute, CoviseRenderObject *container, const char *lod);
     void removeGeometry(const char *name, bool);
 
     void addPinboardButton(const char *buttonId, int moduleInstance, const char *feedback_info, const char *name);

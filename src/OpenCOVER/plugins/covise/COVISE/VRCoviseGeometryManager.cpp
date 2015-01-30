@@ -32,6 +32,7 @@
 #include <osg/Sequence>
 #include <osg/Geode>
 #include <osg/Array>
+#include <osg/Depth>
 #include <osg/Material>
 #include <osg/Group>
 #include <osg/Array>
@@ -82,6 +83,11 @@ GeometryManager::GeometryManager()
 
     d_stripper = new osgUtil::TriStripVisitor;
     genStrips = coCoviseConfig::isOn("COVER.GenStrips", false);
+
+    float r = coCoviseConfig::getFloat("r", "COVER.CoviseGeometryDefaultColor", 1.0f);
+    float g = coCoviseConfig::getFloat("g", "COVER.CoviseGeometryDefaultColor", 1.0f);
+    float b = coCoviseConfig::getFloat("b", "COVER.CoviseGeometryDefaultColor", 1.0f);
+    coviseGeometryDefaultColor = osg::Vec4(r, g, b, 1.0f);
 }
 
 osg::Group *
@@ -476,17 +482,17 @@ GeometryManager::addSGrid(const char *object,
 #endif
 }
 
-void GeometryManager::setDefaultMaterial(osg::StateSet *geoState, bool transparent, coMaterial *material)
+void GeometryManager::setDefaultMaterial(osg::StateSet *geoState, bool transparent, coMaterial *material, bool isLightingOn)
 {
-    if (globalmtl.get() == NULL)
+    if (globalDefaultMaterial.get() == NULL)
     {
-        globalmtl = new osg::Material;
-        globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-        globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
-        globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
-        globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
-        globalmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
-        globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+        globalDefaultMaterial = new osg::Material;
+        globalDefaultMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+        globalDefaultMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+        globalDefaultMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
+        globalDefaultMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
+        globalDefaultMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+        globalDefaultMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     }
 
     if (material)
@@ -499,80 +505,34 @@ void GeometryManager::setDefaultMaterial(osg::StateSet *geoState, bool transpare
         mymtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2], 1.0 - material->transparency));
         mymtl->setShininess(osg::Material::FRONT_AND_BACK, material->shininess * 128);
         geoState->setAttributeAndModes(mymtl, osg::StateAttribute::ON);
-        if (transparent || material->transparency > 0.f)
-        {
-            geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-            geoState->setNestRenderBins(false);
-        }
-        else
-        {
-            geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-            geoState->setNestRenderBins(false);
-        }
+        transparent = transparent || (material->transparency > 0.0f && material->transparency < 1.0);
     }
     else
     {
-        geoState->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
-        geoState->setNestRenderBins(false);
-        if (transparent)
-        {
-            geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
-            geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-        }
-        else
-        {
-            geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
-            geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-        }
-    }
-    geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-}
-
-void GeometryManager::setUnlightedMaterial(osg::StateSet *geoState, bool transparent, coMaterial *material)
-{
-    if (globalmtl.get() == NULL)
-    {
-        globalmtl = new osg::Material;
-        globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-        globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
-        globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-        globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
-        globalmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
-        globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+        geoState->setAttributeAndModes(globalDefaultMaterial.get(), osg::StateAttribute::ON);
     }
 
-    if (material)
+    if (transparent)
     {
-        osg::Material *mymtl = new osg::Material;
-        mymtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-        mymtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(material->ambientColor[0], material->ambientColor[1], material->ambientColor[2], 1.0 - material->transparency));
-        mymtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2], 1.0 - material->transparency));
-        mymtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(material->specularColor[0], material->specularColor[1], material->specularColor[2], 1.0 - material->transparency));
-        mymtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2], 1.0 - material->transparency));
-        mymtl->setShininess(osg::Material::FRONT_AND_BACK, material->shininess * 128);
-        geoState->setAttributeAndModes(mymtl, osg::StateAttribute::ON);
-        geoState->setNestRenderBins(false);
-        if (transparent || material->transparency > 0.f)
-        {
-            geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-        }
-        else
-        {
-            geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-        }
+        geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+        geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
     }
     else
     {
-        geoState->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
-        geoState->setNestRenderBins(false);
-        if (transparent)
-            geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-        else
-            geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+        geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+        geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
     }
-    geoState->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-}
+    geoState->setNestRenderBins(false);
 
+    if (isLightingOn)
+    {
+        geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    }
+    else
+    {
+        geoState->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    }
+}
 //--------------------------------------------------------------------------------------
 // create a new geode contraining polygons and add it to the scene
 //--------------------------------------------------------------------------------------
@@ -749,7 +709,8 @@ GeometryManager::addPolygon(const char *object_name,
         else
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-            colArr->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            colArr->push_back(coviseGeometryDefaultColor);
+
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
         }
@@ -920,8 +881,10 @@ GeometryManager::addPolygon(const char *object_name,
         geom->setVertexAttribArray(6, vertArray);
     }
     // geoState->setGlobalDefaults();
+
     if (pixelSize == 4)
         transparent = true;
+
     setDefaultMaterial(geoState, transparent, material);
 
     if (backfaceCulling || cullBackfaces) // backfaceCulling nur dann, wenn es im CoviseConfig enabled ist
@@ -1116,7 +1079,8 @@ GeometryManager::addTriangles(const char *object_name,
         else
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-            colArr->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            colArr->push_back(coviseGeometryDefaultColor);
+
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
         }
@@ -1437,7 +1401,8 @@ GeometryManager::addQuads(const char *object_name,
         else
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-            colArr->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            colArr->push_back(coviseGeometryDefaultColor);
+
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
         }
@@ -1562,7 +1527,7 @@ GeometryManager::addQuads(const char *object_name,
     // geoState->setGlobalDefaults();
     if (pixelSize == 4)
         transparent = true;
-    setDefaultMaterial(geoState, transparent, material);
+    setDefaultMaterial(geoState, transparent, material, false);
 
     if (backfaceCulling || cullBackfaces) // backfaceCulling nur dann, wenn es im CoviseConfig enabled ist
     {
@@ -1843,7 +1808,8 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
         else
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-            colArr->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            colArr->push_back(coviseGeometryDefaultColor);
+
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
         }
@@ -2430,7 +2396,7 @@ osg::Node *GeometryManager::addLine(const char *object_name,
         setDefaultMaterial(geoState, transparent);
     }
     else
-        setUnlightedMaterial(geoState, transparent, material);
+        setDefaultMaterial(geoState, transparent, material, false);
 
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA,
@@ -2551,7 +2517,7 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
 
     osg::StateSet *geoState = geode->getOrCreateStateSet();
     // geoState->setGlobalDefaults();
-    setUnlightedMaterial(geoState, transparent);
+    setDefaultMaterial(geoState, transparent, NULL, false);
 
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
