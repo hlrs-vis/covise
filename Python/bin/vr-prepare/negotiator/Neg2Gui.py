@@ -932,8 +932,10 @@ class _neg2Gui(QtCore.QObject):
         elif e.type() == RENDERER_CRASH_EVENT :
             RendererRestartMode = covise.getCoConfigEntry("vr-prepare.RendererRestartMode")
             if RendererRestartMode and RendererRestartMode == "RENDERER_RESTART_AUTOMATIC":
+                print("vr-prepare: renderer died - restarting")
                 self.restartRenderer()
-            print("Too much")
+            else:
+                print("vr-prepare: renderer died - ignoring")
             globalRenderer().died()
             self.sendFinishLoading()
 
