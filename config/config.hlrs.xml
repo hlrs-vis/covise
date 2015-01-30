@@ -3,6 +3,8 @@
 <COCONFIG version="1" >
 
  <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ <INCLUDE global="1" configname="augmented_reality" >config-ar.xml</INCLUDE>
+ <INCLUDE global="1" configname="fasi" >config-drivingsim.xml</INCLUDE>
 
  <INCLUDE global="1" configname="private" arch="unix" >/data/hlrs/config-hlrs-private.xml</INCLUDE>
  <INCLUDE global="1" configname="private" arch="windows" >c:/data/hlrs/config-hlrs-private.xml</INCLUDE>
@@ -13,8 +15,6 @@
  <INCLUDE global="1" configname="rueckpro" >config.rpro.xml</INCLUDE>
 
  <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
-
- <!--INCLUDE global="1" configname="AR" >config.ar.xml</INCLUDE-->
 
  <INCLUDE global="1" configname="visd800" >config.uwe.xml</INCLUDE>
  

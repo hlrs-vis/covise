@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+    <GLOBAL>
+        <COVER>
+            <Plugin>
+                <ARTrace value="off" />
+                <ARToolKit value="off" >
+                    <Capture value="ON" />
+                    <Stereo value="OFF" />
+                    <TrackViewpoint value="OFF" />
+                    <TrackObjects value="ON" />
+
+                    <Marker name="ObjectMarker0" >
+                        <Pattern value="10" />
+                        <Size value="40" />
+                        <Offset x="30" y="40" z="6" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+                    <Marker name="ObjectMarker1" >
+                        <Pattern value="1" />
+                        <Size value="50" />
+                        <Offset x="1487" y="218" z="815" h="0" p="0" r="88" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker7" >
+                        <Pattern value="9" />
+                        <Size value="40" />
+                        <Offset x="1487" y="268" z="733" h="-90" p="90" r="180" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker2" >
+                        <Pattern value="38" />
+                        <Size value="295" />
+                        <Offset x="1010" y="-935" z="210" h="0" p="0" r="-2" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker3" >
+                        <Pattern value="39" />
+                        <Size value="295" />
+                        <Offset x="-60" y="935" z="0" h="180" p="0" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker4" >
+                        <Pattern value="40" />
+                        <Size value="295" />
+                        <Offset x="-60" y="-935" z="0" h="0" p="0" r="-0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker5" >
+                        <Pattern value="37" />
+                        <Size value="295" />
+                        <Offset x="-80" y="0" z="620" h="90" p="-96" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker6" >
+                        <Pattern value="17" />
+                        <Size value="90" />
+                        <Offset x="-1040" y="20" z="50" h="-90" p="-5" r="1" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker8" >
+                        <Pattern value="35" />
+                        <Size value="151" />
+                        <Offset x="-833" y="0" z="1600" h="0" p="0" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker9" >
+                        <Pattern value="36" />
+                        <Size value="200" />
+                        <Offset x="0" y="990" z="1542" h="90" p="0" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker10" >
+                        <Pattern value="33" />
+                        <Size value="200" />
+                        <Offset x="0" y="1650" z="1480" h="90" p="0" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+
+                    <Marker name="Tracer1" >
+                        <Pattern value="16" />
+                        <Size value="100" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+
+                    <!--
+                    <Marker name="ObjectMarker1" >
+                        <Pattern value="1" />
+                        <Size value="40" />
+                        <Offset x="-100" y="0" z="60" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+                    <Marker name="ObjectMarker2" >
+                        <Pattern value="2" />
+                        <Size value="40" />
+                        <Offset x="100" y="0" z="60" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+                    <Marker name="ObjectMarker3" >
+                        <Pattern value="3" />
+                        <Size value="40" />
+                        <Offset x="-100" y="0" z="-60" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+                    <Marker name="ObjectMarker4" >
+                        <Pattern value="4" />
+                        <Size value="40" />
+                        <Offset x="100" y="0" z="-60" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+                    -->
+
+                </ARToolKit>
+
+                <ALVAR value="OFF">
+                    <Capture value="on" />
+                    <VideoDevice value="0" width="1920" height="1080" />
+                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+                    <!--
+                    <VideoDevice value="0" width="640" height="480" />
+                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
+                    -->
+                </ALVAR>
+
+            </Plugin>
+        </COVER>
+    </GLOBAL>
+</COCONFIG>
