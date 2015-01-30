@@ -367,7 +367,6 @@ SET(ODDLOT_MOC_HEADERS
 	 src/data/roadsystem/sections/signalobject.hpp
 	 src/data/roadsystem/sections/sensorobject.hpp
 	 src/util/odd.hpp
-	 src/io/domwriter.hpp
 	 src/graph/editors/roadlinkeditor.hpp
 	 src/graph/editors/trackeditor.hpp
 	 src/data/observer.hpp

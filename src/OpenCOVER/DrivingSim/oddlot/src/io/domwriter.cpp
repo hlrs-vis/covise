@@ -102,9 +102,8 @@ DomWriter::runToTheHills()
 
     // <OpenDRIVE> //
     //
-    QDomElement root = doc_->createElement("OpenDRIVE");
-    doc_->appendChild(root);
-    root_ = &root;
+    root_ = doc_->createElement("OpenDRIVE");
+    doc_->appendChild(root_);
 
     // <header> //
     //
@@ -118,7 +117,7 @@ DomWriter::runToTheHills()
     header.setAttribute("south", projectData_->getSouth());
     header.setAttribute("east", projectData_->getEast());
     header.setAttribute("west", projectData_->getWest());
-    root_->appendChild(header);
+    root_.appendChild(header);
 
     // Run for your life //
     //
@@ -141,12 +140,12 @@ DomWriter::visit(RSystemElementRoad *road)
 {
     // <road> //
     //
-    QDomElement roadElement = doc_->createElement("road");
-    roadElement.setAttribute("name", road->getName());
-    roadElement.setAttribute("length", road->getLength());
-    roadElement.setAttribute("id", road->getID());
-    roadElement.setAttribute("junction", road->getJunction());
-    root_->appendChild(roadElement);
+    currentRoad_ = doc_->createElement("road");
+    currentRoad_.setAttribute("name", road->getName());
+    currentRoad_.setAttribute("length", road->getLength());
+    currentRoad_.setAttribute("id", road->getID());
+    currentRoad_.setAttribute("junction", road->getJunction());
+    root_.appendChild(currentRoad_);
 
     // <road><link><predecessor/successor> //
     //
@@ -155,7 +154,7 @@ DomWriter::visit(RSystemElementRoad *road)
     if (pred || succ)
     {
         QDomElement linkElement = doc_->createElement("link");
-        roadElement.appendChild(linkElement);
+        currentRoad_.appendChild(linkElement);
 
         if (pred)
         {
@@ -178,59 +177,51 @@ DomWriter::visit(RSystemElementRoad *road)
 
     // <road><planView> //
     //
-    QDomElement pvElement = doc_->createElement("planView");
-    roadElement.appendChild(pvElement);
-    currentPVElement_ = &pvElement;
+    currentPVElement_ = doc_->createElement("planView");
+    currentRoad_.appendChild(currentPVElement_);
 
     // <road><elevationProfile> //
     //
     if (!road->getElevationSections().isEmpty())
     {
-        QDomElement elevationProfileElement = doc_->createElement("elevationProfile");
-        roadElement.appendChild(elevationProfileElement);
-        currentElevationProfileElement_ = &elevationProfileElement;
+        currentElevationProfileElement_ = doc_->createElement("elevationProfile");
+        currentRoad_.appendChild(currentElevationProfileElement_);
     }
 
     // <road><lateralProfile> //
     //
     if (!road->getSuperelevationSections().isEmpty() || !road->getCrossfallSections().isEmpty())
     {
-        QDomElement lateralProfileElement = doc_->createElement("lateralProfile");
-        roadElement.appendChild(lateralProfileElement);
-        currentLateralProfileElement_ = &lateralProfileElement;
+        currentLateralProfileElement_ = doc_->createElement("lateralProfile");
+        currentRoad_.appendChild(currentLateralProfileElement_);
     }
 
     // <road><lanes> //
     //
-    QDomElement lanesElement = doc_->createElement("lanes");
-    roadElement.appendChild(lanesElement);
-    currentLanesElement_ = &lanesElement;
+    currentLanesElement_ = doc_->createElement("lanes");
+    currentRoad_.appendChild(currentLanesElement_);
 
     // <road><objects><crosswalk> //
     //TODO: other objects??
     if (!road->getCrosswalks().isEmpty() || !road->getObjects().isEmpty() || !road->getBridges().isEmpty())
     {
-        QDomElement objElement = doc_->createElement("objects");
-        roadElement.appendChild(objElement);
-        currentObjectsElement_ = &objElement;
+        currentObjectsElement_ = doc_->createElement("objects");
+        currentRoad_.appendChild(currentObjectsElement_);
     }
     if (!road->getSignals().isEmpty())
     {
-        QDomElement objElement = doc_->createElement("signals");
-        roadElement.appendChild(objElement);
-        currentSignalsElement_ = &objElement;
+        currentSignalsElement_ = doc_->createElement("signals");
+        currentRoad_.appendChild(currentSignalsElement_);
     }
 
     if (!road->getSensors().isEmpty())
     {
-        QDomElement objElement = doc_->createElement("sensors");
-        roadElement.appendChild(objElement);
-        currentSensorsElement_ = &objElement;
+        currentSensorsElement_ = doc_->createElement("sensors");
+        currentRoad_.appendChild(currentSensorsElement_);
     }
 
     // Child Nodes //
     //
-    currentRoad_ = &roadElement;
     road->acceptForChildNodes(this);
 }
 
@@ -354,7 +345,7 @@ DomWriter::visit(Object *object)
     objectElement.setAttribute("pitch", object->getPitch());
     objectElement.setAttribute("roll", object->getRoll());
 
-    currentObjectsElement_->appendChild(objectElement);
+    currentObjectsElement_.appendChild(objectElement);
 
     /*	if (object->getType() == "PoleTraverse")
 	{
@@ -430,7 +421,7 @@ DomWriter::visit(Bridge *bridge)
         bridgeElement.setAttribute("type", typeName);
     }
 
-    currentObjectsElement_->appendChild(bridgeElement);
+    currentObjectsElement_.appendChild(bridgeElement);
 }
 
 //################//
@@ -475,7 +466,7 @@ DomWriter::visit(Crosswalk *crosswalk)
         crosswalkElement.appendChild(validityElement);
     }
 
-    currentObjectsElement_->appendChild(crosswalkElement);
+    currentObjectsElement_.appendChild(crosswalkElement);
 }
 //################//
 // SIGNAL         //
@@ -602,7 +593,7 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("value", signal->getValue());
     signalElement.setAttribute("size", signal->getSize());
 
-    currentSignalsElement_->appendChild(signalElement);
+    currentSignalsElement_.appendChild(signalElement);
 }
 
 //################//
@@ -619,7 +610,7 @@ DomWriter::visit(Sensor *sensor)
     sensorElement.setAttribute("id", sensor->getId());
     sensorElement.setAttribute("s", sensor->getS());
 
-    currentSensorsElement_->appendChild(sensorElement);
+    currentSensorsElement_.appendChild(sensorElement);
 }
 
 //################//
@@ -632,7 +623,7 @@ DomWriter::visit(TypeSection *section)
     QDomElement element = doc_->createElement("type");
     element.setAttribute("s", section->getSStart());
     element.setAttribute("type", TypeSection::parseRoadTypeBack(section->getRoadType()));
-    currentRoad_->appendChild(element);
+    currentRoad_.appendChild(element);
 }
 
 //#################//
@@ -669,7 +660,7 @@ DomWriter::visit(SurfaceSection *section)
 
         element.appendChild(crgElement);
     }
-    currentRoad_->appendChild(element);
+    currentRoad_.appendChild(element);
 }
 
 //###################//
@@ -685,7 +676,7 @@ DomWriter::visit(ElevationSection *section)
     element.setAttribute("b", section->getB());
     element.setAttribute("c", section->getC());
     element.setAttribute("d", section->getD());
-    currentElevationProfileElement_->appendChild(element);
+    currentElevationProfileElement_.appendChild(element);
 }
 
 //################//
@@ -701,7 +692,7 @@ DomWriter::visit(SuperelevationSection *section)
     element.setAttribute("b", section->getB() * 2.0 * M_PI / 360.0);
     element.setAttribute("c", section->getC() * 2.0 * M_PI / 360.0);
     element.setAttribute("d", section->getD() * 2.0 * M_PI / 360.0);
-    currentLateralProfileElement_->appendChild(element);
+    currentLateralProfileElement_.appendChild(element);
 }
 
 //################//
@@ -718,7 +709,7 @@ DomWriter::visit(CrossfallSection *section)
     element.setAttribute("b", section->getB() * 2.0 * M_PI / 360.0);
     element.setAttribute("c", section->getC() * 2.0 * M_PI / 360.0);
     element.setAttribute("d", section->getD() * 2.0 * M_PI / 360.0);
-    currentLateralProfileElement_->appendChild(element);
+    currentLateralProfileElement_.appendChild(element);
 }
 
 //################//
@@ -735,58 +726,54 @@ void
 DomWriter::visit(TrackElement *track)
 {
     double s = track->getSStart();
-    currentTrackElement_->setAttribute("s", track->getSStart());
-    currentTrackElement_->setAttribute("x", track->getGlobalPoint(s).x());
-    currentTrackElement_->setAttribute("y", track->getGlobalPoint(s).y());
-    currentTrackElement_->setAttribute("hdg", track->getGlobalHeadingRad(s));
-    currentTrackElement_->setAttribute("length", track->getLength());
+    currentTrackElement_.setAttribute("s", track->getSStart());
+    currentTrackElement_.setAttribute("x", track->getGlobalPoint(s).x());
+    currentTrackElement_.setAttribute("y", track->getGlobalPoint(s).y());
+    currentTrackElement_.setAttribute("hdg", track->getGlobalHeadingRad(s));
+    currentTrackElement_.setAttribute("length", track->getLength());
 }
 
 void
 DomWriter::visit(TrackElementLine *track)
 {
-    QDomElement geoElement = doc_->createElement("geometry");
-    currentPVElement_->appendChild(geoElement);
-    currentTrackElement_ = &geoElement;
+    currentTrackElement_ = doc_->createElement("geometry");
+    currentPVElement_.appendChild(currentTrackElement_);
     visit((TrackElement *)track);
 
     QDomElement element = doc_->createElement("line");
-    currentTrackElement_->appendChild(element);
+    currentTrackElement_.appendChild(element);
 }
 
 void
 DomWriter::visit(TrackElementArc *track)
 {
-    QDomElement geoElement = doc_->createElement("geometry");
-    currentPVElement_->appendChild(geoElement);
-    currentTrackElement_ = &geoElement;
+    currentTrackElement_ = doc_->createElement("geometry");
+    currentPVElement_.appendChild(currentTrackElement_);
     visit((TrackElement *)track);
 
     QDomElement element = doc_->createElement("arc");
     element.setAttribute("curvature", track->getCurvature(track->getSStart()));
-    currentTrackElement_->appendChild(element);
+    currentTrackElement_.appendChild(element);
 }
 
 void
 DomWriter::visit(TrackElementSpiral *track)
 {
-    QDomElement geoElement = doc_->createElement("geometry");
-    currentPVElement_->appendChild(geoElement);
-    currentTrackElement_ = &geoElement;
+    currentTrackElement_ = doc_->createElement("geometry");
+    currentPVElement_.appendChild(currentTrackElement_);
     visit((TrackElement *)track);
 
     QDomElement element = doc_->createElement("spiral");
     element.setAttribute("curvStart", track->getCurvature(track->getSStart()));
     element.setAttribute("curvEnd", track->getCurvature(track->getSEnd()));
-    currentTrackElement_->appendChild(element);
+    currentTrackElement_.appendChild(element);
 }
 
 void
 DomWriter::visit(TrackElementPoly3 *track)
 {
-    QDomElement geoElement = doc_->createElement("geometry");
-    currentPVElement_->appendChild(geoElement);
-    currentTrackElement_ = &geoElement;
+    currentTrackElement_ = doc_->createElement("geometry");
+    currentPVElement_.appendChild(currentTrackElement_);
     visit((TrackElement *)track);
 
     QDomElement element = doc_->createElement("poly3");
@@ -794,7 +781,7 @@ DomWriter::visit(TrackElementPoly3 *track)
     element.setAttribute("b", track->getB());
     element.setAttribute("c", track->getC());
     element.setAttribute("d", track->getD());
-    currentTrackElement_->appendChild(element);
+    currentTrackElement_.appendChild(element);
 }
 
 //################//
@@ -804,10 +791,9 @@ DomWriter::visit(TrackElementPoly3 *track)
 void
 DomWriter::visit(LaneSection *laneSection)
 {
-    QDomElement element = doc_->createElement("laneSection");
-    element.setAttribute("s", laneSection->getSStart());
-    currentLanesElement_->appendChild(element);
-    currentLaneSectionElement_ = &element;
+    currentLaneSectionElement_ = doc_->createElement("laneSection");
+    currentLaneSectionElement_.setAttribute("s", laneSection->getSStart());
+    currentLanesElement_.appendChild(currentLaneSectionElement_);
     QDomElement NullNode;
     currentRightLaneElement_ = NullNode;
     currentCenterLaneElement_ = NullNode;
@@ -819,7 +805,6 @@ DomWriter::visit(LaneSection *laneSection)
 void
 DomWriter::visit(Lane *lane)
 {
-    QDomElement laneElement;
 
     // <laneSection><right/left/center><lane> //
     //
@@ -828,42 +813,41 @@ DomWriter::visit(Lane *lane)
         if (currentRightLaneElement_.isNull())
         {
             currentRightLaneElement_ = doc_->createElement("right");
-            currentLaneSectionElement_->appendChild(currentRightLaneElement_);
+            currentLaneSectionElement_.appendChild(currentRightLaneElement_);
         }
-        laneElement = doc_->createElement("lane");
-        currentRightLaneElement_.appendChild(laneElement);
+        currentLaneElement_ = doc_->createElement("lane");
+        currentRightLaneElement_.appendChild(currentLaneElement_);
     }
     else if (lane->getId() == 0)
     {
         if (currentCenterLaneElement_.isNull())
         {
             currentCenterLaneElement_ = doc_->createElement("center");
-            currentLaneSectionElement_->appendChild(currentCenterLaneElement_);
+            currentLaneSectionElement_.appendChild(currentCenterLaneElement_);
         }
-        laneElement = doc_->createElement("lane");
-        currentCenterLaneElement_.appendChild(laneElement);
+        currentLaneElement_ = doc_->createElement("lane");
+        currentCenterLaneElement_.appendChild(currentLaneElement_);
     }
     else
     {
         if (currentLeftLaneElement_.isNull())
         {
             currentLeftLaneElement_ = doc_->createElement("left");
-            currentLaneSectionElement_->appendChild(currentLeftLaneElement_);
+            currentLaneSectionElement_.appendChild(currentLeftLaneElement_);
         }
-        laneElement = doc_->createElement("lane");
-        currentLeftLaneElement_.appendChild(laneElement);
+        currentLaneElement_ = doc_->createElement("lane");
+        currentLeftLaneElement_.appendChild(currentLaneElement_);
     }
-    laneElement.setAttribute("id", lane->getId());
-    laneElement.setAttribute("type", Lane::parseLaneTypeBack(lane->getLaneType()));
-    laneElement.setAttribute("level", lane->getLevel());
-    currentLaneElement_ = &laneElement;
+    currentLaneElement_.setAttribute("id", lane->getId());
+    currentLaneElement_.setAttribute("type", Lane::parseLaneTypeBack(lane->getLaneType()));
+    currentLaneElement_.setAttribute("level", lane->getLevel());
 
     // <lane><link><predecessor/successor> //
     //
     if (lane->getPredecessor() != Lane::NOLANE || lane->getSuccessor() != Lane::NOLANE)
     {
         QDomElement linkElement = doc_->createElement("link");
-        laneElement.appendChild(linkElement);
+        currentLaneElement_.appendChild(linkElement);
         if (lane->getPredecessor() != Lane::NOLANE)
         {
             QDomElement pElement = doc_->createElement("predecessor");
@@ -892,7 +876,7 @@ DomWriter::visit(LaneWidth *laneWidth)
     element.setAttribute("b", laneWidth->getB());
     element.setAttribute("c", laneWidth->getC());
     element.setAttribute("d", laneWidth->getD());
-    currentLaneElement_->appendChild(element);
+    currentLaneElement_.appendChild(element);
 }
 
 void
@@ -905,7 +889,7 @@ DomWriter::visit(LaneRoadMark *laneRoadMark)
     element.setAttribute("color", LaneRoadMark::parseRoadMarkColorBack(laneRoadMark->getRoadMarkColor()));
     element.setAttribute("width", laneRoadMark->getRoadMarkWidth());
     element.setAttribute("laneChange", LaneRoadMark::parseRoadMarkLaneChangeBack(laneRoadMark->getRoadMarkLaneChange()));
-    currentLaneElement_->appendChild(element);
+    currentLaneElement_.appendChild(element);
 }
 
 void
@@ -914,7 +898,7 @@ DomWriter::visit(LaneSpeed *laneSpeed)
     QDomElement element = doc_->createElement("speed");
     element.setAttribute("sOffset", laneSpeed->getSOffset());
     element.setAttribute("max", laneSpeed->getMaxSpeed());
-    currentLaneElement_->appendChild(element);
+    currentLaneElement_.appendChild(element);
 }
 
 void
@@ -924,7 +908,7 @@ DomWriter::visit(LaneHeight *laneHeight)
     element.setAttribute("sOffset", laneHeight->getSOffset());
     element.setAttribute("inner", laneHeight->getInnerHeight());
     element.setAttribute("outer", laneHeight->getOuterHeight());
-    currentLaneElement_->appendChild(element);
+    currentLaneElement_.appendChild(element);
 }
 
 //################//
@@ -956,7 +940,7 @@ DomWriter::visit(RSystemElementController *controller)
     controllerElement.setAttribute("script", controller->getScript());
     controllerElement.setAttribute("cycleTime", controller->getCycleTime());
 
-    root_->appendChild(controllerElement);
+    root_.appendChild(controllerElement);
 }
 
 //################//
@@ -968,12 +952,11 @@ DomWriter::visit(RSystemElementJunction *junction)
 {
     // <junction> //
     //
-    QDomElement element = doc_->createElement("junction");
-    element.setAttribute("name", junction->getName());
-    element.setAttribute("id", junction->getID());
-    root_->appendChild(element);
+    currentJunctionElement_ = doc_->createElement("junction");
+    currentJunctionElement_.setAttribute("name", junction->getName());
+    currentJunctionElement_.setAttribute("id", junction->getID());
+    root_.appendChild(currentJunctionElement_);
 
-    currentJunctionElement_ = &element;
 
     junction->acceptForChildNodes(this);
 }
@@ -987,7 +970,7 @@ DomWriter::visit(JunctionConnection *connection)
     element.setAttribute("connectingRoad", connection->getConnectingRoad());
     element.setAttribute("contactPoint", connection->getContactPoint());
     element.setAttribute("numerator", connection->getNumerator());
-    currentJunctionElement_->appendChild(element);
+    currentJunctionElement_.appendChild(element);
 
     QMap<int, int> links = connection->getLaneLinks();
     QMap<int, int>::const_iterator i = links.constBegin();
@@ -1010,11 +993,10 @@ DomWriter::visit(RSystemElementFiddleyard *fiddleyard)
 {
     // <fiddleyard> //
     //
-    QDomElement fiddleyardElement = doc_->createElement("fiddleyard");
-    fiddleyardElement.setAttribute("id", fiddleyard->getID());
-    fiddleyardElement.setAttribute("name", fiddleyard->getName());
-    root_->appendChild(fiddleyardElement);
-    currentFiddleyardElement_ = &fiddleyardElement;
+    currentFiddleyardElement_ = doc_->createElement("fiddleyard");
+    currentFiddleyardElement_.setAttribute("id", fiddleyard->getID());
+    currentFiddleyardElement_.setAttribute("name", fiddleyard->getName());
+    root_.appendChild(currentFiddleyardElement_);
 
     // <fiddleyard><link> //
     //
@@ -1022,7 +1004,7 @@ DomWriter::visit(RSystemElementFiddleyard *fiddleyard)
     linkElement.setAttribute("elementType", fiddleyard->getElementType());
     linkElement.setAttribute("elementId", fiddleyard->getElementId());
     linkElement.setAttribute("contactPoint", fiddleyard->getContactPoint());
-    fiddleyardElement.appendChild(linkElement);
+    currentFiddleyardElement_.appendChild(linkElement);
 
     // <fiddleyard><source> //
     //
@@ -1045,7 +1027,7 @@ DomWriter::visit(FiddleyardSource *source)
     sourceElement.setAttribute("repeatTime", source->getRepeatTime());
     sourceElement.setAttribute("velocity", source->getVelocity());
     sourceElement.setAttribute("velocityDeviance", source->getVelocityDeviance());
-    currentFiddleyardElement_->appendChild(sourceElement);
+    currentFiddleyardElement_.appendChild(sourceElement);
 
     // <fiddleyard><source><vehicle> //
     //
@@ -1069,7 +1051,7 @@ DomWriter::visit(FiddleyardSink *sink)
     QDomElement sinkElement = doc_->createElement("sink");
     sinkElement.setAttribute("id", sink->getId());
     sinkElement.setAttribute("lane", sink->getLane());
-    currentFiddleyardElement_->appendChild(sinkElement);
+    currentFiddleyardElement_.appendChild(sinkElement);
 }
 
 //################//
@@ -1081,12 +1063,11 @@ DomWriter::visit(RSystemElementPedFiddleyard *fiddleyard)
 {
     // <pedFiddleyard> //
     //
-    QDomElement fiddleyardElement = doc_->createElement("pedFiddleyard");
-    fiddleyardElement.setAttribute("id", fiddleyard->getID());
-    fiddleyardElement.setAttribute("name", fiddleyard->getName());
-    fiddleyardElement.setAttribute("roadId", fiddleyard->getRoadId());
-    root_->appendChild(fiddleyardElement);
-    currentPedFiddleyardElement_ = &fiddleyardElement;
+    currentPedFiddleyardElement_ = doc_->createElement("pedFiddleyard");
+    currentPedFiddleyardElement_.setAttribute("id", fiddleyard->getID());
+    currentPedFiddleyardElement_.setAttribute("name", fiddleyard->getName());
+    currentPedFiddleyardElement_.setAttribute("roadId", fiddleyard->getRoadId());
+    root_.appendChild(currentPedFiddleyardElement_);
 
     // <pedFiddleyard><source> //
     //
@@ -1128,7 +1109,7 @@ DomWriter::visit(PedFiddleyardSource *source)
         sourceElement.setAttribute("acceleration", source->getAcceleration());
     if (source->hasAccelerationDeviance())
         sourceElement.setAttribute("accelerationDeviance", source->getAccelerationDeviance());
-    currentPedFiddleyardElement_->appendChild(sourceElement);
+    currentPedFiddleyardElement_.appendChild(sourceElement);
 
     // <pedFiddleyard><source><ped> //
     //
@@ -1166,7 +1147,7 @@ DomWriter::visit(PedFiddleyardSink *sink)
         sinkElement.setAttribute("sOffset", sink->getSOffset());
     if (sink->hasVOffset())
         sinkElement.setAttribute("vOffset", sink->getVOffset());
-    currentPedFiddleyardElement_->appendChild(sinkElement);
+    currentPedFiddleyardElement_.appendChild(sinkElement);
 }
 
 //################//
@@ -1182,10 +1163,9 @@ DomWriter::visit(VehicleSystem *vehicleSystem)
 void
 DomWriter::visit(CarPool *carPool)
 {
-    QDomElement element = doc_->createElement("carpool");
-    root_->appendChild(element);
+    currentCarPoolElement_ = doc_->createElement("carpool");
+    root_.appendChild(currentCarPoolElement_);
 
-    currentCarPoolElement_ = &element;
 
     carPool->acceptForChildNodes(this);
 }
@@ -1194,7 +1174,7 @@ void
 DomWriter::visit(Pool *pool)
 {
     QDomElement poolElement = doc_->createElement("pool");
-    currentCarPoolElement_->appendChild(poolElement);
+    currentCarPoolElement_.appendChild(poolElement);
 
     poolElement.setAttribute("id", pool->getID());
     poolElement.setAttribute("name", pool->getName());
@@ -1217,18 +1197,17 @@ DomWriter::visit(Pool *pool)
 void
 DomWriter::visit(VehicleGroup *vehicleGroup)
 {
-    QDomElement element = doc_->createElement("vehicles");
-    root_->appendChild(element);
+    currentVehicleGroupElement_ = doc_->createElement("vehicles");
+    root_.appendChild(currentVehicleGroupElement_);
 
     if (vehicleGroup->getRangeLOD() != VehicleGroup::defaultRangeLOD)
     {
-        element.setAttribute("rangeLOD", vehicleGroup->getRangeLOD());
+        currentVehicleGroupElement_.setAttribute("rangeLOD", vehicleGroup->getRangeLOD());
     }
 
     if (vehicleGroup->hasPassThreshold())
-        element.setAttribute("passThreshold", vehicleGroup->getPassThreshold());
+        currentVehicleGroupElement_.setAttribute("passThreshold", vehicleGroup->getPassThreshold());
 
-    currentVehicleGroupElement_ = &element;
 
     vehicleGroup->acceptForChildNodes(this);
 }
@@ -1240,7 +1219,7 @@ DomWriter::visit(RoadVehicle *roadVehicle)
     vehicleElement.setAttribute("id", roadVehicle->getId());
     vehicleElement.setAttribute("name", roadVehicle->getName());
     vehicleElement.setAttribute("type", RoadVehicle::parseRoadVehicleTypeBack(roadVehicle->getType()));
-    currentVehicleGroupElement_->appendChild(vehicleElement);
+    currentVehicleGroupElement_.appendChild(vehicleElement);
 
     // intelligence //
     //
@@ -1355,25 +1334,24 @@ DomWriter::visit(PedestrianSystem *pedestrianSystem)
 void
 DomWriter::visit(PedestrianGroup *pedestrianGroup)
 {
-    QDomElement element = doc_->createElement("pedestrians");
-    root_->appendChild(element);
+    currentPedestrianGroupElement_ = doc_->createElement("pedestrians");
+    root_.appendChild(currentPedestrianGroupElement_);
 
     if (pedestrianGroup->hasSpawnRange())
-        element.setAttribute("spawnRange", pedestrianGroup->getSpawnRange());
+        currentPedestrianGroupElement_.setAttribute("spawnRange", pedestrianGroup->getSpawnRange());
     if (pedestrianGroup->hasMaxPeds())
-        element.setAttribute("maxPeds", pedestrianGroup->getMaxPeds());
+        currentPedestrianGroupElement_.setAttribute("maxPeds", pedestrianGroup->getMaxPeds());
     if (pedestrianGroup->hasReportInterval())
-        element.setAttribute("reportInterval", pedestrianGroup->getReportInterval());
+        currentPedestrianGroupElement_.setAttribute("reportInterval", pedestrianGroup->getReportInterval());
     if (pedestrianGroup->hasAvoidCount())
-        element.setAttribute("avoidCount", pedestrianGroup->getAvoidCount());
+        currentPedestrianGroupElement_.setAttribute("avoidCount", pedestrianGroup->getAvoidCount());
     if (pedestrianGroup->hasAvoidTime())
-        element.setAttribute("avoidTime", pedestrianGroup->getAvoidTime());
+        currentPedestrianGroupElement_.setAttribute("avoidTime", pedestrianGroup->getAvoidTime());
     if (pedestrianGroup->hasAutoFiddle())
-        element.setAttribute("autoFiddle", pedestrianGroup->getAutoFiddle() ? "true" : "false");
+        currentPedestrianGroupElement_.setAttribute("autoFiddle", pedestrianGroup->getAutoFiddle() ? "true" : "false");
     if (pedestrianGroup->hasMovingFiddle())
-        element.setAttribute("movingFiddle", pedestrianGroup->getMovingFiddle() ? "true" : "false");
+        currentPedestrianGroupElement_.setAttribute("movingFiddle", pedestrianGroup->getMovingFiddle() ? "true" : "false");
 
-    currentPedestrianGroupElement_ = &element;
 
     pedestrianGroup->acceptForChildNodes(this);
 }
@@ -1404,7 +1382,7 @@ DomWriter::visit(Pedestrian *ped)
         pedElement.setAttribute("rangeLOD", ped->getRangeLOD());
     if (ped->getDebugLvl().length() > 0)
         pedElement.setAttribute("debugLvl", ped->getDebugLvl());
-    currentPedestrianGroupElement_->appendChild(pedElement);
+    currentPedestrianGroupElement_.appendChild(pedElement);
 
     QDomElement element;
     bool valueSet;
@@ -1538,7 +1516,7 @@ DomWriter::visit(ScenerySystem *system)
     {
         QDomElement element = doc_->createElement("scenery");
         element.setAttribute("file", file);
-        root_->appendChild(element);
+        root_.appendChild(element);
     }
 
     system->acceptForChildNodes(this);
@@ -1570,7 +1548,7 @@ DomWriter::visit(SceneryMap *map)
 
     QDomElement element = doc_->createElement("scenery");
     element.appendChild(mapElement);
-    root_->appendChild(element);
+    root_.appendChild(element);
 }
 
 void
@@ -1600,7 +1578,7 @@ DomWriter::visit(Heightmap *map)
 
     QDomElement element = doc_->createElement("scenery");
     element.appendChild(mapElement);
-    root_->appendChild(element);
+    root_.appendChild(element);
 }
 
 void
@@ -1623,5 +1601,5 @@ DomWriter::visit(SceneryTesselation *tesselation)
     {
         envElement.setAttribute("tessellatePaths", "false");
     }
-    root_->appendChild(envElement);
+    root_.appendChild(envElement);
 }

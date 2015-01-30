@@ -116,35 +116,35 @@ private:
     }
 
     QDomDocument *doc_;
-    QDomElement *root_;
+    QDomElement root_;
 
-    QDomElement *currentRoad_;
-    QDomElement *currentPVElement_;
+    QDomElement currentRoad_;
+    QDomElement currentPVElement_;
 
-    QDomElement *currentElevationProfileElement_;
-    QDomElement *currentLateralProfileElement_;
+    QDomElement currentElevationProfileElement_;
+    QDomElement currentLateralProfileElement_;
 
-    QDomElement *currentLanesElement_;
-    QDomElement *currentLaneSectionElement_;
+    QDomElement currentLanesElement_;
+    QDomElement currentLaneSectionElement_;
     QDomElement currentLeftLaneElement_;
     QDomElement currentCenterLaneElement_;
     QDomElement currentRightLaneElement_;
-    QDomElement *currentLaneElement_;
+    QDomElement currentLaneElement_;
 
-    QDomElement *currentTrackElement_;
-    QDomElement *currentFiddleyardElement_;
-    QDomElement *currentPedFiddleyardElement_;
+    QDomElement currentTrackElement_;
+    QDomElement currentFiddleyardElement_;
+    QDomElement currentPedFiddleyardElement_;
 
-    QDomElement *currentJunctionElement_;
+    QDomElement currentJunctionElement_;
 
-    QDomElement *currentObjectsElement_;
-    QDomElement *currentSignalsElement_;
-    QDomElement *currentSensorsElement_;
+    QDomElement currentObjectsElement_;
+    QDomElement currentSignalsElement_;
+    QDomElement currentSensorsElement_;
 
-    QDomElement *currentVehicleGroupElement_;
-    QDomElement *currentCarPoolElement_;
+    QDomElement currentVehicleGroupElement_;
+    QDomElement currentCarPoolElement_;
 
-    QDomElement *currentPedestrianGroupElement_;
+    QDomElement currentPedestrianGroupElement_;
 
     ProjectData *projectData_;
 };

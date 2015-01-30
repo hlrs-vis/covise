@@ -623,7 +623,7 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
                 }
                 else
                 {
-                    qDebug() << "Road " << road->getID() << " Predecessor " << predecessor->getElementId() << " has the old ID!";
+//                    qDebug() << "Road " << road->getID() << " Predecessor " << predecessor->getElementId() << " has the old ID!";
                 }
             }
 
@@ -638,7 +638,7 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
                 }
                 else
                 {
-                    qDebug() << "Road " << road->getID() << " Successor " << successor->getElementId() << " has the old ID!";
+//                    qDebug() << "Road " << road->getID() << " Successor " << successor->getElementId() << " has the old ID!";
                 }
             }
 
@@ -652,7 +652,7 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
                 }
                 else
                 {
-                    qDebug() << "Road " << road->getID() << " Junction " << junction << " has the old ID!";
+//                    qDebug() << "Road " << road->getID() << " Junction " << junction << " has the old ID!";
                 }
             }
         }
@@ -836,7 +836,7 @@ RoadSystem::checkLinking()
                         }
                     }
                 }
-                qDebug() << "Lane Predecessor: " << lane->getPredecessor() << "Lane Successor: " << lane->getSuccessor();
+//                qDebug() << "Lane Predecessor: " << lane->getPredecessor() << "Lane Successor: " << lane->getSuccessor();
                 laneIt++;
             }
         }
