@@ -75,11 +75,15 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name)
         return NULL;
     }
     coVRPlugin *plugin = initFunc();
-    if (plugin)
+    if (!plugin)
     {
-        plugin->handle = handle;
-        plugin->setName(name);
+        coVRDynLib::dlclose(handle);
+        cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
+        return NULL;
     }
+
+    plugin->handle = handle;
+    plugin->setName(name);
 
     return plugin;
 }
@@ -129,73 +133,70 @@ coVRPluginList::coVRPluginList()
         cerr << "Loading plugins:";
     }
 
+    std::vector<std::string> plugins;
     if (const char *env = getenv("COVER_PLUGINS"))
     {
-        std::vector<std::string> plugins = split(env, ':');
-        for (size_t i = 0; i < plugins.size(); ++i)
-        {
-            if (cover->debugLevel(1))
-            {
-                cerr << " " << plugins[i];
-            }
-            if (!getPlugin(plugins[i].c_str()))
-            {
-                if (coVRPlugin *m = loadPlugin(plugins[i].c_str()))
-                {
-                    m_plugins[plugins[i]] = m; // if init OK, then add new plugin
-                }
-                else
-                {
-                    cerr << "plugin " << plugins[i] << " does not have an init function - not loading" << endl;
-                }
-            }
-        }
+        plugins = split(env, ':');
     }
 
     coCoviseConfig::ScopeEntries pluginNameEntries = coCoviseConfig::getScopeEntries("COVER.Plugin");
     const char **pluginNames = pluginNameEntries.getValue();
-    int i = 0;
     if (pluginNames != NULL)
     {
+        int i = 0;
         while (pluginNames[i])
         {
-            bool exists = false;
             char *entryName = new char[strlen(pluginNames[i]) + 100];
             sprintf(entryName, "COVER.Plugin.%s", pluginNames[i]);
             if (coCoviseConfig::isOn(entryName, false))
             {
-
-                if (cover->debugLevel(1))
-                {
-                    cerr << " " << pluginNames[i];
-                }
-                coVRPlugin *m = getPlugin(pluginNames[i]);
-                if (!m)
-                {
-                    m = loadPlugin(pluginNames[i]);
-                    if (m)
-                    {
-                        m_plugins[pluginNames[i]] = m; // if init OK, then add new plugin
-                    }
-                    else
-                    {
-                        cerr << "plugin " << pluginNames[i] << " does not have an init function - not loading" << endl;
-                    }
-                }
+                plugins.push_back(pluginNames[i]);
             }
+
+            bool exists = false;
             if (coCoviseConfig::isOn("menu", entryName, false, &exists))
             {
                 coVRPlugin *m = getPlugin(pluginNames[i]);
                 PluginMenu::instance()->addEntry(pluginNames[i], m);
             }
-            delete[] entryName;
 
+            delete[] entryName;
             i++; // skip name
             i++; //skip value (may be NULL)
         }
     }
+
+    std::vector<std::string> failed;
+    for (size_t i = 0; i < plugins.size(); ++i)
+    {
+        if (cover->debugLevel(1))
+        {
+            cerr << " " << plugins[i];
+        }
+        if (!getPlugin(plugins[i].c_str()))
+        {
+            if (coVRPlugin *m = loadPlugin(plugins[i].c_str()))
+            {
+                m_plugins[plugins[i]] = m; // if init OK, then add new plugin
+            }
+            else
+            {
+                failed.push_back(plugins[i]);
+            }
+        }
+    }
     if (cover->debugLevel(1))
     {
+        cerr << "." << endl;
+    }
+
+    if (!failed.empty())
+    {
+        cerr << "Plugins which failed to load:";
+        for(size_t i=0; i<failed.size(); ++i)
+        {
+            cerr << " " << failed[i];
+        }
         cerr << "." << endl;
     }
 }

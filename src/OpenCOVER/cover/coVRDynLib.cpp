@@ -148,9 +148,15 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename)
 #elif defined(SVR4_DYNAMIC_LINKING)
             handle = ::dlopen(buf, mode);
             if (handle == NULL)
-                cerr << endl << dlerror() << endl;
-            else if (cover->debugLevel(2))
-                cerr << endl << "loaded " << buf << endl;
+            {
+                if (cover->debugLevel(1))
+                    cerr << dlerror() << endl;
+            }
+            else
+            {
+                if (cover->debugLevel(2))
+                    cerr << "loaded " << buf << endl;
+            }
 #elif defined(_WIN32)
             handle = LoadLibraryA(buf);
 #elif defined(__hpux)
