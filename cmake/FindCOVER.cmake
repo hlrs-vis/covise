@@ -26,16 +26,14 @@ find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
    DOC "COVER - Headers"
 )
 
-find_path(COVISE_EXPORTS_FILEPATH "cover-exports.cmake"
+find_path(COVER_EXPORTS_FILEPATH "cover-exports.cmake"
    PATHS
    ${COVISEDIR}/${COVISE_ARCHSUFFIX}
    DOC "COVER - CMake library exports"
 )
-if (COVISE_EXPORTS_FILEPATH)
-   set(COVISE_EXPORTS_IMPORT "${COVISE_EXPORTS_FILEPATH}/cover-exports.cmake")
-   include(${COVISE_EXPORTS_IMPORT})
-   set(COVISE_OPTIONS_IMPORT "${COVISE_EXPORTS_FILEPATH}/CoviseOptions.cmake")
-   include(${COVISE_OPTIONS_IMPORT})
+if (COVER_EXPORTS_FILEPATH)
+   include("${COVER_EXPORTS_FILEPATH}/cover-exports.cmake")
+   include("${COVER_EXPORTS_FILEPATH}/CoviseOptions.cmake")
 else()
    message("COVER: CMake library exports file not found")
 endif()
