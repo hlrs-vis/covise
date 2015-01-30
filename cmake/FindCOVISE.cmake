@@ -500,7 +500,7 @@ MACRO(covise_create_using)
   STRING(REGEX REPLACE " optional" "" using_list "${using_list}")
   STRING(REGEX REPLACE "\n" ";" using_list "${using_list}")
 
-  MESSAGE("USING list: ${using_list}")
+  #MESSAGE("USING list: ${using_list}")
 
   SET(filename "${CMAKE_BINARY_DIR}/CoviseUsingMacros.cmake")
   LIST(LENGTH using_list using_list_size)
