@@ -57,7 +57,7 @@ Initial revision
 
 using namespace covise;
 
-TokenBuffer::TokenBuffer(Message *msg,bool nbo)
+TokenBuffer::TokenBuffer(Message *msg, bool nbo)
 {
     assert(msg);
     if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
@@ -66,92 +66,92 @@ TokenBuffer::TokenBuffer(Message *msg,bool nbo)
     }
     buflen = 0;
     length = msg->length;
-	data = currdata = msg->data;
-	networkByteOrder = nbo;
+    data = currdata = msg->data;
+    networkByteOrder = nbo;
 }
 
-TokenBuffer::TokenBuffer(const char *dat, int len,bool nbo)
+TokenBuffer::TokenBuffer(const char *dat, int len, bool nbo)
 {
-	buflen = 0;
-	length = len;
-	data = currdata = (char *)dat;
-	networkByteOrder = nbo;
+    buflen = 0;
+    length = len;
+    data = currdata = (char *)dat;
+    networkByteOrder = nbo;
 }
 
 TokenBuffer &TokenBuffer::operator<<(const uint64_t i)
 {
     if (buflen < length + 9)
         incbuf();
-	if(networkByteOrder)
-	{
-		*currdata = (i >> 56) & 0xff;
-		currdata++;
-		*currdata = (i >> 48) & 0xff;
-		currdata++;
-		*currdata = (i >> 40) & 0xff;
-		currdata++;
-		*currdata = (i >> 32) & 0xff;
-		currdata++;
-		*currdata = (i >> 24) & 0xff;
-		currdata++;
-		*currdata = (i >> 16) & 0xff;
-		currdata++;
-		*currdata = (i >> 8) & 0xff;
-		currdata++;
-		*currdata = i & 0xff;
-		currdata++;
-	}
-	else
-	{
-		*currdata = i & 0xff;
-		currdata++;
-		*currdata = (i >> 8) & 0xff;
-		currdata++;
-		*currdata = (i >> 16) & 0xff;
-		currdata++;
-		*currdata = (i >> 24) & 0xff;
-		currdata++;
-		*currdata = (i >> 32) & 0xff;
-		currdata++;
-		*currdata = (i >> 40) & 0xff;
-		currdata++;
-		*currdata = (i >> 48) & 0xff;
-		currdata++;
-		*currdata = (i >> 56) & 0xff;
-		currdata++;
-	}
-	length += 8;
-	return (*this);
+    if (networkByteOrder)
+    {
+        *currdata = (i >> 56) & 0xff;
+        currdata++;
+        *currdata = (i >> 48) & 0xff;
+        currdata++;
+        *currdata = (i >> 40) & 0xff;
+        currdata++;
+        *currdata = (i >> 32) & 0xff;
+        currdata++;
+        *currdata = (i >> 24) & 0xff;
+        currdata++;
+        *currdata = (i >> 16) & 0xff;
+        currdata++;
+        *currdata = (i >> 8) & 0xff;
+        currdata++;
+        *currdata = i & 0xff;
+        currdata++;
+    }
+    else
+    {
+        *currdata = i & 0xff;
+        currdata++;
+        *currdata = (i >> 8) & 0xff;
+        currdata++;
+        *currdata = (i >> 16) & 0xff;
+        currdata++;
+        *currdata = (i >> 24) & 0xff;
+        currdata++;
+        *currdata = (i >> 32) & 0xff;
+        currdata++;
+        *currdata = (i >> 40) & 0xff;
+        currdata++;
+        *currdata = (i >> 48) & 0xff;
+        currdata++;
+        *currdata = (i >> 56) & 0xff;
+        currdata++;
+    }
+    length += 8;
+    return (*this);
 }
 
 TokenBuffer &TokenBuffer::operator<<(const uint32_t i)
 {
-	if(networkByteOrder)
-	{
-		if (buflen < length + 5)
-			incbuf();
-		*currdata = (i & 0xff000000) >> 24;
-		currdata++;
-		*currdata = (i & 0x00ff0000) >> 16;
-		currdata++;
-		*currdata = (i & 0x0000ff00) >> 8;
-		currdata++;
-		*currdata = i & 0x000000ff;
-		currdata++;
-	}
-	else
-	{
-		if (buflen < length + 5)
-			incbuf();
-		*currdata = i & 0x000000ff;
-		currdata++;
-		*currdata = (i & 0x0000ff00) >> 8;
-		currdata++;
-		*currdata = (i & 0x00ff0000) >> 16;
-		currdata++;
-		*currdata = (i & 0xff000000) >> 24;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        if (buflen < length + 5)
+            incbuf();
+        *currdata = (i & 0xff000000) >> 24;
+        currdata++;
+        *currdata = (i & 0x00ff0000) >> 16;
+        currdata++;
+        *currdata = (i & 0x0000ff00) >> 8;
+        currdata++;
+        *currdata = i & 0x000000ff;
+        currdata++;
+    }
+    else
+    {
+        if (buflen < length + 5)
+            incbuf();
+        *currdata = i & 0x000000ff;
+        currdata++;
+        *currdata = (i & 0x0000ff00) >> 8;
+        currdata++;
+        *currdata = (i & 0x00ff0000) >> 16;
+        currdata++;
+        *currdata = (i & 0xff000000) >> 24;
+        currdata++;
+    }
     length += 4;
     return (*this);
 }
@@ -200,8 +200,8 @@ void TokenBuffer::delete_data()
 
 TokenBuffer::~TokenBuffer()
 {
-	if (buflen)
-		delete[] data;
+    if (buflen)
+        delete[] data;
 }
 TokenBuffer &TokenBuffer::operator<<(const double f)
 {
@@ -209,46 +209,46 @@ TokenBuffer &TokenBuffer::operator<<(const double f)
 
     if (buflen < length + 8)
         incbuf();
-	
-	if(networkByteOrder)
-	{
-		
-		*currdata = (*i & 0xff00000000000000LL) >> 56;
-		currdata++;
-		*currdata = (*i & 0x00ff000000000000LL) >> 48;
-		currdata++;
-		*currdata = (*i & 0x0000ff0000000000LL) >> 40;
-		currdata++;
-		*currdata = (*i & 0x000000ff00000000LL) >> 32;
-		currdata++;
-		*currdata = (*i & 0x00000000ff000000LL) >> 24;
-		currdata++;
-		*currdata = (*i & 0x0000000000ff0000LL) >> 16;
-		currdata++;
-		*currdata = (*i & 0x000000000000ff00LL) >> 8;
-		currdata++;
-		*currdata = *i & 0x00000000000000ffLL;
-		currdata++;
-	}
-	else	
-	{
-		*currdata = *i & 0x00000000000000ffLL;
-		currdata++;
-		*currdata = (*i & 0x000000000000ff00LL) >> 8;
-		currdata++;
-		*currdata = (*i & 0x0000000000ff0000LL) >> 16;
-		currdata++;
-		*currdata = (*i & 0x00000000ff000000LL) >> 24;
-		currdata++;
-		*currdata = (*i & 0x000000ff00000000LL) >> 32;
-		currdata++;
-		*currdata = (*i & 0x0000ff0000000000LL) >> 40;
-		currdata++;
-		*currdata = (*i & 0x00ff000000000000LL) >> 48;
-		currdata++;
-		*currdata = (*i & 0xff00000000000000LL) >> 56;
-		currdata++;
-	}
+
+    if (networkByteOrder)
+    {
+
+        *currdata = (*i & 0xff00000000000000LL) >> 56;
+        currdata++;
+        *currdata = (*i & 0x00ff000000000000LL) >> 48;
+        currdata++;
+        *currdata = (*i & 0x0000ff0000000000LL) >> 40;
+        currdata++;
+        *currdata = (*i & 0x000000ff00000000LL) >> 32;
+        currdata++;
+        *currdata = (*i & 0x00000000ff000000LL) >> 24;
+        currdata++;
+        *currdata = (*i & 0x0000000000ff0000LL) >> 16;
+        currdata++;
+        *currdata = (*i & 0x000000000000ff00LL) >> 8;
+        currdata++;
+        *currdata = *i & 0x00000000000000ffLL;
+        currdata++;
+    }
+    else
+    {
+        *currdata = *i & 0x00000000000000ffLL;
+        currdata++;
+        *currdata = (*i & 0x000000000000ff00LL) >> 8;
+        currdata++;
+        *currdata = (*i & 0x0000000000ff0000LL) >> 16;
+        currdata++;
+        *currdata = (*i & 0x00000000ff000000LL) >> 24;
+        currdata++;
+        *currdata = (*i & 0x000000ff00000000LL) >> 32;
+        currdata++;
+        *currdata = (*i & 0x0000ff0000000000LL) >> 40;
+        currdata++;
+        *currdata = (*i & 0x00ff000000000000LL) >> 48;
+        currdata++;
+        *currdata = (*i & 0xff00000000000000LL) >> 56;
+        currdata++;
+    }
 
     length += 8;
     return (*this);
@@ -272,44 +272,44 @@ TokenBuffer &TokenBuffer::operator>>(double &f)
     CHECK(f, *this);
 
     uint64_t *i = (uint64_t *)(void *)&f;
-	if(networkByteOrder)
-	{
-		*i = ((uint64_t)(*(unsigned char *)currdata)) << 56;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
-		currdata++;
-		*i |= *(unsigned char *)currdata;
-		currdata++;
-	}
-	else
-	{
-		*i = *(unsigned char *)currdata;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
-		currdata++;
-		*i |= ((uint64_t)(*(unsigned char *)currdata)) << 56;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        *i = ((uint64_t)(*(unsigned char *)currdata)) << 56;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
+        currdata++;
+        *i |= *(unsigned char *)currdata;
+        currdata++;
+    }
+    else
+    {
+        *i = *(unsigned char *)currdata;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
+        currdata++;
+        *i |= ((uint64_t)(*(unsigned char *)currdata)) << 56;
+        currdata++;
+    }
     length += 8;
     return (*this);
 }
@@ -319,32 +319,32 @@ TokenBuffer &TokenBuffer::operator<<(const float f)
     const uint32_t *i = (const uint32_t *)(void *)&f;
     if (buflen < length + 4)
         incbuf();
-	if(networkByteOrder)
-	{
-		if (buflen < length + 5)
-			incbuf();
-		*currdata = (*i & 0xff000000) >> 24;
-		currdata++;
-		*currdata = (*i & 0x00ff0000) >> 16;
-		currdata++;
-		*currdata = (*i & 0x0000ff00) >> 8;
-		currdata++;
-		*currdata = *i & 0x000000ff;
-		currdata++;
-	}
-	else
-	{
-		if (buflen < length + 5)
-			incbuf();
-		*currdata = *i & 0x000000ff;
-		currdata++;
-		*currdata = (*i & 0x0000ff00) >> 8;
-		currdata++;
-		*currdata = (*i & 0x00ff0000) >> 16;
-		currdata++;
-		*currdata = (*i & 0xff000000) >> 24;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        if (buflen < length + 5)
+            incbuf();
+        *currdata = (*i & 0xff000000) >> 24;
+        currdata++;
+        *currdata = (*i & 0x00ff0000) >> 16;
+        currdata++;
+        *currdata = (*i & 0x0000ff00) >> 8;
+        currdata++;
+        *currdata = *i & 0x000000ff;
+        currdata++;
+    }
+    else
+    {
+        if (buflen < length + 5)
+            incbuf();
+        *currdata = *i & 0x000000ff;
+        currdata++;
+        *currdata = (*i & 0x0000ff00) >> 8;
+        currdata++;
+        *currdata = (*i & 0x00ff0000) >> 16;
+        currdata++;
+        *currdata = (*i & 0xff000000) >> 24;
+        currdata++;
+    }
 
     length += 4;
     return (*this);
@@ -356,28 +356,28 @@ TokenBuffer &TokenBuffer::operator>>(float &f)
     CHECK(f, *this);
 
     uint32_t *i = (uint32_t *)(void *)&f;
-	if(networkByteOrder)
-	{
-		*i = (*(unsigned char *)currdata) << 24;
-		currdata++;
-		*i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		*i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		*i |= *(unsigned char *)currdata;
-		currdata++;
-	}
-	else
-	{
-		*i = *(unsigned char *)currdata;
-		currdata++;
-		*i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		*i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		*i |= (*(unsigned char *)currdata) << 24;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        *i = (*(unsigned char *)currdata) << 24;
+        currdata++;
+        *i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        *i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        *i |= *(unsigned char *)currdata;
+        currdata++;
+    }
+    else
+    {
+        *i = *(unsigned char *)currdata;
+        currdata++;
+        *i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        *i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        *i |= (*(unsigned char *)currdata) << 24;
+        currdata++;
+    }
     length += 4;
     return (*this);
 }
@@ -387,28 +387,28 @@ float TokenBuffer::get_float_token()
     CHECK(float, 0.f);
 
     uint32_t i;
-	if(networkByteOrder)
-	{
-		i = (*(unsigned char *)currdata) << 24;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		i |= *(unsigned char *)currdata;
-		currdata++;
-	}
-	else
-	{
-		i = *(unsigned char *)currdata;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 24;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        i = (*(unsigned char *)currdata) << 24;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        i |= *(unsigned char *)currdata;
+        currdata++;
+    }
+    else
+    {
+        i = *(unsigned char *)currdata;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 24;
+        currdata++;
+    }
 
     length += 4;
     return (*((float *)(void *)&i));
@@ -419,28 +419,28 @@ uint32_t TokenBuffer::get_int_token()
     CHECK(uint32_t, 0);
 
     uint32_t i;
-	if(networkByteOrder)
-	{
-		i = (*(unsigned char *)currdata) << 24;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		i |= *(unsigned char *)currdata;
-		currdata++;
-	}
-	else
-	{
-		i = *(unsigned char *)currdata;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 24;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        i = (*(unsigned char *)currdata) << 24;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        i |= *(unsigned char *)currdata;
+        currdata++;
+    }
+    else
+    {
+        i = *(unsigned char *)currdata;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 24;
+        currdata++;
+    }
 
     length += 4;
     return (i);
@@ -450,29 +450,29 @@ TokenBuffer &TokenBuffer::operator>>(uint32_t &i)
 {
     i = 0;
     CHECK(i, *this);
-	
-	if(networkByteOrder)
-	{
-		i = (*(unsigned char *)currdata) << 24;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		i |= *(unsigned char *)currdata;
-		currdata++;
-	}
-	else
-	{
-		i = *(unsigned char *)currdata;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 8;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 16;
-		currdata++;
-		i |= (*(unsigned char *)currdata) << 24;
-		currdata++;
-	}
+
+    if (networkByteOrder)
+    {
+        i = (*(unsigned char *)currdata) << 24;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        i |= *(unsigned char *)currdata;
+        currdata++;
+    }
+    else
+    {
+        i = *(unsigned char *)currdata;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 8;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 16;
+        currdata++;
+        i |= (*(unsigned char *)currdata) << 24;
+        currdata++;
+    }
 
     length += 4;
     return (*this);
@@ -482,44 +482,44 @@ TokenBuffer &TokenBuffer::operator>>(uint64_t &i)
 {
     i = 0;
     CHECK(i, *this);
-	if(networkByteOrder)
-	{
-		i = ((uint64_t)(*(unsigned char *)currdata)) << 56;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
-		currdata++;
-		i |= *(unsigned char *)currdata;
-		currdata++;
-	}
-	else
-	{
-		i = *(unsigned char *)currdata;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
-		currdata++;
-		i |= ((uint64_t)(*(unsigned char *)currdata)) << 56;
-		currdata++;
-	}
+    if (networkByteOrder)
+    {
+        i = ((uint64_t)(*(unsigned char *)currdata)) << 56;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
+        currdata++;
+        i |= *(unsigned char *)currdata;
+        currdata++;
+    }
+    else
+    {
+        i = *(unsigned char *)currdata;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 8;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 16;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 24;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 32;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 40;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 48;
+        currdata++;
+        i |= ((uint64_t)(*(unsigned char *)currdata)) << 56;
+        currdata++;
+    }
 
     length += 8;
 

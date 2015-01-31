@@ -96,66 +96,88 @@ private:
 class brakeData
 {
 public:
-	brakeData(int id);
-	~brakeData();
-	int brakeID;
-	void setData(TokenBuffer &tb);
-	int type;
-	int status;
+    brakeData(int id);
+    ~brakeData();
+    int brakeID;
+    void setData(TokenBuffer &tb);
+    int type;
+    int status;
 };
 
 class carData
 {
 public:
-	carData(int id);
-	~carData();
-	int carID;
-	void setData(TokenBuffer &tb);
-	float posY;
-	float posZ;
-	float speed;
-	float accel;
-	int doorState;
-	int direction;
-	int floor;
-	int hzllockState;
-	int vtllockState;
-	int hzlproxState;
-	int vtlproxState;
-	
-	std::vector<brakeData> brakes;
+    carData(int id);
+    ~carData();
+    int carID;
+    void setData(TokenBuffer &tb);
+    float posY;
+    float posZ;
+    float speed;
+    float accel;
+    int doorState;
+    int direction;
+    int floor;
+    int hzllockState;
+    int vtllockState;
+    int hzlproxState;
+    int vtlproxState;
+
+    std::vector<brakeData> brakes;
 };
 
 class exchangerData
 {
 public:
-	exchangerData(int id);
-	~exchangerData();
-	int exID;
-	void setData(TokenBuffer &tb);
-	float posY;
-	float posZ;
-	int swvlhzllckStatus;
-	int swvlvtllckStatus;
-	int swvlproxStatus;
-	int cbnlckStatus;
-	int cbnlckproxStatus;
-	float swvlRotaryMotor; // angle in degrees
-	int linkedCar; // carID of car in Exchanger
-	float destnPos;
+    exchangerData(int id);
+    ~exchangerData();
+    int exID;
+    void setData(TokenBuffer &tb);
+    float posY;
+    float posZ;
+    int swvlhzllckStatus;
+    int swvlvtllckStatus;
+    int swvlproxStatus;
+    int cbnlckStatus;
+    int cbnlckproxStatus;
+    float swvlRotaryMotor; // angle in degrees
+    int linkedCar; // carID of car in Exchanger
+    float destnPos;
 
-	std::vector<brakeData> brakes;
+    std::vector<brakeData> brakes;
 };
 class ThyssenPlugin : public coVRPlugin
 {
 public:
     ThyssenPlugin();
     ~ThyssenPlugin();
-	enum MessageTypes {CAR_DATA=0};
-	enum doorStates {closed_locked=1,closed_unlocked,opening,open,closing};
-	enum direction {direction_down=0,direction_up};
-	enum lockState {unlocked=0,locked};
-	enum proxState {stateOff=0,stateOn};
+    enum MessageTypes
+    {
+        CAR_DATA = 0
+    };
+    enum doorStates
+    {
+        closed_locked = 1,
+        closed_unlocked,
+        opening,
+        open,
+        closing
+    };
+    enum direction
+    {
+        direction_down = 0,
+        direction_up
+    };
+    enum lockState
+    {
+        unlocked = 0,
+        locked
+    };
+    enum proxState
+    {
+        stateOff = 0,
+        stateOn
+    };
     bool init();
     ServerConnection *sConn;
     SimpleServerConnection *conn;
@@ -168,8 +190,8 @@ public:
     static ThyssenPlugin *plugin;
     float zpos;
     float ypos;
-	std::vector<carData> cars;
-	std::vector<exchangerData> exchangers;
+    std::vector<carData> cars;
+    std::vector<exchangerData> exchangers;
 
     // this will be called in PreFrame
     void preFrame();

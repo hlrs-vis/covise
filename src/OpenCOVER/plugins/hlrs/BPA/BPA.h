@@ -61,7 +61,7 @@ public:
     osg::Geometry *geom;
     osg::Vec3Array *vert;
     osg::Vec4Array *colors;
-	
+
     osg::DrawArrays *primitives;
 
     osg::ref_ptr<osg::Geode> geode;
@@ -129,7 +129,6 @@ public:
     coTUIToggleButton *airResistance;
     coTUIToggleButton *OriginComputationType;
     coTUIToggleButton *ignoreUpward;
-	
 
     static int SloadBPA(const char *filename, osg::Group *parent, const char *ck = "");
     int loadBPA(const char *filename, osg::Group *parent);

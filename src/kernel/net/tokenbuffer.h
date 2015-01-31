@@ -77,28 +77,28 @@ private:
     int length; // number of used bytes
     char *data; // pointer to the tokens
     char *currdata; // pointer to the tokens
-	bool networkByteOrder;
+    bool networkByteOrder;
 
     void incbuf(int size = 100);
 
 public:
-    TokenBuffer(bool nbo=false)
+    TokenBuffer(bool nbo = false)
     {
         buflen = length = 0;
         data = currdata = NULL;
-		networkByteOrder = nbo;
+        networkByteOrder = nbo;
     }
-    TokenBuffer(int al,bool nbo=false)
+    TokenBuffer(int al, bool nbo = false)
     {
         buflen = al;
         length = 0;
         data = currdata = new char[al];
-		networkByteOrder = nbo;
+        networkByteOrder = nbo;
     }
     virtual ~TokenBuffer();
     void delete_data();
-    TokenBuffer(Message *msg,bool nbo=false);
-    TokenBuffer(const char *dat, int len,bool nbo=false);
+    TokenBuffer(Message *msg, bool nbo = false);
+    TokenBuffer(const char *dat, int len, bool nbo = false);
 
     const char *getBinary(int n)
     {
@@ -240,7 +240,5 @@ public:
             data[0] = 0;
     };
 };
-
-
 }
 #endif
