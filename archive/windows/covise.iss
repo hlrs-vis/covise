@@ -455,7 +455,7 @@ Source: {#COVISEDIR}\Python\*.pyc; DestDir: {app}\Python; Flags: skipifsourcedoe
 Source: {#COVISEDIR}\Python\*.py; DestDir: {app}\Python; Components: vrprepare4
 Source: {#COVISEDIR}\Python\scriptInterface.bat; DestDir: {app}\Python; Components: vrprepare4
 Source: {#COVISEDIR}\Python\coPyModules.py; DestDir: {app}\Python; Components: vrprepare4
-Source: {#LIB}\*.pyc; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
+;Source: {#LIB}\*.pyc; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
 Source: {#LIB}\*.pyd; DestDir: {app}\Python; Flags: recursesubdirs; Components: vrprepare4
 Source: {#LIB}\*.py; DestDir: {app}\Python; Flags: skipifsourcedoesntexist; Components: vrprepare4
 
@@ -463,7 +463,7 @@ Source: {#LIB}\*.py; DestDir: {app}\Python; Flags: skipifsourcedoesntexist; Comp
 Source: {#COVISEDIR}\Python\bin\vr-prepare\*.pyc; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
 ;Source: {#COVISEDIR}\Python\bin\vr-prepare\*.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
 Source: {#COVISEDIR}\Python\bin\vr-prepare\vr-prepare.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
-Source: {#COVISEDIR}\Python\bin\vr-prepare\InternalConfig.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
+;Source: {#COVISEDIR}\Python\bin\vr-prepare\InternalConfig.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
 Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialogManager.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
 Source: {#COVISEDIR}\Python\bin\vr-prepare\PatienceDialog.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
 Source: {#COVISEDIR}\Python\bin\vr-prepare\CocaseEditor.py; DestDir: {app}\Python\bin\vr-prepare; Flags: recursesubdirs; Components: vrprepare4
