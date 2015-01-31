@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef TOKENBUFFER_H
-#define TOKENBUFFER_H
+#ifndef TokenBuffer_H
+#define TokenBuffer_H
 
 #include <string.h>
 #include <stdio.h>
@@ -77,31 +77,28 @@ private:
     int length; // number of used bytes
     char *data; // pointer to the tokens
     char *currdata; // pointer to the tokens
+	bool networkByteOrder;
 
     void incbuf(int size = 100);
 
 public:
-    TokenBuffer()
+    TokenBuffer(bool nbo=false)
     {
         buflen = length = 0;
         data = currdata = NULL;
+		networkByteOrder = nbo;
     }
-    TokenBuffer(int al)
+    TokenBuffer(int al,bool nbo=false)
     {
         buflen = al;
         length = 0;
         data = currdata = new char[al];
+		networkByteOrder = nbo;
     }
-    ~TokenBuffer()
-    {
-#ifndef _WIN32
-        if (buflen)
-            delete[] data;
-#endif
-    }
+    virtual ~TokenBuffer();
     void delete_data();
-    TokenBuffer(Message *msg);
-    TokenBuffer(const char *dat, int len);
+    TokenBuffer(Message *msg,bool nbo=false);
+    TokenBuffer(const char *dat, int len,bool nbo=false);
 
     const char *getBinary(int n)
     {
@@ -243,5 +240,7 @@ public:
             data[0] = 0;
     };
 };
+
+
 }
 #endif
