@@ -140,8 +140,8 @@ public:
 	int swvlproxStatus;
 	int cbnlckStatus;
 	int cbnlckproxStatus;
-	float swvlRotaryMotor;
-	int linkedCar;
+	float swvlRotaryMotor; // angle in degrees
+	int linkedCar; // carID of car in Exchanger
 	float destnPos;
 
 	std::vector<brakeData> brakes;
@@ -151,6 +151,11 @@ class ThyssenPlugin : public coVRPlugin
 public:
     ThyssenPlugin();
     ~ThyssenPlugin();
+	enum MessageTypes {CAR_DATA=0};
+	enum doorStates {closed_locked=1,closed_unlocked,opening,open,closing};
+	enum direction {direction_down=0,direction_up};
+	enum lockState {unlocked=0,locked};
+	enum proxState {stateOff=0,stateOn};
     bool init();
     ServerConnection *sConn;
     SimpleServerConnection *conn;
