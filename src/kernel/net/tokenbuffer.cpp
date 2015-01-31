@@ -7,7 +7,7 @@
 
 #include <cassert>
 
-#include "TokenBuffer.h"
+#include "tokenbuffer.h"
 #include "message.h"
 #include "message_types.h"
 
