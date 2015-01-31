@@ -38,7 +38,7 @@ static const FileHandler handlers[] = {
 BPA::BPA(std::string filename, osg::Group *parent)
 {
     fprintf(stderr, "BPA::BPA\n");
-    int pos = BPAPlugin::plugin->bpa_map.size() * 3 + 1;
+    int pos = BPAPlugin::plugin->bpa_map.size() * 4 + 1;
 
     velocity = new coTUIFloatSlider("velocity", BPAPlugin::plugin->BPATab->getID());
     velocity->setEventListener(this);
@@ -49,6 +49,26 @@ BPA::BPA(std::string filename, osg::Group *parent)
 
     velocityLabel = new coTUILabel("velocity", BPAPlugin::plugin->BPATab->getID());
     velocityLabel->setPos(0, 0 + pos);
+
+	
+    rhoLabel = new coTUILabel("rho", BPAPlugin::plugin->BPATab->getID());
+    rhoLabel->setPos(0, 2 + pos);
+	rhoEdit = new coTUIEditFloatField("rhoEdit", BPAPlugin::plugin->BPATab->getID());
+    rhoEdit->setPos(1, 2 + pos);
+	rhoEdit->setValue(1055.0);
+    rhoEdit->setEventListener(this);
+    viscosityLabel = new coTUILabel("viscosity", BPAPlugin::plugin->BPATab->getID());
+    viscosityLabel->setPos(2, 2 + pos);
+	viscosityEdit = new coTUIEditFloatField("viscosityEdit", BPAPlugin::plugin->BPATab->getID());
+    viscosityEdit->setPos(3, 2 + pos);
+	viscosityEdit->setValue(0.005);
+    viscosityEdit->setEventListener(this);
+	stLabel = new coTUILabel("surface tension", BPAPlugin::plugin->BPATab->getID());
+    stLabel->setPos(4, 2 + pos);
+	stEdit = new coTUIEditFloatField("surfaceTensionEdit", BPAPlugin::plugin->BPATab->getID());
+    stEdit->setPos(5, 2 + pos);
+	stEdit->setValue(0.06);
+    stEdit->setEventListener(this);
 
     length = new coTUIFloatSlider("length", BPAPlugin::plugin->BPATab->getID());
     length->setEventListener(this);
@@ -61,14 +81,14 @@ BPA::BPA(std::string filename, osg::Group *parent)
     lengthLabel->setPos(0, 1 + pos);
 
     lineColorLabel = new coTUILabel("line color", BPAPlugin::plugin->BPATab->getID());
-    lineColorLabel->setPos(0, 2 + pos);
+    lineColorLabel->setPos(0, 3 + pos);
     lineColor = new coTUIColorButton("lineColor", BPAPlugin::plugin->BPATab->getID());
     lineColor->setColor(1, 0.9, 1, 1);
-    lineColor->setPos(1, 2 + pos);
+    lineColor->setPos(1, 3 + pos);
     lineColor->setEventListener(this);
 
     originLabel = new coTUILabel("origin:", BPAPlugin::plugin->BPATab->getID());
-    originLabel->setPos(2, 2 + pos);
+    originLabel->setPos(2, 3 + pos);
 
     filenameLabel = new coTUILabel(filename, BPAPlugin::plugin->BPATab->getID());
     filenameLabel->setPos(3, 1 + pos);
@@ -138,10 +158,13 @@ void BPA::calcIntersection()
         for (itr = right.begin(); itr != right.end(); itr++)
         {
             osg::Vec3 tmpP;
-            (*itl)->getMinimalDistance((*itr), tmpP);
-            positions->at(numIntersections) = tmpP;
-            p += tmpP;
-            numIntersections++;
+            float d = (*itl)->getMinimalDistance((*itr), tmpP);
+			if(d>0)
+			{
+				positions->at(numIntersections) = tmpP;
+				p += tmpP;
+				numIntersections++;
+			}
         }
     }
     p /= numIntersections;
@@ -171,6 +194,12 @@ BPA::~BPA()
     delete lineColor;
     delete originLabel;
     delete filenameLabel;
+	delete rhoLabel;
+	delete rhoEdit;
+	delete viscosityLabel;
+	delete viscosityEdit;
+	delete stLabel;
+	delete stEdit;
     std::list<Trajectory *>::iterator it;
     for (it = trajectories.begin(); it != trajectories.end(); it++)
     {
@@ -192,7 +221,7 @@ Trajectory::Trajectory(BPA *b)
     D = 0.0;
     W = 0.0;
     mtl = new osg::Material;
-    //mtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+    mtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
     mtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
     mtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
     mtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
@@ -229,6 +258,9 @@ void Trajectory::computeVelocity()
     double diff = 1;
     double oldD = 0;
     kappa = bpa->velocity->getValue();
+    Rho = bpa->rhoEdit->getValue();
+    viscosity = bpa->viscosityEdit->getValue();
+    surfacetension = bpa->stEdit->getValue();
 
     D = 2 * pow((3 * Vol / pow(10, 9) / (kappa * 4 * M_PI)), 1.0 / 3.0); // from dried volume (Vol) to D, kappa is drying ratio ~0.15
 
@@ -245,24 +277,14 @@ void Trajectory::computeVelocity()
         fprintf(stderr, "Could not solve the velocity equation\n");
     }
 
-    double vMax = sqrt(12 / (21.533333333333333333333333333333 * D));
-    //double We = 21.533333333333333333333333333333*D*velo*velo;// 1055.0 *D *v*v/0.06
-    if (velo > vMax)
-    {
-        velo = vMax;
-        setColor(1, 0, 0, 1);
-    }
-    else
-    {
-        setColor(bpa->lineColor->getRed(), bpa->lineColor->getGreen(), bpa->lineColor->getBlue(), bpa->lineColor->getAlpha());
-    }
+    
 }
 
 double Trajectory::getX(double v)
 {
     double sina = sin(alpha);
-    double We = 17583.333333333333333333333333333 * D * v * v; // 1055.0 *D *v*v/0.06
-    double Re = 211000 * D * v; // 1055*D*v/0.005
+    double We = (Rho/surfacetension) * D * v * v; // 1055.0 *D *v*v/0.06
+    double Re = (Rho/viscosity) * D * v; // 1055*D*v/0.005
     double P = We / pow(Re, 2.0 / 5.0);
     double sqrtp = sqrt(P);
     double powsin = pow(sina, 4.0 / 5.0);
@@ -272,8 +294,8 @@ double Trajectory::getX(double v)
 double Trajectory::getDX(double v)
 {
     double vsina = v * sin(alpha);
-    double We = 17583.333333333333333333333333333 * D * v * v; // 1055.0 *D *v*v/0.06
-    double Re = 211000 * D * v; // 1055*D*v/0.005
+    double We = (Rho/surfacetension) * D * v * v; // 1055.0 *D *v*v/0.06
+    double Re = (Rho/viscosity) * D * v; // 1055*D*v/0.005
     double P = We / pow(Re, 2.0 / 5.0);
     double sqrtvP = sqrt(pow(vsina, 8.0 / 5.0) * P);
     return ((-4 * pow(vsina, 4.0 / 5.0) * We / (5 * pow(Re, 1.0 / 5.0) * pow((1.24 + sqrtvP), 2.0))) + (4 * pow(vsina, 4.0 / 5.0) * We / (5 * pow(Re, 1.0 / 5.0) * sqrtvP * (1.24 + sqrtvP))) + (pow(Re, 1.0 / 5.0) * sqrtvP / (5 * pow(vsina, 4.0 / 5.0) * 1.24 + sqrtvP)));
@@ -287,6 +309,7 @@ void Trajectory::createGeometry()
 
     // set up geometry
     vert = new osg::Vec3Array;
+    colors = new osg::Vec4Array;
 
     primitives = new osg::DrawArrays(osg::PrimitiveSet::LINE_STRIP, 0, 2);
     recalc();
@@ -303,6 +326,9 @@ float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1)
     float minDist = 1000;
     int minI;
     int minN;
+	
+	if(vert->size()>0 && t->vert->size()>0)
+	{
     for (int i = 0; i < vert->size(); i++)
     {
         for (int n = 0; n < t->vert->size(); n++)
@@ -318,54 +344,80 @@ float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1)
     }
     p1 = (vert->at(minI) + t->vert->at(minN)) / 2.0;
     return sqrt(minDist);
+	}
+	return -1;
 }
 
 void Trajectory::recalc()
 {
     // set up geometry
     vert->clear();
+    colors->clear();
 
     float dt = 0.01 / startVelocity.length();
-    osg::Vec3 a;
+	bool ignoreUpward = BPAPlugin::plugin->ignoreUpward->getState();
+	if(startVelocity[2]>0 && ignoreUpward)
+	{
+		primitives->setCount(0);
+		geom->setVertexArray(vert);
+		geom->setColorArray(colors);
+        geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+		return;
+	}
+    double vMax = sqrt(12 / ((1.292/surfacetension) * D));
+	float v = startVelocity.length();
+	if (v >= vMax)
+	{
+		colors->push_back(osg::Vec4(1,0,0,1));
+	}
+	else
+	{
+		colors->push_back(osg::Vec4(bpa->lineColor->getRed(), bpa->lineColor->getGreen(), bpa->lineColor->getBlue(), bpa->lineColor->getAlpha()));
+	}
+
+	osg::Vec3 a;
     a.set(0, 0, -9.81);
     float len = 0;
     vert->push_back(startPos);
     osg::Vec3 pos = startPos;
     osg::Vec3 vel = startVelocity;
     bool res = BPAPlugin::plugin->airResistance->getState();
-    float vMax = sqrt(12 / (21.533333333333333333333333333333 * D));
     bool Firsttime = true;
     while (len < length && pos[2] > 0.0)
     {
         float v = vel.length();
         if (res)
         {
-            vel += ((vel * ((0.5 * 0.48 * 1.292 * v) / ((2.0 / 3.0) * D * 1055.0))) + a) * dt;
-            float v = vel.length();
-
-            if (v > vMax)
-            {
-                v = vMax;
-                vel.normalize();
-                vel *= v;
-                if (Firsttime)
-                {
-                    setColor(1, 0, 0, 1);
-                    Firsttime = false;
-                }
-            }
+            //vel += ((vel * ((0.5 * 0.48 * 1.292 * v) / ((2.0 / 3.0) * D * Rho))) + a) * dt;
+            vel += ((vel * ((3.0 * 0.48 * 1.292 * v) / (4.0*D*Rho))) + a) * dt;
         }
         else
         {
             vel += a * dt;
         }
+		
+		v = vel.length();
+		if (v >= vMax)
+		{
+			v = vMax;
+			vel.normalize();
+			vel *= v;
+			colors->push_back(osg::Vec4(1,0,0,1));
+		}
+		else
+		{
+			colors->push_back(osg::Vec4(bpa->lineColor->getRed(), bpa->lineColor->getGreen(), bpa->lineColor->getBlue(), bpa->lineColor->getAlpha()));
+		}
         pos = pos + vel * dt;
         len += (vel * dt).length();
         vert->push_back(pos);
     }
+    //double We = 21.533333333333333333333333333333*D*velo*velo;// 1055.0 *D *v*v/0.06
     primitives->setCount(vert->size());
 
     geom->setVertexArray(vert);
+	geom->setColorArray(colors);
+	geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 }
 
 BPAPlugin::BPAPlugin()
@@ -387,6 +439,11 @@ BPAPlugin::BPAPlugin()
     OriginComputationType = new coTUIToggleButton("Origin Computation Type", BPATab->getID(), true);
     OriginComputationType->setEventListener(this);
     OriginComputationType->setPos(1, 0);
+	
+    ignoreUpward = new coTUIToggleButton("Ignore upward", BPATab->getID(), true);
+    ignoreUpward->setEventListener(this);
+    ignoreUpward->setPos(2, 0);
+	ignoreUpward->setState(false);
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
 }
@@ -406,6 +463,7 @@ BPAPlugin::~BPAPlugin()
     bpa_map.clear();
     delete airResistance;
     delete OriginComputationType;
+    delete ignoreUpward;
     delete BPATab;
     cover->getObjectsRoot()->removeChild(BPAGroup);
 }
@@ -416,7 +474,7 @@ void BPAPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 
 void BPAPlugin::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == airResistance)
+    if (tUIItem == airResistance || tUIItem == ignoreUpward)
     {
         std::map<std::string, BPA *>::iterator it;
         for (it = bpa_map.begin(); it != bpa_map.end(); it++)
@@ -439,7 +497,7 @@ void BPA::recalc()
 
 void BPA::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == length || tUIItem == velocity)
+    if (tUIItem == length || tUIItem == velocity|| tUIItem == rhoEdit|| tUIItem == viscosityEdit|| tUIItem == stEdit)
     {
         std::list<Trajectory *>::iterator it;
         for (it = trajectories.begin(); it != trajectories.end(); it++)
@@ -456,6 +514,7 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
                 (*it)->startVelocity.normalize();
                 (*it)->startVelocity *= (*it)->velo;
             }
+			
         }
         recalc();
     }

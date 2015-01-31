@@ -51,12 +51,17 @@ public:
     double D;
     double W;
     double alpha;
+    double Rho;
+    double viscosity;
+    double surfacetension;
     double velo;
     double Vol;
     float kappa;
 
     osg::Geometry *geom;
     osg::Vec3Array *vert;
+    osg::Vec4Array *colors;
+	
     osg::DrawArrays *primitives;
 
     osg::ref_ptr<osg::Geode> geode;
@@ -84,6 +89,12 @@ public:
     coTUILabel *lineColorLabel;
     coTUILabel *originLabel;
     coTUILabel *filenameLabel;
+    coTUILabel *rhoLabel;
+    coTUIEditFloatField *rhoEdit;
+    coTUILabel *viscosityLabel;
+    coTUIEditFloatField *viscosityEdit;
+    coTUILabel *stLabel;
+    coTUIEditFloatField *stEdit;
 
     void recalc();
 
@@ -117,6 +128,8 @@ public:
     coTUITab *BPATab;
     coTUIToggleButton *airResistance;
     coTUIToggleButton *OriginComputationType;
+    coTUIToggleButton *ignoreUpward;
+	
 
     static int SloadBPA(const char *filename, osg::Group *parent, const char *ck = "");
     int loadBPA(const char *filename, osg::Group *parent);
