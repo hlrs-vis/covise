@@ -349,7 +349,7 @@
 
     </ARToolKit>
 	
-    <ALVAR value="ON">
+    <ALVAR value="OFF">
      <Capture value="on" />
      <VideoDevice value="0" width="1920" height="1080" />
      <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
@@ -409,8 +409,9 @@
     <OpenGL3 value="false" />
 
     <!--Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" /-->
-    <Window arch="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" />
-    <Window arch="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+    <!--Window arch="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" /-->
+    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+    <!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="560" left="0" bottom="0" name="0" decoration="false" /-->
    </WindowConfig>
 
    <ScreenConfig>
