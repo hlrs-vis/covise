@@ -166,6 +166,16 @@ if not defined ALVAR_HOME  (
    )
 )
 
+if not defined PYTHONHOME  (
+   set "PYTHONHOME=%EXTERNLIBS%\..\shared\Python;%EXTERNLIBS%\Python"
+   rem PYTHON_HOME is for compiling Python 
+   rem  while PYTHONHOME is for executing Python and can consist of
+   rem several different paths
+   rem set "PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python"
+   set "PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python;%COVISEDIR%\PYTHON\bin;%COVISEDIR%\PYTHON\bin\vr-prepare;%COVISEDIR%\PYTHON\bin\vr-prepare\converters;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator\import;%EXTERNLIBS%\pyqt\modules;%EXTERNLIBS%\sip\modules"
+   set "PATH=%PATH%;%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%EXTERNLIBS%\Python\bin"
+)
+
 if not defined ALL_EXTLIBS ( 
   set "ALL_EXTLIBS=%EXTERNLIBS%\all"
   set "PATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%PATH%"
