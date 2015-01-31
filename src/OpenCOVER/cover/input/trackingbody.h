@@ -28,6 +28,7 @@ class TrackingBody
     friend class Input;
 
 public:
+    bool isValid() const;
     const osg::Matrix &getMat() const;
     bool isVarying() const;
     bool is6Dof() const;
@@ -36,11 +37,13 @@ private:
     TrackingBody(const std::string &name);
 
     void update();
+    void setValid(bool);
     void setMat(const osg::Matrix &mat);
     void setVarying(bool isVar);
     void set6Dof(bool is6Dof);
 
     InputDevice *m_dev;
+    bool m_valid;
     size_t m_idx;
     osg::Matrix m_mat, m_deviceOffsetMat;
     bool m_varying, m_6dof;

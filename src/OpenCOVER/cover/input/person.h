@@ -34,7 +34,9 @@ public:
     std::string name() const;
 
     bool hasHead() const;
+    bool isHeadValid() const;
     bool hasHand(size_t num) const;
+    bool isHandValid(size_t idx) const;
     bool isVarying() const;
 
     TrackingBody *getHead() const;

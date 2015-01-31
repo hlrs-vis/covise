@@ -98,7 +98,7 @@ void TwoHandInteractionPlugin::preFrame()
 
     //cerr << "Num Stations = " << cover->getNumStations() << endl;
 
-    if (Input::instance()->hasHead())
+    if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
     {
         osg::Matrix mat = Input::instance()->getHeadMat();
         //cerr << "head Matrix = " << mat << endl;
@@ -114,7 +114,7 @@ void TwoHandInteractionPlugin::preFrame()
     }
 
     osg::Matrix handMat;
-    if (Input::instance()->hasHand(0))
+    if (Input::instance()->hasHand(0) && Input::instance()->isHandValid(0))
     {
         handMat = Input::instance()->getHandMat(0);
         if (m_HasIndicators)
@@ -128,7 +128,7 @@ void TwoHandInteractionPlugin::preFrame()
     }
 
     osg::Matrix secondHandMat;
-    if (Input::instance()->hasHand(1))
+    if (Input::instance()->hasHand(1) && Input::instance()->isHandValid(1))
     {
         secondHandMat = Input::instance()->getHandMat(1);
         if (m_HasIndicators)

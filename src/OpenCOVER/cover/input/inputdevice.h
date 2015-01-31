@@ -63,6 +63,7 @@ protected:
     std::vector<bool> m_buttonStates;
     std::vector<double> m_valuatorValues;
     std::vector<std::pair<double, double> > m_valuatorRanges;
+    std::vector<bool> m_bodyMatricesValid;
     std::vector<osg::Matrix> m_bodyMatrices;
 
     const std::string m_config; //< path to config values for this device
@@ -75,20 +76,21 @@ protected:
     {
         return m_buttonStates.size();
     }
-    bool getButtonState(size_t num) const;
+    bool getButtonState(size_t idx) const;
 
     size_t numValuators() const
     {
         return m_valuatorValues.size();
     }
-    double getValuatorValue(size_t num) const;
-    std::pair<double, double> getValuatorRange(size_t num) const;
+    double getValuatorValue(size_t idx) const;
+    std::pair<double, double> getValuatorRange(size_t idx) const;
 
     size_t numBodies() const
     {
         return m_bodyMatrices.size();
     }
-    const osg::Matrix &getBodyMatrix(size_t num) const;
+    bool isBodyMatrixValid(size_t idx) const;
+    const osg::Matrix &getBodyMatrix(size_t idx) const;
 
     void update(); //< called by Input::update()
 
@@ -97,6 +99,7 @@ private:
     std::vector<bool> m_buttonStatesFrame;
     std::vector<double> m_valuatorValuesFrame;
     std::vector<std::pair<double, double> > m_valuatorRangesFrame;
+    std::vector<bool> m_bodyMatricesValidFrame;
     std::vector<osg::Matrix> m_bodyMatricesFrame;
 };
 

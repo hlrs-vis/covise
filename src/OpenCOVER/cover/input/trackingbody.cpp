@@ -19,6 +19,7 @@ namespace opencover
 {
 
 TrackingBody::TrackingBody(const std::string &name)
+    : m_valid(false)
 {
     const std::string conf = "COVER.Input.Body." + name;
     const std::string device = coCoviseConfig::getEntry("device", conf, "default");
@@ -66,9 +67,13 @@ TrackingBody::TrackingBody(const std::string &name)
  */
 void TrackingBody::update()
 {
-    m_mat = m_dev->getBodyMatrix(m_idx);
-    //std::cerr << "TrackingBody::update: getting dev idx " << m_idx << ": " << m_mat << std::endl;
-    m_mat.preMult(m_deviceOffsetMat);
+    m_valid = m_dev->isBodyMatrixValid(m_idx);
+    if (m_valid)
+    {
+        m_mat = m_dev->getBodyMatrix(m_idx);
+        //std::cerr << "TrackingBody::update: getting dev idx " << m_idx << ": " << m_mat << std::endl;
+        m_mat.preMult(m_deviceOffsetMat);
+    }
     m_varying = m_dev->isVarying();
     m_6dof = m_dev->is6Dof();
 }
@@ -84,6 +89,11 @@ void TrackingBody::setMat(const osg::Matrix &mat)
     m_mat = mat;
 }
 
+bool TrackingBody::isValid() const
+{
+    return m_valid;
+}
+
 bool TrackingBody::isVarying() const
 {
 
@@ -94,6 +104,11 @@ bool TrackingBody::is6Dof() const
 {
 
     return m_6dof;
+}
+
+void TrackingBody::setValid(bool valid)
+{
+    m_valid = valid;
 }
 
 void TrackingBody::setVarying(bool isVar)

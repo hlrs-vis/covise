@@ -193,6 +193,7 @@ bool DTrackDriver::poll()
     {
         m_mutex.lock();
         m_bodyMatrices.resize(numMat);
+        m_bodyMatricesValid.resize(numMat);
         m_mutex.unlock();
     }
 
@@ -206,7 +207,7 @@ bool DTrackDriver::poll()
     m_mutex.lock();
     for (size_t i = 0; i < dt->getNumBody(); ++i)
     {
-        updateBodyMatrix(i);
+        m_bodyMatricesValid[i] = updateBodyMatrix(i);
     }
     m_mutex.unlock();
 

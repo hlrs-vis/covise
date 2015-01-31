@@ -652,7 +652,8 @@ coVRNavigationManager::update()
     }
     else
     {
-        handMat = Input::instance()->getHandMat();
+        if (Input::instance()->isHandValid())
+            handMat = Input::instance()->getHandMat();
     }
     oldHandPos = handPos;
     handPos = handMat.getTrans();

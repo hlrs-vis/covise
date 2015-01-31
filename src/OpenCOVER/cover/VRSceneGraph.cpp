@@ -897,7 +897,8 @@ VRSceneGraph::update()
 
     // update the viewer axis dcs with tracker not viewer mat
     // otherwise it is not updated when freeze is on
-    m_viewerAxisTransform->setMatrix(Input::instance()->getHeadMat());
+    if (Input::instance()->isHeadValid())
+        m_viewerAxisTransform->setMatrix(Input::instance()->getHeadMat());
 
     if (showSmallSceneAxis_)
     {

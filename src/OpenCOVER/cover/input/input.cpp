@@ -154,12 +154,26 @@ bool Input::hasHead() const
     return activePerson->hasHead();
 }
 
+bool Input::isHeadValid() const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->isHeadValid();
+}
+
 bool Input::hasHand(int num) const
 {
 
     if (!activePerson)
         return false;
     return activePerson->hasHand(num);
+}
+
+bool Input::isHandValid(int num) const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->isHandValid(num);
 }
 
 const osg::Matrix &Input::getHeadMat() const

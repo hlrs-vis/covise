@@ -88,19 +88,26 @@ void Person::addValuator(Valuator *val)
 
 bool Person::hasHead() const
 {
-
     return m_head != NULL;
+}
+
+bool Person::isHeadValid() const
+{
+    return hasHead() && m_head->isValid();
 }
 
 bool Person::hasHand(size_t num) const
 {
-
     return m_hands.size() > num && m_hands[num];
+}
+
+bool Person::isHandValid(size_t idx) const
+{
+    return hasHand(idx) && m_hands[idx]->isValid();
 }
 
 bool Person::isVarying() const
 {
-
     if (hasHead() && m_head->isVarying())
     {
         return true;

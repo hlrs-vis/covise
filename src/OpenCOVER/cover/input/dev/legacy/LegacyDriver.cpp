@@ -27,6 +27,7 @@ using namespace covise;
 LegacyDriver::LegacyDriver(const std::string &configBase)
     : InputDevice(configBase)
 {
+    m_bodyMatricesValid.resize(VRTracker::instance()->getNumStation(), true);
     m_bodyMatrices.resize(VRTracker::instance()->getNumStation());
     m_buttonStates.resize(4);
 }

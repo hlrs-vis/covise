@@ -48,7 +48,9 @@ public:
     bool isTrackingOn() const;
 
     bool hasHead() const; //< whether active person's head is tracked
+    bool isHeadValid() const; //< whether active person's head matrix is valid
     bool hasHand(int num = 0) const; //< whether active person's hand is tracked
+    bool isHandValid(int num = 0) const; //< whether active person's hand matrix is valid
 
     //Persons control
     int getNumPersons()

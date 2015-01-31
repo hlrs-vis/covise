@@ -762,7 +762,7 @@ void OpenCOVER::frame()
     coVRCollaboration::instance()->update();
 
     // update viewer position and channels
-    if (Input::instance()->hasHead())
+    if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
         VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
     VRViewer::instance()->update();
 

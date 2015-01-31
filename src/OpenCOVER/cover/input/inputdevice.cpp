@@ -141,6 +141,9 @@ void InputDevice::update()
 {
     m_mutex.lock();
 
+    if (m_bodyMatricesValidFrame.size() != m_bodyMatricesValid.size())
+        m_bodyMatricesValidFrame.resize(m_bodyMatricesValid.size());
+    std::copy(m_bodyMatricesValid.begin(), m_bodyMatricesValid.end(), m_bodyMatricesValidFrame.begin());
     if (m_bodyMatricesFrame.size() != m_bodyMatrices.size())
         m_bodyMatricesFrame.resize(m_bodyMatrices.size());
     for (size_t i = 0; i < m_bodyMatrices.size(); ++i)
@@ -193,13 +196,21 @@ std::pair<double, double> InputDevice::getValuatorRange(size_t num) const
     return m_valuatorRangesFrame[num];
 }
 
-const osg::Matrix &InputDevice::getBodyMatrix(size_t num) const
+bool InputDevice::isBodyMatrixValid(size_t idx) const
+{
+    if (idx >= m_bodyMatricesFrame.size())
+        return false;
+
+    return m_bodyMatricesValidFrame[idx];
+}
+
+const osg::Matrix &InputDevice::getBodyMatrix(size_t idx) const
 {
 
-    if (num >= m_bodyMatricesFrame.size())
+    if (idx >= m_bodyMatricesFrame.size())
         return s_identity;
 
-    return m_bodyMatricesFrame[num];
+    return m_bodyMatricesFrame[idx];
 }
 
 DriverFactoryBase::DriverFactoryBase(const std::string &name)
