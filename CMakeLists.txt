@@ -6,11 +6,9 @@
 #
 
 # requirements to cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-IF(APPLE)
-    # 2.8.7 is too old for identifying clang
-    CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
-ENDIF(APPLE)
+
+# 2.8.7 is too old for identifying clang
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
 
 set(COVISE_BUILDING_COVISE TRUE)
 
