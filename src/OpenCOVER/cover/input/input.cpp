@@ -15,6 +15,7 @@
 #include <config/CoviseConfig.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRDynLib.h>
+#include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
 
 #include "coMousePointer.h"
@@ -59,7 +60,10 @@ bool Input::init()
     update();
 
     if (coVRMSController::instance()->isMaster())
-        printConfig();
+    {
+        if (cover->debugLevel(2))
+            printConfig();
+    }
 
     return true;
 }
