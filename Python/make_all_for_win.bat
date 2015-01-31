@@ -8,25 +8,14 @@ REM # this file substitute the Makefile for windows
 REM #########################################################################
 
 
-ECHO ...copy python binaries
-ECHO    from %COVISEDIR%\%ARCHSUFFIX%\lib
-ECHO    to %COVISEDIR%\Python\
-ECHO ...
-COPY /V /Y %COVISEDIR%\%ARCHSUFFIX%\lib\*%_FILESUFFIX_MINE%.pyd %COVISEDIR%\Python\
-COPY /V /Y %COVISEDIR%\%ARCHSUFFIX%\lib\*%_FILESUFFIX_MINE%.py %COVISEDIR%\Python\
-
-COPY /V /Y %COVISEDIR%\src\sys\ScriptingInterface\covise.py %COVISEDIR%\Python\
-COPY /V /Y %COVISEDIR%\build.tamarau\src\sys\ScriptingInterface\covise.py %COVISEDIR%\Python\
-
-COPY /V /Y %COVISEDIR%\src\sys\GuiRenderMessage\coGrmsg.py %COVISEDIR%\Python\
-COPY /V /Y %COVISEDIR%\build.tamarau\src\sys\GuiRenderMessage\coGrmsg.py %COVISEDIR%\Python\
+set PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python;%COVISEDIR%\PYTHON\bin;%COVISEDIR%\PYTHON\bin\vr-prepare;%COVISEDIR%\PYTHON\bin\vr-prepare\converters;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator\import;%EXTERNLIBS%\pyqt\modules;%EXTERNLIBS%\sip\modules
 
 rem copy python startup script to the bin directory
 rem this script is started by the crb
 
-copy scriptInterface.bat  %COVISEDIR%\%ARCHSUFFIX%\bin\scriptInterface.bat
+copy scriptInterface.bat  ..\%ARCHSUFFIX%\bin
 
-echo scriptInterface.bat copied to %COVISEDIR%\%ARCHSUFFIX%\bin
+echo scriptInterface.bat copied to ..\%ARCHSUFFIX%\bin
 
 
 rem generate the static python representation of all covise module
@@ -35,7 +24,7 @@ rem some modules can't be converted under windows
 
 echo will create stubs for all modules
 echo not all will have success, be patient ....
-IF /i "%ARCHSUFFIX%" == "win32opt" (
+IF /i "%ARCHSUFFIX%" == "tamarauopt" (
   set USE_OPT_LIBS=1
 ) ELSE (
   IF /i "%ARCHSUFFIX%" == "vistaopt" (
@@ -88,6 +77,9 @@ IF EXIST %COVISEDIR%\Python\makeBasiModIgnorelist.txt (
 )
 ECHO %_PYTHON% %COVISEDIR%\Python\makeBasiModCode.py %_MAKEBASIIGNORELIST%
 %_PYTHON% %COVISEDIR%\Python\makeBasiModCode.py %_MAKEBASIIGNORELIST% > coPyModules.py
+cd bin\vr-prepare\
+makeall.bat
+cd ..\..
 echo finished !!
 
 ENDLOCAL
