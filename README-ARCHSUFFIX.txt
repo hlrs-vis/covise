@@ -19,11 +19,9 @@ i# The meaning of the variable ARCHSUFFIX
 # =======================
 # 
 # You have to change or create at least the following:
-# common/mkspecs/$BASEARCHSUFFIX/qmake.conf
-# covise/.common.sh
-# covise/.covise-functions.sh
+# covise/scripts/covise-functions.sh
 # covise/README-ARCHSUFFIX.txt (this file)
-# covise/archive/extlibs-$BASEARCHSUFFIX-{files,opt}.txt
+# covise/archive/extlibs-$BASEARCHSUFFIX-files.txt
 # 
 # 
 # ARCHSUFFIXes currently used
