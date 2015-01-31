@@ -14,10 +14,16 @@ macro(covise_cmake_policy)
 # policy settings
 IF(COMMAND cmake_policy)
 
-    if (POLICY CMP0020)
+    IF(POLICY CMP0020)
        #qt policy Automatically link Qt executables to qtmain target on Windows.
-       cmake_policy( SET CMP0020 NEW)
+       cmake_policy(SET CMP0020 NEW)
+    ENDIF()
+	
+	# allow LOCATION to be used in build-targets we might change to $<TARGET_FILE> if we need a newer CMAKE version
+    if (POLICY CMP0026)
+        cmake_policy(SET CMP0026 OLD)
     endif()
+	
     
     # Works around warnings libraries linked against that don't have absolute paths (e.g. -lpthreads)
     cmake_policy(SET CMP0003 NEW)
