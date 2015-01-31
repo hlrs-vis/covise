@@ -616,9 +616,9 @@ Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ARCHSUFFIX; Value
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: PATH; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\renderer;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\sgplugins;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}\covise; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
+Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_BRANCH; ValueData: {#BRANCH}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
