@@ -1,4 +1,4 @@
-i# The meaning of the variable ARCHSUFFIX
+# The meaning of the variable ARCHSUFFIX
 # ======================================
 # 
 # The variable ARCHSUFFIX specifies the system environment for which COVISE
