@@ -51,9 +51,21 @@ IF(MSVC)
 ENDIF(MSVC)
 
 # place covise.py in the correct directory
-ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
+IF(MSVC)
+  IF(upper_conf_type_str STREQUAL "DEBUG")
+  ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py ${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}/lib/covise.py
+  )
+  ELSE()
+  ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py ${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}opt/lib/covise.py
+  )
+  ENDIF()
+ELSE(MSVC)
+  ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py ${COVISEDIR}/${ARCHSUFFIX}/lib/covise.py
-)
+  )
+ENDIF(MSVC)
 # place scriptingInterface.py in the output directory
 ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py scriptInterface.py
