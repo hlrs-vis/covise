@@ -53,14 +53,20 @@
                         <object name="Fence" icon="" distance="0.0" type="Fence" width="0.1" height="1.0" length="1.0" radius="0.0" heading="0" repeatDistance="0.0" >
 				<corner u="0.0" v="0.05" z="0.0" height="0.0" />
 				<corner u="0.0" v="0.05" z="1.0" height="0.0" />
+                                <corner u="0.0" v="-0.05" z="1.0" height="0.0" />
 				<corner u="0.0" v="-0.05" z="0.0" height="0.0" />
-				<corner u="0.0" v="-0.05" z="1.0" height="0.0" />
 			</object>
                         <object name="NoiseBarrier" icon="" distance="0.0" type="NoiseBarrier" width="0.1" height="2.0" length="2.0" radius="0.0" heading="0" repeatDistance="0.0" >
 				<corner u="0.0" v="0.05" z="0.0" height="0.0" />
 				<corner u="0.0" v="0.05" z="2.0" height="0.0" />
-				<corner u="0.0" v="-0.05" z="0.0" height="0.0" />
-				<corner u="0.0" v="-0.05" z="2.0" height="0.0" />
+                                <corner u="0.0" v="-0.05" z="2.0" height="0.0" />
+				<corner u="0.0" v="-0.05" z="0.0" height="0.0" />				
+			</object>
+                        <object name="AntiGlarePanel" icon="" distance="0.0" type="AntiGlarePanel" width="0.04" height="0.79" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
+				<corner u="0.0" v="0.02" z="0.0" height="0.0" />
+				<corner u="0.0" v="0.02" z="0.79" height="0.0" />
+                                <corner u="0.0" v="-0.02" z="0.79" height="0.0" />
+				<corner u="0.0" v="-0.02" z="0.0" height="0.0" />				
 			</object>
 			<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" />
                         <object name="Right" icon="" distance="0.0" type="PoleRight" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
