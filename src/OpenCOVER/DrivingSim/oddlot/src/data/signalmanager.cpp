@@ -56,11 +56,27 @@ SignalManager::addSignal(const QString &country, const QString &name, const QIco
 }
 
 void
-SignalManager::addObject(const QString &country, const QString &name, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
+SignalManager::addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
 {
-    objects_.insert(country, new ObjectContainer(name, icon, type, length, width, radius, height, distance, heading, repeatDistance, corners));
+    objects_.insert(country, new ObjectContainer(name, file, icon, type, length, width, radius, height, distance, heading, repeatDistance, corners));
 }
 
+ObjectContainer *
+SignalManager::getObjectContainer(const QString &type)
+{
+   QMultiMap<QString, ObjectContainer *>::const_iterator iter = objects_.constBegin();
+   while (iter != objects_.constEnd())
+   {
+      if (iter.value()->getObjectType() == type)
+      {
+         return iter.value();
+      }
+   iter++;
+   }
+
+   return NULL;
+} 
+    
 bool
 SignalManager::loadSignals(const QString &fileName)
 {

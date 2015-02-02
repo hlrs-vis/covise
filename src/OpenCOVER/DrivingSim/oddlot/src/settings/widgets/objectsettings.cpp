@@ -86,6 +86,8 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->repeatLengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->repeatDistanceSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
 
+    connect(ui->textureLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+
     init_ = true;
 }
 
@@ -103,7 +105,7 @@ ObjectSettings::updateProperties()
 {
     if (object_)
     {
-        ui->nameBox->setText(object_->getName());
+        ui->nameBox->setText(object_->getModelFileName());
         ui->idBox->setText(object_->getId());
         ui->sSpinBox->setValue(object_->getSStart());
         ui->tSpinBox->setValue(object_->getT());
@@ -111,6 +113,7 @@ ObjectSettings::updateProperties()
         ui->typeBox->setText(object_->getType());
         //	ui->typeComboBox->setCurrentIndex(object_->getType()-100001);
 
+	ui->heightSpinBox->setValue(object_->getHeight());
         ui->validLengthSpinBox->setValue(object_->getValidLength());
         ui->lengthSpinBox->setValue(object_->getLength());
         ui->widthSpinBox->setValue(object_->getWidth());
@@ -124,6 +127,8 @@ ObjectSettings::updateProperties()
         ui->repeatSSpinBox->setValue(object_->getRepeatS());
         ui->repeatLengthSpinBox->setValue(object_->getRepeatLength());
         ui->repeatDistanceSpinBox->setValue(object_->getRepeatDistance());
+
+        ui->textureLineEdit->setText(object_->getTextureFileName());
     }
 }
 
@@ -209,9 +214,9 @@ ObjectSettings::onEditingFinished()
     QString newId = object_->getNewId(filename);
     object_->setId(newId);
 
-    SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, object_->getId(), filename, ui->nameBox->text(), ui->typeBox->text(), ui->tSpinBox->value(), ui->zOffsetSpinBox->value(),
+    SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, object_->getId(), filename, ui->typeBox->text(), ui->tSpinBox->value(), ui->zOffsetSpinBox->value(),
                                                                          ui->validLengthSpinBox->value(), (Object::ObjectOrientation)ui->orientationComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(),
-                                                                         ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), ui->repeatLengthSpinBox->value(), ui->repeatDistanceSpinBox->value(), object_->getObjectCorners());
+                                                                         ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), ui->repeatLengthSpinBox->value(), ui->repeatDistanceSpinBox->value(), ui->textureLineEdit->text());
     getProjectSettings()->executeCommand(command);
 }
 
@@ -271,7 +276,7 @@ ObjectSettings::on_objectComboBox_activated(int id)
         if (object)
         {
             double t = objectT(object->getSStart(), object->getT(), objectContainer->getObjectDistance());
-            SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getFileName(), object->getName(), objectContainer->getObjectType(), t, object->getzOffset(), objectContainer->getObjectLength(), object->getOrientation(), objectContainer->getObjectLength(), objectContainer->getObjectWidth(), objectContainer->getObjectRadius(), objectContainer->getObjectHeight(), objectContainer->getObjectHeading(), object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), objectContainer->getObjectRepeatDistance(), objectContainer->getObjectCorners());
+            SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectContainer->getObjectType(), t, object->getzOffset(), objectContainer->getObjectLength(), object->getOrientation(), objectContainer->getObjectLength(), objectContainer->getObjectWidth(), objectContainer->getObjectRadius(), objectContainer->getObjectHeight(), objectContainer->getObjectHeading(), object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), objectContainer->getObjectRepeatDistance(), object->getTextureFileName());
             getProjectSettings()->executeCommand(command);
         }
     }
@@ -307,7 +312,7 @@ ObjectSettings::on_sSpinBox_editingFinished()
             MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
             getProjectSettings()->executeCommand(moveSectionCommand);
 
-            SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getFileName(), object->getName(), object->getType(), object->getT(), object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getObjectCorners());
+            SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), object->getType(), object->getT(), object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getTextureFileName());
             getProjectSettings()->executeCommand(setPropertiesCommand);
         }
     }

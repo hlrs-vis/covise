@@ -1200,6 +1200,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
 
         QString id = parseToQString(child, "id", "", false); // mandatory
         QString modelFile = parseToQString(child, "modelFile", name, true); // optional
+        QString textureFile = parseToQString(child, "textureFile", name, true); // optional
         double s = parseToDouble(child, "s", 0.0, false); // mandatory
         double t = parseToDouble(child, "t", 0.0, false); // mandatory
         double zOffset = parseToDouble(child, "zOffset", 0.0, true); // optional
@@ -1235,40 +1236,33 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
             repeatDistance = parseToDouble(objectChild, "distance", 0.0, false); // mandatory
         }
 
-        // Corners of the outline of the object //
-        //
-        QList<ObjectCorner *> corners;
-        QDomElement outline = child.firstChildElement("outline");
-        if (!outline.isNull())
-        {
-            QDomElement corner = outline.firstChildElement("cornerLocal");
-            while (!corner.isNull())
-            {
-                double u = parseToDouble(corner, "u", 0.0, true);
-                double v = parseToDouble(corner, "v", 0.0, true);
-                double z = parseToDouble(corner, "z", 0.0, true);
-                double height = parseToDouble(corner, "height", 0.0, true);
-
-                ObjectCorner *objectCorner = new ObjectCorner(u, v, z, height);
-                corners.append(objectCorner);
-
-                corner = corner.nextSiblingElement("cornerLocal");
-            }
+	// Convert old files
+/*	if ((type == "Tree") && (height < 2.0))
+    	{
+	   type = "Bush";
         }
+        else if ((type == "PoleTraverse") && (width > 1.0))
+        {
+	    type = type + QString("_%1").arg(int(width * 10));
+        }
+*/
 
         // Construct object object
-        Object *object = new Object(id, modelFile, name, type, s, t, zOffset, validLength, orientation,
-                                    length, width, radius, height, hdg * 360.0 / (2.0 * M_PI), pitch, roll, pole, repeatS, repeatLength, repeatDistance, corners);
-
-        setTile(id, oldTileId);
-
-        // Add to road
-        road->addObject(object);
-
-        if (id != object->getId())
+        if (type != "")
         {
-            elementIDs_.insert(id, object->getId());
-        }
+            Object *object = new Object(id, name, type, s, t, zOffset, validLength, orientation,
+                                    length, width, radius, height, hdg * 360.0 / (2.0 * M_PI), pitch, roll, pole, repeatS, repeatLength, repeatDistance, textureFile);
+
+            setTile(id, oldTileId);
+
+            // Add to road
+            road->addObject(object);
+
+            if (id != object->getId())
+            {
+                elementIDs_.insert(id, object->getId());
+            }
+	}
 
         // Attempt to locate another object
         child = child.nextSiblingElement("object");
@@ -2990,6 +2984,7 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &coun
         // Name and Icon //
         //
         QString name = parseToQString(object, "name", "", false); // mandatory
+        QString file = parseToQString(object, "file", "", true); // optional 
         QString icon = ":/signalIcons/" + parseToQString(object, "icon", "", true); // optional
         QString type = parseToQString(object, "type", "", true);
         double length = parseToDouble(object, "length", 0.0, true);
@@ -3017,7 +3012,7 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &coun
             corner = corner.nextSiblingElement("corner");
         }
 
-        ODD::mainWindow()->getSignalManager()->addObject(countryName, name, QIcon(icon), type, length, width, radius, height, distance, heading, repeatDistance, corners);
+        ODD::mainWindow()->getSignalManager()->addObject(countryName, name, file, QIcon(icon), type, length, width, radius, height, distance, heading, repeatDistance, corners);
 
         object = object.nextSiblingElement("object");
     }

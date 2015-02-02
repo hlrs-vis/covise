@@ -21,15 +21,13 @@
 // Constructors       //
 //####################//
 
-Object::Object(const QString &id, const QString &file, const QString &name, const QString &type, double s, double t, double zOffset,
+Object::Object(const QString &id, const QString &name, const QString &type, double s, double t, double zOffset,
                double validLength, ObjectOrientation orientation, double length, double width, double radius, double height,
                double hdg, double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance,
-               const QList<ObjectCorner *> &corners)
+               const QString &textureFile)
     : RoadSection(s)
     , id_(id)
-    , fileName_(file)
     , name_(name)
-    , objectCorners_(corners)
 {
     objectProps_.type = type;
     objectProps_.t = t;
@@ -48,6 +46,9 @@ Object::Object(const QString &id, const QString &file, const QString &name, cons
     objectRepeat_.s = repeatS;
     objectRepeat_.length = repeatLength;
     objectRepeat_.distance = repeatDistance;
+
+    modelFile_ = name;
+    textureFile_ = textureFile;
 }
 
 /*!
@@ -117,9 +118,9 @@ Object::getClone()
 {
     // Object //
     //
-    Object *clone = new Object(id_, fileName_, name_, objectProps_.type, getSStart(), objectProps_.t, objectProps_.zOffset, objectProps_.validLength, objectProps_.orientation,
+    Object *clone = new Object(id_, name_, objectProps_.type, getSStart(), objectProps_.t, objectProps_.zOffset, objectProps_.validLength, objectProps_.orientation,
                                objectProps_.length, objectProps_.width, objectProps_.radius, objectProps_.height, objectProps_.hdg, objectProps_.pitch, objectProps_.roll, objectProps_.pole,
-                               objectRepeat_.s, objectRepeat_.length, objectRepeat_.distance, objectCorners_);
+                               objectRepeat_.s, objectRepeat_.length, objectRepeat_.distance, textureFile_);
 
     return clone;
 }

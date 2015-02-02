@@ -51,30 +51,37 @@
 				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
 			</object>
                         <object name="Fence" icon="" distance="0.0" type="Fence" width="0.1" height="1.0" length="1.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.05" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.05" z="1.0" height="0.0" />
-                                <corner u="0.0" v="-0.05" z="1.0" height="0.0" />
-				<corner u="0.0" v="-0.05" z="0.0" height="0.0" />
+				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
+				<corner u="0.0" v="0.0" z="1.0" height="0.0" />
 			</object>
                         <object name="NoiseBarrier" icon="" distance="0.0" type="NoiseBarrier" width="0.1" height="2.0" length="2.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.05" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.05" z="2.0" height="0.0" />
-                                <corner u="0.0" v="-0.05" z="2.0" height="0.0" />
-				<corner u="0.0" v="-0.05" z="0.0" height="0.0" />				
+				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
+				<corner u="0.0" v="0.0" z="2.0" height="0.0" />
 			</object>
                         <object name="AntiGlarePanel" icon="" distance="0.0" type="AntiGlarePanel" width="0.04" height="0.79" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.02" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.02" z="0.79" height="0.0" />
-                                <corner u="0.0" v="-0.02" z="0.79" height="0.0" />
-				<corner u="0.0" v="-0.02" z="0.0" height="0.0" />				
+				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
+				<corner u="0.0" v="0.0" z="0.79" height="0.0" />
 			</object>
-			<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" />
-                        <object name="Right" icon="" distance="0.0" type="PoleRight" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
-                        <object name="Left" icon="" distance="0.0" type="PoleLeft" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
-                        <object name="Left4m" icon="" distance="0.0" type="PoleLeft4m" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
-                        <object name="Both" icon="" distance="0.0" type="PoleBoth" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
-                        <object name="Traverse" icon="" distance="0.0" type="PoleTraverse" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
-                        <object name="Light" icon="" distance="0.0" type="Light" width="0.0" height="8.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" />
+			<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Tree8m.WRL"/>
+			<object name="Bush" icon="" distance="0.5" type="Bush" width="0.0" height="1.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Bush1m.WRL"/>
+                        <object name="PoleRight" icon="" distance="0.0" type="PoleRight" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Right.WRL" />
+                        <object name="PoleLeft" icon="" distance="0.0" type="PoleLeft" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left.WRL" />
+                        <object name="PoleLeft4m" icon="" distance="0.0" type="PoleLeft4m" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left4m.WRL" />
+                        <object name="PoleBoth" icon="" distance="0.0" type="PoleBoth" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Both.WRL"/>
+                        <object name="Traverse" icon="" distance="0.0" type="PoleTraverse" width="1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse.WRL"/>
+                        <object name="Traverse_105" icon="" distance="0.0" type="PoleTraverse_105" width="10.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_10_5.WRL"/>
+                        <object name="Traverse_120" icon="" distance="0.0" type="PoleTraverse_120" width="12.0" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_12.WRL"/>
+                        <object name="Traverse_145" icon="" distance="0.0" type="PoleTraverse_145" width="14.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_14_5.WRL"/>
+                        <object name="Traverse_185" icon="" distance="0.0" type="PoleTraverse_185" width="18.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_18_5.WRL"/>
+                        <object name="Traverse_180" icon="" distance="0.0" type="PoleTraverse_180" width="18" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_18.WRL"/>
+                        <object name="Traverse_195" icon="" distance="0.0" type="PoleTraverse_195" width="19.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_19_5.WRL"/>
+                        <object name="Traverse_190" icon="" distance="0.0" type="PoleTraverse_190" width="19" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_19.WRL"/>
+                        <object name="Traverse_200" icon="" distance="0.0" type="PoleTraverse_200" width="20" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_20.WRL"/>
+                        <object name="Traverse_220" icon="" distance="0.0" type="PoleTraverse_220" width="22" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_22.WRL"/>
+                        <object name="Traverse_70" icon="" distance="0.0" type="PoleTraverse_70" width="7" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_7.WRL"/>
+                        <object name="Traverse_85" icon="" distance="0.0" type="PoleTraverse_85" width="8.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_8_5.WRL"/>
+                        <object name="Traverse_98" icon="" distance="0.0" type="PoleTraverse_98" width="9.8" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_9_8.WRL"/>
+                        <object name="Light" icon="" distance="0.0" type="Light" width="0.0" height="8.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="Light.WRL"/>
 		</objects>
 		</country>
 		

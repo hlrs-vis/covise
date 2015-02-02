@@ -164,6 +164,13 @@ public:
         return this;
     }
 
+   // ProjectWidget //
+   //
+   virtual ProjectWidget *getProjectWidget()
+   {
+      return projectWidget_;
+   }
+
     // Undo/Redo //
     //
     virtual QUndoStack *getUndoStack()

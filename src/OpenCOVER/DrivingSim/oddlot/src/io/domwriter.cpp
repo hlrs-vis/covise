@@ -80,6 +80,18 @@
 #include "src/data/scenerysystem/heightmap.hpp"
 #include "src/data/scenerysystem/scenerytesselation.hpp"
 
+// SignalManager //
+//
+#include "src/data/signalmanager.hpp"
+
+// ProjectWidget //
+//
+#include "src/gui/projectwidget.hpp"
+
+// MainWindow //
+//
+#include "src/mainwindow.hpp"
+
 // Utils //
 //
 #include "math.h"
@@ -207,6 +219,8 @@ DomWriter::visit(RSystemElementRoad *road)
     {
         currentObjectsElement_ = doc_->createElement("objects");
         currentRoad_.appendChild(currentObjectsElement_);
+
+	signalManager_ = projectData_->getProjectWidget()->getMainWindow()->getSignalManager();
     }
     if (!road->getSignals().isEmpty())
     {
@@ -248,14 +262,16 @@ DomWriter::visit(Object *object)
         objectElement.appendChild(repeatElement);
     }
 
-    if (!object->getObjectCorners().isEmpty())
+    ObjectContainer * objectContainer = signalManager_->getObjectContainer(object->getType());
+    QList<ObjectCorner *> objectCorners =  objectContainer->getObjectCorners();
+    if (objectCorners.size() > 0)
     {
         QDomElement outlineElement = doc_->createElement("outline");
 
-        for (int i = 0; i < object->getObjectCorners().size(); i++)
+        for (int i = 0; i < objectCorners.size(); i++)
         {
             QDomElement cornerElement = doc_->createElement("cornerLocal");
-            ObjectCorner *corner = object->getObjectCorners().at(i);
+            ObjectCorner *corner = objectCorners.at(i);
 
             cornerElement.setAttribute("height", corner->getHeight());
             cornerElement.setAttribute("z", corner->getZ());
@@ -268,64 +284,31 @@ DomWriter::visit(Object *object)
 
     // Set mandatory attributes
     objectElement.setAttribute("id", object->getId());
-    if (object->getType() == "Tree") // TODO: Settings //
-    {
-        if (object->getHeight() >= 2.0)
-        {
-            objectElement.setAttribute("modelFile", "Tree8m.WRL");
-        }
-        else
-        {
-            objectElement.setAttribute("modelFile", "Bush1m.WRL");
-        }
-    }
-    else if (object->getType() == "PoleRight")
-    {
-        objectElement.setAttribute("modelFile", "Pole_Right.WRL");
-    }
-    else if (object->getType() == "PoleLeft4m")
-    {
-        objectElement.setAttribute("modelFile", "Pole_Left4m.WRL");
-    }
-    else if (object->getType() == "PoleLeft")
-    {
-        objectElement.setAttribute("modelFile", "Pole_Left.WRL");
-    }
-    else if (object->getType() == "PoleBoth")
-    {
-        objectElement.setAttribute("modelFile", "Pole_Both.WRL");
-    }
-    else if (object->getType() == "PoleTraverse")
-    {
-        if (object->getWidth() > 0.0)
-        {
-            QString name = object->getType() + QString("_%1.WRL").arg(object->getWidth());
-            objectElement.setAttribute("modelFile", name);
-        }
-        else
-        {
-            objectElement.setAttribute("modelFile", "Pole_Traverse.WRL");
-        }
-    }
-    else
-    {
-        objectElement.setAttribute("modelFile", object->getFileName());
-    }
+    objectElement.setAttribute("textureFile", object->getTextureFileName());
 
-    QString objectName;
 
-    if (object->getName() != "unnamed")
+    if (objectContainer && (objectContainer->getObjectFile() != "")) 
     {
-        objectName = object->getName();
+        objectElement.setAttribute("modelFile", objectContainer->getObjectFile());
+        objectElement.setAttribute("name", object->getName());
     }
+    else 
+    {
+       QString objectName = object->getType();
 
-    if (object->getPole())
-    {
-        objectElement.setAttribute("name", objectName + "_p");
-    }
-    else
-    {
-        objectElement.setAttribute("name", objectName);
+       if ((object->getName() != "") && (object->getName() != "unnamed"))
+       {
+          objectName += "_" + object->getName();
+       }
+
+       if (object->getPole())
+       {
+          objectElement.setAttribute("name", objectName + "_p");
+       }
+       else
+       {
+          objectElement.setAttribute("name", objectName);
+       }
     }
 
     objectElement.setAttribute("type", object->getType());
@@ -347,20 +330,6 @@ DomWriter::visit(Object *object)
 
     currentObjectsElement_.appendChild(objectElement);
 
-    /*	if (object->getType() == "PoleTraverse")
-	{
-		object->setType("PoleRight");
-		LaneSection * laneSection = object->getParentRoad()->getLaneSection(object->getSStart());
-		double  t = laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId() - 1, object->getSStart());
-		object->setT(t);
-		object->setWidth(1.0);
-		visit(object);
-
-		object->setType("PoleLeft");
-		double  t = -laneSection->getLaneSpanWidth(laneSection->getLeftmostLaneId(), 0, object->getSStart());
-		object->setT(t);
-		visit(object);
-	}*/
 }
 
 //################//

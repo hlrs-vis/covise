@@ -235,8 +235,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         }
         else if (tool == ODD::TSG_OBJECT)
         {
-            QList<ObjectCorner *> corners;
-            Object *newObject = new Object("object", "", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, corners);
+            Object *newObject = new Object("object", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, "");
             AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
 
             getProjectGraph()->executeCommand(command);

@@ -188,8 +188,8 @@ private:
 class SetObjectPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &file, const QString &name, const QString &type, double t, double zOffset, double validLength, Object::ObjectOrientation orientation, double length, double width, double radius, double height, double hdg, double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QList<ObjectCorner *> &corners, DataCommand *parent = NULL);
-    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const QString &file, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QList<ObjectCorner *> &corners, DataCommand *parent = NULL);
+    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const QString &type, double t, double zOffset, double validLength, Object::ObjectOrientation orientation, double length, double width, double radius, double height, double hdg, double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QString &textureFile, DataCommand *parent = NULL);
+    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent = NULL);
     virtual ~SetObjectPropertiesCommand();
 
     virtual int id() const
@@ -209,16 +209,14 @@ private:
     Object *object_;
     QString newId_;
     QString newName_;
-    QString newFile_;
+    QString newTextureFile_;
     QString oldId_;
     QString oldName_;
-    QString oldFile_;
+    QString oldTextureFile_;
     Object::ObjectProperties newObjectProps_;
     Object::ObjectProperties oldObjectProps_;
     Object::ObjectRepeatRecord newObjectRepeat_;
     Object::ObjectRepeatRecord oldObjectRepeat_;
-    QList<ObjectCorner *> oldCorners_;
-    QList<ObjectCorner *> newCorners_;
 };
 
 //#########################//

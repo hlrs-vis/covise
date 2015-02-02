@@ -112,8 +112,9 @@ class ObjectContainer
     //################//
 
 public:
-    explicit ObjectContainer(const QString &name, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
+    explicit ObjectContainer(const QString &name, const QString &file, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
         : objectName_(name)
+	, objectFile_(file)
         , objectIcon_(icon)
         , objectType_(type)
         , objectLength_(length)
@@ -135,6 +136,10 @@ public:
     QString getObjectName() const
     {
         return objectName_;
+    }
+    QString getObjectFile() const
+    {
+        return objectFile_;
     }
     QIcon getObjectIcon() const
     {
@@ -190,6 +195,7 @@ private:
 protected:
 private:
     QString objectName_;
+    QString objectFile_;
     QIcon objectIcon_;
     QString objectType_;
     double objectLength_;
@@ -224,7 +230,7 @@ public:
     bool loadSignals(const QString &fileName);
 
     void addSignal(const QString &country, const QString &name, const QIcon &icon, int type, const QString &typeSubclass, int subType, double value, double distance, double height);
-    void addObject(const QString &country, const QString &name, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners);
+    void addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners);
     QList<SignalContainer *> getSignals(QString country) const
     {
         return signals_.values(country);
@@ -233,6 +239,8 @@ public:
     {
         return objects_.values(country);
     };
+
+    ObjectContainer * getObjectContainer(const QString &type);
 
 protected:
 private:

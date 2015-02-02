@@ -22,10 +22,12 @@
 
 class QDomDocument;
 class ProjectData;
+class SignalManager;
 
 class SurfaceSection;
 class CarPool;
 class Pool;
+
 
 class DomWriter : public Visitor
 {
@@ -147,6 +149,8 @@ private:
     QDomElement currentPedestrianGroupElement_;
 
     ProjectData *projectData_;
+
+    SignalManager *signalManager_;
 };
 
 #endif // DOMWRITER_HPP

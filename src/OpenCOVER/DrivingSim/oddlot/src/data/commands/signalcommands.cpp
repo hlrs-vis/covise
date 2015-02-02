@@ -424,15 +424,14 @@ RemoveObjectCommand::undo()
 //#########################//
 // SetObjectPropertiesCommand //
 //#########################//
-SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &file, const QString &name, const QString &type, double t, double zOffset,
+SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const QString &type, double t, double zOffset,
                                                        double validLength, Object::ObjectOrientation orientation, double length, double width, double radius, double height, double hdg, double pitch, double roll, bool pole,
-                                                       double repeatS, double repeatLength, double repeatDistance, const QList<ObjectCorner *> &corners, DataCommand *parent)
+                                                       double repeatS, double repeatLength, double repeatDistance, const QString &textureFile, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
-    , newFile_(file)
+    , newTextureFile_(textureFile)
     , object_(object)
-    , newCorners_(corners)
 {
     // Check for validity //
     //
@@ -450,7 +449,7 @@ SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QSt
 
     oldId_ = object_->getId();
     oldName_ = object_->getName();
-    oldFile_ = object_->getFileName();
+    oldTextureFile_ = object_->getTextureFileName();
     newObjectProps_.t = t;
     newObjectProps_.orientation = orientation;
     newObjectProps_.zOffset = zOffset;
@@ -484,18 +483,16 @@ SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QSt
     oldObjectRepeat_.s = object->getRepeatS();
     oldObjectRepeat_.length = object->getRepeatLength();
     oldObjectRepeat_.distance = object->getRepeatDistance();
-    oldCorners_ = object->getObjectCorners();
 }
 
-SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const QString &file, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QList<ObjectCorner *> &corners, DataCommand *parent)
+SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
-    , newFile_(file)
+    , newTextureFile_(textureFile)
     , object_(object)
     , newObjectProps_(objectProps)
     , newObjectRepeat_(objectRepeat)
-    , newCorners_(corners)
 {
     // Check for validity //
     //
@@ -513,10 +510,9 @@ SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QSt
 
     oldId_ = object_->getId();
     oldName_ = object_->getName();
-    oldFile_ = object_->getFileName();
+    oldTextureFile_ = object_->getTextureFileName();
     oldObjectProps_ = object_->getProperties();
     oldObjectRepeat_ = object_->getRepeatProperties();
-    oldCorners_ = object->getObjectCorners();
 }
 
 /*! \brief .
@@ -543,10 +539,10 @@ SetObjectPropertiesCommand::redo()
 {
     object_->setId(newId_);
     object_->setName(newName_);
-    object_->setFileName(newFile_);
+    object_->setModelFileName(newName_);
+    object_->setTextureFileName(newTextureFile_);
     object_->setProperties(newObjectProps_);
     object_->setRepeatProperties(newObjectRepeat_);
-    object_->setObjectCorners(newCorners_);
 
     object_->addObjectChanges(Object::CEL_ParameterChange);
 
@@ -561,10 +557,10 @@ SetObjectPropertiesCommand::undo()
 {
     object_->setId(oldId_);
     object_->setName(oldName_);
-    object_->setFileName(oldFile_);
+    object_->setModelFileName(oldName_);
+    object_->setTextureFileName(oldTextureFile_);
     object_->setProperties(oldObjectProps_);
     object_->setRepeatProperties(oldObjectRepeat_);
-    object_->setObjectCorners(oldCorners_);
 
     object_->addObjectChanges(Object::CEL_ParameterChange);
 

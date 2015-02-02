@@ -72,6 +72,7 @@ public:
         height_ = height;
     }
 
+
 private:
     double u_;
     double v_;
@@ -127,9 +128,9 @@ public:
     //################//
 
 public:
-    explicit Object(const QString &id, const QString &file, const QString &name, const QString &type, double s, double t, double zOffset,
+    explicit Object(const QString &id, const QString &name, const QString &type, double s, double t, double zOffset,
                     double validLength, ObjectOrientation orientation, double length, double width, double radius, double height, double hdg,
-                    double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QList<ObjectCorner *> &corners);
+                    double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QString &textureFile);
     virtual ~Object()
     { /* does nothing */
     }
@@ -153,15 +154,26 @@ public:
     void setName(const QString &name)
     {
         name_ = name;
+	modelFile_ = name;
     }
 
-    QString getFileName() const
+    QString getModelFileName() const
     {
-        return fileName_;
+        return name_;
     }
-    void setFileName(const QString &name)
+    void setModelFileName(const QString &name)
     {
-        fileName_ = name;
+        name_ = name;
+	modelFile_ = name;
+    }
+
+    QString getTextureFileName() const
+    {
+        return textureFile_;
+    }
+    void setTextureFileName(const QString &name)
+    {
+        textureFile_ = name;
     }
 
     QString getType() const
@@ -326,14 +338,6 @@ public:
         objectRepeat_ = objectRepeatProps;
     }
 
-    QList<ObjectCorner *> getObjectCorners() const
-    {
-        return objectCorners_;
-    }
-    void setObjectCorners(const QList<ObjectCorner *> &objectCorners)
-    {
-        objectCorners_ = objectCorners;
-    }
 
     // Observer Pattern //
     //
@@ -368,13 +372,13 @@ private:
     //
     // Mandatory
     QString id_;
-    QString fileName_;
     QString name_;
+    QString modelFile_;
+    QString textureFile_;
 
     ObjectProperties objectProps_;
     ObjectRepeatRecord objectRepeat_;
 
-    QList<ObjectCorner *> objectCorners_;
 
     // Change flags //
     //
