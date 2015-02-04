@@ -140,13 +140,17 @@ void VrmlNodeThyssen::render(Viewer *)
         eventOut(timeStamp, pname, d_carPos[i]);
         if(cd.doorState != cd.oldDoorState)
         {
+           /* if(i==0)
+            {
+                fprintf(stderr,"doorState: %d , oldState = %d\n",cd.doorState,cd.oldDoorState);
+            }*/
             if(cd.doorState == ThyssenPlugin::opening)
             {
                 d_carDoorOpen[i].set(timeStamp);
                 sprintf(pname,"carDoorOpen%d",i);
                 eventOut(timeStamp, pname, d_carDoorOpen[i]);
             }
-            if(cd.doorState == ThyssenPlugin::open)
+            if(cd.doorState == ThyssenPlugin::closing)
             {
                 d_carDoorClose[i].set(timeStamp);
                 sprintf(pname,"carDoorClose%d",i);
