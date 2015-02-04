@@ -129,32 +129,53 @@ void VrmlNodeThyssen::render(Viewer *)
 {
     if (!d_enabled.get())
         return;
-
+    
+    char pname[100];
     double timeStamp = System::the->time();
-    if (ThyssenPlugin::plugin->numFloats)
+    for(int i=0;i<ThyssenPlugin::plugin->cars.size();i++)
     {
-        d_floats.set(ThyssenPlugin::plugin->numFloats, ThyssenPlugin::plugin->floatValues);
-        eventOut(timeStamp, "floats_changed", d_floats);
+        carData &cd = ThyssenPlugin::plugin->cars[i];
+        d_carPos[i].set( 0, cd.posZ / 1000.0, cd.posY / 1000.0);
+        sprintf(pname,"carPos%d",i);
+        eventOut(timeStamp, pname, d_carPos[i]);
+        if(cd.doorState != cd.oldDoorState)
+        {
+            if(cd.doorState == ThyssenPlugin::opening)
+            {
+                d_carDoorOpen[i].set(timeStamp);
+                sprintf(pname,"carDoorOpen%d",i);
+                eventOut(timeStamp, pname, d_carDoorOpen[i]);
+            }
+            if(cd.doorState == ThyssenPlugin::open)
+            {
+                d_carDoorClose[i].set(timeStamp);
+                sprintf(pname,"carDoorClose%d",i);
+                eventOut(timeStamp, pname, d_carDoorClose[i]);
+            }
+            cd.oldDoorState = cd.doorState;
+        }
     }
-    if (ThyssenPlugin::plugin->numInts)
+    for(int i=0;i<ThyssenPlugin::plugin->exchangers.size();i++)
     {
-        d_ints.set(ThyssenPlugin::plugin->numInts, ThyssenPlugin::plugin->intValues);
-        eventOut(timeStamp, "ints_changed", d_ints);
-    }
-    if (ThyssenPlugin::plugin->cars.size() > 0)
-    {
-        d_car0Pos.set(ThyssenPlugin::plugin->cars[0].posY / 1000.0, ThyssenPlugin::plugin->cars[0].posZ / 1000.0, 0);
-        eventOut(timeStamp, "car0Pos", d_car0Pos);
-    }
-    if (ThyssenPlugin::plugin->cars.size() > 1)
-    {
-        d_car0Pos.set(ThyssenPlugin::plugin->cars[1].posY / 1000.0, ThyssenPlugin::plugin->cars[1].posZ / 1000.0, 0);
-        eventOut(timeStamp, "car1Pos", d_car1Pos);
-    }
-    if (ThyssenPlugin::plugin->cars.size() > 2)
-    {
-        d_car0Pos.set(ThyssenPlugin::plugin->cars[2].posY / 1000.0, ThyssenPlugin::plugin->cars[2].posZ / 1000.0, 0);
-        eventOut(timeStamp, "car2Pos", d_car2Pos);
+        exchangerData &ed = ThyssenPlugin::plugin->exchangers[i];
+        if(ed.oldAngle != ed.swvlRotaryMotor)
+        {
+            ed.oldAngle = ed.swvlRotaryMotor;
+            d_exchangerAngle[i].set(ed.swvlRotaryMotor/180.0*M_PI);
+            sprintf(pname,"exchangerAngle%d",i);
+            eventOut(timeStamp, pname, d_exchangerAngle[i]);
+            if(ed.linkedCar >=0 && ed.linkedCar < ThyssenPlugin::plugin->cars.size())
+            {
+                carData &cd = ThyssenPlugin::plugin->cars[ed.linkedCar];
+                d_carAngle[i].set(ed.swvlRotaryMotor/180.0*M_PI);
+                sprintf(pname,"carAngle%d",i);
+                eventOut(timeStamp, pname, d_carAngle[i]);
+            }
+            else
+            {
+                fprintf(stderr,"no car in exchanger %d\n",ed.exID);
+            }
+        }
     }
 }
 
@@ -294,6 +315,40 @@ void brakeData::setData(TokenBuffer &tb)
     tb >> status;
 }
 
+int ThyssenPlugin::readData(char *buf,unsigned int size)
+{
+    int numBytes;
+    unsigned int numReceived=0;
+    if (coVRMSController::instance()->isMaster())
+    {
+        do {
+            numBytes = conn->getSocket()->Read(buf,size);
+            if(numBytes >0)
+            {
+                numReceived += numBytes;
+            }
+            else 
+            {
+                conn = NULL;
+                buf[0]=0xff;
+                buf[1]=0xff;
+                coVRMSController::instance()->sendSlaves(buf, size);
+                return -1;
+            }
+        } while(conn !=NULL && numReceived < size);
+        coVRMSController::instance()->sendSlaves(buf, size);
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster(buf, size);
+        if(buf[0]==0xff && buf[1]==0xff)
+        {
+            return -1;
+        }
+    }
+    return(size);
+}
+
 void
 ThyssenPlugin::preFrame()
 {
@@ -315,16 +370,8 @@ ThyssenPlugin::preFrame()
             char buf[200 * sizeof(int)];
 
             int numBytes;
-            if (coVRMSController::instance()->isMaster())
-            {
-                numBytes = conn->getSocket()->Read(buf, 2 * sizeof(int));
-                coVRMSController::instance()->sendSlaves(buf, 2 * sizeof(int));
-            }
-            else
-            {
-                coVRMSController::instance()->readMaster(buf, 2 * sizeof(int));
-                numBytes = 2 * sizeof(int);
-            }
+            if((numBytes = readData(buf,2 * sizeof(int)))<0)
+                break;
             if (buf[0] == 't' && buf[1] == 'h' && buf[2] == 'i')
             {
                 conn->getSocket()->Read(buf, 6);
@@ -333,20 +380,14 @@ ThyssenPlugin::preFrame()
             TokenBuffer tb(buf, numBytes, true);
             int msSize;
             int msType;
+            int totalSize=numBytes;
             tb >> msSize;
             tb >> msType;
             if (msType == CAR_DATA)
             {
-                if (coVRMSController::instance()->isMaster())
-                {
-                    numBytes = conn->getSocket()->Read(buf, 4 * sizeof(int));
-                    coVRMSController::instance()->sendSlaves(buf, 4 * sizeof(int));
-                }
-                else
-                {
-                    coVRMSController::instance()->readMaster(buf, 4 * sizeof(int));
-                    numBytes = 4 * sizeof(int);
-                }
+                if((numBytes = readData(buf,4 * sizeof(int)))<0)
+                    break;
+                totalSize+=numBytes;
                 TokenBuffer tb(buf, numBytes, true);
                 int numberOfCars;
                 int numberOfExchangers;
@@ -360,16 +401,10 @@ ThyssenPlugin::preFrame()
                 numberOfexchBrakes /= numberOfExchangers;
                 for (int i = 0; i < numberOfCars; i++)
                 {
-                    if (coVRMSController::instance()->isMaster())
-                    {
-                        numBytes = conn->getSocket()->Read(buf, 8 * sizeof(int) + 8 * sizeof(float));
-                        coVRMSController::instance()->sendSlaves(buf, 8 * sizeof(int) + 4 * sizeof(float));
-                    }
-                    else
-                    {
-                        coVRMSController::instance()->readMaster(buf, 8 * sizeof(int) + 4 * sizeof(float));
-                        numBytes = 8 * sizeof(int) + 4 * sizeof(float);
-                    }
+                    if((numBytes = readData(buf,8 * sizeof(int) + 4 * sizeof(float)))<0)
+                        break;
+                    
+                    totalSize+=numBytes;
                     TokenBuffer tb(buf, numBytes, true);
                     int carID;
                     tb >> carID;
@@ -380,18 +415,13 @@ ThyssenPlugin::preFrame()
                     }
                     cars.at(i).setData(tb);
                 }
+                if(conn==NULL)
+                    break;
                 for (int i = 0; i < numberOfExchangers; i++)
                 {
-                    if (coVRMSController::instance()->isMaster())
-                    {
-                        numBytes = conn->getSocket()->Read(buf, 7 * sizeof(int) + 8 * sizeof(float));
-                        coVRMSController::instance()->sendSlaves(buf, 7 * sizeof(int) + 4 * sizeof(float));
-                    }
-                    else
-                    {
-                        coVRMSController::instance()->readMaster(buf, 7 * sizeof(int) + 4 * sizeof(float));
-                        numBytes = 7 * sizeof(int) + 4 * sizeof(float);
-                    }
+                    if((numBytes = readData(buf,7 * sizeof(int) + 4 * sizeof(float)))<0)
+                        break;
+                    totalSize+=numBytes;
                     TokenBuffer tb(buf, numBytes, true);
                     int exID;
                     tb >> exID;
@@ -402,18 +432,13 @@ ThyssenPlugin::preFrame()
                     }
                     exchangers.at(i).setData(tb);
                 }
+                if(conn==NULL)
+                    break;
                 for (int i = 0; i < numberOfCars; i++)
                 {
-                    if (coVRMSController::instance()->isMaster())
-                    {
-                        numBytes = conn->getSocket()->Read(buf, sizeof(int) * 3 * numberOfcarBrakes);
-                        coVRMSController::instance()->sendSlaves(buf, sizeof(int) * 3 * numberOfcarBrakes);
-                    }
-                    else
-                    {
-                        coVRMSController::instance()->readMaster(buf, sizeof(int) * 3 * numberOfcarBrakes);
-                        numBytes = sizeof(int) * 3 * numberOfcarBrakes;
-                    }
+                    if((numBytes = readData(buf,sizeof(int) * 3 * numberOfcarBrakes))<0)
+                        break;
+                    totalSize+=numBytes;
                     TokenBuffer tb(buf, numBytes, true);
                     carData &car = cars.at(i);
                     for (int n = 0; n < numberOfcarBrakes; n++)
@@ -428,18 +453,13 @@ ThyssenPlugin::preFrame()
                         car.brakes.at(n).setData(tb);
                     }
                 }
+                if(conn==NULL)
+                    break;
                 for (int i = 0; i < numberOfExchangers; i++)
                 {
-                    if (coVRMSController::instance()->isMaster())
-                    {
-                        numBytes = conn->getSocket()->Read(buf, sizeof(int) * 3 * numberOfcarBrakes);
-                        coVRMSController::instance()->sendSlaves(buf, sizeof(int) * 3 * numberOfcarBrakes);
-                    }
-                    else
-                    {
-                        coVRMSController::instance()->readMaster(buf, sizeof(int) * 3 * numberOfcarBrakes);
-                        numBytes = sizeof(int) * 3 * numberOfcarBrakes;
-                    }
+                    if((numBytes = readData(buf,sizeof(int) * 3 * numberOfexchBrakes))<0)
+                        break;
+                    totalSize+=numBytes;
                     TokenBuffer tb(buf, numBytes, true);
                     exchangerData &exchanger = exchangers.at(i);
                     for (int n = 0; n < numberOfexchBrakes; n++)
@@ -454,85 +474,18 @@ ThyssenPlugin::preFrame()
                         exchanger.brakes.at(n).setData(tb);
                     }
                 }
+                if(conn==NULL)
+                    break;
+                if(totalSize!=msSize)
+                {
+                    fprintf(stderr,"Wrong messageSize %d in Message Type %d, expected %d\n",totalSize,msType,msSize);
+                }
             }
 
-            /* old ASCII Protocoll    const char *line = conn->readLine();
-            if (line != NULL)
-            {
-                if (strncmp(line, "CARID0", 6) == 0)
-                {
-                    sscanf(line + 12, "%f, PosY %f", &zpos, &ypos);
-
-                    //cerr << line <<  "z" << zpos << endl;
-                }
-
-				ExCHID4 PosZ 153850.000000 ,  PosY 3000.000000
-CARID0 PosZ 113020.000000 ,  PosY 3000.000000
-CARID1 PosZ 153850.000000 ,  PosY 3000.000000
-CARID2 PosZ 5000.000000 ,  PosY 3000.000000
-CARID3 PosZ 34420.000000 ,  PosY 3000.000000
-ExCHID0 PosZ 5000.000000 ,  PosY 3000.000000
-ExCHID1 PosZ 34420.000000 ,  PosY 3000.000000
-ExCHID2 PosZ 44200.000000 ,  PosY 5700.000000
-ExCHID3 PosZ 94200.000000 ,  PosY 3000.000000
-ExCHID4 PosZ 153850.000000 ,  PosY 3000.000000
-CARID0 PosZ 113050.000000 ,  PosY 3000.000000
-CARID1 PosZ 153850.000000 ,  PosY 3000.000000
-CARID2 PosZ 5000.000000 ,  PosY 3000.000000
-CARID3 PosZ 34420.000000 ,  PosY 3000.000000
-ExCHID0 PosZ 5000.000000 ,  PosY 3000.000000
-ExCHID1 PosZ 34420.000000 ,  PosY 3000.000000
-ExCHID2 PosZ 44200.000000 ,  PosY 5700.000000
-ExCHID3 PosZ 94200.000000 ,  PosY 3000.000000
-ExCHID4 PosZ 153850.000000 ,  PosY 3000.000000
-CARID0 PosZ 113230.000000 ,  PosY 3000.000000*/
         }
     }
 
-    if (coVRMSController::instance()->isMaster())
-    {
-        //cerr << numFloats << endl;
-        //cerr << numInts << endl;
-        /*   coVRMSController::instance()->sendSlaves((char *)&numFloats,sizeof(int));
-      coVRMSController::instance()->sendSlaves((char *)&numInts,sizeof(int));
-      if(numFloats)
-         coVRMSController::instance()->sendSlaves((char *)floatValues,numFloats*sizeof(float));
-      if(numInts)
-         coVRMSController::instance()->sendSlaves((char *)intValues,numInts*sizeof(int));*/
-    }
-    else
-    {
-        /*  int newNumFloats=0;
-      int newNumInts=0;
-      coVRMSController::instance()->readMaster((char *)&newNumFloats,sizeof(int));
-      coVRMSController::instance()->readMaster((char *)&newNumInts,sizeof(int));
-      //cerr << newNumFloats << endl;
-      //cerr << newNumInts << endl;
-      if(newNumFloats>0 && newNumFloats != numFloats)
-      {
-      cerr << "resize" << endl;
-         numFloats=newNumFloats;
-         delete[] floatValues;
-         floatValues = new float[numFloats];
-      }
-      if(newNumInts > 0 && newNumInts != numInts)
-      {
-      cerr << "resize" << endl;
-         numInts=newNumInts;
-         delete[] intValues;
-         intValues = new int[numInts];
-      }
-      if(newNumFloats>0 && numFloats)
-      {
-      //cerr << "rf" << endl;
-         coVRMSController::instance()->readMaster((char *)floatValues,numFloats*sizeof(float));
-      }
-      if(newNumFloats>0 && numInts)
-      {
-      //cerr << "ri" << endl;
-         coVRMSController::instance()->readMaster((char *)intValues,numInts*sizeof(int));
-      }*/
-    }
+    
 }
 
 COVERPLUGIN(ThyssenPlugin)

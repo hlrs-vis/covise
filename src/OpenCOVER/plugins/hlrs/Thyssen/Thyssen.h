@@ -35,8 +35,10 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlSFBool.h>
+#include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlMFFloat.h>
 #include <vrml97/vrml/VrmlSFInt.h>
+#include <vrml97/vrml/VrmlSFTime.h>
 #include <vrml97/vrml/VrmlMFInt.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
@@ -88,9 +90,13 @@ private:
     // eventOuts
     VrmlMFFloat d_floats;
     VrmlMFInt d_ints;
-    VrmlSFVec3f d_car0Pos;
-    VrmlSFVec3f d_car1Pos;
-    VrmlSFVec3f d_car2Pos;
+    VrmlSFVec3f d_carPos[4];
+    VrmlSFTime  d_carDoorClose[4];
+    VrmlSFTime  d_carDoorOpen[4];
+    VrmlSFFloat d_carAngle[4];
+    VrmlSFFloat d_exchangerAngle[4];
+    VrmlSFTime  d_landingDoorClose[4];
+    VrmlSFTime  d_landingDoorOpen[4];
 };
 
 class brakeData
@@ -122,6 +128,7 @@ public:
     int vtllockState;
     int hzlproxState;
     int vtlproxState;
+    int oldDoorState;
 
     std::vector<brakeData> brakes;
 };
@@ -143,6 +150,8 @@ public:
     float swvlRotaryMotor; // angle in degrees
     int linkedCar; // carID of car in Exchanger
     float destnPos;
+
+    float oldAngle; // old swvlRotaryMotor
 
     std::vector<brakeData> brakes;
 };
@@ -179,6 +188,7 @@ public:
         stateOn
     };
     bool init();
+    int readData(char *buf,unsigned int size);
     ServerConnection *sConn;
     SimpleServerConnection *conn;
     int port;
