@@ -1,0 +1,368 @@
+#!/bin/bash
+
+# some day there will be ansii color
+#LSCOLORS=exfxcxdxbxegedabagacad
+#export LSCOLORS
+#export CLICOLOR=1 
+MENU='\033[00;00m'  # white
+OPT='\033[32m'      # green
+ENTER='\033[33m'    # brown
+TYP='\033[36m'      # cyan
+NORMAL='\033[m'     # white
+
+#MENU=''
+#OPT=''
+#ENTER=''
+#TYP=''
+#NORMAL=''
+
+while [ opt != '' ] 
+do
+    echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
+    echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
+    echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
+
+    echo -e "${MENU}-----${TYP} CFD ${MENU}-----------------------------------"
+    echo -e "${MENU} ${OPT} 11)  ${MENU} Audi                      "
+    echo -e "${MENU} ${OPT} 12)  ${MENU} Forbach                   "
+    echo -e "${MENU} ${OPT} 13)  ${MENU} Kiebingen                 "
+    echo -e "${MENU} ${OPT} 14)  ${MENU} Axialzyklon               "
+    echo -e "${MENU} ${OPT} 15)  ${MENU} Archflow Stuttgart        "
+    echo -e "${MENU} ${OPT} 16)  ${MENU} CoolEmAll                 "
+    echo -e "${MENU} ${OPT} 17)  ${MENU} Aneurysma                 "
+    echo -e "${MENU} ${OPT} 18)  ${MENU} Radfahrer                 "
+
+    echo -e "${MENU}-----${TYP} Archaeology ${MENU}---------------------------"
+    echo -e "${MENU} ${OPT} 21)  ${MENU} Octagon                   "
+    echo -e "${MENU} ${OPT} 22)  ${MENU} Paulusgrotte              "
+    echo -e "${MENU} ${OPT} 23)  ${MENU} Pazmanitengasse           "
+
+    echo -e "${MENU}-----${TYP} Architecture ${MENU}--------------------------"
+    echo -e "${MENU} ${OPT} 31)  ${MENU} Stuttgarter Autohaus      "
+    echo -e "${MENU} ${OPT} 32)  ${MENU} HLRS & Campus             "
+    echo -e "${MENU} ${OPT} 33)  ${MENU} DC Filiale                "
+
+    echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
+    echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
+    echo -e "${MENU} ${OPT} 42)  ${MENU} Schweizer Autobus         "
+    echo -e "${MENU} ${OPT} 43)  ${MENU} Autohaus               CA "
+    echo -e "${MENU} ${OPT} 44)  ${MENU} Schule                 CA "
+    echo -e "${MENU} ${OPT} 45)  ${MENU} Sporthalle                "
+    echo -e "${MENU} ${OPT} 46)  ${MENU} Blutspuranalyse           "
+    echo -e "${MENU} ${OPT} 47)  ${MENU} Car Crash                 "
+
+    echo -e "${MENU}-----${TYP} MolecularDynamics ${MENU}---------------------"
+    echo -e "${MENU} ${OPT} 51)  ${MENU} imwf      "
+
+    echo -e "${MENU}-----${TYP} Punktwolken ${MENU}---------------------------"
+    echo -e "${MENU} ${OPT} 55)  ${MENU} Wasserflugzeug                       "
+    echo -e "${MENU} ${OPT} 56)  ${MENU} Venice                               "
+    echo -e "${MENU} ${OPT} 57)  ${MENU} City (passing through)               "
+    echo -e "${MENU} ${OPT} 58)  ${MENU} City (flyover)                       "
+    echo -e "${MENU} ${OPT} 59)  ${MENU} Mountain                             "
+
+    echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
+    echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
+    echo -e "${MENU} ${OPT} 62)  ${MENU} knee                      "
+
+    echo -e "${MENU}-----${TYP} Misc. ${MENU}---------------------------------"
+    echo -e "${MENU} ${OPT} 71)  ${MENU} Draeger OP                "
+    echo -e "${MENU} ${OPT} 72)  ${MENU} ISS                       "
+    echo -e "${MENU} ${OPT} 73)  ${MENU} Haemoglobin               "
+    echo -e "${MENU} ${OPT} 74)  ${MENU} Magnetgetriebe            "
+    echo -e "${MENU} ${OPT} 75)  ${MENU} starDust                  "
+    echo -e "${MENU} ${OPT} 76)  ${MENU} Floops                    "
+    echo -e "${MENU} ${OPT} 77)  ${MENU} OptimaPharma              "
+    echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
+    echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
+    echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
+
+    echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
+    echo -e "${MENU} ${OPT} 81)  ${MENU} start OpenCOVER           "
+    echo -e "${MENU} ${OPT} 82)  ${MENU} start FaSi                "
+    echo -e "${MENU} ${OPT} 83)  ${MENU} kill FaSi                 "
+    echo -e "${MENU} ${OPT} 84)  ${MENU} check CAN                 "
+
+    echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
+    echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
+    echo -e "${MENU} ${OPT} 92)  ${MENU} TiledDisplay ON           "
+    echo -e "${MENU} ${OPT} 93)  ${MENU} TiledDisplay OFF          "
+    echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay 3D_ON + FL   "
+    echo -e "${MENU} ${OPT} 95)  ${MENU} TiledDisplay 3D_OFF       "
+    echo -e "${MENU} ${OPT} 96)  ${MENU} CAVE: Frame lock on       "
+    echo -e "${MENU} ${OPT} 97)  ${MENU} CAVE: Frame lock off      "
+    echo -e "                                                      "
+    echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
+    echo -e "${MENU}---------------------------------------------"
+    echo -e "${ENTER}   Enter choice ([Enter] reprints menu) ${NORMAL}"
+
+    opt=""
+    read opt
+
+    case $opt in
+
+# RECOM
+
+	1) 
+	    echo -e "starting Kessel 1"
+            cd /data/recom/HKW2-SM5-SE-V3a_und_SM4
+            opencover Cavepraesentation-SM4_und_SM5-SE-V3a.wrl
+	    ;;
+	2)
+	    echo -e "starting Bremer Kessel"
+	    cd /data/recom/SWB/Praesentation/
+            opencover Cavepraesentation-SWBremen.wrl 
+	    ;;
+
+# CFD
+
+	11)
+	    echo -e "starting Audi";
+            covise -e /data/covise_net/2009/Audi_Bilder.net
+	    ;;
+	12)
+	    echo -e "starting Forbach";
+            covise -e /data/enbw/Comsol/ComsolForbach.net
+	    ;;
+	13)
+	    echo -e "starting Kiebingen";
+            covise -e /data/covise_net/2006/kiebingen_viscluster_fischeNeu.net
+	    ;;
+	14)
+	    echo -e "starting Axialzyklon";
+            covise -e /data/IET/AXIALZYKLON/130424_ML_Axialcyclone_Steady.net
+	    ;;
+
+	15)
+	    echo -e "starting Archflow Stuttgart";
+	    cd /home/covise/covise/net
+            #covise /home/covise/covise/net/archflow_surface.net
+            covise -e /data/covise_net/2009/archflow_surface.net
+	    ;;
+	16)
+	    echo -e "starting CoolEmAll";
+            covise -e /data/covise_net/2013/Rechneraum_schroot.net
+	    ;;
+	17)
+	    echo -e "starting Aneurysma";
+            covise -e /data/Aneurysma/RBK_Aneurysma_CFX-Fluid-Result_Steffen_Marlok-Demo.net
+	    ;;
+	18)
+	    echo -e "starting Cyclist";
+            covise -e /mnt/raid/home/hpcthobs/N_merged2RW.net
+	    ;;
+
+# ARCHEOLOGY
+
+	21)
+	    echo -e "starting Octagon";
+            cd /data/wien/srl/Kurs/rk/octagon
+            opencover /data/wien/srl/Kurs/rk/octagon/praesentation_04.wrl
+	    ;;
+	22)
+	    echo -e "starting Ephesus";
+            opencover /data/wien/efes.wrl
+	    ;;
+	23)
+	    echo -e "starting Pazmanitengasse";
+	    opencover /data/wien/srl/Kurs/bob/PAZmanitengasse.wrl 
+	    ;;
+
+# ARCHITECTURE
+
+	31)
+	    echo -e "starting Stuttgarter Autohaus";
+            opencover /data/architekten/Stuttgart/Arbeitsstand_20050816/praesentation.wrl
+	    ;;
+	32)
+	    echo -e "starting HLRS & Campus";
+            opencover /data/NeubauII/HLRS_Alles0303.wrl
+	    ;;
+	33)
+	    echo -e "starting DC Filiale"
+            opencover /data/dc/desire/arbeitsstand_20050301/praesentation.wrl
+ 	    ;;
+
+# LKA
+
+	41)
+	    echo -e "starting Gasthaus";
+            opencover /data/LKA/Gasthaus/Gasthaus2.wrl
+	    ;;
+	42)
+	    echo -e "starting Schweizer Autobus";
+            opencover /data/LKA/InternetCafee/ReisebusMrdTimesteps.wrl
+	    ;;
+	43)
+	    echo -e "starting Autohaus";
+            opencover /data/LKA/WinWenn/Wendlingen_Ind_Wert.WRL
+	    ;;
+	44)
+	    echo -e "starting Schule";
+            opencover /data/LKA/WinWenn/winnenden_schule.WRL
+	    ;;
+	45)
+	    echo -e "starting Sporthalle";
+            opencover /data/LKA/Sporthalle/HalleSortedGroesser.ptsb
+	    ;;
+	46)
+	    echo -e "starting Blutspuranalyse";
+            opencover /data/UTM/Trajectories_texture.wrl
+	    ;;
+	47)
+	    echo -e "starting Car Crash";
+            opencover /data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb
+	    ;;
+
+# MolecularDynamics
+
+	51)
+	    echo -e "starting imwf";
+            opencover /data/imwf/nptdef.00003.coord
+	    ;;
+
+# Pointclouds
+
+	55)
+	    echo -e "starting Wasserflugzeug";
+            opencover 
+	    ;;
+	56)
+	    echo -e "starting Venice";
+            opencover /data/pointclouds/riegl/RIEGL_MLS_VMX-450_VeniceSorted.ptsb
+	    ;;
+	57)
+	    echo -e "starting City (passing through)";
+            opencover /data/pointclouds/riegl/RIEGL_MLS_VMX-450_CitySorted.ptsb
+	    ;;
+	58)
+	    echo -e "starting City (flyover)";
+            opencover /data/pointclouds/riegl/RIEGL_ALS_LMS-Q1560_City_Horn_AustriaSorted.ptsb
+	    ;;
+	59)
+	    echo -e "starting Mountain";
+            opencover /data/pointclouds/riegl/RIEGL_ALS_LMS-Q1560_MountainSorted.ptsb
+	    ;;
+
+# VolumeRendering
+
+	61)
+	    echo -e "starting skull";
+            opencover /data/VolData/vhd/fctskull.xvf
+	    ;;
+
+	62)
+	    echo -e "starting knee";
+            opencover /data/VolData/vhd/female-knee-marked3.xvf
+	    ;;
+# FASI
+
+	71)
+	    echo -e "starting Draeger OP";
+            opencover /data/draeger/out/op2.wrl
+	    ;;
+	72)
+	    echo -e "starting ISS";
+	    opencover  /data/cite/ISS/demo/issNeu.wrl
+	    ;;
+	73)
+	    echo -e "starting Haemoglobin";
+            opencover /data/pdb/4HHBhel.wrl 
+	    ;;
+	74)
+	    echo -e "starting Magnetgetriebe";
+	    covise -e /data/covise_net/2007/ITE_streufeld_VR2_new.net
+	    ;;
+	75)
+	    echo -e "starting StarDust";
+	    opencover /data/irs/sun.wrl
+	    ;;
+	76)
+	    echo -e "starting Floops";
+	    opencover /data/vrml/floops/index/index.wrl
+	    ;;
+	77)
+	    echo -e "OptimaPharma";
+	    covise -e /data/covise_net/2013/BaxterPraesentation.net
+	    ;;
+
+	78)
+	    echo -e "starting taubenloch";
+	    opencover /data/ihs/taubenloch/taubenloch.uwe.wrl
+	    ;;
+
+	79)
+	    echo -e "starting Buran";
+	    opencover /data/shabrov/praesentation.wrl
+	    ;;
+
+	80)
+	    echo -e "starting Maschinenhalle";
+	    cd /data/Lionel ; opencover /data/Lionel/Labor.wrl
+	    ;;
+
+# MISC
+
+	81)
+	    echo -e "starting OpenCOVER";
+	    opencover /data/porsche/TrafficSimulation/maneuver/sample03Lights/sample03_pedestrians_crg.xodr &
+	    ;;
+	82)
+	    echo -e "starting FaSi";
+	    ssh covise2@192.168.0.74 "cd /data/porsche/TrafficSimulation/maneuver/sample03Lights/ && fasi sample03_pedestrians_crg.xodr > /dev/null"&
+	    ;;
+	83)
+	    echo -e "killing FaSi";
+	    ssh covise2@192.168.0.74 "killall fasi"
+	    ;;
+	84)
+	    echo -e "checking CAN";
+	    ssh covise2@192.168.0.74 "cat /proc/rtcan/devices"
+            echo -n "Press return to continue..."
+            read
+	    ;;
+
+# SYSTEM
+
+	91)
+	    echo -e "killing OpenCOVER";
+	    doallp killall opencover
+	    ;;
+	92)
+	    echo -e "turn on tiled display"
+	    sasuctrl on && sasuctrl hdmi
+	    ;;
+	93)
+	    echo -e "turn off tiled display"
+	    sasuctrl off
+	    ;;
+	94)
+	    echo -e "turn on 3D mode & frame lock"
+            framelock-tileddisplay on
+            sleep 3
+	    sasuctrl 3d_on
+	    ;;
+	95)
+	    echo -e "turn off 3D mode & frame lock"
+	    sasuctrl 3d_off
+	    #sleep 3
+            #framelock-tileddisplay off
+	    ;;
+    96)
+        echo -e "CAVE: Frame lock on"
+        framelock on
+        ;;
+    97)
+        echo -e "CAVE: Frame lock off"
+        framelock off
+        ;;
+
+# MENU
+
+	q)
+	    exit;
+	    ;;
+	*)
+	    ;;
+    esac
+done

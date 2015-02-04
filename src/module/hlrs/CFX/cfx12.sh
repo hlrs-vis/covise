@@ -138,7 +138,7 @@ cd $CFXDIR
 if [ "$deffile" == "0" ]; then
    echo executing CFX Pre, receiving mesh and bcs from Covise, writing def file 
    if [ "$machineType" == "rechenraum" ]; then
-   	echo executing cfx5pre -batch /mnt/raid/home/hpcneich/covise/src/application/hlrs/CFX/cfx12_test.pre
+   	echo executing cfx5pre -batch $CFXDIR/cfx12_test.pre
    	cfx5pre -batch $CFXDIR/cfx12_test.pre
   else
 	echo executing cfx5pre -batch $CFXDIR/$concat2
