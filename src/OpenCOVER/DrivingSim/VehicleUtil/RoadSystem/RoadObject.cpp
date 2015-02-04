@@ -12,6 +12,7 @@
 #include <osg/Group>
 #include <osg/Geometry>
 #include <osg/CullFace>
+#include <osg/AlphaFunc>
 #include <cover/coVRFileManager.h>
 #include "Road.h"
 #include <osgDB/ReadFile>
@@ -19,11 +20,12 @@
 using namespace covise;
 using namespace opencover;
 
-RoadObject::RoadObject(const std::string &setId, const std::string &setFile, const std::string &setName, const std::string &setType, const double &setS,
+RoadObject::RoadObject(const std::string &setId, const std::string &setFile, const std::string &setTextureFile, const std::string &setName, const std::string &setType, const double &setS,
                        const double &setT, const double &setZOffset, const double &setValidLength, OrientationType setOrientation, const double &setLength,
                        const double &setWidth, const double &setRadius, const double &setHeight, const double &setHdg, const double &setPitch, const double &setRoll, Road *roadP)
     : Element(setId)
     , fileName(setFile)
+    , textureFileName(setTextureFile)
     , name(setName)
     , type(setType)
     , s(setS)
@@ -745,9 +747,21 @@ osg::Geode *RoadObject::createOutlineGeode()
     int numVert = outline->size();
     int numSegments = numVert - 1;
     osg::Vec2 *profile = new osg::Vec2[numVert];
+    float len=0;
+    float *tcv = new float[numVert];
     for (int i = 0; i < numVert; i++)
     {
         profile[i] = osg::Vec2(outline->at(i).v, outline->at(i).z);
+    } 
+    tcv[0]=0;
+    for (int i = 1; i < numVert; i++)
+    {
+        len += (profile[i] - profile[i-1]).length();
+        tcv[i]=len;
+    }
+    for (int i = 1; i < numVert; i++)
+    {
+        tcv[i]/= len;
     }
 
     int laneNumber = road->getLaneNumber(s, t);
@@ -788,14 +802,14 @@ osg::Geode *RoadObject::createOutlineGeode()
             p1 += n * profile[pseg].x();
             p1[2] += profile[pseg].y();
             OutlineVertices->push_back(osg::Vec3(p1.x(), p1.y(), p1.z()));
-            OutlineTexCoords->push_back(osg::Vec2((currentS / texlength), 0));
+            OutlineTexCoords->push_back(osg::Vec2((currentS / texlength), tcv[pseg]));
 
             osg::Vec3 p2(railPoint.x(), railPoint.y(), railPoint.z());
             p2 += n * profile[pseg + 1].x();
             p2[2] += profile[pseg + 1].y();
             OutlineVertices->push_back(osg::Vec3(p2.x(), p2.y(), p2.z()));
 
-            OutlineTexCoords->push_back(osg::Vec2((currentS / texlength), 0.33 / texwidth));
+            OutlineTexCoords->push_back(osg::Vec2((currentS / texlength), tcv[pseg+1]));
             lengthSegments += 2;
             osg::Vec3 up = p2 - p1;
             osg::Vec3 forward = p3 - p1;
@@ -852,21 +866,27 @@ osg::Geode *RoadObject::createOutlineGeode()
     osg::StateSet *OutlineStateSet = OutlineGeode->getOrCreateStateSet();
 
     OutlineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    if(textureFileName!="")
+    {
+        const char *fileName = coVRFileManager::instance()->getName(textureFileName.c_str());
+        if (fileName)
+        {
+            osg::Image *OutlineTexImage = osgDB::readImageFile(fileName);
+            osg::Texture2D *OutlineTex = new osg::Texture2D;
+            OutlineTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::REPEAT);
+            OutlineTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
+            if (OutlineTexImage)
+                OutlineTex->setImage(OutlineTexImage);
+            OutlineStateSet->setTextureAttributeAndModes(3, OutlineTex, osg::StateAttribute::ON);
+            osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
+            alphaFunc->setFunction(osg::AlphaFunc::GEQUAL, 0.1f);
 
-    const char *fileName = coVRFileManager::instance()->getName("share/covise/materials/BarrierTex.jpg");
-    if (fileName)
-    {
-        osg::Image *OutlineTexImage = osgDB::readImageFile(fileName);
-        osg::Texture2D *OutlineTex = new osg::Texture2D;
-        OutlineTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::REPEAT);
-        OutlineTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::REPEAT);
-        if (OutlineTexImage)
-            OutlineTex->setImage(OutlineTexImage);
-        OutlineStateSet->setTextureAttributeAndModes(3, OutlineTex, osg::StateAttribute::ON);
-    }
-    else
-    {
-        std::cerr << "ERROR: no texture found named: share/covise/materials/BarrierTex.jpg";
+            OutlineStateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+        }
+        else
+        {
+            std::cerr << "ERROR: no texture found named: "<< textureFileName<< std::endl;
+        }
     }
 
     return OutlineGeode;

@@ -1708,7 +1708,8 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
 
                     std::string file = "share/covise/materials/reflector_post.3ds";
                     const char *fn = coVRFileManager::instance()->getName(file.c_str());
-                    RoadObject *roadObject = new RoadObject(id, fn ? fn : file, name, type, sObj, t, zOffset, validLength, orientation, length, width, radius, height, hdg, pitch, roll, this);
+                    std::string textureFile = "";
+                    RoadObject *roadObject = new RoadObject(id, fn ? fn : file, textureFile, name, type, sObj, t, zOffset, validLength, orientation, length, width, radius, height, hdg, pitch, roll, this);
                     addRoadObject(roadObject);
                 }
             }

@@ -549,6 +549,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 std::string name(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("name"))));
                                 std::string id(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("id"))));
                                 std::string file(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("modelFile"))));
+                                std::string textureFile(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("textureFile"))));
 
                                 double s = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("s"))));
                                 double t = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("t"))));
@@ -574,7 +575,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 double pitch = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("pitch"))));
                                 double roll = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("roll"))));
 
-                                RoadObject *roadObject = new RoadObject(id, file, name, type, s, t, zOffset, validLength, orientation,
+                                RoadObject *roadObject = new RoadObject(id, file,textureFile, name, type, s, t, zOffset, validLength, orientation,
                                                                         length, width, radius, height, hdg, pitch, roll, road);
                                 road->addRoadObject(roadObject);
 

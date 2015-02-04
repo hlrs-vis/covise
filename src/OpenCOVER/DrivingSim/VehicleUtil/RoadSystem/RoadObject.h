@@ -44,7 +44,7 @@ public:
         BOTH_DIRECTIONS = 0
     };
 
-    RoadObject(const std::string &, const std::string &, const std::string & = "noname", const std::string & = "notype", const double & = 0.0, const double & = 0.0,
+    RoadObject(const std::string &, const std::string &, const std::string & = "noname", const std::string & = "", const std::string & = "notype", const double & = 0.0, const double & = 0.0,
                const double & = 0.0, const double & = 0.0, OrientationType = BOTH_DIRECTIONS, const double & = 0.0, const double & = 0.0, const double & = 0.0,
                const double & = 0.0, const double & = 0.0, const double & = 0.0, const double & = 0.0, Road *roadP = NULL);
 
@@ -113,6 +113,7 @@ protected:
     std::string name;
     std::string type;
     std::string fileName;
+    std::string textureFileName;
 
     bool absolute; // is object node in absolute coordinates, such as guardRails
 
