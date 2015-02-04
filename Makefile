@@ -1,4 +1,4 @@
-all: covise cover addons python
+all: covise cover-dep addons-dep python-dep
 
 always_out_of_date:
 
@@ -7,16 +7,25 @@ verbose: always_out_of_date
 	cd src/OpenCOVER && $(MAKE) verbose
 	cd Python && $(MAKE)
 
-bin: covise cover addons
+bin: covise cover-dep addons-dep
 
-python: covise cover addons
+python-dep: covise cover-dep addons-dep
+	$(MAKE) python
+
+python:
 	cd Python && $(MAKE)
 
 covise: always_out_of_date
 	cd src && $(MAKE)
 
-cover: covise
+cover-dep: covise
+	$(MAKE) cover
+
+cover:
 	cd src/OpenCOVER && $(MAKE)
+
+addons-dep: covise cover-dep
+	$(MAKE) addons
 
 addons:
 	@for dir in $${COVISE_ADDONS}; do \
