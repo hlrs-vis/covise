@@ -51,31 +51,29 @@ IF(MINGW)
   SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/mingw;${CMAKE_MODULE_PATH}")
 ENDIF(MINGW)
 
-if (NOT COVISE_OPTIONS_FILEPATH)
-   find_path(COVISE_OPTIONS_FILEPATH "CoviseOptions.cmake"
-      PATHS
-      ${COVISEDIR}/${COVISE_ARCHSUFFIX}
-      DOC "COVISE - CMake library exports"
-      )
-   if (COVISE_OPTIONS_FILEPATH)
-      set(COVISE_OPTIONS_IMPORT "${COVISE_OPTIONS_FILEPATH}/CoviseOptions.cmake")
-      include(${COVISE_OPTIONS_IMPORT})
-   endif()
-endif (NOT COVISE_OPTIONS_FILEPATH)
+find_path(COVISE_OPTIONS_FILEPATH "CoviseOptions.cmake"
+    PATHS
+    ${COVISEDIR}/${COVISE_ARCHSUFFIX}
+    DOC "COVISE - CMake library exports"
+    )
+if (COVISE_OPTIONS_FILEPATH AND NOT COVISE_OPTIONS_IMPORT)
+    set(COVISE_OPTIONS_IMPORT "${COVISE_OPTIONS_FILEPATH}/CoviseOptions.cmake")
+    include(${COVISE_OPTIONS_IMPORT})
+endif()
 
-if (NOT COVISE_EXPORTS_FILEPATH)
-   find_path(COVISE_EXPORTS_FILEPATH "covise-exports.cmake"
-      PATHS
-      ${COVISEDIR}/${COVISE_ARCHSUFFIX}
-      DOC "COVISE - CMake library exports"
-      )
-   if (COVISE_EXPORTS_FILEPATH)
-      set(COVISE_EXPORTS_IMPORT "${COVISE_EXPORTS_FILEPATH}/covise-exports.cmake")
-      include(${COVISE_EXPORTS_IMPORT})
-   else()
-      message("COVISE: CMake library exports file not found")
-   endif()
-endif (NOT COVISE_EXPORTS_FILEPATH)
+find_path(COVISE_EXPORTS_FILEPATH "covise-exports.cmake"
+    PATHS
+    ${COVISEDIR}/${COVISE_ARCHSUFFIX}
+    DOC "COVISE - CMake library exports"
+    )
+if (COVISE_EXPORTS_FILEPATH)
+    if (NOT COVISE_EXPORTS_IMPORT)
+        set(COVISE_EXPORTS_IMPORT "${COVISE_EXPORTS_FILEPATH}/covise-exports.cmake")
+        include(${COVISE_EXPORTS_IMPORT})
+    endif()
+else()
+    message("COVISE: CMake library exports file not found")
+endif()
 
 if(COVISE_INCLUDE_DIR)
    set(COVISE_FIND_QUIETLY TRUE)
