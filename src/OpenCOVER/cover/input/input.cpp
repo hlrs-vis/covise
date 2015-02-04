@@ -61,7 +61,7 @@ bool Input::init()
 
     if (coVRMSController::instance()->isMaster())
     {
-        if (cover->debugLevel(2))
+        if (cover->debugLevel(0))
             printConfig();
     }
 
@@ -476,7 +476,8 @@ void Input::update()
         for (TrackingBodyMap::iterator ob = trackingbodies.begin(); ob != trackingbodies.end(); ++ob)
         {
             ob->second->update();
-            int isVar = ob->second->isVarying(), is6Dof = ob->second->is6Dof();
+            int isVal = ob->second->isValid(), isVar = ob->second->isVarying(), is6Dof = ob->second->is6Dof();
+            tb << isVal;
             tb << isVar;
             tb << is6Dof;
             for (int i = 0; i < 16; ++i)
@@ -539,12 +540,14 @@ void Input::update()
         for (TrackingBodyMap::iterator ob = trackingbodies.begin(); ob != trackingbodies.end(); ++ob)
         {
             osg::Matrix mat;
-            int isVar = 0, is6Dof = 0;
+            int isVal = 0, isVar = 0, is6Dof = 0;
+            tb >> isVal;
             tb >> isVar;
             tb >> is6Dof;
             for (int i = 0; i < 16; ++i)
                 tb >> mat.ptr()[i];
             ob->second->setMat(mat);
+            ob->second->setValid(isVal != 0);
             ob->second->setVarying(isVar != 0);
             ob->second->set6Dof(is6Dof != 0);
         }

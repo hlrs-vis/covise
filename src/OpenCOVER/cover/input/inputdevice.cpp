@@ -198,7 +198,7 @@ std::pair<double, double> InputDevice::getValuatorRange(size_t num) const
 
 bool InputDevice::isBodyMatrixValid(size_t idx) const
 {
-    if (idx >= m_bodyMatricesFrame.size())
+    if (idx >= m_bodyMatricesValidFrame.size())
         return false;
 
     return m_bodyMatricesValidFrame[idx];

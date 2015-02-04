@@ -62,6 +62,7 @@ DTrackDriver::DTrackDriver(const std::string &config)
     cout << "Bodies: " << m_numBodies << ", Flysticks: " << m_numFlySticks << endl;
 
     m_bodyMatrices.resize(m_numFlySticks + m_numBodies);
+    m_bodyMatricesValid.resize(m_numFlySticks + m_numBodies);
     m_bodyBase = m_numFlySticks;
 
     dt->startMeasurement();
@@ -104,7 +105,7 @@ bool DTrackDriver::updateBodyMatrix(size_t idx)
     if (idx >= dt->getNumBody())
     {
         std::cout << "!!!body id out of range " << idx << std::endl;
-        return -1;
+        return false;
     }
     /* DTrack API issue:
     * If a configured and calibrated tracking body won't be tracked durung DTrack init,
@@ -200,14 +201,14 @@ bool DTrackDriver::poll()
     m_mutex.lock();
     for (size_t i = 0; i < dt->getNumFlyStick(); ++i)
     {
-        updateFlyStick(i);
+        m_bodyMatricesValid[i] = updateFlyStick(i);
     }
     m_mutex.unlock();
 
     m_mutex.lock();
     for (size_t i = 0; i < dt->getNumBody(); ++i)
     {
-        m_bodyMatricesValid[i] = updateBodyMatrix(i);
+        m_bodyMatricesValid[m_bodyBase+i] = updateBodyMatrix(i);
     }
     m_mutex.unlock();
 
