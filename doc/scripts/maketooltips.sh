@@ -1,6 +1,6 @@
 #! /bin/bash
 
-. ${COVISEDIR}/.env.sh
+. ${COVISEDIR}/scripts/covise-env.sh
 
 for m in ${COVISEDIR}/${ARCHSUFFIX}/bin/*/*; do
    test -d "$m" && continue

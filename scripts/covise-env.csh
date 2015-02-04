@@ -9,7 +9,7 @@ set DCSH2=/tmp/${USER}-dot-env-pre.csh
 set DCSH3=/tmp/${USER}-dot-env-post.csh
 
 # Create helper script
-cat ${COVISEDIR}/.env.sh > "$DBSH"
+cat ${COVISEDIR}/scripts/covise-env.sh > "$DBSH"
 echo "printenv | cut -b 1-4099" >> "$DBSH"
 
 # Make a snapshot of the previous environment

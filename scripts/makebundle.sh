@@ -1,6 +1,6 @@
 #! /bin/bash
 
-source ${COVISEDIR}/.env.sh
+source ${COVISEDIR}/scripts/covise-env.sh
 
 bundle="$1"
 appname="$(basename $1 .app)"

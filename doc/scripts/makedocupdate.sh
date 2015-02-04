@@ -7,7 +7,7 @@ export CATEGORY=`awk 'BEGIN { FS="= " }; /CATEGORY.*=/ { print $2 }' < $NAME.pro
 
 mkdir -p doc
 
-desc=`bash -c "source $COVISEDIR/.env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
+desc=`bash -c "source $COVISEDIR/scripts/covise-env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
         | grep ^Desc: \
         | awk 'BEGIN { FS="\"" }; { printf "%s\n", $2 }' \
         | sed -e 's/_/\\\\_/g'`
@@ -90,7 +90,7 @@ echo available: $AVAILABLE_ON
 
 OLDIFS=$IFS
 IFS=" "
-parameters=`bash -c "source $COVISEDIR/.env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
+parameters=`bash -c "source $COVISEDIR/scripts/covise-env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
         | sed -e '1,/^Parameters:/d; /^OutPorts:/,$d' \
         | grep -v '__filter.*BrowserFilter' \
         | sed -e 's/_/\\\\_/g' \
@@ -98,14 +98,14 @@ parameters=`bash -c "source $COVISEDIR/.env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CA
         | sed -e 's/|/\\\\newline /g' \
         | awk 'BEGIN { FS="\"" }; { printf "\\\\hline\n\t%s & %s & %s\\\\\\\\ \n", $2, $4, $8 }'`
 
-outports=`bash -c "source $COVISEDIR/.env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
+outports=`bash -c "source $COVISEDIR/scripts/covise-env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
         | sed -e '1,/^OutPorts:/d; /^InPorts:/,$d' \
         | sed -e 's/_/\\\\_/g' \
         | sed -e 's/%/\\\\%/g' \
         | sed -e 's/|/\\\\newline /g' \
         | awk 'BEGIN { FS="\"" }; { printf "\\\\hline\n\t%s & %s & %s\\\\\\\\ \n", $2, $4, $6 }'`
 
-inports=`bash -c "source $COVISEDIR/.env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
+inports=`bash -c "source $COVISEDIR/scripts/covise-env.sh && $COVISEDIR/$ARCHSUFFIX/bin/$CATEGORY/$TARGET -d" \
         | sed -e '1,/^InPorts:/d' \
         | sed -e '/^InPorts:/,$d' \
         | sed -e 's/_/\\\\_/g' \
