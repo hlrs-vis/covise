@@ -345,7 +345,7 @@ int ThyssenPlugin::readData(char *buf,unsigned int size)
     else
     {
         coVRMSController::instance()->readMaster(buf, size);
-        if(buf[0]==0xff && buf[1]==0xff)
+        if((unsigned char)buf[0]==0xff && (unsigned char)buf[1]==0xff)
         {
             return -1;
         }
