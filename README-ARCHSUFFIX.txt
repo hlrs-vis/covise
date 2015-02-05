@@ -42,6 +42,8 @@ mingw           Windows XP/Vista with gcc 4.4.0 on ia32
 
 hpux_ia64       HP-UX 11 for IA64
 
+linux32         Generic x86 Linux
+linux64         Generic x86_64 Linux
 linux           Red Hat 7.3 (with GCC 2.96) on ia32
 gcc3            Red Hat 8 with glibc 2.3.2 on ia32
 rhel3           Red Hat Enterprise Linux 3 with updates on x86_64 (64 bit mode)
@@ -148,6 +150,7 @@ sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1
 sgi64           IRIX 6.5, 64 bit
 
+darwin          Generic Mac OS
 macx            Mac OS X 10.3, PPC
 tiger           Mac OS X 10.4
 osx11           Mac OS X 10.4 on ia32 with X11 and fink
