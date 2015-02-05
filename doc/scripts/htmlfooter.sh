@@ -58,13 +58,7 @@ cat <<EOF
 <td>Copyright &copy; 1993-$YEAR <a href="http://www.hlrs.de">HLRS</a>, 2004-2014 <a href="http://vis.uni-koeln.de">RRZK</a>, 2005-2014 <a href="http://visenso.com">Visenso</a></td>
 
 <td align=right>
-EOF
-
-echo -n "<div align=right>COVISE Version "
-echo -n `echo $COVISE_VERSION | sed -e 's/\..$//'`
-echo "</div>"
-
-cat <<EOF
+<div align=right>COVISE Version ${COVISE_VERSION}</div>
 </td>
 </tr>
 

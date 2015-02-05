@@ -81,7 +81,7 @@ if [ -z "$EXTERNLIBS" ]; then
 fi
 
 GITDATE=$(GIT_DIR=${COVISEDIR}/.git git log -n1 '--format=%ci')
-if [ $! ]; then
+if [ $? ]; then
    export COVISE_VERSION=$(echo $GITDATE | sed -e 's/-/./' -e 's/-.*//' -e 's/\.0/./')
 fi
 

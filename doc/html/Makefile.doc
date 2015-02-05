@@ -10,7 +10,7 @@ L2H3 =	latex2html -transparent -local_icons -html_version 4.0 \
 HF = ../../scripts/header-footer.sh 2
 CF = ../../scripts/child.pl
              
-%.html: %.html.in
+%.html: %.html.in ${COVISEDIR}/doc/scripts/htmlheader.sh ${COVISEDIR}/doc/scripts/htmlfooter.sh
 	${COVISEDIR}/doc/scripts/htmlheader.sh 1 > $@
 	cat $< >> $@
 	${COVISEDIR}/doc/scripts/htmlfooter.sh 1 >> $@
