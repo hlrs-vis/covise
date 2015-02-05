@@ -802,14 +802,14 @@ osg::Geode *RoadObject::createOutlineGeode()
             p1 += n * profile[pseg].x();
             p1[2] += profile[pseg].y();
             OutlineVertices->push_back(osg::Vec3(p1.x(), p1.y(), p1.z()));
-            OutlineTexCoords->push_back(osg::Vec2((currentS / texlength), tcv[pseg]));
+            OutlineTexCoords->push_back(osg::Vec2((currentS/texlength), tcv[pseg]));
 
             osg::Vec3 p2(railPoint.x(), railPoint.y(), railPoint.z());
             p2 += n * profile[pseg + 1].x();
             p2[2] += profile[pseg + 1].y();
             OutlineVertices->push_back(osg::Vec3(p2.x(), p2.y(), p2.z()));
 
-            OutlineTexCoords->push_back(osg::Vec2((currentS / texlength), tcv[pseg+1]));
+            OutlineTexCoords->push_back(osg::Vec2((currentS/texlength), tcv[pseg+1]));
             lengthSegments += 2;
             osg::Vec3 up = p2 - p1;
             osg::Vec3 forward = p3 - p1;
@@ -866,6 +866,12 @@ osg::Geode *RoadObject::createOutlineGeode()
     osg::StateSet *OutlineStateSet = OutlineGeode->getOrCreateStateSet();
 
     OutlineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    if(numSegments>2)
+    {
+        osg::CullFace *cullFace = new osg::CullFace();
+        cullFace->setMode(osg::CullFace::BACK);
+        OutlineStateSet->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+    }
     if(textureFileName!="")
     {
         const char *fileName = coVRFileManager::instance()->getName(textureFileName.c_str());
