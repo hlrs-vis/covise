@@ -78,6 +78,8 @@ void ButtonDevice::createButtonMap(const std::string &confbase)
         MB(TOGGLE_DOCUMENTS);
         MB(INTER_PREV);
         MB(INTER_NEXT);
+        MB(PERSON_PREV);
+        MB(PERSON_NEXT);
         MB(MENU_BUTTON);
         MB(FORWARD_BUTTON);
         MB(BACKWARD_BUTTON);

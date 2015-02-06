@@ -776,6 +776,23 @@ void coVRPluginSupport::update()
 #endif
     }
 
+    size_t currentPerson = Input::instance()->getCurrentPersonIndex();
+    if ((getMouseButton()->wasPressed() & vruiButtons::PERSON_NEXT)
+            || (getPointerButton()->wasPressed() & vruiButtons::PERSON_NEXT))
+    {
+        ++currentPerson;
+        currentPerson %= Input::instance()->getNumPersons();
+        Input::instance()->setActivePerson(currentPerson);
+    }
+    if ((getMouseButton()->wasPressed() & vruiButtons::PERSON_PREV)
+            || (getPointerButton()->wasPressed() & vruiButtons::PERSON_PREV))
+    {
+        if (currentPerson == 0)
+            currentPerson = Input::instance()->getNumPersons();
+        --currentPerson;
+        Input::instance()->setActivePerson(currentPerson);
+    }
+
 #ifdef DOTIMING
     MARK0("COVER update matrices and button status in plugin support class");
 #endif
