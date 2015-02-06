@@ -20,9 +20,7 @@ Getting COVISE
 
 Getting COVISE is as easy as
 
-      git clone https://github.com/hlrs-vis/covise.git
-      cd covise
-      git submodule update --init
+      git clone https://github.com/hlrs-vis/covise.git --recursive
 
 ### Windows
 
@@ -90,6 +88,13 @@ Optional dependencies
 CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
 
+
+Git
+---
+### UNIX
+      cd covise
+      git pull -r #-r requests a rebase of your changes to avoid trivial branching
+      git submodule update --init --recursive # update submodules to latest required version
 
 Building COVISE
 ---------------
