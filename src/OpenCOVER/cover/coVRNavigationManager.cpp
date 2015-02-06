@@ -1278,13 +1278,13 @@ coVRNavigationManager::update()
 
     if (coVRConfig::instance()->isMenuModeOn())
     {
-        if (button->wasReleased() & vruiButtons::MENU_BUTTON)
+        if (button->wasReleased(vruiButtons::MENU_BUTTON))
             menuCallback(coVRNavigationManager::instance(), NULL);
     }
 
     if ((button->getState() == vruiButtons::MENU_BUTTON) && (menuButtonQuitInterval >= 0.0))
     {
-        if (button->wasPressed() & vruiButtons::MENU_BUTTON)
+        if (button->wasPressed(vruiButtons::MENU_BUTTON))
         {
             menuButtonStartTime = cover->currentTime();
         }
@@ -1296,9 +1296,9 @@ coVRNavigationManager::update()
 
     if (getMode() == TraverseInteractors)
     {
-        if (button->wasReleased() & vruiButtons::INTER_NEXT)
+        if (button->wasReleased(vruiButtons::INTER_NEXT))
             coVRIntersectionInteractorManager::the()->cycleThroughInteractors();
-        else if (button->wasReleased() & vruiButtons::INTER_PREV)
+        else if (button->wasReleased(vruiButtons::INTER_PREV))
             coVRIntersectionInteractorManager::the()->cycleThroughInteractors(false);
     }
 

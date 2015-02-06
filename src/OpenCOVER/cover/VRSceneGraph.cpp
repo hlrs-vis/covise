@@ -804,7 +804,7 @@ VRSceneGraph::update()
 
     if (!coVRConfig::instance()->isMenuModeOn())
     {
-        if (button->wasPressed() & vruiButtons::MENU_BUTTON)
+        if (button->wasPressed(vruiButtons::MENU_BUTTON))
             toggleMenu();
     }
 

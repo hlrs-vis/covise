@@ -48,6 +48,7 @@
 #include <osg/BoundingBox>
 
 #include <deque>
+#include <OpenVRUI/sginterface/vruiButtons.h>
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
 #include <osgShadow/ShadowedScene>
@@ -124,9 +125,9 @@ public:
     //! @return old button state
     unsigned int oldState();
     //! buttons pressed since last frame
-    unsigned int wasPressed();
+    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
     //! buttons released since last frame
-    unsigned int wasReleased();
+    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
     //! is no button pressed
     bool notPressed();
     //! accumulated number of wheel events

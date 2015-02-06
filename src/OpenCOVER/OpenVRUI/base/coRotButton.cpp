@@ -219,12 +219,12 @@ int coRotButton::hit(vruiHit *hit)
     vruiButtons *buttons = hit->isMouseHit() ? renderer->getMouseButtons() : renderer->getButtons();
 
     selectionState = true;
-    if (buttons->wasPressed() & vruiButtons::ACTION_BUTTON)
+    if (buttons->wasPressed(vruiButtons::ACTION_BUTTON))
     {
         // left Button was pressed
         onPress();
     }
-    else if (buttons->wasReleased() & vruiButtons::ACTION_BUTTON)
+    else if (buttons->wasReleased(vruiButtons::ACTION_BUTTON))
     {
         // left Button was released
         onRelease();

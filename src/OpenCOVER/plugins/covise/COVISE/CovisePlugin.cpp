@@ -116,7 +116,7 @@ static void updateScenegraph()
         VRSceneGraph::instance()->getHandWorldPosition(position, direction, direction2);
 
         coPointerButton *button = cover->getPointerButton();
-        if ((button->getState() & vruiButtons::ACTION_BUTTON) && (button->wasPressed() || VRSceneGraph::instance()->m_oldHandLocked))
+        if (button->wasPressed(vruiButtons::ACTION_BUTTON))
         {
 
             VectorInteractor::vector = vectorList.find(position[0], position[1], position[2]);
@@ -132,7 +132,7 @@ static void updateScenegraph()
                 VectorInteractor::vector->updateValue(position[0], position[1], position[2]);
             }
         }
-        else if (button->wasReleased() && (button->oldState() & vruiButtons::ACTION_BUTTON))
+        else if (button->wasReleased(vruiButtons::ACTION_BUTTON))
         {
             if (VectorInteractor::vector)
             {
