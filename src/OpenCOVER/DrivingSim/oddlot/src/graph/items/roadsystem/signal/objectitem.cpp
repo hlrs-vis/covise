@@ -21,6 +21,8 @@
 // Data //
 //
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
@@ -110,12 +112,58 @@ ObjectItem::createPath()
 
     if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
     {
-        double totalLength = 0.0;
         double currentS = object_->getRepeatS();
 
+        double totalLength = 0.0;
+
+	double dist;
+	if (object_->getRepeatDistance() > 0.0)
+	{
+            dist = object_->getRepeatDistance();
+        }
+	else
+	{
+            //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
+            dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
+        }
+	LaneSection * currentLaneSection = road->getLaneSection(currentS);
+	double sSection = currentS - currentLaneSection->getSStart();
+	int currentLaneId = currentLaneSection->getLaneId(sSection, object_->getT());
+	double d = 0.0;
+	bool outerBorder = true;
+        if (object_->getT() < -NUMERICAL_ZERO3) 
+	{
+	    if (fabs(object_->getT()) < currentLaneSection->getLaneSpanWidth( 0, currentLaneId + 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
+	    {
+	        currentLaneId++;
+		outerBorder = false;
+	    }
+	    d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + object_->getT();
+	}
+        else if (object_->getT() > NUMERICAL_ZERO3) 
+	{
+	    if (object_->getT() < currentLaneSection->getLaneSpanWidth( 0, currentLaneId - 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
+	    {
+	        currentLaneId--;
+		outerBorder = false;
+	    }
+	    d = object_->getT() -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS);
+	}
+		
+
+	double t = object_->getT();
         while ((totalLength < object_->getRepeatLength()) && (currentS < road->getLength()))
-        {
-            QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS, object_->getT());
+	{
+	    if (object_->getT() < -NUMERICAL_ZERO3)
+	    {
+		t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+	    }
+	    else if (object_->getT() > NUMERICAL_ZERO3)
+	    {
+		t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+	    }
+            QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS, t);
+		
 
             if (object_->getRepeatDistance() > 0.0) // multiple objects
             {
@@ -131,7 +179,7 @@ ObjectItem::createPath()
 
                     path.moveTo(currentPos.x(), currentPos.y() - length);
                     path.lineTo(currentPos.x(), currentPos.y() + length);
-                }
+	        }
                 else
                 {
                     QMatrix transformationMatrix;
@@ -144,16 +192,14 @@ ObjectItem::createPath()
                     path += tmpPath;
                 }
 
-                double dist = object_->getRepeatDistance();
                 if ((totalLength + dist) > object_->getRepeatLength())
-                    dist = object_->getRepeatLength() - totalLength;
+                   dist = object_->getRepeatLength() - totalLength;
 
-                totalLength += dist;
-                currentS += dist;
-            }
-            else
-            { // line object
+	    }
+	    else
+	    {
 
+             // line object
                 if (totalLength == 0)
                 {
                     path.moveTo(currentPos.x(), currentPos.y());
@@ -164,17 +210,48 @@ ObjectItem::createPath()
                     path.moveTo(currentPos.x(), currentPos.y());
                 }
 
-                //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
-                double dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
 
                 if ((totalLength + dist) > object_->getRepeatLength())
                 {
-                    QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS + (object_->getRepeatLength() - totalLength), object_->getT());
+                    QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS + totalLength - object_->getRepeatLength(), t);
                     path.lineTo(currentPos.x(), currentPos.y());
                 }
+	    }
 
-                totalLength += dist;
-                currentS += dist;
+            totalLength += dist;
+            currentS += dist;
+			
+	    if (road->getLaneSection(currentS) != currentLaneSection)
+	    {
+		LaneSection * newLaneSection = road->getLaneSection(currentS);
+		while (currentLaneSection && (currentLaneSection != newLaneSection))
+		{
+	    	    if (object_->getT() < -NUMERICAL_ZERO3)
+	    	    {
+			t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
+	    	    }
+	    	    else if (object_->getT() > NUMERICAL_ZERO3)
+	    	    {
+			t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
+	    	    }
+		   
+		    currentLaneSection = road->getLaneSection(currentLaneSection->getSEnd());
+		    currentLaneId = currentLaneSection->getLaneId(0, t);
+		}
+		    
+		currentLaneSection = newLaneSection;
+		currentLaneId = currentLaneSection->getLaneId(0, t);
+		if (!outerBorder)
+		{
+		    if (object_->getT() < 0)
+		    {
+		        currentLaneId++;
+		    }
+ 	            else
+		    {
+		        currentLaneId--;
+		    }
+	        }
             }
         }
     }

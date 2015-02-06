@@ -1,251 +1,286 @@
-/* This file is part of COVISE.
+	/* This file is part of COVISE.
 
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
+	   You can use it under the terms of the GNU Lesser General Public License
+	   version 2.1 or later, see lgpl-2.1.txt.
 
- * License: LGPL 2+ */
+	 * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   23.02.2010
-**
-**************************************************************************/
+	/**************************************************************************
+	** ODD: OpenDRIVE Designer
+	**   Frank Naegele (c) 2010
+	**   <mail@f-naegele.de>
+	**   23.02.2010
+	**
+	**************************************************************************/
 
-#include "lanesection.hpp"
+	#include "lanesection.hpp"
 
-#include "src/data/roadsystem/rsystemelementroad.hpp"
+	#include "src/data/roadsystem/rsystemelementroad.hpp"
 
-#include "lane.hpp"
+	#include "lane.hpp"
 
-//####################//
-// Constructors       //
-//####################//
+	//####################//
+	// Constructors       //
+	//####################//
 
-/*!
-*
-*/
-LaneSection::LaneSection(double s)
-    : RoadSection(s)
-    , laneSectionChanges_(0x0)
-{
-}
+	/*!
+	*
+	*/
+	LaneSection::LaneSection(double s)
+	    : RoadSection(s)
+	    , laneSectionChanges_(0x0)
+	{
+	}
 
-LaneSection::LaneSection(double s, const LaneSection *oldLaneSection) // create new LaneSection at pos s of oldLaneSection
-    : RoadSection(s),
-      laneSectionChanges_(0x0)
-{
-    setParentRoad(oldLaneSection->getParentRoad());
-    foreach (Lane *child, oldLaneSection->lanes_)
-    {
+	LaneSection::LaneSection(double s, const LaneSection *oldLaneSection) // create new LaneSection at pos s of oldLaneSection
+	    : RoadSection(s),
+	      laneSectionChanges_(0x0)
+	{
+	    setParentRoad(oldLaneSection->getParentRoad());
+	    foreach (Lane *child, oldLaneSection->lanes_)
+	    {
 
-        addLane(child->getClone(s, getSEnd()));
-    }
-}
+		addLane(child->getClone(s, getSEnd()));
+	    }
+	}
 
-LaneSection::LaneSection(double s, const LaneSection *laneSectionLow, const LaneSection *laneSectionHigh) // create new LaneSection as e merger between low and high
-    : RoadSection(s),
-      laneSectionChanges_(0x0)
-{
-    setParentRoad(laneSectionLow->getParentRoad());
-    foreach (Lane *childLow, laneSectionLow->lanes_)
-    {
-        Lane *childHigh = laneSectionHigh->lanes_.value(childLow->getId(), NULL);
+	LaneSection::LaneSection(double s, const LaneSection *laneSectionLow, const LaneSection *laneSectionHigh) // create new LaneSection as e merger between low and high
+	    : RoadSection(s),
+	      laneSectionChanges_(0x0)
+	{
+	    setParentRoad(laneSectionLow->getParentRoad());
+	    foreach (Lane *childLow, laneSectionLow->lanes_)
+	    {
+		Lane *childHigh = laneSectionHigh->lanes_.value(childLow->getId(), NULL);
 
-        Lane *newLane = childLow->getClone(s, laneSectionHigh->getSEnd());
-        // TODO set width
-        addLane(newLane);
-    }
-}
+		Lane *newLane = childLow->getClone(s, laneSectionHigh->getSEnd());
+		// TODO set width
+		addLane(newLane);
+	    }
+	}
 
-LaneSection::~LaneSection()
-{
-    foreach (Lane *child, lanes_)
-    {
-        delete child;
-    }
-}
+	LaneSection::~LaneSection()
+	{
+	    foreach (Lane *child, lanes_)
+	    {
+		delete child;
+	    }
+	}
 
-//####################//
-// Section Functions  //
-//####################//
+	//####################//
+	// Section Functions  //
+	//####################//
 
-/*! \brief Returns the end coordinate of this section.
-* In road coordinates [m].
-*
-*/
-double
-LaneSection::getSEnd() const
-{
-    return getParentRoad()->getLaneSectionEnd(getSStart());
-}
+	/*! \brief Returns the end coordinate of this section.
+	* In road coordinates [m].
+	*
+	*/
+	double
+	LaneSection::getSEnd() const
+	{
+	    return getParentRoad()->getLaneSectionEnd(getSStart());
+	}
 
-/*! \brief Returns the length coordinate of this section.
-* In [m].
-*
-*/
-double
-LaneSection::getLength() const
-{
-    return getParentRoad()->getLaneSectionEnd(getSStart()) - getSStart();
-}
+	/*! \brief Returns the length coordinate of this section.
+	* In [m].
+	*
+	*/
+	double
+	LaneSection::getLength() const
+	{
+	    return getParentRoad()->getLaneSectionEnd(getSStart()) - getSStart();
+	}
 
-/*! \brief Returns first lane
-*
-*/
-Lane *
-LaneSection::getFirst() const
-{
-    if (lanes_.isEmpty())
-    {
-        return NULL;
-    }
+	/*! \brief Returns first lane
+	*
+	*/
+	Lane *
+	LaneSection::getFirst() const
+	{
+	    if (lanes_.isEmpty())
+	    {
+		return NULL;
+	    }
 
-    QMap<int, Lane *>::const_iterator it = lanes_.constBegin();
-    return it.value();
-}
+	    QMap<int, Lane *>::const_iterator it = lanes_.constBegin();
+	    return it.value();
+	}
 
-/*! \brief Returns last lane
-*
-*/
-Lane *
-LaneSection::getLast() const
-{
-    if (lanes_.isEmpty())
-    {
-        return NULL;
-    }
+	/*! \brief Returns last lane
+	*
+	*/
+	Lane *
+	LaneSection::getLast() const
+	{
+	    if (lanes_.isEmpty())
+	    {
+		return NULL;
+	    }
 
-    QMap<int, Lane *>::const_iterator it = lanes_.constEnd();
-    it--;
-    return it.value();
-}
+	    QMap<int, Lane *>::const_iterator it = lanes_.constEnd();
+	    it--;
+	    return it.value();
+	}
 
-/*! \brief Returns the adjacent lane with id greater than the argument given
-*
-*/
-Lane *
-LaneSection::getNextUpper(int id) const
-{
-    QMap<int, Lane *>::const_iterator i = lanes_.upperBound(id);
-    if (i == lanes_.constEnd())
-    {
-        return NULL;
-    }
+	/*! \brief Returns the adjacent lane with id greater than the argument given
+	*
+	*/
+	Lane *
+	LaneSection::getNextUpper(int id) const
+	{
+	    QMap<int, Lane *>::const_iterator i = lanes_.upperBound(id);
+	    if (i == lanes_.constEnd())
+	    {
+		return NULL;
+	    }
 
-    return i.value();
-}
+	    return i.value();
+	}
 
-/*! \brief Returns the adjacent lane with id less than the argument given
-*
-*/
-Lane *
-LaneSection::getNextLower(int id) const
-{
-    QMap<int, Lane *>::const_iterator i = lanes_.lowerBound(id);
-    if (i == lanes_.constBegin())
-    {
-        return NULL;
-    }
-    i--;
+	/*! \brief Returns the adjacent lane with id less than the argument given
+	*
+	*/
+	Lane *
+	LaneSection::getNextLower(int id) const
+	{
+	    QMap<int, Lane *>::const_iterator i = lanes_.lowerBound(id);
+	    if (i == lanes_.constBegin())
+	    {
+		return NULL;
+	    }
+	    i--;
 
-    return i.value();
-}
+	    return i.value();
+	}
 
-//####################//
-// Lane Functions     //
-//####################//
+	//####################//
+	// Lane Functions     //
+	//####################//
 
-Lane *
-LaneSection::getLane(int id) const
-{
-    return lanes_.value(id, NULL);
-}
+	Lane *
+	LaneSection::getLane(int id) const
+	{
+	    return lanes_.value(id, NULL);
+	}
 
-void
-LaneSection::setLanes(QMap<int, Lane *> newLanes)
-{
-    foreach (Lane *child, lanes_)
-    {
-        child->setParentLaneSection(NULL);
-    }
+	int
+	LaneSection::getLaneId(double s, double t)
+	{
+	    int i = 0;
+	    double width = 0;
+	    Lane * lane = getLane(i);
+	    if (t < 0.0)
+	    {
+		while (width < fabs(t))  
+		{
+		    lane = getNextLower(i);
+		    if (!lane)
+		    {
+			return i;
+		    }
+		    width += lane->getWidth(s);
+		    i--;
+		}
+	    }
+	    else
+	    {
+		while (width < t)  
+		{
+		    lane = getNextUpper(i);
+		    if (!lane)
+		    {
+			return i;
+		    }
+		    width += lane->getWidth(s);
+		    i++;
+		} 
+	    }
+	    return i;
+	}
 
-    foreach (Lane *child, newLanes)
-    {
-        child->setParentLaneSection(this);
-    }
+	void
+	LaneSection::setLanes(QMap<int, Lane *> newLanes)
+	{
+	    foreach (Lane *child, lanes_)
+	    {
+		child->setParentLaneSection(NULL);
+	    }
 
-    lanes_ = newLanes;
-    addLaneSectionChanges(LaneSection::CLS_LanesChanged);
-}
+	    foreach (Lane *child, newLanes)
+	    {
+		child->setParentLaneSection(this);
+	    }
 
-/*! \brief Adds a lane to this lane section.
-*
-*/
-void
-LaneSection::addLane(Lane *lane)
-{
-    if (lanes_.contains(lane->getId()))
-    {
-        qDebug("ERROR 1010151532! A lane with the same ID already exists! Road::" + getParentRoad()->getName().toUtf8());
-        return;
-    }
-    lanes_.insert(lane->getId(), lane);
-    lane->setParentLaneSection(this);
-    addLaneSectionChanges(LaneSection::CLS_LanesChanged);
-}
+	    lanes_ = newLanes;
+	    addLaneSectionChanges(LaneSection::CLS_LanesChanged);
+	}
 
-/*! \brief Adds a lane to this lane section.
-*
-*/
-void
-LaneSection::removeLane(Lane *lane)
-{
-    if (!lanes_.contains(lane->getId()))
-    {
-        qDebug("ERROR 1010151532! A lane this ID does not exist!");
-        return;
-    }
-    lanes_.remove(lane->getId());
-    lane->setParentLaneSection(NULL);
-    addLaneSectionChanges(LaneSection::CLS_LanesChanged);
-}
+	/*! \brief Adds a lane to this lane section.
+	*
+	*/
+	void
+	LaneSection::addLane(Lane *lane)
+	{
+	    if (lanes_.contains(lane->getId()))
+	    {
+		qDebug("ERROR 1010151532! A lane with the same ID already exists! Road::" + getParentRoad()->getName().toUtf8());
+		return;
+	    }
+	    lanes_.insert(lane->getId(), lane);
+	    lane->setParentLaneSection(this);
+	    addLaneSectionChanges(LaneSection::CLS_LanesChanged);
+	}
 
-/*! \brief Returns the width of the lane with the ID lane at the given road coordinate s.
-*
-* \param lane	ID of the lane.
-* \param s		Road coordinate for which the width should be calculated [m].
-*
-* \returns If the lane ID is 0 (i.e. the center lane) the function returns 0.0 by definition.
-* If there is no lane with the given ID, 0.0 is returned.
-*/
-double
-LaneSection::getLaneWidth(int lane, double s) const
-{
-    // width for lane 0 is 0.0 by default
-    if (lane == 0)
-    {
-        return 0.0;
-    }
+	/*! \brief Adds a lane to this lane section.
+	*
+	*/
+	void
+	LaneSection::removeLane(Lane *lane)
+	{
+	    if (!lanes_.contains(lane->getId()))
+	    {
+		qDebug("ERROR 1010151532! A lane this ID does not exist!");
+		return;
+	    }
+	    lanes_.remove(lane->getId());
+	    lane->setParentLaneSection(NULL);
+	    addLaneSectionChanges(LaneSection::CLS_LanesChanged);
+	}
 
-    // check for lane and (if found) return width
-    Lane *laneEntry = lanes_.value(lane, NULL);
-    if (laneEntry)
-    {
-        s = s - getSStart();
-        if (s < 0.0)
-            s = 0.0; // clamp
-        return laneEntry->getWidth(s);
-    }
-    else
-    {
-        return 0.0;
-    }
-}
+	/*! \brief Returns the width of the lane with the ID lane at the given road coordinate s.
+	*
+	* \param lane	ID of the lane.
+	* \param s		Road coordinate for which the width should be calculated [m].
+	*
+	* \returns If the lane ID is 0 (i.e. the center lane) the function returns 0.0 by definition.
+	* If there is no lane with the given ID, 0.0 is returned.
+	*/
+	double
+	LaneSection::getLaneWidth(int lane, double s) const
+	{
+	    // width for lane 0 is 0.0 by default
+	    if (lane == 0)
+	    {
+		return 0.0;
+	    }
 
-double
-LaneSection::getLaneSpanWidth(int fromLane, int toLane, double s) const
+	    // check for lane and (if found) return width
+	    Lane *laneEntry = lanes_.value(lane, NULL);
+	    if (laneEntry)
+	    {
+		s = s - getSStart();
+		if (s < 0.0)
+		    s = 0.0; // clamp
+		return laneEntry->getWidth(s);
+	    }
+	    else
+	    {
+		return 0.0;
+	    }
+	}
+
+	double
+	LaneSection::getLaneSpanWidth(int fromLane, int toLane, double s) const
 {
     if (fromLane > toLane)
     {
