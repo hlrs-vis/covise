@@ -65,13 +65,6 @@ IF(WIN32)
   # ENDIF()
 ENDIF()
 
-
-if(APPLE)
-   if(${BASEARCHSUFFIX} STREQUAL "libc++")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-   endif()
-endif(APPLE)
-
 if(WIN32)
     set(BOOST_ROOT "$ENV{EXTERNLIBS}/boost")
     STRING(REGEX REPLACE "\\\\" "/" BOOST_ROOT ${BOOST_ROOT}) 
@@ -87,10 +80,9 @@ endif(WIN32)
 # if you wish to reconfigure use cmake, ccmake or cmakesetup directly
 SET(CMAKE_SUPPRESS_REGENERATION true)
 
-if("$ENV{COVISEDESTDIR}" STREQUAL "")
-   set(COVISE_DESTDIR "$ENV{COVISEDIR}")
-else()
-   set(COVISE_DESTDIR "$ENV{COVISEDESTDIR}")
+set(COVISE_DESTDIR $ENV{COVISEDIR})
+if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "" AND NOT "${COVISE_DESTDIR}" STREQUAL "$ENV{COVISEDESTDIR}")
+    message("COVISE internal build: COVISE_DESTDIR reset from $ENV{COVISEDESTDIR} to ${COVISE_DESTDIR}")
 endif()
 
 # preset install dir
@@ -220,7 +212,7 @@ IF(MINGW)
 ENDIF()
 
 if(APPLE)
-   if(${BASEARCHSUFFIX} STREQUAL "libc++")
+   if("${BASEARCHSUFFIX}" STREQUAL "libc++")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
    endif()
 endif(APPLE)
