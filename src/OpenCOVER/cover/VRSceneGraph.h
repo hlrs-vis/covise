@@ -298,8 +298,6 @@ private:
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
 
-    int m_slider;
-
     int m_pointerType;
     float m_joyStickX, m_joyStickY; //philip: allow access to anology x and y movement
 
