@@ -13,6 +13,8 @@
  */
 
 #include "oculusdevice.h"
+#include <cover/input/input.h>
+#include <cover/input/dev/rift/RIFTDriver.h>
 
 #include <osg/Geometry>
 
@@ -138,6 +140,13 @@ OculusDevice::OculusDevice(float nearClip, float farClip, float pixelsPerDisplay
     , m_position(osg::Vec3(0.0f, 0.0f, 0.0f))
     , m_orientation(osg::Quat(0.0f, 0.0f, 0.0f, 1.0f))
 {
+    
+    opencover::InputDevice *riftInput = opencover::Input::instance()->getDevice("RiftDevice");
+    if(riftInput != NULL)
+    {
+        trackingDriver = (RIFTDriver *)riftInput;
+    }
+
     ovr_Initialize();
 
     // Enumerate HMD devices
@@ -206,7 +215,7 @@ OculusDevice::OculusDevice(float nearClip, float farClip, float pixelsPerDisplay
                                        rightEyeProjectionMatrix.M[0][2], rightEyeProjectionMatrix.M[1][2], rightEyeProjectionMatrix.M[2][2], rightEyeProjectionMatrix.M[3][2],
                                        rightEyeProjectionMatrix.M[0][3], rightEyeProjectionMatrix.M[1][3], rightEyeProjectionMatrix.M[2][3], rightEyeProjectionMatrix.M[3][3]);
 
-        // Start the sensor which provides the Rifts pose and motion.
+        // Start the sensor which provides the Rift<92>s pose and motion.
         ovrHmd_ConfigureTracking(m_hmdDevice, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
 
         beginFrameTiming();

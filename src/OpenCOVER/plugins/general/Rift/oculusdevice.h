@@ -25,6 +25,7 @@
 class WarpCameraPreDrawCallback;
 class OculusSwapCallback;
 class EyeRotationCallback;
+class RIFTDriver;
 
 class OculusDevice : public osg::Referenced
 {
@@ -92,6 +93,7 @@ public:
     {
         return m_hmdDevice;
     };
+    RIFTDriver *trackingDriver;
 
 protected:
     ~OculusDevice(); // Since we inherit from osg::Referenced we must make destructor protected
@@ -109,7 +111,6 @@ protected:
     static const std::string m_warpVertexShaderSource;
     static const std::string m_warpWithTimewarpVertexShaderSource;
     static const std::string m_warpFragmentShaderSource;
-
     ovrHmd m_hmdDevice;
     ovrSizei m_resolution;
     ovrSizei m_renderTargetSize;

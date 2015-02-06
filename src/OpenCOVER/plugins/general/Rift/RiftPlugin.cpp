@@ -20,6 +20,7 @@
 #include "cover/VRViewer.h"
 #include "osgViewer/Viewer"
 #include <osgViewer/api/Win32/GraphicsHandleWin32>
+#include <cover/input/dev/rift/RIFTDriver.h>
 
 RiftPlugin *RiftPlugin::plugin = NULL;
 
@@ -61,7 +62,19 @@ RiftPlugin::RiftPlugin()
 void RiftPlugin::preFrame()
 {
 }
-
+void RiftPlugin::postFrame()
+{
+    osg::Matrix m;
+    ovrTrackingState ts = ovrHmd_GetTrackingState(hmd->getHMD(), 0);
+    osg::Quat q;
+    q.set(ts.HeadPose.ThePose.Orientation.x, ts.HeadPose.ThePose.Orientation.y, ts.HeadPose.ThePose.Orientation.z, ts.HeadPose.ThePose.Orientation.w);
+    m.makeRotate(q);
+    osg::Vec3 t;
+    t.set(ts.HeadPose.ThePose.Position.x * 1000, ts.HeadPose.ThePose.Position.y * 1000, ts.HeadPose.ThePose.Position.z * 1000);
+    m.postMultTranslate(t);
+    hmd->trackingDriver->setMatrix(m);
+    
+}
 void RiftPlugin::preSwapBuffers(int windowNumber)
 {
 
@@ -106,10 +119,9 @@ bool RiftPlugin::init()
 {
 
     fprintf(stderr, "RiftPlugin::Plugin\n");
-    if (plugin == NULL) // first init is from tracking
+    if (plugin == NULL) 
     {
         plugin = this;
-        return true;
     }
 
 #ifdef WIN32 // enable Display on HMD

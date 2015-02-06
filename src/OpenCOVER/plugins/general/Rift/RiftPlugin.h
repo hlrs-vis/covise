@@ -50,6 +50,7 @@ public:
     void tabletEvent(coTUIElement *);
     // this will be called in PreFrame
     void preFrame();
+    void postFrame();
     void preSwapBuffers(int windowNumber);
     virtual void getMatrix(int station, osg::Matrix &mat);
 
