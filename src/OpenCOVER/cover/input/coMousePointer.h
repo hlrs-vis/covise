@@ -46,7 +46,7 @@ struct MouseEvent
     int type, state, code;
 };
 
-class INPUT_LEGACY_EXPORT coMousePointer
+class COVEREXPORT coMousePointer
 {
     friend class Input;
 
