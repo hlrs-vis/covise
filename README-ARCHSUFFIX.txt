@@ -105,6 +105,7 @@ indicus         OpenSUSE 12.1 on x86_64
 slowworm        OpenSUSE 12.2 on x86_64
 neolamprologus  OpenSUSE 12.3 on x86_64
 saara           OpenSUSE 13.1 on x86_64
+julidochromis   OpenSUSE 13.2 on x86_64
 
 sarge           Debian Linux 3.1 (Sarge) with updates on ia32
 etch32          Debian Linux 4.0 (Etch) with updates on ia32

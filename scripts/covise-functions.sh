@@ -160,6 +160,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=neolamprologus
                elif grep -i -q -s 'suse.*13.1' /etc/issue; then
                    export ARCHSUFFIX=saara
+               elif grep -i -q -s 'suse.*13.2' /etc/issue; then
+                   export ARCHSUFFIX=julidochromis
                elif grep -i -q -s 'suse.*10.3' /etc/issue; then
                    export ARCHSUFFIX=tuatara
                elif grep -i -q -s 'suse.*10.2' /etc/issue; then
