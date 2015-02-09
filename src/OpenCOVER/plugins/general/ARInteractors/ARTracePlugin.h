@@ -25,6 +25,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/ARToolKit.h>
 #include <cover/coInteractor.h>
+#include <util/DLinkList.h>
 
 namespace vrui
 {

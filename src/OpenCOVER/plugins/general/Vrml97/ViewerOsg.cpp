@@ -1183,6 +1183,7 @@ void ViewerOsg::endObject()
         {
             d_currentObject->sensor = new coSensiveSensor(d_currentObject->pNode.get(), d_currentObject, d_currentObject->sensorObjectToAdd, d_scene, VRMLRoot);
             sensors.push_back(d_currentObject->sensor);
+            sensorList.append(d_currentObject->sensor);
         }
     }
     d_currentObject = d_currentObject->getParent();
@@ -1251,6 +1252,8 @@ void ViewerOsg::removeSensor(coSensiveSensor *s)
             break;
         }
     }
+    if (sensorList.find(s))
+        sensorList.remove();
 }
 
 int ViewerOsg::getRenderMode()
@@ -2698,6 +2701,7 @@ Viewer::Object ViewerOsg::insertReference(Object existingObject)
             {
                 d_currentObject->sensor = new coSensiveSensor(d_currentObject->pNode.get(), d_currentObject, d_currentObject->sensorObjectToAdd, d_scene, VRMLRoot);
                 sensors.push_back(d_currentObject->sensor);
+                sensorList.append(d_currentObject->sensor);
             }
         }
         if (cover->debugLevel(2))
@@ -3621,6 +3625,7 @@ void ViewerOsg::setSensitive(void *object)
         {
             d_currentObject->sensor = new coSensiveSensor(d_currentObject->pNode.get(), d_currentObject, object, d_scene, VRMLRoot);
             sensors.push_back(d_currentObject->sensor);
+            sensorList.append(d_currentObject->sensor);
         }
         else
         {
@@ -5056,6 +5061,7 @@ void ViewerOsg::update(double timeNow)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::update" << endl;
+    sensorList.update();
     std::list<movieImageData *>::iterator it = moviePs.begin();
     for (; it != moviePs.end(); it++)
     {

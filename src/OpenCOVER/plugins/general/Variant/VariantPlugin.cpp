@@ -229,6 +229,8 @@ VariantPlugin::removeObject(const char *objName, bool replace)
 void
 VariantPlugin::preFrame()
 {
+    sensorList.update();
+
     static osg::Matrix invStartHand;
     static osg::Matrix startPos;
 

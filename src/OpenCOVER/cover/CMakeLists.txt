@@ -52,7 +52,6 @@ SET(HEADERS
   coVRFileManager.h
   coVRIOBase.h
   coVRIOReader.h
-  coSensor.h
   coVRMSController.h
   coVRPartner.h
   coVRSlave.h
@@ -105,7 +104,6 @@ SET(SOURCES
   coVRFileManager.cpp
   coVRIOBase.cpp
   coVRIOReader.cpp
-  coSensor.cpp
   coVRShader.cpp
   coVRDynLib.cpp
   coInteractor.cpp

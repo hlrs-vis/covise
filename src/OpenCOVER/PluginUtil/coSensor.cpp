@@ -5,24 +5,25 @@
 
  * License: LGPL 2+ */
 
-#include "coSensor.h"
-#include "coVRPluginSupport.h"
-#include "VRSceneGraph.h"
-#include "coVRNavigationManager.h"
-#include "coVRAnimationManager.h"
-#include "coVRCollaboration.h"
-#include "coVRMSController.h"
-#include "coVRCommunication.h"
-#include "OpenCOVER.h"
-#include "coCoverConfig.h"
+#include <coSensor.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/VRSceneGraph.h>
+#include <cover/coVRNavigationManager.h>
+#include <cover/coVRAnimationManager.h>
+#include <cover/coVRCollaboration.h>
+#include <cover/coVRMSController.h>
+#include <cover/coVRCommunication.h>
+#include <cover/OpenCOVER.h>
+#include <cover/coCoverConfig.h>
 #include <OpenVRUI/coUpdateManager.h>
+#include <OpenVRUI/sginterface/vruiButtons.h>
 #include <config/CoviseConfig.h>
-#include "coHud.h"
+#include <cover/coHud.h>
 #include <assert.h>
 #include <util/coStringMultiHash.h>
-#include "VRViewer.h"
-#include "coTabletUI.h"
-#include "coIntersection.h"
+#include <cover/VRViewer.h>
+#include <cover/coTabletUI.h>
+#include <cover/coIntersection.h>
 #ifdef DOTIMING
 #include <util/coTimer.h>
 #endif
@@ -61,6 +62,8 @@
 using namespace vrui;
 using namespace opencover;
 
+static const unsigned ButtonMask = vruiButtons::ACTION_BUTTON | vruiButtons::DRIVE_BUTTON | vruiButtons::XFORM_BUTTON;
+
 coSensor::coSensor(osg::Node *n)
 {
     START("coSensor::coSensor");
@@ -73,8 +76,6 @@ coSensor::coSensor(osg::Node *n)
     threshold = bsphere.radius();
     threshold *= threshold;
     sqrDistance = 0;
-    cover->sensors.append(this);
-    cover->sensors.noDelete = 1;
     buttonSensitive = 0;
     enabled = 1;
 }
@@ -281,7 +282,7 @@ void coPickSensor::update()
 
     if (newActiveFlag != active)
     {
-        if (buttonSensitive && (cover->getPointerButton()->getState() & 7))
+        if (buttonSensitive && (cover->getPointerButton()->getState() & ButtonMask))
         {
             return; // do not change state, if any button is currently pressed
         }
@@ -392,7 +393,7 @@ void coHandSensor::update()
     newActiveFlag = num1 || num2 || num3;
     if (newActiveFlag != active)
     {
-        if (buttonSensitive && (cover->getPointerButton()->getState() & 7))
+        if (buttonSensitive && (cover->getPointerButton()->getState() & ButtonMask))
         {
             return; // do not change state, if any button is currently pressed
         }
@@ -412,7 +413,7 @@ void coSensor::update()
     newActiveFlag = sqrDistance <= threshold;
     if (newActiveFlag != active)
     {
-        if (buttonSensitive && (cover->getPointerButton()->getState() & 7))
+        if (buttonSensitive && (cover->getPointerButton()->getState() & ButtonMask))
         {
             return; // do not change state, if any button is currently pressed
         }
@@ -472,8 +473,6 @@ void coSensor::disable()
 coSensor::~coSensor()
 {
     START("coSensor::~coSensor");
-    if (cover->sensors.find(this))
-        cover->sensors.remove();
     if (active)
         disactivate();
     delete[] path;

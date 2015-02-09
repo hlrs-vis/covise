@@ -53,6 +53,7 @@ using namespace opencover;
 
 class VariantPlugin : public coVRPlugin, public coMenuListener, public coTUIListener, public coSelectionListener
 {
+    friend class mySensor;
 public:
     static VariantPlugin *plugin;
     static coRowMenu *variants_menu;
@@ -116,6 +117,7 @@ public:
     void HideAllVariants();
 
 private:
+    coSensorList sensorList;
     coMenu *cover_menu;
     coSubMenuItem *button;
     coRowMenu *variant_menu;

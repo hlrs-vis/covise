@@ -125,6 +125,7 @@ public:
     };
     osgViewerObject *d_root;
     osgViewerObject *d_currentObject;
+    coSensorList sensorList; // manage sensor updates
     std::vector<coSensiveSensor *> sensors; // hold all sensors for later access
 
     //osg::ColorMask *NoFrameBuffer;

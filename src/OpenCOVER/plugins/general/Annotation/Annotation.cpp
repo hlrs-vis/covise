@@ -11,6 +11,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coOnscreenDebug.h>
 #include <sstream>
+#include <PluginUtil/coSensor.h>
 
 Annotation::Annotation(int id, int owner, osg::Node * /*node*/, float initscale,
                        osg::Matrix orientation)
@@ -86,6 +87,7 @@ Annotation::Annotation(int id, int owner, osg::Node * /*node*/, float initscale,
     mainGroup->addChild(pos);
 
     mySensor = new AnnotationSensor(this, arrow);
+    AnnotationPlugin::plugin->sensorList.append(mySensor);
 }
 
 void Annotation::setVisible(bool vis)
@@ -166,6 +168,8 @@ Annotation::~Annotation()
     //mainGroup->getParent(0)->removeChild(mainGroup);
     label->~coVRLabel();
 
+    if (AnnotationPlugin::plugin->sensorList.find(mySensor))
+        AnnotationPlugin::plugin->sensorList.remove();
     delete mySensor;
 
     //remove scenegraph

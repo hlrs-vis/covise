@@ -8,12 +8,12 @@
 #ifndef _ANNOTATIONSENSOR_H
 #define _ANNOTATIONSENSOR_H
 
-#include <cover/coVRPluginSupport.h>
-using namespace covise;
-using namespace opencover;
-
+#include <PluginUtil/coSensor.h>
 #include "AnnotationPlugin.h"
 #include "Annotation.h"
+
+using namespace covise;
+using namespace opencover;
 
 class Annotation;
 

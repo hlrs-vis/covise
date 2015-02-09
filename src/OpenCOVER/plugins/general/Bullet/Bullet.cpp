@@ -77,12 +77,15 @@ BulletSensor::BulletSensor(BulletProbe *m, osg::Node *n)
     myBulletProbe = m;
     setThreshold(50);
     //threshold = 50*50;
+    Bullet::plugin->sensorList.append(this);
 }
 
 BulletSensor::~BulletSensor()
 {
     if (active)
         disactivate();
+    if (Bullet::plugin->sensorList.find(this))
+        Bullet::plugin->sensorList.remove();
 }
 
 void BulletSensor::activate()
@@ -534,6 +537,8 @@ bool BulletProbe::matches(string shost)
 
 void Bullet::preFrame()
 {
+    sensorList.update();
+
     static osg::Matrix startPos;
     static osg::Matrix invStartHand;
 

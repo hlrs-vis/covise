@@ -319,6 +319,7 @@ Mark::Mark(int i, string host, osg::Group *node, float initscale)
     pos->addChild(scale);
     node->addChild(pos);
     mySensor = new MarkerSensor(this, geo);
+    Marker::plugin->sensorList.append(mySensor);
 }
 
 void Mark::setVisible(bool vis)
@@ -382,6 +383,8 @@ void Mark::setAmbient(osg::Vec4 spec)
 Mark::~Mark()
 {
     pos->getParent(0)->removeChild(pos);
+    if (Marker::plugin->sensorList.find(mySensor))
+        Marker::plugin->sensorList.remove();
     delete mySensor;
 }
 
@@ -439,6 +442,8 @@ bool Mark::matches(string shost)
 
 void Marker::preFrame()
 {
+    sensorList.update();
+
     static osg::Matrix startPos;
     static osg::Matrix invStartHand;
 
