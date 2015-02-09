@@ -83,6 +83,7 @@ SET(HEADERS
   coMeasurement.h
   coTranslator.h
   VRRegisterSceneGraph.h
+  MSEventHandler.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
   coTUIFileBrowser/FileSysAccess.h
@@ -156,6 +157,7 @@ SET(SOURCES
   PluginMenu.cpp
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
+  MSEventHandler.cpp
 )
 
 SET(DEVICE_SOURCES

@@ -746,6 +746,7 @@ void OpenCOVER::frame()
 
     //MARK0("COVER reading input devices");
 
+    VRViewer::instance()->handleEvents(); // handle e.g. mouse events
     Input::instance()->update(); //update all hardware devices
 
     // wait for all cull and draw threads to complete.
