@@ -18,13 +18,13 @@
  * OpenSceneGraph Public License for more details.
 */
 
-#include <cover/coLOD.h>
+#include "coLOD.h"
 
 #include <algorithm>
 
 #include <osg/CullStack>
 #include <osgUtil/CullVisitor>
-#include "VRViewer.h"
+#include <cover/VRViewer.h>
 
 using namespace osg;
 
