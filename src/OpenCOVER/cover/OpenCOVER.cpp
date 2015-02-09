@@ -31,6 +31,7 @@
 #include <util/XGetopt.h>
 #else
 #include <sys/types.h>
+#include <signal.h>
 #endif
 
 #include <gpu/cudaglinterop.h>
@@ -92,7 +93,7 @@ VRBClient *opencover::vrbc = NULL;
 static char envOsgNotifyLevel[200];
 static char envDisplay[1000];
 
-void usage()
+static void usage()
 {
     fprintf(stderr, "OpenCOVER\n");
     fprintf(stderr, "       (C) HLRS, University of Stuttgart (2004)\n\n");
@@ -103,11 +104,37 @@ void usage()
 }
 
 //Signal handler
-void handler(int /*signo*/)
+static void handler(int signo)
 {
-    //fprintf(stderr,"signal handler got signal %d\n", signo);
-    coVRMSController::instance()->killClients();
-    OpenCOVER::instance()->setExitFlag(1);
+    if (cover->debugLevel(3))
+        fprintf(stderr,"signal handler got signal %d\n", signo);
+#ifndef _WIN32
+    switch(signo)
+    {
+        case SIGTERM:
+            coVRMSController::instance()->killClients();
+            OpenCOVER::instance()->setExitFlag(1);
+            break;
+        case SIGTTIN:
+        case SIGTTOU:
+            break;
+    }
+#endif
+}
+
+static void installSignalHandlers()
+{
+#ifndef _WIN32
+    struct sigaction act = { handler, 0, SA_SIGINFO };
+    if (sigaction(SIGTTIN, &act, NULL) != 0)
+    {
+        fprintf(stderr, "failed to install handler for SIGTTIN: %s\n", strerror(errno));
+    }
+    if (sigaction(SIGTTOU, &act, NULL) != 0)
+    {
+        fprintf(stderr, "failed to install handler for SIGTTOU: %s\n", strerror(errno));
+    }
+#endif
 }
 
 void printDefinition()
@@ -196,6 +223,8 @@ void OpenCOVER::waitForWindowID()
 
 void OpenCOVER::init()
 {
+    installSignalHandlers();
+
 #ifdef _WIN32
     unsigned short wVersionRequested;
     struct WSAData wsaData;
