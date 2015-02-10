@@ -31,6 +31,7 @@
 
 #include <util/common.h>
 #include <config/CoviseConfig.h>
+#include <net/tokenbuffer.h>
 
 #include "OpenCOVER.h"
 #include "coVRFileManager.h"
@@ -76,6 +77,7 @@
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
 #include <osg/Version>
+#include <osg/io_utils>
 #include <osgDB/WriteFile>
 
 #ifdef _OPENMP
@@ -1546,9 +1548,38 @@ void VRSceneGraph::scaleAllObjects(bool resetView)
         bsphere.radius() = 1.f;
 
     // scale and translate but keep current orientation
-    float scaleFactor = 1.f;
-    osg::Matrix matrix;
+    float scaleFactor = 1.f, masterScale = 1.f;
+    osg::Matrix matrix, masterMatrix;
     boundingSphereToMatrices(bsphere, resetView, &matrix, &scaleFactor);
+
+    covise::TokenBuffer tb;
+    if (coVRMSController::instance()->isMaster())
+    {
+        tb << scaleFactor;
+        for (size_t i=0; i<16; ++i)
+            tb << matrix.ptr()[i];
+    }
+    else
+    {
+        tb >> masterScale;
+        if (masterScale != scaleFactor)
+        {
+            fprintf(stderr, "VRSceneGraph::scaleAllObjects: scaleFactor mismatch on %d, is %f, should be %f\n",
+                    coVRMSController::instance()->getID(), scaleFactor, masterScale);
+        }
+        scaleFactor = masterScale;
+        for (size_t i=0; i<16; ++i)
+        {
+            tb >> masterMatrix.ptr()[i];
+        }
+        if (masterMatrix != matrix)
+        {
+            std::cerr << "VRSceneGraph::scaleAllObjects: matrix mismatch on " << coVRMSController::instance()->getID()
+                << ", is " << matrix << ", should be " << masterMatrix << endl;
+        }
+        matrix = masterMatrix;
+    }
+
     cover->setScale(scaleFactor);
     //fprintf(stderr, "bbox [x:%f %f\n      y:%f %f\n      z:%f %f]\n", bb.xMin(), bb.xMax(), bb.yMin(), bb.yMax(), bb.zMin(), bb.zMax());
     //fprintf(stderr, "VRSceneGraph::scaleAllObjects scalefactor: %f\n", scaleFactor);
@@ -1566,7 +1597,7 @@ void VRSceneGraph::dirtySpecialBounds()
 }
 
 void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingSphere,
-                                            bool resetView, osg::Matrix *currentMatrix, float *scaleFactor)
+                                            bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const
 {
     scaleFactor[0] = cover->getSceneSize() / 2.f / boundingSphere.radius();
     currentMatrix->makeTranslate(-(boundingSphere.center() * scaleFactor[0]));

@@ -193,7 +193,7 @@ public:
         return m_scalingAllObjects;
     }
     void boundingSphereToMatrices(const osg::BoundingSphere &boundingSphere,
-                                  bool resetView, osg::Matrix *currentMatrix, float *scaleFactor);
+                                  bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const;
     void adjustScale();
 
     void toggleAxis(bool state);
