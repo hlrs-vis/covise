@@ -25,7 +25,7 @@ if (NOT PNG12_INCLUDE_DIR)
    return()
 endif()
 
-QT_ADD_RESOURCES(WSI_RESOURCE_FILES "../../../share/covise/web/WebGL.qrc" OPTIONS "-no-compress")
+QT_ADD_RESOURCES(WSI_RESOURCE_FILES "../../../../share/covise/web/WebGL.qrc" OPTIONS "-no-compress")
 SET(HEADERS
   debug.h  ft.h  md5.h  WebGLRenderer.h
 )
