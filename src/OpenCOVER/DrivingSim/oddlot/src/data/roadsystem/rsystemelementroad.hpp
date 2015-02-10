@@ -242,6 +242,7 @@ public:
 
     LaneSection *getLaneSection(double s) const;
     LaneSection *getLaneSectionBefore(double s) const;
+    LaneSection *getLaneSectionNext(double s) const;
     double getLaneSectionEnd(double s) const;
     QMap<double, LaneSection *> getLaneSections() const
     {

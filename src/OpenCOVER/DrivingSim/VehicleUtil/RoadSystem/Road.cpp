@@ -239,6 +239,28 @@ LaneSection *Road::getLaneSection(double s)
         return lsIt->second; // toCheck or return NULL
 }
 
+LaneSection *Road::getLaneSectionNext(double s)
+{
+    std::map<double, LaneSection *>::const_iterator nextIt = laneSectionMap.upper_bound(s);
+    if (nextIt == laneSectionMap.cend())
+    {
+        return NULL;
+    }
+
+    return (*nextIt).second;
+}
+
+double Road::getLaneSectionEnd(double s)
+{
+    std::map<double, LaneSection *>::const_iterator nextIt = laneSectionMap.upper_bound(s);
+    if (nextIt == laneSectionMap.cend())
+    {
+        return getLength();
+    }
+
+    return (*nextIt).second->getStart();
+}
+
 int Road::traceLane(int lane, double from, double to)
 {
     std::map<double, LaneSection *>::iterator sectionItFrom = --laneSectionMap.upper_bound(from);
@@ -2165,22 +2187,64 @@ osg::Group *Road::createObjectsGroup()
                 if (dist <= 0)
                     dist = 8;
 
-                double wr, wl;
-                double startWidth;
-                getRoadSideWidths(obj->getS(), wr, wl);
-                if (obj->getT() > 0)
-                    startWidth = wl;
-                else
-                    startWidth = wr;
+
+                LaneSection * currentLaneSection = NULL;
+                int currentLaneId = 0;
+                double sSection = obj->getS();
+                double d = 0.0;
+                double currentT = obj->getT();
                 for (double s = obj->getS(); s < (obj->getS() + obj->getRepeatLength()); s += dist)
                 {
+                    if (getLaneSection(s) != currentLaneSection)
+                    {
+                        LaneSection * newLaneSection = getLaneSection(s);
+                        while (currentLaneSection && (currentLaneSection != newLaneSection))
+                        {
+                            if (obj->getT() < 0)
+                            {
+                                currentT = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, getLaneSectionEnd(currentLaneSection->getStart())) + d;
+                            }
+                            else if (obj->getT() > 0)
+                            {
+                                currentT = currentLaneSection->getLaneSpanWidth(0, currentLaneId, getLaneSectionEnd(currentLaneSection->getStart())) + d;
+                            }
 
-                    double currentT;
-                    getRoadSideWidths(s, wr, wl);
-                    if (obj->getT() > 0)
-                        currentT = obj->getT() - startWidth + wl;
-                    else
-                        currentT = obj->getT() - startWidth + wr;
+                            currentLaneSection = getLaneSectionNext(currentLaneSection->getStart() + 1.0e-3);
+                            currentLaneId = getLaneNumber(currentLaneSection->getStart(), currentT);
+                            sSection = currentLaneSection->getStart();
+                        }
+
+                        currentLaneSection = newLaneSection;
+                        currentLaneId = getLaneNumber(sSection, currentT);
+
+                        if (obj->getT() < 0)
+                        {
+                            if (fabs(currentT) < currentLaneSection->getLaneSpanWidth(0, currentLaneId + 1, s) + currentLaneSection->getLaneWidth(s, currentLaneId)/2)
+                            {
+                                currentLaneId++;
+                            }
+                            d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, s) + currentT;
+                        }
+                        else if (obj->getT() >  0)
+                        {
+                            if (currentT < currentLaneSection->getLaneSpanWidth(0, currentLaneId - 1,  s) + currentLaneSection->getLaneWidth(s, currentLaneId)/2)
+                            {
+                                currentLaneId--;
+                            }
+                            d = currentT -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, s);
+                        }
+                    }
+
+
+                    if (obj->getT() < 0)
+                    {
+                        currentT = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, s) + d;
+                    }
+                    else if (obj->getT() > 0)
+                    {
+                        currentT = currentLaneSection->getLaneSpanWidth(0, currentLaneId, s) + d;
+                    }
+
                     osg::PositionAttitudeTransform *objectTransform = new osg::PositionAttitudeTransform();
                     objectTransform->addChild(objectNode);
                     objectRepeatGroup->addChild(objectTransform);

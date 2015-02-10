@@ -3,7 +3,7 @@
 	<signalsObjects>
 		<country name="OpenDRIVE" >
 		<objects>
-			<object name="GuardRail" icon="" distance="0.5" type="GuardRail" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
+			<object name="GuardRail" icon="" distance="0.5" type="guardRail" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
 			<object name="STEPBarrier" icon="" distance="0.0" type="STEPBarrier" width="0.542" height="0.9" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
 				<corner u="0.0" v="-0.271" z="0.0" height="0.0" />
 				<corner u="0.0" v="-0.249" z="0.15" height="0.0" />

@@ -36,6 +36,7 @@ public:
     bool getBatterShouldBeTessellated(int);
     std::map<int, Batter *> getBatterMap();
     double getLaneWidthSlope(double, int = 0);
+    double getLaneSpanWidth(int, int, double);
 
     double getDistanceToLane(double, int);
     Vector2D getLaneCenter(int, double);

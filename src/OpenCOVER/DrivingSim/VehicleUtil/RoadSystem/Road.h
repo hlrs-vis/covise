@@ -78,6 +78,8 @@ public:
     void addLaneSection(LaneSection *);
 
     LaneSection *getLaneSection(double);
+    LaneSection *getLaneSectionNext(double);
+    double getLaneSectionEnd(double);
     int traceLane(int, double, double);
     double getLaneEnd(int &, double, int, bool &);
 

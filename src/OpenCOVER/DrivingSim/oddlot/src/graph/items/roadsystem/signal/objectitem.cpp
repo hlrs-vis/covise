@@ -126,34 +126,55 @@ ObjectItem::createPath()
             //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
             dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
         }
+
 	LaneSection * currentLaneSection = road->getLaneSection(currentS);
 	double sSection = currentS - currentLaneSection->getSStart();
-	int currentLaneId = currentLaneSection->getLaneId(sSection, object_->getT());
-	double d = 0.0;
-	bool outerBorder = true;
-        if (object_->getT() < -NUMERICAL_ZERO3) 
-	{
-	    if (fabs(object_->getT()) < currentLaneSection->getLaneSpanWidth( 0, currentLaneId + 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
-	    {
-	        currentLaneId++;
-		outerBorder = false;
-	    }
-	    d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + object_->getT();
-	}
-        else if (object_->getT() > NUMERICAL_ZERO3) 
-	{
-	    if (object_->getT() < currentLaneSection->getLaneSpanWidth( 0, currentLaneId - 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
-	    {
-	        currentLaneId--;
-		outerBorder = false;
-	    }
-	    d = object_->getT() -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS);
-	}
-		
-
+        currentLaneSection = NULL;
 	double t = object_->getT();
+        int currentLaneId = 0;
+        double d = 0.0;
         while ((totalLength < object_->getRepeatLength()) && (currentS < road->getLength()))
 	{
+
+	    if (road->getLaneSection(currentS) != currentLaneSection)
+	    {
+		LaneSection * newLaneSection = road->getLaneSection(currentS);
+		while (currentLaneSection && (currentLaneSection != newLaneSection))
+		{
+	    	    if (object_->getT() < -NUMERICAL_ZERO3)
+	    	    {
+			t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
+	    	    }
+	    	    else if (object_->getT() > NUMERICAL_ZERO3)
+	    	    {
+			t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
+	    	    }
+		   
+		    currentLaneSection = road->getLaneSectionNext(currentLaneSection->getSStart() + NUMERICAL_ZERO3);
+		    currentLaneId = currentLaneSection->getLaneId(0, t);
+                    sSection = 0;
+		}
+		    
+		currentLaneSection = newLaneSection;
+		currentLaneId = currentLaneSection->getLaneId(sSection, t);
+                if (object_->getT() < -NUMERICAL_ZERO3) 
+	        {
+	            if (fabs(t)  < currentLaneSection->getLaneSpanWidth( 0, currentLaneId + 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
+	            {
+	                currentLaneId++;
+	            }
+	            d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + t;
+	        }
+                else if (object_->getT() > NUMERICAL_ZERO3) 
+	        {
+	            if (t < currentLaneSection->getLaneSpanWidth( 0, currentLaneId - 1, currentS) + currentLaneSection->getLaneWidth(currentLaneId, currentS)/2)
+	            {
+	                currentLaneId--;
+	            }
+	            d = t  -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS);
+	        }
+            }
+
 	    if (object_->getT() < -NUMERICAL_ZERO3)
 	    {
 		t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
@@ -221,38 +242,6 @@ ObjectItem::createPath()
             totalLength += dist;
             currentS += dist;
 			
-	    if (road->getLaneSection(currentS) != currentLaneSection)
-	    {
-		LaneSection * newLaneSection = road->getLaneSection(currentS);
-		while (currentLaneSection && (currentLaneSection != newLaneSection))
-		{
-	    	    if (object_->getT() < -NUMERICAL_ZERO3)
-	    	    {
-			t = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
-	    	    }
-	    	    else if (object_->getT() > NUMERICAL_ZERO3)
-	    	    {
-			t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
-	    	    }
-		   
-		    currentLaneSection = road->getLaneSection(currentLaneSection->getSEnd());
-		    currentLaneId = currentLaneSection->getLaneId(0, t);
-		}
-		    
-		currentLaneSection = newLaneSection;
-		currentLaneId = currentLaneSection->getLaneId(0, t);
-		if (!outerBorder)
-		{
-		    if (object_->getT() < 0)
-		    {
-		        currentLaneId++;
-		    }
- 	            else
-		    {
-		        currentLaneId--;
-		    }
-	        }
-            }
         }
     }
     else

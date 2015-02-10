@@ -295,6 +295,32 @@ void LaneSection::getRoadWidth(double s, double &left, double &right)
     }
 }
 
+double LaneSection::getLaneSpanWidth(int fromLane, int toLane, double s) 
+{
+    if (fromLane > toLane)
+    {
+        int tmp = fromLane;
+        fromLane = toLane;
+        toLane = tmp;
+    }
+    s -= start;
+    if (s < 0.0)
+    {
+        s = 0.0;
+    }    
+
+    double width = 0.0;
+    for (int i = fromLane; i <= toLane; ++i)
+    {
+        if ((i != 0) && getLane(i))
+        {
+            width += getLane(i)->getWidth(s);
+        }
+    }
+    return width;
+}
+
+
 int LaneSection::getNumLanesLeft()
 {
     return numLanesLeft;
