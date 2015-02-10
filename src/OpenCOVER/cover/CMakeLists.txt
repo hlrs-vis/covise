@@ -40,6 +40,7 @@ SET(HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
+  coIntersectionUtil.h
   coPartnerMenuItem.h
   coVrbRegistryAccess.h
   coVRCommunication.h
@@ -133,6 +134,7 @@ SET(SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
+  coIntersectionUtil.cpp
   coPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp
