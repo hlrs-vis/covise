@@ -34,6 +34,7 @@ class WritePolygon : public coModule
 private:
     // member functions
     virtual int compute(const char *port);
+    enum fileformats {TYPE_WRL=0,TYPE_STL};
 
     // ports
     //      coOutputPort *p_dataOut;
@@ -41,32 +42,18 @@ private:
 
     coFileBrowserParam *p_filename;
     coBooleanParam *p_newFile;
+    coChoiceParam *p_fileFormat;
+    const coDistributedObject *currentObject;
 
-    // read object
-    coDistributedObject *readObj(const char *name, istream &str);
 
     // write object
-    void writeObj(const char *offset, const coDistributedObject *new_data, FILE *file);
+    void writeObj(const char *offset, const coDistributedObject *new_data);
+    void writeSTLObj(const char *offset, const coDistributedObject *new_data);
 
-    void writeFileBegin(int outputtype, FILE *file);
-    void writeFileEnd(int outputtype, FILE *file);
-
-    // read covise objects
-    coDistributedObject *readPOLYGN(const char *name, char *command, istream &str);
-    coDistributedObject *readLINES(const char *name, char *command, istream &str);
-    coDistributedObject *readUNSGRD(const char *name, char *command, istream &str);
-    coDistributedObject *readPOINTS(const char *name, char *command, istream &str);
-    coDistributedObject *readUSTSDT(const char *name, char *command, istream &str);
-    coDistributedObject *readUSTVDT(const char *name, char *command, istream &str);
-    coDistributedObject *readSETELE(const char *name, char *command, istream &str);
-    coDistributedObject *readTRIANG(const char *name, char *command, istream &str);
-    coDistributedObject *readUNIGRD(const char *name, char *command, istream &str);
-    coDistributedObject *readRCTGRD(const char *name, char *command, istream &str);
-    coDistributedObject *readSTRGRD(const char *name, char *command, istream &str);
-    coDistributedObject *readSTRSDT(const char *name, char *command, istream &str);
-    coDistributedObject *readSTRVDT(const char *name, char *command, istream &str);
-    coDistributedObject *readRGBADT(const char *name, char *command, istream &str);
-    coDistributedObject *readINTARR(const char *name, char *command, istream &str);
+    void writeFileBegin();
+    void writeFileEnd();
+    FILE *file;
+    int outputtype;
 
 public:
     // constructor
