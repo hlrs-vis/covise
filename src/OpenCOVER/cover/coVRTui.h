@@ -201,7 +201,7 @@ private:
     coTUIEditFloatField *LODScaleEdit;
 #ifndef NOFB
     coTUIFileBrowserButton *FileBrowser;
-    coTUIFileBrowserButton *ReplaceFileFB;
+    coTUIFileBrowserButton *SaveFileFB;
 #endif
 
     coTUILabel *driveLabel;

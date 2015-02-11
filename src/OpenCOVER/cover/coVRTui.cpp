@@ -228,9 +228,9 @@ coVRTui::coVRTui()
 #ifndef NOFB
     FileBrowser = new coTUIFileBrowserButton("Load file...", topContainer->getID());
     coVRCommunication::instance()->setFBData(FileBrowser->getVRBData());
-    ReplaceFileFB = new coTUIFileBrowserButton("Save file...", topContainer->getID());
-    ReplaceFileFB->setMode(coTUIFileBrowserButton::SAVE);
-    coVRCommunication::instance()->setFBData(ReplaceFileFB->getVRBData());
+    SaveFileFB = new coTUIFileBrowserButton("Save file...", topContainer->getID());
+    SaveFileFB->setMode(coTUIFileBrowserButton::SAVE);
+    coVRCommunication::instance()->setFBData(SaveFileFB->getVRBData());
     coVRFileManager::instance()->SetDefaultFB(FileBrowser);
 
 #endif
@@ -292,8 +292,8 @@ coVRTui::coVRTui()
 #ifndef NOFB
     FileBrowser->setEventListener(this);
     FileBrowser->setMode(coTUIFileBrowserButton::OPEN);
-    ReplaceFileFB->setEventListener(this);
-    ReplaceFileFB->setMode(coTUIFileBrowserButton::OPEN);
+    SaveFileFB->setEventListener(this);
+    SaveFileFB->setMode(coTUIFileBrowserButton::OPEN);
 #endif
 
     ScaleSlider->setMin(-5.);
@@ -345,7 +345,7 @@ coVRTui::coVRTui()
     Quit->setPos(2, 0);
 #ifndef NOFB
     FileBrowser->setPos(2, 1);
-    ReplaceFileFB->setPos(2, 2);
+    SaveFileFB->setPos(2, 2);
 #endif
     Menu->setPos(2, 3);
 
@@ -466,7 +466,7 @@ void coVRTui::config()
 {
 #ifndef NOFB
     FileBrowser->setFilterList(coVRFileManager::instance()->getFilterList());
-    ReplaceFileFB->setFilterList(coVRFileManager::instance()->getFilterList());
+    SaveFileFB->setFilterList(coVRFileManager::instance()->getFilterList());
 #endif
 }
 
@@ -517,7 +517,7 @@ coVRTui::~coVRTui()
     delete LODScaleEdit;
 #ifndef NOFB
     delete FileBrowser;
-    delete ReplaceFileFB;
+    delete SaveFileFB;
 #endif
     delete driveLabel;
     delete panLabel;
@@ -842,24 +842,24 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         OpenCOVER::instance()->hud->setText2(filename.c_str());
         coVRFileManager::instance()->loadFile(filename.c_str(), FileBrowser);
     }
-    else if (tUIItem == ReplaceFileFB)
+    else if (tUIItem == SaveFileFB)
     {
         //Retrieve Data object
-        std::string filename = ReplaceFileFB->getSelectedPath();
+        std::string filename = SaveFileFB->getSelectedPath();
 
         OpenCOVER::instance()->hud->show();
         OpenCOVER::instance()->hud->setText1("Replacing File...");
         OpenCOVER::instance()->hud->setText2(filename.c_str());
 
-        cerr << "File-Path: " << ReplaceFileFB->getSelectedPath().c_str() << endl;
+        cerr << "File-Path: " << SaveFileFB->getSelectedPath().c_str() << endl;
         //Do what you want to do with the filename
-        if (osgDB::writeNodeFile(*cover->getObjectsRoot(), ReplaceFileFB->getFilename(ReplaceFileFB->getSelectedPath()).c_str()))
+        if (osgDB::writeNodeFile(*cover->getObjectsRoot(), SaveFileFB->getFilename(SaveFileFB->getSelectedPath()).c_str()))
         {
             if (cover->debugLevel(3))
-                std::cerr << "Data written to \"" << ReplaceFileFB->getFilename(ReplaceFileFB->getSelectedPath()) << "\"." << std::endl;
+                std::cerr << "Data written to \"" << SaveFileFB->getFilename(SaveFileFB->getSelectedPath()) << "\"." << std::endl;
         }
 
-        //coVRFileManager::instance()->replaceFile(filename.c_str(), ReplaceFileFB);
+        //coVRFileManager::instance()->replaceFile(filename.c_str(), SaveFileFB);
     }
     else if (tUIItem == LODScaleEdit)
     {
@@ -1220,7 +1220,7 @@ void coVRTui::makeRot(float heading, float pitch, float roll, int headingBool, i
 
 coTUIFileBrowserButton *coVRTui::getExtFB()
 {
-    return ReplaceFileFB;
+    return SaveFileFB;
 }
 
 BinListEntry::BinListEntry(osgUtil::RenderBin *rb, int num)
