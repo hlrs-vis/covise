@@ -24,6 +24,7 @@
 #include <cover/RenderObject.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
+#include <cover/coVRSelectionManager.h>
 #include "cover/coVRTui.h"
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
@@ -31,6 +32,10 @@
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
+
+#include <PluginUtil/PluginMessageTypes.h>
+
 
 #include <osg/Geode>
 #include <osg/Switch>
@@ -50,6 +55,13 @@ using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
 int ElementInfo::yPos = 3;
+
+RevitInfo::RevitInfo()
+{
+}
+RevitInfo::~RevitInfo()
+{
+}
 
 ElementInfo::ElementInfo()
 {
@@ -405,6 +417,39 @@ void RevitPlugin::sendMessage(Message &m)
     toRevit->send_msg(&m);
 }
 
+
+void RevitPlugin::message(int type, int len, const void *buf)
+{
+    if (type == PluginMessageTypes::MoveAddMoveNode)
+    {
+    }
+    else if (type == PluginMessageTypes::MoveMoveNode)
+    {
+        osg::Matrix m;
+        std::string path;
+        TokenBuffer tb((const char *)buf, len);
+        tb >> path;
+        osg::Group *selectedNodeParent = dynamic_cast<osg::Group *>(coVRSelectionManager::validPath(path));
+        tb >> path;
+        osg::Node *selectedNode = coVRSelectionManager::validPath(path);
+        RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+
+
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                tb >> m(i, j);
+        TokenBuffer stb;
+        stb << info->ObjectID;
+        stb << (double)m.getTrans().x();
+        stb << (double)m.getTrans().y();
+        stb << (double)m.getTrans().z();
+        
+        Message message(tb);
+        message.type = (int)RevitPlugin::MSG_SetTransform;
+        RevitPlugin::instance()->sendMessage(message);
+    }
+}
+
 RevitPlugin *RevitPlugin::plugin = NULL;
 void
 RevitPlugin::handleMessage(Message *m)
@@ -541,6 +586,52 @@ RevitPlugin::handleMessage(Message *m)
     }
     break;
     case MSG_EndGroup:
+    {
+        currentGroup.pop();
+    }
+    break;
+    case MSG_NewInstance:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        tb >> ID;
+        char *name;
+        tb >> name;
+        osg::MatrixTransform *newTrans = new osg::MatrixTransform();
+        osg::Matrix m;
+        m.makeIdentity();
+        float x, y, z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(0, 0) = x;
+        m(0, 1) = y;
+        m(0, 2) = z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(1, 0) = x;
+        m(1, 1) = y;
+        m(1, 2) = z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(2, 0) = x;
+        m(2, 1) = y;
+        m(2, 2) = z;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        m(3, 0) = x;
+        m(3, 1) = y;
+        m(3, 2) = z;
+        newTrans->setMatrix(m);
+        newTrans->setName(name);
+        currentGroup.top()->addChild(newTrans);
+        currentGroup.push(newTrans);
+    }
+    break;
+    case MSG_EndInstance:
     {
         currentGroup.pop();
     }
@@ -706,8 +797,173 @@ RevitPlugin::handleMessage(Message *m)
             GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
             sv->apply(*geode);
             ei->nodes.push_back(geode);
+            
+            RevitInfo *info = new RevitInfo();
+            info->ObjectID = ID;
+            OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
             currentGroup.top()->addChild(geode);
         }
+
+    }
+    break;
+    
+    case MSG_NewPolyMesh:
+    {
+        TokenBuffer tb(m);
+
+        int numPoints;
+        int numTriangles;
+        int numNormals;
+        int numUVs;
+        tb >> numPoints;
+        tb >> numTriangles;
+        tb >> numNormals;
+        tb >> numUVs;
+        osg::Geode *geode = new osg::Geode();
+        //geode->setName(name);
+        osg::Geometry *geom = new osg::Geometry();
+        geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
+        geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+        geode->addDrawable(geom);
+        osg::StateSet *geoState = geode->getOrCreateStateSet();
+        setDefaultMaterial(geoState);
+        geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+        geode->setStateSet(geoState);
+
+        // set up geometry
+      /*  bool isTwoSided = false;
+        char tmpChar;
+        tb >> tmpChar;
+        if (tmpChar != '\0')
+            isTwoSided = true;
+        if (!isTwoSided)
+        {
+            osg::CullFace *cullFace = new osg::CullFace();
+            cullFace->setMode(osg::CullFace::BACK);
+            geoState->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+        }*/
+        osg::Vec3Array *points = new osg::Vec3Array;
+        points->resize(numPoints);
+        for (int i = 0; i < numPoints; i++)
+        {
+            tb >> (*points)[i][0];
+            tb >> (*points)[i][1];
+            tb >> (*points)[i][2];
+        }
+        osg::Vec3Array *norms = new osg::Vec3Array;
+        norms->resize(numNormals);
+        for (int i = 0; i < numNormals; i++)
+        {
+            tb >> (*norms)[i][0];
+            tb >> (*norms)[i][1];
+            tb >> (*norms)[i][2];
+        }
+        osg::Vec2Array *UVs = new osg::Vec2Array;
+        UVs->resize(numUVs);
+        for (int i = 0; i < numUVs; i++)
+        {
+            tb >> (*UVs)[i][0];
+            tb >> (*UVs)[i][1];
+        }
+
+        osg::Vec3Array *vert = new osg::Vec3Array;
+        vert->reserve(numTriangles*3);
+        
+        osg::Vec3Array *normals = NULL;
+        if(numNormals == numPoints)
+        {
+            normals = new osg::Vec3Array;
+            normals->reserve(numTriangles*3);
+        }
+        if(numNormals == 1)
+        {
+            normals = new osg::Vec3Array;
+            normals->push_back((*norms)[0]);
+            normals->push_back((*norms)[0]);
+            normals->push_back((*norms)[0]);
+        }
+        osg::Vec2Array *texcoords = NULL;
+        if(numUVs == numPoints)
+        {
+            texcoords = new osg::Vec2Array;
+            texcoords->reserve(numTriangles*3);
+        }
+        osg::DrawArrays *triangles = new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, numTriangles * 3);
+        for (int i = 0; i < numTriangles; i++)
+        {
+            int v1,v2,v3;
+            tb >> v1;
+            tb >> v2;
+            tb >> v3;
+            vert->push_back((*points)[v1]);
+            vert->push_back((*points)[v2]);
+            vert->push_back((*points)[v3]);
+            if(numUVs == numPoints)
+            {
+                texcoords->push_back((*UVs)[v1]);
+                texcoords->push_back((*UVs)[v2]);
+                texcoords->push_back((*UVs)[v3]);
+            }
+            if(numNormals == numPoints)
+            {
+                normals->push_back((*norms)[v1]);
+                normals->push_back((*norms)[v2]);
+                normals->push_back((*norms)[v3]);
+            }
+        }
+        /*unsigned char r, g, b, a;
+        int MaterialID;
+        tb >> r;
+        tb >> g;
+        tb >> b;
+        tb >> a;
+        tb >> MaterialID;
+        if (a < 250)
+        {
+            geoState->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+            geoState->setMode(GL_BLEND, osg::StateAttribute::ON);
+            geoState->setNestRenderBins(false);
+        }
+        else
+        {
+            geoState->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+            geoState->setMode(GL_BLEND, osg::StateAttribute::OFF);
+            geoState->setNestRenderBins(false);
+        }*/
+
+        osg::Material *localmtl = new osg::Material;
+        localmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+        /*
+        localmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+        localmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+        */
+        localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+        localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+        geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
+        
+        geom->setVertexArray(vert);
+        if(numNormals == numPoints)
+        {
+            geom->setNormalArray(normals);
+            geom->setNormalBinding(osg::Geometry::AttributeBinding::BIND_PER_VERTEX);
+        }
+        else if ( numNormals == 1)
+        {
+            geom->setNormalArray(normals);
+            geom->setNormalBinding(osg::Geometry::AttributeBinding::BIND_OVERALL);
+        }
+        if(texcoords !=NULL)
+        {
+            geom->setTexCoordArray(0,texcoords);
+        }
+        geom->addPrimitiveSet(triangles);
+        /*GenNormalsVisitor *sv = new GenNormalsVisitor(45.0);
+        sv->apply(*geode);
+        ei->nodes.push_back(geode);*/
+        currentGroup.top()->addChild(geode);
+
     }
     break;
     default:

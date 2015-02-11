@@ -139,14 +139,14 @@ namespace OpenCOVERPlugin
             mb.add(t.BasisY.Multiply(t.Scale));
             mb.add(t.BasisZ.Multiply(t.Scale));
             mb.add(t.Origin);
-            OpenCOVERPlugin.COVER.Instance.sendMessage(mb.buf, OpenCOVERPlugin.COVER.MessageTypes.NewTransform);
+            OpenCOVERPlugin.COVER.Instance.sendMessage(mb.buf, OpenCOVERPlugin.COVER.MessageTypes.NewInstance);
             return RenderNodeAction.Proceed;
         }
 
         public void OnInstanceEnd(InstanceNode node)
         {
             MessageBuffer mb = new MessageBuffer();
-            OpenCOVERPlugin.COVER.Instance.sendMessage(mb.buf, OpenCOVERPlugin.COVER.MessageTypes.EndGroup);
+            OpenCOVERPlugin.COVER.Instance.sendMessage(mb.buf, OpenCOVERPlugin.COVER.MessageTypes.EndInstance);
         }
 
         public RenderNodeAction OnLinkBegin(LinkNode node)
@@ -284,37 +284,34 @@ namespace OpenCOVERPlugin
         {
 
             num++;
-            // A polymesh is the very bottom node in the hierarchy of rendering a model.
-            // Not every exporter may need need polymeshes; on the other hand, graphic
-            // renderer and exporter alike will mostly need nothing but polymeshes.
+            MessageBuffer mb = new MessageBuffer();
+            mb.add(node.NumberOfPoints);
+            mb.add(node.NumberOfFacets);
+            mb.add(node.NumberOfNormals);
+            mb.add(node.NumberOfUVs);
 
-  /*          m_writer.WriteStartElement("Polymesh");
-            m_writer.WriteAttributeString("Facets", node.NumberOfFacets.ToString());
-            m_writer.WriteAttributeString("Points", node.NumberOfPoints.ToString());
-            m_writer.WriteAttributeString("UVs", node.NumberOfUVs.ToString());
-            m_writer.WriteAttributeString("Normals", node.NumberOfNormals.ToString());
 
-            m_writer.WriteElementString("Facets", StringConversions.ValueToString(node.GetFacets()));
-
-            if (m_exportOptions.ApplyTransforms)   // we want either raw or transformed coordinates
+            foreach (Autodesk.Revit.DB.XYZ point in node.GetPoints())
             {
-                m_writer.WriteElementString("Points", StringConversions.ValueToString(m_transforms.ApplyTransform(node.GetPoints())));
-                m_writer.WriteElementString("Normals", StringConversions.ValueToString(m_transforms.ApplyTransform(node.GetNormals())));
+                mb.add(point);
             }
-            else
+            foreach (Autodesk.Revit.DB.XYZ normal in node.GetNormals())
             {
-                m_writer.WriteElementString("Points", StringConversions.ValueToString(node.GetPoints()));
-                m_writer.WriteElementString("Normals", StringConversions.ValueToString(node.GetNormals()));
-
+                mb.add(normal);
             }
-
-            if (node.NumberOfUVs > 0)
+            foreach (Autodesk.Revit.DB.UV uv in node.GetUVs())
             {
-                m_writer.WriteElementString("UVs", StringConversions.ValueToString(node.GetUVs()));
+                mb.add((float)uv.U);
+                mb.add((float)uv.V);
+            }
+            foreach (Autodesk.Revit.DB.PolymeshFacet facet in node.GetFacets())
+            {
+                mb.add(facet.V1);
+                mb.add(facet.V2);
+                mb.add(facet.V3);
             }
 
-            m_writer.WriteEndElement();
-            */
+            OpenCOVERPlugin.COVER.Instance.sendMessage(mb.buf, OpenCOVERPlugin.COVER.MessageTypes.NewPolyMesh);
             return;
         }
 
