@@ -136,6 +136,89 @@
 
 
 		<laneSectionPrototypes>
+
+                        <!-- Ramp1-->
+			<laneSectionPrototype name = "Ramp1" icon = "">
+				<road name="Ramp1" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left>
+                                                                <lane type="restricted" id="2" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="1" level="0">
+                                                                       <width sOffset="0" a="1" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</left>
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+                                                        <right>
+                                                                <lane type="driving" id="-1" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="-2" level="0">
+                                                                       <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="-3" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+                      
+                        <!-- Ramp2-->
+			<laneSectionPrototype name = "Ramp2" icon = "">
+				<road name="Ramp2" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+                                                        <left> 
+                                                                <lane type="restricted" id="2" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="1" level="0">
+                                                                       <width sOffset="0" a="0.25" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</left>
+							<center>
+                                                                <lane type="border" id="0" level="0">
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                       </lane>
+                                                        </center>
+                                                        <right>
+                                                                <lane type="driving" id="-1" level="0">
+                                                                       <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="driving" id="-2" level="0">
+                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="shoulder" id="-3" level="0">
+                                                                       <width sOffset="0" a="0.25" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+                                                                <lane type="restricted" id="-4" level="0">
+                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
+                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
+                                                                </lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
 			<!-- Junction Road right lane -->
 			<laneSectionPrototype name = "RoadJunctionRightLane" icon = "">
 				<road name="RoadJunctionRightLane" length="100.0" id="prototype" junction="-1">
@@ -1339,701 +1422,6 @@
 				</road>
 			</laneSectionPrototype>
 			
-			<!-- Porschestr., Weissach, 48.853020/8.901167 -->
-			<laneSectionPrototype name = "Porsche" icon = "">
-				<road name="Porsche" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-		
-			<!-- Stuttgarter Str. 2, Eberdingen, 48.880643/8.964205 -->		
-			<!-- Leonberger Str., Mönsheim, 48.860849/8.867589 -->
-			<laneSectionPrototype name = "Leonberger 61" icon = "">
-				<road name="Leonberger 61" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Iptinger Str. 3, Mönsheim, 48.864240/8.864358 -->
-			<laneSectionPrototype name = "Iptinger 3" icon = "">
-				<road name="Iptinger 3" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="2.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="2.2" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Iptinger Str. 17, Mönsheim, 48.865337/8.866304 -->
-			<laneSectionPrototype name = "Iptinger 17" icon = "">
-				<road name="Iptinger 17" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.6" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- K4578, Mönsheim, 48.868464/8.877495 -->
-			<!-- Heimerdinger Str., Weissach, 48.846208/8.934975 -->
-			<laneSectionPrototype name = "K4578" icon = "">
-				<road name="K4578" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Mönsheimer Str. 57, Iptingen, 48.881489/8.9006 -->
-			<!-- Stuttgarter Str. 58, Eberdingen, 48.877090/8.964121 probably -->
-			<laneSectionPrototype name = "Moensheimer 57" icon = "">
-				<road name="Moensheimer 57" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-
-			<!-- Nußdorfer Str. 7, Iptingen, 48.886909/8.898632 -->
-			<laneSectionPrototype name = "Nussdorfer 7" icon = "">
-				<road name="Nussdorfer 7" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.3" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.3" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- L1135, Iptingen, 48.889225/8.913384 -->
-			<!-- K1688, Eberdingen, 48.869546/8.967466 -->
-			<laneSectionPrototype name = "L1135" icon = "">
-				<road name="L1135" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="2.7" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="2.7" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Iptinger Str., Nußdorf, 48.89487/8.935587 -->
-			<laneSectionPrototype name = "Iptinger" icon = "">
-				<road name="Iptinger" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="2.45" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="2.45" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.8" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Pfalzstr. 7, Nußdorf, 48.895307/8.938197 -->
-			<laneSectionPrototype name = "Pfalz" icon = "">
-				<road name="Pfalz" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="3" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.45" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="2" type="parking" level= "0">
-									<width sOffset="0.0" a="2.35" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="2.85" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="2.85" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Martinstr. 4, Nußdorf, 48.894443/8.939345 -->
-			<laneSectionPrototype name = "Martin" icon = "">
-				<road name="Martin" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="2.3" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- K1651, Eberdingen, 48.889720/8.940229 -->
-			<laneSectionPrototype name = "K1651" icon = "">
-				<road name="K1651" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="border" level= "0">
-									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Nussdorfer Str. 6, Eberdingen, 48.880742/8.963008 -->
-			<laneSectionPrototype name = "Nussdorfer 6" icon = "">
-				<road name="Nussdorfer 6" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="2.2" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Bahnhofstr. 36, Weissach, 48.846337/8.932397 -->
-			<laneSectionPrototype name = "Bahnhof" icon = "">
-				<road name="Bahnhof" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="3.8" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="4.15" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="4.15" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Hauptstraße, Weissach, 48.846828/8.926395 -->
-			<laneSectionPrototype name = "Bach" icon = "">
-				<road name="Bach" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.6" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.4" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
-			
-			<!-- Porschestr. , Weissach, 48.848072/8.925346 -->
-			<laneSectionPrototype name = "Porsche7" icon = "">
-				<road name="Porsche7" length="100.0" id="prototype" junction="-1">
-					<lanes>
-						<laneSection s="0.0">
-							<left>
-								<lane id="2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.3" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="1" type="driving" level= "0">
-									<link>
-										<predecessor id="1"/>
-										<successor id="1"/>
-									</link>
-									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</left>
-							<center>
-								<lane id="0" type="border" level= "0">
-									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</center>
-							<right>
-								<lane id="-1" type="driving" level= "0">
-									<link>
-										<predecessor id="-1"/>
-										<successor id="-1"/>
-									</link>
-									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
-								</lane>
-								<lane id="-2" type="sidewalk" level= "0">
-									<width sOffset="0.0" a="1.7" b="0.0" c="0.0" d="0.0"/>
-									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
-								</lane>
-							</right>
-						</laneSection>
-					</lanes>
-				</road>
-			</laneSectionPrototype>
 
                         <!-- Xizangnanlu, Lujiangbanglu2, Nanchezhanlu, Xietudonglu, Fuxingdonglu-->
 			<laneSectionPrototype name = "Xizang" icon = "">
@@ -3233,82 +2621,696 @@
 				</road>
 			</laneSectionPrototype>
 
-                        <!-- Ramp1-->
-			<laneSectionPrototype name = "Ramp1" icon = "">
-				<road name="Ramp" length="100.0" id="prototype" junction="-1">
+			<!-- Porschestr., Weissach, 48.853020/8.901167 -->
+			<laneSectionPrototype name = "Porsche" icon = "">
+				<road name="Porsche" length="100.0" id="prototype" junction="-1">
 					<lanes>
 						<laneSection s="0.0">
-                                                        <left>
-                                                                <lane type="restricted" id="2" level="0">
-                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="shoulder" id="1" level="0">
-                                                                       <width sOffset="0" a="1" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
 							</left>
 							<center>
-                                                                <lane type="border" id="0" level="0">
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
-                                                                       </lane>
-                                                        </center>
-                                                        <right>
-                                                                <lane type="driving" id="-1" level="0">
-                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="shoulder" id="-2" level="0">
-                                                                       <width sOffset="0" a="2.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="restricted" id="-3" level="0">
-                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
 							</right>
 						</laneSection>
 					</lanes>
 				</road>
 			</laneSectionPrototype>
-                      
-                        <!-- Ramp2-->
-			<laneSectionPrototype name = "Ramp2" icon = "">
-				<road name="Ramp" length="100.0" id="prototype" junction="-1">
+		
+			<!-- Stuttgarter Str. 2, Eberdingen, 48.880643/8.964205 -->		
+			<!-- Leonberger Str., Mönsheim, 48.860849/8.867589 -->
+			<laneSectionPrototype name = "Leonberger 61" icon = "">
+				<road name="Leonberger 61" length="100.0" id="prototype" junction="-1">
 					<lanes>
 						<laneSection s="0.0">
-                                                        <left> 
-                                                                <lane type="restricted" id="2" level="0">
-                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="shoulder" id="1" level="0">
-                                                                       <width sOffset="0" a="0.25" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
 							</left>
 							<center>
-                                                                <lane type="border" id="0" level="0">
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
-                                                                       </lane>
-                                                        </center>
-                                                        <right>
-                                                                <lane type="driving" id="-1" level="0">
-                                                                       <width sOffset="0" a="3.75" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="broken" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="driving" id="-2" level="0">
-                                                                       <width sOffset="0" a="3.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="solid" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="shoulder" id="-3" level="0">
-                                                                       <width sOffset="0" a="0.25" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
-                                                                <lane type="restricted" id="-4" level="0">
-                                                                       <width sOffset="0" a="0.5" b="0" c="0" d="0"/>
-                                                                       <roadMark weight="standard" color="standard" sOffset="0" type="none" width="0.15" laneChange="both"/>
-                                                                </lane>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Iptinger Str. 3, Mönsheim, 48.864240/8.864358 -->
+			<laneSectionPrototype name = "Iptinger 3" icon = "">
+				<road name="Iptinger 3" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.2" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Iptinger Str. 17, Mönsheim, 48.865337/8.866304 -->
+			<laneSectionPrototype name = "Iptinger 17" icon = "">
+				<road name="Iptinger 17" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.6" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- K4578, Mönsheim, 48.868464/8.877495 -->
+			<!-- Heimerdinger Str., Weissach, 48.846208/8.934975 -->
+			<laneSectionPrototype name = "K4578" icon = "">
+				<road name="K4578" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Mönsheimer Str. 57, Iptingen, 48.881489/8.9006 -->
+			<!-- Stuttgarter Str. 58, Eberdingen, 48.877090/8.964121 probably -->
+			<laneSectionPrototype name = "Moensheimer 57" icon = "">
+				<road name="Moensheimer 57" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+
+			<!-- Nußdorfer Str. 7, Iptingen, 48.886909/8.898632 -->
+			<laneSectionPrototype name = "Nussdorfer 7" icon = "">
+				<road name="Nussdorfer 7" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- L1135, Iptingen, 48.889225/8.913384 -->
+			<!-- K1688, Eberdingen, 48.869546/8.967466 -->
+			<laneSectionPrototype name = "L1135" icon = "">
+				<road name="L1135" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Iptinger Str., Nußdorf, 48.89487/8.935587 -->
+			<laneSectionPrototype name = "Iptinger" icon = "">
+				<road name="Iptinger" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.8" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Pfalzstr. 7, Nußdorf, 48.895307/8.938197 -->
+			<laneSectionPrototype name = "Pfalz" icon = "">
+				<road name="Pfalz" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="3" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.45" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="2" type="parking" level= "0">
+									<width sOffset="0.0" a="2.35" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.85" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.85" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Martinstr. 4, Nußdorf, 48.894443/8.939345 -->
+			<laneSectionPrototype name = "Martin" icon = "">
+				<road name="Martin" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.25" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- K1651, Eberdingen, 48.889720/8.940229 -->
+			<laneSectionPrototype name = "K1651" icon = "">
+				<road name="K1651" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="border" level= "0">
+									<width sOffset="0.0" a="0.19" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Nussdorfer Str. 6, Eberdingen, 48.880742/8.963008 -->
+			<laneSectionPrototype name = "Nussdorfer 6" icon = "">
+				<road name="Nussdorfer 6" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="2.2" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="3.1" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Bahnhofstr. 36, Weissach, 48.846337/8.932397 -->
+			<laneSectionPrototype name = "Bahnhof" icon = "">
+				<road name="Bahnhof" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="3.8" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="4.15" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="4.15" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.5" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Hauptstraße, Weissach, 48.846828/8.926395 -->
+			<laneSectionPrototype name = "Bach" icon = "">
+				<road name="Bach" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.6" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.0" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.4" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			
+			<!-- Porschestr. , Weissach, 48.848072/8.925346 -->
+			<laneSectionPrototype name = "Porsche7" icon = "">
+				<road name="Porsche7" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="2.9" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
 							</right>
 						</laneSection>
 					</lanes>

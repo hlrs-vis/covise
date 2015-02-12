@@ -1613,7 +1613,6 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                         {
                             RSystemElementRoad *road1 = incomingRoadsIterator.key();
                             bool start1 = incomingRoadsIterator.value();
-                            int numberOfLanes1;
 
                             LaneSection *prototypeLaneSection1;
                             QMap<int, Lane *>::const_iterator laneMapIterator;
@@ -1621,13 +1620,11 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                             if (start1)
                             {
                                 prototypeLaneSection1 = road1->getLaneSection(0.0);
-                                numberOfLanes1 = road1->getLaneSection(0.0)->getLanes().size();
                                 laneMap = road1->getLaneSection(0.0)->getLanes();
                             }
                             else
                             {
                                 prototypeLaneSection1 = road1->getLaneSection(road1->getLength());
-                                numberOfLanes1 = road1->getLaneSection(road1->getLength())->getLanes().size();
                                 laneMap = road1->getLaneSection(road1->getLength())->getLanes();
                             }
 
@@ -1635,6 +1632,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                             while (iter != incomingRoads.constEnd())
                             {
                                 RSystemElementRoad *road2 = iter.key();
+
 
                                 // If this pair is already connected, skip the rest
                                 //
@@ -1654,27 +1652,19 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 }
 
                                 bool start2 = iter.value();
-                                int numberOfLanes2;
                                 LaneSection *prototypeLaneSection2;
 
                                 if (start2)
                                 {
                                     prototypeLaneSection2 = road2->getLaneSection(0.0);
-                                    numberOfLanes2 = road2->getLaneSection(0.0)->getLanes().size();
                                     laneMap = road2->getLaneSection(0.0)->getLanes();
                                 }
                                 else
                                 {
                                     prototypeLaneSection2 = road2->getLaneSection(road2->getLength());
-                                    numberOfLanes2 = road2->getLaneSection(road1->getLength())->getLanes().size();
                                     laneMap = road1->getLaneSection(road1->getLength())->getLanes();
                                 }
 
-                                if (numberOfLanes1 != numberOfLanes2)
-                                {
-                                    iter++;
-                                    continue;
-                                }
 
                                 RSystemElementRoad *spiralPrototype = createSpiral(incomingRoadsIterator.key(), iter.key(), incomingRoadsIterator.value(), iter.value());
                                 if (!spiralPrototype)
@@ -1807,10 +1797,26 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                         Lane *endLane;
                                         if ((incomingRoadsIterator.value() & iter.value()) || !(incomingRoadsIterator.value() | iter.value()))
                                         {
+                                            // If the number of lanes on both sides is not equal, skip the rest
+                                            //
+                                            if ((prototypeLaneSectionEnd->getLeftmostLaneId() != -prototypeLaneSectionStart->getRightmostLaneId()) || (-prototypeLaneSectionEnd->getRightmostLaneId() != prototypeLaneSectionStart->getLeftmostLaneId()))
+                                            {
+                                                startLanesIterator++;    // the number of lanes of the incoming roads are not equal
+                                                continue;
+                                            }
+
                                             endLane = endLanes.value(-startLane->getId());
                                         }
                                         else
                                         {
+                                            // If the number of lanes on both sides is not equal, skip the rest
+                                            //
+                                            if ((prototypeLaneSectionEnd->getLeftmostLaneId() != prototypeLaneSectionStart->getLeftmostLaneId()) || (prototypeLaneSectionEnd->getRightmostLaneId() != prototypeLaneSectionStart->getRightmostLaneId()))
+                                            {
+                                                startLanesIterator++;    // the number of lanes of the incoming roads are not equal
+                                                continue;
+                                            }
+
                                             endLane = endLanes.value(startLane->getId());
                                         }
 

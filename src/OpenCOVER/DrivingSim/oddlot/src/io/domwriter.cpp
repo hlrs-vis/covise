@@ -247,6 +247,8 @@ void
 DomWriter::visit(Object *object)
 {
 
+    if (object->getType() != "")
+    {
     QDomElement objectElement = doc_->createElement("object");
     if (object->getRepeatS() != -1)
     {
@@ -329,7 +331,7 @@ DomWriter::visit(Object *object)
     objectElement.setAttribute("roll", object->getRoll());
 
     currentObjectsElement_.appendChild(objectElement);
-
+    }
 }
 
 //################//
