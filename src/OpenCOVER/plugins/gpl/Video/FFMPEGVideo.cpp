@@ -163,8 +163,10 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
         fprintf(stderr, "automatic video pixel format determination failed\n");
         return false;
     }
-
-    codecCtx->pix_fmt = codec->pix_fmts[0]; // pix_fmts[0] should be the the best suited pix_fmt let's just
+    else
+    {
+        codecCtx->pix_fmt = codec->pix_fmts[0]; // pix_fmts[0] should be the the best suited pix_fmt let's just
+    }
     // use that one. BTW: here we already know it's defined
 
     if (oc->oformat->flags & AVFMT_GLOBALHEADER)
