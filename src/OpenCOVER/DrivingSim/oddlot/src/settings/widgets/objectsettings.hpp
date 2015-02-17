@@ -58,6 +58,7 @@ private slots:
     void onEditingFinished();
     void onEditingFinished(int);
     void on_sSpinBox_editingFinished();
+    void onValueChanged();
 
     //################//
     // PROPERTIES     //
@@ -71,6 +72,8 @@ private:
     Object *object_;
 
     bool init_;
+
+    bool valueChanged_;
 };
 
 #endif // OBJECTSETTINGS_HPP

@@ -58,6 +58,7 @@ RoadSettings::RoadSettings(ProjectSettings *projectSettings, SettingsElement *pa
     updateRoadLinks();
     //	updateSectionCount();
 
+    connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
     init_ = true;
 }
 
@@ -151,18 +152,27 @@ RoadSettings::updateRoadLinks()
 //################//
 
 void
-RoadSettings::on_nameButton_released()
+RoadSettings::on_editingFinished()
 {
-    // Open a small dialog an ask for a new name //
-    //
-    bool ok = false;
-    QString newValue = QInputDialog::getText(this, tr("ODD: Road Name"), tr("Please enter a new road name:"), QLineEdit::Normal, road_->getName(), &ok);
-    if (ok && !newValue.isEmpty() && newValue != road_->getName())
+    QString filename = ui->nameBox->text();
+    if (filename != road_->getName())
     {
-        QString newId = road_->getNewId(road_, newValue);
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, NULL);
+        QString newId;
+        QStringList parts = road_->getID().split("_");
+
+        if (parts.size() > 2)
+        {
+            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+        }
+        else
+        {
+            newId = road_->getRoadSystem()->getUniqueId(road_->getID(), filename);
+        }
+        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road_->getRoadSystem(), road_, newId, filename, NULL);
         getProjectSettings()->executeCommand(command);
     }
+
+ 
 }
 void
 RoadSettings::on_addButton_released()

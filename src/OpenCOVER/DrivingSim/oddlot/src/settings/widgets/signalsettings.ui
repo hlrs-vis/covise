@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
+    <width>727</width>
     <height>450</height>
    </rect>
   </property>
@@ -23,7 +23,7 @@
       <item row="1" column="2">
        <widget class="QTextEdit" name="idBox">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">

@@ -50,14 +50,23 @@ MoveRoadSectionCommand::MoveRoadSectionCommand(RoadSection *roadSection, double 
     }
 
     if (!roadSection
-        || (roadSection->getSStart() < NUMERICAL_ZERO7) // first section of the road
-        || (newS_ == oldS_) // no change
-        || ((sectionType != RSystemElementRoad::DRS_SignalSection) && (sectionType != RSystemElementRoad::DRS_ObjectSection) && (sectionType != RSystemElementRoad::DRS_BridgeSection) && ((roadSection->getSEnd() - newS_ < MINROADSECTIONLENGTH) // min length at end
-                                                                                                                                                                                           || (newS_ - roadSection->getParentRoad()->getRoadSectionBefore(roadSection->getSStart(), sectionType_)->getSStart() < MINROADSECTIONLENGTH))))
+        || (newS_ == oldS_)) // no change
     {
         setInvalid(); // Invalid
         setText(QObject::tr("Move Road Section (invalid!)"));
         return;
+    }
+
+    if ((sectionType != RSystemElementRoad::DRS_SignalSection) && (sectionType != RSystemElementRoad::DRS_ObjectSection) && (sectionType != RSystemElementRoad::DRS_BridgeSection))
+    {
+        if ((roadSection->getSStart() < NUMERICAL_ZERO7) // first section of the road
+            || ((roadSection->getSEnd() - newS_ < MINROADSECTIONLENGTH) // min length at end
+            || (newS_ - roadSection->getParentRoad()->getRoadSectionBefore(roadSection->getSStart(), sectionType_)->getSStart() < MINROADSECTIONLENGTH)))
+        {
+            setInvalid(); // Invalid
+            setText(QObject::tr("Move Road Section (invalid!)"));
+            return;
+        }
     }
 
     if (((sectionType == RSystemElementRoad::DRS_SignalSection) || (sectionType == RSystemElementRoad::DRS_ObjectSection) || (sectionType == RSystemElementRoad::DRS_BridgeSection)) && (newS_ > roadSection->getParentRoad()->getLength()))

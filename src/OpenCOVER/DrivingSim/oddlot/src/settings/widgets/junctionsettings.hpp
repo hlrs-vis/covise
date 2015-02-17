@@ -51,7 +51,7 @@ private:
 
 private slots:
 
-    void on_nameButton_released();
+    void on_editingFinished();
     void on_cleanConnectionsButton_released();
 
     //################//
