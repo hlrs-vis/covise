@@ -283,9 +283,13 @@
 
    <ChannelConfig>
       <!-- each Screen needs a Channel -->
-    <Channel width="1" height="1" left="0" bottom="0" comment="MAIN" channel="0" stereoMode="NONE"  windowIndex="0"  name="0"  />
+    <Channel comment="MAIN" channel="0" stereoMode="NONE"  windowIndex="0"  name="0"  />
    </ChannelConfig>
 
+   <ViewportConfig>
+      <!-- each channel needs at least one Viewport -->
+    <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+   </ViewportConfig>
    <!--Background r="1.0" g="1.0" b="1.0"/-->
   </COVER>
 
@@ -306,6 +310,7 @@
  <!--INCLUDE global="1" configname="input">config.input.xml</INCLUDE-->
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+ <INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE>
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
 </COCONFIG>
