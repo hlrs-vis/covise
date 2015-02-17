@@ -145,7 +145,6 @@ public:
     {
         id_ = id;
     }
-    QString getNewId(const QString &name);
 
     QString getName() const
     {

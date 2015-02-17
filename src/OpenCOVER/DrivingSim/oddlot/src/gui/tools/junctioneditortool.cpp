@@ -181,7 +181,7 @@ JunctionEditorTool::initToolWidget()
     thresholdEdit_->setMaximumWidth(80.0);
 
     toolLayout->addWidget(thresholdLabel, row, 1);
-    toolLayout->addWidget(thresholdEdit_, row, 1);
+    toolLayout->addWidget(thresholdEdit_, row, 2);
 
     connect(thresholdEdit_, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
 

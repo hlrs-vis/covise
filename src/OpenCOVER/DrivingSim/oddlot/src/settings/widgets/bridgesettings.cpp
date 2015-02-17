@@ -54,6 +54,7 @@ BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement
     , ui(new Ui::BridgeSettings)
     , bridge_(bridge)
     , init_(false)
+    , valueChanged_(true)
 {
     ui->setupUi(this);
 
@@ -62,9 +63,10 @@ BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement
     updateProperties();
 
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    //	connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(onSEditingFinished()));
-    connect(ui->typeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished()));
+    connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
+    connect(ui->typeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->lengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->lengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
     init_ = true;
 }
@@ -87,7 +89,6 @@ BridgeSettings::updateProperties()
         ui->idBox->setText(bridge_->getId());
         ui->sSpinBox->setValue(bridge_->getSStart());
         ui->typeComboBox->setCurrentIndex(bridge_->getType());
-        //	ui->typeComboBox->setCurrentIndex(bridge_->getType()-100001);
 
         ui->lengthSpinBox->setValue(bridge_->getLength());
     }
@@ -96,46 +97,84 @@ BridgeSettings::updateProperties()
 //################//
 // SLOTS          //
 //################//
+void
+BridgeSettings::onEditingFinished(int i)
+{
+    if (ui->typeComboBox->currentIndex() != bridge_->getType())
+    {
+        valueChanged_ = true;
+        onEditingFinished();
+    }
+}
 
 void
 BridgeSettings::onEditingFinished()
 {
-    QString filename = ui->nameBox->text();
-    QString newId = bridge_->getNewId(filename);
-    bridge_->setId(newId);
+    if (valueChanged_)
+    {
+        QString filename = ui->nameBox->text();
+        QString newId = bridge_->getId();
+        if (filename != bridge_->getName())
+        {
+            QStringList parts = bridge_->getId().split("_");
 
-    SetBridgePropertiesCommand *command = new SetBridgePropertiesCommand(bridge_, bridge_->getId(), filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value());
-    getProjectSettings()->executeCommand(command);
+            if (parts.size() > 2)
+            {
+                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+            }
+            else
+            {
+                newId = bridge_->getParentRoad()->getRoadSystem()->getUniqueId(bridge_->getId(), filename);
+            }
+        }
+    
+
+        SetBridgePropertiesCommand *command = new SetBridgePropertiesCommand(bridge_, newId, filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value());
+        getProjectSettings()->executeCommand(command);
+
+        valueChanged_ = false;
+        QWidget * focusWidget = QApplication::focusWidget();
+        if (focusWidget)
+        {
+            focusWidget->clearFocus();
+        }
+    }
 }
 
 void
 BridgeSettings::on_sSpinBox_editingFinished()
 {
-    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
-    int numberOfSelectedElements = selectedElements.size();
-
-    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Signal Type"));
-
-    double s = ui->sSpinBox->value();
-
-    foreach (DataElement *element, selectedElements)
+    if (valueChanged_)
     {
-
-        Bridge *bridge = dynamic_cast<Bridge *>(element);
-        if (bridge)
+        MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(bridge_, ui->sSpinBox->value(), RSystemElementRoad::DRS_BridgeSection);
+        if (moveSectionCommand->isValid())
         {
-            MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(bridge_, s, RSystemElementRoad::DRS_BridgeSection);
+            getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Value"));
             getProjectSettings()->executeCommand(moveSectionCommand);
 
-            SetBridgePropertiesCommand *setPropertiesCommand = new SetBridgePropertiesCommand(bridge, bridge->getId(), bridge->getFileName(), bridge->getName(), bridge->getType(), bridge->getLength());
+            SetBridgePropertiesCommand *setPropertiesCommand = new SetBridgePropertiesCommand(bridge_, bridge_->getId(), bridge_->getFileName(), bridge_->getName(), bridge_->getType(), bridge_->getLength());
             getProjectSettings()->executeCommand(setPropertiesCommand);
+
+            // Macro Command //
+            //
+
+            getProjectData()->getUndoStack()->endMacro();
+        }
+
+        valueChanged_ = false;
+
+        QWidget * focusWidget = QApplication::focusWidget();
+        if (focusWidget)
+        {
+            focusWidget->clearFocus();
         }
     }
+}
 
-    // Macro Command //
-    //
-
-    getProjectData()->getUndoStack()->endMacro();
+void
+    BridgeSettings::onValueChanged()
+{
+    valueChanged_ = true;
 }
 
 //##################//

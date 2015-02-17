@@ -231,27 +231,29 @@ AddRoadSystemPrototypeCommand::undo()
 // SetRSystemElementIdCommand //
 //#########################//
 
-SetRSystemElementIdCommand::SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const QString &Id, DataCommand *parent)
+SetRSystemElementIdCommand::SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const QString &Id, const QString &name, DataCommand *parent)
     : DataCommand(parent)
     , roadSystem_(roadSystem)
     , element_(element)
     , newId_(Id)
+    , newName_(name)
 {
     // Check for validity //
     //
     if (!element_)
     {
         setInvalid(); // Invalid
-        setText(QObject::tr("Set road Id: invalid parameters! No element given."));
+        setText(QObject::tr("Set element Id: invalid parameters! No element given."));
         return;
     }
 
     oldId_ = element_->getID();
+    oldName_ = element_->getName();
 
     // Done //
     //
     setValid();
-    setText(QObject::tr("Set road Id"));
+    setText(QObject::tr("Set element Id"));
 }
 
 /*! \brief .
@@ -268,6 +270,7 @@ void
 SetRSystemElementIdCommand::redo()
 {
     roadSystem_->changeUniqueId(element_, newId_);
+    element_->setName(newName_);
 
     setRedone();
 }
@@ -279,6 +282,7 @@ void
 SetRSystemElementIdCommand::undo()
 {
     roadSystem_->changeUniqueId(element_, oldId_);
+    element_->setName(oldName_);
 
     setUndone();
 }

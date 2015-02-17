@@ -60,7 +60,9 @@ private slots:
     void on_signalComboBox_activated(int);
     void onEditingFinished();
     void onEditingFinished(int);
+    void onNameBoxEditingFinished();
     void on_sSpinBox_editingFinished();
+    void onValueChanged();
 
     //################//
     // PROPERTIES     //
@@ -74,6 +76,7 @@ private:
     Signal *signal_;
 
     bool init_;
+    bool valueChanged_;
 };
 
 #endif // SIGNALSETTINGS_HPP

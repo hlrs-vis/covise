@@ -150,7 +150,7 @@ RemoveSignalCommand::undo()
 //#########################//
 // SetSignalPropertiesCommand //
 //#########################//
-SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, QString country, int type, const QString &typeSubclass, int subtype, double value, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
+SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -502,17 +502,15 @@ SetObjectPropertiesCommand::SetObjectPropertiesCommand(Object *object, const QSt
         setText(QObject::tr("SetObjectPropertiesCommand: Internal error! No object specified."));
         return;
     }
-    else
-    {
-        setValid();
-        setText(QObject::tr("SetObjectProperties"));
-    }
 
     oldId_ = object_->getId();
     oldName_ = object_->getName();
     oldTextureFile_ = object_->getTextureFileName();
     oldObjectProps_ = object_->getProperties();
     oldObjectRepeat_ = object_->getRepeatProperties();
+
+    setValid();
+    setText(QObject::tr("SetObjectProperties"));
 }
 
 /*! \brief .

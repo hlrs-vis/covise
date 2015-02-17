@@ -76,7 +76,7 @@ private:
 class SetRSystemElementIdCommand : public DataCommand
 {
 public:
-    explicit SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const QString &Id, DataCommand *parent = NULL);
+    explicit SetRSystemElementIdCommand(RoadSystem *roadSystem, RSystemElement *element, const QString &Id, const QString &name, DataCommand *parent = NULL);
     virtual ~SetRSystemElementIdCommand();
 
     virtual int id() const
@@ -101,6 +101,8 @@ private:
 
     QString oldId_;
     QString newId_;
+    QString oldName_;
+    QString newName_;
 };
 
 //#########################//

@@ -54,6 +54,7 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     , ui(new Ui::ObjectSettings)
     , object_(object)
     , init_(false)
+    , valueChanged_(false)
 {
     objectManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
     ui->setupUi(this);
@@ -64,29 +65,45 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     //
     updateProperties();
 
+    connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    //	connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(onSEditingFinished()));
+    connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
     connect(ui->tSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->tSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->zOffsetSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->zOffsetSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->typeBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    //	ui->typeComboBox->setCurrentIndex(object_->getType()-100001);
+    connect(ui->typeBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
 
     connect(ui->validLengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->validLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->lengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->lengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->widthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->widthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->heightSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->heightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->radiusSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->radiusSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->hdgSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->hdgSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->pitchSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->pitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->rollSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->rollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->poleCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->orientationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
 
     connect(ui->repeatSSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->repeatSSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->repeatLengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->repeatDistanceSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->repeatDistanceSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
     connect(ui->textureLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->textureLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
 
     init_ = true;
 }
@@ -113,7 +130,7 @@ ObjectSettings::updateProperties()
         ui->typeBox->setText(object_->getType());
         //	ui->typeComboBox->setCurrentIndex(object_->getType()-100001);
 
-	ui->heightSpinBox->setValue(object_->getHeight());
+	    ui->heightSpinBox->setValue(object_->getHeight());
         ui->validLengthSpinBox->setValue(object_->getValidLength());
         ui->lengthSpinBox->setValue(object_->getLength());
         ui->widthSpinBox->setValue(object_->getWidth());
@@ -203,6 +220,7 @@ ObjectSettings::onEditingFinished(int i)
 {
     if ((ui->poleCheckBox->isChecked() != object_->getPole()) || (Object::ObjectOrientation)ui->orientationComboBox->currentIndex() != object_->getOrientation())
     {
+        valueChanged_ = true;
         onEditingFinished();
     }
 }
@@ -210,15 +228,44 @@ ObjectSettings::onEditingFinished(int i)
 void
 ObjectSettings::onEditingFinished()
 {
-    QString filename = ui->nameBox->text();
-    QString newId = object_->getNewId(filename);
-    object_->setId(newId);
+    if (valueChanged_)
+    {
+        QString filename = ui->nameBox->text();
+        QString newId = object_->getId();
+        if (filename != object_->getName())
+        {
+            QStringList parts = object_->getId().split("_");
 
-    SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, object_->getId(), filename, ui->typeBox->text(), ui->tSpinBox->value(), ui->zOffsetSpinBox->value(),
-                                                                         ui->validLengthSpinBox->value(), (Object::ObjectOrientation)ui->orientationComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(),
-                                                                         ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), ui->repeatLengthSpinBox->value(), ui->repeatDistanceSpinBox->value(), ui->textureLineEdit->text());
-    getProjectSettings()->executeCommand(command);
+            if (parts.size() > 2)
+            {
+                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+            }
+            else
+            {
+                newId = object_->getParentRoad()->getRoadSystem()->getUniqueId(object_->getId(), filename);
+            }
+        }
+
+        SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, filename, ui->typeBox->text(), ui->tSpinBox->value(), ui->zOffsetSpinBox->value(),
+            ui->validLengthSpinBox->value(), (Object::ObjectOrientation)ui->orientationComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(),
+            ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), ui->repeatLengthSpinBox->value(), ui->repeatDistanceSpinBox->value(), ui->textureLineEdit->text());
+        getProjectSettings()->executeCommand(command);
+
+        valueChanged_ = false;
+        QWidget * focusWidget = QApplication::focusWidget();
+        if (focusWidget)
+        {
+            focusWidget->clearFocus();
+        }
+    }
 }
+
+void
+ObjectSettings::onValueChanged()
+{
+    valueChanged_ = true;
+}
+
 
 void
 ObjectSettings::on_objectComboBox_activated(int id)
@@ -292,35 +339,34 @@ ObjectSettings::on_objectComboBox_activated(int id)
 void
 ObjectSettings::on_sSpinBox_editingFinished()
 {
-    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
-    int numberOfSelectedElements = selectedElements.size();
-
-    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Signal Type"));
-
-    double s = ui->sSpinBox->value();
-    if (ui->repeatSSpinBox->value() > 0)
+    if (valueChanged_)
     {
-        s = ui->repeatSSpinBox->value();
-    }
-
-    foreach (DataElement *element, selectedElements)
-    {
-
-        Object *object = dynamic_cast<Object *>(element);
-        if (object)
+        double s = ui->sSpinBox->value();
+        if (ui->repeatLengthSpinBox->value() > 0)
         {
-            MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
+            s = ui->repeatSSpinBox->value();
+        }
+
+        MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
+        if (moveSectionCommand->isValid())
+        {
+            getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Values"));
             getProjectSettings()->executeCommand(moveSectionCommand);
 
-            SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), object->getType(), object->getT(), object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getTextureFileName());
+            SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getType(), object_->getT(), object_->getzOffset(), object_->getValidLength(), object_->getOrientation(), object_->getLength(), object_->getWidth(), object_->getRadius(), object_->getHeight(), object_->getHeading(), object_->getPitch(), object_->getRoll(), object_->getPole(), s, object_->getRepeatLength(), object_->getRepeatDistance(), object_->getTextureFileName());
             getProjectSettings()->executeCommand(setPropertiesCommand);
+
+            getProjectData()->getUndoStack()->endMacro();
+        }
+
+        valueChanged_ = false;
+
+        QWidget * focusWidget = QApplication::focusWidget();
+        if (focusWidget)
+        {
+            focusWidget->clearFocus();
         }
     }
-
-    // Macro Command //
-    //
-
-    getProjectData()->getUndoStack()->endMacro();
 }
 
 //##################//
