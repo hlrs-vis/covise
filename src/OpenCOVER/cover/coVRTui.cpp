@@ -864,8 +864,8 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     else if (tUIItem == LODScaleEdit)
     {
         coVRConfig::instance()->setLODScale(LODScaleEdit->getValue());
-        for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
-            coVRConfig::instance()->screens[i].camera->setLODScale(LODScaleEdit->getValue());
+        for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
+            coVRConfig::instance()->channels[i].camera->setLODScale(LODScaleEdit->getValue());
     }
     OpenCOVER::instance()->hud->hide();
 }
@@ -1253,9 +1253,9 @@ void BinListEntry::updateBin()
 
 osgUtil::RenderBin *BinListEntry::renderBin()
 {
-    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
+    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
     if (rs == NULL)
-        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
+        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
     if (rs)
     {
         BinRenderStage bs = *rs;
@@ -1319,9 +1319,9 @@ void BinList::refresh()
         delete *it;
     }
     clear();
-    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
+    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
     if (rs == NULL)
-        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
+        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
     if (rs)
     {
         BinRenderStage bs = *rs;

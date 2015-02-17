@@ -51,24 +51,30 @@ typedef struct
     osg::Vec3 xyz; // screen center in mm
     osg::Vec3 hpr; // screen orientation in degree euler angles
     std::string name;
-    osg::ref_ptr<osg::Camera> camera;
-    osg::ref_ptr<osgUtil::SceneView> sceneView;
-    osg::DisplaySettings *ds;
-    int window;
-    float viewportXMin;
-    float viewportYMin;
-    float viewportXMax;
-    float viewportYMax;
-    int stereoMode;
-    osg::Matrixd leftView, rightView;
-    osg::Matrixd leftProj, rightProj;
     bool render;
-    osg::ref_ptr<osg::Texture2D> renderTargetTexture;
     float lTan; // left, right, top bottom field of views, default/not set is -1
     float rTan;
     float tTan;
     float bTan;
 } screenStruct;
+
+//! describes a render Channel which renders to a PBO or viewport
+typedef struct
+{
+    std::string name;
+    
+    int PBOsx, PBOsy; // PBO size
+    int pipeNum; // pipe to render to
+    int viewportNum; // destination viewport
+    osg::ref_ptr<osg::Texture2D> renderTargetTexture;
+
+    osg::ref_ptr<osg::Camera> camera;
+    osg::ref_ptr<osgUtil::SceneView> sceneView;
+    osg::DisplaySettings *ds;
+    int stereoMode;
+    osg::Matrixd leftView, rightView;
+    osg::Matrixd leftProj, rightProj;
+} channelStruct;
 
 class COVEREXPORT angleStruct
 {
@@ -94,6 +100,21 @@ typedef struct
     bool stereo;
     bool embedded;
 } windowStruct;
+
+typedef struct // describes an OpenGL Viewport
+{  
+    int window;
+    int channel; // the channel (PBO) to copy data from
+    float sourceXMin;
+    float sourceYMin;
+    float sourceXMax;
+    float sourceYMax;
+
+    float viewportXMin;
+    float viewportYMin;
+    float viewportXMax;
+    float viewportYMax;
+} viewportStruct;
 
 //! describes what is responsible for rendering the  window
 typedef struct
@@ -142,8 +163,10 @@ public:
                ANNOTATION
             };
       */
-
+    
     int numScreens() const;
+    int numChannels() const;
+    int numViewports() const;
     int numWindows() const;
     int numPipes() const;
 
@@ -252,10 +275,12 @@ public:
 
     void setFrameRate(float fr);
     float frameRate() const;
-
+    
     screenStruct *screens; // list of physical screens
+    channelStruct *channels; // list of physical screens
     pipeStruct *pipes; // list of pipes (X11: identified by display and screen)
     windowStruct *windows; // list of windows
+    viewportStruct *viewports; // list of PixelBufferObjects
 
     bool useDisplayVariable() const
     {
@@ -299,7 +324,9 @@ private:
 
     bool m_useDISPLAY;
     int m_numWindows;
+    int m_numViewports;
     int m_numScreens;
+    int m_numChannels;
     int m_numPipes;
     int m_stencilBits;
     float m_sceneSize;
