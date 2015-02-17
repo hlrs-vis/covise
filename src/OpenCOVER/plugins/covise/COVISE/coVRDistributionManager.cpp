@@ -483,17 +483,21 @@ void opencover::coVRDistributionManager::RenderNode::applyScreens()
     for (int ctr = 0; ctr < this->screens.size(); ++ctr)
     {
         screenStruct &target = opencover::coVRConfig::instance()->screens[ctr];
+        channelStruct &targetChannel = opencover::coVRConfig::instance()->channels[ctr];
         screenStruct &source = this->screens[ctr];
+        channelStruct &sourceChannel = this->channels[ctr];
 
         target.hsize = source.hsize;
         target.vsize = source.vsize;
         target.xyz = source.xyz;
         target.hpr = source.hpr;
 
-        target.stereoMode = source.stereoMode;
-        target.ds->setStereoMode((osg::DisplaySettings::StereoMode)source.stereoMode);
-        target.camera->setDisplaySettings(target.ds);
+        targetChannel.stereoMode = sourceChannel.stereoMode;
+        targetChannel.ds->setStereoMode((osg::DisplaySettings::StereoMode)sourceChannel.stereoMode);
+        targetChannel.camera->setDisplaySettings(targetChannel.ds);
 
+     /*  
+     TODO set viewport config
         target.viewportXMin = source.viewportXMin;
         target.viewportYMin = source.viewportYMin;
         target.viewportXMax = source.viewportXMax;
@@ -503,10 +507,11 @@ void opencover::coVRDistributionManager::RenderNode::applyScreens()
         target.rightView = source.rightView;
 
         target.leftProj = source.leftProj;
-        target.rightProj = source.rightProj;
+        target.rightProj = source.rightProj;*/
+        
     }
 
-    opencover::VRViewer::instance()->setChannelConfig();
+    //opencover::VRViewer::instance()->setChannelConfig();
     for (int ctr = 0; ctr < this->screens.size(); ++ctr)
     {
         opencover::VRViewer::instance()->setFrustumAndView(ctr);
@@ -531,30 +536,40 @@ covise::TokenBuffer &opencover::operator<<(covise::TokenBuffer &tb, const openco
     for (int ctr = 0; ctr < numScreens; ++ctr)
     {
         opencover::screenStruct screen;
+        opencover::channelStruct channel;
+        opencover::viewportStruct viewport;
 
         if (node.screens.size() == 0)
+        {
             screen = opencover::coVRConfig::instance()->screens[ctr];
+            channel = opencover::coVRConfig::instance()->channels[ctr];
+            viewport = opencover::coVRConfig::instance()->viewports[ctr];
+        }
         else
+        {
             screen = node.screens[ctr];
+            channel = node.channels[ctr];
+            viewport = node.viewports[ctr];
+        }
 
         tb << screen.hsize;
         tb << screen.vsize;
         tb << screen.xyz;
         tb << screen.hpr;
 
-        tb << screen.window;
-        tb << screen.stereoMode;
+        tb << viewport.window;
+        tb << channel.stereoMode;
 
-        tb << screen.viewportXMin;
-        tb << screen.viewportYMin;
-        tb << screen.viewportXMax;
-        tb << screen.viewportYMax;
+        tb << viewport.viewportXMin;
+        tb << viewport.viewportYMin;
+        tb << viewport.viewportXMax;
+        tb << viewport.viewportYMax;
 
-        tb << screen.leftView;
-        tb << screen.rightView;
+        tb << channel.leftView;
+        tb << channel.rightView;
 
-        tb << screen.leftProj;
-        tb << screen.rightProj;
+        tb << channel.leftProj;
+        tb << channel.rightProj;
     }
 
     return tb;
@@ -577,27 +592,31 @@ covise::TokenBuffer &opencover::operator>>(covise::TokenBuffer &tb, opencover::c
     for (int ctr = 0; ctr < numScreens; ++ctr)
     {
         opencover::screenStruct screen;
+        opencover::channelStruct channel;
+        opencover::viewportStruct viewport;
 
         tb >> screen.hsize;
         tb >> screen.vsize;
         tb >> screen.xyz;
         tb >> screen.hpr;
 
-        tb >> screen.window;
-        tb >> screen.stereoMode;
+        tb >> viewport.window;
+        tb >> channel.stereoMode;
 
-        tb >> screen.viewportXMin;
-        tb >> screen.viewportYMin;
-        tb >> screen.viewportXMax;
-        tb >> screen.viewportYMax;
+        tb >> viewport.viewportXMin;
+        tb >> viewport.viewportYMin;
+        tb >> viewport.viewportXMax;
+        tb >> viewport.viewportYMax;
 
-        tb >> screen.leftView;
-        tb >> screen.rightView;
+        tb >> channel.leftView;
+        tb >> channel.rightView;
 
-        tb >> screen.leftProj;
-        tb >> screen.rightProj;
-
+        tb >> channel.leftProj;
+        tb >> channel.rightProj;
+        
         node.screens.push_back(screen);
+        node.channels.push_back(channel);
+        node.viewports.push_back(viewport);
     }
 
     node.display = (bool)display;

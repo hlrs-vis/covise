@@ -77,9 +77,9 @@ bool StereoVideoPlayerPlugin::parseFilename(string *name)
     hostName = buffer;
 
     string stereoEye = "";
-    if (coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
+    if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
         stereoEye = "RIGHT";
-    else if (coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
+    else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
         stereoEye = "LEFT";
 
     string suffix = "";

@@ -134,7 +134,7 @@ void TiledDisplay::preFrame()
         cerr << "TiledDisplay::preFrame info: starting client " << number << endl;
         client->start();
 
-        camera = coVRConfig::instance()->screens[0].camera;
+        camera = coVRConfig::instance()->channels[0].camera;
 
         camera->setPostDrawCallback(this);
 

@@ -521,7 +521,7 @@ void AKToolbar::preFrame()
     bool stipple = false;
     for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
     {
-        stipple = coVRConfig::instance()->screens[i].stereoMode == osg::DisplaySettings::VERTICAL_INTERLACE || coVRConfig::instance()->screens[i].stereoMode == osg::DisplaySettings::HORIZONTAL_INTERLACE || coVRConfig::instance()->screens[i].stereoMode == osg::DisplaySettings::CHECKERBOARD;
+        stipple = coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::VERTICAL_INTERLACE || coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::HORIZONTAL_INTERLACE || coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::CHECKERBOARD;
         if (stipple)
             break;
     }

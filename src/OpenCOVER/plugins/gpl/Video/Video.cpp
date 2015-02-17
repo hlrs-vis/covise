@@ -41,9 +41,9 @@ VideoPlugin::VideoPlugin()
     sprintf(buffer, "%d", hostIndex);
     hostName = buffer;
 
-    if (coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
+    if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
         stereoEye = "RIGHT";
-    else if (coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
+    else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
         stereoEye = "LEFT";
 
 #ifdef _MSC_VER

@@ -61,8 +61,10 @@ public:
         std::string hostname;
         bool display;
         int slaveIndex;
-
+        
         std::vector<screenStruct> screens;
+        std::vector<channelStruct> channels;
+        std::vector<viewportStruct> viewports;
 
         static std::vector<bool> idle;
         static std::vector<bool> enabled;

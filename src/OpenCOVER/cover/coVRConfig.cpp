@@ -378,6 +378,12 @@ coVRConfig::coVRConfig()
             channels[vp.channel].viewportNum = i;
             channels[vp.channel].pipeNum = windows[vp.window].pipeNum;
         }
+        else
+        {
+            cerr << "ViewportConfig is missing a channelIndex. " << str << endl;
+            exit(-1);
+        }
+
 
         vp.viewportXMin = coCoviseConfig::getFloat("left", str, 0);
         vp.viewportYMin = coCoviseConfig::getFloat("bottom", str, 0);
@@ -391,12 +397,12 @@ coVRConfig::coVRConfig()
             vp.viewportYMin = vp.viewportYMin / ((float)(windows[vp.window].sy));
         }
 
-        vp.viewportXMax = coCoviseConfig::getFloat("sourceRight", str, -1);
-        vp.viewportYMax = coCoviseConfig::getFloat("sourceTop", str, -1);
+        vp.viewportXMax = coCoviseConfig::getFloat("right", str, -1);
+        vp.viewportYMax = coCoviseConfig::getFloat("top", str, -1);
         if (vp.viewportXMax < 0)
         {
-            vp.viewportXMax = coCoviseConfig::getFloat("sourceWidth", str, 1024);
-            vp.viewportYMax = coCoviseConfig::getFloat("sourceHeight", str, 768);
+            vp.viewportXMax = coCoviseConfig::getFloat("width", str, 1024);
+            vp.viewportYMax = coCoviseConfig::getFloat("height", str, 768);
             if (vp.viewportXMax > 1.0)
                 vp.viewportXMax = vp.viewportXMin + (vp.viewportXMax / ((float)(windows[vp.window].sx)));
             if (vp.viewportYMax > 1.0)

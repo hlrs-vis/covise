@@ -72,7 +72,7 @@ bool DistortViewer::init()
     //OpenGL errors debuggen
     if (coCoviseConfig::isOn("COVER.CheckForOpenGLErrors", false))
     {
-        coVRConfig::instance()->screens[0].camera->getGraphicsContext()->getState()->setCheckForGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
+        coVRConfig::instance()->channels[0].camera->getGraphicsContext()->getState()->setCheckForGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
 
     /*

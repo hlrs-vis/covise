@@ -27,8 +27,8 @@ VisScene::VisScene(Projector *c_projector, bool load)
     , visResolutionH(Settings::getInstance()->visResolutionH)
     , visResolutionW(Settings::getInstance()->visResolutionW)
 {
-    coViewMat = coVRConfig::instance()->screens[projector->getProjectorNum() - 1].rightView;
-    coProjMat = coVRConfig::instance()->screens[projector->getProjectorNum() - 1].rightProj;
+    coViewMat = coVRConfig::instance()->channels[projector->getProjectorNum() - 1].rightView;
+    coProjMat = coVRConfig::instance()->channels[projector->getProjectorNum() - 1].rightProj;
 
     //KS-Transformation von VRViewer ViewMat (OpenGL) in OSG
     rotate.makeRotate(osg::PI_2, osg::X_AXIS, //90Grad um x-Achse
@@ -291,7 +291,7 @@ osg::Group *VisScene::makeVisGroup()
 
     //VRViewer legt bei start von OpenCover fest, in welche Textur die Kamera (SceneCam) des zugehörigen projScreens ihre Szene rendert (R2T)
     //Diese Szene soll später verzerrt werden -> Textur mit Szene der TexUnit 0 des Quads zuweisen
-    stateDistQuad->setTextureAttributeAndModes(0, coVRConfig::instance()->screens[projector->getProjectorNum() - 1].renderTargetTexture, osg::StateAttribute::ON);
+    stateDistQuad->setTextureAttributeAndModes(0, coVRConfig::instance()->channels[projector->getProjectorNum() - 1].renderTargetTexture, osg::StateAttribute::ON);
 
     if (blend)
     {
@@ -381,8 +381,8 @@ void VisScene::updateVisGroup()
 void VisScene::updateViewerPos()
 {
     //View und Proj-Matrizen des Viewers neu laden
-    coViewMat = coVRConfig::instance()->screens[projector->getProjectorNum() - 1].rightView;
-    coProjMat = coVRConfig::instance()->screens[projector->getProjectorNum() - 1].rightProj;
+    coViewMat = coVRConfig::instance()->channels[projector->getProjectorNum() - 1].rightView;
+    coProjMat = coVRConfig::instance()->channels[projector->getProjectorNum() - 1].rightProj;
 
     osg::ref_ptr<osg::StateSet> stateScreen = geodeScreen->getStateSet();
     //Texturmatrizen neu erstellen und zuweisen, da sich ViewerPos verändert haben könnte
