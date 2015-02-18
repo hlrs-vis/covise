@@ -45,8 +45,8 @@ private:
 
     void readLine(int numSegments);
     char bfr[2048];
-    char line[LINE_SIZE];
-    char oldLine[LINE_SIZE];
+    char line[SO_LINE_SIZE];
+    char oldLine[SO_LINE_SIZE];
 
     int numPoints;
     int numSomaPoints;
