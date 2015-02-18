@@ -70,6 +70,7 @@ Build Requirements
     - `system`
     - `thread`
   When any of these are missing, you will only get a generic message, that "Boost" is missing. Thus beware!
+  Ubuntu 14.04: `sudo apt-get install libboost-all-dev`
 - **Python**:
   Python 3 is required for the GUI vr-prepare and for the scripting interface
 - **GLEW**:
