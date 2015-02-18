@@ -13,7 +13,7 @@
 #include <osg/Material>
 #include <osg/PolygonMode>
 #include <osg/Switch>
-#include <cover/Outline.h>
+#include <osgFX/Outline>
 #include <osg/MatrixTransform>
 
 #include <util/string_util.h>

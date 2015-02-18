@@ -9,7 +9,6 @@
 #include <cover/coVRMSController.h>
 #include <cover/coInteractor.h>
 #include <cover/coVRFileManager.h>
-#include <cover/Outline.h>
 #include <cover/coVRShader.h>
 
 #include <osg/Group>

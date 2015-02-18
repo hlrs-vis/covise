@@ -77,7 +77,6 @@ SET(HEADERS
   VRVruiButtons.h
   VRVruiRenderInterface.h
   VRWindow.h
-  Outline.h
   coShutDownHandler.h
   PluginMenu.h
   EventReceiver.h
@@ -155,8 +154,6 @@ SET(SOURCES
   coTUIFileBrowser/LocalData.cpp
   coTUIFileBrowser/NetHelp.cpp
   coTUIFileBrowser/VRBData.cpp
-  Outline.cpp
-  IO_Outline.cpp
   coShutDownHandler.cpp
   PluginMenu.cpp
   coTranslator.cpp
