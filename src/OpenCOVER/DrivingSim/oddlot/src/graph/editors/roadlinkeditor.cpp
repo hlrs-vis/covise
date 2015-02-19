@@ -268,6 +268,24 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
             SetRoadLinkRoadsCommand *command = new SetRoadLinkRoadsCommand(roadLinkRoadItems, threshold_);
             getProjectGraph()->executeCommand(command);
         }
+  /*       else if (action->getToolId() == ODD::TRL_LANELINK)
+        {
+            QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+
+            QList<RSystemElementRoad *> laneLinkRoadItems;
+
+            foreach (QGraphicsItem *item, selectedItems)
+            {
+                RoadLinkRoadItem *maybeRoad = dynamic_cast<RoadLinkRoadItem *>(item);
+                if (maybeRoad)
+                {
+                    laneLinkRoadItems.append(maybeRoad->getRoad());
+                }
+            }
+
+            SetRoadLinkRoadsCommand *command = new SetRoadLinkRoadsCommand(roadLinkRoadItems, threshold_);
+            getProjectGraph()->executeCommand(command);
+        }*/
         else if (action->getToolId() == ODD::TRL_SELECT)
         {
             threshold_ = action->getThreshold();

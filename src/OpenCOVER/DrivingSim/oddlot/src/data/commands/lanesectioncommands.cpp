@@ -16,6 +16,7 @@
 #include "lanesectioncommands.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/roadlink.hpp"
 
 #include <math.h>
 
@@ -890,6 +891,17 @@ SetLanePredecessorIdCommand::construct()
         return;
     }
 
+    RSystemElementRoad * road = lane_->getParentLaneSection()->getParentRoad();
+    if (lane_->getParentLaneSection() == road->getLaneSection(0))
+    {
+        if (!road->getPredecessor() || (road->getPredecessor()->getElementType() == "junction"))
+        {
+            setInvalid();
+            setText(QObject::tr("Set Lane Predecessor: Road has no predecessor."));
+            return;
+        }
+    }
+
     oldPredecessorId_ = lane_->getPredecessor();
 
     if (oldPredecessorId_ == newPredecessorId_)
@@ -945,6 +957,17 @@ SetLaneSuccessorIdCommand::construct()
         setInvalid();
         setText(QObject::tr("Set Lane Successor: Parameters invalid! No element given."));
         return;
+    }
+
+    RSystemElementRoad * road = lane_->getParentLaneSection()->getParentRoad();
+    if (lane_->getParentLaneSection() == road->getLaneSection(road->getLength()))
+    {
+        if (!road->getSuccessor() || (road->getSuccessor()->getElementType() == "junction"))
+        {
+            setInvalid();
+            setText(QObject::tr("Set Lane Successor: Road has no successor."));
+            return;
+        }
     }
 
     oldSuccessorId_ = lane_->getSuccessor();

@@ -107,6 +107,13 @@ RoadLinkEditorTool::initToolWidget()
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TRL_UNLINK); // button, id
 
+    // Make all Lane Links new //
+    //
+    toolButton = new QPushButton(tr("Link Lanes"));
+    toolButton->setCheckable(false);
+    toolLayout->addWidget(toolButton, ++row, 0);
+    toolGroup->addButton(toolButton, ODD::TRL_LANELINK); // button, id
+
     // Finish Layout //
     //
     toolLayout->setRowStretch(++row, 1); // last row fills the rest of the availlable space

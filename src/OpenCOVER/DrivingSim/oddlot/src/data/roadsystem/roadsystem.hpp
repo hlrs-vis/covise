@@ -151,6 +151,8 @@ private:
     RoadSystem(const RoadSystem &); /* not allowed */
     RoadSystem &operator=(const RoadSystem &); /* not allowed */
 
+    double getTValue(LaneSection * laneSection, Lane * lane, double s, double laneWidth);
+
     //################//
     // PROPERTIES     //
     //################//

@@ -192,9 +192,9 @@ DomParser::parseXODR(QIODevice *source)
     if (!elementIDs_.empty())
     {
         roadSystem_->checkIDs(elementIDs_);
-        roadSystem_->checkLinking(); //Correct bugs in lane linking for old files
         elementIDs_.clear();
     }
+    roadSystem_->checkLinking(); // Makes all lane links new
 
     // VehicleSystem //
     //
