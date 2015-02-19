@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<COCONFIG version="1">
+<GLOBAL>
+    <COVER>
+        <Input>
+            <Device>
+               <DTrackCave driver="dtrack" port="5000">
+                  <Offset x="2" y="-100" z="-390" />
+                  <Orientation h="0" p="90" r="0" />
+               </DTrackCave>
+
+               <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+
+               <Legacy driver="legacy" />
+
+            </Device>
+
+            <Body>
+               <ConstHead>
+                  <Offset x="0" y="-2000" z="0" />
+                  <Orientation h="0" p="0" r="0" />
+               </ConstHead>
+
+               <CaveHead device="DTrackCave" bodyIndex="1">
+                  <Offset x="0" y="0" z="0" />
+                  <Orientation h="0" p="0" r="0" />
+               </CaveHead>
+
+               <CaveHand device="DTrackCave" bodyIndex="0">
+                  <Offset x="0" y="0" z="0" />
+                  <Orientation h="0" p="-90" r="0" />
+               </CaveHand>
+
+               <LegacyTracker0 device="Legacy" bodyIndex="0" />
+               <LegacyTracker1 device="Legacy" bodyIndex="1" />
+
+            </Body>
+
+            <Buttons>
+               <CaveMouse device="CaveButtons" />
+               <PowerWallMouse device="Buttons" />
+               <LegacyMouse device="Legacy" />
+            </Buttons>
+
+            <Persons count="1" >
+               <Person name="0" head="ConstHead" />
+               <!--<Person name="1" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" />-->
+               <Person name="1" head="CaveHead" hand="CaveHand" buttons="LegacyMouse" />
+            </Persons>
+        </Input>
+    </COVER>
+</GLOBAL>
+</COCONFIG>

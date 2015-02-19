@@ -1,0 +1,345 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <LOCAL host="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
+   <COVER>
+     <!--Console arch="windows" value="true" file="c:\OpenCOVER" /-->
+    <Console arch="windows" value="true"/>
+   </COVER>
+
+  <COVER>
+
+   <Input>
+
+    <MouseNav value="ON" />
+    <!--TrackingSystem value="MOUSE" /-->
+    <TrackingSystem value="DTRACK" />
+    <ButtonSystem value="ART" />
+    
+    <DTrack>
+      <Startup value="10.3.0.105:5001" />
+    </DTrack>
+
+    <HeadAddress value="0" />
+    <HandAddress value="10" />
+    <Hand2Address value="20" />
+    <OffsetX value="50" />
+    <OffsetY value="50" />
+    
+    <TrackingSystem> 
+      <Offset x="200" y="-100" z="-390" />
+      <Orientation h="0" p="90" r="0" />
+    </TrackingSystem>
+
+    <HeadDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="0" r="0" />
+    </HeadDevice>
+
+    <HandDevice>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="-90" r="0" />
+    </HandDevice>
+
+    <Hand2Device>
+     <Offset x="0" y="0" z="0" />
+     <Orientation h="0" p="-90" r="0" />
+    </Hand2Device>
+
+    <DebugStation value="0" />
+    <DebugTracking value="OFF_RAW" />
+
+   </Input>
+  </COVER>
+
+ </LOCAL>
+
+
+ <LOCAL host="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
+
+  <System>
+
+   <HostConfig>
+     <Host name="0" valie = "cavefront" />
+    <Host name="1" valie = "caveleft" />    
+  </HostConfig>
+
+   <covRemote>
+    <Host value="cavefront" />
+    <Server port="31809" />
+   </covRemote>
+
+  </System>
+
+
+  <COVER>
+
+   <Plugin>
+    <animator value="on" />
+
+    <Vrml97>
+      <GenerateTriangleStrips value="false" />
+
+      <Audio value="AServer" >
+        <Host value="10.3.0.105" />
+      </Audio>
+      <!--Audio value="NONE"/-->
+    </Vrml97>
+
+   </Plugin>
+
+   <TabletPC>
+     <!-- Sensible if a tabletui is running or if COVISE is used on node01, comment out else -->
+     <Server value="node01" />
+   </TabletPC>
+
+   <MultiPC>
+    <SyncMode value="TCP" />
+    <NumSlaves value="6" />
+    <Host name="0" value="caveleft-l"/>
+    <Host name="1" value="caveleft-r"/>
+    
+    <Host name="2" value="caveright-l"/>
+    <Host name="3" value="caveright-r"/>
+    
+    <Host name="4" value="cavefront-l"/>
+    <Host name="5" value="cavefront-r"/>
+
+    <Startup arch="windows" value="startOpenCover" name="0" />            
+    <Startup arch="windows" value="startOpenCover" name="1" />   
+    <Startup arch="windows" value="startOpenCover" name="2" />
+    <Startup arch="windows" value="startOpenCover" name="3" />            
+    <Startup arch="windows" value="startOpenCover" name="4" />   
+    <Startup arch="windows" value="startOpenCover" name="5" />
+
+    <Startup arch="x11" value="ssh ${USER}@caveleft-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="0"/>
+    <Startup arch="x11" value="ssh ${USER}@caveright-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="2"/>
+    <Startup arch="x11" value="ssh ${USER}@cavefront-l export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="4"/>
+
+    <Startup arch="x11" value="ssh ${USER}@caveleft-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="1"/>
+    <Startup arch="x11" value="ssh ${USER}@caveright-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="3"/>
+    <Startup arch="x11" value="ssh ${USER}@cavefront-r export COCONFIG=$COCONFIG 2>&amp;1 > /dev/null \; export ARCHSUFFIX=$ARCHSUFFIX  2>&amp;1 > /dev/null \; setenv COVISEDIR $COVISEDIR 2>&amp;1 > /dev/null \; export COVISEDIR=$COVISEDIR 2>&amp;1 > /dev/null \; cd `pwd` \;${COVISEDIR}/bin/opencover \>\&amp; /tmp/errors.log" name="5"/>
+  
+
+ </MultiPC>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+ <LOCAL host="node01" >
+
+  <COVER>                                                                
+
+   <ScreenConfig>
+    <Screen width="2500" comment="FRONT" h="0.0" originX="0" originY="1250" originZ="0" height="1800" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2500" comment="FRONT" h="0.0" originX="0" originY="1250" originZ="0" height="1800" p="0.0" r="0.0" name="1" screen="1" />   
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+
+
+
+
+ <LOCAL host="cavefront-l" >
+
+  <COVER>                                                                
+
+   <ScreenConfig>
+    <Screen width="2500" comment="FRONT" h="0.0" originX="0" originY="900" originZ="0" height="1800" p="0.0" r="90.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+ <LOCAL host="cavefront-r" >
+
+  <COVER>                                                                
+
+   <ScreenConfig>
+    <Screen width="2500" comment="FRONT" h="0.0" originX="0" originY="900" originZ="0" height="1800" p="0.0" r="90.0" name="0" screen="0" />   
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+ 
+ 
+ <LOCAL host="caveleft-l" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2500" comment="LEFT" h="90.0" originX="-900" originY="0" originZ="0" height="1800" p="0.0" r="90.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+ <LOCAL host="caveleft-r" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2500" comment="LEFT" h="90.0" originX="-900" originY="0" originZ="0" height="1800" p="0.0" r="90.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+
+
+
+ <LOCAL host="caveright-l" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2500" comment="RIGHT" h="-90.0" originX="900" originY="0" originZ="0" height="1800" p="0.0" r="90.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+ <LOCAL host="caveright-r" >
+
+  <COVER>
+
+   <ScreenConfig>
+    <Screen width="2500" comment="RIGHT" h="-90.0" originX="900" originY="0" originZ="0" height="1800" p="0.0" r="90.0" name="0" screen="0" />
+   </ScreenConfig>
+
+  </COVER>
+
+ </LOCAL>
+
+
+ <LOCAL host="cavefront-l, caveleft-l, caveright-l" >
+
+  <COVER>
+
+   <ChannelConfig>
+
+    <Channel comment="LEFT" channel="0" width="1024" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="768" />
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="cavefront-r, caveleft-r, caveright-r" >
+
+  <COVER>
+
+   <ChannelConfig>
+    <Channel comment="RIGHT" channel="1" width="1024" stereoMode="RIGHT" left="0" windowIndex="0" bottom="0" name="0" height="768" />  
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+
+
+ <LOCAL host="node01" >
+
+  <COVER>
+   <NumScreens value="1" />   
+   <WindowConfig>
+    <Window width="800" comment="MAIN" window="0" pipeIndex="0" height="600" left="0" bottom="0" name="0" decoration="true" />
+   </WindowConfig>
+   <ChannelConfig>
+
+    <Channel render="TRUE" comment="LEFT" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+
+   </ChannelConfig>
+
+  </COVER>
+
+
+ </LOCAL>
+
+ <LOCAL host="cavefront-l, caveleft-l, caveright-l,cavefront-r, caveleft-r, caveright-r,node01" >
+
+  <COVER>
+
+   <WelcomeMessage value="Welcome to OpenCOVER at St. Petersburg" />
+   <SyncToVBlank value="ON" device="DFP-1"/>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <GenStrips value="OFF" />
+   <Stereo enable="ON" value="ON" />
+   <ViewerPosition x="0" y="-500" z="500" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+   <SceneSize value="2500" />
+   <NumPipes value="1" />
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <Orientation h="-90" p="0" r="0" />
+    <Position x="900" y="0" z="300" />
+   </Menu>
+
+   <DebugLevel value="0" />
+
+   <Plugin>
+
+    <Annotation value="on" />
+    <Volume value="on" />
+
+    <Vrml97>
+     <StateFixLevel value="100" />
+     <TextureCounter value="ON" />
+     <Texture mode="MODULATE" quality="High" />
+     <TransparencyMode value="sorted_blended" />
+     <Headlight value="ON" />
+     <Lights value="ON" />
+    </Vrml97>
+
+   </Plugin>
+
+   <WindowConfig>
+    <Window width="1024" comment="MAIN" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" />
+   </WindowConfig>
+
+  </COVER>
+
+  <System>
+    <VRB> 
+      <!--Server value="visper.hlrs.de" port="31200" /-->
+    </VRB>
+  </System>
+
+ </LOCAL>
+
+
+</COCONFIG>
