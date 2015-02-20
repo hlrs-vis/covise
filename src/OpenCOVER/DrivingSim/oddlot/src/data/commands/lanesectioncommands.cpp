@@ -896,6 +896,10 @@ SetLanePredecessorIdCommand::construct()
     {
         if (!road->getPredecessor() || (road->getPredecessor()->getElementType() == "junction"))
         {
+            if (lane_->getPredecessor() != Lane::NOLANE)
+            {
+                lane_->setPredecessor(Lane::NOLANE);
+            }
             setInvalid();
             setText(QObject::tr("Set Lane Predecessor: Road has no predecessor."));
             return;
@@ -964,6 +968,10 @@ SetLaneSuccessorIdCommand::construct()
     {
         if (!road->getSuccessor() || (road->getSuccessor()->getElementType() == "junction"))
         {
+            if (lane_->getSuccessor() != Lane::NOLANE)
+            {
+                lane_->setSuccessor(Lane::NOLANE);
+            }
             setInvalid();
             setText(QObject::tr("Set Lane Successor: Road has no successor."));
             return;

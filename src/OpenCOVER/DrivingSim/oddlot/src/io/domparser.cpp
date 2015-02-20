@@ -194,7 +194,6 @@ DomParser::parseXODR(QIODevice *source)
         roadSystem_->checkIDs(elementIDs_);
         elementIDs_.clear();
     }
-    roadSystem_->checkLinking(); // Makes all lane links new
 
     // VehicleSystem //
     //

@@ -22,6 +22,9 @@ class ProjectData;
 class TopviewGraph;
 
 class RoadLinkRoadSystemItem;
+class RSystemElementRoad;
+class LaneSection;
+class Lane;
 
 class RoadLinkEditor : public ProjectEditor
 {
@@ -63,6 +66,11 @@ private:
     //
     RoadLinkRoadSystemItem *roadSystemItem_;
     double threshold_;
+
+    // create lane links //
+    //
+    void createLaneLinks(RSystemElementRoad * road);
+    double getTValue(LaneSection * laneSection, Lane * lane, double s, double laneWidth);
 };
 
 #endif // ROADLINKEDITOR_HPP
