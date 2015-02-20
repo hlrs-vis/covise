@@ -24,6 +24,7 @@ class LaneWidthRoadSystemItem;
 class LaneSectionWidthItem;
 class LaneEditor;
 class SectionHandle;
+class LaneWidthMoveHandle;
 
 class RoadSystemItem;
 namespace Ui
@@ -62,6 +63,8 @@ private:
     void updateLevel();
     void updatePredecessor();
     void updateSuccessor();
+    void updateWidth();
+    LaneWidthMoveHandle * getFirstSelectedLaneWidthHandle();
 
     //################//
     // SLOTS          //

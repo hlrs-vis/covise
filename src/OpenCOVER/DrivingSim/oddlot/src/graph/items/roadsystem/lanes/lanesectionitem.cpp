@@ -172,7 +172,7 @@ void
 LaneSectionItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = laneEditor_->getCurrentTool();
-    if (tool == ODD::TEL_SELECT)
+    if (tool == ODD::TLE_SELECT)
     {
         // parent: selection //
         SectionItem::mouseMoveEvent(event); // pass to baseclass
@@ -211,7 +211,7 @@ void
 LaneSectionItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     ODD::ToolId tool = laneEditor_->getCurrentTool();
-    if (tool == ODD::TEL_SELECT)
+    if (tool == ODD::TLE_SELECT)
     {
         // does nothing //
     }

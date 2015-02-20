@@ -40,7 +40,7 @@
 
 // Tools //
 //
-//#include "src/gui/tools/laneeditortool.hpp"
+#include "src/gui/tools/laneeditortool.hpp"
 
 // Qt //
 //
@@ -129,6 +129,53 @@ LaneEditor::toolAction(ToolAction *toolAction)
     // Parent //
     //
     ProjectEditor::toolAction(toolAction);
+
+    // Tools //
+    //
+    LaneEditorToolAction *laneEditorToolAction = dynamic_cast<LaneEditorToolAction *>(toolAction);
+    if (laneEditorToolAction)
+    {
+        if (selectedMoveHandles_.size() > 0 && (laneEditorToolAction->getType() == LaneEditorToolAction::Width))
+        {
+
+            QList<LaneWidth *> endPointWidths;
+            QList<LaneWidth *> startPointWidths;
+            foreach (LaneWidthMoveHandle *moveHandle, selectedMoveHandles_)
+            {
+                LaneWidth *lowSlot = moveHandle->getLowSlot();
+                if (lowSlot)
+                {
+                    endPointWidths.append(lowSlot);
+                }
+
+                LaneWidth *highSlot = moveHandle->getHighSlot();
+                if (highSlot)
+                {
+                    startPointWidths.append(highSlot);
+                }
+            }
+
+            // Command //
+            //
+            LaneSetWidthCommand *command = new LaneSetWidthCommand(endPointWidths, startPointWidths, laneEditorToolAction->getWidth(), laneEditorToolAction->getType() == LaneEditorToolAction::Width, NULL);
+            if (command->isValid())
+            {
+                getProjectData()->getUndoStack()->push(command);
+
+                // Message //
+                //
+                printStatusBarMsg(QString("setWidth to: %1").arg(laneEditorToolAction->getWidth()), 1000);
+            }
+            else
+            {
+                if (command->text() != "")
+                {
+                    printStatusBarMsg(command->text(), 4000);
+                }
+                delete command;
+            }
+        }
+    }
 }
 
 //################//
@@ -143,6 +190,48 @@ LaneEditor::registerMoveHandle(LaneWidthMoveHandle *handle)
         qDebug("WARNING 1004261416! ElevationEditor ElevationMoveHandle DOF not in [0,1,2].");
     }
     selectedMoveHandles_.insert(handle->getPosDOF(), handle);
+
+    // The observers have to be notified, that a different handle has been selected
+    // 2: Two degrees of freedom //
+    //
+    QList<LaneWidth *> endPointWidths;
+    QList<LaneWidth *> startPointWidths;
+    foreach (LaneWidthMoveHandle *moveHandle, selectedMoveHandles_)
+    {
+        LaneWidth *lowSlot = moveHandle->getLowSlot();
+        if (lowSlot)
+        {
+            endPointWidths.append(lowSlot);
+        }
+
+        LaneWidth *highSlot = moveHandle->getHighSlot();
+        if (highSlot)
+        {
+            startPointWidths.append(highSlot);
+        }
+    }
+
+    // Command //
+    //
+    SelectLaneWidthCommand *command = new SelectLaneWidthCommand(endPointWidths, startPointWidths, NULL);
+
+    if (command->isValid())
+    {
+        getProjectData()->getUndoStack()->push(command);
+
+        // Message //
+        //
+        printStatusBarMsg(QString("Select Lane Width "), 100);
+    }
+    else
+    {
+        if (command->text() != "")
+        {
+            printStatusBarMsg(command->text(), 4000);
+        }
+        delete command;
+    }
+
 }
 
 int

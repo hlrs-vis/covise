@@ -1639,3 +1639,57 @@ LaneSetWidthCommand::mergeWith(const QUndoCommand *other)
 
     return true;
 }
+
+//################################//
+// SelectLaneWidthCommand //
+//##############################//
+
+SelectLaneWidthCommand::SelectLaneWidthCommand(const QList<LaneWidth *> &endPointWidths, const QList<LaneWidth *> &startPointWidths, DataCommand *parent)
+    : DataCommand(parent)
+{
+    // Lists //
+    //
+    endPointWidths_ = endPointWidths;
+    startPointWidths_ = startPointWidths;
+
+    // Check for validity //
+    //
+    if (endPointWidths_.isEmpty() && startPointWidths_.isEmpty())
+    {
+        setInvalid(); // Invalid because no change.
+        setText(QObject::tr("Set Lane width (invalid!)"));
+        return;
+    }
+
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Set Lane width"));
+}
+
+/*! \brief .
+*
+*/
+SelectLaneWidthCommand::~SelectLaneWidthCommand()
+{
+}
+
+void
+SelectLaneWidthCommand::
+    redo()
+{
+    // Send a notification to the observers
+    //
+    foreach (LaneWidth *width, endPointWidths_)
+    {
+        width->addLaneWidthChanges(true);
+    }
+
+    foreach (LaneWidth *width, startPointWidths_)
+    {
+        width->addLaneWidthChanges(true);
+    }
+
+    setRedone();
+}
+

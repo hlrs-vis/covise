@@ -658,4 +658,32 @@ private:
     int id_;
 };
 
+//##################################//
+// Select LaneWidth         //
+//################################//
+
+class SelectLaneWidthCommand : public DataCommand
+{
+public:
+    explicit SelectLaneWidthCommand(const QList<LaneWidth *> &endPointWidths, const QList<LaneWidth *> &startPointWidths, DataCommand *parent = NULL);
+    virtual ~SelectLaneWidthCommand();
+
+    virtual int id() const
+    {
+        return 0x810;
+    }
+
+    virtual void undo(){};
+    virtual void redo();
+
+private:
+    SelectLaneWidthCommand(); /* not allowed */
+    SelectLaneWidthCommand(const SelectLaneWidthCommand &); /* not allowed */
+    SelectLaneWidthCommand &operator=(const SelectLaneWidthCommand &); /* not allowed */
+
+private:
+    QList<LaneWidth *> endPointWidths_;
+    QList<LaneWidth *> startPointWidths_;
+};
+
 #endif // LANESECTIONCOMMANDS_HPP
