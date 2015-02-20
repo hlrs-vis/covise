@@ -77,14 +77,12 @@ SET(HEADERS
   VRVruiButtons.h
   VRVruiRenderInterface.h
   VRWindow.h
-  Outline.h
   coShutDownHandler.h
   PluginMenu.h
   EventReceiver.h
   coMeasurement.h
   coTranslator.h
   VRRegisterSceneGraph.h
-  coLOD.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
   coTUIFileBrowser/FileSysAccess.h
@@ -155,13 +153,10 @@ SET(SOURCES
   coTUIFileBrowser/LocalData.cpp
   coTUIFileBrowser/NetHelp.cpp
   coTUIFileBrowser/VRBData.cpp
-  Outline.cpp
-  IO_Outline.cpp
   coShutDownHandler.cpp
   PluginMenu.cpp
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
-  coLOD.cpp
 )
 
 SET(DEVICE_SOURCES

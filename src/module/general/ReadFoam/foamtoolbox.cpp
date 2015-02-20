@@ -72,6 +72,19 @@ BOOST_FUSION_ADAPT_STRUCT(
     DimensionInfo,
     (index_t, points)(index_t, cells)(index_t, faces)(index_t, internalFaces))
 
+static bool is_directory(const bf::path &p)
+{
+    try
+    {
+        return bf::is_directory(p);
+    }
+    catch (const bf::filesystem_error &e)
+    {
+        std::cerr << "is_directory: " << e.what() << std::endl;
+        return false;
+    }
+}
+
 class FilteringStreamDeleter
 {
 public:
@@ -116,7 +129,7 @@ boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const s
 {
 
     bf::path zipped(dir + "/" + basename + ".gz");
-    if (bf::exists(zipped) && !bf::is_directory(zipped))
+    if (bf::exists(zipped) && !::is_directory(zipped))
         return getStreamForFile(zipped.string());
     else
         return getStreamForFile(dir + "/" + basename);
@@ -174,7 +187,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
 
     //std::cerr << "checking meshdir " << meshdir << std::endl;
     bf::path p(meshdir);
-    if (!bf::is_directory(p))
+    if (!::is_directory(p))
     {
         std::cerr << meshdir << " is not a directory" << std::endl;
         return false;
@@ -191,7 +204,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
         std::string ext = ent.extension().string();
         if (stem == "points" || stem == "faces" || stem == "owner" || stem == "neighbour")
         {
-            if (bf::is_directory(*it) || (!ext.empty() && ext != ".gz"))
+            if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
             {
                 std::cerr << "ignoring " << *it << std::endl;
             }
@@ -239,7 +252,7 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
         std::cerr << "timestep directory " << timedir << " does not exist" << std::endl;
         return false;
     }
-    if (!bf::is_directory(timedir))
+    if (!::is_directory(timedir))
     {
         std::cerr << "timestep directory " << timedir << " is not a directory" << std::endl;
         return false;
@@ -250,7 +263,7 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
          ++it)
     {
         bf::path p(*it);
-        if (bf::is_directory(*it))
+        if (::is_directory(*it))
         {
             std::string name = p.filename().string();
             if (name == "polyMesh")
@@ -283,7 +296,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         std::cerr << "case directory " << casedir << " does not exist" << std::endl;
         return false;
     }
-    if (!bf::is_directory(casedir))
+    if (!::is_directory(casedir))
     {
         std::cerr << "case directory " << casedir << " is not a directory" << std::endl;
         return false;
@@ -294,7 +307,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
          it != bf::directory_iterator();
          ++it)
     {
-        if (bf::is_directory(*it))
+        if (::is_directory(*it))
         {
             if (isProcessorDir(bf::basename(it->path())))
                 ++num_processors;
@@ -336,12 +349,12 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         return true;
     }
 
-    int num_timesteps = 0;
+    index_t num_timesteps = 0;
     for (bf::directory_iterator it(dir);
          it != bf::directory_iterator();
          ++it)
     {
-        if (bf::is_directory(*it))
+        if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
             if (isTimeDir(bn))
@@ -400,7 +413,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
          it != bf::directory_iterator();
          ++it)
     {
-        if (bf::is_directory(*it))
+        if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
             if (isTimeDir(bn))
@@ -852,7 +865,7 @@ bool isPointingInwards(index_t face,
     //(in openFOAM it always points into the cell with the higher index)
     if (face >= ninternalFaces)
     { //if face is bigger than the number of internal faces
-        return true; //then a is a boundary face and normal vector goes inwards by default
+        return true; //then face is a boundary-face and normal vector goes inwards by default
     }
     else
     {

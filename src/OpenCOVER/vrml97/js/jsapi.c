@@ -2031,7 +2031,9 @@ JS_IdToValue(JSContext *cx, jsid id, jsval *vp)
 JS_PUBLIC_API(JSBool)
 JS_PropertyStub(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
+#ifdef DEBUG
     fprintf(stderr, "TODO: please implement this(probably in ScriptJS.cpp)");
+#endif
     return JS_TRUE;
 }
 

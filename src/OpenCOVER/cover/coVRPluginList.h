@@ -52,7 +52,7 @@ public:
     //! singleton
     static coVRPluginList *instance();
     //! returns the plugin called name
-    coVRPlugin *getPlugin(const char *name);
+    coVRPlugin *getPlugin(const char *name) const;
 
     //! load a plugin, call init, add to list of managed plugins
     coVRPlugin *addPlugin(const char *name);
@@ -63,7 +63,7 @@ public:
     //
     // methods forwarded to plugins
     //! call addNode method of all plugins
-    void addNode(osg::Node *, RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL);
+    void addNode(osg::Node *, RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
     //! call addObject method of all plugins
     void addObject(RenderObject *baseObj,
                    RenderObject *geomObj, RenderObject *normObj,
@@ -73,70 +73,71 @@ public:
                    float *r, float *g, float *b, int *packedCol,
                    int numNormals, int normalBinding,
                    float *xn, float *yn, float *zn,
-                   float transparency);
+                   float transparency) const;
 
     //! call newInteractor method of all plugins
-    void newInteractor(RenderObject *container, coInteractor *it);
+    void newInteractor(RenderObject *container, coInteractor *it) const;
 
     //! call coviseError method of all plugins
-    void coviseError(const char *error);
+    void coviseError(const char *error) const;
 
     //! call guiToRenderMsg method of all plugins
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const char *msg) const;
 
     //! call removeObject method of all plugins
-    void removeObject(const char *objName, bool replaceFlag);
+    void removeObject(const char *objName, bool replaceFlag) const;
     //! call removeNode method of all plugins
-    void removeNode(osg::Node *node, bool isGroup = false, osg::Node *realNode = NULL);
+    void removeNode(osg::Node *node, bool isGroup = false, osg::Node *realNode = NULL) const;
     //! call prepareFrame method of all plugins
-    void prepareFrame();
+    void prepareFrame() const;
     //! call preFrame method of all plugins
     void preFrame();
     //! call postFrame method of all plugins
-    void postFrame();
+    void postFrame() const;
     //! call preDraw method of all plugins
-    void preDraw(osg::RenderInfo &renderInfo);
+    void preDraw(osg::RenderInfo &renderInfo) const;
     //! call preSwapBuffers method of all plugins
-    void preSwapBuffers(int windowNumber);
+    void preSwapBuffers(int windowNumber) const;
     //! call postSwapBuffers method of all plugins
-    void postSwapBuffers(int windowNumber);
+    void postSwapBuffers(int windowNumber) const;
     //! call param method of all plugins
-    void param(const char *paramName, bool inMapLoading);
-    //! call init method of all plugins
-    void init();
+    void param(const char *paramName, bool inMapLoading) const;
     //! call key method of all plugins
-    bool key(int type, int keySym, int mod);
+    bool key(int type, int keySym, int mod) const;
     //! call userEvent method of all plugins
-    bool userEvent(int mod);
+    bool userEvent(int mod) const;
     //! call setTimestep method of all plugins
-    void setTimestep(int timestep);
+    void setTimestep(int timestep) const;
     //! send a message to all plugins
-    void message(int t, int l, const void *b);
+    void message(int t, int l, const void *b) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
-    void forwardMessage(int len, const void *buf);
+    void forwardMessage(int len, const void *buf) const;
     //! request to terminate COVER or COVISE session
-    void requestQuit(bool killSession);
+    void requestQuit(bool killSession) const;
     //! send a message to COVISE/visualisation system - delivered via only one plugin
-    bool sendVisMessage(const covise::Message *msg);
+    bool sendVisMessage(const covise::Message *msg) const;
     //! request to become master of a collaborative session - return true if delivered
-    bool becomeCollaborativeMaster();
+    bool becomeCollaborativeMaster() const;
     //! for visualisation system plugins: wait for message, return NULL if no such plugin
-    virtual covise::Message *waitForVisMessage(int messageType);
+    covise::Message *waitForVisMessage(int messageType) const;
     //! for visualisation system plugins: execute data flow network - return true if delivered
-    virtual bool executeAll();
+    bool executeAll() const;
     //! allow plugins to expand scene bounding sphere
-    void expandBoundingSphere(osg::BoundingSphere &bs);
+    void expandBoundingSphere(osg::BoundingSphere &bs) const;
 
 private:
     coVRPluginList();
     ~coVRPluginList();
-    //! unload all queued plugins
+    //! call init method of all plugins
+    void init();
+    //! unload all plugins queued for unloading
     void unloadQueued();
 
     void unloadAllPlugins();
     //! try to load a plugin
     coVRPlugin *loadPlugin(const char *name);
+
     void grabKeyboard(coVRPlugin *);
     coVRPlugin *keyboardGrabber() const
     {

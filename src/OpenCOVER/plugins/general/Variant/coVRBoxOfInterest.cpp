@@ -11,7 +11,6 @@
 #include <osg/LineSegment>
 #include <osgWidget/Box>
 #include <osg/ShapeDrawable>
-#include <cover/Outline.h>
 #include <osg/PolygonMode>
 
 #include <net/tokenbuffer.h>

@@ -37,7 +37,7 @@
 namespace opencover
 {
 
-class COVEREXPORT coLOD : public osg::LOD
+class PLUGIN_UTILEXPORT coLOD : public osg::LOD
 {
 public:
     coLOD();

@@ -32,10 +32,7 @@
 
 #include <util/common.h>
 #include <osg/Matrix>
-#include <OpenVRUI/osg/mathUtils.h>
-#define CO_MOUSE_LEFT_DOWN 1
-#define CO_MOUSE_MIDDLE_DOWN 2
-#define CO_MOUSE_RIGHT_DOWN 4
+
 namespace opencover
 {
 

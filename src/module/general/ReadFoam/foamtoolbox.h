@@ -109,18 +109,6 @@ public:
     {
     }
 
-    bool isBoundaryFace(const index_t face)
-    {
-
-        return isBoundaryFace(boundaries, face);
-    }
-
-    bool isProcessorBoundaryFace(const index_t face)
-    {
-
-        return isBoundaryFace(procboundaries, face);
-    }
-
     void addBoundary(const Boundary &b)
     {
 
@@ -133,14 +121,14 @@ public:
             boundaries.push_back(b);
         }
 
-        if (minFace < b.startFace)
+        if (minFace > b.startFace)
             minFace = b.startFace;
     }
 
     int findBoundaryIndexByName(const std::string &b)
     {
         int result = -1;
-        for (int i = 0; i < boundaries.size(); ++i)
+        for (size_t i = 0; i < boundaries.size(); ++i)
         {
             if (!b.compare(boundaries[i].name))
             {
@@ -153,7 +141,7 @@ public:
 
     int findBoundaryIndexForProc(int proc)
     {
-        for (int i = 0; i < boundaries.size(); ++i)
+        for (size_t i = 0; i < boundaries.size(); ++i)
         {
             const Boundary &b = procboundaries[i];
             if (b.neighborProc == proc)
@@ -169,19 +157,6 @@ public:
 
 private:
     index_t minFace;
-    bool isBoundaryFace(const std::vector<Boundary> &bound, const index_t face)
-    {
-
-        if (face < minFace)
-            return false;
-
-        for (std::vector<Boundary>::const_iterator i = bound.begin(); i != bound.end(); ++i)
-        {
-            if (face >= i->startFace && face < i->startFace + i->numFaces)
-                return true;
-        }
-        return false;
-    }
 };
 
 CaseInfo getCaseInfo(const std::string &casedir, double mintime, double maxtime, int skipfactor = 1, bool exact = false);

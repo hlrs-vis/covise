@@ -20,7 +20,6 @@
 #include <osgText/Text>
 #include <osg/AlphaFunc>
 #include <osg/BlendFunc>
-#include <cover/Outline.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/coButton.h>

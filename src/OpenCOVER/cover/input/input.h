@@ -53,15 +53,13 @@ public:
     bool isHandValid(int num = 0) const; //< whether active person's hand matrix is valid
 
     //Persons control
-    int getNumPersons()
-    {
-        return persons.size();
-    } //< number of configured persions
+    size_t getNumPersons() const; //< number of configured persons
+    size_t getCurrentPersonIndex() const; //< number of current person
     bool setActivePerson(size_t numPerson); //< set active person
     Person *getPerson(const std::string &name);
     Person *getPerson(size_t idx) const;
 
-    size_t getNumObjects()
+    size_t getNumObjects() const
     {
         return objects.size();
     } //< number of tracked objects (not part of persons)

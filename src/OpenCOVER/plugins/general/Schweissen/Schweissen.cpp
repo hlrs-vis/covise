@@ -9,7 +9,6 @@
 #include <cover/coVRMSController.h>
 #include <cover/coInteractor.h>
 #include <cover/coVRFileManager.h>
-#include <cover/Outline.h>
 
 #include <osg/Group>
 #include <osg/Node>
@@ -20,6 +19,7 @@
 #include <osg/TexGenNode>
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
+#include <osgFX/Outline>
 
 #include <OpenVRUI/coPanel.h>
 #include <OpenVRUI/coFrame.h>

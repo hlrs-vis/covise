@@ -41,7 +41,7 @@ typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
 // do something for all plugins
 #define DOALL(something)                                                                                   \
     {                                                                                                      \
-        for (PluginMap::iterator plugin_it = m_plugins.begin(); plugin_it != m_plugins.end(); ++plugin_it) \
+        for (PluginMap::const_iterator plugin_it = m_plugins.begin(); plugin_it != m_plugins.end(); ++plugin_it) \
         {                                                                                                  \
             coVRPlugin *plugin = plugin_it->second;                                                        \
             {                                                                                              \
@@ -233,7 +233,7 @@ void coVRPluginList::unloadQueued()
     m_unloadQueue.clear();
 }
 
-void coVRPluginList::addNode(osg::Node *node, RenderObject *ro, coVRPlugin *addingPlugin)
+void coVRPluginList::addNode(osg::Node *node, RenderObject *ro, coVRPlugin *addingPlugin) const
 {
     DOALL(if (plugin != addingPlugin)
               plugin->addNode(node, ro));
@@ -247,7 +247,7 @@ void coVRPluginList::addObject(RenderObject *baseObj,
                                float *r, float *g, float *b, int *packedCol,
                                int numNormals, int normalBinding,
                                float *xn, float *yn, float *zn,
-                               float transparency)
+                               float transparency) const
 {
     // call addObject for the current plugin in the plugin list
     DOALL(plugin->addObject(baseObj, geomObj, normObj, colorObj, texObj,
@@ -257,28 +257,28 @@ void coVRPluginList::addObject(RenderObject *baseObj,
                             xn, yn, zn, transparency));
 }
 
-void coVRPluginList::newInteractor(RenderObject *container, coInteractor *it)
+void coVRPluginList::newInteractor(RenderObject *container, coInteractor *it) const
 {
     DOALL(plugin->newInteractor(container, it));
 }
 
-void coVRPluginList::coviseError(const char *error)
+void coVRPluginList::coviseError(const char *error) const
 {
     DOALL(plugin->coviseError(error));
 }
 
-void coVRPluginList::guiToRenderMsg(const char *msg)
+void coVRPluginList::guiToRenderMsg(const char *msg) const
 {
     DOALL(plugin->guiToRenderMsg(msg));
 }
 
-void coVRPluginList::removeObject(const char *objName, bool replaceFlag)
+void coVRPluginList::removeObject(const char *objName, bool replaceFlag) const
 {
     // call deleteObject for the current plugin in the plugin list
     DOALL(plugin->removeObject(objName, replaceFlag));
 }
 
-void coVRPluginList::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
+void coVRPluginList::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode) const
 {
     if (isGroup)
         coVRSelectionManager::instance()->removeNode(node);
@@ -286,7 +286,7 @@ void coVRPluginList::removeNode(osg::Node *node, bool isGroup, osg::Node *realNo
     DOALL(plugin->removeNode(node, isGroup, realNode));
 }
 
-void coVRPluginList::prepareFrame()
+void coVRPluginList::prepareFrame() const
 {
 #ifdef DOTIMING
     MARK0("COVER calling prepareFrame for all plugins");
@@ -310,12 +310,12 @@ void coVRPluginList::preFrame()
 #endif
 }
 
-void coVRPluginList::setTimestep(int t)
+void coVRPluginList::setTimestep(int t) const
 {
     DOALL(plugin->setTimestep(t));
 }
 
-void coVRPluginList::postFrame()
+void coVRPluginList::postFrame() const
 {
 #ifdef DOTIMING
     MARK0("COVER calling postFrame for all plugins");
@@ -327,22 +327,22 @@ void coVRPluginList::postFrame()
 #endif
 }
 
-void coVRPluginList::preDraw(osg::RenderInfo &renderInfo)
+void coVRPluginList::preDraw(osg::RenderInfo &renderInfo) const
 {
     DOALL(plugin->preDraw(renderInfo));
 }
 
-void coVRPluginList::preSwapBuffers(int windowNumber)
+void coVRPluginList::preSwapBuffers(int windowNumber) const
 {
     DOALL(plugin->preSwapBuffers(windowNumber));
 }
 
-void coVRPluginList::postSwapBuffers(int windowNumber)
+void coVRPluginList::postSwapBuffers(int windowNumber) const
 {
     DOALL(plugin->postSwapBuffers(windowNumber));
 }
 
-void coVRPluginList::param(const char *paramName, bool inMapLoading)
+void coVRPluginList::param(const char *paramName, bool inMapLoading) const
 {
     DOALL(plugin->param(paramName, inMapLoading));
 }
@@ -352,7 +352,7 @@ void coVRPluginList::grabKeyboard(coVRPlugin *p)
     keyboardPlugin = p;
 }
 
-bool coVRPluginList::key(int type, int keySym, int mod)
+bool coVRPluginList::key(int type, int keySym, int mod) const
 {
     if (keyboardPlugin)
     {
@@ -366,7 +366,7 @@ bool coVRPluginList::key(int type, int keySym, int mod)
     return true;
 }
 
-bool coVRPluginList::userEvent(int mod)
+bool coVRPluginList::userEvent(int mod) const
 {
     DOALL(plugin->userEvent(mod));
     return true;
@@ -394,14 +394,14 @@ void coVRPluginList::init()
     updateState();
 }
 
-void coVRPluginList::message(int t, int l, const void *b)
+void coVRPluginList::message(int t, int l, const void *b) const
 {
     DOALL(plugin->message(t, l, b));
 }
 
-coVRPlugin *coVRPluginList::getPlugin(const char *name)
+coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 {
-    PluginMap::iterator it = m_plugins.find(name);
+    PluginMap::const_iterator it = m_plugins.find(name);
     if (it == m_plugins.end())
         return NULL;
 
@@ -429,7 +429,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name)
     return m;
 }
 
-void coVRPluginList::forwardMessage(int len, const void *buf)
+void coVRPluginList::forwardMessage(int len, const void *buf) const
 {
     int headerSize = 2 * sizeof(int);
     if (len < headerSize)
@@ -461,12 +461,12 @@ void coVRPluginList::forwardMessage(int len, const void *buf)
     }
 }
 
-void coVRPluginList::requestQuit(bool killSession)
+void coVRPluginList::requestQuit(bool killSession) const
 {
     DOALL(plugin->requestQuit(killSession));
 }
 
-bool coVRPluginList::sendVisMessage(const Message *msg)
+bool coVRPluginList::sendVisMessage(const Message *msg) const
 {
     DOALL(if (plugin->sendVisMessage(msg))
           { return true;
@@ -474,7 +474,7 @@ bool coVRPluginList::sendVisMessage(const Message *msg)
     return false;
 }
 
-bool coVRPluginList::becomeCollaborativeMaster()
+bool coVRPluginList::becomeCollaborativeMaster() const
 {
     DOALL(if (plugin->becomeCollaborativeMaster())
           { return true;
@@ -483,7 +483,7 @@ bool coVRPluginList::becomeCollaborativeMaster()
     return false;
 }
 
-covise::Message *coVRPluginList::waitForVisMessage(int messageType)
+covise::Message *coVRPluginList::waitForVisMessage(int messageType) const
 {
     DOALL(covise::Message *m = plugin->waitForVisMessage(messageType);
           if (m)
@@ -493,7 +493,7 @@ covise::Message *coVRPluginList::waitForVisMessage(int messageType)
     return NULL;
 }
 
-bool coVRPluginList::executeAll()
+bool coVRPluginList::executeAll() const
 {
     DOALL(if (plugin->executeAll())
           { return true;
@@ -502,7 +502,7 @@ bool coVRPluginList::executeAll()
     return false;
 }
 
-void coVRPluginList::expandBoundingSphere(osg::BoundingSphere &bs)
+void coVRPluginList::expandBoundingSphere(osg::BoundingSphere &bs) const
 {
     DOALL(plugin->expandBoundingSphere(bs));
 }
