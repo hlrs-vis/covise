@@ -291,7 +291,7 @@ osg::Group *VisScene::makeVisGroup()
 
     //VRViewer legt bei start von OpenCover fest, in welche Textur die Kamera (SceneCam) des zugehörigen projScreens ihre Szene rendert (R2T)
     //Diese Szene soll später verzerrt werden -> Textur mit Szene der TexUnit 0 des Quads zuweisen
-    stateDistQuad->setTextureAttributeAndModes(0, coVRConfig::instance()->channels[projector->getProjectorNum() - 1].renderTargetTexture, osg::StateAttribute::ON);
+    stateDistQuad->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[projector->getProjectorNum() - 1].renderTargetTexture, osg::StateAttribute::ON);
 
     if (blend)
     {
