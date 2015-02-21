@@ -22,7 +22,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
-#include <cover/coLOD.h>
+#include <PluginUtil/coLOD.h>
 #include <config/CoviseConfig.h>
 
 #include "JTOpenPlugin.h"

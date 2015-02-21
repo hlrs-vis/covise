@@ -19,6 +19,7 @@
 #include "src/graph/profilegraphview.hpp"
 #include "src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.hpp"
 #include "src/graph/items/roadsystem/lanes/lanesectionwidthitem.hpp"
+#include "src/graph/items/roadsystem/lanes/lanewidthmovehandle.hpp"
 
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 
@@ -124,6 +125,7 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
     updateLevel();
     updatePredecessor();
     updateSuccessor();
+    updateWidth();
 
     // Done //
     //
@@ -215,6 +217,48 @@ LaneSettings::updateSuccessor()
         ui->successorCheckBox->setChecked(true);
         ui->successorBox->setEnabled(true);
     }
+}
+
+void
+LaneSettings::updateWidth()
+{
+    LaneWidthMoveHandle *laneWidthMoveHandle = getFirstSelectedLaneWidthHandle();
+
+    if (laneWidthMoveHandle)
+    {
+        LaneWidth *laneWidth = laneWidthMoveHandle->getLowSlot();
+
+        if (laneWidth)
+        {
+            double w = laneWidth->getWidth(laneWidth->getSSectionEnd());
+            ui->widthSpinBox->setValue(w);
+        }
+
+        laneWidth = laneWidthMoveHandle->getHighSlot();
+        if (laneWidth)
+        {
+            double w = laneWidth->getWidth(laneWidth->getSSectionStart());
+            ui->widthSpinBox->setValue(w);
+        }
+    }
+
+}
+
+LaneWidthMoveHandle *
+LaneSettings::getFirstSelectedLaneWidthHandle()
+{
+    QList<QGraphicsItem *> selectList = getProjectSettings()->getProjectWidget()->getHeightGraph()->getScene()->selectedItems();
+
+    foreach (QGraphicsItem *item, selectList)
+    {
+        LaneWidthMoveHandle *laneWidthMoveHandle = dynamic_cast<LaneWidthMoveHandle *>(item);
+        if (laneWidthMoveHandle)
+        {
+            return laneWidthMoveHandle;
+        }
+    }
+
+    return NULL;
 }
 
 //################//
@@ -339,7 +383,7 @@ LaneSettings::on_addWidthButton_released()
 
 void LaneSettings::on_widthSpinBox_valueChanged(double w)
 {
-    laneEditor_->setWidth(w);
+  //  laneEditor_->setWidth(w);
 }
 
 //##################//
@@ -361,6 +405,16 @@ LaneSettings::updateObserver()
     // Get change flags //
     //
     int changes = lane_->getLaneChanges();
+
+    if ((changes & Lane::CLN_WidthsChanged) || (changes & DataElement::CDE_SelectionChange))
+    {
+        updateId();
+        updateType();
+        updateLevel();
+        updatePredecessor();
+        updateSuccessor();
+        updateWidth();
+    }
 
     if ((changes & Lane::CLN_IdChanged))
     {

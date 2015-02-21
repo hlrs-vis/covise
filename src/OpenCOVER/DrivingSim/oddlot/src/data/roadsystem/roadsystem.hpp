@@ -142,14 +142,12 @@ public:
     void changeUniqueId(RSystemElement *element, QString newId);
     const QString getUniqueId(const QString &suggestion, QString &name);
 
-    // Linking //
-    //
-    void checkLinking();
 
 private:
     //	RoadSystem(); /* not allowed */
     RoadSystem(const RoadSystem &); /* not allowed */
     RoadSystem &operator=(const RoadSystem &); /* not allowed */
+
 
     //################//
     // PROPERTIES     //

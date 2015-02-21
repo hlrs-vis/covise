@@ -34,6 +34,7 @@ SET(HEADERS
   coBaseCoviseInteractor.h
   coSphere.h
   ProgramCache.h
+  coLOD.h
 )
   SET(HEADERS ${HEADERS} GenericGuiObject.h)
 
@@ -58,6 +59,7 @@ SET(SOURCES
   coBaseCoviseInteractor.cpp
   coSphere.cpp
   ProgramCache.cpp
+  coLOD.cpp
 )
   SET(SOURCES ${SOURCES} GenericGuiObject.cpp)
 

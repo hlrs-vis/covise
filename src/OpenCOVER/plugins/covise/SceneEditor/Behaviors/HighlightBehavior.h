@@ -8,8 +8,6 @@
 #ifndef HIGHLIGHT_BEHAVIOR_H
 #define HIGHLIGHT_BEHAVIOR_H
 
-#include <cover/Outline.h>
-
 #include "Behavior.h"
 #include "../Events/MouseEnterEvent.h"
 #include "../Events/MouseExitEvent.h"
@@ -19,6 +17,7 @@
 #include <osg/StateSet>
 #include <osg/Material>
 #include <osg/Program>
+#include <osgFX/Outline>
 
 class HighlightBehavior : public Behavior
 {

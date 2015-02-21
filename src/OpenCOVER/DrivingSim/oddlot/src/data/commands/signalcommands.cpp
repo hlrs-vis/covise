@@ -207,7 +207,7 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     oldUserData_.resetTime = resetTime;
 }
 
-SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, Signal::SignalProperties &signalProps, Signal::Validity &validLanes, Signal::SignalUserData &userData, DataCommand *parent)
+SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)

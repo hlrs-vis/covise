@@ -579,9 +579,9 @@ void VRPinboard::makeQuitMenu()
 {
     string qtext, yesText, noText;
 
-    qtext = "Wollen Sie Covise wirklich beenden?";
-    yesText = "Beenden";
-    noText = "Abbrechen";
+    qtext = "Really quit OpenCOVER?";
+    yesText = "Quit";
+    noText = "Continue";
 
     char *covisepath = getenv("COVISE_PATH");
     if (covisepath)

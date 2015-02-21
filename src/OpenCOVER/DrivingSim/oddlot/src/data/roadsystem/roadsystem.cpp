@@ -31,6 +31,10 @@
 
 #include "src/data/tilesystem/tilesystem.hpp"
 
+// Qt //
+//
+#include <QVector2D>
+
 /*! \brief CONSTRUCTOR.
 *
 */
@@ -718,131 +722,6 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
     }
 }
 
-void
-RoadSystem::checkLinking()
-{
-
-    QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
-
-    while (it != roads_.constEnd())
-    {
-        RSystemElementRoad *road = it.value();
-        RSystemElementRoad *predRoad = NULL;
-        if (road->getPredecessor() && (road->getPredecessor()->getElementType() == "road"))
-        {
-            RSystemElementRoad *predRoad = getRoad(road->getPredecessor()->getElementId());
-        }
-        RSystemElementRoad *succRoad = NULL;
-        if (road->getSuccessor() && (road->getSuccessor()->getElementType() == "road"))
-        {
-            RSystemElementRoad *succRoad = getRoad(road->getSuccessor()->getElementId());
-        }
-
-        QList<LaneSection *> laneSectionList;
-        laneSectionList.append(road->getLaneSection(0.0));
-        laneSectionList.append(road->getLaneSection(road->getLength()));
-
-        for (int i = 0; i < laneSectionList.count(); i++)
-        {
-            LaneSection *laneSection = laneSectionList.at(i);
-            QMap<int, Lane *>::const_iterator laneIt = laneSection->getLanes().constBegin();
-            while (laneIt != laneSection->getLanes().constEnd())
-            {
-                Lane *lane = laneIt.value();
-                if (lane->getPredecessor() != Lane::NOLANE)
-                {
-                    if (!road->getPredecessor())
-                    {
-                        lane->setPredecessor(Lane::NOLANE);
-                    }
-                    else
-                    {
-                        if (road->getPredecessor()->getContactPoint() == "end") // check orientation of lanes
-                        {
-
-                            if (((lane->getId() < 0) && (lane->getPredecessor() > 0)) || ((lane->getId() > 0) && (lane->getPredecessor() < 0)))
-                            {
-                                lane->setPredecessor(-lane->getPredecessor());
-                            }
-
-                            if (predRoad != NULL) // check type of lanes
-                            {
-                                LaneSection *predLaneSection = predRoad->getLaneSection(predRoad->getLength()); // compare lane types
-                                if (predLaneSection->getLane(lane->getPredecessor())->getLaneType() != lane->getLaneType())
-                                {
-                                    lane->setPredecessor(Lane::NOLANE);
-                                }
-                            }
-                        }
-                        else if (road->getPredecessor()->getContactPoint() == "start")
-                        {
-                            if (((lane->getId() < 0) && (lane->getPredecessor() < 0)) || ((lane->getId() > 0) && (lane->getPredecessor() > 0)))
-                            {
-                                lane->setPredecessor(-lane->getPredecessor());
-                            }
-
-                            if (predRoad != NULL) // check type of lanes
-                            {
-                                LaneSection *predLaneSection = predRoad->getLaneSection(0.0); // compare lane types
-                                if (predLaneSection->getLane(lane->getPredecessor())->getLaneType() != lane->getLaneType())
-                                {
-                                    lane->setPredecessor(Lane::NOLANE);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (lane->getSuccessor() != Lane::NOLANE)
-                {
-                    if (!road->getSuccessor())
-                    {
-                        lane->setSuccessor(Lane::NOLANE);
-                    }
-                    else
-                    {
-
-                        if (road->getSuccessor()->getContactPoint() == "start")
-                        {
-                            if (((lane->getId() < 0) && (lane->getSuccessor() > 0)) || ((lane->getId() > 0) && (lane->getSuccessor() < 0)))
-                            {
-                                lane->setSuccessor(-lane->getSuccessor());
-                            }
-
-                            if (succRoad != NULL)
-                            {
-                                LaneSection *succLaneSection = predRoad->getLaneSection(0.0); // compare lane types
-                                if (succLaneSection->getLane(lane->getSuccessor())->getLaneType() != lane->getLaneType())
-                                {
-                                    lane->setSuccessor(Lane::NOLANE);
-                                }
-                            }
-                        }
-                        else if (road->getSuccessor()->getContactPoint() == "end")
-                        {
-                            if (((lane->getId() < 0) && (lane->getSuccessor() < 0)) || ((lane->getId() > 0) && (lane->getSuccessor() > 0)))
-                            {
-                                lane->setSuccessor(-lane->getSuccessor());
-                            }
-
-                            if (succRoad != NULL)
-                            {
-                                LaneSection *succLaneSection = predRoad->getLaneSection(predRoad->getLength()); // compare lane types
-                                if (succLaneSection->getLane(lane->getSuccessor())->getLaneType() != lane->getLaneType())
-                                {
-                                    lane->setSuccessor(Lane::NOLANE);
-                                }
-                            }
-                        }
-                    }
-                }
-//                qDebug() << "Lane Predecessor: " << lane->getPredecessor() << "Lane Successor: " << lane->getSuccessor();
-                laneIt++;
-            }
-        }
-        it++;
-    }
-}
 
 //##################//
 // ProjectData      //
