@@ -16,6 +16,7 @@
 #define __TRACKINGBODY_H_
 
 #include <osg/Matrix>
+#include <util/coExport.h>
 #include <iostream>
 
 namespace opencover
@@ -23,7 +24,7 @@ namespace opencover
 
 class InputDevice;
 
-class TrackingBody
+class COVEREXPORT TrackingBody
 {
     friend class Input;
 
