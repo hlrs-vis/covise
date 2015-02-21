@@ -59,6 +59,8 @@
 
 #include "VrmlNodeTUI.h"
 #include "VrmlNodeTimesteps.h"
+#include "VrmlNodeCOVERPerson.h"
+#include "VrmlNodeCOVERBody.h"
 #include "VrmlNodeARSensor.h"
 #include "VrmlNodeMirrorCamera.h"
 #include "VrmlNodeMultiTouchSensor.h"
@@ -337,6 +339,8 @@ bool Vrml97Plugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeTUIFloatSlider::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeTUILabel::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeTimesteps::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeCOVERPerson::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeCOVERBody::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeCOVISEObject::defineType());
 
     VrmlNamespace::addBuiltIn(VrmlNodeARSensor::defineType());
