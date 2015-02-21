@@ -63,10 +63,9 @@ typedef struct
 {
     std::string name;
     
-    int PBOsx, PBOsy; // PBO size
-    int pipeNum; // pipe to render to
-    int viewportNum; // destination viewport
-    osg::ref_ptr<osg::Texture2D> renderTargetTexture;
+    int PBONum; // destination PBO or -1 if rendering to a viewport directly
+    int viewportNum; // destination viewport or -1 if rendering to a PBO
+    int screenNum; // screen index
 
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osgUtil::SceneView> sceneView;
@@ -75,6 +74,15 @@ typedef struct
     osg::Matrixd leftView, rightView;
     osg::Matrixd leftProj, rightProj;
 } channelStruct;
+
+//! describes a PBO
+typedef struct
+{
+    int PBOsx, PBOsy; // PBO size
+    int pipeNum; // pipe to render to
+    osg::ref_ptr<osg::Texture2D> renderTargetTexture;
+} PBOStruct;
+
 
 class COVEREXPORT angleStruct
 {
@@ -104,7 +112,7 @@ typedef struct
 typedef struct // describes an OpenGL Viewport
 {  
     int window;
-    int channel; // the channel (PBO) to copy data from
+    int PBOnum;
     float sourceXMin;
     float sourceYMin;
     float sourceXMax;
@@ -166,6 +174,7 @@ public:
     
     int numScreens() const;
     int numChannels() const;
+    int numPBOs() const;
     int numViewports() const;
     int numWindows() const;
     int numPipes() const;
@@ -278,6 +287,7 @@ public:
     
     screenStruct *screens; // list of physical screens
     channelStruct *channels; // list of physical screens
+    PBOStruct *PBOs; // list of physical screens
     pipeStruct *pipes; // list of pipes (X11: identified by display and screen)
     windowStruct *windows; // list of windows
     viewportStruct *viewports; // list of PixelBufferObjects
@@ -327,6 +337,7 @@ private:
     int m_numViewports;
     int m_numScreens;
     int m_numChannels;
+    int m_numPBOs;
     int m_numPipes;
     int m_stencilBits;
     float m_sceneSize;

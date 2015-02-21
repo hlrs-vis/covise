@@ -244,8 +244,16 @@ coMousePointer::update()
     osg::Matrix transMat;
 
     mouse2D[0] = ((mx - (xres / 2.0)) / xres) * width;
+    if(mouse2D[0] > width/2.0) // work around for twho viewports in one window
+    {
+        mouse2D[0] -= width;
+    }
     mouse2D[1] = 0;
     mouse2D[2] = (my / yres - (0.5)) * height;
+    if(mouse2D[2] > height/2.0)// work around for twho viewports in one window
+    {
+        mouse2D[2] -= height;
+    }
 
     MAKE_EULER_MAT(transMat, screenH, screenP, screenR);
     mouse3D = transMat.preMult(mouse2D);

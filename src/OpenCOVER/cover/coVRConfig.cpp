@@ -113,6 +113,7 @@ coVRConfig::coVRConfig()
     m_numChannels = coCoviseConfig::getInt("COVER.NumChannels", m_numScreens); // normally numChannels == numScreens, only if we use B´PBOs, it might be equal to the number of PBOs
     m_numWindows = coCoviseConfig::getInt("COVER.NumWindows", m_numScreens);
     m_numViewports = coCoviseConfig::getInt("COVER.NumViewports", m_numChannels); // normally this is equal to the number of Channels
+    m_numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", m_numChannels);
     m_numPipes = coCoviseConfig::getInt("COVER.NumPipes", 1);
     m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
@@ -255,6 +256,7 @@ coVRConfig::coVRConfig()
     
     screens = new screenStruct[m_numScreens];
     channels = new channelStruct[m_numChannels];
+    PBOs = new PBOStruct[m_numPBOs];
     pipes = new pipeStruct[m_numPipes];
     windows = new windowStruct[m_numWindows];
     viewports = new viewportStruct[m_numViewports];
@@ -358,10 +360,27 @@ coVRConfig::coVRConfig()
             m_stencil = true;
         }
         
-        channels[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
-        channels[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
-        channels[i].pipeNum = -1;
-        channels[i].viewportNum = -1;
+        channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
+        if(channels[i].PBONum == -1)
+        {
+            channels[i].viewportNum = coCoviseConfig::getInt("viewportIndex", str, i);
+        }
+        else
+        {
+            channels[i].viewportNum = -1;
+        }
+        channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
+    }
+    for (int i = 0; i < m_numPBOs; i++)
+    {
+        std::string stereoM;
+
+        char str[200];
+        sprintf(str, "COVER.PBOConfig.PBO:%d", i);
+        
+        PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
+        PBOs[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
+        PBOs[i].pipeNum = coCoviseConfig::getInt("pipeIndex", str, -1);
     }
     for (int i = 0; i < m_numViewports; i++)
     {
@@ -370,18 +389,19 @@ coVRConfig::coVRConfig()
         char str[200];
         sprintf(str, "COVER.ViewportConfig.Viewport:%d", i);
         viewportStruct &vp = viewports[i];
-        
-        vp.window = coCoviseConfig::getInt("windowIndex", str, 0);
-        vp.channel = coCoviseConfig::getInt("channelIndex", str, -1);
-        if(vp.channel > -1)
+        bool exists=false;
+        vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+        if(!exists)
         {
-            channels[vp.channel].viewportNum = i;
-            channels[vp.channel].pipeNum = windows[vp.window].pipeNum;
+            // no viewport config, check for values in channelConfig for backward compatibility
+            
+            sprintf(str, "COVER.ChannelConfig.Channel:%d", i);
+            vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+            vp.PBOnum = i;
         }
         else
         {
-            cerr << "ViewportConfig is missing a channelIndex. " << str << endl;
-            exit(-1);
+            vp.PBOnum = coCoviseConfig::getInt("PBOIndex", str, -1);
         }
 
 
@@ -401,12 +421,17 @@ coVRConfig::coVRConfig()
         vp.viewportYMax = coCoviseConfig::getFloat("top", str, -1);
         if (vp.viewportXMax < 0)
         {
-            vp.viewportXMax = coCoviseConfig::getFloat("width", str, 1024);
-            vp.viewportYMax = coCoviseConfig::getFloat("height", str, 768);
-            if (vp.viewportXMax > 1.0)
-                vp.viewportXMax = vp.viewportXMin + (vp.viewportXMax / ((float)(windows[vp.window].sx)));
-            if (vp.viewportYMax > 1.0)
-                vp.viewportYMax = vp.viewportYMin + (vp.viewportYMax / ((float)(windows[vp.window].sy)));
+            float w,h;
+            w = coCoviseConfig::getFloat("width", str, 1024);
+            h = coCoviseConfig::getFloat("height", str, 768);
+            if (w > 1.0)
+                vp.viewportXMax = vp.viewportXMin + (w / ((float)(windows[vp.window].sx)));
+            else
+                vp.viewportXMax = vp.viewportXMin + w;
+            if (h > 1.0)
+                vp.viewportYMax = vp.viewportYMin + (h / ((float)(windows[vp.window].sy)));
+            else
+                vp.viewportYMax = vp.viewportYMin + h;
         }
         else
         {
@@ -421,30 +446,35 @@ coVRConfig::coVRConfig()
 
         if (vp.sourceXMin > 1.0)
         {
-            vp.sourceXMin = vp.sourceXMin / ((float)(channels[vp.channel].PBOsx));
+            vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
         }
         if (vp.sourceYMin > 1.0)
         {
-            vp.sourceYMin = vp.sourceYMin / ((float)(channels[vp.channel].PBOsy));
+            vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
         }
 
         vp.sourceXMax = coCoviseConfig::getFloat("sourceRight", str, -1);
         vp.sourceYMax = coCoviseConfig::getFloat("sourceTop", str, -1);
         if (vp.sourceXMax < 0)
         {
-            vp.sourceXMax = coCoviseConfig::getFloat("sourceWidth", str, 1024);
-            vp.sourceYMax = coCoviseConfig::getFloat("sourceHeight", str, 768);
-            if (vp.sourceXMax > 1.0)
-                vp.sourceXMax = vp.sourceXMin + (vp.sourceXMax / ((float)(channels[vp.channel].PBOsx)));
-            if (vp.sourceYMax > 1.0)
-                vp.sourceYMax = vp.sourceYMin + (vp.sourceYMax / ((float)(channels[vp.channel].PBOsy)));
+            float w,h;
+            w = coCoviseConfig::getFloat("sourceWidth", str, 1.0);
+            h = coCoviseConfig::getFloat("sourceHeight", str, 1.0);
+            if (w > 1.0)
+                vp.sourceXMax = vp.sourceXMin + (w / ((float)(PBOs[vp.PBOnum].PBOsx)));
+            else
+                vp.sourceXMax = vp.sourceXMin + w;
+            if (h > 1.0)
+                vp.sourceYMax = vp.sourceYMin + (h / ((float)(PBOs[vp.PBOnum].PBOsy)));
+            else
+                vp.sourceYMax = vp.sourceYMin + h;
         }
         else
         {
             if (vp.sourceXMax > 1.0)
-                vp.sourceXMax = vp.sourceXMax / ((float)(channels[vp.channel].PBOsx));
+                vp.sourceXMax = vp.sourceXMax / ((float)(PBOs[vp.PBOnum].PBOsx));
             if (vp.sourceYMax > 1.0)
-                vp.sourceYMax = vp.sourceYMax / ((float)(channels[vp.channel].PBOsy));
+                vp.sourceYMax = vp.sourceYMax / ((float)(PBOs[vp.PBOnum].PBOsy));
         }
 
     }

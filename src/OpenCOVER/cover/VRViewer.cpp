@@ -562,7 +562,7 @@ void VRViewer::update()
         fprintf(stderr, "\n");
     }
 
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         setFrustumAndView(i);
     }
@@ -747,7 +747,7 @@ VRViewer::config()
 //            sched_setaffinity( 0, &cpumask );
 #endif
 
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         setFrustumAndView(i);
     }
@@ -858,19 +858,19 @@ VRViewer::createChannels(int i)
         int w = traits->width;
         int h = traits->height;
 
-        renderTargetTexture->setTextureSize(coVRConfig::instance()->channels[i].PBOsx, coVRConfig::instance()->channels[i].PBOsy);
+        renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[i].PBOsx, coVRConfig::instance()->PBOs[i].PBOsy);
         renderTargetTexture->setInternalFormat(GL_RGBA);
         //renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);
         //	   renderTargetTexture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::NEAREST);
         renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
         renderTargetTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-        coVRConfig::instance()->channels[i].renderTargetTexture = renderTargetTexture;
+        coVRConfig::instance()->PBOs[i].renderTargetTexture = renderTargetTexture;
         coVRConfig::instance()->channels[i].camera->attach(osg::Camera::COLOR_BUFFER, renderTargetTexture);
         coVRConfig::instance()->channels[i].camera->setRenderTargetImplementation(renderImplementation);
 
 
-        coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->channels[i].PBOsx,
-                                                                                       coVRConfig::instance()->channels[i].PBOsy));
+        coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->PBOs[i].PBOsx,
+                                                                                       coVRConfig::instance()->PBOs[i].PBOsy));
     }
     if (gw.get())
     {
@@ -947,7 +947,7 @@ VRViewer::culling(bool enable, osg::CullSettings::CullingModeValues mode, bool o
     {
         reEnableCulling = true;
     }
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         if (enable)
             coVRConfig::instance()->channels[i].camera->setCullingMode(mode);
@@ -959,7 +959,7 @@ VRViewer::culling(bool enable, osg::CullSettings::CullingModeValues mode, bool o
 void
 VRViewer::setClearColor(const osg::Vec4 &color)
 {
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); ++i)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); ++i)
     {
         coVRConfig::instance()->channels[i].camera->setClearColor(color);
     }
@@ -974,8 +974,8 @@ VRViewer::setFrustumAndView(int i)
         fprintf(stderr, "VRViewer::setFrustum %d\n", i);
 
     coVRConfig *coco = coVRConfig::instance();
-    screenStruct *currentScreen = &coco->screens[i];
     channelStruct *currentChannel = &coco->channels[i];
+    screenStruct *currentScreen = &coco->screens[currentChannel->screenNum];
 
     if (overwritePAndV)
     {
@@ -1617,7 +1617,7 @@ void VRViewer::startThreading()
         gc->getGraphicsThread()->add(pso);
 
         // wait on a Barrier so that all rendering threads are ready to swap, otherwise we are not sure that after a remote sync, we can swap rightaway
-        if (coVRConfig::instance()->numScreens() > 1)
+        if (coVRConfig::instance()->numChannels() > 1)
         {
 
             if (swapReadyBarrier.valid())
