@@ -58,6 +58,7 @@ public:
         return persons.size();
     } //< number of configured persions
     bool setActivePerson(size_t numPerson); //< set active person
+    int getActivePersonNumber(){return activePersonNumber;};
     Person *getPerson(const std::string &name);
     Person *getPerson(size_t idx) const;
 
@@ -88,6 +89,7 @@ private:
     typedef std::map<std::string, Person *> PersonMap;
     PersonMap persons; //< configured persons
     Person *activePerson; ///Active person
+    int activePersonNumber;
 
     std::vector<TrackingBody *> objects; ///Objects list
 

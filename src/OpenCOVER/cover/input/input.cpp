@@ -408,6 +408,7 @@ bool Input::setActivePerson(size_t num)
         return false;
 
     activePerson = p;
+    activePersonNumber = num;
     return true;
 }
 
