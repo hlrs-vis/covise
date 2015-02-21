@@ -417,7 +417,6 @@ bool Input::setActivePerson(size_t num)
     }
 
     activePerson = p;
-    activePersonNumber = num;
 
     std::cerr << "Input: switched to person " << activePerson->name() << std::endl;
     return true;
@@ -444,7 +443,7 @@ Person *Input::getPerson(size_t num) const
     return NULL;
 }
 
-size_t Input::getCurrentPersonIndex() const
+size_t Input::getActivePerson() const
 {
     size_t idx = 0;
     for (PersonMap::const_iterator it = persons.begin();

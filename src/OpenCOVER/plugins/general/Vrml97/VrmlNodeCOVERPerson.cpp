@@ -87,7 +87,7 @@ VrmlNodeType *VrmlNodeCOVERPerson::nodeType() const
 
 VrmlNodeCOVERPerson::VrmlNodeCOVERPerson(VrmlScene *scene)
     : VrmlNodeChild(scene)
-    , d_activePerson(Input::instance()->getActivePersonNumber())
+    , d_activePerson(Input::instance()->getActivePerson())
 {
     setModified();
 }
@@ -134,9 +134,9 @@ void VrmlNodeCOVERPerson::render(Viewer *viewer)
 {
     (void)viewer;
     double timeNow = System::the->time();
-    if (d_activePerson.get() != Input::instance()->getActivePersonNumber())
+    if (d_activePerson.get() != Input::instance()->getActivePerson())
     {
-        d_activePerson.set(Input::instance()->getActivePersonNumber());
+        d_activePerson.set(Input::instance()->getActivePerson());
         eventOut(timeNow, "activePerson", d_activePerson);
     }
     setModified();
