@@ -47,6 +47,8 @@ public:
 
     unsigned int getButtonState(size_t num) const;
     double getValuatorValue(size_t idx) const;
+    
+    const std::string &getName() const{return m_name;};
 
 private:
     Person(const std::string &name);

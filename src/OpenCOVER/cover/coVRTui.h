@@ -46,6 +46,41 @@ private:
     virtual void tabletReleaseEvent(coTUIElement *tUIItem);
 };
 
+class coInputTUI: public coTUIListener
+{
+public:
+    coInputTUI();
+    virtual ~coInputTUI();
+
+private:
+    virtual void tabletEvent(coTUIElement *tUIItem);
+    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
+    void updateTUI();
+    
+    coTUITab *inputTab;
+    coTUIFrame *personContainer;
+    coTUILabel * personsLabel;
+    coTUIComboBox * personsChoice;
+
+    coTUIFrame *bodiesContainer;
+    coTUILabel *bodiesLabel;
+    coTUIComboBox *bodiesChoice;
+    
+    coTUIEditFloatField *bodyTrans[3];
+    coTUILabel *bodyTransLabel[3];
+    coTUIEditFloatField *bodyRot[3];
+    coTUILabel *bodyRotLabel[3];
+
+    coTUILabel *devicesLabel;
+    coTUIComboBox *devicesChoice;
+    
+    coTUIEditFloatField *deviceTrans[3];
+    coTUILabel *deviceTransLabel[3];
+    coTUIEditFloatField *deviceRot[3];
+    coTUILabel *deviceRotLabel[3];
+};
+
 class coPluginEntryList : public covise::DLinkList<coPluginEntry *>
 {
 public:
@@ -242,6 +277,7 @@ private:
     bool animationRotate;
     bool animationOscillate;
     double lastUpdateTime;
+    coInputTUI *inputTUI;
 };
 }
 #endif
