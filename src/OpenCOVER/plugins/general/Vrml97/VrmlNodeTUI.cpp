@@ -93,10 +93,10 @@ void VrmlNodeTUIElement::render(Viewer *)
 {
     if (isModified())
     {
-        if (d_TUIElement != NULL)
+      /*  if (d_TUIElement != NULL)
         {
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
-        }
+        }*/
         clearModified();
     }
     // the elements are created in subclasses
@@ -126,9 +126,16 @@ void VrmlNodeTUIElement::eventIn(double timeStamp,
 {
     setModified();
     VrmlNode::eventIn(timeStamp, eventName, fieldValue);
-    if ((d_TUIElement != NULL) && strcmp(eventName, "elementName") == 0)
+    if(d_TUIElement != NULL)
     {
-        d_TUIElement->setLabel(d_elementName.get());
+        if(strcmp(eventName, "elementName") == 0)
+        {
+            d_TUIElement->setLabel(d_elementName.get());
+        }
+        if (strcmp(eventName, "pos") == 0)
+        {
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+        }
     }
 }
 
@@ -149,9 +156,16 @@ void VrmlNodeTUIElement::setField(const char *fieldName,
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
 
-    if ((d_TUIElement != NULL) && strcmp(fieldName, "elementName") == 0)
+    if(d_TUIElement != NULL)
     {
-        d_TUIElement->setLabel(d_elementName.get());
+        if(strcmp(fieldName, "elementName") == 0)
+        {
+            d_TUIElement->setLabel(d_elementName.get());
+        }
+        if (strcmp(fieldName, "pos") == 0)
+        {
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+        }
     }
 }
 
@@ -266,8 +280,8 @@ void VrmlNodeTUITab::render(Viewer *viewer)
                 d_TUIElement->setEventListener(this);
                 VrmlTUIElements.append(d_TUIElement);
                 VrmlTUIElements.setNoDelete();
+                d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             }
-            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
 
             VrmlNodeTUIElement::render(viewer);
         }
@@ -354,11 +368,11 @@ void VrmlNodeTUIProgressBar::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+            coTUIProgressBar *pb = (coTUIProgressBar *)d_TUIElement;
+            pb->setMax(d_max.get());
+            pb->setValue(d_value.get());
         }
-        coTUIProgressBar *pb = (coTUIProgressBar *)d_TUIElement;
-        pb->setMax(d_max.get());
-        pb->setValue(d_value.get());
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
@@ -547,8 +561,8 @@ void VrmlNodeTUIButton::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
@@ -656,8 +670,8 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
-        }
         d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+        }
         VrmlNodeTUIElement::render(viewer);
         coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
         tb->setState(d_state.get());
@@ -744,8 +758,8 @@ void VrmlNodeTUIFrame::render(Viewer *viewer)
                 d_TUIElement = (coTUIElement *)coFrame;
                 VrmlTUIElements.append(d_TUIElement);
                 VrmlTUIElements.setNoDelete();
+                d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             }
-            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
             VrmlNodeTUIElement::render(viewer);
         }
         clearModified();
@@ -836,8 +850,8 @@ void VrmlNodeTUISplitter::render(Viewer *viewer)
             d_TUIElement = (coTUIElement *)coSplit;
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
@@ -921,8 +935,8 @@ void VrmlNodeTUILabel::render(Viewer *viewer)
             d_TUIElement = (coTUIElement *)new coTUILabel(d_elementName.get(), getID(d_parent.get()));
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
@@ -1016,27 +1030,59 @@ void VrmlNodeTUIFloatSlider::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
-        }
-        fs = (coTUIFloatSlider *)d_TUIElement;
-        fs->setMin(d_min.get());
-        fs->setMax(d_max.get());
-        fs->setValue(d_value.get());
+            fs = (coTUIFloatSlider *)d_TUIElement;
+            fs->setMin(d_min.get());
+            fs->setMax(d_max.get());
+            fs->setValue(d_value.get());
 
-        bool ori = false;
-        if (strcasecmp(d_orientation.get(), "horizontal") == 0)
-            ori = true;
-        fs->setOrientation(ori);
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+            bool ori = false;
+            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
+                ori = true;
+            fs->setOrientation(ori);
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+        }
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
 
+
+void VrmlNodeTUIFloatSlider::eventIn(double timeStamp,
+                                 const char *fieldName,
+                                 const VrmlField *fieldValue)
+{
+    setModified();
+    VrmlNodeTUIElement::eventIn(timeStamp, fieldName, fieldValue);     
+    coTUIFloatSlider *ts = dynamic_cast<coTUIFloatSlider *>(d_TUIElement);
+    if(ts!=NULL)
+    {
+        if(strcmp(fieldName,"min")==0)
+        {
+            ts->setMin(d_min.get());
+        }
+        else if(strcmp(fieldName,"max")==0)
+        {
+            ts->setMax(d_max.get());
+        }
+        else if(strcmp(fieldName,"value")==0)
+        {
+            ts->setValue(d_value.get());
+        }
+        else if(strcmp(fieldName,"orientation")==0)
+        {
+            bool ori = false;
+            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
+                ori = true;
+            ts->setOrientation(ori);
+        }
+    }
+}
+
+// Set the value of one of the node fields.
 void VrmlNodeTUIFloatSlider::setField(const char *fieldName,
-                                      const VrmlField &fieldValue)
+                                 const VrmlField &fieldValue)
 {
     setModified();
     if
@@ -1049,7 +1095,31 @@ void VrmlNodeTUIFloatSlider::setField(const char *fieldName,
         TRY_FIELD(orientation, SFString)
     else
         VrmlNodeTUIElement::setField(fieldName, fieldValue);
+    coTUISlider *ts = dynamic_cast<coTUISlider *>(d_TUIElement);
+    if(ts!=NULL)
+    {
+        if(strcmp(fieldName,"min")==0)
+        {
+            ts->setMin(d_min.get());
+        }
+        else if(strcmp(fieldName,"max")==0)
+        {
+            ts->setMax(d_max.get());
+        }
+        else if(strcmp(fieldName,"value")==0)
+        {
+            ts->setValue(d_value.get());
+        }
+        else if(strcmp(fieldName,"orientation")==0)
+        {
+            bool ori = false;
+            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
+                ori = true;
+            ts->setOrientation(ori);
+        }
+    }
 }
+
 
 const VrmlField *VrmlNodeTUIFloatSlider::getField(const char *fieldName) const
 {
@@ -1150,25 +1220,57 @@ void VrmlNodeTUISlider::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            coTUISlider *ts = (coTUISlider *)d_TUIElement;
+            ts->setMin(d_min.get());
+            ts->setMax(d_max.get());
+            ts->setValue(d_value.get());
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+            bool ori = false;
+            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
+                ori = true;
+            ts->setOrientation(ori);
         }
-        coTUISlider *ts = (coTUISlider *)d_TUIElement;
-        ts->setMin(d_min.get());
-        ts->setMax(d_max.get());
-        ts->setValue(d_value.get());
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
 
-        bool ori = false;
-        if (strcasecmp(d_orientation.get(), "horizontal") == 0)
-            ori = true;
-        ts->setOrientation(ori);
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
 
+void VrmlNodeTUISlider::eventIn(double timeStamp,
+                                 const char *fieldName,
+                                 const VrmlField *fieldValue)
+{
+    setModified();
+    VrmlNodeTUIElement::eventIn(timeStamp, fieldName, fieldValue);     
+    coTUISlider *ts = dynamic_cast<coTUISlider *>(d_TUIElement);
+    if(ts!=NULL)
+    {
+        if(strcmp(fieldName,"min")==0)
+        {
+            ts->setMin(d_min.get());
+        }
+        else if(strcmp(fieldName,"max")==0)
+        {
+            ts->setMax(d_max.get());
+        }
+        else if(strcmp(fieldName,"value")==0)
+        {
+            ts->setValue(d_value.get());
+        }
+        else if(strcmp(fieldName,"orientation")==0)
+        {
+            bool ori = false;
+            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
+                ori = true;
+            ts->setOrientation(ori);
+        }
+        
+    }
+}
+
+// Set the value of one of the node fields.
 void VrmlNodeTUISlider::setField(const char *fieldName,
                                  const VrmlField &fieldValue)
 {
@@ -1183,6 +1285,29 @@ void VrmlNodeTUISlider::setField(const char *fieldName,
         TRY_FIELD(orientation, SFString)
     else
         VrmlNodeTUIElement::setField(fieldName, fieldValue);
+    coTUISlider *ts = dynamic_cast<coTUISlider *>(d_TUIElement);
+    if(ts!=NULL)
+    {
+        if(strcmp(fieldName,"min")==0)
+        {
+            ts->setMin(d_min.get());
+        }
+        else if(strcmp(fieldName,"max")==0)
+        {
+            ts->setMax(d_max.get());
+        }
+        else if(strcmp(fieldName,"value")==0)
+        {
+            ts->setValue(d_value.get());
+        }
+        else if(strcmp(fieldName,"orientation")==0)
+        {
+            bool ori = false;
+            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
+                ori = true;
+            ts->setOrientation(ori);
+        }
+    }
 }
 
 const VrmlField *VrmlNodeTUISlider::getField(const char *fieldName) const
@@ -1275,8 +1400,8 @@ void VrmlNodeTUIComboBox::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
@@ -1401,8 +1526,8 @@ void VrmlNodeTUIListBox::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }
@@ -1517,8 +1642,8 @@ void VrmlNodeTUIMap::render(Viewer *viewer)
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         VrmlNodeTUIElement::render(viewer);
         clearModified();
     }

@@ -51,7 +51,7 @@ TUIFileBrowserButton::TUIFileBrowserButton(int id, int type, QWidget *w, int par
         b->setText(name);
 
     //b->setFixedSize(b->sizeHint());
-    std::cerr << "Creating new Filebrowser instance!" << std::endl;
+    //std::cerr << "Creating new Filebrowser instance!" << std::endl;
     this->mFileBrowser = new FileBrowser(this, 0, id);
     connect(this, SIGNAL(dirUpdate(QStringList)), this->mFileBrowser, SLOT(handleDirUpdate(QStringList)));
     connect(this, SIGNAL(fileUpdate(QStringList)), this->mFileBrowser, SLOT(handleFileUpdate(QStringList)));
@@ -222,7 +222,7 @@ void TUIFileBrowserButton::setValue(int type, covise::TokenBuffer &tb)
         std::cerr << "Received CurDirList!" << std::endl;
 #endif
         tb >> entry;
-        std::cerr << "Received dir update command!" << std::endl;
+        //std::cerr << "Received dir update command!" << std::endl;
         strEntry = entry;
         emit curDirUpdate(entry);
     }

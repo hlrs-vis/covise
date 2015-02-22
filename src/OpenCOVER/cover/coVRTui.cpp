@@ -398,6 +398,8 @@ coVRTui::coVRTui()
     PresentationBack->setEventListener(this);
     PresentationStep->setEventListener(this);
     PresentationStep->setValue(0);
+    PresentationStep->setMin(0);
+    PresentationStep->setMax(1000);
 
     PresentationLabel->setPos(0, 10);
     PresentationBack->setPos(0, 11);

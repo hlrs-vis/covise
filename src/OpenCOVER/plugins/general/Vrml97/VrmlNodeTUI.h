@@ -239,7 +239,10 @@ public:
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
-
+    
+    virtual void eventIn(double timeStamp,
+                         const char *eventName,
+                         const VrmlField *fieldValue);
     virtual void setField(const char *fieldName, const VrmlField &fieldValue);
     virtual const VrmlField *getField(const char *fieldName) const;
 
@@ -263,7 +266,10 @@ public:
     virtual void tabletEvent(coTUIElement *);
 
     virtual void render(Viewer *);
-
+    
+    virtual void eventIn(double timeStamp,
+                         const char *eventName,
+                         const VrmlField *fieldValue);
     virtual void setField(const char *fieldName, const VrmlField &fieldValue);
     virtual const VrmlField *getField(const char *fieldName) const;
 
