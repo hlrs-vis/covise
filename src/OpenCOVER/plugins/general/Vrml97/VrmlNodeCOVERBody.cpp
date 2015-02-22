@@ -150,11 +150,11 @@ void VrmlNodeCOVERBody::render(Viewer *viewer)
         m = body->getMat();
         if(d_vrmlCoordinates.get())
         {
-        osg::Matrix invbase = cover->getInvBaseMat();
-        osg::Matrix VRMLRootMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
-        osg::Matrix invVRMLRootMat;
-        invVRMLRootMat.invert(VRMLRootMat);
-        osg::Matrix m = VRMLRootMat * m*invbase * invVRMLRootMat;
+            osg::Matrix invbase = cover->getInvBaseMat();
+            osg::Matrix VRMLRootMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
+            osg::Matrix invVRMLRootMat;
+            invVRMLRootMat.invert(VRMLRootMat);
+            m = VRMLRootMat * m*invbase * invVRMLRootMat;
         }
 
         d_position.set(m.getTrans()[0], m.getTrans()[1], m.getTrans()[2]);
