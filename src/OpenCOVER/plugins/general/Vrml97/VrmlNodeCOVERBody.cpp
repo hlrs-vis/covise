@@ -77,6 +77,7 @@ VrmlNodeType *VrmlNodeCOVERBody::defineType(VrmlNodeType *t)
     t->addExposedField("position", VrmlField::SFVEC3F);
     t->addExposedField("orientation", VrmlField::SFROTATION);
     t->addExposedField("name", VrmlField::SFSTRING);
+    t->addExposedField("vrmlCoordinates", VrmlField::SFBOOL);
 
     return t;
 }
@@ -91,6 +92,7 @@ VrmlNodeCOVERBody::VrmlNodeCOVERBody(VrmlScene *scene)
     , d_position(0)
     , d_orientation(0.0)
     , d_name("noname")
+    , d_vrmlCoordinates(true)
 {
     body=Input::instance()->getBody(d_name.get());
     setModified();
@@ -117,6 +119,7 @@ VrmlNodeCOVERBody::VrmlNodeCOVERBody(const VrmlNodeCOVERBody &n)
     , d_position(n.d_position)
     , d_orientation(n.d_orientation)
     , d_name(n.d_name)
+    , d_vrmlCoordinates(n.d_vrmlCoordinates)
 {
     body=Input::instance()->getBody(d_name.get());
     setModified();
@@ -145,6 +148,15 @@ void VrmlNodeCOVERBody::render(Viewer *viewer)
     {
         osg::Matrix m;
         m = body->getMat();
+        if(d_vrmlCoordinates.get())
+        {
+        osg::Matrix invbase = cover->getInvBaseMat();
+        osg::Matrix VRMLRootMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
+        osg::Matrix invVRMLRootMat;
+        invVRMLRootMat.invert(VRMLRootMat);
+        osg::Matrix m = VRMLRootMat * m*invbase * invVRMLRootMat;
+        }
+
         d_position.set(m.getTrans()[0], m.getTrans()[1], m.getTrans()[2]);
         eventOut(timeNow, "position_changed", d_position);
         osg::Quat q;
@@ -167,7 +179,9 @@ ostream &VrmlNodeCOVERBody::printFields(ostream &os, int indent)
         PRINT_FIELD(name);
     if (!d_orientation.get())
         PRINT_FIELD(orientation);
-
+    if (!d_vrmlCoordinates.get())
+        PRINT_FIELD(vrmlCoordinates);
+    
     return os;
 }
 
@@ -182,6 +196,8 @@ void VrmlNodeCOVERBody::setField(const char *fieldName,
         TRY_FIELD(name, SFString)
     else if
         TRY_FIELD(orientation, SFRotation)
+    else if
+        TRY_FIELD(vrmlCoordinates, SFBool)
     else
     VrmlNodeChild::setField(fieldName, fieldValue);
     if(strcmp(fieldName,"name")==0)
@@ -198,6 +214,8 @@ const VrmlField *VrmlNodeCOVERBody::getField(const char *fieldName) const
         return &d_name;
     else if (strcmp(fieldName, "orientation") == 0)
         return &d_orientation;
+    else if (strcmp(fieldName, "vrmlCoordinates") == 0)
+        return &d_vrmlCoordinates;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;

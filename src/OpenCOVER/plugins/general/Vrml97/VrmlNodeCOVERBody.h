@@ -66,6 +66,7 @@ private:
     VrmlSFVec3f d_position;
     VrmlSFRotation d_orientation;
     VrmlSFString d_name;
+    VrmlSFBool d_vrmlCoordinates;
     TrackingBody *body;
 };
 #endif //_VRMLNODECOVERBody_
