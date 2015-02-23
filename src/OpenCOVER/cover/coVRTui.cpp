@@ -631,6 +631,9 @@ coInputTUI::coInputTUI()
 void coInputTUI::updateTUI()
 {
     TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
+    if (!tb)
+        return;
+
     osg::Matrix m = tb->getOffsetMat();
     osg::Vec3 v = m.getTrans();
     coCoord coord = m;
