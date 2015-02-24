@@ -691,7 +691,7 @@ void VideoStream::setFileTypeParams(int selection, bool switchLR)
         readBufferIncrement = numBytesRGB / codecCtx->height;
         readBufferLinesize = readBufferIncrement / 2;
         readBufferLines = codecCtx->height;
-        if (((coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::LEFT_EYE) && switchLR) || ((coVRConfig::instance()->screens[0].stereoMode != osg::DisplaySettings::LEFT_EYE) && !switchLR))
+        if (((coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE) && switchLR) || ((coVRConfig::instance()->channels[0].stereoMode != osg::DisplaySettings::LEFT_EYE) && !switchLR))
             readBufferIndex = readBufferLinesize;
         else
             readBufferIndex = 0;
@@ -703,7 +703,7 @@ void VideoStream::setFileTypeParams(int selection, bool switchLR)
         readBufferLinesize = numBytesRGB / 2;
         readBufferLines = 1;
         readBufferIncrement = 0;
-        if (((coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::LEFT_EYE) && switchLR) || ((coVRConfig::instance()->screens[0].stereoMode != osg::DisplaySettings::LEFT_EYE) && !switchLR))
+        if (((coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE) && switchLR) || ((coVRConfig::instance()->channels[0].stereoMode != osg::DisplaySettings::LEFT_EYE) && !switchLR))
             readBufferIndex = readBufferLinesize;
         else
             readBufferIndex = 0;

@@ -818,12 +818,12 @@ Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; D
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
-Filename: msiexec; Parameters: /I {app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi; Description: Installint MS-MPI Runtime; Flags: postinstall
+Filename: msiexec; Parameters: "/I ""{app}""\{#ARCHSUFFIX}\lib\mpi_x64.Msi"; Description: Installint MS-MPI Runtime; Flags: postinstall
 #elif ARCHSUFFIX == "tamarauopt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
-Filename: msiexec; Parameters: /I {app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi; Description: Installint MS-MPI Runtime; Flags: postinstall
+Filename: msiexec; Parameters: "/I ""{app}""\{#ARCHSUFFIX}\lib\mpi_x64.Msi"; Description: Installint MS-MPI Runtime; Flags: postinstall
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
 #endif

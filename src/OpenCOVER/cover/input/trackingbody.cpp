@@ -23,10 +23,13 @@ TrackingBody::TrackingBody(const std::string &name)
 {
     const std::string conf = "COVER.Input.Body." + name;
     const std::string device = coCoviseConfig::getEntry("device", conf, "default");
+    m_name = name;
 
     m_dev = Input::instance()->getDevice(device);
     if (!m_dev)
+    {
         m_dev = Input::instance()->getDevice("const");
+    }
     m_idx = coCoviseConfig::getInt("bodyIndex", conf, 0);
     if (m_idx >= m_dev->numBodies())
     {
@@ -81,6 +84,16 @@ void TrackingBody::update()
 const osg::Matrix &TrackingBody::getMat() const
 {
     return m_mat;
+}
+
+const osg::Matrix &TrackingBody::getOffsetMat() const
+{
+    return m_deviceOffsetMat;
+}
+
+void TrackingBody::setOffsetMat(const osg::Matrix &m)
+{
+    m_deviceOffsetMat = m;
 }
 
 void TrackingBody::setMat(const osg::Matrix &mat)

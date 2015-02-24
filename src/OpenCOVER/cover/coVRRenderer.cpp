@@ -41,29 +41,29 @@ using namespace opencover;
 /* Callback for overidding the default method for compute the offset projection and view matrices.*/
 struct MyComputeStereoMatricesCallback : public osgUtil::SceneView::ComputeStereoMatricesCallback
 {
-    int screenNum;
+    int channelNum;
     virtual osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const
     {
         (void)projection;
-        return coVRConfig::instance()->screens[screenNum].leftProj;
+        return coVRConfig::instance()->channels[channelNum].leftProj;
     }
 
     virtual osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const
     {
         (void)view;
-        return coVRConfig::instance()->screens[screenNum].leftView;
+        return coVRConfig::instance()->channels[channelNum].leftView;
     }
 
     virtual osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const
     {
         (void)projection;
-        return coVRConfig::instance()->screens[screenNum].rightProj;
+        return coVRConfig::instance()->channels[channelNum].rightProj;
     }
 
     virtual osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const
     {
         (void)view;
-        return coVRConfig::instance()->screens[screenNum].rightView;
+        return coVRConfig::instance()->channels[channelNum].rightView;
     }
 };
 
@@ -92,25 +92,25 @@ coVRRenderer::coVRRenderer(osg::Camera *camera, int channel)
         _sceneView[i]->setGlobalStateSet(stateset);
         _sceneView[i]->setDefaults(sceneViewOptions);
         _sceneView[i]->setCamera(_camera.get(), false);
-        int screen = -1;
-        for (int n = 0; n < coVRConfig::instance()->numScreens(); n++)
+        int channel = -1;
+        for (int n = 0; n < coVRConfig::instance()->numChannels(); n++)
         {
-            if (coVRConfig::instance()->screens[n].camera.get() == camera)
+            if (coVRConfig::instance()->channels[n].camera.get() == camera)
             {
-                screen = n;
+                channel = n;
                 break;
             }
         }
-        if (screen >= 0)
+        if (channel >= 0)
         {
             MyComputeStereoMatricesCallback *sCallback = new MyComputeStereoMatricesCallback;
-            sCallback->screenNum = screen;
+            sCallback->channelNum = channel;
             _sceneView[i]->setComputeStereoMatricesCallback(sCallback);
         }
         else
         {
             MyComputeStereoMatricesCallback *sCallback = new MyComputeStereoMatricesCallback;
-            sCallback->screenNum = 0;
+            sCallback->channelNum = 0;
             _sceneView[i]->setComputeStereoMatricesCallback(sCallback);
         }
         _sceneView[i]->setDisplaySettings(ds);

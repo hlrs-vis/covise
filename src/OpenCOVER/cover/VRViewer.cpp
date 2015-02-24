@@ -562,7 +562,7 @@ void VRViewer::update()
         fprintf(stderr, "\n");
     }
 
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         setFrustumAndView(i);
     }
@@ -681,11 +681,10 @@ VRViewer::config()
     addEventHandler(statsHandler);
     scene = NULL;
     //scene = VRSceneGraph::sg->getScene();
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         createChannels(i);
     }
-    setChannelConfig();
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
@@ -748,7 +747,7 @@ VRViewer::config()
 //            sched_setaffinity( 0, &cpumask );
 #endif
 
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         setFrustumAndView(i);
     }
@@ -807,23 +806,23 @@ VRViewer::createChannels(int i)
         osg::notify(osg::NOTICE) << "VRViewer : Error, no WindowSystemInterface available, cannot create windows." << std::endl;
         return;
     }
-    if (coVRConfig::instance()->screens[i].window >= coVRConfig::instance()->numWindows())
+    if (coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window >= coVRConfig::instance()->numWindows())
     {
         fprintf(stderr, "VRViewer:: error creating channel %d\n", i);
-        fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", coVRConfig::instance()->screens[i].window);
+        fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window);
         return;
     }
-    osg::ref_ptr<osgViewer::GraphicsWindow> gw = coVRConfig::instance()->windows[coVRConfig::instance()->screens[i].window].window;
+    osg::ref_ptr<osgViewer::GraphicsWindow> gw = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window].window;
     if (i == 0)
     {
-        coVRConfig::instance()->screens[i].camera = _camera;
+        coVRConfig::instance()->channels[i].camera = _camera;
     }
     else
     {
-        coVRConfig::instance()->screens[i].camera = new osg::Camera;
-        coVRConfig::instance()->screens[i].camera->setView(this);
+        coVRConfig::instance()->channels[i].camera = new osg::Camera;
+        coVRConfig::instance()->channels[i].camera->setView(this);
 
-        coVRConfig::instance()->screens[i].camera->addChild(this->getScene()->getSceneData());
+        coVRConfig::instance()->channels[i].camera->addChild(this->getScene()->getSceneData());
     }
     if (RenderToTexture)
     {
@@ -849,7 +848,7 @@ VRViewer::createChannels(int i)
             renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
 
         renderTargetTexture = new osg::Texture2D;
-        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->screens[i].window].window;
+        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window].window;
         if (!cg)
         {
             fprintf(stderr, "no graphics context for cover screen %d\n", i);
@@ -859,32 +858,50 @@ VRViewer::createChannels(int i)
         int w = traits->width;
         int h = traits->height;
 
-        renderTargetTexture->setTextureSize((int)((coVRConfig::instance()->screens[i].viewportXMax - coVRConfig::instance()->screens[i].viewportXMin) * w), (int)((coVRConfig::instance()->screens[i].viewportYMax - coVRConfig::instance()->screens[i].viewportYMin) * h));
+        renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[i].PBOsx, coVRConfig::instance()->PBOs[i].PBOsy);
         renderTargetTexture->setInternalFormat(GL_RGBA);
         //renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);
         //	   renderTargetTexture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::NEAREST);
         renderTargetTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
         renderTargetTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-        coVRConfig::instance()->screens[i].renderTargetTexture = renderTargetTexture;
-        coVRConfig::instance()->screens[i].camera->attach(osg::Camera::COLOR_BUFFER, renderTargetTexture);
-        coVRConfig::instance()->screens[i].camera->setRenderTargetImplementation(renderImplementation);
+        coVRConfig::instance()->PBOs[i].renderTargetTexture = renderTargetTexture;
+        coVRConfig::instance()->channels[i].camera->attach(osg::Camera::COLOR_BUFFER, renderTargetTexture);
+        coVRConfig::instance()->channels[i].camera->setRenderTargetImplementation(renderImplementation);
+
+
+        coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->PBOs[i].PBOsx,
+                                                                                       coVRConfig::instance()->PBOs[i].PBOsy));
     }
     if (gw.get())
     {
-        coVRConfig::instance()->screens[i].camera->setGraphicsContext(gw.get());
+        coVRConfig::instance()->channels[i].camera->setGraphicsContext(gw.get());
         const osg::GraphicsContext::Traits *traits = gw->getTraits();
         gw->getEventQueue()->getCurrentEventState()->setWindowRectangle(traits->x, traits->y, traits->width, traits->height);
+        if(!RenderToTexture)
+        {
+            // set viewport
+            int viewportNumber = coVRConfig::instance()->channels[i].viewportNum;
+             coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(coVRConfig::instance()->viewports[viewportNumber].viewportXMin * traits->width,
+                                                                                         coVRConfig::instance()->viewports[viewportNumber].viewportYMin * traits->height,
+                                                                                         (coVRConfig::instance()->viewports[viewportNumber].viewportXMax - coVRConfig::instance()->viewports[viewportNumber].viewportXMin) * traits->width,
+                                                                                         (coVRConfig::instance()->viewports[viewportNumber].viewportYMax - coVRConfig::instance()->viewports[viewportNumber].viewportYMin) * traits->height));
+        }
+        
+
+        coVRConfig::instance()->channels[i].camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        coVRConfig::instance()->channels[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
+        coVRConfig::instance()->channels[i].camera->setClearStencil(0);
 
         GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
-        coVRConfig::instance()->screens[i].camera->setDrawBuffer(buffer);
-        coVRConfig::instance()->screens[i].camera->setReadBuffer(buffer);
-        coVRConfig::instance()->screens[i].camera->setCullMask(Isect::Visible | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
-        coVRConfig::instance()->screens[i].camera->setCullMaskLeft(Isect::Visible | Isect::Left | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
-        coVRConfig::instance()->screens[i].camera->setCullMaskRight(Isect::Visible | Isect::Right | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+        coVRConfig::instance()->channels[i].camera->setDrawBuffer(buffer);
+        coVRConfig::instance()->channels[i].camera->setReadBuffer(buffer);
+        coVRConfig::instance()->channels[i].camera->setCullMask(Isect::Visible | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+        coVRConfig::instance()->channels[i].camera->setCullMaskLeft(Isect::Visible | Isect::Left | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+        coVRConfig::instance()->channels[i].camera->setCullMaskRight(Isect::Visible | Isect::Right | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
         //coVRConfig::instance()->screens[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
-        cerr << "window " << coVRConfig::instance()->screens[i].window << " of screen " << i << " not defined" << endl;
+        cerr << "window " << coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window << " of screen " << i << " not defined" << endl;
 
     osg::DisplaySettings *ds = NULL;
     ds = _displaySettings.valid() ? _displaySettings.get() : osg::DisplaySettings::instance().get();
@@ -897,28 +914,30 @@ VRViewer::createChannels(int i)
     ds->setStereo(coVRConfig::instance()->stereoState());
     if (coVRConfig::instance()->doMultisample())
         ds->setNumMultiSamples(coVRConfig::instance()->getMultisampleSamples());
-    ds->setStereoMode((osg::DisplaySettings::StereoMode)coVRConfig::instance()->screens[i].stereoMode);
+    ds->setStereoMode((osg::DisplaySettings::StereoMode)coVRConfig::instance()->channels[i].stereoMode);
     ds->setMinimumNumStencilBits(coVRConfig::instance()->numStencilBits());
-    coVRConfig::instance()->screens[i].ds = ds;
-    coVRConfig::instance()->screens[i].camera->setDisplaySettings(ds);
+    coVRConfig::instance()->channels[i].ds = ds;
+    coVRConfig::instance()->channels[i].camera->setDisplaySettings(ds);
 
-    coVRConfig::instance()->screens[i].camera->setComputeNearFarMode(osgUtil::CullVisitor::DO_NOT_COMPUTE_NEAR_FAR);
-    //coVRConfig::instance()->screens[i].camera->setCullingMode(osg::CullSettings::VIEW_FRUSTUM_CULLING);
-    coVRConfig::instance()->screens[i].camera->setCullingMode(osg::CullSettings::ENABLE_ALL_CULLING);
+    coVRConfig::instance()->channels[i].camera->setComputeNearFarMode(osgUtil::CullVisitor::DO_NOT_COMPUTE_NEAR_FAR);
+    //coVRConfig::instance()->channels[i].camera->setCullingMode(osg::CullSettings::VIEW_FRUSTUM_CULLING);
+    coVRConfig::instance()->channels[i].camera->setCullingMode(osg::CullSettings::ENABLE_ALL_CULLING);
 
-    osgViewer::Renderer *renderer = new coVRRenderer(coVRConfig::instance()->screens[i].camera.get(), i);
-    coVRConfig::instance()->screens[i].camera->setRenderer(renderer);
+    osgViewer::Renderer *renderer = new coVRRenderer(coVRConfig::instance()->channels[i].camera.get(), i);
+    coVRConfig::instance()->channels[i].camera->setRenderer(renderer);
     if (i != 0)
     {
-        addCamera(coVRConfig::instance()->screens[i].camera.get());
+        addCamera(coVRConfig::instance()->channels[i].camera.get());
     }
 
     //PHILIP add LOD scale from configuration to deal with LOD updating
     float lodScale = coCoviseConfig::getFloat("COVER.LODScale", 0.0f);
     if (lodScale != 0)
     {
-        coVRConfig::instance()->screens[i].camera->setLODScale(lodScale);
+        coVRConfig::instance()->channels[i].camera->setLODScale(lodScale);
     }
+
+  
 }
 
 void
@@ -928,61 +947,24 @@ VRViewer::culling(bool enable, osg::CullSettings::CullingModeValues mode, bool o
     {
         reEnableCulling = true;
     }
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         if (enable)
-            coVRConfig::instance()->screens[i].camera->setCullingMode(mode);
+            coVRConfig::instance()->channels[i].camera->setCullingMode(mode);
         else
-            coVRConfig::instance()->screens[i].camera->setCullingMode(osg::CullSettings::NO_CULLING);
+            coVRConfig::instance()->channels[i].camera->setCullingMode(osg::CullSettings::NO_CULLING);
     }
 }
 
 void
 VRViewer::setClearColor(const osg::Vec4 &color)
 {
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); ++i)
+    for (int i = 0; i < coVRConfig::instance()->numChannels(); ++i)
     {
-        coVRConfig::instance()->screens[i].camera->setClearColor(color);
+        coVRConfig::instance()->channels[i].camera->setClearColor(color);
     }
 }
 
-//OpenCOVER
-void
-VRViewer::setChannelConfig()
-{
-    for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
-    {
-        if (coVRConfig::instance()->screens[i].viewportXMin >= 0.0)
-        {
-            const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->screens[i].window].window;
-            if (!cg)
-            {
-                fprintf(stderr, "no graphics context for cover screen %d\n", i);
-                continue;
-            }
-            const osg::GraphicsContext::Traits *traits = cg->getTraits();
-            int w = traits->width;
-            int h = traits->height;
-            if (RenderToTexture)
-            {
-                coVRConfig::instance()->screens[i].camera->setViewport(new osg::Viewport(0, 0,
-                                                                                         (coVRConfig::instance()->screens[i].viewportXMax - coVRConfig::instance()->screens[i].viewportXMin) * w,
-                                                                                         (coVRConfig::instance()->screens[i].viewportYMax - coVRConfig::instance()->screens[i].viewportYMin) * h));
-            }
-            else
-            {
-                coVRConfig::instance()->screens[i].camera->setViewport(new osg::Viewport(coVRConfig::instance()->screens[i].viewportXMin * w,
-                                                                                         coVRConfig::instance()->screens[i].viewportYMin * h,
-                                                                                         (coVRConfig::instance()->screens[i].viewportXMax - coVRConfig::instance()->screens[i].viewportXMin) * w,
-                                                                                         (coVRConfig::instance()->screens[i].viewportYMax - coVRConfig::instance()->screens[i].viewportYMin) * h));
-            }
-
-            coVRConfig::instance()->screens[i].camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-            coVRConfig::instance()->screens[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));
-            coVRConfig::instance()->screens[i].camera->setClearStencil(0);
-        }
-    }
-}
 
 //OpenCOVER
 void
@@ -992,12 +974,13 @@ VRViewer::setFrustumAndView(int i)
         fprintf(stderr, "VRViewer::setFrustum %d\n", i);
 
     coVRConfig *coco = coVRConfig::instance();
-    screenStruct *currentScreen = &coco->screens[i];
+    channelStruct *currentChannel = &coco->channels[i];
+    screenStruct *currentScreen = &coco->screens[currentChannel->screenNum];
 
     if (overwritePAndV)
     {
-        currentScreen->camera->setViewMatrix(currentScreen->rightView);
-        currentScreen->camera->setProjectionMatrix(currentScreen->rightProj);
+        currentChannel->camera->setViewMatrix(currentChannel->rightView);
+        currentChannel->camera->setProjectionMatrix(currentChannel->rightProj);
     }
     else
     {
@@ -1158,24 +1141,24 @@ VRViewer::setFrustumAndView(int i)
             rc_dist = coco->HMDDistance;
             if (coco->orthographic())
             {
-                currentScreen->rightProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
-                currentScreen->leftProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
-                currentScreen->camera->setProjectionMatrixAsOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
+                currentChannel->rightProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
+                currentChannel->leftProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
+                currentChannel->camera->setProjectionMatrixAsOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
             }
             else
             {
                 if (currentScreen->lTan != -1)
                 {
                     float n = coco->nearClip();
-                    currentScreen->rightProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
-                    currentScreen->leftProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
-                    currentScreen->camera->setProjectionMatrixAsFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
+                    currentChannel->rightProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
+                    currentChannel->leftProj.makeFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
+                    currentChannel->camera->setProjectionMatrixAsFrustum(-n * currentScreen->lTan, n * currentScreen->rTan, -n * currentScreen->bTan, n * currentScreen->tTan, coco->nearClip(), coco->farClip());
                 }
                 else
                 {
-                    currentScreen->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                    currentScreen->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
-                    currentScreen->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+                    currentChannel->rightProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+                    currentChannel->leftProj.makePerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
+                    currentChannel->camera->setProjectionMatrixAsPerspective(coco->HMDViewingAngle, dx / dz, coco->nearClip(), coco->farClip());
                 }
             }
         }
@@ -1219,15 +1202,15 @@ VRViewer::setFrustumAndView(int i)
 
             if (coco->orthographic())
             {
-                currentScreen->rightProj.makeOrtho(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
-                currentScreen->leftProj.makeOrtho(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
-                currentScreen->camera->setProjectionMatrixAsOrtho(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
+                currentChannel->rightProj.makeOrtho(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
+                currentChannel->leftProj.makeOrtho(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
+                currentChannel->camera->setProjectionMatrixAsOrtho(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
             }
             else
             {
-                currentScreen->rightProj.makeFrustum(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
-                currentScreen->leftProj.makeFrustum(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
-                currentScreen->camera->setProjectionMatrixAsFrustum(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
+                currentChannel->rightProj.makeFrustum(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
+                currentChannel->leftProj.makeFrustum(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
+                currentChannel->camera->setProjectionMatrixAsFrustum(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
             }
         }
 
@@ -1241,24 +1224,24 @@ VRViewer::setFrustumAndView(int i)
             //fprintf(stderr,"viewDir=[%f %f %f]\n", viewDir[0], viewDir[1], viewDir[2]);
             viewUp = viewMat.transform3x3(viewUp, viewMat);
             viewUp.normalize();
-            currentScreen->rightView.makeLookAt(rightEye, rightEye + viewDir, viewUp);
+            currentChannel->rightView.makeLookAt(rightEye, rightEye + viewDir, viewUp);
             ///currentScreen->rightView=viewMat;
-            currentScreen->leftView.makeLookAt(leftEye, leftEye + viewDir, viewUp);
+            currentChannel->leftView.makeLookAt(leftEye, leftEye + viewDir, viewUp);
             ///currentScreen->leftView=viewMat;
 
-            currentScreen->camera->setViewMatrix(osg::Matrix::lookAt(middleEye, middleEye + viewDir, viewUp));
+            currentChannel->camera->setViewMatrix(osg::Matrix::lookAt(middleEye, middleEye + viewDir, viewUp));
             ///currentScreen->camera->setViewMatrix(viewMat);
         }
         else
         {
             // take the normal to the plane as orientation this is (0,1,0)
-            currentScreen->rightView.makeLookAt(osg::Vec3(rightEye[0], rightEye[1], rightEye[2]), osg::Vec3(rightEye[0], rightEye[1] + 1, rightEye[2]), osg::Vec3(0, 0, 1));
-            currentScreen->rightView.preMult(offsetMat);
+            currentChannel->rightView.makeLookAt(osg::Vec3(rightEye[0], rightEye[1], rightEye[2]), osg::Vec3(rightEye[0], rightEye[1] + 1, rightEye[2]), osg::Vec3(0, 0, 1));
+            currentChannel->rightView.preMult(offsetMat);
 
-            currentScreen->leftView.makeLookAt(osg::Vec3(leftEye[0], leftEye[1], leftEye[2]), osg::Vec3(leftEye[0], leftEye[1] + 1, leftEye[2]), osg::Vec3(0, 0, 1));
-            currentScreen->leftView.preMult(offsetMat);
+            currentChannel->leftView.makeLookAt(osg::Vec3(leftEye[0], leftEye[1], leftEye[2]), osg::Vec3(leftEye[0], leftEye[1] + 1, leftEye[2]), osg::Vec3(0, 0, 1));
+            currentChannel->leftView.preMult(offsetMat);
 
-            currentScreen->camera->setViewMatrix(offsetMat * osg::Matrix::lookAt(osg::Vec3(middleEye[0], middleEye[1], middleEye[2]), osg::Vec3(middleEye[0], middleEye[1] + 1, middleEye[2]), osg::Vec3(0, 0, 1)));
+            currentChannel->camera->setViewMatrix(offsetMat * osg::Matrix::lookAt(osg::Vec3(middleEye[0], middleEye[1], middleEye[2]), osg::Vec3(middleEye[0], middleEye[1] + 1, middleEye[2]), osg::Vec3(0, 0, 1)));
         }
     }
 }
@@ -1634,7 +1617,7 @@ void VRViewer::startThreading()
         gc->getGraphicsThread()->add(pso);
 
         // wait on a Barrier so that all rendering threads are ready to swap, otherwise we are not sure that after a remote sync, we can swap rightaway
-        if (coVRConfig::instance()->numScreens() > 1)
+        if (coVRConfig::instance()->numChannels() > 1)
         {
 
             if (swapReadyBarrier.valid())

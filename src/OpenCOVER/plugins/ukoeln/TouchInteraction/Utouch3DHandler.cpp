@@ -132,7 +132,7 @@ void Utouch3DHandler::updateInternalState()
         this->rootTransform = opencover::cover->getObjectsXform()->getMatrix();
 
         // Get camera frustum parameters
-        osg::Matrix matProj = opencover::coVRConfig::instance()->screens[0].camera->getProjectionMatrix();
+        osg::Matrix matProj = opencover::coVRConfig::instance()->channels[0].camera->getProjectionMatrix();
 
         matProj.getFrustum(
             this->frustum.left,

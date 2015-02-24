@@ -110,7 +110,10 @@ coVRConfig::coVRConfig()
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
     m_numScreens = coCoviseConfig::getInt("COVER.NumScreens", 1);
+    m_numChannels = coCoviseConfig::getInt("COVER.NumChannels", m_numScreens); // normally numChannels == numScreens, only if we use B´PBOs, it might be equal to the number of PBOs
     m_numWindows = coCoviseConfig::getInt("COVER.NumWindows", m_numScreens);
+    m_numViewports = coCoviseConfig::getInt("COVER.NumViewports", m_numChannels); // normally this is equal to the number of Channels
+    m_numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", m_numChannels);
     m_numPipes = coCoviseConfig::getInt("COVER.NumPipes", 1);
     m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
@@ -250,10 +253,13 @@ coVRConfig::coVRConfig()
         fprintf(stderr, "numScreens > 50\n");
         exit(-1);
     }
-
+    
     screens = new screenStruct[m_numScreens];
+    channels = new channelStruct[m_numChannels];
+    PBOs = new PBOStruct[m_numPBOs];
     pipes = new pipeStruct[m_numPipes];
     windows = new windowStruct[m_numWindows];
+    viewports = new viewportStruct[m_numViewports];
     windows[0].window = NULL;
 
     m_passiveStereo = false;
@@ -262,6 +268,9 @@ coVRConfig::coVRConfig()
     {
 
         float h, p, r;
+        
+        char str[200];
+        sprintf(str, "COVER.ScreenConfig.Screen:%d", i);
         bool state = coCoverConfig::getScreenConfigEntry(i, screens[i].name, &hsize, &vsize, &x, &y, &z, &h, &p, &r);
         if (!state)
         {
@@ -270,6 +279,8 @@ coVRConfig::coVRConfig()
         }
         else
         {
+            
+            screens[i].render = coCoviseConfig::isOn("render", str, true);
             screens[i].hsize = (float)hsize;
             screens[i].vsize = (float)vsize;
             screens[i].xyz.set((float)x, (float)y, (float)z);
@@ -312,50 +323,18 @@ coVRConfig::coVRConfig()
         }
     }
 
-    for (int i = 0; i < m_numScreens; i++)
+    for (int i = 0; i < m_numChannels; i++)
     {
         std::string stereoM;
 
         char str[200];
         sprintf(str, "COVER.ChannelConfig.Channel:%d", i);
         std::string s = coCoviseConfig::getEntry("comment", str, "NoNameChannel");
-        screens[i].name = s;
-        screens[i].render = coCoviseConfig::isOn("render", str, true);
-        screens[i].window = coCoviseConfig::getInt("windowIndex", str, 0);
-        screens[i].viewportXMin = coCoviseConfig::getFloat("left", str, 0);
-        screens[i].viewportYMin = coCoviseConfig::getFloat("bottom", str, 0);
-
-        if (screens[i].viewportXMin > 1.0)
-        {
-            screens[i].viewportXMin = screens[i].viewportXMin / ((float)(windows[screens[i].window].sx));
-        }
-        if (screens[i].viewportYMin > 1.0)
-        {
-            screens[i].viewportYMin = screens[i].viewportYMin / ((float)(windows[screens[i].window].sy));
-        }
-
-        screens[i].viewportXMax = coCoviseConfig::getFloat("right", str, -1);
-        screens[i].viewportYMax = coCoviseConfig::getFloat("top", str, -1);
-        if (screens[i].viewportXMax < 0)
-        {
-            screens[i].viewportXMax = coCoviseConfig::getFloat("width", str, 1024);
-            screens[i].viewportYMax = coCoviseConfig::getFloat("height", str, 768);
-            if (screens[i].viewportXMax > 1.0)
-                screens[i].viewportXMax = screens[i].viewportXMin + (screens[i].viewportXMax / ((float)(windows[screens[i].window].sx)));
-            if (screens[i].viewportYMax > 1.0)
-                screens[i].viewportYMax = screens[i].viewportYMin + (screens[i].viewportYMax / ((float)(windows[screens[i].window].sy)));
-        }
-        else
-        {
-            if (screens[i].viewportXMax > 1.0)
-                screens[i].viewportXMax = screens[i].viewportXMax / ((float)(windows[screens[i].window].sx));
-            if (screens[i].viewportYMax > 1.0)
-                screens[i].viewportYMax = screens[i].viewportYMax / ((float)(windows[screens[i].window].sy));
-        }
+        channels[i].name = s;
         stereoM = coCoviseConfig::getEntry("stereoMode", str);
         if (!stereoM.empty())
         {
-            screens[i].stereoMode = parseStereoMode(stereoM.c_str());
+            channels[i].stereoMode = parseStereoMode(stereoM.c_str());
         }
         else
         {
@@ -363,23 +342,141 @@ coVRConfig::coVRConfig()
             {
                 if (i % 2)
                 {
-                    screens[i].stereoMode = osg::DisplaySettings::RIGHT_EYE;
+                    channels[i].stereoMode = osg::DisplaySettings::RIGHT_EYE;
                 }
                 else
                 {
-                    screens[i].stereoMode = osg::DisplaySettings::LEFT_EYE;
+                    channels[i].stereoMode = osg::DisplaySettings::LEFT_EYE;
                 }
             }
             else
             {
-                screens[i].stereoMode = m_stereoMode;
+                channels[i].stereoMode = m_stereoMode;
             }
         }
 
-        if (screens[i].stereoMode == osg::DisplaySettings::VERTICAL_INTERLACE || screens[i].stereoMode == osg::DisplaySettings::HORIZONTAL_INTERLACE || screens[i].stereoMode == osg::DisplaySettings::CHECKERBOARD)
+        if (channels[i].stereoMode == osg::DisplaySettings::VERTICAL_INTERLACE || channels[i].stereoMode == osg::DisplaySettings::HORIZONTAL_INTERLACE || channels[i].stereoMode == osg::DisplaySettings::CHECKERBOARD)
         {
             m_stencil = true;
         }
+        
+        channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
+        if(channels[i].PBONum == -1)
+        {
+            channels[i].viewportNum = coCoviseConfig::getInt("viewportIndex", str, i);
+        }
+        else
+        {
+            channels[i].viewportNum = -1;
+        }
+        channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
+    }
+    for (int i = 0; i < m_numPBOs; i++)
+    {
+        std::string stereoM;
+
+        char str[200];
+        sprintf(str, "COVER.PBOConfig.PBO:%d", i);
+        
+        PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
+        PBOs[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
+        PBOs[i].pipeNum = coCoviseConfig::getInt("pipeIndex", str, -1);
+    }
+    for (int i = 0; i < m_numViewports; i++)
+    {
+        std::string stereoM;
+
+        char str[200];
+        sprintf(str, "COVER.ViewportConfig.Viewport:%d", i);
+        viewportStruct &vp = viewports[i];
+        bool exists=false;
+        vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+        if(!exists)
+        {
+            // no viewport config, check for values in channelConfig for backward compatibility
+            
+            sprintf(str, "COVER.ChannelConfig.Channel:%d", i);
+            vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+            vp.PBOnum = i;
+        }
+        else
+        {
+            vp.PBOnum = coCoviseConfig::getInt("PBOIndex", str, -1);
+        }
+
+
+        vp.viewportXMin = coCoviseConfig::getFloat("left", str, 0);
+        vp.viewportYMin = coCoviseConfig::getFloat("bottom", str, 0);
+
+        if (vp.viewportXMin > 1.0)
+        {
+            vp.viewportXMin = vp.viewportXMin / ((float)(windows[vp.window].sx));
+        }
+        if (vp.viewportYMin > 1.0)
+        {
+            vp.viewportYMin = vp.viewportYMin / ((float)(windows[vp.window].sy));
+        }
+
+        vp.viewportXMax = coCoviseConfig::getFloat("right", str, -1);
+        vp.viewportYMax = coCoviseConfig::getFloat("top", str, -1);
+        if (vp.viewportXMax < 0)
+        {
+            float w,h;
+            w = coCoviseConfig::getFloat("width", str, 1024);
+            h = coCoviseConfig::getFloat("height", str, 768);
+            if (w > 1.0)
+                vp.viewportXMax = vp.viewportXMin + (w / ((float)(windows[vp.window].sx)));
+            else
+                vp.viewportXMax = vp.viewportXMin + w;
+            if (h > 1.0)
+                vp.viewportYMax = vp.viewportYMin + (h / ((float)(windows[vp.window].sy)));
+            else
+                vp.viewportYMax = vp.viewportYMin + h;
+        }
+        else
+        {
+            if (vp.viewportXMax > 1.0)
+                vp.viewportXMax = vp.viewportXMax / ((float)(windows[vp.window].sx));
+            if (vp.viewportYMax > 1.0)
+                vp.viewportYMax = vp.viewportYMax / ((float)(windows[vp.window].sy));
+        }
+
+        vp.sourceXMin = coCoviseConfig::getFloat("sourceLeft", str, 0);
+        vp.sourceYMin = coCoviseConfig::getFloat("sourceBottom", str, 0);
+
+        if (vp.sourceXMin > 1.0)
+        {
+            vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
+        }
+        if (vp.sourceYMin > 1.0)
+        {
+            vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
+        }
+
+        vp.sourceXMax = coCoviseConfig::getFloat("sourceRight", str, -1);
+        vp.sourceYMax = coCoviseConfig::getFloat("sourceTop", str, -1);
+        if (vp.sourceXMax < 0)
+        {
+            float w,h;
+            w = coCoviseConfig::getFloat("sourceWidth", str, 1.0);
+            h = coCoviseConfig::getFloat("sourceHeight", str, 1.0);
+            if (w > 1.0)
+                vp.sourceXMax = vp.sourceXMin + (w / ((float)(PBOs[vp.PBOnum].PBOsx)));
+            else
+                vp.sourceXMax = vp.sourceXMin + w;
+            if (h > 1.0)
+                vp.sourceYMax = vp.sourceYMin + (h / ((float)(PBOs[vp.PBOnum].PBOsy)));
+            else
+                vp.sourceYMax = vp.sourceYMin + h;
+        }
+        else
+        {
+            if (vp.sourceXMax > 1.0)
+                vp.sourceXMax = vp.sourceXMax / ((float)(PBOs[vp.PBOnum].PBOsx));
+            if (vp.sourceYMax > 1.0)
+                vp.sourceYMax = vp.sourceYMax / ((float)(PBOs[vp.PBOnum].PBOsy));
+        }
+
     }
 }
 
@@ -451,6 +548,10 @@ float coVRConfig::worldAngle() const
 int coVRConfig::numScreens() const
 {
     return m_numScreens;
+}
+int coVRConfig::numChannels() const
+{
+    return m_numChannels;
 }
 
 int coVRConfig::numWindows() const

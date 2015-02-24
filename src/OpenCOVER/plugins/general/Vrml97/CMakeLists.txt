@@ -19,6 +19,8 @@ SET(LIB_HEADERS
   ViewerObject.h
   ViewerOsg.h
   VrmlNodeMirrorCamera.h
+  VrmlNodeCOVERPerson.h
+  VrmlNodeCOVERBody.h
   VrmlNodeARSensor.h
   VrmlNodeTUI.h
   VrmlNodeTimesteps.h
@@ -31,6 +33,8 @@ SET(LIB_SOURCES
   coSensiveSensor.cpp
   ViewerObject.cpp
   ViewerOsg.cpp
+  VrmlNodeCOVERPerson.cpp
+  VrmlNodeCOVERBody.cpp
   VrmlNodeMirrorCamera.cpp
   VrmlNodeARSensor.cpp
   VrmlNodeTUI.cpp

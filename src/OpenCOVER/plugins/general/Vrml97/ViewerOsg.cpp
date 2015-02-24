@@ -5183,9 +5183,9 @@ void ViewerOsg::update(double timeNow)
                 viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
             else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
                 viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
-            else if (coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
+            else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
                 viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
-            else if (coVRConfig::instance()->screens[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
+            else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
                 viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
 
             else

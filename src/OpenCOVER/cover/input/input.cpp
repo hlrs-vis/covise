@@ -402,6 +402,53 @@ size_t Input::getNumPersons() const
     return persons.size();
 }
 
+size_t Input::getNumBodies() const
+{
+    return trackingbodies.size();
+}
+
+size_t Input::getNumDevices() const
+{
+    return drivers.size();
+}
+
+InputDevice *Input::getDevice(size_t num) //< get driver instance
+{
+    if (num >= drivers.size())
+        return NULL;
+
+    size_t idx = 0;
+    for (DriverMap::const_iterator it = drivers.begin();
+         it != drivers.end();
+         ++it)
+    {
+        if (num == idx)
+        {
+            return it->second;
+        }
+        ++idx;
+    }
+    return NULL;
+}
+
+TrackingBody *Input::getBody(size_t num)
+{
+    if (num >= trackingbodies.size())
+        return NULL;
+
+    size_t idx = 0;
+    for (TrackingBodyMap::const_iterator it = trackingbodies.begin();
+         it != trackingbodies.end();
+         ++it)
+    {
+        if (num == idx)
+        {
+            return it->second;
+        }
+        ++idx;
+    }
+    return NULL;
+}
 /**
 * @brief Input::setActivePerson Sets an active person
 * @param numPerson Number of person
@@ -443,7 +490,7 @@ Person *Input::getPerson(size_t num) const
     return NULL;
 }
 
-size_t Input::getCurrentPersonIndex() const
+size_t Input::getActivePerson() const
 {
     size_t idx = 0;
     for (PersonMap::const_iterator it = persons.begin();

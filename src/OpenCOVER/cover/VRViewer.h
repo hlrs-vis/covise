@@ -129,7 +129,6 @@ private:
     bool reEnableCulling;
 
 public:
-    void setChannelConfig();
     void setFrustumAndView(int i);
 
     float requestedSeparation, separation, leftEye, rightEye;

@@ -147,9 +147,9 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                     {
                         for (int i = 0; i < coVRConfig::instance()->numScreens(); ++i)
                         {
-                            if (coVRConfig::instance()->screens[i].camera.get() == cam)
+                            if (coVRConfig::instance()->channels[i].camera.get() == cam)
                             {
-                                rightVideo = coVRConfig::instance()->screens[i].stereoMode == osg::DisplaySettings::RIGHT_EYE;
+                                rightVideo = coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::RIGHT_EYE;
                                 break;
                             }
                         }
@@ -253,15 +253,15 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
             float xsize;
             float ysize;
 
-            if ((coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin) == 0)
+            if ((coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin) == 0)
             {
-                xsize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx;
-                ysize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy;
+                xsize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+                ysize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
             }
             else
             {
-                xsize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx * (coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin);
-                ysize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy * (coVRConfig::instance()->screens[0].viewportYMax - coVRConfig::instance()->screens[0].viewportYMin);
+                xsize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx * (coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin);
+                ysize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy * (coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin);
             }
 
             if (renderTextures) // textures

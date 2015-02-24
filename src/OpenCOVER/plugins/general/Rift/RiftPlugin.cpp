@@ -179,8 +179,8 @@ bool RiftPlugin::init()
     osg::StateSet *leftEyeStateSet = leftDistortionMesh->getOrCreateStateSet();
     osg::StateSet *rightEyeStateSet = rightDistortionMesh->getOrCreateStateSet();
 
-    hmd->applyShaderParameters(leftEyeStateSet, program.get(), coVRConfig::instance()->screens[0].renderTargetTexture.get(), OculusDevice::LEFT);
-    hmd->applyShaderParameters(rightEyeStateSet, program.get(), coVRConfig::instance()->screens[1].renderTargetTexture.get(), OculusDevice::RIGHT);
+    hmd->applyShaderParameters(leftEyeStateSet, program.get(), coVRConfig::instance()->PBOs[0].renderTargetTexture.get(), OculusDevice::LEFT);
+    hmd->applyShaderParameters(rightEyeStateSet, program.get(), coVRConfig::instance()->PBOs[1].renderTargetTexture.get(), OculusDevice::RIGHT);
 
     //osg::Group *renderGroup = new osg::Group();
     //renderGroup->addChild(cameraWarp.get());

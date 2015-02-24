@@ -16,6 +16,8 @@ ConstInputDevice::ConstInputDevice(const std::string &name)
     osg::Matrix mat = osg::Matrix::identity();
     m_bodyMatrices.push_back(mat);
     m_bodyMatrices.push_back(mat);
+    m_bodyMatricesValid.push_back(true);
+    m_bodyMatricesValid.push_back(true);
 
     m_isVarying = false;
     m_is6Dof = false;

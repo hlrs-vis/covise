@@ -16,13 +16,14 @@
 #define VALUATOR_H
 
 #include <string>
+#include <util/coExport.h>
 
 namespace opencover
 {
 
 class InputDevice;
 
-class Valuator
+class COVEREXPORT Valuator
 {
     friend class Input;
 

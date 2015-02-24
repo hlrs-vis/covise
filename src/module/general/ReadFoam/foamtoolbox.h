@@ -105,7 +105,6 @@ class Boundaries
 public:
     Boundaries()
         : valid(false)
-        , minFace(std::numeric_limits<index_t>::max())
     {
     }
 
@@ -120,9 +119,6 @@ public:
         {
             boundaries.push_back(b);
         }
-
-        if (minFace > b.startFace)
-            minFace = b.startFace;
     }
 
     int findBoundaryIndexByName(const std::string &b)
@@ -154,9 +150,6 @@ public:
 
     std::vector<Boundary> boundaries;
     std::vector<Boundary> procboundaries;
-
-private:
-    index_t minFace;
 };
 
 CaseInfo getCaseInfo(const std::string &casedir, double mintime, double maxtime, int skipfactor = 1, bool exact = false);

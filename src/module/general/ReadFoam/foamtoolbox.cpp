@@ -651,9 +651,15 @@ struct skipper : qi::grammar<Iterator>
 
 template <typename Iterator>
 struct BoundaryParser
-    : qi::grammar<Iterator, std::map<std::string, std::map<std::string, std::string> >(),
+    : qi::grammar<Iterator, std::vector<std::pair<std::string, std::map<std::string, std::string> > >(),
                   skipper<Iterator> >
 {
+    typedef std::string name_type;
+    typedef std::string value_type;
+    typedef std::string key_type;
+    typedef std::map<key_type, value_type> boundary_type;
+    typedef std::vector<std::pair<name_type, boundary_type> > boundary_list;
+
     BoundaryParser()
         : BoundaryParser::base_type(start)
     {
@@ -663,17 +669,11 @@ struct BoundaryParser
         pair = qi::lexeme[+qi::char_("a-zA-Z")] >> +(qi::char_ - ';') >> ';';
     }
 
-    qi::rule<Iterator, std::map<std::string, std::map<std::string, std::string> >(),
-             skipper<Iterator> > start;
+    qi::rule<Iterator, boundary_list(), skipper<Iterator> > start;
+    qi::rule<Iterator, std::pair<name_type, boundary_type>(), skipper<Iterator> > mapmap;
 
-    qi::rule<Iterator, std::pair<std::string, std::map<std::string, std::string> >(),
-             skipper<Iterator> > mapmap;
-
-    qi::rule<Iterator, std::map<std::string, std::string>(),
-             skipper<Iterator> > entrymap;
-
-    qi::rule<Iterator, std::pair<std::string, std::string>(),
-             skipper<Iterator> > pair;
+    qi::rule<Iterator, boundary_type(), skipper<Iterator> > entrymap;
+    qi::rule<Iterator, std::pair<key_type, value_type>(), skipper<Iterator> > pair;
 };
 
 Boundaries loadBoundary(const std::string &meshdir)
@@ -690,14 +690,16 @@ Boundaries loadBoundary(const std::string &meshdir)
     forward_iterator_type fwd_end;
 
     struct skipper<forward_iterator_type> skipper;
-    BoundaryParser<forward_iterator_type> p;
+    typedef BoundaryParser<forward_iterator_type> Parser;
+    Parser p;
 
-    std::map<std::string, std::map<std::string, std::string> > boundaries;
+    Parser::boundary_list boundaries;
     bounds.valid = qi::phrase_parse(fwd_begin, fwd_end, p, skipper, boundaries);
 
-    std::map<std::string, std::map<std::string, std::string> >::iterator top;
     index_t index = 0;
-    for (top = boundaries.begin(); top != boundaries.end(); top++)
+    for (Parser::boundary_list::iterator top = boundaries.begin();
+            top != boundaries.end();
+            ++top)
     {
 
         std::string name = top->first;
@@ -708,12 +710,12 @@ Boundaries loadBoundary(const std::string &meshdir)
          std::cout << "    " << i->first << " => " << i->second << std::endl;
       }
 #endif
-        const std::map<std::string, std::string> &cur = top->second;
-        std::map<std::string, std::string>::const_iterator nFaces = cur.find("nFaces");
-        std::map<std::string, std::string>::const_iterator startFace = cur.find("startFace");
-        std::map<std::string, std::string>::const_iterator type = cur.find("type");
-        std::map<std::string, std::string>::const_iterator myProc = cur.find("myProcNo");
-        std::map<std::string, std::string>::const_iterator neighbor = cur.find("neighbProcNo");
+        const Parser::boundary_type &cur = top->second;
+        Parser::boundary_type::const_iterator nFaces = cur.find("nFaces");
+        Parser::boundary_type::const_iterator startFace = cur.find("startFace");
+        Parser::boundary_type::const_iterator type = cur.find("type");
+        Parser::boundary_type::const_iterator myProc = cur.find("myProcNo");
+        Parser::boundary_type::const_iterator neighbor = cur.find("neighbProcNo");
         if (nFaces != cur.end() && startFace != cur.end() && type != cur.end())
         {
             std::string t = type->second;

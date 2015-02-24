@@ -114,13 +114,13 @@ void TUIIntEdit::setValue(int type, covise::TokenBuffer &tb)
     if (type == TABLET_MIN)
     {
         tb >> min;
-        std::cerr << "TUIIntEdit::setMin " << min << std::endl;
+        //std::cerr << "TUIIntEdit::setMin " << min << std::endl;
         validator->setBottom(min);
     }
     else if (type == TABLET_MAX)
     {
         tb >> max;
-        std::cerr << "TUIIntEdit::setMax " << max << std::endl;
+        //std::cerr << "TUIIntEdit::setMax " << max << std::endl;
         validator->setTop(max);
     }
     else if (type == TABLET_INT)

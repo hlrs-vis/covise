@@ -37,7 +37,7 @@ inline T square(T const &x)
 //--------------------------------------------------------------------------------------------------
 void ScreenSpaceHandler::init()
 {
-    this->camera = opencover::coVRConfig::instance()->screens[0].camera;
+    this->camera = opencover::coVRConfig::instance()->channels[0].camera;
 
     this->currentTransformMatrix = opencover::cover->getXformMat();
 

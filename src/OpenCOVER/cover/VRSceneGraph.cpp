@@ -1846,7 +1846,7 @@ VRSceneGraph::loadGlobalGeostate()
 
     osg::StateSet *stateSet = new osg::StateSet();
     stateSet->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-    if (coVRConfig::instance()->screens[0].stereoMode != osg::DisplaySettings::ANAGLYPHIC)
+    if (coVRConfig::instance()->channels[0].stereoMode != osg::DisplaySettings::ANAGLYPHIC)
     {
         stateSet->setAttribute(rootColorMask);
     }

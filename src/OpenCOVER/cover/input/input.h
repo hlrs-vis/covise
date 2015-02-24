@@ -54,7 +54,9 @@ public:
 
     //Persons control
     size_t getNumPersons() const; //< number of configured persons
-    size_t getCurrentPersonIndex() const; //< number of current person
+    size_t getNumBodies() const; //< number of bodies
+    size_t getNumDevices() const; //< number of Devices
+    size_t getActivePerson() const; //< number of current person
     bool setActivePerson(size_t numPerson); //< set active person
     Person *getPerson(const std::string &name);
     Person *getPerson(size_t idx) const;
@@ -72,7 +74,9 @@ public:
 
     DriverFactoryBase *getDriverPlugin(const std::string &name);
     InputDevice *getDevice(const std::string &name); //< get driver instance
+    InputDevice *getDevice(size_t idx); //< get driver instance
     TrackingBody *getBody(const std::string &name); //< a single tracked body (matrix)
+    TrackingBody *getBody(size_t idx); //< a single tracked body (matrix)
     ButtonDevice *getButtons(const std::string &name); //< state of a set of buttons (e.g. mouse)
     Valuator *getValuator(const std::string &name); //< a single analog value
 

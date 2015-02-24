@@ -776,7 +776,7 @@ void coVRPluginSupport::update()
 #endif
     }
 
-    size_t currentPerson = Input::instance()->getCurrentPersonIndex();
+    size_t currentPerson = Input::instance()->getActivePerson();
     if ((getMouseButton()->wasPressed() & vruiButtons::PERSON_NEXT)
             || (getPointerButton()->wasPressed() & vruiButtons::PERSON_NEXT))
     {
