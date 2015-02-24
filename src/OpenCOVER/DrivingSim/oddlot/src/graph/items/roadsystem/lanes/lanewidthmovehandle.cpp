@@ -104,7 +104,7 @@ LaneWidthMoveHandle::registerLowSlot(LaneWidth *laneWidthSection)
     {
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, false); // tmp deactivation
         double end = laneWidthSection->getSSectionEnd(); // end is in global coordinates, not local ones ...
-        setPos(end, laneWidthSection->getWidth(end));
+        setPos(end, laneWidthSection->getWidth(lowSlot_->getSSectionEnd() - lowSlot_->getParentLane()->getParentLaneSection()->getSStart()));
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     }
 
@@ -128,7 +128,12 @@ LaneWidthMoveHandle::registerHighSlot(LaneWidth *laneWidthSection)
     {
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
         double start = laneWidthSection->getSSectionStartAbs();
-        setPos(start, laneWidthSection->getWidth(start));
+        double width = highSlot_->getWidth(highSlot_->getSSectionStart());
+            if (width < 0)
+            {
+                width = 0;
+            }
+        setPos(start, width);
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     }
 
@@ -250,7 +255,7 @@ LaneWidthMoveHandle::updateObserver()
         //
         {
             setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
-            setPos(lowSlot_->getSSectionEnd(), lowSlot_->getWidth(lowSlot_->getSSectionEnd()));
+            setPos(lowSlot_->getSSectionEnd(), lowSlot_->getWidth(lowSlot_->getSSectionEnd() - lowSlot_->getParentLane()->getParentLaneSection()->getSStart()));
             setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
         }
     }
@@ -266,7 +271,12 @@ LaneWidthMoveHandle::updateObserver()
         //
         {
             setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
-            setPos(highSlot_->getSSectionStartAbs(), highSlot_->getWidth(highSlot_->getSSectionStartAbs()));
+            double width = highSlot_->getWidth(highSlot_->getSSectionStart());
+            if (width < 0)
+            {
+                width = 0;
+            }
+            setPos(highSlot_->getSSectionStartAbs(), width);
             setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
         }
     }

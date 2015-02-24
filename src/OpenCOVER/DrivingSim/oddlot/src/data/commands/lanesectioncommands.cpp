@@ -1366,21 +1366,24 @@ LaneWidthMovePointsCommand::redo()
     foreach (LaneWidth *section, endPointWidth_)
     {
         double startWidth = section->getWidth(section->getSSectionStart());
-        double endWidth = section->getWidth(section->getSSectionEnd()) + deltaPos_.y();
+        double endWidth = section->getWidth(section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart()) + deltaPos_.y();
         if (endWidth < 0)
             endWidth = 0;
-        double slope = (endWidth - startWidth) / (section->getLength() + deltaPos_.x());
+        double slope = (endWidth - startWidth) / (section->getLength() - section->getParentLane()->getParentLaneSection()->getSStart());
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }
     i = 0;
     foreach (LaneWidth *section, startPointWidth_)
     {
-        double startWidth = section->getWidth(section->getSSectionStart()) + deltaPos_.y();
+        double startWidth = section->getWidth(section->getSSectionStart());
+        startWidth += deltaPos_.y();
         if (startWidth < 0)
             startWidth = 0;
-        double endWidth = section->getWidth(section->getSSectionEnd());
-        double slope = (endWidth - startWidth) / (section->getLength() - deltaPos_.x());
+        double s = section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart();
+        double endWidth = section->getWidth(section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart());
+       
+        double slope = (endWidth - startWidth) / (section->getLength() - section->getParentLane()->getParentLaneSection()->getSStart());
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }
