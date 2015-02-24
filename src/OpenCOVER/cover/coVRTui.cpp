@@ -631,22 +631,28 @@ coInputTUI::coInputTUI()
 void coInputTUI::updateTUI()
 {
     TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
-    osg::Matrix m = tb->getOffsetMat();
-    osg::Vec3 v = m.getTrans();
-    coCoord coord = m;
-    for (int i = 0; i < 3; i++)
+    if(tb)
     {
-        bodyTrans[i]->setValue(v[i]);
-        bodyRot[i]->setValue(coord.hpr[i]);
+        osg::Matrix m = tb->getOffsetMat();
+        osg::Vec3 v = m.getTrans();
+        coCoord coord = m;
+        for (int i = 0; i < 3; i++)
+        {
+            bodyTrans[i]->setValue(v[i]);
+            bodyRot[i]->setValue(coord.hpr[i]);
+        }
     }
     InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
-    m = id->getOffsetMat();
-    v = m.getTrans();
-    coord = m;
-    for (int i = 0; i < 3; i++)
+    if(id)
     {
-        deviceTrans[i]->setValue(v[i]);
-        deviceRot[i]->setValue(coord.hpr[i]);
+        osg::Matrix m = id->getOffsetMat();
+        osg::Vec3 v = m.getTrans();
+        coCoord coord = m;
+        for (int i = 0; i < 3; i++)
+        {
+            deviceTrans[i]->setValue(v[i]);
+            deviceRot[i]->setValue(coord.hpr[i]);
+        }
     }
 }
 coInputTUI::~coInputTUI()

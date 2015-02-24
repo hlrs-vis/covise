@@ -671,6 +671,91 @@ VRViewer::~VRViewer()
 #endif
 }
 
+
+
+void VRViewer::createViewportCameras(int i)
+{
+    viewportStruct &vp = coVRConfig::instance()->viewports[i];
+    if(vp.distortMeshName.length() > 0)
+    {
+
+        int PBOnum = vp.PBOnum;
+        osg::GraphicsContext *gc = coVRConfig::instance()->channels[PBOnum].camera->getGraphicsContext();
+
+        osg::ref_ptr<osg::Camera> cameraWarp = new osg::Camera;
+        cameraWarp->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        cameraWarp->setClearMask(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        cameraWarp->setRenderOrder(osg::Camera::POST_RENDER);
+        cameraWarp->setAllowEventFocus(false);
+
+        cameraWarp->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+        cameraWarp->setProjectionMatrix(osg::Matrix::ortho2D(0, 1, 0, 1));
+        cameraWarp->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+        if (gc)
+        {
+            cameraWarp->setGraphicsContext(gc);
+        }
+
+
+        cameraWarp->setName("WarpOrtho");
+        cameraWarp->setViewport(new osg::Viewport(vp.viewportXMin * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx,
+            vp.viewportYMin * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy,
+            (vp.viewportXMax - vp.viewportXMin) * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sx,
+            (vp.viewportYMax - vp.viewportYMin) * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy));
+
+
+        osg::Geode *geode = distortionMesh();
+        osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
+        state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+        state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
+        geode->setStateSet(state.get());
+
+        cameraWarp->addChild(geode);
+
+        cover->getScene()->addChild(cameraWarp.get());
+    }
+}
+
+osg::Geode *VRViewer::distortionMesh()
+{
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+
+
+    osg::Vec3Array *positionArray = new osg::Vec3Array;
+    osg::Vec4Array *colorArray = new osg::Vec4Array;
+    osg::Vec2Array *textureArray = new osg::Vec2Array;
+    
+    positionArray->push_back(osg::Vec3f(0,0,0));
+    positionArray->push_back(osg::Vec3f(1,0,0));
+    positionArray->push_back(osg::Vec3f(1,1,0));
+    positionArray->push_back(osg::Vec3f(0,1,0));
+    textureArray->push_back(osg::Vec2f(0,0));
+    textureArray->push_back(osg::Vec2f(1,0));
+    textureArray->push_back(osg::Vec2f(1,1));
+    textureArray->push_back(osg::Vec2f(0,1));
+    
+    osg::UShortArray *indexArray = new osg::UShortArray;
+    indexArray->push_back(0);
+    indexArray->push_back(1);
+    indexArray->push_back(2);
+    indexArray->push_back(3);
+    // Get triangle indicies
+
+    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+    geometry->setUseDisplayList(false);
+    geometry->setUseVertexBufferObjects(true);
+    osg::ref_ptr<osg::DrawElementsUShort> drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
+    geometry->addPrimitiveSet(drawElement);
+    geometry->setTexCoordArray(0,textureArray,osg::Array::BIND_PER_VERTEX);
+    geometry->setVertexArray(positionArray);
+    geode->addDrawable(geometry);
+
+
+    return geode.release();
+}
+
 //OpenCOVER
 void
 VRViewer::config()
@@ -684,6 +769,10 @@ VRViewer::config()
     for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         createChannels(i);
+    }
+    for (int i = 0; i < coVRConfig::instance()->numViewports(); i++)
+    {
+        createViewportCameras(i);
     }
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
@@ -806,13 +895,22 @@ VRViewer::createChannels(int i)
         osg::notify(osg::NOTICE) << "VRViewer : Error, no WindowSystemInterface available, cannot create windows." << std::endl;
         return;
     }
-    if (coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window >= coVRConfig::instance()->numWindows())
+    osg::ref_ptr<osgViewer::GraphicsWindow> gw = NULL;
+    if(coVRConfig::instance()->channels[i].viewportNum >= 0)
     {
-        fprintf(stderr, "VRViewer:: error creating channel %d\n", i);
-        fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window);
-        return;
+        if (coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window >= coVRConfig::instance()->numWindows())
+        {
+            fprintf(stderr, "VRViewer:: error creating channel %d\n", i);
+            fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window);
+            return;
+        }
+        gw = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window].window;
     }
-    osg::ref_ptr<osgViewer::GraphicsWindow> gw = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window].window;
+    else
+    {
+        gw = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].window;
+        RenderToTexture = true;
+    }
     if (i == 0)
     {
         coVRConfig::instance()->channels[i].camera = _camera;
@@ -848,7 +946,7 @@ VRViewer::createChannels(int i)
             renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
 
         renderTargetTexture = new osg::Texture2D;
-        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window].window;
+        const osg::GraphicsContext *cg = coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[i].windowNum].window;
         if (!cg)
         {
             fprintf(stderr, "no graphics context for cover screen %d\n", i);
@@ -871,6 +969,9 @@ VRViewer::createChannels(int i)
 
         coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(0, 0,coVRConfig::instance()->PBOs[i].PBOsx,
                                                                                        coVRConfig::instance()->PBOs[i].PBOsy));
+
+        
+
     }
     if (gw.get())
     {
@@ -881,12 +982,12 @@ VRViewer::createChannels(int i)
         {
             // set viewport
             int viewportNumber = coVRConfig::instance()->channels[i].viewportNum;
-             coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(coVRConfig::instance()->viewports[viewportNumber].viewportXMin * traits->width,
-                                                                                         coVRConfig::instance()->viewports[viewportNumber].viewportYMin * traits->height,
-                                                                                         (coVRConfig::instance()->viewports[viewportNumber].viewportXMax - coVRConfig::instance()->viewports[viewportNumber].viewportXMin) * traits->width,
-                                                                                         (coVRConfig::instance()->viewports[viewportNumber].viewportYMax - coVRConfig::instance()->viewports[viewportNumber].viewportYMin) * traits->height));
+            coVRConfig::instance()->channels[i].camera->setViewport(new osg::Viewport(coVRConfig::instance()->viewports[viewportNumber].viewportXMin * traits->width,
+                coVRConfig::instance()->viewports[viewportNumber].viewportYMin * traits->height,
+                (coVRConfig::instance()->viewports[viewportNumber].viewportXMax - coVRConfig::instance()->viewports[viewportNumber].viewportXMin) * traits->width,
+                (coVRConfig::instance()->viewports[viewportNumber].viewportYMax - coVRConfig::instance()->viewports[viewportNumber].viewportYMin) * traits->height));
         }
-        
+
 
         coVRConfig::instance()->channels[i].camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         coVRConfig::instance()->channels[i].camera->setClearColor(osg::Vec4(0.0, 0.4, 0.5, 0.0));

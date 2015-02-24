@@ -370,6 +370,7 @@ coVRConfig::coVRConfig()
             channels[i].viewportNum = -1;
         }
         channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
+        
     }
     for (int i = 0; i < m_numPBOs; i++)
     {
@@ -380,7 +381,7 @@ coVRConfig::coVRConfig()
         
         PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
         PBOs[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
-        PBOs[i].pipeNum = coCoviseConfig::getInt("pipeIndex", str, -1);
+        PBOs[i].windowNum = coCoviseConfig::getInt("windowIndex", str, -1);
     }
     for (int i = 0; i < m_numViewports; i++)
     {
@@ -476,6 +477,9 @@ coVRConfig::coVRConfig()
             if (vp.sourceYMax > 1.0)
                 vp.sourceYMax = vp.sourceYMax / ((float)(PBOs[vp.PBOnum].PBOsy));
         }
+        
+        vp.distortMeshName = coCoviseConfig::getEntry("distortMesh", str, "");
+        vp.blendingTextureName = coCoviseConfig::getEntry("blendingTexture", str, "");
 
     }
 }
@@ -548,6 +552,10 @@ float coVRConfig::worldAngle() const
 int coVRConfig::numScreens() const
 {
     return m_numScreens;
+}
+int coVRConfig::numViewports() const
+{
+    return m_numViewports;
 }
 int coVRConfig::numChannels() const
 {

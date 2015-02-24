@@ -79,7 +79,7 @@ typedef struct
 typedef struct
 {
     int PBOsx, PBOsy; // PBO size
-    int pipeNum; // pipe to render to
+    int windowNum; // pipe to render to
     osg::ref_ptr<osg::Texture2D> renderTargetTexture;
 } PBOStruct;
 
@@ -122,6 +122,9 @@ typedef struct // describes an OpenGL Viewport
     float viewportYMin;
     float viewportXMax;
     float viewportYMax;
+    
+    std::string distortMeshName;
+    std::string blendingTextureName;
 } viewportStruct;
 
 //! describes what is responsible for rendering the  window

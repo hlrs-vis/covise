@@ -136,34 +136,13 @@
 
      <Input>
         <MouseNav value="true" />
-        <Device>
-           <RiftDevice driver="rift" >
-              <Offset x="0" y="-1500" z="0" />
-              <Orientation h="0" p="90" r="0" />
-           </RiftDevice>
-        </Device>
 
-        <Body>
-           <ConstHead>
-              <Offset x="0" y="-2000" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </ConstHead>
 
-           <riftHead device="RiftDevice" bodyIndex="0">
-               <Offset x="0" y="0" z="0" />
-               <Orientation h="0" p="-90" r="0" />
-           </riftHead>
-
-        </Body>
-
-        <Persons>
-           <Person name="tracked" head="riftHead" />
-        </Persons>
      </Input>
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
-    <Rift value="on" />
+    <Rift value="off" />
     <Bullet value="off" />
     <COVERScript value="off" />
     <cuCuttingSurface value="off" />
@@ -450,11 +429,11 @@
    <WindowConfig>
     <OpenGL3 value="false" />
 
-    <Window arch="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+    <Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>
-   <Screen width="960" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="512" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="768" p="0.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
 
    <ChannelConfig>
@@ -463,14 +442,14 @@
     <Channel comment="MAIN" channel="1" stereoMode="RIGHT" screenIndex="0"  windowIndex="0"  PBOIndex="1" name="1"  />
    </ChannelConfig>
    <PBOConfig>
-    <PBO windowIndex="0" PBOSizeX="960" PBOSizeY="1080" name="0"  />
-    <PBO windowIndex="0" PBOSizeX="960" PBOSizeY="1080"  name="1"  />
+    <PBO windowIndex="0" PBOSizeX="512" PBOSizeY="768" name="0" />
+    <PBO windowIndex="0" PBOSizeX="512" PBOSizeY="768"  name="1" />
    </PBOConfig>
    
    <ViewportConfig>
       <!-- each Screen needs a Channel -->
-    <Viewport width="960" height="1" left="0" bottom="0" windowIndex="0"  name="0"  />
-    <Viewport width="960" height="1" left="960" bottom="0"  windowIndex="0"  name="1"  />
+    <Viewport width="512" height="1" left="0" bottom="0" windowIndex="0" PBOIndex="0" distortMesh="testit" blendingTexture="" name="0"/>
+    <Viewport width="512" height="1" left="512" bottom="0"  windowIndex="0" PBOIndex="1"  distortMesh="testit" blendingTexture="" name="1"  />
    </ViewportConfig>
 
    <!--Background r="1.0" g="1.0" b="1.0"/-->

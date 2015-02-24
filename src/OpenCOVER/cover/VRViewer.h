@@ -127,6 +127,9 @@ private:
     ARToolKitMarker *vpMarker;
     bool overwritePAndV;
     bool reEnableCulling;
+    
+    osg::Geode *VRViewer::distortionMesh();
+    void createViewportCameras(int i);
 
 public:
     void setFrustumAndView(int i);
