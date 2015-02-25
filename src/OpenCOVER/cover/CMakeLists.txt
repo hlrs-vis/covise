@@ -25,6 +25,7 @@ add_subdirectory(input/dev/mousebuttons)
 add_subdirectory(input/dev/legacy) 
 add_subdirectory(input/dev/vrc) 
 add_subdirectory(input/dev/rift) 
+add_subdirectory(input/dev/mike) 
 
 SET(HEADERS
   ARToolKit.h
