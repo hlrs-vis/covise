@@ -216,7 +216,7 @@
    <MultiPC>
     <SyncMode value="TCP" />
     <!--SyncMode value="MPI" hosts="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78"/-->
-    <NumSlaves value="1" />
+    <NumSlaves value="9" />
     
     <Multicast>
      <debugLevel value="2" />
