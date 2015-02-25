@@ -2,6 +2,51 @@
 
 <COCONFIG version="1" >
 
+ <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >  
+   <COVER>
+     <Input>
+        <MouseNav value="true" />
+        <Device>
+           <DTrackCave driver="dtrack" port="5000">
+	   <Offset x="0" y="-1500" z="-1307" />
+              <Orientation h="0" p="0" r="0" />
+           </DTrackCave>
+
+           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+        </Device>
+
+        <Body>
+           <CaveHead device="DTrackCave" bodyIndex="2">
+              <Offset x="-105" y="-40" z="-50" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead>
+
+           <CaveHand device="DTrackCave" bodyIndex="1">
+	   <Offset x="-50" y="0" z="0" />
+	   <Orientation h="0" p="-90" r="0" />
+           </CaveHand>
+        </Body>
+
+        <Buttons>
+           <CaveMouse device="CaveButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CaveMouse>
+        </Buttons>
+
+        <Valuator>
+           <CaveJoyX device="DTrackCave" valuatorIndex="0" />
+           <CaveJoyY device="DTrackCave" valuatorIndex="1" />
+        </Valuator>
+
+        <Persons>
+           <Person name="tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+        </Persons>
+     </Input>
+     </COVER>
+</LOCAL>
  <LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >  
    <COVER>
      <Background r="0.0" g="0.0" b="0.0" />
