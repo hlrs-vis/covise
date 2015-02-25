@@ -29,6 +29,15 @@
 #include <stack>
 #include <map>
 #include <cover/coTabletUI.h>
+#include <OpenVRUI/sginterface/vruiActionUserData.h>
+
+class RevitInfo : public vrui::vruiUserData
+{
+public:
+    RevitInfo();
+    ~RevitInfo();
+    int ObjectID;
+};
 
 namespace vrui
 {
@@ -158,7 +167,12 @@ public:
         MSG_AddView = 507,
         MSG_DeleteElement = 508,
         MSG_NewParameter = 509,
-        MSG_SetParameter = 510
+        MSG_SetParameter = 510,
+        MSG_NewMaterial = 511,
+        MSG_NewPolyMesh = 512,
+        MSG_NewInstance = 513,
+        MSG_EndInstance = 514,
+        MSG_SetTransform = 515
     };
     enum ObjectTypes
     {
@@ -188,6 +202,8 @@ public:
     int maxEntryNumber;
     coTUITab *revitTab;
     void sendMessage(Message &m);
+    
+    void message(int type, int len, const void *buf);
 
 protected:
     static RevitPlugin *plugin;

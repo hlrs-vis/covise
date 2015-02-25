@@ -43,6 +43,8 @@ public:
         WHEEL_UP = 0x4000,
         WHEEL_DOWN = 0x8000,
         WHEEL = WHEEL_UP | WHEEL_DOWN,
+        PERSON_PREV = 0x10000,
+        PERSON_NEXT = 0x20000,
         JOYSTICK_RIGHT = 0x10000000,
         JOYSTICK_DOWN = 0x20000000,
         JOYSTICK_LEFT = 0x40000000,

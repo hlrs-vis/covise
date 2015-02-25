@@ -17,7 +17,7 @@
 #include <osgText/Text>
 #include <osg/AlphaFunc>
 #include <osg/BlendFunc>
-#include <cover/Outline.h>
+#include <osgFX/Outline>
 
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/coButton.h>

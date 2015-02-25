@@ -88,7 +88,7 @@
       <item row="2" column="2">
        <widget class="QTextEdit" name="idBox">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Ignored">

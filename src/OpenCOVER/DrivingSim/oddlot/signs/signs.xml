@@ -3,7 +3,7 @@
 	<signalsObjects>
 		<country name="OpenDRIVE" >
 		<objects>
-			<object name="GuardRail" icon="" distance="0.5" type="GuardRail" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
+			<object name="GuardRail" icon="" distance="0.5" type="guardRail" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
 			<object name="STEPBarrier" icon="" distance="0.0" type="STEPBarrier" width="0.542" height="0.9" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
 				<corner u="0.0" v="-0.271" z="0.0" height="0.0" />
 				<corner u="0.0" v="-0.249" z="0.15" height="0.0" />
@@ -42,14 +42,6 @@
 				<corner u="0.0" v="0.0" z="0.81" height="0.0" />
 				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
 			</object>
-                        <object name="JerseyBarrierChinaHalfP" icon="" distance="0.0" type="JerseyBarrierChinaHalP" width="0.45" height="0.81" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.45" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.45" z="0.075" height="0.0" />
-				<corner u="0.0" v="0.27" z="0.25" height="0.0" />
-				<corner u="0.0" v="0.1" z="0.81" height="0.0" />
-				<corner u="0.0" v="0.0" z="0.81" height="0.0" />
-				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
-			</object>
                         <object name="Fence" icon="" distance="0.0" type="Fence" width="0.1" height="1.0" length="1.0" radius="0.0" heading="0" repeatDistance="0.0" >
 				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
 				<corner u="0.0" v="0.0" z="1.0" height="0.0" />
@@ -58,11 +50,8 @@
 				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
 				<corner u="0.0" v="0.0" z="2.0" height="0.0" />
 			</object>
-                        <object name="AntiGlarePanel" icon="" distance="0.0" type="AntiGlarePanel" width="0.04" height="0.79" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.0" z="0.79" height="0.0" />
-			</object>
 			<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Tree8m.WRL"/>
+                        <object name="AntiGlarePanel" icon="" distance="0.5" type="AntiGlarePanel" width="0.0" height="0.79" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="AntiGlarePanel.WRL"/>
 			<object name="Bush" icon="" distance="0.5" type="Bush" width="0.0" height="1.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Bush1m.WRL"/>
                         <object name="PoleRight" icon="" distance="0.0" type="PoleRight" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Right.WRL" />
                         <object name="PoleLeft" icon="" distance="0.0" type="PoleLeft" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left.WRL" />

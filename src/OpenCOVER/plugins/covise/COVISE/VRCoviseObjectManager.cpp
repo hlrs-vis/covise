@@ -51,7 +51,7 @@
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
 #include <cover/VRRegisterSceneGraph.h>
-#include <cover/coLOD.h>
+#include <PluginUtil/coLOD.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 

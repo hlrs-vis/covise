@@ -49,6 +49,8 @@ JunctionSettings::JunctionSettings(ProjectSettings *projectSettings, SettingsEle
     //
     updateProperties();
     updateConnections();
+
+    connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(on_editingFinished()));
 }
 
 JunctionSettings::~JunctionSettings()
@@ -99,16 +101,24 @@ JunctionSettings::updateConnections()
 //################//
 
 void
-JunctionSettings::on_nameButton_released()
+JunctionSettings::on_editingFinished()
 {
-    // Open a small dialog an ask for a new name //
-    //
-    bool ok = false;
-    QString newValue = QInputDialog::getText(this, tr("ODD: Junction Name"), tr("Please enter a new junction name:"), QLineEdit::Normal, junction_->getName(), &ok);
-    if (ok && !newValue.isEmpty() && newValue != junction_->getName())
+
+    QString filename = ui->nameBox->text();
+    if (filename != junction_->getName())
     {
-        QString newId = junction_->getNewId(junction_, newValue);
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, NULL);
+        QString newId;
+        QStringList parts = junction_->getID().split("_");
+
+        if (parts.size() > 2)
+        {
+            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
+        }
+        else
+        {
+            newId = junction_->getRoadSystem()->getUniqueId(junction_->getID(), filename);
+        }
+        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, filename, NULL);
         getProjectSettings()->executeCommand(command);
     }
 }

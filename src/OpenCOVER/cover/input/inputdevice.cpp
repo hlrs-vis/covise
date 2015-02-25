@@ -37,6 +37,10 @@ InputDevice::InputDevice(const std::string &config)
     , m_isVarying(true)
     , m_is6Dof(false)
 {
+    if(m_config.compare(0,19,"COVER.Input.Device.")==0)
+        m_name = m_config.substr(19,std::string::npos);
+    else
+        m_name = m_config;
     // system offset and orientation
     float trans[3];
     trans[0] = coCoviseConfig::getFloat("x", configPath("Offset"), 0);
@@ -58,9 +62,19 @@ InputDevice::InputDevice(const std::string &config)
     m_offsetMatrix.postMult(translationMat);
 }
 
+void InputDevice::setOffsetMat(const osg::Matrix &m)
+{
+    m_offsetMatrix = m;
+}
+
 InputDevice::~InputDevice()
 {
     stopLoop();
+}
+
+const osg::Matrix &InputDevice::getOffsetMat() const
+{
+    return m_offsetMatrix;
 }
 
 bool InputDevice::needsThread() const

@@ -171,7 +171,7 @@ OrthographicSnapShot::prepareSnapshot()
         //
         pBufferCamera_ = new osg::Camera();
 
-        osg::Camera *cam = dynamic_cast<osg::Camera *>(coVRConfig::instance()->screens[0].camera.get());
+        osg::Camera *cam = dynamic_cast<osg::Camera *>(coVRConfig::instance()->channels[0].camera.get());
 
         image_.get()->allocateImage(tuiResolutionX->getValue(), tuiResolutionY->getValue(), 1, GL_RGB, GL_UNSIGNED_BYTE);
 
@@ -224,8 +224,8 @@ OrthographicSnapShot::preFrame()
         //
         osg::Matrix projMat = osg::Matrix::ortho(-width_ / 2.0, width_ / 2.0, -height_ / 2.0, height_ / 2.0, 10000.0, 4000000.0);
 
-        coVRConfig::instance()->screens[0].rightProj = projMat;
-        coVRConfig::instance()->screens[0].leftProj = projMat;
+        coVRConfig::instance()->channels[0].rightProj = projMat;
+        coVRConfig::instance()->channels[0].leftProj = projMat;
 
         // ViewMatrix //
         //
@@ -239,8 +239,8 @@ OrthographicSnapShot::preFrame()
         viewMat.invert(viewMat);
         viewMat.postMult(osg::Matrix::lookAt(osg::Vec3d(xPos_, yPos_, 1800000.0), osg::Vec3d(xPos_, yPos_, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0)));
 
-        coVRConfig::instance()->screens[0].rightView = viewMat;
-        coVRConfig::instance()->screens[0].leftView = viewMat;
+        coVRConfig::instance()->channels[0].rightView = viewMat;
+        coVRConfig::instance()->channels[0].leftView = viewMat;
     }
 
     // The snapshot has been made, now clean up //

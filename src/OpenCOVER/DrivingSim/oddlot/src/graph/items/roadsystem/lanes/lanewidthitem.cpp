@@ -186,8 +186,8 @@ LaneWidthItem::createPath()
 
     for (int i = 0; i < pointCount; ++i)
     {
-        double s = sStart + i * segmentLength; // [sStart, sEnd]
-        points[i] = QPointF(s, parentLane_->getWidth(s));
+        double s = i * segmentLength; // [sStart, sEnd]
+        points[i] = QPointF(sStart + s, parentLane_->getWidth(s));
     }
 
     // Psycho-Path //

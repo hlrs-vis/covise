@@ -841,6 +841,14 @@ void Move::preFrame()
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                
+                
+                vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
+                if(info!=NULL)
+                {
+                    cover->sendMessage(this, "Revit",
+                        PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                }
 
                 if (printMode)
                 {
@@ -913,7 +921,13 @@ void Move::preFrame()
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
-
+                
+                vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
+                if(info!=NULL)
+                {
+                    cover->sendMessage(this, "Revit",
+                        PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                }
                 if (printMode)
                 {
                     osg::Matrix rotMat;

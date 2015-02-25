@@ -295,7 +295,14 @@ std::string LocalData::getTmpFilename(const std::string url, int)
     std::string::size_type pos = url.find("//");
     std::string path = url.substr(pos + 1, url.size() - (pos + 1));
     /*std::cerr << "LocalData.cpp: File Location: " << path << std::endl;*/
-    this->setFile(path);
+    if(path.length()>2 && path[2]==':') // this is a windows drive letter
+    {
+        this->setFile(path.substr(1,path.size()-1));
+    }
+    else
+    {
+        this->setFile(path);
+    }
     return this->mFile;
 }
 

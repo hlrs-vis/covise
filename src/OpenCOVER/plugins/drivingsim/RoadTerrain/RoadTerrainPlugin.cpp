@@ -294,7 +294,7 @@ bool RoadTerrainPlugin::loadTerrain(std::string filename, osg::Vec3d offset,
     {
         for (int screenIt = 0; screenIt < coVRConfig::instance()->numScreens(); ++screenIt)
         {
-            osgViewer::Renderer *renderer = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[screenIt].camera->getRenderer());
+            osgViewer::Renderer *renderer = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[screenIt].camera->getRenderer());
             if (renderer)
             {
                 renderer->getSceneView(0)->setAutomaticFlush(false);

@@ -53,15 +53,15 @@ public:
     bool isHandValid(int num = 0) const; //< whether active person's hand matrix is valid
 
     //Persons control
-    int getNumPersons()
-    {
-        return persons.size();
-    } //< number of configured persions
+    size_t getNumPersons() const; //< number of configured persons
+    size_t getNumBodies() const; //< number of bodies
+    size_t getNumDevices() const; //< number of Devices
+    size_t getActivePerson() const; //< number of current person
     bool setActivePerson(size_t numPerson); //< set active person
     Person *getPerson(const std::string &name);
     Person *getPerson(size_t idx) const;
 
-    size_t getNumObjects()
+    size_t getNumObjects() const
     {
         return objects.size();
     } //< number of tracked objects (not part of persons)
@@ -74,7 +74,9 @@ public:
 
     DriverFactoryBase *getDriverPlugin(const std::string &name);
     InputDevice *getDevice(const std::string &name); //< get driver instance
+    InputDevice *getDevice(size_t idx); //< get driver instance
     TrackingBody *getBody(const std::string &name); //< a single tracked body (matrix)
+    TrackingBody *getBody(size_t idx); //< a single tracked body (matrix)
     ButtonDevice *getButtons(const std::string &name); //< state of a set of buttons (e.g. mouse)
     Valuator *getValuator(const std::string &name); //< a single analog value
 

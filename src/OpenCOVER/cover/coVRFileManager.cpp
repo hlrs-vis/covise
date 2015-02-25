@@ -82,7 +82,8 @@ osg::Node *coVRFileManager::loadIcon(const char *filename)
         }
         if (name == NULL)
         {
-            fprintf(stderr, "Did not find icon %s\n", filename);
+            if (cover->debugLevel(4))
+                fprintf(stderr, "Did not find icon %s\n", filename);
             return NULL;
         }
         node = osgDB::readNodeFile(name);

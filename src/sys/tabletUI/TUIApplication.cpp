@@ -320,7 +320,7 @@ int TUIMainWindow::openServer()
 
     serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
 
-    cerr << "listening on port " << port << endl;
+    //cerr << "listening on port " << port << endl;
 // weil unter windows manchmal Messages verloren gehen
 // der SocketNotifier wird nicht oft genug aufgerufen)
 #if defined(_WIN32) || defined(__APPLE__)
@@ -364,13 +364,13 @@ void TUIMainWindow::processMessages()
 
                 // create connections for texture Thread and SceneGraph Browser Thread
 
-                qDebug() << "open texConn";
+                //qDebug() << "open texConn";
                 texConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
                 covise::TokenBuffer tb;
                 tb << port;
                 send(tb);
 
-                qDebug() << "sent port" << port;
+                //qDebug() << "sent port" << port;
 
                 if (texConn->accept(60) < 0)
                 {
@@ -619,11 +619,7 @@ QWidget *TUIMainWindow::getWidget(int ID)
 bool TUIMainWindow::handleClient(covise::Message *msg)
 //------------------------------------------------------------------------
 {
-    covise::TokenBuffer tb(msg);
-    switch (msg->type)
-    {
-    case covise::COVISE_MESSAGE_SOCKET_CLOSED:
-    case covise::COVISE_MESSAGE_CLOSE_SOCKET:
+    if((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
         delete clientSN;
         clientSN = NULL;
@@ -646,7 +642,9 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
 #endif
         return true; // we have been deleted, exit immediately
     }
-    break;
+    covise::TokenBuffer tb(msg);
+    switch (msg->type)
+    {
     case covise::COVISE_MESSAGE_TABLET_UI:
     {
         int type;
@@ -743,7 +741,9 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             }
             else
             {
+#ifdef DEBUG
                 std::cerr << "TUIApplication::handleClient warn: element not available in remove: " << ID << std::endl;
+#endif
             }
         }
         break;

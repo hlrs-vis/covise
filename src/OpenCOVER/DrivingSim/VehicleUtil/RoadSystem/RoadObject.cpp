@@ -402,13 +402,13 @@ osg::Geode *RoadObject::createGuardRailGeode()
     RoadPoint railPoint2;
 
     osg::Vec3 n;
-    double wr, wl;
-    double startWidth;
-    road->getRoadSideWidths(s, wr, wl);
-    if (t > 0)
-        startWidth = wl;
-    else
-        startWidth = wr;
+
+    LaneSection * currentLaneSection = NULL;
+    int currentLaneId = 0;
+    double sSection = s;
+    double d = 0.0;
+    double currentT = t;
+
     for (double currentS = s; currentS <= s + railLength; currentS += h)
     {
         if (currentS > (s + railLength - (h)))
@@ -419,12 +419,56 @@ osg::Geode *RoadObject::createGuardRailGeode()
                 down = true;
             }
         }
-        double currentT;
-        road->getRoadSideWidths(currentS, wr, wl);
-        if (t > 0)
-            currentT = t - startWidth + wl;
-        else
-            currentT = t - startWidth + wr;
+
+        if (road->getLaneSection(currentS) != currentLaneSection)
+        {
+            LaneSection * newLaneSection = road->getLaneSection(currentS);
+            while (currentLaneSection && (currentLaneSection != newLaneSection))
+            {
+                if (t < 0)
+                {
+                    currentT = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, road->getLaneSectionEnd(currentLaneSection->getStart())) + d;
+                }
+                else if (t > 0)
+                {
+                    currentT = currentLaneSection->getLaneSpanWidth(0, currentLaneId, road->getLaneSectionEnd(currentLaneSection->getStart())) + d;
+                }
+
+                currentLaneSection = road->getLaneSectionNext(currentLaneSection->getStart() + 1.0e-3);
+                currentLaneId = road->getLaneNumber(currentLaneSection->getStart(), currentT);
+                sSection = currentLaneSection->getStart();
+            }
+
+            currentLaneSection = newLaneSection;
+            currentLaneId = road->getLaneNumber(sSection, currentT);
+
+            if (t < 0)
+            {
+                if (fabs(currentT) < currentLaneSection->getLaneSpanWidth(0, currentLaneId + 1, currentS) + currentLaneSection->getLaneWidth(currentS, currentLaneId)/2)
+                {
+                    currentLaneId++;
+                }
+                d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + currentT;
+            }
+            else if (t >  0)
+            {
+                if (currentT < currentLaneSection->getLaneSpanWidth(0, currentLaneId - 1,  currentS) + currentLaneSection->getLaneWidth(currentS, currentLaneId)/2)
+                {
+                    currentLaneId--;
+                }
+                d = currentT -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS);
+            }
+        }
+
+
+        if (t < 0)
+        {
+            currentT = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+        }
+        else if (t > 0)
+        {
+            currentT = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+        }
 
         railPoint = road->getRoadPoint(currentS, currentT);
         if (t > 0)
@@ -764,12 +808,23 @@ osg::Geode *RoadObject::createOutlineGeode()
         tcv[i]/= len;
     }
 
-    int laneNumber = road->getLaneNumber(s, t);
-    startWidth = road->getRoadLaneOuterPos(s, laneNumber);
+
+    LaneSection * startLaneSection = NULL;
+    int startLaneId = 0;
+    double sSection = s;
+    double d = 0.0;
+    int lengthSegments;
+    double currentT;
+    LaneSection * currentLaneSection;
+    int currentLaneId;
 
     for (int pseg = 0; pseg < numSegments; pseg++)
     {
-        int lengthSegments = 0;
+
+        lengthSegments = 0;
+        currentT = t;
+        currentLaneSection = startLaneSection;
+        currentLaneId = startLaneId;
 
         for (double currentS = s; currentS <= s + railLength; currentS += h)
         {
@@ -777,15 +832,58 @@ osg::Geode *RoadObject::createOutlineGeode()
             {
                 currentS = (s + railLength);
             }
-            double currentT;
-            if (t == 0)
+
+	    if (road->getLaneSection(currentS) != currentLaneSection)
             {
-                currentT = t;
+                LaneSection * newLaneSection = road->getLaneSection(currentS);
+                while (currentLaneSection && (currentLaneSection != newLaneSection))
+                {
+                    if (t < 0)
+                    {
+                        currentT = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, road->getLaneSectionEnd(currentLaneSection->getStart())) + d;
+                    }
+                    else if (t > 0)
+                    {
+                        currentT = currentLaneSection->getLaneSpanWidth(0, currentLaneId, road->getLaneSectionEnd(currentLaneSection->getStart())) + d;
+                    }
+
+                    currentLaneSection = road->getLaneSectionNext(currentLaneSection->getStart() + 1.0e-3);
+                    currentLaneId = road->getLaneNumber(currentLaneSection->getStart(), currentT);
+                    sSection = currentLaneSection->getStart();
+                }
+
+                currentLaneSection = newLaneSection;
+                currentLaneId = road->getLaneNumber(sSection, currentT);
+                if (t < 0)
+                {
+                    if (fabs(currentT) < currentLaneSection->getLaneSpanWidth(0, currentLaneId + 1, currentS) + currentLaneSection->getLaneWidth(currentS, currentLaneId)/2)
+                    {
+                        currentLaneId++;
+                    }
+                    d = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + currentT;
+                }
+                else if (t >  0)
+                {
+                    if (currentT < currentLaneSection->getLaneSpanWidth(0, currentLaneId - 1,  currentS) + currentLaneSection->getLaneWidth(currentS, currentLaneId)/2)
+                    {
+                        currentLaneId--;
+                    }
+                    d = currentT -  currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS);
+                }
             }
-            else
+
+
+
+	    if (t < 0)
             {
-                currentT = t - startWidth + road->getRoadLaneOuterPos(currentS, laneNumber);
+                currentT = -currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
             }
+            else if (t > 0)
+            {
+                currentT = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
+            }
+
+
 
             nextRailPoint = road->getRoadPoint(currentS + h, currentT);
             osg::Vec3 p3(nextRailPoint.x(), nextRailPoint.y(), nextRailPoint.z());

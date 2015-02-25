@@ -53,6 +53,10 @@ public:
 
     bool isVarying() const;
     bool is6Dof() const;
+    const std::string &getName() const{return m_name;};
+    const osg::Matrix &getOffsetMat() const;
+    void setOffsetMat(const osg::Matrix &m);
+    
 
 protected:
     static osg::Matrix s_identity; //< identity matrix, for returning a valid reference
@@ -67,6 +71,7 @@ protected:
     std::vector<osg::Matrix> m_bodyMatrices;
 
     const std::string m_config; //< path to config values for this device
+    std::string m_name;
     osg::Matrix m_offsetMatrix; //< system matrix
     bool m_isVarying; //< whether returned values can change
     bool m_is6Dof; //< whether matrices represent position and orientation

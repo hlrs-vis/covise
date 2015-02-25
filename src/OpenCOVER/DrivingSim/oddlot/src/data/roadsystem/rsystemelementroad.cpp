@@ -1579,6 +1579,18 @@ RSystemElementRoad::getLaneSectionBefore(double s) const
     return i.value();
 }
 
+LaneSection *
+RSystemElementRoad::getLaneSectionNext(double s) const
+{
+    QMap<double, LaneSection *>::const_iterator i = laneSections_.upperBound(s);
+    if (i == laneSections_.constEnd())
+    {
+        return NULL;
+    }
+
+    return i.value();
+}
+
 /** \brief Returns the s coordinate of the end of the laneSection
 * containing s.
 *

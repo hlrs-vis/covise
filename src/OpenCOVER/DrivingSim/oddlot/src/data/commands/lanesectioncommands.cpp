@@ -16,6 +16,7 @@
 #include "lanesectioncommands.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/roadlink.hpp"
 
 #include <math.h>
 
@@ -890,6 +891,21 @@ SetLanePredecessorIdCommand::construct()
         return;
     }
 
+    RSystemElementRoad * road = lane_->getParentLaneSection()->getParentRoad();
+    if (lane_->getParentLaneSection() == road->getLaneSection(0))
+    {
+        if (!road->getPredecessor() || (road->getPredecessor()->getElementType() == "junction"))
+        {
+            if (lane_->getPredecessor() != Lane::NOLANE)
+            {
+                lane_->setPredecessor(Lane::NOLANE);
+            }
+            setInvalid();
+            setText(QObject::tr("Set Lane Predecessor: Road has no predecessor."));
+            return;
+        }
+    }
+
     oldPredecessorId_ = lane_->getPredecessor();
 
     if (oldPredecessorId_ == newPredecessorId_)
@@ -945,6 +961,21 @@ SetLaneSuccessorIdCommand::construct()
         setInvalid();
         setText(QObject::tr("Set Lane Successor: Parameters invalid! No element given."));
         return;
+    }
+
+    RSystemElementRoad * road = lane_->getParentLaneSection()->getParentRoad();
+    if (lane_->getParentLaneSection() == road->getLaneSection(road->getLength()))
+    {
+        if (!road->getSuccessor() || (road->getSuccessor()->getElementType() == "junction"))
+        {
+            if (lane_->getSuccessor() != Lane::NOLANE)
+            {
+                lane_->setSuccessor(Lane::NOLANE);
+            }
+            setInvalid();
+            setText(QObject::tr("Set Lane Successor: Road has no successor."));
+            return;
+        }
     }
 
     oldSuccessorId_ = lane_->getSuccessor();
@@ -1335,21 +1366,24 @@ LaneWidthMovePointsCommand::redo()
     foreach (LaneWidth *section, endPointWidth_)
     {
         double startWidth = section->getWidth(section->getSSectionStart());
-        double endWidth = section->getWidth(section->getSSectionEnd()) + deltaPos_.y();
+        double endWidth = section->getWidth(section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart()) + deltaPos_.y();
         if (endWidth < 0)
             endWidth = 0;
-        double slope = (endWidth - startWidth) / (section->getLength() + deltaPos_.x());
+        double slope = (endWidth - startWidth) / (section->getLength() - section->getParentLane()->getParentLaneSection()->getSStart());
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }
     i = 0;
     foreach (LaneWidth *section, startPointWidth_)
     {
-        double startWidth = section->getWidth(section->getSSectionStart()) + deltaPos_.y();
+        double startWidth = section->getWidth(section->getSSectionStart());
+        startWidth += deltaPos_.y();
         if (startWidth < 0)
             startWidth = 0;
-        double endWidth = section->getWidth(section->getSSectionEnd());
-        double slope = (endWidth - startWidth) / (section->getLength() - deltaPos_.x());
+        double s = section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart();
+        double endWidth = section->getWidth(section->getSSectionEnd() - section->getParentLane()->getParentLaneSection()->getSStart());
+       
+        double slope = (endWidth - startWidth) / (section->getLength() - section->getParentLane()->getParentLaneSection()->getSStart());
         section->setParameters(startWidth, slope, 0.0, 0.0);
         ++i;
     }
@@ -1608,3 +1642,57 @@ LaneSetWidthCommand::mergeWith(const QUndoCommand *other)
 
     return true;
 }
+
+//################################//
+// SelectLaneWidthCommand //
+//##############################//
+
+SelectLaneWidthCommand::SelectLaneWidthCommand(const QList<LaneWidth *> &endPointWidths, const QList<LaneWidth *> &startPointWidths, DataCommand *parent)
+    : DataCommand(parent)
+{
+    // Lists //
+    //
+    endPointWidths_ = endPointWidths;
+    startPointWidths_ = startPointWidths;
+
+    // Check for validity //
+    //
+    if (endPointWidths_.isEmpty() && startPointWidths_.isEmpty())
+    {
+        setInvalid(); // Invalid because no change.
+        setText(QObject::tr("Set Lane width (invalid!)"));
+        return;
+    }
+
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Set Lane width"));
+}
+
+/*! \brief .
+*
+*/
+SelectLaneWidthCommand::~SelectLaneWidthCommand()
+{
+}
+
+void
+SelectLaneWidthCommand::
+    redo()
+{
+    // Send a notification to the observers
+    //
+    foreach (LaneWidth *width, endPointWidths_)
+    {
+        width->addLaneWidthChanges(true);
+    }
+
+    foreach (LaneWidth *width, startPointWidths_)
+    {
+        width->addLaneWidthChanges(true);
+    }
+
+    setRedone();
+}
+

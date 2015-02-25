@@ -109,7 +109,6 @@ VRSceneGraph::VRSceneGraph()
     , m_wireFrame(false)
     , m_textured(true)
     , m_showMenu(true)
-    , m_slider(0)
     , m_vectorInteractor(0)
     , m_pointerType(0)
     , m_worldTransformer(false)
@@ -1606,12 +1605,10 @@ VRSceneGraph::manipulate(buttonSpecCell *spec)
     {
         if (spec->state)
         {
-            m_slider = 1;
             setPointerType(HAND_SPHERE);
         }
         else
         {
-            m_slider = 0;
             setPointerType(HAND_LINE);
         }
     }
@@ -1849,7 +1846,7 @@ VRSceneGraph::loadGlobalGeostate()
 
     osg::StateSet *stateSet = new osg::StateSet();
     stateSet->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-    if (coVRConfig::instance()->screens[0].stereoMode != osg::DisplaySettings::ANAGLYPHIC)
+    if (coVRConfig::instance()->channels[0].stereoMode != osg::DisplaySettings::ANAGLYPHIC)
     {
         stateSet->setAttribute(rootColorMask);
     }

@@ -16,6 +16,7 @@
 #define __TRACKINGBODY_H_
 
 #include <osg/Matrix>
+#include <util/coExport.h>
 #include <iostream>
 
 namespace opencover
@@ -23,15 +24,19 @@ namespace opencover
 
 class InputDevice;
 
-class TrackingBody
+class COVEREXPORT TrackingBody
 {
     friend class Input;
 
 public:
     bool isValid() const;
     const osg::Matrix &getMat() const;
+    const osg::Matrix &getOffsetMat() const;
+    void setOffsetMat(const osg::Matrix &m);
     bool isVarying() const;
     bool is6Dof() const;
+    const std::string &getName() const{return m_name;};
+
 
 private:
     TrackingBody(const std::string &name);
@@ -47,6 +52,7 @@ private:
     size_t m_idx;
     osg::Matrix m_mat, m_deviceOffsetMat;
     bool m_varying, m_6dof;
+    std::string m_name;
 };
 }
 #endif /* TRACKINGBODY_H_ */

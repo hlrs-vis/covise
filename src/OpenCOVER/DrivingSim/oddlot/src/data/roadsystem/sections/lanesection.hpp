@@ -64,6 +64,7 @@ public:
     void addLane(Lane *lane);
     void removeLane(Lane *lane);
     Lane *getLane(int id) const;
+    int getLaneId(double s, double t);
 
     double getLaneWidth(int lane, double s) const;
     double getLaneSpanWidth(int fromLane, int toLane, double s) const;

@@ -12,7 +12,7 @@ namespace OpenCOVERPlugin
 
    public sealed class COVER
    {
-       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh };
+       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform };
       public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
       private Thread messageThread;
 
@@ -602,79 +602,94 @@ namespace OpenCOVERPlugin
           switch ((MessageTypes)msgType)
           {
               case MessageTypes.SetParameter:
-                  int elemID = buf.readInt();
-                  int paramID = buf.readInt();
-
-                  Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
-                  Autodesk.Revit.DB.Element elem = document.GetElement(id);
-
-                  foreach (Autodesk.Revit.DB.Parameter para in elem.Parameters)
                   {
-                      if (para.Id.IntegerValue == paramID)
-                      {
+                      int elemID = buf.readInt();
+                      int paramID = buf.readInt();
 
-                          switch (para.StorageType)
+                      Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                      Autodesk.Revit.DB.Element elem = document.GetElement(id);
+
+                      foreach (Autodesk.Revit.DB.Parameter para in elem.Parameters)
+                      {
+                          if (para.Id.IntegerValue == paramID)
                           {
-                              case Autodesk.Revit.DB.StorageType.Double:
-                                  double d = buf.readDouble();
-                                  try
-                                  {
-                                      para.Set(d);
-                                  }
-                                  catch
-                                  {
-                                      Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
-                                  }
-                                  d = para.AsDouble();
-                                  break;
-                              case Autodesk.Revit.DB.StorageType.ElementId:
-                                  //find out the name of the element
-                                  int tmpid = buf.readInt();
-                                  Autodesk.Revit.DB.ElementId eleId = new Autodesk.Revit.DB.ElementId(tmpid);
-                                  try
-                                  {
-                                  para.Set(eleId);
-                                  }
-                                  catch
-                                  {
-                                      Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
-                                  }
-                                  break;
-                              case Autodesk.Revit.DB.StorageType.Integer:
-                                  try
-                                  {
-                                  para.Set(buf.readInt());
-                                  }
-                                  catch
-                                  {
-                                      Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
-                                  }
-                                  break;
-                              case Autodesk.Revit.DB.StorageType.String:
-                                  try
-                                  {
-                                  para.Set(buf.readString());
-                                  }
-                                  catch
-                                  {
-                                      Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
-                                  }
-                                  break;
-                              default:
-                                  try
-                                  {
-                                  para.SetValueString(buf.readString());
-                                  }
-                                  catch
-                                  {
-                                      Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
-                                  }
-                                  break;
+
+                              switch (para.StorageType)
+                              {
+                                  case Autodesk.Revit.DB.StorageType.Double:
+                                      double d = buf.readDouble();
+                                      try
+                                      {
+                                          para.Set(d);
+                                      }
+                                      catch
+                                      {
+                                          Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
+                                      }
+                                      d = para.AsDouble();
+                                      break;
+                                  case Autodesk.Revit.DB.StorageType.ElementId:
+                                      //find out the name of the element
+                                      int tmpid = buf.readInt();
+                                      Autodesk.Revit.DB.ElementId eleId = new Autodesk.Revit.DB.ElementId(tmpid);
+                                      try
+                                      {
+                                          para.Set(eleId);
+                                      }
+                                      catch
+                                      {
+                                          Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
+                                      }
+                                      break;
+                                  case Autodesk.Revit.DB.StorageType.Integer:
+                                      try
+                                      {
+                                          para.Set(buf.readInt());
+                                      }
+                                      catch
+                                      {
+                                          Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
+                                      }
+                                      break;
+                                  case Autodesk.Revit.DB.StorageType.String:
+                                      try
+                                      {
+                                          para.Set(buf.readString());
+                                      }
+                                      catch
+                                      {
+                                          Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
+                                      }
+                                      break;
+                                  default:
+                                      try
+                                      {
+                                          para.SetValueString(buf.readString());
+                                      }
+                                      catch
+                                      {
+                                          Autodesk.Revit.UI.TaskDialog.Show("Double", "para.Set failed");
+                                      }
+                                      break;
+                              }
+
                           }
-                          
                       }
                   }
-                  
+                  break;
+              case MessageTypes.SetTransform:
+                  {
+                      int elemID = buf.readInt();
+                      double x = buf.readDouble();
+                      double y = buf.readDouble();
+                      double z = buf.readDouble();
+
+                      Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                      Autodesk.Revit.DB.Element elem = document.GetElement(id);
+                      Autodesk.Revit.DB.LocationCurve ElementPosCurve = elem.Location as Autodesk.Revit.DB.LocationCurve;
+                      Autodesk.Revit.DB.XYZ translationVec = new Autodesk.Revit.DB.XYZ(x, y, z);
+                      ElementPosCurve.Move(translationVec);
+                  }
                   break;
           }
       }

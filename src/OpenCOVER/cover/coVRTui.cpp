@@ -36,6 +36,9 @@
 #include "coHud.h"
 #include <osgDB/WriteFile>
 #include <osg/ClipNode>
+#include <input/input.h>
+#include <input/inputdevice.h>
+#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 
 using namespace opencover;
 using namespace grmsg;
@@ -201,6 +204,7 @@ coVRTui::coVRTui()
     coverTab = new coTUITab("COVER", mainFolder->getID());
     animTab = new coTUITab("Animation", mainFolder->getID());
     pluginTab = new coTUITab("Plugins", mainFolder->getID());
+    inputTUI = new coInputTUI();
     topContainer = new coTUIFrame("Buttons", coverTab->getID());
     bottomContainer = new coTUIFrame("Nav", coverTab->getID());
     rightContainer = new coTUIFrame("misc", bottomContainer->getID());
@@ -228,9 +232,9 @@ coVRTui::coVRTui()
 #ifndef NOFB
     FileBrowser = new coTUIFileBrowserButton("Load file...", topContainer->getID());
     coVRCommunication::instance()->setFBData(FileBrowser->getVRBData());
-    ReplaceFileFB = new coTUIFileBrowserButton("Save file...", topContainer->getID());
-    ReplaceFileFB->setMode(coTUIFileBrowserButton::SAVE);
-    coVRCommunication::instance()->setFBData(ReplaceFileFB->getVRBData());
+    SaveFileFB = new coTUIFileBrowserButton("Save file...", topContainer->getID());
+    SaveFileFB->setMode(coTUIFileBrowserButton::SAVE);
+    coVRCommunication::instance()->setFBData(SaveFileFB->getVRBData());
     coVRFileManager::instance()->SetDefaultFB(FileBrowser);
 
 #endif
@@ -292,8 +296,8 @@ coVRTui::coVRTui()
 #ifndef NOFB
     FileBrowser->setEventListener(this);
     FileBrowser->setMode(coTUIFileBrowserButton::OPEN);
-    ReplaceFileFB->setEventListener(this);
-    ReplaceFileFB->setMode(coTUIFileBrowserButton::OPEN);
+    SaveFileFB->setEventListener(this);
+    SaveFileFB->setMode(coTUIFileBrowserButton::OPEN);
 #endif
 
     ScaleSlider->setMin(-5.);
@@ -345,7 +349,7 @@ coVRTui::coVRTui()
     Quit->setPos(2, 0);
 #ifndef NOFB
     FileBrowser->setPos(2, 1);
-    ReplaceFileFB->setPos(2, 2);
+    SaveFileFB->setPos(2, 2);
 #endif
     Menu->setPos(2, 3);
 
@@ -398,6 +402,8 @@ coVRTui::coVRTui()
     PresentationBack->setEventListener(this);
     PresentationStep->setEventListener(this);
     PresentationStep->setValue(0);
+    PresentationStep->setMin(0);
+    PresentationStep->setMax(1000);
 
     PresentationLabel->setPos(0, 10);
     PresentationBack->setPos(0, 11);
@@ -466,7 +472,7 @@ void coVRTui::config()
 {
 #ifndef NOFB
     FileBrowser->setFilterList(coVRFileManager::instance()->getFilterList());
-    ReplaceFileFB->setFilterList(coVRFileManager::instance()->getFilterList());
+    SaveFileFB->setFilterList(coVRFileManager::instance()->getFilterList());
 #endif
 }
 
@@ -517,7 +523,7 @@ coVRTui::~coVRTui()
     delete LODScaleEdit;
 #ifndef NOFB
     delete FileBrowser;
-    delete ReplaceFileFB;
+    delete SaveFileFB;
 #endif
     delete driveLabel;
     delete panLabel;
@@ -529,7 +535,199 @@ coVRTui::~coVRTui()
     delete bottomContainer;
     delete rightContainer;
     delete binList;
+    delete inputTUI;
 }
+
+coInputTUI::coInputTUI()
+{
+    inputTab = new coTUITab("Input", coVRTui::instance()->mainFolder->getID());
+    
+    personContainer = new coTUIFrame("pc",inputTab->getID());
+    personContainer->setPos(0,0);
+    personsLabel= new coTUILabel("person",personContainer->getID());
+    personsLabel->setPos(0,0);
+    personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
+    personsChoice->setPos(1,0);
+    
+    personsChoice->setEventListener(this);
+    for (int i = 0; i < Input::instance()->getNumPersons(); i++)
+    {
+        personsChoice->addEntry(Input::instance()->getPerson(i)->getName());
+    }
+    personsChoice->setSelectedEntry(Input::instance()->getActivePerson());
+    
+    
+    bodiesContainer = new coTUIFrame("bc",inputTab->getID());
+    bodiesContainer->setPos(1,0);
+    bodiesLabel= new coTUILabel("Body",bodiesContainer->getID());
+    bodiesLabel->setPos(0,0);
+    bodiesChoice = new coTUIComboBox("bodiesCombo",bodiesContainer->getID());
+    bodiesChoice->setPos(0,1);
+    bodiesChoice->setEventListener(this);
+    for (int i = 0; i < Input::instance()->getNumBodies(); i++)
+    {
+        bodiesChoice->addEntry(Input::instance()->getBody(i)->getName());
+    }
+    bodiesChoice->setSelectedEntry(Input::instance()->getActivePerson());
+    
+    bodyTrans[0] = new coTUIEditFloatField("xe", bodiesContainer->getID());
+    bodyTransLabel[0] = new coTUILabel("x", bodiesContainer->getID());
+    bodyTrans[1] = new coTUIEditFloatField("ye", bodiesContainer->getID());
+    bodyTransLabel[1] = new coTUILabel("y", bodiesContainer->getID());
+    bodyTrans[2] = new coTUIEditFloatField("ze", bodiesContainer->getID());
+    bodyTransLabel[2] = new coTUILabel("z", bodiesContainer->getID());
+    bodyRot[0] = new coTUIEditFloatField("he", bodiesContainer->getID());
+    bodyRotLabel[0] = new coTUILabel("h", bodiesContainer->getID());
+    bodyRot[1] = new coTUIEditFloatField("pe", bodiesContainer->getID());
+    bodyRotLabel[1] = new coTUILabel("p", bodiesContainer->getID());
+    bodyRot[2] = new coTUIEditFloatField("re", bodiesContainer->getID());
+    bodyRotLabel[2] = new coTUILabel("r", bodiesContainer->getID());
+    for (int i = 0; i < 3; i++)
+    {
+        bodyTrans[i]->setPos(1+i * 2 + 1, 1);
+        bodyTransLabel[i]->setPos(1+i * 2, 1);
+        bodyTrans[i]->setEventListener(this);
+        bodyRot[i]->setPos(1+i * 2 + 1, 2);
+        bodyRotLabel[i]->setPos(1+i * 2, 2);
+        bodyRot[i]->setEventListener(this);
+    }
+    
+    devicesLabel= new coTUILabel("Device",bodiesContainer->getID());
+    devicesLabel->setPos(0,4);
+    devicesChoice = new coTUIComboBox("devicesCombo",bodiesContainer->getID());
+    devicesChoice->setPos(0,5);
+    devicesChoice->setEventListener(this);
+    for (int i = 0; i < Input::instance()->getNumDevices(); i++)
+    {
+        devicesChoice->addEntry(Input::instance()->getDevice(i)->getName());
+    }
+    devicesChoice->setSelectedEntry(Input::instance()->getActivePerson());
+    
+    deviceTrans[0] = new coTUIEditFloatField("xe", bodiesContainer->getID());
+    deviceTransLabel[0] = new coTUILabel("x", bodiesContainer->getID());
+    deviceTrans[1] = new coTUIEditFloatField("ye", bodiesContainer->getID());
+    deviceTransLabel[1] = new coTUILabel("y", bodiesContainer->getID());
+    deviceTrans[2] = new coTUIEditFloatField("ze", bodiesContainer->getID());
+    deviceTransLabel[2] = new coTUILabel("z", bodiesContainer->getID());
+    deviceRot[0] = new coTUIEditFloatField("he", bodiesContainer->getID());
+    deviceRotLabel[0] = new coTUILabel("h", bodiesContainer->getID());
+    deviceRot[1] = new coTUIEditFloatField("pe", bodiesContainer->getID());
+    deviceRotLabel[1] = new coTUILabel("p", bodiesContainer->getID());
+    deviceRot[2] = new coTUIEditFloatField("re", bodiesContainer->getID());
+    deviceRotLabel[2] = new coTUILabel("r", bodiesContainer->getID());
+    for (int i = 0; i < 3; i++)
+    {
+        deviceTrans[i]->setPos(1+i * 2 + 1, 5);
+        deviceTransLabel[i]->setPos(1+i * 2, 5);
+        deviceTrans[i]->setEventListener(this);
+        deviceRot[i]->setPos(1+i * 2 + 1, 6);
+        deviceRotLabel[i]->setPos(1+i * 2, 6);
+        deviceRot[i]->setEventListener(this);
+    }
+    
+    updateTUI();
+}
+
+void coInputTUI::updateTUI()
+{
+    TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
+    if(tb)
+    {
+        osg::Matrix m = tb->getOffsetMat();
+        osg::Vec3 v = m.getTrans();
+        coCoord coord = m;
+        for (int i = 0; i < 3; i++)
+        {
+            bodyTrans[i]->setValue(v[i]);
+            bodyRot[i]->setValue(coord.hpr[i]);
+        }
+    }
+    InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
+    if(id)
+    {
+        osg::Matrix m = id->getOffsetMat();
+        osg::Vec3 v = m.getTrans();
+        coCoord coord = m;
+        for (int i = 0; i < 3; i++)
+        {
+            deviceTrans[i]->setValue(v[i]);
+            deviceRot[i]->setValue(coord.hpr[i]);
+        }
+    }
+}
+coInputTUI::~coInputTUI()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        delete bodyTrans[i];
+        delete bodyTransLabel[i];
+        delete bodyRot[i];
+        delete bodyRotLabel[i];
+        delete deviceTrans[i];
+        delete deviceTransLabel[i];
+        delete deviceRot[i];
+        delete deviceRotLabel[i];
+    }
+    
+    delete personContainer;
+    delete personsLabel;
+    delete personsChoice;
+
+    delete bodiesContainer;
+    delete bodiesLabel;
+    delete bodiesChoice;
+    delete devicesLabel;
+    delete devicesChoice;
+    delete inputTab;
+    
+}
+
+void coInputTUI::tabletEvent(coTUIElement *tUIItem)
+{
+    if(tUIItem == personsChoice)
+    {
+        Input::instance()->setActivePerson(personsChoice->getSelectedEntry());
+    }
+    else if(tUIItem == bodiesChoice)
+    {
+        updateTUI();
+    }
+    else if(tUIItem == devicesChoice)
+    {
+        updateTUI();
+    }
+    else if(tUIItem == bodyTrans[0] || tUIItem == bodyTrans[1] || tUIItem == bodyTrans[2] ||
+            tUIItem == bodyRot[0] || tUIItem == bodyRot[1] || tUIItem == bodyRot[2])
+    {
+        TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
+        osg::Matrix m;
+        MAKE_EULER_MAT(m, bodyRot[0]->getValue(), bodyRot[1]->getValue(), bodyRot[2]->getValue());
+        
+        osg::Matrix translationMat;
+        translationMat.makeTranslate(bodyTrans[0]->getValue(), bodyTrans[1]->getValue(), bodyTrans[2]->getValue());
+        m.postMult(translationMat);
+        tb->setOffsetMat(m);
+    }
+    else if(tUIItem == deviceTrans[0] || tUIItem == deviceTrans[1] || tUIItem == deviceTrans[2] ||
+            tUIItem == deviceRot[0] || tUIItem == deviceRot[1] || tUIItem == deviceRot[2])
+    {
+        InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
+        osg::Matrix m;
+        MAKE_EULER_MAT(m, deviceRot[0]->getValue(), deviceRot[1]->getValue(), deviceRot[2]->getValue());
+        
+        osg::Matrix translationMat;
+        translationMat.makeTranslate(deviceTrans[0]->getValue(), deviceTrans[1]->getValue(), deviceTrans[2]->getValue());
+        m.postMult(translationMat);
+        id->setOffsetMat(m);
+    }
+}
+void coInputTUI::tabletPressEvent(coTUIElement *tUIItem)
+{
+}
+void coInputTUI::tabletReleaseEvent(coTUIElement *tUIItem)
+{
+}
+
 
 void coVRTui::updateState()
 {
@@ -842,30 +1040,30 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         OpenCOVER::instance()->hud->setText2(filename.c_str());
         coVRFileManager::instance()->loadFile(filename.c_str(), FileBrowser);
     }
-    else if (tUIItem == ReplaceFileFB)
+    else if (tUIItem == SaveFileFB)
     {
         //Retrieve Data object
-        std::string filename = ReplaceFileFB->getSelectedPath();
+        std::string filename = SaveFileFB->getSelectedPath();
 
         OpenCOVER::instance()->hud->show();
         OpenCOVER::instance()->hud->setText1("Replacing File...");
         OpenCOVER::instance()->hud->setText2(filename.c_str());
 
-        cerr << "File-Path: " << ReplaceFileFB->getSelectedPath().c_str() << endl;
+        cerr << "File-Path: " << SaveFileFB->getSelectedPath().c_str() << endl;
         //Do what you want to do with the filename
-        if (osgDB::writeNodeFile(*cover->getObjectsRoot(), ReplaceFileFB->getFilename(ReplaceFileFB->getSelectedPath()).c_str()))
+        if (osgDB::writeNodeFile(*cover->getObjectsRoot(), SaveFileFB->getFilename(SaveFileFB->getSelectedPath()).c_str()))
         {
             if (cover->debugLevel(3))
-                std::cerr << "Data written to \"" << ReplaceFileFB->getFilename(ReplaceFileFB->getSelectedPath()) << "\"." << std::endl;
+                std::cerr << "Data written to \"" << SaveFileFB->getFilename(SaveFileFB->getSelectedPath()) << "\"." << std::endl;
         }
 
-        //coVRFileManager::instance()->replaceFile(filename.c_str(), ReplaceFileFB);
+        //coVRFileManager::instance()->replaceFile(filename.c_str(), SaveFileFB);
     }
     else if (tUIItem == LODScaleEdit)
     {
         coVRConfig::instance()->setLODScale(LODScaleEdit->getValue());
-        for (int i = 0; i < coVRConfig::instance()->numScreens(); i++)
-            coVRConfig::instance()->screens[i].camera->setLODScale(LODScaleEdit->getValue());
+        for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
+            coVRConfig::instance()->channels[i].camera->setLODScale(LODScaleEdit->getValue());
     }
     OpenCOVER::instance()->hud->hide();
 }
@@ -1220,7 +1418,7 @@ void coVRTui::makeRot(float heading, float pitch, float roll, int headingBool, i
 
 coTUIFileBrowserButton *coVRTui::getExtFB()
 {
-    return ReplaceFileFB;
+    return SaveFileFB;
 }
 
 BinListEntry::BinListEntry(osgUtil::RenderBin *rb, int num)
@@ -1253,9 +1451,9 @@ void BinListEntry::updateBin()
 
 osgUtil::RenderBin *BinListEntry::renderBin()
 {
-    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
+    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
     if (rs == NULL)
-        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
+        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
     if (rs)
     {
         BinRenderStage bs = *rs;
@@ -1319,9 +1517,9 @@ void BinList::refresh()
         delete *it;
     }
     clear();
-    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
+    osgUtil::RenderStage *rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStage();
     if (rs == NULL)
-        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->screens[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
+        rs = dynamic_cast<osgViewer::Renderer *>(coVRConfig::instance()->channels[0].camera->getRenderer())->getSceneView(0)->getRenderStageLeft();
     if (rs)
     {
         BinRenderStage bs = *rs;

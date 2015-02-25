@@ -103,15 +103,15 @@ LogoPlugin::preFrame()
     // set projection matrix
     float xsize;
     float ysize;
-    if ((coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin) == 0)
+    if ((coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin) == 0)
     {
-        xsize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx;
-        ysize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy;
+        xsize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+        ysize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
     }
     else
     {
-        xsize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx * (coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin);
-        ysize = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy * (coVRConfig::instance()->screens[0].viewportYMax - coVRConfig::instance()->screens[0].viewportYMin);
+        xsize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx * (coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin);
+        ysize = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy * (coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin);
     }
     camera->setProjectionMatrixAsOrtho2D(0, xsize, 0, ysize);
 

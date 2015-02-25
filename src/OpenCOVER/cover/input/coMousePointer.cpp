@@ -58,21 +58,21 @@ coMousePointer::coMousePointer()
 
     width = coVRConfig::instance()->screens[0].hsize;
     height = coVRConfig::instance()->screens[0].vsize;
-    if ((coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin) == 0)
+    if ((coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin) == 0)
     {
-        xres = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx;
-        yres = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy;
+        xres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+        yres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
     }
     else
     {
-        xres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx * (coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin));
-        yres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy * (coVRConfig::instance()->screens[0].viewportYMax - coVRConfig::instance()->screens[0].viewportYMin));
+        xres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx * (coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin));
+        yres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy * (coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin));
     }
 
-    //xres=coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx;
-    //yres=coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy;
-    xori = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].ox;
-    yori = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].oy;
+    //xres=coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+    //yres=coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
+    xori = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].ox;
+    yori = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].oy;
 
     //fprintf(stderr,"width: %f, height %f, xres %d , yres %d, xori %d, yori %d\n", width, height, xres,yres,xori,yori);
 
@@ -219,15 +219,15 @@ coMousePointer::update()
         coVRConfig::instance()->windows[0].sy = currentH;
         oldWidth = currentW;
         oldHeight = currentH;
-        if ((coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin) == 0)
+        if ((coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin) == 0)
         {
-            xres = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx;
-            yres = coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy;
+            xres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx;
+            yres = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy;
         }
         else
         {
-            xres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sx * (coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin));
-            yres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->screens[0].window].sy * (coVRConfig::instance()->screens[0].viewportYMax - coVRConfig::instance()->screens[0].viewportYMin));
+            xres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sx * (coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin));
+            yres = (int)(coVRConfig::instance()->windows[coVRConfig::instance()->viewports[0].window].sy * (coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin));
         }
     }
 
@@ -244,8 +244,16 @@ coMousePointer::update()
     osg::Matrix transMat;
 
     mouse2D[0] = ((mx - (xres / 2.0)) / xres) * width;
+    if(mouse2D[0] > width/2.0) // work around for twho viewports in one window
+    {
+        mouse2D[0] -= width;
+    }
     mouse2D[1] = 0;
     mouse2D[2] = (my / yres - (0.5)) * height;
+    if(mouse2D[2] > height/2.0)// work around for twho viewports in one window
+    {
+        mouse2D[2] -= height;
+    }
 
     MAKE_EULER_MAT(transMat, screenH, screenP, screenR);
     mouse3D = transMat.preMult(mouse2D);

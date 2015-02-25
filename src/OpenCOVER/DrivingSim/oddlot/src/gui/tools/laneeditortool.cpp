@@ -32,6 +32,7 @@
 #include <QMenu>
 #include <QLabel>
 #include <QDoubleSpinBox>
+#include <QApplication>
 
 //################//
 //                //
@@ -43,7 +44,7 @@
 */
 LaneEditorTool::LaneEditorTool(ToolManager *toolManager)
     : Tool(toolManager)
-    , toolId_(ODD::TLN_SELECT)
+    , toolId_(ODD::TLE_SELECT)
 {
     // Connect emitted ToolActions to ToolManager //
     //
@@ -165,6 +166,13 @@ LaneEditorTool::setWidth()
     LaneEditorToolAction *action = new LaneEditorToolAction(ODD::TLE_SELECT, LaneEditorToolAction::Width, widthEdit_->value());
     emit toolAction(action);
     delete action;
+
+    QWidget * focusWidget = QApplication::focusWidget();
+    if (focusWidget)
+    {
+        focusWidget->clearFocus();
+    }
+    widthEdit_->setValue(0.0);
 }
 
 //################//

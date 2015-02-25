@@ -57,6 +57,7 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     , ui(new Ui::SignalSettings)
     , signal_(signal)
     , init_(false)
+    , valueChanged_(false)
 {
     signalManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
     ui->setupUi(this);
@@ -67,24 +68,33 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     //
     updateProperties();
 
-    connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    //	connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onNameBoxEditingFinished()));
     connect(ui->tSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->tSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->zOffsetSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->zOffsetSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->countryBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    //	ui->typeComboBox->setCurrentIndex(signal_->getType()-100001);
+    connect(ui->countryBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
 
     connect(ui->typeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->typeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
     connect(ui->subclassLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->subclassLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
     connect(ui->subtypeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->subtypeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
     connect(ui->valueSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->valueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->dynamicCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->orientationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->poleCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->sizeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
 
     connect(ui->fromLaneSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->fromLaneSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
     connect(ui->toLaneSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->toLaneSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
 
     //Pedestrian Crossing has ancillary data
     //
@@ -94,7 +104,9 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
         enableCrossingParams(true);
 
         connect(ui->crossingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+        connect(ui->crossingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
         connect(ui->resetTimeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+        connect(ui->resetTimeSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     }
 
     init_ = true;
@@ -225,10 +237,17 @@ SignalSettings::addSignals()
 //################//
 
 void
+SignalSettings::onValueChanged()
+{
+    valueChanged_ = true;
+}
+
+void
 SignalSettings::onEditingFinished(int i)
 {
     if ((ui->dynamicCheckBox->isChecked() != signal_->getDynamic()) || (ui->poleCheckBox->isChecked() != signal_->getPole()) || ((Signal::OrientationType)ui->orientationComboBox->currentIndex() != signal_->getOrientation()) || (ui->sizeComboBox->currentIndex() + 1 != signal_->getSize()))
     {
+        valueChanged_ = true;
         onEditingFinished();
     }
 }
@@ -236,54 +255,82 @@ SignalSettings::onEditingFinished(int i)
 void
 SignalSettings::onEditingFinished()
 {
+    if (valueChanged_)
+    {
+        double t = ui->tSpinBox->value();
+        int fromLane = ui->fromLaneSpinBox->value();
+        int toLane = ui->toLaneSpinBox->value();
+
+        if (signal_->getType() != 293)
+        {
+            if (((t < 0) && ((fromLane > 0) || (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId()))) || ((t > 0) && ((fromLane < 0) || (fromLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId()))))
+            {
+                fromLane = signal_->getParentRoad()->getValidLane(signal_->getSStart(), t);
+            }
+
+            if (((t < 0) && ((toLane > 0) || (toLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId()))) || ((t > 0) && ((toLane < 0) || (toLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId()))))
+            {
+                toLane = signal_->getParentRoad()->getValidLane(signal_->getSStart(), t);
+            }
+        }
+        else
+        {
+            if (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId())
+            {
+                fromLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId();
+            }
+            else if (fromLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId())
+            {
+                fromLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId();
+            }
+
+            if (toLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId())
+            {
+                toLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId();
+            }
+            else if (toLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId())
+            {
+                toLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId();
+            }
+        }
+
+        if (((t < 0) && (toLane > fromLane)) || ((t > 0) && (toLane < fromLane)))
+        {
+            toLane = fromLane;
+        }
+
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, ui->crossingSpinBox->value(), ui->resetTimeSpinBox->value(), NULL);
+        getProjectSettings()->executeCommand(command);
+
+        valueChanged_ = false;
+        QWidget * focusWidget = QApplication::focusWidget();
+        if (focusWidget)
+        {
+            focusWidget->clearFocus();
+        }
+    }
+}
+
+void
+SignalSettings::onNameBoxEditingFinished()
+{
     QString filename = ui->nameBox->text();
-    QString newId = signal_->getNewId(filename);
-    signal_->setId(newId);
-
-    double t = ui->tSpinBox->value();
-    int fromLane = ui->fromLaneSpinBox->value();
-    int toLane = ui->toLaneSpinBox->value();
-
-    if (signal_->getType() != 293)
+    if (filename != signal_->getName())
     {
-        if (((t < 0) && ((fromLane > 0) || (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId()))) || ((t > 0) && ((fromLane < 0) || (fromLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId()))))
-        {
-            fromLane = signal_->getParentRoad()->getValidLane(signal_->getSStart(), t);
-        }
+        QString newId;
+        QStringList parts = signal_->getId().split("_");
 
-        if (((t < 0) && ((toLane > 0) || (toLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId()))) || ((t > 0) && ((toLane < 0) || (toLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId()))))
+        if (parts.size() > 2)
         {
-            toLane = signal_->getParentRoad()->getValidLane(signal_->getSStart(), t);
+            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
         }
+        else
+        {
+            newId = signal_->getParentRoad()->getRoadSystem()->getUniqueId(signal_->getId(), filename);
+        }
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, newId, filename, signal_->getProperties(), signal_->getValidity(), signal_->getSignalUserData(), NULL);
+        getProjectSettings()->executeCommand(command);
     }
-    else
-    {
-        if (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId())
-        {
-            fromLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId();
-        }
-        else if (fromLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId())
-        {
-            fromLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId();
-        }
-
-        if (toLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId())
-        {
-            toLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId();
-        }
-        else if (toLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId())
-        {
-            toLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId();
-        }
-    }
-
-    if (((t < 0) && (toLane > fromLane)) || ((t > 0) && (toLane < fromLane)))
-    {
-        toLane = fromLane;
-    }
-
-    SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), filename, ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, ui->crossingSpinBox->value(), ui->resetTimeSpinBox->value(), NULL);
-    getProjectSettings()->executeCommand(command);
 }
 
 void
@@ -369,33 +416,20 @@ SignalSettings::on_signalComboBox_activated(int id)
 void
 SignalSettings::on_sSpinBox_editingFinished()
 {
-    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
-    int numberOfSelectedElements = selectedElements.size();
-
-    if (numberOfSelectedElements > 1)
-    {
-        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Signal Type"));
-    }
-
-    foreach (DataElement *element, selectedElements)
+    if (valueChanged_)
     {
 
-        Signal *signal = dynamic_cast<Signal *>(element);
-        if (signal)
+        MoveRoadSectionCommand *command = new MoveRoadSectionCommand(signal_, ui->sSpinBox->value(), RSystemElementRoad::DRS_SignalSection);
+        getProjectSettings()->executeCommand(command);
+
+        valueChanged_ = false;
+        QWidget * focusWidget = QApplication::focusWidget();
+        if (focusWidget)
         {
-            MoveRoadSectionCommand *command = new MoveRoadSectionCommand(signal_, ui->sSpinBox->value(), RSystemElementRoad::DRS_SignalSection);
-            getProjectSettings()->executeCommand(command);
+            focusWidget->clearFocus();
         }
     }
 
-    // Macro Command //
-    //
-    if (numberOfSelectedElements > 1)
-    {
-        getProjectData()->getUndoStack()->endMacro();
-    }
-
-    onEditingFinished();
 }
 
 //##################//

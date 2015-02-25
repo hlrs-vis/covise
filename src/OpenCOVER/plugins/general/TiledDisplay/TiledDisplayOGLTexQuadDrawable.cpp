@@ -24,7 +24,7 @@ TiledDisplayOGLTexQuadDrawable::TiledDisplayOGLTexQuadDrawable(TiledDisplayCompo
     this->channel = compositor->getChannel();
 
     int width, height;
-    osg::Viewport *vp = opencover::coVRConfig::instance()->screens[channel].camera->getViewport();
+    osg::Viewport *vp = opencover::coVRConfig::instance()->channels[channel].camera->getViewport();
 
     width = (unsigned)vp->width();
     height = (unsigned)vp->height();

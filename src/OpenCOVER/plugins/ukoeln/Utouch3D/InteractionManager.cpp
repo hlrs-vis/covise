@@ -77,7 +77,7 @@ InteractionManager::InteractionManager(Utouch3DPlugin *plugin, opencover::coVRPl
     //    this->showScreenPlane(true);
 
     // get camera frustum parameters
-    Matrixd projMat = coVRConfig::instance()->screens[0].camera->getProjectionMatrix();
+    Matrixd projMat = coVRConfig::instance()->channels[0].camera->getProjectionMatrix();
     projMat.getFrustum(this->camLeft, this->camRight, this->camBottom, this->camTop, this->camNear, this->camFar);
 
     cout << "left: " << camLeft << " right: " << camRight << endl;
@@ -120,7 +120,7 @@ void InteractionManager::setThreeTouchFilter(FilterType t)
 void InteractionManager::addBlob(TuioCursor *tcur)
 {
     Vec3d eye, center, up;
-    coVRConfig::instance()->screens[0].camera->getViewMatrixAsLookAt(eye, center, up);
+    coVRConfig::instance()->channels[0].camera->getViewMatrixAsLookAt(eye, center, up);
 
     //    cout << "viewerScreenDist: " << theCover->getViewerScreenDistance() << endl;
 

@@ -127,9 +127,11 @@ private:
     ARToolKitMarker *vpMarker;
     bool overwritePAndV;
     bool reEnableCulling;
+    
+    osg::Geode *distortionMesh();
+    void createViewportCameras(int i);
 
 public:
-    void setChannelConfig();
     void setFrustumAndView(int i);
 
     float requestedSeparation, separation, leftEye, rightEye;

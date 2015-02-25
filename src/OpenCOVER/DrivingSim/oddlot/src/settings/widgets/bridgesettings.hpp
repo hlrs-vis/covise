@@ -51,7 +51,9 @@ private:
 
 private slots:
     void onEditingFinished();
+    void onEditingFinished(int);
     void on_sSpinBox_editingFinished();
+    void onValueChanged();
 
     //################//
     // PROPERTIES     //
@@ -63,6 +65,8 @@ private:
     Bridge *bridge_;
 
     bool init_;
+
+    bool valueChanged_;
 };
 
 #endif // BRIDGEETTINGS_HPP

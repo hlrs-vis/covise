@@ -69,14 +69,6 @@ Object::getSEnd() const
     }
 }
 
-QString
-Object::getNewId(const QString &name)
-{
-    QStringList parts = id_.split("_");
-    QString newId = parts.at(0) + "_" + parts.at(1) + "_" + name;
-
-    return newId;
-}
 
 //##################//
 // Observer Pattern //

@@ -164,7 +164,7 @@ void PBufferSnapShot::prepareSnapshot()
         pBufferCamera = pBufferCameras[osg::Camera::FRAME_BUFFER_OBJECT + tuiRenderingMethod->getSelectedEntry()];
         pBufferCameraR = pBufferCamerasR[osg::Camera::FRAME_BUFFER_OBJECT + tuiRenderingMethod->getSelectedEntry()];
 
-        osg::Camera *cam = dynamic_cast<osg::Camera *>(coVRConfig::instance()->screens[0].camera.get());
+        osg::Camera *cam = dynamic_cast<osg::Camera *>(coVRConfig::instance()->channels[0].camera.get());
 
         tabletEvent(tuiResolutionSlider);
         if (tuiTransparentBackground->getState() == true)
@@ -204,10 +204,10 @@ void PBufferSnapShot::prepareSnapshot()
         }
         if (stereo)
         {
-            pBufferCamera->setProjectionMatrix(coVRConfig::instance()->screens[0].leftProj);
-            pBufferCameraR->setProjectionMatrix(coVRConfig::instance()->screens[0].rightProj);
-            pBufferCamera->setViewMatrix(coVRConfig::instance()->screens[0].leftView);
-            pBufferCameraR->setViewMatrix(coVRConfig::instance()->screens[0].rightView);
+            pBufferCamera->setProjectionMatrix(coVRConfig::instance()->channels[0].leftProj);
+            pBufferCameraR->setProjectionMatrix(coVRConfig::instance()->channels[0].rightProj);
+            pBufferCamera->setViewMatrix(coVRConfig::instance()->channels[0].leftView);
+            pBufferCameraR->setViewMatrix(coVRConfig::instance()->channels[0].rightView);
         }
         else
         {
@@ -559,7 +559,7 @@ void PBufferSnapShot::initUI()
     tuiResolutionX->setMin(0);
     tuiResolutionX->setMax(PB_RESOLUTION_MAX_X);
     tuiResolutionX->setPos(2, 0);
-    float vpx = coVRConfig::instance()->screens[0].viewportXMax - coVRConfig::instance()->screens[0].viewportXMin;
+    float vpx = coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin;
     //fprintf(stderr,"vpx=%f\n", vpx);
     tuiResolutionX->setValue(int(coVRConfig::instance()->windows[0].sx * vpx));
 
@@ -570,7 +570,7 @@ void PBufferSnapShot::initUI()
     tuiResolutionY->setMin(0);
     tuiResolutionY->setMax(PB_RESOLUTION_MAX_Y);
     tuiResolutionY->setPos(3, 0);
-    float vpy = coVRConfig::instance()->screens[0].viewportYMax - coVRConfig::instance()->screens[0].viewportYMin;
+    float vpy = coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin;
     //fprintf(stderr,"vpy=%f\n", vpy);
     tuiResolutionY->setValue(int(coVRConfig::instance()->windows[0].sy * vpy));
 

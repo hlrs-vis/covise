@@ -26,7 +26,7 @@ TiledDisplayOSGTexQuadCompositor::TiledDisplayOSGTexQuadCompositor(int channel, 
     : TiledDisplayCompositor(channel, server)
 {
     compositorNode = 0;
-    osg::Viewport *vp = opencover::coVRConfig::instance()->screens[channel].camera->getViewport();
+    osg::Viewport *vp = opencover::coVRConfig::instance()->channels[channel].camera->getViewport();
     dimension = TiledDisplayDimension((unsigned)vp->width(), (unsigned)vp->height());
 }
 
@@ -45,7 +45,7 @@ void TiledDisplayOSGTexQuadCompositor::initSlaveChannel()
     // Set ortho projection matrix
     osg::Matrix mat;
     mat.makeIdentity();
-    opencover::coVRConfig::instance()->screens[channel].camera->setViewMatrix(mat);
+    opencover::coVRConfig::instance()->channels[channel].camera->setViewMatrix(mat);
 
     compositorNode = new Projection(osg::Matrix::identity());
     osg::MatrixTransform *modelViewMatrix = new osg::MatrixTransform;
@@ -126,7 +126,7 @@ void TiledDisplayOSGTexQuadCompositor::initSlaveChannel()
 
     modelViewMatrix->addChild(geode.get());
 
-    opencover::coVRConfig::instance()->screens[channel].sceneView.get()->setSceneData(compositorNode.get());
+    opencover::coVRConfig::instance()->channels[channel].sceneView.get()->setSceneData(compositorNode.get());
 }
 
 void TiledDisplayOSGTexQuadCompositor::updateTexturesImplementation()

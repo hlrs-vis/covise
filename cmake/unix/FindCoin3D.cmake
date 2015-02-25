@@ -69,8 +69,12 @@ else ()
 
     find_path(COIN3D_INCLUDE_DIRS Inventor/So.h
        /usr/include/Coin2
+       $ENV{EXTERNLIBS}/Coin3D/include
        )
-    find_library(COIN3D_LIBRARIES Coin)
+    find_library(COIN3D_LIBRARIES NAMES libCoin.so
+       PATHS
+       $ENV{EXTERNLIBS}/Coin3D/lib64
+       Coin)
 
   endif()
 

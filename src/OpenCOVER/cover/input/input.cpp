@@ -368,9 +368,10 @@ bool Input::initPersons()
 
     for (size_t i = 0; i < personNames.size(); ++i)
     {
+        Person *p = getPerson(personNames[i]);
 
         if (!activePerson)
-            activePerson = getPerson(personNames[i]);
+            activePerson = p;
     }
 
     return true;
@@ -396,6 +397,58 @@ bool Input::initObjects()
 
 //=======================================End of init section================================================
 
+size_t Input::getNumPersons() const
+{
+    return persons.size();
+}
+
+size_t Input::getNumBodies() const
+{
+    return trackingbodies.size();
+}
+
+size_t Input::getNumDevices() const
+{
+    return drivers.size();
+}
+
+InputDevice *Input::getDevice(size_t num) //< get driver instance
+{
+    if (num >= drivers.size())
+        return NULL;
+
+    size_t idx = 0;
+    for (DriverMap::const_iterator it = drivers.begin();
+         it != drivers.end();
+         ++it)
+    {
+        if (num == idx)
+        {
+            return it->second;
+        }
+        ++idx;
+    }
+    return NULL;
+}
+
+TrackingBody *Input::getBody(size_t num)
+{
+    if (num >= trackingbodies.size())
+        return NULL;
+
+    size_t idx = 0;
+    for (TrackingBodyMap::const_iterator it = trackingbodies.begin();
+         it != trackingbodies.end();
+         ++it)
+    {
+        if (num == idx)
+        {
+            return it->second;
+        }
+        ++idx;
+    }
+    return NULL;
+}
 /**
 * @brief Input::setActivePerson Sets an active person
 * @param numPerson Number of person
@@ -405,9 +458,14 @@ bool Input::setActivePerson(size_t num)
 {
     Person *p = getPerson(num);
     if (!p)
+    {
+        std::cerr << "Input: no person for index " << num << std::endl;
         return false;
+    }
 
     activePerson = p;
+
+    std::cerr << "Input: switched to person " << activePerson->name() << std::endl;
     return true;
 }
 
@@ -426,9 +484,26 @@ Person *Input::getPerson(size_t num) const
         {
             return it->second;
         }
+        ++idx;
     }
 
     return NULL;
+}
+
+size_t Input::getActivePerson() const
+{
+    size_t idx = 0;
+    for (PersonMap::const_iterator it = persons.begin();
+         it != persons.end();
+         ++it)
+    {
+        if (it->second == activePerson)
+        {
+            return idx;
+        }
+        ++idx;
+    }
+    return 0;
 }
 
 /**
