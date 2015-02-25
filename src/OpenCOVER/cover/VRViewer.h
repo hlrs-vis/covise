@@ -128,7 +128,7 @@ private:
     bool overwritePAndV;
     bool reEnableCulling;
     
-    osg::Geode *VRViewer::distortionMesh();
+    osg::Geode *distortionMesh();
     void createViewportCameras(int i);
 
 public:
