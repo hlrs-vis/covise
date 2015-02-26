@@ -59,7 +59,7 @@
 
         <Persons>
            <Person name="tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="1" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" />
+           <Person name="legacy" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" />
         </Persons>
      </Input>
    </COVER>

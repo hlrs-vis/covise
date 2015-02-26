@@ -59,7 +59,7 @@ public:
     size_t getActivePerson() const; //< number of current person
     bool setActivePerson(size_t numPerson); //< set active person
     Person *getPerson(const std::string &name);
-    Person *getPerson(size_t idx) const;
+    Person *getPerson(size_t idx);
 
     size_t getNumObjects() const
     {
@@ -89,7 +89,8 @@ private:
 
     typedef std::map<std::string, Person *> PersonMap;
     PersonMap persons; //< configured persons
-    Person *activePerson; ///Active person
+    Person *activePerson; //< active person
+    std::vector<std::string> personNames; //< ordered list of names of configured persons
 
     std::vector<TrackingBody *> objects; ///Objects list
 

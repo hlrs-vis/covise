@@ -51,12 +51,12 @@ class coInputTUI: public coTUIListener
 public:
     coInputTUI();
     virtual ~coInputTUI();
+    void updateTUI();
 
 private:
     virtual void tabletEvent(coTUIElement *tUIItem);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-    void updateTUI();
     
     coTUITab *inputTab;
     coTUIFrame *personContainer;
