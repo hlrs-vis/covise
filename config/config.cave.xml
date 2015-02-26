@@ -384,10 +384,13 @@
   <COVER>
 
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0" width="1280" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1024" />
+    <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
    </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1280" left="0" windowIndex="0" bottom="0" name="0" height="1024" />
+   </ViewportConfig>
    <WindowConfig>
-   <Window arch="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="1024" left="0" bottom="0" name="0" decoration="true" VisualID="0x23" />
+   <Window arch="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="1024" left="0" bottom="0" name="0" decoration="true" />
    </WindowConfig>
 
   </COVER>
@@ -402,8 +405,11 @@
   <COVER>
 
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0" width="1201" stereoMode="RIGHT" left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1201"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+   </ViewportConfig>
 
   </COVER>
 
@@ -416,8 +422,11 @@
   <COVER>
 
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0" width="1200" stereoMode="RIGHT" left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1200"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+   </ViewportConfig>
 
   </COVER>
 
@@ -430,8 +439,11 @@
   <COVER>
 
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0" width="1201" stereoMode="LEFT" left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1201"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+   </ViewportConfig>
 
   </COVER>
 
@@ -442,9 +454,11 @@
   <COVER>
 
    <ChannelConfig>
-    <Channel comment="MAIN" channel="0" width="1200" stereoMode="LEFT" left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
-
+   <ViewportConfig>
+    <Viewport width="1200"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+   </ViewportConfig>
   </COVER>
 
 
