@@ -55,8 +55,6 @@ bool Input::init()
     initObjects();
     initPersons();
 
-    setActivePerson(0);
-
     update();
 
     if (coVRMSController::instance()->isMaster())
@@ -93,6 +91,7 @@ namespace
 Input::~Input()
 {
     persons.clear();
+    personNames.clear();
 
     delete m_mouse;
 
@@ -251,6 +250,7 @@ Person *Input::getPerson(const std::string &name)
     {
         person = new Person(name);
         persons[name] = person;
+        personNames.push_back(name);
     }
     return person;
 }
@@ -356,19 +356,19 @@ InputDevice *Input::getDevice(const std::string &name)
 
 bool Input::initPersons()
 {
-    std::vector<std::string> personNames = coCoviseConfig::getScopeNames(configPath("Persons"), "Person");
+    std::vector<std::string> names = coCoviseConfig::getScopeNames(configPath("Persons"), "Person");
 
-    if (personNames.empty())
+    if (names.empty())
     {
         cout << "Input: Persons must be configured!" << endl;
-        personNames.push_back("default");
+        names.push_back("default");
     }
 
     activePerson = NULL;
 
-    for (size_t i = 0; i < personNames.size(); ++i)
+    for (size_t i = 0; i < names.size(); ++i)
     {
-        Person *p = getPerson(personNames[i]);
+        Person *p = getPerson(names[i]);
 
         if (!activePerson)
             activePerson = p;
@@ -399,6 +399,7 @@ bool Input::initObjects()
 
 size_t Input::getNumPersons() const
 {
+    assert(persons.size() == personNames.size());
     return persons.size();
 }
 
@@ -464,46 +465,31 @@ bool Input::setActivePerson(size_t num)
     }
 
     activePerson = p;
-
     std::cerr << "Input: switched to person " << activePerson->name() << std::endl;
     return true;
 }
 
-Person *Input::getPerson(size_t num) const
+Person *Input::getPerson(size_t num)
 {
 
-    if (num >= persons.size())
+    if (num >= personNames.size())
         return NULL;
 
-    size_t idx = 0;
-    for (PersonMap::const_iterator it = persons.begin();
-         it != persons.end();
-         ++it)
-    {
-        if (num == idx)
-        {
-            return it->second;
-        }
-        ++idx;
-    }
-
-    return NULL;
+    const std::string &name = personNames[num];
+    return getPerson(name);
 }
 
 size_t Input::getActivePerson() const
 {
-    size_t idx = 0;
-    for (PersonMap::const_iterator it = persons.begin();
-         it != persons.end();
-         ++it)
+    const std::string name = activePerson->name();
+    std::vector<std::string>::const_iterator it = std::find(personNames.begin(), personNames.end(), name);
+    if (it == personNames.end())
     {
-        if (it->second == activePerson)
-        {
-            return idx;
-        }
-        ++idx;
+        std::cerr << "Input: did not find active person" << std::endl;
+        return 0;
     }
-    return 0;
+
+    return (it - personNames.begin());
 }
 
 /**

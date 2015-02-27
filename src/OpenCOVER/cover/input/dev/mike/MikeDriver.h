@@ -19,7 +19,6 @@
 #include <osg/Matrix>
 
 #include <cover/input/inputdevice.h>
-#include "MouseButtons.h"
 
 using namespace opencover;
 

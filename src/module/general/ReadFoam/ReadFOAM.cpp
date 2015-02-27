@@ -1435,7 +1435,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     for (int nPort = 0; nPort < num_ports; ++nPort)
     {
         index_t portchoice = portChoice[nPort]->getValue();
-        if (portchoice > 0 && portchoice < m_case.varyingFields.size())
+        if (portchoice > 0 && portchoice <= m_case.varyingFields.size())
         {
             coModule::sendInfo("Reading Port Data. Please wait ...");
             std::vector<coDistributedObject *> tempSet;
@@ -1565,7 +1565,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     {
         std::string selection = patchesStringParam->getValString();
         index_t portchoice = boundaryDataChoice[nPort]->getValue();
-        if (portchoice > 0 && portchoice < m_case.varyingFields.size())
+        if (portchoice > 0 && portchoice <= m_case.varyingFields.size())
         {
             coModule::sendInfo("Reading Boundary Port Data. Please wait ...");
             std::vector<coDistributedObject *> tempSet;

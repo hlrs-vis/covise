@@ -544,18 +544,11 @@ coInputTUI::coInputTUI()
     
     personContainer = new coTUIFrame("pc",inputTab->getID());
     personContainer->setPos(0,0);
-    personsLabel= new coTUILabel("person",personContainer->getID());
+    personsLabel= new coTUILabel("Person",personContainer->getID());
     personsLabel->setPos(0,0);
     personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
     personsChoice->setPos(1,0);
-    
     personsChoice->setEventListener(this);
-    for (int i = 0; i < Input::instance()->getNumPersons(); i++)
-    {
-        personsChoice->addEntry(Input::instance()->getPerson(i)->getName());
-    }
-    personsChoice->setSelectedEntry(Input::instance()->getActivePerson());
-    
     
     bodiesContainer = new coTUIFrame("bc",inputTab->getID());
     bodiesContainer->setPos(1,0);
@@ -564,11 +557,6 @@ coInputTUI::coInputTUI()
     bodiesChoice = new coTUIComboBox("bodiesCombo",bodiesContainer->getID());
     bodiesChoice->setPos(0,1);
     bodiesChoice->setEventListener(this);
-    for (int i = 0; i < Input::instance()->getNumBodies(); i++)
-    {
-        bodiesChoice->addEntry(Input::instance()->getBody(i)->getName());
-    }
-    bodiesChoice->setSelectedEntry(Input::instance()->getActivePerson());
     
     bodyTrans[0] = new coTUIEditFloatField("xe", bodiesContainer->getID());
     bodyTransLabel[0] = new coTUILabel("x", bodiesContainer->getID());
@@ -630,6 +618,28 @@ coInputTUI::coInputTUI()
 
 void coInputTUI::updateTUI()
 {
+    if (personsChoice->getNumEntries() != Input::instance()->getNumPersons())
+    {
+        personsChoice->clear();
+        for (size_t i = 0; i < Input::instance()->getNumPersons(); i++)
+        {
+            personsChoice->addEntry(Input::instance()->getPerson(i)->getName());
+        }
+    }
+    personsChoice->setSelectedEntry(Input::instance()->getActivePerson());
+
+    if (bodiesChoice->getNumEntries() != Input::instance()->getNumBodies())
+    {
+        const std::string body = bodiesChoice->getSelectedText();
+        bodiesChoice->clear();
+        for (int i = 0; i < Input::instance()->getNumBodies(); i++)
+        {
+            bodiesChoice->addEntry(Input::instance()->getBody(i)->getName());
+        }
+        bodiesChoice->setSelectedEntry(0);
+        bodiesChoice->setSelectedText(body);
+    }
+
     TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
     if(tb)
     {
@@ -871,6 +881,8 @@ void coVRTui::update()
         animationOscillate = coVRAnimationManager::instance()->isOscillating();
         AnimOscillate->setState(animationOscillate);
     }
+    if (inputTUI)
+        inputTUI->updateTUI();
 }
 
 void coVRTui::tabletEvent(coTUIElement *tUIItem)

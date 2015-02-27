@@ -772,7 +772,8 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
     }
     delete[] entry;
     pattID = -1;
-    cerr << "ARToolKitMarker::ARToolKitMarker(): Loading pattern with ID = " << pattern.c_str() << endl;
+    if (cover->debugLevel(3))
+        cerr << "ARToolKitMarker::ARToolKitMarker(): Loading pattern with ID = " << pattern.c_str() << endl;
     if (ARToolKit::instance()->arInterface)
     {
         pattID = ARToolKit::instance()->arInterface->loadPattern(pattern.c_str());
