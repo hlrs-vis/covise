@@ -17,6 +17,9 @@
 #define RSYSTEMELEMENTCONTROLLER_HPP
 
 #include "rsystemelement.hpp"
+#include "src/data/observer.hpp"
+
+class Signal;
 
 class ControlEntry
 {
@@ -27,6 +30,7 @@ public:
         type_ = type;
     };
     virtual ~ControlEntry(){ /* does nothing */ };
+
 
     void setSignalId(const QString &signalId)
     {
@@ -51,16 +55,39 @@ private:
     QString type_;
 };
 
-class RSystemElementController : public RSystemElement
+class RSystemElementController : public RSystemElement, public Observer
 {
+public:
+
+    enum ControllerChange
+    {
+        CRC_ParameterChange = 0x1,
+        CRC_EntryChange = 0x2
+    };
+
+    struct ControllerUserData
+    {
+        QString script;
+        double cycleTime;
+    };
 
     //################//
     // FUNCTIONS      //
     //################//
 
-public:
     explicit RSystemElementController(const QString &name, const QString &id, int sequence, const QString &script, double cycleTime, const QList<ControlEntry *> &controlEntries);
+    explicit RSystemElementController(const QString &name, const QString &id, int sequence, ControllerUserData &controllerUserData, const QList<ControlEntry *> &controlEntries);
     virtual ~RSystemElementController();
+
+    // Observer Pattern //
+    //
+    virtual void notificationDone();
+    int getControllerChanges() const
+    {
+        return controllerChanges_;
+    }
+    void addControllerChanges(int changes);
+    virtual void updateObserver();
 
     // Prototype Pattern //
     //
@@ -69,24 +96,6 @@ public:
     // Visitor Pattern //
     //
     virtual void accept(Visitor *visitor);
-
-    QString getId() const
-    {
-        return id_;
-    }
-    void setId(const QString &id)
-    {
-        id_ = id;
-    }
-
-    QString getName() const
-    {
-        return name_;
-    }
-    void setName(const QString &name)
-    {
-        name_ = name;
-    }
 
     int getSequence() const
     {
@@ -97,22 +106,32 @@ public:
         sequence_ = sequence;
     }
 
+    ControllerUserData getControllerUserData() const
+    {
+        return controllerUserData_;
+    }
+
+    void setControllerUserData(const ControllerUserData &controllerUserData)
+    {
+        controllerUserData_ = controllerUserData;
+    }
+
     QString getScript() const
     {
-        return script_;
+        return controllerUserData_.script;
     }
     void setScript(const QString &script)
     {
-        script_ = script;
+        controllerUserData_.script = script;
     }
 
     double getCycleTime() const
     {
-        return cycleTime_;
+        return controllerUserData_.cycleTime;
     }
     void setCycleTime(const double cycleTime)
     {
-        cycleTime_ = cycleTime;
+        controllerUserData_.cycleTime = cycleTime;
     }
 
     QList<ControlEntry *> getControlEntries() const
@@ -122,6 +141,14 @@ public:
     void setControlEntries(const QList<ControlEntry *> &controlEntries)
     {
         controlEntries_ = controlEntries;
+    }
+
+    void addControlEntry(ControlEntry *controlEntry, Signal *signal);
+    bool delControlEntry(ControlEntry *controlEntry, Signal *signal);
+
+    QMap<QString, Signal *> getSignals()
+    {
+        return signals_;
     }
 
 private:
@@ -134,13 +161,16 @@ private:
     //################//
 
 private:
-    QString name_;
-    QString id_;
     int sequence_;
-    QString script_;
-    double cycleTime_;
+    ControllerUserData controllerUserData_;
+
 
     QList<ControlEntry *> controlEntries_;
+    QMap<QString, Signal *> signals_; // Signals listed in the control entries
+
+    // Change flags //
+    //
+    int controllerChanges_;
 };
 
 #endif // RSYSTEMELEMENTCONTROLLER_HPP

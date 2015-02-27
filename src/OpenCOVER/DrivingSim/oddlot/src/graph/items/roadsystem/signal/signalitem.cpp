@@ -24,6 +24,8 @@
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/rsystemelementcontroller.hpp"
+#include "src/data/commands/controllercommands.hpp"
 
 // Widget //
 //
@@ -289,6 +291,88 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if (tool == ODD::TSG_DEL)
     {
         removeSignal();
+    }
+    else if (tool == ODD::TSG_ADD_CONTROL_ENTRY)
+    {
+        QList<DataElement *>selectedElements = getProjectData()->getSelectedElements();
+        QList<RSystemElementController *>selectedControllers;
+        foreach (DataElement *element, selectedElements)
+        {
+            RSystemElementController * controller = dynamic_cast<RSystemElementController *>(element);
+            if (controller)
+            {
+                selectedControllers.append(controller);
+            }
+        }
+
+        if (selectedControllers.size() > 0)
+        {
+            // Macro Command //
+            //
+            int numberOfSelectedControllers = selectedControllers.size();
+            if(numberOfSelectedControllers > 1)
+            {
+                getProjectData()->getUndoStack()->beginMacro(QObject::tr("Add Control Entry"));
+            }
+            for (int i = 0; i < selectedControllers.size(); i++)
+            {
+
+                ControlEntry * controlEntry = new ControlEntry(signal_->getId(), QString::number(signal_->getType()));
+                AddControlEntryCommand *addControlEntryCommand = new AddControlEntryCommand(selectedControllers.at(i), controlEntry, signal_);
+                getProjectGraph()->executeCommand(addControlEntryCommand);
+            }
+
+            // Macro Command //
+            //
+            if (numberOfSelectedControllers > 1)
+            {
+                getProjectData()->getUndoStack()->endMacro();
+            }
+        }
+    }
+    else if (tool == ODD::TSG_REMOVE_CONTROL_ENTRY)
+    {
+        QList<DataElement *>selectedElements = getProjectData()->getSelectedElements();
+        QList<RSystemElementController *>selectedControllers;
+        foreach (DataElement *element, selectedElements)
+        {
+            RSystemElementController * controller = dynamic_cast<RSystemElementController *>(element);
+            if (controller)
+            {
+                selectedControllers.append(controller);
+            }
+        }
+
+        if (selectedControllers.size() > 0)
+        {
+            // Macro Command //
+            //
+            int numberOfSelectedControllers = selectedControllers.size();
+            if(numberOfSelectedControllers > 1)
+            {
+                getProjectData()->getUndoStack()->beginMacro(QObject::tr("Remove Control Entry"));
+            }
+            for (int i = 0; i < selectedControllers.size(); i++)
+            {
+                RSystemElementController * controller = selectedControllers.at(i);
+                foreach (ControlEntry * controlEntry, controller->getControlEntries())
+                {
+                    if (controlEntry->getSignalId() == signal_->getId())
+                    {
+                        DelControlEntryCommand *delControlEntryCommand = new DelControlEntryCommand(selectedControllers.at(i), controlEntry, signal_);
+                        getProjectGraph()->executeCommand(delControlEntryCommand);
+                        break;
+                    }
+                }
+            }
+
+            // Macro Command //
+            //
+            if (numberOfSelectedControllers > 1)
+            {
+                getProjectData()->getUndoStack()->endMacro();
+            }
+        }
     }
     else
     {

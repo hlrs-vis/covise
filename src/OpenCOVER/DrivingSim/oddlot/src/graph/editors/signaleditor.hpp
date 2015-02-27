@@ -95,6 +95,8 @@ private:
     BridgeItem *lastSelectedBridgeItem_;
     QMultiMap<double, BridgeItem *> obscuredBridgeItems_;
 
+    ODD::ToolId lastTool_;
+
     // RoadType //
     //
     //	TypeSection::RoadType	currentRoadType_;

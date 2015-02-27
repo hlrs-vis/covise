@@ -50,6 +50,8 @@
 
 #include "widgets/elevationsettings.hpp"
 
+#include "widgets/controllersettings.hpp"
+
 ProjectSettingsVisitor::ProjectSettingsVisitor(ProjectSettings *projectSettings)
     : Visitor()
     , projectSettings_(projectSettings)
@@ -77,8 +79,9 @@ ProjectSettingsVisitor::visit(RoadSystem *)
 }
 
 void
-ProjectSettingsVisitor::visit(RSystemElementController *)
+ProjectSettingsVisitor::visit(RSystemElementController *acceptor)
 {
+    settingsElement_ = new ControllerSettings(projectSettings_, NULL, acceptor);
 }
 
 void

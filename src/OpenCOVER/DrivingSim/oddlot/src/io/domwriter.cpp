@@ -890,6 +890,21 @@ void
 DomWriter::visit(RSystemElementController *controller)
 {
     QDomElement controllerElement = doc_->createElement("controller");
+
+    QDomElement userData = doc_->createElement("userData");
+
+    userData.setAttribute("code", "script");
+    userData.setAttribute("value", controller->getScript());
+
+    controllerElement.appendChild(userData);
+
+    userData = doc_->createElement("userData");
+
+    userData.setAttribute("code", "cycleTime");
+    userData.setAttribute("value", controller->getCycleTime());
+
+    controllerElement.appendChild(userData);
+
     if (!controller->getControlEntries().isEmpty())
     {
         for (int i = 0; i < controller->getControlEntries().size(); i++)
@@ -905,11 +920,9 @@ DomWriter::visit(RSystemElementController *controller)
     }
 
     // Set mandatory attributes
-    controllerElement.setAttribute("id", controller->getId());
+    controllerElement.setAttribute("id", controller->getID());
     controllerElement.setAttribute("name", controller->getName());
     controllerElement.setAttribute("sequence", controller->getSequence());
-    controllerElement.setAttribute("script", controller->getScript());
-    controllerElement.setAttribute("cycleTime", controller->getCycleTime());
 
     root_.appendChild(controllerElement);
 }
@@ -954,6 +967,7 @@ DomWriter::visit(JunctionConnection *connection)
         element.appendChild(child);
     }
 }
+
 
 //################//
 // FIDDLEYARD     //

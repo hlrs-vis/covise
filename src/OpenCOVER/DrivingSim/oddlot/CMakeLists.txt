@@ -324,6 +324,9 @@ SET(ODDLOT_SOURCES
 	src/tree/items/tilesystemtreeitem.cpp
 	src/tree/items/tiletreeitem.cpp
 	src/data/commands/tilecommands.cpp
+	src/data/commands/controllercommands.cpp
+	src/tree/items/controllertreeitem.cpp
+	src/settings/widgets/controllersettings.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -546,6 +549,7 @@ SET(ODDLOT_MOC_HEADERS
     src/tree/items/pedestriansystem/pedestriansystemtreeitem.hpp
     src/tree/items/pedestriansystem/pedestriangrouptreeitem.hpp
     src/tree/items/pedestriansystem/pedestriantreeitem.hpp
+	src/tree/items/controllertreeitem.hpp
     src/data/scenerysystem/scenerytesselation.hpp
     src/graph/items/roadsystem/roadlink/roadlinkhandle.hpp
     src/graph/items/roadsystem/roadlink/roadlinkitem.hpp
@@ -602,6 +606,8 @@ SET(ODDLOT_MOC_HEADERS
 	src/tree/items/tilesystemtreeitem.hpp
 	src/tree/items/tiletreeitem.hpp
 	src/data/commands/tilecommands.hpp
+	src/data/commands/controllercommands.hpp
+	src/settings/widgets/controllersettings.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
@@ -624,6 +630,7 @@ SET(ODDLOT_FORMS
 	 src/settings/widgets/bridgesettings.ui
      src/settings/widgets/lanesettings.ui
      src/wizards/roadlinkwizard.ui
+	 src/settings/widgets/controllersettings.ui
 )
 SET(ODDLOT_RESOURCES
    icons/tools/tools.qrc

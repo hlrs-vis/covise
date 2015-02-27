@@ -42,7 +42,7 @@
 */
 SignalEditorTool::SignalEditorTool(ToolManager *toolManager)
     : Tool(toolManager)
-    , toolId_(ODD::TSG_SELECT)
+    , toolId_(ODD::TNO_TOOL)
     , active_(false)
 {
     // Connect //
@@ -89,6 +89,21 @@ SignalEditorTool::initToolWidget()
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TSG_BRIDGE); // button, id
+
+    toolButton = new QPushButton(tr("New Controller"));
+    toolButton->setCheckable(true);
+    toolLayout->addWidget(toolButton, ++row, 0);
+    toolGroup->addButton(toolButton, ODD::TSG_CONTROLLER); // button, id
+
+    toolButton = new QPushButton(tr("Add Controlled Signal"));
+    toolButton->setCheckable(true);
+    toolLayout->addWidget(toolButton, ++row, 0);
+    toolGroup->addButton(toolButton, ODD::TSG_ADD_CONTROL_ENTRY); // button, id
+
+    toolButton = new QPushButton(tr("Remove Controlled Signal"));
+    toolButton->setCheckable(true);
+    toolLayout->addWidget(toolButton, ++row, 0);
+    toolGroup->addButton(toolButton, ODD::TSG_REMOVE_CONTROL_ENTRY); // button, id
 
     toolButton = new QPushButton(tr("Delete"));
     toolButton->setCheckable(true);
@@ -144,6 +159,7 @@ SignalEditorTool::handleToolClick(int id)
     SignalEditorToolAction *action = new SignalEditorToolAction(toolId_);
     emit toolAction(action);
     delete action;
+
 }
 
 //################//

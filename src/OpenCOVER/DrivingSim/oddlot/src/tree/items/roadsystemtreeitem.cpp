@@ -27,6 +27,7 @@
 //
 #include "roadtreeitem.hpp"
 #include "junctiontreeitem.hpp"
+#include "controllertreeitem.hpp"
 
 RoadSystemTreeItem::RoadSystemTreeItem(ProjectTree *projectTree, RoadSystem *roadSystem, QTreeWidgetItem *rootItem)
     : ProjectTreeItem(NULL, roadSystem, rootItem)
@@ -63,7 +64,10 @@ RoadSystemTreeItem::init()
     //
     controllersItem_ = new QTreeWidgetItem(this);
     controllersItem_->setText(0, tr("Controllers"));
-    // TODO
+    foreach (RSystemElementController *controller, getRoadSystem()->getControllers())
+    {
+        new ControllerTreeItem(this, controller, controllersItem_);
+    }
 
     // Junctions //
     //
@@ -126,6 +130,20 @@ RoadSystemTreeItem::updateObserver()
                 || (junction->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
                 new JunctionTreeItem(this, junction, junctionsItem_);
+            }
+        }
+    }
+
+    if (changes & RoadSystem::CRS_ControllerChange)
+    {
+        // A road has been added (or deleted - but that will be handled by the road item itself).
+        //
+        foreach (RSystemElementController *controller, getRoadSystem()->getControllers())
+        {
+            if ((controller->getDataElementChanges() & DataElement::CDE_DataElementCreated)
+                || (controller->getDataElementChanges() & DataElement::CDE_DataElementAdded))
+            {
+                new ControllerTreeItem(this, controller, controllersItem_);
             }
         }
     }
