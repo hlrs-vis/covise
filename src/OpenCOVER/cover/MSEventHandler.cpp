@@ -107,6 +107,7 @@ MSEventHandler::MSEventHandler()
         handleTerminal = covise::coCoviseConfig::isOn("terminal", "COVER.Input.Keyboard", true);
 
         bool useEvent = false;
+#ifdef __linux__
         devicePathname = covise::coCoviseConfig::getEntry("evdev", "COVER.Input.Keyboard", &useEvent);
         if (useEvent && openEvdev())
         {
@@ -119,6 +120,7 @@ MSEventHandler::MSEventHandler()
             deviceName = devicePathname.substr(last + 1);
             int watchFd = inotify_add_watch(notifyFd, devicePath.c_str(), IN_DELETE | IN_CREATE);
         }
+#endif
     }
 }
 
@@ -134,6 +136,8 @@ MSEventHandler::~MSEventHandler()
 
 bool MSEventHandler::openEvdev()
 {
+#ifdef __linux__
+#ifdef EVIOCGNAME
     keyboardFd = open(devicePathname.c_str(), O_RDONLY | O_NONBLOCK);
     if (keyboardFd < 0)
     {
@@ -151,6 +155,10 @@ bool MSEventHandler::openEvdev()
     }
 
     std::cerr << "Keyboard: evdev keyboard \"" << name << "\"" << std::endl;
+    return true;
+#endif
+#endif
+    return false;
 }
 
 void MSEventHandler::update()
@@ -207,7 +215,6 @@ void MSEventHandler::update()
 #endif
 
 #ifdef __linux__
-#ifdef EVIOCGNAME
         {
             struct timeval time;
             time.tv_sec = 0;
@@ -247,6 +254,7 @@ void MSEventHandler::update()
             }
         }
 
+#ifdef EVIOCGNAME
         {
             struct input_event ev;
             int ret = 0;
@@ -440,6 +448,10 @@ void MSEventHandler::update()
                     }
                 }
             }
+#undef LETTER
+#undef FUNC
+#undef NUM
+#undef KP
         }
 #endif
 #endif
