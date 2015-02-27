@@ -203,6 +203,11 @@ public:
     {
         return overwritePAndV;
     };
+
+    // assert: cull masks of all channels are equal!
+    osg::Node::NodeMask getCullMask() /*const*/;
+    osg::Node::NodeMask getCullMaskLeft() /*const*/;
+    osg::Node::NodeMask getCullMaskRight() /*const*/;
 };
 }
 #endif

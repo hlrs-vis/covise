@@ -81,6 +81,8 @@
 #define OSG_NOTICE std::cerr
 #endif
 
+#include <cassert>
+
 using namespace opencover;
 using namespace covise;
 int animateSeparation;
@@ -2451,4 +2453,48 @@ VRViewer::statisticsCallback(void *, buttonSpecCell *spec)
     coVRConfig::instance()->drawStatistics = spec->state != 0.0;
     VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
     //XXX VRViewer::instance()->setInstrumentationMode( coVRConfig::instance()->drawStatistics );
+}
+
+template <typename Cameras, typename F>
+osg::Node::NodeMask getCullMaskImpl(Cameras const& cameras, F func)
+{
+    if (cameras.size() == 0)
+    {
+        return 0x0;
+    }
+
+    typename Cameras::const_iterator camItr = cameras.begin();
+    osg::Node::NodeMask result = ((*camItr)->*func)();
+    for (;
+         camItr != cameras.end();
+         ++camItr)
+    {
+        assert( (result & ((*camItr)->*func)()) == result );
+    }
+
+    return result;
+}
+
+osg::Node::NodeMask
+VRViewer::getCullMask() /*const*/
+{
+    Cameras cameras;
+    getCameras(cameras);
+    return getCullMaskImpl(cameras, &osg::Camera::getCullMask);
+}
+
+osg::Node::NodeMask
+VRViewer::getCullMaskLeft() /*const*/
+{
+    Cameras cameras;
+    getCameras(cameras);
+    return getCullMaskImpl(cameras, &osg::Camera::getCullMaskLeft);
+}
+
+osg::Node::NodeMask
+VRViewer::getCullMaskRight() /*const*/
+{
+    Cameras cameras;
+    getCameras(cameras);
+    return getCullMaskImpl(cameras, &osg::Camera::getCullMaskRight);
 }
