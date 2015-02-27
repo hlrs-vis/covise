@@ -60,6 +60,7 @@
 #include <osgUtil/Optimizer>
 #include <osgUtil/GLObjectsVisitor>
 #include <osgDB/Registry>
+#include <osgDB/ReadFile>
 
 #include <osgGA/AnimationPathManipulator>
 #include <osgGA/TrackballManipulator>
@@ -705,11 +706,23 @@ void VRViewer::createViewportCameras(int i)
             (vp.viewportYMax - vp.viewportYMin) * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy));
 
 
-        osg::Geode *geode = distortionMesh();
+        osg::Geode *geode = distortionMesh(vp.distortMeshName.c_str());
         osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
         state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
         state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
         state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
+
+        osg::Image *blendTexImage = osgDB::readImageFile(vp.blendingTextureName.c_str());
+        osg::Texture2D *blendTex = new osg::Texture2D;
+        blendTex->ref();
+        blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
+        blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
+        if (blendTexImage)
+        {
+            blendTex->setImage(blendTexImage);
+        }
+        state->setTextureAttributeAndModes(1, blendTex);
+
         geode->setStateSet(state.get());
 
         cameraWarp->addChild(geode);
@@ -718,7 +731,7 @@ void VRViewer::createViewportCameras(int i)
     }
 }
 
-osg::Geode *VRViewer::distortionMesh()
+osg::Geode *VRViewer::distortionMesh(const char *fileName)
 {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
@@ -726,29 +739,86 @@ osg::Geode *VRViewer::distortionMesh()
     osg::Vec3Array *positionArray = new osg::Vec3Array;
     osg::Vec4Array *colorArray = new osg::Vec4Array;
     osg::Vec2Array *textureArray = new osg::Vec2Array;
-    
-    positionArray->push_back(osg::Vec3f(0,0,0));
-    positionArray->push_back(osg::Vec3f(1,0,0));
-    positionArray->push_back(osg::Vec3f(1,1,0));
-    positionArray->push_back(osg::Vec3f(0,1,0));
-    textureArray->push_back(osg::Vec2f(0,0));
-    textureArray->push_back(osg::Vec2f(1,0));
-    textureArray->push_back(osg::Vec2f(1,1));
-    textureArray->push_back(osg::Vec2f(0,1));
-    
     osg::UShortArray *indexArray = new osg::UShortArray;
-    indexArray->push_back(0);
-    indexArray->push_back(1);
-    indexArray->push_back(2);
-    indexArray->push_back(3);
+
+    
+    osg::ref_ptr<osg::DrawElementsUShort> drawElement;
     // Get triangle indicies
 
     osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
     geometry->setUseDisplayList(false);
     geometry->setUseVertexBufferObjects(true);
-    osg::ref_ptr<osg::DrawElementsUShort> drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
-    geometry->addPrimitiveSet(drawElement);
+
+    FILE *fp = fopen(fileName,"r");
+    if(fp!=NULL)
+    {
+        char buf[501];
+        int numVert;
+        int numFaces;
+        int NATIVEYRES;
+        int NATIVEXRES;
+        while(!feof(fp))
+        {
+            fgets(buf,500,fp);
+            if(strncmp(buf,"NATIVEXRES",10)==0)
+            {
+                sscanf(buf+10,"%d", &NATIVEXRES);
+            }
+            if(strncmp(buf,"NATIVEYRES",10)==0)
+            {
+                sscanf(buf+10,"%d", &NATIVEYRES);
+                float vx,vy,vz,tx,ty;
+                for(int i=0;i<numVert;i++)
+                {
+                    fgets(buf,500,fp);
+                    sscanf(buf,"%f %f %f %f %f",&vx,&vy,&vz,&tx, &ty);
+                    positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,vy/NATIVEYRES,0));
+                    textureArray->push_back(osg::Vec2f(tx,ty));
+                }
+                int tr[3];
+                for(int i=0;i<numFaces;i++)
+                {
+                    fgets(buf,500,fp);
+                    sscanf(buf,"[ %d %d %d",&tr[0],&tr[1],&tr[2]);
+                    indexArray->push_back(tr[0]);
+                    indexArray->push_back(tr[1]);
+                    indexArray->push_back(tr[2]);
+                }
+            }
+            else if(strncmp(buf,"VERTICES",8)==0)
+            {
+                sscanf(buf+8,"%d", &numVert);
+            }
+            else if(strncmp(buf,"FACES",5)==0)
+            {
+                sscanf(buf+5,"%d", &numFaces);
+            }
+        }
+        drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLES, indexArray->size(), (GLushort *)indexArray->getDataPointer());
+   
+    }
+    else
+    {
+        drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
+   
+        positionArray->push_back(osg::Vec3f(0,0,0));
+        positionArray->push_back(osg::Vec3f(1,0,0));
+        positionArray->push_back(osg::Vec3f(1,1,0));
+        positionArray->push_back(osg::Vec3f(0,1,0));
+        textureArray->push_back(osg::Vec2f(0,0));
+        textureArray->push_back(osg::Vec2f(1,0));
+        textureArray->push_back(osg::Vec2f(1,1));
+        textureArray->push_back(osg::Vec2f(0,1));
+
+        indexArray->push_back(0);
+        indexArray->push_back(1);
+        indexArray->push_back(2);
+        indexArray->push_back(3);
+    }
+
+     geometry->addPrimitiveSet(drawElement);
     geometry->setTexCoordArray(0,textureArray,osg::Array::BIND_PER_VERTEX);
+    geometry->setTexCoordArray(1,textureArray,osg::Array::BIND_PER_VERTEX);
     geometry->setVertexArray(positionArray);
     geode->addDrawable(geometry);
 

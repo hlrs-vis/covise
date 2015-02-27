@@ -448,8 +448,8 @@
    
    <ViewportConfig>
       <!-- each Screen needs a Channel -->
-    <Viewport width="512" height="1" left="0" bottom="0" windowIndex="0" PBOIndex="0" distortMesh="testit" blendingTexture="" name="0"/>
-    <Viewport width="512" height="1" left="512" bottom="0"  windowIndex="0" PBOIndex="1"  distortMesh="testit" blendingTexture="" name="1"  />
+    <Viewport width="512" height="1" left="0" bottom="0" windowIndex="0" PBOIndex="0" distortMesh="D:/data/scalable/LocalCalibration/ScalableDataOrthographic.ol.AlphaPrecursors" blendingTexture="D:/data/scalable/LocalCalibration/ProjectorAlphaMask-blend0.bmp" name="0"/>
+    <Viewport width="512" height="1" left="512" bottom="0"  windowIndex="0" PBOIndex="1"  distortMesh="D:/data/scalable/LocalCalibration/ScalableDataOrthographic.ol.AlphaPrecursors" blendingTexture="D:/data/scalable/LocalCalibration/ProjectorAlphaMask-blend0.bmp" name="1"  />
    </ViewportConfig>
 
    <!--Background r="1.0" g="1.0" b="1.0"/-->
