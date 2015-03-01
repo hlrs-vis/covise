@@ -79,7 +79,7 @@ PointCloudGeometry::PointCloudGeometry(PointSet *pointData)
     osg::PointSprite *sprite = new osg::PointSprite();
     stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
 
-    const char *mapName = opencover::coVRFileManager::instance()->getName("icons/particle2.rgb");
+    const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle2.rgb");
     if (mapName != NULL)
     {
         osg::Image *image = osgDB::readImageFile(mapName);
@@ -158,7 +158,7 @@ PointCloudGeometry::PointCloudGeometry(const PointCloudGeometry &eqvis, const Co
 
 PointCloudGeometry::~PointCloudGeometry()
 {
-    cerr << "~PointCloudPluginDrawable() called!\n" << endl;
+    //cerr << "~PointCloudPluginDrawable() called!\n" << endl;
 }
 
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
