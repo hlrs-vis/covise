@@ -36,12 +36,25 @@ VrmlNodeType *VrmlNodeThyssen::defineType(VrmlNodeType *t)
     }
 
     VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("car0Pos", VrmlField::SFVEC3F);
-    t->addEventOut("car1Pos", VrmlField::SFVEC3F);
-    t->addEventOut("car2Pos", VrmlField::SFVEC3F);
-    t->addEventOut("ints_changed", VrmlField::MFINT32);
-    t->addEventOut("floats_changed", VrmlField::MFFLOAT);
+    char nameBuf[200];
+    for(int i=0;i<4;i++)
+    {
+        sprintf(nameBuf,"carPos%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFVEC3F);
+        sprintf(nameBuf,"carDoorClose%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFTIME);
+        sprintf(nameBuf,"carDoorOpen%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFTIME);
+        sprintf(nameBuf,"landingDoorClose%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFTIME);
+        sprintf(nameBuf,"landingDoorOpen%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFTIME);
+        sprintf(nameBuf,"carAngle%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFFLOAT);
+        sprintf(nameBuf,"exchangerAngle%d",i);
+        t->addEventOut(nameBuf, VrmlField::SFFLOAT);
+    }
+    
 
     return t;
 }
@@ -135,7 +148,7 @@ void VrmlNodeThyssen::render(Viewer *)
     for(int i=0;i<ThyssenPlugin::plugin->cars.size();i++)
     {
         carData &cd = ThyssenPlugin::plugin->cars[i];
-        d_carPos[i].set( 0, cd.posZ / 1000.0, cd.posY / 1000.0);
+        d_carPos[i].set( 0, cd.posZ / 1000.0, -cd.posY / 1000.0);
         sprintf(pname,"carPos%d",i);
         eventOut(timeStamp, pname, d_carPos[i]);
         if(cd.doorState != cd.oldDoorState)
