@@ -29,8 +29,24 @@ PathConnectionSet::iterator PathConnectionSet::insert(PathConnection *&conn)
     return std::multiset<PathConnection *, PathConnectionCompare>::insert(conn);
 }
 
+void PathConnectionSet::remove(PathConnectionSet::iterator it)
+{
+    PathConnection *p = *it;
+    erase(it);
+    connectionFrequencySum -= p->getFrequency();
+    for(std::map<double, PathConnection *>::iterator fit = frequencySumMap.begin();fit != frequencySumMap.end();fit++)
+    {
+        if(fit->second == p)
+        {
+            frequencySumMap.erase(fit);
+            break;
+        }
+    }
+}
 PathConnection *PathConnectionSet::choosePathConnection(double random)
 {
+    if(frequencySumMap.size()==0)
+        return NULL;
     /*int path = rand() % this->size();
    PathConnectionSet::iterator connSetIt = this->begin();
    std::advance(connSetIt, path);
@@ -63,6 +79,23 @@ void Junction::addPathConnection(PathConnection *conn)
 PathConnectionSet Junction::getPathConnectionSet(Road *incoming)
 {
     return (*(pathConnectionSetMap.find(incoming))).second;
+}
+
+PathConnectionSet Junction::getPathConnectionSet(Road *incoming, int incomingLane) // only return connections to the current lane
+{
+    PathConnectionSet ps = (*(pathConnectionSetMap.find(incoming))).second;
+    PathConnectionSet::iterator oldit;
+    for(PathConnectionSet::iterator it=ps.begin();it != ps.end();)
+    {
+        PathConnection *p = *it;
+        oldit = it++;
+        if(p->getConnectingLane(incomingLane,false)==1000)
+        {
+            
+            ps.remove(oldit);
+        }
+    }
+    return ps;
 }
 
 Road *Junction::getIncomingRoad(int num)
@@ -269,12 +302,15 @@ double PathConnection::getAngleDifference() const
     return angle;
 }
 
-int PathConnection::getConnectingLane(int from)
+int PathConnection::getConnectingLane(int from, bool defaults)
 {
     std::map<int, int>::iterator it = laneConnectionMap.find(from);
     if (it == laneConnectionMap.end())
     {
-        return from;
+        if(defaults)
+            return from;
+        else
+            return 1000;
     }
     else
     {

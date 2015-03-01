@@ -608,6 +608,11 @@ void AgentVehicle::move(double dt)
         }
 
         u += currentTransition->direction * du * dt;
+        if(u<0) // agent vehicles are not driving backwards, this currently only happens in fiddleyards.
+        {
+            u=0;
+            du=0;
+        }
         v += dv * dt;
         s += du * dt;
 
@@ -2097,24 +2102,27 @@ void DetermineNextRoadVehicleAction::operator()(AgentVehicle *veh)
         }
         else if ((junction = dynamic_cast<Junction *>(conn->getConnectingTarmac())))
         {
-            PathConnectionSet connSet = junction->getPathConnectionSet(veh->roadTransitionList.back().road);
+            PathConnectionSet connSet = junction->getPathConnectionSet(veh->roadTransitionList.back().road,veh->currentLane);
             /*int path = rand() % connSet.size();
          PathConnectionSet::iterator connSetIt = connSet.begin();
          std::advance(connSetIt, path);
          PathConnection* conn = *connSetIt;*/
             PathConnection *conn = connSet.choosePathConnection(TrafficSimulationPlugin::plugin->getZeroOneRandomNumber());
-            newTrans.road = conn->getConnectingPath();
-            newTrans.direction = conn->getConnectingPathDirection();
-            newTrans.junction = junction;
-            indicator = conn->getConnectingPathIndicator();
-            isJunctionPath = true;
-            LaneSection *section = newTrans.road->getLaneSection((1 - newTrans.direction) / 2 * newTrans.road->getLength());
-            for (int laneIt = section->getTopRightLane(); laneIt <= section->getTopLeftLane(); ++laneIt)
+            if(conn)
             {
-                if (section->getLane(laneIt)->getLaneType() == Lane::MWYEXIT)
+                newTrans.road = conn->getConnectingPath();
+                newTrans.direction = conn->getConnectingPathDirection();
+                newTrans.junction = junction;
+                indicator = conn->getConnectingPathIndicator();
+                isJunctionPath = true;
+                LaneSection *section = newTrans.road->getLaneSection((1 - newTrans.direction) / 2 * newTrans.road->getLength());
+                for (int laneIt = section->getTopRightLane(); laneIt <= section->getTopLeftLane(); ++laneIt)
                 {
-                    motorwayExit = true;
-                    break;
+                    if (section->getLane(laneIt)->getLaneType() == Lane::MWYEXIT)
+                    {
+                        motorwayExit = true;
+                        break;
+                    }
                 }
             }
         }

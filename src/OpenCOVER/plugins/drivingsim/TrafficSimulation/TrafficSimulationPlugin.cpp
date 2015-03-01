@@ -74,6 +74,7 @@ TrafficSimulationPlugin::TrafficSimulationPlugin()
     , manager(NULL)
     , pedestrianManager(NULL)
     , factory(NULL)
+    , roadGroup(NULL)
     , rootElement(NULL)
     ,
     //operatorMapTab(NULL),

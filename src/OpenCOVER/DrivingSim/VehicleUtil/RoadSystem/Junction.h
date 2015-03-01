@@ -37,6 +37,8 @@ public:
     double getConnectionFrequencySum();
 
     PathConnection *choosePathConnection(double);
+    void remove(PathConnectionSet::iterator it);
+
 
 protected:
     std::map<double, PathConnection *> frequencySumMap;
@@ -51,6 +53,7 @@ public:
 
     void addPathConnection(PathConnection *);
     PathConnectionSet getPathConnectionSet(Road *);
+    PathConnectionSet getPathConnectionSet(Road *incoming, int incomingLane); // only return connections to the current lane
 
     Road *getIncomingRoad(int);
     double getNumIncomingRoads();
@@ -95,7 +98,7 @@ public:
     Road *getConnectingPath();
     int getConnectingPathDirection();
     int getConnectingPathIndicator();
-    int getConnectingLane(int);
+    int getConnectingLane(int incomingLane, bool defaults=true); // if defaults is true this function returns default lane connections (1-1, 2-2 and so on) otherwise 1000 is returned if no connection is available 
     double getFrequency();
 
     bool operator<(const PathConnection *) const;
