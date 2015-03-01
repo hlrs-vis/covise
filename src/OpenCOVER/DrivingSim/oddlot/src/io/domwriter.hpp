@@ -139,6 +139,8 @@ private:
 
     QDomElement currentJunctionElement_;
 
+    QDomElement currentControllerElement_;
+
     QDomElement currentObjectsElement_;
     QDomElement currentSignalsElement_;
     QDomElement currentSensorsElement_;

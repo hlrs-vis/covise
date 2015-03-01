@@ -216,6 +216,8 @@ AnnotationPlugin::~AnnotationPlugin()
  */
 void AnnotationPlugin::preFrame()
 {
+    sensorList.update();
+
     static osg::Matrix startPos;
     static osg::Matrix invStartHand;
 

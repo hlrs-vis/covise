@@ -23,6 +23,12 @@
 //
 #include "src/data/projectdata.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/roadsystem/rsystemelementcontroller.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
+
+// Commands //
+//
+#include "src/data/commands/controllercommands.hpp"
 
 // Graph //
 //
@@ -93,6 +99,8 @@ SignalEditor::init()
         insertSignalHandle_ = new SignalHandle(signalRoadSystemItem_);
         insertSignalHandle_->hide();
     }
+
+    lastTool_ = getCurrentTool();
 }
 
 /*!
@@ -138,6 +146,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 
     // SELECT //
     //
+
     if (getCurrentTool() == ODD::TSG_SELECT)
     {
         QPointF mousePoint = mouseAction->getEvent()->scenePos();
@@ -300,20 +309,92 @@ SignalEditor::toolAction(ToolAction *toolAction)
     //
     ProjectEditor::toolAction(toolAction);
 
-    if (getCurrentTool() == ODD::TSG_SELECT)
+    ODD::ToolId currentTool = getCurrentTool();
+    if (currentTool != lastTool_)
     {
-        // does nothing //
-    }
-    else if ((getCurrentTool() == ODD::TSG_SIGNAL) || (getCurrentTool() == ODD::TSG_OBJECT) || (getCurrentTool() == ODD::TSG_BRIDGE))
-    {
-        foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->selectedItems())
+        if (currentTool == ODD::TSG_SELECT)
         {
-            item->setSelected(false);
+            if ((lastTool_ = ODD::TSG_ADD_CONTROL_ENTRY) || (lastTool_ = ODD::TSG_REMOVE_CONTROL_ENTRY))
+            {
+                foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->items())
+                {
+                    SignalItem * signalItem = dynamic_cast<SignalItem *>(item);
+                    if (signalItem)
+                    {
+                        signalItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+                    }
+                }
+            }
         }
-        // does nothing //
-        // Problem: The ToolAction is resent, after a warning message has been clicked away. (Due to resend on getting the
-    }
+        else if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT) 
+            || (currentTool == ODD::TSG_BRIDGE))
+        {
+            foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->selectedItems())
+            {
+                item->setSelected(false);
+            }
+            // does nothing //
+            // Problem: The ToolAction is resent, after a warning message has been clicked away. (Due to resend on getting the
+        }
+        else if (currentTool == ODD::TSG_CONTROLLER)
+        {
+            QList<ControlEntry *>controlEntryList;
+            RSystemElementController *newController = new RSystemElementController("unnamed", "", 0,"", 0.0, controlEntryList);
+            AddControllerCommand *command = new AddControllerCommand(newController, getProjectData()->getRoadSystem(), NULL);
 
+            getProjectGraph()->executeCommand(command);
+        }
+        else if ((currentTool == ODD::TSG_ADD_CONTROL_ENTRY) || (currentTool == ODD::TSG_REMOVE_CONTROL_ENTRY))
+        {
+
+            foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->items())
+            {
+                SignalItem * signalItem = dynamic_cast<SignalItem *>(item);
+                if (signalItem)
+                {
+                    signalItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+                }
+            }
+        }
+        else if (currentTool == ODD::TSG_DEL)
+        {
+            QList<DataElement *>selectedElements = getProjectData()->getSelectedElements();
+            QList<RSystemElementController *>selectedControllers;
+            foreach (DataElement *element, selectedElements)
+            {
+                RSystemElementController * controller = dynamic_cast<RSystemElementController *>(element);
+                if (controller)
+                {
+                    selectedControllers.append(controller);
+                }
+            }
+            if (selectedControllers.size() > 0)
+            {
+                // Macro Command //
+                //
+                int numberOfSelectedControllers = selectedControllers.size();
+                if(numberOfSelectedControllers > 1)
+                {
+                    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Set Road Type"));
+                }
+                for (int i = 0; i < selectedControllers.size(); i++)
+                {
+                    RemoveControllerCommand * delControllerCommand = new RemoveControllerCommand(selectedControllers.at(i), selectedControllers.at(i)->getRoadSystem());
+                    getProjectGraph()->executeCommand(delControllerCommand);
+                }
+
+                // Macro Command //
+                //
+                if (numberOfSelectedControllers > 1)
+                {
+                    getProjectData()->getUndoStack()->endMacro();
+                }
+            }
+        }
+
+        lastTool_ = currentTool;
+
+    }
     // RoadType //
     //
     /*	TypeEditorToolAction * typeEditorToolAction = dynamic_cast<TypeEditorToolAction *>(toolAction);

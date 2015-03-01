@@ -33,6 +33,7 @@
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRSelectionManager.h>
+#include <PluginUtil/coSensor.h>
 
 using namespace std;
 using namespace covise;
@@ -42,6 +43,7 @@ class mySensor; //sensor class, based on coPickSensor
 
 class SphereInteractorPlugin : public coVRPlugin
 {
+    friend class mySensor;
 public:
     SphereInteractorPlugin();
     ~SphereInteractorPlugin();
@@ -76,6 +78,7 @@ private:
     coTrackerButtonInteraction *myinteraction;
 
     bool interActing;
+    coSensorList sensorList;
 };
 class mySensor : public coPickSensor
 {

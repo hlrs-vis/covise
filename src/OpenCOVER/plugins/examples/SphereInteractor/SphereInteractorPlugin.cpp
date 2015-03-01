@@ -41,6 +41,7 @@ SphereInteractorPlugin::SphereInteractorPlugin()
 
     //Creating Sensor for sphere, so that interactor and geometry are attached
     aSensor = new mySensor(myGeode, "mySensor", myinteraction, mySphereDrawable);
+    sensorList.append(aSensor);
     myGeode->setName("mySphere");
     myGeode->addDrawable(mySphereDrawable);
     mymtf = new osg::MatrixTransform();
@@ -57,6 +58,9 @@ SphereInteractorPlugin::SphereInteractorPlugin()
 SphereInteractorPlugin::~SphereInteractorPlugin()
 {
     fprintf(stderr, "SphereInteractorPlugin::~SphereInteractorPlugin\n");
+    if (sensorList.find(aSensor))
+        sensorList.remove();
+    delete aSensor;
 }
 
 //-----------------------------------------------------------
@@ -114,6 +118,7 @@ SphereInteractorPlugin::removeObject(const char *objName, bool replace)
 void
 SphereInteractorPlugin::preFrame()
 {
+    sensorList.update();
     //Test if button is pressed
     int state = cover->getPointerButton()->getState();
     if (myinteraction->isRunning()) //when interacting the Sphere will be moved

@@ -1,3 +1,5 @@
+# as this script is sometimes used from shell initialization files,
+# do not use exit on errors, but skip to end
 unset COENVERROR
 
 if [ -z "$COVISEDIR" ]; then
@@ -43,7 +45,11 @@ if [ -z "$COENVERROR" ]; then
    fi
 
    if [ -z "$COVISE_PATH" ]; then
-      export COVISE_PATH=$COVISEDIR
+      if [ -z "$COVISEDESTDIR" ]; then
+          export COVISE_PATH="$COVISEDIR"
+      else
+          export COVISE_PATH="$COVISEDESTDIR:$COVISEDIR"
+      fi
    fi
 fi
 

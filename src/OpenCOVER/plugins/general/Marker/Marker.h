@@ -18,7 +18,7 @@
 #include <osg/AlphaFunc>
 #include <osg/BlendFunc>
 
-#include <cover/coVRPluginSupport.h>
+#include <PluginUtil/coSensor.h>
 #include <OpenVRUI/coButton.h>
 #include <OpenVRUI/coLabel.h>
 #include <OpenVRUI/coPopupHandle.h>
@@ -110,11 +110,10 @@ public:
 
 class Marker : public coVRPlugin, public coMenuListener, public coButtonActor, public coValuePotiActor
 {
-    friend class vrui::coNavInteraction;
-    friend class ListenerCover;
-    friend class SystemCover;
+    friend class Mark;
 
 private:
+    coSensorList sensorList;
     void menuEvent(coMenuItem *);
     Mark *currentMarker;
     Mark *previousMarker;

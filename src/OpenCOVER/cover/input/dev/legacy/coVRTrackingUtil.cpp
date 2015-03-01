@@ -13,8 +13,6 @@
 
 #include <util/common.h>
 
-#include <cover/coTabletUI.h>
-#include <cover/coVRTui.h>
 #include "coVRTrackingUtil.h"
 #include <cover/coVRPluginList.h>
 
@@ -220,7 +218,6 @@ coVRTrackingUtil::coVRTrackingUtil()
 #endif
 
     readOffset();
-    createTUI();
 }
 
 bool coVRTrackingUtil::hasHead() const
@@ -295,88 +292,11 @@ bool coVRTrackingUtil::hasSecondHand() const
 // destructor
 coVRTrackingUtil::~coVRTrackingUtil()
 {
-    delete deviceChoice;
-    delete deviceLabel;
-    for (int i = 0; i < 3; i++)
-    {
-        delete trans[i];
-        delete transLabel[i];
-        delete rot[i];
-        delete rotLabel[i];
-    }
-    delete trackingTab;
 }
 
 const char *coVRTrackingUtil::deviceNames[numDevices] = { "TrackingSystem", "HeadDevice", "HandDevice", "SecondHandDevice", "WorldDevice", "HMDDevice", "CameraDevice", "ObjectDevice" };
 const char *coVRTrackingUtil::cmDeviceNames[numDevices] = { "Transmitter", "HeadSensor", "HandSensor", "SecondHandSensor", "WorldSensor", "HMDSensor", "CameraSensor", "ObjectSensor" };
 int coVRTrackingUtil::deviceAddress[numDevices];
-
-void coVRTrackingUtil::createTUI()
-{
-    trackingTab = new coTUITab("Tracking", coVRTui::instance()->mainFolder->getID());
-    trackingTab->setPos(0, 0);
-    deviceChoice = new coTUIComboBox("device", trackingTab->getID());
-    deviceChoice->setPos(1, 0);
-    deviceChoice->setEventListener(this);
-    for (int i = 0; i < numDevices; i++)
-    {
-        deviceChoice->addEntry(deviceNames[i]);
-    }
-    deviceLabel = new coTUILabel("device:", trackingTab->getID());
-    deviceLabel->setPos(0, 0);
-    trans[0] = new coTUIEditFloatField("xe", trackingTab->getID());
-    transLabel[0] = new coTUILabel("x", trackingTab->getID());
-    trans[1] = new coTUIEditFloatField("ye", trackingTab->getID());
-    transLabel[1] = new coTUILabel("y", trackingTab->getID());
-    trans[2] = new coTUIEditFloatField("ze", trackingTab->getID());
-    transLabel[2] = new coTUILabel("z", trackingTab->getID());
-    rot[0] = new coTUIEditFloatField("he", trackingTab->getID());
-    rotLabel[0] = new coTUILabel("h", trackingTab->getID());
-    rot[1] = new coTUIEditFloatField("pe", trackingTab->getID());
-    rotLabel[1] = new coTUILabel("p", trackingTab->getID());
-    rot[2] = new coTUIEditFloatField("re", trackingTab->getID());
-    rotLabel[2] = new coTUILabel("r", trackingTab->getID());
-    for (int i = 0; i < 3; i++)
-    {
-        trans[i]->setPos(i * 2, 1);
-        transLabel[i]->setPos(i * 2 + 1, 1);
-        trans[i]->setEventListener(this);
-        rot[i]->setPos(i * 2, 2);
-        rotLabel[i]->setPos(i * 2 + 1, 2);
-        rot[i]->setEventListener(this);
-    }
-    currentDevice = 0;
-    updateTUI();
-}
-
-void coVRTrackingUtil::updateTUI()
-{
-    for (int i = 0; i < 3; i++)
-    {
-        trans[i]->setValue(deviceOffsets[currentDevice].trans[i]);
-        rot[i]->setValue(deviceOffsets[currentDevice].rot[i]);
-    }
-}
-
-void coVRTrackingUtil::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == deviceChoice)
-    {
-        currentDevice = deviceChoice->getSelectedEntry();
-        updateTUI();
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        if (tUIItem == trans[i])
-        {
-            deviceOffsets[currentDevice].trans[i] = trans[i]->getValue();
-        }
-        if (tUIItem == rot[i])
-        {
-            deviceOffsets[currentDevice].rot[i] = rot[i]->getValue();
-        }
-    }
-}
 
 void coVRTrackingUtil::setDeviceOffset(IDOfDevice device_ID, osg::Vec3 &t, osg::Vec3 &r)
 {
@@ -384,11 +304,6 @@ void coVRTrackingUtil::setDeviceOffset(IDOfDevice device_ID, osg::Vec3 &t, osg::
     {
         deviceOffsets[device_ID].trans[i] = t[i];
         deviceOffsets[device_ID].rot[i] = r[i];
-        if (currentDevice == device_ID)
-        {
-            trans[i]->setValue(t[i]);
-            rot[i]->setValue(r[i]);
-        }
     }
 }
 

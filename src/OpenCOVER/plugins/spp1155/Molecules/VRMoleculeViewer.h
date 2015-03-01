@@ -23,7 +23,8 @@
 //
 // **************************************************************************
 
-#include <cover/coVRPluginSupport.h>
+#include <util/DLinkList.h>
+
 using namespace covise;
 using namespace opencover;
 

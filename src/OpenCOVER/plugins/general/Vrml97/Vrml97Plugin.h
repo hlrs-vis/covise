@@ -24,6 +24,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenu.h>
+#include <PluginUtil/coSensor.h>
 
 class ViewerOsg;
 
@@ -44,6 +45,7 @@ class VRML97PLUGINEXPORT Vrml97Plugin : public coVRPlugin, coMenuListener
     friend class ListenerCover;
     friend class SystemCover;
     friend class ViewerOsg;
+    friend class coSensor;
 
 public:
     Vrml97Plugin();
@@ -83,6 +85,10 @@ public:
     {
         return system;
     }
+    coSensorList *getSensorList()
+    {
+        return sensorList;
+    }
 
     void activateTouchSensor(int id);
     coMenuItem *getMenuButton(const std::string &buttonName);
@@ -100,6 +106,7 @@ private:
     ViewerOsg *viewer;
     VrmlScene *vrmlScene;
     Player *player;
+    coSensorList *sensorList;
 
     bool raw;
 

@@ -21,6 +21,7 @@
 #include <osg/StateSet>
 #include <osg/Array>
 #include <PluginUtil/coSphere.h>
+#include <PluginUtil/coSensor.h>
 #include <cover/coVRPluginSupport.h>
 #include <osg/GL>
 #include <osg/Group>
@@ -54,20 +55,17 @@ enum TRANS
     ZTRANS
 };
 
-namespace opencover
-{
-class coVRPlugin;
-}
 
+class VariantPlugin;
 class interactorSpheres;
 class mySensor;
 
 class coVRBoxOfInterest
 {
-    static coVRBoxOfInterest *class_coVRBoxOfInterest;
+    friend class mySensor;
 
 public:
-    coVRBoxOfInterest(coVRPlugin *plug, coTrackerButtonInteraction *_interactionA);
+    coVRBoxOfInterest(VariantPlugin *plug, coTrackerButtonInteraction *_interactionA);
     ~coVRBoxOfInterest();
     osg::ClipNode *createCipNode(std::string cnName);
     void showHide(bool state);
@@ -101,7 +99,8 @@ private:
     void createLines(osg::Geode *node, osg::Vec3Array *vertices);
     void createQuads(osg::Geode *node, osg::Vec3Array *vertices);
 
-    coVRPlugin *plugin;
+    VariantPlugin *plugin;
+    coSensorList sensorList;
     osg::ClipNode *parent;
     osg::MatrixTransform *boiNode;
     osg::MatrixTransform *bMt;

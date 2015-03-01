@@ -21,8 +21,6 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 
-#include <cover/coTabletUI.h>
-
 namespace opencover
 {
 class coVRPlugin;
@@ -33,7 +31,7 @@ struct offsets
     float rot[3];
 };
 
-class INPUT_LEGACY_EXPORT coVRTrackingUtil : public coTUIListener
+class INPUT_LEGACY_EXPORT coVRTrackingUtil
 {
 public:
     enum IDOfDevice
@@ -77,8 +75,6 @@ public:
 
     int readOffset();
     osg::Matrix computeDeviceOffsetMat(IDOfDevice device_ID);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    void createTUI();
     int getDeviceAddress(IDOfDevice device_ID) const
     {
         return deviceAddress[device_ID];
@@ -119,15 +115,7 @@ private:
     static int deviceAddress[numDevices];
     int currentDevice;
     int numStations;
-    void updateTUI();
     struct offsets deviceOffsets[numDevices];
-    coTUITab *trackingTab;
-    coTUIComboBox *deviceChoice;
-    coTUILabel *deviceLabel;
-    coTUIEditFloatField *trans[3];
-    coTUILabel *transLabel[3];
-    coTUIEditFloatField *rot[3];
-    coTUILabel *rotLabel[3];
     TrackingSystemType trackingSystem;
     coVRPlugin *trackingSystemPlugin;
     static coVRTrackingUtil *myInstance;

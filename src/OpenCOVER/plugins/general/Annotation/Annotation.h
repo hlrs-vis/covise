@@ -24,6 +24,8 @@
 #include <cover/coBillboard.h>
 #include <cover/coVRLabel.h>
 
+using namespace opencover;
+
 class AnnotationSensor;
 
 class Annotation

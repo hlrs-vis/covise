@@ -46,7 +46,7 @@ class buttonSpecCell;
 
 class coVRSceneHandler;
 class coVRSceneView;
-class MyEventHandler;
+class MSEventHandler;
 class ARToolKitMarker;
 class angleStruct;
 
@@ -60,6 +60,8 @@ public:
 
     /** Dispatch the cull and draw for each of the Camera's for this frame.*/
     virtual void frame();
+
+    void handleEvents();
 
     void redrawHUD(double interval);
 
@@ -82,7 +84,7 @@ public:
     void flipStereo();
 
 private:
-    MyEventHandler *myeh;
+    MSEventHandler *myeh;
     // channel needs pointer to scene
     osg::ref_ptr<osg::Group> scene;
     osg::ref_ptr<osgViewer::Scene> PreRenderScene;
@@ -128,7 +130,7 @@ private:
     bool overwritePAndV;
     bool reEnableCulling;
     
-    osg::Geode *distortionMesh();
+    osg::Geode *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
 
 public:
@@ -203,6 +205,11 @@ public:
     {
         return overwritePAndV;
     };
+
+    // assert: cull masks of all channels are equal!
+    osg::Node::NodeMask getCullMask() /*const*/;
+    osg::Node::NodeMask getCullMaskLeft() /*const*/;
+    osg::Node::NodeMask getCullMaskRight() /*const*/;
 };
 }
 #endif

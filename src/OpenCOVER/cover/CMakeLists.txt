@@ -40,6 +40,7 @@ SET(HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
+  coIntersectionUtil.h
   coPartnerMenuItem.h
   coVrbRegistryAccess.h
   coVRCommunication.h
@@ -52,7 +53,6 @@ SET(HEADERS
   coVRFileManager.h
   coVRIOBase.h
   coVRIOReader.h
-  coSensor.h
   coVRMSController.h
   coVRPartner.h
   coVRSlave.h
@@ -84,6 +84,7 @@ SET(HEADERS
   coMeasurement.h
   coTranslator.h
   VRRegisterSceneGraph.h
+  MSEventHandler.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
   coTUIFileBrowser/FileSysAccess.h
@@ -105,7 +106,6 @@ SET(SOURCES
   coVRFileManager.cpp
   coVRIOBase.cpp
   coVRIOReader.cpp
-  coSensor.cpp
   coVRShader.cpp
   coVRDynLib.cpp
   coInteractor.cpp
@@ -134,6 +134,7 @@ SET(SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
+  coIntersectionUtil.cpp
   coPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp
@@ -158,6 +159,7 @@ SET(SOURCES
   PluginMenu.cpp
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
+  MSEventHandler.cpp
 )
 
 SET(DEVICE_SOURCES

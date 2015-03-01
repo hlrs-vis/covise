@@ -116,6 +116,11 @@ if(COVISE_NATIVE_ARCH)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 endif()
 
+if(COVISE_IGNORE_RETURNED)
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=unused-result")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=unused-result")
+endif()
+
 if(COVISE_BUILD_STATIC)
    set(COVISE_LIB_TYPE STATIC)
 else()

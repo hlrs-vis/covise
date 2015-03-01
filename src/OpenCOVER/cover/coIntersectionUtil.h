@@ -10,6 +10,7 @@
 
 #include <osg/TriangleFunctor>
 #include <osg/Geometry>
+#include <osgUtil/IntersectVisitor>
 
 namespace opencover
 {
@@ -118,19 +119,19 @@ namespace Private
 
         virtual void drawElements(GLenum mode, GLsizei count, const GLubyte *indices)
         {
-            TriangleFunctor<T>::drawElements(mode, count, indices);
+            osg::TriangleFunctor<T>::drawElements(mode, count, indices);
             //std::cerr << "D";
         }
 
         virtual void drawElements(GLenum mode, GLsizei count, const GLushort *indices)
         {
-            TriangleFunctor<T>::drawElements(mode, count, indices);
+            osg::TriangleFunctor<T>::drawElements(mode, count, indices);
             //std::cerr << "D";
         }
 
         virtual void drawElements(GLenum mode, GLsizei count, const GLuint *indices)
         {
-            TriangleFunctor<T>::drawElements(mode, count, indices);
+            osg::TriangleFunctor<T>::drawElements(mode, count, indices);
             //std::cerr << "D";
         }
     };

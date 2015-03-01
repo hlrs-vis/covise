@@ -1889,9 +1889,31 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
     QString name = parseToQString(controllerElement, "name", "", false); // mandatory
     QString id = parseToQString(controllerElement, "id", "", false); // mandatory
     int sequence = parseToInt(controllerElement, "sequence", 0, true);
-    QString script = parseToQString(controllerElement, "script", "", true);
-    double cycleTime = parseToDouble(controllerElement, "cycleTime", 0.0, true);
 
+    QString script = "";
+    double cycleTime = 0;
+    QDomElement ancillary = controllerElement.firstChildElement("userData");
+    if (ancillary.isNull())
+    {
+        script = parseToQString(controllerElement, "script", "", false);        // for old files
+        cycleTime = parseToDouble(controllerElement, "cycleTime", 0.0, false);
+    }
+    while (!ancillary.isNull())
+    {
+        QString code = parseToQString(ancillary, "code", "", true);
+
+        if (code == "cycleTime")
+        {
+            cycleTime = parseToDouble(ancillary, "value", 0.0, true);
+        }
+        else
+        {
+            script = parseToQString(ancillary, "value", "", true);
+        }
+
+        ancillary = ancillary.nextSiblingElement("userData");
+    }
+    
     // Corners of the outline of the object //
     //
     QList<ControlEntry *> controlEntries;

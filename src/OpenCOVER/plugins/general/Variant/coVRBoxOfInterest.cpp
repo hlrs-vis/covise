@@ -7,6 +7,7 @@
 
 
 #include "coVRBoxOfInterest.h"
+#include "VariantPlugin.h"
 #include <osg/Shape>
 #include <osg/LineSegment>
 #include <osgWidget/Box>
@@ -27,10 +28,8 @@ using namespace vrui;
 using namespace opencover;
 using covise::TokenBuffer;
 
-coVRBoxOfInterest *coVRBoxOfInterest::class_coVRBoxOfInterest = NULL;
-
 //-----------------------------------------------------------
-coVRBoxOfInterest::coVRBoxOfInterest(coVRPlugin *plug, coTrackerButtonInteraction *_interactionA)
+coVRBoxOfInterest::coVRBoxOfInterest(VariantPlugin *plug, coTrackerButtonInteraction *_interactionA)
     : plugin(plug)
 {
 
@@ -808,9 +807,12 @@ mySensor::mySensor(osg::Node *node, std::string name, coTrackerButtonInteraction
     isActive = false;
     _interA = _interactionA;
     shapDr = cSphDr;
+    VariantPlugin::plugin->sensorList.append(this);
 }
 mySensor::~mySensor()
 {
+    if (VariantPlugin::plugin->sensorList.find(this))
+        VariantPlugin::plugin->sensorList.remove();
 }
 //-----------------------------------------------------------
 void mySensor::activate()

@@ -10,11 +10,23 @@
 #include "covise/covise.h"
 #include <do/coDoData.h>
 
+static ssize_t COVISE_write(int fd, const void *buf, size_t count)
+{
 #if defined(WIN32) || defined(WIN64)
-#define COVISE_write _write
+    ssize_t ret = _write(fd, buf, count);
 #else //WIN32 || WIN64
-#define COVISE_write write
+    ssize_t ret = write(fd, buf, count);
 #endif //WIN32 || WIN64
+    if (ret == -1)
+    {
+        std::cerr << "RWCoviseBlock: write error: " << strerror(errno) << std::endl;
+    }
+    else if (ret != count)
+    {
+        std::cerr << "RWCoviseBlock: short write, " << ret << " instead of " << count << std::endl;
+    }
+    return ret;
+}
 
 ScalDataObject::ScalDataObject()
     : OutputObject("USTSDT")

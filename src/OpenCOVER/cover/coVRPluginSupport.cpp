@@ -817,7 +817,6 @@ void coVRPluginSupport::update()
 #endif
 
     invCalculated = 0;
-    sensors.update();
     updateManager->update();
     coTabletUI::instance()->update();
     //get rotational part of Xform only

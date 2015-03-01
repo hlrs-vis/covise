@@ -165,15 +165,21 @@ RoadSystem::getTileControllers(const QString &tileId) const
 void
 RoadSystem::addController(RSystemElementController *controller)
 {
-    addRoadSystemChanges(RoadSystem::CRS_ControllerChange);
     QString name = controller->getName();
-    controllers_.insert(getUniqueId(controller->getID(), name), controller);
-    if (name != controller->getName())
+    QString id = getUniqueId(controller->getID(), name);
+    if (id != controller->getID())
     {
-        controller->setName(name);
+        controller->setID(id);
+        if (name != controller->getName())
+        {
+            controller->setName(name);
+        }
     }
 
     controller->setRoadSystem(this);
+    controllers_.insert(controller->getID(), controller);
+
+    addRoadSystemChanges(RoadSystem::CRS_ControllerChange);
 }
 
 bool

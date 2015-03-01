@@ -19,7 +19,7 @@
 #include <osg/BlendFunc>
 #include <osgFX/Outline>
 
-#include <cover/coVRPluginSupport.h>
+#include <PluginUtil/coSensor.h>
 #include <OpenVRUI/coButton.h>
 #include <OpenVRUI/coLabel.h>
 #include <OpenVRUI/coPopupHandle.h>
@@ -112,11 +112,10 @@ public:
 
 class Schweissen : public coVRPlugin, public coMenuListener, public coButtonActor, public coValuePotiActor
 {
-    friend class vrui::coNavInteraction;
-    friend class ListenerCover;
-    friend class SystemCover;
+    friend class Schweissbrenner;
 
 private:
+    coSensorList sensorList;
     void menuEvent(coMenuItem *);
     Schweissbrenner *currentSchweissbrenner;
     Schweissbrenner *previousSchweissbrenner;

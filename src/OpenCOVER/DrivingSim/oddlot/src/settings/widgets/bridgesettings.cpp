@@ -21,16 +21,10 @@
 // Data //
 //
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
-#include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
-#include "src/data/roadsystem/roadlink.hpp"
-#include "src/data/roadsystem/rsystemelementroad.hpp"
-#include "src/data/commands/roadcommands.hpp"
-#include "src/data/commands/roadsystemcommands.hpp"
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/commands/roadsectioncommands.hpp"
-#include "src/data/signalmanager.hpp"
-#include "src/data/roadsystem/sections/lanesection.hpp"
+
 
 // GUI //
 //

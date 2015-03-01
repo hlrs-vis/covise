@@ -48,7 +48,6 @@
 #include <osg/BoundingBox>
 
 #include <deque>
-#include "coSensor.h"
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
 
@@ -515,8 +514,6 @@ public:
     void updateTime();
     // update matrices
     void update();
-    // list of sensor objects
-    coSensorList sensors;
 
     osg::Matrix envCorrectMat;
     osg::Matrix invEnvCorrectMat;

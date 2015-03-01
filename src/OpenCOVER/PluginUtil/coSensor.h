@@ -35,9 +35,7 @@ class Node;
 class MatrixTransform;
 }
 
-namespace opencover
-{
-class COVEREXPORT coSensor
+class PLUGIN_UTILEXPORT coSensor
 {
 protected:
     osg::Node *node;
@@ -94,7 +92,7 @@ public:
     };
 };
 
-class COVEREXPORT coTouchSensor : public coSensor
+class PLUGIN_UTILEXPORT coTouchSensor : public coSensor
 {
 public:
     coTouchSensor(osg::Node *n)
@@ -104,7 +102,7 @@ public:
     virtual int getType();
 };
 
-class COVEREXPORT coPickSensor : public coSensor, public vrui::coAction
+class PLUGIN_UTILEXPORT coPickSensor : public coSensor, public vrui::coAction
 {
 public:
     osg::Vec3 hitPoint; // last hitPoint in world coordinates
@@ -120,7 +118,7 @@ public:
     virtual int getType();
 };
 
-class COVEREXPORT coHandSensor : public coSensor
+class PLUGIN_UTILEXPORT coHandSensor : public coSensor
 {
 public:
     osg::Vec3 hitPoint; // last hitPoint in world coordinates
@@ -130,7 +128,7 @@ public:
     virtual int getType();
 };
 
-class COVEREXPORT coIsectSensor : public coSensor
+class PLUGIN_UTILEXPORT coIsectSensor : public coSensor
 {
 public:
     coIsectSensor(osg::Node *n);
@@ -146,7 +144,7 @@ protected:
     osg::BoundingSphere bsphere;
 };
 
-class COVEREXPORT coProximitySensor : public coSensor
+class PLUGIN_UTILEXPORT coProximitySensor : public coSensor
 {
 public:
     coProximitySensor(osg::Node *n)
@@ -156,10 +154,9 @@ public:
     virtual int getType();
 };
 
-class COVEREXPORT coSensorList : public covise::DLinkList<coSensor *>
+class PLUGIN_UTILEXPORT coSensorList : public covise::DLinkList<coSensor *>
 {
 public:
     void update();
 };
-}
 #endif

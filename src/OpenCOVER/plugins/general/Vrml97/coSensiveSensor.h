@@ -33,6 +33,7 @@ using namespace vrml;
 using namespace opencover;
 
 #include <util/DLinkList.h>
+#include <PluginUtil/coSensor.h>
 
 namespace osg
 {

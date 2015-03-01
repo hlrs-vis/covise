@@ -25,9 +25,9 @@
 
 #include <input/input.h>
 
-//#include <PluginUtil/Interactors/coVRIntersectionInteractor.h>
 #include "coVRNavigationManager.h"
 #include "coVRIntersectionInteractorManager.h"
+#include "coIntersectionUtil.h"
 
 #include <util/coWristWatch.h>
 #include <numeric>
@@ -46,8 +46,6 @@ coIntersection *coIntersection::intersector = 0;
 
 int coIntersection::myFrameIndex = -1;
 int coIntersection::myFrame = 0;
-
-#include "coIntersectionUtil.cpp"
 
 coIntersection::coIntersection()
 #ifdef _OPENMP

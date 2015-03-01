@@ -60,6 +60,7 @@
 #include <osgUtil/Optimizer>
 #include <osgUtil/GLObjectsVisitor>
 #include <osgDB/Registry>
+#include <osgDB/ReadFile>
 
 #include <osgGA/AnimationPathManipulator>
 #include <osgGA/TrackballManipulator>
@@ -68,6 +69,7 @@
 #include <osgGA/StateSetManipulator>
 
 #include "coVRMSController.h"
+#include "MSEventHandler.h"
 
 #ifndef _WIN32
 #include <termios.h>
@@ -79,6 +81,8 @@
 #ifndef OSG_NOTICE
 #define OSG_NOTICE std::cerr
 #endif
+
+#include <cassert>
 
 using namespace opencover;
 using namespace covise;
@@ -230,252 +234,9 @@ struct ViewerRunOperations : public osg::Operation
 };
 
 //OpenCOVER
-namespace opencover
+void VRViewer::handleEvents()
 {
-class MyEventHandler : public osgGA::GUIEventHandler
-{
-public:
-    MyEventHandler()
-    {
-        numEventsToSync = 0;
-    }
-
-    void update();
-    virtual bool handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &);
-
-    /* virtual void accept(osgGA::GUIEventHandlerVisitor& v)
-      {
-         v.visit(*this);
-      }*/
-
-protected:
-    int eventBuffer[1000];
-    int keyBuffer[1000];
-    int modBuffer[1000];
-    int numEventsToSync;
-};
-}
-
-#ifndef _WIN32
-// non-blocking input from stdin -- see http://ubuntuforums.org/showthread.php?t=1396108
-static int getch()
-{
-    int ch;
-    struct termios old;
-    struct termios tmp;
-
-    if (tcgetattr(STDIN_FILENO, &old))
-    {
-        return -1;
-    }
-
-    memcpy(&tmp, &old, sizeof(old));
-
-    tmp.c_lflag &= ~ICANON & ~ECHO;
-
-    if (tcsetattr(STDIN_FILENO, TCSANOW, (const struct termios *)&tmp))
-    {
-        return -1;
-    }
-
-    int oflags = fcntl(STDIN_FILENO, F_GETFL, 0);
-    if (oflags == -1)
-        return -1;
-    fcntl(STDIN_FILENO, F_SETFL, oflags | O_NONBLOCK);
-
-    ch = getchar();
-
-    fcntl(STDIN_FILENO, F_SETFL, oflags);
-
-    tcsetattr(STDIN_FILENO, TCSANOW, (const struct termios *)&old);
-
-    return ch;
-}
-
-#endif
-
-//OpenCOVER
-void MyEventHandler::update()
-{
-    if (!(coVRMSController::instance()->isSlave()))
-    {
-#ifndef _WIN32
-#ifndef DONT
-        bool escape = false;
-
-        int key = -1;
-        while ((key = getch()) != -1)
-        {
-            fprintf(stderr, "key: %d\n", key);
-
-            if (key == 27)
-            {
-                // Alt was pressed
-                escape = true;
-                continue;
-            }
-
-            int mod = 0;
-            if (escape)
-            {
-                mod |= osgGA::GUIEventAdapter::MODKEY_ALT;
-                escape = false;
-            }
-
-            if (key >= 1 && key <= 26)
-            {
-                // letter together with Ctrl
-                mod |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-                key += 64;
-            }
-
-            if (key >= 65 && key <= 90)
-            {
-                mod |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
-            }
-
-            eventBuffer[numEventsToSync] = osgGA::GUIEventAdapter::KEYDOWN;
-            modBuffer[numEventsToSync] = mod;
-            keyBuffer[numEventsToSync] = key;
-            ++numEventsToSync;
-
-            eventBuffer[numEventsToSync] = osgGA::GUIEventAdapter::KEYUP;
-            modBuffer[numEventsToSync] = mod;
-            keyBuffer[numEventsToSync] = key;
-            ++numEventsToSync;
-        }
-#endif
-#endif
-
-        coVRMSController::instance()->sendSlaves((char *)&numEventsToSync, sizeof(int));
-        if (numEventsToSync)
-        {
-            coVRMSController::instance()->sendSlaves((char *)&eventBuffer, numEventsToSync * sizeof(int));
-            coVRMSController::instance()->sendSlaves((char *)&keyBuffer, numEventsToSync * sizeof(int));
-            coVRMSController::instance()->sendSlaves((char *)&modBuffer, numEventsToSync * sizeof(int));
-        }
-    }
-    else
-    {
-        if (coVRMSController::instance()->readMaster((char *)&numEventsToSync, sizeof(int)) < 0)
-        {
-            cerr << "numEventsToSync not read message from Master" << endl;
-            exit(1);
-        }
-        if (numEventsToSync)
-        {
-            if (coVRMSController::instance()->readMaster((char *)&eventBuffer, numEventsToSync * sizeof(int)) < 0)
-            {
-                cerr << "numEventsToSync not read message from Master" << endl;
-                exit(1);
-            }
-            if (coVRMSController::instance()->readMaster((char *)&keyBuffer, numEventsToSync * sizeof(int)) < 0)
-            {
-                cerr << "numEventsToSync not read message from Master" << endl;
-                exit(1);
-            }
-            if (coVRMSController::instance()->readMaster((char *)&modBuffer, numEventsToSync * sizeof(int)) < 0)
-            {
-                cerr << "numEventsToSync not read message from Master" << endl;
-                exit(1);
-            }
-        }
-    }
-
-    int index = 0;
-    while (index < numEventsToSync)
-    {
-        int currentEvent = eventBuffer[index];
-        OpenCOVER::instance()->handleEvents(currentEvent, modBuffer[index], keyBuffer[index]);
-        index++;
-        // Delay rest of the buffer in case of: push/release/doubleclick/keydown/keyup
-        // Tablets sometimes send push and release in one frame which would not work properly overwise.
-        // Idea: It might be better to delay before the push- and release-events (in case it is not the first event in the queue).
-        //       Then a change in position () can fully be processed before the click event arrives.
-        if ((currentEvent == 1) || (currentEvent == 2) || (currentEvent == 4) || (currentEvent == 32) || (currentEvent == 64))
-        {
-            for (int i = index; i < numEventsToSync; i++)
-            {
-                eventBuffer[i - index] = eventBuffer[i];
-                modBuffer[i - index] = modBuffer[i];
-                keyBuffer[i - index] = keyBuffer[i];
-            }
-            break;
-        }
-    }
-    numEventsToSync -= index;
-}
-//OpenCOVER
-bool MyEventHandler::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &)
-{
-    eventBuffer[numEventsToSync] = ea.getEventType();
-    switch (ea.getEventType())
-    {
-    case (osgGA::GUIEventAdapter::SCROLL):
-    {
-        modBuffer[numEventsToSync] = ea.getScrollingMotion();
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::PUSH):
-    {
-        modBuffer[numEventsToSync] = ea.getButtonMask();
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::DRAG):
-    {
-        //modBuffer[numEventsToSync] = (int) (((ea.getXnormalized()+1.0)/2.0) * cover->windows[0].sx);
-        //keyBuffer[numEventsToSync] = (int) (((ea.getYnormalized()+1.0)/2.0) * cover->windows[0].sy);
-        modBuffer[numEventsToSync] = (int)(ea.getX() - ea.getXmin());
-        keyBuffer[numEventsToSync] = (int)(ea.getY() - ea.getYmin());
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::MOVE):
-    {
-        modBuffer[numEventsToSync] = (int)(ea.getX() - ea.getXmin());
-        keyBuffer[numEventsToSync] = (int)(ea.getY() - ea.getYmin());
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::RELEASE):
-    {
-        modBuffer[numEventsToSync] = ea.getButtonMask();
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::DOUBLECLICK):
-    {
-        modBuffer[numEventsToSync] = ea.getButtonMask();
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::KEYDOWN):
-    {
-        modBuffer[numEventsToSync] = ea.getModKeyMask();
-        keyBuffer[numEventsToSync] = ea.getKey();
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::KEYUP):
-    {
-        modBuffer[numEventsToSync] = ea.getModKeyMask();
-        keyBuffer[numEventsToSync] = ea.getKey();
-        numEventsToSync++;
-        return true;
-    }
-    case (osgGA::GUIEventAdapter::USER):
-    {
-        modBuffer[numEventsToSync] = ea.getModKeyMask();
-        numEventsToSync++;
-        return true;
-    }
-    default:
-    {
-        return false;
-    }
-    }
+    myeh->update();
 }
 
 //OpenCOVER
@@ -483,8 +244,6 @@ void VRViewer::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "VRViewer::update\n");
-
-    myeh->update();
 
     if (animateSeparation)
     {
@@ -593,7 +352,7 @@ VRViewer::VRViewer()
     unsyncedFrames = 0;
     lastFrameTime = 0.0;
 
-    myeh = new MyEventHandler;
+    myeh = new MSEventHandler;
     _eventHandlers.push_front(myeh);
     setKeyEventSetsDone(false);
 
@@ -705,11 +464,23 @@ void VRViewer::createViewportCameras(int i)
             (vp.viewportYMax - vp.viewportYMin) * coVRConfig::instance()->windows[coVRConfig::instance()->PBOs[PBOnum].windowNum].sy));
 
 
-        osg::Geode *geode = distortionMesh();
+        osg::Geode *geode = distortionMesh(vp.distortMeshName.c_str());
         osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
         state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
         state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
         state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
+
+        osg::Image *blendTexImage = osgDB::readImageFile(vp.blendingTextureName.c_str());
+        osg::Texture2D *blendTex = new osg::Texture2D;
+        blendTex->ref();
+        blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
+        blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
+        if (blendTexImage)
+        {
+            blendTex->setImage(blendTexImage);
+        }
+        state->setTextureAttributeAndModes(1, blendTex);
+
         geode->setStateSet(state.get());
 
         cameraWarp->addChild(geode);
@@ -718,7 +489,7 @@ void VRViewer::createViewportCameras(int i)
     }
 }
 
-osg::Geode *VRViewer::distortionMesh()
+osg::Geode *VRViewer::distortionMesh(const char *fileName)
 {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
@@ -726,29 +497,86 @@ osg::Geode *VRViewer::distortionMesh()
     osg::Vec3Array *positionArray = new osg::Vec3Array;
     osg::Vec4Array *colorArray = new osg::Vec4Array;
     osg::Vec2Array *textureArray = new osg::Vec2Array;
-    
-    positionArray->push_back(osg::Vec3f(0,0,0));
-    positionArray->push_back(osg::Vec3f(1,0,0));
-    positionArray->push_back(osg::Vec3f(1,1,0));
-    positionArray->push_back(osg::Vec3f(0,1,0));
-    textureArray->push_back(osg::Vec2f(0,0));
-    textureArray->push_back(osg::Vec2f(1,0));
-    textureArray->push_back(osg::Vec2f(1,1));
-    textureArray->push_back(osg::Vec2f(0,1));
-    
     osg::UShortArray *indexArray = new osg::UShortArray;
-    indexArray->push_back(0);
-    indexArray->push_back(1);
-    indexArray->push_back(2);
-    indexArray->push_back(3);
+
+    
+    osg::ref_ptr<osg::DrawElementsUShort> drawElement;
     // Get triangle indicies
 
     osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
     geometry->setUseDisplayList(false);
     geometry->setUseVertexBufferObjects(true);
-    osg::ref_ptr<osg::DrawElementsUShort> drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
-    geometry->addPrimitiveSet(drawElement);
+
+    FILE *fp = fopen(fileName,"r");
+    if(fp!=NULL)
+    {
+        char buf[501];
+        int numVert;
+        int numFaces;
+        int NATIVEYRES;
+        int NATIVEXRES;
+        while(!feof(fp))
+        {
+            fgets(buf,500,fp);
+            if(strncmp(buf,"NATIVEXRES",10)==0)
+            {
+                sscanf(buf+10,"%d", &NATIVEXRES);
+            }
+            if(strncmp(buf,"NATIVEYRES",10)==0)
+            {
+                sscanf(buf+10,"%d", &NATIVEYRES);
+                float vx,vy,vz,tx,ty;
+                for(int i=0;i<numVert;i++)
+                {
+                    fgets(buf,500,fp);
+                    sscanf(buf,"%f %f %f %f %f",&vx,&vy,&vz,&tx, &ty);
+                    positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,vy/NATIVEYRES,0));
+                    textureArray->push_back(osg::Vec2f(tx,ty));
+                }
+                int tr[3];
+                for(int i=0;i<numFaces;i++)
+                {
+                    fgets(buf,500,fp);
+                    sscanf(buf,"[ %d %d %d",&tr[0],&tr[1],&tr[2]);
+                    indexArray->push_back(tr[0]);
+                    indexArray->push_back(tr[1]);
+                    indexArray->push_back(tr[2]);
+                }
+            }
+            else if(strncmp(buf,"VERTICES",8)==0)
+            {
+                sscanf(buf+8,"%d", &numVert);
+            }
+            else if(strncmp(buf,"FACES",5)==0)
+            {
+                sscanf(buf+5,"%d", &numFaces);
+            }
+        }
+        drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLES, indexArray->size(), (GLushort *)indexArray->getDataPointer());
+   
+    }
+    else
+    {
+        drawElement = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, indexArray->size(), (GLushort *)indexArray->getDataPointer());
+   
+        positionArray->push_back(osg::Vec3f(0,0,0));
+        positionArray->push_back(osg::Vec3f(1,0,0));
+        positionArray->push_back(osg::Vec3f(1,1,0));
+        positionArray->push_back(osg::Vec3f(0,1,0));
+        textureArray->push_back(osg::Vec2f(0,0));
+        textureArray->push_back(osg::Vec2f(1,0));
+        textureArray->push_back(osg::Vec2f(1,1));
+        textureArray->push_back(osg::Vec2f(0,1));
+
+        indexArray->push_back(0);
+        indexArray->push_back(1);
+        indexArray->push_back(2);
+        indexArray->push_back(3);
+    }
+
+     geometry->addPrimitiveSet(drawElement);
     geometry->setTexCoordArray(0,textureArray,osg::Array::BIND_PER_VERTEX);
+    geometry->setTexCoordArray(1,textureArray,osg::Array::BIND_PER_VERTEX);
     geometry->setVertexArray(positionArray);
     geode->addDrawable(geometry);
 
@@ -2381,4 +2209,48 @@ VRViewer::statisticsCallback(void *, buttonSpecCell *spec)
     coVRConfig::instance()->drawStatistics = spec->state != 0.0;
     VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
     //XXX VRViewer::instance()->setInstrumentationMode( coVRConfig::instance()->drawStatistics );
+}
+
+template <typename Cameras, typename F>
+osg::Node::NodeMask getCullMaskImpl(Cameras const& cameras, F func)
+{
+    if (cameras.size() == 0)
+    {
+        return 0x0;
+    }
+
+    typename Cameras::const_iterator camItr = cameras.begin();
+    osg::Node::NodeMask result = ((*camItr)->*func)();
+    for (;
+         camItr != cameras.end();
+         ++camItr)
+    {
+        assert( (result & ((*camItr)->*func)()) == result );
+    }
+
+    return result;
+}
+
+osg::Node::NodeMask
+VRViewer::getCullMask() /*const*/
+{
+    Cameras cameras;
+    getCameras(cameras);
+    return getCullMaskImpl(cameras, &osg::Camera::getCullMask);
+}
+
+osg::Node::NodeMask
+VRViewer::getCullMaskLeft() /*const*/
+{
+    Cameras cameras;
+    getCameras(cameras);
+    return getCullMaskImpl(cameras, &osg::Camera::getCullMaskLeft);
+}
+
+osg::Node::NodeMask
+VRViewer::getCullMaskRight() /*const*/
+{
+    Cameras cameras;
+    getCameras(cameras);
+    return getCullMaskImpl(cameras, &osg::Camera::getCullMaskRight);
 }

@@ -12,6 +12,11 @@
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
 #define getBound getBoundingBox
 #endif
+#include <iostream>
+#include <algorithm>
+
+using namespace osg;
+using namespace osgUtil;
 
 namespace opencover
 {

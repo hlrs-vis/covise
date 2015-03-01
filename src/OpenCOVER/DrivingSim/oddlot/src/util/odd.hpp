@@ -176,6 +176,9 @@ public:
         TSG_OBJECT,
         TSG_BRIDGE,
         TSG_SIGNAL,
+        TSG_CONTROLLER,
+        TSG_ADD_CONTROL_ENTRY,
+        TSG_REMOVE_CONTROL_ENTRY,
         TSG_DEL,
 
         // No Tool

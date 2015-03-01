@@ -23,6 +23,7 @@
 #include <OpenVRUI/coButton.h>
 #include <OpenVRUI/coLabel.h>
 #include <OpenVRUI/coPopupHandle.h>
+#include <PluginUtil/coSensor.h>
 
 #include <xercesc/dom/DOMImplementation.hpp>
 
@@ -123,11 +124,9 @@ public:
 
 class Bullet : public coVRPlugin, public coMenuListener, public coButtonActor, public coValuePotiActor
 {
-    friend class vrui::coNavInteraction;
-    friend class ListenerCover;
-    friend class SystemCover;
-
+    friend class BulletSensor;
 private:
+    coSensorList sensorList;
     std::string fileName;
     void menuEvent(coMenuItem *);
     BulletProbe *currentBullet;

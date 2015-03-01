@@ -25,6 +25,8 @@
 #include <OpenVRUI/coPopupHandle.h>
 #include <OpenVRUI/coValuePoti.h>
 
+#include <PluginUtil/coSensor.h>
+
 #include <net/message.h>
 
 namespace vrui
@@ -42,13 +44,9 @@ class coFrame;
 class coPanel;
 }
 
-namespace opencover
-{
-class SystemCover;
-}
-
 class Annotation;
 
+using namespace covise;
 using namespace vrui;
 using namespace opencover;
 
@@ -114,11 +112,10 @@ class AnnotationPlugin : public coVRPlugin,
                          public coValuePotiActor,
                          public coTUIListener
 {
-    friend class vrui::coNavInteraction;
-    friend class ListenerCover;
-    friend class SystemCover;
+    friend class Annotation;
 
 private:
+    coSensorList sensorList;
     Annotation *currentAnnotation; ///< The Annotation the mouse is currently over (no click necessary!)
     Annotation *previousAnnotation; ///< The last Annotation that has been rightclicked.
     Annotation *activeAnnotation; ///< The currently selected Annotation

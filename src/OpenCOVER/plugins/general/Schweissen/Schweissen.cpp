@@ -387,6 +387,7 @@ Schweissbrenner::Schweissbrenner(int i, string host, osg::Group *node, float ini
     pos->addChild(scale);
     node->addChild(pos);
     mySensor = new SchweissbrennerSensor(this, n);
+    Schweissen::plugin->sensorList.append(mySensor);
 }
 
 void Schweissbrenner::setVisible(bool vis)
@@ -460,6 +461,8 @@ void Schweissbrenner::setAmbient(osg::Vec4 spec)
 Schweissbrenner::~Schweissbrenner()
 {
     pos->getParent(0)->removeChild(pos);
+    if (Schweissen::plugin->sensorList.find(mySensor))
+        Schweissen::plugin->sensorList.remove();
     delete mySensor;
 }
 
@@ -517,6 +520,7 @@ bool Schweissbrenner::matches(string shost)
 
 void Schweissen::preFrame()
 {
+    sensorList.update();
     static osg::Matrix startPos;
     static osg::Matrix invStartHand;
     osg::Matrix scaleHand;

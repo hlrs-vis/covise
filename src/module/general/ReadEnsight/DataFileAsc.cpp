@@ -85,7 +85,11 @@ DataFileAsc::read()
         return;
     char buf[lineLen];
     // 1 lines decription - ignore it
-    fgets(buf, lineLen, in_);
+    if (!fgets(buf, lineLen, in_))
+    {
+        cerr << "DataFileAsc: premature EOF 1" << endl;
+        return;
+    }
     ++lineCnt_;
 
     int entries(0), numGot(0);
@@ -93,7 +97,11 @@ DataFileAsc::read()
 
     while (!feof(in_))
     {
-        fgets(buf, lineLen, in_);
+        if (!fgets(buf, lineLen, in_))
+        {
+            cerr << "DataFileAsc: premature EOF 2" << endl;
+            break;
+        }
         ++lineCnt_;
 
         entries = sscanf(buf, "%e%e%e%e%e%e", &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]);
@@ -140,7 +148,11 @@ DataFileAsc::readCells()
     {
         char buf[lineLen];
         // 1 lines decription - ignore it
-        fgets(buf, lineLen, in_);
+        if (!fgets(buf, lineLen, in_))
+        {
+            cerr << "DataFileAsc: premature EOF 3" << endl;
+            return;
+        }
         ++lineCnt_;
 
         int entries(0);
@@ -155,7 +167,11 @@ DataFileAsc::readCells()
 
         while (!feof(in_))
         {
-            fgets(buf, lineLen, in_);
+            if (!fgets(buf, lineLen, in_))
+            {
+                cerr << "DataFileAsc: premature EOF 4" << endl;
+                break;
+            }
             ++lineCnt_;
             string tmp(buf);
 
@@ -243,7 +259,11 @@ DataFileAsc::readCells()
                     // 			 << " number of values " << valuesToRead << endl;
                     while (valuesToRead > 0)
                     {
-                        fgets(buf, lineLen, in_);
+                        if (!fgets(buf, lineLen, in_))
+                        {
+                            cerr << "DataFileAsc: premature EOF 5" << endl;
+                            break;
+                        }
                         ++lineCnt_;
                         entries = sscanf(buf, "%e%e%e%e%e%e", &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]);
 

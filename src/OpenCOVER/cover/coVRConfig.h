@@ -33,12 +33,12 @@
 namespace osg
 {
 class DisplaySettings;
-};
+}
 
 namespace osgViewer
 {
 class GraphicsWindow;
-};
+}
 
 namespace opencover
 {
