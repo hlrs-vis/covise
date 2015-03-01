@@ -89,7 +89,7 @@ PathConnectionSet Junction::getPathConnectionSet(Road *incoming, int incomingLan
     {
         PathConnection *p = *it;
         oldit = it++;
-        if(p->getConnectingLane(incomingLane,false)==1000)
+        if(p->getConnectingLane(incomingLane,false)==Lane::NOLANE)
         {
             
             ps.remove(oldit);
@@ -120,7 +120,7 @@ int Junction::getConnectingLane(Road *inRoad, Road *connPath, int lane)
         {
             if ((*setIt)->getConnectingPath() == connPath)
             {
-                return (*setIt)->getConnectingLane(lane);
+                return (*setIt)->getConnectingLane(lane,false);
             }
         }
     }
@@ -310,7 +310,7 @@ int PathConnection::getConnectingLane(int from, bool defaults)
         if(defaults)
             return from;
         else
-            return 1000;
+            return Lane::NOLANE;
     }
     else
     {

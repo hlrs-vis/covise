@@ -152,7 +152,7 @@ protected:
     bool planRoute();
 
     ObstacleRelation locateVehicle(int, int);
-    double locateLaneEnd(int);
+    double locateLaneEnd(int,bool resetIfLaneEnds=true);
 
     void extendSignalBarrierList(const RoadTransition &);
 

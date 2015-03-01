@@ -608,11 +608,7 @@ void AgentVehicle::move(double dt)
         }
 
         u += currentTransition->direction * du * dt;
-        if(u<0) // agent vehicles are not driving backwards, this currently only happens in fiddleyards.
-        {
-            u=0;
-            du=0;
-        }
+        
         v += dv * dt;
         s += du * dt;
 
@@ -936,7 +932,7 @@ void AgentVehicle::makeDecision()
         bool timeToPanic = false;
         for (std::set<int>::iterator staticLaneSetIt = staticLaneSet.begin(); staticLaneSetIt != staticLaneSet.end(); ++staticLaneSetIt)
         {
-            double laneEnd = locateLaneEnd(*staticLaneSetIt);
+            double laneEnd = locateLaneEnd(*staticLaneSetIt,false);
             if (laneOfMostExtentLaneEnd <= (laneEnd - 1.0) || (laneOfMostExtentLaneEnd > (laneEnd - 1.0) && laneOfMostExtentLaneEnd <= (laneEnd + 1.0) && abs(laneOfMostExtent) < abs(*staticLaneSetIt)))
             { //Needs to be reviewed: lane extent tolerance
                 laneOfMostExtent = *staticLaneSetIt;
@@ -1861,7 +1857,7 @@ ObstacleRelation AgentVehicle::locateVehicle(int lane, int vehOffset)
     //std::cout << "First vehicle of road " << currentTransition->road->getId() << ": " << vehList.front()->getName() << std::endl;
 }
 
-double AgentVehicle::locateLaneEnd(int lane)
+double AgentVehicle::locateLaneEnd(int lane,bool resetIfLaneEnds)
 {
     //std::cout << "Locate end of lane " << lane << ": successors: ";
 
@@ -1913,7 +1909,28 @@ double AgentVehicle::locateLaneEnd(int lane)
                 lane = junction->getConnectingLane(transIt->road, nextTransIt->road, lane);
                 if (lane == Lane::NOLANE)
                 {
-                    lane = newLane;
+                    lane = newLane; // we reached a juction and did not find a connectiong lane for the path we planned earlier, thus we will try to plan a new path
+                    // we clear the road transition list and create a new one
+                    if(resetIfLaneEnds)
+                    {
+                        RoadTransitionList::iterator it = roadTransitionList.end();
+                        it--;
+                        RoadTransitionList::iterator toRemove;
+                        while(it !=currentTransition)
+                        {
+                            toRemove = it;
+                            it--;
+                            roadTransitionList.erase(toRemove); 
+                        }
+                       // RoadTransition t = *currentTransition;
+                        //roadTransitionList.clear();
+                        //roadTransitionList.push_back(t);
+                        //currentTransition = roadTransitionList.begin();
+                        //s=u;
+                        vehiclePositionActionMap.insert(std::pair<double, VehicleAction *>(s, new DetermineNextRoadVehicleAction())); // s are the total m so far (not u)
+                        sowedDetermineNextRoadVehicleAction = true;
+                        executeActionMap();
+                    }
                 }
             }
             else
