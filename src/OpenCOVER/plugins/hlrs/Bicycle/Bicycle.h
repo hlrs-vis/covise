@@ -81,7 +81,6 @@
 #include <unistd.h>
 
 #include <X11/Xlib.h>
-#include <X11/extensions/XInput.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <termios.h>
