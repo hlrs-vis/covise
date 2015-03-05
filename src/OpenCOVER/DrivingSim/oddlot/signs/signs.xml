@@ -46,9 +46,13 @@
 				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
 				<corner u="0.0" v="0.0" z="1.0" height="0.0" />
 			</object>
-                        <object name="NoiseBarrier" icon="" distance="0.0" type="NoiseBarrier" width="0.1" height="2.0" length="2.0" radius="0.0" heading="0" repeatDistance="0.0" >
+                        <object name="NoiseBarrier" icon="" distance="0.0" type="NoiseBarrier" width="0.1" height="3.0" length="3.0" radius="0.0" heading="0" repeatDistance="0.0" >
 				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.0" z="2.0" height="0.0" />
+				<corner u="0.0" v="0.0" z="3.0" height="0.0" />
+			</object>
+                        <object name="ENoiseBarrier" icon="" distance="0.0" type="ENoiseBarrier" width="0.1" height="2.0" length="2.0" radius="0.0" heading="0" repeatDistance="0.0" >
+				<corner u="0.0" v="0.0" z="0.8" height="0.0" />
+				<corner u="0.0" v="0.0" z="2.8" height="0.0" />
 			</object>
 			<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Tree8m.WRL"/>
                         <object name="AntiGlarePanel" icon="" distance="0.5" type="AntiGlarePanel" width="0.0" height="0.79" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="AntiGlarePanel.WRL"/>
@@ -71,6 +75,8 @@
                         <object name="Traverse_85" icon="" distance="0.0" type="PoleTraverse_85" width="8.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_8_5.WRL"/>
                         <object name="Traverse_98" icon="" distance="0.0" type="PoleTraverse_98" width="9.8" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_9_8.WRL"/>
                         <object name="Light" icon="" distance="0.0" type="Light" width="0.0" height="8.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="Light.WRL"/>
+                        <object name="SeparationPillar" icon="" distance="0.0" type="SeparationPillar" width="0.0" height="0.8" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="SeparationPillar.WRL"/>
+                        <object name="WarningPillar" icon="" distance="0.0" type="WarningPillar" width="0.0" height="2.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="WarningPillar.WRL"/>
 		</objects>
 		</country>
 		
@@ -359,9 +365,9 @@
                         <sign name="China/147.b" icon="China/147.b.png" type="147" subclass="b" distance="0.5" height="2.0" />
                         <sign name="China/167.a" icon="China/167.a.png" type="167" subclass="a" distance="0.5" height="2.0" />
                         <sign name="China/167.b" icon="China/167.b.png" type="167" subclass="b" distance="0.5" height="2.0" />
-                        <sign name="China/169" icon="China/169.png" type="169" subclass="a" distance="0.5" height="2.0" />
-                        <sign name="China/170" icon="China/170.png" type="170" subclass="a" distance="0.5" height="2.0" />
-                        <sign name="China/171" icon="China/171.png" type="171" subclass="a" distance="0.5" height="2.0" />
+                        <sign name="China/169" icon="China/169.png" type="169" distance="0.5" height="2.0" />
+                        <sign name="China/170" icon="China/170.png" type="170" distance="0.5" height="2.0" />
+                        <sign name="China/171" icon="China/171.png" type="171" distance="0.5" height="2.0" />
                         <sign name="China/172.a" icon="China/172.a.png" type="172" subclass="a" distance="0.5" height="2.0" />
                         <sign name="China/172.b" icon="China/172.b.png" type="172" subclass="b" distance="0.5" height="2.0" />
                         <sign name="China/173.c" icon="China/173.c.png" type="173" subclass="c" distance="0.5" height="2.0" />
@@ -430,6 +436,16 @@
                         <sign name="China/82" icon="China/82.png" type="82" distance="0.5" height="2.0" />
                         <sign name="China/98" icon="China/98.png" type="98" distance="0.5" height="2.0" />
 
+                        <sign name="China/1-1" icon="China/1-1.png" type="1" subtype="1" distance="0.5" height="2.0" />
+                        <sign name="China/1-3" icon="China/1-3.png" type="1" subtype="3" distance="0.5" height="2.0" />
+                        <sign name="China/2.1" icon="China/2.1.png" type="2" subclass="1" distance="0.5" height="2.0" />
+                        <sign name="China/2.2" icon="China/2.2.png" type="2" subclass="2" distance="0.5" height="2.0" />
+                        <sign name="China/3-1.1" icon="China/3-1.1.png" type="3" subtype="1" subclass="1" distance="0.5" height="2.0" />
+                        <sign name="China/3-1.2" icon="China/3-1.2.png" type="3" subtype="1" subclass="2"distance="0.5" height="2.0" />
+                        <sign name="China/3-2.1" icon="China/3-2.1.png" type="3" subtype="2" subclass="1" distance="0.5" height="2.0" />
+                        <sign name="China/3-2.2" icon="China/3-2.2.png" type="3" subtype="2" subclass="2"distance="0.5" height="2.0" />
+                        <sign name="China/3-3.1" icon="China/3-3.1.png" type="3" subtype="3" subclass="1" distance="0.5" height="2.0" />
+                        <sign name="China/3-3.2" icon="China/3-3.2.png" type="3" subtype="3" subclass="2"distance="0.5" height="2.0" />
                 </signals>		
 		 </country>
 	        
