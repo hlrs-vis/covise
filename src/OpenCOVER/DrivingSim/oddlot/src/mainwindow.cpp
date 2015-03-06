@@ -244,7 +244,7 @@ MainWindow::createActions()
 
     // About //
     //
-    QAction *aboutAction = new QAction(tr("&About ODD"), this);
+    QAction *aboutAction = new QAction(tr("&About ODDLOT"), this);
     aboutAction->setStatusTip(tr("Show information about OpenDRIVE Designer."));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -823,7 +823,7 @@ MainWindow::importOSMRoad()
 void
 MainWindow::about()
 {
-    QMessageBox::about(this, tr("About ODD"), tr("The <b>ODD: OpenDRIVE Designer</b> was created by Frank Naegele"));
+    QMessageBox::about(this, tr("About ODDLOT"), tr("The <b>oddlot: OpenDRIVE Designer</b> was initially created by Frank Naegele and is now further developed by the HLRS, University of Stuttgart.<br> Main contributors are Jutta Sauer, Uwe W&ouml;ssner<br> Since 2015, oddlot is now open source (LGPL2+) and available as part of the COVISE/OpenCOVER package on GitHub."));
     return;
 }
 
