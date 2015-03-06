@@ -152,7 +152,7 @@ if not defined ALVAR_HOME  (
    set "ALVAR_HOME=%EXTERNLIBS%\ALVAR"
    set "ALVAR_DEFINES=HAVE_ALVAR"
    set "ALVAR_INCPATH=%EXTERNLIBS%\ALVAR\include"
-   set "ALVAR_PLUGIN_PATH=%EXTERNLIBS%\ALVAR\bin\alvarplugins"
+   set "ALVAR_PLUGIN_PATH=%COVISEDIR%\%ARCHSUFFIX%\lib\alvarplugins"
    set "ALVAR_LIBRARY_PATH=%EXTERNLIBS%\ALVAR\bin"
    
    
