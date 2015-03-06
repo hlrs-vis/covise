@@ -1552,15 +1552,22 @@ void VRSceneGraph::scaleAllObjects(bool resetView)
     osg::Matrix matrix, masterMatrix;
     boundingSphereToMatrices(bsphere, resetView, &matrix, &scaleFactor);
 
-    covise::TokenBuffer tb;
+    int len=0;
     if (coVRMSController::instance()->isMaster())
     {
+	covise::TokenBuffer tb;
         tb << scaleFactor;
-        for (size_t i=0; i<16; ++i)
-            tb << matrix.ptr()[i];
+        tb << matrix;
+        len = tb.get_length();
+        coVRMSController::instance()->sendSlaves(&len, sizeof(len));
+        coVRMSController::instance()->sendSlaves(tb.get_data(), tb.get_length());
     }
     else
     {
+        coVRMSController::instance()->readMaster(&len, sizeof(len));
+        std::vector<char> buf(len);
+        coVRMSController::instance()->readMaster(&buf[0], len);
+	covise::TokenBuffer tb(&buf[0], len);
         tb >> masterScale;
         if (masterScale != scaleFactor)
         {
@@ -1568,10 +1575,7 @@ void VRSceneGraph::scaleAllObjects(bool resetView)
                     coVRMSController::instance()->getID(), scaleFactor, masterScale);
         }
         scaleFactor = masterScale;
-        for (size_t i=0; i<16; ++i)
-        {
-            tb >> masterMatrix.ptr()[i];
-        }
+        tb >> masterMatrix;
         if (masterMatrix != matrix)
         {
             std::cerr << "VRSceneGraph::scaleAllObjects: matrix mismatch on " << coVRMSController::instance()->getID()
