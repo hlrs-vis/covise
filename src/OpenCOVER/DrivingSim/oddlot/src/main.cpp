@@ -23,6 +23,8 @@ int main(int argc, char *argv[])
     std::cout << "\n\nStarting...\n  ODDlot: The OpenDRIVE Designer for Lanes, Objects and Tracks.\n" << std::endl;
     QApplication a(argc, argv);
     MainWindow w;
+    QIcon icon(":/icons/oddlot.png"); 
+    w.setWindowIcon(icon);
     w.show();
     QStringList args = a.arguments();
     if (args.size() > 1)

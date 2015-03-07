@@ -325,6 +325,7 @@ Name: runtimes/abaqus; Description: Runtime files of abaqus; Types: standard cus
 
 ;Source: {#COVISEDIR}\README.windows; DestDir: {app}; DestName: README.txt; Components: core
 Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
@@ -778,6 +779,7 @@ Name: {commondesktop}\Uninstall COVISE; Filename: {uninstallexe}; Comment: Unins
 Name: {group}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists dontcloseonexit
 Name: {group}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists
 Name: {group}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists
+Name: {group}\ODDlot; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comment: OpenDRIVE Designer; IconFilename: {app}\share\covise\icons\oddlot.ico; Flags: createonlyiffileexists
 Name: {group}\COVISE Shell; Filename: {cmd}; Parameters: /K cd %COVISEDIR% && scripts\windowsEnv.bat; WorkingDir: {app}; Comment: Command Prompt with COVISE Environment; IconFilename: {app}\share\covise\icons\covise_shell.ico
 Name: {group}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts COVISE or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
 Name: {group}\VRPrepare; Filename: {app}\bin\runVRPrepare4.bat; WorkingDir: {app}; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Comment: Starts VRPrepare; Components: vrprepare4
@@ -809,29 +811,29 @@ Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDae
 ;Filename: notepad.exe; Parameters: {app}\README.txt; Description: Show COVISE README; Flags: nowait postinstall skipifsilent
 #endif
 #if ARCHSUFFIX == "vista"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #elif ARCHSUFFIX == "vistaopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #elif ARCHSUFFIX == "amdwin64"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #elif ARCHSUFFIX == "tamarau"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
-Filename: msiexec; Parameters: "/I ""{app}""\{#ARCHSUFFIX}\lib\mpi_x64.Msi"; Description: Installint MS-MPI Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
 #elif ARCHSUFFIX == "tamarauopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
-Filename: msiexec; Parameters: "/I ""{app}""\{#ARCHSUFFIX}\lib\mpi_x64.Msi"; Description: Installint MS-MPI Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
 #elif ARCHSUFFIX == "amdwin64opt"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif
 #if VERSION == "VISENSO" && DISTRO_TYPE == "CC"
-Filename: {#PROJECTDIR}\installer\OOo_3.2.1_Win_x86_install-wJRE_de.exe; Parameters: /Q; Description: Install OpenOffice; Flags: postinstall unchecked
-Filename: {#PROJECTDIR}\installer\ImageMagick-6.6.3-0-Q16-windows-static.exe; Parameters: /Q; Description: Install ImageMagic; Flags: postinstall unchecked
+Filename: {#PROJECTDIR}\installer\OOo_3.2.1_Win_x86_install-wJRE_de.exe; Parameters: /Q; Description: Install OpenOffice; Flags: postinstall unchecked shellexec
+Filename: {#PROJECTDIR}\installer\ImageMagick-6.6.3-0-Q16-windows-static.exe; Parameters: /Q; Description: Install ImageMagic; Flags: postinstall unchecked shellexec
 #endif
-; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall
+; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
 
 [Code]
 

@@ -4,6 +4,9 @@
         <file>TrackSpArcS.svg</file>
 		<file>boundingbox.png</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>oddlot.png</file>
+    </qresource>
     <qresource prefix="/tools/colors">
         <file>colors/orange.eps</file>
     </qresource>

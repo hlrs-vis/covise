@@ -329,7 +329,7 @@ MainWindow::createPrototypes()
     char *pValue;
     size_t len;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-    if (err)
+    if (err || pValue==NULL || strlen(pValue)==0)
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
         return;
@@ -339,9 +339,9 @@ MainWindow::createPrototypes()
     if (covisedir == "")
         covisedir = getenv("COVISEDIR");
 #endif
-    if (prototypeManager_->loadPrototypes(covisedir + "/prototypes/prototypes.odd"))
+    if (prototypeManager_->loadPrototypes(covisedir + "/share/covise/prototypes/prototypes.odd"))
     {
-        prototypeManager_->loadPrototypes(covisedir + "/prototypes/TJunctionTown.odd");
+        prototypeManager_->loadPrototypes(covisedir + "/share/covise/prototypes/TJunctionTown.odd");
     }
     else if (prototypeManager_->loadPrototypes(covisedir + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/prototypes.odd"))
     {
@@ -365,10 +365,10 @@ MainWindow::createSignals()
     //
     signalManager_ = new SignalManager(this);
 #ifdef WIN32
-    char *pValue;
-    size_t len;
+    char *pValue=NULL;
+    size_t len=0;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-    if (err)
+    if (err || pValue==NULL || strlen(pValue)==0)
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
         return;
@@ -380,7 +380,7 @@ MainWindow::createSignals()
 #endif
     if (!signalManager_->loadSignals(covisedir + "/src/OpenCOVER/DrivingSim/oddlot/signs/signs.xml"))
     {
-        if (!signalManager_->loadSignals(covisedir + "/signs/signs.xml"))
+        if (!signalManager_->loadSignals(covisedir + "/share/covise/signs/signs.xml"))
         {
             fprintf(stderr, "Could not load signs.xml\n");
             exit(-1);

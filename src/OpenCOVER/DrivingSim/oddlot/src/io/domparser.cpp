@@ -2905,7 +2905,7 @@ DomParser::parseSignals(QIODevice *source)
     char *pValue;
     size_t len;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-    if (err)
+    if (err || pValue==NULL || strlen(pValue)==0)
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
         return false;
