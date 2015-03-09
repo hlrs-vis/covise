@@ -127,6 +127,17 @@ typedef struct // describes an OpenGL Viewport
     std::string blendingTextureName;
 } viewportStruct;
 
+typedef struct // describes a blending Texture
+{  
+    int window;
+    float viewportXMin;
+    float viewportYMin;
+    float viewportXMax;
+    float viewportYMax;
+    
+    std::string blendingTextureName;
+} blendingTextureStruct;
+
 //! describes what is responsible for rendering the  window
 typedef struct
 {
@@ -179,6 +190,7 @@ public:
     int numChannels() const;
     int numPBOs() const;
     int numViewports() const;
+    int numBlendingTextures() const;
     int numWindows() const;
     int numPipes() const;
 
@@ -294,6 +306,7 @@ public:
     pipeStruct *pipes; // list of pipes (X11: identified by display and screen)
     windowStruct *windows; // list of windows
     viewportStruct *viewports; // list of PixelBufferObjects
+    blendingTextureStruct *blendingTextures; // list of blendingTextures
 
     bool useDisplayVariable() const
     {
@@ -338,6 +351,7 @@ private:
     bool m_useDISPLAY;
     int m_numWindows;
     int m_numViewports;
+    int m_numBlendingTextures;
     int m_numScreens;
     int m_numChannels;
     int m_numPBOs;
