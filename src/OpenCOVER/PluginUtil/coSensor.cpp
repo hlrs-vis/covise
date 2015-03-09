@@ -478,6 +478,11 @@ coSensor::~coSensor()
     delete[] path;
 }
 
+coSensorList::coSensorList()
+{
+    noDelete = 1;
+}
+
 void coSensorList::update()
 {
     //START("");

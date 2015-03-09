@@ -157,6 +157,7 @@ public:
 class PLUGIN_UTILEXPORT coSensorList : public covise::DLinkList<coSensor *>
 {
 public:
+    coSensorList();
     void update();
 };
 #endif
