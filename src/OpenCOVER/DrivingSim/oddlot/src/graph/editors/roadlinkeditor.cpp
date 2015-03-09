@@ -30,6 +30,7 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/commands/roadcommands.hpp"
 #include "src/data/commands/lanesectioncommands.hpp"
+#include "src/data/commands/junctioncommands.hpp"
 
 // Graph //
 //
@@ -391,6 +392,8 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
         laneSectionsIt++;
     }
 
+    
+
     // Lane Links to another road
     //
 
@@ -398,6 +401,24 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
     LaneSection * endLaneSection = road->getLaneSection(road->getLength());
 
     RoadLink * roadPredecessor = road->getPredecessor();
+    RSystemElementJunction * junction = NULL;
+    JunctionConnection * junctionConnection = NULL;
+
+    if (road->getJunction() != "-1")
+    {
+        junction = roadSystem->getJunction(road->getJunction());
+       
+        if (roadPredecessor)
+        {
+            junctionConnection = junction->getConnection(roadPredecessor->getElementId(), road->getID());
+            if (junctionConnection)                         // cleanup
+            {
+                RemoveConnectionLaneLinksCommand * command = new RemoveConnectionLaneLinksCommand(junctionConnection);
+                getProjectGraph()->executeCommand(command);
+            }
+        }
+    }
+
     QMap<int, Lane *>::const_iterator laneIt = startLaneSection->getLanes().constBegin(); // Predecessor
     while (laneIt != startLaneSection->getLanes().constEnd())
     {
@@ -472,12 +493,29 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
                     }
                 }
             }
+ 
+            if (junctionConnection && (junctionConnection->getFromLane(lane->getId()) != lane->getPredecessor()))
+            {
+                SetConnectionLaneLinkCommand * command = new SetConnectionLaneLinkCommand(junctionConnection, lane->getPredecessor(), lane->getId());
+                getProjectGraph()->executeCommand(command);
+            }
         }
 
         laneIt++;
     }
 
     RoadLink * roadSuccessor = road->getSuccessor();        // Successor
+
+    if (junction && roadSuccessor)
+    {
+        junctionConnection =  junction->getConnection(roadSuccessor->getElementId(), road->getID());
+        if (junctionConnection)                         // cleanup
+        {
+            RemoveConnectionLaneLinksCommand * command = new RemoveConnectionLaneLinksCommand(junctionConnection);
+            getProjectGraph()->executeCommand(command);
+        }
+    }
+
     laneIt = endLaneSection->getLanes().constBegin();
     while (laneIt != endLaneSection->getLanes().constEnd())
     {
@@ -549,6 +587,13 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
                         getProjectGraph()->executeCommand(nextLaneSuccessorCommand);
                     }
                 }
+            }
+
+
+            if (junctionConnection && (junctionConnection->getFromLane(lane->getId()) != lane->getSuccessor()))
+            {
+                SetConnectionLaneLinkCommand * command = new SetConnectionLaneLinkCommand(junctionConnection, lane->getSuccessor(), lane->getId());
+                getProjectGraph()->executeCommand(command);
             }
         }
 

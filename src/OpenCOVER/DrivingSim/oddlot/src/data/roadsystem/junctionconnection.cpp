@@ -17,6 +17,8 @@
 
 #include "rsystemelementjunction.hpp"
 
+#include "qmap.h"
+
 JunctionConnection::JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, const QString &contactPoint, double numerator)
     : DataElement()
     , junctionConnectionChanges_(0x0)
@@ -78,6 +80,22 @@ JunctionConnection::addLaneLink(int from, int to)
     laneLinks_.insert(from, to);
     addJunctionConnectionChanges(CJC_LaneLinkChanged);
 }
+
+void 
+JunctionConnection::removeLaneLink(int from)
+{
+    if (laneLinks_.contains(from))
+    {
+        laneLinks_.remove(from);
+    }
+}
+
+void 
+JunctionConnection::removeLaneLinks()
+{
+    laneLinks_.clear();
+}
+
 
 //##################//
 // Observer Pattern //

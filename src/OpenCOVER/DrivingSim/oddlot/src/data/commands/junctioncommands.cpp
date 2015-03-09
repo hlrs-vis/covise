@@ -223,3 +223,135 @@ NewJunctionCommand::undo()
 
     setUndone();
 }
+
+//###############################//
+// SetConnectionLaneLinkCommand //
+//##############################//
+
+SetConnectionLaneLinkCommand::SetConnectionLaneLinkCommand(JunctionConnection *connection, int from, int to, DataCommand *parent)
+    : DataCommand(parent)
+    , connection_(connection)
+    , newFrom_(from)
+    , to_(to)
+{
+    oldFrom_ = connection->getFromLane(to);
+    // Check for validity //
+    //
+    if (!connection || (newFrom_ == oldFrom_))
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("SetConnectionLaneLinkCommand: Internal error! No new from lane specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Set connection lane link"));
+    }
+}
+
+/*! \brief .
+*
+*/
+SetConnectionLaneLinkCommand::~SetConnectionLaneLinkCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+
+    }
+    else
+    {
+        // nothing to be done 
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+SetConnectionLaneLinkCommand::redo()
+{
+    connection_->removeLaneLink(oldFrom_);
+    connection_->addLaneLink(newFrom_, to_);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+SetConnectionLaneLinkCommand::undo()
+{
+    connection_->removeLaneLink(newFrom_);
+    connection_->addLaneLink(oldFrom_, to_);
+
+    setUndone();
+}
+
+
+//###################################//
+// RemoveConnectionLaneLinksCommand //
+//##################################//
+
+RemoveConnectionLaneLinksCommand::RemoveConnectionLaneLinksCommand(JunctionConnection *connection, DataCommand *parent)
+    : DataCommand(parent)
+    , connection_(connection)
+{
+    oldLaneLinks_ = connection_->getLaneLinks();
+    // Check for validity //
+    //
+    if (!connection || (oldLaneLinks_.size() == 0))
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("RemoveConnectionLaneLinksCommand: Internal error! No connection or lane links."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Remove connection lane links"));
+    }
+}
+
+/*! \brief .
+*
+*/
+RemoveConnectionLaneLinksCommand::~RemoveConnectionLaneLinksCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        oldLaneLinks_.clear();
+    }
+    else
+    {
+        // nothing to be done 
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+RemoveConnectionLaneLinksCommand::redo()
+{
+    connection_->removeLaneLinks();
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+RemoveConnectionLaneLinksCommand::undo()
+{
+    connection_->setLaneLinks(oldLaneLinks_);
+
+    setUndone();
+}
+

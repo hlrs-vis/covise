@@ -93,4 +93,63 @@ private:
     RoadSystem *roadSystem_;
 };
 
+//##############################//
+// SetConnectionLaneLinkCommand //
+//##############################//
+
+class SetConnectionLaneLinkCommand : public DataCommand
+{
+public:
+    explicit SetConnectionLaneLinkCommand(JunctionConnection *connection, int from, int to, DataCommand *parent = NULL);
+    virtual ~SetConnectionLaneLinkCommand();
+
+    virtual int id() const
+    {
+        return 0x1004;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    SetConnectionLaneLinkCommand(); /* not allowed */
+    SetConnectionLaneLinkCommand(const SetConnectionLaneLinkCommand &); /* not allowed */
+    SetConnectionLaneLinkCommand &operator=(const SetConnectionLaneLinkCommand &); /* not allowed */
+
+private:
+    JunctionConnection *connection_;
+    int oldFrom_;
+    int newFrom_;
+    int to_;
+};
+
+//##############################//
+// SetConnectionLaneLinkCommand //
+//##############################//
+
+class RemoveConnectionLaneLinksCommand : public DataCommand
+{
+public:
+    explicit RemoveConnectionLaneLinksCommand(JunctionConnection *connection, DataCommand *parent = NULL);
+    virtual ~RemoveConnectionLaneLinksCommand();
+
+    virtual int id() const
+    {
+        return 0x1004;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    RemoveConnectionLaneLinksCommand(); /* not allowed */
+    RemoveConnectionLaneLinksCommand(const RemoveConnectionLaneLinksCommand &); /* not allowed */
+    RemoveConnectionLaneLinksCommand &operator=(const RemoveConnectionLaneLinksCommand &); /* not allowed */
+
+private:
+    JunctionConnection *connection_;
+    QMap<int, int> oldLaneLinks_;
+};
+
+
 #endif // JUNCTIONCOMMANDS_HPP

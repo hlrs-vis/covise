@@ -92,9 +92,21 @@ public:
     // LaneLinks //
     //
     void addLaneLink(int from, int to);
+    void setLaneLinks(const QMap<int, int> laneLinks)
+    {
+        laneLinks_ = laneLinks;
+    }
+
+    void removeLaneLink(int from);
+    void removeLaneLinks();
     QMap<int, int> getLaneLinks() const
     {
         return laneLinks_;
+    }
+
+    int getFromLane(int to)
+    {
+        return laneLinks_.key(to);
     }
 
     // Observer Pattern //
