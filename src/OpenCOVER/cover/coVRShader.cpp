@@ -508,7 +508,7 @@ void coVRShader::loadMaterial()
                         std::string filename = findAsset(value);
                         if (!filename.empty())
                         {
-                            std::ifstream t(filename);
+                            std::ifstream t(filename.c_str());
                             std::stringstream buffer;
                             buffer << t.rdbuf();
                             code = buffer.str();
@@ -567,7 +567,7 @@ void coVRShader::loadMaterial()
                         std::string filename = findAsset(value);
                         if (!filename.empty())
                         {
-                            std::ifstream t(filename);
+                            std::ifstream t(filename.c_str());
                             std::stringstream buffer;
                             buffer << t.rdbuf();
                             code = buffer.str();
