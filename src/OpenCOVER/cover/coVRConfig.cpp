@@ -113,6 +113,7 @@ coVRConfig::coVRConfig()
     m_numChannels = coCoviseConfig::getInt("COVER.NumChannels", m_numScreens); // normally numChannels == numScreens, only if we use B´PBOs, it might be equal to the number of PBOs
     m_numWindows = coCoviseConfig::getInt("COVER.NumWindows", m_numScreens);
     m_numViewports = coCoviseConfig::getInt("COVER.NumViewports", m_numChannels); // normally this is equal to the number of Channels
+    m_numBlendingTextures = coCoviseConfig::getInt("COVER.NumBlendingTextures", m_numBlendingTextures); 
     m_numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", m_numChannels);
     m_numPipes = coCoviseConfig::getInt("COVER.NumPipes", 1);
     m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
@@ -260,6 +261,7 @@ coVRConfig::coVRConfig()
     pipes = new pipeStruct[m_numPipes];
     windows = new windowStruct[m_numWindows];
     viewports = new viewportStruct[m_numViewports];
+    blendingTextures = new blendingTextureStruct[m_numBlendingTextures];
     windows[0].window = NULL;
 
     m_passiveStereo = false;
@@ -482,6 +484,54 @@ coVRConfig::coVRConfig()
         vp.blendingTextureName = coCoviseConfig::getEntry("blendingTexture", str, "");
 
     }
+    
+    for (int i = 0; i < m_numBlendingTextures; i++)
+    {
+        char str[200];
+        sprintf(str, "COVER.BlendingTextureConfig.BlendingTexture:%d", i);
+        blendingTextureStruct &bt = blendingTextures[i];
+        bool exists=false;
+        bt.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+        
+        bt.viewportXMin = coCoviseConfig::getFloat("left", str, 0);
+        bt.viewportYMin = coCoviseConfig::getFloat("bottom", str, 0);
+
+        if (bt.viewportXMin > 1.0)
+        {
+            bt.viewportXMin = bt.viewportXMin / ((float)(windows[bt.window].sx));
+        }
+        if (bt.viewportYMin > 1.0)
+        {
+            bt.viewportYMin = bt.viewportYMin / ((float)(windows[bt.window].sy));
+        }
+
+        bt.viewportXMax = coCoviseConfig::getFloat("right", str, -1);
+        bt.viewportYMax = coCoviseConfig::getFloat("top", str, -1);
+        if (bt.viewportXMax < 0)
+        {
+            float w,h;
+            w = coCoviseConfig::getFloat("width", str, 1024);
+            h = coCoviseConfig::getFloat("height", str, 768);
+            if (w > 1.0)
+                bt.viewportXMax = bt.viewportXMin + (w / ((float)(windows[bt.window].sx)));
+            else
+                bt.viewportXMax = bt.viewportXMin + w;
+            if (h > 1.0)
+                bt.viewportYMax = bt.viewportYMin + (h / ((float)(windows[bt.window].sy)));
+            else
+                bt.viewportYMax = bt.viewportYMin + h;
+        }
+        else
+        {
+            if (bt.viewportXMax > 1.0)
+                bt.viewportXMax = bt.viewportXMax / ((float)(windows[bt.window].sx));
+            if (bt.viewportYMax > 1.0)
+                bt.viewportYMax = bt.viewportYMax / ((float)(windows[bt.window].sy));
+        }
+
+        bt.blendingTextureName = coCoviseConfig::getEntry("blendingTexture", str, "");
+
+    }
 }
 
 coVRConfig::~coVRConfig()
@@ -556,6 +606,10 @@ int coVRConfig::numScreens() const
 int coVRConfig::numViewports() const
 {
     return m_numViewports;
+}
+int coVRConfig::numBlendingTextures() const
+{
+    return m_numBlendingTextures;
 }
 int coVRConfig::numChannels() const
 {

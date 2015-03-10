@@ -50,6 +50,7 @@
 #include <osg/StateSet>
 #include <osg/BlendFunc>
 #include <osg/Camera>
+#include <osg/Material>
 #include <osg/CameraView>
 #include <osg/DeleteHandler>
 #include <osgDB/DatabasePager>
@@ -469,17 +470,19 @@ void VRViewer::createViewportCameras(int i)
         state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
         state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
         state->setTextureAttributeAndModes(0, coVRConfig::instance()->PBOs[PBOnum].renderTargetTexture, osg::StateAttribute::ON);
-
-        osg::Image *blendTexImage = osgDB::readImageFile(vp.blendingTextureName.c_str());
-        osg::Texture2D *blendTex = new osg::Texture2D;
-        blendTex->ref();
-        blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
-        blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
-        if (blendTexImage)
+        if(vp.blendingTextureName.length()>0)
         {
-            blendTex->setImage(blendTexImage);
+            osg::Image *blendTexImage = osgDB::readImageFile(vp.blendingTextureName.c_str());
+            osg::Texture2D *blendTex = new osg::Texture2D;
+            blendTex->ref();
+            blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
+            blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
+            if (blendTexImage)
+            {
+                blendTex->setImage(blendTexImage);
+            }
+            state->setTextureAttributeAndModes(1, blendTex);
         }
-        state->setTextureAttributeAndModes(1, blendTex);
 
         geode->setStateSet(state.get());
 
@@ -487,6 +490,90 @@ void VRViewer::createViewportCameras(int i)
 
         cover->getScene()->addChild(cameraWarp.get());
     }
+}
+
+void VRViewer::createBlendingCameras(int i)
+{
+    blendingTextureStruct &bt = coVRConfig::instance()->blendingTextures[i];
+        osg::GraphicsContext *gc = coVRConfig::instance()->windows[bt.window].window;
+
+        osg::ref_ptr<osg::Camera> cameraBlend = new osg::Camera;
+        cameraBlend->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        cameraBlend->setClearMask(0);
+        cameraBlend->setRenderOrder(osg::Camera::POST_RENDER);
+        cameraBlend->setAllowEventFocus(false);
+
+        cameraBlend->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+        cameraBlend->setProjectionMatrix(osg::Matrix::ortho2D(0, 1, 0, 1));
+        cameraBlend->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+        if (gc)
+        {
+            cameraBlend->setGraphicsContext(gc);
+        }
+
+
+        cameraBlend->setName("BlendingCamera");
+        cameraBlend->setViewport(new osg::Viewport(bt.viewportXMin * coVRConfig::instance()->windows[bt.window].sx,
+            bt.viewportYMin * coVRConfig::instance()->windows[bt.window].sy,
+            (bt.viewportXMax - bt.viewportXMin) * coVRConfig::instance()->windows[bt.window].sx,
+            (bt.viewportYMax - bt.viewportYMin) * coVRConfig::instance()->windows[bt.window].sy));
+
+
+        osg::Vec3Array *coord = new osg::Vec3Array(4);
+        (*coord)[0].set(0, 0, 0);
+        (*coord)[1].set(1, 0, 0);
+        (*coord)[2].set(1, 1, 0);
+        (*coord)[3].set(0, 1, 0);
+
+        osg::Vec2Array *texcoord = new osg::Vec2Array(4);
+
+        (*texcoord)[0].set(0.0, 0.0);
+        (*texcoord)[1].set(1.0, 0.0);
+        (*texcoord)[2].set(1.0, 1.0);
+        (*texcoord)[3].set(0.0, 1.0);
+
+        osg::Geode *geode = new osg::Geode();
+        osg::Geometry *geometry = new osg::Geometry();
+
+        ushort *vertices = new ushort[4];
+        vertices[0] = 0;
+        vertices[1] = 1;
+        vertices[2] = 2;
+        vertices[3] = 3;
+        osg::DrawElementsUShort *plane = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, 4, vertices);
+
+        geometry->setVertexArray(coord);
+        geometry->addPrimitiveSet(plane);
+        geometry->setTexCoordArray(0, texcoord);
+
+        osg::ref_ptr<osg::StateSet> state = geode->getOrCreateStateSet();
+        state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        state->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+        state->setMode(GL_BLEND, osg::StateAttribute::ON);
+        osg::BlendFunc *blendFunc = new osg::BlendFunc();
+        blendFunc->setFunction(osg::BlendFunc::ZERO, osg::BlendFunc::SRC_COLOR);
+        state->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
+        if(bt.blendingTextureName.length()>0)
+        {
+            osg::Image *blendTexImage = osgDB::readImageFile(bt.blendingTextureName.c_str());
+            osg::Texture2D *blendTex = new osg::Texture2D;
+            blendTex->ref();
+            blendTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP);
+            blendTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP);
+            if (blendTexImage)
+            {
+                blendTex->setImage(blendTexImage);
+            }
+            state->setTextureAttributeAndModes(0, blendTex);
+        }
+        
+    geode->addDrawable(geometry);
+        geode->setStateSet(state.get());
+
+        cameraBlend->addChild(geode);
+
+        cover->getScene()->addChild(cameraBlend.get());
 }
 
 osg::Geode *VRViewer::distortionMesh(const char *fileName)
@@ -530,7 +617,7 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
                 {
                     fgets(buf,500,fp);
                     sscanf(buf,"%f %f %f %f %f",&vx,&vy,&vz,&tx, &ty);
-                    positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,vy/NATIVEYRES,0));
+                    positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,1.0-(vy/NATIVEYRES),0));
                     textureArray->push_back(osg::Vec2f(tx,ty));
                 }
                 int tr[3];
@@ -602,6 +689,11 @@ VRViewer::config()
     {
         createViewportCameras(i);
     }
+    for (int i = 0; i < coVRConfig::instance()->numBlendingTextures(); i++)
+    {
+        createBlendingCameras(i);
+    }
+    
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);

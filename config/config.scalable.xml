@@ -414,43 +414,45 @@
     <Position x="800" y="0" z="500" />
    </Menu>
  
-   <SceneSize value="1000" />
+   <SceneSize value="3000" />
    <DebugLevel value="1" />
    <FPS value="false" />
 
    <PipeConfig>
       <Pipe display="only needed for multiple X11 displays/screens" server="0" screen="0" name="0" />
    </PipeConfig>
-   <NumChannels value="2" />
+   <NumChannels value="1" />
    <NumScreens value="1" />
-   <NumViewports value="2" />
-   <NumPBOs value="2" />
-   <Stereo value="true" />
+   <NumViewports value="1" />
+   <NumPBOs value="1" />
+   <NumBlendingTextures value="2" />
+   <Stereo value="false" />
    <WindowConfig>
     <OpenGL3 value="false" />
 
-    <Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="true" />
+    <Window arch="windows" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>
-   <Screen width="512" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="768" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
 
    <ChannelConfig>
       <!-- each Screen needs a Channel -->
     <Channel  comment="MAIN" channel="0" stereoMode="LEFT"  screenIndex="0" windowIndex="0"  PBOIndex="0" name="0"  />
-    <Channel comment="MAIN" channel="1" stereoMode="RIGHT" screenIndex="0"  windowIndex="0"  PBOIndex="1" name="1"  />
    </ChannelConfig>
    <PBOConfig>
-    <PBO windowIndex="0" PBOSizeX="512" PBOSizeY="768" name="0" />
-    <PBO windowIndex="0" PBOSizeX="512" PBOSizeY="768"  name="1" />
+    <PBO windowIndex="0" PBOSizeX="1920" PBOSizeY="1080" name="0" />
    </PBOConfig>
    
    <ViewportConfig>
-      <!-- each Screen needs a Channel -->
-    <Viewport width="512" height="1" left="0" bottom="0" windowIndex="0" PBOIndex="0" distortMesh="D:/data/scalable/LocalCalibration/ScalableDataOrthographic.ol.AlphaPrecursors" blendingTexture="D:/data/scalable/LocalCalibration/ProjectorAlphaMask-blend0.bmp" name="0"/>
-    <Viewport width="512" height="1" left="512" bottom="0"  windowIndex="0" PBOIndex="1"  distortMesh="D:/data/scalable/LocalCalibration/ScalableDataOrthographic.ol.AlphaPrecursors" blendingTexture="D:/data/scalable/LocalCalibration/ProjectorAlphaMask-blend0.bmp" name="1"  />
+    <Viewport width="1920" height="1" left="0" bottom="0" windowIndex="0" sourceleft="0" sourcebottom="0" sourceWidth="1920" sourceHeight="1080" PBOIndex="0" distortMesh="D:/data/scalable/LastCalibration/ScalableData.ol0" name="0"/>
+    
    </ViewportConfig>
+   <BlendingTextureConfig>
+    <BlendingTexture width="0.5" height="1" left="0" bottom="0" windowIndex="0" blendingTexture="D:/data/scalable/LastCalibration/InputBoundaryMask-blend0.bmp" name="0"/>
+    <BlendingTexture width="0.5" height="1" left="0.5" bottom="0"  windowIndex="0" blendingTexture="D:/data/scalable/LastCalibration/InputBoundaryMask-blend1.bmp" name="1"  />
+   </BlendingTextureConfig>
 
    <!--Background r="1.0" g="1.0" b="1.0"/-->
   </COVER>
