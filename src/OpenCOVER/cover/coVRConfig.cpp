@@ -78,6 +78,7 @@ int coVRConfig::parseStereoMode(const char *modeName)
 
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
+    , m_numBlendingTextures(0)
     , m_orthographic(false)
     , m_mouseNav(true)
     , m_useWiiMote(false)
