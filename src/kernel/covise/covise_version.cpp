@@ -32,3 +32,28 @@ const char *CoviseVersion::longVersion()
             COVISE_VERSION_DATE, COVISE_VERSION_ARCH);
     return longVersionString;
 }
+
+const char *CoviseVersion::hash()
+{
+    return COVISE_VERSION_HASH;
+}
+
+const char *CoviseVersion::compileDate()
+{
+    return COVISE_VERSION_DATE;
+}
+
+const char *CoviseVersion::arch()
+{
+    return COVISE_VERSION_ARCH;
+}
+
+int CoviseVersion::year()
+{
+    return COVISE_VERSION_YEAR;
+}
+
+int CoviseVersion::month()
+{
+    return COVISE_VERSION_MONTH;
+}

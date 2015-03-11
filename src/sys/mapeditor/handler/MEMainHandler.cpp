@@ -780,26 +780,24 @@ void MEMainHandler::checkHelp()
         }
     }
 
-    mapEditor->printMessage("Online help not found in local document search path \"" + helpdir + "\", falling back to web server");
-
     // get help from webserver
     onlineDir = "https://fs.hlrs.de/projects/covise/doc/html";
+    mapEditor->printMessage("Online help not found in local document search path \"" + helpdir + "\", falling back to \"" + onlineDir + "\"");
     if (QUrl(onlineDir).isValid())
     {
         m_helpFromWeb = true;
         m_helpExist = true;
         MEHelpViewer::instance()->init();
     }
-
     else
         mapEditor->printMessage("Online help also not found on webserver");
 }
 
 void MEMainHandler::reportbug()
 {
-    if (!QDesktopServices::openUrl(QUrl("mailto:covise-users@listserv.uni-stuttgart.de?subject=COVISE Bug")))
+    if (!QDesktopServices::openUrl(QUrl("https://github.com/hlrs-vis/covise/issues/new")))
     {
-        mapEditor->printMessage("Failed to start mail client");
+        mapEditor->printMessage("Failed to open web page \"https://github.com/hlrs-vis/covise/issues/new\"");
     }
 }
 
@@ -1442,6 +1440,8 @@ void MEMainHandler::printCB()
 
 void MEMainHandler::about()
 {
+    using covise::CoviseVersion;
+
     QDialog *aboutDialog = new QDialog;
     Ui::MEAboutDialog *ui = new Ui::MEAboutDialog;
     ui->setupUi(aboutDialog);
@@ -1453,12 +1453,17 @@ void MEMainHandler::about()
         ui->textEdit->setPlainText(data);
     }
 
-    QString text = "This is version ";
-    text.append(covise::CoviseVersion::longVersion());
-    text.append(" of COVISE.<br>");
+    QString text("This is <a href='http://www.hlrs.de/organization/av/vis/covise'>COVISE</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
+    text = text.arg(CoviseVersion::year())
+        .arg(CoviseVersion::month())
+        .arg(CoviseVersion::hash())
+        .arg(CoviseVersion::compileDate())
+        .arg(CoviseVersion::arch());
+    text.append("<br>Follow COVISE developement on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
 
     ui->label->setText(text);
-    ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction | Qt::TextSelectableByKeyboard);
+    ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction | Qt::LinksAccessibleByMouse);
+    ui->label->setOpenExternalLinks(true);
 
     aboutDialog->exec();
 }

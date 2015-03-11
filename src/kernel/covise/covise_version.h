@@ -10,6 +10,7 @@
 
 #include <util/coTypes.h>
 
+// update, when .net file format changes
 #define NET_FILE_VERERSION 632
 
 namespace covise
@@ -23,6 +24,21 @@ public:
 
     // get the long version string, e.g. "Vircinity Development - January 2001"
     static const char *longVersion();
+
+    //! get the hash of the latest git commit
+    static const char *hash();
+
+    //! get the compilation date
+    static const char *compileDate();
+
+    //! get the ARCHSUFFIX
+    static const char *arch();
+
+    //! get the year of the last git commit
+    static int year();
+
+    //! get the month of the last git commit
+    static int month();
 };
 }
 #endif
