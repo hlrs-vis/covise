@@ -823,14 +823,32 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                 double cycleTime = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("cycleTime"))));
 
                 Controller *controller = new Controller(controllerIdString, controllerNameString, script, cycleTime);
-                addController(controller);
+                
 
                 xercesc::DOMNodeList *controllerChildrenList = documentChildElement->getChildNodes();
                 xercesc::DOMElement *controllerChildElement;
                 for (unsigned int childIndex = 0; childIndex < controllerChildrenList->getLength(); ++childIndex)
                 {
                     controllerChildElement = dynamic_cast<xercesc::DOMElement *>(controllerChildrenList->item(childIndex));
-                    if (controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("control")) == 0)
+
+                    if (controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0)
+                    {
+                        std::string code = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("code"))); 
+                        if (code == "cycleTime")
+                        {
+                            cycleTime = atof(xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                            if (script != "")
+                            {
+                                controller->setScriptParams(script, cycleTime);
+                            }
+                        }
+                        else
+                        {
+                            script = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("value")));
+                        }
+                    }
+
+                    else if (controller->isScriptInitialized() && controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("control")) == 0)
                     {
                         std::string signalId = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("signalId")));
                         std::string type = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("type")));
@@ -855,7 +873,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             std::cout << "Parse OpenDRIVE: Could not find signal with id=" << signalId << std::endl;
                         }
                     }
-                    if (controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("trigger")) == 0)
+                    if (controller->isScriptInitialized() && controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("trigger")) == 0)
                     {
                         std::string sensorId = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("sensorId")));
                         std::string function = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("function")));
@@ -870,7 +888,12 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         }
                     }
                 }
-                controller->init();
+                if (controller->isScriptInitialized())
+                {
+                    addController(controller);
+                    controller->init();
+                }
+
             }
         }
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)

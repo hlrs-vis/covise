@@ -14,11 +14,26 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
     , nextScriptUpdate(0.0)
     , scriptName(setScriptName)
     , cycleTime(setCycleTime)
+    , scriptInitialized(false)
     , context(v8::Context::New())
     , context_scope(context)
     , controlTemplate(v8::ObjectTemplate::New())
 {
+    if (scriptName != "")
+    {
+        initScript(scriptName);
+    }
+}
+
+bool Controller::initScript(const std::string &scriptName)
+{
     v8::Handle<v8::String> source = readScriptFile(scriptName);
+    if (source.IsEmpty())
+    {
+        std::cout << "Script file " << scriptName << " not found";
+        return false;
+    }
+
     script = v8::Script::Compile(source);
     script->Run();
 
@@ -29,6 +44,10 @@ Controller::Controller(const std::string &setId, const std::string &setName, con
     controlTemplate->SetAccessor(v8::String::New("green"), Controller::getGreenLight, Controller::switchGreenLight);
     controlTemplate->SetAccessor(v8::String::New("yellow"), Controller::getYellowLight, Controller::switchYellowLight);
     controlTemplate->SetAccessor(v8::String::New("red"), Controller::getRedLight, Controller::switchRedLight);
+
+    scriptInitialized = true;
+
+    return true;
 }
 
 void Controller::addTrigger(RoadSensor *sensor, const std::string &functionName)
@@ -48,6 +67,14 @@ void Controller::addControl(Control *control)
     context->Global()->Set(v8::String::New(controlName.c_str()), controlObject);
 
     std::cout << "addControl: added control id=" << controlName << std::endl;
+}
+
+bool Controller::setScriptParams(const std::string &name, const double &time)
+{
+    scriptName = name;
+    cycleTime = time;
+
+    return initScript(scriptName);
 }
 
 const std::string &Controller::getName()

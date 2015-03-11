@@ -42,6 +42,13 @@ public:
     void init();
     void update(const double &dt);
 
+    bool setScriptParams(const std::string &name, const double &time);
+    bool initScript(const std::string &name);
+    bool isScriptInitialized()
+    {
+        return scriptInitialized;
+    }
+
 protected:
     v8::Handle<v8::String> readScriptFile(const std::string &);
     static v8::Handle<v8::Value> getGreenLight(v8::Local<v8::String>, const v8::AccessorInfo &);
@@ -60,6 +67,7 @@ protected:
 
     std::string scriptName;
     double cycleTime;
+    bool scriptInitialized;
 
     v8::HandleScope handle_scope;
     v8::Persistent<v8::Context> context;
