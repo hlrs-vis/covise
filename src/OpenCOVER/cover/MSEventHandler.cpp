@@ -255,6 +255,7 @@ void MSEventHandler::update()
         }
 
 #ifdef EVIOCGNAME
+        if (keyboardFd >= 0)
         {
             struct input_event ev;
             int ret = 0;
