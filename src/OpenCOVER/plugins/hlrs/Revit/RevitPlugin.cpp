@@ -947,12 +947,12 @@ RevitPlugin::handleMessage(Message *m)
         if(numNormals == numPoints)
         {
             geom->setNormalArray(normals);
-            geom->setNormalBinding(osg::Geometry::AttributeBinding::BIND_PER_VERTEX);
+            geom->getNormalArray()->setBinding(osg::Array::BIND_PER_VERTEX);
         }
         else if ( numNormals == 1)
         {
             geom->setNormalArray(normals);
-            geom->setNormalBinding(osg::Geometry::AttributeBinding::BIND_OVERALL);
+            geom->getNormalArray()->setBinding(osg::Array::BIND_OVERALL);
         }
         if(texcoords !=NULL)
         {
