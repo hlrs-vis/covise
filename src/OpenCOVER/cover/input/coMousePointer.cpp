@@ -308,6 +308,26 @@ float coMousePointer::y() const
     return mouseY;
 }
 
+float coMousePointer::winWidth() const
+{
+    return xres;
+}
+
+float coMousePointer::winHeight() const
+{
+    return yres;
+}
+
+float coMousePointer::screenWidth() const
+{
+    return width;
+}
+
+float coMousePointer::screenHeight() const
+{
+    return height;
+}
+
 const osg::Matrix &coMousePointer::getMatrix() const
 {
     return matrix;

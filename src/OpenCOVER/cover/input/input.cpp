@@ -511,12 +511,9 @@ void Input::update()
         tb << nButtons << nValuators << nBodies;
 
         m_mouse->update();
-        tb << m_mouse->wheel(0) << m_mouse->wheel(1);
+        tb << m_mouse->xres << m_mouse->yres << m_mouse->width << m_mouse->height;
         mouse = m_mouse->getMatrix();
-        for (int i = 0; i < 16; ++i)
-        {
-            tb << mouse(i / 4, i % 4);
-        }
+        tb << m_mouse->wheel(0) << m_mouse->wheel(1) << m_mouse->x() << m_mouse->y() <<  mouse;
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
         {
@@ -541,8 +538,7 @@ void Input::update()
             tb << isVal;
             tb << isVar;
             tb << is6Dof;
-            for (int i = 0; i < 16; ++i)
-                tb << ob->second->getMat().ptr()[i];
+            tb << ob->second->getMat();
         }
 
         len = tb.get_length();
@@ -552,9 +548,9 @@ void Input::update()
     else
     {
         coVRMSController::instance()->readMaster(&len, sizeof(len));
-        char *data = new char[len];
-        coVRMSController::instance()->readMaster(data, len);
-        TokenBuffer tb(data, len);
+        std::vector<char> data(len);
+        coVRMSController::instance()->readMaster(&data[0], len);
+        TokenBuffer tb(&data[0], len);
         tb >> nButtons >> nValuators >> nBodies;
 
         if (nButtons != buttondevices.size())
@@ -575,11 +571,8 @@ void Input::update()
             exit(1);
         }
 
-        tb >> m_mouse->wheelCounter[0] >> m_mouse->wheelCounter[1];
-        for (int i = 0; i < 16; ++i)
-        {
-            tb >> mouse(i / 4, i % 4);
-        }
+        tb >> m_mouse->xres >> m_mouse->yres >> m_mouse->width >> m_mouse->height;
+        tb >> m_mouse->wheelCounter[0] >> m_mouse->wheelCounter[1] >> m_mouse->mouseX >> m_mouse->mouseY >> mouse;
         m_mouse->setMatrix(mouse);
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
@@ -605,8 +598,7 @@ void Input::update()
             tb >> isVal;
             tb >> isVar;
             tb >> is6Dof;
-            for (int i = 0; i < 16; ++i)
-                tb >> mat.ptr()[i];
+            tb >> mat;
             ob->second->setMat(mat);
             ob->second->setValid(isVal != 0);
             ob->second->setVarying(isVar != 0);

@@ -85,6 +85,18 @@ public:
     //! current mouse screen y coordinate
     float y() const;
 
+    //! width of window where mouse events are tracked
+    float winWidth() const;
+
+    //! height of window where mouse events are tracked
+    float winHeight() const;
+
+    //! width of screen where mouse events are tracked
+    float screenWidth() const;
+
+    //! height of screen where mouse events are tracked
+    float screenHeight() const;
+
     int wheel(size_t num = 0) const;
 
     unsigned int buttonState() const;

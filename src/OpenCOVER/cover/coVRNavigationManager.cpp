@@ -69,14 +69,34 @@ using namespace opencover;
 using namespace vrui;
 using covise::coCoviseConfig;
 
-float mouseX()
+static float mouseX()
 {
     return Input::instance()->mouse()->x();
 }
 
-float mouseY()
+static float mouseY()
 {
     return Input::instance()->mouse()->y();
+}
+
+static float mouseWinWidth()
+{
+    return Input::instance()->mouse()->winWidth();
+}
+
+static float mouseWinHeight()
+{
+    return Input::instance()->mouse()->winHeight();
+}
+
+static float mouseScreenWidth()
+{
+    return Input::instance()->mouse()->screenWidth();
+}
+
+static float mouseScreenHeight()
+{
+    return Input::instance()->mouse()->screenHeight();
 }
 
 coVRNavigationManager *coVRNavigationManager::instance()
@@ -674,11 +694,7 @@ coVRNavigationManager::update()
     {
         mx = mouseX();
         my = mouseY();
-#ifdef WIN32
-        float widthX = coVRConfig::instance()->windows[0].sx, widthY = -coVRConfig::instance()->windows[0].sy;
-#else
-        float widthX = coVRConfig::instance()->windows[0].sx, widthY = coVRConfig::instance()->windows[0].sy;
-#endif
+        float widthX = mouseWinWidth(), widthY = mouseWinHeight();
         originX = widthX / 2;
         originY = widthY / 2; // verallgemeinern!!!
 
@@ -1770,7 +1786,7 @@ void coVRNavigationManager::doMouseFly()
 void coVRNavigationManager::doMouseXform()
 {
     osg::Matrix dcs_mat;
-    float widthX = coVRConfig::instance()->windows[0].sx, widthY = coVRConfig::instance()->windows[0].sy;
+    float widthX = mouseWinWidth(), widthY = mouseWinHeight();
     //Rotation funktioniert
     if ((interactionMA->isRunning() && (mouseNavButtonRotate == 0))
         || (interactionMC->isRunning() && (mouseNavButtonRotate == 1))
@@ -1923,7 +1939,7 @@ void coVRNavigationManager::doMouseXform()
 
             float newzTrans = mouseY() - originY;
             float zTrans;
-            zTrans = (newzTrans - rely0) * coVRConfig::instance()->screens[0].vsize * 2 / widthY;
+            zTrans = (newzTrans - rely0) * mouseScreenHeight() * 2 / widthY;
             osg::Matrix actTransState = mat0;
             osg::Matrix trans;
             osg::Matrix doTrans;
@@ -1946,7 +1962,7 @@ void coVRNavigationManager::doMouseXform()
 
 void coVRNavigationManager::doMouseScale()
 {
-    float ampl = coVRConfig::instance()->windows[0].sy / 2;
+    float ampl = mouseWinHeight()/2;
     float newScaleY = mouseY() - originY;
 
     //calculate the new scale factor
@@ -2034,9 +2050,9 @@ void coVRNavigationManager::startMouseNav()
     whereIsViewer = cover->getViewerMat();
     float yValViewer = whereIsViewer(3, 1);
     float yValObject = dcs_mat(3, 1); //was gibt dcs_mat genau an ?? gibt es eine besser geeignete
-    float alphaY = fabs(atan(coVRConfig::instance()->screens[0].vsize / (2.0 * yValViewer)));
+    float alphaY = fabs(atan(mouseScreenHeight() / (2.0 * yValViewer)));
     modifiedVSize = 2.0 * tan(alphaY) * fabsf(yValObject - yValViewer);
-    float alphaX = fabs(atan(coVRConfig::instance()->screens[0].hsize / (2.0 * yValViewer)));
+    float alphaX = fabs(atan(mouseScreenWidth() / (2.0 * yValViewer)));
     modifiedHSize = 2.0 * tan(alphaX) * fabsf(yValObject - yValViewer);
     //float newxTrans = relx0;  //declared but never referenced
     //float newyTrans = rely0;  //dito
