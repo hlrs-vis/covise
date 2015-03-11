@@ -16,7 +16,6 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <chrono>
 #include <osg/Matrix>
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT

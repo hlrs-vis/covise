@@ -17,7 +17,8 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <chrono>
+//#include <chrono>
+#include <cstdio>
 #include <osg/Matrix>
 
 
@@ -68,7 +69,7 @@ bool MikeDriver::poll()
             unsigned int btn_mask = 0x1 << i; // mask for button #n
             //event checks
 
-            unsigned long timestamp = chrono::high_resolution_clock::now().time_since_epoch().count(); //nanoseconds?
+//            unsigned long timestamp = chrono::high_resolution_clock::now().time_since_epoch().count(); //nanoseconds?
             //cout << timestamp/1000000 <<endl;
             m_buttonStates[i] = btnstatus & btn_mask;
         }

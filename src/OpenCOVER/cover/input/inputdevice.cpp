@@ -16,8 +16,8 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <chrono>
 #include <cassert>
+#include <limits>
 #include <osg/Matrix>
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT

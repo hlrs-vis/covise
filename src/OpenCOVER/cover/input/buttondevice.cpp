@@ -14,6 +14,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
 #include <util/unixcompat.h>
 
 using namespace covise;

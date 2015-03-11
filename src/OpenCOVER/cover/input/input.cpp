@@ -511,8 +511,10 @@ void Input::update()
     if (coVRMSController::instance()->isMaster())
     {
 
-        for (auto d : drivers)
-            d.second->update();
+        for (DriverMap::iterator it = drivers.begin(); it != drivers.end(); ++it)
+	{
+            it->second->update();
+	}
 
         TokenBuffer tb;
         tb << activePerson;
