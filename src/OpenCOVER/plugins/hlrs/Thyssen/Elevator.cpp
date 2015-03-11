@@ -1,14 +1,15 @@
 /* This file is part of COVISE.
 
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
+You can use it under the terms of the GNU Lesser General Public License
+version 2.1 or later, see lgpl-2.1.txt.
 
- * License: LGPL 2+ */
+* License: LGPL 2+ */
 
 //
 //
 
 #include "Elevator.h"
+#include "Car.h"
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -34,13 +35,9 @@ VrmlNodeType *VrmlNodeElevator::defineType(VrmlNodeType *t)
         t = st = new VrmlNodeType("Elevator", creator);
     }
 
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("car0Pos", VrmlField::SFVEC3F);
-    t->addEventOut("car1Pos", VrmlField::SFVEC3F);
-    t->addEventOut("car2Pos", VrmlField::SFVEC3F);
-    t->addEventOut("ints_changed", VrmlField::MFINT32);
-    t->addEventOut("floats_changed", VrmlField::MFFLOAT);
+    VrmlNodeGroup::defineType(t); // Parent class
+    t->addExposedField("landingHeights", VrmlField::MFFLOAT);
+    t->addExposedField("shaftPositions", VrmlField::MFFLOAT);
 
     return t;
 }
@@ -51,13 +48,13 @@ VrmlNodeType *VrmlNodeElevator::nodeType() const
 }
 
 VrmlNodeElevator::VrmlNodeElevator(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeGroup(scene)
 {
     setModified();
 }
 
 VrmlNodeElevator::VrmlNodeElevator(const VrmlNodeElevator &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeGroup(n.d_scene)
 {
     setModified();
 }
@@ -85,28 +82,39 @@ ostream &VrmlNodeElevator::printFields(ostream &os, int indent)
 // Set the value of one of the node fields.
 
 void VrmlNodeElevator::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
+                                const VrmlField &fieldValue)
 {
-    //if
-    //    TRY_FIELD(enabled, SFBool)
-    //else
-        VrmlNodeChild::setField(fieldName, fieldValue);
+    if
+        TRY_FIELD(landingHeights, MFFloat)
+    else if
+    TRY_FIELD(shaftPositions, MFFloat)
+    else
+    VrmlNodeGroup::setField(fieldName, fieldValue);
+    
+    if(strcmp(fieldName,"children")==0)
+    {
+        for(int i=0;i<d_children.size();i++)
+        {
+            VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
+            car->setElevator(this);
+        }
+    }
 }
 
 const VrmlField *VrmlNodeElevator::getField(const char *fieldName)
 {
-    //if (strcmp(fieldName, "floats_changed") == 0)
-    //    return &d_floats;
-    //else if (strcmp(fieldName, "ints_changed") == 0)
-    //    return &d_ints;
-    //else
+    if (strcmp(fieldName, "landingHeights") == 0)
+        return &d_landingHeights;
+    else if (strcmp(fieldName, "shaftPositions") == 0)
+        return &d_shaftPositions;
+    else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
 }
 
 void VrmlNodeElevator::eventIn(double timeStamp,
-                              const char *eventName,
-                              const VrmlField *fieldValue)
+                               const char *eventName,
+                               const VrmlField *fieldValue)
 {
 
     // Check exposedFields
@@ -120,7 +128,32 @@ void VrmlNodeElevator::eventIn(double timeStamp,
 
 void VrmlNodeElevator::render(Viewer *)
 {
-    
- 
+    for(int i=0;i<d_children.size();i++)
+    {
+        VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
+        if(car->getState()==VrmlNodeCar::Idle)
+        {
+            // tell it to move to next stop
+            if(d_shaftPositions.size()==2)
+            {
+                if(car->d_carPos.x()==d_shaftPositions[0]) // left shat, move up
+                {
+                    if(car->getLandingNumber() == d_landingHeights.size()-1) // we are on top
+                        car->setDestination(car->getLandingNumber(),1);
+                    else
+                        car->setDestination(car->getLandingNumber()+1,0);
+                }
+                else // right shaft, move down
+                {
+                    if(car->getLandingNumber() == 0) // we are on the lowest level
+                        car->setDestination(car->getLandingNumber(),0);
+                    else
+                        car->setDestination(car->getLandingNumber()-1,1);
+                }
+            }
+        }
+        car->update();
+    }
+
 }
 

@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef _Elevator_NODE_PLUGIN_H
-#define _Elevator_NODE_PLUGIN_H
+#ifndef _Car_NODE_PLUGIN_H
+#define _Car_NODE_PLUGIN_H
 
 #include <util/common.h>
 #include <Thyssen.h>
@@ -54,20 +54,23 @@ using covise::ServerConnection;
 using covise::SimpleServerConnection;
 using covise::TokenBuffer;
 
-class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
+class VrmlNodeElevator;
+
+class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
 {
 public:
-    // Define the fields of Elevator nodes
+    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, Rotating, Uninitialized};
+    // Define the fields of Car nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
 
-    VrmlNodeElevator(VrmlScene *scene = 0);
-    VrmlNodeElevator(const VrmlNodeElevator &n);
-    virtual ~VrmlNodeElevator();
+    VrmlNodeCar(VrmlScene *scene = 0);
+    VrmlNodeCar(const VrmlNodeCar &n);
+    virtual ~VrmlNodeCar();
 
     virtual VrmlNode *cloneMe() const;
 
-    virtual VrmlNodeElevator *toElevator() const;
+    virtual VrmlNodeCar *toCar() const;
 
     virtual ostream &printFields(ostream &os, int indent);
 
@@ -78,11 +81,34 @@ public:
         const VrmlField *fieldValue);
 
     virtual void render(Viewer *);
-    VrmlMFFloat d_landingHeights;
-    VrmlMFFloat  d_shaftPositions;
+    void update();
+    void setElevator(VrmlNodeElevator *);
+    enum carState getState(){return state;}
+    int getLandingNumber(){return landingNumber;};
+    void setDestination(int landing, int shaft);
+    VrmlSFInt   d_carNumber;
+    VrmlSFVec3f d_carPos;
+    VrmlSFTime  d_carDoorClose;
+    VrmlSFTime  d_carDoorOpen;
+    VrmlSFFloat d_doorTimeout;
+
 
 private:
 
+    VrmlSFFloat d_carAngle;
+    float v;
+    float a;
+    float aMax;
+    float vMax;
+    float destinationY;
+    float destinationX;
+    int doorState;
+    int landingNumber;
+    int shaftNumber;
+    double doorTime;
+    VrmlNodeElevator *elevator;
+    enum carState state;
+    double timeoutStart;
 };
 
 #endif
