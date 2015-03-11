@@ -94,6 +94,7 @@ coVRConfig::coVRConfig()
     int hsize, vsize, x, y, z;
     m_numScreens = 1;
     m_numPipes = 1;
+    m_numBlendingTextures = 0;
     m_passiveStereo = false;
 
     m_mouseNav = coCoviseConfig::isOn("COVER.Input.MouseNav", m_mouseNav);
