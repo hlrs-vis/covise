@@ -338,7 +338,7 @@ do
 	    ;;
 	94)
 	    echo -e "turn on 3D mode & frame lock"
-            framelock-tileddisplay on
+            framelock-powerwall on
             sleep 3
 	    sasuctrl 3d_on
 	    ;;
@@ -346,15 +346,15 @@ do
 	    echo -e "turn off 3D mode & frame lock"
 	    sasuctrl 3d_off
 	    #sleep 3
-            #framelock-tileddisplay off
+            #framelock-powerwall off
 	    ;;
     96)
         echo -e "CAVE: Frame lock on"
-        framelock on
+        framelock-cave on
         ;;
     97)
         echo -e "CAVE: Frame lock off"
-        framelock off
+        framelock-cave off
         ;;
 
 # MENU
