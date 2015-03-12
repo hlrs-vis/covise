@@ -16,7 +16,7 @@
         </Device>
 
         <Body>
-           <CaveHead device="DTrackCave" bodyIndex="2">
+           <CaveHead device="DTrackCave" bodyIndex="0">
               <Offset x="-105" y="-40" z="-50" />
               <Orientation h="0" p="0" r="0" />
            </CaveHead>
