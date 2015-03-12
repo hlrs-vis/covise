@@ -37,6 +37,10 @@
               <Orientation h="0" p="0" r="0" />
            </CaveHand>
 
+           <TripodHead>
+              <Offset x="0" y="-3000" z="0" />
+           </TripodHead>
+
            <LegacyTracker0 device="Legacy" bodyIndex="0" />
            <LegacyTracker1 device="Legacy" bodyIndex="1" />
 
@@ -58,8 +62,9 @@
         </Valuator>
 
         <Persons>
-           <Person name="tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="legacy" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" />
+           <Person name="Tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
+           <!--Person name="legacy" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" /-->
         </Persons>
      </Input>
    </COVER>
