@@ -498,6 +498,7 @@ size_t Input::getActivePerson() const
  */
 void Input::update()
 {
+    unsigned activePerson = getActivePerson();
     unsigned nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
     unsigned int len = 0;
     osg::Matrix mouse = osg::Matrix::identity();
@@ -508,6 +509,7 @@ void Input::update()
             d.second->update();
 
         TokenBuffer tb;
+        tb << activePerson;
         tb << nButtons << nValuators << nBodies;
 
         m_mouse->update();
@@ -551,7 +553,14 @@ void Input::update()
         std::vector<char> data(len);
         coVRMSController::instance()->readMaster(&data[0], len);
         TokenBuffer tb(&data[0], len);
+        tb >> activePerson;
         tb >> nButtons >> nValuators >> nBodies;
+
+        if (activePerson != getActivePerson())
+        {
+            std::cerr << "Input (id=" << coVRMSController::instance()->getID() << "): active persion is " << getActivePerson() << ", should be " << activePerson << std::endl;
+            exit(1);
+        }
 
         if (nButtons != buttondevices.size())
         {
