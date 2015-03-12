@@ -87,7 +87,7 @@ do
     echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
     echo -e "${MENU} ${OPT} 92)  ${MENU} TiledDisplay ON           "
     echo -e "${MENU} ${OPT} 93)  ${MENU} TiledDisplay OFF          "
-    echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay 3D_ON + FL   "
+    echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay 3D_ON        "
     echo -e "${MENU} ${OPT} 95)  ${MENU} TiledDisplay 3D_OFF       "
     echo -e "${MENU} ${OPT} 96)  ${MENU} CAVE: Frame lock on       "
     echo -e "${MENU} ${OPT} 97)  ${MENU} CAVE: Frame lock off      "
@@ -330,7 +330,7 @@ do
 	    ;;
 	92)
 	    echo -e "turn on tiled display"
-	    sasuctrl on && sasuctrl hdmi
+	    sasuctrl on
 	    ;;
 	93)
 	    echo -e "turn off tiled display"
@@ -338,8 +338,8 @@ do
 	    ;;
 	94)
 	    echo -e "turn on 3D mode & frame lock"
-            framelock-powerwall on
-            sleep 3
+            #framelock-powerwall on
+            #sleep 3
 	    sasuctrl 3d_on
 	    ;;
 	95)
