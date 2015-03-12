@@ -52,6 +52,7 @@ class angleStruct;
 
 class COVEREXPORT VRViewer : public osgViewer::Viewer
 {
+    friend class OpenCOVER;
 public:
     void setUpRenderingSupport();
 
@@ -117,8 +118,6 @@ private:
     void detectStereoMode();
     void setStereoMode();
 
-    void setSeparation();
-
     void createChannels(int i);
 
     int isHeadtracking;
@@ -133,12 +132,15 @@ private:
     osg::Geode *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
     void createBlendingCameras(int i);
+    float requestedSeparation, separation;
+    int animateSeparation;
+    bool stereoOn;
 
 public:
     void setFrustumAndView(int i);
 
-    float requestedSeparation, separation, leftEye, rightEye;
     static VRViewer *instance();
+    void setSeparation(float stereoSep);
     std::list<osg::ref_ptr<osg::Camera> > myCameras;
     std::list<osg::ref_ptr<osg::Camera> > myPreRenderCameras;
 

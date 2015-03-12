@@ -7,6 +7,7 @@
 
 #include "person.h"
 #include "input.h"
+#include "../coVRConfig.h"
 #include <config/CoviseConfig.h>
 #include <sstream>
 
@@ -21,8 +22,15 @@ Person::Person(const std::string &name)
     : m_name(name)
     , m_head(NULL)
     , m_buttondev(NULL)
+    , m_eyeDistance(0.)
 {
     const std::string conf = "COVER.Input.Persons.Person:" + name;
+
+    m_eyeDistance = coVRConfig::instance()->stereoSeparation();
+    if (coVRConfig::instance()->stereoState())
+    {
+        m_eyeDistance = coCoviseConfig::getFloat("eyeDistance", conf, m_eyeDistance);
+    }
 
     m_head = Input::instance()->getBody(coCoviseConfig::getEntry("head", conf, ""));
 
@@ -173,5 +181,10 @@ double Person::getValuatorValue(size_t idx) const
         return 0.;
 
     return m_valuators[idx]->getValue();
+}
+
+float Person::eyeDistance() const {
+
+    return m_eyeDistance;
 }
 }

@@ -199,6 +199,11 @@ double Input::getValuatorValue(size_t idx) const
     return activePerson->getValuatorValue(idx);
 }
 
+float Input::eyeDistance() const
+{
+    return activePerson->eyeDistance();
+}
+
 /**
  * @brief Input::configPath Helper function for config file reading
  * @param src Config section string
@@ -465,6 +470,7 @@ bool Input::setActivePerson(size_t num)
     }
 
     activePerson = p;
+    cover->personSwitched(num);
     std::cerr << "Input: switched to person " << activePerson->name() << std::endl;
     return true;
 }

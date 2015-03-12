@@ -50,6 +50,8 @@ public:
     
     const std::string &getName() const{return m_name;};
 
+    float eyeDistance() const;
+
 private:
     Person(const std::string &name);
     void addHand(TrackingBody *hand);
@@ -60,6 +62,7 @@ private:
     std::vector<TrackingBody *> m_hands;
     ButtonDevice *m_buttondev;
     std::vector<Valuator *> m_valuators;
+    float m_eyeDistance;
 
     static const osg::Matrix s_identity;
 };

@@ -44,6 +44,7 @@
 #include "coVRConfig.h"
 #include "coCullVisitor.h"
 #include "ARToolKit.h"
+#include "input/input.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>
@@ -87,8 +88,6 @@
 
 using namespace opencover;
 using namespace covise;
-int animateSeparation;
-float currentSeparation;
 
 int VRViewer::unsyncedFrames = 0;
 // Draw operation, that does a draw on the scene graph.
@@ -266,8 +265,6 @@ void VRViewer::update()
                 animateSeparation = 0;
             }
         }
-        //fprintf(stderr,"Separation: %f\n",separation);
-        //setSeparation();
     }
     if (arTracking)
     {
@@ -343,6 +340,8 @@ VRViewer *VRViewer::instance()
 
 //OpenCOVER
 VRViewer::VRViewer()
+: stereoOn(true)
+, animateSeparation(0)
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
@@ -379,7 +378,7 @@ VRViewer::VRViewer()
     // set initial view
     viewMat.makeTranslate(viewPos);
 
-    setSeparation();
+    separation = Input::instance()->eyeDistance();
     if (coVRConfig::instance()->stereoState())
     {
         rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
@@ -783,18 +782,28 @@ void VRViewer::updateViewerMat(const osg::Matrix &mat)
 
 //OpenCOVER
 void
-VRViewer::setSeparation()
+VRViewer::setSeparation(float sep)
 {
-    separation = requestedSeparation;
-    leftEye = -separation / 2.0f;
-    rightEye = separation / 2.0f;
+    requestedSeparation = stereoOn ? sep : 0.;
+
+    if (requestedSeparation > separation)
+    {
+        animateSeparation = 1;
+    }
+    else if (requestedSeparation < separation)
+    {
+        animateSeparation = 2;
+    }
+    else
+    {
+        animateSeparation = 0;
+    }
 }
+
 void
 VRViewer::flipStereo()
 {
     separation = -separation;
-    leftEye = -separation / 2.0f;
-    rightEye = separation / 2.0f;
 }
 void
 VRViewer::setRenderToTexture(bool b)
@@ -1329,24 +1338,6 @@ VRViewer::readConfigFile()
 
     /// ================= Moving screen initialisation End =================
 
-    requestedSeparation = coVRConfig::instance()->stereoSeparation();
-    /*   requestedSeparation= 64.0f;
-   line = coCoviseConfig::getEntry ("separation", "COVER.Stereo");
-   if(!line.empty())
-   {
-      if (strncmp(line.c_str(), "AUTO", 4)==0)
-      {
-         requestedSeparation= 1000;
-      }
-      else
-      {
-         if(sscanf(line.c_str(), "%f", &requestedSeparation) != 1)
-         {
-            cerr << "VRViewer::readConfigFile: sscanf failed" << endl;
-         }
-      }
-   } */
-
     strcpy(stereoCommand, "");
     strcpy(monoCommand, "");
     line = coCoviseConfig::getEntry("command", "COVER.Stereo");
@@ -1377,38 +1368,8 @@ VRViewer::stereoSepCallback(void *data, buttonSpecCell *spec)
     VRViewer *viewer = static_cast<VRViewer *>(data);
     int status = (int)spec->state;
 
-    if (status)
-    {
-        viewer->requestedSeparation = 64.0f;
-        std::string line = coCoviseConfig::getEntry("separation", "COVER.Stereo");
-        if (!line.empty())
-        {
-            if (strncmp(line.c_str(), "AUTO", 4) == 0)
-            {
-                viewer->requestedSeparation = 1000;
-            }
-            else
-            {
-                if (sscanf(line.c_str(), "%f", &(viewer->requestedSeparation)) != 1)
-                {
-                    cerr << "VRViewer::stereoSepCallback: sscanf failed" << endl;
-                }
-            }
-        }
-        animateSeparation = 1;
-    }
-    else
-    {
-        viewer->requestedSeparation = 0.0;
-        animateSeparation = 2;
-    }
-
-    viewer->rightViewPos.set(viewer->separation / 2.0f, 0.0f, 0.0f);
-    viewer->leftViewPos.set(-(viewer->separation / 2.0f), 0.0f, 0.0f);
-
-    // get the current position of the eyes
-    viewer->rightViewPos = (viewer->viewMat).preMult(viewer->rightViewPos);
-    viewer->leftViewPos = (viewer->viewMat).preMult(viewer->leftViewPos);
+    viewer->stereoOn = status;
+    viewer->setSeparation(Input::instance()->eyeDistance());
 }
 
 /*______________________________________________________________________*/

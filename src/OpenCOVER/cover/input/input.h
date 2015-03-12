@@ -71,6 +71,7 @@ public:
     const osg::Matrix &getHandMat(int num = 0) const; //< hand matrix of active person
     unsigned int getButtonState(int num = 0) const; //< button states of active person's device
     double getValuatorValue(size_t idx) const; //< valuator values corresponding to current person
+    float eyeDistance() const; //< eye distance (in mm) of active person
 
     DriverFactoryBase *getDriverPlugin(const std::string &name);
     InputDevice *getDevice(const std::string &name); //< get driver instance

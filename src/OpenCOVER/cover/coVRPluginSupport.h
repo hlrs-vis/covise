@@ -515,6 +515,9 @@ public:
     // update matrices
     void update();
 
+    //! update internal state related to current person being tracked - called Input system
+    void personSwitched(size_t personNumber);
+
     osg::Matrix envCorrectMat;
     osg::Matrix invEnvCorrectMat;
 
