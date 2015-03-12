@@ -32,6 +32,8 @@ class RSystemElementRoad;
 class RSystemElementController;
 class RSystemElementJunction;
 class RSystemElementFiddleyard;
+class JunctionConnection;
+
 
 //#########################//
 // AddRoadSystemPrototypeCommand //
@@ -135,6 +137,7 @@ private:
     RSystemElementRoad *road_;
     RSystemElementJunction *junction_;
     QString oldJunctionID_;
+    QList<JunctionConnection *> connections_;
 };
 
 //#########################//

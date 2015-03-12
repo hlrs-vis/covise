@@ -22,6 +22,7 @@
 #include "src/data/roadsystem/rsystemelementjunction.hpp"
 #include "src/data/roadsystem/rsystemelementfiddleyard.hpp"
 #include "src/data/roadsystem/junctionconnection.hpp"
+#include "src/data/roadsystem/roadlink.hpp"
 
 #include "src/data/roadsystem/track/trackcomponent.hpp"
 
@@ -314,6 +315,21 @@ AddToJunctionCommand::AddToJunctionCommand(RoadSystem *roadSystem, RSystemElemen
 
     oldJunctionID_ = road->getJunction();
 
+    // Incoming roads for the connections //
+    RoadLink * predecessor = road_->getPredecessor();
+    if (predecessor)
+    {
+        JunctionConnection * connection = new JunctionConnection(QString("jc%1").arg(junction->getConnections().size()), predecessor->getElementId(), road_->getID(), predecessor->getContactPoint(), 1);
+        connections_.append(connection);
+    }
+
+    RoadLink * successor = road_->getSuccessor();
+    if (successor)
+    {
+        JunctionConnection * connection = new JunctionConnection(QString("jc%1").arg(junction->getConnections().size()), successor->getElementId(), road_->getID(), successor->getContactPoint(), 1);
+        connections_.append(connection);
+    }
+
     // Done //
     //
     setValid();
@@ -335,6 +351,11 @@ AddToJunctionCommand::redo()
 {
     road_->setJunction(junction_->getID());
 
+    for (int i = 0; i < connections_.size(); i ++)
+    {
+        junction_->addConnection(connections_.at(i));
+    }
+
     /*
 		JunctionConnection * connection = new JunctionConnection(id, incomingRoad, connectingRoad, contactPoint, numerator);
 		junction->addConnection(connection);
@@ -350,6 +371,11 @@ void
 AddToJunctionCommand::undo()
 {
     road_->setJunction(oldJunctionID_);
+
+    for (int i = 0; i < connections_.size(); i++)
+    {
+        junction_->delConnection(connections_.at(i));
+    }
 
     setUndone();
 }

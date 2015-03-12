@@ -224,6 +224,69 @@ NewJunctionCommand::undo()
     setUndone();
 }
 
+//#########################//
+// AddConnectionCommand //
+//#########################//
+
+AddConnectionCommand::AddConnectionCommand(RSystemElementJunction *junction, JunctionConnection *connection, DataCommand *parent)
+    : DataCommand(parent)
+    , junction_(junction)
+    , connection_(connection)
+{
+    // Check for validity //
+    //
+    if (!junction || !connection_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("AddConnectionCommand: Internal error! No connection specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("Add connection"));
+    }
+}
+
+/*! \brief .
+*
+*/
+AddConnectionCommand::~AddConnectionCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        delete connection_;
+    }
+    else
+    {
+        // nothing to be done (road is now owned by the roadsystem)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+AddConnectionCommand::redo()
+{
+    junction_->addConnection(connection_);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+AddConnectionCommand::undo()
+{
+    junction_->delConnection(connection_);
+
+    setUndone();
+}
+
 //###############################//
 // SetConnectionLaneLinkCommand //
 //##############################//

@@ -127,22 +127,30 @@ RoadLinkRoadItem::updateSuccessor()
 void
 RoadLinkRoadItem::updateColor()
 {
+    QPen pen;
     if ((getRoad()->getPredecessor() && !getRoad()->getPredecessor()->isLinkValid())
         || (getRoad()->getSuccessor() && !getRoad()->getSuccessor()->isLinkValid()))
     {
         setBrush(QBrush(ODD::instance()->colors()->brightRed()));
-        setPen(QPen(ODD::instance()->colors()->darkRed()));
+        pen.setColor(ODD::instance()->colors()->darkRed());
     }
     else if (getRoad()->getPredecessor() && getRoad()->getSuccessor())
     {
         setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
-        setPen(QPen(ODD::instance()->colors()->darkGreen()));
+        pen.setColor(ODD::instance()->colors()->darkGreen());
     }
     else
     {
         setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-        setPen(QPen(ODD::instance()->colors()->darkOrange()));
+        pen.setColor(ODD::instance()->colors()->darkOrange());
     }
+
+    if (getRoad()->getJunction() != "-1")
+    {
+        pen.setColor(ODD::instance()->colors()->darkPurple());
+    }
+
+    setPen(pen);
 }
 
 void

@@ -93,6 +93,34 @@ private:
     RoadSystem *roadSystem_;
 };
 
+//#########################//
+// AddConnectionCommand //
+//#########################//
+
+class AddConnectionCommand : public DataCommand
+{
+public:
+    explicit AddConnectionCommand(RSystemElementJunction *junction, JunctionConnection *connection, DataCommand *parent = NULL);
+    virtual ~AddConnectionCommand();
+
+    virtual int id() const
+    {
+        return 0x1004;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    AddConnectionCommand(); /* not allowed */
+    AddConnectionCommand(const AddConnectionCommand &); /* not allowed */
+    AddConnectionCommand &operator=(const AddConnectionCommand &); /* not allowed */
+
+private:
+    RSystemElementJunction *junction_;
+    JunctionConnection *connection_;
+};
+
 //##############################//
 // SetConnectionLaneLinkCommand //
 //##############################//

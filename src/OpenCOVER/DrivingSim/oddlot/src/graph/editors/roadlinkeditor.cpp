@@ -274,7 +274,6 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
         {
             QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
 
-            QList<RSystemElementRoad *> laneLinkRoadItems;
 
             // Macro Command //
             //
@@ -283,6 +282,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
             {
                 getProjectData()->getUndoStack()->beginMacro(QObject::tr("Set Lane Links"));
             }
+
             foreach (QGraphicsItem *item, selectedItems)
             {
                 RoadLinkRoadItem *maybeRoad = dynamic_cast<RoadLinkRoadItem *>(item);
@@ -411,10 +411,43 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
         if (roadPredecessor)
         {
             junctionConnection = junction->getConnection(roadPredecessor->getElementId(), road->getID());
-            if (junctionConnection)                         // cleanup
+            if (junctionConnection)                         // cleanup if connection is already there
             {
                 RemoveConnectionLaneLinksCommand * command = new RemoveConnectionLaneLinksCommand(junctionConnection);
                 getProjectGraph()->executeCommand(command);
+            }
+            else                   // make new
+            {
+                // contact point of connecting road
+                RSystemElementRoad * predRoad = roadSystem->getRoad(roadPredecessor->getElementId());
+                if (predRoad)
+                {
+                    QPointF startPoint;
+                    if (roadPredecessor->getContactPoint() == "start")
+                    {
+                        startPoint = predRoad->getGlobalPoint(0.0);
+                    }
+                    else
+                    {
+                        startPoint = predRoad->getGlobalPoint(predRoad->getLength());
+                    }
+                    QVector2D incomingConnectingStartVec = QVector2D(road->getGlobalPoint(0.0) - startPoint);
+                    QVector2D incomingConnectingEndVec = QVector2D(road->getGlobalPoint(road->getLength()) - startPoint);
+                    QString contactPoint;
+                    if (incomingConnectingStartVec.length() < incomingConnectingEndVec.length())
+                    {
+                        contactPoint = "start";
+                    }
+                    else
+                    {
+                        contactPoint = "end";
+                    }
+                    JunctionConnection * connection = new JunctionConnection(QString("jc%1").arg(junction->getConnections().size()), roadPredecessor->getElementId(), road->getID(), contactPoint, 1);
+                    AddConnectionCommand * addConnectionCommand = new AddConnectionCommand(junction, connection);
+                    getProjectGraph()->executeCommand(addConnectionCommand);
+
+                    junctionConnection = junction->getConnection(roadPredecessor->getElementId(), road->getID());
+                }
             }
         }
     }
@@ -513,6 +546,39 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
         {
             RemoveConnectionLaneLinksCommand * command = new RemoveConnectionLaneLinksCommand(junctionConnection);
             getProjectGraph()->executeCommand(command);
+        }
+        else                   // make new
+        {
+            RSystemElementRoad * succRoad = roadSystem->getRoad(roadSuccessor->getElementId());
+            if (succRoad)
+            {
+                // contact point of connecting road
+                QPointF startPoint;
+                if (roadSuccessor->getContactPoint() == "start")
+                {
+                    startPoint = succRoad->getGlobalPoint(0.0);
+                }
+                else
+                {
+                    startPoint = succRoad->getGlobalPoint(succRoad->getLength());
+                }
+                QVector2D incomingConnectingStartVec = QVector2D(road->getGlobalPoint(0.0) - startPoint);
+                QVector2D incomingConnectingEndVec = QVector2D(road->getGlobalPoint(road->getLength()) - startPoint);
+                QString contactPoint;
+                if (incomingConnectingStartVec.length() < incomingConnectingEndVec.length())
+                {
+                    contactPoint = "start";
+                }
+                else
+                {
+                    contactPoint = "end";
+                }
+                JunctionConnection * connection = new JunctionConnection(QString("jc%1").arg(junction->getConnections().size()), roadSuccessor->getElementId(), road->getID(), contactPoint, 1);
+                AddConnectionCommand * addConnectionCommand = new AddConnectionCommand(junction, connection);
+                getProjectGraph()->executeCommand(addConnectionCommand);
+
+                junctionConnection =  junction->getConnection(roadSuccessor->getElementId(), road->getID());
+            }
         }
     }
 

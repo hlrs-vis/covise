@@ -165,6 +165,7 @@ void
 JunctionLaneItem::updateColor()
 {
     Lane::LaneType type = lane_->getLaneType();
+
     if (type == Lane::LT_DRIVING)
     {
         setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
@@ -199,6 +200,11 @@ JunctionLaneItem::updateColor()
     {
         setBrush(QBrush(QColor(255, 0, 0)));
         qDebug("WARNING 1010181018! Unknown Lane Type!");
+    }
+
+    if (grandparentRoad_->getJunction() != "-1")
+    {
+        setPen(QPen(ODD::instance()->colors()->darkPurple()));
     }
 }
 
