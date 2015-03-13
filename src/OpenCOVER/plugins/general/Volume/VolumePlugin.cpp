@@ -105,7 +105,7 @@ VolumePlugin::Volume::Volume()
     roiCellSize = 0.3;
     roiMode = false;
     boundaries = false;
-    preIntegration = true;
+    preIntegration = false;
     lighting = false;
     interpolation = true;
     blendMode = coVolumeDrawable::AlphaBlend;
