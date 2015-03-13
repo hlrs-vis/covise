@@ -18,9 +18,6 @@
 #include <osg/Geode>
 #include <osg/Math>
 #include <osg/MatrixTransform>
-#include <osg/ShapeDrawable>
-#include <osgDB/ReadFile>
-#include <osgDB/FileUtils>
 
 #include "coActionUserData.h"
 #include "coCollabInterface.h"
