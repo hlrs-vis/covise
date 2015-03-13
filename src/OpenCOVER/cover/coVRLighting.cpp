@@ -101,6 +101,7 @@ void coVRLighting::config()
         fprintf(stderr, "coVRLighting::readConfigFile\n");
 
     spotON = coCoviseConfig::isOn("COVER.Spotlight", false);
+    specularlightState = coCoviseConfig::isOn("COVER.Specular", true);
 }
 
 void coVRLighting::initSunLight()
@@ -127,7 +128,7 @@ void coVRLighting::initSunLight()
     {
         // save values in case we switch off specular
         headlightSpec = ((osg::Light *)headlight->getLight())->getSpecular();
-        if (!coCoviseConfig::isOn("COVER.Specular", true))
+        if (!specularlightState)
             ((osg::Light *)headlight->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
 
         addLight(headlight);
@@ -188,7 +189,7 @@ void coVRLighting::initLampLight()
     if (spotlight)
     {
         spotlightSpec = ((osg::Light *)spotlight->getLight())->getSpecular();
-        if (!coCoviseConfig::isOn("COVER.Specular", false))
+        if (!specularlightState)
             ((osg::Light *)spotlight->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
         addLight(spotlight, VRSceneGraph::instance()->getHandTransform());
         // turn on/off spotlight according to covise.config setting
@@ -234,7 +235,7 @@ void coVRLighting::initOtherLight()
     if (light1)
     {
         light1Spec = ((osg::Light *)light1->getLight())->getSpecular();
-        if (!coCoviseConfig::isOn("COVER.Specular", false))
+        if (!specularlightState)
             ((osg::Light *)light1->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
         addLight(light1);
         switchLight(light1, true);
@@ -247,7 +248,7 @@ void coVRLighting::initOtherLight()
     if (light2)
     {
         light2Spec = ((osg::Light *)light2->getLight())->getSpecular();
-        if (!coCoviseConfig::isOn("COVER.Specular", false))
+        if (!specularlightState)
             ((osg::Light *)light2->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
         addLight(light2);
         switchLight(light2, true);
