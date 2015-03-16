@@ -13,8 +13,10 @@ FIND_PATH(AUDIOFILE_INCLUDE_DIR audiofile.h
   PATHS
   $ENV{AUDIOFILE_HOME}/include
   $ENV{EXTERNLIBS}/audiofile/include
+  /usr/local/include
+  /usr/include
   DOC "audiofile - Headers"
-  #NO_DEFAULT_PATH
+  NO_DEFAULT_PATH
 )
 FIND_PATH(AUDIOFILE_INCLUDE_DIR audiofile.h DOC "audiofile - Headers")
 
