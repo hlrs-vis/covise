@@ -40,6 +40,10 @@
 #include <input/inputdevice.h>
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 
+//*****************************************************************************************************************
+#include <mui/coMUITab.h>
+//*****************************************************************************************************************
+
 using namespace opencover;
 using namespace grmsg;
 using namespace covise;
