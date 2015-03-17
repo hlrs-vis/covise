@@ -83,6 +83,7 @@ coMUIContainer* coMUIElementManager::getContainerByIdentifier(std::string Unique
         }
     }
     std::cerr << "ERROR: coMUIElementManager::getParent(): Parent named " << UniqueIdentifier << " doesn't exist yet." << std::endl;
+    return NULL;
 }
 
 // returns the widget named "Identifier"
@@ -93,6 +94,7 @@ coMUIWidget* coMUIElementManager::getWidgetByIdentifier(std::string UniqueIdenti
         }
     }
     std::cerr << "ERROR: coMUIElementManager::getWidget(): Widget named " << UniqueIdentifier << " doesn't exist yet." << std::endl;
+    return NULL;
 }
 
 // returns true, if element is a container; else returns false
@@ -103,6 +105,7 @@ bool coMUIElementManager::isContainer(const std::string UniqueIdentifier){
         }
     }
     std::cerr << "ERROR: coMUIElementManager::isContainer(): Element named " << UniqueIdentifier << " doesn't exist yet." << std::endl;
+    return false;
 }
 
 

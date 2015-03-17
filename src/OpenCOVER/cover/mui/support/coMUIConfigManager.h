@@ -79,8 +79,6 @@ private:
     boost::shared_ptr<coMUIElementManager> ElementManager;
     boost::shared_ptr<coMUIPositionManager> PositionManager;
 
-    coMUIConfigManager(const coMUIConfigManager&){}
-    coMUIConfigManager& operator=(const coMUIConfigManager&){}
     static coMUIConfigManager *Instance;
 
     bool FileExists;
@@ -91,6 +89,10 @@ private:
 
     // membervariables
     std::string ConfigFile;
+
+    // not implemented
+    coMUIConfigManager(const coMUIConfigManager&);
+    coMUIConfigManager& operator=(const coMUIConfigManager&);
 };
 
 #endif

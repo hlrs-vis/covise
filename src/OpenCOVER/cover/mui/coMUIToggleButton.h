@@ -2,7 +2,7 @@
 // creates a ToggleButton as TUI
 
 #ifndef COMUITOGGLEBUTTON_H
-#define COMUITOGGLEBOTTON_H
+#define COMUITOGGLEBUTTON_H
 
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>

@@ -204,12 +204,12 @@ bool coMUIConfigManager::isElementContainer(std::string UniqueIdentifier){
 
 // returns the container with name UniqueIdentifier
 coMUIContainer* coMUIConfigManager::getContainerByIdentifier(std::string UniqueIdentifier){
-    ElementManager->getContainerByIdentifier(UniqueIdentifier);
+    return ElementManager->getContainerByIdentifier(UniqueIdentifier);
 }
 
 // returns the widget with name UniqueIdentifier
 coMUIWidget* coMUIConfigManager::getWidgetByIdentifier(std::string UniqueIdentifier){
-    ElementManager->getWidgetByIdentifier(UniqueIdentifier);
+    return ElementManager->getWidgetByIdentifier(UniqueIdentifier);
 }
 
 //***************************************************************************
