@@ -78,15 +78,17 @@ void coMUIPositionManager::deletePos(std::string UniqueIdentifier){
 
 // returns the position of element with identifier "UniqueIdentifier"
 std::vector <int> coMUIPositionManager::getPos(std::string UniqueIdentifier){
+    std::vector <int> returnCoordinates(2);
     for (int i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifier == UniqueIdentifier){
-            std::vector <int> returnCoordinates(2);
             returnCoordinates[0] = PosList[i].posx;
             returnCoordinates[1] = PosList[i].posy;
             return returnCoordinates;
         }
     }
     std::cerr << "WARNING: coMUIPositionManager::getPos(): Position of " << UniqueIdentifier << " can't be returned. Reason: not found in PosList." << std::endl;
+    returnCoordinates[0] = returnCoordinates[1] = 0;
+    return returnCoordinates;
 }
 
 // changes position of element with identifier "UniqueIdentifier"
@@ -120,6 +122,7 @@ bool coMUIPositionManager::isAutoassigned(int posx, int posy, std::string Unique
             }
         }
     }
+    return false;
 }
 
 // returns the identifier of the element at position posx/posy and parent UniqueIdentifierParent
@@ -131,6 +134,7 @@ std::string coMUIPositionManager::getIdentifier(int posx, int posy, std::string 
             }
         }
     }
+    return "";
 }
 
 // returns all positions of PosList in one string
