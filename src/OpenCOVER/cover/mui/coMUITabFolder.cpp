@@ -29,14 +29,14 @@ coMUITabFolder::coMUITabFolder(const std::string UniqueIdentifier, coMUIContaine
 // constructors (wihtout parents -> new entry in main-menu);
 coMUITabFolder::coMUITabFolder(const std::string UniqueIdentifier, std::string label){
 
-    std::cout << "coMUITabFolder: 0.0" << std::cout;
+    std::cout << "coMUITabFolder: 0.0" << std::endl;
     ConfigManager= NULL;
     Label = label;
 
-    std::cout << "coMUITabFolder: 0.1" << std::cout;
+    std::cout << "coMUITabFolder: 0.1" << std::endl;
     constructor(UniqueIdentifier);
 
-    std::cout << "coMUITabFolder: 0.2" << std::cout;
+    std::cout << "coMUITabFolder: 0.2" << std::endl;
 }
 coMUITabFolder::coMUITabFolder(const std::string UniqueIdentifier){
     ConfigManager= NULL;

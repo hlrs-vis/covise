@@ -134,6 +134,7 @@ DOMNode *coMUIConfigParser::getElementNode(const std::string TagName, const std:
             }
         }
     }
+    return NULL;
 }
 
 // returns true, if the element exists; else return false

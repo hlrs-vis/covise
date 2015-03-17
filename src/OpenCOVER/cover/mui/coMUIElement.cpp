@@ -80,14 +80,3 @@ std::string coMUIElement::findLabel(const std::string Instanz, std::string label
     }
     return Label;
 }
-
-// needs to be overwritten by inheritor
-void coMUIElement::setPos(int posx, int posy){
-    std::cerr << "ERROR: coMUIElement::setPos(int, int) was called and should have been overwritten by derived class" << std::endl;
-}
-
-// needs to be overwritten by inheritor
-std::string coMUIElement::getUniqueIdentifier(){
-    std::cerr << "ERROR: coMUIElement::getUniqueIdentifier() was called and should have been overwritten by derived class" << std::endl;
-}
-

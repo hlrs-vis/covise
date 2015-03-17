@@ -92,8 +92,8 @@ public:
     std::string findLabel(const std::string Instanz, std::string label, std::string keywordUI, std::string keywordDevice);
 
     // must be overwritten, if inherited:
-    virtual void setPos(int posx, int posy);            // must be overwritten, if inherited
-    virtual std::string getUniqueIdentifier();          // must be overwritten, if inherited
+    virtual void setPos(int posx, int posy)=0;
+    virtual std::string getUniqueIdentifier()=0;
 
 private:
     coMUIConfigManager *ConfigManager;
