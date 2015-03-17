@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<Config>
+    <VRUI class="CAVE">
+        <TabFolder1 visible="false" position="1,1" label="TabFolder1CAVE"/>
+        <Tab1 visible="true" position="2,4" label="Tab1ConfigCAVE"/>
+        <Button visible="true" parent="Tab1" label="Button1ConfigCAVE" />
+        <Button2 visible="true" parent="Tab1" label="testit2" />
+        <Slider1 visible="true" parent="Tab1" label="Slider1ConfigCAVE" />
+        <Frame2 visible="true" parent="Tab1" label="Frame2ConfigCAVE"/>
+        <Frame visible="true" parent="Tab1" label="Frame" />
+    </VRUI>
+    <TUI class="Tablet">
+        <TabFolder1 visible="false" position="1,1" label="TabFolder1Tablet"/>
+        <Tab1 visible="true" position="2,4" label="Tab1ConfigTablet"/>
+        <Button visible="true" parent="Tab1" position="1,1" label="Button1ConfigTablet" />
+        <Button2 visible="true" parent="Tab1" position="1,2" label="testit2" />
+        <Slider1 visible="true" parent="Tab1" label="Slider1ConfigTablet" />
+        <Frame2 visible="true" parent="Tab1" position="1,1" label="Frame2ConfigTablet"/>
+        <Frame visible="true" parent="Tab1" position="1,3" label="Frame" />
+    </TUI>
+</Config>

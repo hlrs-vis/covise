@@ -22,10 +22,10 @@ INCLUDE_DIRECTORIES(
 
 add_subdirectory(input/dev/dtrack) 
 add_subdirectory(input/dev/mousebuttons) 
-add_subdirectory(input/dev/legacy) 
+add_subdirectory(input/dev/legacy)
 add_subdirectory(input/dev/vrc) 
 add_subdirectory(input/dev/rift) 
-add_subdirectory(input/dev/mike) 
+add_subdirectory(input/dev/mike)
 
 SET(HEADERS
   ARToolKit.h
@@ -93,6 +93,7 @@ SET(HEADERS
   coTUIFileBrowser/NetHelp.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
+
 )
 
 SET(SOURCES
@@ -160,6 +161,43 @@ SET(SOURCES
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
+
+)
+
+SET(MUI_SOURCES
+  mui/coMUIElement.cpp
+  mui/coMUIContainer.cpp
+  mui/coMUIWidget.cpp
+  mui/coMUIFrame.cpp
+  mui/coMUILabel.cpp
+  mui/coMUIPotiSlider.cpp
+  mui/coMUITab.cpp
+  mui/coMUITabFolder.cpp
+  mui/coMUIToggleButton.cpp
+  mui/support/coMUIConfigManager.cpp
+  mui/support/coMUIConfigParser.cpp
+  mui/support/coMUIDefaultValues.cpp
+  mui/support/coMUIElementManager.cpp
+  mui/support/coMUIPositionManager.cpp
+  mui/support/coMUISupport.cpp
+)
+
+SET(MUI_HEADERS
+  mui/coMUIElement.h
+  mui/coMUIContainer.h
+  mui/coMUIWidget.h
+  mui/coMUIFrame.h
+  mui/coMUILabel.h
+  mui/coMUIPotiSlider.h
+  mui/coMUITab.h
+  mui/coMUITabFolder.h
+  mui/coMUIToggleButton.h
+  mui/support/coMUIConfigManager.h
+  mui/support/coMUIConfigParser.h
+  mui/support/coMUIDefaultValues.h
+  mui/support/coMUIElementManager.h
+  mui/support/coMUIPositionManager.h
+  mui/support/coMUISupport.h
 )
 
 SET(DEVICE_SOURCES
@@ -194,6 +232,7 @@ ENDIF(HAVE_NORM)
 
 SET(COVER_MOCS
   coTabletUI.h
+  ${MUI_HEADERS}
 )
 
 SET(TMP_COVER_MOCS )
@@ -205,7 +244,7 @@ SET(COVER_MOCS ${TMP_COVER_MOCS})
 QT_WRAP_CPP(MOCS ${COVER_MOCS})
 
 SET(ALL_SOURCES )
-SET(ALL_SOURCES_SET SOURCES HEADERS DEVICE_SOURCES DEVICE_HEADERS)
+SET(ALL_SOURCES_SET SOURCES HEADERS MUI_SOURCES MUI_HEADERS DEVICE_SOURCES DEVICE_HEADERS)
 
 FOREACH(source_set ${ALL_SOURCES_SET})
    FOREACH(tmp_src ${${source_set}})
