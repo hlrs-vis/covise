@@ -230,14 +230,14 @@ LaneSettings::updateWidth()
 
         if (laneWidth)
         {
-            double w = laneWidth->getWidth(laneWidth->getSSectionEnd());
+            double w = laneWidth->getWidth(laneWidth->getSSectionEnd() - laneWidth->getParentLane()->getParentLaneSection()->getSStart());
             ui->widthSpinBox->setValue(w);
         }
 
         laneWidth = laneWidthMoveHandle->getHighSlot();
         if (laneWidth)
         {
-            double w = laneWidth->getWidth(laneWidth->getSSectionStart());
+            double w = laneWidth->getWidth(0.0);
             ui->widthSpinBox->setValue(w);
         }
     }

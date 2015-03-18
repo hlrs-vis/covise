@@ -126,8 +126,31 @@ JunctionSettings::on_editingFinished()
 void
 JunctionSettings::on_cleanConnectionsButton_released()
 {
+    QList<QTableWidgetItem *> selectedTableEntries = ui->connectionTableWidget->selectedItems();
+    if (selectedTableEntries.empty())
+    {
+        junction_->delConnections();
+    }
+    else
+    {
+        QMultiMap<QString, JunctionConnection *>::ConstIterator iter = junction_->getConnections().constBegin();
+        QList<JunctionConnection *> deleteList;
+        for (int i = 0; i < selectedTableEntries.size(); i++)
+        {
+            iter += selectedTableEntries.at(i)->row();
+            if (iter != junction_->getConnections().constEnd())
+            {
+                deleteList.append(iter.value());
+            }
+        }
 
-    QMultiMap<QString, JunctionConnection *> connections = junction_->getConnections();
+        for (int i = 0; i < deleteList.size(); i++)
+        {
+            junction_->delConnection(deleteList.at(i));
+        }
+    }
+
+ /*   QMultiMap<QString, JunctionConnection *> connections = junction_->getConnections();
     foreach (JunctionConnection *connection, connections)
     {
         RSystemElementRoad *incommingRoad = junction_->getRoadSystem()->getRoad(connection->getIncomingRoad());
@@ -141,7 +164,7 @@ JunctionSettings::on_cleanConnectionsButton_released()
                 continue;
             connections.remove(connection->getIncomingRoad(), connection);
         }
-    }
+    }*/
 }
 
 //##################//
