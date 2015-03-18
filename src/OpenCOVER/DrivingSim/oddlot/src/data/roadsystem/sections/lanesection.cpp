@@ -178,8 +178,7 @@
 		    {
 			return i;
 		    }
-		    width += lane->getWidth(s);
-		    i--;
+		    width += getLaneWidth(--i, s);
 		}
 	    }
 	    else
@@ -191,8 +190,7 @@
 		    {
 			return i;
 		    }
-		    width += lane->getWidth(s);
-		    i++;
+		    width += getLaneWidth(++i, s);
 		} 
 	    }
 	    return i;
