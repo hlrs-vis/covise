@@ -16,7 +16,7 @@ int coMUISupport::readIntFromString(const string String, int pos){
 
     int returnArray[readIntFromStringGetArraySize(String)];
 
-    for (int i=0; i<=String.size(); i++){                       // pass each character of the string
+    for (size_t i=0; i<=String.size(); i++){                       // pass each character of the string
         if (NumberString.find(String[i])!=string::npos){        // character is a number
             zwischenstring = String[i];
             actualNumber_str.append(zwischenstring);            // append the actual numeral to the actual number
@@ -47,7 +47,7 @@ int coMUISupport::readIntFromStringGetArraySize(const std::string String){
         lastCharZahl=1;
         sizeReturnArray++;
     }
-    for (int i=0; i<String.size(); ++i){                        // determine the size of returnArray
+    for (size_t i=0; i<String.size(); ++i){                        // determine the size of returnArray
         if (NumberString.find(String[i])!=string::npos){        // character is a number
             if (lastCharZahl==0){                               // previous character was not a number
                 sizeReturnArray++;

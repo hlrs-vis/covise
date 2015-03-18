@@ -443,7 +443,7 @@ coMenuItemVector coMenu::getAllItems()
 int coMenu::index(const coMenuItem *item)
 {
     coMenuItemVector allItems = getAllItems();
-    int i = 0;
+    size_t i = 0;
     while (i < allItems.size())
     {
         if (allItems[i] == item)

@@ -1386,7 +1386,7 @@ osg::ref_ptr<osg::Group> TriangleBezierSurfaces::bezierSurfacePlot(unsigned int 
             gruppe->insertChild(3, bezierpunktegruppe);
         }
     }
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         controlPoints[i]->showInteractor(showMesh);
     }
@@ -1712,7 +1712,7 @@ Vec3Array *TriangleBezierSurfaces::degreeElevation(unsigned int gradVorErhoehung
 
             k = ANZAHL + 3 - i - j;
 
-            if (i - 1 + j + k == G + 3)
+            if (int(i - 1 + j + k) == G + 3)
             {
 
                 float n = G * 1.0f;
@@ -2189,7 +2189,7 @@ float TriangleBezierSurfaces::runden(float wert)
 }
 void TriangleBezierSurfaces::clear_ControlPoints()
 {
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         delete controlPoints[i]; //loescht Interktoren
     }
@@ -2409,7 +2409,7 @@ void TriangleBezierSurfaces::createMenu()
 void TriangleBezierSurfaces::preFrame()
 {
     interactPlot = -1;
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         controlPoints[i]->preFrame();
         controlPoints[i]->showInteractor(true);

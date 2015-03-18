@@ -368,7 +368,7 @@ void coVRBoxOfInterest::attachClippingPlanes(osg::Node *varNode, osg::ClipNode *
                 mycn->addChild(child);
         }
         //     mt->removeChildren(0, numChilds);
-        for (int i = 0; i <= mt->getNumChildren(); i++)
+        for (unsigned int i = 0; i <= mt->getNumChildren(); i++)
         {
             osg::Node *child = mt->getChild((numChilds - 1) - i);
             if (child->getName() != "Label")

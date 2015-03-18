@@ -63,7 +63,7 @@ void coMUILabel::constructor(std::string UniqueIdentifier, coMUIContainer* paren
     TUIElement.reset(new coTUILabel(Devices[1].Label, Parent->getTUIID()));
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int  i=0; i<Devices.size(); ++i){
+    for (size_t  i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -95,7 +95,7 @@ std::string coMUILabel::getLabel(){
 
 // positioning TUI-Element
 void coMUILabel::setPos(int posx, int posy){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                          // TUI-Element
             int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -107,7 +107,7 @@ void coMUILabel::setPos(int posx, int posy){
 
 // set visible-value of named UI
 void coMUILabel::setVisible(bool visible, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                           // element shall be changed
             if (Devices[i].Visible != visible){                                     // visible-value changed
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -130,7 +130,7 @@ void coMUILabel::setVisible(bool visible, std::string UI){
 // set visible-value of all UI-Elements
 void coMUILabel::setVisible(bool visible){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setVisible(visible, UI);
@@ -146,7 +146,7 @@ std::string coMUILabel::getUniqueIdentifier(){
 }
 
 void coMUILabel::setLabel(std::string label){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Label = ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         if (Devices[i].UI == ConfigManager->keywordTUI()){                          // TUI-Element
             TUIElement->setLabel(Devices[i].Label);
@@ -161,7 +161,7 @@ void coMUILabel::setLabel(std::string label){
 
 // set label for named UI-Elements
 void coMUILabel::setLabel(std::string label, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                           // element to be changed
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
@@ -180,7 +180,7 @@ void coMUILabel::setLabel(std::string label, std::string UI){
 // QT-SLOTS:
 //*******************************************************************************************************
 void coMUILabel::changeLabel(std::string label){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Label = label;
         if (Devices[i].UI == ConfigManager->keywordTUI()){                          // TUI-Element
             TUIElement->setLabel(Devices[i].Label);

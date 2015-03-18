@@ -340,8 +340,8 @@ VRViewer *VRViewer::instance()
 
 //OpenCOVER
 VRViewer::VRViewer()
-: stereoOn(true)
-, animateSeparation(0)
+: animateSeparation(0)
+, stereoOn(true)
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
@@ -581,7 +581,7 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
 
 
     osg::Vec3Array *positionArray = new osg::Vec3Array;
-    osg::Vec4Array *colorArray = new osg::Vec4Array;
+    //osg::Vec4Array *colorArray = new osg::Vec4Array;
     osg::Vec2Array *textureArray = new osg::Vec2Array;
     osg::UShortArray *indexArray = new osg::UShortArray;
 
@@ -881,9 +881,6 @@ VRViewer::createChannels(int i)
             fprintf(stderr, "no graphics context for cover screen %d\n", i);
             return;
         }
-        const osg::GraphicsContext::Traits *traits = cg->getTraits();
-        int w = traits->width;
-        int h = traits->height;
 
         renderTargetTexture->setTextureSize(coVRConfig::instance()->PBOs[i].PBOsx, coVRConfig::instance()->PBOs[i].PBOsy);
         renderTargetTexture->setInternalFormat(GL_RGBA);

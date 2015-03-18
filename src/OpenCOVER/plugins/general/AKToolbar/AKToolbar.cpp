@@ -447,7 +447,7 @@ void AKToolbar::updatePlugins()
 {
     updateAnimationSlider();
 
-    for (int i = 0; i < shortcutList_.size(); ++i)
+    for (size_t i = 0; i < shortcutList_.size(); ++i)
     {
         Shortcut *sc = shortcutList_[i];
         const std::string &plugin = sc->plugin;

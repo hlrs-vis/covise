@@ -180,7 +180,7 @@ void LinearDimension::update()
         myDCS->setMatrix(m);
         if (len != oldDist)
         {
-            for (int i = 0; i < checkboxArray.size(); ++i)
+            for (size_t i = 0; i < checkboxArray.size(); ++i)
             {
                 if (checkboxArray[i]->getState())
                 {
@@ -632,7 +632,7 @@ Measure::createMenuEntry()
     scaleArray.push_back(0.0254f * 12.f * 3.f);
     unitArray.push_back("yd");
 
-    for (int i = 0; i < checkboxArray.size(); ++i)
+    for (size_t i = 0; i < checkboxArray.size(); ++i)
     {
         checkboxArray[i]->setMenuListener(this);
         unitsMenu->add(checkboxArray[i]);
@@ -671,7 +671,7 @@ Measure::removeMenuEntry()
     delete unitsMenu;
     delete unitsMenuItem;
 
-    for (int i = 0; i < checkboxArray.size(); ++i)
+    for (size_t i = 0; i < checkboxArray.size(); ++i)
         delete checkboxArray[i];
 }
 
@@ -740,12 +740,12 @@ void Measure::menuEvent(coMenuItem *item)
    }*/
 
     //For the units
-    for (int i = 0; i < checkboxArray.size(); ++i)
+    for (size_t i = 0; i < checkboxArray.size(); ++i)
     {
 
         if (item == checkboxArray[i])
         {
-            for (int j = 0; j < checkboxArray.size(); ++j)
+            for (size_t j = 0; j < checkboxArray.size(); ++j)
             {
                 checkboxArray[j]->setState(i == j);
             }

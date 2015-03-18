@@ -85,7 +85,7 @@ void Path::calculateNewPath()
 
     // update path geometry
 
-    for (int i = 0; i < pathGeometry->getNumPrimitiveSets(); i++)
+    for (unsigned int i = 0; i < pathGeometry->getNumPrimitiveSets(); i++)
         pathGeometry->removePrimitiveSet(i);
 
     pathGeometry->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate());
@@ -98,7 +98,7 @@ void Path::calculateNewPath()
 
     osg::Vec3Array *vertices = new osg::Vec3Array;
     osg::DrawElementsUInt *conns = new osg::DrawElementsUInt(osg::PrimitiveSet::LINE_STRIP, 0);
-    for (int i = 0; i < tracer->result.size(); ++i)
+    for (size_t i = 0; i < tracer->result.size(); ++i)
     {
         conns->push_back(i);
         vertices->push_back(tracer->result[i].position);

@@ -1090,7 +1090,7 @@ int Bullet::loadBullet(const char *filename, osg::Group *loadParent)
     if (rootElement)
     {
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
-        for (int i = 0; i < nodeList->getLength(); ++i)
+        for (size_t i = 0; i < nodeList->getLength(); ++i)
         {
             xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
             if (!node)

@@ -22,7 +22,7 @@ public:
     virtual vrui::coMenu* getVRUI();
     virtual bool existTUI();                    // needs to be overwritten by inherited class
     virtual bool existVRUI();                   // needs to be overwritten by inherited class
-    virtual void setPos(int posx, int posy);    // needs to be overwritten by inherited class
+    virtual void setPos(int posx, int posy)=0;    // needs to be overwritten by inherited class
 
 private:
 

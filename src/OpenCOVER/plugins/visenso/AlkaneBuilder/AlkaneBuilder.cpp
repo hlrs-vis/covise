@@ -139,12 +139,12 @@ void AlkaneBuilder::update()
     if (opencover::cover->debugLevel(3))
         fprintf(stderr, "AlkaneBuilder::update\n");
 
-    for (int i = 0; i < atoms_.size(); i++)
+    for (size_t i = 0; i < atoms_.size(); i++)
     {
         atoms_[i]->preFrame();
 
         // check if the running atom has free connections and is in connect position to other atoms
-        for (int j = 0; j < atoms_.size(); j++)
+        for (size_t j = 0; j < atoms_.size(); j++)
         {
             if (!atoms_[i]->isIdle())
                 atoms_[i]->checkNear(atoms_[j]);
@@ -155,7 +155,7 @@ void AlkaneBuilder::update()
             //fprintf(stderr,"--Atom %s wasStopped\n", atoms_[i]->atomBall_->getInteractorName());
             //if the running atom has fixed connections, we have to update them
             //check if the running atom has free connections and is in connect position to other atoms
-            for (int j = 0; j < atoms_.size(); j++)
+            for (size_t j = 0; j < atoms_.size(); j++)
             {
                 if (atoms_[i] != atoms_[j])
                 {
@@ -213,7 +213,7 @@ void AlkaneBuilder::show(bool value)
         }
     }
 
-    for (int i = 0; i < atoms_.size(); i++)
+    for (size_t i = 0; i < atoms_.size(); i++)
     {
         if (value)
         {
@@ -347,7 +347,7 @@ void AlkaneBuilder::check()
     }
     // jetzt enthaelt die Liste nur noch Kohlenstoffe, die Alkane sein können
     int nh = 0;
-    for (int i = 0; i < carbons_.size(); i++)
+    for (size_t i = 0; i < carbons_.size(); i++)
     {
         nh += carbons_[i]->getNumAtoms("H");
     }
@@ -366,7 +366,7 @@ void AlkaneBuilder::check()
         }
         else
         {
-            for (int i = 0; i < carbons_.size(); i++)
+            for (size_t i = 0; i < carbons_.size(); i++)
             {
                 if (((Carbon *)carbons_[i])->isLinearAlkane(alkane.carbons))
                 {
@@ -595,7 +595,7 @@ void
 AlkaneBuilder::reset()
 {
     fprintf(stderr, "\tAlkaneBuilder::reset\n");
-    for (int i = 0; i < atoms_.size(); i++)
+    for (size_t i = 0; i < atoms_.size(); i++)
         atoms_[i]->reset();
 }
 

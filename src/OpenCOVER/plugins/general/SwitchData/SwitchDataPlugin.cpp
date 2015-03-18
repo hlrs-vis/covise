@@ -211,7 +211,7 @@ SwitchDataPlugin::createSubmenu(int numChoices, char **choiceValues, int current
             tuiButtons.push_back(button);
         }
     }
-    if (currentChoice >= 0 && currentChoice < tuiButtons.size())
+    if (currentChoice >= 0 && currentChoice < int(tuiButtons.size()))
     {
         checkboxgroup->setState(checkboxes[currentChoice], true);
         tuiButtons[currentChoice]->setState(true);
@@ -335,7 +335,7 @@ void SwitchDataPlugin::menuEvent(coMenuItem *menuItem)
 
     if (inter)
     {
-        for (int i = 0; i < checkboxes.size(); ++i)
+        for (int i = 0; i < int(checkboxes.size()); ++i)
         {
             if (dynamic_cast<coCheckboxMenuItem *>(menuItem) == checkboxes[i])
             {
@@ -355,7 +355,7 @@ void SwitchDataPlugin::tabletEvent(coTUIElement *tuiItem)
 
     if (inter)
     {
-        for (int i = 0; i < tuiButtons.size(); ++i)
+        for (int i = 0; i < int(tuiButtons.size()); ++i)
         {
             if (dynamic_cast<coTUIToggleButton *>(tuiItem) == tuiButtons[i])
             {

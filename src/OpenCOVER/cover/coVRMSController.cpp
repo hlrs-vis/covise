@@ -82,7 +82,7 @@ coVRMSController::SlaveData::SlaveData(int n)
 
 coVRMSController::SlaveData::~SlaveData()
 {
-    for (int ctr = 0; ctr < this->data.size(); ++ctr)
+    for (size_t ctr = 0; ctr < this->data.size(); ++ctr)
     {
         free(this->data[ctr]);
     }

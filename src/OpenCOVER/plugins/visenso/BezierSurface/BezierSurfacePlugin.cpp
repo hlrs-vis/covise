@@ -201,7 +201,7 @@ void BezierSurfacePlugin::makeSurface()
     controlPoints.push_back(new Point(Vec3(300, 0, 0)));
     controlPoints.push_back(new Point(Vec3(300, -300, -200)));
 
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         surface->addControlPoint((controlPoints[i]->getPosition()));
         controlPoints[i]->showInteractor(true);
@@ -214,7 +214,7 @@ void BezierSurfacePlugin::makeSurface()
 //----------------------------------------------------------------------
 void BezierSurfacePlugin::preFrame()
 {
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         controlPoints[i]->preFrame();
         controlPoints[i]->showInteractor(showInteractors);
@@ -336,7 +336,7 @@ void BezierSurfacePlugin::elevateDegreeOfSurface(char direction)
         }
 
         //lösche Kontrollpunkte.
-        for (int i = 0; i < controlPoints.size(); i++)
+        for (size_t i = 0; i < controlPoints.size(); i++)
         {
             delete controlPoints[i];
         }
@@ -347,7 +347,7 @@ void BezierSurfacePlugin::elevateDegreeOfSurface(char direction)
 
         //Füge neue Punkte ein
         std::vector<Vec3> newPoints = surface->getAllControlPoints();
-        for (int i = 0; i < newPoints.size(); i++)
+        for (size_t i = 0; i < newPoints.size(); i++)
         {
             controlPoints.push_back(new Point(newPoints[i]));
         }
@@ -367,7 +367,7 @@ void BezierSurfacePlugin::elevateDegreeOfSurface(char direction)
         }
 
         //lösche Kontrollpunkte.
-        for (int i = 0; i < controlPoints.size(); i++)
+        for (size_t i = 0; i < controlPoints.size(); i++)
         {
             delete controlPoints[i];
         }
@@ -378,7 +378,7 @@ void BezierSurfacePlugin::elevateDegreeOfSurface(char direction)
 
         //Füge neue Punkte ein
         std::vector<Vec3> newPoints = surface->getAllControlPoints();
-        for (int i = 0; i < newPoints.size(); i++)
+        for (size_t i = 0; i < newPoints.size(); i++)
         {
             controlPoints.push_back(new Point(newPoints[i]));
         }
@@ -427,7 +427,7 @@ void BezierSurfacePlugin::reduceDegreeOfSurface(char direction, Reduction reduct
 
         //Füge neue Punkte ein
         std::vector<Vec3> newPoints = surface->getAllControlPoints();
-        for (int i = 0; i < newPoints.size(); i++)
+        for (size_t i = 0; i < newPoints.size(); i++)
         {
             controlPoints.push_back(new Point(newPoints[i]));
         }
@@ -462,7 +462,7 @@ void BezierSurfacePlugin::reduceDegreeOfSurface(char direction, Reduction reduct
 
         //Füge neue Punkte ein
         std::vector<Vec3> newPoints = surface->getAllControlPoints();
-        for (int i = 0; i < newPoints.size(); i++)
+        for (size_t i = 0; i < newPoints.size(); i++)
         {
             controlPoints.push_back(new Point(newPoints[i]));
         }
@@ -848,7 +848,7 @@ void BezierSurfacePlugin::removeMenuEntries()
 
 void BezierSurfacePlugin::changeStatus()
 {
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         delete controlPoints[i];
     }

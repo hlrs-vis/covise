@@ -90,8 +90,9 @@ int main(int argc, char *argv[])
     DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
-
+#ifdef MPI_COVER
     int mpiinit = 0;
+#endif
 #ifdef RENAME_MAIN
     bool forceMpi = true;
 #else

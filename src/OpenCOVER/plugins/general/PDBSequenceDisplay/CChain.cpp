@@ -37,13 +37,13 @@ void CProtein::PrintChain(vector<CChain> userChain)
 {
     CChain temporarychain;
     CSequence temporarysequence;
-    for (int i = 0; i < userChain.size(); i++)
+    for (size_t i = 0; i < userChain.size(); i++)
     {
         temporarychain = userChain.at(i);
         cout << "\n***Chain " << temporarychain.name << "(" << temporarychain.num << "):";
         if (!temporarychain.chainsequence.empty())
         {
-            for (int j = 0; j < temporarychain.chainsequence.size(); j++)
+            for (size_t j = 0; j < temporarychain.chainsequence.size(); j++)
             {
                 temporarysequence = temporarychain.chainsequence.at(j);
                 cout << endl << temporarysequence.aminoacid << "(" << temporarysequence.num << ") " << temporarysequence.x << " " << temporarysequence.y << " " << temporarysequence.z;
@@ -56,7 +56,7 @@ int CProtein::ReturnChainNumber(std::vector<CChain> &userChain, std::string strC
 {
     CChain chainTemp;
 
-    for (int i = 0; i < userChain.size(); i++)
+    for (size_t i = 0; i < userChain.size(); i++)
     {
         chainTemp = userChain.at(i);
         if (chainTemp.name == strChainLabel)
@@ -73,7 +73,7 @@ void CProtein::PrintChain(CChain userChain)
     cout << "\n***Chain " << userChain.name << "(" << userChain.num << "):";
     if (!userChain.chainsequence.empty())
     {
-        for (int j = 0; j < userChain.chainsequence.size(); j++)
+        for (size_t j = 0; j < userChain.chainsequence.size(); j++)
         {
             temporarysequence = userChain.chainsequence.at(j);
             cout << endl << temporarysequence.aminoacid << "(" << temporarysequence.num << ") " << temporarysequence.x << " " << temporarysequence.y << " " << temporarysequence.z;
@@ -194,7 +194,7 @@ int CProtein::RetrieveSubset(CChain &userChain, std::string strFileName, std::st
     int i = 0, chainExists = 0, chainNumber = 0;
 
     //Check if the chain is there
-    for (i = 0; i < tempChain.size(); i++)
+    for (i = 0; i < int(tempChain.size()); i++)
     {
         holderChain = tempChain.at(i);
         if (holderChain.name == strChain)
@@ -214,13 +214,13 @@ int CProtein::RetrieveSubset(CChain &userChain, std::string strFileName, std::st
     if (startPos < 0)
         startPos = 0; //Oops, no negatives
 
-    if (startPos >= (holderChain.chainsequence.size()))
+    if (size_t(startPos) >= (holderChain.chainsequence.size()))
         return 0; //Sequence desired is above the chain size
 
     if (endPos < 0)
         return 0; // Can't finish in the negatives
 
-    if (endPos >= (holderChain.chainsequence.size()))
+    if (size_t(endPos) >= (holderChain.chainsequence.size()))
         endPos = (holderChain.chainsequence.size()) - 1; //We don't want their range exceeding the bound, so we'll correct it for them
 
     //Now that error checking is done, let's pull out our sequence and spit it back out
@@ -251,13 +251,13 @@ int CProtein::ClosestAminoAcid(std::vector<CChain> &userChain, float
     float smallestDistance = 10000000;
     int absolutej = 0;
 
-    for (int i = 0; i < userChain.size(); i++)
+    for (size_t i = 0; i < userChain.size(); i++)
     {
         temporarychain = userChain.at(i);
         currentChain = temporarychain.name;
         if (!temporarychain.chainsequence.empty())
         {
-            for (int j = 0; j < temporarychain.chainsequence.size(); j++)
+            for (size_t j = 0; j < temporarychain.chainsequence.size(); j++)
             {
                 temporarysequence = temporarychain.chainsequence.at(j);
                 //Insert Sequence Subtraction Code
@@ -290,7 +290,7 @@ void CProtein::PrintMatrix(std::vector<CChainMatrix> userMatrix)
 {
     CChainMatrix tempMatrix;
 
-    for (int j = 0; j < userMatrix.size(); j++)
+    for (size_t j = 0; j < userMatrix.size(); j++)
     {
         tempMatrix = userMatrix.at(j);
         cout << "Chain " << tempMatrix.chain << " # " << tempMatrix.seqno << " x:" << tempMatrix.x << " y:" << tempMatrix.y << " z:" << tempMatrix.z << " distance: " << tempMatrix.distance << "\n";

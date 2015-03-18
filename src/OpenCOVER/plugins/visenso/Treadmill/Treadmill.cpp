@@ -128,7 +128,7 @@ void Treadmill::preFrame()
     {
         std::vector<std::string> queue = _messageReceiver->popMessageQueue();
 
-        for (int i = 0; i < queue.size(); i++)
+        for (size_t i = 0; i < queue.size(); i++)
         {
             //std::cout << "queue[" << i << "] = " << queue[i] << std::endl;
 
@@ -448,7 +448,7 @@ void Treadmill::_handleTokens(const std::vector<std::string> &tokens)
     }
     else if (tokens[0] == "animal")
     {
-        for (int i = 0; i < tokens.size(); i++)
+        for (size_t i = 0; i < tokens.size(); i++)
         {
             std::cout << tokens[i] << " ";
         }
@@ -471,7 +471,7 @@ void Treadmill::_handleTokens(const std::vector<std::string> &tokens)
     }
     else if (tokens[0] == "playerPosition")
     {
-        for (int i = 0; i < tokens.size(); i++)
+        for (size_t i = 0; i < tokens.size(); i++)
         {
             std::cout << tokens[i] << " ";
         }

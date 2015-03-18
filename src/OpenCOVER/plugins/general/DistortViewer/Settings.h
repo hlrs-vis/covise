@@ -19,8 +19,8 @@ public:
     void loadFromXML();
     void saveToXML();
 
-    int visResolutionW;
     int visResolutionH;
+    int visResolutionW;
     std::string imagePath;
     std::string fragShaderFile;
     std::string vertShaderFile;

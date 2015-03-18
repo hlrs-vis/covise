@@ -89,7 +89,7 @@ bool UDPClient::sendMessage(const std::string &str, bool includePacketNumber)
         perror("send() failed");
         return false;
     }
-    if (pkLen != message.length())
+    if (pkLen != int(message.length()))
     {
         printf("sent out wrong number of bytes\n");
     }
@@ -224,7 +224,7 @@ bool UDPClient::receiveData(bool &areOld, long timeout_us)
             printf("received: %s\n", m_sRecvData.c_str());
 #endif
 
-            if (atoi(sPacketNumber.c_str()) == m_iWaitingForPacket)
+            if (atoi(sPacketNumber.c_str()) == int(m_iWaitingForPacket))
             {
                 areOld = false;
                 receivedData = true;

@@ -361,7 +361,7 @@ void PBufferSnapShot::preFrame()
             str.fill('0');
             str << counter;
             int suffixPos = filename.rfind('.');
-            if (suffixPos != filename.npos)
+            if (suffixPos != int(filename.npos))
             {
                 filename.insert(suffixPos, str.str());
                 //fprintf(stderr,"counter=%d\n", counter);

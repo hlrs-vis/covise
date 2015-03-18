@@ -917,7 +917,7 @@ const FileHandler *coVRFileManager::findFileHandler(const char *extension)
     int extlen = strlen(extension);
     char *cEntry = new char[40 + extlen];
     char *lowerExt = new char[extlen + 1];
-    for (int i = 0; i < strlen(extension); i++)
+    for (size_t i = 0; i < strlen(extension); i++)
     {
         lowerExt[i] = tolower(extension[i]);
     }

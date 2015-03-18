@@ -255,7 +255,6 @@ void Trajectory::setColor(float r, float g, float b, float a)
 void Trajectory::computeVelocity()
 {
     double diff = 1;
-    double oldD = 0;
     kappa = bpa->velocity->getValue();
     Rho = bpa->rhoEdit->getValue();
     viscosity = bpa->viscosityEdit->getValue();
@@ -326,9 +325,9 @@ float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1)
 
     if (vert->size() > 0 && t->vert->size() > 0)
     {
-        for (int i = 0; i < vert->size(); i++)
+        for (size_t i = 0; i < vert->size(); i++)
         {
-            for (int n = 0; n < t->vert->size(); n++)
+            for (size_t n = 0; n < t->vert->size(); n++)
             {
                 float dist = (vert->at(i) - t->vert->at(n)).length2();
                 if (dist < minDist)
@@ -379,7 +378,6 @@ void Trajectory::recalc()
     osg::Vec3 pos = startPos;
     osg::Vec3 vel = startVelocity;
     bool res = BPAPlugin::plugin->airResistance->getState();
-    bool Firsttime = true;
     while (len < length && pos[2] > 0.0)
     {
         float v = vel.length();
@@ -646,7 +644,6 @@ void BPA::loadTxt(std::string filename)
                 pos.set(x, y, z);
                 t->startPos = pos;
                 float a = alpha / 180.0 * M_PI;
-                float b = beta / 180.0 * M_PI;
                 float c = gamma / 180.0 * M_PI;
                 osg::Vec3 v;
                 v.set(sin(a), -sin(c) * cos(a), -cos(c) * cos(a));

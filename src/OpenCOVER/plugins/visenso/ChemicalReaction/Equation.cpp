@@ -90,7 +90,7 @@ void Equation::setEquation(std::string e)
 
         // loop
         char lastC = ' ';
-        for (int i = 0; i < e.length(); ++i)
+        for (size_t i = 0; i < e.length(); ++i)
         {
             char c = e[i];
             if ((c > 47) && (c < 58) && (lastC != ' '))

@@ -531,7 +531,7 @@ VRPinboard::getIndex(const char *functionName)
     if (cover->debugLevel(4))
         fprintf(stderr, "VRPinboard::getIndex for %s\n", functionName);
 
-    for (int i = 0; i < functions.size(); i++)
+    for (size_t i = 0; i < functions.size(); i++)
     {
         if (strcasecmp(functions[i].functionName, functionName) == 0)
             return (i);

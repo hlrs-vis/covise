@@ -753,7 +753,6 @@ void ParamPlugin::createGeom()
     float anglePerHeight = 0.1;
     float twistAngle = 0;
     twistRadius = this->twistRadiusSlider->getValue();
-    double oldhfrag, oldr;
     float oldTwistAngle;
     for (int h = 0; h < nheight; h++)
     {
@@ -790,7 +789,7 @@ void ParamPlugin::createGeom()
                 }
                 Vec3 v1, v2, n;
                 osg::Vec3Array *v = vert.get();
-                int ind = vert->size();
+                ind = vert->size();
                 v1 = (*v)[ind - 1] - (*v)[ind - 2];
                 v2 = (*v)[ind - 3] - (*v)[ind - 1];
                 v1.normalize();
@@ -807,8 +806,6 @@ void ParamPlugin::createGeom()
         }
         oldTwistAngle = twistAngle;
         twistAngle += anglePerHeight;
-        oldhfrag = hfrag;
-        oldr = r;
     }
 
     geom->setVertexArray(vert.get());

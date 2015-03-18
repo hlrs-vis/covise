@@ -145,7 +145,7 @@ void Wire::createGeom() //Erstellen eines Drahtes
             }
         }
     }
-    for (int i = 0; i < indices.size(); ++i)
+    for (size_t i = 0; i < indices.size(); ++i)
     {
         vert->push_back(coord[indices[i]]);
         normals->push_back(norm[indices[i]]);
@@ -223,7 +223,7 @@ void Wire::rotate(float startAngle, float lot, float r) //Funktion "rotate" für
         }
         m = m * incRot;
     }
-    for (int i = 0; i < indices.size(); ++i)
+    for (size_t i = 0; i < indices.size(); ++i)
     {
         int k = indices[i];
         (*v)[i] = coord[k];

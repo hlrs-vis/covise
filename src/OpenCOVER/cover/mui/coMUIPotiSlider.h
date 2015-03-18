@@ -62,7 +62,7 @@ private:
     void createTUIElement(std::string Label, coMUIContainer* Parent);
     void createVRUIElement (std::string Label);
 
-    void tabletEvent(coTUIElement *tUIItem);
+    void tabletEvent(opencover::coTUIElement *tUIItem);
     void menuEvent(vrui::coMenuItem *menuItem);
 
 public slots:

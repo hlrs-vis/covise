@@ -87,7 +87,7 @@ void coMUITabFolder::ParentConstructor(const std::string UniqueIdentifier,  coMU
 
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -153,7 +153,7 @@ void coMUITabFolder::constructor(const std::string identifier){
     }
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -210,7 +210,7 @@ coMenu* coMUITabFolder::getVRUI()
 // sets the label for all UI-elements
 void coMUITabFolder::setLabel(std::string label){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setLabel(label, UI);
@@ -218,7 +218,7 @@ void coMUITabFolder::setLabel(std::string label){
 
 // sets the Label for all named Elements
 void coMUITabFolder::setLabel(std::string label, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                       // Element to be changed
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
@@ -236,7 +236,7 @@ void coMUITabFolder::setLabel(std::string label, std::string UI){
 // sets the visibility for all elements
 void coMUITabFolder::setVisible(bool visible){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setVisible(visible, UI);
@@ -244,7 +244,7 @@ void coMUITabFolder::setVisible(bool visible){
 
 // sets the visibility for the named elements
 void coMUITabFolder::setVisible(bool visible, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI)!=std::string::npos){                             // Element to be changed
             if (Devices[i].Visible != visible){
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -266,7 +266,7 @@ void coMUITabFolder::setVisible(bool visible, std::string UI){
 
 // sets Position
 void coMUITabFolder::setPos(int posx, int posy){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
             int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);

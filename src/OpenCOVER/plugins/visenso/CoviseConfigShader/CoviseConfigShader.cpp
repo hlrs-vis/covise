@@ -136,7 +136,7 @@ void CoviseConfigShader::addNode(osg::Node *node, RenderObject *)
 void CoviseConfigShader::addShader(osg::Node *node)
 {
     // check node name against all definitions
-    for (int index = 0; index < definitions.size(); ++index)
+    for (size_t index = 0; index < definitions.size(); ++index)
     {
         if (definitions[index].regexp.exactMatch(QString(node->getName().c_str())))
         {
@@ -172,7 +172,7 @@ void CoviseConfigShader::addShader(osg::Node *node)
     osg::Group *group = dynamic_cast<osg::Group *>(node);
     if (group)
     {
-        for (int i = 0; i < group->getNumChildren(); ++i)
+        for (size_t i = 0; i < group->getNumChildren(); ++i)
         {
             addShader(group->getChild(i));
         }
@@ -201,7 +201,7 @@ void CoviseConfigShader::preFrame()
         return;
     }
 
-    for (int i = 0; i < transparencyList.size(); ++i)
+    for (size_t i = 0; i < transparencyList.size(); ++i)
     {
         osg::Node *node = VRSceneGraph::instance()->findFirstNode<osg::Node>(transparencyList[i].c_str());
         if (!node)
@@ -238,7 +238,7 @@ void CoviseConfigShader::preFrame()
 int CoviseConfigShader::getDefinitionIndex(osg::Node *node)
 {
     // check node name against all definitions
-    for (int i = 0; i < definitions.size(); ++i)
+    for (size_t i = 0; i < definitions.size(); ++i)
     {
         if (definitions[i].regexp.exactMatch(QString(node->getName().c_str())))
         {
@@ -265,7 +265,7 @@ void CoviseConfigShader::setTransparency(osg::Node *node, float transparency)
         }
         else if (group)
         {
-            for (int i = 0; i < group->getNumChildren(); i++)
+            for (size_t i = 0; i < group->getNumChildren(); i++)
             {
                 setTransparency(group->getChild(i), transparency);
             }

@@ -111,10 +111,10 @@ private:
     //----------------------
     Projector *projector;
 
-    bool distort; //Bild verzerrung aktivieren? ja/nein
     bool blend; //Edge-Blending aktivieren? ja/nein
-    int visResolutionW; //Auflösung Breite der verzerrten Szene
+    bool distort; //Bild verzerrung aktivieren? ja/nein
     int visResolutionH; //Auflösung Höhe der verzerrten Szene
+    int visResolutionW; //Auflösung Breite der verzerrten Szene
     std::string blendImgFilePath; //Dateipfad zur Image-Datei
     std::string blendImgFile; //rel. Dateipfad des Edgeblending-Images
     std::string vertShaderFile; //rel. Dateipfad zur Vertex-Shader Datei

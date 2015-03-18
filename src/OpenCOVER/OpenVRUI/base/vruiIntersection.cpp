@@ -79,7 +79,7 @@ void vruiIntersection::callActions(vruiNode *node, vruiHit *hit)
         return;
     }
 
-    int thisFrame = (*frames()[frameIndex]);
+    unsigned int thisFrame = (*frames()[frameIndex]);
 
     for (int ctr = 0; ctr < node->getNumParents(); ++ctr)
     {
@@ -95,7 +95,7 @@ void vruiIntersection::callActions(vruiNode *node, vruiHit *hit)
         int recall = actionData->action->hitAll(hit);
         if (recall & coAction::ACTION_CALL_ON_MISS)
         {
-            if ((thisFrame != 0) && (actionData->action->getFrame() != (thisFrame - 1)))
+            if ((thisFrame != 0) && (actionData->action->getFrame()+1 != thisFrame))
             {
                 actionList.push_back(actionData->action);
             }
@@ -117,7 +117,7 @@ void vruiIntersection::callMisses()
         return;
     }
 
-    int thisFrame = (*frames()[frameIndex]);
+    unsigned int thisFrame = (*frames()[frameIndex]);
 
     for (list<coAction *>::iterator action = actionList.begin(); action != actionList.end();)
     {

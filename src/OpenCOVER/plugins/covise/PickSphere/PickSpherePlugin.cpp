@@ -463,7 +463,7 @@ PickSpherePlugin::preFrame()
         refFrame = lastFrame;
         lastFrame = currentFrame;
     }
-    if (currentFrame < 0 || currentFrame >= spheres.size())
+    if (currentFrame < 0 || currentFrame >= int(spheres.size()))
         return;
     const SphereData *curSpheres = spheres[currentFrame];
 
@@ -477,7 +477,7 @@ PickSpherePlugin::preFrame()
     osg::Vec3 pos(x[0], x[1], x[2]);
     osg::Vec3 lastPos(0., 0., 0.);
 
-    if (refFrame >= 0 && refFrame < spheres.size())
+    if (refFrame >= 0 && refFrame < int(spheres.size()))
     {
         const SphereData *s = spheres[refFrame];
         lastPos = osg::Vec3(s->x[firstIndex], s->y[firstIndex], s->z[firstIndex]);

@@ -441,7 +441,7 @@ void coVRShader::loadMaterial()
             }
         }
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
-        for (int i = 0; i < nodeList->getLength(); ++i)
+        for (size_t i = 0; i < nodeList->getLength(); ++i)
         {
             xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
             if (!node)
@@ -783,7 +783,7 @@ void coVRShader::storeMaterial()
     impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
 
     std::string ShaderName = name;
-    for (int i = 0; i < ShaderName.length(); i++)
+    for (size_t i = 0; i < ShaderName.length(); i++)
     {
         if (ShaderName[i] == ' ')
             ShaderName[i] = '_';

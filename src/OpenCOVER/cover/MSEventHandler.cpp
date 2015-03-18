@@ -118,7 +118,7 @@ MSEventHandler::MSEventHandler()
             size_t last = devicePathname.rfind("/");
             devicePath = devicePathname.substr(0, last + 1);
             deviceName = devicePathname.substr(last + 1);
-            int watchFd = inotify_add_watch(notifyFd, devicePath.c_str(), IN_DELETE | IN_CREATE);
+            watchFd = inotify_add_watch(notifyFd, devicePath.c_str(), IN_DELETE | IN_CREATE);
         }
 #endif
     }

@@ -128,6 +128,9 @@ private:
     //ParamSurface     *m_pSurface; //created surface by the parametrical description
 
     // SphereSurface not availableSphereSurface  	*m_pSphereSurface;
+   ParamSurface *m_Sphere; //created Sphere
+
+    ParamSurface *m_Strip; //created MobiusStrip
     MobiusStrip *m_pMobiusStrip;
 
     /* WendelSurface	*m_pWendelSurface;
@@ -141,8 +144,6 @@ private:
 
     //  ParamSurface     *m_Surface; //created surface by the parametrical description
     // ParamSurface	*m_Plane;//created Plane
-    ParamSurface *m_Sphere; //created Sphere
-    ParamSurface *m_Strip; //created MobiusStrip
     /*ParamSurface	*m_Wendel; //created Helikoid
        ParamSurface	*m_Zylinder;//created Zylinder
        ParamSurface	*m_Kegel;//created Kegel

@@ -48,19 +48,10 @@ bool LegacyDriver::poll()
     VRTracker::instance()->update();
 
     m_mutex.lock();
-    for (int i = 0; i < numButtons(); ++i)
-    {
-        unsigned int btn_mask = 0x1 << i; // mask for button #n
-        //event checks
 
-//        unsigned long timestamp = chrono::high_resolution_clock::now().time_since_epoch().count(); //nanoseconds?
-        //cout << timestamp/1000000 <<endl;
-        //m_buttonStates[i] = btnstatus & btn_mask;
-    }
-
-    if (m_bodyMatrices.size() < VRTracker::instance()->getNumStation())
+    if (ssize_t(m_bodyMatrices.size()) < VRTracker::instance()->getNumStation())
         m_bodyMatrices.resize(VRTracker::instance()->getNumStation());
-    for (size_t i = 0; i < VRTracker::instance()->getNumStation(); ++i)
+    for (int i = 0; i < VRTracker::instance()->getNumStation(); ++i)
     {
         m_bodyMatrices[i] = VRTracker::instance()->getStationMat(i);
     }

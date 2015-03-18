@@ -7,9 +7,6 @@ namespace coMUI{
 class coMUIElement;
 }
 
-using namespace opencover;
-using namespace covise;
-
 class coMUIWidget: public coMUIElement{
 public:
     // methods:

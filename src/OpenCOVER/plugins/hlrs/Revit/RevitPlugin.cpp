@@ -429,7 +429,6 @@ void RevitPlugin::message(int type, int len, const void *buf)
         std::string path;
         TokenBuffer tb((const char *)buf, len);
         tb >> path;
-        osg::Group *selectedNodeParent = dynamic_cast<osg::Group *>(coVRSelectionManager::validPath(path));
         tb >> path;
         osg::Node *selectedNode = coVRSelectionManager::validPath(path);
         RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));

@@ -589,7 +589,7 @@ coInputTUI::coInputTUI()
     devicesChoice = new coTUIComboBox("devicesCombo",bodiesContainer->getID());
     devicesChoice->setPos(0,5);
     devicesChoice->setEventListener(this);
-    for (int i = 0; i < Input::instance()->getNumDevices(); i++)
+    for (size_t i = 0; i < Input::instance()->getNumDevices(); i++)
     {
         devicesChoice->addEntry(Input::instance()->getDevice(i)->getName());
     }
@@ -622,7 +622,7 @@ coInputTUI::coInputTUI()
 
 void coInputTUI::updateTUI()
 {
-    if (personsChoice->getNumEntries() != Input::instance()->getNumPersons())
+    if (size_t(personsChoice->getNumEntries()) != Input::instance()->getNumPersons())
     {
         personsChoice->clear();
         for (size_t i = 0; i < Input::instance()->getNumPersons(); i++)
@@ -632,11 +632,11 @@ void coInputTUI::updateTUI()
     }
     personsChoice->setSelectedEntry(Input::instance()->getActivePerson());
 
-    if (bodiesChoice->getNumEntries() != Input::instance()->getNumBodies())
+    if (size_t(bodiesChoice->getNumEntries()) != Input::instance()->getNumBodies())
     {
         const std::string body = bodiesChoice->getSelectedText();
         bodiesChoice->clear();
-        for (int i = 0; i < Input::instance()->getNumBodies(); i++)
+        for (size_t i = 0; i < Input::instance()->getNumBodies(); i++)
         {
             bodiesChoice->addEntry(Input::instance()->getBody(i)->getName());
         }

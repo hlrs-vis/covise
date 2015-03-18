@@ -336,7 +336,7 @@ VRCoviseConnection::localParam(bool inMapLoading, void *callbackData)
         if (CoviseRender::get_reply_string(&value) && value)
         {
             std::vector<std::string> plugins = split(value, ',');
-            for (int i = 0; i < plugins.size(); ++i)
+            for (size_t i = 0; i < plugins.size(); ++i)
                 cover->addPlugin(strip(plugins[i]).c_str());
         }
         return;
@@ -660,7 +660,7 @@ VRCoviseConnection::receiveRenderMessage()
                         {
                             // if there is already a description which contains SCGR_ replace it
                             std::vector<std::string> dl = node->getDescriptions();
-                            for (int i = 0; i < dl.size(); i++)
+                            for (size_t i = 0; i < dl.size(); i++)
                             {
                                 std::string descr = dl[i];
                                 if (descr.find("_SCGR_") != string::npos)

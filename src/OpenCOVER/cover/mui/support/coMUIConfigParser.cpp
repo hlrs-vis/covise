@@ -121,7 +121,7 @@ bool coMUIConfigParser::isNodeElement(DOMNode* Node){
 
 // returns the matching elementnode
 DOMNode *coMUIConfigParser::getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe){
-    for (int i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
+    for (size_t i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
         if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE){
             DOMElement* nodeElement=static_cast<DOMElement*>(NodeListe->item(i));
             if (XMLString::transcode(nodeElement->getTagName()) == TagName){   // match in TagName
@@ -139,7 +139,7 @@ DOMNode *coMUIConfigParser::getElementNode(const std::string TagName, const std:
 
 // returns true, if the element exists; else return false
 bool coMUIConfigParser::existElement(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe){
-    for (int i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
+    for (size_t i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
         if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE){
             DOMElement* nodeElement=static_cast<DOMElement*>(NodeListe->item(i)); // transform node to element
             if (XMLString::transcode(nodeElement->getTagName()) == TagName){   // match in TagName
@@ -155,7 +155,7 @@ bool coMUIConfigParser::existElement(const std::string TagName, const std::strin
 
 // returns true, if the element exists; else return false
 bool coMUIConfigParser::existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe){
-    for (int i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
+    for (size_t i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
         if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE){
             DOMElement* nodeElement=static_cast<DOMElement*>(NodeListe->item(i)); // transform node to element
             if (XMLString::transcode(nodeElement->getTagName()) == TagName){   // match in TagName
@@ -172,7 +172,7 @@ bool coMUIConfigParser::existElement(const std::string TagName, const std::strin
 // retrurns the attributevalue as std::string
 std::pair<std::string, bool> coMUIConfigParser::getAttributeValue(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe){
     std::pair<std::string, bool> returnPair;
-    for (int i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
+    for (size_t i=0; i<(NodeListe->getLength()); ++i){                                         // loop through all elements in NodeList
         if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE){
             boost::shared_ptr<DOMElement> nodeElement(static_cast<DOMElement*>(NodeListe->item(i))); // transform node to element
             if (XMLString::transcode(nodeElement->getTagName()) == TagName){   // match in TagName

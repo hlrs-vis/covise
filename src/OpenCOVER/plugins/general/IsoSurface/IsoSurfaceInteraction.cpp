@@ -103,8 +103,6 @@ IsoSurfaceInteraction::menuReleaseEvent(coMenuItem *menuItem)
 void
 IsoSurfaceInteraction::createMenu()
 {
-    int menuItemCounter = 0;
-
     // create the value poti
     inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
     valueSlider_ = new coSliderMenuItem("IsoValue", minValue_, maxValue_, isoValue_);

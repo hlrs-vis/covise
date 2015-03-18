@@ -1076,7 +1076,7 @@ coVRPluginSupport::coVRPluginSupport()
 
     toolBar = NULL;
     numClipPlanes = coCoviseConfig::getInt("COVER.NumClipPlanes", 3);
-    for (unsigned int i = 0; i < numClipPlanes; i++)
+    for (int i = 0; i < numClipPlanes; i++)
     {
         clipPlanes[i] = new osg::ClipPlane();
         clipPlanes[i]->setClipPlaneNum(i);

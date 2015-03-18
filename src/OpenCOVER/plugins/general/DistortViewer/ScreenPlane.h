@@ -133,6 +133,6 @@ public:
 private:
     float cHeight; //Höhe der Projektionsfläche (US bei cHeigth/2)
     float cWidth; //Breite der Projektionsfläche (US bei cWidth/2)
-    unsigned int cHeightResolution; //Auflösung in Höhe (z-Richtung)
     unsigned int cWidthResolution; //Auflösung in Breite (x-Richtung)
+    unsigned int cHeightResolution; //Auflösung in Höhe (z-Richtung)
 };

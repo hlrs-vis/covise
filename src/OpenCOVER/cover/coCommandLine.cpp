@@ -61,7 +61,7 @@ void coCommandLine::shift(int amount)
 
 std::ostream &operator<<(std::ostream &os, const coCommandLine &cmd)
 {
-    for (size_t i = 0; i < cmd.argc(); ++i)
+    for (int i = 0; i < cmd.argc(); ++i)
     {
         if (i)
             os << " ";

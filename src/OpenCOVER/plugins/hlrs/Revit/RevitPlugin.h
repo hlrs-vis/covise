@@ -107,12 +107,12 @@ public:
         , number(num)
         , element(ele){};
     virtual ~RevitParameter();
-    ElementInfo *element;
     int ID;
-    int number; // param number in Element;
     std::string name;
     int StorageType;
     int ParameterType;
+    int number; // param number in Element;
+    ElementInfo *element;
     double d;
     int ElementReferenceID;
     int i;

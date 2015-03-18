@@ -195,7 +195,7 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
                 elapsedTimes[0].push_back(watch.elapsed());
 #endif
                 std::cerr << " avg. intersection times";
-                for (int ctr = 0; ctr < elapsedTimes.size(); ++ctr)
+                for (size_t ctr = 0; ctr < elapsedTimes.size(); ++ctr)
                 {
                     std::cerr << " | " << ctr + 1 << ":"
                               << std::accumulate(elapsedTimes[ctr].begin(), elapsedTimes[ctr].end(), 0.0f) / elapsedTimes[ctr].size()
@@ -215,7 +215,7 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
 
             // check which node in the hit list is also visible
             bool hasVisibleHit = false;
-            for (int i = 0; i < hitList.size(); i++)
+            for (size_t i = 0; i < hitList.size(); i++)
             {
 
                 if (hitList[i]._geode->getNodeMask() & (Isect::Visible))

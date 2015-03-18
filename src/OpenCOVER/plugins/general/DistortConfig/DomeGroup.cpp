@@ -69,7 +69,7 @@ void DomeGroup::setupLineEditsArray()
 
 void DomeGroup::setupConnects()
 {
-    for (unsigned int i = 0; i < lineEditsVec.size(); i++)
+    for (int i = 0; i < lineEditsVec.size(); i++)
     {
         connect(lineEditsVec.at(i), SIGNAL(editingFinished()), this, SLOT(lineEditEditingFinished()));
     }
@@ -88,7 +88,7 @@ void DomeGroup::setupConnects()
 void DomeGroup::lineEditEditingFinished()
 {
     //eingegebenen Text in formatierte Zahl umwandeln
-    for (unsigned int i = 0; i < lineEditsVec.size(); i++)
+    for (int i = 0; i < lineEditsVec.size(); i++)
     {
         //Zahlen formatieren
         double num = lineEditsVec.at(i)->text().toDouble();

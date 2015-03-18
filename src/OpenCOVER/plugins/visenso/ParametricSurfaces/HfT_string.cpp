@@ -55,7 +55,7 @@ int HfT_string_to_int(std::string str)
 }
 std::string HfT_replace_string_in_string(std::string instr, std::string repstr, std::string newstr)
 {
-    size_t pos;
+    int pos;
     while (true)
     {
         pos = instr.find(repstr);

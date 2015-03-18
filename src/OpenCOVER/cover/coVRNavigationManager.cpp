@@ -2542,7 +2542,7 @@ void coVRNavigationManager::doShowName()
                     {
                         // first look for a node description beginning with _SCGR_
                         std::vector<std::string> dl = cover->getIntersectedNode()->getDescriptions();
-                        for (int i = 0; i < dl.size(); i++)
+                        for (size_t i = 0; i < dl.size(); i++)
                         {
                             std::string descr = dl[i];
                             if (descr.find("_SCGR_") != string::npos)

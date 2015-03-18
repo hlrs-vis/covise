@@ -911,7 +911,7 @@ void ViewPoints::key(int type, int keySym, int mod)
     if ((keySym >= osgGA::GUIEventAdapter::KEY_F1)
         && (keySym <= osgGA::GUIEventAdapter::KEY_F12) /*&& (type == osgGA::GUIEventAdapter::KEYUP)*/)
     {
-        if (viewpoints.size() > (keySym - osgGA::GUIEventAdapter::KEY_F1))
+        if (ssize_t(viewpoints.size()) > (keySym - osgGA::GUIEventAdapter::KEY_F1))
         {
             if (flyingMode)
             {
@@ -2119,7 +2119,6 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
             currentMat_ = m;
             curr_coord = m;
             curr_scale = cover->getScale();
-            osg::Vec3 t = currentMat_.getTrans();
         }
 
         if (showCamera && lastVP == NULL)
@@ -2128,7 +2127,6 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
             currentMat_ = viewpoints[numberOfDefaultVP]->getMatrix();
             curr_coord = viewpoints[numberOfDefaultVP]->getMatrix();
             lastVP = viewpoints[numberOfDefaultVP];
-            osg::Vec3 t = currentMat_.getTrans();
         }
 
         struct timeval tp;
@@ -2194,7 +2192,7 @@ void ViewPoints::nextViewpoint()
 {
     if (viewpoints.size() > 0)
     {
-        vp_index = vp_index == viewpoints.size() - 1 ? 0 : vp_index + 1;
+        vp_index = vp_index == ssize_t(viewpoints.size()) - 1 ? 0 : vp_index + 1;
         updateSHMData();
     }
 }
@@ -2311,7 +2309,7 @@ void ViewPoints::menuEvent(coMenuItem *menuItem)
     else if (menuItem == showCameraCheck_)
     {
         showCamera = showCameraCheck_->getState();
-        if ((flightPathVisualizer->getCameraDCS() == NULL) && (viewpoints.size() > numberOfDefaultVP))
+        if ((flightPathVisualizer->getCameraDCS() == NULL) && (ssize_t(viewpoints.size()) > numberOfDefaultVP))
         {
             if (showCamera)
                 flyingMode = 1;
@@ -2755,7 +2753,7 @@ void ViewPoints::setCatmullRomTangents()
     ViewDesc *Pcurr = viewpoints.at(1);
     ViewDesc *Pnext;
 
-    for (int i = 2; i < viewpoints.size(); i++)
+    for (size_t i = 2; i < viewpoints.size(); i++)
     {
         ViewDesc *currentPoint = viewpoints.at(i);
         Pnext = currentPoint;

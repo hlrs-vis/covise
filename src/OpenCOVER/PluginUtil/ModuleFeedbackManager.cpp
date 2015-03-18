@@ -883,7 +883,7 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
         // do we already have this case in the main menu?
         bool found = false;
         coMenuItemVector allItems = cover->getMenu()->getAllItems();
-        int i = 0;
+        size_t i = 0;
         while (i < allItems.size())
         {
             //fprintf(stderr,"checking item %s\n", allItems[i]->getName());
@@ -976,14 +976,14 @@ ModuleFeedbackManager::setNameFromGui(const char *newName)
     std::vector<osg::Geode *> geodes = findMyGeode();
     if (geodes.size() > 0)
     {
-        for (int i = 0; i < geodes.size(); i++)
+        for (size_t i = 0; i < geodes.size(); i++)
         {
             osg::Geode *geode = geodes[i];
             if (geode->getNumDescriptions())
             {
                 // if there is already a description which begins with SCGR_ replace it
                 std::vector<std::string> dl = geode->getDescriptions();
-                for (int i = 0; i < dl.size(); i++)
+                for (size_t i = 0; i < dl.size(); i++)
                 {
                     std::string descr = dl[i];
                     if (descr.find("_SCGR_") != string::npos)

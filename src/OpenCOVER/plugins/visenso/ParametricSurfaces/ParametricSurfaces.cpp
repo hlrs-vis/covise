@@ -1012,8 +1012,6 @@ bool ParametricSurfaces::Change_ConsPosition(HfT_osg_Plugin01_ParametricSurface 
         surf->replaceCons(newcons);
         // Animation aus Scenegraph entfernen
         Remove_Animation();
-
-        Vec2d position = cons->getPosition();
     }
     return true;
 }

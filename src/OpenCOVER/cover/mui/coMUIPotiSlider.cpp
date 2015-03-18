@@ -69,7 +69,7 @@ void coMUIPotiSlider::constructor(const std::string UniqueIdentifier, coMUIConta
     createTUIElement(Devices[1].Label, ConfigManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier));
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -154,7 +154,7 @@ void coMUIPotiSlider::setValue(float newVal){
 
 // set position of TUI-Element
 void coMUIPotiSlider::setPos(int posx, int posy){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
             while (true){
                 int posX=ConfigManager->getCorrectPosX(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
@@ -179,7 +179,7 @@ void coMUIPotiSlider::setPos(int posx, int posy){
 
 // set visible-value of named Elements
 void coMUIPotiSlider::setVisible(bool visible, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI)!=std::string::npos){                             // Element shall be changed
             if (Devices[i].Visible != visible){                                     // visible-value changed
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -209,7 +209,7 @@ void coMUIPotiSlider::setVisible(bool visible){
 
 // set visible-value of named elements
 void coMUIPotiSlider::setLabel(std::string label, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                       // Element to be changed
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element

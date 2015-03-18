@@ -841,7 +841,7 @@ const char *CoviseRenderObject::getAttribute(const char *attributeName) const
 
 const char *CoviseRenderObject::getAttributeName(size_t idx) const
 {
-    if (idx >= numAttributes)
+    if (ssize_t(idx) >= numAttributes)
         return NULL;
 
     return attrNames[idx];
@@ -849,7 +849,7 @@ const char *CoviseRenderObject::getAttributeName(size_t idx) const
 
 const char *CoviseRenderObject::getAttributeValue(size_t idx) const
 {
-    if (idx >= numAttributes)
+    if (ssize_t(idx) >= numAttributes)
         return NULL;
 
     return attributes[idx];
@@ -869,7 +869,7 @@ int CoviseRenderObject::getAllAttributes(char **&name, char **&value) const
 
 CoviseRenderObject *CoviseRenderObject::getElement(size_t idx) const
 {
-    if (idx >= size)
+    if (ssize_t(idx) >= size)
         return NULL;
 
     int num;

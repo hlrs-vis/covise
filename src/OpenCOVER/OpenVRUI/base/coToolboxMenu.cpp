@@ -118,14 +118,14 @@ void coToolboxMenu::add(coMenuItem *item)
     if (maxItems_ != 0)
     {
         bool inserted = false;
-        if (items.size() <= startPos_ + maxItems_)
+        if (ssize_t(items.size()) <= startPos_ + maxItems_)
         {
             itemsContainer->insertElement(item->getUIElement(), itemsContainer->getSize() - 1);
             inserted = true;
         }
-        if (startPos_ > 0 && items.size() > maxItems_)
+        if (startPos_ > 0 && ssize_t(items.size()) > maxItems_)
             upItem_->setActive(true);
-        if (startPos_ + maxItems_ < items.size())
+        if (startPos_ + maxItems_ < ssize_t(items.size()))
             downItem_->setActive(true);
         if (!inserted)
             menuEvent(downItem_);
@@ -156,9 +156,9 @@ void coToolboxMenu::insert(coMenuItem *item, int pos)
                     itemsContainer->removeElement((*it)->getUIElement());
             }
         }
-        if (startPos_ > 0 && items.size() > maxItems_)
+        if (startPos_ > 0 && ssize_t(items.size()) > maxItems_)
             upItem_->setActive(true);
-        if (startPos_ + maxItems_ < items.size())
+        if (startPos_ + maxItems_ < ssize_t(items.size()))
             downItem_->setActive(true);
     }
     else
@@ -187,7 +187,7 @@ void coToolboxMenu::remove(coMenuItem *item)
         if (numItem < startPos_)
             startPos_--;
         // insert item in back
-        else if (items.size() >= startPos_ + maxItems_ && itemsContainer->getSize() < maxItems_ + 2)
+        else if (ssize_t(items.size()) >= startPos_ + maxItems_ && itemsContainer->getSize() < maxItems_ + 2)
         {
             int i = 0;
             for (std::list<coMenuItem *>::iterator it = items.begin(); it != items.end(); it++)
@@ -198,7 +198,7 @@ void coToolboxMenu::remove(coMenuItem *item)
             }
         }
         // insert item in front
-        else if ((items.size() >= maxItems_) && (items.size() < startPos_ + maxItems_) && (itemsContainer->getSize() < maxItems_ + 2))
+        else if ((ssize_t(items.size()) >= maxItems_) && (ssize_t(items.size()) < startPos_ + maxItems_) && (itemsContainer->getSize() < maxItems_ + 2))
         {
             int i = 0;
             for (std::list<coMenuItem *>::iterator it = items.begin(); it != items.end(); it++)
@@ -211,7 +211,7 @@ void coToolboxMenu::remove(coMenuItem *item)
         }
         if (startPos_ == 0)
             upItem_->setActive(false);
-        if (startPos_ + maxItems_ == items.size())
+        if (startPos_ + maxItems_ == ssize_t(items.size()))
             downItem_->setActive(false);
     }
     else
@@ -573,7 +573,7 @@ coToolboxMenu::menuEvent(coMenuItem *item)
         if (startPos_ == 0)
             upItem_->setActive(false);
 
-        if (startPos_ + maxItems_ == items.size() - 1)
+        if (startPos_ + maxItems_ == ssize_t(items.size()) - 1)
             downItem_->setActive(true);
 
         // remove last
@@ -621,7 +621,7 @@ coToolboxMenu::menuEvent(coMenuItem *item)
         if (startPos_ == 1)
             upItem_->setActive(true);
 
-        if (startPos_ + maxItems_ == items.size())
+        if (startPos_ + maxItems_ == ssize_t(items.size()))
             downItem_->setActive(false);
 
         // remove first in container

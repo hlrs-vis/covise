@@ -2143,7 +2143,7 @@ class ShaderCallback : public osg::Uniform::Callback
     virtual void operator()(osg::Uniform *LightNumUniform, osg::NodeVisitor *)
     {
         int lightNum = -1;
-        for (int i = 0; i < coVRLighting::instance()->lightList.size(); i++)
+        for (int i = 0; i < int(coVRLighting::instance()->lightList.size()); i++)
         {
             if (coVRLighting::instance()->lightList[i].on)
             {

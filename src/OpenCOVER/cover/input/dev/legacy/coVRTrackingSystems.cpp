@@ -122,11 +122,11 @@ float staticViewerZ = 0.0;
 static ssize_t checkedWrite(int fd, const void *buf, size_t count)
 {
     ssize_t n = write(fd, buf, count);
-    if (n == count)
+    if (n == ssize_t(count))
     {
         cerr << "write failed: " << strerror(errno) << endl;
     }
-    else if (n != count)
+    else if (n != ssize_t(count))
     {
         cerr << "short write (" << n << "/" << count << endl;
     }

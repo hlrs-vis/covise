@@ -1066,7 +1066,7 @@ void HfT_osg_Parametric_Surface::computeTriangleEdges()
 
     //Don´t triagulate the last row because there exists no upper row
     //The beginning is at bottom left side, clockwise
-    while ((i + numSupportingPointsU) < (m_rpSupportingPoints->size()))
+    while ((i + numSupportingPointsU) < ssize_t(m_rpSupportingPoints->size()))
     {
         if (((i + 1) % numSupportingPointsU) != 0)
         {
@@ -1098,7 +1098,7 @@ void HfT_osg_Parametric_Surface::computeQuadEdges()
 
     //Don´t triagulate the last row because there exists no upper row
     //The beginning is at bottom left side, clockwise
-    while ((i + numSupportingPointsU) < (m_rpSupportingPoints->size()))
+    while ((i + numSupportingPointsU) < ssize_t(m_rpSupportingPoints->size()))
     {
         if (((i + 1) % numSupportingPointsU) != 0)
         {

@@ -56,7 +56,7 @@ void Path::update(float animationSeconds)
         return;
 
     animationIndex = int(animationSeconds);
-    animationIndex = MIN(animationIndex, positions.size() - 1);
+    animationIndex = MIN(animationIndex, ssize_t(positions.size() - 1));
 
     drawLine();
 }
@@ -72,7 +72,7 @@ void Path::updateTransform()
     std::cerr << "Scale: " << data_scale << " Rotate: " << data_rotationAngle << " Translate: " << data_translation[0] << " " << data_translation[1] << " " << data_translation[2] << std::endl;
 
     // transform points
-    for (int i = 0; i < points.size(); ++i)
+    for (size_t i = 0; i < points.size(); ++i)
     {
         tmp.push_back(points[i]);
         if (data_lockZ)
@@ -84,10 +84,10 @@ void Path::updateTransform()
 
     // calculate position smoothing
     positions.clear();
-    for (int i = SMOOTHING; i < tmp.size(); ++i)
+    for (size_t i = SMOOTHING; i < tmp.size(); ++i)
     {
         osg::Vec3 current;
-        for (int j = i - SMOOTHING; j < i; ++j)
+        for (size_t j = i - SMOOTHING; j < i; ++j)
         {
             current += tmp[j];
         }
@@ -101,7 +101,7 @@ void Path::updateTransform()
     {
         orientations.push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
     }
-    for (int i = ORIENTATION_SMOOTHING; i < positions.size(); ++i)
+    for (size_t i = ORIENTATION_SMOOTHING; i < positions.size(); ++i)
     {
         osg::Vec3 currentO = positions[i] - positions[i - ORIENTATION_SMOOTHING];
         if (currentO.length2() > 0.0001f)
@@ -171,7 +171,7 @@ void Path::loadFromFile(std::string filename)
 
 osg::Vec3 Path::getCurrentPosition()
 {
-    if ((animationIndex >= 0) && (animationIndex < positions.size()))
+    if ((animationIndex >= 0) && (animationIndex < ssize_t(positions.size())))
     {
         return positions[animationIndex];
     }
@@ -183,7 +183,7 @@ osg::Vec3 Path::getCurrentPosition()
 
 osg::Vec3 Path::getCurrentOrientation()
 {
-    if ((animationIndex > 0) && (animationIndex < orientations.size()))
+    if ((animationIndex > 0) && (animationIndex < ssize_t(orientations.size())))
     {
         return orientations[animationIndex];
     }

@@ -482,12 +482,12 @@ private:
     //für Projektionsmatrix der Kamera
     bool stateFrust; //Frustum darstellen ja/nein?
     float projRatio; //Projektionsverhältnis (projektionsabstand a / Bildbreite b)
-    float aspectRh; //Aspect Ratio, Seitenverhältnis
     float aspectRw; //Aspect Ratio, Seitenverhältnis
+    float aspectRh; //Aspect Ratio, Seitenverhältnis
     float near_c; //Clipping-Ebenen des Frustums (Nähe)
     float far_c; //Clipping-Ebenen des Frustums (Ferne)
-    float shifty; //lense shift vertikal (vertikale verschiebung des proj. Bildes)
     float shiftx; //lense shift horizontal (horizontale verschiebung des proj. Bildes)
+    float shifty; //lense shift vertikal (vertikale verschiebung des proj. Bildes)
 
     //für View-Matrix des Projektors -> Position, Orientierung
     osg::Vec3 position;

@@ -270,7 +270,7 @@ void AtomBuilder::update()
 
     nN_ = nP_ = nKE_ = nLE_ = nME_ = 0;
     // if nucleon was stopped, move animated to final position
-    for (int i = 0; i < protons_.size(); i++)
+    for (size_t i = 0; i < protons_.size(); i++)
     {
         protons_[i]->preFrame();
         if ((protons_[i]->wasStopped()) || (protons_[i]->isIdle()))
@@ -312,7 +312,7 @@ void AtomBuilder::update()
                 protons_[i]->startAnimation(protons_[i]->getInitialPosition());
         }
     }
-    for (int i = 0; i < neutrons_.size(); i++)
+    for (size_t i = 0; i < neutrons_.size(); i++)
     {
         neutrons_[i]->preFrame();
         if ((neutrons_[i]->wasStopped()) || (neutrons_[i]->isIdle()))
@@ -351,7 +351,7 @@ void AtomBuilder::update()
 
     if (cover->debugLevel(5))
         fprintf(stderr, "--sorting electrons\n");
-    for (int i = 0; i < electrons_.size(); i++)
+    for (int i = 0; i < ssize_t(electrons_.size()); i++)
     {
         if (cover->debugLevel(5))
             fprintf(stderr, "--electron %d\n", i);
@@ -551,7 +551,7 @@ void AtomBuilder::update()
         float da, a, r;
 
         // rearrange kshell
-        if (((oldElectronsInKShellSize_ != electronsInKShell_.size()) && (electronsInKShell_.size() != 0)) || (releasedElectron && releasedElectron->insideKShell()))
+        if (((oldElectronsInKShellSize_ != ssize_t(electronsInKShell_.size())) && (electronsInKShell_.size() != 0)) || (releasedElectron && releasedElectron->insideKShell()))
         {
             if (cover->debugLevel(5))
                 fprintf(stderr, "---rearrange khell\n");
@@ -574,7 +574,7 @@ void AtomBuilder::update()
             // compute delta angle for distributing electron
             da = 2 * M_PI / electronsInKShell_.size();
 
-            if (releasedPos == electronsInKShell_.size())
+            if (releasedPos == ssize_t(electronsInKShell_.size()))
             {
                 a = ((ElectronInteractor *)(*electronsInKShell_.begin()))->getAngle();
             }
@@ -601,7 +601,7 @@ void AtomBuilder::update()
             fprintf(stderr, "---rearrange khell done\n");
 
         // rearrange lshell
-        if (((oldElectronsInLShellSize_ != electronsInLShell_.size()) && (electronsInLShell_.size() != 0)) || (releasedElectron && releasedElectron->insideLShell()))
+        if (((oldElectronsInLShellSize_ != ssize_t(electronsInLShell_.size())) && (electronsInLShell_.size() != 0)) || (releasedElectron && releasedElectron->insideLShell()))
         {
             if (cover->debugLevel(5))
                 fprintf(stderr, "---rearrange lshell\n");
@@ -626,7 +626,7 @@ void AtomBuilder::update()
             // compute delta angle for distributing electrons
             da = 2 * M_PI / electronsInLShell_.size();
 
-            if (releasedPos == electronsInLShell_.size())
+            if (releasedPos == ssize_t(electronsInLShell_.size()))
             {
                 a = ((ElectronInteractor *)(*electronsInLShell_.begin()))->getAngle();
             }
@@ -650,7 +650,7 @@ void AtomBuilder::update()
         }
 
         // rearrange mshell
-        if (((oldElectronsInMShellSize_ != electronsInMShell_.size()) && (electronsInMShell_.size() != 0)) || (releasedElectron && releasedElectron->insideMShell()))
+        if (((oldElectronsInMShellSize_ != ssize_t(electronsInMShell_.size())) && (electronsInMShell_.size() != 0)) || (releasedElectron && releasedElectron->insideMShell()))
         {
             if (cover->debugLevel(5))
                 fprintf(stderr, "---rearrange mshell\n");
@@ -674,7 +674,7 @@ void AtomBuilder::update()
             // compute delta angle for distributing electrons
             da = 2 * M_PI / electronsInMShell_.size();
 
-            if (releasedPos == electronsInMShell_.size())
+            if (releasedPos == ssize_t(electronsInMShell_.size()))
             {
                 a = ((ElectronInteractor *)(*electronsInMShell_.begin()))->getAngle();
             }
@@ -791,7 +791,7 @@ AtomBuilder::check(std::vector<ElementaryParticleInteractor *> particles, int nu
     bool correct = false;
     int numParticlesInside = 0;
     //fprintf(stderr,"AtomBuilder::check radius=%f\n", radius);
-    for (int i = 0; i < particles.size(); i++)
+    for (size_t i = 0; i < particles.size(); i++)
     {
         osg::Vec3 pos = particles[i]->getPosition();
         float d = pos.length();
@@ -817,7 +817,7 @@ AtomBuilder::check(std::vector<ElementaryParticleInteractor *> particles, int nu
 
     bool correct = false;
     int numParticlesInside = 0;
-    for (int i = 0; i < particles.size(); i++)
+    for (size_t i = 0; i < particles.size(); i++)
     {
         osg::Vec3 pos = particles[i]->getPosition();
         float d = pos.length();
@@ -868,7 +868,7 @@ void AtomBuilder::show(bool value)
         }
     }
 
-    for (int i = 0; i < protons_.size(); i++)
+    for (size_t i = 0; i < protons_.size(); i++)
     {
         if (value)
         {
@@ -883,7 +883,7 @@ void AtomBuilder::show(bool value)
             protons_[i]->disableIntersection();
         }
     }
-    for (int i = 0; i < neutrons_.size(); i++)
+    for (size_t i = 0; i < neutrons_.size(); i++)
     {
         if (value)
         {
@@ -898,7 +898,7 @@ void AtomBuilder::show(bool value)
             neutrons_[i]->disableIntersection();
         }
     }
-    for (int i = 0; i < electrons_.size(); i++)
+    for (size_t i = 0; i < electrons_.size(); i++)
     {
         if (value)
         {
@@ -918,15 +918,15 @@ void AtomBuilder::show(bool value)
 void
 AtomBuilder::resetParticles()
 {
-    for (int i = 0; i < protons_.size(); i++)
+    for (size_t i = 0; i < protons_.size(); i++)
     {
         protons_[i]->resetPosition();
     }
-    for (int i = 0; i < neutrons_.size(); i++)
+    for (size_t i = 0; i < neutrons_.size(); i++)
     {
         neutrons_[i]->resetPosition();
     }
-    for (int i = 0; i < electrons_.size(); i++)
+    for (size_t i = 0; i < electrons_.size(); i++)
     {
         electrons_[i]->resetPosition();
     }

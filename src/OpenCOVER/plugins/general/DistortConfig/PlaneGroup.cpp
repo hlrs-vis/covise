@@ -64,7 +64,7 @@ void PlaneGroup::setupLineEditsArray()
 
 void PlaneGroup::setupConnects()
 {
-    for (unsigned int i = 0; i < lineEditsVec.size(); i++)
+    for (int i = 0; i < lineEditsVec.size(); i++)
     {
         connect(lineEditsVec.at(i), SIGNAL(editingFinished()), this, SLOT(lineEditEditingFinished()));
     }
@@ -82,7 +82,7 @@ void PlaneGroup::setupConnects()
 void PlaneGroup::lineEditEditingFinished()
 {
     //eingegebenen Text in formatierte Zahl umwandeln
-    for (unsigned int i = 0; i < lineEditsVec.size(); i++)
+    for (int i = 0; i < lineEditsVec.size(); i++)
     {
         //Zahlen formatieren
         double num = lineEditsVec.at(i)->text().toDouble();
@@ -106,8 +106,6 @@ void PlaneGroup::edtWidthResEditingFinished()
 void PlaneGroup::edtHeightEditingFinished()
 {
     QString text = ui.lineEditHeight->text();
-    float height = text.toFloat();
-    float height2 = ui.lineEditHeight->text().toFloat();
     screen->setHeight(ui.lineEditHeight->text().toFloat());
     update();
 }

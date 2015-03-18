@@ -167,7 +167,7 @@ coImageViewer::~coImageViewer()
         imageMenu_->remove(imageItemList_[currentPageIndex_]);
     }
 
-    for (int i = 0; i < imageItemList_.size(); ++i)
+    for (size_t i = 0; i < imageItemList_.size(); ++i)
         delete imageItemList_[i];
 
     if (imageMenu_ && zoomSlider_)
@@ -223,7 +223,7 @@ coImageViewer::addImage(const char *imagePath)
     //fprintf(stderr,"coImageViewer::addImage [%s] to list of size [%d]\n", imagePath, (int)imageItemList_.size());
 
     // check if this image is already in the list
-    for (int i = 0; i < imageItemList_.size(); i++)
+    for (size_t i = 0; i < imageItemList_.size(); i++)
     {
         //fprintf(stderr,"comparing item [%d] [%s]\n", i, imageItemList_[i]->getName());
         if (strcmp(imageItemList_[i]->getName(), imagePath) == 0)
@@ -361,7 +361,7 @@ coImageViewer::setSize(int pageNo, float hsize, float vsize)
     if (pageNo > (int)imageItemList_.size())
         return;
 
-    for (int i = 0; i < imageItemList_.size(); ++i)
+    for (size_t i = 0; i < imageItemList_.size(); ++i)
         imageItemList_[i]->setSize(hsize, vsize);
 }
 void
