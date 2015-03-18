@@ -55,11 +55,11 @@ int HfT_string_to_int(std::string str)
 }
 std::string HfT_replace_string_in_string(std::string instr, std::string repstr, std::string newstr)
 {
-    int pos;
+    std::string::size_type pos;
     while (true)
     {
         pos = instr.find(repstr);
-        if (pos == -1)
+        if (pos == std::string::npos)
             break;
         else
         {

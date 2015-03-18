@@ -746,7 +746,6 @@ void ParamPlugin::createGeom()
     primitives->clear();
     normals->clear();
     vert->clear();
-    int ind = 0;
     int poly = 0;
     int hmax = nheight - 1;
     float funcmax = squareParam * hmax * hmax + cubicParam * hmax * hmax * hmax;
@@ -789,7 +788,7 @@ void ParamPlugin::createGeom()
                 }
                 Vec3 v1, v2, n;
                 osg::Vec3Array *v = vert.get();
-                ind = vert->size();
+                int ind = vert->size();
                 v1 = (*v)[ind - 1] - (*v)[ind - 2];
                 v2 = (*v)[ind - 3] - (*v)[ind - 1];
                 v1.normalize();

@@ -467,9 +467,9 @@ void ParamSurface::setBoundriesAndMode(const double &iLowU, const double &iUpU,
     //Patches are the same so the quads have not to be recomputed.
     //Setting the m_areQuadsComputed variable true if the new mode also
     //needs the quad mesh.
-    if ((oldMode == 2) | (oldMode == 3))
+    if ((oldMode == 2) || (oldMode == 3))
     {
-        if ((m_creatingMode == 2) | (m_creatingMode == 3))
+        if ((m_creatingMode == 2) || (m_creatingMode == 3))
         {
             m_areQuadsComputed = true;
         }
@@ -556,9 +556,9 @@ void ParamSurface::setMode(int iNewMode)
     //Patches are the same so the quads have not to be recomputed.
     //Setting the m_areQuadsComputed variable true if the new mode also
     //needs the quad mesh.
-    if ((oldMode == 2) | (oldMode == 3))
+    if ((oldMode == 2) || (oldMode == 3))
     {
-        if ((m_creatingMode == 2) | (m_creatingMode == 3))
+        if ((m_creatingMode == 2) || (m_creatingMode == 3))
         {
             m_areQuadsComputed = true;
         }
@@ -636,7 +636,7 @@ void ParamSurface::recomputeSurface(char iChar)
 void ParamSurface::recomputeSurface(int iOldMode, char iChar)
 {
     //Recalculation of the supporting points, normals and texture coordinates
-    if ((iChar == 'B') | (iChar == 'P'))
+    if ((iChar == 'B') || (iChar == 'P'))
     {
         recomputeSurface('B');
     }
@@ -672,7 +672,7 @@ void ParamSurface::recomputeSurface(int iOldMode, char iChar)
         }
         //if during the old presentation step the quad mesh was needed
         // and for next presenation step the quad mesh is not needed
-        if (((iOldMode == 2) | (iOldMode == 3)) && !m_areQuadsComputed)
+        if (((iOldMode == 2) || (iOldMode == 3)) && !m_areQuadsComputed)
         {
             m_rpGeom->removePrimitiveSet(0);
             m_rpQuadEdges = new DrawElementsUInt(PrimitiveSet::QUADS, 0);
