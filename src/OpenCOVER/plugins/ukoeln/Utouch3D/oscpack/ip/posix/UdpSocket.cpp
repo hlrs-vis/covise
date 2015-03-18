@@ -443,6 +443,14 @@ public:
                     break;
             }
 
+            if (FD_ISSET(breakPipe_[0], &tempfds))
+            {
+                // clear pending data from the asynchronous break pipe
+                char c;
+                ssize_t ret;
+                ret = read(breakPipe_[0], &c, 1);
+            }
+
             if (break_)
                 break;
 
@@ -494,7 +502,8 @@ public:
         break_ = true;
 
         // Send a termination message to the asynchronous break pipe, so select() will return
-        write(breakPipe_[1], "!", 1);
+        ssize_t ret;
+        ret = write(breakPipe_[1], "!", 1);
     }
 };
 
