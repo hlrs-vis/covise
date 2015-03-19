@@ -10,7 +10,8 @@
 #include "coMUIWidget.h"
 #include <boost/smart_ptr.hpp>
 
-namespace vrui {
+namespace vrui
+{
 class coPotiMenuItem;
 class coRowMenu;
 class coUIElement;

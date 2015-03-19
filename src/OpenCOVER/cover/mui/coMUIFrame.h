@@ -14,11 +14,13 @@
 
 
 // forwarddeclaration
-namespace vrui{
+namespace vrui
+{
 class coRowMenu;
 class coSubMenuItem;
 }
-namespace opencover{
+namespace opencover
+{
 class coTUIFrame;
 }
 

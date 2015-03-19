@@ -7,33 +7,40 @@
 #include <net/message_types.h>
 
 // constructor
-coMUIContainer::coMUIContainer(){
+coMUIContainer::coMUIContainer()
+{
     menuItem = new vrui::coRowMenu("menuItem", 0, 0, false);
 }
 
 // destructor
-coMUIContainer::~coMUIContainer(){
+coMUIContainer::~coMUIContainer()
+{
 }
 
 // get ID
-int coMUIContainer::getTUIID(){
+int coMUIContainer::getTUIID()
+{
     return ID;
 }
 
 // get Pointer to VR-Parent
-vrui::coMenu* coMUIContainer::getVRUI(){
+vrui::coMenu* coMUIContainer::getVRUI()
+{
     return menuItem;
 }
 
-bool coMUIContainer::existVRUI(){
+bool coMUIContainer::existVRUI()
+{
     return false;
 }
 
-bool coMUIContainer::existTUI(){
+bool coMUIContainer::existTUI()
+{
     return false;
 }
 
 // needs to be overwritten by inherited class
-void coMUIContainer::setPos(int posx, int posy){
+void coMUIContainer::setPos(int posx, int posy)
+{
     std::cerr << "ERROR: coMUIContainer::setPos(int, int): Was called and should have been overwritten by inherited class." << std::endl;
 }

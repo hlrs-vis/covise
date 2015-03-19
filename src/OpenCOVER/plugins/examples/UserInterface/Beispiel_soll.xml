@@ -2,8 +2,8 @@
 <Config>
     <VRUI class="CAVE">
         <TabFolder1 visible="false" position="1,1" label="TabFolder1CAVE"/>
-        <Tab1 visible="true" position="2,4" label="Tab1ConfigCAVE"/>
-        <Button visible="true" parent="Tab1" label="Button1ConfigCAVE" />
+        <plugins.examples.UserInterface.Tab1 visible="true" label="Tab1ConfigCAVE"/>
+        <plugins.examples.UserInterface.Button1 visible="true" parent="plugins.examples.UserInterface.Tab1" label="Button1ConfigCAVE" />
         <Button2 visible="true" parent="Tab1" label="testit2" />
         <Slider1 visible="true" parent="Tab1" label="Slider1ConfigCAVE" />
         <Frame2 visible="true" parent="Tab1" label="Frame2ConfigCAVE"/>
@@ -11,8 +11,8 @@
     </VRUI>
     <TUI class="Tablet">
         <TabFolder1 visible="false" position="1,1" label="TabFolder1Tablet"/>
-        <Tab1 visible="true" position="2,4" label="Tab1ConfigTablet"/>
-        <Button visible="true" parent="Tab1" position="1,1" label="Button1ConfigTablet" />
+        <plugins.examples.UserInterface.Tab1 visible="true" position="0,0" label="Tab1ConfigTablet"/>
+        <plugins.examples.UserInterface.Button1 visible="true" parent="plugins.examples.UserInterface.Tab1" position="0,0" label="Button1ConfigTablet" />
         <Button2 visible="true" parent="Tab1" position="1,2" label="testit2" />
         <Slider1 visible="true" parent="Tab1" label="Slider1ConfigTablet" />
         <Frame2 visible="true" parent="Tab1" position="1,1" label="Frame2ConfigTablet"/>

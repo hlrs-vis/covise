@@ -15,19 +15,20 @@ class coMUIWidget;
 class coMUIContainer;
 
 
-class coMUIPositionManager{
+class coMUIPositionManager
+{
 public:
     coMUIPositionManager();
     ~coMUIPositionManager();
 
-    std::vector <int> getFreePos(std::string UniqueIdentifierParent);         // returns Coordinates of free Position
-    void addPos(std::string UniqueIdentifier, int posx, int posy, std::string UniqueIdentifierParent, bool autoassigned);
-    void deletePos(std::string UniqueIdentifier);
-    std::vector <int> getPos(std::string UniqueIdentifier);
-    void changePos(std::string UniqueIdentifier, int xPos, int yPos);
-    bool isOccupied(int posx, int posy, std::string UniqueIdentifierParent);
-    bool isAutoassigned(int posx, int posy, std::string UniqueIdentifierParent);
-    std::string getIdentifier(int posx, int posy, std::string UniqueIdentifierParent);
+    std::pair <int,int> getFreePos(std::string UniqueIdentifierParent);         // returns Coordinates of free Position
+    void addPosToPosList(std::string UniqueIdentifier, std::pair <int,int> Pos, std::string UniqueIdentifierParent, bool autoassigned);
+    void deletePosFromPosList(std::string UniqueIdentifier);
+    std::pair <int,int> getPosOfElement(std::string UniqueIdentifier);
+    void changePosInPosList(std::string UniqueIdentifier, std::pair<int,int> Pos);
+    bool isPosOccupied(std::pair<int,int> Pos, std::string UniqueIdentifierParent);
+    bool isAutoassigned(std::pair<int,int> Pos, std::string UniqueIdentifierParent);
+    std::string getIdentifierByPos(std::pair<int,int> Pos, std::string UniqueIdentifierParent);
     std::string printPos();
 
 
@@ -44,7 +45,7 @@ private:
     int MaxPosX;                      // max allowed positions in x-direction (shall depend on size of display)
 
     // methods:
-    bool PosInPosList(std::vector <int> Coordinates, std::string UniqueIdentifierParent);
+    bool PosInPosList(std::pair <int,int> Coordinates, std::string UniqueIdentifierParent);
 };
 
 

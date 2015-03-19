@@ -5,7 +5,8 @@
 #include <boost/smart_ptr.hpp>
 
 // forward-declaration
-namespace xercesc_3_1 {
+namespace xercesc_3_1
+{
 class XercesDOMParser;
 class DOMDocument;
 class DOMNode;
@@ -13,7 +14,8 @@ class DOMNodeList;
 class DOMElement;
 }
 // begin of class
-class coMUIConfigParser{
+class coMUIConfigParser
+{
 public:
     // constructor
     coMUIConfigParser(const std::string xmlAdresse);

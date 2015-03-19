@@ -17,7 +17,8 @@
 
 // forwarddeclaration
 
-namespace vrui {
+namespace vrui
+{
 class coSubMenuItem;
 class coRowMenu;
 class coMenuItem;

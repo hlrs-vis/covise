@@ -4,17 +4,20 @@
 #include "coMUIElementManager.h"
 
 // constructor
-coMUIElementManager::coMUIElementManager(){
+coMUIElementManager::coMUIElementManager()
+{
 
 }
 
 // destructor
-coMUIElementManager::~coMUIElementManager(){
+coMUIElementManager::~coMUIElementManager()
+{
 
 }
 
 // creating a struct
-struct coMUIElementManager::entry{
+struct coMUIElementManager::entry
+{
     std::string name;
     coMUIContainer* ContainerPointer;
     coMUIWidget* WidgetPointer;
@@ -22,15 +25,19 @@ struct coMUIElementManager::entry{
 };
 
 // adds container-element to ElementList
-void coMUIElementManager::addElement(std::string UniqueIdentifier, coMUIContainer* Container){
+void coMUIElementManager::addElement(std::string UniqueIdentifier, coMUIContainer* Container)
+{
     bool exist=0;
-    for (size_t i=0; i<ElementList.size(); i++){
-        if (ElementList[i].name==UniqueIdentifier){                     // name already exists
+    for (size_t i=0; i<ElementList.size(); i++)
+    {
+        if (ElementList[i].name==UniqueIdentifier)                     // name already exists
+        {
             exist=1;
             std::cerr << "ERROR: coMUIElementManager::addElement(): Element named " << ElementList[i].name << " already exists. Choose another Name" << std::endl;
         }
     }
-    if (exist!=1){                                                      // name doesn't exist yet -> new entry
+    if (exist!=1)                                                      // name doesn't exist yet -> new entry
+    {
         ElementList.push_back(entry());
         ElementList[ElementList.size()-1].name=UniqueIdentifier;
         ElementList[ElementList.size()-1].ContainerPointer = Container;
@@ -39,15 +46,19 @@ void coMUIElementManager::addElement(std::string UniqueIdentifier, coMUIContaine
 };
 
 // adds widget-element to ElementList
-void coMUIElementManager::addElement(std::string UniqueIdentifier, coMUIWidget* Widget){
+void coMUIElementManager::addElement(std::string UniqueIdentifier, coMUIWidget* Widget)
+{
     bool exist=0;
-    for (size_t i=0; i<ElementList.size(); i++){
-        if (ElementList[i].name==UniqueIdentifier){                     // name already exists
+    for (size_t i=0; i<ElementList.size(); i++)
+    {
+        if (ElementList[i].name==UniqueIdentifier)                     // name already exists
+        {
             exist=1;
             std::cerr << "ERROR: coMUIElementManager::addElement(): Element named " << ElementList[i].name << " already exists. Choose another Name" << std::endl;
         }
     }
-    if (exist!=1){                                                      // name doesn't exist yet -> new entry
+    if (exist!=1)                                                      // name doesn't exist yet -> new entry
+    {
         ElementList.push_back(entry());
         ElementList[ElementList.size()-1].name=UniqueIdentifier;
         ElementList[ElementList.size()-1].WidgetPointer = Widget;
@@ -56,9 +67,12 @@ void coMUIElementManager::addElement(std::string UniqueIdentifier, coMUIWidget* 
 };
 
 // removes Element from ElementList
-void coMUIElementManager::removeElement(std::string UniqueIdentifier){
-    for (size_t i=0; i<ElementList.size(); i++){
-        if (ElementList[i].name== UniqueIdentifier){
+void coMUIElementManager::removeElement(std::string UniqueIdentifier)
+{
+    for (size_t i=0; i<ElementList.size(); i++)
+    {
+        if (ElementList[i].name== UniqueIdentifier)
+        {
             ElementList.erase(ElementList.begin()+i);
             --i;
         }
@@ -66,9 +80,11 @@ void coMUIElementManager::removeElement(std::string UniqueIdentifier){
 }
 
 // prints all names from ElementList to console
-void coMUIElementManager::printNames(){
+void coMUIElementManager::printNames()
+{
     std::string toPrint = " ";
-    for (size_t i=0; i< ElementList.size(); ++i){
+    for (size_t i=0; i< ElementList.size(); ++i)
+    {
         toPrint.append(ElementList[i].name);
         toPrint.append(", ");
     }
@@ -76,9 +92,12 @@ void coMUIElementManager::printNames(){
 }
 
 // returns the container named "Identifier"
-coMUIContainer* coMUIElementManager::getContainerByIdentifier(std::string UniqueIdentifier){
-    for (size_t i=0; i<ElementList.size(); i++){                           // go through all entrys
-        if ((ElementList[i].name==UniqueIdentifier) && (ElementList[i].Container == true)){                       // match (name is equal)
+coMUIContainer* coMUIElementManager::getContainerByIdentifier(std::string UniqueIdentifier)
+{
+    for (size_t i=0; i<ElementList.size(); i++)                           // go through all entrys
+    {
+        if ((ElementList[i].name==UniqueIdentifier) && (ElementList[i].Container == true))                       // match (name is equal)
+        {
             return ElementList[i].ContainerPointer;
         }
     }
@@ -87,9 +106,12 @@ coMUIContainer* coMUIElementManager::getContainerByIdentifier(std::string Unique
 }
 
 // returns the widget named "Identifier"
-coMUIWidget* coMUIElementManager::getWidgetByIdentifier(std::string UniqueIdentifier){
-    for (size_t i=0; i<ElementList.size(); i++){                // go through all entrys
-        if ((ElementList[i].name==UniqueIdentifier) && (ElementList[i].Container == false)){                       // match (name is equal)
+coMUIWidget* coMUIElementManager::getWidgetByIdentifier(std::string UniqueIdentifier)
+{
+    for (size_t i=0; i<ElementList.size(); i++)                // go through all entrys
+    {
+        if ((ElementList[i].name==UniqueIdentifier) && (ElementList[i].Container == false))
+        {                       // match (name is equal)
             return ElementList[i].WidgetPointer;
         }
     }
@@ -98,9 +120,12 @@ coMUIWidget* coMUIElementManager::getWidgetByIdentifier(std::string UniqueIdenti
 }
 
 // returns true, if element is a container; else returns false
-bool coMUIElementManager::isContainer(const std::string UniqueIdentifier){
-    for (size_t i=0; i<ElementList.size(); i++){
-        if (ElementList[i].name == UniqueIdentifier){
+bool coMUIElementManager::isContainer(const std::string UniqueIdentifier)
+{
+    for (size_t i=0; i<ElementList.size(); i++)
+    {
+        if (ElementList[i].name == UniqueIdentifier)
+        {
             return ElementList[i].Container;
         }
     }
@@ -110,9 +135,12 @@ bool coMUIElementManager::isContainer(const std::string UniqueIdentifier){
 
 
 // delete entry with name "Name" from  ElementList
-void coMUIElementManager::deleteEntry(std::string UniqueIdentifier){
-    for (size_t i=0; i<ElementList.size(); i++){
-        if (ElementList[i].name == UniqueIdentifier){
+void coMUIElementManager::deleteEntry(std::string UniqueIdentifier)
+{
+    for (size_t i=0; i<ElementList.size(); i++)
+    {
+        if (ElementList[i].name == UniqueIdentifier)
+        {
             ElementList.erase(ElementList.begin()+i);
             i--;
         }

@@ -3,18 +3,13 @@
 
 #include <iostream>
 
-/*const std::string keywordTUI = "TUI";
-const std::string keywordVRUI = "VRUI";
-const std::string keywordTablet = "Tablet";
-const std::string keywordCAVE = "CAVE";
-const std::string keywordPhone = "Phone";
-const std::string keywordPowerwall = "Powerwall";
-*/
 // Class coMUIDefaultValues handles the default-values and returns them to the other functions
 // Default-values can easily be changed here
-class coMUIDefaultValues{
+class coMUIDefaultValues
+{
 private:
-    struct device{
+    struct device
+    {
         std::string UI;
         std::string Device;
     };
@@ -49,7 +44,7 @@ private:
     std::string keywordMainWindow;                    // keyword for MainWindow in configuration file
 
     bool visible;                 // should be visible all the time
-    int position[2];                    // return an integer-Array of size 2
+    std::pair<int,int> position;                    // return an integer-Array of size 2
     bool PositionFirstCall;
 
 };

@@ -8,10 +8,12 @@
 #include "coMUIWidget.h"
 #include <boost/smart_ptr.hpp>
 
-namespace vrui {
+namespace vrui
+{
 class coLabelMenuItem;
 }
-namespace opencover{
+namespace opencover
+{
 class coTUILabel;
 }
 

@@ -7,7 +7,8 @@
 
 using namespace std;
 
-int coMUISupport::readIntFromString(const string String, int pos){
+int coMUISupport::readIntFromString(const string String, int pos)
+{
     string NumberString= "0123456789";
     string actualNumber_str;
     string zwischenstring;
@@ -17,19 +18,22 @@ int coMUISupport::readIntFromString(const string String, int pos){
     int returnArray[readIntFromStringGetArraySize(String)];
 
     for (size_t i=0; i<=String.size(); i++){                       // pass each character of the string
-        if (NumberString.find(String[i])!=string::npos){        // character is a number
+        if (NumberString.find(String[i])!=string::npos)        // character is a number
+        {
             zwischenstring = String[i];
             actualNumber_str.append(zwischenstring);            // append the actual numeral to the actual number
 
         }
         else{                                                   // character is not a numeral
-            if (!actualNumber_str.empty()){                     // there is already a numeral in actualNumber
+            if (!actualNumber_str.empty())                     // there is already a numeral in actualNumber
+            {
                 actualNumber_int = boost::lexical_cast<int>(actualNumber_str);      // actualNumber_str is casted into int and saved in actaulNumber_int
                 counter ++;
                 returnArray[counter]=actualNumber_int;
                 actualNumber_str.clear();
             }
-            else{                                               // no number in actualNumber
+            else                                               // no number in actualNumber
+            {
 
             }
         }
@@ -38,23 +42,29 @@ int coMUISupport::readIntFromString(const string String, int pos){
 }
 
 
-int coMUISupport::readIntFromStringGetArraySize(const std::string String){
+int coMUISupport::readIntFromStringGetArraySize(const std::string String)
+{
     string NumberString = "0123456789";
     int sizeReturnArray = 0;
     bool lastCharZahl = 0;
 
-    if (NumberString.find(String[0])!=string::npos){            // check, if first element is a number
+    if (NumberString.find(String[0])!=string::npos)                 // check, if first element is a number
+    {
         lastCharZahl=1;
         sizeReturnArray++;
     }
-    for (size_t i=0; i<String.size(); ++i){                        // determine the size of returnArray
-        if (NumberString.find(String[i])!=string::npos){        // character is a number
-            if (lastCharZahl==0){                               // previous character was not a number
+    for (size_t i=0; i<String.size(); ++i)                          // determine the size of returnArray
+    {
+        if (NumberString.find(String[i])!=string::npos)             // character is a number
+        {
+            if (lastCharZahl==0)                                    // previous character was not a number
+            {
                 sizeReturnArray++;
                 lastCharZahl=1;
             }
         }
-        else if (!(NumberString.find(String[i])!=string::npos)){  // character is not a number
+        else if (!(NumberString.find(String[i])!=string::npos))     // character is not a number
+        {
             lastCharZahl=0;
         }
     }

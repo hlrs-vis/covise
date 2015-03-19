@@ -1,7 +1,8 @@
 #include "coMUIDefaultValues.h"
 
 // constructor:
-coMUIDefaultValues::coMUIDefaultValues(){
+coMUIDefaultValues::coMUIDefaultValues()
+{
     keywordTUI = "TUI";                           // keyword for TUI in configuration file
     keywordVRUI = "VRUI";                         // keyword for VRUI in configuration file
     keywordTablet = "Tablet";                     // keyword for Tablet in configuration file
@@ -14,34 +15,42 @@ coMUIDefaultValues::coMUIDefaultValues(){
 }
 
 // destructor:
-coMUIDefaultValues::~coMUIDefaultValues(){
+coMUIDefaultValues::~coMUIDefaultValues()
+{
 
 }
 
-std::string coMUIDefaultValues::getKeywordCAVE(){
+std::string coMUIDefaultValues::getKeywordCAVE()
+{
     return keywordCAVE;
 }
 
-std::string coMUIDefaultValues::getKeywordTablet(){
+std::string coMUIDefaultValues::getKeywordTablet()
+{
     return keywordTablet;
 }
 
-std::string coMUIDefaultValues::getKeywordTUI(){
+std::string coMUIDefaultValues::getKeywordTUI()
+{
     return keywordTUI;
 }
 
-std::string coMUIDefaultValues::getKeywordVRUI(){
+std::string coMUIDefaultValues::getKeywordVRUI()
+{
     return keywordVRUI;
 }
 
-std::string coMUIDefaultValues::getKeywordPowerwall(){
+std::string coMUIDefaultValues::getKeywordPowerwall()
+{
     return keywordPowerwall;
 }
 
-std::string coMUIDefaultValues::getKeywordPhone(){
+std::string coMUIDefaultValues::getKeywordPhone()
+{
     return keywordPhone;
 }
 
-std::string coMUIDefaultValues::getKeywordMainWindow(){
+std::string coMUIDefaultValues::getKeywordMainWindow()
+{
     return keywordMainWindow;
 }
