@@ -49,9 +49,14 @@
 
 #include <boost/filesystem.hpp>
 
-#include "foamtoolbox.h"
+#include <boost/algorithm/string/predicate.hpp>
 
-const size_t MaxHeaderLines = 1000;
+#include <boost/mpl/same_as.hpp>
+
+#include "foamtoolbox.h"
+#include "byteswap.h"
+
+const size_t MaxHeaderLines = 100;
 
 namespace bi = boost::iostreams;
 namespace bs = boost::spirit;
@@ -499,10 +504,28 @@ std::string getFoamHeader(std::istream &stream)
     std::string header;
     for (size_t i = 0; i < MaxHeaderLines; ++i)
     {
+        int c = stream.peek();
+        if (c == '(')
+           break;
         std::string line;
         std::getline(stream, line);
-        if (line == "(")
+        header.append(line);
+        header.append("\n");
+    }
+    return header;
+}
+
+std::string getFieldHeader(std::istream &stream)
+{
+    std::string header;
+    for (size_t i = 0; i < MaxHeaderLines; ++i)
+    {
+        std::string line;
+        std::getline(stream, line);
+        if (boost::algorithm::starts_with(line, "("))
+        {
             break;
+        }
         header.append(line);
         header.append("\n");
     }
@@ -530,11 +553,11 @@ struct headerSkipper : qi::grammar<Iterator>
 };
 
 template <typename Iterator>
-struct headerParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iterator> >
+struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iterator> >
 {
 
-    headerParser()
-        : headerParser::base_type(start)
+    FileHeaderParser()
+        : FileHeaderParser::base_type(start)
     {
 
         start = version
@@ -543,7 +566,7 @@ struct headerParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iterator
                 >> location
                 >> object
                 >> -dimensions
-                >> -internalField
+                >> -(internalField|boundaryField)
                 >> lines;
 
         version = "version" >> +(ascii::char_ - ';') >> ';';
@@ -553,6 +576,7 @@ struct headerParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iterator
         object = "object" >> +(ascii::char_ - ';') >> ';';
         dimensions = "dimensions" >> qi::lexeme['[' >> +(ascii::char_ - ']') >> ']' >> ';'];
         internalField = "internalField" >> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
+        boundaryField = "boundaryField" >> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
         lines = qi::int_;
     }
 
@@ -564,28 +588,73 @@ struct headerParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iterator
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > object;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > dimensions;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > internalField;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > boundaryField;
+    qi::rule<Iterator, int(), headerSkipper<Iterator> > lines;
+};
+
+template <typename Iterator>
+struct FieldHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iterator> >
+{
+    FieldHeaderParser()
+        : FieldHeaderParser::base_type(start)
+    {
+
+        start = -internalField
+                >> -boundaryField
+                >> lines;
+
+        dimensions = "dimensions" >> qi::lexeme['[' >> +(ascii::char_ - ']') >> ']' >> ';'];
+        fieldType = internalField | boundaryField;
+        internalField = "internalField" >> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
+        boundaryField = "boundaryField" >> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
+        lines = qi::int_;
+    }
+
+    qi::rule<Iterator, HeaderInfo(), headerSkipper<Iterator> > start;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > dimensions;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > fieldType;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > internalField;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > boundaryField;
     qi::rule<Iterator, int(), headerSkipper<Iterator> > lines;
 };
 
 HeaderInfo readFoamHeader(std::istream &stream)
 {
-    struct headerParser<std::string::iterator> headerParser;
+    struct FileHeaderParser<std::string::iterator> headerParser;
+    struct FieldHeaderParser<std::string::iterator> fieldHeaderParser;
     struct headerSkipper<std::string::iterator> headerSkipper;
 
-    std::string header = getFoamHeader(stream);
+    std::string fileheader = getFoamHeader(stream);
     HeaderInfo info;
 
-    info.valid = qi::phrase_parse(header.begin(), header.end(),
+    info.valid = qi::phrase_parse(fileheader.begin(), fileheader.end(),
                                   headerParser, headerSkipper, info);
 
     if (!info.valid)
     {
-        std::cerr << "parsing FOAM header failed" << std::endl;
+        std::cerr << "parsing FOAM file header failed" << std::endl;
 
         std::cerr << "================================================" << std::endl;
-        std::cerr << header << std::endl;
+        std::cerr << fileheader << std::endl;
         std::cerr << "================================================" << std::endl;
     }
+#if 0
+    else
+    {
+        std::string fieldheader = getFieldHeader(stream);
+        std::cerr << "field header" << fieldheader << "<<< end" << std::endl;
+        info.valid = qi::phrase_parse(fieldheader.begin(), fieldheader.end(),
+                                     fieldHeaderParser, headerSkipper, info);
+        if (!info.valid)
+        {
+            std::cerr << "parsing FOAM field header failed" << std::endl;
+
+            std::cerr << "================================================" << std::endl;
+            std::cerr << fieldheader << std::endl;
+            std::cerr << "================================================" << std::endl;
+        }
+    }
+#endif
 
     return info;
 }
@@ -734,6 +803,69 @@ Boundaries loadBoundary(const std::string &meshdir)
     return bounds;
 }
 
+namespace
+{
+
+const endianness foam_endian = little_endian;
+
+typedef double FoamFloat;
+typedef uint32_t FoamIndex;
+
+template <typename T>
+struct on_disk;
+
+template<>
+struct on_disk<float>
+{
+    typedef FoamFloat type;
+};
+
+template<>
+struct on_disk<double>
+{
+    typedef FoamFloat type;
+};
+
+template<>
+struct on_disk<int>
+{
+    typedef FoamIndex type;
+};
+
+template<>
+struct on_disk<unsigned>
+{
+    typedef FoamIndex type;
+};
+
+template<>
+struct on_disk<long>
+{
+    typedef FoamIndex type;
+};
+
+template<>
+struct on_disk<unsigned long>
+{
+    typedef FoamIndex type;
+};
+
+}
+
+// requires 
+#define expect(c) \
+    do \
+    { \
+        char paren = 0; \
+        stream.read(&paren, 1); \
+        if (paren != c) { \
+            std::cerr << __FILE__ << ":" << __LINE__ << ": expected '" << char(c) << "', got '" << char(paren) << "'" << std::endl; \
+            return false; \
+        } \
+    } \
+    while(false)
+
+
 template <typename T>
 std::istream &operator>>(std::istream &stream, std::vector<T> &vec)
 {
@@ -752,51 +884,224 @@ std::istream &operator>>(std::istream &stream, std::vector<T> &vec)
     return stream;
 }
 
-template <typename T>
-bool readVectorArray(std::istream &stream, T *x, T *y, T *z, const size_t lines)
+template <typename D>
+bool readArrayChunkBinary(std::istream &stream, D *buf, const size_t num)
 {
-
-    for (size_t i = 0; i < lines; ++i)
+    stream.read(reinterpret_cast<char *>(buf), sizeof(buf[0])*num);
+    if (!stream.good())
+        return false;
+    if (foam_endian != host_endian)
     {
-        stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
-        stream >> x[i] >> y[i] >> z[i];
-        stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+       for (size_t i=0; i<num; ++i)
+       {
+          buf[i] = byte_swap<foam_endian, host_endian, D>(buf[i]);
+       }
+    }
+    return true;
+}
+
+static const size_t bufsiz = 16384;
+
+template <typename T, typename D>
+bool readVectorArrayBinary(std::istream &stream, T *x, T *y, T *z, const size_t lines)
+{
+    expect('(');
+    std::vector<D> buf(3*bufsiz);
+    for (size_t i=0; i<lines; i+=bufsiz)
+    {
+        const size_t nread = i+bufsiz <= lines ? bufsiz : lines-i;
+        if (!readArrayChunkBinary(stream, &buf[0], 3*nread))
+            return false;
+        for (size_t j=0; j<nread; ++j)
+        {
+            x[i+j] = buf[j*3+0];
+            y[i+j] = buf[j*3+1];
+            z[i+j] = buf[j*3+2];
+        }
+    }
+    expect(')');
+    return stream.good();
+}
+
+template <typename T>
+bool readVectorArray(const HeaderInfo &info, std::istream &stream, T *x, T *y, T *z, const size_t lines)
+{
+    if (info.format == "binary")
+    {
+        return readVectorArrayBinary<T, typename on_disk<T>::type>(stream, x, y, z, lines);
+    }
+    else
+    {
+        expect('(');
+        expect('\n');
+        for (size_t i = 0; i < lines; ++i)
+        {
+            stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
+            stream >> x[i] >> y[i] >> z[i];
+            stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
+        }
+        expect('\n');
+        expect(')');
     }
 
+    return stream.good();
+}
+
+template <typename T>
+bool readArrayBinary(std::istream &stream, T *p, const size_t lines)
+{
+    typedef typename on_disk<T>::type D;
+    if (boost::is_same<T, D>::value)
+    {
+       return readArrayChunkBinary(stream, p, lines);
+    }
+    else
+    {
+       std::vector<D> buf(bufsiz);
+       for (size_t i=0; i<lines; i+=bufsiz)
+       {
+          const size_t nread = i+bufsiz <= lines ? bufsiz : lines-i;
+          if (!readArrayChunkBinary(stream, &buf[0], nread))
+             return false;
+          for (size_t j=0; j<nread; ++j)
+          {
+             p[i+j] = buf[j];
+          }
+       }
+    }
     return true;
 }
 
 template <typename T>
-bool readArray(std::istream &stream, T *p, const size_t lines)
+bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
 {
-
     for (size_t i = 0; i < lines; ++i)
     {
         stream >> p[i];
+        if (!stream.good())
+        {
+           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
+           return false;
+        }
     }
+    expect('\n');
+    return stream.good();
+}
+
+template <typename T>
+bool readArray(const HeaderInfo &info, std::istream &stream, T *p, const size_t lines)
+{
+    expect('(');
+    if (info.format == "binary")
+    {
+        if (!readArrayBinary(stream, p, lines))
+           return false;
+    }
+    else
+    {
+        if(!readArrayAscii(stream, p, lines))
+           return false;
+    }
+    expect(')');
+    return true;
+}
+
+bool readIndexArray(const HeaderInfo &info, std::istream &stream, index_t *p, const size_t lines)
+{
+    if (!stream.good()) {
+       std::cerr << "readIndexArray: stream not good initially" << std::endl;
+       return false;
+    }
+    assert(stream.good());
+    return readArray<index_t>(info, stream, p, lines);
+}
+
+template <typename T>
+bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const size_t lines)
+{
+    expect('(');
+    std::vector<FoamIndex> faceIndex(lines);
+    if (!readArrayBinary<FoamIndex>(stream, &faceIndex[0], lines))
+    {
+        std::cerr << "readIndexListArrayBinary: readArrayBinary<FoamIndex> for index array failed" << std::endl;
+        return false;
+    }
+    expect(')');
+    expect('\n');
+
+    std::string line;
+    std::getline(stream, line);
+    const size_t totalIndices = atol(line.c_str());
+    if (faceIndex[lines-1] != totalIndices)
+    {
+        std::cerr << "readIndexListArrayBinary: expecting last faceIndex[" << lines-1 << "] == " << totalIndices << std::endl;
+        return false;
+    }
+
+    expect('(');
+    for (size_t i=0; i<lines-1; ++i)
+    {
+       size_t n = faceIndex[i+1] - faceIndex[i];
+       p[i].resize(n);
+       if (!readArrayBinary<index_t>(stream, &p[i][0], n))
+       {
+           std::cerr << "readIndexListArrayBinary: readArrayBinary<index_t> failed to read index list " << i << std::endl;
+           return false;
+       }
+    }
+    expect(')');
+    p[lines-1].resize(0);
 
     return true;
 }
 
-bool readIndexArray(std::istream &stream, index_t *p, const size_t lines)
+bool readIndexListArray(const HeaderInfo &info, std::istream &stream, std::vector<index_t> *p, const size_t lines)
 {
-    return readArray<index_t>(stream, p, lines);
+    if (!stream.good()) {
+       std::cerr << "readIndexListArray: stream not good initially" << std::endl;
+       return false;
+    }
+   assert(stream.good());
+   if (info.format == "binary")
+   {
+      if (info.fieldclass == "faceCompactList")
+      {
+         return readIndexListArrayBinary<index_t>(stream, p, lines);
+      }
+      else
+      {
+          std::cerr << "readIndexListArray: unsupported class '" << info.fieldclass << "'" << std::endl;
+          return false;
+      }
+   }
+   else
+   {
+      expect('(');
+      if(!readArrayAscii<std::vector<index_t> >(stream, p, lines))
+         return false;
+      expect(')');
+   }
+   return true;
 }
 
-bool readIndexListArray(std::istream &stream, std::vector<index_t> *p, const size_t lines)
+bool readFloatArray(const HeaderInfo &info, std::istream &stream, scalar_t *p, const size_t lines)
 {
-    return readArray<std::vector<index_t> >(stream, p, lines);
+    if (!stream.good()) {
+       std::cerr << "readFloatArray: stream not good initially" << std::endl;
+       return false;
+    }
+    assert(stream.good());
+    return readArray<scalar_t>(info, stream, p, lines);
 }
 
-bool readFloatArray(std::istream &stream, scalar_t *p, const size_t lines)
+bool readFloatVectorArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, const size_t lines)
 {
-    return readArray<scalar_t>(stream, p, lines);
-}
-
-bool readFloatVectorArray(std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, const size_t lines)
-{
-
-    return readVectorArray(stream, x, y, z, lines);
+    if (!stream.good()) {
+       std::cerr << "readFloatVectorArray: stream not good initially" << std::endl;
+       return false;
+    }
+    assert(stream.good());
+    return readVectorArray(info, stream, x, y, z, lines);
 }
 
 DimensionInfo readDimensions(const std::string &meshdir)
