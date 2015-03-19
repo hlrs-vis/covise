@@ -866,7 +866,6 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     }
     else if (strcmp(gtype, "SETELE") == 0)
     {
-        const char *interactor = NULL;
         std::vector<std::vector<int> > assignments;
 
         //fprintf(stderr,"ObjectManager::addGeometry if SETELE\n");

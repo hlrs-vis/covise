@@ -57,7 +57,7 @@ std::vector <int> coMUIPositionManager::getFreePos(std::string UniqueIdentifierP
 
 // determine, if the coordinates already are in PosList
 bool coMUIPositionManager::PosInPosList(std::vector <int> Coords, std::string UniqueIdentifierParent){
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if ((Coords[0]==PosList[i].posx) && (Coords[1]==PosList[i].posy) && (UniqueIdentifierParent==PosList[i].UniqueIdentifierParent)){
             return true;
         }
@@ -67,7 +67,7 @@ bool coMUIPositionManager::PosInPosList(std::vector <int> Coords, std::string Un
 
 // delete entrys from PosList
 void coMUIPositionManager::deletePos(std::string UniqueIdentifier){
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifier == UniqueIdentifier){
             PosList.erase(PosList.begin()+i);
             return;
@@ -79,7 +79,7 @@ void coMUIPositionManager::deletePos(std::string UniqueIdentifier){
 // returns the position of element with identifier "UniqueIdentifier"
 std::vector <int> coMUIPositionManager::getPos(std::string UniqueIdentifier){
     std::vector <int> returnCoordinates(2);
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifier == UniqueIdentifier){
             returnCoordinates[0] = PosList[i].posx;
             returnCoordinates[1] = PosList[i].posy;
@@ -93,7 +93,7 @@ std::vector <int> coMUIPositionManager::getPos(std::string UniqueIdentifier){
 
 // changes position of element with identifier "UniqueIdentifier"
 void coMUIPositionManager::changePos(std::string UniqueIdentifier, int xPos, int yPos){
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifier == UniqueIdentifier){
             PosList[i].posx = xPos;
             PosList[i].posy = yPos;
@@ -103,7 +103,7 @@ void coMUIPositionManager::changePos(std::string UniqueIdentifier, int xPos, int
 
 // returns true, if position is occupied, else returns false
 bool coMUIPositionManager::isOccupied(int posx, int posy, std::string UniqueIdentifierParent){
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifierParent == UniqueIdentifierParent){
             if ((PosList[i].posx == posx) && (PosList[i].posy == posy)){
                 return true;
@@ -115,7 +115,7 @@ bool coMUIPositionManager::isOccupied(int posx, int posy, std::string UniqueIden
 
 // returns true, if position is occupied by an autoassigned element; else returns false
 bool coMUIPositionManager::isAutoassigned(int posx, int posy, std::string UniqueIdentifierParent){
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifierParent == UniqueIdentifierParent){
             if ((PosList[i].posx == posx) && (PosList[i].posy == posy)){
                 return PosList[i].autoassigned;
@@ -127,7 +127,7 @@ bool coMUIPositionManager::isAutoassigned(int posx, int posy, std::string Unique
 
 // returns the identifier of the element at position posx/posy and parent UniqueIdentifierParent
 std::string coMUIPositionManager::getIdentifier(int posx, int posy, std::string UniqueIdentifierParent){
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         if (PosList[i].UniqueIdentifierParent == UniqueIdentifierParent){
             if ((PosList[i].posx == posx) && (PosList[i].posy == posy)){
                 return PosList[i].UniqueIdentifier;
@@ -140,7 +140,7 @@ std::string coMUIPositionManager::getIdentifier(int posx, int posy, std::string 
 // returns all positions of PosList in one string
 std::string coMUIPositionManager::printPos(){
     std::string Positions="";
-    for (int i=0; i<PosList.size(); ++i){
+    for (size_t i=0; i<PosList.size(); ++i){
         Positions.append(PosList[i].UniqueIdentifier);
         Positions.append(": (");
         Positions.append(boost::lexical_cast<std::string>(PosList[i].posx));

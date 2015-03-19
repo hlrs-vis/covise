@@ -81,7 +81,7 @@ void BezierCurveVisualizer::addControlPoint(Vec3 newPoint)
 
 void BezierCurveVisualizer::addVectorOfControlPoints(std::vector<Vec3> newPoints)
 {
-    for (int i = 0; i < newPoints.size(); i++)
+    for (size_t i = 0; i < newPoints.size(); i++)
     {
         addControlPoint(newPoints[i]);
     }
@@ -100,7 +100,7 @@ void BezierCurveVisualizer::removeAllControlPoints()
 void BezierCurveVisualizer::updateControlPoints(std::vector<Vec3> newPointList)
 {
     removeAllControlPoints();
-    for (int i = 0; i < newPointList.size(); i++)
+    for (size_t i = 0; i < newPointList.size(); i++)
     {
         addControlPoint(newPointList[i]);
     }
@@ -200,7 +200,7 @@ void BezierCurveVisualizer::updateGeometry()
 
         if (controlPoints.size() > 2)
         {
-            for (int i = 1; i < controlPoints.size() - 2; i++)
+            for (size_t i = 1; i < controlPoints.size() - 2; i++)
             {
                 drawLine(lineDCS, controlPoints[i], controlPoints[i + 1], colorBlue);
             }
@@ -286,14 +286,14 @@ void BezierCurveVisualizer::visualizeCasteljau(ref_ptr<MatrixTransform> master, 
 
     for (int n = 0; n < steps; n++)
     {
-        for (int i = 0; i < points.size() - 1 - n; i++)
+        for (size_t i = 0; i < points.size() - 1 - n; i++)
         {
             points[i] *= (1 - t);
             Vec3 tmp = points[i + 1];
             tmp *= t;
             points[i] += tmp;
         }
-        for (int j = 0; j < points.size() - 2 - n; j++)
+        for (size_t j = 0; j < points.size() - 2 - n; j++)
         {
             drawLine(master, points[j], points[j + 1], colors[n]);
         }
@@ -328,7 +328,7 @@ Vec3 BezierCurveVisualizer::casteljauAproximation(std::vector<Vec3> points, doub
     int steps = points.size() - 1;
     for (int n = 0; n < steps; n++)
     {
-        for (int i = 0; i < points.size() - 1 - n; i++)
+        for (size_t i = 0; i < points.size() - 1 - n; i++)
         {
             points[i] *= (1 - t);
             Vec3 tmp = points[i + 1];

@@ -875,7 +875,7 @@ void coJoystickManager::newUpdate(int x, int y, int button, long timeStamp)
     if (!upDown && activeItem[activeMenu] >= 0 && !menuTypeChanged)
     {
         vector<coMenuItem *> goodItems = getGoodItems(activeMenu);
-        if (goodItems.size() > 0 && goodItems.size() >= activeItem[activeMenu])
+        if (goodItems.size() > 0 && ssize_t(goodItems.size()) >= activeItem[activeMenu])
         {
             coMenuItem *item = goodItems[activeItem[activeMenu] - 1];
             // if item is slider we need to use left and right

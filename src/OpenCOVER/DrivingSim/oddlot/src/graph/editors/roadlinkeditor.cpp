@@ -506,10 +506,10 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
                 }
             }
  
-            if (junctionConnection && (junctionConnection->getFromLane(lane->getId()) != lane->getPredecessor()))
+            if (junctionConnection && (lane->getPredecessor() != Lane::NOLANE) && (junctionConnection->getFromLane(lane->getId() != lane->getPredecessor())) )
             {
-                SetConnectionLaneLinkCommand * command = new SetConnectionLaneLinkCommand(junctionConnection, lane->getPredecessor(), lane->getId());
-                getProjectGraph()->executeCommand(command);
+                    SetConnectionLaneLinkCommand * command = new SetConnectionLaneLinkCommand(junctionConnection, lane->getPredecessor(), lane->getId());
+                    getProjectGraph()->executeCommand(command);
             }
         }
 
@@ -614,7 +614,7 @@ RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
             }
 
 
-            if (junctionConnection && (junctionConnection->getFromLane(lane->getId()) != lane->getSuccessor()))
+            if (junctionConnection && (lane->getSuccessor() != Lane::NOLANE) && (junctionConnection->getFromLane(lane->getId() != lane->getSuccessor())))
             {
                 SetConnectionLaneLinkCommand * command = new SetConnectionLaneLinkCommand(junctionConnection, lane->getSuccessor(), lane->getId());
                 getProjectGraph()->executeCommand(command);

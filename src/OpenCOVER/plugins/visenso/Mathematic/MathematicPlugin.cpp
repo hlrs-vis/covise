@@ -79,22 +79,22 @@ MathematicPlugin::~MathematicPlugin()
 
     delete stateLabel_;
 
-    for (int i = 0; i < pointsVec_.size(); i++)
+    for (size_t i = 0; i < pointsVec_.size(); i++)
         delete pointsVec_.at(i);
 
-    for (int i = 0; i < linesVec_.size(); i++)
+    for (size_t i = 0; i < linesVec_.size(); i++)
         delete linesVec_.at(i);
 
-    for (int i = 0; i < planesVec_.size(); i++)
+    for (size_t i = 0; i < planesVec_.size(); i++)
         delete planesVec_.at(i);
 
-    for (int i = 0; i < distancesVec_.size(); i++)
+    for (size_t i = 0; i < distancesVec_.size(); i++)
         delete distancesVec_.at(i);
 
-    for (int i = 0; i < isectPoints_.size(); i++)
+    for (size_t i = 0; i < isectPoints_.size(); i++)
         delete isectPoints_.at(i);
 
-    for (int i = 0; i < isectLines_.size(); i++)
+    for (size_t i = 0; i < isectLines_.size(); i++)
         delete isectLines_.at(i);
 }
 
@@ -239,27 +239,27 @@ void MathematicPlugin::preFrame()
     }
 
     // preframe of all points
-    for (int i = 0; i < pointsVec_.size(); i++)
+    for (size_t i = 0; i < pointsVec_.size(); i++)
         pointsVec_.at(i)->preFrame();
 
     // preframe of all lines
-    for (int i = 0; i < linesVec_.size(); i++)
+    for (size_t i = 0; i < linesVec_.size(); i++)
         linesVec_.at(i)->preFrame();
 
     // preframe of all planes
-    for (int i = 0; i < planesVec_.size(); i++)
+    for (size_t i = 0; i < planesVec_.size(); i++)
         planesVec_.at(i)->preFrame();
 
     // preframe of all isect points
-    for (int i = 0; i < isectPoints_.size(); i++)
+    for (size_t i = 0; i < isectPoints_.size(); i++)
         isectPoints_.at(i)->preFrame();
 
     // preframe of all isect lines
-    for (int i = 0; i < isectLines_.size(); i++)
+    for (size_t i = 0; i < isectLines_.size(); i++)
         isectLines_.at(i)->preFrame();
 
     // preframe of all distances
-    for (int i = 0; i < distancesVec_.size(); i++)
+    for (size_t i = 0; i < distancesVec_.size(); i++)
         distancesVec_.at(i)->preFrame();
 
     // distance between point and point
@@ -539,7 +539,6 @@ void MathematicPlugin::makePointDistance2Point(int point1, int point2)
     if (cover->debugLevel(3))
         fprintf(stderr, "MathematicPlugin::makePointDistance2Point point1=%d point2=%d\n", point1, point2);
 
-    Vec3 perpendicular = Vec3(0.0, 0.0, 0.0);
     distancesVec_.push_back(new coVRDistance(pointsVec_.at(point1)->getPosition(), pointsVec_.at(point2)->getPosition(), coVRDistance::ONLY_LINE));
     distancesVec_.back()->addToMenu(mathematicsMenu_, mainMenuSepPos_ - 1);
 }
@@ -639,23 +638,23 @@ void MathematicPlugin::menuEvent(coMenuItem *menuItem)
     else
     {
         // send menu event to points
-        for (int i = 0; i < pointsVec_.size(); i++)
+        for (size_t i = 0; i < pointsVec_.size(); i++)
             pointsVec_.at(i)->menuEvent(menuItem);
 
         // send menu event to lines
-        for (int i = 0; i < linesVec_.size(); i++)
+        for (size_t i = 0; i < linesVec_.size(); i++)
             linesVec_.at(i)->menuEvent(menuItem);
 
         // send menu event to planes
-        for (int i = 0; i < planesVec_.size(); i++)
+        for (size_t i = 0; i < planesVec_.size(); i++)
             planesVec_.at(i)->menuEvent(menuItem);
 
         // send menu event to distance
-        for (int i = 0; i < distancesVec_.size(); i++)
+        for (size_t i = 0; i < distancesVec_.size(); i++)
             distancesVec_.at(i)->menuEvent(menuItem);
 
         // deleting geometry objects
-        for (int i = 0; i < deleteButtonsVec_.size(); i++)
+        for (size_t i = 0; i < deleteButtonsVec_.size(); i++)
         {
             if (deleteButtonsVec_.at(i) && menuItem == deleteButtonsVec_.at(i))
             {
@@ -678,7 +677,7 @@ void MathematicPlugin::menuEvent(coMenuItem *menuItem)
                 {
                     // delete point
                     int num = -1;
-                    for (int j = 0; j < pointsVec_.size(); j++)
+                    for (size_t j = 0; j < pointsVec_.size(); j++)
                     {
                         if (pointsVec_.at(j)->getName() == geoName)
                         {
@@ -698,7 +697,7 @@ void MathematicPlugin::menuEvent(coMenuItem *menuItem)
                 {
                     // delete line
                     int num = -1;
-                    for (int j = 0; j < linesVec_.size(); j++)
+                    for (size_t j = 0; j < linesVec_.size(); j++)
                     {
                         if (linesVec_.at(j)->getName() == geoName)
                         {
@@ -718,7 +717,7 @@ void MathematicPlugin::menuEvent(coMenuItem *menuItem)
                 {
                     // delete plane
                     int num = -1;
-                    for (int j = 0; j < planesVec_.size(); j++)
+                    for (size_t j = 0; j < planesVec_.size(); j++)
                     {
                         if (planesVec_.at(j)->getName() == geoName)
                         {
@@ -1184,26 +1183,9 @@ string MathematicPlugin::computePlaneLineIsectText(int plane)
 //----------------------------------------------------------------------
 string MathematicPlugin::computePlaneIsectText(int plane)
 {
-    Vec3 linePoint = isectLines_.at(plane)->getBasePoint();
-    Vec3 lineDir = isectLines_.at(plane)->getDirection();
-
     string text(coTranslator::coTranslate("SCHNITT "));
     ostringstream txtStream;
-    /*
-   txtStream << " x = (";
-   txtStream << round10(linePoint.x());
-   txtStream << ", ";
-   txtStream << round10(linePoint.y());
-   txtStream << ", ";
-   txtStream << round10(linePoint.z());
-   txtStream << ") + r (";
-   txtStream << round10(lineDir.x());
-   txtStream << ", ";
-   txtStream << round10(lineDir.y());
-   txtStream << ", ";
-   txtStream << round10(lineDir.z());
-   txtStream << ")";
-   */
+
     txtStream << round10(anglesVec_.at(plane));
     txtStream << coTranslator::coTranslate("GRAD");
     text.append(txtStream.str());

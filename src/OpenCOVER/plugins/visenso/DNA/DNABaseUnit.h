@@ -26,8 +26,8 @@ protected:
     bool isMoving_;
     bool visible_;
     bool registered_;
-    bool presentationMode_;
     char *name_;
+    bool presentationMode_;
     // list of possible connections
     //      /
     //     o -

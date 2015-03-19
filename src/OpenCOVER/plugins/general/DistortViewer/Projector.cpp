@@ -586,7 +586,6 @@ osg::Vec3Array *Projector::getPlaneIntersecPnts()
     for (unsigned int i = 0; i < (cornersFar.get()->size()); i++)
     {
         osg::Vec3 corner = (*cornersFar)[i];
-        float ortho = projScreenPlane.getNormal() * corner;
 
         //Punkt auf g: origin+skalar*corner
         float skalar1 = (-plane.w() - plane.x() * origin.x() - plane.y() * origin.y() - plane.z() * origin.z())

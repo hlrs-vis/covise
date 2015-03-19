@@ -101,7 +101,7 @@ bool DTrackDriver::updateBodyMatrix(size_t idx)
     // cout<<"!!!!!!!INputHDW getDTrackBodyMatrix STARTS!!!!!!!"<<devidx<<endl;
     //mat.makeIdentity();
 
-    if (idx >= dt->getNumBody())
+    if (ssize_t(idx) >= dt->getNumBody())
     {
         std::cout << "!!!body id out of range " << idx << std::endl;
         return false;
@@ -117,7 +117,7 @@ bool DTrackDriver::updateBodyMatrix(size_t idx)
 
 bool DTrackDriver::updateFlyStick(size_t idx)
 {
-    if (idx >= dt->getNumFlyStick())
+    if (ssize_t(idx) >= dt->getNumFlyStick())
     {
         std::cout << "!!!flystick id out of range " << idx << std::endl;
         return false;
@@ -198,14 +198,14 @@ bool DTrackDriver::poll()
     }
 
     m_mutex.lock();
-    for (size_t i = 0; i < dt->getNumFlyStick(); ++i)
+    for (int i = 0; i < dt->getNumFlyStick(); ++i)
     {
         m_bodyMatricesValid[i] = updateFlyStick(i);
     }
     m_mutex.unlock();
 
     m_mutex.lock();
-    for (size_t i = 0; i < dt->getNumBody(); ++i)
+    for (int i = 0; i < dt->getNumBody(); ++i)
     {
         m_bodyMatricesValid[m_bodyBase+i] = updateBodyMatrix(i);
     }

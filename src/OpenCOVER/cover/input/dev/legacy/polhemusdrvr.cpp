@@ -988,7 +988,7 @@ fastrak::sendFastrakCmd(char *cmd_buf)
         bResult = WriteFile(desc, crlf, 2, &nBytesWritten, NULL);
     }
 #else
-    if (write(desc, cmd_buf, strlen(cmd_buf)) != strlen(cmd_buf))
+    if (write(desc, cmd_buf, strlen(cmd_buf)) != ssize_t(strlen(cmd_buf)))
     {
         cerr << "fasttrak::sendFastrakCmd: short write" << endl;
     }

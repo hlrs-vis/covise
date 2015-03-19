@@ -278,7 +278,7 @@ void coVRLine::deleteBoundingBox()
         fprintf(stderr, "coVRLine::deleteBoundingBox\n");
 
     // only delete boundingPlanes at last line
-    for (int i = 0; i < _boundingPlanes_.size(); i++)
+    for (size_t i = 0; i < _boundingPlanes_.size(); i++)
         delete _boundingPlanes_.at(i);
 }
 
@@ -297,7 +297,7 @@ int coVRLine::findEndPoints()
     vector<Vec3> isectPoints;
     bool found = false;
 
-    for (int i = 0; i < _boundingPlanes_.size(); i++)
+    for (size_t i = 0; i < _boundingPlanes_.size(); i++)
     {
         Vec3 isectPoint;
         Vec3 pos1 = point1_->getPosition();
@@ -325,7 +325,7 @@ int coVRLine::findEndPoints()
 
     drawMin_ = isectPoints.at(0);
 
-    for (int i = 1; i < isectPoints.size(); i++)
+    for (size_t i = 1; i < isectPoints.size(); i++)
     {
         // distance between the two points smaller than epsilon
         // according to rounding errors
@@ -518,7 +518,7 @@ double coVRLine::distance(coVRLine *otherLine, Vec3 *perpendicularL1, Vec3 *perp
     //   Pa = P1 + mua (P2 - P1)
     //   Pb = P3 + mub (P4 - P3)
     Vec3 p3 = otherLine->getBasePoint();
-    Vec3 p4 = otherLine->getBasePoint() + otherLine->getDirection();
+    //Vec3 p4 = otherLine->getBasePoint() + otherLine->getDirection();
     Vec3 p13 = Vec3(point1_->x() - p3.x(), point1_->y() - p3.y(), point1_->z() - p3.z());
     Vec3 p43 = otherLine->getDirection();
     Vec3 p21 = direction_->getDirection();

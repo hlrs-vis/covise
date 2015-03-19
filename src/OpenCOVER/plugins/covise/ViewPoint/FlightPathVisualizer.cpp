@@ -278,7 +278,7 @@ void FlightPathVisualizer::deleteCameraGeometry()
 void FlightPathVisualizer::updateDrawnCurve()
 {
     //deactivate all BezierCurveVisualizer by removing their controlPoints
-    for (int i = 0; i < bezierCurveVis.size(); i++)
+    for (size_t i = 0; i < bezierCurveVis.size(); i++)
     {
         bezierCurveVis[i]->removeAllControlPoints();
         bezierCurveVis[i]->updateGeometry();

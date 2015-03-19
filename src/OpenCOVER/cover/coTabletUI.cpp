@@ -580,7 +580,7 @@ void coTUIFileBrowserButton::resend()
     //std::cerr << "Resend: Set FileList: " << std::endl;
     //this->mFileList.clear(); // don't delete file list before sending it to client (TUI)
 
-    for (int i = 0; i < this->mFileList.size(); i++)
+    for (size_t i = 0; i < this->mFileList.size(); i++)
     {
         std::string sfl = this->mFileList.at(i);
         rt << sfl.c_str();
@@ -598,7 +598,7 @@ void coTUIFileBrowserButton::resend()
 
     //std::cerr << "Resend: Set DirList: " << std::endl;
 
-    for (int i = 0; i < this->mDirList.size(); i++)
+    for (size_t i = 0; i < this->mDirList.size(); i++)
     {
         std::string sdl = mDirList.at(i);
         rt << sdl.c_str();
@@ -2979,7 +2979,7 @@ void coTUIFunctionEditorTab::sendHistogramData()
         else
         {
             tb << (uint32_t)histogramBuckets;
-            for (int i = 0; i < histogramBuckets; ++i)
+            for (u_int32_t i = 0; i < histogramBuckets; ++i)
             {
                 tb << histogramData[i];
             }
@@ -2996,7 +2996,7 @@ void coTUIFunctionEditorTab::sendHistogramData()
         {
             tb << (uint32_t)histogramBuckets;
             tb << (uint32_t)histogramBuckets;
-            for (int i = 0; i < histogramBuckets * histogramBuckets; ++i)
+            for (uint32_t i = 0; i < histogramBuckets * histogramBuckets; ++i)
             {
                 tb << histogramData[i];
             }
@@ -3023,7 +3023,7 @@ void coTUIFunctionEditorTab::parseMessage(TokenBuffer &tb)
 
         int numPoints;
         colorPoints.clear();
-        for (int i = 0; i < alphaPoints.size(); ++i)
+        for (size_t i = 0; i < alphaPoints.size(); ++i)
             if (alphaPoints[i].additionalDataElems > 0)
                 delete[] alphaPoints[i].additionalData;
 

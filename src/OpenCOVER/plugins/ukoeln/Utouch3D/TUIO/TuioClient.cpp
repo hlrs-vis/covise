@@ -144,7 +144,6 @@ void TuioClient::ProcessMessage(const ReceivedMessage &msg, const IpEndpointName
     try
     {
         ReceivedMessageArgumentStream args = msg.ArgumentStream();
-        ReceivedMessage::const_iterator arg = msg.ArgumentsBegin();
 
         if (strcmp(msg.AddressPattern(), "/tuio/2Dobj") == 0)
         {

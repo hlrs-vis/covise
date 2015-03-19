@@ -160,12 +160,12 @@ void coRowMenu::add(coMenuItem *item)
 {
     if (maxItems_ != 0)
     {
-        if (items.size() <= startPos_ + maxItems_ - 1)
+        if (ssize_t(items.size()) <= startPos_ + maxItems_ - 1)
             itemsContainer->insertElement(item->getUIElement(), itemsContainer->getSize() - 1);
 
-        if (startPos_ > 0 && items.size() > maxItems_)
+        if (startPos_ > 0 && ssize_t(items.size()) > maxItems_)
             upItem_->setActive(true);
-        if (startPos_ + maxItems_ < items.size())
+        if (startPos_ + maxItems_ < ssize_t(items.size()))
             downItem_->setActive(true);
     }
     else
@@ -192,9 +192,9 @@ void coRowMenu::insert(coMenuItem *item, int pos)
                     itemsContainer->removeElement((*it)->getUIElement());
             }
         }
-        if (startPos_ > 0 && items.size() > maxItems_)
+        if (startPos_ > 0 && ssize_t(items.size()) > maxItems_)
             upItem_->setActive(true);
-        if (startPos_ + maxItems_ < items.size())
+        if (startPos_ + maxItems_ < ssize_t(items.size()))
             downItem_->setActive(true);
     }
     else
@@ -222,7 +222,7 @@ void coRowMenu::remove(coMenuItem *item)
         if (numItem < startPos_)
             startPos_--;
         // insert item in back
-        else if (items.size() >= startPos_ + maxItems_ && itemsContainer->getSize() < maxItems_ + 2)
+        else if (ssize_t(items.size()) >= startPos_ + maxItems_ && itemsContainer->getSize() < maxItems_ + 2)
         {
             int i = 0;
             for (std::list<coMenuItem *>::iterator it = items.begin(); it != items.end(); it++)
@@ -233,7 +233,7 @@ void coRowMenu::remove(coMenuItem *item)
             }
         }
         // insert item in front
-        else if ((items.size() >= maxItems_) && (items.size() < startPos_ + maxItems_) && (itemsContainer->getSize() < maxItems_ + 2))
+        else if ((ssize_t(items.size()) >= maxItems_) && (ssize_t(items.size()) < startPos_ + maxItems_) && (itemsContainer->getSize() < maxItems_ + 2))
         {
             startPos_--;
             int i = 0;
@@ -246,7 +246,7 @@ void coRowMenu::remove(coMenuItem *item)
         }
         if (startPos_ == 0)
             upItem_->setActive(false);
-        if (startPos_ + maxItems_ == items.size())
+        if (startPos_ + maxItems_ == ssize_t(items.size()))
             downItem_->setActive(false);
     }
     else
@@ -526,7 +526,7 @@ coRowMenu::menuEvent(coMenuItem *item)
         if (startPos_ == 0)
             upItem_->setActive(false);
 
-        if (startPos_ + maxItems_ == items.size() - 1)
+        if (startPos_ + maxItems_ == ssize_t(items.size()) - 1)
             downItem_->setActive(true);
 
         // remove last
@@ -578,7 +578,7 @@ coRowMenu::menuEvent(coMenuItem *item)
         if (startPos_ == 1)
             upItem_->setActive(true);
 
-        if (startPos_ + maxItems_ == items.size())
+        if (startPos_ + maxItems_ == ssize_t(items.size()))
             downItem_->setActive(false);
 
         // remove first in container

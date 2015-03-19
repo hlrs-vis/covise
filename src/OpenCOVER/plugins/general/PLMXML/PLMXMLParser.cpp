@@ -132,7 +132,7 @@ bool PLMXMLParser::parse(const char *fileName, osg::Group *group)
 
             xercesc::DOMNodeList *allIGs;
             allIGs = xmlDoc->getElementsByTagName(XMLString::transcode("InstanceGraph"));
-            for (int i = 0; i < allIGs->getLength(); i++)
+            for (int i = 0; i < int(allIGs->getLength()); i++)
             {
                 xercesc::DOMElement *instanceGraph = dynamic_cast<DOMElement *>(allIGs->item(i));
                 if (instanceGraph)
@@ -449,7 +449,7 @@ void PLMXMLParser::addPart(char *id, osg::Group *parent)
                                 //cout<<"############Parser found Sim:"<<simfileName<<"|||Name:"<<simName<<"||||Group: "<<group->getName()<<endl;
                             }
                             sim++;
-                        } while (sim < simList->getLength());
+                        } while (sim < int(simList->getLength()));
                     }
 
                     if (creprList && creprList->getLength() > 0)
@@ -563,11 +563,11 @@ void PLMXMLParser::addPart(char *id, osg::Group *parent)
                             }
 
                             crep++;
-                        } while (crep < creprList->getLength());
+                        } while (crep < int(creprList->getLength()));
                     }
 
                     rep++;
-                } while (rep < reprList->getLength());
+                } while (rep < int(reprList->getLength()));
             }
         }
 

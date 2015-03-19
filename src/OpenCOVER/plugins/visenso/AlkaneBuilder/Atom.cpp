@@ -42,7 +42,7 @@ Atom::Atom(string symbol, const char *interactorName, osg::Matrix m, float size,
     atomBall_->enableIntersection();
 
     // stick interactors
-    for (int i = 0; i < connections.size(); i++)
+    for (size_t i = 0; i < connections.size(); i++)
     {
         atomSticks_.push_back(new AtomStickInteractor(symbol, interactorName, this, m, m.getTrans(), connections[i], size, color));
         atomSticks_[atomSticks_.size() - 1]->enableIntersection();
@@ -99,7 +99,7 @@ void Atom::preFrame()
     // if ball is moving move also the sticks
     if (!atomBall_->isIdle())
     {
-        for (int i = 0; i < atomSticks_.size(); i++)
+        for (size_t i = 0; i < atomSticks_.size(); i++)
         {
             atomSticks_[i]->updateTransform(atomSticks_[i]->getMatrix(), atomBall_->getPosition());
         }
@@ -111,7 +111,7 @@ void Atom::preFrame()
         {
             //fprintf(stderr,"Abreissen von atom %s\n", atomBall_->getInteractorName());
 
-            for (int i = 0; i < atomSticks_.size(); i++)
+            for (size_t i = 0; i < atomSticks_.size(); i++)
             {
                 if (atomSticks_[i]->getConnectedStick())
                 {
@@ -128,7 +128,7 @@ void Atom::preFrame()
     }
 
     // update sticks
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         atomSticks_[i]->preFrame();
 
@@ -136,7 +136,7 @@ void Atom::preFrame()
         if (!atomSticks_[i]->isIdle())
         {
             atomBall_->updateTransform(atomBall_->getMatrix() * atomSticks_[i]->getFrameDiffMatrix());
-            for (int j = 0; j < atomSticks_.size(); j++)
+            for (size_t j = 0; j < atomSticks_.size(); j++)
             {
                 if (atomSticks_[i] != atomSticks_[j])
                     atomSticks_[j]->updateTransform(atomSticks_[j]->getMatrix() * atomSticks_[i]->getFrameDiffMatrix(), atomSticks_[j]->getPosition());
@@ -159,7 +159,7 @@ void
 Atom::updateTransform(osg::Matrix m)
 {
     atomBall_->updateTransform(m);
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         atomSticks_[i]->updateTransform(m, m.getTrans());
     }
@@ -176,12 +176,12 @@ Atom::checkNear(Atom *a)
     if (isIdle())
         return false;
 
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         // nur unverbundene Verbindungen pruefen
         if (!atomSticks_[i]->getConnectedStick())
         {
-            for (int j = 0; j < a->atomSticks_.size(); j++)
+            for (size_t j = 0; j < a->atomSticks_.size(); j++)
             {
                 if (!a->atomSticks_[j]->getConnectedStick())
                 {
@@ -250,12 +250,9 @@ Atom::moveToPlane(opencover::coPlane *plane)
 {
     osg::Vec3 pos = atomBall_->getMatrix().getTrans();
     osg::Vec3 ppos = plane->getProjectedPoint(pos);
-    osg::Vec3 point = plane->getPosition();
-    //fprintf(stderr,"Atom::moveToPlane plane_pos=[%f %f %f]\n", point[0], point[1], point[2]);
     osg::Matrix m = atomSticks_[0]->getMatrix();
     m.setTrans(ppos);
     updateTransform(m);
-    //fprintf(stderr,"Atom::moveToPlane pos=[%f %f %f] ppos=[%f %f %f]\n", pos[0], pos[1], pos[2], ppos[0], ppos[1], ppos[2]);
     updateConnectedAtoms(atomSticks_[0]->getDiffMat());
 }
 
@@ -265,7 +262,7 @@ Atom::reset()
 
     mySnapAtomStick_ = NULL;
     otherSnapAtomStick_ = NULL;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         atomSticks_[i]->setConnectedStick(NULL);
     }
@@ -278,7 +275,7 @@ Atom::isIdle()
 
     if (!atomBall_->isIdle())
         return false;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         if (!atomSticks_[i]->isIdle())
             return false;
@@ -291,7 +288,7 @@ Atom::wasStopped()
 
     if (atomBall_->wasStopped())
         return true;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         if (atomSticks_[i]->wasStopped())
             return true;
@@ -303,7 +300,7 @@ void
 Atom::updateConnectedAtoms(osg::Matrix diffMat)
 {
     //fprintf(stderr,"AtomInteractor(%s)::updateConnectedAtoms\n", atomBall_->getInteractorName());
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
 
         if (atomSticks_[i]->getConnectedStick()) // connection ist connected
@@ -320,7 +317,7 @@ void
 Atom::updateConnectedAtoms(AtomStickInteractor *alreadyUpdated, osg::Matrix diffMat)
 {
     //fprintf(stderr,"AtomInteractor(%s)::updateConnectedAtoms2\n", atomBall_->getInteractorName());
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
 
         if (atomSticks_[i]->getConnectedStick() && (atomSticks_[i]->getConnectedStick() != alreadyUpdated)) // connection ist connected
@@ -341,7 +338,7 @@ bool Atom::allConnectionsConnected(AtomStickInteractor *ommit)
     //else
     //   fprintf(stderr,"Carbon(%s)::allConnectionsConnected ommit=%s\n", atomBall_->getInteractorName(), ommit->getInteractorName());
     bool allConnected = true;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *myStick, *otherStick;
         myStick = atomSticks_[i];
@@ -389,7 +386,7 @@ bool Atom::isUnconnected()
 {
 
     bool unconnected = true;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *otherStick;
         otherStick = atomSticks_[i]->getConnectedStick();
@@ -419,7 +416,7 @@ Atom::enableIntersection(bool enable)
     if (enable)
     {
         atomBall_->enableIntersection();
-        for (int i = 0; i < atomSticks_.size(); i++)
+        for (size_t i = 0; i < atomSticks_.size(); i++)
         {
             atomSticks_[i]->enableIntersection();
         }
@@ -427,7 +424,7 @@ Atom::enableIntersection(bool enable)
     else
     {
         atomBall_->disableIntersection();
-        for (int i = 0; i < atomSticks_.size(); i++)
+        for (size_t i = 0; i < atomSticks_.size(); i++)
         {
             atomSticks_[i]->disableIntersection();
         }
@@ -440,7 +437,7 @@ Atom::show(bool show)
     if (show)
     {
         atomBall_->show();
-        for (int i = 0; i < atomSticks_.size(); i++)
+        for (size_t i = 0; i < atomSticks_.size(); i++)
         {
             atomSticks_[i]->show();
         }
@@ -448,7 +445,7 @@ Atom::show(bool show)
     else
     {
         atomBall_->hide();
-        for (int i = 0; i < atomSticks_.size(); i++)
+        for (size_t i = 0; i < atomSticks_.size(); i++)
         {
             atomSticks_[i]->hide();
         }

@@ -60,7 +60,7 @@ bool MouseButtonsDriver::poll()
     if (oldbtnstatus != btnstatus)
     {
         m_mutex.lock();
-        for (int i = 0; i < numButtons(); ++i)
+        for (size_t i = 0; i < numButtons(); ++i)
         {
             unsigned int btn_mask = 0x1 << i; // mask for button #n
             //event checks

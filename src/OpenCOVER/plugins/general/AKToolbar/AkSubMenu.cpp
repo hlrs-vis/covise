@@ -186,7 +186,7 @@ AkSubMenu::AkSubMenu(coMenu *cloneMenu, AkSubMenu *triggerMenu,
 
     /// Clone the Master menu
     coMenuItemVector allItems = cloneMenu->getAllItems();
-    int i = 0;
+    size_t i = 0;
     while (i < allItems.size())
     {
         coMenuItem *menuItem;
@@ -478,7 +478,7 @@ void AkSubMenu::itemRemoved(coMenu *, coMenuItem *item)
 
         // so sollte es richtig sein
         coMenuItemVector allItems = theMenu_->getAllItems();
-        int i = 0;
+        size_t i = 0;
         while (i < allItems.size())
         {
             //fprintf(stderr,"aktoolbar %s\n", allItems[i]->getName());

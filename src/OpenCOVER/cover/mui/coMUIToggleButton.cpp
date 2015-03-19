@@ -70,7 +70,7 @@ void coMUIToggleButton::constructor(const std::string UniqueIdentifier, coMUICon
     createTUIElement(Devices[1].Label, ConfigManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier));
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label   = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -113,7 +113,7 @@ void coMUIToggleButton:: menuEvent(coMenuItem *menuItem){
 }
 
 void coMUIToggleButton::setPos(int posx, int posy){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
             int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -125,7 +125,7 @@ void coMUIToggleButton::setPos(int posx, int posy){
 
 // sets Label for all UI-elements
 void coMUIToggleButton::setLabel(std::string label){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Label = ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
             TUIElement->setLabel(Devices[i].Label);
@@ -139,7 +139,7 @@ void coMUIToggleButton::setLabel(std::string label){
 
 // sets Label for named UI-elements
 void coMUIToggleButton::setLabel(std::string label, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                       // Element to be changed
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
@@ -155,7 +155,7 @@ void coMUIToggleButton::setLabel(std::string label, std::string UI){
 
 // sets the visible-value for all UI-elements
 void coMUIToggleButton::setVisible(bool visible){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].Visible != visible){                                     // Value changed
             Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
@@ -177,7 +177,7 @@ void coMUIToggleButton::setVisible(bool visible){
 
 // sets the visible-value for the named UI-Elements
 void coMUIToggleButton::setVisible(bool visible, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI)!=std::string::npos){                         // element shall be changed
             if (Devices[i].Visible != visible){                                 // visible-value changed
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -218,7 +218,7 @@ void coMUIToggleButton::createTUIElement(const std::string label, coMUIContainer
 
 void coMUIToggleButton::setState(bool stat){
     State=stat;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordVRUI()){                     // VRUI-Element
             VRUIElement->setState(stat);
         }else if(Devices[i].UI == ConfigManager->keywordTUI()){                 // TUI-Element
@@ -246,7 +246,7 @@ void coMUIToggleButton::activate(){
     }
     State=true;
 
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUIElement
             TUIElement->setState(true);
         } else if (Devices[i].UI == ConfigManager->keywordVRUI()){
@@ -261,7 +261,7 @@ void coMUIToggleButton::deactivate(){
     }
     State=true;
 
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUIElement
             TUIElement->setState(false);
         } else if (Devices[i].UI == ConfigManager->keywordVRUI()){
@@ -273,7 +273,7 @@ void coMUIToggleButton::deactivate(){
 void coMUIToggleButton::click(){
     emit clicked();
     State=!State;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUIElement
             TUIElement->setState(!TUIElement->getState());
         } else if (Devices[i].UI == ConfigManager->keywordVRUI()){              // VRUIElement

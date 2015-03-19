@@ -70,7 +70,7 @@ void coMUIFrame::constructor(const std::string UniqueIdentifier, coMUIContainer*
     SubmenuItem->setMenu(Submenu.get());
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -116,7 +116,7 @@ vrui::coMenu* coMUIFrame::getVRUI(){
 
 // set label for named UI-Elements
 void coMUIFrame::setLabel(std::string label, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                       // element to be changed
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
@@ -134,7 +134,7 @@ void coMUIFrame::setLabel(std::string label, std::string UI){
 // set label for all UI-Elements
 void coMUIFrame::setLabel(std::string label){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setLabel(label, UI);
@@ -142,7 +142,7 @@ void coMUIFrame::setLabel(std::string label){
 
 // set visible-value for named UI-Elements
 void coMUIFrame::setVisible(bool visible, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI)!=std::string::npos){                             // element shall be changed
             if (Devices[i].Visible != visible){                                     // visible-value changed
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -165,7 +165,7 @@ void coMUIFrame::setVisible(bool visible, std::string UI){
 // set visible-value for all UI-Elements
 void coMUIFrame::setVisible(bool visible){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setVisible(visible, UI);
@@ -173,7 +173,7 @@ void coMUIFrame::setVisible(bool visible){
 
 // set position for TUI-Element
 void coMUIFrame::setPos(int posx, int posy){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
             int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);

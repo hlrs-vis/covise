@@ -82,7 +82,6 @@ void HfT_osg_Plugin01_NormalschnittAnimation::Create_Pfeil(osg::Vec3 startPickPo
         if (mts_plane)
         {
             BoundingBox bs = surf->getBoundingBox();
-            BoundingBox bsPlane = plane->getBoundingBox();
             float Radius = bs.radius();
             //Pfeil:
             ref_ptr<ShapeDrawable> kugel = new ShapeDrawable;
@@ -1084,7 +1083,6 @@ bool HfT_osg_Plugin01_NormalschnittAnimation::Schiefschnitt_Animation(HfT_osg_Pl
     Vec2Array *parameter = surf->getParameterValues();
     Vec2 p = (*parameter)[m_punkt];
     Vec3dArray *pkte = surf->computeSchnittkurve(p[0], p[1], 1);
-    Vec3d punkt1 = (*pkte)[0];
     Vec3d fu = (*pkte)[1];
     Vec3d fv = (*pkte)[2];
     Vec3dArray *pkte2 = surf->computeSchnittkurve(p[0], p[1], 2);
@@ -1256,7 +1254,6 @@ void HfT_osg_Plugin01_NormalschnittAnimation::Meusnier_Kugel(HfT_osg_Plugin01_Pa
     Vec2Array *parameter = surf->getParameterValues();
     Vec2 p = (*parameter)[m_punkt];
     Vec3dArray *pkte = surf->computeSchnittkurve(p[0], p[1], 1);
-    Vec3d punkt1 = (*pkte)[0];
     Vec3d fu = (*pkte)[1];
     Vec3d fv = (*pkte)[2];
     Vec3dArray *pkte2 = surf->computeSchnittkurve(p[0], p[1], 2);

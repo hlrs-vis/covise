@@ -104,14 +104,14 @@ VRSceneGraph *VRSceneGraph::instance()
 }
 
 VRSceneGraph::VRSceneGraph()
-    : m_pointerDepth(0.f)
+    : m_vectorInteractor(0)
+    , m_oldHandLocked(false)
+    , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
     , m_handLocked(false)
-    , m_oldHandLocked(false)
     , m_wireFrame(false)
     , m_textured(true)
     , m_showMenu(true)
-    , m_vectorInteractor(0)
     , m_pointerType(0)
     , m_worldTransformer(false)
     , m_worldTransformerEnabled(true)
@@ -127,13 +127,11 @@ VRSceneGraph::VRSceneGraph()
     , m_transRestrictMaxY(0.0f)
     , m_transRestrictMaxZ(0.0f)
     , m_scalingAllObjects(false)
+    , m_scaleTransform(NULL)
     , transTraversingInteractors(Vec3(0, 0, 0))
     , isFirstTraversal(true)
-    , isScenegraphProtected_(false)
-    ,
-    /*ab hier neu*/
-    m_scaleTransform(NULL)
     , storeWithMenu(false)
+    , isScenegraphProtected_(false)
 {
     KeyButton[0] = 0;
     KeyButton[1] = 0;
@@ -257,7 +255,7 @@ void VRSceneGraph::initSceneGraph()
     m_rootStateSet = loadGlobalGeostate();
 
     int numClipPlanes = cover->getNumClipPlanes();
-    for (unsigned int i = 0; i < numClipPlanes; i++)
+    for (int i = 0; i < numClipPlanes; i++)
     {
         m_rootStateSet->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
     }
@@ -312,7 +310,7 @@ void VRSceneGraph::initSceneGraph()
     m_scaleTransform->addChild(m_objectsRoot);
 
     osg::StateSet *ss = m_menuGroupNode->getOrCreateStateSet();
-    for (unsigned int i = 0; i < cover->getNumClipPlanes(); i++)
+    for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
         ss->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
     }

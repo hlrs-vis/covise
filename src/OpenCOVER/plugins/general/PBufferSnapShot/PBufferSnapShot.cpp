@@ -360,7 +360,7 @@ void PBufferSnapShot::preFrame()
             str.width(7);
             str.fill('0');
             str << counter;
-            int suffixPos = filename.rfind('.');
+            std::string::size_type suffixPos = filename.rfind('.');
             if (suffixPos != filename.npos)
             {
                 filename.insert(suffixPos, str.str());

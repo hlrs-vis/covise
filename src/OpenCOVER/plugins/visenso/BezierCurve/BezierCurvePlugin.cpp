@@ -176,7 +176,7 @@ void BezierCurvePlugin::initializeCurve()
     //	curve->showCasteljau(true);
     //	curve->setT(0.5);
 
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         curve->addControlPoint((controlPoints[i]->getPosition()));
     }
@@ -222,7 +222,7 @@ void BezierCurvePlugin::preFrame()
 {
     //fprintf(stderr,"BezierPlugin::preFrame\n");
 
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         controlPoints[i]->preFrame();
         curve->changeControlPoint(controlPoints[i]->getPosition(), i);
@@ -352,7 +352,7 @@ void BezierCurvePlugin::elevateDegreeOfCurve()
 
         //Füge neue Punkte ein
         std::vector<Vec3> newPoints = curve->getAllControlPoints();
-        for (int i = 0; i < newPoints.size(); i++)
+        for (size_t i = 0; i < newPoints.size(); i++)
         {
             controlPoints.push_back(new Point(newPoints[i]));
         }
@@ -397,7 +397,7 @@ void BezierCurvePlugin::reduceDegreeOfCurveForest()
 
     //Füge neue Punkte ein
     std::vector<Vec3> newPoints = curve->getAllControlPoints();
-    for (int i = 0; i < newPoints.size(); i++)
+    for (size_t i = 0; i < newPoints.size(); i++)
     {
         controlPoints.push_back(new Point(newPoints[i]));
     }
@@ -441,7 +441,7 @@ void BezierCurvePlugin::reduceDegreeOfCurveFarin()
 
     //Füge neue Punkte ein
     std::vector<Vec3> newPoints = curve->getAllControlPoints();
-    for (int i = 0; i < newPoints.size(); i++)
+    for (size_t i = 0; i < newPoints.size(); i++)
     {
         controlPoints.push_back(new Point(newPoints[i]));
     }

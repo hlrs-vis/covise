@@ -317,6 +317,7 @@ private:
     float m_transRestrictMinX, m_transRestrictMinY, m_transRestrictMinZ;
     float m_transRestrictMaxX, m_transRestrictMaxY, m_transRestrictMaxZ;
     bool m_scaleAllOn;
+    bool m_scalingAllObjects;
     osg::MatrixTransform *m_scaleTransform, *m_handIconScaleTransform, *m_handAxisScaleTransform;
     float m_handIconSize;
     float m_handIconOffset;
@@ -326,7 +327,6 @@ private:
     osg::MatrixTransform *m_objectsTransform;
     osg::ref_ptr<osg::Multisample> m_Multisample;
     coVRStatsDisplay *statsDisplay;
-    bool m_scalingAllObjects;
     typedef std::map<osg::Node *, osg::Node *> SpecialBoundsNodeList;
     SpecialBoundsNodeList m_specialBoundsNodeList;
     void dirtySpecialBounds();

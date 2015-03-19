@@ -832,18 +832,11 @@ float VariantPlugin::getTypicalSice()
         cout << "-.-.NodeName:" << child->getName() << "---";
         if (child->getName() != "myBox")
         {
-            osg::BoundingBox mat = getBoundingBox(child);
-            //values.push_back(mat.xMax());values.push_back(mat.xMin());
-            //values.push_back(mat.yMax());values.push_back(mat.yMin());
-            //values.push_back(mat.zMax());values.push_back(mat.zMin());
             values.push_back(child->getBound()._radius);
             cout << *(std::max_element(values.begin(), values.end())) << endl;
         }
     }
 
-    //  osg::BoundingBox mat = getBoundingBox(cover->getObjectsRoot());
-    //   float maxVal = std::max(mat.xMax() - mat.xMin(), mat.yMax() - mat.yMin() - mat.zMax() - mat.zMin());
-    //   return (maxVal / 2);
     float maxVal = *(std::max_element(values.begin(), values.end()));
     values.clear();
     return maxVal;

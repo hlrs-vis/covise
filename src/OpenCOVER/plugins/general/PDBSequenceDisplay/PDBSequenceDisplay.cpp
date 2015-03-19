@@ -270,7 +270,7 @@ void PDBSequenceDisplay::ChangeLabel(int increment)
         curChainPos = increment = 0;
         curChainEndPos = NUM_BUTTONS;
     }
-    else if ((curChainEndPos + increment) >= (cTemp.chainsequence.size() + NUM_BUTTONS))
+    else if ((curChainEndPos + increment) >= (int(cTemp.chainsequence.size()) + NUM_BUTTONS))
     {
         curChainPos = cTemp.chainsequence.size() - 1;
         curChainEndPos = curChainPos + NUM_BUTTONS;
@@ -286,7 +286,7 @@ void PDBSequenceDisplay::ChangeLabel(int increment)
     cerr << endl << endl;
     for (int i = 0; i < NUM_BUTTONS; i++)
     {
-        if ((i + curChainPos) < cTemp.chainsequence.size())
+        if ((i + curChainPos) < int(cTemp.chainsequence.size()))
         {
             csTemp = cTemp.chainsequence.at(i + curChainPos);
             cerr << "Adding " << csTemp.aminoacid << " Num:" << csTemp.num << endl;
@@ -567,7 +567,7 @@ void PDBSequenceDisplay::GotoChainAndPos(string chain, int pos)
     curChainPos = pos;
     curChainEndPos = pos + 10;
 
-    if (curChainPos > (cTemp.chainsequence.size() - NUM_BUTTONS))
+    if (curChainPos > (int(cTemp.chainsequence.size()) - NUM_BUTTONS))
         curChainPos = cTemp.chainsequence.size() - NUM_BUTTONS;
 
     cerr << endl << endl;

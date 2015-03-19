@@ -746,14 +746,12 @@ void ParamPlugin::createGeom()
     primitives->clear();
     normals->clear();
     vert->clear();
-    int ind = 0;
     int poly = 0;
     int hmax = nheight - 1;
     float funcmax = squareParam * hmax * hmax + cubicParam * hmax * hmax * hmax;
     float anglePerHeight = 0.1;
     float twistAngle = 0;
     twistRadius = this->twistRadiusSlider->getValue();
-    double oldhfrag, oldr;
     float oldTwistAngle;
     for (int h = 0; h < nheight; h++)
     {
@@ -807,8 +805,6 @@ void ParamPlugin::createGeom()
         }
         oldTwistAngle = twistAngle;
         twistAngle += anglePerHeight;
-        oldhfrag = hfrag;
-        oldr = r;
     }
 
     geom->setVertexArray(vert.get());

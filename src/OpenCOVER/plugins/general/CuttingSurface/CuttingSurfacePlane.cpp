@@ -396,7 +396,7 @@ void CuttingSurfacePlane::createGeometry()
     (*polyCoords_)[5].set(-0.05, 0.0, -0.05);
 
     polyNormal_ = new osg::Vec3Array(polyCoords_->size());
-    for (int i = 0; i < polyCoords_->size(); ++i)
+    for (size_t i = 0; i < polyCoords_->size(); ++i)
     {
         (*polyNormal_)[i].set(normal_[0], normal_[1], normal_[2]);
     }

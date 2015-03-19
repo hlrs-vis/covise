@@ -160,7 +160,7 @@ bool opencover::coVRDistributionManager::init()
             opencover::coVRMSController::SlaveData renderNodeSize(sizeof(int));
             msControl->readSlaves(&renderNodeSize);
 
-            for (int ctr = 0; ctr < renderNodeSize.data.size(); ++ctr)
+            for (size_t ctr = 0; ctr < renderNodeSize.data.size(); ++ctr)
             {
                 maxRenderNodeSize = std::max(maxRenderNodeSize, *reinterpret_cast<int *>(renderNodeSize.data[ctr]));
                 assert(maxRenderNodeSize == *reinterpret_cast<int *>(renderNodeSize.data[ctr]));
@@ -172,7 +172,7 @@ bool opencover::coVRDistributionManager::init()
             opencover::coVRMSController::SlaveData renderNodeInfo(maxRenderNodeSize);
             msControl->readSlaves(&renderNodeInfo);
 
-            for (int ctr = 0; ctr < renderNodeInfo.data.size(); ++ctr)
+            for (size_t ctr = 0; ctr < renderNodeInfo.data.size(); ++ctr)
             {
 
                 covise::TokenBuffer tb(static_cast<char *>(renderNodeInfo.data[ctr]), *reinterpret_cast<int *>(renderNodeSize.data[ctr]));
@@ -219,7 +219,7 @@ bool opencover::coVRDistributionManager::init()
             RenderGroup masterRenderGroup;
 
             // Create render groups (i.e display with assigned slaves)
-            for (int displayCtr = 0; displayCtr < this->displayNodes.size(); ++displayCtr)
+            for (size_t displayCtr = 0; displayCtr < this->displayNodes.size(); ++displayCtr)
             {
                 RenderGroup r;
                 r.setMaster(this->displayNodes[displayCtr]);
@@ -266,7 +266,7 @@ bool opencover::coVRDistributionManager::init()
 
             opencover::coVRMSController::SlaveData d(maxTbSize);
 
-            for (int ctr = 0; ctr < tb.size(); ++ctr)
+            for (size_t ctr = 0; ctr < tb.size(); ++ctr)
             {
                 LOG_CERR("coVRDistributionManager::init info: sending " << maxTbSize << "b to slave " << ctr << " (payload " << tb[ctr].get_length() << "b)" << std::endl);
                 memcpy(d.data[ctr], tb[ctr].get_data(), tb[ctr].get_length());
@@ -396,7 +396,7 @@ opencover::coVRDistributionManager::RenderNode::RenderNode(const std::string &na
 
 {
 
-    if (coVRMSController::instance()->clusterSize() > idle.size())
+    if (coVRMSController::instance()->clusterSize() > ssize_t(idle.size()))
     {
         idle.resize(coVRMSController::instance()->clusterSize());
         enabled.resize(coVRMSController::instance()->clusterSize());
@@ -479,8 +479,8 @@ void opencover::coVRDistributionManager::RenderNode::applyScreens()
 
     //TODO Adjust window size
 
-    assert(this->screens.size() <= opencover::coVRConfig::instance()->numScreens());
-    for (int ctr = 0; ctr < this->screens.size(); ++ctr)
+    assert(ssize_t(this->screens.size()) <= opencover::coVRConfig::instance()->numScreens());
+    for (size_t ctr = 0; ctr < this->screens.size(); ++ctr)
     {
         screenStruct &target = opencover::coVRConfig::instance()->screens[ctr];
         channelStruct &targetChannel = opencover::coVRConfig::instance()->channels[ctr];
@@ -512,7 +512,7 @@ void opencover::coVRDistributionManager::RenderNode::applyScreens()
     }
 
     //opencover::VRViewer::instance()->setChannelConfig();
-    for (int ctr = 0; ctr < this->screens.size(); ++ctr)
+    for (size_t ctr = 0; ctr < this->screens.size(); ++ctr)
     {
         opencover::VRViewer::instance()->setFrustumAndView(ctr);
         opencover::VRViewer::instance()->clearWindow = true;
@@ -648,7 +648,7 @@ void opencover::coVRDistributionManager::RenderGroup::setMaster(const opencover:
     this->distributionAlgorithm->addSlave(this->master);
 
     this->hostlist = this->master.getNodename();
-    for (int ctr = 0; ctr < this->slaves.size(); ++ctr)
+    for (size_t ctr = 0; ctr < this->slaves.size(); ++ctr)
         this->hostlist += " " + std::string(this->slaves[ctr].getNodename());
 }
 
@@ -670,7 +670,7 @@ void opencover::coVRDistributionManager::RenderGroup::removeSlave(const opencove
     this->slaves.erase(std::find(this->slaves.begin(), this->slaves.end(), slave));
 
     this->hostlist = this->master.getNodename();
-    for (int ctr = 0; ctr < this->slaves.size(); ++ctr)
+    for (size_t ctr = 0; ctr < this->slaves.size(); ++ctr)
         this->hostlist.append(" ").append(std::string(this->slaves[ctr].getNodename()));
 }
 
@@ -833,7 +833,7 @@ int opencover::coVRDistributionManager::ElementCountDA::assignObject(const covis
 
     LOG_CERR("e");
 
-    for (int ctr = 1; ctr < this->elementCounts.size(); ++ctr)
+    for (size_t ctr = 1; ctr < this->elementCounts.size(); ++ctr)
     {
         minElementCount = std::min(minElementCount, this->elementCounts[ctr]);
         if (minElementCount == this->elementCounts[ctr])
@@ -859,7 +859,7 @@ void opencover::coVRDistributionManager::ElementCountDA::addSlave(const opencove
 
 void opencover::coVRDistributionManager::ElementCountDA::removeSlave(const opencover::coVRDistributionManager::RenderNode &slave)
 {
-    for (int ctr = 0; ctr < this->slaves.size(); ++ctr)
+    for (size_t ctr = 0; ctr < this->slaves.size(); ++ctr)
     {
         if (this->slaves[ctr] == slave)
         {

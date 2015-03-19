@@ -79,7 +79,7 @@ void coMUITab::ParentConstructor(const std::string UniqueIdentifier,  coMUIConta
     TUIElement.reset(new opencover::coTUITab(Devices[1].Label, Parent->getTUIID()));
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -117,6 +117,7 @@ void coMUITab::constructor(const std::string UniqueIdentifier){
     Devices[0].Device=ConfigManager->keywordCAVE();
     Devices[0].UI=ConfigManager->keywordVRUI();
     Devices[0].Identifier = Identifier;
+    Devices[0].Visible=true;
 
     Devices[0].Label= ConfigManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
     Parent=ConfigManager->getCorrectParent(NULL, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
@@ -130,6 +131,7 @@ void coMUITab::constructor(const std::string UniqueIdentifier){
     Devices[1].Device=ConfigManager->keywordTablet();
     Devices[1].UI=ConfigManager->keywordTUI();
     Devices[1].Identifier = Identifier;
+    Devices[1].Visible = true;
     Devices[1].Label = ConfigManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
     Parent=ConfigManager->getCorrectParent(NULL, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
     // create TUI-Element:
@@ -143,7 +145,7 @@ void coMUITab::constructor(const std::string UniqueIdentifier){
 
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
@@ -160,9 +162,9 @@ void coMUITab::constructor(const std::string UniqueIdentifier){
 
             if (Devices[i].Visible){                                                // visible
                 Parent=ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-                if (!Parent){
+                if (Parent == NULL){
                     cover->getMenu()->add(SubmenuItem.get());
-                } else if (Parent){
+                } else if (Parent != NULL){
                     Parent->getVRUI()->add(SubmenuItem.get());
                 } else {
                     std::cerr << "coMUITabFolder::constructor: wrong Parent";
@@ -203,7 +205,7 @@ coMenu* coMUITab::getVRUI()
 // set label of all UI-Elements
 void coMUITab::setLabel(std::string label){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setLabel(label, UI);
@@ -211,7 +213,7 @@ void coMUITab::setLabel(std::string label){
 
 // set label of named UI-Elements
 void coMUITab::setLabel(std::string label, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI) != std::string::npos){                           // element to be changed
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
@@ -229,7 +231,7 @@ void coMUITab::setLabel(std::string label, std::string UI){
 // set visibility of all UI-Elements
 void coMUITab::setVisible(bool visible){
     std::string UI;
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         UI.append(Devices[i].UI + " ");
     }
     setVisible(visible, UI);
@@ -237,7 +239,7 @@ void coMUITab::setVisible(bool visible){
 
 // set visibility of named UI-Elements
 void coMUITab::setVisible(bool visible, std::string UI){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (UI.find(Devices[i].UI)!=std::string::npos){                             // element to be changed
             if (Devices[i].Visible != visible){                                     // visible-value changed
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
@@ -259,7 +261,7 @@ void coMUITab::setVisible(bool visible, std::string UI){
 
 // set position for TUI-Element
 void coMUITab::setPos(int posx, int posy){
-    for (int i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i){
         if (Devices[i].UI == ConfigManager->keywordTUI()){                              // TUI-Element
             int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
             int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);

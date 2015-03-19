@@ -164,7 +164,7 @@ void MoleculeHandler::performReaction()
                 availableAtomsCount -= (*design_it)->config.size();
                 for (int elem = 1; elem <= ELEMENT_MAX; ++elem)
                 {
-                    for (int avail_id = 0; avail_id < availableAtoms[elem].size(); ++avail_id)
+                    for (size_t avail_id = 0; avail_id < availableAtoms[elem].size(); ++avail_id)
                     {
                         if (std::find(usedAtoms.begin(), usedAtoms.end(), availableAtoms[elem].at(avail_id)) < usedAtoms.end())
                         {
@@ -183,7 +183,7 @@ void MoleculeHandler::performReaction()
     //      - endDesigns will be reduced
     //      - tmpMolecules contains unprocessed StartMolecules afterwards
     std::vector<StartMolecule *> tmpMolecules = activeMolecules;
-    for (int design_id = 0; design_id < endDesigns.size(); ++design_id)
+    for (size_t design_id = 0; design_id < endDesigns.size(); ++design_id)
     {
         for (std::vector<StartMolecule *>::iterator mol_it = tmpMolecules.begin(); mol_it < tmpMolecules.end(); ++mol_it)
         {

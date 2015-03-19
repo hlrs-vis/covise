@@ -86,7 +86,7 @@ HfT_osg_Animation::HfT_osg_Animation(const Sphere &iAnimatedSphere,
     // Loop mode for the flow of the animation
     m_rpAnimationPath->setLoopMode(AnimationPath::SWING);
 
-    for (int i = 0; i < iPathCoordinates->size(); i++)
+    for (size_t i = 0; i < iPathCoordinates->size(); i++)
     {
         m_rpAnimationPath->insert(m_animationTimeStep * i,
                                   AnimationPath::ControlPoint(iPathCoordinates->at(i)));
@@ -119,7 +119,7 @@ HfT_osg_Animation::HfT_osg_Animation(const Sphere &iAnimatedSphere,
     switch (iLine)
     {
     case 'E':
-        for (int i = 0; i < iPathObject.m_rpEquatorEdges->size(); i++)
+        for (size_t i = 0; i < iPathObject.m_rpEquatorEdges->size(); i++)
         {
             edgeNumber = (iPathObject.m_rpEquatorEdges->at(i));
             m_rpAnimationPath->insert((i * m_animationTimeStep),
@@ -129,7 +129,7 @@ HfT_osg_Animation::HfT_osg_Animation(const Sphere &iAnimatedSphere,
         break;
 
     case 'U':
-        for (int i = 0; i < iPathObject.m_rpDirectrixUEdges->size(); i++)
+        for (size_t i = 0; i < iPathObject.m_rpDirectrixUEdges->size(); i++)
         {
             edgeNumber = (iPathObject.m_rpDirectrixUEdges->at(i));
             m_rpAnimationPath->insert((i * m_animationTimeStep),
@@ -139,7 +139,7 @@ HfT_osg_Animation::HfT_osg_Animation(const Sphere &iAnimatedSphere,
         break;
 
     case 'V':
-        for (int i = 0; i < iPathObject.m_rpDirectrixVEdges->size(); i++)
+        for (size_t i = 0; i < iPathObject.m_rpDirectrixVEdges->size(); i++)
         {
             edgeNumber = (iPathObject.m_rpDirectrixVEdges->at(i));
             m_rpAnimationPath->insert((i * m_animationTimeStep),
@@ -197,7 +197,7 @@ void HfT_osg_Animation::setAnimationPath(Vec3Array *iPath)
     else
     {
         m_animationTimeStep = 1.0;
-        for (int i = 0; i < iPath->size(); i++)
+        for (size_t i = 0; i < iPath->size(); i++)
         {
             m_rpAnimationPath->insert(m_animationTimeStep * i,
                                       AnimationPath::ControlPoint(iPath->at(i)));
@@ -217,7 +217,7 @@ void HfT_osg_Animation::setReverseAnimationPath()
     m_rpAnimationPath = new AnimationPath();
     m_rpAnimationPath->setLoopMode(AnimationPath::SWING);
 
-    for (int i = 0; i < timeMap.size(); i++)
+    for (size_t i = 0; i < timeMap.size(); i++)
     {
         m_rpAnimationPath->insert(i * m_animationTimeStep, timeMap[((timeMap.size() - 1) - i) * m_animationTimeStep]);
     }

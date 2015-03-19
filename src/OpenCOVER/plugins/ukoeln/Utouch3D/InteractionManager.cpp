@@ -1190,7 +1190,7 @@ void InteractionManager::sortCursorsByXVal(vector<TuioCursor *> &cursors)
     float *xVals = new float[cursors.size()];
 
     // fill the map and the array
-    for (int i = 0; i < cursors.size(); i++)
+    for (size_t i = 0; i < cursors.size(); i++)
     {
         TuioCursor *c = dynamic_cast<TuioCursor *>(cursors[i]);
         cursorsX2Cur.insert(pair<float, TuioCursor *>(c->getX(), c));
@@ -1201,7 +1201,7 @@ void InteractionManager::sortCursorsByXVal(vector<TuioCursor *> &cursors)
     std::sort(xVals, xVals + cursors.size());
 
     // fill the result vector with the cursors of the resprective sorted x-values
-    for (int j = 0; j < cursors.size(); j++)
+    for (size_t j = 0; j < cursors.size(); j++)
     {
         map<float, TuioCursor *>::iterator it = cursorsX2Cur.find(xVals[j]);
         if (it != cursorsX2Cur.end())

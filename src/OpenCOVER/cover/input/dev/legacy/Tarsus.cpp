@@ -212,12 +212,12 @@ void Tarsus::initialize()
 
         int openBrace = iInfo->find('<');
 
-        if (openBrace == iInfo->npos)
+        if (openBrace == int(iInfo->npos))
             cerr << "Tarsus Init: Bad Channel Id" << endl;
 
         int closeBrace = iInfo->find('>');
 
-        if (closeBrace == iInfo->npos)
+        if (closeBrace == int(iInfo->npos))
             cerr << "Tarsus Init: Bad Channel Id" << endl;
 
         closeBrace++;
@@ -230,7 +230,7 @@ void Tarsus::initialize()
 
         int space = Name.rfind(' ');
 
-        if (space != Name.npos)
+        if (space != int(Name.npos))
             Name.resize(space);
 
         std::vector<std::string>::const_iterator iTypes;

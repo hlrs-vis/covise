@@ -387,7 +387,7 @@ bool Input::initObjects()
 
     std::vector<std::string> objects = coCoviseConfig::getScopeNames(configPath("Objects"), "Object");
 
-    for (int n = 0; n < objects.size(); ++n)
+    for (size_t n = 0; n < objects.size(); ++n)
     {
 
         string conf = configPath("Objects.Object:" + objects[n]); //config string for reading this object config

@@ -73,7 +73,7 @@ void BezierSurfaceVisualizer::updateControlPoints(std::vector<Vec3> newPointList
     n = newN;
     m = newM;
     removeAllControlPoints();
-    for (int i = 0; i < newPointList.size(); i++)
+    for (size_t i = 0; i < newPointList.size(); i++)
     {
         addControlPoint(newPointList[i]);
     }
@@ -242,10 +242,10 @@ void BezierSurfaceVisualizer::updateGeometry()
 
     if (showControlPolygonGeom)
     {
-        Vec4 colorBlue = Vec4(0.0, 0.0, 1.0, 1.0);
-        Vec4 colorPurple = Vec4(0.7, 0, 0.7, 1.0);
-        Vec4 colorYellow = Vec4(1.0, 1.0, 0.0, 1.0);
-        Vec4 colorGreen = Vec4(0.0, 0.55, 0.0, 1.0);
+        //Vec4 colorBlue = Vec4(0.0, 0.0, 1.0, 1.0);
+        //Vec4 colorPurple = Vec4(0.7, 0, 0.7, 1.0);
+        //Vec4 colorYellow = Vec4(1.0, 1.0, 0.0, 1.0);
+        //Vec4 colorGreen = Vec4(0.0, 0.55, 0.0, 1.0);
         Vec4 colorGold = Vec4(0.93, 0.71, 0.13, 1.0);
 
         //Verbindungslinien in v Richtung
@@ -291,7 +291,7 @@ void BezierSurfaceVisualizer::drawSurface(ref_ptr<MatrixTransform> master)
         {
 
             int counter = 0;
-            for (int i = 0; i < controlPoints.size(); i++)
+            for (size_t i = 0; i < controlPoints.size(); i++)
             {
                 preCasteljauPoints.push_back(controlPoints[i]);
                 counter++;
@@ -372,7 +372,7 @@ void BezierSurfaceVisualizer::visualizeCasteljau(ref_ptr<MatrixTransform> master
     colors[8] = Vec4(0.93, 0.71, 0.13, 1.0); //gold
 
     int counter = 0;
-    for (int i = 0; i < controlPoints.size(); i++)
+    for (size_t i = 0; i < controlPoints.size(); i++)
     {
         preCasteljauPoints.push_back(controlPoints[i]);
         counter++;
@@ -387,7 +387,7 @@ void BezierSurfaceVisualizer::visualizeCasteljau(ref_ptr<MatrixTransform> master
 
     int colorOffset = casteljauU.size() - 3 + (n - m);
 
-    for (int i = 0; i < casteljauU.size() - 1; i++)
+    for (size_t i = 0; i < casteljauU.size() - 1; i++)
     {
         drawLine(master, casteljauU[i], casteljauU[i + 1], colors[colorOffset]);
     }
@@ -435,16 +435,16 @@ Vec3 BezierSurfaceVisualizer::visualizeCasteljauCurve(ref_ptr<MatrixTransform> m
     std::vector<Vec3> points = casteljauPoints;
     int steps = points.size() - 1;
 
-    for (int n = 0; n < steps; n++)
+    for (size_t n = 0; ssize_t(n) < steps; n++)
     {
-        for (int i = 0; i < points.size() - 1 - n; i++)
+        for (size_t i = 0; i < points.size() - 1 - n; i++)
         {
             points[i] *= (1 - t);
             Vec3 tmp = points[i + 1];
             tmp *= t;
             points[i] += tmp;
         }
-        for (int j = 0; j < points.size() - 2 - n; j++)
+        for (size_t j = 0; j < points.size() - 2 - n; j++)
         {
             drawLine(master, points[j], points[j + 1], colors[n + colorOffset]);
         }
@@ -476,9 +476,9 @@ Vec3 BezierSurfaceVisualizer::visualizeCasteljauCurve(ref_ptr<MatrixTransform> m
 Vec3 BezierSurfaceVisualizer::casteljauAproximation(std::vector<Vec3> points, double t)
 {
     int steps = points.size() - 1;
-    for (int n = 0; n < steps; n++)
+    for (size_t n = 0; ssize_t(n) < steps; n++)
     {
-        for (int i = 0; i < points.size() - 1 - n; i++)
+        for (size_t i = 0; i < points.size() - 1 - n; i++)
         {
             points[i] *= (1 - t);
             Vec3 tmp = points[i + 1];

@@ -507,7 +507,7 @@ coVRAnimationManager::removeSequence(osg::Sequence *seq)
 void
 coVRAnimationManager::addSequence(osg::Sequence *seq)
 {
-    if (seq->getNumChildren() > currentAnimationFrame)
+    if (int(seq->getNumChildren()) > currentAnimationFrame)
         seq->setValue(currentAnimationFrame);
     else
         seq->setValue(seq->getNumChildren());

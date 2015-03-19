@@ -338,14 +338,14 @@ bool close_port()
 
 /** Wartet die Antwort ab ( max max_time s) und wertet sie aus **/
 
-bool get_answer(unsigned n, unsigned char *out)
+bool get_answer(unsigned int n, unsigned char *out)
 {
     time_t start_time = time(NULL);
     int Bytes_read = 0;
     int max_time = 1;
     int ret;
 
-    while (Bytes_read < n)
+    while (Bytes_read < int(n))
     {
         //fprintf(stderr,"Reading %d\n",fd);
         ret = read(fd, &out[Bytes_read], n - Bytes_read);
@@ -373,13 +373,13 @@ bool get_answer(unsigned n, unsigned char *out)
 
 /** Wartet die Antwort ab ( max max_time s) und wertet sie aus **/
 
-bool getDivisionAnswer(unsigned n, unsigned char *out)
+bool getDivisionAnswer(unsigned int n, unsigned char *out)
 {
     time_t start_time = time(NULL);
     int Bytes_read = 0;
     int max_time = 1;
 
-    while (Bytes_read < n)
+    while (Bytes_read < int(n))
     {
         Bytes_read += read(fd, &out[Bytes_read], n - Bytes_read);
         if (time(NULL) > start_time + max_time)

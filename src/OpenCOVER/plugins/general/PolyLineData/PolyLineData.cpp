@@ -214,7 +214,7 @@ void PolyLineDataPlugin::updateData(const char *data, int len)
     int polyLineNumber = incoming.section(' ', 0, 0).toInt();
     incoming = incoming.section(' ', 1);
 
-    while (polyLineNumber >= points.size())
+    while (polyLineNumber >= int(points.size()))
     {
         addGeo();
     }

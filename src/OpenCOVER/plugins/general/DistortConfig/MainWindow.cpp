@@ -287,7 +287,7 @@ void MainWindow::setupLineEdits()
     makeLineEditArray();
 
     QValidator *pValidator = new QDoubleValidator(this);
-    for (unsigned int i = 0; i < lineEditsDoubleVec.size(); i++)
+    for (int i = 0; i < lineEditsDoubleVec.size(); i++)
     {
         lineEditsDoubleVec.at(i)->setValidator(pValidator);
     }
@@ -295,7 +295,7 @@ void MainWindow::setupLineEdits()
 
 void MainWindow::setupConnects()
 {
-    for (unsigned int i = 0; i < lineEditsDoubleVec.size(); i++)
+    for (int i = 0; i < lineEditsDoubleVec.size(); i++)
     {
         connect(lineEditsDoubleVec.at(i), SIGNAL(editingFinished()), this, SLOT(lineEditEditingFinished()));
     }
@@ -393,7 +393,7 @@ void MainWindow::setupGeoSettings(std::string shapeType)
 void MainWindow::lineEditEditingFinished()
 {
     //eingegebenen Text in formatierte Zahl umwandeln
-    for (unsigned int i = 0; i < lineEditsDoubleVec.size(); i++)
+    for (int i = 0; i < lineEditsDoubleVec.size(); i++)
     {
         double num = lineEditsDoubleVec.at(i)->text().toDouble();
         QString output = QString::number(num);

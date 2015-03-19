@@ -146,9 +146,9 @@ public:
 
 protected:
     std::string geoShape; //Form der Projektionsgeometrie
+    bool stateMesh; //Geometrie als Gittermodell(True) oder Polygonmodell(False) erstellen?
+    osg::Vec3 orientation;
     osg::Vec3 centerPos;
     osg::Vec3 scaleVec;
-    osg::Vec3 orientation;
     osg::Matrix sTransMat; // Transformationsmatrix des screens.
-    bool stateMesh; //Geometrie als Gittermodell(True) oder Polygonmodell(False) erstellen?
 };

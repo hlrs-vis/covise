@@ -205,20 +205,31 @@ public:
 protected:
     // Typ der Fläche
     int m_Surftype;
-    // Darstellungsmodus der Fläche
-    SurfMode m_Surfmode;
     // Patchanzahl und Segmentanzahl
     int m_n;
     int m_m;
     int m_su;
     int m_sv;
     int m_Pointanz;
+    // Darstellungsmodus der Fläche
+    SurfMode m_Surfmode;
     // Intervallgrenzen der Parameter
     double m_cua;
     double m_cue;
     double m_cva;
     double m_cve;
     // Parametrisierung
+
+    // Felder für die zugehörigen (u,v) Koordinaten
+    Vec2Array *mp_Coords_Geom;
+    Vec2Array *mp_TexCoords_Geom;
+    ref_ptr<Image> mp_Image_Texture;
+
+    // Werte für den FlächenRand und innere Flächenkurve:
+    int m_Pointanz_B;
+    ConsType m_type_C;
+    int m_Pointanz_C;
+
     //Parameter der Fläche als double
     double m_a;
     double m_b;
@@ -234,11 +245,6 @@ protected:
     std::string m_xstr;
     std::string m_ystr;
     std::string m_zstr;
-
-    // Werte für den FlächenRand und innere Flächenkurve:
-    int m_Pointanz_B;
-    ConsType m_type_C;
-    int m_Pointanz_C;
 
     // Pointer auf Surfaceklasse von HPH
     HlParametricSurface3d *mp_ParserSurface;
@@ -267,11 +273,6 @@ protected:
     Vec4Array *mp_Points_Geom4;
     Vec2Array *mp_Points_Geom2;
     Vec3Array *mp_Normals_Geom;
-
-    // Felder für die zugehörigen (u,v) Koordinaten
-    Vec2Array *mp_Coords_Geom;
-    Vec2Array *mp_TexCoords_Geom;
-    ref_ptr<Image> mp_Image_Texture;
 
     // Array mit Eckenindices für die Vec3Array der digitalisierten Punkte
     ref_ptr<DrawElementsUInt> mp_PointEdges_Geom;

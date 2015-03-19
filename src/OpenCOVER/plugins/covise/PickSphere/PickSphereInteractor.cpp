@@ -151,7 +151,7 @@ int PickSphereInteractor::hitSphere()
         return -1;
     }
     int currentFrame = coVRAnimationManager::instance()->getAnimationFrame();
-    if (currentFrame < 0 || currentFrame > (*m_spheres).size())
+    if (currentFrame < 0 || currentFrame > ssize_t((*m_spheres).size()))
         return -1;
     const SphereData actualSpheres = *(*m_spheres)[currentFrame];
 
@@ -259,7 +259,7 @@ PickSphereInteractor::highlightSphere(int index)
         if (coVRMSController::instance()->isMaster())
         {
             int currentFrame = coVRAnimationManager::instance()->getAnimationFrame();
-            if (currentFrame < 0 || currentFrame > (*m_spheres).size())
+            if (currentFrame < 0 || currentFrame > ssize_t((*m_spheres).size()))
                 return;
             const SphereData actualSpheres = *(*m_spheres)[currentFrame];
 
@@ -298,7 +298,7 @@ PickSphereInteractor::boxSelect(Vec3 min, Vec3 max)
 
     enableMultipleSelect(true);
     int currentFrame = coVRAnimationManager::instance()->getAnimationFrame();
-    if (currentFrame < 0 || currentFrame > (*m_spheres).size())
+    if (currentFrame < 0 || currentFrame > ssize_t((*m_spheres).size()))
         return;
     const SphereData actualSpheres = *(*m_spheres)[currentFrame];
 

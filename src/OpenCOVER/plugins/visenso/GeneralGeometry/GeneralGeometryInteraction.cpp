@@ -135,14 +135,14 @@ void GeneralGeometryInteraction::setTransparencyWithoutShader(float transparency
     std::vector<osg::Geode *> geodes = findMyGeode();
     if (geodes.size() > 0)
     {
-        for (int j = 0; j < geodes.size(); j++)
+        for (size_t j = 0; j < geodes.size(); j++)
         {
             osg::ref_ptr<osg::Geode> geode = geodes[j];
             geode->ref();
             osg::StateAttribute::GLModeValue attr = geode->getStateSet()->getMode(osg::StateAttribute::MATERIAL);
 
             // set transparency for all drawables
-            for (int i = 0; i < geode->getNumDrawables(); i++)
+            for (size_t i = 0; i < geode->getNumDrawables(); i++)
             {
                 geoset_ = geode->getDrawable(i);
                 geoset_->ref();
@@ -237,7 +237,7 @@ GeneralGeometryInteraction::setColor(int *color)
         return;
     }
     firsttime_ = true;
-    for (int i = 0; i < geodes.size(); i++)
+    for (size_t i = 0; i < geodes.size(); i++)
     {
         osg::Geode *geode = geodes[i];
         VRSceneGraph::instance()->setColor(geode, color, transparency_);
@@ -256,7 +256,7 @@ GeneralGeometryInteraction::setTransparency(float transparency)
         return;
     }
 
-    for (int i = 0; i < geodes.size(); i++)
+    for (size_t i = 0; i < geodes.size(); i++)
     {
         osg::Geode *geode = geodes[i];
         VRSceneGraph::instance()->setTransparency(geode, transparency);
@@ -340,7 +340,7 @@ GeneralGeometryInteraction::setMaterial(int *ambient, int *diffuse, int *specula
         return;
     }
     firsttime_ = true;
-    for (int i = 0; i < geodes.size(); i++)
+    for (size_t i = 0; i < geodes.size(); i++)
     {
         osg::Geode *geode = geodes[i];
         VRSceneGraph::instance()->setMaterial(geode, ambient, diffuse, specular, shininess, transparency);

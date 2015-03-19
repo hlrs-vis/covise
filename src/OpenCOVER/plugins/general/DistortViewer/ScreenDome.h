@@ -146,8 +146,8 @@ public:
 
 private:
     float cRadius; //Abstand von Oberflächenpunkt P zum Ursprung
-    float cPolarSegSize; //Größe des Domeabschnitts in Polarrichtung (Polarwinkel in Grad)
-    float cAzimSegSize; //Größe des Domeabschnitts in Azimutrichtung (Azimutwinkel in Grad)
-    unsigned int cPolarResolution; //Auflösung in Polarrichtung (z-Richtung)
     unsigned int cAzimResolution; //Auflösung in Azimutalrichtung (x-y-Ebene)
-};
+    unsigned int cPolarResolution; //Auflösung in Polarrichtung (z-Richtung)
+    float cAzimSegSize; //Größe des Domeabschnitts in Azimutrichtung (Azimutwinkel in Grad)
+    float cPolarSegSize; //Größe des Domeabschnitts in Polarrichtung (Polarwinkel in Grad)
+     };

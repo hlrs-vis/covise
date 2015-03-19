@@ -17,7 +17,6 @@ using namespace opencover;
 static const char *MINMAX = "MinMax";
 static const char *STEPS = "numSteps";
 static const char *AUTOSCALE = "autoScales";
-static const char *SCALENOW = "scaleNow";
 
 ColorBar::ColorBar(const char *name, char *species,
                    float min, float max, int numColors,

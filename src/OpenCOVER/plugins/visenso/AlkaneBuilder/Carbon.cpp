@@ -25,7 +25,7 @@ Carbon::isMethan()
 {
     fprintf(stderr, "Carbon::isMethan...");
     int numH = 0;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *conn = atomSticks_[i]->getConnectedStick();
         if (conn && (conn->getAtom()->getSymbol() == "H"))
@@ -172,7 +172,7 @@ bool Carbon::isAlkaneEnd()
     int numH = 0;
     int numC = 0;
 
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *conn = atomSticks_[i]->getConnectedStick();
         if (conn && conn->getAtom()->getSymbol() == "C")
@@ -200,7 +200,7 @@ Carbon *
 Carbon::getNextCarbon(Carbon *prevCarbon)
 {
     Carbon *nextCarbon = NULL;
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *conn = atomSticks_[i]->getConnectedStick();
         if (conn && conn->getAtom()->getSymbol() == "C")
@@ -222,7 +222,7 @@ bool Carbon::isAlkaneMiddle()
     int numH = 0;
     int numC = 0;
 
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *conn = atomSticks_[i]->getConnectedStick();
         if (conn && conn->getAtom()->getSymbol() == "C")
@@ -250,7 +250,7 @@ int Carbon::getNumAtoms(string symbol)
     int numH = 0;
     int numC = 1; // myself
 
-    for (int i = 0; i < atomSticks_.size(); i++)
+    for (size_t i = 0; i < atomSticks_.size(); i++)
     {
         AtomStickInteractor *conn = atomSticks_[i]->getConnectedStick();
         if (conn && conn->getAtom()->getSymbol() == "C")

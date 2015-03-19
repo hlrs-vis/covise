@@ -53,7 +53,7 @@ private:
     void createTUIElement(const std::string label, coMUIContainer* parent);
 
 
-    void tabletEvent(coTUIElement *tUIItem);
+    void tabletEvent(opencover::coTUIElement *tUIItem);
     void menuEvent(vrui::coMenuItem *menuItem);
 
     // variables:

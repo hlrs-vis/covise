@@ -202,7 +202,7 @@ Tracer::displaySmoke()
     }
 
     // remove last primitives
-    for (int i = 0; i < smokeGeometry_->getNumPrimitiveSets(); i++)
+    for (unsigned int i = 0; i < smokeGeometry_->getNumPrimitiveSets(); i++)
         smokeGeometry_->removePrimitiveSet(i);
 
     // set color

@@ -628,7 +628,7 @@ void RuledSurfaces::DreibeinKegel()
 
     //kreisen
     int k = pathpoints->size();
-    for (unsigned int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++)
     {
         osg::Quat rotation((stepe)*PI * (float)i / (pathpoints->size() - 1), osg::Vec3(0, 0, 1));
         path->insert(0.25 * (float)i, osg::AnimationPath::ControlPoint(pathpoints->at(i), rotation));
@@ -663,7 +663,7 @@ void RuledSurfaces::DreibeinZylinder()
 
     //kreisen
     int k = pathpoints->size();
-    for (unsigned int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++)
     {
         osg::Quat rotation((stepe)*PI * (float)i / (pathpoints->size() - 1), osg::Vec3(0, 0, 1));
         path->insert(0.25 * (float)i, osg::AnimationPath::ControlPoint(pathpoints->at(i), rotation));
@@ -726,7 +726,7 @@ void RuledSurfaces::DreibeinHyper()
 
     //kreisen
     int k = pathpoints->size();
-    for (unsigned int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++)
     {
         osg::Quat rotation((stepe)*PI * (float)i / (pathpoints->size() - 1), osg::Vec3(0, 0, 1));
         path->insert(0.25 * (float)i, osg::AnimationPath::ControlPoint(pathpoints->at(i), rotation));
@@ -833,7 +833,7 @@ void RuledSurfaces::DreibeinKonoid()
     path->setLoopMode(osg::AnimationPath::SWING);
 
     int k = pathpoints->size();
-    for (unsigned int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++)
     {
         osg::Quat rotation(angle->at(i).x() /*sin(PI*((float)i/(pathpoints->size()-1)))*atan(0.5)*/, osg::Vec3(-1, 0, 0));
         path->insert(0.1 * (float)i, osg::AnimationPath::ControlPoint(pathpoints->at(i), rotation));
@@ -877,7 +877,7 @@ void RuledSurfaces::DreibeinHelix()
 
     //kreisen
     int k = pathpoints->size();
-    for (unsigned int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++)
     {
         osg::Quat rotation(stepe * PI * (float)i / (pathpoints->size() - 1), osg::Vec3(0, 0, 1));
         path->insert(0.25 * (float)i, osg::AnimationPath::ControlPoint(pathpoints->at(i), rotation));
@@ -2751,7 +2751,7 @@ void RuledSurfaces::normalenMitteln_Oloid(Vec3Array *Normals)
 }
 void RuledSurfaces::normalenMitteln_Quads(Vec3Array *Normals)
 {
-    for (int i = 0; i < Normals->size() - 4; i++)
+    for (size_t i = 0; i < Normals->size() - 4; i++)
     {
         if (mod(i, 4) == 1)
         {
@@ -2767,7 +2767,7 @@ void RuledSurfaces::normalenMitteln_Quads(Vec3Array *Normals)
 }
 void RuledSurfaces::normalenMitteln_Triangles(Vec3Array *Normals)
 {
-    for (int i = 0; i < Normals->size() - 3; i++)
+    for (size_t i = 0; i < Normals->size() - 3; i++)
     {
         if (mod(i, 3) == 1)
         {

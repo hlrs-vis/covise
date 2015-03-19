@@ -596,6 +596,10 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
 #else
         readBytes = fread(&magic, 1, sizeof(magic), YYIN);
 #endif
+        if (readBytes<0)
+        {
+            std::cerr << "VrmlScene: read failed" << std::endl;
+        }
 
         if (magicP[0] == 0xde && magicP[1] == 0xad && magicP[2] == 0xc0 && magicP[3] == 0xde)
         {

@@ -60,7 +60,7 @@ void Scene::loadFromXML()
     int projCount = XmlTools::getInstance()->loadIntValue(plugPath + "." + section, "ProjCount", 0);
     if (projCount > 0)
     {
-        for (unsigned int i = 0; i < projCount; i++)
+        for (int i = 0; i < projCount; i++)
         {
             Projector_ptr projector(new Projector(true));
             projectors.push_back(projector);

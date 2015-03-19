@@ -66,7 +66,7 @@ osg::Geometry *KoordAxis::createArrow(const osg::Matrixd &iTransform, const osg:
     (*indices)[19] = 6;
 
     osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array(indices->size());
-    for (int i = 0; i < indices->size(); ++i)
+    for (int i = 0; i < int(indices->size()); ++i)
     {
         (*vertices)[i].set((*coord)[(*indices)[i]]);
     }

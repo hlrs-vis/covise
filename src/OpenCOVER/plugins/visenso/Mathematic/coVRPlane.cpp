@@ -389,7 +389,6 @@ void coVRPlane::update(int value)
 
         // adjusting direction1 to the changed point position
         Vec3 dir1 = point2_->getPosition() - point1_->getPosition();
-        Vec3 dir2 = direction2_->getDirection();
 
         direction1_->setDirection(dir1);
 
@@ -401,7 +400,6 @@ void coVRPlane::update(int value)
         //fprintf(stderr,"coVRPlane::update point3\n");
 
         // adjusting direction2 to the changed point position
-        Vec3 dir1 = direction1_->getDirection();
         Vec3 dir2 = point3_->getPosition() - point1_->getPosition();
 
         direction2_->setDirection(dir2);
@@ -414,7 +412,6 @@ void coVRPlane::update(int value)
         //fprintf(stderr,"coVRPlane::update direction1\n");
 
         Vec3 dir1 = direction1_->getDirection();
-        Vec3 dir2 = direction2_->getDirection();
 
         // adjusting point2 to the changed direction
         point2_->setPosition(point1_->getPosition() + dir1);
@@ -425,7 +422,6 @@ void coVRPlane::update(int value)
     else if (value == DIR2)
     {
         //fprintf(stderr,"coVRPlane::update direction2\n");
-        Vec3 dir1 = direction1_->getDirection();
         Vec3 dir2 = direction2_->getDirection();
 
         // adjusting point2 to the changed direction
@@ -867,7 +863,6 @@ double coVRPlane::distance(coVRPlane *otherPlane, Vec3 *perpendicularP1, Vec3 *p
         }
 
         // intersection with line (other plane base point and normal direction)
-        Vec3 isectPoint = Vec3(0.0, 0.0, 0.0);
         Vec3 linePoint = otherPlane->getBasePoint() + otherPlane->getNormalDirection();
         coPlane::getLineIntersectionPoint(oPoint1, linePoint, *perpendicularP1);
 

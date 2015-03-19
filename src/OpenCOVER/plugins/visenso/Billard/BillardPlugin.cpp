@@ -243,7 +243,7 @@ void BillardPlugin::preFrame()
         std::vector<std::string> queue = messageReceiver_->popMessageQueue();
         // MOVE_MSG    px0 py0 pz0 rx0 ry0 rz0     px1 py1 pz1 rx1 ry1 rz1 ....px15
 
-        for (int i = 0; i < queue.size(); i++)
+        for (size_t i = 0; i < queue.size(); i++)
         {
             // Ray: Debug output
             std::cout << "queue[" << i << "] = " << queue[i] << std::endl;

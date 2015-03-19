@@ -53,7 +53,7 @@ void coInstanceRenderer::addInstances(osg::Vec3Array &positions, int type)
 
 coInstanceRenderer::~coInstanceRenderer()
 {
-    for (int i = 0; i < objects.size(); i++)
+    for (size_t i = 0; i < objects.size(); i++)
     {
         delete objects[i];
     }
@@ -156,7 +156,7 @@ void coInstanceObject::addInstances(osg::Vec3Array &positions)
 #define TEXTURE_UNIT_NUMBER 1
     stateSet->setTextureAttributeAndModes(TEXTURE_UNIT_NUMBER, texture);
 
-    for (int i = 0; i < positions.size(); i++)
+    for (size_t i = 0; i < positions.size(); i++)
     {
         data[i * 4] = positions[i].x();
         data[i * 4 + 1] = positions[i].y();

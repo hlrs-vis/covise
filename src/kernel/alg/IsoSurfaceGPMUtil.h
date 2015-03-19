@@ -527,7 +527,7 @@ ISOSURFACE_EDGE_INTERSECTION_VECTOR calculate_intersections(int num_elem_in, int
 
 int assign_int_index(ISOSURFACE_EDGE_INTERSECTION_VECTOR intsec_vector, int edge_vertex1, int edge_vertex2)
 {
-    int i;
+    size_t i;
     int index;
 
     index = 0;
@@ -557,7 +557,7 @@ bool find_intersection(ISOSURFACE_EDGE_INTERSECTION_VECTOR intsec_vector, int &e
 
     int_found = false;
 
-    for (i = 0; i < intsec_vector.size(); i++)
+    for (i = 0; i < ssize_t(intsec_vector.size()); i++)
     {
         /***********************************************/
         /* Case 1:  Local topology of the cell is "proper" */
@@ -3544,13 +3544,13 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
     /* Triangulate the convex contour(s) found */
     /*******************************************/
 
-    for (i = 0; i < contour.ring_index.size(); i++)
+    for (i = 0; i < ssize_t(contour.ring_index.size()); i++)
     {
         /* Make sure polygon and vertex containers are empty */
         polygon.clear();
 
         /* Analyzed contour is not the last one */
-        if (i < contour.ring_index.size() - 1)
+        if (i < ssize_t(contour.ring_index.size()) - 1)
         {
             /**************************************************/
             /* Case A - --> The analyzed contour is a triangle   */
@@ -3622,13 +3622,13 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                             successor = polygon_index + 1;
                         }
 
-                        else if (polygon_index == polygon.size() - 1)
+                        else if (polygon_index == ssize_t(polygon.size() - 1))
                         {
                             predecessor = polygon_index - 1;
                             successor = 0;
                         }
 
-                        else if (polygon_index == polygon.size())
+                        else if (polygon_index == ssize_t(polygon.size()))
                         {
                             polygon_index = 0;
                             predecessor = (int)polygon.size() - 1;
@@ -3688,7 +3688,7 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                                 normal_vector_counter++;
 
                                 /* Update Scan */
-                                if (polygon_index + 1 <= polygon.size())
+                                if (polygon_index + 1 <= ssize_t(polygon.size()))
                                 {
                                     polygon_index++;
                                 }
@@ -3703,20 +3703,20 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                                     successor = polygon_index + 1;
                                 }
 
-                                else if (polygon_index == polygon.size() - 1)
+                                else if (polygon_index == ssize_t(polygon.size() - 1))
                                 {
                                     predecessor = polygon_index - 1;
                                     successor = 0;
                                 }
 
-                                else if (polygon_index == polygon.size())
+                                else if (polygon_index == ssize_t(polygon.size()))
                                 {
                                     polygon_index = 0;
                                     predecessor = (int)polygon.size() - 1;
                                     successor = polygon_index + 1;
                                 }
 
-                                else if (polygon_index != 0 && polygon_index != polygon.size() - 1 && polygon_index != polygon.size())
+                                else if (polygon_index != 0 && polygon_index != ssize_t(polygon.size()) - 1 && polygon_index != ssize_t(polygon.size()))
                                 {
                                     predecessor = polygon_index - 1;
                                     successor = polygon_index + 1;
@@ -3741,7 +3741,7 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                                 tesselation_triangle.normal.x = normal.x;
                                 tesselation_triangle.normal.y = normal.y;
                                 tesselation_triangle.normal.z = normal.z;
-                            } while ((normal.x == 0 && normal.y == 0 && normal.z == 0) && normal_vector_counter < polygon.size());
+                            } while ((normal.x == 0 && normal.y == 0 && normal.z == 0) && normal_vector_counter < ssize_t(polygon.size()));
                         }
 
                         /* If normal still equals the null vector implies that the cell is too small */
@@ -3867,7 +3867,7 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
 
             else if ((contour.ring.size() - contour.ring_index[i]) > 3)
             {
-                for (j = contour.ring_index[i]; j < contour.ring.size(); j++)
+                for (j = contour.ring_index[i]; j < ssize_t(contour.ring.size()); j++)
                 {
                     /* Define a polygon data structure with the current convex contour */
                     polygon.push_back(contour.ring[j]);
@@ -3967,7 +3967,7 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                                 normal_vector_counter++;
 
                                 /* Update Scan */
-                                if (polygon_index + 1 <= polygon.size())
+                                if (polygon_index + 1 <= ssize_t(polygon.size()))
                                 {
                                     polygon_index++;
                                 }
@@ -4027,7 +4027,7 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                                 tesselation_triangle.normal.x = normal.x;
                                 tesselation_triangle.normal.y = normal.y;
                                 tesselation_triangle.normal.z = normal.z;
-                            } while ((normal.x == 0 && normal.y == 0 && normal.z == 0) && normal_vector_counter < polygon.size());
+                            } while ((normal.x == 0 && normal.y == 0 && normal.z == 0) && normal_vector_counter < ssize_t(polygon.size()));
                         }
 
                         /* If normal still equals the null vector implies that the cell is too small */
@@ -4070,13 +4070,13 @@ void generate_tesselation(TESSELATION &triangulation, CONTOUR contour, ISOSURFAC
                             successor = polygon_index + 1;
                         }
 
-                        else if (polygon_index == polygon.size() - 1)
+                        else if (polygon_index == ssize_t(polygon.size() - 1))
                         {
                             predecessor = polygon_index - 1;
                             successor = 0;
                         }
 
-                        else if (polygon_index == polygon.size())
+                        else if (polygon_index == ssize_t(polygon.size()))
                         {
                             polygon_index = 0;
                             predecessor = (int)polygon.size() - 1;
