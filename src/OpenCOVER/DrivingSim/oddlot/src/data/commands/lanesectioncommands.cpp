@@ -876,7 +876,14 @@ SetLanePredecessorIdCommand::SetLanePredecessorIdCommand(Lane *lane, int id, Dat
     , lane_(lane)
     , newPredecessorId_(id)
 {
+    if (newPredecessorId_ == Lane::NOLANE)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("SetLanePredecessorIdCommand: Internal error! No lane link."));
+        return;
+    }
     construct();
+
 }
 
 void
@@ -948,6 +955,12 @@ SetLaneSuccessorIdCommand::SetLaneSuccessorIdCommand(Lane *lane, int id, DataCom
     , lane_(lane)
     , newSuccessorId_(id)
 {
+    if (newSuccessorId_ == Lane::NOLANE)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("SetLaneSuccessorIdCommand: Internal error! No lane link."));
+        return;
+    }
     construct();
 }
 

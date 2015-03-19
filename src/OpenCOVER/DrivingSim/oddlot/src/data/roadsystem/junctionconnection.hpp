@@ -17,6 +17,7 @@
 #define JUNCTIONCONNECTION_HPP
 
 #include "src/data/dataelement.hpp"
+#include "src/data/roadsystem/sections/lane.hpp"
 
 // TODO: Observer Pattern
 
@@ -106,7 +107,7 @@ public:
 
     int getFromLane(int to)
     {
-        return laneLinks_.key(to);
+        return laneLinks_.key(to, Lane::NOLANE);
     }
 
     // Observer Pattern //
