@@ -9,11 +9,13 @@
 
 #include "coIntersection.h"
 #include <osg/Version>
+#include <osg/io_utils>
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
 #define getBound getBoundingBox
 #endif
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 using namespace osg;
 using namespace osgUtil;
@@ -52,8 +54,6 @@ namespace Private
 
     struct TriangleIntersect
     {
-        osg::ref_ptr<LineSegment> _seg;
-
         Vec3 _s;
         Vec3 _d;
         float _length;
@@ -67,23 +67,36 @@ namespace Private
         TriangleHitList _thl;
 
         TriangleIntersect()
+        : _length(-1)
         {
         }
 
         TriangleIntersect(const LineSegment &seg, float ratio = FLT_MAX)
+        : _length(-1)
         {
             set(seg, ratio);
         }
 
         void set(const LineSegment &seg, float ratio = FLT_MAX)
         {
-            _seg = new LineSegment(seg);
             _hit = false;
             _index = 0;
             _ratio = ratio;
 
-            _s = _seg->start();
-            _d = _seg->end() - _seg->start();
+            _s = seg.start();
+            _d = seg.end() - seg.start();
+            if (isnan(_s[0]) || isnan(_s[1]) || isnan(_s[2]))
+            {
+                _length = -1;
+                std::cerr << "TriangleIntersect: invalid line segment - start" << std::endl;
+                return;
+            }
+            if (isnan(_d[0] || isnan(_d[1]) || isnan(_d[2])))
+            {
+                _length = -1;
+                std::cerr << "TriangleIntersect: invalid line segment - direction" << std::endl;
+                return;
+            }
             _length = _d.length();
             _d /= _length;
         }
@@ -93,13 +106,40 @@ namespace Private
         {
             ++_index; //TODO Not really useful in parallel....
 
-            if (v1 == v2 || v2 == v3 || v1 == v3)
+            if (_length < 0)
+            {
+                // invalid line segment
                 return;
+            }
+
+            const float eps = 1e-9;
+#ifdef NDEBUG
+#define CHECK(x)
+#else
+#define CHECK(x) \
+            if (isnan(x) || isinf(x)) { \
+                std::cerr << "not finite: " << #x << "=" << x << std::endl; \
+                std::cerr << "\tv1=" << v1 << ", v2=" << v2 << ", v3=" << v3 << std::endl; \
+                std::cerr << "\t_d=" << _d << ", _s=" << _s << std::endl; \
+                return; \
+            }
+#endif
 
             Vec3 v12 = v2 - v1;
+            if (v12.length() < eps)
+                return;
+            Vec3 v23 = v3 - v2;
+            if (v23.length() < eps)
+                return;
+            Vec3 v31 = v1 - v3;
+            if (v31.length() < eps)
+                return;
+
             Vec3 n12 = v12 ^ _d;
             float ds12 = (_s - v1) * n12;
+            CHECK(ds12);
             float d312 = (v3 - v1) * n12;
+            CHECK(d312);
             if (d312 >= 0.0f)
             {
                 if (ds12 < 0.0f)
@@ -115,10 +155,11 @@ namespace Private
                     return;
             }
 
-            Vec3 v23 = v3 - v2;
             Vec3 n23 = v23 ^ _d;
             float ds23 = (_s - v2) * n23;
+            CHECK(ds23);
             float d123 = (v1 - v2) * n23;
+            CHECK(d123);
             if (d123 >= 0.0f)
             {
                 if (ds23 < 0.0f)
@@ -134,10 +175,11 @@ namespace Private
                     return;
             }
 
-            Vec3 v31 = v1 - v3;
             Vec3 n31 = v31 ^ _d;
             float ds31 = (_s - v3) * n31;
+            CHECK(ds31);
             float d231 = (v2 - v3) * n31;
+            CHECK(d231);
             if (d231 >= 0.0f)
             {
                 if (ds31 < 0.0f)
@@ -154,31 +196,34 @@ namespace Private
             }
 
             float r3;
-            if (ds12 == 0.0f)
+            if (fabs(ds12) < eps)
                 r3 = 0.0f;
             else if (d312 != 0.0f)
                 r3 = ds12 / d312;
             else
                 return; // the triangle and the line must be parallel intersection.
+            CHECK(r3);
 
             float r1;
-            if (ds23 == 0.0f)
+            if (fabs(ds23) < eps)
                 r1 = 0.0f;
             else if (d123 != 0.0f)
                 r1 = ds23 / d123;
             else
                 return; // the triangle and the line must be parallel intersection.
+            CHECK(r1);
 
             float r2;
-            if (ds31 == 0.0f)
+            if (fabs(ds31) < eps)
                 r2 = 0.0f;
             else if (d231 != 0.0f)
                 r2 = ds31 / d231;
             else
                 return; // the triangle and the line must be parallel intersection.
+            CHECK(r2);
 
             float total_r = (r1 + r2 + r3);
-            if (total_r != 1.0f)
+            if (fabs(total_r) > eps)
             {
                 if (total_r == 0.0f)
                     return; // the triangle and the line must be parallel intersection.
@@ -187,13 +232,15 @@ namespace Private
                 r2 *= inv_total_r;
                 r3 *= inv_total_r;
             }
+            CHECK(total_r);
 
             Vec3 in = v1 * r1 + v2 * r2 + v3 * r3;
             if (!in.valid())
             {
                 std::cerr << "Warning:: Picked up error in TriangleIntersect" << std::endl;
-                //         OSG_WARN<<"   ("<<v1<<",\t"<<v2<<",\t"<<v3<<")"<<std::endl;
-                //         OSG_WARN<<"   ("<<r1<<",\t"<<r2<<",\t"<<r3<<")"<<std::endl;
+                OSG_WARN<<"   v=("<<v1<<",\t"<<v2<<",\t"<<v3<<")"<<std::endl;
+                OSG_WARN<<"   1/r=("<<r1<<",\t"<<r2<<",\t"<<r3<<")"<<std::endl;
+                OSG_WARN<<"   total_r=" << total_r << std::endl;
                 return;
             }
 
