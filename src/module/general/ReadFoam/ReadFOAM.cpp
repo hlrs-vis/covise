@@ -334,7 +334,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
                 return NULL;
             HeaderInfo facesH = readFoamHeader(*facesIn);
             std::vector<std::vector<index_t> > faces(facesH.lines);
-            readIndexListArray(*facesIn, faces.data(), faces.size());
+            readIndexListArray(facesH, *facesIn, faces.data(), faces.size());
 
             //std::cerr << std::time(0) << " reading Owners" << std::endl;
             boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
@@ -342,7 +342,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
                 return NULL;
             HeaderInfo ownerH = readFoamHeader(*ownersIn);
             std::vector<index_t> owners(ownerH.lines);
-            readIndexArray(*ownersIn, owners.data(), owners.size());
+            readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
             //std::cerr << std::time(0) << " reading neighbours" << std::endl;
             boost::shared_ptr<std::istream> neighborsIn = getStreamForFile(meshdir, "neighbour");
@@ -354,7 +354,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
                 std::cerr << "inconsistency: #internalFaces != #neighbours" << std::endl;
             }
             std::vector<index_t> neighbours(neighbourH.lines);
-            readIndexArray(*neighborsIn, neighbours.data(), neighbours.size());
+            readIndexArray(neighbourH, *neighborsIn, neighbours.data(), neighbours.size());
 
             //mesh
             //std::cerr << std::time(0) << " creating cellToFace Mapping" << std::endl;
@@ -582,7 +582,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         //      }
 
         //std::cerr << std::time(0) << " reading Points" << std::endl;
-        readFloatVectorArray(*pointsIn, x_coord, y_coord, z_coord, pointsH.lines);
+        readFloatVectorArray(pointsH, *pointsIn, x_coord, y_coord, z_coord, pointsH.lines);
     }
     else
     { //if Processor >= 0  ->  Copy everything but the Coordinates from basemeshs[processor]
@@ -626,7 +626,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         //if (pointsH.lines != dim.points) {
         //   std::cerr << std::time(0) << " inconsistency: #Number of points in points-file != #points declared in owner header" << std::endl;
         //}
-        readFloatVectorArray(*pointsIn, x_coord, y_coord, z_coord, pointsH.lines);
+        readFloatVectorArray(pointsH, *pointsIn, x_coord, y_coord, z_coord, pointsH.lines);
     }
 
     std::cerr << std::time(0) << " done!" << std::endl;
@@ -650,7 +650,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
             return NULL;
         HeaderInfo facesH = readFoamHeader(*facesIn);
         std::vector<std::vector<index_t> > faces(facesH.lines);
-        readIndexListArray(*facesIn, faces.data(), faces.size());
+        readIndexListArray(facesH, *facesIn, faces.data(), faces.size());
 
         coRestraint res;
         res.add(selection.c_str());
@@ -723,7 +723,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
         std::vector<scalar_t> x_coord(pointsH.lines), y_coord(pointsH.lines), z_coord(pointsH.lines);
-        readFloatVectorArray(*pointsIn, x_coord.data(), y_coord.data(), z_coord.data(), pointsH.lines);
+        readFloatVectorArray(pointsH, *pointsIn, x_coord.data(), y_coord.data(), z_coord.data(), pointsH.lines);
         for (std::map<int, int>::iterator it = pointmap.begin(); it != pointmap.end(); ++it)
         {
             *x_start = x_coord[it->first];
@@ -773,7 +773,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
         std::vector<scalar_t> x_coord(pointsH.lines), y_coord(pointsH.lines), z_coord(pointsH.lines);
-        readFloatVectorArray(*pointsIn, x_coord.data(), y_coord.data(), z_coord.data(), pointsH.lines);
+        readFloatVectorArray(pointsH, *pointsIn, x_coord.data(), y_coord.data(), z_coord.data(), pointsH.lines);
 
         for (std::map<int, int>::iterator it = pointmap.begin(); it != pointmap.end(); ++it)
         {
@@ -804,7 +804,7 @@ coDoVec3 *ReadFOAM::loadVectorField(const std::string &timedir,
     float *x, *y, *z;
     vecObj->getAddresses(&x, &y, &z);
 
-    readFloatVectorArray(*vecIn, x, y, z, header.lines);
+    readFloatVectorArray(header, *vecIn, x, y, z, header.lines);
 
     std::cerr << std::time(0) << " done!" << std::endl;
     return vecObj;
@@ -824,7 +824,7 @@ coDoFloat *ReadFOAM::loadScalarField(const std::string &timedir,
     float *x;
     vecObj->getAddress(&x);
 
-    readFloatArray(*vecIn, x, header.lines);
+    readFloatArray(header, *vecIn, x, header.lines);
 
     std::cerr << std::time(0) << " done!" << std::endl;
     return vecObj;
@@ -843,7 +843,7 @@ coDoVec3 *ReadFOAM::loadBoundaryVectorField(const std::string &timedir,
         return NULL;
     HeaderInfo ownerH = readFoamHeader(*ownersIn);
     std::vector<index_t> owners(ownerH.lines);
-    readIndexArray(*ownersIn, owners.data(), owners.size());
+    readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
     coRestraint res;
     res.add(selection.c_str());
@@ -869,7 +869,7 @@ coDoVec3 *ReadFOAM::loadBoundaryVectorField(const std::string &timedir,
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
     std::vector<scalar_t> fullX(header.lines), fullY(header.lines), fullZ(header.lines);
-    readFloatVectorArray(*vecIn, fullX.data(), fullY.data(), fullZ.data(), header.lines);
+    readFloatVectorArray(header, *vecIn, fullX.data(), fullY.data(), fullZ.data(), header.lines);
 
     coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), dataMapping.size());
     float *x, *y, *z;
@@ -901,7 +901,7 @@ coDoFloat *ReadFOAM::loadBoundaryScalarField(const std::string &timedir,
         return NULL;
     HeaderInfo ownerH = readFoamHeader(*ownersIn);
     std::vector<index_t> owners(ownerH.lines);
-    readIndexArray(*ownersIn, owners.data(), owners.size());
+    readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
     coRestraint res;
     res.add(selection.c_str());
@@ -927,7 +927,7 @@ coDoFloat *ReadFOAM::loadBoundaryScalarField(const std::string &timedir,
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
     std::vector<scalar_t> fullX(header.lines);
-    readFloatArray(*vecIn, fullX.data(), header.lines);
+    readFloatArray(header, *vecIn, fullX.data(), header.lines);
 
     coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), dataMapping.size());
     float *x;

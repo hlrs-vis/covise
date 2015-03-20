@@ -15,24 +15,29 @@ using namespace vrui;
 using namespace opencover;
 
 // constructor:
-coMUIPotiSlider::coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue, const std::string label){
+coMUIPotiSlider::coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue, const std::string label)
+{
     ConfigManager = NULL;
     constructor(UniqueIdentifier,parent, min, max, defaultValue, label);
 }
-coMUIPotiSlider::coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue){
+
+coMUIPotiSlider::coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue)
+{
     ConfigManager = NULL;
     constructor(UniqueIdentifier, parent, min, max, defaultValue, UniqueIdentifier);
 }
 
-coMUIPotiSlider::~coMUIPotiSlider(){
+coMUIPotiSlider::~coMUIPotiSlider()
+{
     ConfigManager->removeElement(Identifier);
     // Slider allocated two spaces
-    ConfigManager->deletePos(Identifier);
-    ConfigManager->deletePos(Identifier);
+    ConfigManager->deletePosFromPosList(Identifier);
+    ConfigManager->deletePosFromPosList(Identifier);
 }
 
 // underlying constructor
-void coMUIPotiSlider::constructor(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue, const std::string label){
+void coMUIPotiSlider::constructor(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue, const std::string label)
+{
     value = defaultValue;
     minVal = min;
     maxVal = max;
@@ -69,44 +74,54 @@ void coMUIPotiSlider::constructor(const std::string UniqueIdentifier, coMUIConta
     createTUIElement(Devices[1].Label, ConfigManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier));
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (size_t i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
         // create UI-Elements:
-        if (Devices[i].UI == ConfigManager->keywordTUI()){         // create TUI-Element
-            while (true){
-                int posx=ConfigManager->getCorrectPosX(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-                int posy=ConfigManager->getCorrectPosY(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-                if (!ConfigManager->isPosOccupied(posx+1, posy, Parent->getUniqueIdentifier())){
+        if (Devices[i].UI == ConfigManager->keywordTUI())         // create TUI-Element
+        {
+            while (true)
+            {
+                std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+                if (!ConfigManager->isPosOccupied(std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier()))
+                {
                     break;
                 }
             }
-            int posx=ConfigManager->getCorrectPosX(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-            int posy=ConfigManager->getCorrectPosY(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-            ConfigManager->preparePos(posx,posy, Parent->getUniqueIdentifier());
-            ConfigManager->preparePos(posx+1,posy, Parent->getUniqueIdentifier());
-            TUIElement->setPos(posx,posy);
-            ConfigManager->addPos(Devices[i].Identifier, posx, posy, Parent->getUniqueIdentifier(), true);
-            ConfigManager->addPos(Devices[i].Identifier, posx+1, posy, Parent->getUniqueIdentifier(), true);
+            std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+            std::pair<int,int> pos2 (pos.first+1, pos.second);
+            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+            ConfigManager->preparePos(pos2, Parent->getUniqueIdentifier());
+            TUIElement->setPos(pos.first,pos.second);
+            ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
+            ConfigManager->addPosToPosList(Devices[i].Identifier, pos2, Parent->getUniqueIdentifier(), true);
             TUIElement->setHidden(!Devices[i].Visible);
-        }else if (Devices[i].UI == ConfigManager->keywordVRUI()){  // create VRUI-Element
-            if (Devices[i].Visible){                                            // visible
+        }else if (Devices[i].UI == ConfigManager->keywordVRUI())  // create VRUI-Element
+        {
+            if (Devices[i].Visible)                                            // visible
+            {
                 ConfigManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
-            }else{                                                               // invisible
+            }else                                                               // invisible
+            {
                 ConfigManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
             }
-        }else{
+        }else
+        {
             std::cerr << "coMUIPotiSlider::constructor(): Elementtype " << Devices[i].UI << " not found in Constructor." << std::endl;
         }
     }
 }
 
 // called, if there is an interaction with the TUI
-void coMUIPotiSlider::tabletEvent(coTUIElement *tUIItem){
-    if (tUIItem == TUIElement.get()){
+void coMUIPotiSlider::tabletEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == TUIElement.get())
+    {
         VRUIElement->setValue(TUIElement->getValue());
-        if (value!=TUIElement->getValue()){
+        if (value!=TUIElement->getValue())
+        {
             value = TUIElement->getValue();
         }
         emit valueChanged();
@@ -116,9 +131,11 @@ void coMUIPotiSlider::tabletEvent(coTUIElement *tUIItem){
 // called, if there is an interaction with the VRUI
 void coMUIPotiSlider::menuEvent(coMenuItem *menuItem)
 {
-    if (menuItem == VRUIElement.get()){
+    if (menuItem == VRUIElement.get())
+    {
         TUIElement->setValue(VRUIElement->getValue());
-        if (value!=VRUIElement->getValue()){
+        if (value!=VRUIElement->getValue())
+        {
             value = VRUIElement->getValue();
         }
         emit valueChanged();
@@ -126,13 +143,15 @@ void coMUIPotiSlider::menuEvent(coMenuItem *menuItem)
 }
 
 // create VRUI-Element
-void coMUIPotiSlider::createVRUIElement(const std::string label){
+void coMUIPotiSlider::createVRUIElement(const std::string label)
+{
     VRUIElement.reset(new coPotiMenuItem (label, minVal, maxVal, value));
     VRUIElement->setMenuListener(this);
 }
 
 // create TUI-Element
-void coMUIPotiSlider::createTUIElement(const std::string label, coMUIContainer* Parent){
+void coMUIPotiSlider::createTUIElement(const std::string label, coMUIContainer* Parent)
+{
     TUIElement.reset(new coTUIFloatSlider(label, Parent->getTUIID()));
     TUIElement->setRange(minVal, maxVal);
     TUIElement->setValue(value);
@@ -140,12 +159,14 @@ void coMUIPotiSlider::createTUIElement(const std::string label, coMUIContainer* 
 }
 
 // returns value
-float coMUIPotiSlider::getValue(){
+float coMUIPotiSlider::getValue()
+{
     return value;
 }
 
 // sets new value
-void coMUIPotiSlider::setValue(float newVal){
+void coMUIPotiSlider::setValue(float newVal)
+{
     value=newVal;
     TUIElement->setValue(value);
     VRUIElement->setValue(value);
@@ -153,40 +174,41 @@ void coMUIPotiSlider::setValue(float newVal){
 }
 
 // set position of TUI-Element
-void coMUIPotiSlider::setPos(int posx, int posy){
-    for (size_t i=0; i<Devices.size(); ++i){
-        if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
-            while (true){
-                int posX=ConfigManager->getCorrectPosX(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-                int posY=ConfigManager->getCorrectPosY(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-                if (!ConfigManager->isPosOccupied(posX+1, posY, Parent->getUniqueIdentifier())){
-                    break;
-                }
-            }
-            int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(posx,posy, Parent->getUniqueIdentifier());
-            ConfigManager->preparePos(posX+1, posY, Parent->getUniqueIdentifier());
-            ConfigManager->deletePos(Devices[i].Identifier);
-            ConfigManager->deletePos(Devices[i].Identifier);
-            TUIElement->setPos(posX,posY);
-            ConfigManager->addPos(Devices[i].Identifier, posx, posy, Parent->getUniqueIdentifier(), false);
-            ConfigManager->addPos(Devices[i].Identifier, posx+1, posy, Parent->getUniqueIdentifier(), false);
+void coMUIPotiSlider::setPos(int posx, int posy)
+{
+    std::pair<int,int> pos(posx,posy);
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
+        if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUI-Element
+        {
+            pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+            ConfigManager->preparePos(std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier());
+            ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+            TUIElement->setPos(pos.first, pos.second);
+            ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            ConfigManager->addPosToPosList(Devices[i].Identifier, std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier(), false);
         }
     }
 }
 
 
 // set visible-value of named Elements
-void coMUIPotiSlider::setVisible(bool visible, std::string UI){
-    for (size_t i=0; i<Devices.size(); ++i){
-        if (UI.find(Devices[i].UI)!=std::string::npos){                             // Element shall be changed
-            if (Devices[i].Visible != visible){                                     // visible-value changed
+void coMUIPotiSlider::setVisible(bool visible, std::string UI)
+{
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
+        if (UI.find(Devices[i].UI)!=std::string::npos)                             // Element shall be changed
+        {
+            if (Devices[i].Visible != visible)                                     // visible-value changed
+            {
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
                 if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
                     TUIElement->setHidden(!Devices[i].Visible);
-                } else if (Devices[i].UI == ConfigManager->keywordVRUI()){          // VRUI-Element
-                    if (Devices[i].Visible){
+                } else if (Devices[i].UI == ConfigManager->keywordVRUI())          // VRUI-Element
+                {
+                    if (Devices[i].Visible)
+                    {
                         ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
                     } else{
                         ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
@@ -200,7 +222,8 @@ void coMUIPotiSlider::setVisible(bool visible, std::string UI){
 }
 
 // set visible-value of all elements
-void coMUIPotiSlider::setVisible(bool visible){
+void coMUIPotiSlider::setVisible(bool visible)
+{
     std::string UI;
     UI.append(ConfigManager->keywordTUI() + " ");
     UI.append(ConfigManager->keywordVRUI() + " ");
@@ -208,13 +231,18 @@ void coMUIPotiSlider::setVisible(bool visible){
 }
 
 // set visible-value of named elements
-void coMUIPotiSlider::setLabel(std::string label, std::string UI){
-    for (size_t i=0; i<Devices.size(); ++i){
-        if (UI.find(Devices[i].UI) != std::string::npos){                       // Element to be changed
+void coMUIPotiSlider::setLabel(std::string label, std::string UI)
+{
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
+        if (UI.find(Devices[i].UI) != std::string::npos)                       // Element to be changed
+        {
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
+            if (Devices[i].UI == ConfigManager->keywordTUI())                  // TUI-Element
+            {
                 TUIElement->setLabel(Devices[i].Label);
-            } else if (Devices[i].UI == ConfigManager->keywordVRUI()){          // VRUI-Element
+            } else if (Devices[i].UI == ConfigManager->keywordVRUI())          // VRUI-Element
+            {
                 VRUIElement->setLabel(Devices[i].Label);
             } else{
                 std::cerr << "coMUIPotiSlider::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string, std::string)." << std::endl;
@@ -224,7 +252,8 @@ void coMUIPotiSlider::setLabel(std::string label, std::string UI){
 }
 
 // set label for all UI-Elements
-void coMUIPotiSlider::setLabel(std::string label){
+void coMUIPotiSlider::setLabel(std::string label)
+{
     std::string UI;
     UI.append(ConfigManager->keywordTUI() + " ");
     UI.append(ConfigManager->keywordVRUI() + " ");
@@ -232,11 +261,13 @@ void coMUIPotiSlider::setLabel(std::string label){
 }
 
 // returns the parent of this element
-coMUIContainer* coMUIPotiSlider::getParent(){
+coMUIContainer* coMUIPotiSlider::getParent()
+{
     return Parent;
 }
 
 // returns the UniqueIdentifier of the element
-std::string coMUIPotiSlider::getUniqueIdentifier(){
+std::string coMUIPotiSlider::getUniqueIdentifier()
+{
     return Devices[0].Identifier;
 }

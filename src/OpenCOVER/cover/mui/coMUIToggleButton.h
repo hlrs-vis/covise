@@ -11,7 +11,8 @@
 #include <boost/smart_ptr.hpp>
 
 
-namespace vrui {
+namespace vrui
+{
 class coCheckboxMenuItem;
 class coRowMenu;
 class coUIElement;

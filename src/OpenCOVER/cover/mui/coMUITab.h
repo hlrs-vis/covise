@@ -16,11 +16,13 @@
 
 
 // forwarddeclaration
-namespace opencover{
+namespace opencover
+{
 class coTUITab;
 }
 
-namespace vrui {
+namespace vrui
+{
 class coSubMenuItem;
 class coRowMenu;
 }

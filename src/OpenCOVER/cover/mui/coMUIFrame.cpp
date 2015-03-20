@@ -15,26 +15,30 @@ using namespace opencover;
 using namespace vrui;
 
 // constructor:
-coMUIFrame::coMUIFrame(const std::string UniqueIdentifier, coMUIContainer* parent){
+coMUIFrame::coMUIFrame(const std::string UniqueIdentifier, coMUIContainer* parent)
+{
     ConfigManager = NULL;
     Label = UniqueIdentifier;
     constructor(UniqueIdentifier, parent, Label);
 }
 
-coMUIFrame::coMUIFrame(const std::string UniqueIdentifier, coMUIContainer* parent, std::string label){
+coMUIFrame::coMUIFrame(const std::string UniqueIdentifier, coMUIContainer* parent, std::string label)
+{
     ConfigManager = NULL;
     Label = label;
     constructor(UniqueIdentifier, parent, Label);
 }
 
 // destructor:
-coMUIFrame::~coMUIFrame(){
+coMUIFrame::~coMUIFrame()
+{
     ConfigManager->removeElement(Identifier);
-    ConfigManager->deletePos(Identifier);
+    ConfigManager->deletePosFromPosList(Identifier);
 }
 
 // underlying constructor:
-void coMUIFrame::constructor(const std::string UniqueIdentifier, coMUIContainer* parent, std::string label){
+void coMUIFrame::constructor(const std::string UniqueIdentifier, coMUIContainer* parent, std::string label)
+{
     ConfigManager= coMUIConfigManager::getInstance();
 
     Parent=parent;
@@ -70,29 +74,34 @@ void coMUIFrame::constructor(const std::string UniqueIdentifier, coMUIContainer*
     SubmenuItem->setMenu(Submenu.get());
 
     // find and set correct parameter (get them from configuration file, if possible):
-    for (size_t i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
         Devices[i].Visible = ConfigManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
         Devices[i].Label = ConfigManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
 
         // create UI-Elements:
-        if  (Devices[i].UI==ConfigManager->keywordTUI()){                       // create TUI-Element
-            int posx=ConfigManager->getCorrectPosX(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-            int posy=ConfigManager->getCorrectPosY(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-            ConfigManager->preparePos(posx, posy, Parent->getUniqueIdentifier());
-            TUIElement->setPos(posx, posy);
-            ConfigManager->addPos(Devices[i].Identifier, posx, posy, Parent->getUniqueIdentifier(), true);
+        if  (Devices[i].UI==ConfigManager->keywordTUI())                       // create TUI-Element
+        {
+            std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+            TUIElement->setPos(pos.first, pos.second);
+            ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
             TUIElement->setHidden(!Devices[i].Visible);
         }
-        else if (Devices[i].UI==ConfigManager->keywordVRUI()){                  // create VRUI-Elements
+        else if (Devices[i].UI==ConfigManager->keywordVRUI())                  // create VRUI-Elements
+        {
             SubmenuItem->setMenu(Submenu.get());
 
-            if (Devices[i].Visible){                                            // visible
+            if (Devices[i].Visible)                                            // visible
+            {
                 Parent->getVRUI()->add(SubmenuItem.get());
             }
-            else{                                                               // invisible
+            else
+            {                                                               // invisible
                 Parent->getVRUI()->remove(SubmenuItem.get());
             }
-        } else {
+        } else
+        {
             std::cerr << "coMUITab::ParentConstructor: " << Devices[i].UI << " not found in Constructor." << std::endl;
         }
     }
@@ -100,31 +109,40 @@ void coMUIFrame::constructor(const std::string UniqueIdentifier, coMUIContainer*
 
 
 // returns the parent-element
-coMUIContainer* coMUIFrame::getParent(){
+coMUIContainer* coMUIFrame::getParent()
+{
     return Parent;
 }
 
 // returns ID of TUI-Element
-int coMUIFrame::getTUIID(){
+int coMUIFrame::getTUIID()
+{
     return (TUIElement->getID());
 }
 
 // returns VRUI-Element
-vrui::coMenu* coMUIFrame::getVRUI(){
+vrui::coMenu* coMUIFrame::getVRUI()
+{
     return Submenu.get();
 }
 
 // set label for named UI-Elements
-void coMUIFrame::setLabel(std::string label, std::string UI){
-    for (size_t i=0; i<Devices.size(); ++i){
-        if (UI.find(Devices[i].UI) != std::string::npos){                       // element to be changed
+void coMUIFrame::setLabel(std::string label, std::string UI)
+{
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
+        if (UI.find(Devices[i].UI) != std::string::npos)                       // element to be changed
+        {
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
+            if (Devices[i].UI == ConfigManager->keywordTUI())                  // TUI-Element
+            {
                 TUIElement->setLabel(Devices[i].Label);
-            } else if (Devices[i].UI == ConfigManager->keywordVRUI()){          // VRUI-Element
+            } else if (Devices[i].UI == ConfigManager->keywordVRUI())          // VRUI-Element
+            {
                 SubmenuItem->setLabel(Devices[i].Label);
                 Submenu->updateTitle(Devices[i].Label.c_str());
-            } else{
+            } else
+            {
                 std::cerr << "coMUIFrame::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string, std::string)." << std::endl;
             }
         }
@@ -132,24 +150,33 @@ void coMUIFrame::setLabel(std::string label, std::string UI){
 }
 
 // set label for all UI-Elements
-void coMUIFrame::setLabel(std::string label){
+void coMUIFrame::setLabel(std::string label)
+{
     std::string UI;
-    for (size_t i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
         UI.append(Devices[i].UI + " ");
     }
     setLabel(label, UI);
 }
 
 // set visible-value for named UI-Elements
-void coMUIFrame::setVisible(bool visible, std::string UI){
-    for (size_t i=0; i<Devices.size(); ++i){
-        if (UI.find(Devices[i].UI)!=std::string::npos){                             // element shall be changed
-            if (Devices[i].Visible != visible){                                     // visible-value changed
+void coMUIFrame::setVisible(bool visible, std::string UI)
+{
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
+        if (UI.find(Devices[i].UI)!=std::string::npos)                             // element shall be changed
+        {
+            if (Devices[i].Visible != visible)                                     // visible-value changed
+            {
                 Devices[i].Visible = ConfigManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-                if (Devices[i].UI == ConfigManager->keywordTUI()){                  // TUI-Element
+                if (Devices[i].UI == ConfigManager->keywordTUI())                  // TUI-Element
+                {
                     TUIElement->setHidden(!Devices[i].Visible);
-                } else if (Devices[i].UI == ConfigManager->keywordVRUI()){          // VRUI-Element
-                    if (Devices[i].Visible){
+                } else if (Devices[i].UI == ConfigManager->keywordVRUI())          // VRUI-Element
+                {
+                    if (Devices[i].Visible)
+                    {
                         Parent->getVRUI()->add(SubmenuItem.get());
                     } else{
                         Parent->getVRUI()->remove(SubmenuItem.get());
@@ -163,26 +190,31 @@ void coMUIFrame::setVisible(bool visible, std::string UI){
 }
 
 // set visible-value for all UI-Elements
-void coMUIFrame::setVisible(bool visible){
+void coMUIFrame::setVisible(bool visible)
+{
     std::string UI;
-    for (size_t i=0; i<Devices.size(); ++i){
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
         UI.append(Devices[i].UI + " ");
     }
     setVisible(visible, UI);
 }
 
 // set position for TUI-Element
-void coMUIFrame::setPos(int posx, int posy){
-    for (size_t i=0; i<Devices.size(); ++i){
-        if (Devices[i].UI == ConfigManager->keywordTUI()){                      // TUI-Element
-            int posX=ConfigManager->getCorrectPosX(posx, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            int posY=ConfigManager->getCorrectPosY(posy, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(posx,posy, Parent->getUniqueIdentifier());
-            TUIElement->setPos(posX,posY);
+void coMUIFrame::setPos(int posx, int posy)
+{
+    for (size_t i=0; i<Devices.size(); ++i)
+    {
+        if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUI-Element
+        {
+            std::pair<int,int> pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+            TUIElement->setPos(pos.first,pos.second);
         }
     }
 }
 
-std::string coMUIFrame::getUniqueIdentifier(){
+std::string coMUIFrame::getUniqueIdentifier()
+{
     return Devices[0].Identifier;
 }

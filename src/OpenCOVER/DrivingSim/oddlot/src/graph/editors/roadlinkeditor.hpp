@@ -71,6 +71,7 @@ private:
     //
     void createLaneLinks(RSystemElementRoad * road);
     double getTValue(LaneSection * laneSection, Lane * lane, double s, double laneWidth);
+    void removeZeroWidthLanes(RSystemElementRoad * road); 
 };
 
 #endif // ROADLINKEDITOR_HPP

@@ -3,11 +3,13 @@
 
 #include "coMUIElement.h"
 
-namespace coMUI{
+namespace coMUI
+{
 class coMUIElement;
 }
 
-class coMUIWidget: public coMUIElement{
+class coMUIWidget: public coMUIElement
+{
 public:
     // methods:
     coMUIWidget();

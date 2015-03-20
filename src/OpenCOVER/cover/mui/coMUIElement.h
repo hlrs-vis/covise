@@ -33,7 +33,8 @@ public:
     coMUIElement();
     coMUIElement(const std::string &n);
 
-    struct device{
+    struct device
+    {
         std::string UI;
         std::string Device;
         std::string Identifier;

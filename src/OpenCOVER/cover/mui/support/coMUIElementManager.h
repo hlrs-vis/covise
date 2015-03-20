@@ -8,7 +8,8 @@
 #include <boost/smart_ptr.hpp>
 
 
-class coMUIElementManager{
+class coMUIElementManager
+{
 private:
     // variables, structures etc.
     struct entry;

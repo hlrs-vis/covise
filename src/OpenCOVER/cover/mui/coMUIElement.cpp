@@ -8,7 +8,8 @@ using namespace opencover;
 using namespace covise;
 
 // constructor:
-coMUIElement::coMUIElement(){
+coMUIElement::coMUIElement()
+{
 
 }
 
@@ -16,13 +17,14 @@ coMUIElement::coMUIElement(){
 coMUIElement::coMUIElement(const std::string &n_str)
 {
     label_str = n_str;
-
 }
 
 // destructor:
-coMUIElement::~coMUIElement(){
+coMUIElement::~coMUIElement()
+{
 }
 
-std::string coMUIElement::getUniqueIdentifier(){
+std::string coMUIElement::getUniqueIdentifier()
+{
     return UniqueIdentifier;
 }

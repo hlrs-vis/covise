@@ -16,7 +16,8 @@ class coMUIElementManager;
 class coMUIPositionManager;
 
 // class:
-class coMUIConfigManager{
+class coMUIConfigManager
+{
 public:
     static coMUIConfigManager *getInstance();
     static void removeInstance();
@@ -32,14 +33,14 @@ public:
 
     //************************************************************
     // PositionManager
-    void addPos(std::string UniqueIdentifier, int posx, int posy, std::string UniqueIdentifierParent, bool autoassigned);
-    std::vector <int> getPos(std::string UniqueIdentifier);
-    std::vector <int> getFreePos(std::string UniqueIdentifierParent);
-    void deletePos(std::string UniqueIdentifier);
-    void changePos(std::string UniqueIdentifier, int posx, int posy);
-    bool isPosOccupied(int posx, int posy, std::string UniqueIdentifierParent);
-    bool isAutoassigned(int posx, int posy, std::string UniqueIdentifierParent);
-    std::string getIdentifier(int posx, int posy, std::string UniqueIdentifierParent);
+    void addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned);
+    std::pair <int,int> getPosOfElement(std::string UniqueIdentifier);
+    std::pair <int,int> getFreePos(std::string UniqueIdentifierParent);
+    void deletePosFromPosList(std::string UniqueIdentifier);
+    void changePos(std::string UniqueIdentifier, std::pair<int,int> pos);
+    bool isPosOccupied(std::pair<int,int> pos, std::string UniqueIdentifierParent);
+    bool isPosAutoassigned(std::pair<int,int> pos, std::string UniqueIdentifierParent);
+    std::string getIdentifierByPos(std::pair<int,int> pos, std::string UniqueIdentifierParent);
     std::string getPos2Print();
 
     //************************************************************
@@ -65,12 +66,10 @@ public:
     // Rest
     std::string getCorrectLabel(std::string Label, std::string UI, std::string Device, std::string UniqueIdentifier);
     bool getCorrectVisible(bool visible, std::string UI, std::string Device, std::string UniqueIdentifier);
-    int getCorrectPosX(int posx, std::string UI, std::string Device, std::string UniqueIdentifier);
-    int getCorrectPosX(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
-    int getCorrectPosY(int posy, std::string UI, std::string Device, std::string UniqueIdentifier);
-    int getCorrectPosY(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
+    std::pair<int, int> getCorrectPos(std::pair<int,int> pos, std::string UI, std::string Device, std::string UniqueIdentifier);
+    std::pair<int, int> getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
     coMUIContainer* getCorrectParent(coMUIContainer* Parent, std::string UI, std::string Device, std::string UniqueIdentifier);
-    void preparePos(int posx, int posy, std::string ParentUniqueIdentifier);
+    void preparePos(std::pair<int,int> pos, std::string ParentUniqueIdentifier);
 
 
 private:

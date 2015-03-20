@@ -305,7 +305,7 @@ void coJoystickManager::setItemActive(bool b)
 
     if (activeMenu == NULL)
     {
-        fprintf(stderr, "\t setItem return because no activeMenu or activeItem\n");
+        //fprintf(stderr, "\t setItem return because no activeMenu or activeItem\n");
         return;
     }
 

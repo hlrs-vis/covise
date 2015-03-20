@@ -158,10 +158,10 @@ boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const s
 HeaderInfo readFoamHeader(std::istream &stream);
 DimensionInfo readDimensions(const std::string &meshdir);
 
-bool readIndexArray(std::istream &stream, index_t *p, const size_t lines);
-bool readIndexListArray(std::istream &stream, std::vector<index_t> *p, const size_t lines);
-bool readFloatArray(std::istream &stream, scalar_t *p, const size_t lines);
-bool readFloatVectorArray(std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, const size_t lines);
+bool readIndexArray(const HeaderInfo &info, std::istream &stream, index_t *p, const size_t lines);
+bool readIndexListArray(const HeaderInfo &info, std::istream &stream, std::vector<index_t> *p, const size_t lines);
+bool readFloatArray(const HeaderInfo &info, std::istream &stream, scalar_t *p, const size_t lines);
+bool readFloatVectorArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, const size_t lines);
 
 Boundaries loadBoundary(const std::string &meshdir);
 
