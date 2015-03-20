@@ -2979,7 +2979,7 @@ void coTUIFunctionEditorTab::sendHistogramData()
         else
         {
             tb << (uint32_t)histogramBuckets;
-            for (u_int32_t i = 0; i < histogramBuckets; ++i)
+            for (uint32_t i = 0; i < histogramBuckets; ++i)
             {
                 tb << histogramData[i];
             }

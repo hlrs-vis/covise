@@ -283,6 +283,17 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                 getProjectData()->getUndoStack()->beginMacro(QObject::tr("Set Lane Links"));
             }
 
+            // Remove lanes with zero width
+            foreach (QGraphicsItem *item, selectedItems)
+            {
+                RoadLinkRoadItem *maybeRoad = dynamic_cast<RoadLinkRoadItem *>(item);
+                if (maybeRoad)
+                {
+                    removeZeroWidthLanes(maybeRoad->getRoad());
+                }
+
+            }
+
             foreach (QGraphicsItem *item, selectedItems)
             {
                 RoadLinkRoadItem *maybeRoad = dynamic_cast<RoadLinkRoadItem *>(item);
@@ -345,18 +356,19 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
     }
 }
 
-
 //##################################//
 // Create Lane Links //
-//#################################//
-void
+//##################################//
+void 
 RoadLinkEditor::createLaneLinks(RSystemElementRoad * road)
 {
+
     RoadSystem * roadSystem = road->getRoadSystem();
 
-    // Lane links between the laneSections of the same road
+    // Lane links between the lane sections of the same road
     //
-    QMap<double, LaneSection *>::const_iterator laneSectionsIt = road->getLaneSections().constBegin();
+    QMap<double, LaneSection *>::ConstIterator laneSectionsIt = road->getLaneSections().constBegin();
+
     while(laneSectionsIt != road->getLaneSections().constEnd() - 1)
     {
         LaneSection * laneSection = laneSectionsIt.value();
@@ -674,3 +686,64 @@ RoadLinkEditor::getTValue(LaneSection * laneSection, Lane * lane, double s, doub
 
     return t;
 }
+
+//##################################//
+// removeZeroWidthLanes //
+//##################################//
+void 
+RoadLinkEditor::removeZeroWidthLanes(RSystemElementRoad * road)
+{
+
+    RoadSystem * roadSystem = road->getRoadSystem();
+
+    // Lane links between the lane sections of the same road
+    //
+    QMap<double, LaneSection *>::ConstIterator laneSectionsIt = road->getLaneSections().constBegin();
+
+    while(laneSectionsIt != road->getLaneSections().constEnd())
+    {
+        LaneSection * laneSection = laneSectionsIt.value();
+        QMap<int, Lane *>::const_iterator laneIt = laneSection->getLanes().constBegin();
+        bool deleteLane;
+        while (laneIt != laneSection->getLanes().constEnd())
+        {
+            Lane * lane = laneIt.value();
+
+            if (lane->getId() == 0)
+            {
+                deleteLane = false;
+            }
+            else
+            {
+                deleteLane = true;
+                QMap<double, LaneWidth *>::ConstIterator iter = lane->getWidthEntries().constBegin();
+
+                while (iter != lane->getWidthEntries().constEnd())
+                {
+                    if ((abs(iter.value()->getA()) > NUMERICAL_ZERO3) || (abs(iter.value()->getB()) > NUMERICAL_ZERO3)
+                        || (abs(iter.value()->getC()) > NUMERICAL_ZERO3) || (abs(iter.value()->getD()) > NUMERICAL_ZERO3))
+                    {
+                        deleteLane = false;
+                        break;
+                    }
+                    iter++;
+                }
+
+                if (deleteLane)
+                {
+                    RemoveLaneCommand * command = new RemoveLaneCommand(laneSection, lane);
+                    getProjectGraph()->executeCommand(command);
+
+                    break;
+                }
+            }
+            laneIt++;
+        }
+        if (!deleteLane)
+        {
+            laneSectionsIt++;
+        }
+    }
+}
+                
+    

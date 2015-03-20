@@ -267,7 +267,7 @@ void opencover::Private::coIntersectionVisitor::intersect(osg::Geometry *geo, os
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (size_t ctr = 0; ctr < pList.size(); ++ctr)
+    for (ssize_t ctr = 0; ctr < (ssize_t)pList.size(); ++ctr)
     {
 
         if (pList[ctr]->getType() == osg::PrimitiveSet::DrawArrayLengthsPrimitiveType)
@@ -281,7 +281,7 @@ void opencover::Private::coIntersectionVisitor::intersect(osg::Geometry *geo, os
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-            for (size_t dalIndex = 0; dalIndex < dal->size(); ++dalIndex)
+            for (ssize_t dalIndex = 0; dalIndex < (ssize_t)dal->size(); ++dalIndex)
             {
                 //std::cerr << omp_get_thread_num();
                 functor.drawArrays(dal->getMode(), first, (*dal)[dalIndex]);
