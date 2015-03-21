@@ -16,6 +16,10 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#ifdef WIN32
+#define isnan(x) _isnan(x)
+#define isinf(x) (!_finite(x))
+#endif
 
 using namespace osg;
 using namespace osgUtil;
