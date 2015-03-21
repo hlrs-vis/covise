@@ -36,6 +36,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlSFBool.h>
+#include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlMFFloat.h>
 #include <vrml97/vrml/VrmlSFInt.h>
@@ -59,7 +60,7 @@ class VrmlNodeElevator;
 class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
 {
 public:
-    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, Rotating, Uninitialized};
+    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized};
     // Define the fields of Car nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
@@ -91,17 +92,22 @@ public:
     VrmlSFTime  d_carDoorClose;
     VrmlSFTime  d_carDoorOpen;
     VrmlSFFloat d_doorTimeout;
+    VrmlSFRotation d_carRotation;
 
 
 private:
 
-    VrmlSFFloat d_carAngle;
     float v;
     float a;
     float aMax;
     float vMax;
     float destinationY;
     float destinationX;
+    double angle;
+    float av;
+    float aa;
+    float avMax;
+    float aaMax;
     int doorState;
     int landingNumber;
     int shaftNumber;

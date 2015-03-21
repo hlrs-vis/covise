@@ -42,7 +42,7 @@ VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
     t->addExposedField("carPos", VrmlField::SFVEC3F);
     t->addEventOut("carDoorClose", VrmlField::SFTIME);
     t->addEventOut("carDoorOpen", VrmlField::SFTIME);
-    t->addEventOut("carAngle", VrmlField::SFFLOAT);
+    t->addEventOut("carRotation", VrmlField::SFROTATION);
 
     return t;
 }
@@ -58,7 +58,13 @@ VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
     state=Uninitialized;
     aMax = 1;
     vMax = 5;
+    aaMax = 0.3;
+    avMax = 3;
     v=0;a=0;
+    av=0;aa=0;
+    angle=0;
+    d_doorTimeout=1.0;
+    d_carRotation.set(0,0,1,0);
 }
 
 VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
@@ -68,6 +74,13 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
     aMax = 1;
     vMax = 5;
     v=0;a=0;
+    aaMax = 0.3;
+    avMax = 3;
+    v=0;a=0;
+    av=0;aa=0;
+    angle=0;
+    d_doorTimeout=1.0;
+    d_carRotation.set(0,0,1,0);
 }
 
 VrmlNodeCar::~VrmlNodeCar()
@@ -105,7 +118,7 @@ void VrmlNodeCar::setField(const char *fieldName,
     else if
     TRY_FIELD(carDoorOpen, SFTime)
     else if
-    TRY_FIELD(carAngle, SFFloat)
+    TRY_FIELD(carRotation, SFRotation)
     else
     VrmlNodeChild::setField(fieldName, fieldValue);
 }
@@ -120,8 +133,8 @@ const VrmlField *VrmlNodeCar::getField(const char *fieldName)
         return &d_carDoorClose;
     else if (strcmp(fieldName, "carDoorOpen") == 0)
         return &d_carDoorOpen;
-    else if (strcmp(fieldName, "carAngle") == 0)
-        return &d_carAngle;
+    else if (strcmp(fieldName, "carRotation") == 0)
+        return &d_carRotation;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
@@ -131,14 +144,6 @@ void VrmlNodeCar::eventIn(double timeStamp,
                           const char *eventName,
                           const VrmlField *fieldValue)
 {
-
-
-    VrmlSFInt   d_carNumber;
-    VrmlSFVec3f d_carPos;
-    VrmlSFTime  d_carDoorClose;
-    VrmlSFTime  d_carDoorOpen;
-    VrmlSFFloat d_carAngle;
-
     //if (strcmp(eventName, "carNumber"))
     // {
     //}
@@ -254,7 +259,89 @@ void VrmlNodeCar::update()
         {
             timeoutStart = cover->frameTime();
             state = DoorOpening;
+            if(angle != 0)
+            {
+                state = RotatingLeft;
+            }
+            
+            d_carDoorOpen = System::the->time();
+            eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
             v=0;a=0;
+        }
+    }
+    else if(state == RotatingLeft || state == RotatingRight)
+    {
+        float dt = cover->frameDuration();
+        if(dt > 1000) // first frameDuration is off because last FrameTime is 0
+            dt=0.00001;
+        float direction;
+        float diff;
+        double destinationAngle;
+        if(state == RotatingRight)
+        {
+            direction = 1;
+            diff = M_PI_2 - angle;
+            destinationAngle = M_PI_2;
+            if(angle == M_PI_2) // we are there
+            {
+                timeoutStart = cover->frameTime();
+                state = Moving;
+                av=0;aa=0;
+            }
+        }
+        if(state == RotatingLeft)
+        {
+            direction = -1;
+            diff = angle;
+            destinationAngle = 0;
+            if(angle == 0) // we are there
+            {
+                timeoutStart = cover->frameTime();
+                state = DoorOpening;
+                av=0;aa=0;
+            }
+        }
+        if(state ==RotatingLeft || state ==RotatingRight ) // not there yet
+        {
+            float v2 = av*av;
+            if(diff > (v2/(2*aaMax))*1.5)
+            { // beschleunigen
+                aa+=0.5*dt;
+                if(aa > aaMax)
+                    aa=aaMax;
+                av += aa*dt;
+                if(av > avMax)
+                    av=avMax;
+                angle += direction*av*dt;
+            }
+            else
+            { // verzögern
+                if(diff > 0.0001)
+                {
+                    aa = v2/(2*diff);
+                    av -= aa*dt;
+                }
+                else
+                {
+                    aa=0;av=0;
+                }
+                if(av <= 0)
+                {
+                    angle=destinationAngle;
+                    v=0;
+                }
+                else
+                {
+                    angle += direction*av*dt;
+                }
+            }
+            if(!(av>=0) || !(aa>=0) || !(av<10) || !(aa<4))
+            {
+                fprintf(stderr,"oops\n");
+            }
+            double timeStamp = System::the->time();
+            d_carRotation.get()[3] = angle;
+            eventOut(timeStamp, "carRotation", d_carRotation);
         }
     }
     else if(state == DoorOpening)
@@ -270,6 +357,8 @@ void VrmlNodeCar::update()
         if((cover->frameTime() - timeoutStart) > d_doorTimeout.get() )
         {
             timeoutStart = cover->frameTime();
+            d_carDoorClose = System::the->time();
+            eventOut(d_carDoorOpen.get(), "carDoorClose", d_carDoorClose);
             state = DoorClosing;
         }
     }
@@ -307,8 +396,16 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 void VrmlNodeCar::setDestination(int landing, int shaft)
 {
     landingNumber = landing;
-    shaftNumber = shaft;
+    if(shaftNumber != shaft)
+    {
+        // we have to travel horizontally
+        state = RotatingRight;
+    }
+    else
+    {
     state = Moving;
+    }
+    shaftNumber = shaft;
     
     destinationY = elevator->d_landingHeights[landing];
     destinationX = elevator->d_shaftPositions[shaft];
