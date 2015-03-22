@@ -724,7 +724,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 
                                 RoadSignal *roadSignal;
                                 //if(type == 1000001) {
-                                if (type == 1000001 || type == 1000002)
+                                if ((type == 1000001 || type == 1000002) || ((country == "China") && (type <= 3)))
                                 {
                                     roadSignal = new TrafficLightSignal(id, name, s, t, dynamic, orientation, zOffset, country,
                                                                         type, subtype, subclass, size, value);

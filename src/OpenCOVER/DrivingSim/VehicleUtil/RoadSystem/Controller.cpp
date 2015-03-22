@@ -106,13 +106,13 @@ void Controller::update(const double &dt)
     timer += dt;
     if (timer > nextScriptUpdate)
     {
-        /*if(timer > cycleTime) {
+        if(timer > cycleTime) {
          timer -= cycleTime;
          nextScriptUpdate += updateTime - cycleTime;
       }
-      else {*/
+      else {
         nextScriptUpdate += updateTime;
-        //}
+        }
 
         int time = (int)timer;
         v8::Handle<v8::Value> args[] = { v8::Integer::New(time) };
