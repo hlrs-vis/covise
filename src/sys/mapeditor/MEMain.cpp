@@ -151,6 +151,7 @@ int main(int argc, char **argv)
 #ifdef Q_OS_MAC
     QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
+    QApplication::instance()->setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
     //DebugBreak();
     new MEMainHandler(argc, argv);
