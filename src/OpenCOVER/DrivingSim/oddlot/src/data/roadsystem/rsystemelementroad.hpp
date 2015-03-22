@@ -293,6 +293,7 @@ public:
     bool delSignal(Signal *signal);
     bool moveSignal(RoadSection *section, double newS);
     int getValidLane(double s, double t);
+    Signal * getSignal(const QString &id);
 
     // road:objects:sensor //
     //
