@@ -52,8 +52,15 @@ RSystemElementController::addControlEntry(ControlEntry *controlEntry, Signal * s
 
     // Append and Notify //
     //
-    controlEntries_.append(controlEntry);
-    signals_.insert(signal->getId(), signal);
+    bool entryFound = false;
+    if (controlEntries_.indexOf(controlEntry) == -1)
+    {
+        controlEntries_.append(controlEntry);
+    }
+    if (!signals_.contains(signal->getId()))
+    {
+        signals_.insert(signal->getId(), signal);
+    }
     signal->attachObserver(this);
     addControllerChanges(RSystemElementController::CRC_EntryChange);
 }

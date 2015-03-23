@@ -2048,6 +2048,25 @@ RSystemElementRoad::getValidLane(double s, double t)
     return lane;
 }
 
+Signal *
+RSystemElementRoad::getSignal(const QString &id)
+{
+    QMap<double, Signal *>::ConstIterator iter = signals_.constBegin();
+
+    while (iter != signals_.constEnd())
+    {
+        Signal * signal = iter.value();
+        if (signal->getId() == id)
+        {
+            return signal;
+        }
+
+        iter++;
+    }
+
+    return NULL;
+}
+
 //#############################//
 // road:objects:sensor      //
 //#############################//

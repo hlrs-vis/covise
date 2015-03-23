@@ -327,6 +327,7 @@ SET(ODDLOT_SOURCES
 	src/data/commands/controllercommands.cpp
 	src/tree/items/controllertreeitem.cpp
 	src/settings/widgets/controllersettings.cpp
+	src/graph/items/roadsystem/controlleritem.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -608,6 +609,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/data/commands/tilecommands.hpp
 	src/data/commands/controllercommands.hpp
 	src/settings/widgets/controllersettings.hpp
+	src/graph/items/roadsystem/controlleritem.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui

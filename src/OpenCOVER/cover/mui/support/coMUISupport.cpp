@@ -6,7 +6,7 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
-
+/*
 int coMUISupport::readIntFromString(const string String, int pos)
 {
     string NumberString= "0123456789";
@@ -70,3 +70,4 @@ int coMUISupport::readIntFromStringGetArraySize(const std::string String)
     }
     return sizeReturnArray;
 }
+*/

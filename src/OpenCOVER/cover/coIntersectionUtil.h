@@ -26,20 +26,17 @@ namespace Private
             if (this->_vertexArrayPtr == 0 || count == 0)
                 return;
 
+            const osg::Vec3 *vfirst = &this->_vertexArrayPtr[first];
             switch (mode)
             {
             case (GL_TRIANGLES):
             {
-                const osg::Vec3 *vlast = &this->_vertexArrayPtr[first + count];
-                const osg::Vec3 *vfirst = &this->_vertexArrayPtr[first];
-                const int count = vlast - vfirst;
-                const osg::Vec3 *vptr = vfirst;
 #ifdef _OPENMP
 #pragma omp parallel for if (count > 20)
 #endif
-                for (int i = 0; i < count; i += 3)
+                for (int i = 2; i < count; i += 3)
                 {
-                    vptr = vfirst + i;
+                    const osg::Vec3 *vptr = vfirst + i - 2;
                     //std::cerr << "TR " << omp_get_thread_num() << std::endl;
                     this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), this->_treatVertexDataAsTemporary);
                 }
@@ -47,7 +44,6 @@ namespace Private
             }
             case (GL_TRIANGLE_STRIP):
             {
-                const osg::Vec3 *vfirst = &this->_vertexArrayPtr[first];
 #ifdef _OPENMP
 #pragma omp parallel for if (count > 20)
 #endif
@@ -64,7 +60,6 @@ namespace Private
             }
             case (GL_QUADS):
             {
-                const osg::Vec3 *vfirst = &this->_vertexArrayPtr[first];
 #ifdef _OPENMP
 #pragma omp parallel for if (count > 20)
 #endif
@@ -79,23 +74,22 @@ namespace Private
             }
             case (GL_QUAD_STRIP):
             {
-                const osg::Vec3 *vfirst = &this->_vertexArrayPtr[first];
+                // Vertices 2n-1, 2n, 2n+2, and 2n+1 define quadrilateral n (counting from 1)
 #ifdef _OPENMP
 #pragma omp parallel for if (count > 20)
 #endif
                 for (GLsizei i = 3; i < count; i += 2)
                 {
                     //std::cerr << "QS " << omp_get_thread_num() << std::endl;
-                    const osg::Vec3 *vptr = vfirst + i - 2;
-                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 2), this->_treatVertexDataAsTemporary);
-                    this->operator()(*(vptr + 1), *(vptr + 3), *(vptr + 2), this->_treatVertexDataAsTemporary);
+                    const osg::Vec3 *vptr = vfirst + i - 3;
+                    this->operator()(*(vptr), *(vptr + 1), *(vptr + 3), this->_treatVertexDataAsTemporary);
+                    this->operator()(*(vptr), *(vptr + 3), *(vptr + 2), this->_treatVertexDataAsTemporary);
                 }
                 break;
             }
             case (GL_POLYGON): // treat polygons as GL_TRIANGLE_FAN
             case (GL_TRIANGLE_FAN):
             {
-                const osg::Vec3 *vfirst = &this->_vertexArrayPtr[first];
 #ifdef _OPENMP
 #pragma omp parallel for if (count > 20)
 #endif

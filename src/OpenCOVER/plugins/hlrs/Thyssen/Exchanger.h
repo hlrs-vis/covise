@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef _Car_NODE_PLUGIN_H
-#define _Car_NODE_PLUGIN_H
+#ifndef _Exchanger_NODE_PLUGIN_H
+#define _Exchanger_NODE_PLUGIN_H
 
 #include <util/common.h>
 #include <Thyssen.h>
@@ -57,21 +57,21 @@ using covise::TokenBuffer;
 
 class VrmlNodeElevator;
 
-class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
+class PLUGINEXPORT VrmlNodeExchanger : public VrmlNodeChild
 {
 public:
-    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized};
-    // Define the fields of Car nodes
+    enum ExchangerState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized};
+    // Define the fields of Exchanger nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
 
-    VrmlNodeCar(VrmlScene *scene = 0);
-    VrmlNodeCar(const VrmlNodeCar &n);
-    virtual ~VrmlNodeCar();
+    VrmlNodeExchanger(VrmlScene *scene = 0);
+    VrmlNodeExchanger(const VrmlNodeExchanger &n);
+    virtual ~VrmlNodeExchanger();
 
     virtual VrmlNode *cloneMe() const;
 
-    virtual VrmlNodeCar *toCar() const;
+    virtual VrmlNodeExchanger *toExchanger() const;
 
     virtual ostream &printFields(ostream &os, int indent);
 
@@ -84,15 +84,15 @@ public:
     virtual void render(Viewer *);
     void update();
     void setElevator(VrmlNodeElevator *);
-    enum carState getState(){return state;}
+    enum ExchangerState getState(){return state;}
     int getLandingNumber(){return landingNumber;};
     void setDestination(int landing, int shaft);
-    VrmlSFInt   d_carNumber;
-    VrmlSFVec3f d_carPos;
-    VrmlSFTime  d_carDoorClose;
-    VrmlSFTime  d_carDoorOpen;
+    VrmlSFInt   d_ExchangerNumber;
+    VrmlSFVec3f d_ExchangerPos;
+    VrmlSFTime  d_ExchangerDoorClose;
+    VrmlSFTime  d_ExchangerDoorOpen;
     VrmlSFFloat d_doorTimeout;
-    VrmlSFRotation d_carRotation;
+    VrmlSFRotation d_ExchangerRotation;
 
 
 private:
@@ -103,7 +103,7 @@ private:
     float vMax;
     float destinationY;
     float destinationX;
-    double angle;
+    float angle;
     float av;
     float aa;
     float avMax;
@@ -113,7 +113,7 @@ private:
     int shaftNumber;
     double doorTime;
     VrmlNodeElevator *elevator;
-    enum carState state;
+    enum ExchangerState state;
     double timeoutStart;
 };
 

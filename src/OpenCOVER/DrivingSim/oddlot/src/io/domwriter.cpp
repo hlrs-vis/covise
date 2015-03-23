@@ -16,6 +16,8 @@
 #include "domwriter.hpp"
 
 #include "QDomDocument"
+#include "QFile"
+#include "QFileInfo"
 
 #include "src/data/projectdata.hpp"
 
@@ -893,15 +895,23 @@ DomWriter::visit(RSystemElementController *controller)
 
     QDomElement userData = doc_->createElement("userData");
 
+    QString script = controller->getScript();
+    double cycleTime = controller->getCycleTime();
+    if (script == "")
+    {
+        QStringList parts = controller->getID().split("_");
+        script = QString("%1_%2.qs").arg("lights").arg(parts[1]);
+        cycleTime = 40.0;
+    }
     userData.setAttribute("code", "script");
-    userData.setAttribute("value", controller->getScript());
+    userData.setAttribute("value", script);
 
     controllerElement.appendChild(userData);
 
     userData = doc_->createElement("userData");
 
     userData.setAttribute("code", "cycleTime");
-    userData.setAttribute("value", controller->getCycleTime());
+    userData.setAttribute("value", cycleTime);
 
     controllerElement.appendChild(userData);
 
@@ -925,6 +935,88 @@ DomWriter::visit(RSystemElementController *controller)
     controllerElement.setAttribute("sequence", controller->getSequence());
 
     root_.appendChild(controllerElement);
+
+    // Write script file
+    if (!controller->getControlEntries().isEmpty())
+    {
+        QList<int> signalsType;
+        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        {
+            ControlEntry *control = controller->getControlEntries().at(i);
+            const QString id = control->getSignalId();
+            Signal * signal = controller->getSignal(id);
+
+            if (signal)
+            {
+                signalsType.append(signal->getType());
+            }
+        }
+
+        QString name = QString("%1/%2").arg(QFileInfo(projectData_->getProjectWidget()->getFileName()).path()).arg(script);
+        QFile file(name);
+        file.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream out(&file);
+        out << "function update(time) {\n";
+        out << "   if(time==0) {\n";
+        
+        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        {
+            ControlEntry *control = controller->getControlEntries().at(i);
+            if (signalsType.at(i) == 3)
+            {
+                out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
+            }
+            else if (signalsType.at(i) == 2)
+            {
+                out << "      signal_" << control->getSignalId() << ".green=1;\n";
+            }
+            out << "      signal_" << control->getSignalId() << ".red=0;\n";
+        }
+        out << "   }\n";
+
+        out << "   else if(time==1) {\n";
+        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        {
+            ControlEntry *control = controller->getControlEntries().at(i);
+            if (signalsType.at(i) == 3)
+            {
+                out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
+                out << "      signal_" << control->getSignalId() << ".green=1;\n";
+            }
+        }
+        out << "   }\n";
+
+        out << "   else if(time==18) {\n";
+        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        {
+            ControlEntry *control = controller->getControlEntries().at(i);
+            if (signalsType.at(i) == 3)
+            {
+                out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
+                out << "      signal_" << control->getSignalId() << ".green=0;\n";
+            }
+        }
+        out << "   }\n";
+
+        out << "   else if(time==20) {\n";
+        for (int i = 0; i < controller->getControlEntries().size(); i++)
+        {
+            ControlEntry *control = controller->getControlEntries().at(i);
+            if (signalsType.at(i) == 3)
+            {
+                out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
+            }
+            else if (signalsType.at(i) == 2)
+            {
+                out << "      signal_" << control->getSignalId() << ".green=0;\n";
+            }
+            out << "      signal_" << control->getSignalId() << ".red=1;\n";
+        }
+        out << "   }\n";
+        out << "}\n";
+
+        file.close();
+    }
 }
 
 //################//

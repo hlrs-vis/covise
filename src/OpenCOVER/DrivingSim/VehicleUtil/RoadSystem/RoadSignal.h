@@ -149,6 +149,27 @@ protected:
     static unordered_map<std::string, SignalPrototype *> signalsMap;
 };
 
+class TrafficLightPrototype
+{
+public:
+    TrafficLightPrototype(std::string name, std::string country, int type, int subtype, std::string subclass);
+    ~TrafficLightPrototype();
+
+    osg::ref_ptr<osg::Node> getTrafficLightNode()
+    {
+        return trafficLightNode;
+    }
+
+private:
+    osg::Node * createGeometry();
+    osg::ref_ptr<osg::Node> trafficLightNode;
+    std::string name;
+    int type;
+    int subtype;
+    std::string subclass;
+    std::string country;
+};
+
 class VEHICLEUTILEXPORT TrafficLightSignal : public RoadSignal
 {
 public:
@@ -193,5 +214,8 @@ protected:
     //bool signalTurnFinished;
     //double yellowPhaseTime;
     //double timer;
+
+    static unordered_map<std::string, TrafficLightPrototype *> trafficLightsMap;
 };
+
 #endif

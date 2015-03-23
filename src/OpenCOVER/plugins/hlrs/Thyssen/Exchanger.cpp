@@ -8,7 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 //
 //
 
-#include "Car.h"
+#include "Exchanger.h"
 #include "Elevator.h"
 
 #include <net/covise_host.h>
@@ -19,12 +19,12 @@ using namespace covise;
 
 static VrmlNode *creator(VrmlScene *scene)
 {
-    return new VrmlNodeCar(scene);
+    return new VrmlNodeExchanger(scene);
 }
 
-// Define the built in VrmlNodeType:: "Car" fields
+// Define the built in VrmlNodeType:: "Exchanger" fields
 
-VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
+VrmlNodeType *VrmlNodeExchanger::defineType(VrmlNodeType *t)
 {
     static VrmlNodeType *st = 0;
 
@@ -32,27 +32,27 @@ VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
     {
         if (st)
             return st; // Only define the type once.
-        t = st = new VrmlNodeType("Car", creator);
+        t = st = new VrmlNodeType("Exchanger", creator);
     }
 
     VrmlNodeChild::defineType(t); // Parent class
 
 
-    t->addExposedField("carNumber", VrmlField::SFINT32);
-    t->addExposedField("carPos", VrmlField::SFVEC3F);
-    t->addEventOut("carDoorClose", VrmlField::SFTIME);
-    t->addEventOut("carDoorOpen", VrmlField::SFTIME);
-    t->addEventOut("carRotation", VrmlField::SFROTATION);
+    t->addExposedField("ExchangerNumber", VrmlField::SFINT32);
+    t->addExposedField("ExchangerPos", VrmlField::SFVEC3F);
+    t->addEventOut("ExchangerDoorClose", VrmlField::SFTIME);
+    t->addEventOut("ExchangerDoorOpen", VrmlField::SFTIME);
+    t->addEventOut("ExchangerRotation", VrmlField::SFROTATION);
 
     return t;
 }
 
-VrmlNodeType *VrmlNodeCar::nodeType() const
+VrmlNodeType *VrmlNodeExchanger::nodeType() const
 {
     return defineType(0);
 }
 
-VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
+VrmlNodeExchanger::VrmlNodeExchanger(VrmlScene *scene)
     : VrmlNodeChild(scene)
 {
     state=Uninitialized;
@@ -64,10 +64,10 @@ VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
     av=0;aa=0;
     angle=0;
     d_doorTimeout=1.0;
-    d_carRotation.set(0,0,1,0);
+    d_ExchangerRotation.set(0,0,1,0);
 }
 
-VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
+VrmlNodeExchanger::VrmlNodeExchanger(const VrmlNodeExchanger &n)
     : VrmlNodeChild(n.d_scene)
 {
     state=Uninitialized;
@@ -80,24 +80,24 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
     av=0;aa=0;
     angle=0;
     d_doorTimeout=1.0;
-    d_carRotation.set(0,0,1,0);
+    d_ExchangerRotation.set(0,0,1,0);
 }
 
-VrmlNodeCar::~VrmlNodeCar()
+VrmlNodeExchanger::~VrmlNodeExchanger()
 {
 }
 
-VrmlNode *VrmlNodeCar::cloneMe() const
+VrmlNode *VrmlNodeExchanger::cloneMe() const
 {
-    return new VrmlNodeCar(*this);
+    return new VrmlNodeExchanger(*this);
 }
 
-VrmlNodeCar *VrmlNodeCar::toCar() const
+VrmlNodeExchanger *VrmlNodeExchanger::toExchanger() const
 {
-    return (VrmlNodeCar *)this;
+    return (VrmlNodeExchanger *)this;
 }
 
-ostream &VrmlNodeCar::printFields(ostream &os, int indent)
+ostream &VrmlNodeExchanger::printFields(ostream &os, int indent)
 {
 
     return os;
@@ -105,46 +105,46 @@ ostream &VrmlNodeCar::printFields(ostream &os, int indent)
 
 // Set the value of one of the node fields.
 
-void VrmlNodeCar::setField(const char *fieldName,
+void VrmlNodeExchanger::setField(const char *fieldName,
                            const VrmlField &fieldValue)
 {
 
     if
-        TRY_FIELD(carNumber, SFInt)
+        TRY_FIELD(ExchangerNumber, SFInt)
     else if
-    TRY_FIELD(carPos, SFVec3f)
+    TRY_FIELD(ExchangerPos, SFVec3f)
     else if
-    TRY_FIELD(carDoorClose, SFTime)
+    TRY_FIELD(ExchangerDoorClose, SFTime)
     else if
-    TRY_FIELD(carDoorOpen, SFTime)
+    TRY_FIELD(ExchangerDoorOpen, SFTime)
     else if
-    TRY_FIELD(carRotation, SFRotation)
+    TRY_FIELD(ExchangerRotation, SFRotation)
     else
     VrmlNodeChild::setField(fieldName, fieldValue);
 }
 
-const VrmlField *VrmlNodeCar::getField(const char *fieldName)
+const VrmlField *VrmlNodeExchanger::getField(const char *fieldName)
 {
-    if (strcmp(fieldName, "carNumber") == 0)
-        return &d_carNumber;
-    else if (strcmp(fieldName, "carPos") == 0)
-        return &d_carPos;
-    else if (strcmp(fieldName, "carDoorClose") == 0)
-        return &d_carDoorClose;
-    else if (strcmp(fieldName, "carDoorOpen") == 0)
-        return &d_carDoorOpen;
-    else if (strcmp(fieldName, "carRotation") == 0)
-        return &d_carRotation;
+    if (strcmp(fieldName, "ExchangerNumber") == 0)
+        return &d_ExchangerNumber;
+    else if (strcmp(fieldName, "ExchangerPos") == 0)
+        return &d_ExchangerPos;
+    else if (strcmp(fieldName, "ExchangerDoorClose") == 0)
+        return &d_ExchangerDoorClose;
+    else if (strcmp(fieldName, "ExchangerDoorOpen") == 0)
+        return &d_ExchangerDoorOpen;
+    else if (strcmp(fieldName, "ExchangerRotation") == 0)
+        return &d_ExchangerRotation;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
 }
 
-void VrmlNodeCar::eventIn(double timeStamp,
+void VrmlNodeExchanger::eventIn(double timeStamp,
                           const char *eventName,
                           const VrmlField *fieldValue)
 {
-    //if (strcmp(eventName, "carNumber"))
+    //if (strcmp(eventName, "ExchangerNumber"))
     // {
     //}
     // Check exposedFields
@@ -155,24 +155,24 @@ void VrmlNodeCar::eventIn(double timeStamp,
 
 }
 
-void VrmlNodeCar::render(Viewer *)
+void VrmlNodeExchanger::render(Viewer *)
 {
 
 
 }
 
-void VrmlNodeCar::update()
+void VrmlNodeExchanger::update()
 {
     if(state == Moving)
     {
         float dt = cover->frameDuration();
         if(dt > 1000) // first frameDuration is off because last FrameTime is 0
             dt=0.00001;
-        if(d_carPos.x() != destinationX) //moving horizontally
+        if(d_ExchangerPos.x() != destinationX) //moving horizontally
         {
             float direction;
-            float diff = fabs(destinationX - d_carPos.x());
-            if(d_carPos.x() < destinationX)
+            float diff = fabs(destinationX - d_ExchangerPos.x());
+            if(d_ExchangerPos.x() < destinationX)
                 direction = 1;
             else
                 direction = -1;
@@ -185,7 +185,7 @@ void VrmlNodeCar::update()
                 v += a*dt;
                 if(v > vMax)
                     v=vMax;
-                d_carPos.get()[0] += direction*v*dt;
+                d_ExchangerPos.get()[0] += direction*v*dt;
             }
             else
             { // verzögern
@@ -198,21 +198,21 @@ void VrmlNodeCar::update()
                 {
                     a=0;v=0;
                 }
-                d_carPos.get()[0] += direction*v*dt;
+                d_ExchangerPos.get()[0] += direction*v*dt;
                 if(v <= 0)
                 {
-                    d_carPos.get()[0]=destinationX;
+                    d_ExchangerPos.get()[0]=destinationX;
                     v=0;
                 }
             }
             double timeStamp = System::the->time();
-            eventOut(timeStamp, "carPos", d_carPos);
+            eventOut(timeStamp, "ExchangerPos", d_ExchangerPos);
         }
-        else if(d_carPos.y() != destinationY) // moving vertically
+        else if(d_ExchangerPos.y() != destinationY) // moving vertically
         {
             float direction;
-            float diff = fabs(destinationY - d_carPos.y());
-            if(d_carPos.y() < destinationY)
+            float diff = fabs(destinationY - d_ExchangerPos.y());
+            if(d_ExchangerPos.y() < destinationY)
                 direction = 1;
             else
                 direction = -1;
@@ -225,7 +225,7 @@ void VrmlNodeCar::update()
                 v += a*dt;
                 if(v > vMax)
                     v=vMax;
-                d_carPos.get()[1] += direction*v*dt;
+                d_ExchangerPos.get()[1] += direction*v*dt;
             }
             else
             { // verzögern
@@ -240,12 +240,12 @@ void VrmlNodeCar::update()
                 }
                 if(v <= 0)
                 {
-                    d_carPos.get()[1]=destinationY;
+                    d_ExchangerPos.get()[1]=destinationY;
                     v=0;
                 }
                 else
                 {
-                    d_carPos.get()[1] += direction*v*dt;
+                    d_ExchangerPos.get()[1] += direction*v*dt;
                 }
             }
             if(!(v>=0) || !(a>=0) || !(v<10) || !(a<4))
@@ -253,7 +253,7 @@ void VrmlNodeCar::update()
                 fprintf(stderr,"oops\n");
             }
             double timeStamp = System::the->time();
-            eventOut(timeStamp, "carPos", d_carPos);
+            eventOut(timeStamp, "ExchangerPos", d_ExchangerPos);
         }
         else // we are there
         {
@@ -264,8 +264,8 @@ void VrmlNodeCar::update()
                 state = RotatingLeft;
             }
             
-            d_carDoorOpen = System::the->time();
-            eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
+            d_ExchangerDoorOpen = System::the->time();
+            eventOut(d_ExchangerDoorOpen.get(), "ExchangerDoorOpen", d_ExchangerDoorOpen);
             v=0;a=0;
         }
     }
@@ -276,7 +276,7 @@ void VrmlNodeCar::update()
             dt=0.00001;
         float direction;
         float diff;
-        double destinationAngle;
+        float destinationAngle;
         if(state == RotatingRight)
         {
             direction = 1;
@@ -340,8 +340,8 @@ void VrmlNodeCar::update()
                 fprintf(stderr,"oops\n");
             }
             double timeStamp = System::the->time();
-            d_carRotation.get()[3] = angle;
-            eventOut(timeStamp, "carRotation", d_carRotation);
+            d_ExchangerRotation.get()[3] = angle;
+            eventOut(timeStamp, "ExchangerRotation", d_ExchangerRotation);
         }
     }
     else if(state == DoorOpening)
@@ -357,8 +357,8 @@ void VrmlNodeCar::update()
         if((cover->frameTime() - timeoutStart) > d_doorTimeout.get() )
         {
             timeoutStart = cover->frameTime();
-            d_carDoorClose = System::the->time();
-            eventOut(d_carDoorOpen.get(), "carDoorClose", d_carDoorClose);
+            d_ExchangerDoorClose = System::the->time();
+            eventOut(d_ExchangerDoorOpen.get(), "ExchangerDoorClose", d_ExchangerDoorClose);
             state = DoorClosing;
         }
     }
@@ -373,19 +373,19 @@ void VrmlNodeCar::update()
 
 }
 
-void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
+void VrmlNodeExchanger::setElevator(VrmlNodeElevator *e)
 {
     elevator = e;
     for(int i=0;i<elevator->d_landingHeights.size();i++)
     {
-        if(d_carPos.y()==elevator->d_landingHeights[i])
+        if(d_ExchangerPos.y()==elevator->d_landingHeights[i])
         {
             landingNumber = i;
         }
     }
     for(int i=0;i<elevator->d_shaftPositions.size();i++)
     {
-        if(d_carPos.x()==elevator->d_shaftPositions[i])
+        if(d_ExchangerPos.x()==elevator->d_shaftPositions[i])
         {
             shaftNumber = i;
         }
@@ -393,7 +393,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     state = Idle;
 
 }
-void VrmlNodeCar::setDestination(int landing, int shaft)
+void VrmlNodeExchanger::setDestination(int landing, int shaft)
 {
     landingNumber = landing;
     if(shaftNumber != shaft)

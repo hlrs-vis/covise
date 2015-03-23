@@ -22,6 +22,8 @@ class RoadSystem;
 
 class RoadItem;
 
+class SignalEditor;
+
 class RoadSystemItem : public GraphElement
 {
 

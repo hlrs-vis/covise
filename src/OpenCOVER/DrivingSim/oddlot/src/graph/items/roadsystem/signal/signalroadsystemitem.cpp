@@ -23,6 +23,7 @@
 // Graph //
 //
 #include "src/graph/items/roadsystem/signal/signalroaditem.hpp"
+#include "src/graph/items/roadsystem/controlleritem.hpp"
 
 //################//
 // CONSTRUCTOR    //
@@ -44,6 +45,13 @@ SignalRoadSystemItem::init()
     foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
     {
         new SignalRoadItem(this, road);
+    }
+
+    // Controllers //
+    //
+    foreach (RSystemElementController *controller, getRoadSystem()->getControllers())
+    {
+        (new ControllerItem(this, controller))->setZValue(-1.0);
     }
 }
 
@@ -79,6 +87,16 @@ SignalRoadSystemItem::updateObserver()
                 //
                 new SignalRoadItem(this, road);
             }
+        }
+    }
+
+    if (changes & RoadSystem::CRS_ControllerChange)
+    {
+        // Controllers //
+        //
+        foreach (RSystemElementController *controller, getRoadSystem()->getControllers())
+        {
+            (new ControllerItem(this, controller))->setZValue(-1.0);
         }
     }
 }

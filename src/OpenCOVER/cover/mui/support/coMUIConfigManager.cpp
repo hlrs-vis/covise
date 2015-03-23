@@ -93,8 +93,7 @@ std::pair<int,int> coMUIConfigManager::getCorrectPos(std::pair<int,int> pos, std
     {
         std::pair<std::string, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
         if (ParsedPosition.second){
-            returnPos.first = coMUISupport::readIntFromString(ParsedPosition.first,1);
-            returnPos.second= coMUISupport::readIntFromString(ParsedPosition.first,2);
+            sscanf(ParsedPosition.first.c_str(),"%d %d",&returnPos.first,&returnPos.second);
             return returnPos;
         }
     }
@@ -111,8 +110,7 @@ std::pair<int,int> coMUIConfigManager::getCorrectPos(std::string UI, std::string
         std::pair<std::string, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
         if (ParsedPosition.second)
         {
-            returnPos.first = coMUISupport::readIntFromString(ParsedPosition.first,1);
-            returnPos.second= coMUISupport::readIntFromString(ParsedPosition.first,2);
+            sscanf(ParsedPosition.first.c_str(),"%d %d",&returnPos.first,&returnPos.second);
             return returnPos;                         // return the matchin position set in configuration file
         }
     }

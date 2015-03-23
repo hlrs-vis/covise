@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using namespace std;
 using namespace xercesc_3_1;
@@ -64,7 +65,13 @@ std::pair<std::string, bool> coMUIConfigParser::getParent(const std::string UI, 
             }
         }
     }
-    returnPair.first="coMUIConfigParser::getParent(): Parent according to " + UI + " " + Klasse + " " + Instanz + " doesn't exist.";
+    returnPair.first="coMUIConfigParser::getParent(): Parent according to ";
+    returnPair.first.append(UI);
+    returnPair.first.append(" ");
+    returnPair.first.append(Klasse);
+    returnPair.first.append(" ");
+    returnPair.first.append(Instanz);
+    returnPair.first.append(" doesn't exist.");
     returnPair.second=false;
     return returnPair;
 }
@@ -84,7 +91,13 @@ std::pair<std::string, bool> coMUIConfigParser::getLabel(const std::string UI, c
             }
         }
     }
-    returnPair.first="coMUIConfigParser::getLabel(): Label according to " + UI + " " + Klasse + " " + Instanz + " doesn't exist.";
+    returnPair.first="coMUIConfigParser::getLabel(): Label according to ";
+    returnPair.first.append(UI);
+    returnPair.first.append(" ");
+    returnPair.first.append(Klasse);
+    returnPair.first.append(" ");
+    returnPair.first.append(Instanz);
+    returnPair.first.append(" doesn't exist.");
     returnPair.second=false;
     return returnPair;
 }
@@ -102,7 +115,13 @@ std::pair<std::string, bool> coMUIConfigParser::getPosition(const std::string UI
             return returnParsedPosition;
         }
     }
-    returnParsedPosition.first = "Position according to " + UI + " " + Klasse + " " + Instanz + " doesn't exist.";
+    returnParsedPosition.first="Position according to ";
+    returnParsedPosition.first.append(UI);
+    returnParsedPosition.first.append(" ");
+    returnParsedPosition.first.append(Klasse);
+    returnParsedPosition.first.append(" ");
+    returnParsedPosition.first.append(Instanz);
+    returnParsedPosition.first.append(" doesn't exist.");
     returnParsedPosition.second = false;
     return returnParsedPosition;
 }
@@ -110,15 +129,14 @@ std::pair<std::string, bool> coMUIConfigParser::getPosition(const std::string UI
 // returns true, if the file exists; else returns false
 bool coMUIConfigParser::fileExist (std::string File)
 {
-    ifstream f(File.c_str());
-    if (f.good())
+    FILE *fp = fopen(File.c_str(),"r"); // switched to fopen because of a visual studio 2012 linker issue
+    if(fp!=NULL)
     {
-        f.close();
+        fclose(fp);
         return true;
     }
     else
     {
-        f.close();
         return false;
     }
 }

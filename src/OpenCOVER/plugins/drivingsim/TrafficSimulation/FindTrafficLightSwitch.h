@@ -54,15 +54,15 @@ public:
             break;
 
         case SEARCH_SWITCH:
-            if (node.getName() == switchNameGreen)
+            if (node.getName().find(switchNameGreen) != -1)
             {
                 multiSwitchGreen = dynamic_cast<osgSim::MultiSwitch *>(&node);
             }
-            else if (node.getName() == switchNameYellow)
+            else if (node.getName().find(switchNameYellow) != -1)
             {
                 multiSwitchYellow = dynamic_cast<osgSim::MultiSwitch *>(&node);
             }
-            else if (node.getName() == switchNameRed)
+            else if (node.getName().find(switchNameRed) != -1)
             {
                 multiSwitchRed = dynamic_cast<osgSim::MultiSwitch *>(&node);
             }

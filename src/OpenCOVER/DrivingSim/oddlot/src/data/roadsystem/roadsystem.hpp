@@ -141,6 +141,7 @@ public:
     void checkIDs(const QMap<QString, QString> &roadIds);
     void changeUniqueId(RSystemElement *element, QString newId);
     const QString getUniqueId(const QString &suggestion, QString &name);
+    void updateControllers();
 
 
 private:

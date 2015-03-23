@@ -24,12 +24,6 @@
                         <Offset x="1487" y="218" z="815" h="0" p="0" r="88" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker7" >
-                        <Pattern value="9" />
-                        <Size value="40" />
-                        <Offset x="1487" y="268" z="733" h="-90" p="90" r="180" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
                     <Marker name="ObjectMarker2" >
                         <Pattern value="38" />
                         <Size value="295" />
@@ -60,6 +54,12 @@
                         <Offset x="-1040" y="20" z="50" h="-90" p="-5" r="1" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
+                    <Marker name="ObjectMarker7" >
+                        <Pattern value="9" />
+                        <Size value="40" />
+                        <Offset x="1487" y="268" z="733" h="-90" p="90" r="180" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
                     <Marker name="ObjectMarker8" >
                         <Pattern value="35" />
                         <Size value="151" />
@@ -77,6 +77,12 @@
                         <Size value="200" />
                         <Offset x="0" y="1650" z="1480" h="90" p="0" r="0" />
                         <VrmlToPf value="FALSE" />
+                    </Marker>
+                    <Marker name="ObjectMarker11" >
+                        <Pattern value="2" />
+                        <Size value="70" />
+                        <Offset x="70" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
                     </Marker>
 
                     <Marker name="Tracer1" >

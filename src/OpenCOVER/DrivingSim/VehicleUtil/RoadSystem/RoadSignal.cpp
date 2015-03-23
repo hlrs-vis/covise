@@ -20,11 +20,13 @@ void TrafficLightSignalTurnCallback::on()
 {
     if (multiSwitch)
         multiSwitch->setActiveSwitchSet(0);
+    std::cerr << "Setting switch on" << std::endl;
 }
 void TrafficLightSignalTurnCallback::off()
 {
     if (multiSwitch)
         multiSwitch->setActiveSwitchSet(1);
+    std::cerr << "Setting switch off" << std::endl;
 }
 
 unordered_map<std::string, SignalPrototype *> RoadSignal::signalsMap;
@@ -426,6 +428,7 @@ osg::PositionAttitudeTransform *RoadSignal::getRoadSignalNode()
 }
 
 osg::Node *TrafficLightSignal::trafficSignalNodeTemplate = NULL;
+unordered_map<std::string, TrafficLightPrototype *> TrafficLightSignal::trafficLightsMap;
 
 TrafficLightSignal::TrafficLightSignal(const std::string &setId, const std::string &setName, const double &setS, const double &setT, const bool &setDynamic,
                                        const OrientationType &setOrient, const double &setZOffset, const std::string &setCountry,
@@ -441,10 +444,29 @@ TrafficLightSignal::TrafficLightSignal(const std::string &setId, const std::stri
 //yellowPhaseTime(3.0),
 //timer(yellowPhaseTime)
 {
-    const char *fileName = opencover::coVRFileManager::instance()->getName("materials/signal.osg");
-    if (fileName && !trafficSignalNodeTemplate)
+    if (country != "China")
     {
-        trafficSignalNodeTemplate = osgDB::readNodeFile(fileName);
+        const char *fileName = opencover::coVRFileManager::instance()->getName("share/covise/materials/signal.osg");
+        if (fileName && !trafficSignalNodeTemplate)
+        {
+            trafficSignalNodeTemplate = osgDB::readNodeFile(fileName);
+        }
+    }
+    else
+    {
+        // make prototype if not already in list //
+        //
+        TrafficLightPrototype *trafficLightProto = NULL;
+        unordered_map<std::string, TrafficLightPrototype *>::iterator it = trafficLightsMap.find(name);
+        if (it == trafficLightsMap.end())
+        {
+            trafficLightProto = new TrafficLightPrototype(name, country, type, subtype, subclass);
+            trafficLightsMap[name] = trafficLightProto;
+        }
+        else
+        {
+            trafficLightProto = it->second;
+        }
     }
 }
 
@@ -518,25 +540,59 @@ osg::PositionAttitudeTransform *TrafficLightSignal::getRoadSignalNode()
 {
     if (!trafficSignalNode)
     {
-        if (!trafficSignalNodeTemplate)
+        if (country != "China")
         {
-            return NULL;
+            if (!trafficSignalNodeTemplate)
+            {
+                trafficSignalNode = NULL;
+            }
+            else
+            {
+                osg::Quat signalDir(-0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+                if (orientation == NEGATIVE_TRACK_DIRECTION)
+                {
+                    signalDir = osg::Quat(0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+                }
+
+                trafficSignalNode = new osg::PositionAttitudeTransform();
+                trafficSignalNode->addChild(dynamic_cast<osg::Node *>(trafficSignalNodeTemplate->clone(osg::CopyOp::DEEP_COPY_NODES)));
+                trafficSignalNode->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z()));
+                trafficSignalNode->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
+                trafficSignalNode->setName(name);
+            }
         }
         else
         {
-            osg::Quat signalDir(-0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
-            if (orientation == NEGATIVE_TRACK_DIRECTION)
+            TrafficLightPrototype * trafficLightProto = NULL;
+            unordered_map<std::string, TrafficLightPrototype *>::iterator it = trafficLightsMap.find(name);
+            if (it == trafficLightsMap.end())
             {
-                signalDir = osg::Quat(0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+               return NULL;
             }
+            else
+            {
+                trafficLightProto = it->second;
+            }
+            if (trafficLightProto->getTrafficLightNode().valid())
+            {
 
-            trafficSignalNode = new osg::PositionAttitudeTransform();
-            trafficSignalNode->addChild(dynamic_cast<osg::Node *>(trafficSignalNodeTemplate->clone(osg::CopyOp::DEEP_COPY_NODES)));
-            trafficSignalNode->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z()));
-            trafficSignalNode->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
-            trafficSignalNode->setName(name);
+                osg::Quat signalDir(-0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+                if (orientation == NEGATIVE_TRACK_DIRECTION)
+                {
+                    signalDir = osg::Quat(0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+                }
 
-            return trafficSignalNode;
+                trafficSignalNode = new osg::PositionAttitudeTransform();
+                trafficSignalNode->addChild(dynamic_cast<osg::Node *>(trafficLightProto->getTrafficLightNode()->clone(osg::CopyOp::DEEP_COPY_NODES)));
+                trafficSignalNode->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z() + zOffset));
+                trafficSignalNode->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
+                trafficSignalNode->setName(name);
+
+            }
+            else
+            {
+                trafficSignalNode = NULL;
+            }
         }
     }
 
@@ -579,3 +635,156 @@ void TrafficLightSignal::update(const double& dt)
       }
    }
 }*/
+
+TrafficLightPrototype::TrafficLightPrototype(std::string n, std::string c, int t, int st, std::string sc)
+{
+    bool withPost = false;
+    name = n;
+    size_t len = name.length();
+    if (len >= 2)
+    {
+        if ((name[len - 2] == '_') && (name[len - 1] == 'p'))
+        {
+            withPost = true;
+            name = name.substr(0, len - 2);
+        }
+    }
+
+    country = c;
+    std::string fn = "share/covise/signals/" + country + "/" + name + ".osgb";
+    type = t;
+    subtype = st;
+    subclass = sc;
+
+    const char * filename = opencover::coVRFileManager::instance()->getName(fn.c_str());
+    if (filename)
+    {
+        osg::Group *trafficLightGroup = new osg::Group();
+        opencover::coVRFileManager::instance()->loadFile(filename, NULL, trafficLightGroup);
+
+        trafficLightNode = trafficLightGroup;
+ //       trafficLightNode = osgDB::readNodeFile(filename);
+
+        if (withPost)
+        {
+            osg::Node * post = createGeometry();
+            trafficLightGroup->addChild(post);
+        }
+    }
+    else
+    {
+        std::cerr << "Traffic Light File not found: " << filename << std::endl;
+    }
+}
+
+osg::Node * TrafficLightPrototype::createGeometry()
+{
+    osg::Geode *trafficLightGeode = new osg::Geode();
+    trafficLightGeode->setName(name.c_str());
+
+    osg::StateSet *trafficLightStateSet = trafficLightGeode->getOrCreateStateSet();
+
+    trafficLightStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    trafficLightStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    osg::CullFace *cullFace = new osg::CullFace();
+    cullFace->setMode(osg::CullFace::BACK);
+    trafficLightStateSet->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.0);
+    trafficLightStateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+
+    float vsize = 0.6;
+    float pr = 0.03;
+    float height = 2.5;
+    osg::Vec3 v[8];
+    v[0].set(-pr, 0.01, vsize * 0.8);
+    v[1].set(-pr, 0.01 + 2 * pr, vsize * 0.8);
+    v[2].set(pr, 0.01 + 2 * pr, vsize * 0.8);
+    v[3].set(pr, 0.01, vsize * 0.8);
+    v[4].set(-pr, 0.01, -height);
+    v[5].set(-pr, 0.01 + 2 * pr, -height);
+    v[6].set(pr, 0.01 + 2 * pr, -height);
+    v[7].set(pr, 0.01, -height);
+
+    osg::Vec3 np[4];
+    np[0].set(-0.7, -0.7, 0);
+    np[1].set(-0.7, 0.7, 0);
+    np[2].set(0.7, 0.7, 0);
+    np[3].set(0.7, -0.7, 0);
+
+    osg::Geometry *trafficLightGeometry;
+    trafficLightGeometry = new osg::Geometry();
+    trafficLightGeode->addDrawable(trafficLightGeometry);
+
+    osg::Vec3Array *trafficLightVertices;
+    trafficLightVertices = new osg::Vec3Array;
+    trafficLightGeometry->setVertexArray(trafficLightVertices);
+
+    osg::Vec3Array *trafficLightNormals;
+    trafficLightNormals = new osg::Vec3Array;
+    trafficLightGeometry->setNormalArray(trafficLightNormals);
+    trafficLightGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+    osg::Vec2Array *trafficLightTexCoords;
+    trafficLightTexCoords = new osg::Vec2Array;
+    trafficLightGeometry->setTexCoordArray(3, trafficLightTexCoords);
+
+    osg::Vec2 tc;
+    tc.set(0.75, 0.5);
+    trafficLightVertices->push_back(v[0]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[0]);
+    trafficLightVertices->push_back(v[4]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[0]);
+    trafficLightVertices->push_back(v[7]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[3]);
+    trafficLightVertices->push_back(v[3]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[3]);
+
+    trafficLightVertices->push_back(v[3]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[3]);
+    trafficLightVertices->push_back(v[7]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[3]);
+    trafficLightVertices->push_back(v[6]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[2]);
+    trafficLightVertices->push_back(v[2]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[2]);
+
+    trafficLightVertices->push_back(v[2]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[2]);
+    trafficLightVertices->push_back(v[6]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[2]);
+    trafficLightVertices->push_back(v[5]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[1]);
+    trafficLightVertices->push_back(v[1]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[1]);
+
+    trafficLightVertices->push_back(v[1]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[1]);
+    trafficLightVertices->push_back(v[5]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[1]);
+    trafficLightVertices->push_back(v[4]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[0]);
+    trafficLightVertices->push_back(v[0]);
+    trafficLightTexCoords->push_back(tc);
+    trafficLightNormals->push_back(np[0]);
+
+    osg::DrawArrays *trafficLight = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, trafficLightVertices->size());
+    trafficLightGeometry->addPrimitiveSet(trafficLight);
+
+    return trafficLightGeode;
+
+}

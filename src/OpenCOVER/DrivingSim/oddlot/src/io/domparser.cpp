@@ -194,6 +194,7 @@ DomParser::parseXODR(QIODevice *source)
         roadSystem_->checkIDs(elementIDs_);
         elementIDs_.clear();
     }
+    roadSystem_->updateControllers();
 
     // VehicleSystem //
     //
@@ -1935,6 +1936,7 @@ DomParser::parseControllerElement(QDomElement &controllerElement, QString &oldTi
 
     setTile(id, oldTileId);
     roadSystem_->addController(controller);
+
 
     if (id != controller->getID())
     {

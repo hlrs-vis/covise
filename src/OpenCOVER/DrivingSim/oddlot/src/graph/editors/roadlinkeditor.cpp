@@ -720,8 +720,8 @@ RoadLinkEditor::removeZeroWidthLanes(RSystemElementRoad * road)
 
                 while (iter != lane->getWidthEntries().constEnd())
                 {
-                    if ((abs(iter.value()->getA()) > NUMERICAL_ZERO3) || (abs(iter.value()->getB()) > NUMERICAL_ZERO3)
-                        || (abs(iter.value()->getC()) > NUMERICAL_ZERO3) || (abs(iter.value()->getD()) > NUMERICAL_ZERO3))
+                    if ((fabs(iter.value()->getA()) > NUMERICAL_ZERO3) || (fabs(iter.value()->getB()) > NUMERICAL_ZERO3)
+                        || (fabs(iter.value()->getC()) > NUMERICAL_ZERO3) || (fabs(iter.value()->getD()) > NUMERICAL_ZERO3))
                     {
                         deleteLane = false;
                         break;
