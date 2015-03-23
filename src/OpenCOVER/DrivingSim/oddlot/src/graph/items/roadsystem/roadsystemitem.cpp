@@ -27,6 +27,7 @@
 // Editor //
 //
 #include "src/graph/editors/projecteditor.hpp"
+#include "src/graph/editors/signaleditor.hpp"
 
 // Graph //
 //
@@ -35,6 +36,7 @@
 
 #include "roaditem.hpp"
 #include "junctionitem.hpp"
+#include "controlleritem.hpp"
 
 //################//
 // CONSTRUCTOR    //
@@ -127,6 +129,7 @@ RoadSystemItem::updateObserver()
             }
         }
     }
+
 
     //	if((changes & RoadSystem::CRS_RoadChange)
     //	|| (changes & RoadSystem::CRS_FiddleyardChange)

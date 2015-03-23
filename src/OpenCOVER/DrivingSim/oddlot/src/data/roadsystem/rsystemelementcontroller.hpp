@@ -151,6 +151,11 @@ public:
         return signals_;
     }
 
+    Signal * getSignal(const QString &id) const
+    {
+        return signals_.value(id, NULL);
+    }
+
 private:
     RSystemElementController(); /* not allowed */
     RSystemElementController(const RSystemElementController &); /* not allowed */

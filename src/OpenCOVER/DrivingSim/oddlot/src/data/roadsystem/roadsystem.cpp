@@ -728,6 +728,34 @@ RoadSystem::checkIDs(const QMap<QString, QString> &idMap)
     }
 }
 
+void 
+RoadSystem::updateControllers()
+{
+     QMap<QString, RSystemElementController *>::const_iterator controlIt = controllers_.constBegin();
+
+     while (controlIt != controllers_.constEnd())
+     {
+         RSystemElementController *controller = controlIt.value();
+         for (int i = 0; i < controller->getControlEntries().size(); i++)
+         {
+             ControlEntry *control = controller->getControlEntries().at(i);
+             QMap<QString, RSystemElementRoad *>::ConstIterator iter = roads_.constBegin();
+             while (iter != roads_.constEnd())
+             {
+                 Signal * signal = iter.value()->getSignal(control->getSignalId());
+                 if (signal)
+                 {
+                     controller->addControlEntry(control, signal);
+                     break;
+                 }
+
+                 iter++;
+             }
+         }
+         controlIt++;
+     }
+}
+
 
 //##################//
 // ProjectData      //

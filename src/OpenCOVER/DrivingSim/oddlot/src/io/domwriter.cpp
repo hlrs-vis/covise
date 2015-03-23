@@ -943,18 +943,12 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
+            const QString id = control->getSignalId();
+            Signal * signal = controller->getSignal(id);
 
-            QMap<QString, RSystemElementRoad *>::ConstIterator iter = projectData_->getRoadSystem()->getRoads().constBegin();
-            while (iter != projectData_->getRoadSystem()->getRoads().constEnd())
+            if (signal)
             {
-                Signal * signal = iter.value()->getSignal(control->getSignalId());
-                if (signal)
-                {
-                    signalsType.append(signal->getType());
-                    break;
-                }
-
-                iter++;
+                signalsType.append(signal->getType());
             }
         }
 
