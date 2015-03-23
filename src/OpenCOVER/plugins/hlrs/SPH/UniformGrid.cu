@@ -62,7 +62,7 @@ void UniformGrid::Alloc(uint numParticles, float cellWorldSize, float gridWorldS
 	mNumParticles = numParticles;
 
 	// only need X bits precision for the radix sort.. (256^3 volume ==> 24 bits precision)
-	mSortBitsPrecision = (uint)ceil(log2(dGridParams.grid_res.x*dGridParams.grid_res.y*dGridParams.grid_res.z));
+	mSortBitsPrecision = (uint)ceil(::log2(dGridParams.grid_res.x*dGridParams.grid_res.y*dGridParams.grid_res.z));
 	//	assert(mSortBitsPrecision => 4 && mSortBitsPrecision <= 32);
 
 	// number of cells is given by the resolution (~how coarse the grid of the world is)
