@@ -1,0 +1,633 @@
+ClipNode {
+  name "OBJECTS_ROOT"
+  nodeMask 0xffffffff
+  cullingActive TRUE
+  StateSet {
+    UniqueID StateSet_0
+    DataVariance STATIC
+    rendering_hint DEFAULT_BIN
+    renderBinMode INHERIT
+  }
+  referenceFrame RELATIVE
+  num_children 1
+  ClipNode {
+    name "OBJECTS_ROOT_SCGR_0"
+    nodeMask 0xfffffffd
+    cullingActive TRUE
+    StateSet {
+      UniqueID StateSet_1
+      DataVariance STATIC
+      rendering_hint DEFAULT_BIN
+      renderBinMode INHERIT
+    }
+    referenceFrame RELATIVE
+    num_children 1
+    MatrixTransform {
+      name "VRMLRoot_SCGR_1"
+      nodeMask 0xffffffff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        1 0 0 0
+        0 2.22045e-016 1 0
+        0 -1 2.22045e-016 0
+        0 0 0 1
+      }
+      num_children 1
+      Group {
+        name "_SCGR_2"
+        nodeMask 0xffffffff
+        cullingActive TRUE
+        num_children 1
+        Group {
+          name "_SCGR_3"
+          nodeMask 0xffffffff
+          cullingActive TRUE
+          num_children 1
+          MatrixTransform {
+            name "__1_1_SCGR_4"
+            nodeMask 0xffffffff
+            cullingActive TRUE
+            referenceFrame RELATIVE
+            Matrix {
+              1 0 0 0
+              0 1 0 0
+              0 0 1 0
+              0 0.5555 0 1
+            }
+            num_children 4
+	    
+	    osgSim::MultiSwitch {
+           name "_SW_red"
+           nodeMask 0xffffffff
+           cullingActive TRUE
+           description {
+             "Name: _SW_red"
+             ""
+             "VIRES_SwitchID: 0"
+           }
+           NewChildDefaultValue 1
+           ActiveSwitchSet 1
+           ValueList 0 {
+             1
+           }
+           ValueList 1 {
+             0
+           }
+           num_children 1
+            MatrixTransform {
+              name "Red_0_SCGR_5"
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              referenceFrame RELATIVE
+              Matrix {
+                1 0 0 0
+                0 -0.000203653 1 0
+                0 -1 -0.000203653 0
+                -0.1945 0.342 0.1551 1
+              }
+              num_children 1
+              Geode {
+                name "Red_0-FACES_SCGR_6"
+                nodeMask 0xfffffffd
+                cullingActive TRUE
+                StateSet {
+                  UniqueID StateSet_2
+                  rendering_hint DEFAULT_BIN
+                  renderBinMode INHERIT
+                  GL_CULL_FACE ON
+                  Material {
+                    UniqueID Material_3
+                    ColorMode AMBIENT_AND_DIFFUSE
+                    ambientColor 0.2 0.2 0.2 1
+                    diffuseColor 0.9 0.9 0.9 1
+                    specularColor 0.9 0.9 0.9 1
+                    emissionColor 0 0 0 1
+                    shininess 16
+                  }
+                  CullFace {
+                    mode BACK
+                  }
+                }
+                num_drawables 1
+                Geometry {
+                  UniqueID Geometry_4
+                  name "Red_0-FACES_SCGR_7"
+                  StateSet {
+                    UniqueID StateSet_5
+                    rendering_hint OPAQUE_BIN
+                    renderBinMode USE
+                    binNumber 0
+                    binName RenderBin
+                    GL_BLEND OFF
+                    Material {
+                      ColorMode AMBIENT_AND_DIFFUSE
+                      ambientColor 1 1 1 1
+                      diffuseColor 0 0.5529 0.2471 1
+                      specularColor 0.18 0.18 0.18 1
+                      emissionColor 0 0 0 1
+                      shininess 18.56
+                    }
+                  }
+                  useDisplayList TRUE
+                  useVertexBufferObjects FALSE
+                  PrimitiveSets 4
+                  {
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      1 2 0 3 4 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      4 5 0 6 7 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      7 8 0 9 10 
+                    }
+                    DrawElementsUShort TRIANGLES 3
+                    {
+                      0 10 1 
+                    }
+                  }
+                  VertexArray Vec3Array 11
+                  {
+                    0.1939 -0.1225 0
+                    0.3439 -0.1225 0
+                    0.3153 -0.1225 -0.08817
+                    0.2403 -0.1225 -0.1427
+                    0.1476 -0.1225 -0.1427
+                    0.07259 -0.1225 -0.08817
+                    0.04394 -0.1225 0
+                    0.07259 -0.1225 0.08817
+                    0.1476 -0.1225 0.1427
+                    0.2403 -0.1225 0.1427
+                    0.3153 -0.1225 0.08817
+                  }
+                  NormalBinding PER_VERTEX
+                  NormalArray Vec3Array 11
+                  {
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                  }
+                  ColorBinding PER_VERTEX
+                  ColorArray Vec4Array 11
+                  {
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                    1 0 0 1
+                  }
+                }
+              }
+            }
+	    }
+	    
+	    osgSim::MultiSwitch {
+           name "_SW_yellow"
+           nodeMask 0xffffffff
+           cullingActive TRUE
+           description {
+             "Name: _SW_yellow"
+             ""
+             "VIRES_SwitchID: 1"
+           }
+           NewChildDefaultValue 1
+           ActiveSwitchSet 1
+           ValueList 0 {
+             1
+           }
+           ValueList 1 {
+             0
+           }
+           num_children 1
+            MatrixTransform {
+              name "Yellow_SCGR_8"
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              referenceFrame RELATIVE
+              Matrix {
+                1 0 0 0
+                0 -0.000203653 1 0
+                0 -1 -0.000203653 0
+                -0.1945 -0.01683 0.1551 1
+              }
+              num_children 1
+              Geode {
+                name "Yellow-FACES_SCGR_9"
+                nodeMask 0xfffffffd
+                cullingActive TRUE
+                StateSet {
+                  UniqueID StateSet_6
+                  rendering_hint DEFAULT_BIN
+                  renderBinMode INHERIT
+                  GL_CULL_FACE ON
+                  Use Material_3
+                  CullFace {
+                    mode BACK
+                  }
+                }
+                num_drawables 1
+                Geometry {
+                  UniqueID Geometry_7
+                  name "Yellow-FACES_SCGR_10"
+                  StateSet {
+                    UniqueID StateSet_8
+                    rendering_hint OPAQUE_BIN
+                    renderBinMode USE
+                    binNumber 0
+                    binName RenderBin
+                    GL_BLEND OFF
+                    Material {
+                      ColorMode AMBIENT_AND_DIFFUSE
+                      ambientColor 1 1 1 1
+                      diffuseColor 1 1 0 1
+                      specularColor 0.171 0.171 0.171 1
+                      emissionColor 0 0 0 1
+                      shininess 18.56
+                    }
+                  }
+                  useDisplayList TRUE
+                  useVertexBufferObjects FALSE
+                  PrimitiveSets 4
+                  {
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      1 2 0 3 4 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      4 5 0 6 7 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      7 8 0 9 10 
+                    }
+                    DrawElementsUShort TRIANGLES 3
+                    {
+                      0 10 1 
+                    }
+                  }
+                  VertexArray Vec3Array 11
+                  {
+                    0.1939 -0.1225 0
+                    0.3439 -0.1225 0
+                    0.3153 -0.1225 -0.08817
+                    0.2403 -0.1225 -0.1427
+                    0.1476 -0.1225 -0.1427
+                    0.07259 -0.1225 -0.08817
+                    0.04394 -0.1225 0
+                    0.07259 -0.1225 0.08817
+                    0.1476 -0.1225 0.1427
+                    0.2403 -0.1225 0.1427
+                    0.3153 -0.1225 0.08817
+                  }
+                  NormalBinding PER_VERTEX
+                  NormalArray Vec3Array 11
+                  {
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                  }
+                }
+              }
+            }
+	    }
+	    
+	    osgSim::MultiSwitch {
+           name "_SW_green"
+           nodeMask 0xffffffff
+           cullingActive TRUE
+           description {
+             "Name: _SW_green"
+             ""
+             "VIRES_SwitchID: 2"
+           }
+           NewChildDefaultValue 1
+           ActiveSwitchSet 1
+           ValueList 0 {
+             1
+           }
+           ValueList 1 {
+             0
+           }
+           num_children 1
+            MatrixTransform {
+              name "Green_0_SCGR_11"
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              referenceFrame RELATIVE
+              Matrix {
+                1 0 0 0
+                0 -0.000203653 1 0
+                0 -1 -0.000203653 0
+                -0.1945 -0.3681 0.1551 1
+              }
+              num_children 1
+              Geode {
+                name "Green_0-FACES_SCGR_12"
+                nodeMask 0xfffffffd
+                cullingActive TRUE
+                StateSet {
+                  UniqueID StateSet_9
+                  rendering_hint DEFAULT_BIN
+                  renderBinMode INHERIT
+                  GL_CULL_FACE ON
+                  Use Material_3
+                  CullFace {
+                    mode BACK
+                  }
+                }
+                num_drawables 1
+                Geometry {
+                  UniqueID Geometry_10
+                  name "Green_0-FACES_SCGR_13"
+                  StateSet {
+                    UniqueID StateSet_11
+                    rendering_hint OPAQUE_BIN
+                    renderBinMode USE
+                    binNumber 0
+                    binName RenderBin
+                    GL_BLEND OFF
+                    Material {
+                      ColorMode AMBIENT_AND_DIFFUSE
+                      ambientColor 1 1 1 1
+                      diffuseColor 0 0.5529 0.2471 1
+                      specularColor 0.18 0.18 0.18 1
+                      emissionColor 0 0 0 1
+                      shininess 18.56
+                    }
+                  }
+                  useDisplayList TRUE
+                  useVertexBufferObjects FALSE
+                  PrimitiveSets 4
+                  {
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      1 2 0 3 4 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      4 5 0 6 7 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 5
+                    {
+                      7 8 0 9 10 
+                    }
+                    DrawElementsUShort TRIANGLES 3
+                    {
+                      0 10 1 
+                    }
+                  }
+                  VertexArray Vec3Array 11
+                  {
+                    0.1939 -0.1225 0
+                    0.3439 -0.1225 0
+                    0.3153 -0.1225 -0.08817
+                    0.2403 -0.1225 -0.1427
+                    0.1476 -0.1225 -0.1427
+                    0.07259 -0.1225 -0.08817
+                    0.04394 -0.1225 0
+                    0.07259 -0.1225 0.08817
+                    0.1476 -0.1225 0.1427
+                    0.2403 -0.1225 0.1427
+                    0.3153 -0.1225 0.08817
+                  }
+                  NormalBinding PER_VERTEX
+                  NormalArray Vec3Array 11
+                  {
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                  }
+                }
+              }
+            }
+	    }
+            MatrixTransform {
+              name "Box_0_SCGR_14"
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              referenceFrame RELATIVE
+              Matrix {
+                -1 0.000288009 0.000288009 0
+                -0.000288009 4.14746e-008 -1 0
+                -0.000288009 -1 4.14746e-008 0
+                0 0.3555 0.2198 1
+              }
+              num_children 1
+              Geode {
+                name "Box_0-FACES_SCGR_15"
+                nodeMask 0xfffffffd
+                cullingActive TRUE
+                StateSet {
+                  UniqueID StateSet_12
+                  rendering_hint DEFAULT_BIN
+                  renderBinMode INHERIT
+                  Use Material_3
+                }
+                num_drawables 1
+                Geometry {
+                  UniqueID Geometry_13
+                  name "Box_0-FACES_SCGR_16"
+                  StateSet {
+                    UniqueID StateSet_14
+                    rendering_hint OPAQUE_BIN
+                    renderBinMode USE
+                    binNumber 0
+                    binName RenderBin
+                    GL_BLEND OFF
+                    Material {
+                      ColorMode AMBIENT_AND_DIFFUSE
+                      ambientColor 1 1 1 1
+                      diffuseColor 0.1255 0.1255 0.1255 1
+                      specularColor 0.765 0.765 0.765 1
+                      emissionColor 0 0 0 1
+                      shininess 18.56
+                    }
+                  }
+                  useDisplayList TRUE
+                  useVertexBufferObjects FALSE
+                  PrimitiveSets 9
+                  {
+                    DrawElementsUShort TRIANGLE_STRIP 8
+                    {
+                      2 0 1 3 4 5 6 7 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 4
+                    {
+                      13 14 12 15 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 4
+                    {
+                      27 24 26 25 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 8
+                    {
+                      42 40 41 43 44 45 46 47 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 8
+                    {
+                      34 32 33 35 36 37 38 39 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 4
+                    {
+                      29 30 28 31 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 4
+                    {
+                      23 20 22 21 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 4
+                    {
+                      11 8 10 9 
+                    }
+                    DrawElementsUShort TRIANGLE_STRIP 4
+                    {
+                      19 16 18 17 
+                    }
+                  }
+                  VertexArray Vec3Array 48
+                  {
+                    0.18 0 0.01791
+                    0.1283 0.1898 -0.1559
+                    0.18 0.1898 0.01791
+                    0.1283 0 -0.1559
+                    -0.124 0.1898 -0.1559
+                    -0.124 0 -0.1559
+                    -0.18 0.1898 0.01791
+                    -0.18 0 0.01791
+                    -0.2 0.4396 0.911
+                    -0.2 0.1896 0.911
+                    0.2 0.1896 0.911
+                    0.2 0.4396 0.911
+                    -0.2 0.4396 -0.2
+                    0.2 0.4396 -0.2
+                    0.2 0.1896 -0.2
+                    -0.2 0.1896 -0.2
+                    -0.2 0.4396 0.911
+                    0.2 0.4396 0.911
+                    0.2 0.4396 -0.2
+                    -0.2 0.4396 -0.2
+                    0.2 0.4396 0.911
+                    0.2 0.1896 0.911
+                    0.2 0.1896 -0.2
+                    0.2 0.4396 -0.2
+                    0.2 0.1896 0.911
+                    -0.2 0.1896 0.911
+                    -0.2 0.1896 -0.2
+                    0.2 0.1896 -0.2
+                    -0.2 0.1896 0.911
+                    -0.2 0.4396 0.911
+                    -0.2 0.4396 -0.2
+                    -0.2 0.1896 -0.2
+                    0.18 0 0.7216
+                    0.1283 0.1898 0.5478
+                    0.18 0.1898 0.7216
+                    0.1283 0 0.5478
+                    -0.124 0.1898 0.5478
+                    -0.124 0 0.5478
+                    -0.18 0.1898 0.7216
+                    -0.18 0 0.7216
+                    0.18 0 0.3732
+                    0.1283 0.1898 0.1994
+                    0.18 0.1898 0.3732
+                    0.1283 0 0.1994
+                    -0.124 0.1898 0.1994
+                    -0.124 0 0.1994
+                    -0.18 0.1898 0.3732
+                    -0.18 0 0.3732
+                  }
+                  NormalBinding PER_VERTEX
+                  NormalArray Vec3Array 48
+                  {
+                    0.9584 0 -0.2852
+                    0.5978 0 -0.8016
+                    0.9584 0 -0.2852
+                    0.5978 0 -0.8016
+                    -0.5887 0 -0.8083
+                    -0.5887 0 -0.8083
+                    -0.9517 0 -0.3068
+                    -0.9517 0 -0.3068
+                    0 0 1
+                    0 0 1
+                    0 0 1
+                    0 0 1
+                    0 0 -1
+                    0 0 -1
+                    0 0 -1
+                    0 0 -1
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    1 0 0
+                    1 0 0
+                    1 0 0
+                    1 0 0
+                    0 -1 0
+                    0 -1 0
+                    0 -1 0
+                    0 -1 0
+                    -1 0 0
+                    -1 0 0
+                    -1 0 0
+                    -1 0 0
+                    0.9584 0 -0.2852
+                    0.5978 0 -0.8016
+                    0.9584 0 -0.2852
+                    0.5978 0 -0.8016
+                    -0.5887 0 -0.8083
+                    -0.5887 0 -0.8083
+                    -0.9517 0 -0.3068
+                    -0.9517 0 -0.3068
+                    0.9584 0 -0.2852
+                    0.5978 0 -0.8016
+                    0.9584 0 -0.2852
+                    0.5978 0 -0.8016
+                    -0.5887 0 -0.8083
+                    -0.5887 0 -0.8083
+                    -0.9517 0 -0.3068
+                    -0.9517 0 -0.3068
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

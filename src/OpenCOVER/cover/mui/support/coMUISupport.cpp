@@ -17,7 +17,7 @@ int coMUISupport::readIntFromString(const string String, int pos)
 
     int returnArray[readIntFromStringGetArraySize(String)];
 
-    for (size_t i=0; i<=String.size(); i++){                       // pass each character of the string
+    for (size_t i=0; i<String.size(); i++){                       // pass each character of the string
         if (NumberString.find(String[i])!=string::npos)        // character is a number
         {
             zwischenstring = String[i];
