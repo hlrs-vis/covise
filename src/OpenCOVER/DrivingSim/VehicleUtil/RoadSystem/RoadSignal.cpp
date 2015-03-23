@@ -97,7 +97,7 @@ SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, st
     else
     {
         createGeometry();
-        //fprintf(stderr,"SignalPrototype:: file %s not found.",fn);
+//        fprintf(stderr,"SignalPrototype:: file %s not found.",fn);
     }
 }
 void SignalPrototype::createGeometry()
@@ -651,7 +651,7 @@ TrafficLightPrototype::TrafficLightPrototype(std::string n, std::string c, int t
     }
 
     country = c;
-    std::string fn = "share/covise/signals/" + country + "/" + name + ".osgb";
+    std::string fn = "share/covise/signals/" + country + "/" + name + ".osg";
     type = t;
     subtype = st;
     subclass = sc;
