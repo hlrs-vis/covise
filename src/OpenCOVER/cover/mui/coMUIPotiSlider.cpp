@@ -30,8 +30,6 @@ coMUIPotiSlider::coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContai
 coMUIPotiSlider::~coMUIPotiSlider()
 {
     ConfigManager->removeElement(Identifier);
-    // Slider allocated two spaces
-    ConfigManager->deletePosFromPosList(Identifier);
     ConfigManager->deletePosFromPosList(Identifier);
 }
 
@@ -82,16 +80,25 @@ void coMUIPotiSlider::constructor(const std::string UniqueIdentifier, coMUIConta
         // create UI-Elements:
         if (Devices[i].UI == ConfigManager->keywordTUI())         // create TUI-Element
         {
-            while (true)
+            std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+            std::pair<int,int> pos2(pos.first+1, pos.second);
+
+            std::vector <std::pair<int,int> > exceptPos;
+
+            while (true)                                        // search for two free positions
             {
-                std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-                if (!ConfigManager->isPosOccupied(std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier()))
+                pos=ConfigManager->getCorrectPosExceptOfPos(exceptPos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+                pos2.first = pos.first+1;
+                pos2.second= pos2.second;
+                if (!ConfigManager->isPosOccupied(std::pair<int,int>(pos2.first, pos2.second), Parent->getUniqueIdentifier()))
                 {
                     break;
                 }
+                else if (ConfigManager->isPosOccupied(std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier()))
+                {
+                    exceptPos.push_back(pos);
+                }
             }
-            std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
-            std::pair<int,int> pos2 (pos.first+1, pos.second);
             ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
             ConfigManager->preparePos(pos2, Parent->getUniqueIdentifier());
             TUIElement->setPos(pos.first,pos.second);
@@ -181,15 +188,24 @@ void coMUIPotiSlider::setPos(int posx, int posy)
     {
         if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUI-Element
         {
-            pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-            ConfigManager->preparePos(std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier());
-            ConfigManager->deletePosFromPosList(Devices[i].Identifier);
-            TUIElement->setPos(pos.first, pos.second);
-            ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
-            ConfigManager->addPosToPosList(Devices[i].Identifier, std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier(), false);
+            if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            {
+                pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+                ConfigManager->preparePos(std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier());
+                ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                TUIElement->setPos(pos.first, pos.second);
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                ConfigManager->addPosToPosList(Devices[i].Identifier, std::pair<int,int>(pos.first+1, pos.second), Parent->getUniqueIdentifier(), false);
+            }
         }
     }
+}
+
+// returns a pointer of TUIElement
+coTUIElement* coMUIPotiSlider::getTUI()
+{
+    return TUIElement.get();
 }
 
 

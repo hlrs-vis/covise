@@ -1,10 +1,10 @@
 #include "coMUIConfigManager.h"
 #include "coMUIDefaultValues.h"
 #include "../coMUIContainer.h"
-#include "coMUISupport.h"
 #include "coMUIConfigParser.h"
 #include "coMUIElementManager.h"
 #include "coMUIPositionManager.h"
+#include <cover/coTabletUI.h>
 
 
 coMUIConfigManager* coMUIConfigManager::Instance=NULL;
@@ -85,39 +85,51 @@ coMUIContainer* coMUIConfigManager::getCorrectParent(coMUIContainer* Parent, std
     return Parent;
 }
 
-// returns X-Pos from ConfigFile if defined; otherwise returns Pos from input
+// returns Pos from ConfigFile if defined; otherwise returns Pos from input
 std::pair<int,int> coMUIConfigManager::getCorrectPos(std::pair<int,int> pos, std::string UI, std::string Device, std::string UniqueIdentifier)
 {
-    std::pair<int,int> returnPos;
     if (ConfigFileExists())
     {
-        std::pair<std::string, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
-        if (ParsedPosition.second){
-            sscanf(ParsedPosition.first.c_str(),"%d %d",&returnPos.first,&returnPos.second);
-            return returnPos;
-        }
-    }
-    returnPos = pos;
-    return returnPos;
-}
-
-// returns X-Pos from ConfigFile if defined; otherwise returns X-Pos from autoassign
-std::pair<int,int> coMUIConfigManager::getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
-{
-    std::pair<int,int> returnPos;
-    if (ConfigFileExists())
-    {
-        std::pair<std::string, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
         if (ParsedPosition.second)
         {
-            sscanf(ParsedPosition.first.c_str(),"%d %d",&returnPos.first,&returnPos.second);
-            return returnPos;                         // return the matchin position set in configuration file
+            return ParsedPosition.first;
         }
     }
-    returnPos = getFreePos(ParentUniqueIdentifier);
-    return returnPos;
+    return pos;
 }
 
+// returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign
+std::pair<int,int> coMUIConfigManager::getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+{
+    if (ConfigFileExists())
+    {
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
+        if (ParsedPosition.second)
+        {
+            return ParsedPosition.first;                         // return the matchin position set in configuration file
+        }
+    }
+    return getFreePos(ParentUniqueIdentifier);
+}
+
+// returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign after inputPos
+std::pair<int,int> coMUIConfigManager::getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+{
+    if (ConfigFileExists())
+    {
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
+        if (ParsedPosition.second)
+        {
+            return ParsedPosition.first;
+        }
+    }
+    else if (!ConfigFileExists())
+    {
+
+    }
+    return getFreePosExceptOfPos(exceptPos, ParentUniqueIdentifier);
+}
 
 //****************************************************************************************************
 // Parser
@@ -141,7 +153,8 @@ void coMUIConfigManager::setAdress(const std::string ConfigAdress)
         ConfigFile = ConfigAdress;
         parser.reset(new coMUIConfigParser(ConfigAdress));
         FileExists = true;
-    } else if(ConfigFile != ConfigAdress)
+    }
+    else if(ConfigFile != ConfigAdress)
     {
         std::cerr << "coMUIConfigManager.cpp::setAdress: ConfigAdress already exists; to set new one use coMUIConfigManager::overwriteAdress(std::string ConfigAdress)" << std::endl;
     }
@@ -192,6 +205,35 @@ std::string coMUIConfigManager::keywordMainWindow()
     return DefaultValues->getKeywordMainWindow();
 }
 
+std::string coMUIConfigManager::keywordVisible()
+{
+    return DefaultValues->getKeywordVisible();
+}
+
+std::string coMUIConfigManager::keywordParent()
+{
+    return DefaultValues->getKeywordParent();
+}
+
+std::string coMUIConfigManager::keywordXPosition()
+{
+    return DefaultValues->getKeywordXPosition();
+}
+
+std::string coMUIConfigManager::keywordYPosition()
+{
+    return DefaultValues->getKeywordYPosition();
+}
+
+std::string coMUIConfigManager::keywordLabel()
+{
+    return DefaultValues->getKeywordLabel();
+}
+
+std::string coMUIConfigManager::keywordClass()
+{
+    return DefaultValues->getKeywordClass();
+}
 //****************************************************************************************************
 // ElementManager
 // prints names of all elements
@@ -241,6 +283,11 @@ coMUIWidget* coMUIConfigManager::getWidgetByIdentifier(std::string UniqueIdentif
 void coMUIConfigManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned)
 {
     PositionManager->addPosToPosList(UniqueIdentifier, pos, UniqueIdentifierParent, autoassigned);
+}
+
+std::pair<int,int> coMUIConfigManager::getFreePosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string ParentUniqueIdentifier)
+{
+    return PositionManager->getFreePosExeptOfPos(exceptPos, ParentUniqueIdentifier);
 }
 
 // get position of element
@@ -294,26 +341,42 @@ void coMUIConfigManager::preparePos(std::pair<int,int> pos, std::string ParentUn
         {
             std::string Identifier=getIdentifierByPos(pos,ParentUniqueIdentifier);          // UniqueIdentifier of
             std::pair <int,int> Pos = getFreePos(ParentUniqueIdentifier);                   // next free Position
-            changePos(Identifier,Pos);
-            if (isElementContainer(Identifier))
-            {
-                getContainerByIdentifier(Identifier)->setPos(Pos.first,Pos.second);         // Element neu positionieren
-            } else if(!isElementContainer(Identifier))
-            {
-                getWidgetByIdentifier(Identifier)->setPos(Pos.first,Pos.second);            // Element neu positionieren
-            }else
-            {
-                std::cerr << "ERROR: coMUIConfigManager::preparePos(): " << Identifier << " is no coMUIWidget or coMUIContainer" << std::endl;
-            }
+            setAutoassignedPos(Pos, Identifier, ParentUniqueIdentifier);
         }
-    } else if (isPosOccupied(pos, ParentUniqueIdentifier))
-    {
-        if (!isPosAutoassigned(pos, ParentUniqueIdentifier))
+        else if (!isPosAutoassigned(pos, ParentUniqueIdentifier))
         {
-            std::cerr << "WARNING: coMUIConfigManager::preparePos(): Position (" << pos.first << "," << pos.second << ") in Parent " << ParentUniqueIdentifier << " is occupied." << std::endl;
-
+            std::cerr << "ERROR: coMUIConfigManager::preparePos(): Position (" << pos.first << "," << pos.second << ") in Parent " << ParentUniqueIdentifier << " is occupied by " << getIdentifierByPos(pos,ParentUniqueIdentifier) << " and will be deleted and overwritten." << std::endl;
+            std::string Identifier=getIdentifierByPos(pos,ParentUniqueIdentifier);          // UniqueIdentifier of
+            deletePosFromPosList(Identifier);
         }
     }
+}
+
+//! returns true, if Attribute exists in ConfigFile with UI, Device and Identifier; else returns false
+bool coMUIConfigManager::existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier)
+{
+    if (ConfigFileExists())
+    {
+        return parser->existAttributeInConfigFile(Attribute, UI, Device, Identifier);
+    }
+    return false;
+}
+
+void coMUIConfigManager::setAutoassignedPos(std::pair<int,int> Pos, std::string ElementIdentifier, std::string ParentUniqueIdentifier)
+{
+    deletePosFromPosList(ElementIdentifier);
+    if (isElementContainer(ElementIdentifier))
+    {
+        getContainerByIdentifier(ElementIdentifier)->getTUI()->setPos(Pos.first,Pos.second);         // Element neu positionieren
+    }
+    else if(!isElementContainer(ElementIdentifier))
+    {
+        getWidgetByIdentifier(ElementIdentifier)->getTUI()->setPos(Pos.first,Pos.second);            // Element neu positionieren
+    }else
+    {
+        std::cerr << "ERROR: coMUIConfigManager::setAutoassignedPos(): " << ElementIdentifier << " is no coMUIWidget or coMUIContainer" << std::endl;
+    }
+    addPosToPosList(ElementIdentifier, Pos, ParentUniqueIdentifier, true);
 }
 
 std::string coMUIConfigManager::getPos2Print()

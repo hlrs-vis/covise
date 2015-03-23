@@ -6,7 +6,6 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenuItem.h>
-#include "support/coMUISupport.h"
 #include "support/coMUIConfigManager.h"
 #include "coMUIContainer.h"
 #include "coMUITab.h"
@@ -217,8 +216,8 @@ int coMUITab::getTUIID()
     return TUIElement->getID();
 }
 
-// returns the TUIElement
-coTUITab *coMUITab::getTUI()
+// returns a pointer to TUIElement
+coTUIElement* coMUITab::getTUI()
 {
     return TUIElement.get();
 }
@@ -306,14 +305,19 @@ void coMUITab::setVisible(bool visible, std::string UI)
 // set position for TUI-Element
 void coMUITab::setPos(int posx, int posy)
 {
-    std::pair<int,int> Pos(posx,posy);
+    std::pair<int,int> pos(posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
         if (Devices[i].UI == ConfigManager->keywordTUI())                              // TUI-Element
         {
-            std::pair<int,int> pos=ConfigManager->getCorrectPos(Pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-            TUIElement->setPos(pos.first,pos.second);
+            if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            {
+                pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+                ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                TUIElement->setPos(pos.first,pos.second);
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            }
         }
     }
 }

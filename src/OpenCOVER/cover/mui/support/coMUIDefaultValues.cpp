@@ -10,6 +10,13 @@ coMUIDefaultValues::coMUIDefaultValues()
     keywordPhone = "Phone";                       // keyword for Phone in configuration file
     keywordPowerwall = "Powerwall";               // keyword for Powerwall in configuration file
     keywordMainWindow = "HauptfensterMainWindow"; // keyword for MainWindow in configuration file
+    keywordVisible = "visible";
+    keywordParent = "parent";
+    keywordXPosition = "posx";
+    keywordYPosition = "posy";
+    keywordLabel = "label";
+    keywordClass = "class";
+
     visible = true;
     PositionFirstCall = true;
 }
@@ -53,4 +60,34 @@ std::string coMUIDefaultValues::getKeywordPhone()
 std::string coMUIDefaultValues::getKeywordMainWindow()
 {
     return keywordMainWindow;
+}
+
+std::string coMUIDefaultValues::getKeywordVisible()
+{
+    return keywordVisible;
+}
+
+std::string coMUIDefaultValues::getKeywordParent()
+{
+    return keywordParent;
+}
+
+std::string coMUIDefaultValues::getKeywordXPosition()
+{
+    return keywordXPosition;
+}
+
+std::string coMUIDefaultValues::getKeywordYPosition()
+{
+    return keywordYPosition;
+}
+
+std::string coMUIDefaultValues::getKeywordLabel()
+{
+    return keywordLabel;
+}
+
+std::string coMUIDefaultValues::getKeywordClass()
+{
+    return keywordClass;
 }

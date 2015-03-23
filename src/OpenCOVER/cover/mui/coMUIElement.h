@@ -12,12 +12,12 @@
 #include <QObject>
 #include <OpenVRUI/coUIContainer.h>
 
-namespace coMUI
-{
-class coMUIElement;
-}
-
 class coMUIConfigManager;
+
+namespace opencover
+{
+class coTUIElement;
+}
 
 /*
  *Base class for MUI elements
@@ -49,6 +49,7 @@ public:
 
     // must be overwritten, if inherited:
     virtual void setPos(int posx, int posy)=0;
+    virtual opencover::coTUIElement* getTUI()=0;
     std::string getUniqueIdentifier();
 
 private:

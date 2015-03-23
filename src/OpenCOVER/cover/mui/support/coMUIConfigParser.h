@@ -13,6 +13,9 @@ class DOMNode;
 class DOMNodeList;
 class DOMElement;
 }
+
+class coMUIDefaultValues;
+
 // begin of class
 class coMUIConfigParser
 {
@@ -26,13 +29,14 @@ public:
     const std::string getType(xercesc_3_1::DOMElement* Element);         // return the type of the element
     bool isNodeElement(xercesc_3_1::DOMNode* Node);
     bool fileExist(std::string File);
-    std::string getValueClassInstanzAttribute(const std::string UI, const std::string Klasse, const std::string Instanz, const std::string Attribute);
+    //std::string getValueClassInstanzAttribute(const std::string UI, const std::string Klasse, const std::string Instanz, const std::string Attribute);
 
     bool getIsVisible(const std::string UI, const std::string Klasse, const std::string Instanz);
     std::pair<std::string, bool> getParent(const std::string UI, const std::string Klasse, const std::string Instanz);
-    std::pair<std::string, bool> getPosition(const std::string UI, const std::string Klasse, const std::string Instanz);
+    std::pair<std::pair<int,int>, bool> getPosition(const std::string UI, const std::string Klasse, const std::string Instanz);
     std::pair<std::string, bool> getLabel(const std::string UI, const std::string Klasse, const std::string Instanz);
     void readNewFile(std::string Filename);
+    bool existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier);
 
 
 private:
@@ -43,14 +47,10 @@ private:
     xercesc_3_1::DOMNodeList* nodeList;
     xercesc_3_1::DOMNode* UIElementNode;
 
+    boost::shared_ptr<coMUIDefaultValues> defaultValues;
 
     std::string AttrVal;                                        // will be overwritten with attriburevalues continously
 
-    std::string keywordVisible;
-    std::string keywordParent;
-    std::string keywordPosition;
-    std::string keywordLabel;
-    std::string keywordClass;
 
     // memberfunctions:
     void initializeParser(std::string adress);
