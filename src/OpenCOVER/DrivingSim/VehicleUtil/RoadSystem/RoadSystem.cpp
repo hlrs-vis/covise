@@ -724,7 +724,21 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 
                                 RoadSignal *roadSignal;
                                 //if(type == 1000001) {
-                                if ((type == 1000001 || type == 1000002) || ((country == "China") && (type <= 3)))
+                                bool isTrafficSignal = false;
+                                if ((country == "China") && (type <= 3))
+                                {
+                                    if (subclass.size() != 0)
+                                    {
+                                        std::string::const_iterator it = subclass.begin();
+                                        while (it != subclass.end() && isdigit(*it)) ++it;
+                                        if (it == subclass.end())
+                                        {
+                                            isTrafficSignal = true;
+                                        }
+                                    }
+                                }
+
+                                if ((type == 1000001 || type == 1000002) || isTrafficSignal)
                                 {
                                     roadSignal = new TrafficLightSignal(id, name, s, t, dynamic, orientation, zOffset, country,
                                                                         type, subtype, subclass, size, value);
