@@ -673,7 +673,7 @@ TrafficLightPrototype::TrafficLightPrototype(std::string n, std::string c, int t
     }
     else
     {
-        std::cerr << "Traffic Light File not found: " << filename << std::endl;
+        std::cerr << "Traffic Light File not found: " << name << std::endl;
     }
 }
 

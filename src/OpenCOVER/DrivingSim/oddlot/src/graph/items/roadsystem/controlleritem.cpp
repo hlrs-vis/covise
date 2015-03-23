@@ -165,8 +165,8 @@ ControllerItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
     // Text //
     //
-    textHandle_->setVisible(true);
-    textHandle_->setPos(event->scenePos());
+   // textHandle_->setVisible(true);
+   // textHandle_->setPos(event->scenePos());
 
     // Parent //
     //
@@ -179,7 +179,7 @@ ControllerItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
     // Text //
     //
-    textHandle_->setVisible(false);
+  //  textHandle_->setVisible(false);
 
     // Parent //
     //

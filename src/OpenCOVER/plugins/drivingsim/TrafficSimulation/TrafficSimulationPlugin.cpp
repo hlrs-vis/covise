@@ -445,21 +445,24 @@ bool TrafficSimulationPlugin::loadRoadSystem(const char *filename_chars)
             {
                 FindTrafficLightSwitch findSwitch(trafficLightSignal->getName());
                 osg::PositionAttitudeTransform *trafficSignalNode = trafficLightSignal->getRoadSignalNode();
-                trafficSignalGroup->addChild(trafficSignalNode);
+                if (trafficSignalNode)
+                {
+                    trafficSignalGroup->addChild(trafficSignalNode);
 
-                //findSwitch.traverse(*cover->getObjectsXform());
-                trafficSignalNode->accept(findSwitch);
-                TrafficLightSignalTurnCallback *callbackGreen
-                    = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchGreen());
-                trafficLightSignal->setSignalGreenCallback(callbackGreen);
+                    //findSwitch.traverse(*cover->getObjectsXform());
+                    trafficSignalNode->accept(findSwitch);
+                    TrafficLightSignalTurnCallback *callbackGreen
+                        = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchGreen());
+                    trafficLightSignal->setSignalGreenCallback(callbackGreen);
 
-                TrafficLightSignalTurnCallback *callbackYellow
-                    = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchYellow());
-                trafficLightSignal->setSignalYellowCallback(callbackYellow);
+                    TrafficLightSignalTurnCallback *callbackYellow
+                        = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchYellow());
+                    trafficLightSignal->setSignalYellowCallback(callbackYellow);
 
-                TrafficLightSignalTurnCallback *callbackRed
-                    = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchRed());
-                trafficLightSignal->setSignalRedCallback(callbackRed);
+                    TrafficLightSignalTurnCallback *callbackRed
+                        = new TrafficLightSignalTurnCallback(findSwitch.getMultiSwitchRed());
+                    trafficLightSignal->setSignalRedCallback(callbackRed);
+                }
             }
             else
             {
