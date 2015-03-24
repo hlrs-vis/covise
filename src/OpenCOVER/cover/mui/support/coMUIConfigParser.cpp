@@ -1,4 +1,5 @@
 #include "coMUIConfigParser.h"
+#include "coMUIDefaultValues.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -17,13 +18,9 @@ using namespace xercesc_3_1;
 // constructor:
 coMUIConfigParser::coMUIConfigParser(const std::string xmlAdresse)
 {
-    keywordVisible = "visible";
-    keywordParent = "parent";
-    keywordPosition = "position";
-    keywordLabel = "label";
-    keywordClass = "class";
-
     XMLPlatformUtils::Initialize();
+
+    defaultValues.reset(new coMUIDefaultValues);
 
     parser.reset(new XercesDOMParser());                         // create new xercesc-parser
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
@@ -39,10 +36,10 @@ coMUIConfigParser::~coMUIConfigParser()
 // returns true, if the element shall be visible; else return false
 bool coMUIConfigParser::getIsVisible(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
-    if (existElement(UI, keywordClass, Klasse, nodeList))                   // element with name UI and class Klasse exists
+    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))                   // element with name UI and class Klasse exists
     {
-        UIElementNode = getElementNode(UI, keywordClass ,Klasse, nodeList); // UIElementNode is the elementnode with name UI and class Klasse
-        if (existElement(Instanz, keywordVisible, "false", UIElementNode->getChildNodes()))
+        UIElementNode = getElementNode(UI, defaultValues->getKeywordClass() ,Klasse, nodeList); // UIElementNode is the elementnode with name UI and class Klasse
+        if (existElement(Instanz, defaultValues->getKeywordVisible(), "false", UIElementNode->getChildNodes()))
         {
             return false;
         }
@@ -50,18 +47,18 @@ bool coMUIConfigParser::getIsVisible(const std::string UI, const std::string Kla
     return true;
 }
 
-// returns the matching parentname
+//! returns the matching parentname
 std::pair<std::string, bool> coMUIConfigParser::getParent(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
     std::pair<std::string, bool> returnPair;
-    if (existElement(UI, keywordClass, Klasse, nodeList))                  // element exists
+    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))                  // element exists
     {
-        UIElementNode=getElementNode(UI, keywordClass, Klasse, nodeList);
-        if (existElement(Instanz, keywordParent, UIElementNode->getChildNodes()))
+        UIElementNode=getElementNode(UI, defaultValues->getKeywordClass(), Klasse, nodeList);
+        if (existElement(Instanz, defaultValues->getKeywordParent(), UIElementNode->getChildNodes()))
         {
-            if (getAttributeValue(Instanz, keywordParent, UIElementNode->getChildNodes()).second)
+            if (getAttributeValue(Instanz, defaultValues->getKeywordParent(), UIElementNode->getChildNodes()).second)
             {
-                return getAttributeValue(Instanz, keywordParent, UIElementNode->getChildNodes());
+                return getAttributeValue(Instanz, defaultValues->getKeywordParent(), UIElementNode->getChildNodes());
             }
         }
     }
@@ -76,18 +73,31 @@ std::pair<std::string, bool> coMUIConfigParser::getParent(const std::string UI, 
     return returnPair;
 }
 
-// returns the matching label
+//! returns true if attribute exists in configuration file within UI, Device and Identifier
+bool coMUIConfigParser::existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier)
+{
+    if (existElement(UI, defaultValues->getKeywordClass(), Device, nodeList))
+    {
+        if (existElement(Identifier, Attribute, getElementNode(UI, defaultValues->getKeywordClass(), Device, nodeList)->getChildNodes()))
+        {
+            return getAttributeValue(Identifier, Attribute, getElementNode(UI, defaultValues->getKeywordClass(), Device, nodeList)->getChildNodes()).second;
+        }
+    }
+    return false;
+}
+
+//! returns the matching label
 std::pair<std::string, bool> coMUIConfigParser::getLabel(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
     std::pair<std::string, bool> returnPair;
-    if (existElement(UI, keywordClass, Klasse, nodeList))
+    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))
     {
-        UIElementNode = getElementNode(UI, keywordClass, Klasse, nodeList);
-        if (existElement(Instanz, keywordLabel, UIElementNode->getChildNodes()))
+        UIElementNode = getElementNode(UI, defaultValues->getKeywordClass(), Klasse, nodeList);
+        if (existElement(Instanz, defaultValues->getKeywordLabel(), UIElementNode->getChildNodes()))
         {
-            if (getAttributeValue(Instanz, keywordLabel, UIElementNode->getChildNodes()).second)
+            if (getAttributeValue(Instanz, defaultValues->getKeywordLabel(), UIElementNode->getChildNodes()).second)
             {
-                return getAttributeValue(Instanz, keywordLabel, UIElementNode->getChildNodes());
+                return getAttributeValue(Instanz, defaultValues->getKeywordLabel(), UIElementNode->getChildNodes());
             }
         }
     }
@@ -103,25 +113,28 @@ std::pair<std::string, bool> coMUIConfigParser::getLabel(const std::string UI, c
 }
 
 // returns the matching position
-std::pair<std::string, bool> coMUIConfigParser::getPosition(const std::string UI, const std::string Klasse, const std::string Instanz)
+std::pair<std::pair<int,int>, bool> coMUIConfigParser::getPosition(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
-    std::pair<std::string, bool> returnParsedPosition;
-    if (existElement(UI, keywordClass, Klasse, nodeList))
+    std::pair<std::pair<int,int>, bool> returnParsedPosition;
+    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))
     {
-        UIElementNode=getElementNode(UI, keywordClass, Klasse, nodeList);
-        if (existElement(Instanz, keywordPosition, UIElementNode->getChildNodes()))
+        UIElementNode=getElementNode(UI, defaultValues->getKeywordClass(), Klasse, nodeList);
+        bool existXpos = existElement(Instanz, defaultValues->getKeywordXPosition(), UIElementNode->getChildNodes());
+        bool existYpos = existElement(Instanz, defaultValues->getKeywordYPosition(), UIElementNode->getChildNodes());
+        if (existXpos && existYpos)
         {
-            returnParsedPosition = getAttributeValue(Instanz, keywordPosition, UIElementNode->getChildNodes());;
+            std::string pos_str = getAttributeValue(Instanz, defaultValues->getKeywordXPosition(), UIElementNode->getChildNodes()).first;
+            sscanf(pos_str.c_str(), "%d %d", &returnParsedPosition.first.first, &returnParsedPosition.first.second);
+            returnParsedPosition.second = true;
             return returnParsedPosition;
         }
+        else if (existXpos || existYpos)
+        {
+            std::cerr << "ERROR: coMUIConfigParser::getPosition(): Only x- or y- position of " << Instanz << " declared in configuration file! Needed both positions or none." << std::endl;
+        }
     }
-    returnParsedPosition.first="Position according to ";
-    returnParsedPosition.first.append(UI);
-    returnParsedPosition.first.append(" ");
-    returnParsedPosition.first.append(Klasse);
-    returnParsedPosition.first.append(" ");
-    returnParsedPosition.first.append(Instanz);
-    returnParsedPosition.first.append(" doesn't exist.");
+    returnParsedPosition.first.first = -1;
+    returnParsedPosition.first.second = -1;
     returnParsedPosition.second = false;
     return returnParsedPosition;
 }
@@ -229,25 +242,19 @@ bool coMUIConfigParser::existElement(const std::string TagName, const std::strin
 // retrurns the attributevalue as std::string
 std::pair<std::string, bool> coMUIConfigParser::getAttributeValue(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
 {
-    std::cout << "coMUIConfigParser::getAttributeValue(): wurde aufgerufen" << std::endl;
     std::pair<std::string, bool> returnPair;
     for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
     {
-        std::cout << "coMUIConfigParser::getAttributeValue(): in die Schleife eingetreten" << std::endl;
         if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE)
         {
-            std::cout << "coMUIConfigParser::getAttributeValue(): Knoten ist Elementknoten" << std::endl;
             DOMElement *nodeElement = static_cast<DOMElement*>(NodeListe->item(i));             // transform node to element
             if (XMLString::transcode(nodeElement->getTagName()) == TagName)                     // match in TagName
             {
-                std::cout << "coMUIConfigParser::getAttributeValue(): Treffer beim TagName: " << TagName << std::endl;
                 AttrVal = XMLString::transcode(nodeElement->getAttribute(XMLString::transcode(Attribute.c_str())));
-                std::cout << "coMUIConfigParser::getAttributeValue(): AttrVal= " << AttrVal << std::endl;
                 if (!AttrVal.empty())
                 {                                                                               // entry in Attribute
                     returnPair.first=AttrVal;
                     returnPair.second=true;
-                    std::cout << "coMUIConfigParser::getAttributeValue(): erfolgreich returned" << std::endl;
                     return returnPair;
                 }
             }
@@ -269,7 +276,6 @@ void coMUIConfigParser::initializeParser(std::string adress)
         catch(...)
         {
             cerr << "coMUIConfigParser.cpp: error parsing XML-Datei" << endl;
-            cout << "coMUIConfigParser.cpp: Parser konnte XML-Datei nicht parsen" << endl;
         }
 
         parsedDoc=parser->getDocument();                                                        // save configuration file as DOMDocument

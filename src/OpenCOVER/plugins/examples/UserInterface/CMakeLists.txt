@@ -1,18 +1,18 @@
 USING (XERCESC)
 
 SET(HEADERS
-  Beispiel.h
+  UserInterface.h
 )
 
 SET(SOURCES
-  Beispiel.cpp
+  UserInterface.cpp
 )
 
 
 
 QT_WRAP_CPP(MOCS ${HEADERS})
 set(SOURCES ${SOURCES} ${MOCS})
-cover_add_plugin(Beispiel ${HEADERS} ${SOURCES} ${MOCS})
+cover_add_plugin(UserInterface ${HEADERS} ${SOURCES} ${MOCS})
 
 
-qt_use_modules(Beispiel Core)
+qt_use_modules(UserInterface Core)

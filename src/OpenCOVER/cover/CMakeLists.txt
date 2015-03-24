@@ -179,7 +179,6 @@ SET(MUI_SOURCES
   mui/support/coMUIDefaultValues.cpp
   mui/support/coMUIElementManager.cpp
   mui/support/coMUIPositionManager.cpp
-  mui/support/coMUISupport.cpp
 )
 
 SET(MUI_HEADERS
@@ -197,7 +196,6 @@ SET(MUI_HEADERS
   mui/support/coMUIDefaultValues.h
   mui/support/coMUIElementManager.h
   mui/support/coMUIPositionManager.h
-  mui/support/coMUISupport.h
 )
 
 SET(DEVICE_SOURCES

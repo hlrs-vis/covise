@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<coMUIMainElementInfo createVRUI="true" createTUI="true">
-    <coMUIToggleButtonInfo createVRUI="true" createTUI="true"/>
-    <coMUIFrameInfo createVRUI="true" createTUI="true" />
-    <coMUITabInfo createVRUI="false" createTUI="true" />
-    <coMUIValueRegulatorInfo createVRUI="true" createTUI="true" />
-</coMUIMainElementInfo>

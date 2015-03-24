@@ -32,6 +32,7 @@ public:
 
     // methods:
     std::string getLabel();
+    opencover::coTUIElement* getTUI();
     void setPos(int posx, int posy);
     void setLabel(std::string label);
     void setLabel(std::string label, std::string UI);

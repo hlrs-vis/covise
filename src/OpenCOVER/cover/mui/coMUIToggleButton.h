@@ -42,8 +42,8 @@ public:
     void setLabel(std::string label);                                               // sets Label for all UI-elements
     void setLabel(std::string label, std::string UI);                               // sets Label for named UI-elements
     std::string getUniqueIdentifier();                                              // returns the UniqueIdentifier of this coMUIToggleButtonElement
-    coMUIContainer* getParent();                                    // returns the parent of this coMUIToggleButtonElement if exists
-
+    coMUIContainer* getParent();                                                    // returns the parent of this coMUIToggleButtonElement if exists
+    opencover::coTUIElement* getTUI();
 
     // variables:
 

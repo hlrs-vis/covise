@@ -10,7 +10,6 @@
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include "support/coMUIConfigManager.h"
 #include "coMUIContainer.h"
-#include "support/coMUISupport.h"
 #include "coMUIToggleButton.h"
 #include <iostream>
 
@@ -58,6 +57,7 @@ void coMUIToggleButton::constructor(const std::string UniqueIdentifier, coMUICon
     Devices[0].Visible = true;
 
     Devices[0].Label=ConfigManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
+    Parent= ConfigManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
 
     // create VRUI-Element:
     createVRUIElement(Devices[0].Label);
@@ -70,6 +70,7 @@ void coMUIToggleButton::constructor(const std::string UniqueIdentifier, coMUICon
     Devices[1].Visible = true;
 
     Devices[1].Label=ConfigManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
+    Parent= ConfigManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
     // create TUI-Element:
     createTUIElement(Devices[1].Label, ConfigManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier));
 
@@ -84,19 +85,29 @@ void coMUIToggleButton::constructor(const std::string UniqueIdentifier, coMUICon
         {
             std::pair<int,int> pos=ConfigManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
             ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-            TUIElement.get()->setPos(pos.first,pos.second);
-            ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
+            TUIElement->setPos(pos.first,pos.second);
+            if (ConfigManager->existAttributeInConfigFile(ConfigManager->keywordXPosition(), Devices[i].UI, Devices[i].Device, Devices[i].Identifier) && ConfigManager->existAttributeInConfigFile(ConfigManager->keywordYPosition(), Devices[i].UI, Devices[i].Device, Devices[i].Identifier))
+            {
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            }
+            else
+            {
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
+            }
             TUIElement->setHidden(!Devices[i].Visible);
-        }else if (Devices[i].UI == ConfigManager->keywordVRUI())               // create VRUI-Element
+        }
+        else if (Devices[i].UI == ConfigManager->keywordVRUI())                 // create VRUI-Element
         {
-            if (Devices[i].Visible)                                            // visible
+            if (Devices[i].Visible)                                             // visible
             {
                 ConfigManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
-            }else                                                              // invisible
+            }
+            else                                                                // invisible
             {
                 ConfigManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
             }
-        }else
+        }
+        else
         {
             std::cerr << "coMUIToggleButton::constructor(): Elementtype " << Devices[i].UI << " not found in constructor." << std::endl;
         }
@@ -106,7 +117,7 @@ void coMUIToggleButton::constructor(const std::string UniqueIdentifier, coMUICon
 // called, if there is an interaction with the tablet
 void coMUIToggleButton::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == TUIElement.get())                                                 // there is an interaction with the tablet
+    if (tUIItem == TUIElement.get())                                            // there is an interaction with the tablet
     {
         VRUIElement->setState(!(VRUIElement->getState()));                      // adjust status of VRUI-Element
         emit clicked();
@@ -117,7 +128,7 @@ void coMUIToggleButton::tabletEvent(coTUIElement *tUIItem)
 // called, if there is an interaction with the VRUI
 void coMUIToggleButton:: menuEvent(coMenuItem *menuItem)
 {
-    if (menuItem == VRUIElement.get())                                               // there is an interaction with the VRUI
+    if (menuItem == VRUIElement.get())                                          // there is an interaction with the VRUI
     {
         TUIElement->setState(!(TUIElement->getState()));                        // adjust status of TUI-ELement
         emit clicked();
@@ -130,13 +141,16 @@ void coMUIToggleButton::setPos(int posx, int posy)
     std::pair<int,int> pos(posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUI-Element
+        if (Devices[i].UI == ConfigManager->keywordTUI())                       // TUI-Element
         {
             pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-            ConfigManager->deletePosFromPosList(Devices[i].Identifier);
-            TUIElement->setPos(pos.first,pos.second);
-            ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            {
+                ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+                ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                TUIElement->setPos(pos.first,pos.second);
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            }
         }
     }
 }
@@ -147,13 +161,15 @@ void coMUIToggleButton::setLabel(std::string label)
     for (size_t i=0; i<Devices.size(); ++i)
     {
         Devices[i].Label = ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUI-Element
+        if (Devices[i].UI == ConfigManager->keywordTUI())                       // TUI-Element
         {
             TUIElement->setLabel(Devices[i].Label);
-        } else if (Devices[i].UI == ConfigManager->keywordVRUI())              // VRUI-Element
+        }
+        else if (Devices[i].UI == ConfigManager->keywordVRUI())                 // VRUI-Element
         {
             VRUIElement->setLabel(Devices[i].Label);
-        } else
+        }
+        else
         {
             std::cerr << "coMUIToggleButton::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string)." << std::endl;
         }
@@ -165,16 +181,19 @@ void coMUIToggleButton::setLabel(std::string label, std::string UI)
 {
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (UI.find(Devices[i].UI) != std::string::npos)                       // Element to be changed
+        if (UI.find(Devices[i].UI) != std::string::npos)                        // Element to be changed
         {
             Devices[i].Label=ConfigManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == ConfigManager->keywordTUI())                  // TUI-Element
+            if (Devices[i].UI == ConfigManager->keywordTUI())                   // TUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
-            } else if (Devices[i].UI == ConfigManager->keywordVRUI())          // VRUI-Element
+            }
+            else if (Devices[i].UI == ConfigManager->keywordVRUI())             // VRUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
-            } else{
+            }
+            else
+            {
                 std::cerr << "coMUIPotiSlider::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string, std::string)." << std::endl;
             }
         }
@@ -203,7 +222,8 @@ void coMUIToggleButton::setVisible(bool visible)
                 {
                     ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
                 }
-            } else{
+            } else
+            {
                 std::cerr << "coMUIPotiSlider::setVisible(): Elementtype " << Devices[i].UI << " not found in setVisible(bool)." << std::endl;
             }
         }
@@ -223,17 +243,20 @@ void coMUIToggleButton::setVisible(bool visible, std::string UI)
                 if (Devices[i].UI == ConfigManager->keywordTUI())              // TUI-Element
                 {
                     TUIElement->setHidden(!Devices[i].Visible);
-                } else if (Devices[i].UI == ConfigManager->keywordVRUI())      // VRUI-Element
+                }
+                else if (Devices[i].UI == ConfigManager->keywordVRUI())         // VRUI-Element
                 {
                     if (Devices[i].Visible)
                     {
                         ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
                     }
-                } else
+                }
+                else
                 {
                     ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
                 }
-            } else
+            }
+            else
             {
                 std::cerr << "coMUIToggleButton::setVisible(): Elementtype " << Devices[i].UI << " not found in setVisible(string, bool)." << std::endl;
             }
@@ -271,10 +294,12 @@ void coMUIToggleButton::setState(bool stat)
         if (Devices[i].UI == ConfigManager->keywordVRUI())                     // VRUI-Element
         {
             VRUIElement->setState(stat);
-        }else if(Devices[i].UI == ConfigManager->keywordTUI())                 // TUI-Element
+        }
+        else if(Devices[i].UI == ConfigManager->keywordTUI())                 // TUI-Element
         {
             TUIElement->setState(stat);
-        } else{
+        }
+        else{
             std::cerr << "coMUIToggleButton::setState(): Elementtype " << Devices[i].UI << " not found in setClicked(bool)." << std::endl;
         }
     }
@@ -289,6 +314,11 @@ std::string coMUIToggleButton::getUniqueIdentifier()
 {
     return Devices[0].Identifier;
 }
+
+coTUIElement *coMUIToggleButton::getTUI()
+{
+    return TUIElement.get();
+};
 
 //***********************************************************************************
 // QT-SLOTS:
@@ -306,7 +336,8 @@ void coMUIToggleButton::activate()
         if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUIElement
         {
             TUIElement->setState(true);
-        } else if (Devices[i].UI == ConfigManager->keywordVRUI())
+        }
+        else if (Devices[i].UI == ConfigManager->keywordVRUI())
         {
             VRUIElement->setState(true);
         }
@@ -326,7 +357,8 @@ void coMUIToggleButton::deactivate()
         if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUIElement
         {
             TUIElement->setState(false);
-        } else if (Devices[i].UI == ConfigManager->keywordVRUI())
+        }
+        else if (Devices[i].UI == ConfigManager->keywordVRUI())
         {
             VRUIElement->setState(false);
         }
@@ -342,10 +374,12 @@ void coMUIToggleButton::click()
         if (Devices[i].UI == ConfigManager->keywordTUI())
         {                      // TUIElement
             TUIElement->setState(!TUIElement->getState());
-        } else if (Devices[i].UI == ConfigManager->keywordVRUI())              // VRUIElement
+        }
+        else if (Devices[i].UI == ConfigManager->keywordVRUI())              // VRUIElement
         {
             VRUIElement->setState(!VRUIElement->getState());
-        } else
+        }
+        else
         {
             std::cerr << "coMUIToggleButton::click(): Elementtyp " << Devices[i].UI << " not found in click()." << std::endl;
         }

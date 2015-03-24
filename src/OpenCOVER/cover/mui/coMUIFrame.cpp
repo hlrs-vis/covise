@@ -9,7 +9,6 @@
 #include <OpenVRUI/coMenuItem.h>
 #include "coMUIFrame.h"
 #include "support/coMUIConfigManager.h"
-#include "support/coMUISupport.h"
 
 using namespace opencover;
 using namespace vrui;
@@ -94,13 +93,14 @@ void coMUIFrame::constructor(const std::string UniqueIdentifier, coMUIContainer*
 
             if (Devices[i].Visible)                                            // visible
             {
-                Parent->getVRUI()->add(SubmenuItem.get());
+                ConfigManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(SubmenuItem.get());
             }
             else
             {                                                               // invisible
-                Parent->getVRUI()->remove(SubmenuItem.get());
+                ConfigManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(SubmenuItem.get());
             }
-        } else
+        }
+        else
         {
             std::cerr << "coMUITab::ParentConstructor: " << Devices[i].UI << " not found in Constructor." << std::endl;
         }
@@ -160,6 +160,12 @@ void coMUIFrame::setLabel(std::string label)
     setLabel(label, UI);
 }
 
+// return pointer to TUIElement
+coTUIElement* coMUIFrame::getTUI()
+{
+    return TUIElement.get();
+}
+
 // set visible-value for named UI-Elements
 void coMUIFrame::setVisible(bool visible, std::string UI)
 {
@@ -203,13 +209,19 @@ void coMUIFrame::setVisible(bool visible)
 // set position for TUI-Element
 void coMUIFrame::setPos(int posx, int posy)
 {
+    std::pair<int,int> pos(posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
         if (Devices[i].UI == ConfigManager->keywordTUI())                      // TUI-Element
         {
-            std::pair<int,int> pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-            TUIElement->setPos(pos.first,pos.second);
+            if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            {
+                pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+                ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                TUIElement->setPos(pos.first,pos.second);
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            }
         }
     }
 }

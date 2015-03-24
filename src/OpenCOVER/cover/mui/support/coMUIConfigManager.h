@@ -53,6 +53,12 @@ public:
     std::string keywordVRUI();
     std::string keywordPowerwall();
     std::string keywordMainWindow();
+    std::string keywordVisible();
+    std::string keywordParent();
+    std::string keywordXPosition();
+    std::string keywordYPosition();
+    std::string keywordLabel();
+    std::string keywordClass();
 
     //************************************************************
     // ElementManager
@@ -69,8 +75,10 @@ public:
     bool getCorrectVisible(bool visible, std::string UI, std::string Device, std::string UniqueIdentifier);
     std::pair<int, int> getCorrectPos(std::pair<int,int> pos, std::string UI, std::string Device, std::string UniqueIdentifier);
     std::pair<int, int> getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
+    std::pair<int,int> getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
     coMUIContainer* getCorrectParent(coMUIContainer* Parent, std::string UI, std::string Device, std::string UniqueIdentifier);
     void preparePos(std::pair<int,int> pos, std::string ParentUniqueIdentifier);
+    bool existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier);
 
 
 private:
@@ -79,6 +87,8 @@ private:
     boost::shared_ptr<coMUIElementManager> ElementManager;
     boost::shared_ptr<coMUIPositionManager> PositionManager;
 
+    void setAutoassignedPos(std::pair<int,int> Pos, std::string Identifier, std::string ParentUniqueIdentifier);
+    std::pair <int,int> getFreePosExceptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent);
     static coMUIConfigManager *Instance;
 
     bool FileExists;
