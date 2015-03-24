@@ -1930,6 +1930,7 @@ double AgentVehicle::locateLaneEnd(int lane,bool resetIfLaneEnds)
                         vehiclePositionActionMap.insert(std::pair<double, VehicleAction *>(s, new DetermineNextRoadVehicleAction())); // s are the total m so far (not u)
                         sowedDetermineNextRoadVehicleAction = true;
                         executeActionMap();
+                        return locateLaneEnd(lane,false);
                     }
                 }
             }

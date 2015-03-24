@@ -247,21 +247,33 @@ double LaneSection::getLaneWidthSlope(double s, int l)
 
 double LaneSection::getDistanceToLane(double s, int l)
 {
-    std::map<int, Lane *>::iterator laneIt;
-    s -= start;
-
-    int it = (l > 0) ? 1 : -1;
-
-    double d = 0;
-    for (int i = 0; i != l; i += it)
+    if (l == 0)
     {
-        laneIt = laneMap.find(i);
-        if (laneIt != laneMap.end())
+        return 0.0;
+    }
+
+    s -= start;
+    double d = 0;
+
+    std::map<int, Lane *>::const_iterator laneIt = laneMap.find(l);
+    if (l < 0)
+    {
+        while(laneIt->first < 0)
         {
             d += laneIt->second->getWidth(s);
+            laneIt++;
         }
+        return -d;
     }
-    return it * d;
+    else
+    {
+        while(laneIt->first > 0)
+        {
+            d += laneIt->second->getWidth(s);
+            laneIt--;
+        }
+        return d;
+    }
 }
 
 Vector2D LaneSection::getLaneCenter(int l, double s)
