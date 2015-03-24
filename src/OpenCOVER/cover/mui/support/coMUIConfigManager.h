@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <util/coExport.h>
 #include "boost/smart_ptr.hpp"
 
 
@@ -16,7 +17,7 @@ class coMUIElementManager;
 class coMUIPositionManager;
 
 // class:
-class coMUIConfigManager
+class COVEREXPORT coMUIConfigManager
 {
 public:
     static coMUIConfigManager *getInstance();

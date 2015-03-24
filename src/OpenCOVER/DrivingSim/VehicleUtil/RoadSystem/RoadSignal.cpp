@@ -576,10 +576,10 @@ osg::PositionAttitudeTransform *TrafficLightSignal::getRoadSignalNode()
             if (trafficLightProto->getTrafficLightNode().valid())
             {
 
-                osg::Quat signalDir(-0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+                osg::Quat signalDir(0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
                 if (orientation == NEGATIVE_TRACK_DIRECTION)
                 {
-                    signalDir = osg::Quat(0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
+                    signalDir = osg::Quat(-0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
                 }
 
                 trafficSignalNode = new osg::PositionAttitudeTransform();
@@ -694,7 +694,7 @@ osg::Node * TrafficLightPrototype::createGeometry()
 
     float vsize = 0.6;
     float pr = 0.03;
-    float height = 2.5;
+    float height = 5.5;
     osg::Vec3 v[8];
     v[0].set(-pr, 0.01, vsize * 0.8);
     v[1].set(-pr, 0.01 + 2 * pr, vsize * 0.8);

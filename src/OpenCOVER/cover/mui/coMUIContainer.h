@@ -9,7 +9,7 @@
 #include <boost/smart_ptr.hpp>
 
 
-class coMUIContainer: public coMUIElement
+class COVEREXPORT coMUIContainer: public coMUIElement
 {
 public:
     // constructor:
