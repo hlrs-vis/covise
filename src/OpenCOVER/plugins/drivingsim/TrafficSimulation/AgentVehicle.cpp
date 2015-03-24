@@ -2120,6 +2120,10 @@ void DetermineNextRoadVehicleAction::operator()(AgentVehicle *veh)
         else if ((junction = dynamic_cast<Junction *>(conn->getConnectingTarmac())))
         {
             PathConnectionSet connSet = junction->getPathConnectionSet(veh->roadTransitionList.back().road,veh->currentLane);
+            if(connSet.size()==0)
+            {
+                connSet = junction->getPathConnectionSet(veh->roadTransitionList.back().road);
+            }
             /*int path = rand() % connSet.size();
          PathConnectionSet::iterator connSetIt = connSet.begin();
          std::advance(connSetIt, path);
