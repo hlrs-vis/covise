@@ -22,6 +22,7 @@ public:
     ~coMUIPositionManager();
 
     std::pair <int,int> getFreePos(std::string UniqueIdentifierParent);         // returns Coordinates of free Position
+    std::pair <int,int> getFreePosExeptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent);
     void addPosToPosList(std::string UniqueIdentifier, std::pair <int,int> Pos, std::string UniqueIdentifierParent, bool autoassigned);
     void deletePosFromPosList(std::string UniqueIdentifier);
     std::pair <int,int> getPosOfElement(std::string UniqueIdentifier);

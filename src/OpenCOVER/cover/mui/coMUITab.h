@@ -45,7 +45,7 @@ public:
 
     void setPos(int posx, int posy);                 // sets position of TUI-Element
     int getTUIID();
-    opencover::coTUITab *getTUI();
+    opencover::coTUIElement* getTUI();
 
     vrui::coMenu* getVRUI();
     void setLabel(std::string label);                // sets the label of all UI-Elements

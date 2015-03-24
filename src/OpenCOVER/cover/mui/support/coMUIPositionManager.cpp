@@ -59,6 +59,37 @@ std::pair <int,int> coMUIPositionManager::getFreePos(std::string UniqueIdentifie
     }
 }
 
+std::pair <int,int> coMUIPositionManager::getFreePosExeptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent)
+{
+    std::pair <int,int> returnCoordinates;
+    int y = 0;
+    while (true)                                   // loop infinite y-positions
+    {
+        returnCoordinates.second=y;
+        for (int x=0; x<MaxPosX; ++x)              // loop over all allowed x-positions
+        {
+            returnCoordinates.first=x;
+            if (!PosInPosList(returnCoordinates, UniqueIdentifierParent))
+            {
+                bool existflag = false;
+                for (size_t i=0; i<exceptPos.size(); ++i)
+                {
+                    std::pair <int,int> tempPos = exceptPos[i];
+                    if (returnCoordinates.first == tempPos.first)
+                    {
+                        existflag = true;
+                    }
+                }
+                if (!existflag)
+                {
+                    return returnCoordinates;
+                }
+            }
+        }
+        ++y;                                                // increase y-position in every loop
+    }
+}
+
 
 // determine, if the coordinates already are in PosList
 bool coMUIPositionManager::PosInPosList(std::pair <int,int> Coords, std::string UniqueIdentifierParent)
@@ -77,7 +108,7 @@ bool coMUIPositionManager::PosInPosList(std::pair <int,int> Coords, std::string 
 void coMUIPositionManager::deletePosFromPosList(std::string UniqueIdentifier)
 {
     bool deleteFlag = false;
-    for (size_t i=0; i<PosList.size(); ++i)
+    for (ssize_t i=PosList.size()-1; i >= 0; --i)
     {
         if (PosList[i].UniqueIdentifier == UniqueIdentifier)
         {
@@ -88,7 +119,8 @@ void coMUIPositionManager::deletePosFromPosList(std::string UniqueIdentifier)
     if (deleteFlag)
     {
         return;
-    } else
+    }
+    else
     {
         std::cout << "WARNING: coMUIPositionManager::deletePos(): " << UniqueIdentifier << " can't be removed. Reason: not found in PosList." << std::endl;
     }

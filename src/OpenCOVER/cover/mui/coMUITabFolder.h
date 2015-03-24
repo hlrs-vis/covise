@@ -40,7 +40,8 @@ public:
     ~coMUITabFolder();
 
     void setPos(int posx, int posy);                 // sets pos only for TUI-Element
-    int getTUI();
+    int getTUIID();
+    opencover::coTUIElement* getTUI();
     vrui::coMenu* getVRUI();
     void setLabel(std::string label);                // sets the label of all UI-Elements
     void setLabel(std::string label, std::string UI);// sets the label of all named UI-Elements

@@ -35,6 +35,7 @@ public:
 
     float getValue();
     void setPos(int posx, int posy);
+    opencover::coTUIElement* getTUI();
     void setVisible(bool visible);                   // set visible-value for all UI-Elements
     void setVisible(bool visible, std::string UI);   // set visible-value for named UI-Elements
     void setLabel(std::string label);                // set label for all UI-Elements

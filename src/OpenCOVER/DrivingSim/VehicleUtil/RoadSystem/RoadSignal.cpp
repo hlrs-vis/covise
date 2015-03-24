@@ -20,13 +20,13 @@ void TrafficLightSignalTurnCallback::on()
 {
     if (multiSwitch)
         multiSwitch->setActiveSwitchSet(0);
-    std::cerr << "Setting switch on" << std::endl;
+//    std::cerr << "Setting switch on" << std::endl;
 }
 void TrafficLightSignalTurnCallback::off()
 {
     if (multiSwitch)
         multiSwitch->setActiveSwitchSet(1);
-    std::cerr << "Setting switch off" << std::endl;
+//    std::cerr << "Setting switch off" << std::endl;
 }
 
 unordered_map<std::string, SignalPrototype *> RoadSignal::signalsMap;

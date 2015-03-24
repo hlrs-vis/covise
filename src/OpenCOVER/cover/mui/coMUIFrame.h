@@ -38,6 +38,7 @@ public:
 
     // methods:
     int getTUIID();
+    opencover::coTUIElement* getTUI();
     vrui::coMenu* getVRUI();
     void setLabel(std::string label);            // set label for all UI-Elements
     void setLabel(std::string label, std::string UI);  // set label for named UI-Elements

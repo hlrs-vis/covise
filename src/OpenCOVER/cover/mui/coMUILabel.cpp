@@ -105,14 +105,19 @@ std::string coMUILabel::getLabel()
 // positioning TUI-Element
 void coMUILabel::setPos(int posx, int posy)
 {
-    std::pair<int,int> Pos (posx,posy);
+    std::pair<int,int> pos (posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
         if (Devices[i].UI == ConfigManager->keywordTUI())                          // TUI-Element
         {
-            std::pair<int,int> pos=ConfigManager->getCorrectPos(Pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-            TUIElement->setPos(pos.first,pos.second);
+            if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            {
+                pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+                ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                TUIElement->setPos(pos.first,pos.second);
+                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+            }
         }
     }
 }
@@ -167,6 +172,12 @@ coMUIContainer* coMUILabel::getParent()
 std::string coMUILabel::getUniqueIdentifier()
 {
     return Devices[0].Identifier;
+}
+
+// returns a pointer to TUIElement
+coTUIElement* coMUILabel::getTUI()
+{
+    return TUIElement.get();
 }
 
 void coMUILabel::setLabel(std::string label)
