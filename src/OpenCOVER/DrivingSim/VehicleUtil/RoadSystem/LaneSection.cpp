@@ -258,6 +258,7 @@ double LaneSection::getDistanceToLane(double s, int l)
     std::map<int, Lane *>::const_iterator laneIt = laneMap.find(l);
     if (l < 0)
     {
+        laneIt++;
         while(laneIt->first < 0)
         {
             d += laneIt->second->getWidth(s);
@@ -267,6 +268,7 @@ double LaneSection::getDistanceToLane(double s, int l)
     }
     else
     {
+        laneIt--;
         while(laneIt->first > 0)
         {
             d += laneIt->second->getWidth(s);
