@@ -1,5 +1,6 @@
 #include "coMUIElement.h"
 #include <cover/coTabletUI.h>
+#include <cover/mui/support/coMUIListener.h>
 
 #include "support/coMUIConfigManager.h"
 #include <iostream>
@@ -27,4 +28,14 @@ coMUIElement::~coMUIElement()
 std::string coMUIElement::getUniqueIdentifier()
 {
     return UniqueIdentifier;
+}
+
+void coMUIElement::setEventListener(coMUIListener *l)
+{
+    listener = l;
+}
+
+coMUIListener *coMUIElement::getMUIListener()
+{
+    return listener;
 }

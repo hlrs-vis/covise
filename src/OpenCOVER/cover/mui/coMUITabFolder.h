@@ -27,7 +27,6 @@ class coMenuItem;
 // class:
 class COVEREXPORT coMUITabFolder: public coMUIContainer, public opencover::coTUIListener, public vrui::coMenuListener
 {
-    Q_OBJECT
 
 public:
     // methods:
@@ -47,6 +46,7 @@ public:
     void setLabel(std::string label, std::string UI);// sets the label of all named UI-Elements
     void setVisible(bool visible, std::string UI);   // sets the Visible-value of all named UI-Elements
     void setVisible(bool visible);                   // sets the Visible-value of all UI-Elements
+    coMUIContainer *getParent();
     std::string getUniqueIdentifier();
 
 private:

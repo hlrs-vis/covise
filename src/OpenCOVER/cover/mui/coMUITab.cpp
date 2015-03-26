@@ -121,6 +121,7 @@ void coMUITab::constructor(const std::string UniqueIdentifier)
     ConfigManager= coMUIConfigManager::getInstance();
     Identifier=UniqueIdentifier;
     ConfigManager->addElement(Identifier, this);
+    Parent = NULL;
 
     // create defaultvalue or take from constructor:
     // VRUI-CAVE-Element:
@@ -149,10 +150,12 @@ void coMUITab::constructor(const std::string UniqueIdentifier)
     if (Parent != NULL)                                                         // Parent was dedicated in configuration file
     {
         TUIElement.reset(new opencover::coTUITab(Devices[1].Label, Parent->getTUIID()));
-    } else if (Parent == NULL)                                                  // Parent is not dedicated -> mainmenu
+    }
+    else if (Parent == NULL)                                                  // Parent is not dedicated -> mainmenu
     {
         TUIElement.reset(new opencover::coTUITab(Devices[1].Label, coVRTui::instance()->mainFolder->getID()));
-    } else
+    }
+    else
     {
         std::cerr << "coMUITab::constructor(): Parent not found" << std::endl;
     }
@@ -182,28 +185,34 @@ void coMUITab::constructor(const std::string UniqueIdentifier)
                 if (Parent == NULL)
                 {
                     cover->getMenu()->add(SubmenuItem.get());
-                } else if (Parent != NULL)
+                }
+                else if (Parent != NULL)
                 {
                     Parent->getVRUI()->add(SubmenuItem.get());
-                } else
+                }
+                else
                 {
                     std::cerr << "coMUITabFolder::constructor: wrong Parent";
                 }
             }
-            else{                                                                   // invisible
+            else
+            {                                                                   // invisible
                 Parent=ConfigManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
                 if (!Parent)
                 {
                     cover->getMenu()->remove(SubmenuItem.get());
-                } else if (Parent)
+                }
+                else if (Parent)
                 {
                     Parent->getVRUI()->remove(SubmenuItem.get());
-                } else
+                }
+                else
                 {
                     std::cerr << "coMUITabFolder::constructor: wrong Parent";
                 }
             }
-        } else
+        }
+        else
         {
             std::cerr << "coMUITabFolder::constructor: " << Devices[i].UI << " not found in Constructor." << std::endl;
         }
@@ -310,19 +319,38 @@ void coMUITab::setPos(int posx, int posy)
     {
         if (Devices[i].UI == ConfigManager->keywordTUI())                              // TUI-Element
         {
-            if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+            if (Parent != NULL)
             {
-                pos=ConfigManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-                ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
-                ConfigManager->deletePosFromPosList(Devices[i].Identifier);
-                TUIElement->setPos(pos.first,pos.second);
-                ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                if (ConfigManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+                {
+                    ConfigManager->preparePos(pos, Parent->getUniqueIdentifier());
+                    ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                    TUIElement->setPos(pos.first,pos.second);
+                    ConfigManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                }
             }
+            else if (Parent == NULL)
+            {
+                if (ConfigManager->getIdentifierByPos(pos, ConfigManager->keywordMainWindow()) != Devices[i].Identifier)
+                {
+                    ConfigManager->preparePos(pos, ConfigManager->keywordMainWindow());
+                    ConfigManager->deletePosFromPosList(Devices[i].Identifier);
+                    TUIElement->setPos(pos.first, pos.second);
+                    ConfigManager->addPosToPosList(Devices[i].Identifier, pos, ConfigManager->keywordMainWindow(), false);
+                }
+            }
+
         }
     }
 }
 
 std::string coMUITab::getUniqueIdentifier()
 {
-    return Devices[0].Identifier;
+    return Identifier;
+}
+
+coMUIContainer *coMUITab::getParent()
+{
+    return Parent;
 }

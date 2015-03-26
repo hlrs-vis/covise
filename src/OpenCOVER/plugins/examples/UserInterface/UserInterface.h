@@ -9,6 +9,7 @@
 
 #include <cover/coVRPlugin.h>
 #include <boost/smart_ptr.hpp>
+#include <cover/mui/support/coMUIListener.h>
 
 class coMUIToggleButton;
 class coMUITabFolder;
@@ -23,13 +24,15 @@ class coTUITab;
 }
 
 
-class UserInterface: public opencover::coVRPlugin
+class UserInterface: public opencover::coVRPlugin, public coMUIListener
 {
 public:
     UserInterface();
     ~UserInterface();
     bool init();
     coMUIConfigManager *ConfigManager;
+    void muiEvent(coMUIElement *muiItem);
+
 private:
     boost::shared_ptr<coMUITab> Tab1;
     boost::shared_ptr<coMUIToggleButton> Button1;

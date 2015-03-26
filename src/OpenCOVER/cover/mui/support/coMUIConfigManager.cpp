@@ -5,6 +5,7 @@
 #include "coMUIElementManager.h"
 #include "coMUIPositionManager.h"
 #include <cover/coTabletUI.h>
+#include <config/CoviseConfig.h>
 
 
 coMUIConfigManager* coMUIConfigManager::Instance=NULL;
@@ -31,7 +32,20 @@ coMUIConfigManager::coMUIConfigManager()
     ElementManager.reset(new coMUIElementManager());
     PositionManager.reset(new coMUIPositionManager());
     FileExists = false;
-    ConfigFile="";
+    ConfigFile=covise::coCoviseConfig::getEntry("value", "COVER.UiConfig", "userinterface.xml");
+    if (ConfigFile.empty())
+    {
+        ConfigFile = "userinterface.xml";
+    }
+    if (ConfigFile[0] != '/')
+    {
+        char* covisedir = getenv("COVISEDIR");
+        if (covisedir != NULL)
+        {
+            ConfigFile= std::string(covisedir) + "/config/" + ConfigFile;
+        }
+    }
+
 }
 
 //destructor:
@@ -143,21 +157,6 @@ std::pair<std::string, bool> coMUIConfigManager::getLabel(const std::string UI, 
 const std::string coMUIConfigManager::getConfigFile()
 {
     return ConfigFile;
-}
-
-// sets the adress of configuration file for the coMUIConfigParser for the first time and reads the configuration file
-void coMUIConfigManager::setAdress(const std::string ConfigAdress)
-{
-    if (ConfigFile.empty())
-    {
-        ConfigFile = ConfigAdress;
-        parser.reset(new coMUIConfigParser(ConfigAdress));
-        FileExists = true;
-    }
-    else if(ConfigFile != ConfigAdress)
-    {
-        std::cerr << "coMUIConfigManager.cpp::setAdress: ConfigAdress already exists; to set new one use coMUIConfigManager::overwriteAdress(std::string ConfigAdress)" << std::endl;
-    }
 }
 
 // sets new adress for- and reads new configuration file

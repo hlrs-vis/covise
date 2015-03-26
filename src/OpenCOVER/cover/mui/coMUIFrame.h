@@ -28,7 +28,6 @@ class coMUIConfigManager;
 
 class COVEREXPORT coMUIFrame: public coMUIContainer, public opencover::coTUIListener, public vrui::coMenuListener
 {
-    Q_OBJECT
 
 public:
     // constructor/destructor

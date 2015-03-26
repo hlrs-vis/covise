@@ -30,7 +30,6 @@ class coRowMenu;
 // class:
 class COVEREXPORT coMUITab: public coMUIContainer, public opencover::coTUIListener, public vrui::coMenuListener
 {
-    Q_OBJECT
 
 public:
     // methods:
@@ -53,6 +52,7 @@ public:
     void setVisible(bool visible, std::string UI);   // sets the visible-value of named UI-Elements
     void setVisible(bool visible);                   // sets the visible-value of all UI-Elements
     std::string getUniqueIdentifier();
+    coMUIContainer *getParent();
 
 private:
     // methods:

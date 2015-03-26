@@ -25,7 +25,6 @@ class coMUIConfigManager;
 
 class COVEREXPORT coMUIToggleButton: public coMUIWidget, public opencover::coTUIListener, public vrui::coMenuListener
 {
-    Q_OBJECT
 
 public:
     // constructor/destructor:
@@ -44,6 +43,11 @@ public:
     std::string getUniqueIdentifier();                                              // returns the UniqueIdentifier of this coMUIToggleButtonElement
     coMUIContainer* getParent();                                                    // returns the parent of this coMUIToggleButtonElement if exists
     opencover::coTUIElement* getTUI();
+    void activate();                                                                // changes status to activated/pressed
+    void deactivate();                                                              // changes status to deactivated/released
+    void click();                                                                   // like a click with mouse
+
+    //void muiEvent(coMUIElement *muiItem);
 
     // variables:
 
@@ -52,7 +56,6 @@ private:
     void constructor(const std::string UniqueIdentifier, coMUIContainer* parent, const std::string label);
     void createVRUIElement(const std::string label);
     void createTUIElement(const std::string label, coMUIContainer* parent);
-
 
     void tabletEvent(opencover::coTUIElement *tUIItem);
     void menuEvent(vrui::coMenuItem *menuItem);
@@ -67,12 +70,6 @@ private:
     std::string Identifier;
     bool State;
 
-private slots:
-    void activate();                                                                // changes status to activated/pressed
-    void deactivate();                                                              // changes status to deactivated/released
-    void click();                                                                   // like a click with mouse
-
-signals:
     void clicked();                                                                 // signal, which is emmitted, if the Value is changed by slot or clicked
 };
 

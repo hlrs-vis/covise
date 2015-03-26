@@ -335,5 +335,10 @@ void coMUITabFolder::setPos(int posx, int posy)
 
 std::string coMUITabFolder::getUniqueIdentifier()
 {
-    return Devices[0].Identifier;
+    return Identifier;
+}
+
+coMUIContainer *coMUITabFolder::getParent()
+{
+    return Parent;
 }

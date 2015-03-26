@@ -114,27 +114,6 @@ void coMUIToggleButton::constructor(const std::string UniqueIdentifier, coMUICon
     }
 }
 
-// called, if there is an interaction with the tablet
-void coMUIToggleButton::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == TUIElement.get())                                            // there is an interaction with the tablet
-    {
-        VRUIElement->setState(!(VRUIElement->getState()));                      // adjust status of VRUI-Element
-        emit clicked();
-        State=!State;
-    }
-}
-
-// called, if there is an interaction with the VRUI
-void coMUIToggleButton:: menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == VRUIElement.get())                                          // there is an interaction with the VRUI
-    {
-        TUIElement->setState(!(TUIElement->getState()));                        // adjust status of TUI-ELement
-        emit clicked();
-        State=!State;
-    }
-}
 
 void coMUIToggleButton::setPos(int posx, int posy)
 {
@@ -312,7 +291,7 @@ bool coMUIToggleButton::getState()
 
 std::string coMUIToggleButton::getUniqueIdentifier()
 {
-    return Devices[0].Identifier;
+    return Identifier;
 }
 
 coTUIElement *coMUIToggleButton::getTUI()
@@ -320,15 +299,41 @@ coTUIElement *coMUIToggleButton::getTUI()
     return TUIElement.get();
 };
 
-//***********************************************************************************
-// QT-SLOTS:
-//***********************************************************************************
+//*****************************************************************************************************************************
+// Listener
+//*****************************************************************************************************************************
+
+
+// called, if there is an interaction with the tablet
+void coMUIToggleButton::tabletEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == TUIElement.get())                                            // there is an interaction with the tablet
+    {
+        VRUIElement->setState(!(VRUIElement->getState()));                      // adjust status of VRUI-Element
+        State=!State;
+    }
+    if (listener)
+    {
+        listener->muiEvent(this);
+    }
+}
+
+// called, if there is an interaction with the VRUI
+void coMUIToggleButton:: menuEvent(coMenuItem *menuItem)
+{
+    if (menuItem == VRUIElement.get())                                          // there is an interaction with the VRUI
+    {
+        TUIElement->setState(!(TUIElement->getState()));                        // adjust status of TUI-ELement
+        State=!State;
+    }
+    if (listener)
+    {
+        listener->muiEvent(this);
+    }
+}
+
 void coMUIToggleButton::activate()
 {
-    if (!State)
-    {
-        emit clicked();
-    }
     State=true;
 
     for (size_t i=0; i<Devices.size(); ++i)
@@ -346,11 +351,7 @@ void coMUIToggleButton::activate()
 
 void coMUIToggleButton::deactivate()
 {
-    if (State)
-    {
-        emit clicked();
-    }
-    State=true;
+    State=false;
 
     for (size_t i=0; i<Devices.size(); ++i)
     {
@@ -367,7 +368,6 @@ void coMUIToggleButton::deactivate()
 
 void coMUIToggleButton::click()
 {
-    emit clicked();
     State=!State;
     for (size_t i=0; i<Devices.size(); ++i)
     {

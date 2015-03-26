@@ -121,33 +121,6 @@ void coMUIPotiSlider::constructor(const std::string UniqueIdentifier, coMUIConta
     }
 }
 
-// called, if there is an interaction with the TUI
-void coMUIPotiSlider::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == TUIElement.get())
-    {
-        VRUIElement->setValue(TUIElement->getValue());
-        if (value!=TUIElement->getValue())
-        {
-            value = TUIElement->getValue();
-        }
-        emit valueChanged();
-    }
-}
-
-// called, if there is an interaction with the VRUI
-void coMUIPotiSlider::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == VRUIElement.get())
-    {
-        TUIElement->setValue(VRUIElement->getValue());
-        if (value!=VRUIElement->getValue())
-        {
-            value = VRUIElement->getValue();
-        }
-        emit valueChanged();
-    }
-}
 
 // create VRUI-Element
 void coMUIPotiSlider::createVRUIElement(const std::string label)
@@ -177,7 +150,6 @@ void coMUIPotiSlider::setValue(float newVal)
     value=newVal;
     TUIElement->setValue(value);
     VRUIElement->setValue(value);
-    emit valueChanged();
 }
 
 // set position of TUI-Element
@@ -286,4 +258,40 @@ coMUIContainer* coMUIPotiSlider::getParent()
 std::string coMUIPotiSlider::getUniqueIdentifier()
 {
     return Devices[0].Identifier;
+}
+
+// called, if there is an interaction with the TUI
+void coMUIPotiSlider::tabletEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == TUIElement.get())
+    {
+        VRUIElement->setValue(TUIElement->getValue());
+        if (value!=TUIElement->getValue())
+        {
+            value = TUIElement->getValue();
+        }
+    }
+    if (listener)
+    {
+        listener->muiEvent(this);
+        listener->muiValueChangeEvent(this);
+    }
+}
+
+// called, if there is an interaction with the VRUI
+void coMUIPotiSlider::menuEvent(coMenuItem *menuItem)
+{
+    if (menuItem == VRUIElement.get())
+    {
+        TUIElement->setValue(VRUIElement->getValue());
+        if (value!=VRUIElement->getValue())
+        {
+            value = VRUIElement->getValue();
+        }
+    }
+    if (listener)
+    {
+        listener->muiEvent(this);
+        listener->muiValueChangeEvent(this);
+    }
 }

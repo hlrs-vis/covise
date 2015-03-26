@@ -196,7 +196,6 @@ void coMUILabel::setLabel(std::string label)
             std::cerr << "coMUILabel::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string)." << std::endl;
         }
     }
-    emit changedLabel();
 }
 
 // set label for named UI-Elements
@@ -219,12 +218,8 @@ void coMUILabel::setLabel(std::string label, std::string UI)
             }
         }
     }
-    emit changedLabel();
 }
 
-//*******************************************************************************************************
-// QT-SLOTS:
-//*******************************************************************************************************
 void coMUILabel::changeLabel(std::string label)
 {
     for (size_t i=0; i<Devices.size(); ++i)
@@ -241,5 +236,4 @@ void coMUILabel::changeLabel(std::string label)
             std::cerr << "coMUILabel::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string)." << std::endl;
         }
     }
-    emit changedLabel();
 }

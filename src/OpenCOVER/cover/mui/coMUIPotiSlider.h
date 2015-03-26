@@ -22,8 +22,8 @@ class coMenu;
 class coMUIConfigManager;
 class coMUIContainer;
 
-class COVEREXPORT coMUIPotiSlider:public coMUIWidget, public opencover::coTUIListener, public vrui::coMenuListener{
-    Q_OBJECT
+class COVEREXPORT coMUIPotiSlider:public coMUIWidget, public opencover::coTUIListener, public vrui::coMenuListener
+{
 
 public:
     // constructor/destructor:
@@ -42,6 +42,8 @@ public:
     void setLabel(std::string label, std::string UI);// set label for named UI-Elements
     coMUIContainer* getParent();
     std::string getUniqueIdentifier();
+
+    void setValue(float newVal);
 
     // variables:
 
@@ -67,11 +69,7 @@ private:
     void tabletEvent(opencover::coTUIElement *tUIItem);
     void menuEvent(vrui::coMenuItem *menuItem);
 
-public slots:
-    void setValue(float newVal);
 
-signals:
-    void valueChanged();
 
 };
 

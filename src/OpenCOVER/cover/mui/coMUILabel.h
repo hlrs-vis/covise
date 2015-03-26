@@ -22,7 +22,6 @@ class coMUIContainer;
 
 class COVEREXPORT coMUILabel:public coMUIWidget
 {
-    Q_OBJECT
 
 public:
     // constructor/destructor:
@@ -52,10 +51,8 @@ private:
     coMUIConfigManager *ConfigManager;
     coMUIContainer* Parent;
 
-private slots:
     void changeLabel(std::string label);        // changes the label
 
-signals:
     void changedLabel();                        // emmitted, if the label changed
 };
 

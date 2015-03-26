@@ -82,13 +82,27 @@ void coMUIElementManager::removeElement(std::string UniqueIdentifier)
 // prints all names from ElementList to console
 void coMUIElementManager::printNames()
 {
-    std::string toPrint = " ";
+
+    std::cout << "Names in ElementManager: " << std::endl;
     for (size_t i=0; i< ElementList.size(); ++i)
     {
+        std::string toPrint = " ";
         toPrint.append(ElementList[i].name);
-        toPrint.append(", ");
+        toPrint.append("; Parent: ");
+        if (ElementList[i].Container)
+        {
+            if (ElementList[i].ContainerPointer->getParent() != NULL)
+            {
+                toPrint.append(ElementList[i].ContainerPointer->getParent()->getUniqueIdentifier());
+            }
+        }
+        else
+        {
+            toPrint.append(ElementList[i].WidgetPointer->getParent()->getUniqueIdentifier());
+        }
+        std::cout << toPrint << std::endl;
     }
-    std::cout << "Names in ElementManager: " << toPrint << std::endl;
+    std::cout << std::endl;
 }
 
 // returns the container named "Identifier"

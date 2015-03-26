@@ -9,8 +9,8 @@
  */
 
 #include <tui/coAbstractTabletUI.h>
-#include <QObject>
 #include <OpenVRUI/coUIContainer.h>
+#include <cover/mui/support/coMUIListener.h>
 
 class coMUIConfigManager;
 
@@ -22,11 +22,8 @@ class coTUIElement;
 /*
  *Base class for MUI elements
  */
-class COVEREXPORT coMUIElement: public QObject
+class COVEREXPORT coMUIElement
 {
-
-    Q_OBJECT
-
 public:
     // constructor:
     // l: shown Name
@@ -47,16 +44,20 @@ public:
 
     // methods:
 
+    virtual void setEventListener(coMUIListener *l);
+    virtual coMUIListener *getMUIListener();
+
     // must be overwritten, if inherited:
     virtual void setPos(int posx, int posy)=0;
     virtual opencover::coTUIElement* getTUI()=0;
-    std::string getUniqueIdentifier();
+    virtual std::string getUniqueIdentifier()=0;
 
 private:
     coMUIConfigManager *ConfigManager;
 protected:
     std::string label_str;                      //< label of the elements
     std::string UniqueIdentifier;
+    coMUIListener *listener;
 
 };
 

@@ -3,10 +3,9 @@
 
 #include "coMUIElement.h"
 
-namespace coMUI
-{
-class coMUIElement;
-}
+
+class coMUIContainer;
+
 
 class coMUIWidget: public coMUIElement
 {
@@ -16,6 +15,7 @@ public:
     ~coMUIWidget();
     virtual opencover::coTUIElement* getTUI()=0;
     virtual void setPos(int,int)=0;
+    virtual coMUIContainer *getParent()=0;
 private:
     // methods:
 
