@@ -60,7 +60,7 @@ class VrmlNodeElevator;
 class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
 {
 public:
-    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized};
+    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight};
     // Define the fields of Car nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
@@ -83,8 +83,14 @@ public:
 
     virtual void render(Viewer *);
     void update();
+    int getID(){return ID;};
     void setElevator(VrmlNodeElevator *);
-    enum carState getState(){return state;}
+    enum carState getState();
+    void setState(enum carState s);
+    enum carState getChassisState();
+    void setChassisState(enum carState s);
+    enum carState getTravelDirection();
+    void setTravelDirection(enum carState t);
     int getLandingNumber(){return landingNumber;};
     void setDestination(int landing, int shaft);
     VrmlSFInt   d_carNumber;
@@ -96,7 +102,7 @@ public:
 
 
 private:
-
+    static int IDCounter;
     float v;
     float a;
     float aMax;
@@ -114,7 +120,13 @@ private:
     double doorTime;
     VrmlNodeElevator *elevator;
     enum carState state;
+    enum carState oldState;
+    enum carState chassisState;
+    enum carState oldChassisState;
+    enum carState travelDirection;
+    enum carState oldTravelDirection;
     double timeoutStart;
+    int ID;
 };
 
 #endif

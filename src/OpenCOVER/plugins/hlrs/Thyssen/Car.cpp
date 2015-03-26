@@ -52,10 +52,16 @@ VrmlNodeType *VrmlNodeCar::nodeType() const
     return defineType(0);
 }
 
+int VrmlNodeCar::IDCounter=0;
 VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
     : VrmlNodeChild(scene)
 {
     state=Uninitialized;
+    oldState=Uninitialized;
+    chassisState=Idle;
+    oldChassisState=Uninitialized;
+    travelDirection=Uninitialized;
+    oldTravelDirection=Uninitialized;
     aMax = 1;
     vMax = 5;
     aaMax = 0.3;
@@ -64,13 +70,19 @@ VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
     av=0;aa=0;
     angle=0;
     d_doorTimeout=1.0;
-    d_carRotation.set(0,0,1,0);
+    d_carRotation.set(1,0,0,0);
+    ID = IDCounter++;
 }
 
 VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
     : VrmlNodeChild(n.d_scene)
 {
     state=Uninitialized;
+    oldState=Uninitialized;
+    chassisState=Idle;
+    oldChassisState=Uninitialized;
+    travelDirection=Uninitialized;
+    oldTravelDirection=Uninitialized;
     aMax = 1;
     vMax = 5;
     v=0;a=0;
@@ -80,11 +92,23 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
     av=0;aa=0;
     angle=0;
     d_doorTimeout=1.0;
-    d_carRotation.set(0,0,1,0);
+    d_carRotation.set(1,0,0,0);
+    ID = IDCounter++;
 }
 
 VrmlNodeCar::~VrmlNodeCar()
 {
+}
+
+enum VrmlNodeCar::carState VrmlNodeCar::getState(){return state;}
+void VrmlNodeCar::setState(enum carState s){oldState=state; state = s;}
+enum VrmlNodeCar::carState VrmlNodeCar::getChassisState(){return chassisState;}
+void VrmlNodeCar::setChassisState(enum carState s){oldChassisState=chassisState; chassisState = s;}
+enum VrmlNodeCar::carState VrmlNodeCar::getTravelDirection(){return travelDirection;}
+void VrmlNodeCar::setTravelDirection(enum carState t)
+{
+    oldTravelDirection=travelDirection;
+    travelDirection = t;
 }
 
 VrmlNode *VrmlNodeCar::cloneMe() const
@@ -205,6 +229,17 @@ void VrmlNodeCar::update()
                     v=0;
                 }
             }
+            if(direction > 0 && d_carPos.get()[0]>destinationX)
+            {
+                d_carPos.get()[0]=destinationX;
+                a=0;v=0;
+            }
+            if(direction < 0 && d_carPos.get()[0]<destinationX)
+            {
+                d_carPos.get()[0]=destinationX;
+                a=0;v=0;
+            }
+
             double timeStamp = System::the->time();
             eventOut(timeStamp, "carPos", d_carPos);
         }
@@ -248,6 +283,17 @@ void VrmlNodeCar::update()
                     d_carPos.get()[1] += direction*v*dt;
                 }
             }
+            
+            if(direction > 0 && d_carPos.get()[1]>destinationY)
+            {
+                d_carPos.get()[1]=destinationY;
+                a=0;v=0;
+            }
+            if(direction < 0 && d_carPos.get()[1]<destinationY)
+            {
+                d_carPos.get()[1]=destinationY;
+                a=0;v=0;
+            }
             if(!(v>=0) || !(a>=0) || !(v<10) || !(a<4))
             {
                 fprintf(stderr,"oops\n");
@@ -259,17 +305,52 @@ void VrmlNodeCar::update()
         {
             timeoutStart = cover->frameTime();
             state = DoorOpening;
-            if(angle != 0)
+            if(oldTravelDirection!=travelDirection)
             {
-                state = RotatingLeft;
+                if(travelDirection == MoveLeft || travelDirection == MoveRight)
+                {
+                    chassisState = RotatingRight;
+                    oldTravelDirection = travelDirection;
+                }
+                if(travelDirection == MoveUp || travelDirection == MoveDown)
+                {
+                    chassisState = RotatingLeft;
+                    oldTravelDirection = travelDirection;
+                }
             }
-            
             d_carDoorOpen = System::the->time();
             eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
             v=0;a=0;
         }
     }
-    else if(state == RotatingLeft || state == RotatingRight)
+    else if(state == DoorOpening)
+    {
+        if((cover->frameTime() - timeoutStart) > 1 )
+        {
+            timeoutStart = cover->frameTime();
+            state = DoorOpen;
+        }
+    }
+    else if(state == DoorOpen)
+    {
+        if((cover->frameTime() - timeoutStart) > d_doorTimeout.get() )
+        {
+            timeoutStart = cover->frameTime();
+            d_carDoorClose = System::the->time();
+            eventOut(d_carDoorOpen.get(), "carDoorClose", d_carDoorClose);
+            state = DoorClosing;
+        }
+    }
+    else if(state == DoorClosing)
+    {
+        if((cover->frameTime() - timeoutStart) > 1 )
+        {
+            timeoutStart = cover->frameTime();
+            state = Idle;
+        }
+    }
+    
+    if(chassisState == RotatingLeft || chassisState == RotatingRight)
     {
         float dt = cover->frameDuration();
         if(dt > 1000) // first frameDuration is off because last FrameTime is 0
@@ -277,31 +358,31 @@ void VrmlNodeCar::update()
         float direction;
         float diff;
         double destinationAngle;
-        if(state == RotatingRight)
+        if(chassisState == RotatingRight)
         {
             direction = 1;
             diff = M_PI_2 - angle;
             destinationAngle = M_PI_2;
             if(angle == M_PI_2) // we are there
             {
-                timeoutStart = cover->frameTime();
-                state = Moving;
+                chassisState == Idle;
+                setTravelDirection(MoveUp);
                 av=0;aa=0;
             }
         }
-        if(state == RotatingLeft)
+        if(chassisState == RotatingLeft)
         {
             direction = -1;
             diff = angle;
             destinationAngle = 0;
             if(angle == 0) // we are there
             {
-                timeoutStart = cover->frameTime();
-                state = DoorOpening;
+                chassisState == Idle;
+                setTravelDirection(MoveUp);
                 av=0;aa=0;
             }
         }
-        if(state ==RotatingLeft || state ==RotatingRight ) // not there yet
+        if(chassisState ==RotatingLeft || chassisState ==RotatingRight ) // not there yet
         {
             float v2 = av*av;
             if(diff > (v2/(2*aaMax))*1.5)
@@ -344,32 +425,6 @@ void VrmlNodeCar::update()
             eventOut(timeStamp, "carRotation", d_carRotation);
         }
     }
-    else if(state == DoorOpening)
-    {
-        if((cover->frameTime() - timeoutStart) > 1 )
-        {
-            timeoutStart = cover->frameTime();
-            state = DoorOpen;
-        }
-    }
-    else if(state == DoorOpen)
-    {
-        if((cover->frameTime() - timeoutStart) > d_doorTimeout.get() )
-        {
-            timeoutStart = cover->frameTime();
-            d_carDoorClose = System::the->time();
-            eventOut(d_carDoorOpen.get(), "carDoorClose", d_carDoorClose);
-            state = DoorClosing;
-        }
-    }
-    else if(state == DoorClosing)
-    {
-        if((cover->frameTime() - timeoutStart) > 1 )
-        {
-            timeoutStart = cover->frameTime();
-            state = Idle;
-        }
-    }
 
 }
 
@@ -396,15 +451,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 void VrmlNodeCar::setDestination(int landing, int shaft)
 {
     landingNumber = landing;
-    if(shaftNumber != shaft)
-    {
-        // we have to travel horizontally
-        state = RotatingRight;
-    }
-    else
-    {
     state = Moving;
-    }
     shaftNumber = shaft;
     
     destinationY = elevator->d_landingHeights[landing];
