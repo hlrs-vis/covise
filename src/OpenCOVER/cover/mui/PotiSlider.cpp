@@ -271,10 +271,10 @@ void PotiSlider::tabletEvent(coTUIElement *tUIItem)
             value = TUIElement->getValue();
         }
     }
-    if (listener)
+    if (Listener)
     {
-        listener->muiEvent(this);
-        listener->muiValueChangeEvent(this);
+        Listener->muiEvent(this);
+        Listener->muiValueChangeEvent(this);
     }
 }
 
@@ -289,9 +289,9 @@ void PotiSlider::menuEvent(coMenuItem *menuItem)
             value = VRUIElement->getValue();
         }
     }
-    if (listener)
+    if (Listener)
     {
-        listener->muiEvent(this);
-        listener->muiValueChangeEvent(this);
+        Listener->muiEvent(this);
+        Listener->muiValueChangeEvent(this);
     }
 }

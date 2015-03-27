@@ -311,9 +311,9 @@ void ToggleButton::tabletEvent(coTUIElement *tUIItem)
         VRUIElement->setState(!(VRUIElement->getState()));                      // adjust status of VRUI-Element
         State=!State;
     }
-    if (listener)
+    if (Listener)
     {
-        listener->muiEvent(this);
+        Listener->muiEvent(this);
     }
 }
 
@@ -325,9 +325,9 @@ void ToggleButton:: menuEvent(coMenuItem *menuItem)
         TUIElement->setState(!(TUIElement->getState()));                        // adjust status of TUI-ELement
         State=!State;
     }
-    if (listener)
+    if (Listener)
     {
-        listener->muiEvent(this);
+        Listener->muiEvent(this);
     }
 }
 

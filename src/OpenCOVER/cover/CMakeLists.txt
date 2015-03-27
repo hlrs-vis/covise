@@ -179,7 +179,7 @@ SET(MUI_SOURCES
   mui/support/DefaultValues.cpp
   mui/support/ElementManager.cpp
   mui/support/PositionManager.cpp
-  mui/support/Listener.cpp
+  mui/support/EventListener.cpp
 )
 
 SET(MUI_HEADERS
@@ -197,7 +197,7 @@ SET(MUI_HEADERS
   mui/support/DefaultValues.h
   mui/support/ElementManager.h
   mui/support/PositionManager.h
-  mui/support/Listener.h
+  mui/support/EventListener.h
 )
 
 SET(DEVICE_SOURCES

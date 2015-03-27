@@ -8,7 +8,7 @@
 #define USERINTERFACEEXAMPLEPLUGIN_H
 
 #include <boost/smart_ptr.hpp>
-#include <cover/mui/support/Listener.h>
+#include <cover/mui/support/EventListener.h>
 
 namespace mui
 {
@@ -26,7 +26,7 @@ class coTUITab;
 }
 
 
-class UserInterface: public opencover::coVRPlugin, public mui::Listener
+class UserInterface: public opencover::coVRPlugin, public mui::EventListener
 {
 public:
     UserInterface();

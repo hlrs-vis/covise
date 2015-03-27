@@ -8,7 +8,7 @@
  * \date
  */
 #include <cover/coVRPlugin.h>
-#include <cover/mui/support/Listener.h>
+#include <cover/mui/support/EventListener.h>
 
 
 namespace opencover
@@ -27,9 +27,8 @@ class COVEREXPORT Element
 {
 public:
     // constructor:
-    // l: shown Name
     Element();
-    Element(const std::string &n);
+    Element(const std::string name);
 
     struct device
     {
@@ -41,12 +40,12 @@ public:
     };
 
     // destructor:
-    ~Element();
+    virtual ~Element();
 
     // methods:
 
-    virtual void setEventListener(Listener *l);
-    virtual Listener *getMUIListener();
+    virtual void setEventListener(EventListener *listener);
+    virtual EventListener *getMUIListener();
 
     // must be overwritten, if inherited:
     virtual void setPos(int posx, int posy)=0;
@@ -56,9 +55,9 @@ public:
 private:
     ConfigManager *configManager;
 protected:
-    std::string label_str;                      //< label of the elements
+    std::string label;                      //< label of the elements
     std::string UniqueIdentifier;
-    Listener *listener;
+    EventListener *Listener;
 
 };
 } // end namespace

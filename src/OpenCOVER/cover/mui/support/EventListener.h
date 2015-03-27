@@ -1,5 +1,5 @@
-#ifndef MUILISTENER_H
-#define MUILISTENER_H
+#ifndef MUIEVENTLISTENER_H
+#define MUIEVENTLISTENER_H
 
 #include <cover/coVRPlugin.h>
 
@@ -7,11 +7,11 @@ namespace mui
 {
 class Element;
 
-class COVEREXPORT Listener
+class COVEREXPORT EventListener
 {
 public:
-    Listener();
-    ~Listener();
+    EventListener();
+    ~EventListener();
     virtual void muiEvent(Element *muiItem);
     virtual void muiPressEvent(Element *muiItem);
     virtual void muiValueChangeEvent(Element *muiItem);

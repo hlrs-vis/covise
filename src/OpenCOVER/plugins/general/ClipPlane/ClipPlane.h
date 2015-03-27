@@ -12,7 +12,7 @@
 
 */
 
-#include <cover/mui/support/Listener.h>
+#include <cover/mui/support/EventListener.h>
 
 #include <osg/ClipPlane>
 
@@ -34,7 +34,7 @@ using namespace vrui;
 using namespace opencover;
 
 
-class ClipPlanePlugin : public coVRPlugin, public mui::Listener
+class ClipPlanePlugin : public coVRPlugin, public mui::EventListener
 {
 private:
     class Plane

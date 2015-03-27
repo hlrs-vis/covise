@@ -1,6 +1,6 @@
 #include "Element.h"
 #include <cover/coTabletUI.h>
-#include <cover/mui/support/Listener.h>
+#include <cover/mui/support/EventListener.h>
 
 #include "support/ConfigManager.h"
 #include <iostream>
@@ -16,9 +16,9 @@ Element::Element()
 }
 
 // constructor:
-Element::Element(const std::string &n_str)
+Element::Element(const std::string name)
 {
-    label_str = n_str;
+    label = name;
 }
 
 // destructor:
@@ -31,12 +31,12 @@ std::string Element::getUniqueIdentifier()
     return UniqueIdentifier;
 }
 
-void Element::setEventListener(Listener *l)
+void Element::setEventListener(EventListener *listener)
 {
-    listener = l;
+    Listener = listener;
 }
 
-Listener *Element::getMUIListener()
+EventListener *Element::getMUIListener()
 {
-    return listener;
+    return Listener;
 }
