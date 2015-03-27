@@ -1,11 +1,11 @@
 // class, which creates a label in VRUI and TUI
 
-#ifndef COMUILABEL_H
-#define COMUILABEL_H
+#ifndef MUILABELELEMENT_H
+#define MUILABELELEMENT_H
 
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include "coMUIWidget.h"
+#include "Widget.h"
 #include <boost/smart_ptr.hpp>
 
 namespace vrui
@@ -17,17 +17,19 @@ namespace opencover
 class coTUILabel;
 }
 
-class coMUIConfigManager;
-class coMUIContainer;
+namespace mui
+{
+class ConfigManager;
+class Container;
 
-class COVEREXPORT coMUILabel:public coMUIWidget
+class COVEREXPORT LabelElement:public Widget
 {
 
 public:
     // constructor/destructor:
-    coMUILabel(std::string UniqueIdentifier, coMUIContainer* parent, std::string label);
-    coMUILabel(std::string UniqueIdentifier, coMUIContainer* parent);
-    ~coMUILabel();
+    LabelElement(std::string UniqueIdentifier, Container* parent, std::string label);
+    LabelElement(std::string UniqueIdentifier, Container* parent);
+    ~LabelElement();
 
     // methods:
     std::string getLabel();
@@ -37,24 +39,24 @@ public:
     void setLabel(std::string label, std::string UI);
     void setVisible(bool visible);
     void setVisible(bool visible, std::string UI);
-    coMUIContainer* getParent();
+    Container* getParent();
     std::string getUniqueIdentifier();
 
 
 private:
     std::vector<device> Devices;
-    void constructor(std::string UniqueIdentifier, coMUIContainer* parent, std::string label);
+    void constructor(std::string UniqueIdentifier, Container* parent, std::string label);
     std::string Label;
     std::string Identifier;
     boost::shared_ptr<opencover::coTUILabel> TUIElement;
     boost::shared_ptr<vrui::coLabelMenuItem> VRUIElement;
-    coMUIConfigManager *ConfigManager;
-    coMUIContainer* Parent;
+    ConfigManager *configManager;
+    Container* Parent;
 
     void changeLabel(std::string label);        // changes the label
 
     void changedLabel();                        // emmitted, if the label changed
 };
-
+} // end namespace
 
 #endif

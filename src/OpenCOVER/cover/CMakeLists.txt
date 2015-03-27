@@ -165,39 +165,39 @@ SET(SOURCES
 )
 
 SET(MUI_SOURCES
-  mui/coMUIElement.cpp
-  mui/coMUIContainer.cpp
-  mui/coMUIWidget.cpp
-  mui/coMUIFrame.cpp
-  mui/coMUILabel.cpp
-  mui/coMUIPotiSlider.cpp
-  mui/coMUITab.cpp
-  mui/coMUITabFolder.cpp
-  mui/coMUIToggleButton.cpp
-  mui/support/coMUIConfigManager.cpp
-  mui/support/coMUIConfigParser.cpp
-  mui/support/coMUIDefaultValues.cpp
-  mui/support/coMUIElementManager.cpp
-  mui/support/coMUIPositionManager.cpp
-  mui/support/coMUIListener.cpp
+  mui/Element.cpp
+  mui/Container.cpp
+  mui/Widget.cpp
+  mui/Frame.cpp
+  mui/LabelElement.cpp
+  mui/PotiSlider.cpp
+  mui/Tab.cpp
+  mui/TabFolder.cpp
+  mui/ToggleButton.cpp
+  mui/support/ConfigManager.cpp
+  mui/support/ConfigParser.cpp
+  mui/support/DefaultValues.cpp
+  mui/support/ElementManager.cpp
+  mui/support/PositionManager.cpp
+  mui/support/Listener.cpp
 )
 
 SET(MUI_HEADERS
-  mui/coMUIElement.h
-  mui/coMUIContainer.h
-  mui/coMUIWidget.h
-  mui/coMUIFrame.h
-  mui/coMUILabel.h
-  mui/coMUIPotiSlider.h
-  mui/coMUITab.h
-  mui/coMUITabFolder.h
-  mui/coMUIToggleButton.h
-  mui/support/coMUIConfigManager.h
-  mui/support/coMUIConfigParser.h
-  mui/support/coMUIDefaultValues.h
-  mui/support/coMUIElementManager.h
-  mui/support/coMUIPositionManager.h
-  mui/support/coMUIListener.h
+  mui/Element.h
+  mui/Container.h
+  mui/Widget.h
+  mui/Frame.h
+  mui/LabelElement.h
+  mui/PotiSlider.h
+  mui/Tab.h
+  mui/TabFolder.h
+  mui/ToggleButton.h
+  mui/support/ConfigManager.h
+  mui/support/ConfigParser.h
+  mui/support/DefaultValues.h
+  mui/support/ElementManager.h
+  mui/support/PositionManager.h
+  mui/support/Listener.h
 )
 
 SET(DEVICE_SOURCES

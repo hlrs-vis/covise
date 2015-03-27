@@ -1,5 +1,5 @@
-#ifndef COMUICONFIGMANAGER_H
-#define COMUICONFIGMANAGER_H
+#ifndef MUICONFIGMANAGER_H
+#define MUICONFIGMANAGER_H
 
 #include <iostream>
 #include <vector>
@@ -7,20 +7,22 @@
 #include "boost/smart_ptr.hpp"
 
 
+namespace mui
+{
 //forwarddeclaration:
-class coMUIContainer;
-class coMUIWidget;
-class coMUIElement;
-class coMUIDefaultValues;
-class coMUIConfigParser;
-class coMUIElementManager;
-class coMUIPositionManager;
+class Container;
+class Widget;
+class Element;
+class DefaultValues;
+class ConfigParser;
+class ElementManager;
+class PositionManager;
 
 // class:
-class COVEREXPORT coMUIConfigManager
+class COVEREXPORT ConfigManager
 {
 public:
-    static coMUIConfigManager *getInstance();
+    static ConfigManager *getInstance();
     static void removeInstance();
     bool ConfigFileExists();
 
@@ -63,11 +65,11 @@ public:
     //************************************************************
     // ElementManager
     void printElementNames();
-    coMUIContainer* getContainerByIdentifier(std::string UniqueIdentifier);
-    coMUIWidget* getWidgetByIdentifier(std::string UniqueIdentifier);
+    Container* getContainerByIdentifier(std::string UniqueIdentifier);
+    Widget* getWidgetByIdentifier(std::string UniqueIdentifier);
     bool isElementContainer(std::string UniqueIdentifier);
-    void addElement(std::string UniqueIdentifier, coMUIContainer* Parent);
-    void addElement(std::string UniqueIdentifier, coMUIWidget* Widget);
+    void addElement(std::string UniqueIdentifier, Container* Parent);
+    void addElement(std::string UniqueIdentifier, Widget* Widget);
     void removeElement(std::string UniqueIdentifier);
     //************************************************************
     // Rest
@@ -76,33 +78,34 @@ public:
     std::pair<int, int> getCorrectPos(std::pair<int,int> pos, std::string UI, std::string Device, std::string UniqueIdentifier);
     std::pair<int, int> getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
     std::pair<int,int> getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
-    coMUIContainer* getCorrectParent(coMUIContainer* Parent, std::string UI, std::string Device, std::string UniqueIdentifier);
+    Container* getCorrectParent(Container* Parent, std::string UI, std::string Device, std::string UniqueIdentifier);
     void preparePos(std::pair<int,int> pos, std::string ParentUniqueIdentifier);
     bool existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier);
 
 
 private:
-    boost::shared_ptr<coMUIConfigParser> parser;
-    boost::shared_ptr<coMUIDefaultValues> DefaultValues;
-    boost::shared_ptr<coMUIElementManager> ElementManager;
-    boost::shared_ptr<coMUIPositionManager> PositionManager;
+    boost::shared_ptr<ConfigParser> parser;
+    boost::shared_ptr<DefaultValues> defaultValues;
+    boost::shared_ptr<ElementManager> elementManager;
+    boost::shared_ptr<PositionManager> positionManager;
 
     void setAutoassignedPos(std::pair<int,int> Pos, std::string Identifier, std::string ParentUniqueIdentifier);
     std::pair <int,int> getFreePosExceptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent);
-    static coMUIConfigManager *Instance;
+    static ConfigManager *Instance;
 
     bool FileExists;
 
     //constructor and destructor:
-    coMUIConfigManager();
-    ~coMUIConfigManager();
+    ConfigManager();
+    ~ConfigManager();
 
     // membervariables
     std::string ConfigFile;
 
     // not implemented
-    coMUIConfigManager(const coMUIConfigManager&);
-    coMUIConfigManager& operator=(const coMUIConfigManager&);
+    ConfigManager(const ConfigManager&);
+    ConfigManager& operator=(const ConfigManager&);
 };
+} // end namespace
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef COMUICONFIGPARSER_H
-#define COMUICONFIGPARSER_H
+#ifndef MUICONFIGPARSER_H
+#define MUICONFIGPARSER_H
 
 #include <iostream>
 #include <boost/smart_ptr.hpp>
@@ -14,16 +14,18 @@ class DOMNodeList;
 class DOMElement;
 }
 
-class coMUIDefaultValues;
+namespace mui
+{
+class DefaultValues;
 
 // begin of class
-class coMUIConfigParser
+class ConfigParser
 {
 public:
     // constructor
-    coMUIConfigParser(const std::string xmlAdresse);
+    ConfigParser(const std::string xmlAdresse);
     // destructor
-    ~coMUIConfigParser();
+    ~ConfigParser();
 
     // memberfunction:
     const std::string getType(xercesc_3_1::DOMElement* Element);         // return the type of the element
@@ -47,7 +49,7 @@ private:
     xercesc_3_1::DOMNodeList* nodeList;
     xercesc_3_1::DOMNode* UIElementNode;
 
-    boost::shared_ptr<coMUIDefaultValues> defaultValues;
+    boost::shared_ptr<DefaultValues> defaultValues;
 
     std::string AttrVal;                                        // will be overwritten with attriburevalues continously
 
@@ -61,4 +63,5 @@ private:
     std::pair<std::string, bool> getAttributeValue(const std::string TagName, const std::string Attribute, xercesc_3_1::DOMNodeList* NodeListe);
 
 };
+} // end namespace
 #endif

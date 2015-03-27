@@ -1,7 +1,9 @@
-#include "coMUIDefaultValues.h"
+#include "DefaultValues.h"
+
+using namespace mui;
 
 // constructor:
-coMUIDefaultValues::coMUIDefaultValues()
+DefaultValues::DefaultValues()
 {
     keywordTUI = "TUI";                           // keyword for TUI in configuration file
     keywordVRUI = "VRUI";                         // keyword for VRUI in configuration file
@@ -22,72 +24,72 @@ coMUIDefaultValues::coMUIDefaultValues()
 }
 
 // destructor:
-coMUIDefaultValues::~coMUIDefaultValues()
+DefaultValues::~DefaultValues()
 {
 
 }
 
-std::string coMUIDefaultValues::getKeywordCAVE()
+std::string DefaultValues::getKeywordCAVE()
 {
     return keywordCAVE;
 }
 
-std::string coMUIDefaultValues::getKeywordTablet()
+std::string DefaultValues::getKeywordTablet()
 {
     return keywordTablet;
 }
 
-std::string coMUIDefaultValues::getKeywordTUI()
+std::string DefaultValues::getKeywordTUI()
 {
     return keywordTUI;
 }
 
-std::string coMUIDefaultValues::getKeywordVRUI()
+std::string DefaultValues::getKeywordVRUI()
 {
     return keywordVRUI;
 }
 
-std::string coMUIDefaultValues::getKeywordPowerwall()
+std::string DefaultValues::getKeywordPowerwall()
 {
     return keywordPowerwall;
 }
 
-std::string coMUIDefaultValues::getKeywordPhone()
+std::string DefaultValues::getKeywordPhone()
 {
     return keywordPhone;
 }
 
-std::string coMUIDefaultValues::getKeywordMainWindow()
+std::string DefaultValues::getKeywordMainWindow()
 {
     return keywordMainWindow;
 }
 
-std::string coMUIDefaultValues::getKeywordVisible()
+std::string DefaultValues::getKeywordVisible()
 {
     return keywordVisible;
 }
 
-std::string coMUIDefaultValues::getKeywordParent()
+std::string DefaultValues::getKeywordParent()
 {
     return keywordParent;
 }
 
-std::string coMUIDefaultValues::getKeywordXPosition()
+std::string DefaultValues::getKeywordXPosition()
 {
     return keywordXPosition;
 }
 
-std::string coMUIDefaultValues::getKeywordYPosition()
+std::string DefaultValues::getKeywordYPosition()
 {
     return keywordYPosition;
 }
 
-std::string coMUIDefaultValues::getKeywordLabel()
+std::string DefaultValues::getKeywordLabel()
 {
     return keywordLabel;
 }
 
-std::string coMUIDefaultValues::getKeywordClass()
+std::string DefaultValues::getKeywordClass()
 {
     return keywordClass;
 }

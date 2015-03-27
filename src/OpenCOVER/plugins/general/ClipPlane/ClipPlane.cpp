@@ -15,8 +15,8 @@
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <OpenVRUI/osg/mathUtils.h>
 
-#include <cover/mui/coMUITab.h>
-#include <cover/mui/coMUIToggleButton.h>
+#include <cover/mui/Tab.h>
+#include <cover/mui/ToggleButton.h>
 
 #include <osg/MatrixTransform>
 #include <osg/Geode>
@@ -119,7 +119,7 @@ ClipPlanePlugin::ClipPlanePlugin()
 
 bool ClipPlanePlugin::init()
 {
-    clipTab = new coMUITab("plugins.general.ClipPlane.ClipTab" ,"ClipPlane");
+    clipTab = new mui::Tab("plugins.general.ClipPlane.ClipTab" ,"ClipPlane");
     clipTab->setEventListener(this);
     clipTab->setPos(0, 0);
 
@@ -128,17 +128,17 @@ bool ClipPlanePlugin::init()
         char name[100];
 
         sprintf(name, "ClipPlane %d PickInteractor", i);
-        plane[i].PickInteractorButton = new coMUIToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].PickInteractorButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
         plane[i].PickInteractorButton->setEventListener(this);
         plane[i].PickInteractorButton->setPos(0, i);
 
         sprintf(name, "ClipPlane %d DirectInteractor", i);
-        plane[i].DirectInteractorButton = new coMUIToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].DirectInteractorButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
         plane[i].DirectInteractorButton->setEventListener(this);
         plane[i].DirectInteractorButton->setPos(1, i);
 
         sprintf(name, "ClipPlane %d enable", i);
-        plane[i].EnableButton = new coMUIToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].EnableButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
         plane[i].EnableButton->setEventListener(this);
         plane[i].EnableButton->setPos(2, i);
 
@@ -398,7 +398,7 @@ void ClipPlanePlugin::preFrame()
     }
 }*/
 
-void ClipPlanePlugin::muiEvent(coMUIElement *muiItem)
+void ClipPlanePlugin::muiEvent(mui::Element *muiItem)
 {
     ClipNode *clipNode = cover->getObjectsRoot();
 
@@ -473,12 +473,12 @@ void ClipPlanePlugin::muiEvent(coMUIElement *muiItem)
     cerr << "muiEvent" << endl;
 }
 
-void ClipPlanePlugin::muiPressEvent(coMUIElement *)
+void ClipPlanePlugin::muiPressEvent(mui::Element *)
 {
     cerr << "muiPressEvent" << endl;
 }
 
-void ClipPlanePlugin::muiReleaseEvent(coMUIElement *)
+void ClipPlanePlugin::muiReleaseEvent(mui::Element *)
 {
 }
 

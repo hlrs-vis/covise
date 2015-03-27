@@ -9,37 +9,40 @@
 
 #include <cover/coVRPlugin.h>
 #include <boost/smart_ptr.hpp>
-#include <cover/mui/support/coMUIListener.h>
+#include <cover/mui/support/Listener.h>
 
-class coMUIToggleButton;
-class coMUITabFolder;
-class coMUIFrame;
-class coMUITab;
-class coMUIConfigManager;
-class coMUIPotiSlider;
-class coMUILabel;
+namespace mui
+{
+class ToggleButton;
+class TabFolder;
+class Frame;
+class Tab;
+class ConfigManager;
+class PotiSlider;
+class LabelElement;
+}
 
 namespace opencover{
 class coTUITab;
 }
 
 
-class UserInterface: public opencover::coVRPlugin, public coMUIListener
+class UserInterface: public opencover::coVRPlugin, public mui::Listener
 {
 public:
     UserInterface();
     ~UserInterface();
     bool init();
-    coMUIConfigManager *ConfigManager;
-    void muiEvent(coMUIElement *muiItem);
+    mui::ConfigManager *ConfigManager;
+    void muiEvent(mui::Element *muiItem);
 
 private:
-    boost::shared_ptr<coMUITab> Tab1;
-    boost::shared_ptr<coMUIToggleButton> Button1;
-    boost::shared_ptr<coMUIToggleButton> Button2;
-    boost::shared_ptr<coMUIPotiSlider> Slider1;
-    boost::shared_ptr<coMUIFrame> Frame;
-    boost::shared_ptr<coMUILabel> Label;
+    boost::shared_ptr<mui::Tab> Tab1;
+    boost::shared_ptr<mui::ToggleButton> Button1;
+    boost::shared_ptr<mui::ToggleButton> Button2;
+    boost::shared_ptr<mui::PotiSlider> Slider1;
+    boost::shared_ptr<mui::Frame> Frame;
+    boost::shared_ptr<mui::LabelElement> Label;
 };
 
 #endif

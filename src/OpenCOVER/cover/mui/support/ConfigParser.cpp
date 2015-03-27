@@ -1,5 +1,5 @@
-#include "coMUIConfigParser.h"
-#include "coMUIDefaultValues.h"
+#include "ConfigParser.h"
+#include "DefaultValues.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -13,14 +13,14 @@
 
 using namespace std;
 using namespace xercesc_3_1;
-
+using namespace mui;
 
 // constructor:
-coMUIConfigParser::coMUIConfigParser(const std::string xmlAdresse)
+ConfigParser::ConfigParser(const std::string xmlAdresse)
 {
     XMLPlatformUtils::Initialize();
 
-    defaultValues.reset(new coMUIDefaultValues);
+    defaultValues.reset(new DefaultValues);
 
     parser.reset(new XercesDOMParser());                         // create new xercesc-parser
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
@@ -29,12 +29,12 @@ coMUIConfigParser::coMUIConfigParser(const std::string xmlAdresse)
 }
 
 // destructor:
-coMUIConfigParser::~coMUIConfigParser()
+ConfigParser::~ConfigParser()
 {
 }
 
 // returns true, if the element shall be visible; else return false
-bool coMUIConfigParser::getIsVisible(const std::string UI, const std::string Klasse, const std::string Instanz)
+bool ConfigParser::getIsVisible(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
     if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))                   // element with name UI and class Klasse exists
     {
@@ -48,7 +48,7 @@ bool coMUIConfigParser::getIsVisible(const std::string UI, const std::string Kla
 }
 
 //! returns the matching parentname
-std::pair<std::string, bool> coMUIConfigParser::getParent(const std::string UI, const std::string Klasse, const std::string Instanz)
+std::pair<std::string, bool> ConfigParser::getParent(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
     std::pair<std::string, bool> returnPair;
     if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))                  // element exists
@@ -62,7 +62,7 @@ std::pair<std::string, bool> coMUIConfigParser::getParent(const std::string UI, 
             }
         }
     }
-    returnPair.first="coMUIConfigParser::getParent(): Parent according to ";
+    returnPair.first="ConfigParser::getParent(): Parent according to ";
     returnPair.first.append(UI);
     returnPair.first.append(" ");
     returnPair.first.append(Klasse);
@@ -74,7 +74,7 @@ std::pair<std::string, bool> coMUIConfigParser::getParent(const std::string UI, 
 }
 
 //! returns true if attribute exists in configuration file within UI, Device and Identifier
-bool coMUIConfigParser::existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier)
+bool ConfigParser::existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier)
 {
     if (existElement(UI, defaultValues->getKeywordClass(), Device, nodeList))
     {
@@ -87,7 +87,7 @@ bool coMUIConfigParser::existAttributeInConfigFile(std::string Attribute, std::s
 }
 
 //! returns the matching label
-std::pair<std::string, bool> coMUIConfigParser::getLabel(const std::string UI, const std::string Klasse, const std::string Instanz)
+std::pair<std::string, bool> ConfigParser::getLabel(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
     std::pair<std::string, bool> returnPair;
     if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))
@@ -101,7 +101,7 @@ std::pair<std::string, bool> coMUIConfigParser::getLabel(const std::string UI, c
             }
         }
     }
-    returnPair.first="coMUIConfigParser::getLabel(): Label according to ";
+    returnPair.first="ConfigParser::getLabel(): Label according to ";
     returnPair.first.append(UI);
     returnPair.first.append(" ");
     returnPair.first.append(Klasse);
@@ -113,7 +113,7 @@ std::pair<std::string, bool> coMUIConfigParser::getLabel(const std::string UI, c
 }
 
 // returns the matching position
-std::pair<std::pair<int,int>, bool> coMUIConfigParser::getPosition(const std::string UI, const std::string Klasse, const std::string Instanz)
+std::pair<std::pair<int,int>, bool> ConfigParser::getPosition(const std::string UI, const std::string Klasse, const std::string Instanz)
 {
     std::pair<std::pair<int,int>, bool> returnParsedPosition;
     if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))
@@ -130,7 +130,7 @@ std::pair<std::pair<int,int>, bool> coMUIConfigParser::getPosition(const std::st
         }
         else if (existXpos || existYpos)
         {
-            std::cerr << "ERROR: coMUIConfigParser::getPosition(): Only x- or y- position of " << Instanz << " declared in configuration file! Needed both positions or none." << std::endl;
+            std::cerr << "ERROR: ConfigParser::getPosition(): Only x- or y- position of " << Instanz << " declared in configuration file! Needed both positions or none." << std::endl;
         }
     }
     returnParsedPosition.first.first = -1;
@@ -140,7 +140,7 @@ std::pair<std::pair<int,int>, bool> coMUIConfigParser::getPosition(const std::st
 }
 
 // returns true, if the file exists; else returns false
-bool coMUIConfigParser::fileExist (std::string File)
+bool ConfigParser::fileExist (std::string File)
 {
     FILE *fp = fopen(File.c_str(),"r"); // switched to fopen because of a visual studio 2012 linker issue
     if(fp!=NULL)
@@ -155,13 +155,13 @@ bool coMUIConfigParser::fileExist (std::string File)
 }
 
 // returns the UI-Type of the element
-const std::string coMUIConfigParser::getType(DOMElement* Element)
+const std::string ConfigParser::getType(DOMElement* Element)
 {
     return std::string(XMLString::transcode(Element->getTagName()));
 }
 
 // returns true, if node is elementnode
-bool coMUIConfigParser::isNodeElement(DOMNode* Node)
+bool ConfigParser::isNodeElement(DOMNode* Node)
 {
     if (Node->getNodeType()==DOMNode::ELEMENT_NODE)
     {
@@ -174,7 +174,7 @@ bool coMUIConfigParser::isNodeElement(DOMNode* Node)
 }
 
 // returns the matching elementnode
-DOMNode *coMUIConfigParser::getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe)
+DOMNode *ConfigParser::getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe)
 {
     for (size_t i=0; i<(NodeListe->getLength()); ++i)                                       // loop through all elements in NodeList
     {
@@ -198,7 +198,7 @@ DOMNode *coMUIConfigParser::getElementNode(const std::string TagName, const std:
 }
 
 // returns true, if the element exists; else return false
-bool coMUIConfigParser::existElement(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
+bool ConfigParser::existElement(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
 {
     for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
     {
@@ -219,7 +219,7 @@ bool coMUIConfigParser::existElement(const std::string TagName, const std::strin
 }
 
 // returns true, if the element exists; else return false
-bool coMUIConfigParser::existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe)
+bool ConfigParser::existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe)
 {
     for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
     {
@@ -240,7 +240,7 @@ bool coMUIConfigParser::existElement(const std::string TagName, const std::strin
 }
 
 // retrurns the attributevalue as std::string
-std::pair<std::string, bool> coMUIConfigParser::getAttributeValue(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
+std::pair<std::string, bool> ConfigParser::getAttributeValue(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
 {
     std::pair<std::string, bool> returnPair;
     for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
@@ -266,7 +266,7 @@ std::pair<std::string, bool> coMUIConfigParser::getAttributeValue(const std::str
 }
 
 // initializes parser with adress of configuration file
-void coMUIConfigParser::initializeParser(std::string adress)
+void ConfigParser::initializeParser(std::string adress)
 {
     if (fileExist(adress))                                                                      // check if configuration file exists
     {
@@ -275,7 +275,7 @@ void coMUIConfigParser::initializeParser(std::string adress)
         }
         catch(...)
         {
-            cerr << "coMUIConfigParser.cpp: error parsing XML-Datei" << endl;
+            cerr << "ConfigParser.cpp: error parsing XML-Datei" << endl;
         }
 
         parsedDoc=parser->getDocument();                                                        // save configuration file as DOMDocument
@@ -293,7 +293,7 @@ void coMUIConfigParser::initializeParser(std::string adress)
 }
 
 // lkets the parser read a new file
-void coMUIConfigParser::readNewFile(std::string Filename)
+void ConfigParser::readNewFile(std::string Filename)
 {
     if (fileExist(Filename))
     {                                                               // check if configuration file exists
@@ -302,8 +302,8 @@ void coMUIConfigParser::readNewFile(std::string Filename)
         }
         catch(...)
         {
-            cerr << "coMUIConfigParser.cpp: error parsing XML-Datei" << endl;
-            cout << "coMUIConfigParser.cpp: Parser konnte XML-Datei nicht parsen" << endl;
+            cerr << "ConfigParser.cpp: error parsing XML-Datei" << endl;
+            cout << "ConfigParser.cpp: Parser konnte XML-Datei nicht parsen" << endl;
         }
 
         parsedDoc=parser->getDocument();                                             // save configuration file as DOMDocument

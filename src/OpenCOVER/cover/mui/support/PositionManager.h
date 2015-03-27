@@ -1,25 +1,27 @@
 // assigning positions for TUI-Elements
 
-#ifndef coMUIPositionManager_H
-#define coMUIPositionManager_H
+#ifndef MUIPositionManager_H
+#define MUIPositionManager_H
 
 #include <iostream>
 #include <vector>
 #include <boost/smart_ptr.hpp>
 
 
+namespace mui
+{
 // forward declaration
-class coMUIElementManager;
-class coMUIElement;
-class coMUIWidget;
-class coMUIContainer;
+class ElementManager;
+class Element;
+class Widget;
+class Container;
 
 
-class coMUIPositionManager
+class PositionManager
 {
 public:
-    coMUIPositionManager();
-    ~coMUIPositionManager();
+    PositionManager();
+    ~PositionManager();
 
     std::pair <int,int> getFreePos(std::string UniqueIdentifierParent);         // returns Coordinates of free Position
     std::pair <int,int> getFreePosExeptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent);
@@ -39,15 +41,15 @@ private:
     std::vector <Pos> PosList;
 
 
-    boost::shared_ptr<coMUIWidget> setNewPosWidget;
-    boost::shared_ptr<coMUIContainer> setNewPosContainer;
-    boost::shared_ptr<coMUIElementManager> ElementManager;
+    boost::shared_ptr<Widget> setNewPosWidget;
+    boost::shared_ptr<Container> setNewPosContainer;
+    boost::shared_ptr<ElementManager> elementManager;
 
     int MaxPosX;                      // max allowed positions in x-direction (shall depend on size of display)
 
     // methods:
     bool PosInPosList(std::pair <int,int> Coordinates, std::string UniqueIdentifierParent);
 };
-
+} // end namespace
 
 #endif

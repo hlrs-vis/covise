@@ -12,7 +12,7 @@
 
 */
 
-#include <cover/mui/support/coMUIListener.h>
+#include <cover/mui/support/Listener.h>
 
 #include <cover/coVRPlugin.h>
 #include <osg/ClipPlane>
@@ -23,15 +23,18 @@ class coButtonMenuItem;
 class coTrackerButtonInteraction;
 }
 
-class coMUIToggleButton;
-class coMUITab;
+namespace mui
+{
+class ToggleButton;
+class Tab;
+}
 
 using namespace vrui;
 using namespace opencover;
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
-class ClipPlanePlugin : public coVRPlugin, public coMUIListener
+class ClipPlanePlugin : public coVRPlugin, public mui::Listener
 {
 private:
     class Plane
@@ -40,9 +43,9 @@ private:
         bool enabled;
         bool valid; // valid is false before first use
         osg::ref_ptr<osg::ClipPlane> clip;
-        coMUIToggleButton *EnableButton;
-        coMUIToggleButton *DirectInteractorButton;
-        coMUIToggleButton *PickInteractorButton;
+        mui::ToggleButton *EnableButton;
+        mui::ToggleButton *DirectInteractorButton;
+        mui::ToggleButton *PickInteractorButton;
         coTrackerButtonInteraction *directInteractor;
         coVR3DTransRotInteractor *pickInteractor;
         bool showPickInteractor_, showDirectInteractor_;
@@ -71,7 +74,7 @@ private:
     };
     Plane plane[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
 
-    coMUITab *clipTab;
+    mui::Tab *clipTab;
 
     osg::ref_ptr<osg::Geode> visibleClipPlaneGeode; // transparent plane
     bool active; // FLAG: ON = POSSIBLE TO CHANGE/SET CHOSEN CLIPPING PLANE
@@ -93,9 +96,9 @@ public:
     {
         return this;
     };
-    void muiEvent(coMUIElement *muiItem);
-    void muiPressEvent(coMUIElement *muiItem);
-    void muiReleaseEvent(coMUIElement *muiItem);
+    void muiEvent(mui::Element *muiItem);
+    void muiPressEvent(mui::Element *muiItem);
+    void muiReleaseEvent(mui::Element *muiItem);
     void message(int type, int len, const void *buf);
     void preFrame();
     static ClipPlanePlugin *thisInstance;

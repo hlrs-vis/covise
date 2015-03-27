@@ -1,11 +1,11 @@
 #include "UserInterface.h"
-#include <cover/mui/coMUIToggleButton.h>
-#include <cover/mui/coMUITab.h>
-#include <cover/mui/coMUIPotiSlider.h>
-#include <cover/mui/coMUIFrame.h>
-#include <cover/mui/support/coMUIConfigManager.h>
-#include <cover/mui/coMUILabel.h>
-#include <cover/mui/coMUIContainer.h>
+#include <cover/mui/ToggleButton.h>
+#include <cover/mui/Tab.h>
+#include <cover/mui/PotiSlider.h>
+#include <cover/mui/Frame.h>
+#include <cover/mui/support/ConfigManager.h>
+#include <cover/mui/LabelElement.h>
+#include <cover/mui/Container.h>
 #include <iostream>
 
 #include <cover/coTabletUI.h>
@@ -23,36 +23,36 @@ UserInterface::~UserInterface(){
 bool UserInterface::init()
 {
     // get Instance of ConfigManager
-    ConfigManager=coMUIConfigManager::getInstance();
+    ConfigManager=mui::ConfigManager::getInstance();
 
     // create new Tab in TabFolder
-    Tab1.reset(new coMUITab("plugins.examples.UserInterface.Tab1", "Tab1"));
+    Tab1.reset(new mui::Tab("plugins.examples.UserInterface.Tab1", "Tab1"));
 
     // create new ToggleButton in Tab1
-    Button1.reset(new coMUIToggleButton("plugins.examples.UserInterface.Button1", Tab1.get(), "Button1"));
+    Button1.reset(new mui::ToggleButton("plugins.examples.UserInterface.Button1", Tab1.get(), "Button1"));
     Button1->setEventListener(this);
     Button1->setPos(0,0);                                                                                   // will be ignored, if there exists a positioning instruction in configuration file
 
-    Button2.reset(new coMUIToggleButton("plugins.examples.UserInterface.Button2", Tab1.get(), "Button2"));
+    Button2.reset(new mui::ToggleButton("plugins.examples.UserInterface.Button2", Tab1.get(), "Button2"));
     Button2->setEventListener(this);
     Button2->setPos(1,0);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
     // create new PotiSlider in Tab1
-    Slider1.reset(new coMUIPotiSlider("plugins.examples.UserInterface.Slider1", Tab1.get(), 0., 100., 50., "Slider1"));
+    Slider1.reset(new mui::PotiSlider("plugins.examples.UserInterface.Slider1", Tab1.get(), 0., 100., 50., "Slider1"));
     Slider1->setPos(0,1);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
     // create new Frame-Element
-    Frame.reset(new coMUIFrame("plugins.examples.UserInterface.Frame", Tab1.get(), "Frame"));
+    Frame.reset(new mui::Frame("plugins.examples.UserInterface.Frame", Tab1.get(), "Frame"));
     Frame->setPos(0,2);                                                                                     // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
     // create new Label-Element
-    Label.reset(new coMUILabel("plugins.examples.UserInterface.Label1", Frame.get(), "Label"));
+    Label.reset(new mui::LabelElement("plugins.examples.UserInterface.Label1", Frame.get(), "Label"));
     Label->setPos(0,3);                                                                                     // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
     return true;
 }
 
-void UserInterface::muiEvent(coMUIElement *muiItem)
+void UserInterface::muiEvent(mui::Element *muiItem)
 {
     if (muiItem == Button1.get())
     {

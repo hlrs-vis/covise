@@ -1,21 +1,22 @@
-#include "coMUIPositionManager.h"
-#include "coMUIElementManager.h"
+#include "PositionManager.h"
+#include "ElementManager.h"
 #include <boost/lexical_cast.hpp>
 
+using namespace mui;
 
 // constructor:
-coMUIPositionManager::coMUIPositionManager()
+PositionManager::PositionManager()
 {
     MaxPosX=5;
 }
 
 // destructor:
-coMUIPositionManager::~coMUIPositionManager()
+PositionManager::~PositionManager()
 {
 }
 
 // create stuct:
-struct coMUIPositionManager::Pos
+struct PositionManager::Pos
 {
     std::string UniqueIdentifier;
     std::string UniqueIdentifierParent;
@@ -25,11 +26,11 @@ struct coMUIPositionManager::Pos
 
 
 // adds an element/position to the list
-void coMUIPositionManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned)
+void PositionManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned)
 {
     if (pos.first > MaxPosX)
     {
-        std::cerr << "WARNING: coMUIPositionManager::addPos(): X-Position of " << UniqueIdentifier << " exceeds allowed MaxPosX= " << MaxPosX << std::endl;
+        std::cerr << "WARNING: PositionManager::addPos(): X-Position of " << UniqueIdentifier << " exceeds allowed MaxPosX= " << MaxPosX << std::endl;
     }
     PosList.push_back(Pos());
     PosList.back().UniqueIdentifier= UniqueIdentifier;
@@ -40,7 +41,7 @@ void coMUIPositionManager::addPosToPosList(std::string UniqueIdentifier, std::pa
 
 
 // find a free position and returns the coordinates
-std::pair <int,int> coMUIPositionManager::getFreePos(std::string UniqueIdentifierParent)
+std::pair <int,int> PositionManager::getFreePos(std::string UniqueIdentifierParent)
 {
     std::pair <int,int> returnCoordinates;
     int y = 0;
@@ -59,7 +60,7 @@ std::pair <int,int> coMUIPositionManager::getFreePos(std::string UniqueIdentifie
     }
 }
 
-std::pair <int,int> coMUIPositionManager::getFreePosExeptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent)
+std::pair <int,int> PositionManager::getFreePosExeptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent)
 {
     std::pair <int,int> returnCoordinates;
     int y = 0;
@@ -92,7 +93,7 @@ std::pair <int,int> coMUIPositionManager::getFreePosExeptOfPos(std::vector<std::
 
 
 // determine, if the coordinates already are in PosList
-bool coMUIPositionManager::PosInPosList(std::pair <int,int> Coords, std::string UniqueIdentifierParent)
+bool PositionManager::PosInPosList(std::pair <int,int> Coords, std::string UniqueIdentifierParent)
 {
     for (size_t i=0; i<PosList.size(); ++i)
     {
@@ -105,7 +106,7 @@ bool coMUIPositionManager::PosInPosList(std::pair <int,int> Coords, std::string 
 }
 
 // delete entrys from PosList
-void coMUIPositionManager::deletePosFromPosList(std::string UniqueIdentifier)
+void PositionManager::deletePosFromPosList(std::string UniqueIdentifier)
 {
     bool deleteFlag = false;
     for (ssize_t i=PosList.size()-1; i >= 0; --i)
@@ -122,12 +123,12 @@ void coMUIPositionManager::deletePosFromPosList(std::string UniqueIdentifier)
     }
     else
     {
-        std::cout << "WARNING: coMUIPositionManager::deletePos(): " << UniqueIdentifier << " can't be removed. Reason: not found in PosList." << std::endl;
+        std::cout << "WARNING: PositionManager::deletePos(): " << UniqueIdentifier << " can't be removed. Reason: not found in PosList." << std::endl;
     }
 }
 
 // returns the position of element with identifier "UniqueIdentifier"
-std::pair <int,int> coMUIPositionManager::getPosOfElement(std::string UniqueIdentifier)
+std::pair <int,int> PositionManager::getPosOfElement(std::string UniqueIdentifier)
 {
     std::pair <int,int> returnCoordinates;
     for (size_t i=0; i<PosList.size(); ++i)
@@ -138,13 +139,13 @@ std::pair <int,int> coMUIPositionManager::getPosOfElement(std::string UniqueIden
             return returnCoordinates;
         }
     }
-    std::cerr << "ERROR: coMUIPositionManager::getPos(): Position of " << UniqueIdentifier << " can't be returned. Reason: not found in PosList." << std::endl;
+    std::cerr << "ERROR: PositionManager::getPos(): Position of " << UniqueIdentifier << " can't be returned. Reason: not found in PosList." << std::endl;
     returnCoordinates.first = returnCoordinates.second = 0;
     return returnCoordinates;
 }
 
 // changes position of element with identifier "UniqueIdentifier"
-void coMUIPositionManager::changePosInPosList(std::string UniqueIdentifier, std::pair<int,int> pos)
+void PositionManager::changePosInPosList(std::string UniqueIdentifier, std::pair<int,int> pos)
 {
     for (size_t i=0; i<PosList.size(); ++i)
     {
@@ -156,7 +157,7 @@ void coMUIPositionManager::changePosInPosList(std::string UniqueIdentifier, std:
 }
 
 // returns true, if position is occupied, else returns false
-bool coMUIPositionManager::isPosOccupied(std::pair<int,int> pos, std::string UniqueIdentifierParent)
+bool PositionManager::isPosOccupied(std::pair<int,int> pos, std::string UniqueIdentifierParent)
 {
     for (size_t i=0; i<PosList.size(); ++i)
     {
@@ -172,7 +173,7 @@ bool coMUIPositionManager::isPosOccupied(std::pair<int,int> pos, std::string Uni
 }
 
 // returns true, if position is occupied by an autoassigned element; else returns false
-bool coMUIPositionManager::isAutoassigned(std::pair<int,int> pos, std::string UniqueIdentifierParent)
+bool PositionManager::isAutoassigned(std::pair<int,int> pos, std::string UniqueIdentifierParent)
 {
     for (size_t i=0; i<PosList.size(); ++i)
     {
@@ -188,7 +189,7 @@ bool coMUIPositionManager::isAutoassigned(std::pair<int,int> pos, std::string Un
 }
 
 // returns the identifier of the element at position posx/posy and parent UniqueIdentifierParent
-std::string coMUIPositionManager::getIdentifierByPos(std::pair<int,int> pos, std::string UniqueIdentifierParent)
+std::string PositionManager::getIdentifierByPos(std::pair<int,int> pos, std::string UniqueIdentifierParent)
 {
     for (size_t i=0; i<PosList.size(); ++i)
     {
@@ -204,7 +205,7 @@ std::string coMUIPositionManager::getIdentifierByPos(std::pair<int,int> pos, std
 }
 
 // returns all positions of PosList in one string
-std::string coMUIPositionManager::printPos()
+std::string PositionManager::printPos()
 {
     std::string Positions="";
     for (size_t i=0; i<PosList.size(); ++i)

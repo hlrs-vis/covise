@@ -1,7 +1,7 @@
-#ifndef COMUICONTAINER_H
-#define COMUICONTAINER_H
+#ifndef MUICONTAINER_H
+#define MUICONTAINER_H
 
-#include "coMUIElement.h"
+#include "Element.h"
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coUIContainer.h>
 #include <OpenVRUI/coMenu.h>
@@ -9,13 +9,15 @@
 #include <boost/smart_ptr.hpp>
 
 
-class COVEREXPORT coMUIContainer: public coMUIElement
+namespace mui
+{
+class COVEREXPORT Container: public Element
 {
 public:
     // constructor:
-    coMUIContainer();
+    Container();
     // destructor:
-    ~coMUIContainer();
+    ~Container();
 
     // methods:
     virtual int getTUIID();
@@ -24,7 +26,7 @@ public:
     virtual bool existVRUI();                   // needs to be overwritten by inherited class
     virtual void setPos(int posx, int posy)=0;    // needs to be overwritten by inherited class
     virtual opencover::coTUIElement* getTUI()=0;
-    virtual coMUIContainer *getParent()=0;
+    virtual Container *getParent()=0;
 
 private:
 
@@ -40,6 +42,6 @@ private:
 protected:
 
 };
-
+} // end namespace
 
 #endif

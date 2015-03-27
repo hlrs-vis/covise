@@ -1,4 +1,4 @@
-#include "coMUIContainer.h"
+#include "Container.h"
 #include <cover/coTabletUI.h>
 #include <util/coTabletUIMessages.h>
 #include <net/covise_connect.h>
@@ -6,41 +6,43 @@
 #include <net/message.h>
 #include <net/message_types.h>
 
+using namespace mui;
+
 // constructor
-coMUIContainer::coMUIContainer()
+Container::Container()
 {
     menuItem = new vrui::coRowMenu("menuItem", 0, 0, false);
 }
 
 // destructor
-coMUIContainer::~coMUIContainer()
+Container::~Container()
 {
 }
 
 // get ID
-int coMUIContainer::getTUIID()
+int Container::getTUIID()
 {
     return ID;
 }
 
 // get Pointer to VR-Parent
-vrui::coMenu* coMUIContainer::getVRUI()
+vrui::coMenu* Container::getVRUI()
 {
     return menuItem;
 }
 
-bool coMUIContainer::existVRUI()
+bool Container::existVRUI()
 {
     return false;
 }
 
-bool coMUIContainer::existTUI()
+bool Container::existTUI()
 {
     return false;
 }
 
 // needs to be overwritten by inherited class
-void coMUIContainer::setPos(int posx, int posy)
+void Container::setPos(int posx, int posy)
 {
-    std::cerr << "ERROR: coMUIContainer::setPos(int, int): Was called and should have been overwritten by inherited class." << std::endl;
+    std::cerr << "ERROR: Container::setPos(int, int): Was called and should have been overwritten by inherited class." << std::endl;
 }
