@@ -12,7 +12,7 @@
 #include <string>
 
 using namespace std;
-using namespace xercesc_3_1;
+using namespace xercesc;
 
 
 // constructor:
