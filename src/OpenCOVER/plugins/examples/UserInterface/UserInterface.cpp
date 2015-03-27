@@ -1,4 +1,5 @@
 #include "UserInterface.h"
+
 #include <cover/mui/ToggleButton.h>
 #include <cover/mui/Tab.h>
 #include <cover/mui/PotiSlider.h>
@@ -6,10 +7,8 @@
 #include <cover/mui/support/ConfigManager.h>
 #include <cover/mui/LabelElement.h>
 #include <cover/mui/Container.h>
-#include <iostream>
 
-#include <cover/coTabletUI.h>
-#include <cover/coVRTui.h>
+#include <iostream>
 
 
 UserInterface::UserInterface()

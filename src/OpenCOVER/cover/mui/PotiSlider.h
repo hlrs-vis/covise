@@ -4,7 +4,6 @@
 #ifndef MUIPOTISLIDER_H
 #define MUIPOTISLIDER_H
 
-#include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenuItem.h>
 #include "Widget.h"

@@ -7,11 +7,6 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRNavigationManager.h>
-#include <cover/coVRTui.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <OpenVRUI/osg/mathUtils.h>
 

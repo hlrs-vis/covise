@@ -4,10 +4,9 @@
  *
 */
 
-#ifndef BEISPIEL_H
-#define BEISPIEL_H
+#ifndef USERINTERFACEEXAMPLEPLUGIN_H
+#define USERINTERFACEEXAMPLEPLUGIN_H
 
-#include <cover/coVRPlugin.h>
 #include <boost/smart_ptr.hpp>
 #include <cover/mui/support/Listener.h>
 

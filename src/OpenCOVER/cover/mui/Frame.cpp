@@ -3,7 +3,6 @@
 
 
 #include <cover/coVRTui.h>
-#include <cover/coTabletUI.h>
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coMenuItem.h>

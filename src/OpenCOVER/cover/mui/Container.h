@@ -2,12 +2,14 @@
 #define MUICONTAINER_H
 
 #include "Element.h"
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coUIContainer.h>
-#include <OpenVRUI/coMenu.h>
 #include <iostream>
 #include <boost/smart_ptr.hpp>
 
+namespace vrui
+{
+class coMenu;
+class coRowMenu;
+}
 
 namespace mui
 {

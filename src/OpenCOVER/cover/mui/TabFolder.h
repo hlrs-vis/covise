@@ -6,11 +6,6 @@
 #define TABFOLDER_H
 
 #include <cover/coVRPlugin.h>
-#include <cover/coTabletUI.h>
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coMenu.h>
-#include "support/ConfigManager.h"
 #include "Container.h"
 #include <vector>
 #include <boost/smart_ptr.hpp>
@@ -26,6 +21,7 @@ class coMenuItem;
 
 namespace mui
 {
+class ConfigManager;
 // class:
 class COVEREXPORT TabFolder: public Container, public opencover::coTUIListener, public vrui::coMenuListener
 {

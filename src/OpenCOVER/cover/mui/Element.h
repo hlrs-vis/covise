@@ -7,9 +7,7 @@
  * \author Andreas Grimm
  * \date
  */
-
-#include <tui/coAbstractTabletUI.h>
-#include <OpenVRUI/coUIContainer.h>
+#include <cover/coVRPlugin.h>
 #include <cover/mui/support/Listener.h>
 
 

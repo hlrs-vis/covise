@@ -4,7 +4,6 @@
 #include <cover/coVRTui.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <cover/coVRPluginSupport.h>
-#include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenuItem.h>
 #include "support/ConfigManager.h"
 #include "Container.h"

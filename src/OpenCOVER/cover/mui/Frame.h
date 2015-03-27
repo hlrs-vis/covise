@@ -5,9 +5,7 @@
 #ifndef MUIFRAME_H
 #define MUIFRAME_H
 
-#include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include <OpenVRUI/coMenuItem.h>
 #include "Container.h"
 #include <boost/smart_ptr.hpp>
 

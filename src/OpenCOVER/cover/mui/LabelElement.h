@@ -4,7 +4,6 @@
 #define MUILABELELEMENT_H
 
 #include <cover/coVRPlugin.h>
-#include <cover/coTabletUI.h>
 #include "Widget.h"
 #include <boost/smart_ptr.hpp>
 

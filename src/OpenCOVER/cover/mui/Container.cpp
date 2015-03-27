@@ -1,10 +1,7 @@
 #include "Container.h"
 #include <cover/coTabletUI.h>
-#include <util/coTabletUIMessages.h>
-#include <net/covise_connect.h>
-#include <net/covise_host.h>
-#include <net/message.h>
-#include <net/message_types.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coMenu.h>
 
 using namespace mui;
 

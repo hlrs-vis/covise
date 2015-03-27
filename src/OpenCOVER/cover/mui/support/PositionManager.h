@@ -1,7 +1,7 @@
 // assigning positions for TUI-Elements
 
-#ifndef MUIPositionManager_H
-#define MUIPositionManager_H
+#ifndef MUIPOSITIONMANAGER_H
+#define MUIPOSITIONMANAGER_H
 
 #include <iostream>
 #include <vector>

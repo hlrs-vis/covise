@@ -4,6 +4,8 @@
 #include "support/ConfigManager.h"
 #include "Container.h"
 #include <OpenVRUI/coLabelMenuItem.h>
+#include <cover/coTabletUI.h>
+#include <OpenVRUI/coMenu.h>
 
 #include <iostream>
 

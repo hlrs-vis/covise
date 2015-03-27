@@ -3,8 +3,6 @@
 
 
 #include <cover/coVRTui.h>
-#include <cover/coVRPluginSupport.h>
-#include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>

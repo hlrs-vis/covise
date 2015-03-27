@@ -14,8 +14,9 @@
 
 #include <cover/mui/support/Listener.h>
 
-#include <cover/coVRPlugin.h>
 #include <osg/ClipPlane>
+
+#include <PluginUtil/coVR3DTransRotInteractor.h>
 
 namespace vrui
 {
@@ -32,7 +33,6 @@ class Tab;
 using namespace vrui;
 using namespace opencover;
 
-#include <PluginUtil/coVR3DTransRotInteractor.h>
 
 class ClipPlanePlugin : public coVRPlugin, public mui::Listener
 {
