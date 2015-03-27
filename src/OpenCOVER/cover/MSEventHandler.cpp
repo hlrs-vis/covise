@@ -221,35 +221,38 @@ void MSEventHandler::update()
             time.tv_usec = 0;
             fd_set rfds;
             FD_ZERO(&rfds);
-            FD_SET(notifyFd, &rfds);
-            const int ret = select(notifyFd + 1, &rfds, NULL, NULL, &time);
-            if (ret > 0 && FD_ISSET(notifyFd, &rfds))
+            if (notifyFd >= 0)
             {
-                char notifyBuf[4096];
-                const int len = read(notifyFd, (struct inotify_event *)notifyBuf, sizeof(notifyBuf));
-                int i = 0;
-                while (i < len)
+                FD_SET(notifyFd, &rfds);
+                const int ret = select(notifyFd + 1, &rfds, NULL, NULL, &time);
+                if (ret > 0 && FD_ISSET(notifyFd, &rfds))
                 {
-                    struct inotify_event *e = (struct inotify_event *)&notifyBuf[i];
-
-                    if (e->mask & IN_DELETE)
+                    char notifyBuf[4096];
+                    const int len = read(notifyFd, (struct inotify_event *)notifyBuf, sizeof(notifyBuf));
+                    int i = 0;
+                    while (i < len)
                     {
-                        if (deviceName == e->name)
-                        {
-                            std::cerr << "Keyboard: closing device " << devicePathname << std::endl;
-                            close(keyboardFd);
-                            keyboardFd = -1;
-                        }
-                    }
-                    if (e->mask & IN_CREATE)
-                    {
-                        if (deviceName == e->name && keyboardFd == -1)
-                        {
-                            openEvdev();
-                        }
-                    }
+                        struct inotify_event *e = (struct inotify_event *)&notifyBuf[i];
 
-                    i += (sizeof(struct inotify_event) + e->len);
+                        if (e->mask & IN_DELETE)
+                        {
+                            if (deviceName == e->name)
+                            {
+                                std::cerr << "Keyboard: closing device " << devicePathname << std::endl;
+                                close(keyboardFd);
+                                keyboardFd = -1;
+                            }
+                        }
+                        if (e->mask & IN_CREATE)
+                        {
+                            if (deviceName == e->name && keyboardFd == -1)
+                            {
+                                openEvdev();
+                            }
+                        }
+
+                        i += (sizeof(struct inotify_event) + e->len);
+                    }
                 }
             }
         }
