@@ -319,6 +319,8 @@
 		 <objects>
 			<object name="620-40" icon="Germany/620-40.png" type="620-40" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
 			<object name="620-41" icon="Germany/620-41.png" type="620-41" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
+			<object name="reflectorPost" icon="" type="reflectorPost" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
+			<object name="reflectorPostYellow" icon="" type="reflectorPostYellow" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
 			<object name="625-10" icon="Germany/625-10.png" type="625-10" distance="0.5" width="0.5" length="0.5" height="1.2" radius="0.0" repeatDistance="50" />
 			<object name="625-20" icon="Germany/625-20.png" type="625-20" distance="0.5" width="0.5" length="0.5" height="1.2" radius="0.0" repeatDistance="50" />
 			<object name="625-10-20" icon="Germany/625-10-20.png" type="625-10-20" distance="0.5" width="0.5" length="0.5" height="1.2" radius="0.0" repeatDistance="50" />

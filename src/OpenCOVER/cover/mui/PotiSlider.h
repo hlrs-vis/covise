@@ -1,13 +1,12 @@
 // class, which creates a Poti as VRUI-Element
 // creates a Slider as TUI-Element
 
-#ifndef COMUIPOTISLIDER_H
-#define COMUIPOTISLIDER_H
+#ifndef MUIPOTISLIDER_H
+#define MUIPOTISLIDER_H
 
-#include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenuItem.h>
-#include "coMUIWidget.h"
+#include "Widget.h"
 #include <boost/smart_ptr.hpp>
 
 namespace vrui
@@ -18,18 +17,21 @@ class coUIElement;
 class coMenu;
 }
 
-// forwarddeclaration:
-class coMUIConfigManager;
-class coMUIContainer;
 
-class COVEREXPORT coMUIPotiSlider:public coMUIWidget, public opencover::coTUIListener, public vrui::coMenuListener{
-    Q_OBJECT
+namespace mui
+{
+// forwarddeclaration:
+class ConfigManager;
+class Container;
+
+class COVEREXPORT PotiSlider:public Widget, public opencover::coTUIListener, public vrui::coMenuListener
+{
 
 public:
     // constructor/destructor:
-    coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue, const std::string label);
-    coMUIPotiSlider(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue);
-    ~coMUIPotiSlider();
+    PotiSlider(const std::string UniqueIdentifier, Container* parent, float min, float max, float defaultValue, const std::string label);
+    PotiSlider(const std::string UniqueIdentifier, Container* parent, float min, float max, float defaultValue);
+    ~PotiSlider();
 
     // methods:
 
@@ -40,8 +42,10 @@ public:
     void setVisible(bool visible, std::string UI);   // set visible-value for named UI-Elements
     void setLabel(std::string label);                // set label for all UI-Elements
     void setLabel(std::string label, std::string UI);// set label for named UI-Elements
-    coMUIContainer* getParent();
+    Container* getParent();
     std::string getUniqueIdentifier();
+
+    void setValue(float newVal);
 
     // variables:
 
@@ -54,25 +58,21 @@ private:
     std::vector<device> Devices;
     std::string Label;
     std::string Identifier;
-    coMUIContainer* Parent;
-    coMUIConfigManager *ConfigManager;
+    Container* Parent;
+    ConfigManager *configManager;
     boost::shared_ptr<opencover::coTUIFloatSlider> TUIElement;
     boost::shared_ptr<vrui::coPotiMenuItem> VRUIElement;
 
     // methods:
-    void constructor(const std::string UniqueIdentifier, coMUIContainer* parent, float min, float max, float defaultValue, const std::string label);
-    void createTUIElement(std::string Label, coMUIContainer* Parent);
+    void constructor(const std::string UniqueIdentifier, Container* parent, float min, float max, float defaultValue, const std::string label);
+    void createTUIElement(std::string Label, Container* Parent);
     void createVRUIElement (std::string Label);
 
     void tabletEvent(opencover::coTUIElement *tUIItem);
     void menuEvent(vrui::coMenuItem *menuItem);
 
-public slots:
-    void setValue(float newVal);
 
-signals:
-    void valueChanged();
 
 };
-
+} // end namespace
 #endif

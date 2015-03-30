@@ -1,13 +1,13 @@
 // class, which creats a checkbox with label as VRUI
 // creates a ToggleButton as TUI
 
-#ifndef COMUITOGGLEBUTTON_H
-#define COMUITOGGLEBUTTON_H
+#ifndef MUITOGGLEBUTTON_H
+#define MUITOGGLEBUTTON_H
 
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coMenuItem.h>
-#include "coMUIWidget.h"
+#include "Widget.h"
 #include <boost/smart_ptr.hpp>
 
 
@@ -18,20 +18,22 @@ class coRowMenu;
 class coUIElement;
 }
 
-class coMUIContainer;
-class coMUIConfigManager;
 
-
-
-class COVEREXPORT coMUIToggleButton: public coMUIWidget, public opencover::coTUIListener, public vrui::coMenuListener
+namespace mui
 {
-    Q_OBJECT
+class Container;
+class ConfigManager;
+
+
+
+class COVEREXPORT ToggleButton: public Widget, public opencover::coTUIListener, public vrui::coMenuListener
+{
 
 public:
     // constructor/destructor:
-    coMUIToggleButton(const std::string UniqueIdentifier, coMUIContainer* parent, const std::string label);
-    coMUIToggleButton(const std::string UniqueIdentifier, coMUIContainer* parent);
-    ~coMUIToggleButton();
+    ToggleButton(const std::string UniqueIdentifier, Container* parent, const std::string label);
+    ToggleButton(const std::string UniqueIdentifier, Container* parent);
+    ~ToggleButton();
 
     // methods:
     void setState(bool);                                                            // set status (pressed or not)
@@ -41,18 +43,22 @@ public:
     void setVisible(bool visible, std::string UI);                                  // sets visible-value for named UI-elements
     void setLabel(std::string label);                                               // sets Label for all UI-elements
     void setLabel(std::string label, std::string UI);                               // sets Label for named UI-elements
-    std::string getUniqueIdentifier();                                              // returns the UniqueIdentifier of this coMUIToggleButtonElement
-    coMUIContainer* getParent();                                                    // returns the parent of this coMUIToggleButtonElement if exists
+    std::string getUniqueIdentifier();                                              // returns the UniqueIdentifier of this ToggleButtonElement
+    Container* getParent();                                                    // returns the parent of this ToggleButtonElement if exists
     opencover::coTUIElement* getTUI();
+    void activate();                                                                // changes status to activated/pressed
+    void deactivate();                                                              // changes status to deactivated/released
+    void click();                                                                   // like a click with mouse
+
+    //void muiEvent(Element *muiItem);
 
     // variables:
 
 private:
     // methods:
-    void constructor(const std::string UniqueIdentifier, coMUIContainer* parent, const std::string label);
+    void constructor(const std::string UniqueIdentifier, Container* parent, const std::string label);
     void createVRUIElement(const std::string label);
-    void createTUIElement(const std::string label, coMUIContainer* parent);
-
+    void createTUIElement(const std::string label, Container* parent);
 
     void tabletEvent(opencover::coTUIElement *tUIItem);
     void menuEvent(vrui::coMenuItem *menuItem);
@@ -60,21 +66,15 @@ private:
     // variables:
     boost::shared_ptr<opencover::coTUIToggleButton> TUIElement;                       // instance of TUI-ToggleButton
     boost::shared_ptr<vrui::coCheckboxMenuItem> VRUIElement;                          // instance of VRUI-Checkbox
-    coMUIConfigManager *ConfigManager;
-    coMUIContainer* Parent;
+    ConfigManager *configManager;
+    Container* Parent;
     std::vector<device> Devices;
     std::string Label;
     std::string Identifier;
     bool State;
 
-private slots:
-    void activate();                                                                // changes status to activated/pressed
-    void deactivate();                                                              // changes status to deactivated/released
-    void click();                                                                   // like a click with mouse
-
-signals:
     void clicked();                                                                 // signal, which is emmitted, if the Value is changed by slot or clicked
 };
-
+} // end namespace
 
 #endif

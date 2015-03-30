@@ -1,5 +1,5 @@
-#ifndef CO_MUI_ELEMENT_H
-#define CO_MUI_ELEMENT_H
+#ifndef MUIELEMENT_H
+#define MUIELEMENT_H
 
 /*! file
  * \brief user interface proxy class
@@ -7,31 +7,28 @@
  * \author Andreas Grimm
  * \date
  */
+#include <cover/coVRPlugin.h>
+#include <cover/mui/support/EventListener.h>
 
-#include <tui/coAbstractTabletUI.h>
-#include <QObject>
-#include <OpenVRUI/coUIContainer.h>
-
-class coMUIConfigManager;
 
 namespace opencover
 {
 class coTUIElement;
 }
 
+namespace mui
+{
+class ConfigManager;
+
 /*
  *Base class for MUI elements
  */
-class COVEREXPORT coMUIElement: public QObject
+class COVEREXPORT Element
 {
-
-    Q_OBJECT
-
 public:
     // constructor:
-    // l: shown Name
-    coMUIElement();
-    coMUIElement(const std::string &n);
+    Element();
+    Element(const std::string name);
 
     struct device
     {
@@ -43,22 +40,26 @@ public:
     };
 
     // destructor:
-    ~coMUIElement();
+    virtual ~Element();
 
     // methods:
+
+    virtual void setEventListener(EventListener *listener);
+    virtual EventListener *getMUIListener();
 
     // must be overwritten, if inherited:
     virtual void setPos(int posx, int posy)=0;
     virtual opencover::coTUIElement* getTUI()=0;
-    std::string getUniqueIdentifier();
+    virtual std::string getUniqueIdentifier()=0;
 
 private:
-    coMUIConfigManager *ConfigManager;
+    ConfigManager *configManager;
 protected:
-    std::string label_str;                      //< label of the elements
+    std::string label;                      //< label of the elements
     std::string UniqueIdentifier;
+    EventListener *Listener;
 
 };
-
+} // end namespace
 
 #endif

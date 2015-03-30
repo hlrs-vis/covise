@@ -2,13 +2,11 @@
 // creates a Frame as TUI
 
 
-#ifndef COMUIFRAME_H
-#define COMUIFRAME_H
+#ifndef MUIFRAME_H
+#define MUIFRAME_H
 
-#include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include <OpenVRUI/coMenuItem.h>
-#include "coMUIContainer.h"
+#include "Container.h"
 #include <boost/smart_ptr.hpp>
 
 
@@ -24,17 +22,18 @@ namespace opencover
 class coTUIFrame;
 }
 
-class coMUIConfigManager;
-
-class COVEREXPORT coMUIFrame: public coMUIContainer, public opencover::coTUIListener, public vrui::coMenuListener
+namespace mui
 {
-    Q_OBJECT
+class ConfigManager;
+
+class COVEREXPORT Frame: public Container, public opencover::coTUIListener, public vrui::coMenuListener
+{
 
 public:
     // constructor/destructor
-    coMUIFrame(const std::string UniqueIdentifier, coMUIContainer* parent, std::string label);
-    coMUIFrame(const std::string UniqueIdentifier, coMUIContainer* parent);
-    ~coMUIFrame();
+    Frame(const std::string UniqueIdentifier, Container* parent, std::string label);
+    Frame(const std::string UniqueIdentifier, Container* parent);
+    ~Frame();
 
     // methods:
     int getTUIID();
@@ -45,14 +44,14 @@ public:
     void setVisible(bool visible);               // set visible for all UI-Elements
     void setVisible(bool visible, std::string UI); // set visible for named UI-Elements
     void setPos(int posx, int posy);           // positioning TUI-Element
-    coMUIContainer* getParent();                            // returns the parent
+    Container* getParent();                            // returns the parent
     std::string getUniqueIdentifier();
 
     // variables:
 
 private:
     // methods:
-    void constructor(const std::string UniqueIdentifier, coMUIContainer* parent, std::string label);
+    void constructor(const std::string UniqueIdentifier, Container* parent, std::string label);
     // variables:
     std::string Label;
     std::string Identifier;
@@ -60,8 +59,8 @@ private:
     boost::shared_ptr<vrui::coRowMenu> Submenu;
     boost::shared_ptr<vrui::coSubMenuItem> SubmenuItem;
     boost::shared_ptr<opencover::coTUIFrame> TUIElement;
-    coMUIConfigManager *ConfigManager;
-    coMUIContainer* Parent;
+    ConfigManager *configManager;
+    Container* Parent;
 };
-
+} // end namespace
 #endif

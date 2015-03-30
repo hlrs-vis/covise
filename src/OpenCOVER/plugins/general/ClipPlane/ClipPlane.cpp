@@ -7,13 +7,11 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRNavigationManager.h>
-#include <cover/coVRTui.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <OpenVRUI/osg/mathUtils.h>
+
+#include <cover/mui/Tab.h>
+#include <cover/mui/ToggleButton.h>
 
 #include <osg/MatrixTransform>
 #include <osg/Geode>
@@ -40,7 +38,7 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
     {
         int planeNumber = atoi((const char *)buf);
         plane[planeNumber].enabled = !plane[planeNumber].enabled;
-        plane[planeNumber].vruiEnableCheckbox->setState(plane[planeNumber].enabled);
+        plane[planeNumber].EnableButton->setState(plane[planeNumber].enabled);
         return;
     }
 
@@ -63,17 +61,17 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
         planeNumber = atoi(&number[11]);
         plane[planeNumber].enabled = true;
         cover->getObjectsRoot()->addClipPlane(plane[planeNumber].clip.get());
-        plane[planeNumber].vruiPickInteractorCheckbox->setState(true, true);
-        plane[planeNumber].vruiEnableCheckbox->setState(true, true);
+        plane[planeNumber].PickInteractorButton->setState(true);
+        plane[planeNumber].EnableButton->setState(true);
     }
     else if (!strncasecmp(number, "disablePick", 11))
     {
         planeNumber = atoi(&number[12]);
         plane[planeNumber].enabled = false;
         cover->getObjectsRoot()->removeClipPlane(plane[planeNumber].clip.get());
-        plane[planeNumber].vruiPickInteractorCheckbox->setState(false);
-        plane[planeNumber].vruiEnableCheckbox->setState(true);
-        menuEvent(plane[planeNumber].vruiPickInteractorCheckbox);
+        plane[planeNumber].PickInteractorButton->setState(false);
+        plane[planeNumber].EnableButton->setState(true);
+        muiEvent(plane[planeNumber].PickInteractorButton);
     }
     else if (!strncasecmp(number, "enable", 6))
     {
@@ -82,7 +80,7 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
         {
             plane[planeNumber].enabled = true;
             cover->getObjectsRoot()->addClipPlane(plane[planeNumber].clip.get());
-            plane[planeNumber].vruiEnableCheckbox->setState(true);
+            plane[planeNumber].EnableButton->setState(true);
         }
     }
     else if (!strncasecmp(number, "disable", 7))
@@ -92,7 +90,7 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
         {
             plane[planeNumber].enabled = false;
             cover->getObjectsRoot()->removeClipPlane(plane[planeNumber].clip.get());
-            plane[planeNumber].vruiEnableCheckbox->setState(false);
+            plane[planeNumber].EnableButton->setState(false);
         }
     }
     else
@@ -116,42 +114,29 @@ ClipPlanePlugin::ClipPlanePlugin()
 
 bool ClipPlanePlugin::init()
 {
-    clipTab = new coTUITab("ClipPlane", coVRTui::instance()->mainFolder->getID());
+    clipTab = new mui::Tab("plugins.general.ClipPlane.ClipTab" ,"ClipPlane");
     clipTab->setEventListener(this);
     clipTab->setPos(0, 0);
 
-    clipMenuItem = new coSubMenuItem("ClipPlane...");
-    clipMenu = new coRowMenu("ClipPlane");
-    clipMenuItem->setMenu(clipMenu);
-    clipMenuItem->setMenuListener(this);
-    cover->getMenu()->add(clipMenuItem);
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
         char name[100];
 
         sprintf(name, "ClipPlane %d PickInteractor", i);
-        plane[i].tuiPickInteractorButton = new coTUIToggleButton(name, clipTab->getID());
-        plane[i].tuiPickInteractorButton->setEventListener(this);
-        plane[i].tuiPickInteractorButton->setPos(0, i);
-        plane[i].vruiPickInteractorCheckbox = new coCheckboxMenuItem(name, false);
-        plane[i].vruiPickInteractorCheckbox->setMenuListener(this);
-        clipMenu->add(plane[i].vruiPickInteractorCheckbox);
+        plane[i].PickInteractorButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].PickInteractorButton->setEventListener(this);
+        plane[i].PickInteractorButton->setPos(0, i);
 
         sprintf(name, "ClipPlane %d DirectInteractor", i);
-        plane[i].tuiDirectInteractorButton = new coTUIToggleButton(name, clipTab->getID());
-        plane[i].tuiDirectInteractorButton->setEventListener(this);
-        plane[i].tuiDirectInteractorButton->setPos(1, i);
-        plane[i].vruiDirectInteractorCheckbox = new coCheckboxMenuItem(name, false, groupPointerArray[0]);
-        plane[i].vruiDirectInteractorCheckbox->setMenuListener(this);
-        clipMenu->add(plane[i].vruiDirectInteractorCheckbox);
+        plane[i].DirectInteractorButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].DirectInteractorButton->setEventListener(this);
+        plane[i].DirectInteractorButton->setPos(1, i);
 
         sprintf(name, "ClipPlane %d enable", i);
-        plane[i].tuiEnableButton = new coTUIToggleButton(name, clipTab->getID());
-        plane[i].tuiEnableButton->setEventListener(this);
-        plane[i].tuiEnableButton->setPos(2, i);
-        plane[i].vruiEnableCheckbox = new coCheckboxMenuItem(name, false);
-        plane[i].vruiEnableCheckbox->setMenuListener(this);
-        clipMenu->add(plane[i].vruiEnableCheckbox);
+        plane[i].EnableButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].EnableButton->setEventListener(this);
+        plane[i].EnableButton->setPos(2, i);
+
         plane[i].directInteractor = new coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
 
         osg::Matrix m;
@@ -181,12 +166,6 @@ bool ClipPlanePlugin::init()
     return true;
 }
 
-coMenuItem *ClipPlanePlugin::getMenuButton(const std::string &buttonName)
-{
-    int i = atoi(buttonName.c_str());
-    return plane[i].vruiEnableCheckbox;
-}
-
 ClipPlanePlugin::~ClipPlanePlugin()
 {
     cover->getScene()->removeChild(interactorTransform.get());
@@ -201,8 +180,6 @@ ClipPlanePlugin::~ClipPlanePlugin()
     }
 
     delete clipTab;
-    delete clipMenu;
-    delete clipMenuItem;
 }
 
 Vec4d ClipPlanePlugin::matrixToEquation(const Matrix &mat)
@@ -337,7 +314,7 @@ void ClipPlanePlugin::preFrame()
     }
 }
 
-void ClipPlanePlugin::menuEvent(coMenuItem *item)
+/*void ClipPlanePlugin::menuEvent(coMenuItem *item)
 {
     ClipNode *clipNode = cover->getObjectsRoot();
 
@@ -414,18 +391,18 @@ void ClipPlanePlugin::menuEvent(coMenuItem *item)
             }
         }
     }
-}
+}*/
 
-void ClipPlanePlugin::tabletEvent(coTUIElement *tUIItem)
+void ClipPlanePlugin::muiEvent(mui::Element *muiItem)
 {
     ClipNode *clipNode = cover->getObjectsRoot();
 
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
         // enable button was clicked
-        if (tUIItem == plane[i].tuiEnableButton)
+        if (muiItem == plane[i].EnableButton)
         {
-            bool state = plane[i].tuiEnableButton->getState();
+            bool state = plane[i].EnableButton->getState();
             if (state)
             {
                 plane[i].enabled = true;
@@ -436,15 +413,10 @@ void ClipPlanePlugin::tabletEvent(coTUIElement *tUIItem)
                 plane[i].enabled = false;
                 clipNode->removeClipPlane(plane[i].clip.get());
             }
-
-            if (plane[i].vruiEnableCheckbox)
-            {
-                plane[i].vruiEnableCheckbox->setState(state);
-            }
         }
-        else if (tUIItem == plane[i].tuiDirectInteractorButton)
+        else if (muiItem == plane[i].DirectInteractorButton)
         {
-            bool state = plane[i].tuiDirectInteractorButton->getState();
+            bool state = plane[i].DirectInteractorButton->getState();
             if (state)
             {
                 plane[i].showDirectInteractor_ = true;
@@ -453,7 +425,6 @@ void ClipPlanePlugin::tabletEvent(coTUIElement *tUIItem)
                     coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
                     plane[i].enabled = true;
                     clipNode->addClipPlane(plane[i].clip.get());
-                    plane[i].vruiEnableCheckbox->setState(true);
                 }
             }
             else
@@ -464,14 +435,14 @@ void ClipPlanePlugin::tabletEvent(coTUIElement *tUIItem)
                     coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
                 }
             }
-            if (plane[i].vruiDirectInteractorCheckbox)
+            if (plane[i].DirectInteractorButton)
             {
-                plane[i].vruiDirectInteractorCheckbox->setState(state);
+                plane[i].DirectInteractorButton->setState(state);
             }
         }
-        else if (tUIItem == plane[i].tuiPickInteractorButton)
+        else if (muiItem == plane[i].PickInteractorButton)
         {
-            bool state = plane[i].tuiPickInteractorButton->getState();
+            bool state = plane[i].PickInteractorButton->getState();
             if (state)
             {
                 plane[i].showPickInteractor_ = true;
@@ -480,7 +451,6 @@ void ClipPlanePlugin::tabletEvent(coTUIElement *tUIItem)
 
                 plane[i].enabled = true;
                 clipNode->addClipPlane(plane[i].clip.get());
-                plane[i].vruiEnableCheckbox->setState(true);
 
                 if (!plane[i].valid)
                 {
@@ -492,28 +462,19 @@ void ClipPlanePlugin::tabletEvent(coTUIElement *tUIItem)
                 plane[i].showPickInteractor_ = false;
                 plane[i].pickInteractor->hide();
             }
-            if (plane[i].vruiPickInteractorCheckbox)
-            {
-                plane[i].vruiPickInteractorCheckbox->setState(state);
-            }
         }
     }
 
-    cerr << "tabletEvent" << endl;
+    cerr << "muiEvent" << endl;
 }
 
-void ClipPlanePlugin::tabletPressEvent(coTUIElement *)
+void ClipPlanePlugin::muiPressEvent(mui::Element *)
 {
-    cerr << "tabletPressEvent" << endl;
+    cerr << "muiPressEvent" << endl;
 }
 
-void ClipPlanePlugin::tabletReleaseEvent(coTUIElement * /*tUIItem*/)
+void ClipPlanePlugin::muiReleaseEvent(mui::Element *)
 {
-    //if(tUIItem == clipTab)
-    //{
-    //   active = false;
-    //   cover->setActiveClippingPlane(-1);
-    //}
 }
 
 Geode *ClipPlanePlugin::loadPlane()

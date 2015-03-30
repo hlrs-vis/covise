@@ -1,11 +1,14 @@
-#ifndef COMUIDEFAULTVALUES_H
-#define COMUIDEFAULTVALUES_H
+#ifndef MUIDEFAULTVALUES_H
+#define MUIDEFAULTVALUES_H
 
 #include <iostream>
 
-// Class coMUIDefaultValues handles the default-values and returns them to the other functions
+
+namespace mui
+{
+// Class DefaultValues handles the default-values and returns them to the other functions
 // Default-values can easily be changed here
-class coMUIDefaultValues
+class DefaultValues
 {
 private:
     struct device
@@ -14,8 +17,8 @@ private:
         std::string Device;
     };
 public:
-    coMUIDefaultValues();
-    ~coMUIDefaultValues();
+    DefaultValues();
+    ~DefaultValues();
 
     // accerss to the default-values:
     int *getDefaultPosition();
@@ -61,5 +64,5 @@ private:
     bool PositionFirstCall;
 
 };
-
+} // end namespace
 #endif
