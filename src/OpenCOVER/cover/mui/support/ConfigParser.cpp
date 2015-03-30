@@ -12,8 +12,13 @@
 #include <string>
 
 using namespace std;
+<<<<<<< HEAD:src/OpenCOVER/cover/mui/support/ConfigParser.cpp
 using namespace xercesc_3_1;
 using namespace mui;
+=======
+using namespace xercesc;
+
+>>>>>>> ceec2b1cf1d5366e3aec53c986cd6c847a6476c9:src/OpenCOVER/cover/mui/support/coMUIConfigParser.cpp
 
 // constructor:
 ConfigParser::ConfigParser(const std::string xmlAdresse)

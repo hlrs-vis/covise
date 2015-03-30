@@ -237,6 +237,18 @@ VRWindow::createWin(int i)
     {
         traits->displayNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11DisplayNum;
         traits->screenNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11ScreenNum;
+
+        // if possible, share graphics context with other windows
+        for (int j=0; j<i; ++j)
+        {
+            const windowStruct &wj = coVRConfig::instance()->windows[j];
+            const windowStruct &wi = coVRConfig::instance()->windows[i];
+            if (wj.pipeNum == wi.pipeNum)
+            {
+                traits->sharedContext = wj.window;
+                break;
+            }
+        }
     }
     //traits->alpha = 8;
     if (coVRConfig::instance()->m_stencil == true)

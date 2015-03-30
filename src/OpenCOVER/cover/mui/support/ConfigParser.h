@@ -1,18 +1,11 @@
 #ifndef MUICONFIGPARSER_H
 #define MUICONFIGPARSER_H
 
-#include <iostream>
 #include <boost/smart_ptr.hpp>
 
-// forward-declaration
-namespace xercesc_3_1
-{
-class XercesDOMParser;
-class DOMDocument;
-class DOMNode;
-class DOMNodeList;
-class DOMElement;
-}
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOM.hpp>
 
 namespace mui
 {
@@ -28,8 +21,8 @@ public:
     ~ConfigParser();
 
     // memberfunction:
-    const std::string getType(xercesc_3_1::DOMElement* Element);         // return the type of the element
-    bool isNodeElement(xercesc_3_1::DOMNode* Node);
+    const std::string getType(xercesc::DOMElement* Element);         // return the type of the element
+    bool isNodeElement(xercesc::DOMNode* Node);
     bool fileExist(std::string File);
     //std::string getValueClassInstanzAttribute(const std::string UI, const std::string Klasse, const std::string Instanz, const std::string Attribute);
 
@@ -43,11 +36,11 @@ public:
 
 private:
     // membervariables:
-    boost::shared_ptr<xercesc_3_1::XercesDOMParser> parser;
-    xercesc_3_1::DOMDocument* parsedDoc;
-    xercesc_3_1::DOMElement* rootElement;
-    xercesc_3_1::DOMNodeList* nodeList;
-    xercesc_3_1::DOMNode* UIElementNode;
+    boost::shared_ptr<xercesc::XercesDOMParser> parser;
+    xercesc::DOMDocument* parsedDoc;
+    xercesc::DOMElement* rootElement;
+    xercesc::DOMNodeList* nodeList;
+    xercesc::DOMNode* UIElementNode;
 
     boost::shared_ptr<DefaultValues> defaultValues;
 
@@ -57,10 +50,10 @@ private:
     // memberfunctions:
     void initializeParser(std::string adress);
 
-    xercesc_3_1::DOMNode* getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, xercesc_3_1::DOMNodeList* NodeListe);
-    bool existElement(const std::string TagName, const std::string Attribute, xercesc_3_1::DOMNodeList* NodeListe);
-    bool existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, xercesc_3_1::DOMNodeList* NodeListe);
-    std::pair<std::string, bool> getAttributeValue(const std::string TagName, const std::string Attribute, xercesc_3_1::DOMNodeList* NodeListe);
+    xercesc::DOMNode* getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, xercesc::DOMNodeList* NodeListe);
+    bool existElement(const std::string TagName, const std::string Attribute, xercesc::DOMNodeList* NodeListe);
+    bool existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, xercesc::DOMNodeList* NodeListe);
+    std::pair<std::string, bool> getAttributeValue(const std::string TagName, const std::string Attribute, xercesc::DOMNodeList* NodeListe);
 
 };
 } // end namespace
