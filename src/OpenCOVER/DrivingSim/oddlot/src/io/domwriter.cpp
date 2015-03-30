@@ -267,23 +267,30 @@ DomWriter::visit(Object *object)
     }
 
     ObjectContainer * objectContainer = signalManager_->getObjectContainer(object->getType());
-    QList<ObjectCorner *> objectCorners =  objectContainer->getObjectCorners();
-    if (objectCorners.size() > 0)
+    if (objectContainer)
     {
-        QDomElement outlineElement = doc_->createElement("outline");
-
-        for (int i = 0; i < objectCorners.size(); i++)
+        QList<ObjectCorner *> objectCorners =  objectContainer->getObjectCorners();
+        if (objectCorners.size() > 0)
         {
-            QDomElement cornerElement = doc_->createElement("cornerLocal");
-            ObjectCorner *corner = objectCorners.at(i);
+            QDomElement outlineElement = doc_->createElement("outline");
 
-            cornerElement.setAttribute("height", corner->getHeight());
-            cornerElement.setAttribute("z", corner->getZ());
-            cornerElement.setAttribute("v", corner->getV());
-            cornerElement.setAttribute("u", corner->getU());
-            outlineElement.appendChild(cornerElement);
+            for (int i = 0; i < objectCorners.size(); i++)
+            {
+                QDomElement cornerElement = doc_->createElement("cornerLocal");
+                ObjectCorner *corner = objectCorners.at(i);
+
+                cornerElement.setAttribute("height", corner->getHeight());
+                cornerElement.setAttribute("z", corner->getZ());
+                cornerElement.setAttribute("v", corner->getV());
+                cornerElement.setAttribute("u", corner->getU());
+                outlineElement.appendChild(cornerElement);
+            }
+            objectElement.appendChild(outlineElement);
         }
-        objectElement.appendChild(outlineElement);
+    }
+    else
+    {
+        qDebug() << "Domwriter: Error! Prototype of Object with type " << object->getType() << " not in signs.xml";
     }
 
     // Set mandatory attributes
