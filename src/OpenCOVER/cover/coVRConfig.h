@@ -338,6 +338,7 @@ public:
     };
     float HMDViewingAngle;
     float HMDDistance;
+    std::string glVersion;
 
 private:
     coVRConfig();

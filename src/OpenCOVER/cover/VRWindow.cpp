@@ -189,6 +189,10 @@ VRWindow::createWin(int i)
     traits->height = coVRConfig::instance()->windows[i].sy;
     traits->windowDecoration = coVRConfig::instance()->windows[i].decoration;
     traits->supportsResize = coVRConfig::instance()->windows[i].resize;
+    if(coVRConfig::instance()->glVersion.size()>0)
+    {
+        traits->glContextVersion = coVRConfig::instance()->glVersion;
+    }
     traits->windowName = "OpenCOVER";
 
     if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[i].embedded))
