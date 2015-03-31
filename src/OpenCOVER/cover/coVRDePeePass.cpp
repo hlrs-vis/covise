@@ -10,6 +10,8 @@
 #include <iostream>
 #include <assert.h>
 
+using namespace opencover;
+
 coVRDePeePass::coVRDePeePass()
 {
   root = new osg::Group;

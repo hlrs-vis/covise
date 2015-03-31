@@ -1,3 +1,9 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
 /*
   Steffen Frey
   Fachpraktikum Graphik-Programmierung 2007
@@ -18,17 +24,19 @@
 
 #include "coVRDePeePass.h"
 
+namespace opencover
+{
 /*!
   The coVRDePee class is main class for setting up and managing depth peeling. 
   A coVRDePee object can be seen as a virtual node, that has one parent and one child. The rendering of every child and subchil of this child is managed by the the coVRDePee node. Besides that, it handles a head up display.
  */
-class coVRDePee : public osg::Referenced
+class COVEREXPORT coVRDePee : public osg::Referenced
 {
 public:
   /*!
     The constructor is initialized by giving it a parent and child node (subgraph), as well as the width and height in pixels of the output window. Additionally a subgraph can be added whose children aren't depth peeled but combined with de depth peeled scene
    */
-  coVRDePee(osg::Group* parent, osg::Group* subgraph, unsigned width, unsigned height);
+  coVRDePee(osg::Group* parent, osg::Node* subgraph, unsigned width=100, unsigned height=100);
   /*!
     Takes care of clean removal of coVRDePee
    */
@@ -124,14 +132,54 @@ private:
    */
   unsigned int getNumberOfRenderPasses();
   
-  
+  /* Util methods
+  */
+  /*!
+  Reads a file and returns a string
+  */
+  bool readFile(const char* fName, std::string& s);
+
+  /*!
+  Converts a number to a string
+  */
+  std::string toString(double d);
+
+  /*!
+  Create a osg shader program consisting of a vertex shader and a 
+  fragment shader
+  */
+  osg::Program* createProgram(std::string vs, std::string fs);
+
+  /*!
+  This is a random generator to generate noise patterns.
+  The returned values range from -1 to 1
+  */
+  double getNoise(unsigned x, unsigned y, unsigned random);
+
+  /*!
+  Returns a smoothed noise version of the value that is read from the noise
+  texture
+  */
+  double smoothNoise(unsigned width, unsigned height, unsigned x, unsigned y, unsigned char* noise);
+
+  /*!
+  Creates a two dimensional color texture and apply some standard settings
+  */
+  osg::Texture2D* newColorTexture2D(unsigned width, unsigned height, unsigned accuracy);
+
+  /*!
+  Get a quad with screen size in order to show a texture full screen
+  */
+  osg::Geode* getCanvasQuad(unsigned width, unsigned height, double depth=-1);
+
+
   unsigned _texWidth;
   unsigned _texHeight;
   unsigned _width;
   unsigned _height;
   
   osg::ref_ptr<osg::Group> _parent;
-  osg::ref_ptr<osg::Group> _subgraph;
+  osg::ref_ptr<osg::Node> _subgraph;
   osg::ref_ptr<osg::Texture2D> _noiseMap;
   osg::ref_ptr<osg::Texture2D> _normalDepthMap0;
   osg::ref_ptr<osg::Texture2D> _normalDepthMap1;
@@ -166,5 +214,6 @@ private:
 
   bool _renderToFirst;
 };
+}
 
 #endif

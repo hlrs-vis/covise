@@ -111,10 +111,10 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
         int texUnit = atoi(value.c_str());
         uniform = new osg::Uniform(name.c_str(), texUnit);
     }
-    else if (type == "mat4")
+    else if (type == "dmat4")
     {
-        osg::Matrix m;
-        float values[16];
+        osg::Matrixd m;
+        double values[16];
         //ab hier neu
         if (name == "Light")
         {
@@ -135,8 +135,35 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
         }
         else
         {
-            sscanf(value.c_str(), "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
+            sscanf(value.c_str(), "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
             uniform->set(osg::Matrix(values));
+        }
+    }
+    else if (type == "mat4")
+    {
+        osg::Matrixf m;
+        
+        if (name == "Light")
+        {
+            uniform = coVRShaderList::instance()->getLight();
+        }
+        else
+        {
+            uniform = new osg::Uniform(name.c_str(), osg::Matrixf::identity());
+        }
+        if (name == "Projection")
+        {
+            uniform = coVRShaderList::instance()->getProjection();
+        }
+        if (strcasecmp(value.c_str(), "identity") == 0)
+        {
+            uniform->set(osg::Matrixf::identity());
+        }
+        else
+        {
+            float values[16];
+            sscanf(value.c_str(), "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
+            uniform->set(osg::Matrixf(values));
         }
     }
 }
@@ -197,7 +224,14 @@ void coVRUniform::setTexture(const char *tf, int i)
     }
 }
 
-void coVRUniform::setValue(osg::Matrix m)
+void coVRUniform::setValue(osg::Matrixd m)
+{
+    char ms[1600];
+    sprintf(ms, "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
+    value = ms;
+    uniform->set(m);
+}
+void coVRUniform::setValue(osg::Matrixf m)
 {
     char ms[1600];
     sprintf(ms, "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
@@ -271,17 +305,30 @@ void coVRUniform::setValue(const char *val)
         sscanf(val, "%f %f %f %f", &u, &v, &w, &a);
         uniform->set(osg::Vec4(u, v, w, a));
     }
+    else if (type == "dmat4")
+    {
+        double values[16];
+        if (strcasecmp(val, "identity") == 0)
+        {
+            uniform = new osg::Uniform(name.c_str(), osg::Matrixd::identity());
+        }
+        else
+        {
+            sscanf(val, "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
+            uniform = new osg::Uniform(name.c_str(), osg::Matrixd(values));
+        }
+    }
     else if (type == "mat4")
     {
         float values[16];
         if (strcasecmp(val, "identity") == 0)
         {
-            uniform = new osg::Uniform(name.c_str(), osg::Matrix::identity());
+            uniform = new osg::Uniform(name.c_str(), osg::Matrixf::identity());
         }
         else
         {
             sscanf(val, "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
-            uniform = new osg::Uniform(name.c_str(), osg::Matrix(values));
+            uniform = new osg::Uniform(name.c_str(), osg::Matrixf(values));
         }
     }
     else if (type == "sampler2D" || type == "sampler1D" || type == "sampler3D" || type == "samplerCube")
@@ -656,7 +703,19 @@ osg::Uniform *coVRShader::getUniform(const std::string &name)
     return NULL;
 }
 
-void coVRShader::setMatrixUniform(const std::string &name, osg::Matrix m)
+void coVRShader::setMatrixUniform(const std::string &name, osg::Matrixd m)
+{
+    std::list<coVRUniform *>::iterator it;
+    for (it = uniforms.begin(); it != uniforms.end(); it++)
+    {
+        if ((*it)->getName() == name)
+        {
+            (*it)->setValue(m);
+        }
+    }
+}
+
+void coVRShader::setMatrixUniform(const std::string &name, osg::Matrixf m)
 {
     std::list<coVRUniform *>::iterator it;
     for (it = uniforms.begin(); it != uniforms.end(); it++)
@@ -1462,8 +1521,8 @@ coVRShader::~coVRShader()
 
 coVRShaderList::coVRShaderList()
 {
-    projectionMatrix = new osg::Uniform("Projection", osg::Matrix::translate(100, 0, 0));
-    lightMatrix = new osg::Uniform("Light", osg::Matrix::translate(100, 0, 0));
+    projectionMatrix = new osg::Uniform("Projection", osg::Matrixf::translate(100, 0, 0));
+    lightMatrix = new osg::Uniform("Light", osg::Matrixf::translate(100, 0, 0));
     if (cover)
     {
         timeUniform = new osg::Uniform("Time", (int)(cover->frameTime() * 1000.0));
@@ -1697,10 +1756,10 @@ void coVRShaderList::update()
     osg::Matrix Rotpro;
     Rotpro.makeRotate(osg::DegreesToRadians(180.0), 0, 0, 1); //Rotation um 180� um z-Achse um Pfeiltextur richtig auszurichten
     osg::Matrix Transpro = Transpro.translate(0, -4000, 500); //alt pro: 0,0,100; neu - wegen translation in vrml-file muss hier auch eine durchgef�hrt werden (frustum muss von oben auf fahrbahn/wand schauen)
-    projectionMatrix->set(InvnWorldViewMat * Scalepro * Transpro * ProjMat);
+    projectionMatrix->set(osg::Matrixf(InvnWorldViewMat * Scalepro * Transpro * ProjMat));
 
     osg::Matrix Translig = Translig.translate(0, 0, 300); //alt lig: 0,400,300 - neu ohne y weil versch der fahrbahn etc
-    lightMatrix->set((BMat * WorldViewMat * InvRot) * cover->invEnvCorrectMat * Translig); //korrekt bis auf skalierung - mit ProjMat oder InvnWorldViewMat mult bringt nur verschiebung mit kamera
+    lightMatrix->set(osg::Matrixf((BMat * WorldViewMat * InvRot) * cover->invEnvCorrectMat * Translig)); //korrekt bis auf skalierung - mit ProjMat oder InvnWorldViewMat mult bringt nur verschiebung mit kamera
 
     /*osg::Matrix ProjMat;
    ProjMat.makePerspective(160.0,(1024/768),1.0,10000.0);

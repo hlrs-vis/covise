@@ -17,14 +17,22 @@
 #include <osg/Projection>
 #include <osg/Geode>
 
-#include "Utility.h"
+#include "coVRFileManager.h"
 
 #include <osg/ShapeDrawable>
 #include <osg/Geometry>
 #include <assert.h>
 #include <iostream>
 
-coVRDePee::coVRDePee(osg::Group* parent, osg::Group* subgraph, unsigned width, unsigned height)
+#include <stdio.h>
+#include <osg/Geometry>
+#include <osg/Geode>
+#include <osgDB/FileUtils>
+#include <osgDB/fstream>
+
+using namespace opencover;
+
+coVRDePee::coVRDePee(osg::Group* parent, osg::Node* subgraph, unsigned width, unsigned height)
 {
   _renderToFirst = false;
 
@@ -33,9 +41,9 @@ coVRDePee::coVRDePee(osg::Group* parent, osg::Group* subgraph, unsigned width, u
   _isEdgy = true;
   _isCrayon = false;
 
-  _normalDepthMapProgram = Utility::createProgram("shaders/depthpeel_normaldepthmap.vert","shaders/depthpeel_normaldepthmap.frag");
-  _colorMapProgram = Utility::createProgram("shaders/depthpeel_colormap.vert","shaders/depthpeel_colormap.frag" );
-  _edgeMapProgram = Utility::createProgram("shaders/depthpeel_edgemap.vert", "shaders/depthpeel_edgemap.frag");
+  _normalDepthMapProgram = createProgram("share/covise/shaders/depthpeel_normaldepthmap.vert","share/covise/shaders/depthpeel_normaldepthmap.frag");
+  _colorMapProgram = createProgram("share/covise/shaders/depthpeel_colormap.vert","share/covise/shaders/depthpeel_colormap.frag" );
+  _edgeMapProgram = createProgram("share/covise/shaders/depthpeel_edgemap.vert", "share/covise/shaders/depthpeel_edgemap.frag");
 
   _parent = new osg::Group;
   parent->addChild(_parent.get());
@@ -57,16 +65,16 @@ coVRDePee::coVRDePee(osg::Group* parent, osg::Group* subgraph, unsigned width, u
   _edgy = new osg::Uniform("edgy", true);
   _sketchiness = new osg::Uniform("sketchiness", (float) 1.0);
 
-  _normalDepthMap0  = Utility::newColorTexture2D(_texWidth, _texHeight, 32);
-  _normalDepthMap1  = Utility::newColorTexture2D(_texWidth, _texHeight, 32);
-  _edgeMap = Utility::newColorTexture2D(_texWidth, _texHeight, 8);
-  _colorMap = Utility::newColorTexture2D(_texWidth, _texHeight, 8);
+  _normalDepthMap0  = newColorTexture2D(_texWidth, _texHeight, 32);
+  _normalDepthMap1  = newColorTexture2D(_texWidth, _texHeight, 32);
+  _edgeMap = newColorTexture2D(_texWidth, _texHeight, 8);
+  _colorMap = newColorTexture2D(_texWidth, _texHeight, 8);
 
   //create a noise map...this doesn't end up in a new rendering pass
   (void) createMap(NOISE_MAP);
 
   //the viewport aligned quad
-  _quadGeode = Utility::getCanvasQuad(_width, _height);
+  _quadGeode = getCanvasQuad(_width, _height);
 
 
   //!!!Getting problems if assigning unit to texture in depth peeling subgraph and removing depth peeling steps!!!
@@ -242,7 +250,7 @@ bool coVRDePee::createNoiseMap()
   int random=rand() % 5000;
   for(unsigned y=0; y < _height; y++)
     for(unsigned x=0; x < _width; x++)
-      data[y*_width + x] = (unsigned char) (0.5 * 255.0 + Utility::getNoise(x, y, random) * 0.5 * 255.0);
+      data[y*_width + x] = (unsigned char) (0.5 * 255.0 + getNoise(x, y, random) * 0.5 * 255.0);
 
   //if style isn't crayon style, smooth the noise map
   if(!_isCrayon)
@@ -251,11 +259,11 @@ bool coVRDePee::createNoiseMap()
         {
           for(unsigned y=0; y < _height; y++)
             for(unsigned x=0; x < _width; x++)
-              tmpData[y*_width + x] = (unsigned char)Utility::smoothNoise(_width, _height,x,y, data);
+              tmpData[y*_width + x] = (unsigned char)smoothNoise(_width, _height,x,y, data);
 
           for(unsigned y=0; y < _height; y++)
             for(unsigned x=0; x < _width; x++)
-              data[y*_width + x] = (unsigned char)Utility::smoothNoise(_width, _height, x,y, tmpData);
+              data[y*_width + x] = (unsigned char)smoothNoise(_width, _height, x,y, tmpData);
         }
     }
 
@@ -407,14 +415,14 @@ bool coVRDePee::createFinal()
 
   //setup shader
   std::string vertSource;
-  if(!Utility::readFile("shaders/depthpeel_final.vert", vertSource))
+  if(!readFile("share/covise/shaders/depthpeel_final.vert", vertSource))
     {
       printf("shader source not found\n");
       return false;
     }
 
   std::string fragSource;
-  if(!Utility::readFile("shaders/depthpeel_final.frag", fragSource))
+  if(!readFile("share/covise/shaders/depthpeel_final.frag", fragSource))
     {
       printf("shader source not found\n");
       return false;
@@ -653,17 +661,155 @@ bool coVRDePee::updateHUDText()
   if(!_fps)
     return false;
   std::string str;
-  std::string tmp = Utility::toString(*_fps);
+  std::string tmp = coVRDePee::toString(*_fps);
   unsigned i = tmp.find_first_of('.');
   tmp = tmp.substr(0, i + 3);
-  _hudText->setText(Utility::toString(_coVRDePeePasses.size())
+  _hudText->setText(coVRDePee::toString(_coVRDePeePasses.size())
 		    + " Depth Peeling Pass" + (_coVRDePeePasses.size() == 1 ? " " : "es ")
 		    + "((a)dd; (r)emove) "
 		    + (_isEdgy ? "+" : "-") + "(E)dgy " +
 		    + (_isSketchy ? "+" : "-") + "(S)ketchy " +
 		    + (_isColored ? "+" : "-") + "(C)olored " +
-		    + "-> "+Utility::toString(getNumberOfRenderPasses())+ " Rendering Passes "
+		    + "-> "+coVRDePee::toString(getNumberOfRenderPasses())+ " Rendering Passes "
 		    + "@ "
 		    + tmp + " fps");
   return true;
+}
+
+
+bool coVRDePee::readFile(const char* fName, std::string& s)
+{
+  const char *file = coVRFileManager::instance()->getName(fName);
+  if (file == NULL) return false;
+  std::string foundFile = file;
+
+  osgDB::ifstream is;//(fName);
+  is.open(foundFile.c_str());
+  if (is.fail())
+    {
+      std::cerr << "Could not open " << fName << " for reading.\n";
+      return false;
+    }
+  char ch = is.get();
+  while (!is.eof())
+    {
+      s += ch;
+      ch = is.get();
+    }
+  is.close();
+  return true;
+}
+
+std::string coVRDePee::toString(double d)
+{
+  std::stringstream ostr;
+  ostr << d;
+  return ostr.str();
+}
+
+osg::Program* coVRDePee::createProgram(std::string vs, std::string fs)
+{
+  //setup shader
+  std::string vertSource;
+  if(!readFile((char*)vs.c_str(), vertSource))
+    {
+      printf("shader source not found\n");
+      return 0;
+    }
+
+  std::string fragSource;
+  if(!readFile((char*)fs.c_str(), fragSource))
+    {
+      printf("shader source not found\n");
+      return 0;
+    }
+
+
+  osg::Program* program = new osg::Program;
+  program->addShader( new osg::Shader( osg::Shader::VERTEX, vertSource.c_str() ) );
+  program->addShader( new osg::Shader( osg::Shader::FRAGMENT, fragSource.c_str() ) );
+  return program;
+}
+
+double coVRDePee::getNoise(unsigned x, unsigned y, unsigned random)
+{
+  int n = x + y * 57 + random * 131;
+  n = (n<<13) ^ n;
+  double noise = (1.0f - ( (n * (n * n * 15731 + 789221) +
+                1376312589)&0x7fffffff)* 0.000000000931322574615478515625f);
+  return noise;
+}
+
+double coVRDePee::smoothNoise(unsigned width, unsigned height, unsigned x, unsigned y, unsigned char* noise)
+{
+  assert(noise);
+
+  if(x==0 || x > width -2
+     || y==0 || y > height -2)
+    return noise[x + y*width];
+
+  double corners = (noise[x-1 + (y-1) *width]
+            +noise[x+1 + (y-1)*width]
+            +noise[x-1 + (y+1) * width]
+            +noise[x+1 + (y+1) * width]) / 16.0;
+  double sides   = (noise[x-1 + y*width]
+            +noise[x+1 + y*width]
+            +noise[x + (y-1)*width]
+            +noise[x + (y+1)*width]) / 8.0;
+  double center  =  noise[x + y*width] / 4.0;
+
+  return corners + sides + center;
+}
+
+osg::Texture2D* coVRDePee::newColorTexture2D(unsigned width, unsigned height, unsigned accuracy)
+{
+  osg::Texture2D* texture2D = new osg::Texture2D;
+
+  texture2D->setTextureSize(width, height);
+  if(accuracy == 32)
+    {
+      texture2D->setInternalFormat(GL_RGBA32F_ARB);
+      texture2D->setSourceFormat(GL_RGBA);
+    }
+  else if(accuracy == 8)
+    {
+      texture2D->setInternalFormat(GL_RGBA);
+    }
+  texture2D->setSourceType(GL_FLOAT);
+  texture2D->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
+  texture2D->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
+  return texture2D;
+}
+
+osg::Geode* coVRDePee::getCanvasQuad(unsigned width, unsigned height, double depth)
+{
+  osg::Vec3Array* vertices = new osg::Vec3Array;
+  osg::Vec2Array* texCoords = new osg::Vec2Array;
+  vertices->push_back(osg::Vec3(0,0,depth));
+  texCoords->push_back(osg::Vec2(0,0));
+
+  vertices->push_back(osg::Vec3(width,0,depth));
+  texCoords->push_back(osg::Vec2(1,0));
+
+  vertices->push_back(osg::Vec3(0,height,depth));
+  texCoords->push_back(osg::Vec2(0,1));
+
+  vertices->push_back(osg::Vec3(width,height,depth));
+  texCoords->push_back(osg::Vec2(1,1));
+
+  osg::Geometry* quad = new osg::Geometry;
+  quad->setVertexArray(vertices);
+  quad->setTexCoordArray(1,texCoords);
+
+  quad->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUAD_STRIP,0,vertices->size()));
+
+  osg::Vec4Array* colors = new osg::Vec4Array;
+  colors->push_back(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+  quad->setColorArray(colors, osg::Array::BIND_OVERALL);
+
+  osg::Geode* geode = new osg::Geode();
+  geode->addDrawable(quad);
+
+  return geode;
+
 }

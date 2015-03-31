@@ -1,3 +1,9 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
 /*
   Steffen Frey
   Fachpraktikum Graphik-Programmierung 2007
@@ -12,7 +18,10 @@
 #include <osg/Node>
 #include <osg/Camera>
 #include <osg/Group>
+#include <util/coExport.h>
 
+namespace opencover
+{
 /*!
   MapMode specifies the kind of texture maps that can be generated for later
   usage
@@ -25,7 +34,7 @@ enum MapMode {NORMAL_DEPTH_MAP, COLOR_MAP, EDGE_MAP, NOISE_MAP};
   by functions in the coVRDePee class, but cleans itself up.
   Please note, that no texture generation mode is allowed to appear twice
 */
-class coVRDePeePass
+class COVEREXPORT coVRDePeePass
 {
  public:
   /*!
@@ -52,5 +61,5 @@ class coVRDePeePass
   std::map<MapMode, osg::ref_ptr<osg::Camera> > Cameras;
   std::map<MapMode, osg::ref_ptr<osg::Group> > settingNodes;
 };
-
+}
 #endif

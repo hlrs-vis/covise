@@ -94,7 +94,6 @@ SET(HEADERS
   coTUIFileBrowser/NetHelp.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
-  coVRDePeeUtil.h
   coVRDePee.h
   coVRDePeePass.h
 )
@@ -165,7 +164,6 @@ SET(SOURCES
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
-  coVRDePeeUtil.cpp
   coVRDePee.cpp
   coVRDePeePass.cpp
 )
