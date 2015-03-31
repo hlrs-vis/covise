@@ -68,6 +68,7 @@
 
 #include <stdio.h>
 #include <cstring>
+//#include <cover/coVRDePee.h>
 
 using namespace std;
 using namespace opencover;
@@ -102,6 +103,7 @@ ObjectManager::ObjectManager()
     interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "CoviseInteractions");
 
     anzset = 0;
+    depthPeeling = coCoviseConfig::isOn("COVER.DepthPeeling", false);
 }
 
 void
@@ -1586,6 +1588,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
         if (newNode)
         {
+            if(depthPeeling)
+            {
+               /* osg::Group *g = new osg::Group;
+                coVRDePee *dp = new coVRDePee(g,newNode);
+                newNode = g;*/
+            }
             if (cur_rotator)
             {
                 cur_rotator->node = newNode;

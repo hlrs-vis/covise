@@ -76,6 +76,7 @@ private:
     int t_feedback;
 
     int added_a_rotate_flag;
+    bool depthPeeling;
 
     /*	until button is released */
 
