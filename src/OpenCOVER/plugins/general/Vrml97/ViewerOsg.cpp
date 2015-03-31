@@ -5602,18 +5602,30 @@ void ViewerOsg::update(double timeNow)
             mirrors[i].camera->setProjectionMatrix(npm);
             if (mirrors[i].shader)
             {
-                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmv);
-                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npm);
-                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWC);
+                osg::Matrixf nmvf = nmv;
+                osg::Matrixf npmf = npm;
+                osg::Matrixf geoToWCf = geoToWC;
+                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
+                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
+                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
                 if (mirrors[i].instance)
                 {
                     osg::Uniform *U;
                     U = mirrors[i].instance->getUniform("ViewMatrix");
-                    U->set(nmv);
+                    if(U)
+                    {
+                        U->set(nmv);
+                    }
                     U = mirrors[i].instance->getUniform("ProjectionMatrix");
-                    U->set(npm);
+                    if(U)
+                    {
+                        U->set(npm);
+                    }
                     U = mirrors[i].instance->getUniform("ModelMatrix");
-                    U->set(geoToWC);
+                    if(U)
+                    {
+                        U->set(geoToWC);
+                    }
                 }
                 /*osg::Vec3 tmpv(1,1,1);
          osg::Vec3 tmpv2;
@@ -5649,18 +5661,30 @@ void ViewerOsg::update(double timeNow)
 	  */
             if (mirrors[i].shader)
             {
-                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmv);
-                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npm);
-                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWC);
+                osg::Matrixf nmvf = nmv;
+                osg::Matrixf npmf = npm;
+                osg::Matrixf geoToWCf = geoToWC;
+                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
+                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
+                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
                 if (mirrors[i].instance)
                 {
                     osg::Uniform *U;
                     U = mirrors[i].instance->getUniform("ViewMatrix");
-                    U->set(nmv);
+                    if(U)
+                    {
+                        U->set(nmv);
+                    }
                     U = mirrors[i].instance->getUniform("ProjectionMatrix");
-                    U->set(npm);
+                    if(U)
+                    {
+                        U->set(npm);
+                    }
                     U = mirrors[i].instance->getUniform("ModelMatrix");
-                    U->set(geoToWC);
+                    if(U)
+                    {
+                        U->set(geoToWC);
+                    }
                 }
                 /*osg::Vec3 tmpv(1,1,1);
 			  osg::Vec3 tmpv2;
