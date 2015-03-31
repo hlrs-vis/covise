@@ -94,8 +94,8 @@ SET(HEADERS
   coTUIFileBrowser/NetHelp.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
-  coVRDePee.h
-  coVRDePeePass.h
+  #coVRDePee.h
+  #coVRDePeePass.h
 )
 
 SET(SOURCES
@@ -164,8 +164,8 @@ SET(SOURCES
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
-  coVRDePee.cpp
-  coVRDePeePass.cpp
+  #coVRDePee.cpp
+  #coVRDePeePass.cpp
 )
 
 SET(MUI_SOURCES
