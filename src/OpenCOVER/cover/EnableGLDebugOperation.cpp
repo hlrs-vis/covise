@@ -35,9 +35,12 @@
 #include <osg/Notify>
 #include <iostream>
 
+#ifndef GL_VERSION_4_3
 typedef void (GL_APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+#endif
 typedef void (GL_APIENTRY *GLDebugMessageControlPROC)(GLenum , GLenum , GLenum , GLsizei , const GLuint *, GLboolean );
 typedef void (GL_APIENTRY *GLDebugMessageCallbackPROC)(GLDEBUGPROC , const void *) ;
+
 #define GL_STACK_OVERFLOW 0x0503
 #define GL_STACK_UNDERFLOW 0x0504
 #define GL_DEBUG_OUTPUT_SYNCHRONOUS 0x8242
