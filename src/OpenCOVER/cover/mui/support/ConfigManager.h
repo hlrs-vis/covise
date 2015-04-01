@@ -4,7 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <util/coExport.h>
-#include "boost/smart_ptr.hpp"
+#include <boost/smart_ptr.hpp>
+#include "DefaultValues.h"
 
 
 namespace mui
@@ -31,12 +32,13 @@ public:
     // Parser
     const std::string getConfigFile();
     void setAdress(const std::string ConfigAdress);
-    void overwriteAdress(std::string ConfigAdress);
-    std::pair<std::string, bool> getLabel(const std::string UI, const std::string Klasse, const std::string UniqueIdentifier);
+    std::pair<std::string, bool> getLabel(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, const std::string UniqueIdentifier);
+    bool existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string UniqueIdentifier, AttributesEnum Attribute);
 
     //************************************************************
     // PositionManager
     void addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned);
+    void addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, mui::AttributesEnum ParentUniqueIdentifier, bool autoassigned);
     std::pair <int,int> getPosOfElement(std::string UniqueIdentifier);
     std::pair <int,int> getFreePos(std::string UniqueIdentifierParent);
     void deletePosFromPosList(std::string UniqueIdentifier);
@@ -46,21 +48,6 @@ public:
     std::string getIdentifierByPos(std::pair<int,int> pos, std::string UniqueIdentifierParent);
     std::string getPos2Print();
 
-    //************************************************************
-    // DefaultValues
-    std::string keywordCAVE();
-    std::string keywordTablet();
-    std::string keywordPhone();
-    std::string keywordTUI();
-    std::string keywordVRUI();
-    std::string keywordPowerwall();
-    std::string keywordMainWindow();
-    std::string keywordVisible();
-    std::string keywordParent();
-    std::string keywordXPosition();
-    std::string keywordYPosition();
-    std::string keywordLabel();
-    std::string keywordClass();
 
     //************************************************************
     // ElementManager
@@ -73,14 +60,14 @@ public:
     void removeElement(std::string UniqueIdentifier);
     //************************************************************
     // Rest
-    std::string getCorrectLabel(std::string Label, std::string UI, std::string Device, std::string UniqueIdentifier);
-    bool getCorrectVisible(bool visible, std::string UI, std::string Device, std::string UniqueIdentifier);
-    std::pair<int, int> getCorrectPos(std::pair<int,int> pos, std::string UI, std::string Device, std::string UniqueIdentifier);
-    std::pair<int, int> getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
-    std::pair<int,int> getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
-    Container* getCorrectParent(Container* Parent, std::string UI, std::string Device, std::string UniqueIdentifier);
+    std::string getCorrectLabel(std::string Label, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
+    bool getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
+    std::pair<int, int> getCorrectPos(std::pair<int,int> pos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
+    std::pair<int, int> getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
+    std::pair<int, int> getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute);
+    std::pair<int,int> getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
+    Container* getCorrectParent(Container* Parent, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
     void preparePos(std::pair<int,int> pos, std::string ParentUniqueIdentifier);
-    bool existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier);
 
 
 private:

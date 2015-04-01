@@ -1,10 +1,10 @@
 <?xml version="1.0" ?>
 <Config>
-    <VRUI class="CAVE">
+    <VRUI device="CAVE">
         <plugins.examples.UserInterface.Tab1 visible="true" label="Tab1ConfigCAVE"/>
         <plugins.examples.UserInterface.Button1 visible="true" parent="plugins.examples.UserInterface.Tab1" label="Button1ConfigCAVE" />
     </VRUI>
-    <TUI class="Tablet">
+    <TUI device="Tablet">
         <plugins.examples.UserInterface.Tab1 visible="true" posx="0" posy="0" label="Tab1ConfigTablet"/>
         <plugins.examples.UserInterface.Button1 visible="true" parent="plugins.examples.UserInterface.Tab1" posx="3" posy="0" label="Button1ConfigTablet" />
     </TUI>

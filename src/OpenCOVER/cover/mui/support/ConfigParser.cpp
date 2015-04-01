@@ -20,7 +20,7 @@ ConfigParser::ConfigParser(const std::string xmlAdresse)
 {
     XMLPlatformUtils::Initialize();
 
-    defaultValues.reset(new DefaultValues);
+//    defaultValues.reset(new DefaultValues);
 
     parser.reset(new XercesDOMParser());                         // create new xercesc-parser
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
@@ -31,112 +31,6 @@ ConfigParser::ConfigParser(const std::string xmlAdresse)
 // destructor:
 ConfigParser::~ConfigParser()
 {
-}
-
-// returns true, if the element shall be visible; else return false
-bool ConfigParser::getIsVisible(const std::string UI, const std::string Klasse, const std::string Instanz)
-{
-    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))                   // element with name UI and class Klasse exists
-    {
-        UIElementNode = getElementNode(UI, defaultValues->getKeywordClass() ,Klasse, nodeList); // UIElementNode is the elementnode with name UI and class Klasse
-        if (existElement(Instanz, defaultValues->getKeywordVisible(), "false", UIElementNode->getChildNodes()))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-//! returns the matching parentname
-std::pair<std::string, bool> ConfigParser::getParent(const std::string UI, const std::string Klasse, const std::string Instanz)
-{
-    std::pair<std::string, bool> returnPair;
-    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))                  // element exists
-    {
-        UIElementNode=getElementNode(UI, defaultValues->getKeywordClass(), Klasse, nodeList);
-        if (existElement(Instanz, defaultValues->getKeywordParent(), UIElementNode->getChildNodes()))
-        {
-            if (getAttributeValue(Instanz, defaultValues->getKeywordParent(), UIElementNode->getChildNodes()).second)
-            {
-                return getAttributeValue(Instanz, defaultValues->getKeywordParent(), UIElementNode->getChildNodes());
-            }
-        }
-    }
-    returnPair.first="ConfigParser::getParent(): Parent according to ";
-    returnPair.first.append(UI);
-    returnPair.first.append(" ");
-    returnPair.first.append(Klasse);
-    returnPair.first.append(" ");
-    returnPair.first.append(Instanz);
-    returnPair.first.append(" doesn't exist.");
-    returnPair.second=false;
-    return returnPair;
-}
-
-//! returns true if attribute exists in configuration file within UI, Device and Identifier
-bool ConfigParser::existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier)
-{
-    if (existElement(UI, defaultValues->getKeywordClass(), Device, nodeList))
-    {
-        if (existElement(Identifier, Attribute, getElementNode(UI, defaultValues->getKeywordClass(), Device, nodeList)->getChildNodes()))
-        {
-            return getAttributeValue(Identifier, Attribute, getElementNode(UI, defaultValues->getKeywordClass(), Device, nodeList)->getChildNodes()).second;
-        }
-    }
-    return false;
-}
-
-//! returns the matching label
-std::pair<std::string, bool> ConfigParser::getLabel(const std::string UI, const std::string Klasse, const std::string Instanz)
-{
-    std::pair<std::string, bool> returnPair;
-    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))
-    {
-        UIElementNode = getElementNode(UI, defaultValues->getKeywordClass(), Klasse, nodeList);
-        if (existElement(Instanz, defaultValues->getKeywordLabel(), UIElementNode->getChildNodes()))
-        {
-            if (getAttributeValue(Instanz, defaultValues->getKeywordLabel(), UIElementNode->getChildNodes()).second)
-            {
-                return getAttributeValue(Instanz, defaultValues->getKeywordLabel(), UIElementNode->getChildNodes());
-            }
-        }
-    }
-    returnPair.first="ConfigParser::getLabel(): Label according to ";
-    returnPair.first.append(UI);
-    returnPair.first.append(" ");
-    returnPair.first.append(Klasse);
-    returnPair.first.append(" ");
-    returnPair.first.append(Instanz);
-    returnPair.first.append(" doesn't exist.");
-    returnPair.second=false;
-    return returnPair;
-}
-
-// returns the matching position
-std::pair<std::pair<int,int>, bool> ConfigParser::getPosition(const std::string UI, const std::string Klasse, const std::string Instanz)
-{
-    std::pair<std::pair<int,int>, bool> returnParsedPosition;
-    if (existElement(UI, defaultValues->getKeywordClass(), Klasse, nodeList))
-    {
-        UIElementNode=getElementNode(UI, defaultValues->getKeywordClass(), Klasse, nodeList);
-        bool existXpos = existElement(Instanz, defaultValues->getKeywordXPosition(), UIElementNode->getChildNodes());
-        bool existYpos = existElement(Instanz, defaultValues->getKeywordYPosition(), UIElementNode->getChildNodes());
-        if (existXpos && existYpos)
-        {
-            std::string pos_str = getAttributeValue(Instanz, defaultValues->getKeywordXPosition(), UIElementNode->getChildNodes()).first;
-            sscanf(pos_str.c_str(), "%d %d", &returnParsedPosition.first.first, &returnParsedPosition.first.second);
-            returnParsedPosition.second = true;
-            return returnParsedPosition;
-        }
-        else if (existXpos || existYpos)
-        {
-            std::cerr << "ERROR: ConfigParser::getPosition(): Only x- or y- position of " << Instanz << " declared in configuration file! Needed both positions or none." << std::endl;
-        }
-    }
-    returnParsedPosition.first.first = -1;
-    returnParsedPosition.first.second = -1;
-    returnParsedPosition.second = false;
-    return returnParsedPosition;
 }
 
 // returns true, if the file exists; else returns false
@@ -154,116 +48,135 @@ bool ConfigParser::fileExist (std::string File)
     }
 }
 
-// returns the UI-Type of the element
-const std::string ConfigParser::getType(DOMElement* Element)
+std::pair<bool,bool> ConfigParser::getIsVisible(UITypeEnum UI, DeviceTypesEnum Device, string UniqueIdentifier)
 {
-    return std::string(XMLString::transcode(Element->getTagName()));
+    std::pair<bool,bool> returnValue;
+    std::pair<std::string, bool> gottenAttribute;
+    gottenAttribute = getAttributeValue(UI, Device, UniqueIdentifier, mui::VisibleEnum);
+    returnValue.second = gottenAttribute.second;
+    if (gottenAttribute.second)                                     // matching entry exists
+    {
+        if (gottenAttribute.first == "true")
+        {
+            returnValue.first = true;
+        }
+        else if (gottenAttribute.first == "false")
+        {
+            returnValue.first = false;
+        }
+        else
+        {
+            std::cerr << "ERROR: ConfigParser::getIsVisible(): Visible-value in " << getKeywordUI(UI) << "; " << getKeywordDevice(Device) << "; " << UniqueIdentifier << " is unequal 'true' or 'false'." << std::endl;
+            returnValue.first = NULL;
+            returnValue.second = false;
+        }
+    }
+    return returnValue;
 }
 
-// returns true, if node is elementnode
-bool ConfigParser::isNodeElement(DOMNode* Node)
+std::pair<std::string, bool> ConfigParser::getParent(UITypeEnum UI, DeviceTypesEnum Device, std::string UniqueIdentifier)
 {
-    if (Node->getNodeType()==DOMNode::ELEMENT_NODE)
+    return getAttributeValue(UI, Device, UniqueIdentifier, mui::ParentEnum);
+}
+
+std::pair<std::string, bool> ConfigParser::getLabel(UITypeEnum UI, DeviceTypesEnum Device, string UniqueIdentifier)
+{
+    return getAttributeValue(UI, Device, UniqueIdentifier, mui::LabelEnum);
+}
+
+std::pair<std::pair<int,int>, bool> ConfigParser::getPos(UITypeEnum UI, DeviceTypesEnum Device, string UniqueIdentifier)
+{
+    std::pair<std::string, bool> posx_str = getAttributeValue(UI, Device, UniqueIdentifier, mui::PosXEnum);
+    std::pair<std::string, bool> posy_str = getAttributeValue(UI, Device, UniqueIdentifier, mui::PosYEnum);
+    std::pair<std::pair<int,int>, bool> returnValue;
+    if (posx_str.second && posy_str.second)
     {
-        return true;
+        returnValue.second = true;
+        sscanf(posx_str.first.c_str(), "%d", &returnValue.first.first);
+        sscanf(posy_str.first.c_str(), "%d", &returnValue.first.second);
+    }
+    else if (posx_str.second || posy_str.second)
+    {
+        std::cerr << "ERROR: ConfigParser::getPos(): only one position defined in " << getKeywordUI(UI) << "; " << getKeywordDevice(Device) << "; " << UniqueIdentifier << std::endl;
     }
     else
     {
-        return false;
+        returnValue.second = false;
     }
+    return returnValue;
 }
 
-// returns the matching elementnode
-DOMNode *ConfigParser::getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe)
+std::pair<DOMNode*,bool> ConfigParser::getDeviceEntryNode(mui::UITypeEnum UI, mui::DeviceTypesEnum Device)
 {
-    for (size_t i=0; i<(NodeListe->getLength()); ++i)                                       // loop through all elements in NodeList
+    std::pair<DOMNode*, bool> returnValue;
+    returnValue.first = NULL;
+    returnValue.second= false;
+    for (size_t i=0; i<nodeList->getLength(); ++i)
     {
-        if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE)
+        if (nodeList->item(i)->getNodeType() == DOMNode::ELEMENT_NODE)
         {
-            DOMElement* nodeElement=static_cast<DOMElement*>(NodeListe->item(i));
-            if (XMLString::transcode(nodeElement->getTagName()) == TagName)                 // match in TagName
+            std::string keywordUI = getKeywordUI(UI);
+            DOMElement* nodeElement=static_cast<DOMElement*>(nodeList->item(i));               // transform node to element
+
+            if (XMLString::transcode(nodeElement->getTagName()) == keywordUI.c_str())
             {
-                AttrVal= XMLString::transcode(nodeElement->getAttribute(XMLString::transcode(Attribute.c_str())));
-                if (!AttrVal.empty())                                                       // entry in Attribute
+                std::string keywordDevice = mui::getKeywordAttribute(mui::DeviceEnum);
+
+                std::string AttrVal = XMLString::transcode(nodeElement->getAttribute(XMLString::transcode(keywordDevice.c_str())));
+                if (AttrVal == getKeywordDevice(Device))
                 {
-                    if (AttrVal == AttributeValue)                                          // match
-                    {
-                        return NodeListe->item(i);
-                    }
+                    returnValue.first = nodeElement;
+                    returnValue.second = true;
+                    return returnValue;
                 }
             }
         }
     }
-    return NULL;
+    return returnValue;
 }
 
-// returns true, if the element exists; else return false
-bool ConfigParser::existElement(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
+std::pair<DOMElement*, bool> ConfigParser::getElement(string UniqueIdentifier, DOMNodeList *DeviceNodeChilds)
 {
-    for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
+    std::pair<DOMElement*, bool> returnValue;
+    returnValue.first = NULL;
+    returnValue.second= false;
+    for (size_t i=0; i< DeviceNodeChilds->getLength(); ++i)                         // loop through all ChildNodes in DeviceNode
     {
-        if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE)
+        if (DeviceNodeChilds->item(i)->getNodeType() == DOMNode::ELEMENT_NODE)      // Node is ElementNode
         {
-            DOMElement* nodeElement=static_cast<DOMElement*>(NodeListe->item(i));               // transform node to element
-            if (XMLString::transcode(nodeElement->getTagName()) == TagName)                     // match in TagName
+            DOMElement* nodeElement = static_cast<DOMElement*>(DeviceNodeChilds->item(i));
+            if (XMLString::transcode(nodeElement->getTagName()) == UniqueIdentifier.c_str())    // match in TagName
             {
-                AttrVal = XMLString::transcode(nodeElement->getAttribute(XMLString::transcode(Attribute.c_str())));
-                if (!AttrVal.empty())                                                           // entry in Attribute
-                {
-                    return true;
-                }
+                returnValue.second = true;
+                returnValue.first = nodeElement;
+                return returnValue;
             }
         }
     }
-    return false;
+    return returnValue;
 }
 
-// returns true, if the element exists; else return false
-bool ConfigParser::existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, DOMNodeList* NodeListe)
+std::pair<std::string,bool> ConfigParser::getAttributeValue(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, string UniqueIdentifier, mui::AttributesEnum Attribute)
 {
-    for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
+    std::pair<std::string,bool> returnValue;
+    returnValue.first = "";
+    returnValue.second= false;
+    std::pair<DOMNode*, bool> DeviceEntryNode=getDeviceEntryNode(UI, Device);
+    if (DeviceEntryNode.second)                                                       // device-Entry exists
     {
-        if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE)
+        std::pair<DOMElement*,bool> Element = getElement(UniqueIdentifier, DeviceEntryNode.first->getChildNodes());
+        if (Element.second)
         {
-            DOMElement* nodeElement=static_cast<DOMElement*>(NodeListe->item(i));               // transform node to element
-            if (XMLString::transcode(nodeElement->getTagName()) == TagName)                     // match in TagName
-            {
-                AttrVal = XMLString::transcode(nodeElement->getAttribute(XMLString::transcode(Attribute.c_str())));
-                if (AttrVal == AttributeValue)                                                  // entry in Attribute
-                {
-                    return true;
-                }
-            }
+            std::string keywordAttribute = getKeywordAttribute(Attribute);
+            std::string AttrVal = XMLString::transcode(Element.first->getAttribute(XMLString::transcode(keywordAttribute.c_str())));
+            returnValue.first=AttrVal;
+            returnValue.second=true;
+            return returnValue;
         }
     }
-    return false;
+    return returnValue;
 }
 
-// retrurns the attributevalue as std::string
-std::pair<std::string, bool> ConfigParser::getAttributeValue(const std::string TagName, const std::string Attribute, DOMNodeList* NodeListe)
-{
-    std::pair<std::string, bool> returnPair;
-    for (size_t i=0; i<(NodeListe->getLength()); ++i)                                           // loop through all elements in NodeList
-    {
-        if (NodeListe->item(i)->getNodeType()==DOMNode::ELEMENT_NODE)
-        {
-            DOMElement *nodeElement = static_cast<DOMElement*>(NodeListe->item(i));             // transform node to element
-            if (XMLString::transcode(nodeElement->getTagName()) == TagName)                     // match in TagName
-            {
-                AttrVal = XMLString::transcode(nodeElement->getAttribute(XMLString::transcode(Attribute.c_str())));
-                if (!AttrVal.empty())
-                {                                                                               // entry in Attribute
-                    returnPair.first=AttrVal;
-                    returnPair.second=true;
-                    return returnPair;
-                }
-            }
-        }
-    }
-    returnPair.first = "Attribute doesen't exist";
-    returnPair.second = false;
-    return returnPair;
-}
 
 // initializes parser with adress of configuration file
 void ConfigParser::initializeParser(std::string adress)
@@ -292,30 +205,3 @@ void ConfigParser::initializeParser(std::string adress)
     }
 }
 
-// lkets the parser read a new file
-void ConfigParser::readNewFile(std::string Filename)
-{
-    if (fileExist(Filename))
-    {                                                               // check if configuration file exists
-        try{
-            parser->parse(XMLString::transcode(Filename.c_str()));             // parse configuration file
-        }
-        catch(...)
-        {
-            cerr << "ConfigParser.cpp: error parsing XML-Datei" << endl;
-            cout << "ConfigParser.cpp: Parser konnte XML-Datei nicht parsen" << endl;
-        }
-
-        parsedDoc=parser->getDocument();                                             // save configuration file as DOMDocument
-
-        rootElement=parsedDoc->getDocumentElement();
-
-        nodeList=rootElement->getChildNodes();
-    }
-    else
-    {                                                                                  // File doesn't exist
-        cerr << endl << "****************************************************************************************" << endl;
-        cerr << "xml-Config-Datei konnte nicht gefunden werden. Bitte Namen und Pfad der Datei überprüfen" << endl;
-        cerr << "****************************************************************************************" <<endl << endl;
-    }
-}

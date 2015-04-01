@@ -9,6 +9,7 @@
  */
 #include <cover/coVRPlugin.h>
 #include <cover/mui/support/EventListener.h>
+#include <cover/mui/support/DefaultValues.h>
 
 
 namespace opencover
@@ -32,9 +33,9 @@ public:
 
     struct device
     {
-        std::string UI;
-        std::string Device;
-        std::string Identifier;
+        mui::UITypeEnum UI;
+        mui::DeviceTypesEnum Device;
+        std::string UniqueIdentifier;
         bool Visible;
         std::string Label;
     };

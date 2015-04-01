@@ -2,94 +2,57 @@
 
 using namespace mui;
 
-// constructor:
-DefaultValues::DefaultValues()
-{
-    keywordTUI = "TUI";                           // keyword for TUI in configuration file
-    keywordVRUI = "VRUI";                         // keyword for VRUI in configuration file
-    keywordTablet = "Tablet";                     // keyword for Tablet in configuration file
-    keywordCAVE = "CAVE";                         // keyword for CAVE in configuration file
-    keywordPhone = "Phone";                       // keyword for Phone in configuration file
-    keywordPowerwall = "Powerwall";               // keyword for Powerwall in configuration file
-    keywordMainWindow = "HauptfensterMainWindow"; // keyword for MainWindow in configuration file
-    keywordVisible = "visible";
-    keywordParent = "parent";
-    keywordXPosition = "posx";
-    keywordYPosition = "posy";
-    keywordLabel = "label";
-    keywordClass = "class";
 
-    visible = true;
-    PositionFirstCall = true;
+std::string mui::getKeywordUI(UITypeEnum UI)
+{
+    switch (UI)
+    {
+    case mui::TUIEnum:
+        return "TUI";
+    case mui::VRUIEnum:
+        return "VRUI";
+    }
+    std::cerr << "ConfigParser::getKeywordUI(): UITypeEnum number " << UI << " not known" << std::endl;
+    return "";
 }
 
-// destructor:
-DefaultValues::~DefaultValues()
+std::string mui::getKeywordDevice(DeviceTypesEnum Device)
 {
-
+    switch (Device)
+    {
+    case mui::TabletEnum:
+        return "Tablet";
+    case mui::CAVEEnum:
+        return "CAVE";
+    case mui::PhoneEnum:
+        return "Phone";
+    case mui::PowerwallEnum:
+        return "Powerwall";
+    }
+    std::cerr << "ConfigParser::getKeywordDevice(): DeviceTypeEnum number " << Device << " not known" << std::endl;
+    return "";
 }
 
-std::string DefaultValues::getKeywordCAVE()
+std::string mui::getKeywordAttribute(AttributesEnum Attribute)
 {
-    return keywordCAVE;
-}
+    switch (Attribute)
+    {
+    case mui::VisibleEnum:
+        return "visible";
+    case mui::ParentEnum:
+        return "parent";
+    case mui::LabelEnum:
+        return "label";
+    case mui::DeviceEnum:
+        return "device";
+    case mui::PosXEnum:
+        return "posx";
+    case mui::PosYEnum:
+        return "posy";
+    case mui::MainWindowEnum:
+        return "mainwindow";
+    }
 
-std::string DefaultValues::getKeywordTablet()
-{
-    return keywordTablet;
-}
-
-std::string DefaultValues::getKeywordTUI()
-{
-    return keywordTUI;
-}
-
-std::string DefaultValues::getKeywordVRUI()
-{
-    return keywordVRUI;
-}
-
-std::string DefaultValues::getKeywordPowerwall()
-{
-    return keywordPowerwall;
-}
-
-std::string DefaultValues::getKeywordPhone()
-{
-    return keywordPhone;
-}
-
-std::string DefaultValues::getKeywordMainWindow()
-{
-    return keywordMainWindow;
-}
-
-std::string DefaultValues::getKeywordVisible()
-{
-    return keywordVisible;
-}
-
-std::string DefaultValues::getKeywordParent()
-{
-    return keywordParent;
-}
-
-std::string DefaultValues::getKeywordXPosition()
-{
-    return keywordXPosition;
-}
-
-std::string DefaultValues::getKeywordYPosition()
-{
-    return keywordYPosition;
-}
-
-std::string DefaultValues::getKeywordLabel()
-{
-    return keywordLabel;
-}
-
-std::string DefaultValues::getKeywordClass()
-{
-    return keywordClass;
+    std::cerr << "ConfigParser::getKeywordUI(): AttributesEnum number " << Attribute << " not known" << std::endl;
+    return "";
 }

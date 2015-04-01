@@ -6,6 +6,7 @@
 #include "PositionManager.h"
 #include <cover/coTabletUI.h>
 #include <config/CoviseConfig.h>
+#include "DefaultValues.h"
 
 using namespace mui;
 
@@ -29,7 +30,6 @@ bool ConfigManager::ConfigFileExists()
 //constructor:
 ConfigManager::ConfigManager()
 {
-    defaultValues.reset(new DefaultValues());
     elementManager.reset(new ElementManager());
     positionManager.reset(new PositionManager());
     FileExists = false;
@@ -46,7 +46,7 @@ ConfigManager::ConfigManager()
             ConfigFile= std::string(covisedir) + "/config/" + ConfigFile;
         }
     }
-
+    std::cout << "ConfigManager::ConfigManager(): ConfigFile: " << ConfigFile << std::endl;
 }
 
 //destructor:
@@ -63,7 +63,7 @@ void ConfigManager::removeInstance()
 }
 
 // returns Label from ConfigFile if defined in ConfigFile; otherweise returns Label from input
-std::string ConfigManager::getCorrectLabel(std::string Label, std::string UI, std::string Device, std::string UniqueIdentifier)
+std::string ConfigManager::getCorrectLabel(std::string Label, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
 {
    if (ConfigFileExists())                                                            // check if configuration file exists
    {
@@ -77,17 +77,21 @@ std::string ConfigManager::getCorrectLabel(std::string Label, std::string UI, st
 }
 
 // returns Visible-Value from ConfigFile if defined in ConfigFile; otherwise returns Visible-Value from input
-bool ConfigManager::getCorrectVisible(bool visible, std::string UI, std::string Device, std::string UniqueIdentifier)
+bool ConfigManager::getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
 {
     if (ConfigFileExists())                                                            // configuration file existiert
     {
-        return parser->getIsVisible(UI, Device, UniqueIdentifier);
+        std::pair<bool,bool> isVisible = parser->getIsVisible(UI, Device, UniqueIdentifier);
+        if (isVisible.second)
+        {
+            return isVisible.first;
+        }
     }
     return visible;
 }
 
 // returns Parent from ConfigFile if defined; otherwise returns Parent from input
-Container* ConfigManager::getCorrectParent(Container* Parent, std::string UI, std::string Device, std::string UniqueIdentifier)
+Container* ConfigManager::getCorrectParent(Container* Parent, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
 {
     if (ConfigFileExists())
     {
@@ -101,11 +105,11 @@ Container* ConfigManager::getCorrectParent(Container* Parent, std::string UI, st
 }
 
 // returns Pos from ConfigFile if defined; otherwise returns Pos from input
-std::pair<int,int> ConfigManager::getCorrectPos(std::pair<int,int> pos, std::string UI, std::string Device, std::string UniqueIdentifier)
+std::pair<int,int> ConfigManager::getCorrectPos(std::pair<int,int> pos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
 {
     if (ConfigFileExists())
     {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
         if (ParsedPosition.second)
         {
             return ParsedPosition.first;
@@ -115,11 +119,11 @@ std::pair<int,int> ConfigManager::getCorrectPos(std::pair<int,int> pos, std::str
 }
 
 // returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign
-std::pair<int,int> ConfigManager::getCorrectPos(std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+std::pair<int,int> ConfigManager::getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
 {
     if (ConfigFileExists())
     {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
         if (ParsedPosition.second)
         {
             return ParsedPosition.first;                         // return the matchin position set in configuration file
@@ -128,12 +132,26 @@ std::pair<int,int> ConfigManager::getCorrectPos(std::string UI, std::string Devi
     return getFreePos(ParentUniqueIdentifier);
 }
 
-// returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign after inputPos
-std::pair<int,int> ConfigManager::getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string UI, std::string Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+// returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign
+std::pair<int,int> ConfigManager::getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute)
 {
     if (ConfigFileExists())
     {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPosition(UI, Device, UniqueIdentifier);
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
+        if (ParsedPosition.second)
+        {
+            return ParsedPosition.first;                         // return the matchin position set in configuration file
+        }
+    }
+    return getFreePos(mui::getKeywordAttribute(Attribute));
+}
+
+// returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign after inputPos
+std::pair<int,int> ConfigManager::getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+{
+    if (ConfigFileExists())
+    {
+        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
         if (ParsedPosition.second)
         {
             return ParsedPosition.first;
@@ -146,12 +164,13 @@ std::pair<int,int> ConfigManager::getCorrectPosExceptOfPos(std::vector<std::pair
     return getFreePosExceptOfPos(exceptPos, ParentUniqueIdentifier);
 }
 
-//****************************************************************************************************
-// Parser
-// returns Label from ConfigFile
-std::pair<std::string, bool> ConfigManager::getLabel(const std::string UI, const std::string Class, const std::string UniqueIdentifier)
+bool ConfigManager::existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string UniqueIdentifier, AttributesEnum Attribute)
 {
-    return parser->getLabel(UI, Class, UniqueIdentifier);
+    if (ConfigFileExists())
+    {
+        return parser->getAttributeValue(UI, Device, UniqueIdentifier, Attribute).second;
+    }
+    return false;
 }
 
 // returns the adress of the configuration file
@@ -160,80 +179,6 @@ const std::string ConfigManager::getConfigFile()
     return ConfigFile;
 }
 
-// sets new adress for- and reads new configuration file
-void ConfigManager::overwriteAdress(const std::string ConfigAdress)
-{
-    ConfigFile=ConfigAdress;
-    parser->readNewFile(ConfigAdress);
-}
-
-//****************************************************************************************************
-// DefaultValues
-// returns keywords
-std::string ConfigManager::keywordCAVE()
-{
-    return defaultValues->getKeywordCAVE();
-}
-
-std::string ConfigManager::keywordTablet()
-{
-    return defaultValues->getKeywordTablet();
-}
-
-std::string ConfigManager::keywordPhone()
-{
-    return defaultValues->getKeywordPhone();
-}
-
-std::string ConfigManager::keywordTUI()
-{
-    return defaultValues->getKeywordTUI();
-}
-
-std::string ConfigManager::keywordVRUI()
-{
-    return defaultValues->getKeywordVRUI();
-}
-
-std::string ConfigManager::keywordPowerwall()
-{
-    return defaultValues->getKeywordPowerwall();
-}
-
-std::string ConfigManager::keywordMainWindow()
-{
-    return defaultValues->getKeywordMainWindow();
-}
-
-std::string ConfigManager::keywordVisible()
-{
-    return defaultValues->getKeywordVisible();
-}
-
-std::string ConfigManager::keywordParent()
-{
-    return defaultValues->getKeywordParent();
-}
-
-std::string ConfigManager::keywordXPosition()
-{
-    return defaultValues->getKeywordXPosition();
-}
-
-std::string ConfigManager::keywordYPosition()
-{
-    return defaultValues->getKeywordYPosition();
-}
-
-std::string ConfigManager::keywordLabel()
-{
-    return defaultValues->getKeywordLabel();
-}
-
-std::string ConfigManager::keywordClass()
-{
-    return defaultValues->getKeywordClass();
-}
 //****************************************************************************************************
 // ElementManager
 // prints names of all elements
@@ -280,9 +225,14 @@ Widget* ConfigManager::getWidgetByIdentifier(std::string UniqueIdentifier)
 //***************************************************************************
 // PositionManager
 // adds position/element to PositionManager
-void ConfigManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned)
+void ConfigManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string ParentUniqueIdentifier, bool autoassigned)
 {
-    positionManager->addPosToPosList(UniqueIdentifier, pos, UniqueIdentifierParent, autoassigned);
+    positionManager->addPosToPosList(UniqueIdentifier, pos, ParentUniqueIdentifier, autoassigned);
+}
+
+void ConfigManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, mui::AttributesEnum ParentUniqueIdentifier, bool autoassigned)
+{
+    positionManager->addPosToPosList(UniqueIdentifier, pos, mui::getKeywordAttribute(ParentUniqueIdentifier), autoassigned);
 }
 
 std::pair<int,int> ConfigManager::getFreePosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string ParentUniqueIdentifier)
@@ -350,16 +300,6 @@ void ConfigManager::preparePos(std::pair<int,int> pos, std::string ParentUniqueI
             deletePosFromPosList(Identifier);
         }
     }
-}
-
-//! returns true, if Attribute exists in ConfigFile with UI, Device and Identifier; else returns false
-bool ConfigManager::existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier)
-{
-    if (ConfigFileExists())
-    {
-        return parser->existAttributeInConfigFile(Attribute, UI, Device, Identifier);
-    }
-    return false;
 }
 
 void ConfigManager::setAutoassignedPos(std::pair<int,int> Pos, std::string ElementIdentifier, std::string ParentUniqueIdentifier)

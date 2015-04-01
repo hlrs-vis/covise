@@ -7,6 +7,8 @@
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOM.hpp>
 
+#include "DefaultValues.h"
+
 namespace mui
 {
 class DefaultValues;
@@ -21,18 +23,13 @@ public:
     ~ConfigParser();
 
     // memberfunction:
-    const std::string getType(xercesc::DOMElement* Element);         // return the type of the element
-    bool isNodeElement(xercesc::DOMNode* Node);
     bool fileExist(std::string File);
-    //std::string getValueClassInstanzAttribute(const std::string UI, const std::string Klasse, const std::string Instanz, const std::string Attribute);
 
-    bool getIsVisible(const std::string UI, const std::string Klasse, const std::string Instanz);
-    std::pair<std::string, bool> getParent(const std::string UI, const std::string Klasse, const std::string Instanz);
-    std::pair<std::pair<int,int>, bool> getPosition(const std::string UI, const std::string Klasse, const std::string Instanz);
-    std::pair<std::string, bool> getLabel(const std::string UI, const std::string Klasse, const std::string Instanz);
-    void readNewFile(std::string Filename);
-    bool existAttributeInConfigFile(std::string Attribute, std::string UI, std::string Device, std::string Identifier);
-
+    std::pair<bool,bool> getIsVisible(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
+    std::pair<std::string, bool> getParent(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniquIdentifier);
+    std::pair<std::string, bool> getLabel(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
+    std::pair<std::pair<int,int>, bool> getPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
+    std::pair<std::string, bool> getAttributeValue(mui::UITypeEnum, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute);
 
 private:
     // membervariables:
@@ -40,20 +37,16 @@ private:
     xercesc::DOMDocument* parsedDoc;
     xercesc::DOMElement* rootElement;
     xercesc::DOMNodeList* nodeList;
-    xercesc::DOMNode* UIElementNode;
 
     boost::shared_ptr<DefaultValues> defaultValues;
-
-    std::string AttrVal;                                        // will be overwritten with attriburevalues continously
 
 
     // memberfunctions:
     void initializeParser(std::string adress);
 
-    xercesc::DOMNode* getElementNode(const std::string TagName, const std::string Attribute, const std::string AttributeValue, xercesc::DOMNodeList* NodeListe);
-    bool existElement(const std::string TagName, const std::string Attribute, xercesc::DOMNodeList* NodeListe);
-    bool existElement(const std::string TagName, const std::string Attribute, const std::string AttributeValue, xercesc::DOMNodeList* NodeListe);
-    std::pair<std::string, bool> getAttributeValue(const std::string TagName, const std::string Attribute, xercesc::DOMNodeList* NodeListe);
+    std::pair<xercesc::DOMNode*,bool> getDeviceEntryNode(mui::UITypeEnum UI, mui::DeviceTypesEnum Device);
+    std::pair<xercesc::DOMElement*,bool> getElement(std::string UniqueIdentifier, xercesc::DOMNodeList* DeviceNodeChilds);
+    bool existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string UniqueIdentifier, AttributesEnum Attribute);
 
 };
 } // end namespace
