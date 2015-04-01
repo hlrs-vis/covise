@@ -365,7 +365,7 @@ void VrmlNodeCar::update()
             destinationAngle = M_PI_2;
             if(angle == M_PI_2) // we are there
             {
-                chassisState == Idle;
+                chassisState = Idle;
                 setTravelDirection(MoveUp);
                 av=0;aa=0;
             }
@@ -377,7 +377,7 @@ void VrmlNodeCar::update()
             destinationAngle = 0;
             if(angle == 0) // we are there
             {
-                chassisState == Idle;
+                chassisState = Idle;
                 setTravelDirection(MoveUp);
                 av=0;aa=0;
             }
