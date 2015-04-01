@@ -212,7 +212,7 @@ void VrmlNodeCar::update()
                 d_carPos.get()[0] += direction*v*dt;
             }
             else
-            { // verzögern
+            { // verzÃ¶gern
                 if(diff > 0.0001)
                 {
                     a = v2/(2*diff);
@@ -263,7 +263,7 @@ void VrmlNodeCar::update()
                 d_carPos.get()[1] += direction*v*dt;
             }
             else
-            { // verzögern
+            { // verzÃ¶gern
                 if(diff > 0.0001)
                 {
                     a = v2/(2*diff);
@@ -396,7 +396,7 @@ void VrmlNodeCar::update()
                 angle += direction*av*dt;
             }
             else
-            { // verzögern
+            { // verzÃ¶gern
                 if(diff > 0.0001)
                 {
                     aa = v2/(2*diff);
