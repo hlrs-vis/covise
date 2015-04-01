@@ -36,10 +36,10 @@
 #include <iostream>
 
 #ifndef GL_VERSION_4_3
-typedef void (GL_APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+typedef void (GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 #endif
-typedef void (GL_APIENTRY *GLDebugMessageControlPROC)(GLenum , GLenum , GLenum , GLsizei , const GLuint *, GLboolean );
-typedef void (GL_APIENTRY *GLDebugMessageCallbackPROC)(GLDEBUGPROC , const void *) ;
+typedef void (GL_APIENTRY *GLDebugMessageControlPROC)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
+typedef void (GL_APIENTRY *GLDebugMessageCallbackPROC)(GLDEBUGPROC callback, void *userParam);
 
 #define GL_STACK_OVERFLOW 0x0503
 #define GL_STACK_UNDERFLOW 0x0504
@@ -137,8 +137,14 @@ void EnableGLDebugOperation::operator()(osg::GraphicsContext* gc)
     std::cerr << "enableGLDebugExtension: " << ext << " enabled on context " << contextId << std::endl;
 }
 
-void EnableGLDebugOperation::debugCallback(GLenum source, GLenum type, GLuint , GLenum severity,
-                    GLsizei , const GLchar *message, const void *userData)
+void EnableGLDebugOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                    GLsizei length, const GLchar *message, void *userData)
+{
+    debugCallback(source, type, id, severity, length, message, const_cast<const void *>(userData));
+}
+
+void EnableGLDebugOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                    GLsizei length, const GLchar *message, const void *userData)
 { 
     const int ctxId = reinterpret_cast<ptrdiff_t>(userData);
     std::string srcStr = "UNDEFINED";
@@ -169,5 +175,5 @@ void EnableGLDebugOperation::debugCallback(GLenum source, GLenum type, GLuint , 
     case GL_DEBUG_TYPE_OTHER:               typeStr = "OTHER"; break;
     }
 
-    std::cerr << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << message <<std::endl;
+    std::cerr << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << std::string(message, length) << std::endl;
 }

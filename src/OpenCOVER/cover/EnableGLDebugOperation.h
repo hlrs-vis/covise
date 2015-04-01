@@ -41,8 +41,10 @@ public:
 
 private:
     OpenThreads::Mutex m_mutex;
-    static void  debugCallback(GLenum source, GLenum type, GLuint , GLenum severity,
-                    GLsizei , const GLchar *message, const void *userData);
+    static void  debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                    GLsizei length, const GLchar *message, void *userData);
+    static void  debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                    GLsizei length, const GLchar *message, const void *userData);
 };
 
 #endif
