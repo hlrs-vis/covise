@@ -27,8 +27,8 @@ JunctionConnection::JunctionConnection(const QString &id, const QString &incomin
     , incomingRoad_(incomingRoad)
     , connectingRoad_(connectingRoad)
     , contactPoint_(contactPoint)
-    , numerator_(numerator)
 {
+    userData_.numerator = numerator;
 }
 
 void
@@ -70,7 +70,7 @@ JunctionConnection::setContactPoint(const QString &contactPoint)
 void
 JunctionConnection::setNumerator(double numerator)
 {
-    numerator_ = numerator;
+    userData_.numerator = numerator;
     addJunctionConnectionChanges(CJC_NumeratorChanged);
 }
 
@@ -137,7 +137,7 @@ JunctionConnection::getClone()
 {
     // New JunctionConnection //
     //
-    JunctionConnection *clonedJunctionConnection = new JunctionConnection("clone", incomingRoad_, connectingRoad_, contactPoint_, numerator_);
+    JunctionConnection *clonedJunctionConnection = new JunctionConnection("clone", incomingRoad_, connectingRoad_, contactPoint_, userData_.numerator);
 
     // LaneLinks //
     //

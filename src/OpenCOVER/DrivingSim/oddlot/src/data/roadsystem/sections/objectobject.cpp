@@ -47,8 +47,8 @@ Object::Object(const QString &id, const QString &name, const QString &type, doub
     objectRepeat_.length = repeatLength;
     objectRepeat_.distance = repeatDistance;
 
-    modelFile_ = name;
-    textureFile_ = textureFile;
+    userData_.modelFile = name;
+    userData_.textureFile = textureFile;
 }
 
 /*!
@@ -112,7 +112,7 @@ Object::getClone()
     //
     Object *clone = new Object(id_, name_, objectProps_.type, getSStart(), objectProps_.t, objectProps_.zOffset, objectProps_.validLength, objectProps_.orientation,
                                objectProps_.length, objectProps_.width, objectProps_.radius, objectProps_.height, objectProps_.hdg, objectProps_.pitch, objectProps_.roll, objectProps_.pole,
-                               objectRepeat_.s, objectRepeat_.length, objectRepeat_.distance, textureFile_);
+                               objectRepeat_.s, objectRepeat_.length, objectRepeat_.distance, userData_.textureFile);
 
     return clone;
 }

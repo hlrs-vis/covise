@@ -333,19 +333,19 @@ MainWindow::createPrototypes()
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
         return;
-    QString covisedir = pValue;
+    covisedir_ = pValue;
 #else
-    QString covisedir = getenv("ODDLOTDIR");
-    if (covisedir == "")
-        covisedir = getenv("COVISEDIR");
+    covisedir_ = getenv("ODDLOTDIR");
+    if (covisedir_ == "")
+        covisedir_ = getenv("COVISEDIR");
 #endif
-    if (prototypeManager_->loadPrototypes(covisedir + "/share/covise/prototypes/prototypes.odd"))
+    if (prototypeManager_->loadPrototypes(covisedir_ + "/share/covise/prototypes/prototypes.odd"))
     {
-        prototypeManager_->loadPrototypes(covisedir + "/share/covise/prototypes/TJunctionTown.odd");
+        prototypeManager_->loadPrototypes(covisedir_ + "/share/covise/prototypes/TJunctionTown.odd");
     }
-    else if (prototypeManager_->loadPrototypes(covisedir + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/prototypes.odd"))
+    else if (prototypeManager_->loadPrototypes(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/prototypes.odd"))
     {
-        prototypeManager_->loadPrototypes(covisedir + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/TJunctionTown.odd");
+        prototypeManager_->loadPrototypes(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/prototypes/TJunctionTown.odd");
     }
     else if (prototypeManager_->loadPrototypes("prototypes/prototypes.odd"))
     {

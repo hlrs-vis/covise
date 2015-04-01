@@ -24,11 +24,11 @@
 Bridge::Bridge(const QString &id, const QString &file, const QString &name, int type, double s, double length)
     : RoadSection(s)
     , id_(id)
-    , fileName_(file)
     , name_(name)
     , type_(type)
     , length_(length)
 {
+    userData_.fileName = file;
 }
 
 /*!
@@ -84,7 +84,7 @@ Bridge::getClone()
 {
     // Bridge //
     //
-    Bridge *clone = new Bridge(id_, fileName_, name_, type_, getSStart(), length_);
+    Bridge *clone = new Bridge(id_, userData_.fileName, name_, type_, getSStart(), length_);
 
     return clone;
 }

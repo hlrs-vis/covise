@@ -32,17 +32,17 @@ Signal::Signal(const QString &id, const QString &name, double s, double t, bool 
     signalProps_.zOffset = zOffset;
     signalProps_.country = country;
     signalProps_.type = type;
-    signalProps_.typeSubclass = typeSubclass;
     signalProps_.subtype = subtype;
     signalProps_.value = value;
     signalProps_.pole = pole;
-    signalProps_.size = size;
 
     validity_.fromLane = validFromLane;
     validity_.toLane = validToLane;
 
     signalUserData_.crossProb = probability;
     signalUserData_.resetTime = resetTime;
+    signalUserData_.typeSubclass = typeSubclass;
+    signalUserData_.size = size;
 }
 
 Signal::Signal(const QString &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData)

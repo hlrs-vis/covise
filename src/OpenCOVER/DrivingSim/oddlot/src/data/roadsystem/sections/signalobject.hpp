@@ -45,11 +45,9 @@ public:
         double zOffset;
         QString country;
         int type;
-        QString typeSubclass;
         int subtype;
         double value;
         bool pole;
-        int size;
     };
 
     struct Validity
@@ -62,6 +60,8 @@ public:
     {
         double crossProb;
         double resetTime;
+        QString typeSubclass;
+        int size;
     };
 
     //################//
@@ -151,11 +151,11 @@ public:
 
     QString getTypeSubclass() const
     {
-        return signalProps_.typeSubclass;
+        return signalUserData_.typeSubclass;
     }
     void setTypeSubclass(const QString &typeSubclass)
     {
-        signalProps_.typeSubclass = typeSubclass;
+        signalUserData_.typeSubclass = typeSubclass;
     }
 
     int getSubtype() const
@@ -187,11 +187,11 @@ public:
 
     int getSize() const
     {
-        return signalProps_.size;
+        return signalUserData_.size;
     }
     void setSize(int size)
     {
-        signalProps_.size = size;
+        signalUserData_.size = size;
     }
 
     SignalProperties getProperties() const
@@ -265,6 +265,7 @@ public:
     {
         signalUserData_ = userData;
     }
+
 
     // Observer Pattern //
     //

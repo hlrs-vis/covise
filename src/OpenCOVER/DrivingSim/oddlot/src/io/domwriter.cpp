@@ -295,12 +295,24 @@ DomWriter::visit(Object *object)
 
     // Set mandatory attributes
     objectElement.setAttribute("id", object->getId());
-    objectElement.setAttribute("textureFile", object->getTextureFileName());
+    //Texture and model file are ancillary data
+    //
+    QDomElement userData = doc_->createElement("userData");
+
+    userData.setAttribute("code", "textureFile");
+    userData.setAttribute("value", object->getTextureFileName());
+
+    objectElement.appendChild(userData);
 
 
     if (objectContainer && (objectContainer->getObjectFile() != "")) 
     {
-        objectElement.setAttribute("modelFile", objectContainer->getObjectFile());
+        userData = doc_->createElement("userData");
+
+        userData.setAttribute("code", "modelFile");
+        userData.setAttribute("value", objectContainer->getObjectFile());
+
+        objectElement.appendChild(userData);
         objectElement.setAttribute("name", object->getName());
     }
     else 
@@ -360,7 +372,6 @@ DomWriter::visit(Bridge *bridge)
         bridgeElement.setAttribute("id", bridge->getId());
 
         bridgeElement.setAttribute("name", bridge->getName());
-        bridgeElement.setAttribute("filename", bridge->getFileName());
 
         bridgeElement.setAttribute("s", bridge->getSStart());
         bridgeElement.setAttribute("length", bridge->getLength());
@@ -384,7 +395,6 @@ DomWriter::visit(Bridge *bridge)
         }
 
         bridgeElement.setAttribute("name", bridgeName);
-        bridgeElement.setAttribute("filename", bridge->getFileName());
         bridgeElement.setAttribute("s", bridge->getSStart());
         bridgeElement.setAttribute("length", bridge->getLength());
 
@@ -399,6 +409,18 @@ DomWriter::visit(Bridge *bridge)
         }
 
         bridgeElement.setAttribute("type", typeName);
+    }
+
+    // model file are ancillary data
+    //
+    if ((bridge->getFileName() != "") && (bridge->getFileName() != "Tunnel"))
+    {
+        QDomElement userData = doc_->createElement("userData");
+
+        userData.setAttribute("code", "filename");
+        userData.setAttribute("value", bridge->getFileName());
+
+        bridgeElement.appendChild(userData);
     }
 
     currentObjectsElement_.appendChild(bridgeElement);
@@ -464,11 +486,25 @@ DomWriter::visit(Signal *signal)
     validityElement.setAttribute("toLane", signal->getValidToLane());
     signalElement.appendChild(validityElement);
 
+    QDomElement userData = doc_->createElement("userData");
+
+    userData.setAttribute("code", "subclass");
+    userData.setAttribute("value", signal->getTypeSubclass());
+
+    signalElement.appendChild(userData);
+
+    userData = doc_->createElement("userData");
+
+    userData.setAttribute("code", "size");
+    userData.setAttribute("value", signal->getSize());
+
+    signalElement.appendChild(userData);
+
     //Pedestrian Crossing has ancillary data
     //
     if (signal->getType() == 293)
     {
-        QDomElement userData = doc_->createElement("userData");
+        userData = doc_->createElement("userData");
 
         userData.setAttribute("code", "crossprob");
         userData.setAttribute("value", signal->getCrossingProbability());
@@ -481,6 +517,7 @@ DomWriter::visit(Signal *signal)
         userData.setAttribute("value", signal->getResetTime());
 
         signalElement.appendChild(userData);
+
     }
 
     // Set mandatory attributes
@@ -523,6 +560,45 @@ DomWriter::visit(Signal *signal)
     {
         signalElement.setAttribute("name", signalName);
     }
+
+    QFile file;
+    bool textureFile;
+    QString dir = projectData_->getProjectWidget()->getMainWindow()->getCovisedir() + "/share/covise/signals/";
+    if (textureFile = file.exists(dir + "China/" + signalName + ".png"))
+    {
+        signalName = "maps/" + signalName + ".png";
+    }
+    else if (textureFile = file.exists(dir + "Germany/" + signalName + ".png"))
+    {
+        signalName = "maps/" + signalName + ".png";
+    }
+    else if (textureFile = file.exists(dir + "OpenDRIVE/" + signalName + ".png"))
+    {
+        signalName = "maps/" + signalName + ".png";
+    }
+    else if (textureFile = file.exists(dir + "China/" + signalName + ".tif"))
+    {
+        signalName = "maps/" + signalName + ".tif";
+    }
+    else if (textureFile = file.exists(dir + "Germany/" + signalName + ".tif"))
+    {
+        signalName = "maps/" + signalName + ".tif";
+    }
+    else if (textureFile = file.exists(dir + "OpenDRIVE/" + signalName + ".tif"))
+    {
+        signalName = "maps/" + signalName + ".tif";
+    }
+
+    if (textureFile)
+    {
+        userData = doc_->createElement("userData");
+
+        userData.setAttribute("code", "textureFile");
+        userData.setAttribute("value", signalName);
+
+        signalElement.appendChild(userData);
+    }
+
     signalElement.setAttribute("s", signal->getSStart());
 
     // Calculate new t - temporary
@@ -568,12 +644,54 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("zOffset", signal->getZOffset());
     signalElement.setAttribute("country", signal->getCountry());
     signalElement.setAttribute("type", signal->getType());
-    signalElement.setAttribute("subclass", signal->getTypeSubclass());
     signalElement.setAttribute("subtype", signal->getSubtype());
     signalElement.setAttribute("value", signal->getValue());
-    signalElement.setAttribute("size", signal->getSize());
 
     currentSignalsElement_.appendChild(signalElement);
+
+    if (signal->getPole())
+    {
+        // Create a simple pole object which is not used in ODDlot to stay conform with the standard //
+        //
+        QDomElement objectElement = doc_->createElement("object");
+        QString name = "simplePole";
+        QString id = projectData_->getRoadSystem()->getUniqueId("", name);
+        objectElement.setAttribute("id", id);
+
+        userData = doc_->createElement("userData");
+
+        userData.setAttribute("code", "modelFile");
+        if (signal->getZOffset() < 3.1)
+        {
+            userData.setAttribute("value", "simplePole3.0.osg");
+        }
+        else
+        {
+            userData.setAttribute("value", "simplePole5.5.osg");
+        }
+
+        objectElement.appendChild(userData);
+
+        objectElement.setAttribute("type", "simplePole");
+        objectElement.setAttribute("name", name);
+        objectElement.setAttribute("s", signal->getSStart());
+        objectElement.setAttribute("t", signal->getT());
+        objectElement.setAttribute("zOffset", 0.0);
+        objectElement.setAttribute("validLength", 0.0);
+        if (signal->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
+            objectElement.setAttribute("orientation", "-");
+        else
+            objectElement.setAttribute("orientation", "+");
+        objectElement.setAttribute("length", 0.6);
+        objectElement.setAttribute("width", 0.6);
+        objectElement.setAttribute("radius", 0.0);
+        objectElement.setAttribute("height", signal->getZOffset());
+        objectElement.setAttribute("hdg", 0.0);
+        objectElement.setAttribute("pitch", 0.0);
+        objectElement.setAttribute("roll", 0.0);
+
+        currentObjectsElement_.appendChild(objectElement);
+    }
 }
 
 //################//
@@ -1052,7 +1170,13 @@ DomWriter::visit(JunctionConnection *connection)
     element.setAttribute("incomingRoad", connection->getIncomingRoad());
     element.setAttribute("connectingRoad", connection->getConnectingRoad());
     element.setAttribute("contactPoint", connection->getContactPoint());
-    element.setAttribute("numerator", connection->getNumerator());
+
+    QDomElement userData = doc_->createElement("userData");
+
+    userData.setAttribute("code", "numerator");
+    userData.setAttribute("value", connection->getNumerator());
+
+    element.appendChild(userData);
     currentJunctionElement_.appendChild(element);
 
     QMap<int, int> links = connection->getLaneLinks();
