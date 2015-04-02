@@ -678,7 +678,7 @@ DomWriter::visit(Signal *signal)
         objectElement.setAttribute("t", signal->getT());
         objectElement.setAttribute("zOffset", 0.0);
         objectElement.setAttribute("validLength", 0.0);
-        if (signal->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
+        if (signal->getOrientation() == Signal::NEGATIVE_TRACK_DIRECTION)
             objectElement.setAttribute("orientation", "-");
         else
             objectElement.setAttribute("orientation", "+");
