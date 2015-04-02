@@ -297,12 +297,23 @@ DomWriter::visit(Object *object)
     objectElement.setAttribute("id", object->getId());
     //Texture and model file are ancillary data
     //
-    QDomElement userData = doc_->createElement("userData");
+    QDomElement userData;
 
-    userData.setAttribute("code", "textureFile");
-    userData.setAttribute("value", object->getTextureFileName());
+    if (object->getTextureFileName() != "")
+    {
+        userData = doc_->createElement("userData");
+        userData.setAttribute("code", "textureFile");
+        if (object->getTextureFileName().contains("/"))
+        {
+            userData.setAttribute("value", object->getTextureFileName());
+        }
+        else
+        {
+            userData.setAttribute("value", "maps/" + object->getTextureFileName());
+        }
 
-    objectElement.appendChild(userData);
+        objectElement.appendChild(userData);
+    }
 
 
     if (objectContainer && (objectContainer->getObjectFile() != "")) 
@@ -310,7 +321,15 @@ DomWriter::visit(Object *object)
         userData = doc_->createElement("userData");
 
         userData.setAttribute("code", "modelFile");
-        userData.setAttribute("value", objectContainer->getObjectFile());
+        if (objectContainer->getObjectFile().contains("/"))
+        {
+            userData.setAttribute("value", objectContainer->getObjectFile());
+        }
+        else
+        {
+            userData.setAttribute("value", "objects/" + objectContainer->getObjectFile());
+        }
+
 
         objectElement.appendChild(userData);
         objectElement.setAttribute("name", object->getName());
@@ -418,7 +437,14 @@ DomWriter::visit(Bridge *bridge)
         QDomElement userData = doc_->createElement("userData");
 
         userData.setAttribute("code", "filename");
-        userData.setAttribute("value", bridge->getFileName());
+        if (bridge->getFileName().contains("/"))
+        {
+            userData.setAttribute("value", bridge->getFileName());
+        }
+        else
+        {
+            userData.setAttribute("value", "objects/" + bridge->getFileName());
+        }
 
         bridgeElement.appendChild(userData);
     }
@@ -563,30 +589,29 @@ DomWriter::visit(Signal *signal)
 
     QFile file;
     bool textureFile;
+    QString textureFilename;
     QString dir = projectData_->getProjectWidget()->getMainWindow()->getCovisedir() + "/share/covise/signals/";
-    if (textureFile = file.exists(dir + "China/" + signalName + ".png"))
+    if (textureFile = file.exists(dir + signal->getCountry() + "/" + signalName + ".png"))
     {
-        signalName = "maps/" + signalName + ".png";
+        if (signalName.contains("/"))
+        {
+            textureFilename += ".png";
+        }
+        else
+        { 
+            textureFilename = "signals/" +  signal->getCountry() + "/" + signalName + ".png";
+        }
     }
-    else if (textureFile = file.exists(dir + "Germany/" + signalName + ".png"))
+    else if (textureFile = file.exists(dir + signal->getCountry() + "/" + signalName + ".tif"))
     {
-        signalName = "maps/" + signalName + ".png";
-    }
-    else if (textureFile = file.exists(dir + "OpenDRIVE/" + signalName + ".png"))
-    {
-        signalName = "maps/" + signalName + ".png";
-    }
-    else if (textureFile = file.exists(dir + "China/" + signalName + ".tif"))
-    {
-        signalName = "maps/" + signalName + ".tif";
-    }
-    else if (textureFile = file.exists(dir + "Germany/" + signalName + ".tif"))
-    {
-        signalName = "maps/" + signalName + ".tif";
-    }
-    else if (textureFile = file.exists(dir + "OpenDRIVE/" + signalName + ".tif"))
-    {
-        signalName = "maps/" + signalName + ".tif";
+        if (signalName.contains("/"))
+        {
+           textureFilename += ".tif";
+        }
+        else
+        { 
+            textureFilename = "signals/" +  signal->getCountry() + "/" + signalName + ".tif";
+        }
     }
 
     if (textureFile)
@@ -594,10 +619,35 @@ DomWriter::visit(Signal *signal)
         userData = doc_->createElement("userData");
 
         userData.setAttribute("code", "textureFile");
-        userData.setAttribute("value", signalName);
+        userData.setAttribute("value", textureFilename);
 
         signalElement.appendChild(userData);
     }
+
+    bool modelFile;
+    QString modelFilename;
+    if (modelFile = file.exists(dir + signal->getCountry() + "/" + signalName + ".osg"))
+    {
+        if (signalName.contains("/"))
+        {
+            modelFilename += ".osg";
+        }
+        else
+        { 
+            modelFilename = "signals/" +  signal->getCountry() + "/" + signalName + ".osg";
+        }
+    }
+
+    if (modelFile)
+    {
+        userData = doc_->createElement("userData");
+
+        userData.setAttribute("code", "modelFile");
+        userData.setAttribute("value", modelFilename);
+
+        signalElement.appendChild(userData);
+    }
+
 
     signalElement.setAttribute("s", signal->getSStart());
 
@@ -649,7 +699,7 @@ DomWriter::visit(Signal *signal)
 
     currentSignalsElement_.appendChild(signalElement);
 
-    if (signal->getPole())
+/*    if (signal->getPole())
     {
         // Create a simple pole object which is not used in ODDlot to stay conform with the standard //
         //
@@ -663,11 +713,11 @@ DomWriter::visit(Signal *signal)
         userData.setAttribute("code", "modelFile");
         if (signal->getZOffset() < 3.1)
         {
-            userData.setAttribute("value", "simplePole3.0.osg");
+            userData.setAttribute("value", "objects/simplePole3.0.WRL");
         }
         else
         {
-            userData.setAttribute("value", "simplePole5.5.osg");
+            userData.setAttribute("value", "objects/simplePole5.5.WRL");
         }
 
         objectElement.appendChild(userData);
@@ -682,16 +732,17 @@ DomWriter::visit(Signal *signal)
             objectElement.setAttribute("orientation", "-");
         else
             objectElement.setAttribute("orientation", "+");
-        objectElement.setAttribute("length", 0.6);
-        objectElement.setAttribute("width", 0.6);
+        objectElement.setAttribute("length", 0.0);
+        objectElement.setAttribute("width", 0.0);
         objectElement.setAttribute("radius", 0.0);
-        objectElement.setAttribute("height", signal->getZOffset());
+        objectElement.setAttribute("height", 0.0);
         objectElement.setAttribute("hdg", 0.0);
         objectElement.setAttribute("pitch", 0.0);
         objectElement.setAttribute("roll", 0.0);
 
         currentObjectsElement_.appendChild(objectElement);
     }
+*/
 }
 
 //################//

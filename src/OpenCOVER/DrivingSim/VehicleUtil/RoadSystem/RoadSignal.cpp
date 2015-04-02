@@ -287,7 +287,7 @@ void SignalPrototype::createGeometry()
     signTexCoords->push_back(osg::Vec2(0.5, 0));
     signNormals->push_back(n);
 
-    if (withPost)
+/*    if (withPost)
     {
         osg::Vec2 tc;
         tc.set(0.75, 0.5);
@@ -343,7 +343,7 @@ void SignalPrototype::createGeometry()
         signTexCoords->push_back(tc);
         signNormals->push_back(np[0]);
     }
-
+*/
     osg::DrawArrays *sign = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, signVertices->size());
     signGeometry->addPrimitiveSet(sign);
 
@@ -667,8 +667,8 @@ TrafficLightPrototype::TrafficLightPrototype(std::string n, std::string c, int t
 
         if (withPost)
         {
-            osg::Node * post = createGeometry();
-            trafficLightGroup->addChild(post);
+//            osg::Node * post = createGeometry();
+//            trafficLightGroup->addChild(post);
         }
     }
     else

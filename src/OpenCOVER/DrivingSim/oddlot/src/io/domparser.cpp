@@ -1171,7 +1171,8 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
         // Get mandatory attributes
         QString type = parseToQString(child, "type", "", false); // mandatory
 
-        // Don't create objects for the simple poles of signs
+        // Don't create objects for the simple poles of signs and the traffic lights
+
         if (type != "simplePole")
         {
             QString name = parseToQString(child, "name", "", false); // mandatory
@@ -1285,7 +1286,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
                     elementIDs_.insert(id, object->getId());
                 }
             }
-        }
+       }
 
         // Attempt to locate another object
         child = child.nextSiblingElement("object");
@@ -1535,7 +1536,7 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             {
                 typeSubclass = value;
             }
-            else
+            else if (code == "size")
             {
                 size = value.toInt();
             }
