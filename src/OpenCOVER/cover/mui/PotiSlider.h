@@ -39,9 +39,9 @@ public:
     void setPos(int posx, int posy);
     opencover::coTUIElement* getTUI();
     void setVisible(bool visible);                   // set visible-value for all UI-Elements
-    void setVisible(bool visible, std::string UI);   // set visible-value for named UI-Elements
+    void setVisible(bool visible, mui::UITypeEnum UI);   // set visible-value for named UI-Elements
     void setLabel(std::string label);                // set label for all UI-Elements
-    void setLabel(std::string label, std::string UI);// set label for named UI-Elements
+    void setLabel(std::string label, mui::UITypeEnum UI);// set label for named UI-Elements
     Container* getParent();
     std::string getUniqueIdentifier();
 
@@ -57,7 +57,7 @@ private:
 
     std::vector<device> Devices;
     std::string Label;
-    std::string Identifier;
+    std::string UniqueIdentifier;
     Container* Parent;
     ConfigManager *configManager;
     boost::shared_ptr<opencover::coTUIFloatSlider> TUIElement;

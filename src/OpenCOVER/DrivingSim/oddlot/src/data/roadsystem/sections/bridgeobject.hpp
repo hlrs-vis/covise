@@ -31,6 +31,11 @@ public:
         CEL_ParameterChange = 0x1
     };
 
+    struct BridgeUserData
+    {
+        QString fileName;
+    };
+
     //################//
     // FUNCTIONS      //
     //################//
@@ -63,11 +68,11 @@ public:
 
     QString getFileName() const
     {
-        return fileName_;
+        return userData_.fileName;
     }
     void setFileName(const QString &name)
     {
-        fileName_ = name;
+        userData_.fileName = name;
     }
 
     int getType() const
@@ -121,11 +126,12 @@ private:
     //
     // Mandatory
     QString id_;
-    QString fileName_;
     QString name_;
     int type_;
 
     double length_;
+
+    BridgeUserData userData_;
 
     // Change flags //
     //

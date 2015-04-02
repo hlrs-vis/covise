@@ -40,6 +40,11 @@ public:
         CJC_LaneLinkChanged = 0x40
     };
 
+    struct ConnectionUserData
+    {
+        double numerator;
+    };
+
     //################//
     // FUNCTIONS      //
     //################//
@@ -86,7 +91,7 @@ public:
 
     double getNumerator() const
     {
-        return numerator_;
+        return userData_.numerator;
     }
     void setNumerator(double numerator);
 
@@ -151,7 +156,7 @@ private:
     QString incomingRoad_;
     QString connectingRoad_;
     QString contactPoint_;
-    double numerator_;
+    ConnectionUserData userData_;
 
     // LaneLinks //
     //

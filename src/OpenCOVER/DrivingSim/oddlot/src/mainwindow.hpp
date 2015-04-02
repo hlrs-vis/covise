@@ -110,6 +110,11 @@ public:
         return helpMenu_;
     }
 
+    const QString & getCovisedir()
+    {
+        return covisedir_;
+    }
+
     // StatusBar //
     //
     void updateStatusBarPos(const QPointF &pos);
@@ -265,6 +270,10 @@ private:
     // Project Menu //
     //
     QActionGroup *projectActionGroup;
+
+    // Covise Directory Path //
+    //
+    QString covisedir_;
 };
 
 #endif // MAINWINDOW_HPP

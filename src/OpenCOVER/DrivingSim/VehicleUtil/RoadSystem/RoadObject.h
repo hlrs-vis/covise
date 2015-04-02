@@ -57,6 +57,16 @@ public:
         outline = ro;
     };
 
+    void setFileName(const std::string & name)
+    {
+        fileName = name;
+    }
+
+    void setTexture(const std::string & name)
+    {
+        textureFileName = name;
+    }
+
     bool isAbsolute()
     {
         return absolute;

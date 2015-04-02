@@ -37,11 +37,11 @@ public:
 
 private:
     boost::shared_ptr<mui::Tab> Tab1;
-    boost::shared_ptr<mui::ToggleButton> Button1;
-    boost::shared_ptr<mui::ToggleButton> Button2;
-    boost::shared_ptr<mui::PotiSlider> Slider1;
-    boost::shared_ptr<mui::Frame> Frame;
-    boost::shared_ptr<mui::LabelElement> Label;
+//    boost::shared_ptr<mui::ToggleButton> Button1;
+//    boost::shared_ptr<mui::ToggleButton> Button2;
+//    boost::shared_ptr<mui::PotiSlider> Slider1;
+//    boost::shared_ptr<mui::Frame> Frame;
+//    boost::shared_ptr<mui::LabelElement> Label;
 };
 
 #endif

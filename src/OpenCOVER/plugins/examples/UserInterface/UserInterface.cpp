@@ -27,7 +27,7 @@ bool UserInterface::init()
     // create new Tab in TabFolder
     Tab1.reset(new mui::Tab("plugins.examples.UserInterface.Tab1", "Tab1"));
 
-    // create new ToggleButton in Tab1
+/*    // create new ToggleButton in Tab1
     Button1.reset(new mui::ToggleButton("plugins.examples.UserInterface.Button1", Tab1.get(), "Button1"));
     Button1->setEventListener(this);
     Button1->setPos(0,0);                                                                                   // will be ignored, if there exists a positioning instruction in configuration file
@@ -47,12 +47,12 @@ bool UserInterface::init()
     // create new Label-Element
     Label.reset(new mui::LabelElement("plugins.examples.UserInterface.Label1", Frame.get(), "Label"));
     Label->setPos(0,3);                                                                                     // will be obeyed, if there is no positioning instruction for this element in the configuration file
-
+*/
     return true;
 }
 
 void UserInterface::muiEvent(mui::Element *muiItem)
-{
+{/*
     if (muiItem == Button1.get())
     {
         Button2->click();
@@ -60,7 +60,7 @@ void UserInterface::muiEvent(mui::Element *muiItem)
     if (muiItem == Button2.get())
     {
         Button1->click();
-    }
+    }*/
 }
 
 COVERPLUGIN(UserInterface)

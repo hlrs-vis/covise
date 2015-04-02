@@ -50,60 +50,60 @@ void ToggleButton::constructor(const std::string UniqueIdentifier, Container* pa
     // create defaultvalue or take from constructor:
     // VRUI-CAVE-Element:
     Devices.push_back(device());
-    Devices[0].Device=configManager->keywordCAVE();
-    Devices[0].UI=configManager->keywordVRUI();
-    Devices[0].Identifier=UniqueIdentifier;
+    Devices[0].Device=mui::CAVEEnum;
+    Devices[0].UI=mui::VRUIEnum;
+    Devices[0].UniqueIdentifier=UniqueIdentifier;
     Devices[0].Visible = true;
 
-    Devices[0].Label=configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
-    Parent= configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
+    Devices[0].Label=configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
+    Parent= configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
 
     // create VRUI-Element:
     createVRUIElement(Devices[0].Label);
 
     // TUI-Tablet-Element:
     Devices.push_back(device());
-    Devices[1].Device=configManager->keywordTablet();
-    Devices[1].UI=configManager->keywordTUI();
-    Devices[1].Identifier = UniqueIdentifier;
+    Devices[1].Device=mui::TabletEnum;
+    Devices[1].UI=mui::TUIEnum;
+    Devices[1].UniqueIdentifier = UniqueIdentifier;
     Devices[1].Visible = true;
 
-    Devices[1].Label=configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
-    Parent= configManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
+    Devices[1].Label=configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
+    Parent= configManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
     // create TUI-Element:
-    createTUIElement(Devices[1].Label, configManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier));
+    createTUIElement(Devices[1].Label, configManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier));
 
     // find and set correct parameter (get them from configuration file, if possible):
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        Devices[i].Label   = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+        Devices[i].Label   = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
 
         // create UI-Elements:
-        if (Devices[i].UI == configManager->keywordTUI())                      // create TUI-Elements
+        if (Devices[i].UI == mui::TUIEnum)                      // create TUI-Elements
         {
-            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier, Parent->getUniqueIdentifier());
             configManager->preparePos(pos, Parent->getUniqueIdentifier());
             TUIElement->setPos(pos.first,pos.second);
-            if (configManager->existAttributeInConfigFile(configManager->keywordXPosition(), Devices[i].UI, Devices[i].Device, Devices[i].Identifier) && configManager->existAttributeInConfigFile(configManager->keywordYPosition(), Devices[i].UI, Devices[i].Device, Devices[i].Identifier))
+            if (configManager->existAttributeInConfigFile(Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier, mui::PosXEnum) && configManager->existAttributeInConfigFile(Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier, mui::PosYEnum))
             {
-                configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), false);
             }
             else
             {
-                configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
+                configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), true);
             }
             TUIElement->setHidden(!Devices[i].Visible);
         }
-        else if (Devices[i].UI == configManager->keywordVRUI())                 // create VRUI-Element
+        else if (Devices[i].UI == mui::VRUIEnum)                 // create VRUI-Element
         {
             if (Devices[i].Visible)                                             // visible
             {
-                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
+                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->add(VRUIElement.get());
             }
             else                                                                // invisible
             {
-                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
+                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->remove(VRUIElement.get());
             }
         }
         else
@@ -119,15 +119,15 @@ void ToggleButton::setPos(int posx, int posy)
     std::pair<int,int> pos(posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordTUI())                       // TUI-Element
+        if (Devices[i].UI == mui::TUIEnum)                       // TUI-Element
         {
-            pos=configManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (configManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            pos=configManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+            if (configManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].UniqueIdentifier)     // if is equal: Element is already at correct position
             {
                 configManager->preparePos(pos, Parent->getUniqueIdentifier());
-                configManager->deletePosFromPosList(Devices[i].Identifier);
+                configManager->deletePosFromPosList(Devices[i].UniqueIdentifier);
                 TUIElement->setPos(pos.first,pos.second);
-                configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), false);
             }
         }
     }
@@ -138,12 +138,12 @@ void ToggleButton::setLabel(std::string label)
 {
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        Devices[i].Label = configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        if (Devices[i].UI == configManager->keywordTUI())                       // TUI-Element
+        Devices[i].Label = configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+        if (Devices[i].UI == mui::TUIEnum)                       // TUI-Element
         {
             TUIElement->setLabel(Devices[i].Label);
         }
-        else if (Devices[i].UI == configManager->keywordVRUI())                 // VRUI-Element
+        else if (Devices[i].UI == mui::VRUIEnum)                 // VRUI-Element
         {
             VRUIElement->setLabel(Devices[i].Label);
         }
@@ -161,12 +161,12 @@ void ToggleButton::setLabel(std::string label, std::string UI)
     {
         if (UI.find(Devices[i].UI) != std::string::npos)                        // Element to be changed
         {
-            Devices[i].Label=configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == configManager->keywordTUI())                   // TUI-Element
+            Devices[i].Label=configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+            if (Devices[i].UI == mui::TUIEnum)                   // TUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
             }
-            else if (Devices[i].UI == configManager->keywordVRUI())             // VRUI-Element
+            else if (Devices[i].UI == mui::VRUIEnum)             // VRUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
             }
@@ -185,22 +185,23 @@ void ToggleButton::setVisible(bool visible)
     {
         if (Devices[i].Visible != visible)                                     // Value changed
         {
-            Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == configManager->keywordTUI())                  // TUI-Element
+            Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+            if (Devices[i].UI == mui::TUIEnum)                  // TUI-Element
             {
                 TUIElement->setHidden(!Devices[i].Visible);
             }
-            else if (Devices[i].UI == configManager->keywordVRUI())            // VRUI-Element
+            else if (Devices[i].UI == mui::VRUIEnum)            // VRUI-Element
             {
                 if (Devices[i].Visible)                                        // Visible
                 {
-                    configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
+                    configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->add(VRUIElement.get());
                 }
                 else                                                           // Invisible
                 {
-                    configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
+                    configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->remove(VRUIElement.get());
                 }
-            } else
+            }
+            else
             {
                 std::cerr << "PotiSlider::setVisible(): Elementtype " << Devices[i].UI << " not found in setVisible(bool)." << std::endl;
             }
@@ -217,21 +218,21 @@ void ToggleButton::setVisible(bool visible, std::string UI)
         {
             if (Devices[i].Visible != visible)                                 // visible-value changed
             {
-                Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-                if (Devices[i].UI == configManager->keywordTUI())              // TUI-Element
+                Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+                if (Devices[i].UI == mui::TUIEnum)              // TUI-Element
                 {
                     TUIElement->setHidden(!Devices[i].Visible);
                 }
-                else if (Devices[i].UI == configManager->keywordVRUI())         // VRUI-Element
+                else if (Devices[i].UI == mui::VRUIEnum)         // VRUI-Element
                 {
                     if (Devices[i].Visible)
                     {
-                        configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
+                        configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->add(VRUIElement.get());
                     }
                 }
                 else
                 {
-                    configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
+                    configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->remove(VRUIElement.get());
                 }
             }
             else
@@ -269,15 +270,16 @@ void ToggleButton::setState(bool stat)
     State=stat;
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordVRUI())                     // VRUI-Element
+        if (Devices[i].UI == mui::VRUIEnum)                     // VRUI-Element
         {
             VRUIElement->setState(stat);
         }
-        else if(Devices[i].UI == configManager->keywordTUI())                 // TUI-Element
+        else if(Devices[i].UI == mui::TUIEnum)                 // TUI-Element
         {
             TUIElement->setState(stat);
         }
-        else{
+        else
+        {
             std::cerr << "ToggleButton::setState(): Elementtype " << Devices[i].UI << " not found in setClicked(bool)." << std::endl;
         }
     }
@@ -337,11 +339,11 @@ void ToggleButton::activate()
 
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordTUI())                      // TUIElement
+        if (Devices[i].UI == mui::TUIEnum)                      // TUIElement
         {
             TUIElement->setState(true);
         }
-        else if (Devices[i].UI == configManager->keywordVRUI())
+        else if (Devices[i].UI == mui::VRUIEnum)
         {
             VRUIElement->setState(true);
         }
@@ -354,11 +356,11 @@ void ToggleButton::deactivate()
 
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordTUI())                      // TUIElement
+        if (Devices[i].UI == mui::TUIEnum)                      // TUIElement
         {
             TUIElement->setState(false);
         }
-        else if (Devices[i].UI == configManager->keywordVRUI())
+        else if (Devices[i].UI == mui::VRUIEnum)
         {
             VRUIElement->setState(false);
         }
@@ -370,11 +372,11 @@ void ToggleButton::click()
     State=!State;
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordTUI())
+        if (Devices[i].UI == mui::TUIEnum)
         {                      // TUIElement
             TUIElement->setState(!TUIElement->getState());
         }
-        else if (Devices[i].UI == configManager->keywordVRUI())              // VRUIElement
+        else if (Devices[i].UI == mui::VRUIEnum)              // VRUIElement
         {
             VRUIElement->setState(!VRUIElement->getState());
         }

@@ -61,6 +61,7 @@ SET(HEADERS
   coVRTui.h
   coVRSceneView.h
   coVRTouchTable.h
+  EnableGLDebugOperation.h
   OpenCOVER.h
   RenderObject.h
   VRAvatar.h
@@ -93,7 +94,8 @@ SET(HEADERS
   coTUIFileBrowser/NetHelp.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
-
+  #coVRDePee.h
+  #coVRDePeePass.h
 )
 
 SET(SOURCES
@@ -119,6 +121,7 @@ SET(SOURCES
   coVRSceneView.cpp
   coVRStatsDisplay.cpp
   coVRTouchTable.cpp
+  EnableGLDebugOperation.cpp
   OpenCOVER.cpp
   VRPinboard.cpp
   VRAvatar.cpp
@@ -161,7 +164,8 @@ SET(SOURCES
   coTranslator.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
-
+  #coVRDePee.cpp
+  #coVRDePeePass.cpp
 )
 
 SET(MUI_SOURCES

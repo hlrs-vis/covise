@@ -106,7 +106,8 @@ public:
         unique = u;
     }
     void setValue(const char *value);
-    void setValue(osg::Matrix m);
+    void setValue(osg::Matrixd m);
+    void setValue(osg::Matrixf m);
     void setValue(float f);
     void setValue(osg::Vec3 v);
     void setValue(osg::Vec4 v);
@@ -243,7 +244,8 @@ public:
     };
     coVRShader(const std::string &name, const std::string &d);
     void setData(covise::TokenBuffer &tb);
-    void setMatrixUniform(const std::string &name, osg::Matrix m);
+    void setMatrixUniform(const std::string &name, osg::Matrixd m);
+    void setMatrixUniform(const std::string &name, osg::Matrixf m);
     void setFloatUniform(const std::string &name, float f);
     void setVec3Uniform(const std::string &name, osg::Vec3 v);
     void setVec4Uniform(const std::string &name, osg::Vec4 v);

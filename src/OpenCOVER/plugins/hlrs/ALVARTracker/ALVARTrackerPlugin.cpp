@@ -387,12 +387,15 @@ ALVARPlugin::~ALVARPlugin()
 
     ARToolKit::instance()->running = false;
     fprintf(stderr, "ALVARPlugin::~ALVARPlugin\n");
-    cap->stop();
-    if (msgQueue >= 0)
+    if(cap)
     {
+        cap->stop();
+        if (msgQueue >= 0)
+        {
 #ifndef _WIN32
-        msgctl(msgQueue, IPC_RMID, NULL);
+            msgctl(msgQueue, IPC_RMID, NULL);
 #endif
+        }
     }
 }
 

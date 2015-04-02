@@ -11,7 +11,42 @@
                     <Stereo value="OFF" />
                     <TrackViewpoint value="OFF" />
                     <TrackObjects value="ON" />
-
+		    <!--  Science Pub Bierglas -->
+		    <Marker name="ObjectMarker0" >
+                        <Pattern value="15" />
+                        <Size value="200" />
+                        <Offset x="0" y="160" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+		    <!--  Thyssen Turm klein -->
+                    <Marker name="ObjectMarker1" >
+                        <Pattern value="2" />
+                        <Size value="70" />
+                        <Offset x="70" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+		    <!--  Thyssen Turm gross -->
+		    <Marker name="ObjectMarker2" >
+                        <Pattern value="7" />
+                        <Size value="65" />
+                        <Offset x="65" y="0" z="0" h="90" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+		    <!--  Science Pub Bierglas kleiner Marker -->
+		    <Marker name="ObjectMarker3" >
+                        <Pattern value="5" />
+                        <Size value="70" />
+                        <Offset x="0" y="100" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+		    <!--  Science Pub Bierglas gross neu Marker -->
+		    <Marker name="ObjectMarker4" >
+                        <Pattern value="40" />
+                        <Size value="200" />
+                        <Offset x="0" y="160" z="5" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+<!--
                     <Marker name="ObjectMarker0" >
                         <Pattern value="10" />
                         <Size value="40" />
@@ -84,7 +119,7 @@
                         <Offset x="70" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-
+-->
                     <Marker name="Tracer1" >
                         <Pattern value="16" />
                         <Size value="100" />

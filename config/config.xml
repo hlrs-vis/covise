@@ -61,6 +61,7 @@
 
   <COVER>
     <!--LODScale value="0.000000000001" /-->
+    <DepthPeeling value="false" />
     <LODScale value="1" />
 
     <SyncToVBlank value="ON" device="DFP-0" />

@@ -181,15 +181,17 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     newSignalProps_.zOffset = zOffset;
     newSignalProps_.country = country;
     newSignalProps_.type = type;
-    newSignalProps_.typeSubclass = typeSubclass;
     newSignalProps_.subtype = subtype;
     newSignalProps_.value = value;
     newSignalProps_.pole = pole;
-    newSignalProps_.size = size;
+
     newValidity_.fromLane = fromLane;
     newValidity_.toLane = toLane;
+
     newUserData_.crossProb = probability;
     newUserData_.resetTime = resetTime;
+    newUserData_.size = size;
+    newUserData_.typeSubclass = typeSubclass;
 
     oldSignalProps_.t = signal_->getT();
     oldSignalProps_.dynamic = signal_->getDynamic();
@@ -198,13 +200,16 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     oldSignalProps_.country = signal_->getCountry();
     oldSignalProps_.type = signal_->getType();
     oldSignalProps_.subtype = signal_->getSubtype();
+
     oldSignalProps_.value = signal_->getValue();
     oldSignalProps_.pole = signal_->getPole();
-    oldSignalProps_.size = signal_->getSize();
+
     oldValidity_.fromLane = signal_->getValidFromLane();
     oldValidity_.toLane = signal_->getValidToLane();
     oldUserData_.crossProb = signal->getCrossingProbability();
-    oldUserData_.resetTime = resetTime;
+    oldUserData_.resetTime = signal->getResetTime();
+    oldUserData_.size = signal_->getSize();
+    oldUserData_.typeSubclass = signal_->getTypeSubclass();
 }
 
 SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent)

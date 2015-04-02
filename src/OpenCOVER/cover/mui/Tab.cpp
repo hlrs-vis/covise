@@ -6,6 +6,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/coMenuItem.h>
 #include "support/ConfigManager.h"
+#include "support/DefaultValues.h"
 #include "Container.h"
 #include "Tab.h"
 
@@ -21,6 +22,7 @@ Tab::Tab(const std::string UniqueIdentifier, Container* parent,  const std::stri
     Label = label;
     ParentConstructor(UniqueIdentifier, parent);
 }
+
 Tab::Tab(const std::string UniqueIdentifier, Container* parent)
 {
     Label = UniqueIdentifier;
@@ -33,6 +35,7 @@ Tab::Tab(const std::string UniqueIdentifier, const std::string label)
     Label = label;
     constructor(UniqueIdentifier);
 }
+
 Tab::Tab(const std::string UniqueIdentifier)
 {
     Label = UniqueIdentifier;
@@ -60,56 +63,57 @@ void Tab::ParentConstructor(const std::string UniqueIdentifier,  Container* pare
     // create defaultvalue or take from constructor:
     // VRUI-CAVE-Element:
     Devices.push_back(device());
-    Devices[0].Device=configManager->keywordCAVE();
-    Devices[0].UI=configManager->keywordVRUI();
-    Devices[0].Identifier = Identifier;
+    Devices[0].Device=mui::CAVEEnum;
+    Devices[0].UI=mui::VRUIEnum;
+    Devices[0].UniqueIdentifier = UniqueIdentifier;
     Devices[0].Visible = true;
 
-    Devices[0].Label= configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
-    Parent=configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
+    Devices[0].Label= configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
+    Parent=configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
     // create VRUI-Element:
     Submenu.reset(new vrui::coRowMenu(Devices[0].Label.c_str()));
     SubmenuItem.reset(new vrui::coSubMenuItem(Devices[0].Label));
 
     // TUI-Tablet-Element:
     Devices.push_back(device());
-    Devices[1].Device=configManager->keywordTablet();
-    Devices[1].UI=configManager->keywordTUI();
-    Devices[1].Identifier = Identifier;
+    Devices[1].Device=mui::TabletEnum;
+    Devices[1].UI=mui::TUIEnum;
+    Devices[1].UniqueIdentifier = UniqueIdentifier;
     Devices[1].Visible = true;
 
-    Devices[1].Label = configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
-    Parent=configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
+    Devices[1].Label = configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
+    Parent=configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
     // create TUI-Element:
     TUIElement.reset(new opencover::coTUITab(Devices[1].Label, Parent->getTUIID()));
 
     // find and set correct parameter (get them from configuration file, if possible):
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        Devices[i].Label = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+        Devices[i].Label = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
 
         // create UI-Elements:
-        if  (Devices[i].UI==configManager->keywordTUI())                           // create TUI-Element
+        if  (Devices[i].UI==mui::TUIEnum)                           // create TUI-Element
         {
-            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier, Parent->getUniqueIdentifier());
             TUIElement->setPos(pos.first,pos.second);
-            configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
+            configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), true);
             TUIElement->setHidden(!Devices[i].Visible);
         }
-        else if (Devices[i].UI==configManager->keywordVRUI())                      // create VRUI-Elemente
+        else if (Devices[i].UI==mui::VRUIEnum)                      // create VRUI-Elemente
         {
             SubmenuItem->setMenu(Submenu.get());
 
             if (Devices[i].Visible)                                                // visible
             {
-                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(SubmenuItem.get());
+                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->add(SubmenuItem.get());
             }
             else                                                                   // invisible
             {
-                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(SubmenuItem.get());
+                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->remove(SubmenuItem.get());
             }
-        } else
+        }
+        else
         {
             std::cerr << "Tab::ParentConstructor(): " << Devices[i].UI << " not found in Constructor." << std::endl;
         }
@@ -126,13 +130,13 @@ void Tab::constructor(const std::string UniqueIdentifier)
     // create defaultvalue or take from constructor:
     // VRUI-CAVE-Element:
     Devices.push_back(device());
-    Devices[0].Device=configManager->keywordCAVE();
-    Devices[0].UI=configManager->keywordVRUI();
-    Devices[0].Identifier = Identifier;
+    Devices[0].Device=mui::CAVEEnum;
+    Devices[0].UI=mui::VRUIEnum;
+    Devices[0].UniqueIdentifier = UniqueIdentifier;
     Devices[0].Visible=true;
 
-    Devices[0].Label= configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
-    Parent=configManager->getCorrectParent(NULL, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
+    Devices[0].Label= configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
+    Parent=configManager->getCorrectParent(NULL, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
 
     // create VRUI-Element:
     Submenu.reset(new vrui::coRowMenu(Devices[0].Label.c_str()));
@@ -140,12 +144,12 @@ void Tab::constructor(const std::string UniqueIdentifier)
 
     // TUI-Tablet-Element:
     Devices.push_back(device());
-    Devices[1].Device=configManager->keywordTablet();
-    Devices[1].UI=configManager->keywordTUI();
-    Devices[1].Identifier = Identifier;
+    Devices[1].Device=mui::TabletEnum;
+    Devices[1].UI=mui::TUIEnum;
+    Devices[1].UniqueIdentifier = UniqueIdentifier;
     Devices[1].Visible = true;
-    Devices[1].Label = configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
-    Parent=configManager->getCorrectParent(NULL, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
+    Devices[1].Label = configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
+    Parent=configManager->getCorrectParent(NULL, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
     // create TUI-Element:
     if (Parent != NULL)                                                         // Parent was dedicated in configuration file
     {
@@ -164,24 +168,24 @@ void Tab::constructor(const std::string UniqueIdentifier)
     // find and set correct parameter (get them from configuration file, if possible):
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        Devices[i].Label = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+        Devices[i].Label = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
 
         // create UI-Elemente:
-        if  (Devices[i].UI==configManager->keywordTUI())                           // create TUI-Elements
+        if  (Devices[i].UI==mui::TUIEnum)                           // create TUI-Elements
         {
-            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, configManager->keywordMainWindow());
+            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier, mui::MainWindowEnum);
             TUIElement->setPos(pos.first,pos.second);
-            configManager->addPosToPosList(Devices[i].Identifier, pos, configManager->keywordMainWindow(), true);
+            configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, mui::getKeywordAttribute(mui::MainWindowEnum), true);
             TUIElement->setHidden(!Devices[i].Visible);
         }
-        else if (Devices[i].UI==configManager->keywordVRUI())                      // create VRUI-Elements
+        else if (Devices[i].UI==mui::VRUIEnum)                      // create VRUI-Elements
         {
             SubmenuItem->setMenu(Submenu.get());
 
             if (Devices[i].Visible)                                                // visible
             {
-                Parent=configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                Parent=configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
                 if (Parent == NULL)
                 {
                     cover->getMenu()->add(SubmenuItem.get());
@@ -197,7 +201,7 @@ void Tab::constructor(const std::string UniqueIdentifier)
             }
             else
             {                                                                   // invisible
-                Parent=configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                Parent=configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
                 if (!Parent)
                 {
                     cover->getMenu()->remove(SubmenuItem.get());
@@ -255,15 +259,17 @@ void Tab::setLabel(std::string label, std::string UI)
     {
         if (UI.find(Devices[i].UI) != std::string::npos)                           // element to be changed
         {
-            Devices[i].Label=configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == configManager->keywordTUI())                      // TUI-Element
+            Devices[i].Label=configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+            if (Devices[i].UI == mui::TUIEnum)                      // TUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
-            } else if (Devices[i].UI == configManager->keywordVRUI())              // VRUI-Element
+            }
+            else if (Devices[i].UI == mui::VRUIEnum)              // VRUI-Element
             {
                 SubmenuItem->setLabel(Devices[i].Label);
                 Submenu->updateTitle(Devices[i].Label.c_str());
-            } else
+            }
+            else
             {
                 std::cerr << "MainElement::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string, std::string)." << std::endl;
             }
@@ -290,19 +296,22 @@ void Tab::setVisible(bool visible, std::string UI)
         {
             if (Devices[i].Visible != visible)                                     // visible-value changed
             {
-                Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-                if (Devices[i].UI == configManager->keywordTUI())                  // TUI-Element
+                Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+                if (Devices[i].UI == mui::TUIEnum)                  // TUI-Element
                 {
                     TUIElement->setHidden(!Devices[i].Visible);
-                } else if (Devices[i].UI == configManager->keywordVRUI())          // VRUI-Element
+                }
+                else if (Devices[i].UI == mui::VRUIEnum)          // VRUI-Element
                 {
                     if (Devices[i].Visible)
                     {
                         cover->getMenu()->add(SubmenuItem.get());
-                    } else{
+                    }
+                    else{
                         cover->getMenu()->remove(SubmenuItem.get());
                     }
-                } else
+                }
+                else
                 {
                     std::cerr << "PotiSlider.cpp: Elementtyp " << Devices[i].UI << " wurde in setVisible(string, bool, bool) nicht gefunden." << std::endl;
                 }
@@ -317,27 +326,27 @@ void Tab::setPos(int posx, int posy)
     std::pair<int,int> pos(posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordTUI())                              // TUI-Element
+        if (Devices[i].UI == mui::TUIEnum)                              // TUI-Element
         {
-            pos=configManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+            pos=configManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
             if (Parent != NULL)
             {
-                if (configManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+                if (configManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].UniqueIdentifier)     // if is equal: Element is already at correct position
                 {
                     configManager->preparePos(pos, Parent->getUniqueIdentifier());
-                    configManager->deletePosFromPosList(Devices[i].Identifier);
+                    configManager->deletePosFromPosList(Devices[i].UniqueIdentifier);
                     TUIElement->setPos(pos.first,pos.second);
-                    configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                    configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), false);
                 }
             }
             else if (Parent == NULL)
             {
-                if (configManager->getIdentifierByPos(pos, configManager->keywordMainWindow()) != Devices[i].Identifier)
+                if (configManager->getIdentifierByPos(pos, mui::getKeywordAttribute(mui::MainWindowEnum)) != Devices[i].UniqueIdentifier)
                 {
-                    configManager->preparePos(pos, configManager->keywordMainWindow());
-                    configManager->deletePosFromPosList(Devices[i].Identifier);
+                    configManager->preparePos(pos, mui::getKeywordAttribute(mui::MainWindowEnum));
+                    configManager->deletePosFromPosList(Devices[i].UniqueIdentifier);
                     TUIElement->setPos(pos.first, pos.second);
-                    configManager->addPosToPosList(Devices[i].Identifier, pos, configManager->keywordMainWindow(), false);
+                    configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, mui::getKeywordAttribute(mui::MainWindowEnum), false);
                 }
             }
 

@@ -44,6 +44,7 @@
 #include "coVRConfig.h"
 #include "coCullVisitor.h"
 #include "ARToolKit.h"
+#include "EnableGLDebugOperation.h"
 #include "input/input.h"
 
 #include <osg/LightSource>
@@ -348,6 +349,10 @@ VRViewer::VRViewer()
     reEnableCulling = false;
 
     RenderToTexture = false;
+    const bool glDebug = coCoviseConfig::isOn("GLDebug", false);
+    if (glDebug) {
+        setRealizeOperation(new EnableGLDebugOperation());
+    }
 
     unsyncedFrames = 0;
     lastFrameTime = 0.0;

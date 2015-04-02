@@ -14,13 +14,13 @@ using namespace opencover;
 using namespace mui;
 
 // constructor:
-LabelElement::LabelElement(std::string UniqueIdentifier, Container* parent, std::string label)
+LabelElement::LabelElement(std::string uniqueIdentifier, Container* parent, std::string label)
 {
-    constructor(UniqueIdentifier, parent, label);
+    constructor(uniqueIdentifier, parent, label);
 }
-LabelElement::LabelElement(std::string UniqueIdentifier, Container* parent)
+LabelElement::LabelElement(std::string uniqueIdentifier, Container* parent)
 {
-    constructor(UniqueIdentifier, parent, UniqueIdentifier);
+    constructor(uniqueIdentifier, parent, uniqueIdentifier);
 }
 
 // destructor:
@@ -32,10 +32,10 @@ LabelElement::~LabelElement()
 
 
 // underlaying constructor:
-void LabelElement::constructor(std::string UniqueIdentifier, Container* parent, std::string label)
+void LabelElement::constructor(std::string uniqueIdentifier, Container* parent, std::string label)
 {
 
-    Identifier = UniqueIdentifier;
+    UniqueIdentifier = uniqueIdentifier;
 
     configManager = ConfigManager::getInstance();
     configManager->addElement(UniqueIdentifier, this);
@@ -46,53 +46,56 @@ void LabelElement::constructor(std::string UniqueIdentifier, Container* parent, 
     // create defaultvalue or take from constructor:
     // VRUI-CAVE-Element:
     Devices.push_back(device());
-    Devices[0].Device= configManager->keywordCAVE();
-    Devices[0].UI = configManager->keywordVRUI();
-    Devices[0].Identifier = UniqueIdentifier;
+    Devices[0].Device = mui::CAVEEnum;
+    Devices[0].UI = mui::VRUIEnum;
+    Devices[0].UniqueIdentifier = UniqueIdentifier;
     Devices[0].Visible = true;
 
-    Devices[0].Label = configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
-    Parent = configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].Identifier);
+    Devices[0].Label = configManager->getCorrectLabel(Label, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
+    Parent = configManager->getCorrectParent(Parent, Devices[0].UI, Devices[0].Device, Devices[0].UniqueIdentifier);
 
     // create VRUI-Element:
     VRUIElement.reset(new coLabelMenuItem(Devices[0].Label));
 
     // TUI-Tablet-Element:
     Devices.push_back(device());
-    Devices[1].Device= configManager->keywordTablet();
-    Devices[1].UI = configManager->keywordTUI();
-    Devices[1].Identifier = UniqueIdentifier;
+    Devices[1].Device = mui::TabletEnum;
+    Devices[1].UI = mui::TUIEnum;
+    Devices[1].UniqueIdentifier = UniqueIdentifier;
     Devices[1].Visible = true;
 
-    Parent = configManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
-    Devices[1].Label = configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].Identifier);
+    Parent = configManager->getCorrectParent(Parent, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
+    Devices[1].Label = configManager->getCorrectLabel(Label, Devices[1].UI, Devices[1].Device, Devices[1].UniqueIdentifier);
     // create TUI-Element:
     TUIElement.reset(new coTUILabel(Devices[1].Label, Parent->getTUIID()));
 
     // find and set correct parameter (get them from configuration file, if possible):
     for (size_t  i=0; i<Devices.size(); ++i)
     {
-        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        Devices[i].Label = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+        Devices[i].Visible = configManager->getCorrectVisible(Devices[i].Visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+        Devices[i].Label = configManager->getCorrectLabel(Label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
 
         // create UI-Elements:
-        if (Devices[i].UI == configManager->keywordTUI())         // create TUI-Element
+        if (Devices[i].UI == mui::TUIEnum)         // create TUI-Element
         {
-            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].Identifier, Parent->getUniqueIdentifier());
+            std::pair<int,int> pos=configManager->getCorrectPos(Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier, Parent->getUniqueIdentifier());
             configManager->preparePos(pos, Parent->getUniqueIdentifier());
             TUIElement->setPos(pos.first,pos.second);
-            configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), true);
+            configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), true);
             TUIElement->setHidden(!Devices[i].Visible);
-        }else if (Devices[i].UI == configManager->keywordVRUI())  // create VRUI-Element
+        }
+        else if (Devices[i].UI == mui::VRUIEnum)  // create VRUI-Element
         {
             if (Devices[i].Visible)                                            // visible
             {
-                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
-            }else                                                               // invisible
-            {
-                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
+                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->add(VRUIElement.get());
             }
-        }else
+            else                                                               // invisible
+            {
+                configManager->getCorrectParent(parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->remove(VRUIElement.get());
+            }
+        }
+        else
         {
             std::cerr << "PotiSlider::constructor(): Elementtype " << Devices[i].UI << " not found in Constructor." << std::endl;
         }
@@ -111,15 +114,15 @@ void LabelElement::setPos(int posx, int posy)
     std::pair<int,int> pos (posx,posy);
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        if (Devices[i].UI == configManager->keywordTUI())                          // TUI-Element
+        if (Devices[i].UI == mui::TUIEnum)                          // TUI-Element
         {
-            if (configManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].Identifier)     // if is equal: Element is already at correct position
+            if (configManager->getIdentifierByPos(pos, Parent->getUniqueIdentifier()) != Devices[i].UniqueIdentifier)     // if is equal: Element is already at correct position
             {
-                pos=configManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
+                pos=configManager->getCorrectPos(pos, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
                 configManager->preparePos(pos, Parent->getUniqueIdentifier());
-                configManager->deletePosFromPosList(Devices[i].Identifier);
+                configManager->deletePosFromPosList(Devices[i].UniqueIdentifier);
                 TUIElement->setPos(pos.first,pos.second);
-                configManager->addPosToPosList(Devices[i].Identifier, pos, Parent->getUniqueIdentifier(), false);
+                configManager->addPosToPosList(Devices[i].UniqueIdentifier, pos, Parent->getUniqueIdentifier(), false);
             }
         }
     }
@@ -134,19 +137,22 @@ void LabelElement::setVisible(bool visible, std::string UI)
         {
             if (Devices[i].Visible != visible)                                     // visible-value changed
             {
-                Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-                if (Devices[i].UI == configManager->keywordTUI())                  // TUI-Element
+                Devices[i].Visible = configManager->getCorrectVisible(visible, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+                if (Devices[i].UI == mui::TUIEnum)                  // TUI-Element
                 {
                     TUIElement->setHidden(!Devices[i].Visible);
-                } else if (Devices[i].UI == configManager->keywordVRUI())          // VRUI-Element
+                }
+                else if (Devices[i].UI == mui::VRUIEnum)          // VRUI-Element
                 {
                     if (Devices[i].Visible){
-                        configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->add(VRUIElement.get());
-                    } else
-                    {
-                        configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].Identifier)->getVRUI()->remove(VRUIElement.get());
+                        configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->add(VRUIElement.get());
                     }
-                } else
+                    else
+                    {
+                        configManager->getCorrectParent(Parent, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier)->getVRUI()->remove(VRUIElement.get());
+                    }
+                }
+                else
                 {
                     std::cerr << "PotiSlider:: Elementtype " << Devices[i].UI << " not found in setVisible(string, bool, bool)." << std::endl;
                 }
@@ -174,7 +180,7 @@ Container* LabelElement::getParent()
 
 std::string LabelElement::getUniqueIdentifier()
 {
-    return Devices[0].Identifier;
+    return UniqueIdentifier;
 }
 
 // returns a pointer to TUIElement
@@ -187,14 +193,16 @@ void LabelElement::setLabel(std::string label)
 {
     for (size_t i=0; i<Devices.size(); ++i)
     {
-        Devices[i].Label = configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-        if (Devices[i].UI == configManager->keywordTUI())                          // TUI-Element
+        Devices[i].Label = configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+        if (Devices[i].UI == mui::TUIEnum)                          // TUI-Element
         {
             TUIElement->setLabel(Devices[i].Label);
-        } else if (Devices[i].UI == configManager->keywordVRUI())                  // VRUI-Element
+        }
+        else if (Devices[i].UI == mui::VRUIEnum)                  // VRUI-Element
         {
             VRUIElement->setLabel(Devices[i].Label);
-        } else
+        }
+        else
         {
             std::cerr << "Label::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string)." << std::endl;
         }
@@ -208,14 +216,16 @@ void LabelElement::setLabel(std::string label, std::string UI)
     {
         if (UI.find(Devices[i].UI) != std::string::npos)                           // element to be changed
         {
-            Devices[i].Label=configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].Identifier);
-            if (Devices[i].UI == configManager->keywordTUI())                      // TUI-Element
+            Devices[i].Label=configManager->getCorrectLabel(label, Devices[i].UI, Devices[i].Device, Devices[i].UniqueIdentifier);
+            if (Devices[i].UI == mui::TUIEnum)                      // TUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
-            } else if (Devices[i].UI == configManager->keywordVRUI())              // VRUI-Element
+            }
+            else if (Devices[i].UI == mui::VRUIEnum)              // VRUI-Element
             {
                 TUIElement->setLabel(Devices[i].Label);
-            } else
+            }
+            else
             {
                 std::cerr << "PotiSlider::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string, std::string)." << std::endl;
             }
@@ -228,13 +238,15 @@ void LabelElement::changeLabel(std::string label)
     for (size_t i=0; i<Devices.size(); ++i)
     {
         Devices[i].Label = label;
-        if (Devices[i].UI == configManager->keywordTUI())                          // TUI-Element
+        if (Devices[i].UI == mui::TUIEnum)                          // TUI-Element
         {
             TUIElement->setLabel(Devices[i].Label);
-        } else if (Devices[i].UI == configManager->keywordVRUI())                  // VRUI-Element
+        }
+        else if (Devices[i].UI == mui::VRUIEnum)                  // VRUI-Element
         {
             VRUIElement->setLabel(Devices[i].Label);
-        } else
+        }
+        else
         {
             std::cerr << "Label::setLabel(): Elementtype " << Devices[i].UI << " not found in setLabel(std::string)." << std::endl;
         }

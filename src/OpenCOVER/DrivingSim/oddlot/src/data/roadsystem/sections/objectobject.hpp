@@ -123,6 +123,12 @@ public:
         double distance;
     };
 
+    struct ObjectUserData
+    {
+        QString textureFile;
+        QString modelFile;
+    };
+
     //################//
     // FUNCTIONS      //
     //################//
@@ -153,7 +159,7 @@ public:
     void setName(const QString &name)
     {
         name_ = name;
-	modelFile_ = name;
+        userData_.modelFile = name;
     }
 
     QString getModelFileName() const
@@ -163,16 +169,16 @@ public:
     void setModelFileName(const QString &name)
     {
         name_ = name;
-	modelFile_ = name;
+	    userData_.modelFile = name;
     }
 
     QString getTextureFileName() const
     {
-        return textureFile_;
+        return userData_.textureFile;
     }
     void setTextureFileName(const QString &name)
     {
-        textureFile_ = name;
+        userData_.textureFile = name;
     }
 
     QString getType() const
@@ -372,11 +378,10 @@ private:
     // Mandatory
     QString id_;
     QString name_;
-    QString modelFile_;
-    QString textureFile_;
 
     ObjectProperties objectProps_;
     ObjectRepeatRecord objectRepeat_;
+    ObjectUserData userData_;
 
 
     // Change flags //
