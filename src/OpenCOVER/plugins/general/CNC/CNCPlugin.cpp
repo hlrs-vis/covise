@@ -28,6 +28,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
+#include <cover/coVRFileManager.h>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Array>
@@ -574,13 +575,17 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     block_delete SET_TO RS_OFF;
     print_stack SET_TO RS_OFF;
     tool_flag SET_TO 0;
-    strcpy(_parameter_file_name, default_name);
+    
+    const char *varFileName = opencover::coVRFileManager::instance()->getName("share/covise/rs274ngc.var");
+    strcpy(_parameter_file_name, varFileName);
     _outfile SET_TO stdout; /* may be reset below */
 
     fprintf(stderr, "executing\n");
     if (tool_flag IS 0)
     {
-        if (read_tool_file("rs274ngc.tool_default") ISNT 0)
+        const char *toolFileName = opencover::coVRFileManager::instance()->getName("share/covise/rs274ngc.tool_default");
+
+        if (read_tool_file(toolFileName) ISNT 0)
             exit(1);
     }
 
