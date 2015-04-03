@@ -221,7 +221,8 @@ coVRAnimationManager::setRemoteAnimationFrame(int currentFrame)
         for (unsigned int i = 0; i < listOfSeq.size(); i++)
         {
             unsigned int numChildren = listOfSeq[i]->getNumChildren();
-            listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
+            //listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
+            listOfSeq[i]->setValue(currentFrame % numChildren);
         }
         coVRPluginList::instance()->setTimestep(currentFrame);
         if (animFrameItem && numFrames != 0)
@@ -286,7 +287,8 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
         for (unsigned int i = 0; i < listOfSeq.size(); i++)
         {
             unsigned int numChildren = listOfSeq[i]->getNumChildren();
-            listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
+            //listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
+            listOfSeq[i]->setValue(currentFrame % numChildren);
         }
         coVRPluginList::instance()->setTimestep(currentFrame);
         if (animFrameItem && numFrames != 0)
@@ -507,10 +509,13 @@ coVRAnimationManager::removeSequence(osg::Sequence *seq)
 void
 coVRAnimationManager::addSequence(osg::Sequence *seq)
 {
-    if (int(seq->getNumChildren()) > currentAnimationFrame)
+    /*if (int(seq->getNumChildren()) > currentAnimationFrame)
         seq->setValue(currentAnimationFrame);
     else
-        seq->setValue(seq->getNumChildren());
+        seq->setValue(seq->getNumChildren());*/
+    
+    seq->setValue(currentAnimationFrame % seq->getNumChildren());
+    
 
     setNumTimesteps(seq->getNumChildren(), seq);
     bool alreadyAdded = false;
