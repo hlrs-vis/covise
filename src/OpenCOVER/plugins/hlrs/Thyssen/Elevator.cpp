@@ -176,6 +176,8 @@ void VrmlNodeElevator::render(Viewer *)
             if(allIdle)
             {
                 // tell it to move to next stop
+                car->moveToNext();
+                /*
                 if(d_shaftPositions.size()==2)
                 {
                     if(car->d_carPos.x()==d_shaftPositions[0]) // left shat, move up
@@ -198,7 +200,7 @@ void VrmlNodeElevator::render(Viewer *)
                         else
                             car->setDestination(car->getLandingNumber()-1,1);
                     }
-                }
+                }*/
             }
             car->update();
         }

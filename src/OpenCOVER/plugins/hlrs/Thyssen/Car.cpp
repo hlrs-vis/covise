@@ -40,6 +40,8 @@ VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
 
     t->addExposedField("carNumber", VrmlField::SFINT32);
     t->addExposedField("carPos", VrmlField::SFVEC3F);
+    t->addExposedField("stationList", VrmlField::MFINT32);
+    t->addExposedField("currentStationIndex", VrmlField::SFINT32);
     t->addEventOut("carDoorClose", VrmlField::SFTIME);
     t->addEventOut("carDoorOpen", VrmlField::SFTIME);
     t->addEventOut("carRotation", VrmlField::SFROTATION);
@@ -71,6 +73,7 @@ VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
     angle=0;
     d_doorTimeout=1.0;
     d_carRotation.set(1,0,0,0);
+    d_currentStationIndex=0;
     ID = IDCounter++;
 }
 
@@ -93,6 +96,7 @@ VrmlNodeCar::VrmlNodeCar(const VrmlNodeCar &n)
     angle=0;
     d_doorTimeout=1.0;
     d_carRotation.set(1,0,0,0);
+    d_currentStationIndex=0;
     ID = IDCounter++;
 }
 
@@ -143,6 +147,10 @@ void VrmlNodeCar::setField(const char *fieldName,
     TRY_FIELD(carDoorOpen, SFTime)
     else if
     TRY_FIELD(carRotation, SFRotation)
+    else if
+    TRY_FIELD(stationList, MFInt)
+    else if
+    TRY_FIELD(currentStationIndex, SFInt)
     else
     VrmlNodeChild::setField(fieldName, fieldValue);
 }
@@ -159,6 +167,10 @@ const VrmlField *VrmlNodeCar::getField(const char *fieldName)
         return &d_carDoorOpen;
     else if (strcmp(fieldName, "carRotation") == 0)
         return &d_carRotation;
+    else if (strcmp(fieldName, "stationList") == 0)
+        return &d_stationList;
+    else if (strcmp(fieldName, "currentStationIndex") == 0)
+        return &d_currentStationIndex;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
@@ -409,7 +421,7 @@ void VrmlNodeCar::update()
                 if(av <= 0)
                 {
                     angle=destinationAngle;
-                    v=0;
+                    av=0;
                 }
                 else
                 {
@@ -431,7 +443,7 @@ void VrmlNodeCar::update()
 void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 {
     elevator = e;
-    for(int i=0;i<elevator->d_landingHeights.size();i++)
+ /*   for(int i=0;i<elevator->d_landingHeights.size();i++)
     {
         if(d_carPos.y()==elevator->d_landingHeights[i])
         {
@@ -444,12 +456,32 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
         {
             shaftNumber = i;
         }
-    }
+    }*/
+    
+    landingNumber = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
+    shaftNumber = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
+    d_carPos.set(elevator->d_shaftPositions[shaftNumber],elevator->d_landingHeights[landingNumber],0);
+    double timeStamp = System::the->time();
+    eventOut(timeStamp, "carPos", d_carPos);
     state = Idle;
 
 }
 void VrmlNodeCar::setDestination(int landing, int shaft)
 {
+    landingNumber = landing;
+    state = Moving;
+    shaftNumber = shaft;
+    
+    destinationY = elevator->d_landingHeights[landing];
+    destinationX = elevator->d_shaftPositions[shaft];
+}
+void VrmlNodeCar::moveToNext()
+{
+    d_currentStationIndex = d_currentStationIndex.get()+1;
+    if(d_currentStationIndex.get()>=d_stationList.size())
+        d_currentStationIndex=0;
+    int landing = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
+    int shaft = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
     landingNumber = landing;
     state = Moving;
     shaftNumber = shaft;

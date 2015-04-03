@@ -93,12 +93,16 @@ public:
     void setTravelDirection(enum carState t);
     int getLandingNumber(){return landingNumber;};
     void setDestination(int landing, int shaft);
+    void moveToNext(); // move to next station
+
     VrmlSFInt   d_carNumber;
     VrmlSFVec3f d_carPos;
     VrmlSFTime  d_carDoorClose;
     VrmlSFTime  d_carDoorOpen;
     VrmlSFFloat d_doorTimeout;
     VrmlSFRotation d_carRotation;
+    VrmlMFInt d_stationList;
+    VrmlSFInt d_currentStationIndex;
 
 
 private:
