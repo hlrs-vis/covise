@@ -12,7 +12,7 @@
 
    <Input>
 
-    <MouseNav value="ON" />
+    <MouseNav value="OFF" />
     <!--TrackingSystem value="MOUSE" /-->
     <TrackingSystem value="DTRACK" />
     <ButtonSystem value="ART" />
