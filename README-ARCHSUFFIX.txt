@@ -37,7 +37,7 @@ amdwin64        Windows XP/Vista with Visual Studio 2005 with SP1 on x86_64
 angus           Windows XP/Vista with Visual Studio 2008 on x86_64
 yoroo           Visual Studio 2010 for ia32
 berrenda        Visual Studio 2010 for x86_64
-tamarau         Visual Studio 2011 for x86_64
+tamarau         Visual Studio 2012 for x86_64
 mingw           Windows XP/Vista with gcc 4.4.0 on ia32
 
 hpux_ia64       HP-UX 11 for IA64
