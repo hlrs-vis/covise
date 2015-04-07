@@ -73,6 +73,14 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 
     while (fgets(buf, 1000, inputFile) != NULL)
     {
+        if(buf[0]=='/')
+        {
+            if(strcmp(buf,"//X,Y,Z,Scalar field,R,G,B")==0)
+            {
+            fgets(buf, 1000, inputFile); // num points
+            fgets(buf, 1000, inputFile);
+            }
+        }
         int numValues;
         if (format == FORMAT_UVRGBI)
             numValues = sscanf(buf, "%d %d %f %f %f %d %d %d", &u, &v, &(point.x), &(point.y), &(point.z), &r, &g, &b);
@@ -89,6 +97,10 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
 #ifdef WIN32
             point.y = strtod(c, &nc);
 #else
@@ -97,6 +109,10 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
 #ifdef WIN32
             point.z = strtod(c, &nc);
 #else
@@ -105,6 +121,10 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
 #ifdef WIN32
             in = strtod(c, &nc);
 #else
@@ -113,18 +133,34 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
             r = strtol(c, &nc, 10);
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
             g = strtol(c, &nc, 10);
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
             b = strtol(c, &nc, 10);
             if (nc != c)
                 numValues++;
             c = nc;
+            if(*c == ',')
+                c++;
+            if(*c == ';')
+                c++;
             //numValues =sscanf (buf, "%f %f %f %f %d %d %d", &(point.x),&(point.y),&(point.z), &in, &r, &g, &b);
         }
         else if (format == FORMAT_RGBI)
