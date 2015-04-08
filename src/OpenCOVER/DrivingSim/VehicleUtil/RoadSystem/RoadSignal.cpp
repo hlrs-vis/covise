@@ -73,6 +73,19 @@ RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, con
         roadSignalNode->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
         roadSignalNode->setName(setId);
         roadSignalNode->addChild(sp->signalNode.get());
+
+        if (sp->signalPost.valid())
+        {
+            roadSignalPost = new osg::PositionAttitudeTransform();
+            roadSignalPost->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z()));
+            roadSignalPost->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
+            roadSignalPost->setName(setId + "simplePost");
+            roadSignalPost->addChild(sp->signalPost.get());
+        }
+        else
+        {
+            roadSignalPost = NULL;
+        }
     }
     else
     {
@@ -113,6 +126,7 @@ void SignalPrototype::createGeometry()
             name_noPost = name_noPost.substr(0, len - 2);
         }
     }
+
     osg::Geode *signGeode = new osg::Geode();
     signGeode->setName(name.c_str());
 
@@ -287,67 +301,91 @@ void SignalPrototype::createGeometry()
     signTexCoords->push_back(osg::Vec2(0.5, 0));
     signNormals->push_back(n);
 
-/*    if (withPost)
-    {
-        osg::Vec2 tc;
-        tc.set(0.75, 0.5);
-        signVertices->push_back(v[4]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[0]);
-        signVertices->push_back(v[8]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[0]);
-        signVertices->push_back(v[11]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[3]);
-        signVertices->push_back(v[7]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[3]);
-
-        signVertices->push_back(v[7]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[3]);
-        signVertices->push_back(v[11]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[3]);
-        signVertices->push_back(v[10]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[2]);
-        signVertices->push_back(v[6]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[2]);
-
-        signVertices->push_back(v[6]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[2]);
-        signVertices->push_back(v[10]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[2]);
-        signVertices->push_back(v[9]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[1]);
-        signVertices->push_back(v[5]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[1]);
-
-        signVertices->push_back(v[5]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[1]);
-        signVertices->push_back(v[9]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[1]);
-        signVertices->push_back(v[8]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[0]);
-        signVertices->push_back(v[4]);
-        signTexCoords->push_back(tc);
-        signNormals->push_back(np[0]);
-    }
-*/
     osg::DrawArrays *sign = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, signVertices->size());
     signGeometry->addPrimitiveSet(sign);
-
     signalNode = signGeode;
+
+    if (withPost)
+    {
+        osg::Geode *postGeode = new osg::Geode();
+        postGeode->setName("simplePole");
+        postGeode->setStateSet(signStateSet);
+
+        osg::Geometry *postGeometry;
+        postGeometry = new osg::Geometry();
+        postGeode->addDrawable(postGeometry);
+
+        osg::Vec3Array *postVertices;
+        postVertices = new osg::Vec3Array;
+        postGeometry->setVertexArray(postVertices);
+
+        osg::Vec3Array *postNormals;
+        postNormals = new osg::Vec3Array;
+        postGeometry->setNormalArray(postNormals);
+        postGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+        osg::Vec2Array *postTexCoords;
+        postTexCoords = new osg::Vec2Array;
+        postGeometry->setTexCoordArray(3, postTexCoords);
+
+        osg::Vec2 tc;
+        tc.set(0.75, 0.5);
+        postVertices->push_back(v[4]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[0]);
+        postVertices->push_back(v[8]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[0]);
+        postVertices->push_back(v[11]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[3]);
+        postVertices->push_back(v[7]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[3]);
+
+        postVertices->push_back(v[7]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[3]);
+        postVertices->push_back(v[11]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[3]);
+        postVertices->push_back(v[10]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[2]);
+        postVertices->push_back(v[6]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[2]);
+
+        postVertices->push_back(v[6]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[2]);
+        postVertices->push_back(v[10]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[2]);
+        postVertices->push_back(v[9]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[1]);
+        postVertices->push_back(v[5]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[1]);
+
+        postVertices->push_back(v[5]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[1]);
+        postVertices->push_back(v[9]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[1]);
+        postVertices->push_back(v[8]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[0]);
+        postVertices->push_back(v[4]);
+        postTexCoords->push_back(tc);
+        postNormals->push_back(np[0]);
+
+        osg::DrawArrays *post = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, postVertices->size());
+        postGeometry->addPrimitiveSet(post);
+        signalPost = postGeode;
+    }
 }
 
 SignalPrototype::~SignalPrototype()
@@ -377,6 +415,7 @@ void RoadSignal::setTransform(const Transform &_transform)
             roadSignalNode->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z() + zOffset));
             roadSignalNode->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
         }
+
         if (country == "China")
         {
             if (size == 1)
@@ -418,6 +457,13 @@ void RoadSignal::setTransform(const Transform &_transform)
                 }
             }
         }
+        if (roadSignalPost)
+        {
+std::cerr << "Making Post" << std::endl;
+            roadSignalPost->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z() + zOffset));
+            roadSignalPost->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
+            roadSignalPost->setScale(osg::Vec3(size, size, size));
+        }
     }
 }
 
@@ -425,6 +471,12 @@ osg::PositionAttitudeTransform *RoadSignal::getRoadSignalNode()
 {
 
     return roadSignalNode;
+}
+
+osg::PositionAttitudeTransform *RoadSignal::getRoadSignalPost()
+{
+
+    return roadSignalPost;
 }
 
 osg::Node *TrafficLightSignal::trafficSignalNodeTemplate = NULL;
@@ -667,8 +719,8 @@ TrafficLightPrototype::TrafficLightPrototype(std::string n, std::string c, int t
 
         if (withPost)
         {
-//            osg::Node * post = createGeometry();
-//            trafficLightGroup->addChild(post);
+            osg::Node * post = createGeometry();
+            trafficLightGroup->addChild(post);
         }
     }
     else

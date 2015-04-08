@@ -546,83 +546,86 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             if (objectElement && xercesc::XMLString::compareIString(objectElement->getTagName(), xercesc::XMLString::transcode("object")) == 0)
                             {
                                 std::string type(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("type"))));
-                                std::string name(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("name"))));
-                                std::string id(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                std::string file(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("modelFile"))));
-                                std::string textureFile(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("textureFile"))));
-
-                                double s = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                double t = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("t"))));
-                                double zOffset = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("zOffset"))));
-                                double validLength = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("validLength"))));
-
-                                std::string orientationString(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("orientation"))));
-                                RoadObject::OrientationType orientation = RoadObject::BOTH_DIRECTIONS;
-                                if (orientationString == "+")
+                                if (type != "simplePole")
                                 {
-                                    orientation = RoadObject::POSITIVE_TRACK_DIRECTION;
-                                }
-                                else if (orientationString == "-")
-                                {
-                                    orientation = RoadObject::NEGATIVE_TRACK_DIRECTION;
-                                }
+                                    std::string name(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("name"))));
+                                    std::string id(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("id"))));
+                                    std::string file(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("modelFile"))));
+                                    std::string textureFile(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("textureFile"))));
 
-                                double length = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                double width = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("width"))));
-                                double radius = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("radius"))));
-                                double height = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("height"))));
-                                double hdg = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("hdg"))));
-                                double pitch = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("pitch"))));
-                                double roll = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("roll"))));
+                                    double s = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("s"))));
+                                    double t = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("t"))));
+                                    double zOffset = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("zOffset"))));
+                                    double validLength = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("validLength"))));
 
-                                RoadObject *roadObject = new RoadObject(id, file,textureFile, name, type, s, t, zOffset, validLength, orientation,
-                                    length, width, radius, height, hdg, pitch, roll, road);
-                                road->addRoadObject(roadObject);
-
-                                xercesc::DOMNodeList *objectChildrenList = objectElement->getChildNodes();
-                                xercesc::DOMElement *objectChildElement;
-                                for (unsigned int childIndex = 0; childIndex < objectChildrenList->getLength(); ++childIndex)
-                                {
-                                    objectChildElement = dynamic_cast<xercesc::DOMElement *>(objectChildrenList->item(childIndex));
-                                    if (objectChildElement)
+                                    std::string orientationString(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("orientation"))));
+                                    RoadObject::OrientationType orientation = RoadObject::BOTH_DIRECTIONS;
+                                    if (orientationString == "+")
                                     {
-                                        if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("repeat")) == 0)
+                                        orientation = RoadObject::POSITIVE_TRACK_DIRECTION;
+                                    }
+                                    else if (orientationString == "-")
+                                    {
+                                        orientation = RoadObject::NEGATIVE_TRACK_DIRECTION;
+                                    }
+
+                                    double length = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("length"))));
+                                    double width = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("width"))));
+                                    double radius = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("radius"))));
+                                    double height = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("height"))));
+                                    double hdg = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("hdg"))));
+                                    double pitch = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("pitch"))));
+                                    double roll = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("roll"))));
+
+                                    RoadObject *roadObject = new RoadObject(id, file,textureFile, name, type, s, t, zOffset, validLength, orientation,
+                                        length, width, radius, height, hdg, pitch, roll, road);
+                                    road->addRoadObject(roadObject);
+
+                                    xercesc::DOMNodeList *objectChildrenList = objectElement->getChildNodes();
+                                    xercesc::DOMElement *objectChildElement;
+                                    for (unsigned int childIndex = 0; childIndex < objectChildrenList->getLength(); ++childIndex)
+                                    {
+                                        objectChildElement = dynamic_cast<xercesc::DOMElement *>(objectChildrenList->item(childIndex));
+                                        if (objectChildElement)
                                         {
-                                            double repeatS = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                            double repeatLength = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                            double repeatDistance = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("distance"))));
-                                            roadObject->setObjectRepeat(repeatS, repeatLength, repeatDistance);
-                                        }
-                                        else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("outline")) == 0)
-                                        {
-                                            xercesc::DOMNodeList *outlineChildrenList = objectChildElement->getChildNodes();
-                                            xercesc::DOMElement *outlineChildElement;
-                                            RoadOutline *ro = new RoadOutline();
-                                            for (unsigned int childIndex = 0; childIndex < outlineChildrenList->getLength(); ++childIndex)
+                                            if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("repeat")) == 0)
                                             {
-                                                outlineChildElement = dynamic_cast<xercesc::DOMElement *>(outlineChildrenList->item(childIndex));
-                                                if (outlineChildElement)
+                                                double repeatS = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+                                                double repeatLength = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
+                                                double repeatDistance = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("distance"))));
+                                                roadObject->setObjectRepeat(repeatS, repeatLength, repeatDistance);
+                                            }
+                                            else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("outline")) == 0)
+                                            {
+                                                xercesc::DOMNodeList *outlineChildrenList = objectChildElement->getChildNodes();
+                                                xercesc::DOMElement *outlineChildElement;
+                                                RoadOutline *ro = new RoadOutline();
+                                                for (unsigned int childIndex = 0; childIndex < outlineChildrenList->getLength(); ++childIndex)
                                                 {
-                                                    float height, u, v, z;
-                                                    height = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("height"))));
-                                                    u = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("u"))));
-                                                    v = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("v"))));
-                                                    z = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("z"))));
-                                                    ro->push_back(RoadCornerLocal(height, u, v, z));
+                                                    outlineChildElement = dynamic_cast<xercesc::DOMElement *>(outlineChildrenList->item(childIndex));
+                                                    if (outlineChildElement)
+                                                    {
+                                                        float height, u, v, z;
+                                                        height = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("height"))));
+                                                        u = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("u"))));
+                                                        v = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("v"))));
+                                                        z = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("z"))));
+                                                        ro->push_back(RoadCornerLocal(height, u, v, z));
+                                                    }
                                                 }
+                                                roadObject->setOutline(ro);
                                             }
-                                            roadObject->setOutline(ro);
-                                        }
-                                        else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0)
-                                        {
-                                            std::string code = xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("code"))); 
-                                            if (code == "modelFile")
+                                            else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0)
                                             {
-                                                roadObject->setFileName(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
-                                            }
-                                            else
-                                            {
-                                                roadObject->setTexture(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                                                std::string code = xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("code"))); 
+                                                if (code == "modelFile")
+                                                {
+                                                    roadObject->setFileName(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                                                }
+                                                else
+                                                {
+                                                    roadObject->setTexture(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                                                }
                                             }
                                         }
                                     }

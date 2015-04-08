@@ -470,6 +470,12 @@ bool TrafficSimulationPlugin::loadRoadSystem(const char *filename_chars)
                 if (roadSignalNode)
                 {
                     trafficSignalGroup->addChild(roadSignalNode);
+                    osg::PositionAttitudeTransform *roadSignalPost = signal->getRoadSignalPost();
+                    if (roadSignalPost)
+                    {
+                        trafficSignalGroup->addChild(roadSignalPost);
+                    }
+                    
                 }
             }
         }
