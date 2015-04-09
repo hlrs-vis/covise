@@ -22,31 +22,31 @@ ConfigManager* ConfigManager::getInstance()
     return Instance;
 }
 
-bool ConfigManager::ConfigFileExists()
+bool ConfigManager::configFileExists()
 {
-    return FileExists;
+    return fileExists;
 }
 
 //constructor:
 ConfigManager::ConfigManager()
 {
+    fileExists = false;
     elementManager.reset(new ElementManager());
     positionManager.reset(new PositionManager());
-    FileExists = false;
-    ConfigFile=covise::coCoviseConfig::getEntry("value", "COVER.UiConfig", "userinterface.xml");
-    if (ConfigFile.empty())
+    configFile=covise::coCoviseConfig::getEntry("value", "COVER.UiConfig", "userinterface.xml");
+
+    if (configFile.empty())
     {
-        ConfigFile = "userinterface.xml";
+        configFile = "userinterface.xml";
     }
-    if (ConfigFile[0] != '/')
+    if (configFile[0] != '/')
     {
         char* covisedir = getenv("COVISEDIR");
         if (covisedir != NULL)
         {
-            ConfigFile= std::string(covisedir) + "/config/" + ConfigFile;
+            configFile= std::string(covisedir) + "/config/" + configFile;
         }
     }
-    std::cout << "ConfigManager::ConfigManager(): ConfigFile: " << ConfigFile << std::endl;
 }
 
 //destructor:
@@ -58,30 +58,28 @@ ConfigManager::~ConfigManager()
 // delete instance of ConfigManager
 void ConfigManager::removeInstance()
 {
-    //delete Instance;
-    //Instance = nullptr;
 }
 
 // returns Label from ConfigFile if defined in ConfigFile; otherweise returns Label from input
-std::string ConfigManager::getCorrectLabel(std::string Label, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
+std::string ConfigManager::getCorrectLabel(std::string label, mui::UITypeEnum UI, mui::DeviceTypesEnum device, std::string uniqueIdentifier)
 {
-   if (ConfigFileExists())                                                            // check if configuration file exists
+   if (configFileExists())                                                            // check if configuration file exists
    {
-        std::pair<std::string, bool> parsedLabel=parser->getLabel(UI,Device,UniqueIdentifier);
+        std::pair<std::string, bool> parsedLabel=parser->getLabel(UI,device,uniqueIdentifier);
         if (parsedLabel.second)                                                        // label exists
         {
             return parsedLabel.first;
         }
     }
-    return Label;
+    return label;
 }
 
 // returns Visible-Value from ConfigFile if defined in ConfigFile; otherwise returns Visible-Value from input
-bool ConfigManager::getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
+bool ConfigManager::getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::DeviceTypesEnum device, std::string uniqueIdentifier)
 {
-    if (ConfigFileExists())                                                            // configuration file existiert
+    if (configFileExists())                                                            // configuration file existiert
     {
-        std::pair<bool,bool> isVisible = parser->getIsVisible(UI, Device, UniqueIdentifier);
+        std::pair<bool,bool> isVisible = parser->getIsVisible(UI, device, uniqueIdentifier);
         if (isVisible.second)
         {
             return isVisible.first;
@@ -91,84 +89,73 @@ bool ConfigManager::getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::Dev
 }
 
 // returns Parent from ConfigFile if defined; otherwise returns Parent from input
-Container* ConfigManager::getCorrectParent(Container* Parent, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
+mui::Container* ConfigManager::getCorrectParent(mui::Container* parent, mui::UITypeEnum UI, mui::DeviceTypesEnum device, std::string uniqueIdentifier)
 {
-    if (ConfigFileExists())
+    if (configFileExists())
     {
-        std::pair<std::string, bool> parentName=parser->getParent(UI,Device, UniqueIdentifier);
+        std::pair<std::string, bool> parentName=parser->getParent(UI,device, uniqueIdentifier);
         if (parentName.second)                     // no entry for parent in configuration file
         {
-            return elementManager->getContainerByIdentifier(parentName.first);
+            if (elementManager->isContainer(parentName.first))
+            {
+                return dynamic_cast<mui::Container *>(elementManager->getElementByIdentifier(parentName.first));
+            }
         }
     }
-    return Parent;
+    return parent;
 }
 
 // returns Pos from ConfigFile if defined; otherwise returns Pos from input
-std::pair<int,int> ConfigManager::getCorrectPos(std::pair<int,int> pos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier)
+std::pair<int,int> ConfigManager::getCorrectPos(std::pair<int,int> pos, mui::UITypeEnum UI, mui::DeviceTypesEnum device, std::string uniqueIdentifier)
 {
-    if (ConfigFileExists())
+    if (configFileExists())
     {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
-        if (ParsedPosition.second)
+        std::pair<std::pair<int,int>, bool> parsedPosition = parser->getPos(UI, device, uniqueIdentifier);
+        if (parsedPosition.second)
         {
-            return ParsedPosition.first;
+            return parsedPosition.first;
         }
     }
     return pos;
 }
 
 // returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign
-std::pair<int,int> ConfigManager::getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+std::pair<int,int> ConfigManager::getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum device, std::string uniqueIdentifier, std::string parentUniqueIdentifier)
 {
-    if (ConfigFileExists())
+    if (configFileExists())
     {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
-        if (ParsedPosition.second)
+        std::pair<std::pair<int,int>, bool> parsedPosition = parser->getPos(UI, device, uniqueIdentifier);
+        if (parsedPosition.second)
         {
-            return ParsedPosition.first;                         // return the matchin position set in configuration file
+            return parsedPosition.first;                         // return the matchin position set in configuration file
         }
     }
-    return getFreePos(ParentUniqueIdentifier);
-}
-
-// returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign
-std::pair<int,int> ConfigManager::getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute)
-{
-    if (ConfigFileExists())
-    {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
-        if (ParsedPosition.second)
-        {
-            return ParsedPosition.first;                         // return the matchin position set in configuration file
-        }
-    }
-    return getFreePos(mui::getKeywordAttribute(Attribute));
+    return getFreePos(parentUniqueIdentifier);
 }
 
 // returns Pos from ConfigFile if defined; otherwise returns Pos from autoassign after inputPos
-std::pair<int,int> ConfigManager::getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier)
+std::pair<int,int> ConfigManager::getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, mui::UITypeEnum UI, mui::DeviceTypesEnum device, std::string uniqueIdentifier, std::string parentUniqueIdentifier)
 {
-    if (ConfigFileExists())
+    if (configFileExists())
     {
-        std::pair<std::pair<int,int>, bool> ParsedPosition = parser->getPos(UI, Device, UniqueIdentifier);
-        if (ParsedPosition.second)
+        std::pair<std::pair<int,int>, bool> parsedPosition = parser->getPos(UI, device, uniqueIdentifier);
+        if (parsedPosition.second)
         {
-            return ParsedPosition.first;
+            return parsedPosition.first;
         }
     }
-    else if (!ConfigFileExists())
+    else if (!configFileExists())
     {
 
     }
-    return getFreePosExceptOfPos(exceptPos, ParentUniqueIdentifier);
+    return getFreePosExceptOfPos(exceptPos, parentUniqueIdentifier);
 }
 
-bool ConfigManager::existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string UniqueIdentifier, AttributesEnum Attribute)
+bool ConfigManager::existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum device, std::string uniqueIdentifier, AttributesEnum attribute)
 {
-    if (ConfigFileExists())
+    if (configFileExists())
     {
-        return parser->getAttributeValue(UI, Device, UniqueIdentifier, Attribute).second;
+        return parser->getAttributeValue(UI, device, uniqueIdentifier, attribute).second;
     }
     return false;
 }
@@ -176,7 +163,7 @@ bool ConfigManager::existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum De
 // returns the adress of the configuration file
 const std::string ConfigManager::getConfigFile()
 {
-    return ConfigFile;
+    return configFile;
 }
 
 //****************************************************************************************************
@@ -188,135 +175,119 @@ void ConfigManager::printElementNames()
 }
 
 // add Elements to ElementList
-void ConfigManager::addElement(std::string UniqueIdentifier, Container* Parent)
+void ConfigManager::addElement(std::string uniqueIdentifier, mui::Element* parent)
 {
-    elementManager->addElement(UniqueIdentifier, Parent);
-}
-
-void ConfigManager::addElement(std::string UniqueIdentifier, Widget* Widget)
-{
-    elementManager->addElement(UniqueIdentifier, Widget);
+    elementManager->addElement(uniqueIdentifier, parent);
 }
 
 // delete Element from ElementList
-void ConfigManager::removeElement(std::string UniqueIdentifier)
+void ConfigManager::removeElement(std::string uniqueIdentifier)
 {
-    elementManager->removeElement(UniqueIdentifier);
+    elementManager->removeElement(uniqueIdentifier);
 }
 
 // checks if Element is a container
-bool ConfigManager::isElementContainer(std::string UniqueIdentifier)
+bool ConfigManager::isElementContainer(std::string uniqueIdentifier)
 {
-    return elementManager->isContainer(UniqueIdentifier);
+    return elementManager->isContainer(uniqueIdentifier);
 }
 
 // returns the container with name UniqueIdentifier
-Container* ConfigManager::getContainerByIdentifier(std::string UniqueIdentifier)
+mui::Element* ConfigManager::getElementByIdentifier(std::string uniqueIdentifier)
 {
-    return elementManager->getContainerByIdentifier(UniqueIdentifier);
-}
-
-// returns the widget with name UniqueIdentifier
-Widget* ConfigManager::getWidgetByIdentifier(std::string UniqueIdentifier)
-{
-    return elementManager->getWidgetByIdentifier(UniqueIdentifier);
+    return elementManager->getElementByIdentifier(uniqueIdentifier);
 }
 
 //***************************************************************************
 // PositionManager
 // adds position/element to PositionManager
-void ConfigManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string ParentUniqueIdentifier, bool autoassigned)
+void ConfigManager::addPosToPosList(std::string uniqueIdentifier, std::pair<int,int> pos, std::string parentUniqueIdentifier, bool autoassigned)
 {
-    positionManager->addPosToPosList(UniqueIdentifier, pos, ParentUniqueIdentifier, autoassigned);
+    positionManager->addPosToPosList(uniqueIdentifier, pos, parentUniqueIdentifier, autoassigned);
 }
 
-void ConfigManager::addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, mui::AttributesEnum ParentUniqueIdentifier, bool autoassigned)
+std::pair<int,int> ConfigManager::getFreePosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string parentUniqueIdentifier)
 {
-    positionManager->addPosToPosList(UniqueIdentifier, pos, mui::getKeywordAttribute(ParentUniqueIdentifier), autoassigned);
-}
-
-std::pair<int,int> ConfigManager::getFreePosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, std::string ParentUniqueIdentifier)
-{
-    return positionManager->getFreePosExeptOfPos(exceptPos, ParentUniqueIdentifier);
+    return positionManager->getFreePosExeptOfPos(exceptPos, parentUniqueIdentifier);
 }
 
 // get position of element
-std::pair <int,int> ConfigManager::getPosOfElement(std::string UniqueIdentifier)
+std::pair <int,int> ConfigManager::getPosOfElement(std::string uniqueIdentifier)
 {
-    return positionManager->getPosOfElement(UniqueIdentifier);
+    return positionManager->getPosOfElement(uniqueIdentifier);
 }
 
 // get next free position
-std::pair <int,int> ConfigManager::getFreePos(std::string UniqueIdentifierParent)
+std::pair <int,int> ConfigManager::getFreePos(std::string uniqueIdentifierParent)
 {
-    return positionManager->getFreePos(UniqueIdentifierParent);
+    return positionManager->getFreePos(uniqueIdentifierParent);
 }
 
 // delete position/element from PositionManager
-void ConfigManager::deletePosFromPosList(std::string UniqueIdentifier)
+void ConfigManager::deletePosFromPosList(std::string uniqueIdentifier)
 {
-    positionManager->deletePosFromPosList(UniqueIdentifier);
+    positionManager->deletePosFromPosList(uniqueIdentifier);
 }
 
 // changes position of element in PositionManager
-void ConfigManager::changePos(std::string UniqueIdentifier, std::pair<int,int> Pos)
+void ConfigManager::changePos(std::string uniqueIdentifier, std::pair<int,int> pos)
 {
-    positionManager->changePosInPosList(UniqueIdentifier, Pos);
+    positionManager->changePosInPosList(uniqueIdentifier, pos);
 }
 
 // returns true, if position is occupied, false if position is free
-bool ConfigManager::isPosOccupied(std::pair<int,int> pos, std::string UniqueIdentifierParent)
+bool ConfigManager::isPosOccupied(std::pair<int,int> pos, std::string uniqueIdentifierParent)
 {
-    return positionManager->isPosOccupied(pos, UniqueIdentifierParent);
+    return positionManager->isPosOccupied(pos, uniqueIdentifierParent);
 }
 
 // returns true, if position is occupied by autoassigned element
-bool ConfigManager::isPosAutoassigned(std::pair<int,int> pos, std::string UniqueIdentifierParent)
+bool ConfigManager::isPosAutoassigned(std::pair<int,int> pos, std::string uniqueIdentifierParent)
 {
-    return positionManager->isAutoassigned(pos, UniqueIdentifierParent);
+    return positionManager->isAutoassigned(pos, uniqueIdentifierParent);
 }
 
 // returns UniqueIdentifier of element
-std::string ConfigManager::getIdentifierByPos(std::pair<int,int> pos, std::string UniqueIdentifierParent)
+std::string ConfigManager::getIdentifierByPos(std::pair<int,int> pos, std::string uniqueIdentifierParent)
 {
-    return positionManager->getIdentifierByPos(pos, UniqueIdentifierParent);
+    return positionManager->getIdentifierByPos(pos, uniqueIdentifierParent);
 }
 
 // prepares position for new element: sets autoassigned element to new position, if occupied by autoassigned element
-void ConfigManager::preparePos(std::pair<int,int> pos, std::string ParentUniqueIdentifier)
+void ConfigManager::preparePos(std::pair<int,int> pos, std::string parentUniqueIdentifier)
 {
-    if (isPosOccupied(pos, ParentUniqueIdentifier))                                         // Position is occupied
+    if (isPosOccupied(pos, parentUniqueIdentifier))                                         // Position is occupied
     {
-        if (isPosAutoassigned(pos, ParentUniqueIdentifier))
+        if (isPosAutoassigned(pos, parentUniqueIdentifier))
         {
-            std::string Identifier=getIdentifierByPos(pos,ParentUniqueIdentifier);          // UniqueIdentifier of
-            std::pair <int,int> Pos = getFreePos(ParentUniqueIdentifier);                   // next free Position
-            setAutoassignedPos(Pos, Identifier, ParentUniqueIdentifier);
+            std::string uniqueIdentifier=getIdentifierByPos(pos,parentUniqueIdentifier);          // UniqueIdentifier of
+            std::pair <int,int> Pos = getFreePos(parentUniqueIdentifier);                   // next free Position
+            setAutoassignedPos(Pos, uniqueIdentifier, parentUniqueIdentifier);
         }
-        else if (!isPosAutoassigned(pos, ParentUniqueIdentifier))
+        else if (!isPosAutoassigned(pos, parentUniqueIdentifier))
         {
-            std::cerr << "ERROR: ConfigManager::preparePos(): Position (" << pos.first << "," << pos.second << ") in Parent " << ParentUniqueIdentifier << " is occupied by " << getIdentifierByPos(pos,ParentUniqueIdentifier) << " and will be deleted and overwritten." << std::endl;
-            std::string Identifier=getIdentifierByPos(pos,ParentUniqueIdentifier);          // UniqueIdentifier of
-            deletePosFromPosList(Identifier);
+            std::cerr << "ERROR: ConfigManager::preparePos(): Position (" << pos.first << "," << pos.second << ") in Parent " << parentUniqueIdentifier << " is occupied by " << getIdentifierByPos(pos,parentUniqueIdentifier) << " and will be deleted and overwritten." << std::endl;
+            std::string uniqueIdentifier=getIdentifierByPos(pos,parentUniqueIdentifier);          // UniqueIdentifier of
+            deletePosFromPosList(uniqueIdentifier);
         }
     }
 }
 
-void ConfigManager::setAutoassignedPos(std::pair<int,int> Pos, std::string ElementIdentifier, std::string ParentUniqueIdentifier)
+void ConfigManager::setAutoassignedPos(std::pair<int,int> pos, std::string elementIdentifier, std::string parentUniqueIdentifier)
 {
-    deletePosFromPosList(ElementIdentifier);
-    if (isElementContainer(ElementIdentifier))
+    deletePosFromPosList(elementIdentifier);
+    if (isElementContainer(elementIdentifier))
     {
-        getContainerByIdentifier(ElementIdentifier)->getTUI()->setPos(Pos.first,Pos.second);         // Element neu positionieren
+        getElementByIdentifier(elementIdentifier)->getTUI()->setPos(pos.first,pos.second);         // Element neu positionieren
     }
-    else if(!isElementContainer(ElementIdentifier))
+    else if(!isElementContainer(elementIdentifier))
     {
-        getWidgetByIdentifier(ElementIdentifier)->getTUI()->setPos(Pos.first,Pos.second);            // Element neu positionieren
+        getElementByIdentifier(elementIdentifier)->getTUI()->setPos(pos.first,pos.second);            // Element neu positionieren
     }else
     {
-        std::cerr << "ERROR: ConfigManager::setAutoassignedPos(): " << ElementIdentifier << " is no Widget or Container" << std::endl;
+        std::cerr << "ERROR: ConfigManager::setAutoassignedPos(): " << elementIdentifier << " is no Widget or Container" << std::endl;
     }
-    addPosToPosList(ElementIdentifier, Pos, ParentUniqueIdentifier, true);
+    addPosToPosList(elementIdentifier, pos, parentUniqueIdentifier, true);
 }
 
 std::string ConfigManager::getPos2Print()

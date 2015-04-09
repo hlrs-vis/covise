@@ -167,3 +167,12 @@ void TUIToggleButton::setValue(int type, covise::TokenBuffer &tb)
     }
     TUIElement::setValue(type, tb);
 }
+
+void TUIToggleButton::setLabel(QString textl)
+{
+    TUIElement::setLabel(textl);
+    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget))
+    {
+        b->setText(textl);
+    }
+}

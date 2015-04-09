@@ -13,36 +13,32 @@ class coRowMenu;
 
 namespace mui
 {
+
+/**
+ * Baseclass for all mui::elements which shall contain other mui::elements.
+ * All inheritors must overwrite the pure virtual methods createVRUIMenuItem, createTUIElement and createVRUIContainer
+ */
 class COVEREXPORT Container: public Element
 {
 public:
-    // constructor:
-    Container();
     // destructor:
     ~Container();
 
     // methods:
-    virtual int getTUIID();
-    virtual vrui::coMenu* getVRUI();
-    virtual bool existTUI();                    // needs to be overwritten by inherited class
-    virtual bool existVRUI();                   // needs to be overwritten by inherited class
-    virtual void setPos(int posx, int posy)=0;    // needs to be overwritten by inherited class
-    virtual opencover::coTUIElement* getTUI()=0;
-    virtual Container *getParent()=0;
+    virtual int getTUIID();                         ///< returns the ID of the TUI-Element
+    virtual vrui::coMenu* getVRUI();                ///< returns a pointer to the VRUI-Element
+    virtual void setLabel(std::string label);
+    virtual void setBackendLabel(std::string label, mui::UITypeEnum UI);
 
-private:
 
 protected:
+    // methods:
+    // constructor:
+    Container(std::string uniqueIdentifier, Container *parent=NULL);
 
     // variables:
-public:
-
-private:
-    int ID;
-    bool visible_b;
-    vrui::coRowMenu* menuItem;
-protected:
-
+    int TUIID;                                          // ID of TUI-Element
+    boost::shared_ptr<vrui::coRowMenu> VRUIContainer;        // VRUI-Element, which can be parent for other VRUI-Elements
 };
 } // end namespace
 

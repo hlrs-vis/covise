@@ -28,6 +28,7 @@ public:
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
     virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setLabel(QString textl);
 
     /// get the Element's classname
     virtual char *getClassName();

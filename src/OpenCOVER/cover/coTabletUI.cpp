@@ -4762,6 +4762,7 @@ coTabletUI *coTabletUI::instance()
 coTUIElement::coTUIElement(const std::string &n, int pID)
     : QObject(0)
 {
+    abort();
     xs = -1;
     ys = -1;
     xp = 0;

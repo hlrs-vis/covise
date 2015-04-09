@@ -25,49 +25,45 @@ class COVEREXPORT ConfigManager
 public:
     static ConfigManager *getInstance();
     static void removeInstance();
-    bool ConfigFileExists();
+    bool configFileExists();
 
     // memberfunctions
     //************************************************************
     // Parser
     const std::string getConfigFile();
     void setAdress(const std::string ConfigAdress);
-    std::pair<std::string, bool> getLabel(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, const std::string UniqueIdentifier);
-    bool existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string UniqueIdentifier, AttributesEnum Attribute);
+    std::pair<std::string, bool> getLabel(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, const std::string uniqueIdentifier);
+    bool existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string uniqueIdentifier, AttributesEnum Attribute);
 
     //************************************************************
     // PositionManager
-    void addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, std::string UniqueIdentifierParent, bool autoassigned);
-    void addPosToPosList(std::string UniqueIdentifier, std::pair<int,int> pos, mui::AttributesEnum ParentUniqueIdentifier, bool autoassigned);
-    std::pair <int,int> getPosOfElement(std::string UniqueIdentifier);
-    std::pair <int,int> getFreePos(std::string UniqueIdentifierParent);
-    void deletePosFromPosList(std::string UniqueIdentifier);
-    void changePos(std::string UniqueIdentifier, std::pair<int,int> pos);
-    bool isPosOccupied(std::pair<int,int> pos, std::string UniqueIdentifierParent);
-    bool isPosAutoassigned(std::pair<int,int> pos, std::string UniqueIdentifierParent);
-    std::string getIdentifierByPos(std::pair<int,int> pos, std::string UniqueIdentifierParent);
+    void addPosToPosList(std::string uniqueIdentifier, std::pair<int,int> pos, std::string parentUniqueIdentifier, bool autoassigned);
+    std::pair <int,int> getPosOfElement(std::string uniqueIdentifier);
+    std::pair <int,int> getFreePos(std::string parentUniqueIdentifier);
+    void deletePosFromPosList(std::string uniqueIdentifier);
+    void changePos(std::string uniqueIdentifier, std::pair<int,int> pos);
+    bool isPosOccupied(std::pair<int,int> pos, std::string parentUniqueIdentifier);
+    bool isPosAutoassigned(std::pair<int,int> pos, std::string parentUniqueIdentifier);
+    std::string getIdentifierByPos(std::pair<int,int> pos, std::string parentUniqueIdentifier);
     std::string getPos2Print();
 
 
     //************************************************************
     // ElementManager
     void printElementNames();
-    Container* getContainerByIdentifier(std::string UniqueIdentifier);
-    Widget* getWidgetByIdentifier(std::string UniqueIdentifier);
-    bool isElementContainer(std::string UniqueIdentifier);
-    void addElement(std::string UniqueIdentifier, Container* Parent);
-    void addElement(std::string UniqueIdentifier, Widget* Widget);
-    void removeElement(std::string UniqueIdentifier);
+    mui::Element* getElementByIdentifier(std::string uniqueIdentifier);
+    bool isElementContainer(std::string uniqueIdentifier);
+    void addElement(std::string uniqueIdentifier, mui::Element* parent);
+    void removeElement(std::string uniqueIdentifier);
     //************************************************************
     // Rest
-    std::string getCorrectLabel(std::string Label, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
-    bool getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
-    std::pair<int, int> getCorrectPos(std::pair<int,int> pos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
-    std::pair<int, int> getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
-    std::pair<int, int> getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute);
-    std::pair<int,int> getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, std::string ParentUniqueIdentifier);
-    Container* getCorrectParent(Container* Parent, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
-    void preparePos(std::pair<int,int> pos, std::string ParentUniqueIdentifier);
+    std::string getCorrectLabel(std::string Label, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string uniqueIdentifier);
+    bool getCorrectVisible(bool visible, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string uniqueIdentifier);
+    std::pair<int, int> getCorrectPos(std::pair<int,int> pos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string uniqueIdentifier);
+    std::pair<int, int> getCorrectPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string uniqueIdentifier, std::string parentUniqueIdentifier);
+    std::pair<int,int> getCorrectPosExceptOfPos(std::vector<std::pair<int,int> > exceptPos, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string uniqueIdentifier, std::string parentUniqueIdentifier);
+    mui::Container* getCorrectParent(Container* Parent, mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string uniqueIdentifier);
+    void preparePos(std::pair<int,int> pos, std::string parentUniqueIdentifier);
 
 
 private:
@@ -76,18 +72,18 @@ private:
     boost::shared_ptr<ElementManager> elementManager;
     boost::shared_ptr<PositionManager> positionManager;
 
-    void setAutoassignedPos(std::pair<int,int> Pos, std::string Identifier, std::string ParentUniqueIdentifier);
-    std::pair <int,int> getFreePosExceptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string UniqueIdentifierParent);
+    void setAutoassignedPos(std::pair<int,int> Pos, std::string uniqueIdentifier, std::string parentUniqueIdentifier);
+    std::pair <int,int> getFreePosExceptOfPos(std::vector<std::pair <int,int> > exceptPos, std::string parentUniqueIdentifier);
     static ConfigManager *Instance;
 
-    bool FileExists;
+    bool fileExists;
 
     //constructor and destructor:
     ConfigManager();
     ~ConfigManager();
 
     // membervariables
-    std::string ConfigFile;
+    std::string configFile;
 
     // not implemented
     ConfigManager(const ConfigManager&);

@@ -171,7 +171,6 @@ SET(SOURCES
 SET(MUI_SOURCES
   mui/Element.cpp
   mui/Container.cpp
-  mui/Widget.cpp
   mui/Frame.cpp
   mui/LabelElement.cpp
   mui/PotiSlider.cpp
@@ -189,7 +188,6 @@ SET(MUI_SOURCES
 SET(MUI_HEADERS
   mui/Element.h
   mui/Container.h
-  mui/Widget.h
   mui/Frame.h
   mui/LabelElement.h
   mui/PotiSlider.h

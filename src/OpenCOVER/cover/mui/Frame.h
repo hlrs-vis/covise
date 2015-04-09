@@ -24,43 +24,24 @@ class coTUIFrame;
 
 namespace mui
 {
-class ConfigManager;
-
-class COVEREXPORT Frame: public Container, public opencover::coTUIListener, public vrui::coMenuListener
+/**
+ * @brief The Frame class
+ * creates a TUI-Frame-Element and a new submenu in VRUI
+ */
+class COVEREXPORT Frame: public mui::Container
 {
 
 public:
-    // constructor/destructor
-    Frame(const std::string UniqueIdentifier, Container* parent, std::string label);
-    Frame(const std::string UniqueIdentifier, Container* parent);
-    ~Frame();
-
     // methods:
-    int getTUIID();
-    opencover::coTUIElement* getTUI();
-    vrui::coMenu* getVRUI();
-    void setLabel(std::string label);            // set label for all UI-Elements
-    void setLabel(std::string label, std::string UI);  // set label for named UI-Elements
-    void setVisible(bool visible);               // set visible for all UI-Elements
-    void setVisible(bool visible, std::string UI); // set visible for named UI-Elements
-    void setPos(int posx, int posy);           // positioning TUI-Element
-    Container* getParent();                            // returns the parent
-    std::string getUniqueIdentifier();
+    static mui::Frame* create(std::string uniqueIdentifier, mui::Container* parent);
 
-    // variables:
+    // destructor
+    ~Frame();
 
 private:
     // methods:
-    void constructor(const std::string UniqueIdentifier, Container* parent, std::string label);
-    // variables:
-    std::string Label;
-    std::string Identifier;
-    std::vector<device>Devices;
-    boost::shared_ptr<vrui::coRowMenu> Submenu;
-    boost::shared_ptr<vrui::coSubMenuItem> SubmenuItem;
-    boost::shared_ptr<opencover::coTUIFrame> TUIElement;
-    ConfigManager *configManager;
-    Container* Parent;
+    // constructor:
+    Frame(const std::string UniqueIdentifier, Container* parent);
 };
 } // end namespace
 #endif
