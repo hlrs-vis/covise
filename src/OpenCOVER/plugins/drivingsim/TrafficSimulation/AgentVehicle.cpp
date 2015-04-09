@@ -2086,7 +2086,7 @@ bool AgentVehicle::executeActionMap()
 /** sucht sich zufällig die nächste Straße aus und bestimmt Aktionen für die nächste Straße */
 void DetermineNextRoadVehicleAction::operator()(AgentVehicle *veh)
 {
-    std::cout << "Determining next road!" << std::endl;
+    //std::cout << "Determining next road!" << std::endl;
     RoadTransition trans = veh->roadTransitionList.back();
 
     TarmacConnection *conn = NULL;
