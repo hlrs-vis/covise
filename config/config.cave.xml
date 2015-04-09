@@ -7,6 +7,7 @@
      <!--Background r="1" g="1" b="1" /-->
      <Console arch="windows" value="true" file="c:\OpenCOVER" />
      <MenuMode value="false" />
+     <Specular value="false" />
      <Input>
         <MouseNav value="true" />
         <Device>
