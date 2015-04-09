@@ -137,6 +137,7 @@ public:
     void getLaneRoadPointVectors(double, RoadPointVector &, RoadPointVector &, DistanceVector &, DistanceVector &);
 
     Transform getRoadTransform(const double &, const double &);
+    Transform getSignalTransform(const double &, const double &);
 
     void getRoadSideWidths(double, double &, double &);
 

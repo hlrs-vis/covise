@@ -493,7 +493,7 @@ std::vector<int> Road::getSidewalks(double s)
 
 void Road::addRoadSignal(RoadSignal *signal)
 {
-    Transform signalTransform = getRoadTransform(signal->getS(), signal->getT());
+    Transform signalTransform = getSignalTransform(signal->getS(), signal->getT());
     signal->setTransform(signalTransform);
     roadSignalVector.push_back(signal);
 }
@@ -978,6 +978,18 @@ Transform Road::getRoadTransform(const double &s, const double &t)
     LaneSection *section = (--laneSectionMap.upper_bound(s))->second;
     return Transform(Vector3D(xyPoint.x(), xyPoint.y(), zPoint[0] + section->getHeight(s, t)) + (q * Vector3D(0, t, 0) * q.T()).getVector(), q);
 }
+
+Transform Road::getSignalTransform(const double &s, const double &t)
+{
+    Vector3D xyPoint = ((--xyMap.upper_bound(s))->second)->getPoint(s);
+    Vector2D zPoint = ((--zMap.upper_bound(s))->second)->getPoint(s);
+
+    Quaternion q = Quaternion(0.0, Vector3D(0, 1, 0));
+
+    LaneSection *section = (--laneSectionMap.upper_bound(s))->second;
+    return Transform(Vector3D(xyPoint.x(), xyPoint.y(), zPoint[0] + section->getHeight(s, t)) + (q * Vector3D(0, t, 0) * q.T()).getVector(), q);
+}
+
 
 int Road::getLaneNumber(double s, double t)
 {

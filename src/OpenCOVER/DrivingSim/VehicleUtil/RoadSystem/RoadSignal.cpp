@@ -459,10 +459,8 @@ void RoadSignal::setTransform(const Transform &_transform)
         }
         if (roadSignalPost)
         {
-std::cerr << "Making Post" << std::endl;
             roadSignalPost->setPosition(osg::Vec3d(signalTransform.v().x(), signalTransform.v().y(), signalTransform.v().z() + zOffset));
             roadSignalPost->setAttitude(osg::Quat(signalTransform.q().x(), signalTransform.q().y(), signalTransform.q().z(), signalTransform.q().w()) * signalDir);
-            roadSignalPost->setScale(osg::Vec3(size, size, size));
         }
     }
 }
