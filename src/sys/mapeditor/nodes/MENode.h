@@ -135,6 +135,7 @@ public:
     void expand(int);
     void unlink();
     void createPorts(QStringList);
+    void sendExec();
     void sendMessage(const QString &message);
     void sendNodeMessage(const QString &message);
     void sendRenameMessage(const QString &message);
