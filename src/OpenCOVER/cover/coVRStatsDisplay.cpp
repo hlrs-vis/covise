@@ -954,7 +954,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     }
 
     // check for query time support
-    unsigned int numCamrasWithTimerQuerySupport = 0;
+    unsigned int numCamerasWithTimerQuerySupport = 0;
     for (osgViewer::ViewerBase::Cameras::iterator citr = cameras.begin();
          citr != cameras.end();
          ++citr)
@@ -962,15 +962,20 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         if ((*citr)->getGraphicsContext())
         {
             unsigned int contextID = (*citr)->getGraphicsContext()->getState()->getContextID();
-            const osg::Drawable::Extensions *extensions = osg::Drawable::getExtensions(contextID, false);
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+            const osg::ref_ptr<osg::GLExtensions> extensions = new osg::GLExtensions(contextID);
+            if (extensions && extensions->isTimerQuerySupported)
+#else
+            const osg::ref_ptr<osg::Drawable::Extensions> extensions = osg::Drawable::getExtensions(contextID, false);
             if (extensions && extensions->isTimerQuerySupported())
+#endif
             {
-                ++numCamrasWithTimerQuerySupport;
+                ++numCamerasWithTimerQuerySupport;
             }
         }
     }
 
-    bool acquireGPUStats = numCamrasWithTimerQuerySupport == cameras.size();
+    bool acquireGPUStats = numCamerasWithTimerQuerySupport == cameras.size();
 
     float leftPos = 10.0f;
     float startBlocks = 150.0f;

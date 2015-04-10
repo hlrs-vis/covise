@@ -549,12 +549,18 @@ void osgViewerObject::updateTexture()
             {
                 for (unsigned int contextID = 0; contextID < osg::DisplaySettings::instance()->getMaxNumberOfGraphicsContexts(); ++contextID)
                 {
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+                    const osg::ref_ptr<osg::GLExtensions> extensions = new osg::GLExtensions(contextID);
+                    if (!extensions->isMultiTexturingSupported)
+                        std::cout << "Multi-texturing not supported by OpenGL drivers" << std::endl;
+#else
                     Texture::Extensions *textExt = Texture::getExtensions(contextID, false);
                     if (textExt)
                     {
                         if (!textExt->isMultiTexturingSupported())
                             std::cout << "Multi-texturing not supported by OpenGL drivers" << std::endl;
                     }
+#endif
                 }
             }
 
