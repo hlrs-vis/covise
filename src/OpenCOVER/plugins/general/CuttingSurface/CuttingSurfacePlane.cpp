@@ -512,7 +512,8 @@ CuttingSurfacePlane::testIntersection()
 
             )
     {
-        fprintf(stderr, "strange bbox: min=[%f %f %f] max=[%f %f %f]\n", bb._min.x(), bb._min.y(), bb._min.z(), bb._max.x(), bb._max.y(), bb._max.z());
+        if (cover->debugLevel(3))
+            fprintf(stderr, "strange bbox: min=[%f %f %f] max=[%f %f %f]\n", bb._min.x(), bb._min.y(), bb._min.z(), bb._max.x(), bb._max.y(), bb._max.z());
         return false;
     }
 
