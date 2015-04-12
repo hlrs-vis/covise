@@ -415,8 +415,8 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                     pointSet[i].points[n].y = ((float *)buf)[1];
                     pointSet[i].points[n].z = ((float *)buf)[2];
                     pointSet[i].colors[n].r = (((unsigned char *)buf)[14]) / 255.0;
-                    pointSet[i].colors[n].g = (((unsigned char *)buf)[15]) / 255.0;
-                    pointSet[i].colors[n].b = (((unsigned char *)buf)[16]) / 255.0;
+                    pointSet[i].colors[n].g = (((unsigned char *)buf)[13]) / 255.0;
+                    pointSet[i].colors[n].b = (((unsigned char *)buf)[12]) / 255.0;
                 }
 
                 //create drawable and geode and add to the scene (make sure the cube is not empty)
