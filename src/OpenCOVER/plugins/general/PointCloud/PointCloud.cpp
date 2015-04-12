@@ -67,7 +67,12 @@ static FileHandler handlers[] = {
       PointCloudPlugin::loadPTS,
       PointCloudPlugin::loadPTS,
       PointCloudPlugin::unloadPTS,
-      "ptsb" }
+      "ptsb" },
+    { NULL,
+      PointCloudPlugin::loadPTS,
+      PointCloudPlugin::loadPTS,
+      PointCloudPlugin::unloadPTS,
+      "c2m" }
 };
 
 bool PointCloudPlugin::init()
@@ -83,6 +88,7 @@ bool PointCloudPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     coVRFileManager::instance()->registerFileHandler(&handlers[2]);
     coVRFileManager::instance()->registerFileHandler(&handlers[3]);
+    coVRFileManager::instance()->registerFileHandler(&handlers[4]);
     //Create main menu button
     imanPluginInstanceMenuItem = new coSubMenuItem("Point Model Plugin");
     imanPluginInstanceMenuItem->setMenuListener(this);
@@ -370,6 +376,67 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
             files.push_back(fi);
             cerr << "closing the file" << endl;
             fclose(fp);
+            return;
+        }
+        cout << "Error opening file" << endl;
+        return;
+    }
+    else if (strcasecmp(cfile + strlen(cfile) - 3, "c2m") == 0)
+    {
+        cout << "iCloud2Max Data: " << filename << endl;
+
+        ifstream file(filename.c_str(), ios::in | ios::binary);
+
+        pointSetSize = 0;
+        char *buf = new char[128];
+        file.read(buf, 68);
+        pointSetSize = ((unsigned int *)(buf+20))[0]; 
+        if (file.is_open())
+        {
+            cerr << "Total num of sets is " << pointSetSize << endl;
+            pointSet = new PointSet[pointSetSize];
+            fileInfo fi;
+            fi.pointSetSize = pointSetSize;
+            fi.pointSet = pointSet;
+            for (int i = 0; i < pointSetSize; i++)
+            {
+                int psize;
+                file.read(buf, 60);
+                psize = ((unsigned int *)(buf))[0]; 
+                pointSet[i].colors = new Color[psize];
+                pointSet[i].points = new ::Point[psize];
+                pointSet[i].size = psize;
+
+                for (int n = 0; n < psize; n++)
+                {
+                    // read point data
+                    file.read(buf, 36);
+                    pointSet[i].points[n].x = ((float *)buf)[0];
+                    pointSet[i].points[n].y = ((float *)buf)[1];
+                    pointSet[i].points[n].z = ((float *)buf)[2];
+                    pointSet[i].colors[n].r = (((unsigned char *)buf)[14]) / 255.0;
+                    pointSet[i].colors[n].g = (((unsigned char *)buf)[15]) / 255.0;
+                    pointSet[i].colors[n].b = (((unsigned char *)buf)[16]) / 255.0;
+                }
+
+                //create drawable and geode and add to the scene (make sure the cube is not empty)
+
+                if (pointSet[i].size != 0)
+                {
+                    PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[i]);
+                    drawable->changeLod(1.0);
+                    Geode *currentGeode = new Geode();
+                    currentGeode->addDrawable(drawable);
+                    currentGeode->setName(filename);
+                    parent->addChild(currentGeode);
+                    nodeInfo ni;
+                    ni.node = currentGeode;
+                    fi.nodes.push_back(ni);
+                }
+            }
+            files.push_back(fi);
+            cerr << "closing the file" << endl;
+            file.close();
             return;
         }
         cout << "Error opening file" << endl;
