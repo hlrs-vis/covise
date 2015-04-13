@@ -688,7 +688,8 @@ ModuleFeedbackManager::hideGeometry(bool hide)
     }
     else
     {
-        fprintf(stderr, "ModuleFeedbackManager::hideGeometry could not find node\n");
+        if (cover->debugLevel(3))
+            fprintf(stderr, "ModuleFeedbackManager::hideGeometry could not find node\n");
     }
 }
 

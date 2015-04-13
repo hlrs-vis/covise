@@ -1081,16 +1081,8 @@ void MEMainHandler::mapWasChanged(const QString &text)
 //!
 void MEMainHandler::execNet()
 {
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << 0;
-    messageHandler->sendMessage(covise::coUIMsg::UI_EXECUTE, sb);
-
-#else
-
     messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "EXEC\n");
-#endif
+    MEMainHandler::instance()->execTriggered();
 }
 
 //!
@@ -1101,13 +1093,6 @@ void MEMainHandler::addPartner()
     m_hostMode = ADDPARTNER;
     if (m_addHostBox == NULL)
         m_addHostBox = new MECSCW(0);
-
-#ifdef YAC
-
-    else
-        m_addHostBox->showMainPage();
-    m_addHostBox->setGUI(true);
-#endif
 
     QString caption = QString(framework);
     if (m_hostMode == ADDHOST)
@@ -2225,4 +2210,9 @@ void MEMainHandler::handleSslErrors(QNetworkReply *reply, const QList<QSslError>
     }
 
     //reply->ignoreSslErrors();
+}
+
+void MEMainHandler::execTriggered()
+{
+    MEUserInterface::instance()->m_errorNumber = 0;
 }

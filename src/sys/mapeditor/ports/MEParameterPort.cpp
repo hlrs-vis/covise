@@ -437,8 +437,9 @@ void MEParameterPort::addItems(bool shown, bool lmapped, int lappearanceType)
 //!
 void MEParameterPort::sendExecuteMessage()
 {
-    if (MEMainHandler::instance()->isExecOnChange() || (timer && timer->isActive()))
-        node->sendMessage("EXEC");
+    if (MEMainHandler::instance()->isExecOnChange() || (timer && timer->isActive())) {
+        node->sendExec();
+    }
 }
 
 //!

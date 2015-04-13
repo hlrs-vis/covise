@@ -1162,10 +1162,7 @@ void MEUserInterface::writeInfoMessage(const QString &text, const QColor &color)
     m_infoWindow->append(text);
 
     // set new message number
-    if (m_infoWindow->isVisible())
-        m_errorNumber = 0;
-    else
-        m_errorNumber++;
+    m_errorNumber++;
 
     // get highest error level for color
     QColor c = color;

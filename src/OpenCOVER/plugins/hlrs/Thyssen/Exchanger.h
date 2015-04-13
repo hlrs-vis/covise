@@ -56,11 +56,12 @@ using covise::SimpleServerConnection;
 using covise::TokenBuffer;
 
 class VrmlNodeElevator;
+class VrmlNodeCar;
 
 class PLUGINEXPORT VrmlNodeExchanger : public VrmlNodeChild
 {
 public:
-    enum ExchangerState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized};
+    enum ExchangerState {Idle=0,Occupied, Uninitialized};
     // Define the fields of Exchanger nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
@@ -85,33 +86,24 @@ public:
     void update();
     void setElevator(VrmlNodeElevator *);
     enum ExchangerState getState(){return state;}
-    int getLandingNumber(){return landingNumber;};
-    void setDestination(int landing, int shaft);
-    VrmlSFInt   d_ExchangerNumber;
-    VrmlSFVec3f d_ExchangerPos;
-    VrmlSFTime  d_ExchangerDoorClose;
-    VrmlSFTime  d_ExchangerDoorOpen;
-    VrmlSFFloat d_doorTimeout;
-    VrmlSFRotation d_ExchangerRotation;
+    int getCarNumber();
+    void setCar(VrmlNodeCar *c);
+    VrmlNodeCar *getCar(){return currentCar;};
+    VrmlSFInt   d_LandingNumber;
+    VrmlSFFloat   d_Fraction;
+    VrmlSFRotation d_Rotation;
 
 
 private:
 
-    float v;
-    float a;
-    float aMax;
-    float vMax;
-    float destinationY;
-    float destinationX;
+    
     float angle;
     float av;
     float aa;
     float avMax;
     float aaMax;
-    int doorState;
-    int landingNumber;
-    int shaftNumber;
-    double doorTime;
+    
+    VrmlNodeCar *currentCar;
     VrmlNodeElevator *elevator;
     enum ExchangerState state;
     double timeoutStart;

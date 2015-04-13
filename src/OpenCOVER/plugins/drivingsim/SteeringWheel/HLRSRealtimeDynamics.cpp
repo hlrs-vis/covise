@@ -152,6 +152,26 @@ void
 HLRSRealtimeDynamics::setVehicleTransformation(const osg::Matrix &m)
 {
     //oldHeight = m.getTrans()[2];
+    if (conn && conn->is_connected())
+    {
+        double currentTime = 0.0;
+        int written = conn->getSocket()->write(&currentTime, sizeof(currentTime));
+        if (written != sizeof(currentTime))
+        {
+            delete conn;
+            conn = NULL;
+            fprintf(stderr, "Connection to fasi closed\n");
+        }
+        written = conn->getSocket()->write(m.ptr(), sizeof(4*4*sizeof(double)));
+        if (written != sizeof(4*4*sizeof(double)))
+        {
+            delete conn;
+            conn = NULL;
+            fprintf(stderr, "Connection to fasi closed\n");
+        }
+        osg::Vec3 p = m.getTrans();
+        fprintf(stderr, "sentMatrix %f %f %f\n",p[0],p[1],p[2]);
+    }
 }
 
 void
