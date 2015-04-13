@@ -91,8 +91,17 @@ NodalFile::NodalFile(const char *filename, int filetype)
                    &(header.ndmax),
                    &(header.nwidth)) != 5)
         {
-            fprintf(stderr, "NodalFile::NodalFile: sscanf failed\n");
-        }
+	  header.defmax = 0;
+	  header.ndmax  = 0;
+	  if (sscanf(buffer, "%d %d %d",
+		     &(header.nnodes),
+		     &(header.maxnod),
+		     &(header.nwidth)) != 3)
+	    {
+	      
+	      fprintf(stderr, "NodalFile::NodalFile: sscanf failed\n");
+	    }
+	}
         /* input.parseString( buffer, 0, 4, &(header.nnodes) );
        input.parseString( buffer, 5, 9, &(header.maxnod) );
        input.parseString( buffer, 10, 25, &(header.defmax) );
