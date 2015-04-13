@@ -9294,9 +9294,9 @@ VRML2Export::VRML2Export()
 #endif
 
     shaderEffects.push_back(ShaderEffect(_T("")));
-    shaderEffects.push_back(ShaderEffect(_T("coBump")));
-    shaderEffects.push_back(ShaderEffect(_T("coBumpEnv")));
-    shaderEffects.push_back(ShaderEffect(_T("coBumpCube")));
+    shaderEffects.push_back(ShaderEffect(_T("coVRShaderBump_")));
+    shaderEffects.push_back(ShaderEffect(_T("coVRShaderBumpEnv")));
+    shaderEffects.push_back(ShaderEffect(_T("coVRShaderBumpCube")));
 }
 
 VRML2Export::~VRML2Export()

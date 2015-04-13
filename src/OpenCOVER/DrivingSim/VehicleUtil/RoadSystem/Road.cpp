@@ -984,10 +984,10 @@ Transform Road::getSignalTransform(const double &s, const double &t)
     Vector3D xyPoint = ((--xyMap.upper_bound(s))->second)->getPoint(s);
     Vector2D zPoint = ((--zMap.upper_bound(s))->second)->getPoint(s);
 
-    Quaternion q = Quaternion(0.0, Vector3D(0, 1, 0));
+    Quaternion q(xyPoint[2], Vector3D(0, 0, 1));
 
     LaneSection *section = (--laneSectionMap.upper_bound(s))->second;
-    return Transform(Vector3D(xyPoint.x(), xyPoint.y(), zPoint[0] + section->getHeight(s, t)) + (q * Vector3D(0, t, 0) * q.T()).getVector(), q);
+    return Transform(Vector3D(xyPoint.x(), xyPoint.y(), zPoint[0] + section->getHeight(s, t)) + (q * Vector3D(0, t, 0) * q.T()).getVector(), q); 
 }
 
 

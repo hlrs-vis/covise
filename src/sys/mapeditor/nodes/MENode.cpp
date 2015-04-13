@@ -273,7 +273,7 @@ void MENode::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e)
 {
     QGraphicsItem::mouseDoubleClickEvent(e);
 
-    sendMessage("EXEC");
+    sendExec();
 
     isDoubleClicked = true;
 }
@@ -531,8 +531,7 @@ void MENode::helpCB()
 void MENode::executeCB()
 {
     emit execute();
-
-    sendMessage("EXEC");
+    sendExec();
 }
 
 //------------------------------------------------------------------------
@@ -1231,6 +1230,13 @@ void MENode::layoutItem()
     // set position of node and show it
     setPos(xx, yy);
     update();
+}
+
+void MENode::sendExec()
+{
+    emit execute();
+    sendMessage("EXEC");
+    MEMainHandler::instance()->execTriggered();
 }
 
 //------------------------------------------------------------------------

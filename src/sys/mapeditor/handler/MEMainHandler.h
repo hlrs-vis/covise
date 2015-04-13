@@ -235,6 +235,7 @@ public slots:
     void deleteAutosaved(bool);
     void developerModeHasChanged();
     void setMapModified(bool);
+    void execTriggered();
 
 private:
     static MEMainHandler *singleton;

@@ -68,6 +68,7 @@ typedef VinceRendererWidget *(*VinceRendererWidgetCreate)(QWidget *w, int argc, 
 class MEUserInterface : public QMainWindow
 {
     friend class MEGraphicsView; // for the actions
+    friend class MEMainHandler;
     Q_OBJECT
 
 public:

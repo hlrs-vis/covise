@@ -53,6 +53,8 @@ using namespace opencover;
 using covise::ServerConnection;
 using covise::SimpleServerConnection;
 using covise::TokenBuffer;
+class VrmlNodeCar;
+class VrmlNodeExchanger;
 
 class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
 {
@@ -80,6 +82,11 @@ public:
     virtual void render(Viewer *);
     VrmlMFFloat d_landingHeights;
     VrmlMFFloat  d_shaftPositions;
+    std::vector<VrmlNodeExchanger *> exchangers;
+    std::vector<VrmlNodeCar *> cars;
+    std::vector<VrmlNodeCar *> stations; // stations[i] is set to a car if the car is currently close to that station
+    void occupy(int station,VrmlNodeCar *car);
+    void release(int station);
 
 private:
 

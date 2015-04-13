@@ -75,7 +75,7 @@ void debugMsgHandler(QtMsgType type, const char *message)
 #ifdef NDEBUG
     static bool useDebugWindow = covise::coCoviseConfig::isOn("System.MapEditor.DebugWindow", false);
 #else
-    static bool useDebugWindow = covise::coCoviseConfig::isOn("System.MapEditor.DebugWindow", true);
+    static bool useDebugWindow = covise::coCoviseConfig::isOn("System.MapEditor.DebugWindow", false);
 #endif
     static QTextEdit *edit = NULL;
     if (useDebugWindow && !edit)
@@ -151,6 +151,7 @@ int main(int argc, char **argv)
 #ifdef Q_OS_MAC
     QApplication::instance()->setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
+    QApplication::instance()->setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
     //DebugBreak();
     new MEMainHandler(argc, argv);

@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "Elevator.h"
 #include "Car.h"
+#include "Exchanger.h"
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -87,16 +88,53 @@ void VrmlNodeElevator::setField(const char *fieldName,
     if
         TRY_FIELD(landingHeights, MFFloat)
     else if
-    TRY_FIELD(shaftPositions, MFFloat)
+        TRY_FIELD(shaftPositions, MFFloat)
     else
     VrmlNodeGroup::setField(fieldName, fieldValue);
     
     if(strcmp(fieldName,"children")==0)
     {
+        
+        stations.resize(d_landingHeights.size()*d_shaftPositions.size());
+        for(int i=0;i<stations.size();i++)
+        {
+            stations[i]=NULL;
+        }
+
         for(int i=0;i<d_children.size();i++)
         {
             VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
-            car->setElevator(this);
+            if(car)
+            {
+                if(car->d_carNumber.get() >= cars.size())
+                {
+                    cars.resize(car->d_carNumber.get()+1);
+                }
+                cars[car->d_carNumber.get()] = car;
+                car->setElevator(this);
+            }
+            VrmlNodeExchanger *exchanger = dynamic_cast<VrmlNodeExchanger *>(d_children[i]);
+            if(exchanger)
+            {
+                if(exchanger->d_LandingNumber.get() >= exchangers.size())
+                {
+                    exchangers.resize(exchanger->d_LandingNumber.get()+1);
+                }
+                exchangers[exchanger->d_LandingNumber.get()] = exchanger;
+                exchanger->setElevator(this);
+            }
+        }
+        //assign cars to exchangers
+        for(int i=0;i<cars.size();i++)
+        {
+            if(cars[i])
+            {
+                int station = cars[i]->d_stationList[cars[i]->d_currentStationIndex.get()];
+                if(exchangers.size() > station && exchangers[station] !=NULL)
+                {
+                    exchangers[station]->setCar(cars[i]);
+                }
+            }
         }
     }
 }
@@ -162,9 +200,9 @@ void VrmlNodeElevator::render(Viewer *)
             }
         }
     }
-    for(int i=0;i<d_children.size();i++)
+    for(int i=0;i<cars.size();i++)
     {
-        VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
+        VrmlNodeCar *car = cars[i];
         if(car!=NULL)
         {
             int lowerLanding=0;
@@ -173,7 +211,8 @@ void VrmlNodeElevator::render(Viewer *)
             int upperLanding=d_landingHeights.size()-1;
             if(car->getID()%2)
                 upperLanding--;
-            if(allIdle)
+            
+            if(car->getState()==VrmlNodeCar::Idle && car->nextPositionIsEmpty())
             {
                 // tell it to move to next stop
                 car->moveToNext();
@@ -206,5 +245,24 @@ void VrmlNodeElevator::render(Viewer *)
         }
     }
 
+}
+
+
+void VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
+{
+    stations[station] = car;
+    
+    if(exchangers.size() > station && exchangers[station] !=NULL)
+    {
+        exchangers[station]->setCar(car);
+    }
+}
+void VrmlNodeElevator::release(int station)
+{
+    stations[station] = NULL;
+    if(exchangers.size() > station && exchangers[station] !=NULL)
+    {
+        exchangers[station]->setCar(NULL);
+    }
 }
 

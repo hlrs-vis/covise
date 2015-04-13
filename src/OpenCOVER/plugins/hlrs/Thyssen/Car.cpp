@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "Car.h"
 #include "Elevator.h"
+#include "Exchanger.h"
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -199,8 +200,10 @@ void VrmlNodeCar::render(Viewer *)
 
 void VrmlNodeCar::update()
 {
-    if(state == Moving)
+    startTurning(); // if necessarry
+    if(state == Moving && chassisState == Idle)
     {
+        
         float dt = cover->frameDuration();
         if(dt > 1000) // first frameDuration is off because last FrameTime is 0
             dt=0.00001;
@@ -208,6 +211,19 @@ void VrmlNodeCar::update()
         {
             float direction;
             float diff = fabs(destinationX - d_carPos.x());
+            float diffS = fabs(startingX - d_carPos.x());
+            if(diffS > 2 && (oldLandingIndex >= 0))
+            {
+                elevator->release(oldLandingIndex);
+                oldLandingIndex = -1;
+            }
+            if(diff < 2 && (destinationLandingIndex >= 0))
+            {
+                
+                elevator->occupy(destinationLandingIndex,this);
+                destinationLandingIndex = -1;
+            }
+            
             if(d_carPos.x() < destinationX)
                 direction = 1;
             else
@@ -259,6 +275,20 @@ void VrmlNodeCar::update()
         {
             float direction;
             float diff = fabs(destinationY - d_carPos.y());
+
+            float diffS = fabs(startingY - d_carPos.y());
+            if(diffS > 2 && (oldLandingIndex >= 0))
+            {
+                elevator->release(oldLandingIndex);
+                oldLandingIndex = -1;
+            }
+            if(diff < 2 && (destinationLandingIndex >= 0))
+            {
+                elevator->occupy(destinationLandingIndex,this);
+                destinationLandingIndex = -1;
+            }
+
+
             if(d_carPos.y() < destinationY)
                 direction = 1;
             else
@@ -315,24 +345,8 @@ void VrmlNodeCar::update()
         }
         else // we are there
         {
-            timeoutStart = cover->frameTime();
-            state = DoorOpening;
-            if(oldTravelDirection!=travelDirection)
-            {
-                if(travelDirection == MoveLeft || travelDirection == MoveRight)
-                {
-                    chassisState = RotatingRight;
-                    oldTravelDirection = travelDirection;
-                }
-                if(travelDirection == MoveUp || travelDirection == MoveDown)
-                {
-                    chassisState = RotatingLeft;
-                    oldTravelDirection = travelDirection;
-                }
-            }
-            d_carDoorOpen = System::the->time();
-            eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
             v=0;a=0;
+            arrivedAtDestination();
         }
     }
     else if(state == DoorOpening)
@@ -440,6 +454,7 @@ void VrmlNodeCar::update()
 
 }
 
+
 void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 {
     elevator = e;
@@ -457,7 +472,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
             shaftNumber = i;
         }
     }*/
-    
+    elevator->stations[d_stationList[d_currentStationIndex.get()]]=this;
     landingNumber = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
     shaftNumber = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
     d_carPos.set(elevator->d_shaftPositions[shaftNumber],elevator->d_landingHeights[landingNumber],0);
@@ -468,24 +483,119 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 }
 void VrmlNodeCar::setDestination(int landing, int shaft)
 {
-    landingNumber = landing;
-    state = Moving;
-    shaftNumber = shaft;
-    
-    destinationY = elevator->d_landingHeights[landing];
-    destinationX = elevator->d_shaftPositions[shaft];
+    if(landing != landingNumber || shaft != shaftNumber)
+    {
+        oldLandingNumber=landingNumber;
+        oldShaftNumber=shaftNumber;
+
+        landingNumber = landing;
+        state = Moving;
+        shaftNumber = shaft;
+
+        startingY = elevator->d_landingHeights[oldLandingNumber];
+        startingX = elevator->d_shaftPositions[oldShaftNumber];
+
+        destinationY = elevator->d_landingHeights[landing];
+        destinationX = elevator->d_shaftPositions[shaft];
+    }
+
 }
 void VrmlNodeCar::moveToNext()
 {
+    oldLandingIndex =  d_stationList[d_currentStationIndex.get()];
     d_currentStationIndex = d_currentStationIndex.get()+1;
     if(d_currentStationIndex.get()>=d_stationList.size())
         d_currentStationIndex=0;
+    destinationLandingIndex =  d_stationList[d_currentStationIndex.get()];
     int landing = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
     int shaft = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
-    landingNumber = landing;
-    state = Moving;
-    shaftNumber = shaft;
-    
-    destinationY = elevator->d_landingHeights[landing];
-    destinationX = elevator->d_shaftPositions[shaft];
+    setDestination(landing, shaft);
+}
+
+bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landing is empty
+{
+    int nextIndex = d_currentStationIndex.get()+1;
+    if(nextIndex>=d_stationList.size())
+        nextIndex=0;
+    int landing = d_stationList[nextIndex] % elevator->d_landingHeights.size();
+    int shaft = d_stationList[nextIndex] / elevator->d_landingHeights.size();
+
+    if(elevator->exchangers.size() > d_stationList[nextIndex] &&elevator-> exchangers[d_stationList[nextIndex]] !=NULL)
+    {
+        if(elevator->exchangers[d_stationList[nextIndex]]->getCar()!=NULL)
+            return false;
+    }
+    if(elevator->stations[d_stationList[nextIndex]]!=NULL)
+        return false;
+    return true;
+}
+
+
+void VrmlNodeCar::startTurning() // turn if necessarry and possible
+{
+    if(chassisState == StartRotatingRight || chassisState == StartRotatingLeft)
+    {
+        timeoutStart = cover->frameTime();
+
+        int nextIndex = d_currentStationIndex.get()+1;
+        if(nextIndex>=d_stationList.size())
+            nextIndex=0;
+        
+
+        if(travelDirection == MoveLeft || travelDirection == MoveRight)
+        {
+            if(elevator->stations[d_stationList[nextIndex]]==NULL)
+            {
+                chassisState = RotatingRight;
+            }
+        }
+        if(travelDirection == MoveUp || travelDirection == MoveDown)
+        {
+            chassisState = RotatingLeft;
+        }
+    }
+}
+
+void VrmlNodeCar::arrivedAtDestination() // the car arrived at its destination
+{
+    timeoutStart = cover->frameTime();
+    state = DoorOpening;
+    d_carDoorOpen = System::the->time();
+    eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
+
+    int nextIndex = d_currentStationIndex.get()+1;
+    if(nextIndex>=d_stationList.size())
+        nextIndex=0;
+    int landing = d_stationList[nextIndex] % elevator->d_landingHeights.size();
+    int shaft = d_stationList[nextIndex] / elevator->d_landingHeights.size();
+
+    if(shaft!=shaftNumber) // next shaft != this shaft
+    {
+        if(shaft > shaftNumber)
+            travelDirection = MoveRight;
+        else
+            travelDirection = MoveLeft;
+    }
+    else if(landing!=landingNumber) // next landing != this landing
+    {
+        if(landing > landingNumber)
+            travelDirection = MoveUp;
+        else
+            travelDirection = MoveDown;
+    }
+    if(travelDirection!= oldTravelDirection)
+    {
+
+        if(travelDirection == MoveLeft || travelDirection == MoveRight)
+        {
+            chassisState = StartRotatingRight;
+            oldTravelDirection = travelDirection;
+        }
+        if(travelDirection == MoveUp || travelDirection == MoveDown)
+        {
+            chassisState = StartRotatingLeft;
+            oldTravelDirection = travelDirection;
+        }
+    }
+    startTurning();
 }
