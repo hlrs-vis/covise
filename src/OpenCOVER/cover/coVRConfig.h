@@ -193,6 +193,7 @@ public:
     int numBlendingTextures() const;
     int numWindows() const;
     int numPipes() const;
+    int lockToCPU() const;
 
     // get the scene size defined in covise.config
     float getSceneSize() const;
@@ -405,6 +406,7 @@ private:
 
     bool m_menuModeOn;
     bool m_coloringSceneInMenuMode;
+    int m_lockToCPU;
 };
 }
 #endif
