@@ -394,7 +394,7 @@ osg::Geode *RoadObject::createGuardRailGeode()
     guardRailPostGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
     bool up = true;
-    if (s == 0)
+    if (s ==  0)
         up = false; // do not go up if we start right at the bginning of a road, then we continue from the last road
     bool down = false;
 
@@ -414,7 +414,7 @@ osg::Geode *RoadObject::createGuardRailGeode()
         if (currentS > (s + railLength - (h)))
         {
             currentS = (s + railLength);
-            if (s + railLength < road->getLength()) // only go down if the rail does not extend to the end of the road.
+            if (fabs(s + railLength - road->getLength()) > 1.0e-6) // only go down if the rail does not extend to the end of the road.
             {
                 down = true;
             }
