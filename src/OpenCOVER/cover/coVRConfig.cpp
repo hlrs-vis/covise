@@ -112,7 +112,7 @@ coVRConfig::coVRConfig()
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
     m_numScreens = coCoviseConfig::getInt("COVER.NumScreens", 1);
-    m_numChannels = coCoviseConfig::getInt("COVER.NumChannels", m_numScreens); // normally numChannels == numScreens, only if we use B´PBOs, it might be equal to the number of PBOs
+    m_numChannels = coCoviseConfig::getInt("COVER.NumChannels", m_numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
     m_numWindows = coCoviseConfig::getInt("COVER.NumWindows", m_numScreens);
     m_numViewports = coCoviseConfig::getInt("COVER.NumViewports", m_numChannels); // normally this is equal to the number of Channels
     m_numBlendingTextures = coCoviseConfig::getInt("COVER.NumBlendingTextures", m_numBlendingTextures); 

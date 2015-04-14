@@ -88,6 +88,7 @@
            <FileType name="ptx" plugin="PointCloud" />
            <FileType name="xyz" plugin="PointCloud" />
            <FileType name="ptsb" plugin="PointCloud" />
+           <FileType name="c2m" plugin="PointCloud" />
            <FileType name="x3dv" plugin="Vrml97" />
            <FileType name="wrl" plugin="Vrml97" />
            <FileType name="wrl.gz" plugin="Vrml97" />

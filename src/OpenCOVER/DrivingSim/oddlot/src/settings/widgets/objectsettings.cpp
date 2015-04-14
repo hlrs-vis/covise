@@ -232,6 +232,7 @@ ObjectSettings::onEditingFinished()
     {
         QString filename = ui->nameBox->text();
         QString newId = object_->getId();
+        RSystemElementRoad * road = object_->getParentRoad();
         if (filename != object_->getName())
         {
             QStringList parts = object_->getId().split("_");
@@ -242,13 +243,19 @@ ObjectSettings::onEditingFinished()
             }
             else
             {
-                newId = object_->getParentRoad()->getRoadSystem()->getUniqueId(object_->getId(), filename);
+                newId = road->getRoadSystem()->getUniqueId(object_->getId(), filename);
             }
+        }
+
+        double repeatLength = ui->repeatLengthSpinBox->value();
+        if (repeatLength > road->getLength() - ui->repeatSSpinBox->value())
+        {
+            repeatLength = road->getLength() - ui->repeatSSpinBox->value();
         }
 
         SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, filename, ui->typeBox->text(), ui->tSpinBox->value(), ui->zOffsetSpinBox->value(),
             ui->validLengthSpinBox->value(), (Object::ObjectOrientation)ui->orientationComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(),
-            ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), ui->repeatLengthSpinBox->value(), ui->repeatDistanceSpinBox->value(), ui->textureLineEdit->text());
+            ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), repeatLength, ui->repeatDistanceSpinBox->value(), ui->textureLineEdit->text());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;

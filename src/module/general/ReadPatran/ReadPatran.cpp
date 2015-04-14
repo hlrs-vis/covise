@@ -492,7 +492,7 @@ int Patran::compute(const char *)
     //	scalar element results data
     //
 
-    if (strcmp(elem_path, init_path) && strcmp(elem_path, " ") && stress == 2)
+    if (strcmp(elem_path, init_path) && strcmp(elem_path, " ") && stress == 1)
     {
         coDistributedObject **time_elementdata = new coDistributedObject *[timesteps + 1];
         if (has_timesteps)
@@ -557,7 +557,7 @@ int Patran::compute(const char *)
                                 return STOP_PIPELINE;
                             }
                             elem_data->getAddress(&s);
-
+                            // 3 = ELEMENTSTRESS
                             if (elemAscFile->getDataField(3, gridFile->elemMap, nb_col, s, gridFile->num_elements - elemAscFile->nnodes, gridFile->getMaxelem()) < 0)
                                 sendError("ERROR: Cannot read Nodal result for Port Data %s", p_outPort3->getName());
 

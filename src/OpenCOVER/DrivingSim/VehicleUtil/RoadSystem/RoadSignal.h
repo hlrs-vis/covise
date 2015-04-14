@@ -36,6 +36,7 @@ public:
 
     void createGeometry();
     osg::ref_ptr<osg::Node> signalNode;
+    osg::ref_ptr<osg::Node> signalPost;
     std::string name;
     int type;
     int subtype;
@@ -127,6 +128,7 @@ public:
     //virtual void signalGo() { }
     //virtual void signalStop() { }
     virtual osg::PositionAttitudeTransform *getRoadSignalNode();
+    virtual osg::PositionAttitudeTransform *getRoadSignalPost();
 
 protected:
     std::string name;
@@ -145,6 +147,7 @@ protected:
     Transform signalTransform;
 
     osg::PositionAttitudeTransform *roadSignalNode;
+    osg::PositionAttitudeTransform *roadSignalPost;
 
     static unordered_map<std::string, SignalPrototype *> signalsMap;
 };

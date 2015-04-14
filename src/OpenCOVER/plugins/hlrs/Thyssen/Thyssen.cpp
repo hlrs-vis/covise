@@ -10,6 +10,7 @@
 
 #include "Thyssen.h"
 #include "Elevator.h"
+#include "Exchanger.h"
 #include "Car.h"
 
 #include <net/covise_host.h>
@@ -257,6 +258,7 @@ bool ThyssenPlugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeThyssen::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeElevator::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeCar::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeExchanger::defineType());
 
     return true;
 }

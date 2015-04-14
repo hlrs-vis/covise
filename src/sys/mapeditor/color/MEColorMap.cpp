@@ -1007,7 +1007,7 @@ void MEColorMap::applyCB()
     if (dp)
     {
         dp->sendParamMessage();
-        dp->getNode()->sendMessage("EXEC");
+        dp->getNode()->sendExec();
     }
 }
 

@@ -57,11 +57,8 @@ DTrackDriver::DTrackDriver(const std::string &config)
     }
     m_buttonStates.resize(m_buttonBase.back());
 
-    m_numBodies = dt->getNumBody(); // Corect only if the bodies are tracked!
-    cout << "Bodies: " << m_numBodies << ", Flysticks: " << m_numFlySticks << endl;
-
-    m_bodyMatrices.resize(m_numFlySticks + m_numBodies);
-    m_bodyMatricesValid.resize(m_numFlySticks + m_numBodies);
+    m_numBodies = 0;
+    m_numFlySticks = 0;
     m_bodyBase = m_numFlySticks;
 
     dt->startMeasurement();
@@ -188,10 +185,13 @@ bool DTrackDriver::poll()
         return true;
     }
 
-    size_t numMat = dt->getNumBody() + dt->getNumFlyStick();
-    if (m_bodyMatrices.size() < numMat)
+    if (dt->getNumBody() != m_numBodies || dt->getNumFlyStick() != m_numFlySticks )
     {
         m_mutex.lock();
+        size_t numMat = dt->getNumBody() + dt->getNumFlyStick();
+        m_numFlySticks = dt->getNumFlyStick();
+        m_numBodies = dt->getNumBody();
+        m_bodyBase = m_numFlySticks;
         m_bodyMatrices.resize(numMat);
         m_bodyMatricesValid.resize(numMat);
         m_mutex.unlock();

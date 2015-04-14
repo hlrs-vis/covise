@@ -60,7 +60,7 @@ class VrmlNodeElevator;
 class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
 {
 public:
-    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight};
+    enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight,StartRotatingRight,StartRotatingLeft};
     // Define the fields of Car nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
@@ -94,6 +94,9 @@ public:
     int getLandingNumber(){return landingNumber;};
     void setDestination(int landing, int shaft);
     void moveToNext(); // move to next station
+    void arrivedAtDestination(); // the car arrived at its destination
+    bool nextPositionIsEmpty(); // return true if the destination landing is empty
+    void startTurning(); // turn if necessarry and possible
 
     VrmlSFInt   d_carNumber;
     VrmlSFVec3f d_carPos;
@@ -113,6 +116,8 @@ private:
     float vMax;
     float destinationY;
     float destinationX;
+    float startingY;
+    float startingX;
     double angle;
     float av;
     float aa;
@@ -121,6 +126,10 @@ private:
     int doorState;
     int landingNumber;
     int shaftNumber;
+    int oldLandingNumber;
+    int oldShaftNumber;
+    int oldLandingIndex; // is >=0 until we left the station
+    int destinationLandingIndex; // is >=0 until we are close to the destination
     double doorTime;
     VrmlNodeElevator *elevator;
     enum carState state;

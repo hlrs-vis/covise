@@ -82,6 +82,7 @@ do
     echo -e "${MENU} ${OPT} 82)  ${MENU} start FaSi                "
     echo -e "${MENU} ${OPT} 83)  ${MENU} kill FaSi                 "
     echo -e "${MENU} ${OPT} 84)  ${MENU} check CAN                 "
+    echo -e "${MENU} ${OPT} 85)  ${MENU} start FaSi elevated                "
 
     echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
     echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
@@ -207,7 +208,9 @@ do
 	    ;;
 	46)
 	    echo -e "starting Blutspuranalyse";
-            opencover /data/UTM/Trajectories_texture.wrl
+	    cd /data/UTM
+            #opencover /data/UTM/Trajectories_texture.wrl
+	    opencover testroom.wrl *.bpadxf
 	    ;;
 	47)
 	    echo -e "starting Car Crash";
@@ -320,6 +323,10 @@ do
 	    ssh covise2@192.168.0.74 "cat /proc/rtcan/devices"
             echo -n "Press return to continue..."
             read
+	    ;;
+	85)
+	    echo -e "starting elevatedFaSi";
+	    ssh covise2@192.168.0.74 "cd /data/BRICK-FAS && fasi ElevatedRoad.xodr > /dev/null"&
 	    ;;
 
 # SYSTEM
