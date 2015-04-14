@@ -36,6 +36,8 @@ public:
 
     virtual void activated();
 
+    virtual void setLabel(QString textl);
+
 protected:
     int firstTime;
 };

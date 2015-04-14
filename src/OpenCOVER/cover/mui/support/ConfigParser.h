@@ -29,7 +29,7 @@ public:
     std::pair<std::string, bool> getParent(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniquIdentifier);
     std::pair<std::string, bool> getLabel(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
     std::pair<std::pair<int,int>, bool> getPos(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier);
-    std::pair<std::string, bool> getAttributeValue(mui::UITypeEnum, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute);
+    std::pair<std::string, bool> getAttributeValue(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, std::string UniqueIdentifier, mui::AttributesEnum Attribute);
 
 private:
     // membervariables:

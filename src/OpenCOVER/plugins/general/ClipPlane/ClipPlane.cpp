@@ -114,7 +114,8 @@ ClipPlanePlugin::ClipPlanePlugin()
 
 bool ClipPlanePlugin::init()
 {
-    clipTab = new mui::Tab("plugins.general.ClipPlane.ClipTab" ,"ClipPlane");
+    clipTab = mui::Tab::create("plugins.general.ClipPlane.ClipTab");
+    clipTab->setLabel("ClipPlane");
     clipTab->setEventListener(this);
     clipTab->setPos(0, 0);
 
@@ -123,17 +124,20 @@ bool ClipPlanePlugin::init()
         char name[100];
 
         sprintf(name, "ClipPlane %d PickInteractor", i);
-        plane[i].PickInteractorButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].PickInteractorButton = mui::ToggleButton::create(std::string("plugins.general.ClipPlane")+name, clipTab);
+        plane[i].PickInteractorButton->setLabel(std::string(name));
         plane[i].PickInteractorButton->setEventListener(this);
         plane[i].PickInteractorButton->setPos(0, i);
 
         sprintf(name, "ClipPlane %d DirectInteractor", i);
-        plane[i].DirectInteractorButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].DirectInteractorButton = mui::ToggleButton::create(std::string("plugins.general.ClipPlane")+name, clipTab);
+        plane[i].DirectInteractorButton->setLabel(std::string(name));
         plane[i].DirectInteractorButton->setEventListener(this);
         plane[i].DirectInteractorButton->setPos(1, i);
 
         sprintf(name, "ClipPlane %d enable", i);
-        plane[i].EnableButton = new mui::ToggleButton(std::string("plugins.general.ClipPlane")+name, clipTab, name);
+        plane[i].EnableButton = mui::ToggleButton::create(std::string("plugins.general.ClipPlane")+name, clipTab);
+        plane[i].EnableButton->setLabel(std::string(name));
         plane[i].EnableButton->setEventListener(this);
         plane[i].EnableButton->setPos(2, i);
 
@@ -464,13 +468,10 @@ void ClipPlanePlugin::muiEvent(mui::Element *muiItem)
             }
         }
     }
-
-    cerr << "muiEvent" << endl;
 }
 
 void ClipPlanePlugin::muiPressEvent(mui::Element *)
 {
-    cerr << "muiPressEvent" << endl;
 }
 
 void ClipPlanePlugin::muiReleaseEvent(mui::Element *)

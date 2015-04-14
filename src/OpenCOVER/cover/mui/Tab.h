@@ -25,47 +25,24 @@ class coRowMenu;
 
 namespace mui
 {
-// class:
-class COVEREXPORT Tab: public Container, public opencover::coTUIListener, public vrui::coMenuListener
+/**
+ * @brief The Tab class
+ * creates a TUI-Tab-Element and a new submenu in VRUI
+ */
+class COVEREXPORT Tab: public mui::Container
 {
 
 public:
     // methods:
-    // constructor/destructor:
-    // std::string as input
-    Tab(const std::string UniqueIdentifier, Container* parent,std::string label);
-    Tab(const std::string UniqueIdentifier, Container* parent);
-    Tab(const std::string UniqueIdentifier, std::string label);
-    Tab(const std::string UniqueIdentifier);
+    static mui::Tab* create(std::string uniqueIdentifier, mui::Container* parent = NULL);
 
+    // destructor:
     ~Tab();
-
-    void setPos(int posx, int posy);                 // sets position of TUI-Element
-    int getTUIID();
-    opencover::coTUIElement* getTUI();
-
-    vrui::coMenu* getVRUI();
-    void setLabel(std::string label);                // sets the label of all UI-Elements
-    void setLabel(std::string label, std::string UI);// sets the label of the named UI-Elements
-    void setVisible(bool visible, std::string UI);   // sets the visible-value of named UI-Elements
-    void setVisible(bool visible);                   // sets the visible-value of all UI-Elements
-    std::string getUniqueIdentifier();
-    Container *getParent();
 
 private:
     // methods:
-    void ParentConstructor(const std::string identifier, Container* parent);   // underlying constructor
-    void constructor(const std::string identifier);        // underlying constructor
-
-    // variables:
-    Container* Parent;
-    boost::shared_ptr<opencover::coTUITab> TUIElement;
-    boost::shared_ptr<vrui::coSubMenuItem> SubmenuItem;
-    boost::shared_ptr<vrui::coRowMenu> Submenu;
-    ConfigManager *configManager;
-    std::vector<device> Devices;
-    std::string Identifier;
-    std::string Label;
+    // constructor:
+    Tab(const std::string UniqueIdentifier, Container* parent=NULL);
 };
 } // end namespace
 #endif
