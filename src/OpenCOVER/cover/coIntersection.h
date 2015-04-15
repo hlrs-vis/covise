@@ -48,6 +48,8 @@ protected:
     virtual void intersect(); // do the intersection
     // do the intersection
     void intersect(const osg::Matrix &mat, bool mouseHit);
+    template<class IsectVisitor>
+    void intersectTemp(const osg::Matrix &mat, bool mouseHit);
 
     /// value of the PointerAppearance.Intersection config var
     float intersectionDist;
@@ -59,6 +61,7 @@ protected:
 
 private:
     std::vector<std::vector<float> > elapsedTimes;
+    bool useOmp;
 };
 }
 #endif
