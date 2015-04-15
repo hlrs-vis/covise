@@ -67,7 +67,7 @@ std::pair<bool,bool> ConfigParser::getIsVisible(UITypeEnum UI, DeviceTypesEnum D
         else
         {
             std::cerr << "ERROR: ConfigParser::getIsVisible(): Visible-value in " << getKeywordUI(UI) << "; " << getKeywordDevice(Device) << "; " << UniqueIdentifier << " is unequal 'true' or 'false'." << std::endl;
-            returnValue.first = NULL;
+            returnValue.first = false;
             returnValue.second = false;
         }
     }
