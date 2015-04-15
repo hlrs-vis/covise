@@ -746,14 +746,26 @@ VRViewer::config()
     realize();
 
 #ifdef __linux__
-    cpu_set_t cpumask;
-    CPU_ZERO(&cpumask);
-    for (int i = 0; i < CPU_SETSIZE; i++)
+    if(coVRConfig::instance()->lockToCPU()>=0)
     {
-        CPU_SET(i, &cpumask);
+	cpu_set_t cpumask;
+	CPU_ZERO(&cpumask);
+	
+        CPU_SET(coVRConfig::instance()->lockToCPU(), &cpumask);
+	
+	pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
     }
+    else
+    {
+	cpu_set_t cpumask;
+	CPU_ZERO(&cpumask);
+	for (int i = 0; i < CPU_SETSIZE; i++)
+	{
+	    CPU_SET(i, &cpumask);
+	}
 
-    pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
+	pthread_setaffinity_np(pthread_self(), sizeof(cpumask), &cpumask);
+    }
 //#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
 //           sched_setaffinity( 0, sizeof(cpumask), &cpumask );
 //#elif defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
@@ -1716,6 +1728,8 @@ void VRViewer::startThreading()
         if (gc->getGraphicsThread() && !gc->getGraphicsThread()->isRunning())
         {
             osg::notify(osg::INFO) << "  gc->getGraphicsThread()->startThread() " << gc->getGraphicsThread() << std::endl;
+            fprintf(stderr,"setProcessorAffinity to %d\n",coVRConfig::instance()->lockToCPU());
+            gc->getGraphicsThread()->setProcessorAffinity(coVRConfig::instance()->lockToCPU());
             gc->getGraphicsThread()->startThread();
             // OpenThreads::Thread::YieldCurrentThread();
         }
