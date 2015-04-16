@@ -54,6 +54,9 @@ coIntersection::coIntersection()
     : elapsedTimes(1)
 #endif
 {
+    // should match OpenCOVER.cpp
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "off");
+    useOmp = openmpThreads != "off";
 
     //VRUILOG("coIntersection::<init> info: creating");
 
@@ -146,6 +149,21 @@ void coIntersection::intersect()
 
 void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
 {
+#ifdef _OPENMP
+    if (useOmp)
+    {
+	intersectTemp<opencover::Private::coIntersectionVisitor>(handMat, mouseHit);
+    }
+    else
+#endif
+    {
+	intersectTemp<IntersectVisitor>(handMat, mouseHit);
+    }
+}
+
+template<class IsectVisitor>
+void coIntersection::intersectTemp(const osg::Matrix &handMat, bool mouseHit)
+{
 
     //VRUILOG("coIntersection::intersect info: called");
 
@@ -167,11 +185,7 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
 
     if (q0 != q1)
     {
-#ifdef _OPENMP
-        opencover::Private::coIntersectionVisitor visitor;
-#else
-        IntersectVisitor visitor;
-#endif
+        IsectVisitor visitor;
         if (numIsectAllNodes > 0)
         {
             visitor.setTraversalMask(Isect::Pick);
