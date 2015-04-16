@@ -4773,6 +4773,7 @@ coTUIElement::coTUIElement(const std::string &n, int pID)
     ID = coTabletUI::instance()->getID();
     coTabletUI::instance()->addElement(this);
     listener = NULL;
+    hidden = false;
 }
 
 coTUIElement::coTUIElement(const std::string &n, int pID, int type)
@@ -4789,6 +4790,7 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     coTabletUI::instance()->addElement(this);
     listener = NULL;
     createSimple(type);
+    hidden = false;
 }
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
@@ -4804,6 +4806,7 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     ID = coTabletUI::instance()->getID();
     coTabletUI::instance()->addElement(this);
     listener = NULL;
+    hidden = false;
 }
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int type)
@@ -4820,6 +4823,7 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     coTabletUI::instance()->addElement(this);
     listener = NULL;
     createSimple(type);
+    hidden = false;
 }
 
 coTUIElement::~coTUIElement()
