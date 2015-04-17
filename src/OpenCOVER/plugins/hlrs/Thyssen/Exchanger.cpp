@@ -224,11 +224,11 @@ void VrmlNodeExchanger::setCar(VrmlNodeCar *c)
 {
     if(c)
     {
-        state == Occupied;
+        state = Occupied;
     }
     else
     {
-        state == Idle;
+        state = Idle;
     }
     currentCar = c;
 }

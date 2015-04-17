@@ -27,12 +27,12 @@ Element::Element(std::string uniqueIdentifier, mui::Container *parentParameter)
         parentUniqueIdentifier = parent->getUniqueIdentifier();
     }
 
+    storage.resize(std::max(mui::VRUIEnum, mui::TUIEnum)+1);
+
     // Values for CAVE
-    storage.push_back(propertyStorage());
     storage[mui::VRUIEnum].device = mui::CAVEEnum;
 
     // Values for Tablet
-    storage.push_back(propertyStorage());
     storage[mui::TUIEnum].device = mui::TabletEnum;
 
     // Values for all
