@@ -732,13 +732,6 @@ int Socket::listen()
 
 int Socket::accept(int wait)
 {
-    int tmp_sock_id;
-    struct timeval timeout;
-    fd_set fdread;
-    int i;
-#ifdef DEBUG
-    printf("Listening for connect requests on port %d\n", port);
-#endif
     errno = 0;
     int err = ::listen(sock_id, 20);
     if (err == -1)
@@ -747,6 +740,18 @@ int Socket::accept(int wait)
                 host->getAddress(), port, coStrerror(getErrno()));
         return -1;
     }
+   return acceptOnly(wait);
+   }
+int Socket::acceptOnly(int wait)
+{
+    int tmp_sock_id;
+    struct timeval timeout;
+    fd_set fdread;
+    int i;
+#ifdef DEBUG
+    printf("Listening for connect requests on port %d\n", port);
+#endif
+    errno = 0;
 
     do
     {
@@ -810,6 +815,7 @@ int Socket::accept(int wait)
 
     return 0;
 }
+
 
 Socket::~Socket()
 {
