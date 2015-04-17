@@ -62,6 +62,8 @@ DTrackDriver::DTrackDriver(const std::string &config)
     m_bodyBase = m_numFlySticks;
 
     dt->startMeasurement();
+
+    poll(); // try to retrieve number of bodies/flysticks
 }
 
 //====================END of init section============================
