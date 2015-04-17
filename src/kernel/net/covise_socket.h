@@ -166,7 +166,8 @@ public:
     int available(void);
     int listen(); // listen for actual connection (server)
     virtual int accept(); // wait for and accept a connection (server)
-    int accept(int); // wait for and accept a connection (server) wait max secondes
+    int accept(int); // listen and wait for and accept a connection (server) wait max secondes
+    int acceptOnly(int); // wait for and accept a connection (server) wait max secondes
     // returns -1 when no accept, 0 otherwise
     virtual int read(void *buf, unsigned nbyte);
     virtual int Read(void *buf, unsigned nbyte); // does not exit when read failes but returns -1

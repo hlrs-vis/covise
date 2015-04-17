@@ -117,7 +117,9 @@ coVRTcpSlave::coVRTcpSlave(int ID)
     : coVRSlave(ID)
 {
     socket = new Socket(&port);
+    socket->listen();
     socketDraw = new Socket(&port2);
+    socketDraw->listen();
     //std::cerr << "coVRTcpSlave(" << ID << "): fds: app=" << port << ", draw=" << port2 << std::endl;
 }
 
@@ -313,12 +315,13 @@ void coVRTcpSlave::start()
         {
             cerr << "coVRSlave::start: exec " << co << " failed" << endl;
         }
+            cerr << "coVRSlave::started " << co << "" << endl;
     }
 }
 
 void coVRTcpSlave::accept()
 {
-    if (socket->accept(120) < 0)
+    if (socket->acceptOnly(120) < 0)
     {
         cerr << "Client " << myID << "did not connect within 2 minutes" << endl;
     }
@@ -329,7 +332,7 @@ void coVRTcpSlave::accept()
     read((char *)&i, sizeof(i));
 #endif
     send((const char *)&port2, sizeof(port2));
-    if (socketDraw->accept(120) < 0)
+    if (socketDraw->acceptOnly(120) < 0)
     {
         cerr << "Client " << myID << "did not connect within 2 minutes" << endl;
     }
