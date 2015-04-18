@@ -117,7 +117,7 @@ static const string PYMOL_exe("pymol");
 #endif
 static const string PYMOL_opt = "-qcr";
 //static const string PYMOL_script = "pymol-pdb2wrl-batch.py";
-static const string PYMOL_script = "pymol/batch.py";
+static const string PYMOL_script = "batch.py";
 static string PYMOL;
 static const string WRL_EXT(".wrl");
 static const string PROTEIN("Protein: ");
@@ -154,7 +154,7 @@ bool PDBPlugin::init()
     plugin = this;
     PDBPluginModule = this;
 
-    PYMOL = PYMOL_exe + " " + PYMOL_opt + " " + getenv("COVISEDIR") + "/src/renderer/OpenCOVER/plugins/general/PDB/" + PYMOL_script + " -- ";
+    PYMOL = PYMOL_exe + " " + PYMOL_opt + " " + getenv("COVISEDIR") + "/scripts/pdb/" + PYMOL_script + " -- ";
 
     // default button size
     float proteinButtonSize[] = { 80, 15 };
