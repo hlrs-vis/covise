@@ -138,7 +138,7 @@ inline void HlBaseList::setarg(unsigned int i, HlBaseList *e)
 // Argumente i und k vertauschen
 inline void HlBaseList::changearg(unsigned int i, unsigned int k)
 {
-    register HlBaseList *h = mArg[i];
+    HlBaseList *h = mArg[i];
     mArg[i] = mArg[k];
     mArg[k] = h;
 }
