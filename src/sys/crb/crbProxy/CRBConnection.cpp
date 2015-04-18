@@ -138,7 +138,7 @@ int CRBConnection::execCRB(char *instance)
     toCrb = new ServerConnection(&serverPort, id, CONTROLLER);
     if (!toCrb->is_connected())
         return 0;
-
+    toCrb->listen();
     std::string command = coCoviseConfig::getEntry("command", "System.CRB.Proxy");
     if (!command.empty())
     {
@@ -169,7 +169,7 @@ int CRBConnection::execCRB(char *instance)
    #endif
    */
     {
-        if (toCrb->accept(60) < 0)
+        if (toCrb->acceptOne(60) < 0)
         {
             delete toCrb;
             cerr << "* timelimit in accept for crb exceeded!!" << endl;

@@ -506,7 +506,7 @@ void Connection::set_hostid(int id)
     tb.delete_data();
 }
 
-int ServerConnection::accept()
+int ServerConnection::acceptOne()
 {
     char dataformat;
 
@@ -515,7 +515,7 @@ int ServerConnection::accept()
         LOGERROR("no socket in ServerConnection::accept");
         return -1;
     }
-    if (sock->accept() < 0)
+    if (sock->acceptOnly() < 0)
     {
         return -1;
     }
@@ -543,9 +543,9 @@ int ServerConnection::accept()
     return 0;
 }
 
-int ServerConnection::accept(int wait)
+int ServerConnection::acceptOne(int wait)
 {
-    if (sock->accept(wait) != 0)
+    if (sock->acceptOnly(wait) != 0)
         return -1;
     get_dataformat();
     return 0;

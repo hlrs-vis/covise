@@ -20,10 +20,15 @@ ElementManager::~ElementManager()
 // creating a struct
 struct ElementManager::entry
 {
+    entry();
     std::string name;
-    mui::Element* pointer = NULL;
+    mui::Element* pointer;
     bool container;
 };
+ElementManager::entry::entry()
+{
+    pointer = NULL;
+}
 
 // adds element to ElementList
 void ElementManager::addElement(std::string uniqueIdentifier, mui::Element* element)
