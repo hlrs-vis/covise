@@ -410,7 +410,7 @@ void ReadITT::loadData(const char *moleculepath)
 
 #if 0
    // Create Feedback
-   coFeedback feedback("FileBrowser");
+   coFeedback feedback("FileBrowserParam");
    feedback.addPara(m_pParamFile);
    feedback.apply(setPoints);
 #endif
