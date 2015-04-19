@@ -8,6 +8,7 @@
 // C++:
 #include <iostream>
 #include <assert.h>
+#include <cstdlib>
 
 // Covise:
 #include <config/CoviseConfig.h>
@@ -68,16 +69,25 @@ void Widget::initResourcePath()
     if (!resourcePathSet)
     {
         resourcePathSet = true;
-        std::string resPath = covise::coCoviseConfig::getEntry("CUI.ResourcesDirectory");
-        if (!resPath.empty())
+        if (const char *covisedir = getenv("COVISEDIR"))
         {
-            std::string tmpString(resPath);
-            _resourcePath = tmpString + delim;
-            cerr << "CUI.ResourcesDirectory =" << _resourcePath << endl;
+            std::string resPath(covisedir);
+            resPath += "/share/cui/";
+            _resourcePath = resPath;
         }
         else
         {
-            cerr << "Error: CUI.ResourcesDirectory must be set in config file." << endl;
+            std::string resPath = covise::coCoviseConfig::getEntry("CUI.ResourcesDirectory");
+            if (!resPath.empty())
+            {
+                std::string tmpString(resPath);
+                _resourcePath = tmpString + delim;
+                cerr << "CUI.ResourcesDirectory =" << _resourcePath << endl;
+            }
+            else
+            {
+                cerr << "Error: CUI.ResourcesDirectory must be set in config file." << endl;
+            }
         }
     }
 }
