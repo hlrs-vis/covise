@@ -1,5 +1,5 @@
 # @file
-# 
+#
 # CMakeLists.txt for covise renderer OpenCOVER
 #
 # @author Blasius Czink
@@ -9,6 +9,7 @@
 PROJECT(OpenCOVER CXX C)
 
 set(COVISE_EXPORTS_FILE "cover-exports.cmake")
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(COVISE_BUILDING_COVER TRUE)
 
@@ -152,5 +153,4 @@ message("Building for ARCHSUFFIX: ${COVISE_ARCHSUFFIX}, installing to: ${COVISE_
     # && mkdir -p "$@"/Contents/PlugIns \
     # && cp -HR ${OPENSCENEGRAPH_LIBPATH}/osgPlugins-2.9.7/* "$@"/Contents/PlugIns/ \
     # && cp -HR $$COVISEDIR/$$ARCHSUFFIX/lib/OpenCOVER/plugins/* "$@"/Contents/PlugIns/ \
-    # && ${COVISEDIR}/../common/mkspecs/makebundle.sh "$@" 
-    
+    # && ${COVISEDIR}/../common/mkspecs/makebundle.sh "$@"
