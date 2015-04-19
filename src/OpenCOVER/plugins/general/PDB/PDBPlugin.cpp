@@ -959,23 +959,22 @@ osg::Node *PDBPlugin::loadStructure(string &filename)
     std::string fullpath = relativeTempPath + filename;
     cerr << "full path: " << fullpath << endl;
 
-    osgUtil::Optimizer optimizer;
-    osg::Node *node = readNodeFile(fullpath);
-
-    if (node)
+    osg::Node *node = coVRFileManager::instance()->loadFile(fullpath.c_str());
+    if (!node)
     {
-        optimizer.optimize(node, osgUtil::Optimizer::SHARE_DUPLICATE_STATE & osgUtil::Optimizer::MERGE_GEOMETRY & osgUtil::Optimizer::MERGE_GEODES);
-        //node->setName(CARTOON);
-    }
-    else
-    {
-        node = coVRFileManager::instance()->loadFile(fullpath.c_str());
-        if (!node)
+        node = readNodeFile(fullpath.c_str());
+        if (node)
+        {
+            osgUtil::Optimizer optimizer;
+            optimizer.optimize(node, osgUtil::Optimizer::SHARE_DUPLICATE_STATE & osgUtil::Optimizer::MERGE_GEOMETRY & osgUtil::Optimizer::MERGE_GEODES);
+        }
+        else
         {
             cerr << "Error: Loading model" << endl;
             node = new osg::Node();
         }
     }
+
     node->setName(CARTOON);
 
     MatrixTransform *mroot = dynamic_cast<MatrixTransform *>(node);
