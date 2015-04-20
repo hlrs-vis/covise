@@ -586,7 +586,7 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
 
 
     osg::Vec3Array *positionArray = new osg::Vec3Array;
-    //osg::Vec4Array *colorArray = new osg::Vec4Array;
+    osg::Vec4Array *colorArray = new osg::Vec4Array;
     osg::Vec2Array *textureArray = new osg::Vec2Array;
     osg::UShortArray *indexArray = new osg::UShortArray;
 
@@ -606,9 +606,22 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
         int numFaces;
         int NATIVEYRES;
         int NATIVEXRES;
+	float ortholeft=0;
+	float orthoright=1;
+	float sh = 1.0;
         while(!feof(fp))
         {
             fgets(buf,500,fp);
+            if(strncmp(buf,"ORTHO_LEFT",10)==0)
+            {
+                sscanf(buf+10,"%f", &ortholeft);
+	     sh = 1.0 / (orthoright - ortholeft);
+            };
+            if(strncmp(buf,"ORTHO_RIGHT",11)==0)
+            {
+                sscanf(buf+11,"%f", &orthoright);
+	     sh = 1.0 / (orthoright - ortholeft);
+            }
             if(strncmp(buf,"NATIVEXRES",10)==0)
             {
                 sscanf(buf+10,"%d", &NATIVEXRES);
@@ -616,13 +629,14 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
             if(strncmp(buf,"NATIVEYRES",10)==0)
             {
                 sscanf(buf+10,"%d", &NATIVEYRES);
-                float vx,vy,vz,tx,ty;
+                float vx,vy,brightness,tx,ty;
                 for(int i=0;i<numVert;i++)
                 {
                     fgets(buf,500,fp);
-                    sscanf(buf,"%f %f %f %f %f",&vx,&vy,&vz,&tx, &ty);
+                    sscanf(buf,"%f %f %f %f %f",&vx,&vy,&brightness,&tx, &ty);
                     positionArray->push_back(osg::Vec3f(vx/NATIVEXRES,1.0-(vy/NATIVEYRES),0));
-                    textureArray->push_back(osg::Vec2f(tx,ty));
+                    textureArray->push_back(osg::Vec2f((tx-ortholeft)*sh,ty));
+		    colorArray->push_back(osg::Vec4f(brightness/255.0,brightness/255.0,brightness/255.0,1));
                 }
                 int tr[3];
                 for(int i=0;i<numFaces;i++)
@@ -663,12 +677,18 @@ osg::Geode *VRViewer::distortionMesh(const char *fileName)
         indexArray->push_back(1);
         indexArray->push_back(2);
         indexArray->push_back(3);
+	colorArray->push_back(osg::Vec4f(1,1,1,1));
+	colorArray->push_back(osg::Vec4f(1,1,1,1));
+	colorArray->push_back(osg::Vec4f(1,1,1,1));
+	colorArray->push_back(osg::Vec4f(1,1,1,1));
     }
 
      geometry->addPrimitiveSet(drawElement);
     geometry->setTexCoordArray(0,textureArray,osg::Array::BIND_PER_VERTEX);
     geometry->setTexCoordArray(1,textureArray,osg::Array::BIND_PER_VERTEX);
     geometry->setVertexArray(positionArray);
+    geometry->setColorArray(colorArray);
+    geometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX); // colors per vertex for blending
     geode->addDrawable(geometry);
 
 

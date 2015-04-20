@@ -652,7 +652,10 @@ const osg::Matrix &coVRPluginSupport::getPointerMat() const
 {
     //START("coVRPluginSupport::getPointerMat");
 
-    return Input::instance()->getHandMat();
+    if (Input::instance()->hasHand())
+        return Input::instance()->getHandMat();
+    else
+        return getMouseMat();
 }
 
 void coVRPluginSupport::setXformMat(const osg::Matrix &transformMatrix)

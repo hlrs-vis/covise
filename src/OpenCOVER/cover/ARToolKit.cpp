@@ -188,7 +188,9 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                 if (firstTime)
                 {
                     osgDB::ReaderWriter::Options *options = 0;
-                    image = osgDB::readImageFile("/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png", options);
+
+                    std::string testimage = coCoviseConfig::getEntry("COVER.TestImage");
+                    image = osgDB::readImageFile(testimage.c_str(), options);
                     firstTime = false;
                 }
                 glMatrixMode(GL_MODELVIEW);
