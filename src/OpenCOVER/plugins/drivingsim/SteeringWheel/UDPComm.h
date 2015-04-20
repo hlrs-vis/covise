@@ -63,7 +63,7 @@ public:
     // send \0-terminated string
     int send(const char *string);
 
-    int receive(void *buffer, int numBytes); // wait at most 5 seconds for data
+    int receive(void *buffer, int numBytes, double timeout=2.0); // wait by default 2 seconds for data
     // read into buffer
     // returns number of bytes read into buffer or -1
     int readMessage(); // read a Datagram with a maximum size of UDP_COMM_MAX_SIZE;
