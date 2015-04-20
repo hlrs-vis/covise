@@ -62,6 +62,15 @@ void TUITab::activated()
     firstTime = false;
 }
 
+void TUITab::setLabel(QString textl)
+{
+    TUIContainer::setLabel(textl);
+    if (TUIContainer* p = getParent())
+    {
+        p->addElementToLayout(this);
+    }
+}
+
 void TUITab::deActivate(TUITab *activedTab)
 {
 

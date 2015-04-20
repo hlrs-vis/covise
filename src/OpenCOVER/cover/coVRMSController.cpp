@@ -526,7 +526,7 @@ coVRMSController::statisticsCallback(void *, buttonSpecCell *spec)
 void coVRMSController::connectToMaster(const char *addr, int port)
 {
     Host h(addr);
-    socket = new Socket(&h, port, 200);
+    socket = new Socket(&h, port, 200,10);
 
     int port2;
     readMaster(&port2, sizeof(port2), true);

@@ -1861,7 +1861,7 @@ int coTUISGBrowserTab::openServer()
     conn = NULL;
 
     ServerConnection *sConn = new ServerConnection(&texturePort, 0, (sender_type)0);
-
+    sConn->listen();
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_TEX_PORT;
@@ -1870,7 +1870,7 @@ int coTUISGBrowserTab::openServer()
 
     coTabletUI::instance()->send(tb);
 
-    if (sConn->accept(60) < 0)
+    if (sConn->acceptOne(60) < 0)
     {
         fprintf(stderr, "Could not open server port %d\n", texturePort);
         delete sConn;
@@ -4762,6 +4762,7 @@ coTabletUI *coTabletUI::instance()
 coTUIElement::coTUIElement(const std::string &n, int pID)
     : QObject(0)
 {
+    abort();
     xs = -1;
     ys = -1;
     xp = 0;
@@ -4772,6 +4773,7 @@ coTUIElement::coTUIElement(const std::string &n, int pID)
     ID = coTabletUI::instance()->getID();
     coTabletUI::instance()->addElement(this);
     listener = NULL;
+    hidden = false;
 }
 
 coTUIElement::coTUIElement(const std::string &n, int pID, int type)
@@ -4788,6 +4790,7 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     coTabletUI::instance()->addElement(this);
     listener = NULL;
     createSimple(type);
+    hidden = false;
 }
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
@@ -4803,6 +4806,7 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     ID = coTabletUI::instance()->getID();
     coTabletUI::instance()->addElement(this);
     listener = NULL;
+    hidden = false;
 }
 
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int type)
@@ -4819,6 +4823,7 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     coTabletUI::instance()->addElement(this);
     listener = NULL;
     createSimple(type);
+    hidden = false;
 }
 
 coTUIElement::~coTUIElement()

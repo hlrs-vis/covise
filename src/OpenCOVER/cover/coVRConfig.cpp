@@ -106,6 +106,7 @@ coVRConfig::coVRConfig()
         constantFrameRate = true;
         constFrameTime = 1.0f / frameRate;
     }
+    m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
     m_freeze = coCoviseConfig::isOn("COVER.Freeze", true);
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
@@ -601,6 +602,10 @@ float coVRConfig::worldAngle() const
     return m_worldAngle;
 }
 
+int coVRConfig::lockToCPU() const
+{
+    return m_lockToCPU;
+}
 int coVRConfig::numScreens() const
 {
     return m_numScreens;

@@ -184,6 +184,7 @@ void AccessGridDaemon::startCovise()
     char cport[200];
     int sPort;
     toController = new ServerConnection(&sPort, 0, (sender_type)0);
+    toController->listen();
     sprintf(cport, "%d", sPort);
 
 #ifdef _WIN32
@@ -201,7 +202,7 @@ void AccessGridDaemon::startCovise()
         signal(SIGCHLD, SIG_IGN);
     }
 #endif
-    toController->accept();
+    toController->acceptOne();
     connections->add(toController); //add new connection;
     cerr << "add" << toController;
 }

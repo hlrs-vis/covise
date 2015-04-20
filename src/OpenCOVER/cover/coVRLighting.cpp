@@ -56,7 +56,17 @@ coVRLighting *coVRLighting::instance()
 }
 
 coVRLighting::coVRLighting()
-    : light1(NULL)
+    : lightingButton_(NULL)
+    , lightingMenu_(NULL)
+    , switchHeadlight_(NULL)
+    , headlightState(true)
+    , switchOtherlights_(NULL)
+    , otherlightsState(false)
+    , switchSpecularlight_(NULL)
+    , specularlightState(true)
+    , switchSpotlight_(NULL)
+    , spotlightState(false)
+    , light1(NULL)
     , light2(NULL)
     , headlight(NULL)
     , spotlight(NULL)
@@ -100,8 +110,8 @@ void coVRLighting::config()
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRLighting::readConfigFile\n");
 
-    spotON = coCoviseConfig::isOn("COVER.Spotlight", false);
-    specularlightState = coCoviseConfig::isOn("COVER.Specular", true);
+    spotlightState = coCoviseConfig::isOn("COVER.Spotlight", spotlightState);
+    specularlightState = coCoviseConfig::isOn("COVER.Specular", specularlightState);
 }
 
 void coVRLighting::initSunLight()
@@ -132,7 +142,7 @@ void coVRLighting::initSunLight()
             ((osg::Light *)headlight->getLight())->setSpecular(osg::Vec4(0, 0, 0, 1));
 
         addLight(headlight);
-        headlightState = coCoviseConfig::isOn("COVER.Headlight", true);
+        headlightState = coCoviseConfig::isOn("COVER.Headlight", headlightState);
         switchLight(headlight, headlightState);
     }
 }
@@ -194,16 +204,7 @@ void coVRLighting::initLampLight()
         addLight(spotlight, VRSceneGraph::instance()->getHandTransform());
         // turn on/off spotlight according to covise.config setting
         // COVERConfig.SPOTLIGHT
-        if (spotON)
-        {
-            switchLight(spotlight, true);
-            spotlightState = true;
-        }
-        else
-        {
-            switchLight(spotlight, false);
-            spotlightState = false;
-        }
+        switchLight(spotlight, spotlightState);
     }
 }
 

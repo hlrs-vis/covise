@@ -62,6 +62,7 @@ TrackingBody::TrackingBody(const std::string &name)
     osg::Matrix translationMat;
     translationMat.makeTranslate(trans[0], trans[1], trans[2]);
     m_deviceOffsetMat.postMult(translationMat); //add translation
+    m_mat = m_deviceOffsetMat;
 }
 
 /**

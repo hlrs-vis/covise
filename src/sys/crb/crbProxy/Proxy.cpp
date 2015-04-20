@@ -80,6 +80,7 @@ Proxy::Proxy(char *messageData, CRBConnection *crbC)
     moduleConn = new ServerConnection(&serverPort, id, APPLICATIONMODULE);
     if (!moduleConn->is_connected())
         return;
+    moduleConn->listen();
     for (i = 0; i < n; i++)
     {
         if (i == offset)
@@ -105,7 +106,7 @@ Proxy::Proxy(char *messageData, CRBConnection *crbC)
     crbConn->toCrb->send_msg(msg);
     msg->data = NULL;
     delete msg;
-    if (moduleConn->accept(60) < 0)
+    if (moduleConn->acceptOne(60) < 0)
     {
         delete moduleConn;
         moduleConn = NULL;

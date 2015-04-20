@@ -78,7 +78,6 @@ public:
 
     osg::LightSource *light1;
     osg::LightSource *light2;
-    int spotON;
 
     // rescue values of specular lights
     osg::Vec4 headlightSpec, light1Spec, light2Spec, spotlightSpec;

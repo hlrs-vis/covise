@@ -417,6 +417,7 @@ void RemoteDaemon::startCovise()
     char cport[200];
     int sPort;
     toController = new SimpleServerConnection(&sPort, 0, (sender_type)0);
+    toController->listen();
     sprintf(cport, "%d", sPort);
 
 #ifdef _WIN32
@@ -434,7 +435,7 @@ void RemoteDaemon::startCovise()
         signal(SIGCHLD, SIG_IGN);
     }
 #endif
-    toController->accept();
+    toController->acceptOne();
     connections->add(toController); //add new connection;
     cerr << "add" << toController;
 }

@@ -50,6 +50,7 @@ AppModule *Controller::start_datamanager(const string &name)
 
     module_count += 2;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
+    conn->listen();
     if (!conn->is_connected())
         return NULL;
 
@@ -135,7 +136,7 @@ AppModule *Controller::start_datamanager(const string &name)
 
     {
         Host thisHost;
-        if (conn->accept(CTRLHandler::instance()->Config->gettimeout_ip(thisHost.get_ipv4())) < 0)
+        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(thisHost.get_ipv4())) < 0)
         {
             delete conn;
             cerr << "* timelimit in accept for crb exceeded!!" << endl;
@@ -170,6 +171,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
     ServerConnection *conn = new ServerConnection(&port, module_count - 1, CONTROLLER);
     if (!conn->is_connected())
         return NULL;
+    conn->listen();
 
     sprintf(remote_command, ""
                             "%s %d %s %d"
@@ -206,7 +208,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         list_of_connections->add(tmp_conn);
     }
 #endif
-    if (conn->accept(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
+    if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
     {
         delete conn;
         cerr << "* timelimit in accept for crb exceeded!!" << endl;
@@ -236,7 +238,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
     ServerConnection *conn = new ServerConnection(&port, module_count - 1, CONTROLLER);
     if (!conn->is_connected())
         return NULL;
-
+    conn->listen();
     if (exec_type == COVISE_MANUAL)
     {
         char text[1000];
@@ -474,11 +476,10 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
 #endif
     }
     if (exec_type == COVISE_MANUAL)
-        conn->accept(-1);
-
+        conn->acceptOne(-1);
     else
     {
-        if (conn->accept(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
+        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
         {
             cerr << "* timelimit in accept for crb exceeded!!" << endl;
             delete conn;
@@ -503,7 +504,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
     if (!conn->is_connected())
         return NULL;
-
+    conn->listen();
     Host localhost("127.0.0.1");
     Host *h = host->getAddress() == dmod->get_host()->getAddress()
                   ? &localhost
@@ -541,7 +542,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     msg->data = NULL;
     delete msg;
 
-    if (conn->accept(timeout) < 0)
+    if (conn->acceptOne(timeout) < 0)
     {
         cerr << "* timelimit in accept for module " << name << " exceeded!!" << endl;
         delete conn;
@@ -566,7 +567,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
     if (!conn->is_connected())
         return NULL;
-
+    conn->listen();
     // when starting a renderer ask crb if a plugin is possible and get the right name
     // do this only if an userinterface exists
     bool flag = false;
@@ -646,7 +647,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 
     delete msg;
 
-    if (conn->accept(timeout) < 0)
+    if (conn->acceptOne(timeout) < 0)
     {
         cerr << "** timelimit in accept for module " << name << " exceeded!!" << endl;
         delete conn;
@@ -671,7 +672,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
     if (!conn->is_connected())
         return NULL;
-
+    conn->listen();
     // when starting a renderer ask crb if a plugin is possible and get the right name
     // do this only if an userinterface exists
     bool flag = false;
@@ -764,7 +765,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 
     delete msg;
 
-    if (conn->accept(timeout) < 0)
+    if (conn->acceptOne(timeout) < 0)
     {
         cerr << "*** timelimit in accept for module " << name << " exceeded!!" << endl;
         delete conn;

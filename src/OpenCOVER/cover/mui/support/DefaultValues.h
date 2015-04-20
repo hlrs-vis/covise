@@ -10,25 +10,28 @@ namespace mui
 // Default-values can easily be changed here
 enum AttributesEnum
 {
-    VisibleEnum = 1,
-    ParentEnum = 2,
-    LabelEnum = 3,
-    DeviceEnum = 4,
-    PosXEnum = 5,
-    PosYEnum = 6,
-    MainWindowEnum =7
+    VisibleEnum = 0,
+    ParentEnum = 1,
+    LabelEnum = 2,
+    DeviceEnum = 3,
+    PosXEnum = 4,
+    PosYEnum = 5
 };
 enum DeviceTypesEnum
 {
-    TabletEnum = 1,
-    CAVEEnum = 2,
-    PhoneEnum = 3,
-    PowerwallEnum = 4
+    TabletEnum = 0,
+    CAVEEnum = 1,
+    PhoneEnum = 2,
+    PowerwallEnum = 3,
+
+    muiDeviceCounter = 4        // last element of this Enum; needet to loop over all enums
 };
 enum UITypeEnum
 {
-    TUIEnum = 1,
-    VRUIEnum = 2
+    TUIEnum = 0,
+    VRUIEnum = 1,
+
+    muiUICounter = 2            // last element of this Enum; needet to loop over all enums
 };
 
 std::string getKeywordUI(mui::UITypeEnum UI);

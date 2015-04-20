@@ -4,7 +4,6 @@
 #include <vector>
 #include <iostream>
 #include "../Container.h"
-#include "../Widget.h"
 #include <boost/smart_ptr.hpp>
 
 namespace mui
@@ -15,7 +14,7 @@ private:
     // variables, structures etc.
     struct entry;
 
-    std::vector <entry> ElementList;
+    std::vector <entry> elementList;
 
 public:
     // constructor und destructor:
@@ -23,14 +22,12 @@ public:
     ~ElementManager();
 
     // methods for access
-    void addElement(std::string UniqueIdentifier, Container* Parent);
-    void addElement(std::string UniqueIdentifier, Widget* Widget);
-    void removeElement(std::string UniqueIdentifier);
-    Container* getContainerByIdentifier(std::string UniqueIdentifier);
-    Widget* getWidgetByIdentifier(std::string UniqueIdentifier);
-    void deleteEntry(std::string UniqueiIdentifier);
+    void addElement(std::string uniqueIdentifier, mui::Element* element);
+    void removeElement(std::string uniqueIdentifier);
+    mui::Element* getElementByIdentifier(std::string uniqueIdentifier);
+    void deleteEntry(std::string uniqueiIdentifier);
     void printNames();
-    bool isContainer(const std::string UniqueIdentifier);
+    bool isContainer(const std::string uniqueIdentifier);
 };
 }
 
