@@ -938,7 +938,7 @@ BicyclePlugin::run()
     doStop = false;
     while (running)
     {
-        usleep(20000);
+        usleep(5000);
         tacx->update();
     }
 }

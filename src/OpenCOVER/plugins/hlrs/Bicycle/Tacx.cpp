@@ -10,6 +10,8 @@
 #include "UDPComm.h"
 #include <config/CoviseConfig.h>
 
+static float zeroAngle = 1152.;
+
 int Tacx::usbGetStringAscii(usb_dev_handle *dev, int index, int langid, char *buf, int buflen)
 {
     char buffer[2000];
@@ -175,7 +177,7 @@ void Tacx::init()
 {
     if (covise::coCoviseConfig::isOn("Bicycle.udp", true))
     {
-        const std::string host = covise::coCoviseConfig::getEntry("value", "Bicycle.serverHost", "140.221.243.17");
+        const std::string host = covise::coCoviseConfig::getEntry("value", "Bicycle.serverHost", "141.58.8.171");
         unsigned short localPort = covise::coCoviseConfig::getInt("Bicycle.localPort", 31445);
         unsigned short serverPort = covise::coCoviseConfig::getInt("Bicycle.serverPort", 31444);
         std::cerr << "Tacx config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
@@ -332,4 +334,28 @@ void Tacx::update()
             n++;
         }
     }
+}
+
+float Tacx::getAngle()
+{
+    float angle = (vrdata.Lenkwinkel - zeroAngle) / 300.0;
+    if (angle < 0.) {
+       return -angle*angle;
+    } 
+    else
+    {   
+       return angle*angle;
+    }
+} // -1 - 1 min-max
+
+int Tacx::getButtons()
+{
+    if (vrdata.tasten & 0x4)
+    {
+        // arrow up
+        zeroAngle = vrdata.Lenkwinkel;
+        std::cerr << "reset Lenkwinkel to " << vrdata.Lenkwinkel << std::endl;
+    }
+
+    return vrdata.tasten & 0xb;
 }
