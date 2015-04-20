@@ -2,7 +2,7 @@
 
 #include <cover/mui/ToggleButton.h>
 #include <cover/mui/Tab.h>
-#include <cover/mui/PotiSlider.h>
+#include <cover/mui/ValueRegulator.h>
 #include <cover/mui/Frame.h>
 #include <cover/mui/support/ConfigManager.h>
 #include <cover/mui/LabelElement.h>
@@ -41,7 +41,7 @@ bool UserInterface::init()
     Button2->setPos(1,0);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
     // create new PotiSlider in Tab1
-    Slider1.reset(mui::PotiSlider::create("plugins.examples.UserInterface.Slider1", Tab1.get(), 0., 100., 50.));
+    Slider1.reset(mui::ValueRegulator::create("plugins.examples.UserInterface.Slider1", Tab1.get(), 0., 100., 50.));
     Slider1->setLabel("Slider1");
     Slider1->setPos(0,1);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
 

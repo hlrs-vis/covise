@@ -173,7 +173,7 @@ SET(MUI_SOURCES
   mui/Container.cpp
   mui/Frame.cpp
   mui/LabelElement.cpp
-  mui/PotiSlider.cpp
+  mui/ValueRegulator.cpp
   mui/Tab.cpp
   mui/TabFolder.cpp
   mui/ToggleButton.cpp
@@ -190,7 +190,7 @@ SET(MUI_HEADERS
   mui/Container.h
   mui/Frame.h
   mui/LabelElement.h
-  mui/PotiSlider.h
+  mui/ValueRegulator.h
   mui/Tab.h
   mui/TabFolder.h
   mui/ToggleButton.h
