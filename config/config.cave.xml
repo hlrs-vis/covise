@@ -3,6 +3,9 @@
 <COCONFIG version="1" >
 
  <LOCAL host="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60" >  
+   <Bicycle>
+        <udp value="on"/>
+   </Bicycle>
    <COVER>
      <!--Background r="1" g="1" b="1" /-->
      <Console arch="windows" value="true" file="c:\OpenCOVER" />
