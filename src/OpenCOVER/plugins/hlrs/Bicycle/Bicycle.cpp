@@ -381,11 +381,8 @@ void VrmlNodeBicycle::render(Viewer *)
     }
     d_button.set(buttonState);
 
-    if (coVRMSController::instance()->isMaster())
-    {
-        eventOut(timeStamp, "bikeTranslation", d_bikeTranslation);
-        eventOut(timeStamp, "bikeRotation", d_bikeRotation);
-    }
+    eventOut(timeStamp, "bikeTranslation", d_bikeTranslation);
+    eventOut(timeStamp, "bikeRotation", d_bikeRotation);
     if (d_button.get() != oldButtonState)
     {
         oldButtonState = d_button.get();
