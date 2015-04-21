@@ -95,8 +95,7 @@ static int getch()
 #endif
 
 MSEventHandler::MSEventHandler()
-: numEventsToSync(0)
-, handleTerminal(true)
+: handleTerminal(true)
 , keyboardFd(-1)
 , notifyFd(-1)
 , watchFd(-1)
@@ -163,6 +162,7 @@ bool MSEventHandler::openEvdev()
 
 void MSEventHandler::update()
 {
+    int numEventsToSync = 0;
     if (coVRMSController::instance()->isMaster())
     {
 #ifndef _WIN32
@@ -200,16 +200,9 @@ void MSEventHandler::update()
                 {
                     mod |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
                 }
-
-                eventBuffer[numEventsToSync] = osgGA::GUIEventAdapter::KEYDOWN;
-                modBuffer[numEventsToSync] = mod;
-                keyBuffer[numEventsToSync] = key;
-                ++numEventsToSync;
-
-                eventBuffer[numEventsToSync] = osgGA::GUIEventAdapter::KEYUP;
-                modBuffer[numEventsToSync] = mod;
-                keyBuffer[numEventsToSync] = key;
-                ++numEventsToSync;
+		
+		eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYDOWN, mod, key));
+		eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYUP, mod, key));
             }
         }
 #endif
@@ -264,33 +257,31 @@ void MSEventHandler::update()
             int ret = 0;
             while ((ret = read(keyboardFd, &ev, sizeof(ev))) == sizeof(ev))
             {
-                keyBuffer[numEventsToSync] = 0;
-                modBuffer[numEventsToSync] = 0;
-                eventBuffer[numEventsToSync] = 0;
+		Event event;
 
                 if (ev.type == EV_KEY)
                 {
                     bool handled = false;
 #define LETTER(x) \
                     case KEY_##x: \
-                                  keyBuffer[numEventsToSync] = #x[0] - 'A' + 'a'; \
+                                  event.key = #x[0] - 'A' + 'a'; \
                     handled = true; \
                     break;
 #define FUNC(x) \
                     case KEY_F##x: \
-                                   keyBuffer[numEventsToSync] = 0xffbe /*osgGA::GUIEventAdapter::KEY_F1*/ + x - 1; \
+                                   event.key = 0xffbe /*osgGA::GUIEventAdapter::KEY_F1*/ + x - 1; \
                     handled = true; \
                     break;
 
 #define NUM(x) \
                     case KEY_##x: \
-                                  keyBuffer[numEventsToSync] = #x[0]; \
+                                  event.key = #x[0]; \
                     handled = true; \
                     break;
 
 #define KP(x) \
                     case KEY_KP##x: \
-                                    keyBuffer[numEventsToSync] = #x[0]; \
+                                    event.key = #x[0]; \
                     handled = true; \
                     break;
 
@@ -372,37 +363,37 @@ void MSEventHandler::update()
                             FUNC(24)
 
                         case KEY_SPACE:
-                            keyBuffer[numEventsToSync] = ' ';
+                            event.key = ' ';
                             handled = true;
                             break;
 
                         case KEY_COMMA:
-                            keyBuffer[numEventsToSync] = ',';
+                            event.key = ',';
                             handled = true;
                             break;
 
                         case KEY_DOT:
-                            keyBuffer[numEventsToSync] = '.';
+                            event.key = '.';
                             handled = true;
                             break;
 
                         case KEY_SLASH:
-                            keyBuffer[numEventsToSync] = '/';
+                            event.key = '/';
                             handled = true;
                             break;
 
                         case KEY_ESC:
-                            keyBuffer[numEventsToSync] = 27;
+                            event.key = 27;
                             handled = true;
                             break;
 
                         case KEY_SEMICOLON:
-                            keyBuffer[numEventsToSync] = ';';
+                            event.key = ';';
                             handled = true;
                             break;
 
                         case KEY_APOSTROPHE:
-                            keyBuffer[numEventsToSync] = '\'';
+                            event.key = '\'';
                             handled = true;
                             break;
 
@@ -427,28 +418,28 @@ void MSEventHandler::update()
 
                     if (ev.value == 0)
                     {
-                        eventBuffer[numEventsToSync] = osgGA::GUIEventAdapter::KEYUP;
+                        event.event = osgGA::GUIEventAdapter::KEYUP;
                         if (modifierBit)
                             modifierState &= ~modifierBit;
                     }
                     else if (ev.value == 1)
                     {
-                        eventBuffer[numEventsToSync] = osgGA::GUIEventAdapter::KEYDOWN;
+                        event.event = osgGA::GUIEventAdapter::KEYDOWN;
                         if (modifierBit)
                             modifierState |= modifierBit;
                     }
 
                     if (modifierState & osgGA::GUIEventAdapter::MODKEY_SHIFT)
                     {
-                        if (keyBuffer[numEventsToSync] >= 'a' && keyBuffer[numEventsToSync] <= 'z')
-                            keyBuffer[numEventsToSync] += 'A' - 'a';
+                        if (event.key >= 'a' && event.key <= 'z')
+                            event.key += 'A' - 'a';
                     }
 
-                    modBuffer[numEventsToSync] = modifierState;
+                    event.mod = modifierState;
 
                     if (handled)
                     {
-                        ++numEventsToSync;
+                        eventQueue.push_back(event);
                     }
                 }
             }
@@ -460,12 +451,11 @@ void MSEventHandler::update()
 #endif
 #endif
 
+        numEventsToSync = eventQueue.size();
         coVRMSController::instance()->sendSlaves((char *)&numEventsToSync, sizeof(int));
         if (numEventsToSync)
         {
-            coVRMSController::instance()->sendSlaves((char *)&eventBuffer, numEventsToSync * sizeof(int));
-            coVRMSController::instance()->sendSlaves((char *)&keyBuffer, numEventsToSync * sizeof(int));
-            coVRMSController::instance()->sendSlaves((char *)&modBuffer, numEventsToSync * sizeof(int));
+            coVRMSController::instance()->sendSlaves((char *)&eventQueue[0], numEventsToSync * sizeof(eventQueue[0]));
         }
     }
     else
@@ -475,113 +465,99 @@ void MSEventHandler::update()
             cerr << "numEventsToSync not read message from Master" << endl;
             exit(1);
         }
+        eventQueue.resize(numEventsToSync);
         if (numEventsToSync)
         {
-            if (coVRMSController::instance()->readMaster((char *)&eventBuffer, numEventsToSync * sizeof(int)) < 0)
+            if (coVRMSController::instance()->readMaster((char *)&eventQueue[0], numEventsToSync * sizeof(eventQueue[0])) < 0)
             {
-                cerr << "numEventsToSync not read message from Master" << endl;
-                exit(1);
-            }
-            if (coVRMSController::instance()->readMaster((char *)&keyBuffer, numEventsToSync * sizeof(int)) < 0)
-            {
-                cerr << "numEventsToSync not read message from Master" << endl;
-                exit(1);
-            }
-            if (coVRMSController::instance()->readMaster((char *)&modBuffer, numEventsToSync * sizeof(int)) < 0)
-            {
-                cerr << "numEventsToSync not read message from Master" << endl;
+                cerr << "events not read message from Master" << endl;
                 exit(1);
             }
         }
     }
 
-    int index = 0;
-    while (index < numEventsToSync)
+    size_t index = 0;
+    while (index < eventQueue.size())
     {
-        int currentEvent = eventBuffer[index];
-        OpenCOVER::instance()->handleEvents(currentEvent, modBuffer[index], keyBuffer[index]);
+        const Event &event = eventQueue[index];
+        OpenCOVER::instance()->handleEvents(event.event, event.mod, event.key);
         index++;
         // Delay rest of the buffer in case of: push/release/doubleclick/keydown/keyup
         // Tablets sometimes send push and release in one frame which would not work properly overwise.
         // Idea: It might be better to delay before the push- and release-events (in case it is not the first event in the queue).
         //       Then a change in position () can fully be processed before the click event arrives.
-        if ((currentEvent == 1) || (currentEvent == 2) || (currentEvent == 4) || (currentEvent == 32) || (currentEvent == 64))
+        if ((event.event == 1) || (event.event == 2) || (event.event == 4) || (event.event == 32) || (event.event == 64))
         {
-            for (int i = index; i < numEventsToSync; i++)
-            {
-                eventBuffer[i - index] = eventBuffer[i];
-                modBuffer[i - index] = modBuffer[i];
-                keyBuffer[i - index] = keyBuffer[i];
-            }
             break;
         }
     }
-    numEventsToSync -= index;
+    eventQueue.erase(eventQueue.begin(), eventQueue.begin()+index);
 }
 
 bool MSEventHandler::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &)
 {
-    eventBuffer[numEventsToSync] = ea.getEventType();
+    Event ev(ea.getEventType(), 0, 0);
+
     switch (ea.getEventType())
     {
     case (osgGA::GUIEventAdapter::SCROLL):
     {
-        modBuffer[numEventsToSync] = ea.getScrollingMotion();
-        numEventsToSync++;
+        ev.mod = ea.getScrollingMotion();
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::PUSH):
     {
-        modBuffer[numEventsToSync] = ea.getButtonMask();
-        numEventsToSync++;
+        ev.mod = ea.getButtonMask();
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::DRAG):
     {
         //modBuffer[numEventsToSync] = (int) (((ea.getXnormalized()+1.0)/2.0) * cover->windows[0].sx);
         //keyBuffer[numEventsToSync] = (int) (((ea.getYnormalized()+1.0)/2.0) * cover->windows[0].sy);
-        modBuffer[numEventsToSync] = (int)(ea.getX() - ea.getXmin());
-        keyBuffer[numEventsToSync] = (int)(ea.getY() - ea.getYmin());
-        numEventsToSync++;
+        ev.mod = (int)(ea.getX() - ea.getXmin());
+        ev.key = (int)(ea.getY() - ea.getYmin());
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::MOVE):
     {
-        modBuffer[numEventsToSync] = (int)(ea.getX() - ea.getXmin());
-        keyBuffer[numEventsToSync] = (int)(ea.getY() - ea.getYmin());
-        numEventsToSync++;
+        ev.mod = (int)(ea.getX() - ea.getXmin());
+        ev.key = (int)(ea.getY() - ea.getYmin());
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::RELEASE):
     {
-        modBuffer[numEventsToSync] = ea.getButtonMask();
-        numEventsToSync++;
+        ev.mod = ea.getButtonMask();
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::DOUBLECLICK):
     {
-        modBuffer[numEventsToSync] = ea.getButtonMask();
-        numEventsToSync++;
+        ev.mod = ea.getButtonMask();
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::KEYDOWN):
     {
-        modBuffer[numEventsToSync] = ea.getModKeyMask();
-        keyBuffer[numEventsToSync] = ea.getKey();
-        numEventsToSync++;
+        ev.mod = ea.getModKeyMask();
+        ev.key = ea.getKey();
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::KEYUP):
     {
-        modBuffer[numEventsToSync] = ea.getModKeyMask();
-        keyBuffer[numEventsToSync] = ea.getKey();
-        numEventsToSync++;
+        ev.mod = ea.getModKeyMask();
+        ev.key = ea.getKey();
+        eventQueue.push_back(ev);
         return true;
     }
     case (osgGA::GUIEventAdapter::USER):
     {
-        modBuffer[numEventsToSync] = ea.getModKeyMask();
-        numEventsToSync++;
+        ev.mod = ea.getModKeyMask();
+        eventQueue.push_back(ev);
         return true;
     }
     default:
