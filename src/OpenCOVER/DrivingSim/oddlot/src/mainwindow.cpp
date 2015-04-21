@@ -777,15 +777,16 @@ MainWindow::importIntermapRoad()
 void
 MainWindow::importCSVRoad()
 {
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
 
-        ProjectWidget *project = getActiveProject();
-        if (project == NULL)
-        {
-            project = createProject();
-        }
 
         if (project->importCSVFile(fileName))
         {
@@ -806,6 +807,7 @@ MainWindow::importOSMRoad()
     if (project == NULL)
     {
         project = createProject();
+        project->newFile();
     }
     osmi->setProject(project);
     osmi->exec();

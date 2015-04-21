@@ -354,6 +354,7 @@ ProjectWidget::newFile()
     // Create a Tile
     Tile *tile = new Tile("Tile0", "0");
     projectData_->getTileSystem()->addTile(tile);
+    projectData_->getTileSystem()->setCurrentTile(tile);
 
     // Mark this file as untitled and modified.
     isUntitled_ = true;
