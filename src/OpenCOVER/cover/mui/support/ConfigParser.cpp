@@ -117,8 +117,8 @@ std::pair<DOMNode*,bool> ConfigParser::getDeviceEntryNode(mui::UITypeEnum UI, mu
         {
             std::string keywordUI = getKeywordUI(UI);
             DOMElement* nodeElement=static_cast<DOMElement*>(nodeList->item(i));               // transform node to element
-
-            if (XMLString::transcode(nodeElement->getTagName()) == keywordUI.c_str())
+            std::string tagName = XMLString::transcode(nodeElement->getTagName());
+            if (tagName == keywordUI)
             {
                 std::string keywordDevice = mui::getKeywordAttribute(mui::DeviceEnum);
 
@@ -145,7 +145,8 @@ std::pair<DOMElement*, bool> ConfigParser::getElement(string UniqueIdentifier, D
         if (DeviceNodeChilds->item(i)->getNodeType() == DOMNode::ELEMENT_NODE)      // Node is ElementNode
         {
             DOMElement* nodeElement = static_cast<DOMElement*>(DeviceNodeChilds->item(i));
-            if (XMLString::transcode(nodeElement->getTagName()) == UniqueIdentifier.c_str())    // match in TagName
+            std::string tagName = XMLString::transcode(nodeElement->getTagName());
+            if (tagName == UniqueIdentifier)    // match in TagName
             {
                 returnValue.second = true;
                 returnValue.first = nodeElement;
