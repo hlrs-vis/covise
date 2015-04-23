@@ -256,17 +256,22 @@ SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.
 CONFIGURE_FILE("${COVISEDIR}/cmake/CoviseHelperMacros.cmake" "${CMAKE_BINARY_DIR}/cmake/CoviseHelperMacros.cmake" COPYONLY)
 INSTALL(DIRECTORY "${CMAKE_BINARY_DIR}/cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}")
 
-INSTALL(FILES .covise .covise.sh .covise-functions.sh .env .env.sh 
-              README-3rd-party.txt README-ARCHSUFFIX.txt
+INSTALL(FILES .covise .covise.sh
               DESTINATION .)
 
-INSTALL(FILES config/config.xml config/config-colormaps.xml
+INSTALL(FILES config/config.xml config/config-colormaps.xml config/config-ar.xml
         DESTINATION config)
 
-INSTALL(DIRECTORY share CgPrograms bin bitmaps icons materials scripts doc/pdf doc/html
+INSTALL(DIRECTORY share bin scripts
         USE_SOURCE_PERMISSIONS
         DESTINATION .
         REGEX "${install_files_exclude}" EXCLUDE)
+
+INSTALL(FILES
+    README.md README-3rd-party.txt README-ARCHSUFFIX.txt
+    DESTINATION share/doc/covise)
+#INSTALL(DIRECTORY doc/pdf doc/html
+#   DESTINATION share/doc/covise)
 
 # in order to have an "uninstall" target
 CONFIGURE_FILE(
