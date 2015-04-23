@@ -40,7 +40,6 @@ Filter/PartSelect:  Select one Part
 Filter/PolyBoundaryLines:  Extract Boundary Lines of Polygons
 Filter/PurgeCoords:  Remove unused Coordinates
 Filter/ReduceSet:  Skip data in transient datasets
-Filter/Register:  
 Filter/SelectUsg:  Select parts from unstructured grids
 Filter/SimplifySurface:  Surface simplification with optional data
 Filter/SmoothSurface:  Smoothing of a polygonal surface
@@ -59,6 +58,12 @@ IO/CoverDocument:  Cover Document Viewer access module
 IO/ExtractTexCoords:  extract texture coords of polygon objects for LIC
 IO/GenDat:  Generate data
 IO/LoadCadData:  Read CAD data
+IO_Module/ReadIhs:  Read data from Ihs FENFLOSS
+IO_Module/ReadIHS2:  Read data from Ihs FENFLOSS
+IO_Module/ReadIhsGeo:  Read data from Ihs FENFLOSS
+IO_Module/ReadIhsGrid:  Read data from Ihs FENFLOSS
+IO_Module/ReadTecplot:  Tecplot file reader V 1.0b
+IO_Module/SGen_ihs:  IHS Schaufelgenerator
 IO/PerformerScene:  Fake read for Performer Models
 IO/ReadA3R:  Simple ReadA3R Generation Module
 IO/ReadABAQUS:  Read odb ABAQUS-files
@@ -82,7 +87,9 @@ IO/ReadEAS:  Read iag EAS mesh and data
 IO/ReadElmer:  Read Elmer Data
 IO/ReadEnsight:  Reader for ENSIGHT 6 - type formats - Version 1.0
 IO/ReadFamu:  Read ITE FAMU
+IO/ReadFconfig:  ReadFconfig Simulation
 IO/ReadFidap:  Read data from Ihs FENFLOSS
+IO/ReadFieldView:  Read FieldView mesh and data
 IO/ReadFluent:  Read Fluent data
 IO/ReadFoam:  Read FOAM Data
 IO/ReadHyperMesh:  Read Altair HyperMesh files
@@ -137,7 +144,7 @@ IO/RWCoviseGroup:  Read/Write group of COVISE files
 IO/WriteASC:  Generate ASCII file from Covise Object
 IO/WriteCGNS:  Write Unstructured Grid to cgns file
 IO/WritePatran:  Writing of Geometry in Patran Format
-IO/WritePolygon:  Read/write COVISE ASCII files
+IO/WritePolygon:  Write Stl or VRML97 files
 IO/WriteVolume:  Write volume files or create 2D slice images.
 IO/WriteVTK:  Write any type of vtk dataset to file
 Mapper/AtomColors:  Map colors to atoms
@@ -155,12 +162,6 @@ Obsolete/TetraVolume:  compute volumes of tetrahedrons
 Obsolete/TracerUsg:  Generate streamlines from an unstr. data set
 Renderer/IvRenderer:  OpenInventor 2.0 Renderer
 Renderer/OpenCOVER:  VR-Renderer
-VR-Renderer
-VR-Renderer
-VR-Renderer
-VR-Renderer
-VR-Renderer
-VR-Renderer
 Renderer/Plot:  XMGR Plot Module
 Renderer/QtRenderer:  
 Renderer/VRMLRenderer:  VRML Renderer
@@ -170,7 +171,8 @@ Simulation/CoolEmAllSimulation:  CoolEmAllSimulation; starts shell script to run
 Simulation/CoolEmAllToDatabase:  CoolEmAllToDatabase, world! program
 Simulation/Frieder:  Frieder Simulation Interface
 Simulation/weather:  Rainer Kellers Klimate Simulation Interface
-Template/Module:  Template module
+Test/ReadVTU:  Reads (a set) of VTK-files
+Test/TxtReader:  No description given
 Tools/Animate:  Rotate timedependent grid and velocities
 Tools/AtomRadii:  Map colors to atoms
 Tools/BlockCollect:  create one big set out of many many little ones
