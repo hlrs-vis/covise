@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0.0
+Encoding=UTF-8
+Name=OpenCOVER Tablet UI
+GenericName=OpenCOVER Tablet UI
+Exec=tabletUI
+Comment=user interface for OpenCOVER on a tablet PC
+Icon=hlrs-cover
+Terminal=false
+Categories=Qt;Graphics;Science;DataVisualization;
