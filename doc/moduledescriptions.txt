@@ -58,12 +58,12 @@ IO/CoverDocument:  Cover Document Viewer access module
 IO/ExtractTexCoords:  extract texture coords of polygon objects for LIC
 IO/GenDat:  Generate data
 IO/LoadCadData:  Read CAD data
-IO_Module/ReadIhs:  Read data from Ihs FENFLOSS
-IO_Module/ReadIHS2:  Read data from Ihs FENFLOSS
-IO_Module/ReadIhsGeo:  Read data from Ihs FENFLOSS
-IO_Module/ReadIhsGrid:  Read data from Ihs FENFLOSS
-IO_Module/ReadTecplot:  Tecplot file reader V 1.0b
-IO_Module/SGen_ihs:  IHS Schaufelgenerator
+IO/ReadIhs:  Read data from Ihs FENFLOSS
+IO/ReadIHS2:  Read data from Ihs FENFLOSS
+IO/ReadIhsGeo:  Read data from Ihs FENFLOSS
+IO/ReadIhsGrid:  Read data from Ihs FENFLOSS
+IO/ReadTecplot:  Tecplot file reader V 1.0b
+IO/SGen_ihs:  IHS Schaufelgenerator
 IO/PerformerScene:  Fake read for Performer Models
 IO/ReadA3R:  Simple ReadA3R Generation Module
 IO/ReadABAQUS:  Read odb ABAQUS-files

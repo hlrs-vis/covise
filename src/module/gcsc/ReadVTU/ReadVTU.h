@@ -8,7 +8,7 @@
  **              either a single file or a set of files (different timesteps)    **
  **                                                                              **
  ** Name:        ReadVTU                                                    **
- ** Category:    IO_Module                                                       **
+ ** Category:    IO                                                              **
  **                                                                              **
  ** Author:      Julia Portl                                                     **
  **              Visualization and Numerical Geometry Group, IWR                 **
