@@ -1303,4 +1303,4 @@ int christmas06::setGeoParamsStandardForChristMas06()
     return 0;
 }
 
-MODULE_MAIN(UnderDev, christmas06)
+MODULE_MAIN(HLRS, christmas06)

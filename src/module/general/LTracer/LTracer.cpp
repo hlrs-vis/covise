@@ -2112,4 +2112,4 @@ void WristWatch::stop(char *s)
     return;
 }
 
-MODULE_MAIN(UnderDev, Tracer)
+MODULE_MAIN(Tracer, Tracer)

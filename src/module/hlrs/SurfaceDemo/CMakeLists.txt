@@ -13,6 +13,6 @@ SET(SOURCES
   points.cpp
   SurfaceDemo.cpp
 )
-ADD_COVISE_MODULE(UnderDev SurfaceDemo ${EXTRASOURCES})
+ADD_COVISE_MODULE(HLRS SurfaceDemo ${EXTRASOURCES})
 TARGET_LINK_LIBRARIES(SurfaceDemo coApi coAppl coCore)
 COVISE_INSTALL_TARGET(SurfaceDemo)

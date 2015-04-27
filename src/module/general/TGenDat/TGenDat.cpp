@@ -1702,4 +1702,4 @@ delete sdaten;
 }
 */
 
-MODULE_MAIN(UnderDev, TGenDat)
+MODULE_MAIN(General, TGenDat)

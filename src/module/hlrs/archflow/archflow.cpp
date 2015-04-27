@@ -829,4 +829,4 @@ int archflow::setGeoParamsStandardForArchFlow()
     return 0;
 }
 
-MODULE_MAIN(UnderDev, archflow)
+MODULE_MAIN(HLRS, archflow)

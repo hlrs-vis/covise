@@ -931,4 +931,4 @@ int SurfaceDemo::setGeoParamsStandardForSurfaceDemo()
     return 0;
 }
 
-MODULE_MAIN(UnderDev, SurfaceDemo)
+MODULE_MAIN(HLRS, SurfaceDemo)

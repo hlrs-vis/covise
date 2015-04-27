@@ -13,6 +13,6 @@ SET(SOURCES
   points.cpp
   Rechenraum.cpp
 )
-ADD_COVISE_MODULE(UnderDev Rechenraum ${EXTRASOURCES})
+ADD_COVISE_MODULE(HLRS Rechenraum ${EXTRASOURCES})
 TARGET_LINK_LIBRARIES(Rechenraum coApi coAppl coCore)
 COVISE_INSTALL_TARGET(Rechenraum)

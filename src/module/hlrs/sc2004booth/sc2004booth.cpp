@@ -922,4 +922,4 @@ int sc2004booth::setGeoParamsStandardForSC2004()
     return 0;
 }
 
-MODULE_MAIN(UnderDev, sc2004booth)
+MODULE_MAIN(HLRS, sc2004booth)
