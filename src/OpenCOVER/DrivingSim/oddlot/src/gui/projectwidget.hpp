@@ -97,6 +97,7 @@ public:
     bool exportSpline();
     bool importIntermapFile(const QString &fileName);
     bool importCSVFile(const QString &fileName);
+    bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
 
     void addLineStrip(QString name = "");

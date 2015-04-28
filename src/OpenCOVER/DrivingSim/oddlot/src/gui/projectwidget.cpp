@@ -922,6 +922,91 @@ ProjectWidget::importCSVFile(const QString &fileName)
     return true;
 }
 
+
+/** \brief imports a CarMaker Road file.
+*
+*/
+bool
+ProjectWidget::importCarMakerFile(const QString &fileName)
+{
+    numLineStrips = 0;
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+                                                  .arg(fileName)
+                                                  .arg(file.errorString()));
+        qDebug("Loading file failed: " + fileName.toUtf8());
+        return false;
+    }
+    QTextStream in(&file);
+    
+    QString line = in.readLine();
+    while (!line.isNull())
+    {
+        if (line.length() != 0)
+        {
+            if(line[0]==':' && line[2]=='x')
+            {
+                break;
+            }
+            if(line[0]=='#')
+            {
+                // TODO read Traffic signs
+            }
+        }
+        line = in.readLine();
+    }
+
+    line = in.readLine();
+    while (!line.isNull())
+    {
+        if (line.length() != 0)
+        {
+            double x, y, z;
+
+            line.replace(',', '.');
+#ifdef WIN32
+            int num = sscanf_s(line.toUtf8(), "%lf %lf %lf", &x, &y, &z);
+#else
+            int num = sscanf(line.toUtf8(), "%lf %lf %lf", &x, &y, &z);
+#endif
+            if (num == 3) // we read everything
+            {
+
+                XVector.push_back(x);
+                YVector.push_back(y);
+                ZVector.push_back(z);
+            }
+        }
+        else if (XVector.size() > 1)
+        {
+            // add line segment
+            addLineStrip();
+            XVector.clear();
+            YVector.clear();
+            ZVector.clear();
+        }
+        line = in.readLine();
+    }
+    // add last line segment
+    if (XVector.size() > 1)
+    {
+        // add line segment
+        addLineStrip();
+        XVector.clear();
+        YVector.clear();
+        ZVector.clear();
+    }
+
+    topviewGraph_->updateSceneSize();
+    // Close file //
+    //
+    QApplication::restoreOverrideCursor();
+    file.close();
+    return true;
+}
+
 /** \brief Called when a file has been loaded or saved.
 *
 * Sets the file name, window title and project menu entry.
