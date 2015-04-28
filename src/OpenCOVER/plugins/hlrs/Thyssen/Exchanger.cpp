@@ -213,6 +213,15 @@ void VrmlNodeExchanger::update()
     }*/
 
 }
+void VrmlNodeExchanger::setAngle(float a)
+{
+    angle = a;
+    double timeStamp = System::the->time();
+    d_Rotation.get()[3] = angle;
+    eventOut(timeStamp, "Rotation", d_Rotation);
+    d_Fraction.set(angle/3.1415);
+    eventOut(timeStamp, "Fraction", d_Fraction);
+}
 
 int VrmlNodeExchanger::getCarNumber()
 {

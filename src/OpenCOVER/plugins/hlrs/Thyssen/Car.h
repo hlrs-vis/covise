@@ -56,6 +56,7 @@ using covise::SimpleServerConnection;
 using covise::TokenBuffer;
 
 class VrmlNodeElevator;
+class VrmlNodeExchanger;
 
 class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
 {
@@ -140,6 +141,7 @@ private:
     enum carState oldTravelDirection;
     double timeoutStart;
     int ID;
+    std::list<VrmlNodeExchanger *> currentExchangers;
 };
 
 #endif
