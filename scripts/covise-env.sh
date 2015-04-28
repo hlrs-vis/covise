@@ -53,6 +53,11 @@ if [ -z "$COENVERROR" ]; then
    fi
 fi
 
+ALVAR_PLUGIN_PATH=${EXTERNLIBS}/alvar/bin/alvarplugins
+if [ -d "${ALVAR_PLUGIN_PATH}" ]; then
+    export ALVAR_PLUGIN_PATH
+fi
+
 if [ -z "$COENVERROR" ]; then
    ### Collect all library pathes of external libs we use
    extLibPath=""
