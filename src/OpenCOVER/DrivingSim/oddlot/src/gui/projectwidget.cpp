@@ -75,6 +75,12 @@
 #include "mouseaction.hpp"
 #include "keyaction.hpp"
 
+#include "src/data/roadsystem/sections/signalobject.hpp"
+
+#include "src/data/commands/trackcommands.hpp"
+#include "src/data/commands/roadcommands.hpp"
+#include "src/data/commands/signalcommands.hpp"
+
 // I/O //
 //
 #include "src/io/domparser.hpp"
@@ -92,6 +98,7 @@
 #include <QMessageBox>
 #include <QAction>
 #include <QApplication>
+#include <vector>
 
 /** \brief Main Contructor. Use only this one.
 *
@@ -608,7 +615,7 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
     }
     return maxtestedLen;
 }
-void ProjectWidget::addLineStrip(QString name)
+RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
 {
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
@@ -738,6 +745,7 @@ void ProjectWidget::addLineStrip(QString name)
 #endif
 
     numLineStrips++;
+    return road;
 }
 
 size_t ProjectWidget::getMaxElevationLength(size_t start)
@@ -940,12 +948,15 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
         return false;
     }
     QTextStream in(&file);
+    std::vector<float> segsize;
     
     QString line = in.readLine();
     while (!line.isNull())
     {
         if (line.length() != 0)
         {
+            QByteArray ba =line.toUtf8();
+            const char *linestr = ba;
             if(line[0]==':' && line[2]=='x')
             {
                 break;
@@ -953,11 +964,17 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
             if(line[0]=='#')
             {
                 // TODO read Traffic signs
+                if(strncmp(linestr,"#SEGMENT",8)==0)
+                {
+                    float s=0;
+                    sscanf(linestr+8,"%f",&s);
+                    segsize.push_back(s);
+                }
             }
         }
         line = in.readLine();
     }
-
+    RSystemElementRoad *road;
     line = in.readLine();
     while (!line.isNull())
     {
@@ -982,7 +999,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
         else if (XVector.size() > 1)
         {
             // add line segment
-            addLineStrip();
+            road = addLineStrip();
             XVector.clear();
             YVector.clear();
             ZVector.clear();
@@ -993,11 +1010,165 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
     if (XVector.size() > 1)
     {
         // add line segment
-        addLineStrip();
+        road = addLineStrip();
         XVector.clear();
         YVector.clear();
         ZVector.clear();
     }
+
+    std::vector<RSystemElementRoad *> roads;
+    roads.push_back(road);
+    // split road into segments
+
+    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Split Track and Road"));
+    
+    for(int i=0;i<segsize.size();i++)
+    {
+        if(segsize[i]< road->getLength()-0.5)
+        {
+            SplitTrackRoadCommand *splitTrackRoadCommand = new SplitTrackRoadCommand(road, segsize[i], NULL);
+            topviewGraph_->executeCommand(splitTrackRoadCommand);
+            road = splitTrackRoadCommand->getSplitRoadCommand()->getFirstNewRoad();
+            roads[roads.size()-1] = road;
+            road = splitTrackRoadCommand->getSplitRoadCommand()->getSecondNewRoad();
+            roads.push_back(road);
+        }
+    }
+
+    getProjectData()->getUndoStack()->endMacro();
+    
+    getProjectData()->getUndoStack()->beginMacro(QObject::tr("addSignals"));
+    file.close();
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QMessageBox::warning(this, tr("ODD"), tr("Cannot read file %1:\n%2.")
+                                                  .arg(fileName)
+                                                  .arg(file.errorString()));
+        qDebug("Loading file failed: " + fileName.toUtf8());
+        return false;
+    }
+    QTextStream inf(&file);
+    int currentRoad=0;
+    road = roads[currentRoad];
+    line = inf.readLine();
+    while (!line.isNull())
+    {
+        if (line.length() != 0)
+        {
+            QByteArray ba =line.toUtf8();
+            const char *linestr = ba;
+            if(line[0]==':' && line[2]=='x')
+            {
+                break;
+            }
+            if(line[0]=='#')
+            {
+                // TODO read Traffic signs
+                if(strncmp(linestr,"#SEGMENT",8)==0)
+                {
+                    road = roads[currentRoad];
+                    currentRoad++;
+
+                }
+                if(strncmp(linestr,"#MARKER",7)==0)
+                {
+                    
+                    if(strncmp(linestr+8,"TrfSign",7)==0)
+                    {
+                        float s,t,dummy;
+                        char signName[100],signDir[100],unknown[100];
+                        int di;
+                        float speed;
+                        // #MARKER TrfSign 491.045 0.0 SpeedLimit 0.5 r p M 2.5 0 0 60  0 - M 0 0 - M 0 0 
+                        sscanf(linestr+16,"%f %f %s %f %s %s %s %f %d %d %f",&s,&dummy,signName,&t, signDir, unknown, unknown, &dummy, &di, &di, &speed);
+                        int type=-1;
+                        int subType=-1;
+                        if(strcmp(signName,"SpeedLimit")==0)
+                        {
+                            type = 274;
+                            subType = 50+(speed/10);
+                        }
+                        if(strcmp(signName,"OvertakeProhibitedCC")==0)
+                        {
+                            type = 276;
+                        }
+                        if(strcmp(signName,"OvertakeProhibitedTC")==0)
+                        {
+                            type = 280;
+                        }
+                        if(strcmp(signName,"SCurveR")==0)
+                        {
+                            type = 105;
+                            subType = 10;
+                        }
+                        if(strcmp(signName,"SCurveL")==0)
+                        {
+                            type = 105;
+                            subType = 20;
+                        }
+                        if(strcmp(signName,"CurveR")==0)
+                        {
+                            type = 103;
+                            subType = 10;
+                        }
+                        if(strcmp(signName,"CurveL")==0)
+                        {
+                            type = 103;
+                            subType = 20;
+                        }
+                        if(strcmp(signName,"GiveWay")==0)
+                        {
+                            type = 205;
+                        }
+                        if(strcmp(signName,"PedXingCaution")==0)
+                        {
+                            type = 134;
+                        }
+                        if(strcmp(signName,"SpeedLimitEnd")==0)
+                        {
+                            type = 278;
+                            subType = 50+(speed/10);
+                        }
+                        if(strcmp(signName,"LaneMergeLeft")==0)
+                        {
+                            type = 121;
+                            subType = 20;
+                        }
+                        if(strcmp(signName,"LaneMergeRight")==0)
+                        {
+                            type = 121;
+                            subType = 10;
+                        }
+                        if(strcmp(signName,"Animals")==0)
+                        {
+                            type = 142;
+                            subType = 10;
+                        }
+                        if(strcmp(signName,"SlipperyRoad")==0)
+                        {
+                            type = 114;
+                        }
+                        
+                        Signal::OrientationType dir= Signal::BOTH_DIRECTIONS;
+                        if(strcmp(signDir,"r")==0)
+                        {
+                            dir = Signal::POSITIVE_TRACK_DIRECTION;
+                        }
+                        else if(strcmp(signDir,"l")==0)
+                        {
+                            dir = Signal::POSITIVE_TRACK_DIRECTION;
+                        }
+                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, true, 2, 0, 1/*toLane*/);
+                        AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
+                        topviewGraph_->executeCommand(command);
+                    }
+                }
+            }
+        }
+        line = inf.readLine();
+    }
+    
+    getProjectData()->getUndoStack()->endMacro();
 
     topviewGraph_->updateSceneSize();
     // Close file //
