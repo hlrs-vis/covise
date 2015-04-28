@@ -545,11 +545,11 @@ void osgViewerObject::updateTexture()
         {
             StateSet *geostate = geoset->getOrCreateStateSet();
             geostate->setNestRenderBins(false);
-            if (numTextures > 1)
+ /*           if (numTextures > 1)
             {
                 for (unsigned int contextID = 0; contextID < osg::DisplaySettings::instance()->getMaxNumberOfGraphicsContexts(); ++contextID)
                 {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 4)
                     const osg::ref_ptr<osg::GLExtensions> extensions = new osg::GLExtensions(contextID);
                     if (!extensions->isMultiTexturingSupported)
                         std::cout << "Multi-texturing not supported by OpenGL drivers" << std::endl;
@@ -562,7 +562,7 @@ void osgViewerObject::updateTexture()
                     }
 #endif
                 }
-            }
+            }*/
 
             //fprintf(stderr, "updateTexture: numTextures=%d\n", numTextures);
             for (int i = 0; i < numTextures; i++)
