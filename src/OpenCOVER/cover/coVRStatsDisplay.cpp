@@ -962,7 +962,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         if ((*citr)->getGraphicsContext())
         {
             unsigned int contextID = (*citr)->getGraphicsContext()->getState()->getContextID();
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 4)
             const osg::ref_ptr<osg::GLExtensions> extensions = new osg::GLExtensions(contextID);
             if (extensions && extensions->isTimerQuerySupported)
 #else
