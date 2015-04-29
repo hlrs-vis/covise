@@ -3441,7 +3441,7 @@ static INT_PTR CALLBACK
         ComboBox_AddString(cb, _T("4"));
         ComboBox_AddString(cb, _T("5"));
         ComboBox_AddString(cb, _T("6"));
-        GetAppData(exp->mIp, DIGITS_ID, _T("4"), text, MAX_PATH);
+        GetAppData(exp->mIp, DIGITS_ID, _T("6"), text, MAX_PATH);
         ComboBox_SelectString(cb, 0, text);
 
         cb = GetDlgItem(hDlg, IDC_POLYGON_TYPE);
