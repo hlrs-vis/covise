@@ -1,7 +1,7 @@
 macro(find_qt)
    if(COVISE_USE_QT4)
       covise_find_package(Qt4 COMPONENTS QtCore QtGui QtXml QtNetwork REQUIRED)
-      covise_find_package(Qt4 COMPONENTS QtWebkit QtScript QtScriptTools QtUiTools)
+      covise_find_package(Qt4 COMPONENTS QtWebkit QtScript QtScriptTools QtUiTools QtOpenGL)
    else()
       set(SAVED_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
       if (APPLE)
