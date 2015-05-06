@@ -2224,7 +2224,7 @@ void PDBPlugin::initCoverAnimation()
 {
     coVRAnimationManager::instance()->setAnimationSpeed(12); // set default framerate
     coVRAnimationManager::instance()->enableAnimation(false);
-    coVRAnimationManager::instance()->setAnimationFrame(currentFrame);
+    coVRAnimationManager::instance()->requestAnimationFrame(currentFrame);
 }
 
 /** Load a VRML file into an OSG node.
@@ -2667,7 +2667,7 @@ void PDBPlugin::message(int type, int, const void *buf)
         // change frame
         //int* curFrame = (int*)buf;
         //currentFrame = *curFrame;
-        coVRAnimationManager::instance()->setAnimationFrame(mm->framenumber);
+        coVRAnimationManager::instance()->requestAnimationFrame(mm->framenumber);
         break;
     }
     // requires nothing *complete*

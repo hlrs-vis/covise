@@ -106,6 +106,8 @@ public:
     bool key(int type, int keySym, int mod) const;
     //! call userEvent method of all plugins
     bool userEvent(int mod) const;
+    //! call requestTimestep method of all plugins
+    void requestTimestep(int timestep);
     //! call setTimestep method of all plugins
     void setTimestep(int timestep) const;
     //! send a message to all plugins
@@ -125,6 +127,9 @@ public:
     bool executeAll() const;
     //! allow plugins to expand scene bounding sphere
     void expandBoundingSphere(osg::BoundingSphere &bs) const;
+
+    //! called by plugin's commitTimestep method when timestep is prepared
+    void commitTimestep(int t, coVRPlugin *caller);
 
 private:
     coVRPluginList();
@@ -153,6 +158,8 @@ private:
 
     typedef std::vector<CO_SHLIB_HANDLE> HandleList;
     HandleList m_unloadNext, m_unloadQueue;
+    int m_numOutstandingTimestepPlugins;
+    int m_requestedTimestep;
 };
 }
 #endif

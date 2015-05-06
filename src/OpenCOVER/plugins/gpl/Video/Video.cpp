@@ -27,6 +27,7 @@ VideoPlugin::VideoPlugin()
     frameCount = 0;
     captureActive = 0;
     captureAnimActive = 0;
+    waitForFrame = false;
     pixels = NULL;
     time_base = 25;
     stereoEye = "";
@@ -356,6 +357,7 @@ bool VideoPlugin::init()
 #endif
 #endif
     captureActive = false;
+    waitForFrame = false;
 
     VideoTab = new coTUITab("Video", coVRTui::instance()->mainFolder->getID());
     VideoTab->setPos(0, rowcount);
@@ -616,7 +618,8 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
                 captureButton->setState(true);
                 captureAnimActive = true;
                 captureAnimFrame = coVRAnimationManager::instance()->getStartFrame();
-                coVRAnimationManager::instance()->setAnimationFrame(captureAnimFrame);
+                waitForFrame = true;
+                coVRAnimationManager::instance()->requestAnimationFrame(captureAnimFrame);
             }
 
             filename = fileNameField->getText();
@@ -702,6 +705,7 @@ void VideoPlugin::stopCapturing()
 
     captureActive = false;
     captureAnimActive = false;
+    waitForFrame = false;
     captureButton->setState(false);
     captureAnimButton->setState(false);
     frameCount = 0;
@@ -755,23 +759,43 @@ void VideoPlugin::postFrame()
 {
     if (captureAnimActive)
     {
-        ++captureAnimFrame;
-        if (captureAnimFrame > coVRAnimationManager::instance()->getStopFrame())
+        if (!waitForFrame)
         {
-            stopCapturing();
-        }
-        else
-        {
-            coVRAnimationManager::instance()->setAnimationFrame(captureAnimFrame);
+            ++captureAnimFrame;
+            if (captureAnimFrame > coVRAnimationManager::instance()->getStopFrame())
+            {
+                stopCapturing();
+            }
+            else
+            {
+                waitForFrame = true;
+                coVRAnimationManager::instance()->requestAnimationFrame(captureAnimFrame);
+            }
         }
     }
+    else
+    {
+        waitForFrame = false;
+    }
+
 
     // if (record_)
     // fprintf(stderr,"frameCount=%d time_base=%d\n", frameCount, time_base);
 }
 
+void VideoPlugin::setTimestep(int t)
+{
+    if (captureAnimActive && t == captureAnimFrame)
+    {
+        waitForFrame = false;
+    }
+}
+
 void VideoPlugin::preSwapBuffers(int windowNumber)
 {
+    if (waitForFrame)
+        return;
+
     // only capture the first window and only on the master
     if (captureActive && windowNumber == 0 && captureHostButton[hostIndex])
     {
