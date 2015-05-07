@@ -56,6 +56,7 @@ public:
     // this will be called in PreFrame
     void postFrame();
     void preSwapBuffers(int windowNumber);
+    void setTimestep(int t);
 
     coTUILabel *capPos;
     coTUILabel *capArea;
@@ -122,6 +123,7 @@ private:
     bool captureActive;
     bool captureAnimActive;
     int captureAnimFrame;
+    bool waitForFrame;
     string helpText;
     string filename;
     string stereoEye;
