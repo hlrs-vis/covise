@@ -3150,6 +3150,9 @@ void ViewerOsg::setModesByName(const char *objectName)
 
                         d_currentObject->setTexEnv(false, textureNumber, 1, 4);
                         d_currentObject->setTexGen(false, textureNumber, 1);
+                        
+                                fprintf(stderr, "textureNumber %d \n",textureNumber);
+                        d_currentObject->texData[textureNumber].mirror = 2;
                         d_currentObject->updateTexture();
 
                         // then create the camera node to do the render to texture
@@ -3171,7 +3174,7 @@ void ViewerOsg::setModesByName(const char *objectName)
                             mirrors[numCameras].coords[1].set(bb.xMax(), bb.yMax(), bb.zMin());
                             mirrors[numCameras].coords[2].set(bb.xMax(), bb.yMax(), bb.zMax());
                             mirrors[numCameras].coords[3].set(bb.xMin(), bb.yMax(), bb.zMax());
-
+                            //von vorne
                             // 0     1
                             // 3     2
 
@@ -5339,59 +5342,68 @@ void ViewerOsg::update(double timeNow)
                 }
 #endif
 
+                // von vorne
                 // 0     1
                 // 3     2
+                // von hinten
+                // 1     0
+                // 2     3
 
                 //left/right
                 osg::Vec3 leftR, rightR, cposlr, cposud, pl, pr;
-                if (reflectVecs[0][0] / reflectVecs[0][1] < reflectVecs[3][0] / reflectVecs[3][1])
-                {
-                    leftR = reflectVecs[0];
-                    pl = cornerPos[0];
-                }
-                else
+                if (reflectVecs[3][0] / reflectVecs[3][1] < reflectVecs[2][0] / reflectVecs[2][1])
                 {
                     leftR = reflectVecs[3];
                     pl = cornerPos[3];
                 }
+                else
+                {
+                    leftR = reflectVecs[2];
+                    pl = cornerPos[2];
+                }
 
-                if (reflectVecs[1][0] / reflectVecs[1][1] > reflectVecs[2][0] / reflectVecs[2][1])
+                if (reflectVecs[0][0] / reflectVecs[0][1] > reflectVecs[1][0] / reflectVecs[1][1])
+                {
+                    rightR = reflectVecs[0];
+                    pr = cornerPos[0];
+                }
+                else
                 {
                     rightR = reflectVecs[1];
                     pr = cornerPos[1];
                 }
-                else
-                {
-                    rightR = reflectVecs[2];
-                    pr = cornerPos[2];
-                }
                 leftR[2] = rightR[2] = pr[2] = pl[2] = 0;
                 cposlr = closestPoint(pl, leftR, pr, rightR);
+                
+                // von vorne
                 // 0     1
                 // 3     2
+                // von hinten
+                // 1     0
+                // 2     3
 
                 //up/down
                 osg::Vec3 up, down, pu, pd;
-                if (reflectVecs[3][2] / reflectVecs[3][1] > reflectVecs[2][2] / reflectVecs[2][1])
+                if (reflectVecs[0][2] / reflectVecs[0][1] > reflectVecs[1][2] / reflectVecs[1][1])
                 {
-                    down = reflectVecs[3];
-                    pd = cornerPos[3];
+                    down = reflectVecs[0];
+                    pd = cornerPos[0];
                 }
                 else
                 {
-                    down = reflectVecs[2];
-                    pd = cornerPos[2];
+                    down = reflectVecs[1];
+                    pd = cornerPos[1];
                 }
 
-                if (reflectVecs[0][2] / reflectVecs[0][1] < reflectVecs[1][2] / reflectVecs[1][1])
+                if (reflectVecs[3][2] / reflectVecs[3][1] < reflectVecs[2][2] / reflectVecs[2][1])
                 {
-                    up = reflectVecs[0];
-                    pu = cornerPos[0];
+                    up = reflectVecs[3];
+                    pu = cornerPos[3];
                 }
                 else
                 {
-                    up = reflectVecs[1];
-                    pu = cornerPos[1];
+                    up = reflectVecs[2];
+                    pu = cornerPos[2];
                 }
                 up[0] = down[0] = pu[0] = pd[0] = 0;
                 cposud = closestPoint(pu, up, pd, down);
@@ -5421,10 +5433,10 @@ void ViewerOsg::update(double timeNow)
                 miny = std::min(miny, cornerPos[3][1]);
                 float dist = -(mirrorViewerInMirrorCS[1] - miny);
 
-                float distl = -(mirrorViewerInMirrorCS[1] - pl[1]);
-                float distr = -(mirrorViewerInMirrorCS[1] - pr[1]);
-                float distu = -(mirrorViewerInMirrorCS[1] - pu[1]);
-                float distd = -(mirrorViewerInMirrorCS[1] - pd[1]);
+                float distl = -(mirrorViewerInMirrorCS[1] - pr[1]);
+                float distr = -(mirrorViewerInMirrorCS[1] - pl[1]);
+                float distu = -(mirrorViewerInMirrorCS[1] - pd[1]);
+                float distd = -(mirrorViewerInMirrorCS[1] - pu[1]);
 
                 // relation near plane to screen plane
                 float n_over_d = 1.0;
@@ -5435,10 +5447,10 @@ void ViewerOsg::update(double timeNow)
                 // 0     1
                 // 3     2
 
-                float right = -n_over_d * (pr[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distr);
-                float left = -n_over_d * (pl[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distl);
-                float top = -n_over_d * (pu[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distu);
-                float bottom = -n_over_d * (pd[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distd);
+                float right = -n_over_d * (pl[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distr);
+                float left = -n_over_d * (pr[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distl);
+                float top = -n_over_d * (pd[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distu);
+                float bottom = -n_over_d * (pu[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distd);
                 float nearPlane = dist * 1.0 / scale;
 
                 mirrors[i].camera->setProjectionMatrixAsFrustum(left, right, bottom, top, nearPlane, coVRConfig::instance()->farClip());
@@ -5544,6 +5556,14 @@ void ViewerOsg::update(double timeNow)
 
                 osg::Vec3 tmpV;
                 tmpV.set(WCToGeo(0, 0), WCToGeo(0, 1), WCToGeo(0, 2));
+                
+                // von vorne
+                // 0     1
+                // 3     2
+                // von hinten
+                // 1     0
+                // 2     3
+
                 float scale = tmpV.length();
                 float dist = -(viewerInMirrorCS[1] - mirrors[i].coords[0][1]);
 
@@ -5552,8 +5572,8 @@ void ViewerOsg::update(double timeNow)
                 //float dx=mirrors[i].coords[1][0]-mirrors[i].coords[0][0];
                 //float dz=mirrors[i].coords[3][2]-mirrors[i].coords[0][2];
                 // parameter of right channel
-                float right = -n_over_d * (mirrors[i].coords[1][0] - viewerInMirrorCS[0]) / scale;
-                float left = -n_over_d * (mirrors[i].coords[0][0] - viewerInMirrorCS[0]) / scale;
+                float right = -n_over_d * (mirrors[i].coords[0][0] - viewerInMirrorCS[0]) / scale;
+                float left = -n_over_d * (mirrors[i].coords[1][0] - viewerInMirrorCS[0]) / scale;
                 float top = -n_over_d * (mirrors[i].coords[0][2] - viewerInMirrorCS[2]) / scale;
                 float bottom = -n_over_d * (mirrors[i].coords[3][2] - viewerInMirrorCS[2]) / scale;
                 float nearPlane = dist * 1.2 / scale;

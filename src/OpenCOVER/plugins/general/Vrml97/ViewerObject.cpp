@@ -624,8 +624,16 @@ void osgViewerObject::updateTexture()
 
 void osgViewerObject::updateTMat()
 {
-
-    if (texData.size() > 0 && ((texData[0].newTMat.compare(osg::Matrix::identity()) != 0) || (texData[0].mirror == 1)))
+    bool needTransform=false;
+    for (int i = 0; i < numTextures; i++)
+    {
+        if(texData[i].mirror !=0)
+        {
+            needTransform=true;
+            break;
+        }
+    }
+    if (texData.size() > 0 && ((texData[0].newTMat.compare(osg::Matrix::identity()) != 0) || (needTransform))) // 1 == vertical 2 = horizontal
     {
         Geode *pGeode = dynamic_cast<Geode *>(pNode.get());
         if (pGeode)
@@ -633,7 +641,7 @@ void osgViewerObject::updateTMat()
             Drawable *drawable = pGeode->getDrawable(0);
             for (int i = 0; i < numTextures; i++)
             {
-                if (texData[i].mirror && drawable)
+                if (texData[i].mirror!=0 && drawable)
                 {
                     StateSet *geostate = drawable->getOrCreateStateSet();
                     geostate->setNestRenderBins(false);
@@ -642,24 +650,44 @@ void osgViewerObject::updateTMat()
                     Matrixd multMat;
                     multMat.makeIdentity();
                     int texWidth = 1;
-                    while ((texWidth <<= 1) < texData[i].texImage->s())
-                    {
-                    }
                     int texHeight = 1;
-                    while ((texHeight <<= 1) < texData[i].texImage->t())
+                    if(texData[i].texImage)
                     {
+                        while ((texWidth <<= 1) < texData[i].texImage->s())
+                        {
+                        }
+                        while ((texHeight <<= 1) < texData[i].texImage->t())
+                        {
+                        }
                     }
-
-                    if (useTextureRectangle && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
+                    if(texData[i].mirror == 1)
                     {
-                        multMat(0, 0) = texData[i].texture->getTextureWidth();
-                        multMat(1, 1) = -texData[i].texture->getTextureHeight();
-                        multMat(3, 1) = texData[i].texture->getTextureHeight();
+                        if (useTextureRectangle && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
+                        {
+                            multMat(0, 0) = texData[i].texture->getTextureWidth();
+                            multMat(1, 1) = -texData[i].texture->getTextureHeight();
+                            multMat(3, 1) = texData[i].texture->getTextureHeight();
+                        }
+                        else
+                        {
+                            multMat(1, 1) = -1;
+                            multMat(3, 1) = 1;
+                        }
                     }
                     else
                     {
-                        multMat(1, 1) = -1;
-                        multMat(3, 1) = 1;
+                        if (useTextureRectangle && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
+                        {
+                            multMat(0, 0) = -texData[i].texture->getTextureWidth();
+                            multMat(1, 1) = texData[i].texture->getTextureHeight();
+                            multMat(3, 0) = texData[i].texture->getTextureWidth();
+                        }
+                        else
+                        {
+                            multMat(0, 0) = -1;
+                            multMat(1, 1) = 1;
+                            multMat(3, 0) = 1;
+                        }
                     }
                     TexMat *texMat = new TexMat();
                     Matrix tmpMat;
