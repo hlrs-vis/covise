@@ -222,6 +222,9 @@ public:
     // optional Collaborative configuration file (-c option)
     char *collaborativeOptionsFile;
 
+    // optional Collaborative configuration file (-c option)
+    char *viewpointsFile;
+
     // returns true if level <= debugLevel
     // debug levels should be used like this
     // 0 no output

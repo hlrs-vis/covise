@@ -27,6 +27,7 @@
 
 #include "VRViewer.h"
 #include "PluginMenu.h"
+#include "coVRConfig.h"
 
 namespace opencover
 {
@@ -164,6 +165,10 @@ coVRPluginList::coVRPluginList()
             i++; // skip name
             i++; //skip value (may be NULL)
         }
+    }
+    if(coVRConfig::instance()->viewpointsFile!=NULL)
+    {
+        plugins.push_back("ViewPoint");
     }
 
     std::vector<std::string> failed;
