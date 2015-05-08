@@ -1938,9 +1938,14 @@ osg::Object *ShaderNode::clone(const osg::CopyOp &) const
 void ShaderNode::drawImplementation(osg::RenderInfo &renderInfo) const
 {
     const unsigned int contextID = renderInfo.getState()->getContextID();
-    const osg::GL2Extensions *extensions = osg::GL2Extensions::Get(contextID, true);
+    const osg::ref_ptr<osg::GL2Extensions> extensions = osg::GL2Extensions::Get(contextID, true);
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 4)
+    if (!extensions->isGlslSupported)
+        return;
+#else
     if (!extensions->isGlslSupported())
         return;
+#endif
 
     if (view == ShaderNode::Left)
         coVRShaderList::instance()->getStereo()->set(0);

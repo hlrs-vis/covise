@@ -85,8 +85,12 @@
 #define CUPRINTF_CU
 
 #include "cuPrintf.cuh"
-#if __CUDA_ARCH__ > 100      // Atomics only used with > sm_10 architecture
+#if __CUDA_ARCH__ > 100  // Atomics only used with > sm_10 architecture
+#if CUDART_VERSION >= 7000
+#include <sm_20_atomic_functions.h>
+#else
 #include <sm_11_atomic_functions.h>
+#endif
 #endif
 
 // This is the smallest amount of memory, per-thread, which is allowed.

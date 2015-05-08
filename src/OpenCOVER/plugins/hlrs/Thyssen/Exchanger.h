@@ -88,6 +88,7 @@ public:
     enum ExchangerState getState(){return state;}
     int getCarNumber();
     void setCar(VrmlNodeCar *c);
+    void setAngle(float a);
     VrmlNodeCar *getCar(){return currentCar;};
     VrmlSFInt   d_LandingNumber;
     VrmlSFFloat   d_Fraction;

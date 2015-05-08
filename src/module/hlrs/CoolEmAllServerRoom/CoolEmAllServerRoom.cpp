@@ -1031,4 +1031,4 @@ int rechenraum::setGeoParamsStandardForRechenRaum()
     return 0;
 }
 
-MODULE_MAIN(UnderDev, rechenraum)
+MODULE_MAIN(HLRS, rechenraum)

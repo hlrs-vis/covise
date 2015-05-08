@@ -12,7 +12,7 @@ find_qt()
 
 
 INCLUDE_DIRECTORIES(
-  "${COVISEDIR}/src/renderer/OpenCOVER/plugins/hlrs/SteeringWheel"
+  "${COVISEDIR}/src/OpenCOVER/plugins/drivingsim/SteeringWheel"
 )
 SET(CS_SOURCES
   main.cpp
@@ -22,7 +22,7 @@ SET(CS_SOURCES
   asiolist.cpp
   SoundSample.cpp
   SoundSweep.cpp
-  ../../renderer/OpenCOVER/plugins/hlrs/SteeringWheel/UDPComm.cpp
+  ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.cpp
   EventSoundSample.cpp
 )
 
@@ -36,7 +36,7 @@ SET(CS_HEADERS
   iasiodrv.h
   SoundSample.h
   SoundSweep.h
-  ../../renderer/OpenCOVER/plugins/hlrs/SteeringWheel/UDPComm.h
+  ../../OpenCOVER/plugins/drivingsim/SteeringWheel/UDPComm.h
   EventSoundSample.h
 )
 

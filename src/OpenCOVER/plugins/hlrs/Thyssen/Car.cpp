@@ -449,6 +449,11 @@ void VrmlNodeCar::update()
             double timeStamp = System::the->time();
             d_carRotation.get()[3] = angle;
             eventOut(timeStamp, "carRotation", d_carRotation);
+            std::list<VrmlNodeExchanger *>::iterator it;
+            for(it = currentExchangers.begin();it != currentExchangers.end();it++)
+            {
+                (*it)->setAngle(angle);
+            }
         }
     }
 
@@ -546,6 +551,26 @@ void VrmlNodeCar::startTurning() // turn if necessarry and possible
         {
             if(elevator->stations[d_stationList[nextIndex]]==NULL)
             {
+                // find all exchangers on the way to the next destination so that we can also turn them right and left
+                int startShaft = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
+                int destinationShaft = d_stationList[nextIndex] / elevator->d_landingHeights.size();
+                int startLanding = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
+                int destinationLanding = d_stationList[nextIndex] % elevator->d_landingHeights.size();
+                currentExchangers.clear();
+                if(startShaft < destinationShaft)
+                {
+                    for(int i=startShaft; i<=destinationShaft;i++)
+                    {
+                        currentExchangers.push_back(elevator->exchangers[i*elevator->d_landingHeights.size() + startLanding]);
+                    }
+                }
+                else
+                {
+                    for(int i=destinationShaft; i<=startShaft;i++)
+                    {
+                        currentExchangers.push_back(elevator->exchangers[i*elevator->d_landingHeights.size() + startLanding]);
+                    }
+                }
                 chassisState = RotatingRight;
             }
         }

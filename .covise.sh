@@ -80,9 +80,11 @@ if [ -z "$EXTERNLIBS" ]; then
   fi
 fi
 
-GITDATE=$(GIT_DIR=${COVISEDIR}/.git git log -n1 '--format=%ci')
-if [ $? ]; then
-   export COVISE_VERSION=$(echo $GITDATE | sed -e 's/-/./' -e 's/-.*//' -e 's/\.0/./')
+if [ -d "${COVISEDIR}/.git" ]; then
+    GITDATE=$(GIT_DIR=${COVISEDIR}/.git git log -n1 '--format=%ci')
+    if [ $? ]; then
+        export COVISE_VERSION=$(echo $GITDATE | sed -e 's/-/./' -e 's/-.*//' -e 's/\.0/./')
+    fi
 fi
 
 if [ -z "${PYTHON_HOME}" -a -d "${EXTERNLIBS}/python" ]; then

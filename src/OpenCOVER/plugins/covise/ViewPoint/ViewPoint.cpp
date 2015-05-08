@@ -43,6 +43,7 @@
 #include <grmsg/coGRTurnTableAnimationMsg.h>
 #include <cover/OpenCOVER.h>
 #include <cover/VRSceneGraph.h>
+#include <cover/coVRConfig.h>
 #include <appl/RenderInterface.h>
 #include <osg/ClipNode>
 
@@ -121,6 +122,10 @@ bool ViewPoints::init()
 
     curr_scale = 1.0;
     vwpPath = "";
+    if(coVRConfig::instance()->viewpointsFile !=NULL)
+    {
+        vwpPath = coVRConfig::instance()->viewpointsFile;
+    }
 
     vp_index = 0;
 
@@ -503,8 +508,7 @@ bool ViewPoints::init()
 ViewPoints::~ViewPoints()
 {
 
-    for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
-        viewpoints.erase(it);
+    viewpoints.clear();
 
     delete viewPointButton_;
     delete saveButton_;

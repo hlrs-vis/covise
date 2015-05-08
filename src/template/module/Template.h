@@ -23,7 +23,6 @@
 // ++**********************************************************************/
 
 #include <api/coModule.h>
-#include <do/coDoUnstructuredGrid.h>
 
 class Template : public covise::coModule
 {
@@ -36,6 +35,5 @@ private:
 
 public:
     Template(int argc, char *argv[]);
-    covise::coOutputPort *grid;
 };
 #endif

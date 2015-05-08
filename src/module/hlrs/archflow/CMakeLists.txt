@@ -13,6 +13,6 @@ SET(SOURCES
   model.cpp
   points.cpp
 )
-ADD_COVISE_MODULE(UnderDev archflow ${EXTRASOURCES})
+ADD_COVISE_MODULE(HLRS archflow ${EXTRASOURCES})
 TARGET_LINK_LIBRARIES(archflow coApi coAppl coCore)
 COVISE_INSTALL_TARGET(archflow)

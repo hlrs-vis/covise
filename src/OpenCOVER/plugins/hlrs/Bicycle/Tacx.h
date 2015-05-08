@@ -79,18 +79,12 @@ public:
     Tacx();
     ~Tacx();
     void update();
-    float getAngle()
-    {
-        return (vrdata.Lenkwinkel - 1080) / 300.0;
-    }; // -1 - 1 min-max
+    float getAngle();
     float getSpeed()
     {
         return vrdata.drehzahl / 1000.0;
     };
-    int getButtons()
-    {
-        return vrdata.tasten;
-    };
+    int getButtons();
     void setForce(float f)
     {
         vrdataout.force = ((unsigned short)(((float)0xf00) * f + 0x100));

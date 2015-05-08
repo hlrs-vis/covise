@@ -309,7 +309,7 @@ int UDPComm::send(const void *buffer, int numBytes)
     return nbytes;
 }
 
-int UDPComm::receive(void *buffer, int numBytes)
+int UDPComm::receive(void *buffer, int numBytes, double timeout)
 {
     /*sockaddr remote_adr;
    socklen_t rlen;*/
@@ -318,8 +318,8 @@ int UDPComm::receive(void *buffer, int numBytes)
     fd_set readfds;
     FD_ZERO(&readfds);
     FD_SET(d_rsocket, &readfds);
-    struct timeval timeout = { 2, 0 };
-    if (0 == select(d_rsocket + 1, &readfds, NULL, NULL, &timeout))
+    struct timeval tv = { int(timeout), int((timeout-floor(timeout))*1e6) };
+    if (0 == select(d_rsocket + 1, &readfds, NULL, NULL, &tv))
     {
         if (UDPComm::getError_SW())
             cerr << "No data received from Realtime Engine (receive - SW)" << endl;

@@ -3,7 +3,14 @@
 ## default place for Covise installation: directory above this script
 ##                                        if not set otherwise
 if [ -z "$COVISEDIR" ]; then
-    dir=`dirname $0`/..
+    if readlink "$0"; then
+        link="$(readlink $0)"
+        linkdir="$(dirname $link)"
+        scriptdir="$(dirname $0)"
+        dir="$(cd $scriptdir && cd $linkdir; pwd -P)/.."
+    else
+        dir=$(dirname $0)/..
+    fi
     export COVISEDIR=`cd $dir; pwd -P`
 fi
 

@@ -159,12 +159,12 @@ bool coVRAnimationManager::keyEvent(int type, int keySym, int mod)
             }
             else if (keySym == '.')
             {
-                setAnimationFrame(getAnimationFrame() + 1);
+                requestAnimationFrame(getAnimationFrame() + 1);
                 updateAnimationFrame();
             }
             else if (keySym == ',')
             {
-                setAnimationFrame(getAnimationFrame() - 1);
+                requestAnimationFrame(getAnimationFrame() - 1);
                 updateAnimationFrame();
             }
         }
@@ -193,23 +193,23 @@ void coVRAnimationManager::menuEvent(coMenuItem *menuItem)
             enableAnimation(false);
 
         if (menuItem == animForwardItem)
-            setAnimationFrame(getAnimationFrame() + 1);
+            requestAnimationFrame(getAnimationFrame() + 1);
         else
-            setAnimationFrame(getAnimationFrame() - 1);
+            requestAnimationFrame(getAnimationFrame() - 1);
     }
     else if (menuItem == animFrameItem)
     {
-        setAnimationTime(animFrameItem->getValue());
+       requestAnimationTime(animFrameItem->getValue());
     }
     else if (menuItem == animSpeedItem)
         sendAnimationSpeedMessage();
 }
 
 void
-coVRAnimationManager::setAnimationTime(double t)
+coVRAnimationManager::requestAnimationTime(double t)
 {
     int step = static_cast<int>((t - timestepBase) / timestepScale + 0.5);
-    setAnimationFrame(step);
+    requestAnimationFrame(step);
 }
 
 void
@@ -241,7 +241,7 @@ void coVRAnimationManager::setRemoteSynchronize(bool state)
 }
 
 void
-coVRAnimationManager::setAnimationFrame(int currentFrame)
+coVRAnimationManager::requestAnimationFrame(int currentFrame)
 {
     if ((currentFrame != oldFrame) && animSyncItem->getState())
     {
@@ -281,6 +281,12 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
     else
         currentFrame = startFrame;
 
+    coVRPluginList::instance()->requestTimestep(currentFrame);
+}
+
+void
+coVRAnimationManager::setAnimationFrame(int currentFrame)
+{
     if (currentAnimationFrame != currentFrame)
     {
         currentAnimationFrame = currentFrame;
@@ -320,7 +326,7 @@ coVRAnimationManager::updateAnimationFrame()
             if ((cover->frameTime() - lastAnimationUpdate > 1.0 / animSpeedItem->getValue())
                 || (animSpeedItem->getValue() > AnimSliderMax - 0.001))
             {
-                setAnimationFrame(currentAnimationFrame + aniDirection);
+                requestAnimationFrame(currentAnimationFrame + aniDirection);
             }
         }
         else if (animSpeedItem->getValue() < 0.0)
@@ -328,13 +334,13 @@ coVRAnimationManager::updateAnimationFrame()
             if ((cover->frameTime() - lastAnimationUpdate > -1.0 / animSpeedItem->getValue())
                 || (animSpeedItem->getValue() < AnimSliderMin + 0.001))
             {
-                setAnimationFrame(currentAnimationFrame - aniDirection);
+                requestAnimationFrame(currentAnimationFrame - aniDirection);
             }
         }
     }
     else
     {
-        setAnimationFrame(currentAnimationFrame);
+        requestAnimationFrame(currentAnimationFrame);
     }
 }
 
@@ -380,7 +386,7 @@ coVRAnimationManager::update()
         if (animationRunning())
             enableAnimation(false);
 
-        setAnimationFrame(getAnimationFrame() + animWheelInteraction->getWheelCount());
+        requestAnimationFrame(getAnimationFrame() + animWheelInteraction->getWheelCount());
     }
     // Set selected animation frame:
     updateAnimationFrame();
@@ -419,7 +425,7 @@ coVRAnimationManager::forwardCallback(void *sceneGraph, buttonSpecCell *)
     coVRAnimationManager *sg = static_cast<coVRAnimationManager *>(sceneGraph);
     if (sg->animationRunning())
         sg->enableAnimation(false);
-    sg->setAnimationFrame(sg->getAnimationFrame() + 1);
+    sg->requestAnimationFrame(sg->getAnimationFrame() + 1);
 }
 
 void
@@ -428,7 +434,7 @@ coVRAnimationManager::backwardCallback(void *sceneGraph, buttonSpecCell *)
     coVRAnimationManager *sg = static_cast<coVRAnimationManager *>(sceneGraph);
     if (sg->animationRunning())
         sg->enableAnimation(false);
-    sg->setAnimationFrame(sg->getAnimationFrame() - 1);
+    sg->requestAnimationFrame(sg->getAnimationFrame() - 1);
 }
 
 void

@@ -214,6 +214,10 @@ MainWindow::createActions()
     importMenu->addAction(importCSVAction);
     connect(importCSVAction, SIGNAL(triggered()), this, SLOT(importCSVRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCSVAction, SLOT(setEnabled(bool)));
+    QAction *importCarMakerAction = new QAction(tr("Import CarMaker Road file"), exportMenu);
+    importMenu->addAction(importCarMakerAction);
+    connect(importCarMakerAction, SIGNAL(triggered()), this, SLOT(importCarMakerRoad()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importCarMakerAction, SLOT(setEnabled(bool)));
     QAction *importOSMAction = new QAction(tr("Import OSM Data"), exportMenu);
     importMenu->addAction(importOSMAction);
     connect(importOSMAction, SIGNAL(triggered()), this, SLOT(importOSMRoad()));
@@ -777,15 +781,16 @@ MainWindow::importIntermapRoad()
 void
 MainWindow::importCSVRoad()
 {
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
 
-        ProjectWidget *project = getActiveProject();
-        if (project == NULL)
-        {
-            project = createProject();
-        }
 
         if (project->importCSVFile(fileName))
         {
@@ -796,7 +801,32 @@ MainWindow::importCSVRoad()
     return;
 }
 
-/*! \brief load CSV file.
+/*! \brief load CarMaker Road file.
+*
+*/
+void
+MainWindow::importCarMakerRoad()
+{
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+    {
+
+
+        if (project->importCarMakerFile(fileName))
+        {
+            statusBar()->showMessage(tr("File has been imported."), 2000);
+            project->show();
+        }
+    }
+    return;
+}
+/*! \brief load OSM file.
 *
 */
 void
@@ -806,6 +836,7 @@ MainWindow::importOSMRoad()
     if (project == NULL)
     {
         project = createProject();
+        project->newFile();
     }
     osmi->setProject(project);
     osmi->exec();
@@ -916,7 +947,7 @@ MainWindow::getActiveProject()
 {
     // If there is an active SubWindow, return it as a ProjectWidget //
     //
-    QMdiSubWindow *activeSubWindow = mdiArea_->activeSubWindow();
+    QMdiSubWindow *activeSubWindow = mdiArea_->currentSubWindow();
     if (activeSubWindow)
     {
         return qobject_cast<ProjectWidget *>(activeSubWindow->widget());

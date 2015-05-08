@@ -1,7 +1,5 @@
 include_directories(
   ${OPENSCENEGRAPH_INCLUDE_DIRS}
-  "${COVISEDIR}/src/kernel/OpenVRUI"
-  "${COVISEDIR}/src/renderer/OpenCOVER"
 )
 
 set(HEADERS

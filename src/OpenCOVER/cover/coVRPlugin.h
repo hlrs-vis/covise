@@ -237,6 +237,13 @@ public:
         (void)t;
     }
 
+    //! the plugin should prepare to display timestep t
+    //! and call commitTimestep(t) when ready
+    virtual void requestTimestep(int t)
+    {
+        commitTimestep(t);
+    }
+
     //! for Trackingsystem plugins: return the Matrix of device station
     virtual void getMatrix(int station, osg::Matrix &mat)
     {
@@ -303,9 +310,16 @@ public:
         (void)bs;
     }
 
+protected:
+    //! call as a response to requestTimestep(t) when timestep t is prepared
+    void commitTimestep(int t);
+
 private:
+    void requestTimestepWrapper(int t);
+
     std::string m_name;
     CO_SHLIB_HANDLE handle;
+    int m_outstandingTimestep;
 };
 }
 #endif

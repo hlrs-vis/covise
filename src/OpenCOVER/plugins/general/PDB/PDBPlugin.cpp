@@ -117,7 +117,7 @@ static const string PYMOL_exe("pymol");
 #endif
 static const string PYMOL_opt = "-qcr";
 //static const string PYMOL_script = "pymol-pdb2wrl-batch.py";
-static const string PYMOL_script = "pymol/batch.py";
+static const string PYMOL_script = "batch.py";
 static string PYMOL;
 static const string WRL_EXT(".wrl");
 static const string PROTEIN("Protein: ");
@@ -154,7 +154,7 @@ bool PDBPlugin::init()
     plugin = this;
     PDBPluginModule = this;
 
-    PYMOL = PYMOL_exe + " " + PYMOL_opt + " " + getenv("COVISEDIR") + "/src/renderer/OpenCOVER/plugins/general/PDB/" + PYMOL_script + " -- ";
+    PYMOL = PYMOL_exe + " " + PYMOL_opt + " " + getenv("COVISEDIR") + "/scripts/pdb/" + PYMOL_script + " -- ";
 
     // default button size
     float proteinButtonSize[] = { 80, 15 };
@@ -959,23 +959,22 @@ osg::Node *PDBPlugin::loadStructure(string &filename)
     std::string fullpath = relativeTempPath + filename;
     cerr << "full path: " << fullpath << endl;
 
-    osgUtil::Optimizer optimizer;
-    osg::Node *node = readNodeFile(fullpath);
-
-    if (node)
+    osg::Node *node = coVRFileManager::instance()->loadFile(fullpath.c_str());
+    if (!node)
     {
-        optimizer.optimize(node, osgUtil::Optimizer::SHARE_DUPLICATE_STATE & osgUtil::Optimizer::MERGE_GEOMETRY & osgUtil::Optimizer::MERGE_GEODES);
-        //node->setName(CARTOON);
-    }
-    else
-    {
-        node = coVRFileManager::instance()->loadFile(fullpath.c_str());
-        if (!node)
+        node = readNodeFile(fullpath.c_str());
+        if (node)
+        {
+            osgUtil::Optimizer optimizer;
+            optimizer.optimize(node, osgUtil::Optimizer::SHARE_DUPLICATE_STATE & osgUtil::Optimizer::MERGE_GEOMETRY & osgUtil::Optimizer::MERGE_GEODES);
+        }
+        else
         {
             cerr << "Error: Loading model" << endl;
             node = new osg::Node();
         }
     }
+
     node->setName(CARTOON);
 
     MatrixTransform *mroot = dynamic_cast<MatrixTransform *>(node);
@@ -2225,7 +2224,7 @@ void PDBPlugin::initCoverAnimation()
 {
     coVRAnimationManager::instance()->setAnimationSpeed(12); // set default framerate
     coVRAnimationManager::instance()->enableAnimation(false);
-    coVRAnimationManager::instance()->setAnimationFrame(currentFrame);
+    coVRAnimationManager::instance()->requestAnimationFrame(currentFrame);
 }
 
 /** Load a VRML file into an OSG node.
@@ -2668,7 +2667,7 @@ void PDBPlugin::message(int type, int, const void *buf)
         // change frame
         //int* curFrame = (int*)buf;
         //currentFrame = *curFrame;
-        coVRAnimationManager::instance()->setAnimationFrame(mm->framenumber);
+        coVRAnimationManager::instance()->requestAnimationFrame(mm->framenumber);
         break;
     }
     // requires nothing *complete*

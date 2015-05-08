@@ -217,7 +217,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     cerr << endl;
     cerr << "*******************************************************************************" << endl;
     string text = CoviseVersion::shortVersion();
-    string text2 = "* COVISE " + text + " starting up, please be patient....                       *";
+    string text2 = "* COVISE " + text + " starting up, please be patient....                    *";
     cerr << text2 << endl;
     cerr << "*                                                                             *" << endl;
 
@@ -1025,7 +1025,6 @@ void CTRLHandler::startCrbUiDm()
     Config = new ControlConfig;
 
     //  start crb (covise request broker)
-    cerr << "*                                                                             *" << endl;
     cerr << "* Starting local request broker...                                            *" << endl;
     global.userinterfaceList->set_iconify(m_iconify);
     global.userinterfaceList->set_maximize(m_maximize);

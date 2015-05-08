@@ -119,10 +119,20 @@ BPA::BPA(std::string filename, osg::Group *parent)
     std::list<Trajectory *>::iterator it;
     for (it = trajectories.begin(); it != trajectories.end(); it++)
     {
-        if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
-            right.push_back((*it));
-        else
-            left.push_back((*it));
+        if((*it)->correctVelocity)
+        {
+        	if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
+        	    right.push_back((*it));
+        	else
+        	    left.push_back((*it));
+	}
+	else
+	{
+            if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
+                right.push_back((*it));
+            else
+                left.push_back((*it));
+	}
     }
     geode = NULL;
     sphere = new osg::Sphere(osg::Vec3(0, 0, 0), 0.1);
@@ -166,6 +176,8 @@ void BPA::calcIntersection()
             }
         }
     }
+    if(numIntersections >0)
+    {
     p /= numIntersections;
     double S = 0;
     for (int i = 0; i < numIntersections; i++)
@@ -179,6 +191,7 @@ void BPA::calcIntersection()
     char buf[1000];
     sprintf(buf, "Origin: %f %f %f, deviation=%f", p[0], p[1], p[2], (float)S);
     originLabel->setLabel(buf);
+    }
 }
 
 // this is called if the plugin is removed at runtime
@@ -486,8 +499,10 @@ void BPA::recalc()
     {
         (*it)->recalc();
     }
-
-    calcIntersection();
+    if(BPAPlugin::plugin->OriginComputationType->getState())
+    {
+	calcIntersection();
+    }
 }
 
 void BPA::tabletEvent(coTUIElement *tUIItem)
@@ -523,6 +538,7 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
 }
 void BPA::loadDxf(std::string filename)
 {
+    BPAPlugin::plugin->airResistance->setState(false);
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
     {
@@ -571,6 +587,18 @@ void BPA::loadDxf(std::string filename)
                             t->length = length->getValue();
                             t->startVelocity.normalize();
                             t->startVelocity *= velocity->getValue();
+			    t->viscosity= 0.005;
+			    t->surfacetension=0.06;
+			    double velo;
+			    double Vol;
+			    float kappa;
+			    t->gamma = 0.0;
+			    t->alpha = 0.0;    
+			    t->W = 3.8 / 1000.0;
+			    t->Vol = 0.11842;
+			    t->kappa = 0.15;
+			    t->Rho = 1055.0;
+			    t->D = 2 * pow((3 * t->Vol / pow(10, 9) / (t->kappa * 4 * M_PI)), 1.0 / 3.0); // from dried volume (Vol) to D, kappa is drying ratio ~0.15
                             t->createGeometry();
                             break;
                         }
@@ -584,6 +612,7 @@ void BPA::loadDxf(std::string filename)
 
 void BPA::loadnfix(std::string filename)
 {
+    BPAPlugin::plugin->OriginComputationType->setState(true);
     velocityLabel->setLabel("Kappa");
     velocity->setMin(0.05);
     velocity->setMax(0.3);
@@ -616,10 +645,10 @@ void BPA::loadnfix(std::string filename)
                 t->gamma = c;
                 t->W = W / 1000.0;
                 t->Vol = Vol;
+                t->correctVelocity = true;
                 t->computeVelocity();
                 t->startVelocity = v * t->velo;
                 t->length = length->getValue();
-                t->correctVelocity = true;
                 t->createGeometry();
             }
         }

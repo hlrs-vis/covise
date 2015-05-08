@@ -316,8 +316,12 @@ guess_archsuffix() {
 
 check_readme_archsuffix() {
    local basearch=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/mpi$//' -e 's/xenomai$//'  `
+   local readme="${COVISEDIR}/README-ARCHSUFFIX.txt"
+   if [ ! -r "$readme" -o ! -f "$readme" ]; then
+       readme="${COVISEDIR}/share/doc/covise/README-ARCHSUFFIX.txt"
+   fi
 
-    if ! grep $basearch ${COVISEDIR}/README-ARCHSUFFIX.txt >/dev/null 2>&1; then
-       echo "Unknown ARCHSUFFIX ${basearch} - please check ${COVISEDIR}/README-ARCHSUFFIX.txt"
+    if ! grep $basearch "$readme" >/dev/null 2>&1; then
+       echo "Unknown ARCHSUFFIX ${basearch} - please check $readme"
     fi
 }

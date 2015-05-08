@@ -192,8 +192,8 @@ void TopsanViewer::load(string name)
     if (coVRMSController::instance()->isMaster())
     {
         string cmdInput = getenv("COVISEDIR");
-        cmdInput.append("/src/renderer/OpenCOVER/plugins/general/PDB/Topsan/");
-        cmdInput.append("./topsan.pl ").append(name);
+        cmdInput.append("/scripts/pdb/topsan.pl");
+        cmdInput.append(" ").append(name);
         system(cmdInput.c_str());
         status = 1;
         coVRMSController::instance()->sendSlaves((char *)&status, sizeof(int));

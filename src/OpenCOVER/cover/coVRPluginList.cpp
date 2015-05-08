@@ -15,6 +15,7 @@
 #include "coVRSelectionManager.h"
 #include "RenderObject.h"
 #include "coVRMSController.h"
+#include "coVRAnimationManager.h"
 
 #include <config/CoviseConfig.h>
 #include "coVRTui.h"
@@ -27,6 +28,7 @@
 
 #include "VRViewer.h"
 #include "PluginMenu.h"
+#include "coVRConfig.h"
 
 namespace opencover
 {
@@ -127,6 +129,8 @@ void coVRPluginList::unloadAllPlugins()
 coVRPluginList::coVRPluginList()
 {
     singleton = this;
+    m_requestedTimestep = -1;
+    m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
     if (cover->debugLevel(1))
     {
@@ -164,6 +168,10 @@ coVRPluginList::coVRPluginList()
             i++; // skip name
             i++; //skip value (may be NULL)
         }
+    }
+    if(coVRConfig::instance()->viewpointsFile!=NULL)
+    {
+        plugins.push_back("ViewPoint");
     }
 
     std::vector<std::string> failed;
@@ -313,6 +321,27 @@ void coVRPluginList::preFrame()
 void coVRPluginList::setTimestep(int t) const
 {
     DOALL(plugin->setTimestep(t));
+}
+
+void coVRPluginList::requestTimestep(int t)
+{
+    assert(m_requestedTimestep == -1);
+    m_requestedTimestep = t;
+    assert(m_numOutstandingTimestepPlugins == 0);
+    ++m_numOutstandingTimestepPlugins;
+    DOALL(++m_numOutstandingTimestepPlugins; plugin->requestTimestepWrapper(t));
+    commitTimestep(t, NULL);
+}
+
+void coVRPluginList::commitTimestep(int t, coVRPlugin *plugin)
+{
+    assert(m_requestedTimestep == t);
+    assert(m_numOutstandingTimestepPlugins > 0);
+    --m_numOutstandingTimestepPlugins;
+    if (m_numOutstandingTimestepPlugins == 0) {
+        coVRAnimationManager::instance()->setAnimationFrame(t);
+        m_requestedTimestep = -1;
+    }
 }
 
 void coVRPluginList::postFrame() const

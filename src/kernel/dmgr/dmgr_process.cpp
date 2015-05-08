@@ -515,6 +515,7 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
 void DataManagerProcess::prepare_for_contact(int *p)
 {
     tmpconn = new ServerConnection(p, id, DATAMANAGER);
+    tmpconn->listen();
 }
 
 void DataManagerProcess::wait_for_contact()
@@ -525,7 +526,7 @@ void DataManagerProcess::wait_for_contact()
                       "call prepare_for_contact before wait_for_contact in datamanager");
         print_exit(__LINE__, __FILE__, 1);
     }
-    if (tmpconn->accept() < 0)
+    if (tmpconn->acceptOne() < 0)
     {
         print_comment(__LINE__, __FILE__,
                       "wait_for_contact in datamanager failed");
@@ -547,7 +548,7 @@ void DataManagerProcess::wait_for_dm_contact()
         print_exit(__LINE__, __FILE__, 1);
     }
 
-    if (tmpconn->accept() < 0)
+    if (tmpconn->acceptOne() < 0)
     {
         print_comment(__LINE__, __FILE__,
                       "wait_for_dm_contact in datamanager failed");
@@ -595,6 +596,7 @@ void DataManagerProcess::start_transfermanager()
 
     print_comment(__LINE__, __FILE__, "in start_transfermanager");
     transfermanager = new ServerConnection(&port, id, DATAMANAGER);
+    transfermanager->listen();
 #ifdef _WIN32
 
     itoa(chport, port);
@@ -603,6 +605,10 @@ void DataManagerProcess::start_transfermanager()
     cerr << "TransferManager: " << chport << " " << chkey << " " << chid << "\n";
     spawnlp(P_NOWAIT, "TransferManager", "TransferManager", chport, chkey, chid, NULL);
     cerr << "nach spawnlp in start_transfermanager";
+    itoa(chport, port);
+    itoa(chkey, shm->get_key());
+    itoa(chid, id + 1);
+    cerr << "TransferManager: " << chport << " " << chkey << " " << chid << "\n";
     if (0)
     {
         //
@@ -610,17 +616,13 @@ void DataManagerProcess::start_transfermanager()
 #else
     if (fork() == 0)
     {
-        itoa(chport, port);
-        itoa(chkey, shm->get_key());
-        itoa(chid, id + 1);
-        cerr << "TransferManager: " << chport << " " << chkey << " " << chid << "\n";
         execlp("TransferManager", "TransferManager", chport, chkey, chid, NULL);
         cerr << "nach execlp in start_transfermanager";
     }
 #endif
     else
     {
-        if (transfermanager->accept() < 0)
+        if (transfermanager->acceptOne() < 0)
         {
             fprintf(stderr, "DataManagerProcess: accept failed in start_transfermanager\n");
             return;
@@ -2147,13 +2149,14 @@ int DMEntry::make_data_conn(char *new_interface)
     length = strlen(new_interface) + 1 + SIZEOF_IEEE_INT;
     data = new char[length];
     tmp_conn = new ServerConnection(&data_port, id, DATAMANAGER);
+    tmp_conn->listen();
     *(int *)data = data_port;
     strcpy(&data[SIZEOF_IEEE_INT], new_interface);
     Message *msg = new Message(COVISE_MESSAGE_COMPLETE_DATA_CONNECTION, data, (int)length);
     conn->send_msg(msg);
     delete msg;
 
-    if (tmp_conn->accept() < 0)
+    if (tmp_conn->acceptOne() < 0)
     {
         fprintf(stderr, "DMEntry: accept in make_data_conn failed\n");
         return -1;

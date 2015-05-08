@@ -1179,4 +1179,4 @@ BC_TYPE PLMXMLRechenraum::readDirection(const char *str)
     }
 }
 
-MODULE_MAIN(UnderDev, PLMXMLRechenraum)
+MODULE_MAIN(HLRS, PLMXMLRechenraum)

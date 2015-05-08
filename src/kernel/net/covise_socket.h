@@ -165,7 +165,8 @@ public:
     SimpleServerConnection *copySimpleAndAccept();
     int available(void);
     int listen(); // listen for actual connection (server)
-    virtual int accept(); // wait for and accept a connection (server)
+    virtual int accept(); // listen and wait for and accept a connection (server)
+    int acceptOnly(); //  accept a connection (server) 
     int accept(int); // listen and wait for and accept a connection (server) wait max secondes
     int acceptOnly(int); // wait for and accept a connection (server) wait max secondes
     // returns -1 when no accept, 0 otherwise

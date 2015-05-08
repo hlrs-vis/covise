@@ -366,13 +366,14 @@ void TUIMainWindow::processMessages()
 
                 //qDebug() << "open texConn";
                 texConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
+                texConn->listen();
                 covise::TokenBuffer tb;
                 tb << port;
                 send(tb);
 
                 //qDebug() << "sent port" << port;
 
-                if (texConn->accept(60) < 0)
+                if (texConn->acceptOne(60) < 0)
                 {
                     qDebug() << "Could not open server port" << port;
                     delete texConn;
@@ -400,11 +401,12 @@ void TUIMainWindow::processMessages()
                 }
 
                 sgConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
+                sgConn->listen();
                 covise::TokenBuffer stb;
                 stb << port;
                 send(stb);
 
-                if (sgConn->accept(60) < 0)
+                if (sgConn->acceptOne(60) < 0)
                 {
                     fprintf(stderr, "Could not open server port %d\n", port);
                     delete sgConn;

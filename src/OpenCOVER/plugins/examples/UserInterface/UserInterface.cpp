@@ -2,8 +2,9 @@
 
 #include <cover/mui/ToggleButton.h>
 #include <cover/mui/Tab.h>
-#include <cover/mui/PotiSlider.h>
+#include <cover/mui/ValueRegulator.h>
 #include <cover/mui/Frame.h>
+#include <cover/mui/TabFolder.h>
 #include <cover/mui/support/ConfigManager.h>
 #include <cover/mui/LabelElement.h>
 #include <cover/mui/Container.h>
@@ -24,8 +25,12 @@ bool UserInterface::init()
     // get Instance of ConfigManager
     ConfigManager=mui::ConfigManager::getInstance();
 
+    // create new TabFolder
+    TabFolder1.reset(mui::TabFolder::create("plugins.examples.UserInterface.TabFolder1"));
+    TabFolder1->setLabel("TabFolder");
+
     // create new Tab in TabFolder
-    Tab1.reset(mui::Tab::create("plugins.examples.UserInterface.Tab1"));
+    Tab1.reset(mui::Tab::create("plugins.examples.UserInterface.Tab1", TabFolder1.get()));
     Tab1->setLabel("Tab1");
 
 
@@ -40,10 +45,10 @@ bool UserInterface::init()
     Button2->setEventListener(this);
     Button2->setPos(1,0);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
-    // create new PotiSlider in Tab1
-    Slider1.reset(mui::PotiSlider::create("plugins.examples.UserInterface.Slider1", Tab1.get(), 0., 100., 50.));
-    Slider1->setLabel("Slider1");
-    Slider1->setPos(0,1);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
+    // create new ValueRegulator in Tab1
+    ValueRegulator1.reset(mui::ValueRegulator::create("plugins.examples.UserInterface.Slider1", Tab1.get(), 0., 100., 50.));
+    ValueRegulator1->setLabel("ValueRegulator1");
+    ValueRegulator1->setPos(0,1);                                                                                   // will be obeyed, if there is no positioning instruction for this element in the configuration file
 
     // create new Frame-Element
     Frame.reset(mui::Frame::create("plugins.examples.UserInterface.Frame", Tab1.get()));
@@ -54,6 +59,7 @@ bool UserInterface::init()
     Label.reset(mui::LabelElement::create("plugins.examples.UserInterface.Label1", Frame.get()));
     Label->setLabel("Label");
     Label->setPos(0,3);                                                                                     // will be obeyed, if there is no positioning instruction for this element in the configuration file
+
 
     return true;
 }

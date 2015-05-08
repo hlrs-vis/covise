@@ -195,7 +195,7 @@ void VrmlNodeTimesteps::setField(const char *fieldName,
     if (strcmp(fieldName, "timestep") == 0)
     {
         VrmlSFInt frame = (VrmlSFInt &)fieldValue;
-        coVRAnimationManager::instance()->setAnimationFrame(frame.get());
+        coVRAnimationManager::instance()->requestAnimationFrame(frame.get());
     }
 }
 

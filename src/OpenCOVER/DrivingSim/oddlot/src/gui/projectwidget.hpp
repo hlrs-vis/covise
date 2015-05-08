@@ -97,9 +97,10 @@ public:
     bool exportSpline();
     bool importIntermapFile(const QString &fileName);
     bool importCSVFile(const QString &fileName);
+    bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
 
-    void addLineStrip(QString name = "");
+    RSystemElementRoad *addLineStrip(QString name = "");
     size_t getMaxLinearLength(size_t start);
     float getLinearError(size_t start, size_t len);
 

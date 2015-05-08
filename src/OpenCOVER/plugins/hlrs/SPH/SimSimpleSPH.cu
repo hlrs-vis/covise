@@ -263,7 +263,7 @@ void SimSimpleSPH::Simulate(bool doTiming, bool progress, bool gridWallCollision
 	{
 		char tmp[2048];
 		sprintf(tmp,"%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t\n", time_hashSPHData, time_radixsort, time_updatelists, time_computeDensity, time_ComputeStep2s, time_integrateForces);
-		printf(tmp);
+		printf("%s", tmp);
 	}
 
 }

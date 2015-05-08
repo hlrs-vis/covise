@@ -1,7 +1,7 @@
 // class, which creates a Poti as VRUI-Element
 // creates a Slider as TUI-Element
 
-#include "PotiSlider.h"
+#include "ValueRegulator.h"
 #include "support/ConfigManager.h"
 #include "Container.h"
 #include <cover/coVRPluginSupport.h>
@@ -13,7 +13,7 @@
 using namespace mui;
 
 // constructor:
-PotiSlider::PotiSlider(const std::string uniqueIdentifier, Container* parent, float min, float max, float defaultValue)
+ValueRegulator::ValueRegulator(const std::string uniqueIdentifier, Container* parent, float min, float max, float defaultValue)
     : mui::Element(uniqueIdentifier, parent)
 {
     minVal = min;
@@ -31,20 +31,20 @@ PotiSlider::PotiSlider(const std::string uniqueIdentifier, Container* parent, fl
     static_cast<opencover::coTUIFloatSlider*>(TUIElement.get())->setEventListener(this);
 }
 
-mui::PotiSlider* PotiSlider::create(std::string uniqueIdentifier, Container *parent, float min, float max, float defaultValue)
+mui::ValueRegulator* ValueRegulator::create(std::string uniqueIdentifier, Container *parent, float min, float max, float defaultValue)
 {
-    PotiSlider *potiSlider = new PotiSlider(uniqueIdentifier, parent, min, max, defaultValue);
-    potiSlider->init();
-    return potiSlider;
+    ValueRegulator *valueRegulator = new ValueRegulator(uniqueIdentifier, parent, min, max, defaultValue);
+    valueRegulator->init();
+    return valueRegulator;
 }
 
 // destructor
-PotiSlider::~PotiSlider()
+ValueRegulator::~ValueRegulator()
 {
 }
 
 // called, if there is an interaction with the TUI
-void PotiSlider::tabletEvent(opencover::coTUIElement *tUIItem)
+void ValueRegulator::tabletEvent(opencover::coTUIElement *tUIItem)
 {
     if (tUIItem == TUIElement.get())
     {
@@ -59,7 +59,7 @@ void PotiSlider::tabletEvent(opencover::coTUIElement *tUIItem)
 }
 
 // called, if there is an interaction with the VRUI
-void PotiSlider::menuEvent(vrui::coMenuItem *menuItem)
+void ValueRegulator::menuEvent(vrui::coMenuItem *menuItem)
 {
     if (menuItem == VRUIMenuItem.get())
     {
@@ -73,12 +73,12 @@ void PotiSlider::menuEvent(vrui::coMenuItem *menuItem)
     }
 }
 
-float PotiSlider::getValue()
+float ValueRegulator::getValue()
 {
     return value;
 }
 
-void PotiSlider::setValue(float newVal)
+void ValueRegulator::setValue(float newVal)
 {
     value = newVal;
     static_cast<opencover::coTUIFloatSlider*>(TUIElement.get())->setValue(value);

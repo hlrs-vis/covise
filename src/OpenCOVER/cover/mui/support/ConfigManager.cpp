@@ -47,6 +47,14 @@ ConfigManager::ConfigManager()
             configFile= std::string(covisedir) + "/config/" + configFile;
         }
     }
+
+    FILE *file=fopen(configFile.c_str(), "r");
+
+    if (file != NULL)
+    {
+        parser.reset(new ConfigParser(configFile));
+        fileExists = true;
+    }
 }
 
 //destructor:
@@ -93,7 +101,7 @@ mui::Container* ConfigManager::getCorrectParent(mui::Container* parent, mui::UIT
 {
     if (configFileExists())
     {
-        std::pair<std::string, bool> parentName=parser->getParent(UI,device, uniqueIdentifier);
+        std::pair<std::string, bool> parentName=parser->getParent(UI, device, uniqueIdentifier);
         if (parentName.second)                     // no entry for parent in configuration file
         {
             if (elementManager->isContainer(parentName.first))

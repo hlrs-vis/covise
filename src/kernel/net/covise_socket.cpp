@@ -671,10 +671,6 @@ int Socket::setTCPOptions()
 
 int Socket::accept()
 {
-    int tmp_sock_id;
-#ifdef DEBUG
-    printf("Listening for connect requests on port %d\n", port);
-#endif
     errno = 0;
     int err = ::listen(sock_id, 20);
     if (err == -1)
@@ -683,6 +679,15 @@ int Socket::accept()
                 host->getAddress(), port, coStrerror(getErrno()));
         return -1;
     }
+    return acceptOnly();
+}
+int Socket::acceptOnly()
+{
+    int tmp_sock_id;
+#ifdef DEBUG
+    printf("Listening for connect requests on port %d\n", port);
+#endif
+    errno = 0;
 
     socklen_t length = sizeof(s_addr_in);
     tmp_sock_id = (int)::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);

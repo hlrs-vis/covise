@@ -213,8 +213,8 @@ public:
     };
     virtual ~ServerConnection() // close connection
         {};
-    int accept(); // accept connection (after bind)
-    int accept(int); // accept connection (after bind) and wait int seconds
+    int acceptOne(); // accept connection (after bind)
+    int acceptOne(int); // accept connection (after bind) and wait int seconds
     int listen(); // listen for connection (after bind)
     ServerConnection *spawn_connection(); // accept after select for open socket
     // accept after select for open socket

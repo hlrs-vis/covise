@@ -31,7 +31,7 @@ public:
     //************************************************************
     // Parser
     const std::string getConfigFile();
-    void setAdress(const std::string ConfigAdress);
+    //void setAdress(const std::string ConfigAdress);
     std::pair<std::string, bool> getLabel(mui::UITypeEnum UI, mui::DeviceTypesEnum Device, const std::string uniqueIdentifier);
     bool existAttributeInConfigFile(UITypeEnum UI, DeviceTypesEnum Device, std::string uniqueIdentifier, AttributesEnum Attribute);
 

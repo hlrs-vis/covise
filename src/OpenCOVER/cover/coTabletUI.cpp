@@ -1861,7 +1861,7 @@ int coTUISGBrowserTab::openServer()
     conn = NULL;
 
     ServerConnection *sConn = new ServerConnection(&texturePort, 0, (sender_type)0);
-
+    sConn->listen();
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
     tb << TABLET_TEX_PORT;
@@ -1870,7 +1870,7 @@ int coTUISGBrowserTab::openServer()
 
     coTabletUI::instance()->send(tb);
 
-    if (sConn->accept(60) < 0)
+    if (sConn->acceptOne(60) < 0)
     {
         fprintf(stderr, "Could not open server port %d\n", texturePort);
         delete sConn;

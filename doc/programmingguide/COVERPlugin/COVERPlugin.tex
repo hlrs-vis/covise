@@ -165,7 +165,7 @@ A minimal configuration file to enable OpenCOVER's Vrml97 plugin would look like
 \section{The Plugin Interface}
 
 During execution OpenCOVER calls the functions provided by the plugin at certain 
-points in the rendering loop. The functions are declared in \code{kernel/coVRPlugin.h}. 
+points in the rendering loop. The functions are declared in \code{cover/coVRPlugin.h}. 
 
 None of these methods have to implemented, all are optional.
 However, you should make sure that all resources acquired by your plugin are released
@@ -620,7 +620,7 @@ The class \code{coVRPluginSupport} gives the plugin programmer access to the Ope
 graph if he wants to add own geometry, or needs access to the menu to add new 
 menu items, \ldots
 This class is a singleton, the static instance of \code{coVRPluginSupport} named \code{cover} is
-declared in \code{kernel/coVRPluginSupport.h}.
+declared in \code{cover/coVRPluginSupport.h}.
 
 Example: 
 \begin{verbatim}
@@ -1140,7 +1140,7 @@ int len, const void *buf);}\\
 \begin{longtable}{|p{4cm}|p{2.5cm}|p{7cm}|}
 \hline
 \multicolumn{3}{|p{13.5cm}|}
-{\bf void addedNode(osg::Node *node,coVRPlugin *myPlugin);}\\
+{\bf void addedNode(osg::Node *node, coVRPlugin *myPlugin);}\\
 \hline
 {Description:}  
            & \multicolumn{2}{|p{9.5cm}|}{
@@ -1164,9 +1164,9 @@ Interface library (OpenVRUI), which is used by OpenCOVER to generate the pinboar
 and its submenus. With this library simple user interface elements
 like labels and icons and more complex elements like menu items can
 be created. The OpenVRUI header files are located in 
-covise/src/kernel/OpenVRUI. A small example how to use the
+\code{covise/src/OpenCOVER/OpenVRUI}. A small example how to use the
 library is available in the Cube plugin source code under
-\code{covise/src/renderer/OpenCOVER/plugins/examples/Cube}.
+\code{covise/src/OpenCOVER/plugins/examples/Cube}.
 
 Sometimes a plugin needs to create own menu items or submenus
 and needs to add them to the main pinboard. The method getMenu
@@ -1784,9 +1784,9 @@ output object, for example a single point and append it to this object.
 
 \subsection{Other functions}
 
-If an OpenCOVER plugin has the functions coVRAddObject and coVRRemoveObject 
+If an OpenCOVER plugin has the functions \code{addObject} and \code{removeObject} 
 implemented, it is informed if OpenCOVER receives "ADD OBJECT" or "REMOVE OBJECT". 
-If it has the function coVRAddInteractor implemented it is also informed, when 
+If it has the function \code{newInteractor} implemented it is also informed, when 
 the COVISE object has feedback attributes attached.
 
 With the coFeedback::getXXX methods, the plugin can access the values
@@ -1851,11 +1851,11 @@ methods:
 \hline
 \end{longtable}  
 
-Please look at covise/src/renderer/OpenCOVER/kernel/coInteractor.h for 
+Please look at \code{covise/src/OpenCOVER/cover/coInteractor.h} for 
 the methods to receive and set also boolean, scalar, vector, string and choice 
 parameters.
 
-With coVRNewInteractor, coVRAddObject and coVRRemoveObject a plugin
+With \code{newInteractor}, \code{addObject} and \code{removeObject} a plugin
 is informed about any object which is added to OpenCOVER or removed from
 OpenCOVER. There are a few functions which can be used to find out from
 which module the coInteractor comes from or for which plugin it is
@@ -1907,7 +1907,7 @@ intended:
 \subsection{A Plugin Programming Example}
 
 Have a look at the programming example in the directory
-covise/src/renderer/OpenCOVER/plugins/examples/Cube. 
+\code{covise/src/OpenCOVER/plugins/examples/Cube}.
 
 The plugin \code{Cube} implements interaction with the COVISE example 
 module \code{Cube}. The \code{Cube} module generates a solid cube. The

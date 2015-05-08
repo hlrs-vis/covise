@@ -25,11 +25,13 @@ TabFolder::TabFolder(const std::string uniqueIdentifier, Container* parent)
     if (parent == NULL)
     {
         TUITab.reset(new opencover::coTUITab(storage[mui::TUIEnum].label, opencover::coVRTui::instance()->mainFolder->getID()));
+        TUITab->setPos(0,0);
         TUIElement.reset(new opencover::coTUITabFolder(storage[mui::TUIEnum].label, TUITab->getID()));
     }
     else
     {
         TUITab.reset(new opencover::coTUITab(storage[mui::TUIEnum].label, parent->getTUIID()));
+        TUITab->setPos(0,0);
         TUIElement.reset(new opencover::coTUITabFolder(storage[mui::TUIEnum].label, TUITab->getID()));
     }
 }
