@@ -1410,12 +1410,12 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         meshdir += sConstant.str();
                         if (i == 0)
                         {
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, 0);
+                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, -1);
                             basebounds[0] = p;
                         }
                         else
                         {
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, 0);
+                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1);
                         }
                     }
                     else
