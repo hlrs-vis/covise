@@ -5,10 +5,12 @@ SET(HEADERS
 
 SET(SOURCES
   TensorScal.cpp
+  jacobi_eigenvalue.cpp
 )
 
 SET(EXTRASOURCES
   TensorScal.h
+  jacobi_eigenvalue.hpp
 )
 
 ADD_COVISE_MODULE(Tools TensorScal ${EXTRASOURCES} )

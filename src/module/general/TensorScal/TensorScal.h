@@ -38,10 +38,12 @@ private:
     // parameters
 
     coChoiceParam *p_option;
+    coChoiceParam *p_voption;
 
     // ports
     coInputPort *p_inPort;
     coOutputPort *p_outPort;
+    coOutputPort *p_voutPort;
 
     // private functions
     // to be moved to the Tensor class in the library.
@@ -51,7 +53,9 @@ private:
     float *F3D_Spur(int nopoints, const float *t_addr);
     float *S2D_Stress(int nopoints, const float *t_addr);
     float *S3D_Stress(int nopoints, const float *t_addr);
-
+    void  S3D_Principal(int nopoints, const float *t_addr, int voption,
+			float *xv, float *yv, float *zv);
+    float *S3D_Principal_Scalar(int nopoints, const float *t_addr, int option);
 public:
     TensScal(int argc, char *argv[]);
 };
