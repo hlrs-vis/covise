@@ -24,6 +24,7 @@
 \****************************************************************************/
 
 #include <api/coSimpleModule.h>
+#include <string>
 using namespace covise;
 
 class ReadABAQUSfil : public coSimpleModule
@@ -42,16 +43,36 @@ private:
     // File selector for .fil result file
     coFileBrowserParam *p_filFile;
 
-    // Drop down list for element results
+    // Drop down list for element scalar results
     coChoiceParam *p_elemres;
+    // Drop down list for element tensor results
+    coChoiceParam *p_telemres;
+    // Drop down list for nodal results
+    coChoiceParam *p_nodalres;
 
+    // String input field for Element Set selection
+    coStringParam *p_selectedSets;
+    
     // ------------------------------------------------------------
     // -- ports
 
     // Grid ----------------------
     coOutputPort *p_gridOutPort;
+    // SetGrid -------------------
+    coOutputPort *p_SetgridOutPort;
+
     // Element results -----------
     coOutputPort *p_eresOutPort;
+    // Element results -----------
+    coOutputPort *p_tresOutPort;
+    // Nodal results -------------
+    coOutputPort *p_nresOutPort;
+    // SetGrid Element results ---
+    coOutputPort *p_SetgridResPort;
+    // SetGrid Element results ---
+    coOutputPort *p_SetgridTResPort;
+    // SetGrid Nodal results -----
+    coOutputPort *p_SetgridnResPort;
 
     // Global Variables to store the .fil file in memeory
     // initialized in : param
@@ -59,7 +80,7 @@ private:
     int64_t *fil_array;
     int64_t data_length;
 
-    // Ensure equivalence of loaded .file file and selected
+    // Ensure equivalence of loaded .fil file and selected
     // parameters. Needed in case of reload of stored map
     const char *fil_name;
 
@@ -72,21 +93,45 @@ private:
     struct t_jobhead
     {
 
-        char version[9];
-        char date[16];
-        char time[8];
+      char version[9];
+      char date[16];
+      char time[8];
+      
+      int no_conn;
+      int no_nodes;
+      int no_elems, no_sup_elems;
+      
+      int no_node_sets, no_elem_sets;
 
-        int no_conn;
-        int no_nodes;
-        int no_elems, no_sup_elems;
+      float typical_el_length;
 
-        int no_node_sets, no_elem_sets;
-
-        float typical_el_length;
-
-        int no_steps;
+      int no_steps;
 
     } jobhead;
+
+    typedef struct tSets
+    {
+      string type;
+      string cname;
+      int    cref;
+      string name;
+
+      int      no_nodes;
+      int      no_elems;
+      int*     elem_numbers;
+      int*     node_numbers;
+      int      no_conn;
+
+    } tSets;
+
+    typedef struct tCref
+    {
+      int    cref;
+      string name;
+    } tCref;
+
+    // Container for set parameters
+    vector<tSets> vsets;
 
 public:
     ReadABAQUSfil(int argc, char *argv[]);
