@@ -589,13 +589,13 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 
                     default:
 
-		      sendError("While counting connections : Unknown element type '%ld'", 
-				(long int)fil_array[jj + 3]);
-
 		      char temp[9];
 		      temp[8] = 0;
 		      *(int64_t *)temp = fil_array[jj + 3];
 		      printf("%8s - %ld\n", temp, (long int)fil_array[jj + 3]);
+		      printf("Module execution aborted\n");
+		      sendError("While counting connections : Unknown element type '%s' '%ld'", 
+				temp, (long int)fil_array[jj + 3]);
 		      return;
 		      break;
                     };
