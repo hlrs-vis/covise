@@ -57,7 +57,7 @@ int TensScal::compute(const char *)
     //int option = p_option->getValue();
 
     const coDistributedObject *obj = p_inPort->getCurrentObject();
-
+    coDoVec3 *vdata=NULL;
     if (!obj)
     {
         sendError("Did not receive object at port '%s'", p_inPort->getName());
@@ -79,7 +79,7 @@ int TensScal::compute(const char *)
         tensor->getAddress(&t_addr);
 
 	//Allocate Output Port Vector Data Object *****************************
-	coDoVec3 *vdata = new coDoVec3(p_voutPort->getObjName(),
+	vdata = new coDoVec3(p_voutPort->getObjName(),
 				       nopoints);
 
 	// if object was not properly allocated *******************************
@@ -233,7 +233,11 @@ int TensScal::compute(const char *)
         return FAIL;
     }
     p_outPort->setCurrentObject(u_scalar_data);
-
+    if(vdata)
+    {
+        p_voutPort->setCurrentObject(vdata);
+    }
+    
     return SUCCESS;
 }
 
