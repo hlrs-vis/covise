@@ -12,7 +12,7 @@ namespace OpenCOVERPlugin
 
    public sealed class COVER
    {
-       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform };
+       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView };
       public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
       private Thread messageThread;
 
@@ -22,6 +22,8 @@ namespace OpenCOVERPlugin
       private Autodesk.Revit.DB.Document document;
       public MessageBuffer currentMessage;
       public int currentMessageType;
+
+      Autodesk.Revit.UI.ExternalEvent messageEvent;
 
       class externalMessageHandler : Autodesk.Revit.UI.IExternalEventHandler
       {
@@ -691,13 +693,33 @@ namespace OpenCOVERPlugin
                       ElementPosCurve.Move(translationVec);
                   }
                   break;
+              case MessageTypes.UpdateView:
+                  {
+                      int elemID = buf.readInt();
+                      double ex = buf.readDouble();
+                      double ey = buf.readDouble();
+                      double ez = buf.readDouble();
+                      double dx = buf.readDouble();
+                      double dy = buf.readDouble();
+                      double dz = buf.readDouble();
+                      double ux = buf.readDouble();
+                      double uy = buf.readDouble();
+                      double uz = buf.readDouble();
+
+                      Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                      Autodesk.Revit.DB.Element elem = document.GetElement(id);
+                      Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)elem;
+                      Autodesk.Revit.DB.ViewOrientation3D ori = new Autodesk.Revit.DB.ViewOrientation3D(new Autodesk.Revit.DB.XYZ(ex, ey, ez), new Autodesk.Revit.DB.XYZ(ux, uy, uz), new Autodesk.Revit.DB.XYZ(dx, dy, dz));
+                      v3d.SetOrientation(ori);
+                  }
+                  break;
+                  
           }
       }
 
       public void handleMessages()
       {
           Byte[] data = new Byte[2000];
-          Autodesk.Revit.UI.ExternalEvent messageEvent = Autodesk.Revit.UI.ExternalEvent.Create(handler);
           while (true)
           {
               int len = 0;
@@ -746,6 +768,7 @@ namespace OpenCOVERPlugin
       {
          document = doc;
          handler = new externalMessageHandler();
+         messageEvent = Autodesk.Revit.UI.ExternalEvent.Create(handler);
          try
          {
             toCOVER = new TcpClient(host, port);

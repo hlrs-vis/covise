@@ -89,8 +89,9 @@ coVRConfig::coVRConfig()
     /// path for the viewpoint file: initialized by 1st param() call
 
     m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
-
+    
     collaborativeOptionsFile = NULL;
+    viewpointsFile = NULL;
     int hsize, vsize, x, y, z;
     m_numScreens = 1;
     m_numPipes = 1;

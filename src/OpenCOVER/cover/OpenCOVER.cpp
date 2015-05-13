@@ -224,7 +224,7 @@ void OpenCOVER::init()
     vrbHost = NULL;
     vrbPort = 0;
     int c = 0;
-    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:c:::")) != -1)
+    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::")) != -1)
     {
         switch (c)
         {
@@ -235,6 +235,10 @@ void OpenCOVER::init()
         case 's':
             coVRConfig::instance()->collaborativeOptionsFile = new char[strlen(optarg) + 1];
             strcpy(coVRConfig::instance()->collaborativeOptionsFile, optarg);
+            break;
+        case 'v':
+            coVRConfig::instance()->viewpointsFile = new char[strlen(optarg) + 1];
+            strcpy(coVRConfig::instance()->viewpointsFile, optarg);
             break;
         case 'C':
         {

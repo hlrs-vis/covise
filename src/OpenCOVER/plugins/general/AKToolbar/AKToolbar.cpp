@@ -340,7 +340,7 @@ void AKToolbar::menuEvent(coMenuItem *menuItem)
     }
     if (menuItem == animSlider_)
     {
-        coVRAnimationManager::instance()->setAnimationTime(animSlider_->getValue());
+        coVRAnimationManager::instance()->requestAnimationTime(animSlider_->getValue());
         return;
     }
 

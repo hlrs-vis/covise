@@ -45,6 +45,7 @@ namespace opencover
 class buttonSpecCell;
 class COVEREXPORT coVRAnimationManager : public vrui::coMenuListener
 {
+    friend class coVRPluginList;
 public:
     coVRAnimationManager();
     ~coVRAnimationManager();
@@ -60,8 +61,8 @@ public:
     {
         return currentAnimationFrame;
     };
-    void setAnimationFrame(int currentFrame);
-    void setAnimationTime(double t);
+    void requestAnimationFrame(int currentFrame);
+    void requestAnimationTime(double t);
     float getAnimationSpeed();
     void setAnimationSpeed(float speed);
     bool animationRunning();
@@ -100,6 +101,8 @@ public:
     vrui::coMenuItem *getMenuButton(const std::string &functionName);
 
 private:
+    void setAnimationFrame(int currentFrame);
+
     std::vector<osg::Sequence *> listOfSeq;
     float AnimSliderMin, AnimSliderMax;
     float timeState;

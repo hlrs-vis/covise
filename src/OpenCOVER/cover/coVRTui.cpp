@@ -1021,7 +1021,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     else if (tUIItem == AnimTimestep)
     {
         animationCurrentFrame = AnimTimestep->getValue();
-        coVRAnimationManager::instance()->setAnimationFrame(animationCurrentFrame);
+        coVRAnimationManager::instance()->requestAnimationFrame(animationCurrentFrame);
     }
     else if (tUIItem == AnimSpeed)
     {
@@ -1149,12 +1149,12 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     else if (tUIItem == AnimForward)
     {
         coVRAnimationManager::instance()->enableAnimation(false);
-        coVRAnimationManager::instance()->setAnimationFrame(coVRAnimationManager::instance()->getAnimationFrame() + 1);
+        coVRAnimationManager::instance()->requestAnimationFrame(coVRAnimationManager::instance()->getAnimationFrame() + 1);
     }
     else if (tUIItem == AnimBack)
     {
         coVRAnimationManager::instance()->enableAnimation(false);
-        coVRAnimationManager::instance()->setAnimationFrame(coVRAnimationManager::instance()->getAnimationFrame() - 1);
+        coVRAnimationManager::instance()->requestAnimationFrame(coVRAnimationManager::instance()->getAnimationFrame() - 1);
     }
 }
 

@@ -585,7 +585,7 @@ ARTracePlugin::preFrame()
             newTS = newTS - numTS;
         cerr << "newTS: " << newTS << endl;
 
-        coVRAnimationManager::instance()->setAnimationFrame(newTS);
+        coVRAnimationManager::instance()->requestAnimationFrame(newTS);
     }
     if (enabled)
     {

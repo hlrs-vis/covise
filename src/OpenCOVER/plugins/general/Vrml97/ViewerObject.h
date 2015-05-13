@@ -78,7 +78,7 @@ public:
     osg::ref_ptr<osg::TexEnv> tEnv;
     osg::ref_ptr<osg::Image> texImage;
     osg::Matrix newTMat;
-    bool mirror;
+    unsigned char mirror; // 1 = vertical 2 = horizontal
 };
 
 #define NODE_GENERAL 0

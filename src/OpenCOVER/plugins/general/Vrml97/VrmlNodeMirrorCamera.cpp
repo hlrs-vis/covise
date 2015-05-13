@@ -152,7 +152,7 @@ void VrmlNodeMirrorCamera::render(Viewer *v)
 
             osg::Matrix VRMLRootMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
             osg::Matrix tr;
-            VrmlMat4 currentTransform;
+            //VrmlMat4 currentTransform;
             tr = viewer->currentTransform;
             tr.postMult(viewer->vrmlBaseMat);
             tr = tr.inverse(tr);

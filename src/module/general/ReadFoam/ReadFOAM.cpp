@@ -195,7 +195,14 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
 
         //Print Boundary-Patch List into covise
         std::stringstream meshdir;
-        meshdir << casedir << "/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+        if (m_case.numblocks > 0)
+        {
+            meshdir << casedir << "/processor0/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+        }
+        else
+        {
+            meshdir << casedir << "/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+        }
         coModule::sendInfo("Listing Boundary Patches!");
         Boundaries bounds = loadBoundary(meshdir.str());
         for (int i = 0; i < bounds.boundaries.size(); ++i)
@@ -1403,12 +1410,12 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         meshdir += sConstant.str();
                         if (i == 0)
                         {
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, 0);
+                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, -1);
                             basebounds[0] = p;
                         }
                         else
                         {
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, 0);
+                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1);
                         }
                     }
                     else

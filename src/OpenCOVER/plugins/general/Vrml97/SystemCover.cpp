@@ -798,7 +798,7 @@ void SystemCover::setMenuVisibility(bool vis)
 
 void SystemCover::setTimeStep(int ts) // set the timestep number for COVISE Animations
 {
-    coVRAnimationManager::instance()->setAnimationFrame(ts);
+    coVRAnimationManager::instance()->requestAnimationFrame(ts);
 }
 
 void SystemCover::setActivePerson(int p) // set the active Person
