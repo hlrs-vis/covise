@@ -578,16 +578,25 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 		      jobhead.no_sup_elems = jobhead.no_sup_elems - 1;
 		      break;
 
-                    default:
+		    case 2325039727751676740: // DCOUP3D
+		      //jobhead.no_conn  = jobhead.no_conn  + 2;
+		      jobhead.no_sup_elems = jobhead.no_sup_elems - 1;
+		      break;
 
-		      sendError("While counting connections : Unknown element type '%ld'", 
-				(long int)fil_array[jj + 3]);
+		    case 2314885530818458707: // S4
+		      jobhead.no_conn = jobhead.no_conn + 4;
+		      break;
+
+                    default:
 
 		      char temp[9];
 		      temp[8] = 0;
 		      *(int64_t *)temp = fil_array[jj + 3];
 		      printf("%8s - %ld\n", temp, (long int)fil_array[jj + 3]);
-
+		      printf("Module execution aborted\n");
+		      sendError("While counting connections : Unknown element type '%s' '%ld'", 
+				temp, (long int)fil_array[jj + 3]);
+		      return;
 		      break;
                     };
 
@@ -888,6 +897,21 @@ int ReadABAQUSfil::compute(const char *port)
 
             case 2314885531122807636: // "T3D2    "
 	      ii_Elems = ii_Elems - 1;
+	      break;
+
+	    case 2325039727751676740: // DCOUP3D
+	      ii_Elems = ii_Elems - 1;
+	      break;
+
+	    case 2314885530818458707: // S4
+	      for (ii = 0; ii < 4; ++ii)
+                {
+		  outConnList[ii_Conn + ii] = cref_nodes[fil_array[jj + 4 + ii] - (int64_t)1];
+                }
+	      ii_Conn = ii_Conn + 4;
+	      outTypeList[ii_Elems] = 3;
+	      if (max_ext_en < (int)fil_array[jj + 2])
+		max_ext_en = (int)fil_array[jj + 2];
 	      break;
 
             default:
@@ -1283,29 +1307,34 @@ int ReadABAQUSfil::compute(const char *port)
 
       switch ( outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]] ) { 
 	 
-      case 7 : // "C3D8    "
-	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 8;
-	nn = 8;
-	break;
-	
-      case 2 : // "S3R     "
+      case 2 : // Trias
 	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 3;
 	nn = 3;
 	break;
-	
-      case 4 : // "C3D4    "
+
+      case 3 : // Quads
+	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 4;
+	nn = 4;
+	break;
+		
+      case 4 : // Tetras    
 	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 4;
 	nn = 4;
 	break;
 	
-      case 6 : // "C3D6    "
+      case 6 : // Pentas / Wedges
 	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 6;
 	nn = 6;
 	break;
-	
+
+      case 7 : // Hexas
+	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 8;
+	nn = 8;
+	break;
+		
       default:
 	
-	sendError("While reading Elements : Unknown element type '%d'", 
+	sendError("While counting set connections : Unknown element type '%d'", 
 		  outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]]);
 	return FAIL;
 	break;
@@ -1406,25 +1435,29 @@ int ReadABAQUSfil::compute(const char *port)
       
       switch ( outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]] ) { 
 	
-      case 7 : // "C3D8    "
+      case 7 : // Hexas
 	nn = 8;
 	break;
 	
-      case 2 : // "S3R     "
+      case 2 : // Trias
 	nn = 3;
 	break;
-	
-      case 4 : // "C3D4    "
+
+      case 3 : // Quads
+	nn = 4;
+	break;
+		
+      case 4 : // Tetras
 	nn = 4;
 	break;
 	
-      case 6 : // "C3D6    "
+      case 6 : // Pentas / Wedges
 	nn = 6;
 	break;
 	
       default:
 	
-	sendError("While reading Elements : Unknown element type '%d'",
+	sendError("While copying Set-Elements : Unknown element type '%d'",
 		  outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]]);
 
 	return FAIL;
