@@ -59,7 +59,7 @@ using covise::ServerConnection;
 class RevitViewpointEntry : public coMenuListener
 {
 public:
-    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n);
+    RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,coCheckboxMenuItem *me);
     virtual ~RevitViewpointEntry();
     virtual void menuEvent(coMenuItem *button);
     void setMenuItem(coCheckboxMenuItem *aMenuItem);
@@ -67,8 +67,15 @@ public:
     {
         return tuiItem;
     };
+    
+    void setValues(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, std::string n);
     void activate();
+    void deactivate();
+    
+    void updateCamera();
     int entryNumber;
+    int ID;
+    bool isActive;
 
 private:
     std::string name;
@@ -78,6 +85,7 @@ private:
     osg::Vec3 upDirection;
     coCheckboxMenuItem *menuItem;
     coTUIToggleButton *tuiItem;
+    coCheckboxMenuItem *menuEntry;
 };
 
 class ElementInfo
@@ -172,7 +180,8 @@ public:
         MSG_NewPolyMesh = 512,
         MSG_NewInstance = 513,
         MSG_EndInstance = 514,
-        MSG_SetTransform = 515
+        MSG_SetTransform = 515,
+        MSG_UpdateView = 516,
     };
     enum ObjectTypes
     {
@@ -204,17 +213,17 @@ public:
     void sendMessage(Message &m);
     
     void message(int type, int len, const void *buf);
-
+    void deactivateAllViewpoints();
 protected:
     static RevitPlugin *plugin;
     coSubMenuItem *REVITButton;
     coRowMenu *viewpointMenu;
     coCheckboxGroup *cbg;
     std::list<RevitViewpointEntry *> viewpointEntries;
-    coButtonMenuItem *addVPButton;
-    coButtonMenuItem *reloadButton;
-    coTUIButton *saveViewpoint;
-    coTUIButton *reload;
+    coButtonMenuItem *addCameraButton;
+    coButtonMenuItem *updateCameraButton;
+    coTUIButton *addCameraTUIButton;
+    coTUIButton *updateCameraTUIButton;
 
     ServerConnection *serverConn;
     ServerConnection *toRevit;
