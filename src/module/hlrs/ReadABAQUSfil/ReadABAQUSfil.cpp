@@ -390,8 +390,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  printf("-----------------------------------------------------------");
 	  printf("-----------------------------------------------------------\n");
 	  for (vector<tSets>::iterator it = vsets.begin(); it != vsets.end(); ++it) {
-	    printf("%9d %10s %10s %9d %s\n",
-		   it-vsets.begin(),
+	    printf("%9ld %10s %10s %9d %s\n",
+		   (long)(it-vsets.begin()),
 		   (*it).type.c_str(),
 		   (*it).cname.c_str(),
 		   (*it).cref,(*it).name.c_str());
@@ -1291,13 +1291,13 @@ int ReadABAQUSfil::compute(const char *port)
     SetNo = (*it);
 
     if ( ( SetNo < 0 ) || (SetNo >= vsets.size() ) ) {
-      printf("Selected set no %d not in set range 0 - %d \n",SetNo, vsets.size());
+      printf("Selected set no %d not in set range 0 - %ld \n",SetNo, (long)vsets.size());
       continue;
     } else if ( vsets[SetNo].type.compare("Elems") != 0) {
       printf("Selected set no %d is not an element set \n",SetNo);
       continue;
     } else {
-      printf("Adding set no %d as element %d to GridSet\n",SetNo,it-set_nums.begin());
+      printf("Adding set no %d as element %ld to GridSet\n",SetNo,(long)(it-set_nums.begin()));
     }
     
     // Count set local connections and mark local nodes in l_nn_nd ************
