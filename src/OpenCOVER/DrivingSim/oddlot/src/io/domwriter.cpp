@@ -248,129 +248,201 @@ DomWriter::visit(RSystemElementRoad *road)
 void
 DomWriter::visit(Object *object)
 {
-
-    if (object->getType() != "")
+    if (object->getType().contains("625")) // conversion to OpenDRIVE 1.4
     {
-    QDomElement objectElement = doc_->createElement("object");
-    if (object->getRepeatS() != -1)
-    {
-        QDomElement repeatElement = doc_->createElement("repeat");
+        QStringList parts = object->getType().split("-");
 
-        repeatElement.setAttribute("s", object->getRepeatS());
-        if (object->getRepeatS() + object->getRepeatLength() > object->getParentRoad()->getLength()) // TODO: check this in the settings
+        bool number = false;
+        int type = parts.at(0).toInt(&number);
+        QString subclass = "";
+        int subtype = -1;
+       
+        if (number && (parts.size() > 1))
         {
-            object->setRepeatLength(object->getParentRoad()->getLength() - object->getRepeatS() - NUMERICAL_ZERO8);
-        }
-        repeatElement.setAttribute("length", object->getRepeatLength());
-        repeatElement.setAttribute("distance", object->getRepeatDistance());
-        objectElement.appendChild(repeatElement);
-    }
-
-    ObjectContainer * objectContainer = signalManager_->getObjectContainer(object->getType());
-    if (objectContainer)
-    {
-        QList<ObjectCorner *> objectCorners =  objectContainer->getObjectCorners();
-        if (objectCorners.size() > 0)
-        {
-            QDomElement outlineElement = doc_->createElement("outline");
-
-            for (int i = 0; i < objectCorners.size(); i++)
+            subtype = parts.at(1).toInt(&number);
+            if (!number)
             {
-                QDomElement cornerElement = doc_->createElement("cornerLocal");
-                ObjectCorner *corner = objectCorners.at(i);
-
-                cornerElement.setAttribute("height", corner->getHeight());
-                cornerElement.setAttribute("z", corner->getZ());
-                cornerElement.setAttribute("v", corner->getV());
-                cornerElement.setAttribute("u", corner->getU());
-                outlineElement.appendChild(cornerElement);
+                subtype = -1;
             }
-            objectElement.appendChild(outlineElement);
+            if (parts.size() > 2)
+            {
+                subclass = parts.at(2);
+            }
         }
-    }
-    else
-    {
-        qDebug() << "Domwriter: Error! Prototype of Object with type " << object->getType() << " not in signs.xml";
-    }
-
-    // Set mandatory attributes
-    objectElement.setAttribute("id", object->getId());
-    //Texture and model file are ancillary data
-    //
-    QDomElement userData;
-
-    if (object->getTextureFileName() != "")
-    {
-        userData = doc_->createElement("userData");
-        userData.setAttribute("code", "textureFile");
-        if (object->getTextureFileName().contains("/"))
+        
+        double length = 0.0;
+        double s = object->getSStart();
+        RoadSystem * roadSystem = projectData_->getRoadSystem();
+        bool loadObject = false;
+        if (object->getType() == "625-10-20")
         {
-            userData.setAttribute("value", object->getTextureFileName());
+            loadObject = true;
+        }
+
+        double radHeading = object->getHeading() / 360.0 * (2.0 * M_PI);
+
+        do
+        {
+            Object::ObjectOrientation orientation = object->getOrientation();
+            
+
+            int fromLane = 0;
+            int toLane = 0;
+            if (orientation == Object::ObjectOrientation::NEGATIVE_TRACK_DIRECTION)
+            {
+                fromLane = object->getParentRoad()->getLaneSection(object->getSStart())->getRightmostLaneId();
+            }
+            else if (orientation == Object::ObjectOrientation::POSITIVE_TRACK_DIRECTION)
+            {
+                toLane = object->getParentRoad()->getLaneSection(object->getSStart())->getLeftmostLaneId();
+            }
+            else
+            {
+                fromLane = object->getParentRoad()->getLaneSection(object->getSStart())->getRightmostLaneId();
+                toLane = object->getParentRoad()->getLaneSection(object->getSStart())->getLeftmostLaneId();
+
+            }
+
+            QString id = roadSystem->getUniqueId(object->getId(), object->getName());
+
+            Signal * signal = new Signal(id, "", s, object->getT(), false, (Signal::OrientationType)orientation, object->getzOffset(), "Germany", type, subclass, subtype, 0.0, object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), 2, fromLane, toLane, 0, 0);
+            
+
+            if (!currentSignalsElement_.isElement())
+            {
+                currentSignalsElement_ = doc_->createElement("signals");
+                currentRoad_.appendChild(currentSignalsElement_);
+            }
+            visit(signal);
+
+
+            s += object->getRepeatDistance();
+            length += object->getRepeatDistance();
+        }while (length < object->getRepeatLength());
+
+    }   
+    else if (object->getType() != "")
+    {
+        QDomElement objectElement = doc_->createElement("object");
+        if (object->getRepeatS() != -1)
+        {
+            QDomElement repeatElement = doc_->createElement("repeat");
+
+            repeatElement.setAttribute("s", object->getRepeatS());
+            if (object->getRepeatS() + object->getRepeatLength() > object->getParentRoad()->getLength()) // TODO: check this in the settings
+            {
+                object->setRepeatLength(object->getParentRoad()->getLength() - object->getRepeatS() - NUMERICAL_ZERO8);
+            }
+            repeatElement.setAttribute("length", object->getRepeatLength());
+            repeatElement.setAttribute("distance", object->getRepeatDistance());
+            objectElement.appendChild(repeatElement);
+        }
+
+        ObjectContainer * objectContainer = signalManager_->getObjectContainer(object->getType());
+        if (objectContainer)
+        {
+            QList<ObjectCorner *> objectCorners =  objectContainer->getObjectCorners();
+            if (objectCorners.size() > 0)
+            {
+                QDomElement outlineElement = doc_->createElement("outline");
+
+                for (int i = 0; i < objectCorners.size(); i++)
+                {
+                    QDomElement cornerElement = doc_->createElement("cornerLocal");
+                    ObjectCorner *corner = objectCorners.at(i);
+
+                    cornerElement.setAttribute("height", corner->getHeight());
+                    cornerElement.setAttribute("z", corner->getZ());
+                    cornerElement.setAttribute("v", corner->getV());
+                    cornerElement.setAttribute("u", corner->getU());
+                    outlineElement.appendChild(cornerElement);
+                }
+                objectElement.appendChild(outlineElement);
+            }
         }
         else
         {
-            userData.setAttribute("value", "maps/" + object->getTextureFileName());
+            qDebug() << "Domwriter: Error! Prototype of Object with type " << object->getType() << " not in signs.xml";
         }
 
-        objectElement.appendChild(userData);
-    }
+        // Set mandatory attributes
+        objectElement.setAttribute("id", object->getId());
+        //Texture and model file are ancillary data
+        //
+        QDomElement userData;
 
-
-    if (objectContainer && (objectContainer->getObjectFile() != "")) 
-    {
-        userData = doc_->createElement("userData");
-
-        userData.setAttribute("code", "modelFile");
-        if (objectContainer->getObjectFile().contains("/"))
+        if (object->getTextureFileName() != "")
         {
-            userData.setAttribute("value", objectContainer->getObjectFile());
+            userData = doc_->createElement("userData");
+            userData.setAttribute("code", "textureFile");
+            if (object->getTextureFileName().contains("/"))
+            {
+                userData.setAttribute("value", object->getTextureFileName());
+            }
+            else
+            {
+                userData.setAttribute("value", "maps/" + object->getTextureFileName());
+            }
+
+            objectElement.appendChild(userData);
         }
+
+
+        if (objectContainer && (objectContainer->getObjectFile() != "")) 
+        {
+            userData = doc_->createElement("userData");
+
+            userData.setAttribute("code", "modelFile");
+            if (objectContainer->getObjectFile().contains("/"))
+            {
+                userData.setAttribute("value", objectContainer->getObjectFile());
+            }
+            else
+            {
+                userData.setAttribute("value", "objects/" + objectContainer->getObjectFile());
+            }
+
+
+            objectElement.appendChild(userData);
+            objectElement.setAttribute("name", object->getName());
+        }
+        else 
+        {
+            QString objectName = object->getType();
+
+            if ((object->getName() != "") && (object->getName() != "unnamed"))
+            {
+                objectName += "_" + object->getName();
+            }
+
+            if (object->getPole())
+            {
+                objectElement.setAttribute("name", objectName + "_p");
+            }
+            else
+            {
+                objectElement.setAttribute("name", objectName);
+            }
+        }
+
+        objectElement.setAttribute("type", object->getType());
+        objectElement.setAttribute("s", object->getSStart());
+        objectElement.setAttribute("t", object->getT());
+        objectElement.setAttribute("zOffset", object->getzOffset());
+        objectElement.setAttribute("validLength", object->getValidLength());
+        if (object->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
+            objectElement.setAttribute("orientation", "-");
         else
-        {
-            userData.setAttribute("value", "objects/" + objectContainer->getObjectFile());
-        }
+            objectElement.setAttribute("orientation", "+");
+        objectElement.setAttribute("length", object->getLength());
+        objectElement.setAttribute("width", object->getWidth());
+        objectElement.setAttribute("radius", object->getRadius());
+        objectElement.setAttribute("height", object->getHeight());
+        objectElement.setAttribute("hdg", object->getHeading() / 360.0 * (2.0 * M_PI));
+        objectElement.setAttribute("pitch", object->getPitch() / 360.0 * (2.0 * M_PI));
+        objectElement.setAttribute("roll", object->getRoll() / 360.0 * (2.0 * M_PI));
 
-
-        objectElement.appendChild(userData);
-        objectElement.setAttribute("name", object->getName());
-    }
-    else 
-    {
-       QString objectName = object->getType();
-
-       if ((object->getName() != "") && (object->getName() != "unnamed"))
-       {
-          objectName += "_" + object->getName();
-       }
-
-       if (object->getPole())
-       {
-          objectElement.setAttribute("name", objectName + "_p");
-       }
-       else
-       {
-          objectElement.setAttribute("name", objectName);
-       }
-    }
-
-    objectElement.setAttribute("type", object->getType());
-    objectElement.setAttribute("s", object->getSStart());
-    objectElement.setAttribute("t", object->getT());
-    objectElement.setAttribute("zOffset", object->getzOffset());
-    objectElement.setAttribute("validLength", object->getValidLength());
-    if (object->getOrientation() == Object::NEGATIVE_TRACK_DIRECTION)
-        objectElement.setAttribute("orientation", "-");
-    else
-        objectElement.setAttribute("orientation", "+");
-    objectElement.setAttribute("length", object->getLength());
-    objectElement.setAttribute("width", object->getWidth());
-    objectElement.setAttribute("radius", object->getRadius());
-    objectElement.setAttribute("height", object->getHeight());
-    objectElement.setAttribute("hdg", object->getHeading() / 360.0 * (2.0 * M_PI));
-    objectElement.setAttribute("pitch", object->getPitch());
-    objectElement.setAttribute("roll", object->getRoll());
-
-    currentObjectsElement_.appendChild(objectElement);
+        currentObjectsElement_.appendChild(objectElement);
     }
 }
 
@@ -573,19 +645,27 @@ DomWriter::visit(Signal *signal)
         }
     }
 
-    if ((signal->getName() != "") && (signal->getName() != "unnamed"))
+    double hOffset = signal->getHeading();
+    if ((signal->getType() == 625) && (signal->getSubtype() == 10) && (signal->getTypeSubclass() == "20"))
+    {
+        signalName += "_" + QString("%1").arg(qRound(signal->getHeading()));
+        hOffset = 0.0;
+    }
+    else if ((signal->getName() != "") && (signal->getName() != "unnamed"))
     {
         signalName += "_" + signal->getName();
+
+        if (signal->getPole())
+        {
+            signalName += "_p";
+        }
+    }
+    else if (signal->getPole())
+    {
+        signalName += "_p";
     }
 
-    if (signal->getPole())
-    {
-        signalElement.setAttribute("name", signalName + "_p");
-    }
-    else
-    {
-        signalElement.setAttribute("name", signalName);
-    }
+    signalElement.setAttribute("name", signalName);
 
     QFile file;
     bool textureFile;
@@ -696,6 +776,9 @@ DomWriter::visit(Signal *signal)
     signalElement.setAttribute("type", signal->getType());
     signalElement.setAttribute("subtype", signal->getSubtype());
     signalElement.setAttribute("value", signal->getValue());
+    signalElement.setAttribute("hOffset", hOffset / 360.0 * (2.0 * M_PI));
+    signalElement.setAttribute("pitch", signal->getPitch() / 360.0 * (2.0 * M_PI));
+    signalElement.setAttribute("roll", signal->getRoll() / 360.0 * (2.0 * M_PI));
 
     currentSignalsElement_.appendChild(signalElement);
 

@@ -150,7 +150,7 @@ RemoveSignalCommand::undo()
 //#########################//
 // SetSignalPropertiesCommand //
 //#########################//
-SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
+SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent)
     : DataCommand(parent)
     , newId_(id)
     , newName_(name)
@@ -183,6 +183,9 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     newSignalProps_.type = type;
     newSignalProps_.subtype = subtype;
     newSignalProps_.value = value;
+    newSignalProps_.hOffset = hOffset;
+    newSignalProps_.pitch = pitch;
+    newSignalProps_.roll = roll;
     newSignalProps_.pole = pole;
 
     newValidity_.fromLane = fromLane;
@@ -202,6 +205,9 @@ SetSignalPropertiesCommand::SetSignalPropertiesCommand(Signal *signal, const QSt
     oldSignalProps_.subtype = signal_->getSubtype();
 
     oldSignalProps_.value = signal_->getValue();
+    oldSignalProps_.hOffset = signal_->getHeading();
+    oldSignalProps_.pitch = signal_->getPitch();
+    oldSignalProps_.roll = signal_->getRoll();
     oldSignalProps_.pole = signal_->getPole();
 
     oldValidity_.fromLane = signal_->getValidFromLane();

@@ -1158,7 +1158,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }
