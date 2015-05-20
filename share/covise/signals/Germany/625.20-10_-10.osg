@@ -1,0 +1,535 @@
+ClipNode {
+  name "OBJECTS_ROOT"
+  nodeMask 0xffffffff
+  cullingActive TRUE
+  StateSet {
+    UniqueID StateSet_0
+    DataVariance STATIC
+    rendering_hint DEFAULT_BIN
+    renderBinMode INHERIT
+  }
+  referenceFrame RELATIVE
+  num_children 1
+  MatrixTransform {
+    name "VRMLRoot"
+    nodeMask 0xffffffff
+    cullingActive TRUE
+    referenceFrame RELATIVE
+    Matrix {
+      1 0 0 0
+      0 2.22045e-16 1 0
+      0 -1 2.22045e-16 0
+      0 0 0 1
+    }
+    num_children 1
+    Group {
+      UniqueID Group_1
+      nodeMask 0xffffffff
+      cullingActive TRUE
+      num_children 1
+      Group {
+        UniqueID Group_2
+        nodeMask 0xffffffff
+        cullingActive TRUE
+        num_children 1
+        MatrixTransform {
+          UniqueID MatrixTransform_3
+          name "_25"
+          nodeMask 0xffffffff
+          cullingActive TRUE
+          referenceFrame RELATIVE
+          Matrix {
+            1 0 0 0
+            0 1 0 0
+            0 0 1 0
+            0 0.12 0 1
+          }
+          num_children 2
+          MatrixTransform {
+            UniqueID MatrixTransform_4
+            name "Box010"
+            nodeMask 0xffffffff
+            cullingActive TRUE
+            referenceFrame RELATIVE
+            Matrix {
+              1 0 0 0
+              0 1 0 0
+              0 0 1 0
+              0 -0.12 0 1
+            }
+            num_children 1
+            Geode {
+              UniqueID Geode_5
+              name "Box010-FACES"
+              nodeMask 0xfffffffd
+              cullingActive TRUE
+              StateSet {
+                UniqueID StateSet_6
+                rendering_hint DEFAULT_BIN
+                renderBinMode INHERIT
+                Material {
+                  UniqueID Material_7
+                  ColorMode AMBIENT_AND_DIFFUSE
+                  ambientColor 0.2 0.2 0.2 1
+                  diffuseColor 0.9 0.9 0.9 1
+                  specularColor 0.9 0.9 0.9 1
+                  emissionColor 0 0 0 1
+                  shininess 16
+                }
+              }
+              num_drawables 1
+              Geometry {
+                UniqueID Geometry_8
+                name "Box010-FACES"
+                StateSet {
+                  UniqueID StateSet_9
+                  rendering_hint OPAQUE_BIN
+                  renderBinMode USE
+                  binNumber 0
+                  binName RenderBin
+                  GL_BLEND OFF
+                  Material {
+                    UniqueID Material_10
+                    ColorMode AMBIENT_AND_DIFFUSE
+                    ambientColor 1 1 1 1
+                    diffuseColor 0.588235 0.588235 0.588235 1
+                    specularColor 0.486 0.486 0.486 1
+                    emissionColor 0 0 0 1
+                    shininess 34.368
+                  }
+                }
+                useDisplayList TRUE
+                useVertexBufferObjects FALSE
+                PrimitiveSets 16
+                {
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    1 2 0 3 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    29 30 28 31 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    49 25 48 24 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    24 25 22 27 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 5
+                  {
+                    25 26 27 44 45 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    53 50 52 51 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    33 34 32 35 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    43 40 42 41 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    37 5 36 4 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    5 6 4 7 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    6 46 7 47 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    19 20 18 21 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 7
+                  {
+                    13 14 12 15 17 16 54 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    14 38 15 39 
+                  }
+                  DrawElementsUShort TRIANGLE_STRIP 4
+                  {
+                    11 8 10 9 
+                  }
+                  DrawElementsUShort TRIANGLES 6
+                  {
+                    22 23 24 54 55 17 
+                  }
+                }
+                VertexArray Vec3Array 56
+                {
+                  0.025 0 -0.025
+                  0.025 0 0.025
+                  -0.025 0 0.025
+                  -0.025 0 -0.025
+                  0.025 1.5 -0.025
+                  -0.025 1.5 -0.025
+                  -0.025 1.5 0.025
+                  0.025 1.5 0.025
+                  0.025 0 0.025
+                  0.025 1.45 0.025
+                  -0.025 1.45 0.025
+                  -0.025 0 0.025
+                  0.025 0 0.025
+                  0.025 0 -0.025
+                  0.025 1.45 -0.025
+                  0.025 1.5 -0.025
+                  0.025 1.5 0.025
+                  0.025 1.45 0.025
+                  -0.025 0 -0.025
+                  -0.025 1.45 -0.025
+                  0.025 1.45 -0.025
+                  0.025 0 -0.025
+                  -0.025 0 -0.025
+                  -0.025 0 0.025
+                  -0.025 1.45 0.025
+                  -0.025 1.5 0.025
+                  -0.025 1.5 -0.025
+                  -0.025 1.45 -0.025
+                  0.025 1.5 0.075
+                  -0.025 1.5 0.075
+                  -0.025 1.45 0.075
+                  0.025 1.45 0.075
+                  -0.025 1.5 -0.075
+                  0.025 1.5 -0.075
+                  0.025 1.45 -0.075
+                  -0.025 1.45 -0.075
+                  0.025 1.5 -0.075
+                  -0.025 1.5 -0.075
+                  0.025 1.45 -0.075
+                  0.025 1.5 -0.075
+                  0.025 1.45 -0.025
+                  -0.025 1.45 -0.025
+                  -0.025 1.45 -0.075
+                  0.025 1.45 -0.075
+                  -0.025 1.5 -0.075
+                  -0.025 1.45 -0.075
+                  -0.025 1.5 0.075
+                  0.025 1.5 0.075
+                  -0.025 1.45 0.075
+                  -0.025 1.5 0.075
+                  -0.025 1.45 0.025
+                  0.025 1.45 0.025
+                  0.025 1.45 0.075
+                  -0.025 1.45 0.075
+                  0.025 1.5 0.075
+                  0.025 1.45 0.075
+                }
+                NormalBinding PER_VERTEX
+                NormalArray Vec3Array 56
+                {
+                  0 -1 0
+                  0 -1 0
+                  0 -1 0
+                  0 -1 0
+                  0 1 0
+                  0 1 0
+                  0 1 0
+                  0 1 0
+                  0 0 1
+                  0 0 1
+                  0 0 1
+                  0 0 1
+                  1 0 0
+                  1 0 0
+                  1 0 0
+                  1 0 0
+                  1 0 0
+                  1 0 0
+                  0 0 -1
+                  0 0 -1
+                  0 0 -1
+                  0 0 -1
+                  -1 0 0
+                  -1 0 0
+                  -1 0 0
+                  -1 0 0
+                  -1 0 0
+                  -1 0 0
+                  0 0 1
+                  0 0 1
+                  0 0 1
+                  0 0 1
+                  0 0 -1
+                  0 0 -1
+                  0 0 -1
+                  0 0 -1
+                  0 1 0
+                  0 1 0
+                  1 0 0
+                  1 0 0
+                  0 -1 0
+                  0 -1 0
+                  0 -1 0
+                  0 -1 0
+                  -1 0 0
+                  -1 0 0
+                  0 1 0
+                  0 1 0
+                  -1 0 0
+                  -1 0 0
+                  0 -1 0
+                  0 -1 0
+                  0 -1 0
+                  0 -1 0
+                  1 0 0
+                  1 0 0
+                }
+              }
+            }
+          }
+          MatrixTransform {
+            UniqueID MatrixTransform_11
+            name "Group001"
+            nodeMask 0xffffffff
+            cullingActive TRUE
+            referenceFrame RELATIVE
+            Matrix {
+              1 0 0 0
+              0 1 0 0
+              0 0 1 0
+              0 -1.57 0 1
+            }
+            num_children 2
+            MatrixTransform {
+              UniqueID MatrixTransform_12
+              name "Plane003"
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              referenceFrame RELATIVE
+              Matrix {
+                -0.984808 1.47871e-06 -0.173646 0
+                0.173646 -1.29369e-07 -0.984808 0
+                -1.47871e-06 -1 -1.29369e-07 0
+                0.0024414 2.9 -0.0847645 1
+              }
+              num_children 1
+              Geode {
+                UniqueID Geode_13
+                name "Plane003-FACES"
+                nodeMask 0xfffffffd
+                cullingActive TRUE
+                StateSet {
+                  UniqueID StateSet_14
+                  rendering_hint DEFAULT_BIN
+                  renderBinMode INHERIT
+                  GL_CULL_FACE ON
+                  Use Material_7
+                  CullFace {
+                    mode BACK
+                  }
+                }
+                num_drawables 1
+                Geometry {
+                  UniqueID Geometry_15
+                  name "Plane003-FACES"
+                  StateSet {
+                    UniqueID StateSet_16
+                    rendering_hint TRANSPARENT_BIN
+                    renderBinMode USE
+                    binNumber 10
+                    binName DepthSortedBin
+                    GL_ALPHA_TEST ON
+                    GL_BLEND ON
+                    Material {
+                      UniqueID Material_17
+                      ColorMode AMBIENT_AND_DIFFUSE
+                      ambientColor 1 1 1 1
+                      diffuseColor 1 1 1 1
+                      specularColor 0 0 0 1
+                      emissionColor 0 0 0 1
+                      shininess 18.56
+                    }
+                    AlphaFunc {
+                      comparisonFunc GREATER
+                      referenceValue 0
+                    }
+                    BlendFunc {
+                      source SRC_ALPHA
+                      destination ONE_MINUS_SRC_ALPHA
+                    }
+                    textureUnit 0 {
+                      GL_TEXTURE_2D ON
+                      Texture2D {
+                        file "625-10.png"
+                        wrap_s REPEAT
+                        wrap_t REPEAT
+                        wrap_r CLAMP
+                        min_filter LINEAR_MIPMAP_LINEAR
+                        mag_filter LINEAR
+                        maxAnisotropy 1
+                        borderColor 0 0 0 0
+                        borderWidth 0
+                        useHardwareMipMapGeneration TRUE
+                        unRefImageDataAfterApply FALSE
+                        internalFormatMode USE_IMAGE_DATA_FORMAT
+                        resizeNonPowerOfTwo TRUE
+                        shadowComparison FALSE
+                        shadowCompareFunc GL_LEQUAL
+                        shadowTextureMode GL_LUMINANCE
+                      }
+                      TexEnv {
+                        UniqueID TexEnv_19
+                        mode MODULATE
+                      }
+                    }
+                  }
+                  useDisplayList TRUE
+                  useVertexBufferObjects FALSE
+                  PrimitiveSets 1
+                  {
+                    DrawArrays TRIANGLE_STRIP 0 4
+                  }
+                  VertexArray Vec3Array 4
+                  {
+                    -0.25 0 -0.25
+                    -0.25 0 0.25
+                    0.25 0 -0.25
+                    0.25 0 0.25
+                  }
+                  NormalBinding PER_VERTEX
+                  NormalArray Vec3Array 4
+                  {
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                  }
+                  TexCoordArray 0 Vec2Array 4
+                  {
+                    0 1
+                    0 0
+                    0.5 1
+                    0.5 0
+                  }
+                }
+              }
+            }
+            MatrixTransform {
+              UniqueID MatrixTransform_20
+              name "Plane004"
+              nodeMask 0xffffffff
+              cullingActive TRUE
+              referenceFrame RELATIVE
+              Matrix {
+                0.984808 -2.18329e-07 -0.173648 0
+                0.173648 2.49552e-06 0.984808 0
+                2.18329e-07 -1 2.49552e-06 0
+                -0.00244141 2.9 0.0847645 1
+              }
+              num_children 1
+              Geode {
+                UniqueID Geode_21
+                name "Plane004-FACES"
+                nodeMask 0xfffffffd
+                cullingActive TRUE
+                StateSet {
+                  UniqueID StateSet_22
+                  rendering_hint DEFAULT_BIN
+                  renderBinMode INHERIT
+                  GL_CULL_FACE ON
+                  Use Material_7
+                  CullFace {
+                    mode BACK
+                  }
+                }
+                num_drawables 1
+                Geometry {
+                  UniqueID Geometry_23
+                  name "Plane004-FACES"
+                  StateSet {
+                    UniqueID StateSet_24
+                    rendering_hint TRANSPARENT_BIN
+                    renderBinMode USE
+                    binNumber 10
+                    binName DepthSortedBin
+                    GL_ALPHA_TEST ON
+                    GL_BLEND ON
+                    Material {
+                      UniqueID Material_25
+                      ColorMode AMBIENT_AND_DIFFUSE
+                      ambientColor 1 1 1 1
+                      diffuseColor 1 1 1 1
+                      specularColor 0 0 0 1
+                      emissionColor 0 0 0 1
+                      shininess 18.56
+                    }
+                    AlphaFunc {
+                      comparisonFunc GREATER
+                      referenceValue 0
+                    }
+                    BlendFunc {
+                      source SRC_ALPHA
+                      destination ONE_MINUS_SRC_ALPHA
+                    }
+                    textureUnit 0 {
+                      GL_TEXTURE_2D ON
+                      Texture2D {
+                        file "625-20.png"
+                        wrap_s REPEAT
+                        wrap_t REPEAT
+                        wrap_r CLAMP
+                        min_filter LINEAR_MIPMAP_LINEAR
+                        mag_filter LINEAR
+                        maxAnisotropy 1
+                        borderColor 0 0 0 0
+                        borderWidth 0
+                        useHardwareMipMapGeneration TRUE
+                        unRefImageDataAfterApply FALSE
+                        internalFormatMode USE_IMAGE_DATA_FORMAT
+                        resizeNonPowerOfTwo TRUE
+                        shadowComparison FALSE
+                        shadowCompareFunc GL_LEQUAL
+                        shadowTextureMode GL_LUMINANCE
+                      }
+                      Use TexEnv_19
+                    }
+                  }
+                  useDisplayList TRUE
+                  useVertexBufferObjects FALSE
+                  PrimitiveSets 1
+                  {
+                    DrawArrays TRIANGLE_STRIP 0 4
+                  }
+                  VertexArray Vec3Array 4
+                  {
+                    -0.25 0 -0.25
+                    -0.25 0 0.25
+                    0.25 0 -0.25
+                    0.25 0 0.25
+                  }
+                  NormalBinding PER_VERTEX
+                  NormalArray Vec3Array 4
+                  {
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                    0 1 0
+                  }
+                  TexCoordArray 0 Vec2Array 4
+                  {
+                    0 1
+                    0 0
+                    0.5 1
+                    0.5 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
