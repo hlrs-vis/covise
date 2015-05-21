@@ -130,9 +130,6 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 
   const int dbg=1;
    
-  tmp_d = (double *)fil_array;
-  tmp_i = (int *)fil_array;
-
   // *************************************************************************
   // If param is called in case of fil file selection ************************
   if ((0 == strcmp(p_filFile->getName(), paramName)) &&
@@ -143,6 +140,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 #endif
       (0 != strcmp(p_filFile->getValue(), fil_name)) && (!computeRunning))
     {
+
+      sendInfo("Searching for available results and sets. Please be patient ... ");
 
       // Allocate fil array and open fil file ***
       fil_size = ((int)attribut.st_size - 8) / 8;
@@ -157,6 +156,9 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
         }
 
       fil_array = (int64_t *)malloc(fil_size * sizeof(int64_t));
+
+      tmp_d = (double *)fil_array;
+      tmp_i = (int *)fil_array;
 
       // Open ABAQUS result file *************************************
       if ((fd_fil = fopen(p_filFile->getValue(), "rb")) == NULL)
@@ -268,6 +270,11 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  tSets set; 
 	  tCref cref;
 
+	  vsteps.reserve(rec_struct[2000]);
+
+	  tStephead step;
+	  step.active = 0;
+
 	  while (jj < data_length)
 	    {
 
@@ -365,12 +372,58 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 		vcref.push_back(cref);
 
 		break;
-		  
+		
+	      case 2000 :
+	
+		step.start = jj;
+		step.active = 1;
+
+		step.Total_time                  = float(tmp_d[jj + 2]);
+		step.Step_time                   = float(tmp_d[jj + 3]);
+		step.Max_creep_strainrate_ratio  = float(tmp_d[jj + 4]);
+		step.Sol_dep_ampl                = float(tmp_d[jj + 5]);
+		step.Procedure_type              = fil_array[jj + 6];
+		step.Step_no                     = fil_array[jj + 7];
+		step.Inc_no                      = fil_array[jj + 8];
+		step.perturb_flag                = fil_array[jj + 9];
+		step.Load_prop_factor            = float(tmp_d[jj + 10]);
+		step.Frequency                   = float(tmp_d[jj + 11]);
+		step.Time_inc                    = float(tmp_d[jj + 12]);
+		
+		break;
+
+	      case 2001 :
+
+		step.end = jj;
+
+		if (step.active == 1) {
+		  vsteps.push_back(step);
+		}
+
+		step.active = 0;  
+		break;
+
 	      }
 
 	      jj = jj + rec_length;
 
 	    }
+
+	  // log steps and increments *****************************************
+	  for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
+	    printf("%3.3f %3.3f %3.3f %3.3f %3d %3d %3d %3d %3.3f %3.3f %3.3f\n",
+	  	   (*it).Total_time  ,
+	  	   (*it).Step_time   ,
+	  	   (*it).Max_creep_strainrate_ratio,
+	  	   (*it).Sol_dep_ampl   ,
+	  	   (*it).Procedure_type ,
+	  	   (*it).Step_no        ,
+	  	   (*it).Inc_no         ,
+	  	   (*it).perturb_flag   ,
+	  	   (*it).Load_prop_factor,
+	  	   (*it).Frequency       ,
+	  	   (*it).Time_inc);
+	  }
 
 	  // Determine Names **************************************
 	  for (vector<tSets>::iterator it = vsets.begin(); it != vsets.end(); ++it) {
@@ -612,8 +665,10 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	      sendWarning("Found %d unsupported elements", jobhead.no_elems - jobhead.no_sup_elems);
             }
 	  
-	}
+	  sendInfo("Finished. Please look at std-out for details about the .fil-file structure.");
 
+	}
+      
     }
 }
 
@@ -638,6 +693,12 @@ int ReadABAQUSfil::compute(const char *port)
   int ii_sets;
   int rec_length, rec_type, trec_len, tloc;
   int ii, jj, kk, nn;
+
+  float *nxdataList;
+  float *nydataList;
+  float *nzdataList;
+  float *dataList;
+  float *tdataList;
 
   tmp_d = (double *)fil_array;
   tmp_i = (int *)fil_array;
@@ -947,7 +1008,7 @@ int ReadABAQUSfil::compute(const char *port)
       cref_elems[ext_en[ii]] = ii;
     }
 
-  // ************************************************************************
+  // **************************************************************************
   // FINALLY WE HAVE THE FULL MESH LISTS LOADED :
   // ext_nn      : External node numbers
   // outXCoord   : Physical x-coordinate list
@@ -963,48 +1024,29 @@ int ReadABAQUSfil::compute(const char *port)
   //               element numbering strating from 0
   // vsets       : Nodeset and Elementset parameters and external numbers of
   //             : contained set elements (in elem_numbers).
-  // !****************************************************************************
+  // **************************************************************************
 
   // **************************************************************************
   // Load element data ********************************************************
-  float *dataList;
-  float *tdataList;
 
-  //Allocate Output Port Data Objects *****************************************
-  coDoTensor *tdata = new coDoTensor(p_tresOutPort->getObjName(),
-				     jobhead.no_sup_elems, coDoTensor::S3D);
-  coDoFloat *data = new coDoFloat(p_eresOutPort->getObjName(),
-				  jobhead.no_sup_elems);
+  coDoSet *outERes = new coDoSet(p_eresOutPort->getObjName(),0);
+  coDoSet *outTRes = new coDoSet(p_tresOutPort->getObjName(),0);
+  coDoSet *outNRes = new coDoSet(p_nresOutPort->getObjName(),0);
 
-  // if objects were not properly allocated ***********************************
-  if (!data->objectOk())
-    {
-      sendError("Failed to create object '%s' for port '%s'",
-		p_eresOutPort->getObjName(), p_eresOutPort->getName());
-      return FAIL;
-    }
+  if (vsteps.size() > 1) {
 
-  if (!tdata->objectOk())
-    {
-      sendError("Failed to create object '%s' for port '%s'",
-		p_tresOutPort->getObjName(), p_tresOutPort->getName());
-      return FAIL;
-    }
+    char ts[100];
+    sprintf(ts, "1 %d", vsteps.size());
+    outERes->addAttribute("TIMESTEP", ts);
+    outTRes->addAttribute("TIMESTEP", ts);
+    outNRes->addAttribute("TIMESTEP", ts);
 
-  data->getAddress(&dataList);
-  tdata->getAddress(&tdataList);
-
-  for (ii = 0; ii < jobhead.no_sup_elems; ii++)
-    {
-      dataList[ii] = 0.;
-      tdataList[ii] = 0.;
-    }
-
-  int ii_dat = 0;
-
+  }
+  
   sendInfo("Requested element scalar result: %s",p_elemres->getActLabel());
   sendInfo("Requested element tensor result: %s",p_telemres->getActLabel());
-
+  sendInfo("Requested nodal result: %s",p_nodalres->getActLabel());
+    
   const char *activeLabel  = p_elemres->getActLabel();
 
   int sel_tres;
@@ -1014,261 +1056,72 @@ int ReadABAQUSfil::compute(const char *port)
   } else if (strcmp(activetLabel, "Strain") == 0) {
     sel_tres = 21;
   }
+  
+  const char *activeNLabel = p_nodalres->getActLabel();
 
-  while ((jj < data_length))
-    {
-
-      // Element results ********************************************************
-      if ((fil_array[jj + 1] == 1) && (cref_elems[(int)fil_array[jj + 2]] != -1))
-        {
-
-	  // Check for element averaged result values *****************************
-	  if (tmp_i[(jj + 3) * 2] != 0)
-            {
-	      sendWarning("This module supports only element averaged result values");
-	      sendWarning("Element results not loaded *****************************");
-	      return SUCCESS;
-	      ;
-            }
-
-	  ii_dat = (int)fil_array[jj + 2];
-
-	  jj = jj + fil_array[jj];
-
-	  // stress results ************************************************
-	  if (fil_array[jj + 1] == 11)
-            {
-
-	      // Load full element stress tensor ********************
-	      if (sel_tres == 11) {
-		tdataList[cref_elems[ii_dat]*6  ] = float(tmp_d[jj + 2]);
-		tdataList[cref_elems[ii_dat]*6+1] = float(tmp_d[jj + 3]);
-		tdataList[cref_elems[ii_dat]*6+2] = float(tmp_d[jj + 4]);
-		tdataList[cref_elems[ii_dat]*6+3] = float(tmp_d[jj + 5]);
-		tdataList[cref_elems[ii_dat]*6+4] = float(tmp_d[jj + 7]);
-		tdataList[cref_elems[ii_dat]*6+5] = float(tmp_d[jj + 6]);
-	      }
-
-	      // Load selected scalar stress tensor component *******
-	      if (strcmp(activeLabel, sigma[0]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 2]);
-                }
-	      if (strcmp(activeLabel, sigma[1]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 3]);
-                }
-	      if (strcmp(activeLabel, sigma[2]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 4]);
-                }
-	      if (strcmp(activeLabel, sigma[3]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 5]);
-                }
-	      if (strcmp(activeLabel, sigma[4]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 6]);
-                }
-	      if (strcmp(activeLabel, sigma[5]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 7]);
-                }
-
-	      if (strcmp(activeLabel, equivalence[0]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = sqrt(
-						      float(tmp_d[jj + 2]) * float(tmp_d[jj + 2]) + 
-						      float(tmp_d[jj + 3]) * float(tmp_d[jj + 3]) + 
-						      float(tmp_d[jj + 4]) * float(tmp_d[jj + 4]) + 
-						      float(tmp_d[jj + 2]) * float(tmp_d[jj + 3]) + 
-						      float(tmp_d[jj + 2]) * float(tmp_d[jj + 4]) + 
-						      float(tmp_d[jj + 3]) * float(tmp_d[jj + 4]) + 
-						      3. * (float(tmp_d[jj + 5]) * float(tmp_d[jj + 5]) + 
-							    float(tmp_d[jj + 6]) * float(tmp_d[jj + 6]) + 
-							    float(tmp_d[jj + 7]) * float(tmp_d[jj + 7])));
-                };
-            };
-
-	  // Strain Tensor ********************************************************
-	  if (fil_array[jj + 1] == 21)
-            {
-
-	      // Load full element strain tensor ********************
-	      if (sel_tres == 21) {
-		tdataList[cref_elems[ii_dat]*6  ] = float(tmp_d[jj + 2]);
-		tdataList[cref_elems[ii_dat]*6+1] = float(tmp_d[jj + 3]);
-		tdataList[cref_elems[ii_dat]*6+2] = float(tmp_d[jj + 4]);
-		tdataList[cref_elems[ii_dat]*6+3] = float(tmp_d[jj + 5]);
-		tdataList[cref_elems[ii_dat]*6+4] = float(tmp_d[jj + 7]);
-		tdataList[cref_elems[ii_dat]*6+5] = float(tmp_d[jj + 6]);
-	      }
-
-	      // Load selected scalar strain tensor component *******
-	      if (strcmp(activeLabel, epsilon[0]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 2]);
-                }
-	      if (strcmp(activeLabel, epsilon[1]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 3]);
-                }
-	      if (strcmp(activeLabel, epsilon[2]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 4]);
-                }
-	      if (strcmp(activeLabel, epsilon[3]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 5]);
-                }
-	      if (strcmp(activeLabel, epsilon[4]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 6]);
-                }
-	      if (strcmp(activeLabel, epsilon[5]) == 0)
-                {
-		  dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 7]);
-                }
-            };
-        };
-
-      jj = jj + fil_array[jj];
-    }
-
-  // **************************************************************************
-  // Load nodal data **********************************************************
-  float *nxdataList;
-  float *nydataList;
-  float *nzdataList;
-
-  //Allocate Output Port Data Objects *****************************************
-  coDoVec3 *ndata = new coDoVec3(p_nresOutPort->getObjName(),
-				 jobhead.no_nodes);
-
-  // if objects were not properly allocated ***********************************
-  if (!data->objectOk())
-    {
-      sendError("Failed to create object '%s' for port '%s'",
-		p_nresOutPort->getObjName(), p_nresOutPort->getName());
-      return FAIL;
-    }
-
-  ndata->getAddresses(&nxdataList,&nydataList,&nzdataList);
-
-  for (ii = 0; ii < jobhead.no_nodes; ii++)
-    {
-      nxdataList[ii] = 0.;
-      nydataList[ii] = 0.;
-      nzdataList[ii] = 0.;
-    }
-
-  sendInfo("Requested nodal result: %s",p_nodalres->getActLabel());
-
-  activeLabel = p_nodalres->getActLabel();
-
-  int sel_nres;
-
-  if (strcmp(activeLabel, "Displ.") == 0) {
+  int sel_nres;  
+  if (strcmp(activeNLabel, "Displ.") == 0) {
     sel_nres = 101;
-  } else if (strcmp(activeLabel, "Reac.Force") == 0) {
+  } else if (strcmp(activeNLabel, "Reac.Force") == 0) {
     sel_nres = 104;
   }
 
-  ii_dat = 0;
-  jj     = 0;
-
-  while ((jj < data_length))
-    {
-
-      // Displacements ********************************************************
-      if ((fil_array[jj + 1] == 101) && (sel_nres == 101)) {
-
-	ii_dat = (int)fil_array[jj + 2];
-	nxdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 3]);
-	nydataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 4]);
-	nzdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 5]);
-
-      }
-
-      // Reaction Forces ******************************************************
-      if ((fil_array[jj + 1] == 104) && (sel_nres == 104)) {
-
-	ii_dat = (int)fil_array[jj + 2];
-	nxdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 3]);
-	nydataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 4]);
-	nzdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 5]);
-
-      }
-
-      jj = jj + fil_array[jj];
-    }
-
-  
-
-  //=========================================================================
-  //=========================================================================
+  //=================================================================
+  //=================================================================
   // Parse selected set numbers from paramerter p_selectedsets
   vector<string> st_sn;
   vector<int>    set_nums;
   char * pch;
-
+  
   // Seperator for set numbers and number ranges is , ***************
   pch = strtok ((char*)p_selectedSets->getValue()," ,");
-  while (pch != NULL)
-  {
+  while (pch != NULL)  {
     st_sn.push_back(pch);
     pch = strtok (NULL, " ,");
   }
 
-  // Convert char numbers and ranges to integer *******************************
+  // Convert char numbers and ranges to integer *********************
   for (vector<string>::iterator it = st_sn.begin(); it != st_sn.end(); ++it) {
-
-    // if we have a range (two numbers seperated by - without blanks) *********
+    
+    // if we have a range (two numbers seperated by - without blanks)
     ii = (*it).find_first_of("-",0);
     if ( ii  != string::npos)  {
-
+      
       istringstream convert((*it).substr(0,ii).c_str());
-
-      // convert start of range to integer ****************
+      
+      // convert start of range to integer **************************
       if ( !(convert >> jj ) ) {
-	printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
+  	printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
       } else {
-
-	istringstream convert((*it).substr(ii+1).c_str());
-
-	// convert end of range to integer ****************
-	if ( !(convert >> kk ) ) {
-	  printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
-	} else {
-
-	  // Push range to vector ***************
-	  for (ii = jj; ii <= kk; ++ii) {
-	    set_nums.push_back(ii);
-	  }
-
-	}
+	
+  	istringstream convert((*it).substr(ii+1).c_str());
+	
+  	// convert end of range to integer **************************
+  	if ( !(convert >> kk ) ) {
+  	  printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
+  	} else {
+	  
+  	  // Push range to vector *************************
+  	  for (ii = jj; ii <= kk; ++ii) {
+  	    set_nums.push_back(ii);
+  	  }
+  	}
       }
-
+      
     // If we have a single number ***********************************
     } else {
-
+      
       istringstream convert((*it).c_str());
-
+      
       // convert the number to integer ********************
       if ( !(convert >> ii ) ) {
-	printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
+  	printf("Set no %d without cref. Name = %s\n",ii_sets,(*it).c_str());
       } else {
-	// Push the number to vector **********************
-	set_nums.push_back(ii);
+  	// Push the number to vector **********************
+  	set_nums.push_back(ii);
       }
-
     }
-    
   }
-
-  //=========================================================================
-  //=========================================================================
-  // Get Element and node Sets
 
   // Allocate pointer array to nodes used in a set ****************
   int* l_nn_nd = (int*)malloc(jobhead.no_nodes * sizeof(int));
@@ -1276,15 +1129,234 @@ int ReadABAQUSfil::compute(const char *port)
     l_nn_nd[ii] = 0;
   }
 
+  printf("===========================================================");
+  printf("===========================================================\n");
+
   int SetNo;
 
   coDoSet *outSet     = new coDoSet(p_SetgridOutPort->getObjName(),0);
   coDoSet *outResSet  = new coDoSet(p_SetgridResPort->getObjName(),0);
   coDoSet *outtResSet = new coDoSet(p_SetgridTResPort->getObjName(),0);
   coDoSet *outnResSet = new coDoSet(p_SetgridnResPort->getObjName(),0);
+  
+  printf("For each Step and Increment\n");
 
-  printf("===========================================================");
-  printf("===========================================================\n");
+  // **************************************************************************
+  // For each Step and Increment **********************************************
+  // **************************************************************************
+  for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
+
+    //Allocate Output Data Objects ********************************************
+    string obj_name_eres = "ERes_Step_";
+    obj_name_eres += std::to_string((*it).Step_no);
+    obj_name_eres += "_Inc_";
+    obj_name_eres += std::to_string((*it).Inc_no);
+
+    string obj_name_tres = "TRes_Step_";
+    obj_name_tres += std::to_string((*it).Step_no);
+    obj_name_tres += "_Inc_";
+    obj_name_tres += std::to_string((*it).Inc_no);
+
+    printf("%d %s\n",it,obj_name_tres.c_str());
+
+    coDoFloat  *data  = new coDoFloat (obj_name_eres.c_str(), jobhead.no_sup_elems);
+    coDoTensor *tdata = new coDoTensor(obj_name_tres.c_str(), jobhead.no_sup_elems, coDoTensor::S3D);
+
+    // if objects were not properly allocated *********************************
+    if (!data->objectOk())
+      {
+	sendError("Failed to create object '%s' for port '%s'",
+		  p_eresOutPort->getObjName(), p_eresOutPort->getName());
+	return FAIL;
+      }
+    
+    if (!tdata->objectOk())
+      {
+	sendError("Failed to create object '%s' for port '%s'",
+		  p_tresOutPort->getObjName(), p_tresOutPort->getName());
+	return FAIL;
+      }
+    
+    data  -> getAddress(&dataList);
+    tdata -> getAddress(&tdataList);
+
+    for (ii = 0; ii < jobhead.no_sup_elems; ii++)
+      {
+	dataList[ii]  = 0.;
+	tdataList[ii] = 0.;
+      }
+    
+    int ii_dat = 0;
+
+    jj = (*it).start;
+
+    while (jj < (*it).end) {
+      
+      // Element results ****************************************************
+      if ((fil_array[jj + 1] == 1) && (cref_elems[(int)fil_array[jj + 2]] != -1)) {
+	
+	// Check for element averaged result values *****************************
+	if (tmp_i[(jj + 3) * 2] != 0) {
+	  sendWarning("This module supports only element averaged result values");
+	  sendWarning("Element results not loaded *****************************");
+	  return SUCCESS;
+	  ;
+	}
+
+	ii_dat = (int)fil_array[jj + 2];
+	
+	jj = jj + fil_array[jj];
+	
+	// stress results ************************************************
+	if (fil_array[jj + 1] == 11) {
+
+	  // Load full element stress tensor ********************
+	  if (sel_tres == 11) {
+	    tdataList[cref_elems[ii_dat]*6  ] = float(tmp_d[jj + 2]);
+	    tdataList[cref_elems[ii_dat]*6+1] = float(tmp_d[jj + 3]);
+	    tdataList[cref_elems[ii_dat]*6+2] = float(tmp_d[jj + 4]);
+	    tdataList[cref_elems[ii_dat]*6+3] = float(tmp_d[jj + 5]);
+	    tdataList[cref_elems[ii_dat]*6+4] = float(tmp_d[jj + 7]);
+	    tdataList[cref_elems[ii_dat]*6+5] = float(tmp_d[jj + 6]);
+	  }
+	  
+	  // Load selected scalar stress tensor component *******
+	  if (strcmp(activeLabel, sigma[0]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 2]);
+	  }
+	  if (strcmp(activeLabel, sigma[1]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 3]);
+	  }
+	  if (strcmp(activeLabel, sigma[2]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 4]);
+	  }
+	  if (strcmp(activeLabel, sigma[3]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 5]);
+	  }
+	  if (strcmp(activeLabel, sigma[4]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 6]);
+	  }
+	  if (strcmp(activeLabel, sigma[5]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 7]);
+	  }
+	  
+	  // Von Mises **********************************************
+	  if (strcmp(activeLabel, equivalence[0]) == 0) {
+	    dataList[cref_elems[ii_dat]] = 
+	      sqrt(float(tmp_d[jj + 2]) * float(tmp_d[jj + 2]) + 
+		   float(tmp_d[jj + 3]) * float(tmp_d[jj + 3]) + 
+		   float(tmp_d[jj + 4]) * float(tmp_d[jj + 4]) + 
+		   float(tmp_d[jj + 2]) * float(tmp_d[jj + 3]) + 
+		   float(tmp_d[jj + 2]) * float(tmp_d[jj + 4]) + 
+		   float(tmp_d[jj + 3]) * float(tmp_d[jj + 4]) + 
+		   3. * (float(tmp_d[jj + 5]) * float(tmp_d[jj + 5]) + 
+			 float(tmp_d[jj + 6]) * float(tmp_d[jj + 6]) + 
+			 float(tmp_d[jj + 7]) * float(tmp_d[jj + 7])));
+	  };
+	};
+
+	// Strain Tensor ******************************************************
+	if (fil_array[jj + 1] == 21) {
+	  
+	  // Load full element strain tensor ********************
+	  if (sel_tres == 21) {
+	    tdataList[cref_elems[ii_dat]*6  ] = float(tmp_d[jj + 2]);
+	    tdataList[cref_elems[ii_dat]*6+1] = float(tmp_d[jj + 3]);
+	    tdataList[cref_elems[ii_dat]*6+2] = float(tmp_d[jj + 4]);
+	    tdataList[cref_elems[ii_dat]*6+3] = float(tmp_d[jj + 5]);
+	    tdataList[cref_elems[ii_dat]*6+4] = float(tmp_d[jj + 7]);
+	    tdataList[cref_elems[ii_dat]*6+5] = float(tmp_d[jj + 6]);
+	  }
+	  
+	  // Load selected scalar strain tensor component *******
+	  if (strcmp(activeLabel, epsilon[0]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 2]);
+	  }
+	  if (strcmp(activeLabel, epsilon[1]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 3]);
+	  }
+	  if (strcmp(activeLabel, epsilon[2]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 4]);
+	  }
+	  if (strcmp(activeLabel, epsilon[3]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 5]);
+	  }
+	  if (strcmp(activeLabel, epsilon[4]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 6]);
+	  }
+	  if (strcmp(activeLabel, epsilon[5]) == 0) {
+	    dataList[cref_elems[ii_dat]] = float(tmp_d[jj + 7]);
+	  }
+	};
+      };
+      
+      jj = jj + fil_array[jj];
+    }
+    
+    // ************************************************************************
+    // Load nodal data ********************************************************
+
+    //Allocate Output Data Objects ********************************************
+    string obj_name_nres = "NRes_Step_";
+    obj_name_nres += std::to_string((*it).Step_no);
+    obj_name_nres += "_Inc_";
+    obj_name_nres += std::to_string((*it).Inc_no);
+
+    coDoVec3 *ndata = new coDoVec3(obj_name_nres.c_str(), jobhead.no_nodes);
+
+    // if objects were not properly allocated *********************************
+    if (!ndata->objectOk())
+      {
+	sendError("Failed to create object '%s' for port '%s'",
+		  obj_name_nres.c_str(), p_nresOutPort->getName());
+	return FAIL;
+      }
+
+    ndata->getAddresses(&nxdataList,&nydataList,&nzdataList);
+
+    for (ii = 0; ii < jobhead.no_nodes; ii++) {
+      nxdataList[ii] = 0.;
+      nydataList[ii] = 0.;
+      nzdataList[ii] = 0.;
+    }
+
+    ii_dat = 0;
+    jj     = (*it).start;
+    
+    while (jj < (*it).end) {
+      
+      // Displacements ********************************************************
+      if ((fil_array[jj + 1] == 101) && (sel_nres == 101)) {
+	
+	ii_dat = (int)fil_array[jj + 2];
+	nxdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 3]);
+	nydataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 4]);
+	nzdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 5]);
+	
+      }
+      
+      // Reaction Forces ******************************************************
+      if ((fil_array[jj + 1] == 104) && (sel_nres == 104)) {
+	
+	ii_dat = (int)fil_array[jj + 2];
+	nxdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 3]);
+	nydataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 4]);
+	nzdataList[cref_nodes[ii_dat-1]] = float(tmp_d[jj + 5]);
+	
+      }
+      
+      jj = jj + fil_array[jj];
+    }
+
+    outERes->addElement(data);
+    outTRes->addElement(tdata);
+    outNRes->addElement(ndata);
+    
+  }
+
+  //=========================================================================
+  //=========================================================================
+  // Get Element and node Sets
   
   for (vector<int>::iterator it = set_nums.begin(); it != set_nums.end(); ++it) {
 
@@ -1308,41 +1380,41 @@ int ReadABAQUSfil::compute(const char *port)
       switch ( outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]] ) { 
 	 
       case 2 : // Trias
-	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 3;
-	nn = 3;
-	break;
+  	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 3;
+  	nn = 3;
+  	break;
 
       case 3 : // Quads
-	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 4;
-	nn = 4;
-	break;
+  	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 4;
+  	nn = 4;
+  	break;
 		
       case 4 : // Tetras    
-	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 4;
-	nn = 4;
-	break;
+  	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 4;
+  	nn = 4;
+  	break;
 	
       case 6 : // Pentas / Wedges
-	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 6;
-	nn = 6;
-	break;
+  	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 6;
+  	nn = 6;
+  	break;
 
       case 7 : // Hexas
-	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 8;
-	nn = 8;
-	break;
+  	vsets[SetNo].no_conn = vsets[SetNo].no_conn + 8;
+  	nn = 8;
+  	break;
 		
       default:
 	
-	sendError("While counting set connections : Unknown element type '%d'", 
-		  outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]]);
-	return FAIL;
-	break;
+  	sendError("While counting set connections : Unknown element type '%d'", 
+  		  outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]]);
+  	return FAIL;
+  	break;
       };
            
       for (jj = outElemList[cref_elems[vsets[SetNo].elem_numbers[kk]]]    ; 
-	   jj < outElemList[cref_elems[vsets[SetNo].elem_numbers[kk]]]+nn ; ++jj) {
-	l_nn_nd[outConnList[jj]] = 1;
+  	   jj < outElemList[cref_elems[vsets[SetNo].elem_numbers[kk]]]+nn ; ++jj) {
+  	l_nn_nd[outConnList[jj]] = 1;
       }
       
     }
@@ -1367,65 +1439,40 @@ int ReadABAQUSfil::compute(const char *port)
     // allocate new Unstructured grid *****************************************
     coDoUnstructuredGrid *setGrid = 
       new coDoUnstructuredGrid(obj_name_grid.c_str(), //p_SetgridOutPort->getObjName(),
-			       vsets[SetNo].no_elems,
-			       vsets[SetNo].no_conn,
-			       vsets[SetNo].no_nodes,
-			       hasTypes);
+  			       vsets[SetNo].no_elems,
+  			       vsets[SetNo].no_conn,
+  			       vsets[SetNo].no_nodes,
+  			       hasTypes);
     
     // if object was not properly allocated ***********************************
     if (!outGrid->objectOk()) {
       sendError("Failed to create object '%s' for port '%s'",
-		p_SetgridOutPort->getObjName(), p_SetgridOutPort->getName());
+  		p_SetgridOutPort->getObjName(), p_SetgridOutPort->getName());
       
       return FAIL;
     }
     
     setGrid->getAddresses(&setElemList, &setConnList,
-			  &setXCoord, &setYCoord, &setZCoord);
+  			  &setXCoord, &setYCoord, &setZCoord);
     
     setGrid->getTypeList(&setTypeList);
     
-    // **************************************************************
-    // Create set nodal results *************************************
-    float *setnxdataList;
-    float *setnydataList;
-    float *setnzdataList;
-    string obj_name_nres = "NodeRes_Set_No_";
-    obj_name_nres += std::to_string(it-set_nums.begin());
-
-    coDoVec3 *setndata = new coDoVec3(obj_name_nres.c_str(),
-     				      vsets[SetNo].no_nodes);
-
-    // if objects were not properly allocated ***********************************
-    if (!setndata->objectOk()) {
-      sendError("Failed to create object '%s' for port '%s'",
-		p_SetgridnResPort->getObjName(), p_SetgridnResPort->getName());
-      return FAIL;
-    }
-    
-    setndata->getAddresses(&setnxdataList,&setnydataList,&setnzdataList);
-
     // Copy coordinates from global to local grid pointers ********************
     jj = 0;
     for (kk=0; kk < jobhead.no_nodes; ++kk) {
       
       if (l_nn_nd[kk]) {
-	setXCoord[jj] = outXCoord[kk];
-	setYCoord[jj] = outYCoord[kk];
-	setZCoord[jj] = outZCoord[kk];
+  	setXCoord[jj] = outXCoord[kk];
+  	setYCoord[jj] = outYCoord[kk];
+  	setZCoord[jj] = outZCoord[kk];
 
-	setnxdataList[jj] = nxdataList[kk];
-	setnydataList[jj] = nydataList[kk];
-	setnzdataList[jj] = nzdataList[kk];
-
-	l_nn_nd[kk] = jj;
-	jj = jj + 1;
-
+    	l_nn_nd[kk] = jj;
+  	jj = jj + 1;
+	
+      } else {
+	l_nn_nd[kk] = -1;
       }
-      
     }
-    // Add the set results element **************
-    outnResSet->addElement(setndata);
     
     // Copy topology from global to local grid pointers ***********************
     ii = 1;
@@ -1436,40 +1483,40 @@ int ReadABAQUSfil::compute(const char *port)
       switch ( outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]] ) { 
 	
       case 7 : // Hexas
-	nn = 8;
-	break;
+  	nn = 8;
+  	break;
 	
       case 2 : // Trias
-	nn = 3;
-	break;
+  	nn = 3;
+  	break;
 
       case 3 : // Quads
-	nn = 4;
-	break;
+  	nn = 4;
+  	break;
 		
       case 4 : // Tetras
-	nn = 4;
-	break;
+  	nn = 4;
+  	break;
 	
       case 6 : // Pentas / Wedges
-	nn = 6;
-	break;
+  	nn = 6;
+  	break;
 	
       default:
 	
-	sendError("While copying Set-Elements : Unknown element type '%d'",
-		  outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]]);
+  	sendError("While copying Set-Elements : Unknown element type '%d'",
+  		  outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]]);
 
-	return FAIL;
-	break;
+  	return FAIL;
+  	break;
       };
       
       setTypeList[kk] = outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]];
       setElemList[ii] = setElemList[ii-1];
       for (jj = outElemList[cref_elems[vsets[SetNo].elem_numbers[kk]]]    ; 
-	   jj < outElemList[cref_elems[vsets[SetNo].elem_numbers[kk]]]+nn ; ++jj) {
-	setConnList[setElemList[ii]] = l_nn_nd[outConnList[jj]];
-	setElemList[ii] = setElemList[ii] + 1;
+  	   jj < outElemList[cref_elems[vsets[SetNo].elem_numbers[kk]]]+nn ; ++jj) {
+  	setConnList[setElemList[ii]] = l_nn_nd[outConnList[jj]];
+  	setElemList[ii] = setElemList[ii] + 1;
 	
       }
       ii = ii + 1;
@@ -1478,61 +1525,207 @@ int ReadABAQUSfil::compute(const char *port)
     // Add Set-Mesh to GridSet Output *********************
     outSet->addElement(setGrid);
 
-    // **************************************************************
-    // Create set results *******************************************
-    float *setdataList;
+    // ************************************************************************
+    // Create set results *****************************************************
+    float *setedataList;  // Scalar Element results
+    float *settdataList;  // Tensor Element results
+    float *setnxdataList; // Nodal result x-comp.
+    float *setnydataList; // Nodal result y-comp.
+    float *setnzdataList; // Nodal result z-comp.
 
-    string obj_name_eres = "ElemRes_Set_No_";
+    // Set for scalar element results per element set ***************
+    string obj_name_eres = "ERes_Set_No_";
     obj_name_eres += std::to_string(it-set_nums.begin());
+    coDoSet *outStepEResSet  = new coDoSet(obj_name_eres.c_str(),0);
 
-    coDoFloat *setdata = new coDoFloat(obj_name_eres.c_str(),
-				       vsets[SetNo].no_elems);
-
-    float *settdataList;
-
-    string obj_name_tres = "ElemTRes_Set_No_";
-    obj_name_tres += std::to_string(it-set_nums.begin());
-
-    coDoTensor *tsetdata = new coDoTensor(obj_name_tres.c_str(),
-					  vsets[SetNo].no_elems, coDoTensor::S3D);
-
-    // if objects were not properly allocated ***********************************
-    if (!setdata->objectOk())
-      {
-	sendError("Failed to create object '%s' for port '%s'",
-		  p_SetgridResPort->getObjName(), p_SetgridResPort->getName());
-	return FAIL;
-      }
-
-    if (!tsetdata->objectOk())
-      {
-	sendError("Failed to create object '%s' for port '%s'",
-		  p_SetgridTResPort->getObjName(), p_SetgridTResPort->getName());
-	return FAIL;
-      }
-
-    setdata->getAddress(&setdataList);
-    tsetdata->getAddress(&settdataList);
-
-    for (kk=0; kk < vsets[SetNo].no_elems; ++kk) {
-      // Copy Scalar component ************************************************
-      setdataList [kk    ]   = dataList [cref_elems[vsets[SetNo].elem_numbers[kk]]];
-
-      // Copy tensor **********************************************************
-      settdataList[kk*6  ] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6  ];
-      settdataList[kk*6+1] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+1];
-      settdataList[kk*6+2] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+2];
-      settdataList[kk*6+3] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+3];
-      settdataList[kk*6+4] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+4];
-      settdataList[kk*6+5] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+5];
+    if (!outStepEResSet->objectOk()) {
+      sendError("Failed to create object '%s'", obj_name_eres.c_str());
+      return FAIL;
     }
 
-    outResSet->addElement(setdata);
-    outtResSet->addElement(tsetdata);
+    // Set for tensor element results per element set ***************
+    string obj_name_tres = "TRes_Set_No_";
+    obj_name_tres += std::to_string(it-set_nums.begin());
+    coDoSet *outStepTResSet  = new coDoSet(obj_name_tres.c_str(),0);
+
+    if (!outStepTResSet->objectOk()) {
+      sendError("Failed to create object '%s'", obj_name_tres.c_str());
+      return FAIL;
+    }
+
+    // Set for nodal results per element set ************************
+    string obj_name_nres = "NRes_Set_No_";
+    obj_name_nres += std::to_string(it-set_nums.begin());
+    coDoSet *outStepNResSet  = new coDoSet(obj_name_nres.c_str(),0);
+
+    if (!outStepNResSet->objectOk()) {
+      sendError("Failed to create object '%s'", obj_name_nres.c_str());
+      return FAIL;
+    } 
+   
+    // Add TIMESTEP attribute to sets *******************************
+    if (vsteps.size() > 1) {
+
+      char ts[100];
+      printf("vsteps.size() %d\n",vsteps.size());
+      sprintf(ts, "1 %d", vsteps.size());
+      outStepTResSet->addAttribute("TIMESTEP", ts);
+      outStepEResSet->addAttribute("TIMESTEP", ts);
+      outStepNResSet->addAttribute("TIMESTEP", ts);
+     
+    }
+
+    int step = 0;
+    
+    // For each Step and increment ********************************************
+    for (vector<tStephead>::iterator sit = vsteps.begin(); sit != vsteps.end(); ++sit) {
+
+      // Create unique object names *********************************
+      string obj_name_steperes = "ERes_Set_No_";
+      obj_name_steperes += std::to_string(it-set_nums.begin());
+      obj_name_steperes += "_Step_";
+      obj_name_steperes += std::to_string((*sit).Step_no);
+      obj_name_steperes += "_Inc_";
+      obj_name_steperes += std::to_string((*sit).Inc_no);
+
+      string obj_name_steptres = "TRes_Set_No_";
+      obj_name_steptres += std::to_string(it-set_nums.begin());
+      obj_name_steptres += "_Step_";
+      obj_name_steptres += std::to_string((*sit).Step_no);
+      obj_name_steptres += "_Inc_";
+      obj_name_steptres += std::to_string((*sit).Inc_no);
+    
+      string obj_name_stepnres = "NRes_Set_No_";
+      obj_name_stepnres += std::to_string(it-set_nums.begin());
+      obj_name_stepnres += "_Step_";
+      obj_name_stepnres += std::to_string((*sit).Step_no);
+      obj_name_stepnres += "_Inc_";
+      obj_name_stepnres += std::to_string((*sit).Inc_no);
+
+      // Object for increment nodal results *************************
+      coDoVec3 *setndata = new coDoVec3(obj_name_stepnres.c_str(),
+					vsets[SetNo].no_nodes);
+
+      if (!setndata->objectOk()) {
+	sendError("Failed to create object '%s'", obj_name_nres.c_str());
+	return FAIL;
+      }
+    
+      setndata->getAddresses(&setnxdataList,&setnydataList,&setnzdataList);
+
+      // Pointer to global mesh nodal results for increment *********
+      coDoVec3 *setStepNdata;
+
+      // get Pointers to increment results of global Mesh ***********
+      setStepNdata = (coDoVec3*)outNRes->getElement(step);
+      setStepNdata->getAddresses(&nxdataList,&nydataList,&nzdataList);
+
+      // Copy nodal results from global to local result pointers ****
+      jj = 0;
+      for (kk=0; kk < jobhead.no_nodes; ++kk) {
+	
+	if (l_nn_nd[kk] > -1) {
+	  
+	  setnxdataList[jj] = nxdataList[kk];
+	  setnydataList[jj] = nydataList[kk];
+	  setnzdataList[jj] = nzdataList[kk];
+	  
+	  jj = jj + 1;
+	}
+      }
+
+      // Add the set results element **************
+      outStepNResSet->addElement(setndata);
+
+      //*************************************************************
+      // Object for increment element scalar results ****************
+      coDoFloat *setdata = new coDoFloat( obj_name_steperes.c_str(),
+					 vsets[SetNo].no_elems);
+
+      if (!setdata->objectOk()) {
+  	sendError("Failed to create object '%s'", obj_name_steperes.c_str());
+  	return FAIL;
+      }
+
+      setdata->getAddress(&setedataList);
+
+      //*************************************************************
+      // Object for increment element tensor results ****************
+      coDoTensor *tsetdata = new coDoTensor(obj_name_steptres.c_str(),
+					    vsets[SetNo].no_elems, coDoTensor::S3D);
+
+      if (!tsetdata->objectOk()) {
+  	sendError("Failed to create object '%s'", obj_name_steptres.c_str());
+  	return FAIL;
+      }
+
+      tsetdata->getAddress(&settdataList);
+      printf("%s\n",obj_name_steptres.c_str());
+      // Pointer to global mesh nodal results for increment *********
+      coDoFloat *setStepEdata;
+
+      // get Pointers to increment results of global Mesh ***********
+      setStepEdata = (coDoFloat*)outERes->getElement(step);
+      setStepEdata->getAddress(&dataList);
+
+      coDoTensor *setStepTdata;
+
+      // get Pointers to increment results of global Mesh ***********
+      setStepTdata = (coDoTensor*)outTRes->getElement(step);
+      setStepTdata->getAddress(&tdataList);
+
+      
+      for (kk=0; kk < vsets[SetNo].no_elems; ++kk) {
+	
+	// Copy Scalar component **********************************************
+	setedataList [kk    ]   = dataList [cref_elems[vsets[SetNo].elem_numbers[kk]]];
+
+	// Copy tensor ********************************************************
+	settdataList[kk*6  ] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6  ];
+	settdataList[kk*6+1] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+1];
+	settdataList[kk*6+2] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+2];
+	settdataList[kk*6+3] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+3];
+	settdataList[kk*6+4] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+4];
+	settdataList[kk*6+5] = tdataList[cref_elems[vsets[SetNo].elem_numbers[kk]]*6+5];
+      }
+
+      outStepEResSet->addElement(setdata);
+      outStepTResSet->addElement(tsetdata);
+    
+
+      step = step + 1;
+    }
+
+    outResSet->addElement(outStepEResSet);
+    outtResSet->addElement(outStepTResSet);
+    outnResSet->addElement(outStepNResSet);
+
   }
 
   printf("===========================================================");
   printf("===========================================================\n");
+
+  // Set single grid objects to Out Ports ***************************
+  if (outGrid) 
+    p_gridOutPort->setCurrentObject(outGrid);
+  if (outERes)
+    p_eresOutPort->setCurrentObject(outERes);
+  if (outTRes)
+    p_tresOutPort->setCurrentObject(outTRes);
+  if (outNRes)
+    p_nresOutPort->setCurrentObject(outNRes);
+  
+
+  // Set set objects to Out Ports ***********************************
+  if(outSet)
+    p_eresOutPort->setCurrentObject(outSet);
+  if(outResSet)
+    p_SetgridResPort->setCurrentObject(outResSet);
+  if(outtResSet)
+    p_SetgridTResPort->setCurrentObject(outtResSet);
+  if(outnResSet)
+    p_SetgridnResPort->setCurrentObject(outnResSet);
+
 
   computeRunning = false;
 

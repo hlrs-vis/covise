@@ -90,6 +90,26 @@ private:
     // hack: set this flag if param called from compute
     bool computeRunning;
 
+    typedef struct tStephead
+    {
+
+      int start, end;
+      int active;
+
+      float  Total_time;
+      float Step_time;
+      float Max_creep_strainrate_ratio;
+      float Sol_dep_ampl;
+      int   Procedure_type;
+      int   Step_no;
+      int   Inc_no;
+      int   perturb_flag;
+      float Load_prop_factor;
+      float Frequency;
+      float Time_inc;
+       
+    } tStephead;
+
     struct t_jobhead
     {
 
@@ -132,6 +152,9 @@ private:
 
     // Container for set parameters
     vector<tSets> vsets;
+
+    // Container for step parameters
+    vector<tStephead> vsteps;
 
 public:
     ReadABAQUSfil(int argc, char *argv[]);
