@@ -662,7 +662,7 @@ void osgViewerObject::updateTMat()
                     }
                     if(texData[i].mirror == 1)
                     {
-                        if (useTextureRectangle && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
+                        if (useTextureRectangle && texData[i].texImage!=NULL && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
                         {
                             multMat(0, 0) = texData[i].texture->getTextureWidth();
                             multMat(1, 1) = -texData[i].texture->getTextureHeight();
@@ -676,7 +676,7 @@ void osgViewerObject::updateTMat()
                     }
                     else
                     {
-                        if (useTextureRectangle && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
+                        if (useTextureRectangle && texData[i].texImage!=NULL && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
                         {
                             multMat(0, 0) = -texData[i].texture->getTextureWidth();
                             multMat(1, 1) = texData[i].texture->getTextureHeight();

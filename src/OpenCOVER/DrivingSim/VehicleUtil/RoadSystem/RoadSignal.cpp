@@ -33,7 +33,8 @@ unordered_map<std::string, SignalPrototype *> RoadSignal::signalsMap;
 
 RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, const double &setS, const double &setT, const bool &setDynamic,
                        const OrientationType &setOrient, const double &setZOffset, const std::string &setCountry,
-                       const int &setType, const int &setSubtype, const std::string &subClass, const double &Size, const double &setValue)
+                       const int &setType, const int &setSubtype, const std::string &subClass, const double &Size, const double &setValue,
+                       const double &setHdg, const double &setPitch, const double &setRoll)
     : Element(setId)
     , name(setName)
     , s(setS)
@@ -47,6 +48,9 @@ RoadSignal::RoadSignal(const std::string &setId, const std::string &setName, con
     , subclass(subClass)
     , size(Size)
     , value(setValue)
+    , hdg(setHdg)
+    , pitch(setPitch)
+    , roll(setRoll)
 {
     SignalPrototype *sp = NULL;
     unordered_map<std::string, SignalPrototype *>::iterator it = signalsMap.find(name);
@@ -301,91 +305,68 @@ void SignalPrototype::createGeometry()
     signTexCoords->push_back(osg::Vec2(0.5, 0));
     signNormals->push_back(n);
 
-    osg::DrawArrays *sign = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, signVertices->size());
-    signGeometry->addPrimitiveSet(sign);
-    signalNode = signGeode;
-
     if (withPost)
     {
-        osg::Geode *postGeode = new osg::Geode();
-        postGeode->setName("simplePole");
-        postGeode->setStateSet(signStateSet);
-
-        osg::Geometry *postGeometry;
-        postGeometry = new osg::Geometry();
-        postGeode->addDrawable(postGeometry);
-
-        osg::Vec3Array *postVertices;
-        postVertices = new osg::Vec3Array;
-        postGeometry->setVertexArray(postVertices);
-
-        osg::Vec3Array *postNormals;
-        postNormals = new osg::Vec3Array;
-        postGeometry->setNormalArray(postNormals);
-        postGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-
-        osg::Vec2Array *postTexCoords;
-        postTexCoords = new osg::Vec2Array;
-        postGeometry->setTexCoordArray(3, postTexCoords);
-
         osg::Vec2 tc;
         tc.set(0.75, 0.5);
-        postVertices->push_back(v[4]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[0]);
-        postVertices->push_back(v[8]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[0]);
-        postVertices->push_back(v[11]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[3]);
-        postVertices->push_back(v[7]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[3]);
+        signVertices->push_back(v[4]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[0]);
+        signVertices->push_back(v[8]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[0]);
+        signVertices->push_back(v[11]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[3]);
+        signVertices->push_back(v[7]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[3]);
 
-        postVertices->push_back(v[7]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[3]);
-        postVertices->push_back(v[11]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[3]);
-        postVertices->push_back(v[10]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[2]);
-        postVertices->push_back(v[6]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[2]);
+        signVertices->push_back(v[7]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[3]);
+        signVertices->push_back(v[11]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[3]);
+        signVertices->push_back(v[10]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[2]);
+        signVertices->push_back(v[6]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[2]);
 
-        postVertices->push_back(v[6]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[2]);
-        postVertices->push_back(v[10]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[2]);
-        postVertices->push_back(v[9]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[1]);
-        postVertices->push_back(v[5]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[1]);
+        signVertices->push_back(v[6]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[2]);
+        signVertices->push_back(v[10]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[2]);
+        signVertices->push_back(v[9]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[1]);
+        signVertices->push_back(v[5]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[1]);
 
-        postVertices->push_back(v[5]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[1]);
-        postVertices->push_back(v[9]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[1]);
-        postVertices->push_back(v[8]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[0]);
-        postVertices->push_back(v[4]);
-        postTexCoords->push_back(tc);
-        postNormals->push_back(np[0]);
-
-        osg::DrawArrays *post = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, postVertices->size());
-        postGeometry->addPrimitiveSet(post);
-        signalPost = postGeode;
+        signVertices->push_back(v[5]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[1]);
+        signVertices->push_back(v[9]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[1]);
+        signVertices->push_back(v[8]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[0]);
+        signVertices->push_back(v[4]);
+        signTexCoords->push_back(tc);
+        signNormals->push_back(np[0]);
     }
+
+    osg::DrawArrays *sign = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, signVertices->size());
+    signGeometry->addPrimitiveSet(sign);
+
+    signalNode = signGeode;
+
 }
 
 SignalPrototype::~SignalPrototype()
@@ -402,6 +383,12 @@ void RoadSignal::setTransform(const Transform &_transform)
         {
             signalDir = osg::Quat(-0.5 * M_PI, osg::Vec3d(0.0, 0.0, 1.0));
         }
+        
+        osg::Quat headingQuat(getHdg(), osg::Vec3d(0.0, 0.0, 1.0));
+        osg::Quat pitchQuat(getPitch(), osg::Vec3d(0.0, 1.0, 0.0));
+        osg::Quat rollQuat(getRoll(), osg::Vec3d(1.0, 0.0, 0.0));
+        signalDir = signalDir * headingQuat * pitchQuat * rollQuat;
+
         if (zOffset == 0)
         {
             // street marking, no upright signal
@@ -482,8 +469,9 @@ unordered_map<std::string, TrafficLightPrototype *> TrafficLightSignal::trafficL
 
 TrafficLightSignal::TrafficLightSignal(const std::string &setId, const std::string &setName, const double &setS, const double &setT, const bool &setDynamic,
                                        const OrientationType &setOrient, const double &setZOffset, const std::string &setCountry,
-                                       const int &setType, const int &setSubtype, const std::string &setSubclass, const double &setSize, const double &setValue)
-    : RoadSignal(setId, setName, setS, setT, setDynamic, setOrient, setZOffset, setCountry, setType, setSubtype, setSubclass, setSize, setValue)
+                                       const int &setType, const int &setSubtype, const std::string &setSubclass, const double &setSize, const double &setValue, 
+                                       const double &setHdg, const double &setPitch, const double &setRoll)
+    : RoadSignal(setId, setName, setS, setT, setDynamic, setOrient, setZOffset, setCountry, setType, setSubtype, setSubclass, setSize, setValue, setHdg, setPitch, setRoll)
     , signalGreenCallback(NULL)
     , signalYellowCallback(NULL)
     , signalRedCallback(NULL)

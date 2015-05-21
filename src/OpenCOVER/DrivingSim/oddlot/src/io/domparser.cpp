@@ -1238,6 +1238,10 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
             {
                 orientation = Object::NEGATIVE_TRACK_DIRECTION;
             }
+            else
+            {
+                orientation = Object::BOTH_DIRECTIONS;
+            }
             double length = parseToDouble(child, "length", 0.0, true); // optional
             double width = parseToDouble(child, "width", 0.0, true); // optional
             double radius = parseToDouble(child, "radius", 0.0, true); // optional
@@ -1274,7 +1278,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
             if (type != "")
             {
                 Object *object = new Object(id, name, type, s, t, zOffset, validLength, orientation,
-                    length, width, radius, height, hdg * 360.0 / (2.0 * M_PI), pitch, roll, pole, repeatS, repeatLength, repeatDistance, textureFile);
+                    length, width, radius, height, hdg * 360.0 / (2.0 * M_PI), pitch  * 360.0 / (2.0 * M_PI), roll  * 360.0 / (2.0 * M_PI), pole, repeatS, repeatLength, repeatDistance, textureFile);
 
                 setTile(id, oldTileId);
 
@@ -1404,7 +1408,7 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
         }
 
         // Construct signal object
-        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
+        Signal *signal = new Signal(id, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", 293, "", -1, length, 0.0, 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
         // Add to road
         road->addSignal(signal);
 
@@ -1488,6 +1492,9 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
         
         int subtype = parseToInt(child, "subtype", -1, true); // mandatory
         double value = parseToDouble(child, "value", 0.0, true); // mandatory
+        double hOffset = parseToDouble(child, "hOffset", 0.0, true); // mandatory
+        double pitch = parseToDouble(child, "pitch", 0.0, true); // mandatory
+        double roll = parseToDouble(child, "roll", 0.0, true); // mandatory
 
         // Get validity record
 
@@ -1544,8 +1551,18 @@ DomParser::parseSignalsElement(QDomElement &element, RSystemElementRoad *road, Q
             ancillary = ancillary.nextSiblingElement("userData");
         }
 
-        // Construct signal object
-        signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, pole, size, fromLane, toLane, crossProb, resetTime);
+        if ((type == 625) && (subtype == 10) && (typeSubclass == "20"))
+        {
+            hOffset = name.toDouble();
+
+            // Construct signal object
+            signal = new Signal(id, "", s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset, pitch  * 360.0 / (2.0 * M_PI), roll  * 360.0 / (2.0 * M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+        }
+        else
+        {
+            // Construct signal object
+            signal = new Signal(id, name, s, t, dynamic, orientation, zOffset, country, type, typeSubclass, subtype, value, hOffset * 360.0 / (2.0 * M_PI), pitch  * 360.0 / (2.0 * M_PI), roll  * 360.0 / (2.0 * M_PI), pole, size, fromLane, toLane, crossProb, resetTime);
+        }
 
 
         setTile(id, oldTileId);
