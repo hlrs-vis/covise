@@ -96,7 +96,7 @@ void Equation::setEquation(std::string e)
             if ((c > 47) && (c < 58) && (lastC != ' '))
             {
                 textDrawable->setText(growingText);
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
                 osg::BoundingBox bb = textDrawable->computeBoundingBox();
 #else
                 osg::BoundingBox bb = textDrawable->computeBound();
@@ -122,7 +122,7 @@ void Equation::setEquation(std::string e)
             else if (c == '>')
             {
                 textDrawable->setText(growingText);
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
                 osg::BoundingBox bb = textDrawable->computeBoundingBox();
 #else
                 osg::BoundingBox bb = textDrawable->computeBound();

@@ -365,7 +365,7 @@ void coVolumeDrawable::setPosition(const osg::Vec3 &pos)
 
 void coVolumeDrawable::getBoundingBox(osg::Vec3 *min, osg::Vec3 *max) const
 {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
     const BoundingBox &bb = computeBoundingBox();
 #else
     const BoundingBox &bb = getBound();

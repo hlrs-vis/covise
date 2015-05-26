@@ -35,7 +35,7 @@
 #include "coVRFileManager.h"
 #include <osg/Version>
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 #define getBound getBoundingBox
 #endif
 using namespace opencover;

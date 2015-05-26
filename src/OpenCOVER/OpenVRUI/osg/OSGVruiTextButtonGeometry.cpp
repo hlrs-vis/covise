@@ -169,7 +169,7 @@ ref_ptr<Node> OSGVruiTextButtonGeometry::createNode(bool pressed, bool)
     mtrans.makeTranslate(Vec3(bwidth / 2.0f, bheight / 2.0, 1.0));
 
     float scale;
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
     float twidth = fabs(text->computeBoundingBox().xMax() - text->computeBoundingBox().xMin());
     float theight = fabs(text->computeBoundingBox().yMax() - text->computeBoundingBox().yMin());
 #else
