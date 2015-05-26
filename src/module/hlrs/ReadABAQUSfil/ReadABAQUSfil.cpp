@@ -444,8 +444,8 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	  printf("-----------------------------------------------------------");
 	  printf("-----------------------------------------------------------\n");
 	  for (vector<tSets>::iterator it = vsets.begin(); it != vsets.end(); ++it) {
-	    printf("%9d %10s %10s %9d %s\n",
-		   it-vsets.begin(),
+	    printf("%9ld %10s %10s %9d %s\n",
+		   (long)(it-vsets.begin()),
 		   (*it).type.c_str(),
 		   (*it).cname.c_str(),
 		   (*it).cref,(*it).name.c_str());
@@ -1037,7 +1037,7 @@ int ReadABAQUSfil::compute(const char *port)
   if (vsteps.size() > 1) {
 
     char ts[100];
-    sprintf(ts, "1 %d", vsteps.size());
+    sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
     outERes->addAttribute("TIMESTEP", ts);
     outTRes->addAttribute("TIMESTEP", ts);
     outNRes->addAttribute("TIMESTEP", ts);
@@ -1158,7 +1158,7 @@ int ReadABAQUSfil::compute(const char *port)
     obj_name_tres += "_Inc_";
     obj_name_tres += std::to_string((*it).Inc_no);
 
-    printf("%d %s\n",it,obj_name_tres.c_str());
+    printf("%ld %s\n",(long)(it-vsteps.begin()),obj_name_tres.c_str());
 
     coDoFloat  *data  = new coDoFloat (obj_name_eres.c_str(), jobhead.no_sup_elems);
     coDoTensor *tdata = new coDoTensor(obj_name_tres.c_str(), jobhead.no_sup_elems, coDoTensor::S3D);
@@ -1364,13 +1364,13 @@ int ReadABAQUSfil::compute(const char *port)
     SetNo = (*it);
 
     if ( ( SetNo < 0 ) || (SetNo >= vsets.size() ) ) {
-      printf("Selected set no %d not in set range 0 - %d \n",SetNo, vsets.size());
+      printf("Selected set no %d not in set range 0 - %lu \n",SetNo, (long)vsets.size());
       continue;
     } else if ( vsets[SetNo].type.compare("Elems") != 0) {
       printf("Selected set no %d is not an element set \n",SetNo);
       continue;
     } else {
-      printf("Adding set no %d as element %d to GridSet\n",SetNo,it-set_nums.begin());
+      printf("Adding set no %d as element %ld to GridSet\n",SetNo,(long)(it-set_nums.begin()));
     }
     
     // Count set local connections and mark local nodes in l_nn_nd ************
@@ -1568,8 +1568,8 @@ int ReadABAQUSfil::compute(const char *port)
     if (vsteps.size() > 1) {
 
       char ts[100];
-      printf("vsteps.size() %d\n",vsteps.size());
-      sprintf(ts, "1 %d", vsteps.size());
+      printf("vsteps.size() %lu\n",(unsigned long)vsteps.size());
+      sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
       outStepTResSet->addAttribute("TIMESTEP", ts);
       outStepEResSet->addAttribute("TIMESTEP", ts);
       outStepNResSet->addAttribute("TIMESTEP", ts);
