@@ -234,7 +234,7 @@ bool Move::init()
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local", true);
+    local = new coCheckboxMenuItem("local", false);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
