@@ -183,6 +183,8 @@ namespace OpenCOVERPlugin
             // register the DocumentChanged event
             application.ControlledApplication.DocumentChanged += new EventHandler<Autodesk.Revit.DB.Events.DocumentChangedEventArgs>(CtrlApp_DocumentChanged);
 
+            OpenCOVERPlugin.COVER.Instance.startup(application);
+
 
          }
          catch (System.Exception)
@@ -271,6 +273,8 @@ namespace OpenCOVERPlugin
        public Autodesk.Revit.UI.Result OnShutdown(UIControlledApplication application)
       {
           application.ControlledApplication.DocumentChanged -= CtrlApp_DocumentChanged;
+
+          OpenCOVERPlugin.COVER.Instance.shutdown(application);
          return Autodesk.Revit.UI.Result.Succeeded;
       }
    }

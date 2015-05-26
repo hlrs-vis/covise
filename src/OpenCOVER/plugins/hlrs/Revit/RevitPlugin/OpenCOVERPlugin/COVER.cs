@@ -4,15 +4,43 @@ using System.Text;
 using System.Threading;
 
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.Linq;
+using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.Attributes;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Architecture;
+using Autodesk.Revit.DB.IFC;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
+using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.DB.Events;
+using Bitmap = System.Drawing.Bitmap;
+using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
+using ComponentManager = Autodesk.Windows.ComponentManager;
+using IWin32Window = System.Windows.Forms.IWin32Window;
+
 
 namespace OpenCOVERPlugin
 {
-    
-       
+
+    public class COVERMessage
+    {
+
+        public MessageBuffer message;
+        public int messageType;
+        public COVERMessage(MessageBuffer m, int mt)
+        {
+            message = m;
+            messageType = mt;
+        }
+    }
 
    public sealed class COVER
    {
-       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView };
+
+       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo };
       public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
       private Thread messageThread;
 
@@ -20,13 +48,34 @@ namespace OpenCOVERPlugin
       private Autodesk.Revit.DB.Options mOptions;
       private Autodesk.Revit.DB.View3D View3D;
       private Autodesk.Revit.DB.Document document;
-      public MessageBuffer currentMessage;
-      public int currentMessageType;
+      public Queue<COVERMessage> messageQueue;
+
+      private EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs> idlingHandler;
+      // DLL imports from user32.dll to set focus to
+      // Revit to force it to forward the external event
+      // Raise to actually call the external event 
+      // Execute.
+
+      /// <summary>
+      /// The GetForegroundWindow function returns a 
+      /// handle to the foreground window.
+      /// </summary>
+      [DllImport("user32.dll")]
+      static extern IntPtr GetForegroundWindow();
+
+      /// <summary>
+      /// Move the window associated with the passed 
+      /// handle to the front.
+      /// </summary>
+      [DllImport("user32.dll")]
+      static extern bool SetForegroundWindow(
+        IntPtr hWnd);   
 
       Autodesk.Revit.UI.ExternalEvent messageEvent;
 
       class externalMessageHandler : Autodesk.Revit.UI.IExternalEventHandler
       {
+
           /// <summary>
           /// Execute method invoked by Revit via the 
           /// external event as a reaction to a call 
@@ -43,16 +92,21 @@ namespace OpenCOVERPlugin
 
               //Debug.Assert( doc.Title.Equals( _doc.Title ),
               //  "oops ... different documents ... test this" );
+              UIDocument uidoc = a.ActiveUIDocument;
               using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(a.ActiveUIDocument.Document))
               {
                   if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
                   {
-                      COVER.Instance.handleMessage(COVER.Instance.currentMessage, COVER.Instance.currentMessageType);
-                      if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
+                      while (COVER.Instance.messageQueue.Count > 0)
                       {
-                          Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                          COVERMessage m = COVER.Instance.messageQueue.Dequeue();
+                          COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document,uidoc);
+                          if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
+                          {
+                              Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                          }
+                          return;
                       }
-                      return;
                   }
               }
           }
@@ -66,6 +120,9 @@ namespace OpenCOVERPlugin
           }
       }
       externalMessageHandler handler;
+      int callCounter;
+      IntPtr ApplicationWindow;
+      FamilyInstance avatarObject;
 
       COVER()
       {
@@ -83,6 +140,66 @@ namespace OpenCOVERPlugin
          {
             return Nested.instance;
          }
+      }
+      private Level getLevel(Document document, double height)
+      {
+          int levelNumber = 0;
+          Level lastLevel = null;
+          FilteredElementCollector collector = new FilteredElementCollector(document);
+          ICollection<Element> collection = collector.OfClass(typeof(Level)).ToElements();
+          foreach (Element e in collection)
+          {
+              Level level = e as Level;
+
+              if (null != level)
+              {
+                  // keep track of number of levels
+                  levelNumber++;
+                  if (lastLevel != null)
+                  {
+                      if (height < level.Elevation && height > lastLevel.Elevation)
+                      {
+                          return lastLevel;
+                      }
+                  }
+                  lastLevel = level;
+              }
+          }
+          return null;
+      }
+
+      private Room getRoom(Document document, double x, double y, double height)
+      {
+          FilteredElementCollector a = new FilteredElementCollector(document).OfClass(typeof(SpatialElement));
+
+          foreach (SpatialElement e in a)
+          {
+              Room room = e as Room;
+
+              if (null != room)
+              {
+                  BoundingBoxXYZ bb = room.get_BoundingBox(null);
+                  if ((bb.Min.X < x && x < bb.Max.X) && (bb.Min.Y < y && y < bb.Max.Y) && (bb.Min.Z < height && height < bb.Max.Z))
+                  {
+                      /* SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
+                       options.SpatialElementBoundaryLocation = SpatialElementBoundaryLocation.Finish;
+                       foreach (IList<Autodesk.Revit.DB.BoundarySegment> boundSegList in room.GetBoundarySegments(options))
+                       {
+                           boundSegList.
+                           foreach (Autodesk.Revit.DB.BoundarySegment boundSeg in boundSegList)
+                           {
+                               Element e = boundSeg.Element;
+                               Wall wall = e as Wall;
+                               LocationCurve locationCurve = wall.Location as LocationCurve;
+                               Curve curve = locationCurve.Curve;
+                               roomElementInfo += e.Name + " " + curve.Length + "\n";
+                           }
+                       }*/
+                      return room;
+                  }
+              }
+          }
+          return null;
       }
       public static uint SwapUnsignedInt(uint source)
       {
@@ -598,9 +715,303 @@ namespace OpenCOVERPlugin
 
       }
 
-
-      void handleMessage(MessageBuffer buf, int msgType)
+      public static Element FindElementByName(
+   Document doc,
+   Type targetType,
+   string targetName)
       {
+          return new FilteredElementCollector(doc)
+            .OfClass(targetType)
+            .FirstOrDefault<Element>(
+              e => e.Name.Equals(targetName));
+      }
+
+void TestAllOverloads(
+  Document doc,
+  XYZ startPoint,
+  XYZ endPoint,
+  FamilySymbol familySymbol )
+{
+  StructuralType stNon = StructuralType.NonStructural;
+  StructuralType stBeam = StructuralType.Beam;
+ 
+  Autodesk.Revit.Creation.Document cd
+    = doc.Create;
+ 
+  View view = doc.ActiveView;
+  SketchPlane sk = view.SketchPlane;
+
+  Level level = doc.GetElement(view.LevelId) as Level;
+ 
+  // Create line from user points
+
+  Curve curve = Line.CreateBound(startPoint, endPoint);
+ 
+  // Create direction vector from user points
+ 
+  XYZ dirVec = endPoint - startPoint;
+ 
+  bool done = false;
+  int index = 1;
+  while( !done )
+  {
+    FamilyInstance instance = null;
+ 
+    // Try different insert methods
+ 
+    try
+    {
+      switch( index )
+      {
+        // public FamilyInstance NewFamilyInstance( 
+        //   XYZ location, FamilySymbol symbol, 
+        //   StructuralType structuralType );
+ 
+        case 1:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, stNon );
+          break;
+ 
+        case 2:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, stBeam );
+          break;
+ 
+        // public FamilyInstance NewFamilyInstance( 
+        //   XYZ origin, FamilySymbol symbol, 
+        //   View specView );
+ 
+        case 3:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, null );
+          break;
+ 
+        case 4:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, view );
+          break;
+ 
+        // public FamilyInstance NewFamilyInstance(
+        //   XYZ location, FamilySymbol symbol, 
+        //   Element host, StructuralType structuralType );
+ 
+        case 5:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, sk, stNon );
+          break;
+ 
+        case 6:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, sk, stBeam );
+          break;
+ 
+        // public FamilyInstance NewFamilyInstance(
+        //   XYZ location, FamilySymbol symbol, 
+        //   XYZ referenceDirection, Element host, 
+        //   StructuralType structuralType );
+ 
+        case 7:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, dirVec, sk, 
+            stNon );
+          break;
+ 
+        case 8:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, dirVec, sk, 
+            stBeam );
+          break;
+ 
+        // public FamilyInstance NewFamilyInstance(
+        //   Curve curve, FamilySymbol symbol, 
+        //   Level level, StructuralType structuralType );
+ 
+        case 9:
+          instance = cd.NewFamilyInstance( 
+            curve, familySymbol, null, stNon );
+          break;
+ 
+        case 10:
+          instance = cd.NewFamilyInstance( 
+            curve, familySymbol, null, stBeam );
+          break;
+ 
+        case 11:
+          instance = cd.NewFamilyInstance( 
+            curve, familySymbol, level, stNon );
+          break;
+ 
+        case 12:
+          instance = cd.NewFamilyInstance( 
+            curve, familySymbol, level, stBeam );
+          break;
+ 
+        // public FamilyInstance NewFamilyInstance(
+        //   XYZ location, FamilySymbol symbol, 
+        //   Level level, StructuralType structuralType );
+ 
+        case 13:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, null, stNon );
+          break;
+ 
+        case 14:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, null, stBeam );
+          break;
+ 
+        case 15:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, level, stNon );
+          break;
+ 
+        case 16:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, level, stBeam );
+          break;
+ 
+        // public FamilyInstance NewFamilyInstance(
+        //   XYZ location, FamilySymbol symbol, 
+        //   Element host, Level level, 
+        //   StructuralType structuralType );
+ 
+        case 17:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, null, stNon );
+          break;
+ 
+        case 18:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, null, stBeam );
+          break;
+ 
+        case 19:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, sk, stNon );
+          break;
+ 
+        case 20:
+          instance = cd.NewFamilyInstance( 
+            startPoint, familySymbol, sk, stBeam );
+          break;
+ 
+        default:
+          done = true;
+          break;
+      }
+    }
+    catch
+    { }
+ 
+    // If instance was created, mark with identifier so I can see which instances were created
+ 
+  /*  if( null != instance )
+    {
+      Parameter param = instance.get_Parameter( "InstanceIndex" );
+      if( null != param )
+      {
+        param.Set( index );
+      }
+    }*/
+    index++;
+  }
+}
+       
+              List<ElementId> _added_element_ids = new List<ElementId>();
+    void OnDocumentChanged(
+    object sender,
+    DocumentChangedEventArgs e )
+  {
+    _added_element_ids.AddRange(
+      e.GetAddedElementIds() );
+  }
+      void createAvatar(Document doc,UIDocument uidoc)
+      {
+          string FamilyName = "RPC Mann";
+          Family family = FindElementByName(doc, typeof(Family), FamilyName) as Family;
+          if (null == family)
+          {
+
+              string libraryPath = "";
+              doc.Application.GetLibraryPaths().TryGetValue("Metric Library", out libraryPath);
+
+              //string _family_folder = libraryPath + "/Auﬂenbauteile/RPC 3D-Objekte/";
+              string _family_folder = libraryPath + "";
+
+              //string _family_path = _family_folder + "/RPC Mann.rfa";
+              string _family_path = _family_folder + "avatar.rfa";
+
+
+
+
+              doc.LoadFamily(_family_path, out family);
+
+          }
+              // Determine the family symbol
+
+              FamilySymbol familySymbol = null;
+              Material material = null;
+
+              ISet<ElementId> familySymbolIds = family.GetFamilySymbolIds();
+              if (familySymbolIds.Count == 0)
+              {
+              }
+              else
+              {
+
+                  // Get family symbols which is contained in this family
+                  foreach (ElementId id in familySymbolIds)
+                  {
+                      familySymbol = family.Document.GetElement(id) as FamilySymbol;
+                      // Get family symbol name
+                      foreach (ElementId materialId in familySymbol.GetMaterialIds(false))
+                      {
+                          material = familySymbol.Document.GetElement(materialId) as Material;
+
+                          break;
+                      }
+                      break;
+                  }
+              }
+             /* XYZ newPos = new XYZ(0,0,0);
+              int hosttype = family.get_Parameter(BuiltInParameter.FAMILY_HOSTING_BEHAVIOR).AsInteger();
+              //       TestAllOverloads(doc, newPos, new XYZ(1, 0, 0), familySymbol);
+              //       avatarObject = doc.Create.NewFamilyInstance(newPos, familySymbol, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);  
+
+              doc.Application.DocumentChanged
+          += new EventHandler<Autodesk.Revit.DB.Events.DocumentChangedEventArgs>(
+            OnDocumentChanged);
+
+              _added_element_ids.Clear();
+
+              // PromptForFamilyInstancePlacement cannot 
+              // be called inside transaction.
+
+              uidoc.PromptForFamilyInstancePlacement(familySymbol);
+
+              doc.Application.DocumentChanged
+                -= new EventHandler<DocumentChangedEventArgs>(
+                  OnDocumentChanged);
+
+              // Access the newly placed family instances:
+
+              int n = _added_element_ids.Count();
+
+              avatarObject = doc.GetElement(_added_element_ids[0]) as FamilyInstance;*/
+
+              avatarObject = FindElementByName(doc, typeof(FamilyInstance), "Avatar") as FamilyInstance;
+ 
+      }
+
+
+      void handleMessage(MessageBuffer buf, int msgType,Document doc,UIDocument uidoc)
+      {
+
+          // create Avatar object if not present
+         /* if (avatarObject == null)
+          {
+              createAvatar(doc,uidoc);
+          }*/
           switch ((MessageTypes)msgType)
           {
               case MessageTypes.SetParameter:
@@ -713,6 +1124,65 @@ namespace OpenCOVERPlugin
                       v3d.SetOrientation(ori);
                   }
                   break;
+
+              case MessageTypes.AvatarPosition:
+                  {
+                      double ex = buf.readDouble();
+                      double ey = buf.readDouble();
+                      double ez = buf.readDouble();
+                      double dx = buf.readDouble();
+                      double dy = buf.readDouble();
+                      double dz = buf.readDouble();
+                      XYZ point = new XYZ(ex, ey, ez);
+                      Room testRaum = getRoom(doc,ex, ey, ez);
+                      Room currentRoom = doc.GetRoomAtPoint(point);
+                      if (currentRoom == null)
+                          currentRoom = testRaum;
+                      if (currentRoom != null)
+                      {
+                          Level currentLevel = getLevel(doc, ez);
+                          string lev = "";
+                          if (currentLevel != null)
+                          {
+                              lev = currentLevel.Name;
+                          }
+                          string nr = currentRoom.Number;
+                          string name = currentRoom.Name;
+                          double area = currentRoom.Area;
+                          MessageBuffer mb = new MessageBuffer();
+                          mb.add(nr);
+                          mb.add(name);
+                          mb.add(area);
+                          mb.add(lev);
+                          sendMessage(mb.buf, MessageTypes.RoomInfo);
+                      }
+                      else
+                      {
+                          Level currentLevel = getLevel(doc, ez);
+                          string lev = "";
+                          if (currentLevel != null)
+                          {
+                              lev = currentLevel.Name;
+                          }
+                          string nr = "-1";
+                          string name = "No Room";
+                          double area = 0.0;
+                          MessageBuffer mb = new MessageBuffer();
+                          mb.add(nr);
+                          mb.add(name);
+                          mb.add(area);
+                          mb.add(lev);
+                          sendMessage(mb.buf, MessageTypes.RoomInfo);
+                      }
+                      /*if (avatarObject != null)
+                      {
+
+                          Autodesk.Revit.DB.LocationCurve ElementPosCurve = avatarObject.Location as Autodesk.Revit.DB.LocationCurve;
+                          Autodesk.Revit.DB.XYZ translationVec = new Autodesk.Revit.DB.XYZ(ex, ey, ez);
+                          ElementPosCurve.Move(translationVec);
+                      }*/
+                  }
+                  break;
                   
           }
       }
@@ -757,10 +1227,52 @@ namespace OpenCOVERPlugin
                   }
                   len += numRead;
               }
-              currentMessage = new MessageBuffer(data);
-              currentMessageType = msgType;
+              COVERMessage m = new COVERMessage(new MessageBuffer(data), msgType);
+              messageQueue.Enqueue(m);
+
               messageEvent.Raise();
-              //handleMessages(buf, msgType);
+              IntPtr hBefore = GetForegroundWindow();
+              
+              SetForegroundWindow(Autodesk.Windows.ComponentManager.ApplicationWindow);
+
+              SetForegroundWindow(hBefore);
+          }
+      }
+      public void startup(UIControlledApplication application)
+      {
+          idlingHandler = new EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs>(idleUpdate);
+          application.Idling += idlingHandler;
+      }
+      public void shutdown(UIControlledApplication application)
+      {
+          application.Idling -= idlingHandler;
+      }
+      public void idleUpdate(object sender, Autodesk.Revit.UI.Events.IdlingEventArgs e)
+      {
+          e.SetRaiseWithoutDelay();
+
+          UIApplication uiapp = sender as UIApplication;
+          Document doc = uiapp.ActiveUIDocument.Document;
+          UIDocument uidoc = uiapp.ActiveUIDocument;
+
+          if (COVER.Instance.messageQueue.Count > 0)
+          {
+              using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(doc))
+              {
+                  if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
+                  {
+                      while (COVER.Instance.messageQueue.Count > 0)
+                      {
+                          COVERMessage m = COVER.Instance.messageQueue.Dequeue();
+                          COVER.Instance.handleMessage(m.message, m.messageType,doc,uidoc);
+                          if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
+                          {
+                              Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                          }
+                          return;
+                      }
+                  }
+              }
           }
       }
 
@@ -769,48 +1281,74 @@ namespace OpenCOVERPlugin
          document = doc;
          handler = new externalMessageHandler();
          messageEvent = Autodesk.Revit.UI.ExternalEvent.Create(handler);
+         messageQueue = new Queue<COVERMessage>();
+
+         System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcessesByName("Revit");
+         callCounter = 0;
+
+         if (0 < processes.Length)
+         {
+             ApplicationWindow = processes[0].MainWindowHandle;
+         }
          try
          {
-            toCOVER = new TcpClient(host, port);
-            if (toCOVER.Connected)
-            {
-               // Sends data immediately upon calling NetworkStream.Write.
-               toCOVER.NoDelay = true;
-               LingerOption lingerOption = new LingerOption(false, 0);
-               toCOVER.LingerState = lingerOption;
+             if (toCOVER != null)
+             {
+                 toCOVER.Close();
+                 toCOVER = null;
+             }
 
-               NetworkStream s = toCOVER.GetStream();
-               Byte[] data = new Byte[256];
-               data[0] = 1;
-               s.Write(data, 0, 1);
+             toCOVER = new TcpClient(host, port);
+             if (toCOVER.Connected)
+             {
+                 // Sends data immediately upon calling NetworkStream.Write.
+                 toCOVER.NoDelay = true;
+                 LingerOption lingerOption = new LingerOption(false, 0);
+                 toCOVER.LingerState = lingerOption;
 
-               int numRead = 0;
-               try
-               {
-                   //toCOVER.ReceiveTimeout = 1000;
-                   numRead = s.Read(data, 0, 1);
-                   //toCOVER.ReceiveTimeout = 10000;
-               }
-               catch (System.IO.IOException e)
-               {
-                   // probably socket closed
-               }
-               if (numRead == 1)
-               {
+                 NetworkStream s = toCOVER.GetStream();
+                 Byte[] data = new Byte[256];
+                 data[0] = 1;
+                 try
+                 {
+                     //toCOVER.ReceiveTimeout = 1000;
+                     s.Write(data, 0, 1);
+                     //toCOVER.ReceiveTimeout = 10000;
+                 }
+                 catch (System.IO.IOException e)
+                 {
+                     // probably socket closed
+                     return false;
+                 }
 
-                   messageThread = new Thread(new ThreadStart(this.handleMessages));
+                 int numRead = 0;
+                 try
+                 {
+                     //toCOVER.ReceiveTimeout = 1000;
+                     numRead = s.Read(data, 0, 1);
+                     //toCOVER.ReceiveTimeout = 10000;
+                 }
+                 catch (System.IO.IOException e)
+                 {
+                     // probably socket closed
+                     return false;
+                 }
+                 if (numRead == 1)
+                 {
 
-                   // Start the thread
-                   messageThread.Start();
-               }
+                     messageThread = new Thread(new ThreadStart(this.handleMessages));
 
-               return true;
-            }
-            System.Windows.Forms.MessageBox.Show("Could not connect to OpenCOVER on localhost, port 31821");
+                     // Start the thread
+                     messageThread.Start();
+                 }
+
+                 return true;
+             }
+             System.Windows.Forms.MessageBox.Show("Could not connect to OpenCOVER on localhost, port 31821");
          }
          catch
          {
-            System.Windows.Forms.MessageBox.Show("Connection error while trying to connect to OpenCOVER on localhost, port 31821");
+             System.Windows.Forms.MessageBox.Show("Connection error while trying to connect to OpenCOVER on localhost, port 31821");
          }
          return false;
 
