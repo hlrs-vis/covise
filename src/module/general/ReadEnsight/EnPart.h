@@ -141,9 +141,9 @@ private:
     bool active_;
     int numCoords_;
 
-    int numEleRead2d_;
-    int numEleRead3d_;
-    int numConnRead2d_;
-    int numConnRead3d_;
+    uint64_t numEleRead2d_;
+    uint64_t numEleRead3d_;
+    uint64_t numConnRead2d_;
+    uint64_t numConnRead3d_;
 };
 #endif

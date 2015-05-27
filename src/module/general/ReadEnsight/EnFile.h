@@ -45,28 +45,28 @@ public:
 
     virtual ~DataCont();
 
-    void setNumCoord(const int &n)
+    void setNumCoord(const uint64_t &n)
     {
         nCoord_ = n;
     };
-    void setNumElem(const int &n)
+    void setNumElem(const uint64_t &n)
     {
         nElem_ = n;
     };
-    void setNumConn(const int &n)
+    void setNumConn(const uint64_t &n)
     {
         nConn_ = n;
     };
 
-    int getNumCoord() const
+    uint64_t getNumCoord() const
     {
         return nCoord_;
     };
-    int getNumElem() const
+    uint64_t getNumElem() const
     {
         return nElem_;
     };
-    int getNumConn() const
+    uint64_t getNumConn() const
     {
         return nConn_;
     };
@@ -82,9 +82,9 @@ public:
     void cleanAll();
 
 private:
-    int nCoord_;
-    int nElem_;
-    int nConn_;
+    uint64_t nCoord_;
+    uint64_t nElem_;
+    uint64_t nConn_;
 };
 
 class InvalidWordException
