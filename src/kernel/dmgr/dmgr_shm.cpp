@@ -184,6 +184,6 @@ void coShmAlloc::new_desk(void)
 
 void MemChunk::print()
 {
-    print_comment(__LINE__, __FILE__, "address: %lx  size: %ld ", (long unsigned int)&address, size);
+    print_comment(__LINE__, __FILE__, "address: %lx  size: %ld ", (long unsigned int)&address, (long)size);
     covise_list_size += size;
 }
