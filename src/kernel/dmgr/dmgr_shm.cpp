@@ -38,7 +38,7 @@ coShmPtr *coShmAlloc::malloc(unsigned long size)
 {
     int msg_data[2];
     int tmp_key = 0;
-    int new_size;
+    shmSizeType new_size;
     SharedMemory *new_shm;
     MemChunk *mnode;
     MemChunk *new_used_node;
@@ -56,8 +56,10 @@ coShmPtr *coShmAlloc::malloc(unsigned long size)
         print_comment(__LINE__, __FILE__, "new SharedMemory");
         if (size > ShmConfig::getMallocSize())
         {
-            new_size = (size / ShmConfig::getMallocSize() + 1) * ShmConfig::getMallocSize();
-            if (new_size < 0)
+            uint64_t tmpSize = (size / ShmConfig::getMallocSize() + 1) * ShmConfig::getMallocSize();
+            
+            new_size = (shmSizeType)tmpSize;
+            if (tmpSize != new_size)
             {
                 new_size = size;
             }

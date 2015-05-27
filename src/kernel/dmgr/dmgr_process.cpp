@@ -810,7 +810,7 @@ coShmPtr *DataManagerProcess::shm_alloc(int type, unsigned long msize)
 
     /// Collect size in this variable:
 
-    long size = sizeof(int); // all shm vars start with type
+    shmSizeType size = sizeof(int); // all shm vars start with type
 
     //
     switch (type)

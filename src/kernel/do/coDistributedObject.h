@@ -57,9 +57,9 @@ class DOEXPORT PackElement
 {
 public:
     int shm_seq_no;
-    int offset; // offset to the type header
+    shmSizeType offset; // offset to the type header
     int type;
-    int size; // size in bytes
+    shmSizeType size; // size in bytes
     int length; // number of elements, if array or any-type
     char *ptr; // pointer to the data (not the type-header
     PackElement()
@@ -93,7 +93,8 @@ struct covise_data_list
     const void *ptr;
 };
 
-const int NUMBER_OF_HEADER_ELEMENTS = 17;
+const int NUMBER_OF_INT_HEADER_ELEMENTS = 13;
+const int NUMBER_OF_SHM_SIZE_HEADER_ELEMENTS = 4;
 
 class DOEXPORT coDoHeader
 {
@@ -105,7 +106,7 @@ class DOEXPORT coDoHeader
 
 private:
     int object_type;
-    int number_of_bytes;
+    shmSizeType number_of_bytes;
     int objectid_type;
     int objectid_h;
     int objectid_t;
@@ -117,10 +118,10 @@ private:
     int refcount;
     int name_type; // CHARSH
     int name_shm_seq_no;
-    int name_offset;
+    shmSizeType name_offset;
     int attr_type; // SHMPTR or NULLPTR
     int attr_shm_seq_no;
-    int attr_offset;
+    shmSizeType attr_offset;
     // the following only for partitioned Objects!!
     int part_object_type_type; // INTSHM
     int part_object_type; // Object type
@@ -130,7 +131,7 @@ private:
     int part_curr_number_of_parts; // Current number of parts
     int part_address_list_type; // SHMPTR or NULLPTR
     int part_address_list_shm_seq_no;
-    int part_address_list_offset;
+    shmSizeType part_address_list_offset;
 
 public:
     static int getHeaderSize()
@@ -140,7 +141,7 @@ public:
 
     static int getIntHeaderSize()
     {
-        return NUMBER_OF_HEADER_ELEMENTS;
+        return NUMBER_OF_INT_HEADER_ELEMENTS + (NUMBER_OF_SHM_SIZE_HEADER_ELEMENTS * sizeof(shmSizeType)/sizeof(int));
     }; // size must be adjusted manually!!
 
     int getObjectType()
@@ -249,8 +250,8 @@ public:
         refcount_type = INTSHM;
         refcount = rc;
     };
-    void set_name(int, int, char *n); // namelength must fit!!
-    void addAttributes(int sn, int o)
+    void set_name(int sn, shmSizeType o, char *n); // namelength must fit!!
+    void addAttributes(int sn, shmSizeType o)
     {
         if (sn == 0)
             attr_type = COVISE_NULLPTR;
@@ -329,12 +330,12 @@ protected:
     };
 
     /// Check object in shared memory
-    bool checkObj(int shmSegNo, int shmOffs, bool &printed) const;
+    bool checkObj(int shmSegNo, shmSizeType shmOffs, bool &printed) const;
     virtual coDistributedObject *cloneObject(const coObjInfo &newinfo) const = 0;
 
 public:
     /// Get my location in shared memory
-    void getShmLocation(int &shmSegNo, int &offset) const;
+    void getShmLocation(int &shmSegNo, shmSizeType &offset) const;
 
     /// Attach an attribute to an object
     void addAttribute(const char *, const char *);
@@ -440,7 +441,7 @@ public:
             name = NULL;
     };
 
-    coDistributedObject(const coObjInfo &info, int shmSeg, int offs, char *t)
+    coDistributedObject(const coObjInfo &info, int shmSeg, shmSizeType offs, char *t)
     {
         size = 0;
         loc_version = 0;
@@ -476,13 +477,13 @@ public:
     /// (replaces (new coDistributedObject(newinfo)->createUnknown())
     static const coDistributedObject *createFromShm(const coObjInfo &newinfo);
     static const coDistributedObject *createUnknown(coShmArray *);
-    static const coDistributedObject *createUnknown(int seg, int offs);
+    static const coDistributedObject *createUnknown(int seg, shmSizeType offs);
     void copyObjInfo(coObjInfo *info) const;
 
     const coDistributedObject *createUnknown() const;
 
     int *store_header(int, int, int, int *, data_type *, long *, int **);
-    int restore_header(int **, int, int *, int *, int *);
+    int restore_header(int **, int, int *, int *, shmSizeType *);
     void init_header(int *, int *, int, data_type **, long **);
 
     int update_shared_dl(int count, covise_data_list *dl);

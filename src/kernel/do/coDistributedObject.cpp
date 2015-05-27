@@ -80,11 +80,11 @@ static coShmArray *getShmArray(const char *name)
     if (msg->type == COVISE_MESSAGE_OBJECT_FOUND)
     {
         shmarr = new coShmArray(*(int *)msg->data,
-                                *(int *)(&msg->data[sizeof(int)]));
+                                *(shmSizeType *)(&msg->data[sizeof(int)]));
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "shmarr: %d %d",
                       *(int *)msg->data,
-                      *(int *)(&msg->data[sizeof(int)]));
+                      *(shmSizeType *)(&msg->data[sizeof(int)]));
 #endif
     }
     delete[] msg -> data;
@@ -140,7 +140,7 @@ const coDistributedObject *coDistributedObject::createFromShm(const coObjInfo &i
     return NULL;
 }
 
-const coDistributedObject *coDistributedObject::createUnknown(int seg, int offs)
+const coDistributedObject *coDistributedObject::createUnknown(int seg, shmSizeType offs)
 {
     coShmArray *arr = new coShmArray(seg, offs);
     const coDistributedObject *obj = createUnknown(arr);
@@ -288,12 +288,12 @@ int coDistributedObject::getObjectInfo(coDoInfo **info_list) const
             break;
 
         case SHMPTR:
-            tmparray = new coShmArray(iptr[shmarr_count], iptr[shmarr_count + 1]);
+            tmparray = new coShmArray(iptr[shmarr_count], *((shmSizeType *)&iptr[shmarr_count + 1]));
             il->ptr = tmparray->getPtr();
             tmpiptr = (int *)il->ptr;
             il->type = tmpiptr[0];
             delete tmparray;
-            shmarr_count += 2;
+            shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
             switch (il->type)
             {
             case CHARSHMARRAY:
@@ -505,7 +505,7 @@ int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
     // Uwe Woessner
     delete shmmsg;
 
-    shmarr = new coShmArray((*idata)[0], (*idata)[1]);
+    shmarr = new coShmArray((*idata)[0], *((shmSizeType *)&(*idata)[1]));
     int *iptr = (int *)shmarr->getPtr(); // pointer to the structure data
     header = (coDoHeader *)iptr;
 #ifdef DEBUG
@@ -543,7 +543,7 @@ int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
                         shmarr->offset + header->get_refcount_offset());
 
         header->set_name((*idata)[(no_of_allocs - 1) * 2],
-                         (*idata)[(no_of_allocs - 1) * 2 + 1], name);
+                         *(shmSizeType *)(&(*idata)[(no_of_allocs - 1) * 2 + 1]), name);
         header->addAttributes(0, 0);
     }
     *shmarr_count = header->getIntHeaderSize();
@@ -642,13 +642,13 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
             dt[no_of_allocs] = dl[i].type;
             ct[no_of_allocs] = numElem;
             no_of_allocs++;
-            size += 3 * sizeof(int);
+            size += 2 * sizeof(int)+sizeof(shmSizeType);
             break;
         }
 
         case DISTROBJ:
             print_comment(__LINE__, __FILE__, "DISTROBJ");
-            size += 3 * sizeof(int);
+            size += 2 * sizeof(int)+sizeof(shmSizeType);
 
         default:
             print_comment(__LINE__, __FILE__, "default: Type Error");
@@ -750,11 +750,13 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
             }
             iptr[shmarr_count - 1] = SHMPTR;
             iptr[shmarr_count++] = idata[2 + alloc_count * 2];
-            iptr[shmarr_count++] = idata[2 + alloc_count * 2 + 1];
+            *(shmSizeType *)(&iptr[shmarr_count++]) = *(shmSizeType *)(&idata[2 + alloc_count * 2 + 1]);
+            if(sizeof(shmSizeType) > sizeof(int))
+                shmarr_count++;
 
             tmparray = (coShmArray *)dl[i].ptr;
             tmparray->setPtr(idata[2 + alloc_count * 2],
-                             idata[2 + alloc_count * 2 + 1]);
+                             *(shmSizeType *)(&idata[2 + alloc_count * 2 + 1]));
             alloc_count++;
             break;
 
@@ -764,13 +766,17 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
                 tmparray = ((coDistributedObject *)dl[i].ptr)->shmarr;
                 iptr[shmarr_count - 1] = SHMPTR;
                 iptr[shmarr_count++] = tmparray->shm_seq_no;
-                iptr[shmarr_count++] = tmparray->offset;
+                *(shmSizeType *)(&iptr[shmarr_count++]) = tmparray->offset;
+                if(sizeof(shmSizeType) > sizeof(int))
+                    shmarr_count++;
             }
             else
             {
                 iptr[shmarr_count - 1] = COVISE_NULLPTR;
                 iptr[shmarr_count++] = 0;
-                iptr[shmarr_count++] = 0;
+                *(shmSizeType *)(&iptr[shmarr_count++]) = 0;
+                if(sizeof(shmSizeType) > sizeof(int))
+                    shmarr_count++;
             }
             break;
         }
@@ -867,7 +873,9 @@ int coDistributedObject::update_shared_dl(int count, covise_data_list *dl)
             iptr[shmarr_count - 1] = SHMPTR;
             tmparray = (coShmArray *)dl[i].ptr;
             iptr[shmarr_count++] = tmparray->shm_seq_no;
-            iptr[shmarr_count++] = tmparray->offset;
+            *(shmSizeType *)(&iptr[shmarr_count++]) = tmparray->offset;
+            if(sizeof(shmSizeType) > sizeof(int))
+                shmarr_count++;
             break;
         case DISTROBJ:
             if (dl[i].ptr != NULL)
@@ -875,13 +883,17 @@ int coDistributedObject::update_shared_dl(int count, covise_data_list *dl)
                 tmparray = ((coDistributedObject *)dl[i].ptr)->shmarr;
                 iptr[shmarr_count - 1] = SHMPTR;
                 iptr[shmarr_count++] = tmparray->shm_seq_no;
-                iptr[shmarr_count++] = tmparray->offset;
+                *(shmSizeType *)(&iptr[shmarr_count++]) = tmparray->offset;
+                if(sizeof(shmSizeType) > sizeof(int))
+                    shmarr_count++;
             }
             else
             {
                 iptr[shmarr_count - 1] = COVISE_NULLPTR;
                 iptr[shmarr_count++] = 0;
-                iptr[shmarr_count++] = 0;
+                *(shmSizeType *)(&iptr[shmarr_count++]) = 0;
+                if(sizeof(shmSizeType) > sizeof(int))
+                    shmarr_count++;
             }
             break;
         }
@@ -906,7 +918,7 @@ int coDistributedObject::update_shared_dl(int count, covise_data_list *dl)
 }
 
 int coDistributedObject::restore_header(int **iptr, int count, int *shmarr_count,
-                                        int *sn, int *of)
+                                        int *sn, shmSizeType *of)
 {
     int *tmp_iptr = (int *)shmarr->getPtr();
     *of = shmarr->offset;
@@ -983,7 +995,8 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
     coShmPtr *tmpptr;
     coShmArray *tmparray;
     int i, *iptr, shmarr_count;
-    int sn, of;
+    int sn;
+    shmSizeType of;
 
     if (restore_header(&iptr, count, &shmarr_count, &sn, &of) == 0)
     {
@@ -1058,40 +1071,40 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                     switch (dl[i].type)
                     {
                     case CHARSHMARRAY:
-                        ((coCharShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coCharShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case SHORTSHMARRAY:
-                        ((coShortShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coShortShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case INTSHMARRAY:
-                        ((coIntShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coIntShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case LONGSHMARRAY:
-                        ((coLongShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coLongShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case FLOATSHMARRAY:
-                        ((coFloatShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coFloatShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case DOUBLESHMARRAY:
-                        ((coDoubleShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coDoubleShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case STRINGSHMARRAY:
-                        ((coStringShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coStringShmArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case SHMPTRARRAY:
-                        ((coShmPtrArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], iptr[shmarr_count + 1]);
-                        shmarr_count += 2;
+                        ((coShmPtrArray *)dl[i].ptr)->setPtr(iptr[shmarr_count], *(shmSizeType *)(&iptr[shmarr_count + 1]));
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case DISTROBJ:
                         tmparray = new coShmArray(iptr[shmarr_count],
-                                                  iptr[shmarr_count + 1]);
+                                                  *(shmSizeType *)(&iptr[shmarr_count + 1]));
                         ((coDistributedObject *)dl[i].ptr)->shmarr = tmparray;
                         ((coDistributedObject *)dl[i].ptr)->header = (coDoHeader *)tmparray->getPtr();
                         if (((coDistributedObject *)dl[i].ptr)->rebuildFromShm() == 0)
@@ -1099,7 +1112,7 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                             print_comment(__LINE__, __FILE__, "rebuildFromShm failed");
                             return 0;
                         }
-                        shmarr_count += 2;
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     case UNKNOWN:
                     case COVISE_OPTIONAL:
@@ -1111,7 +1124,7 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                         else
                         {
                             tmparray = new coShmArray(iptr[shmarr_count],
-                                                      iptr[shmarr_count + 1]);
+                                                      *(shmSizeType *)(&iptr[shmarr_count + 1]));
                             *((const coDistributedObject **)dl[i].ptr) = createUnknown(tmparray);
                             if ((*(coDistributedObject **)dl[i].ptr)->rebuildFromShm() == 0)
                             {
@@ -1119,7 +1132,7 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                                 return 0;
                             }
                         }
-                        shmarr_count += 2;
+                        shmarr_count += 1+(sizeof(shmSizeType)/sizeof(int));
                         break;
                     }
                 }
@@ -1246,7 +1259,8 @@ char *coDistributedObject::calcTypeString(int tno)
 
 void coDistributedObject::addAttribute(const char *attr_name, const char *attr_val)
 {
-    int attr_len, *idata, i, sn, of, shmfree[2];
+    int attr_len, *idata, i, sn, shmfree[8];
+    shmSizeType of;
     long ct[2];
     data_type dt[2];
     Message *msg;
@@ -1288,9 +1302,17 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
         delete shmmsg;
         return;
     }
-    idata = (int *)shmmsg->data; // pointer to shm-pointers
-    tmparr = new coStringShmArray(idata[0], idata[1]);
-    charr = new coCharShmArray(idata[2], idata[3]);
+    char *cdata = shmmsg->data; // pointer to shm-pointers
+    int seq = *(int *)cdata;
+    cdata +=sizeof(int);
+    shmSizeType offset = *(shmSizeType *)cdata;
+    cdata +=sizeof(shmSizeType);
+    tmparr = new coStringShmArray(seq, offset);
+    seq = *(int *)cdata;
+    cdata +=sizeof(int);
+    offset = *(shmSizeType *)cdata;
+    cdata +=sizeof(shmSizeType);
+    charr = new coCharShmArray(seq, offset);
     delete[] shmmsg -> data;
     delete shmmsg;
     tmpstr = new char[attr_len];
@@ -1314,8 +1336,8 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
         }
         tmparr->stringPtrSet(i, charr->get_shm_seq_no(), charr->get_offset());
         shmfree[0] = attributes->get_shm_seq_no();
-        shmfree[1] = attributes->get_offset();
-        msg = new Message(COVISE_MESSAGE_SHM_FREE, 2 * sizeof(int), (char *)shmfree, MSG_NOCOPY);
+        *(shmSizeType *)(&shmfree[1]) = attributes->get_offset();
+        msg = new Message(COVISE_MESSAGE_SHM_FREE, sizeof(int)+sizeof(shmSizeType), (char *)shmfree, MSG_NOCOPY);
         ApplicationProcess::approc->send_data_msg(msg);
         msg->data = NULL;
         delete msg;
@@ -1340,7 +1362,8 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
 void coDistributedObject::addAttributes(int no, const char *const *attr_name,
                                         const char *const *attr_val)
 {
-    int *attr_len, *idata, i, j, sn, of, shmfree[2];
+    int *attr_len, *idata, i, j, sn, shmfree[8];
+    shmSizeType of;
     long *ct;
     data_type *dt;
     Message *msg;
@@ -1380,8 +1403,14 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         return;
     }
     idata = (int *)shmmsg->data; // pointer to shm-pointers
-    print_comment(__LINE__, __FILE__, "idata[0]: %d idata[1]: %d", idata[0], idata[1]);
-    tmparr = new coStringShmArray(idata[0], idata[1]);
+    
+    char *cdata = shmmsg->data; // pointer to shm-pointers
+    int seq = *(int *)cdata;
+    cdata +=sizeof(int);
+    shmSizeType offset = *(shmSizeType *)cdata;
+    cdata +=sizeof(shmSizeType);
+
+    tmparr = new coStringShmArray(seq, offset);
     if (attributes)
     {
         for (i = 0; i < attributes->get_length(); i++)
@@ -1393,7 +1422,11 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         }
         for (j = 0; j < no; j++)
         {
-            charr = new coCharShmArray(idata[2 + 2 * j], idata[2 + 2 * j + 1]);
+            seq = *(int *)cdata;
+            cdata +=sizeof(int);
+            offset = *(shmSizeType *)cdata;
+            cdata +=sizeof(shmSizeType);
+            charr = new coCharShmArray(seq, offset);
             tmpstr = new char[attr_len[j]];
             sprintf(tmpstr, "%s:%s", attr_name[j], attr_val[j]);
 
@@ -1410,9 +1443,8 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         }
         // local message: no conversion necessary:
         shmfree[0] = attributes->get_shm_seq_no();
-        shmfree[1] = attributes->get_offset();
-        print_comment(__LINE__, __FILE__, "attributes sn: %d of: %d", shmfree[0], shmfree[1]);
-        msg = new Message(COVISE_MESSAGE_SHM_FREE, 2 * sizeof(int), (char *)shmfree, MSG_NOCOPY);
+        *(shmSizeType *)(&shmfree[1]) = attributes->get_offset();
+        msg = new Message(COVISE_MESSAGE_SHM_FREE, sizeof(int)+sizeof(shmSizeType), (char *)shmfree, MSG_NOCOPY);
         ApplicationProcess::approc->send_data_msg(msg);
         msg->data = NULL;
         delete msg;
@@ -1421,7 +1453,11 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     {
         for (j = 0; j < no; j++)
         {
-            charr = new coCharShmArray(idata[2 + 2 * j], idata[2 + 2 * j + 1]);
+            seq = *(int *)cdata;
+            cdata +=sizeof(int);
+            offset = *(shmSizeType *)cdata;
+            cdata +=sizeof(shmSizeType);
+            charr = new coCharShmArray(seq, offset);;
             tmpstr = new char[attr_len[j]];
             sprintf(tmpstr, "%s:%s", attr_name[j], attr_val[j]);
 
@@ -1510,11 +1546,12 @@ const char *coDistributedObject::getAttribute(const char *attr_name) const
     idata = (int *)tmp_array->getDataPtr();
     delete tmp_array;
     len = (int)strlen(attr_name);
+    int es = (sizeof(int)+sizeof(shmSizeType))/sizeof(int);
 
     // run backwards: get most recent attrib if multiple were attached
     for (i = attributes->get_length() - 1; i >= 0; i--)
     {
-        tmp_ch = new coCharShmArray(idata[2 * i], idata[2 * i + 1]);
+        tmp_ch = new coCharShmArray(idata[es * i], *(shmSizeType *)(&idata[es * i + 1]));
         chdata = (char *)tmp_ch->getDataPtr();
         delete tmp_ch;
         if (strncasecmp(chdata, attr_name, len) == 0)
@@ -1564,9 +1601,12 @@ int coDistributedObject::getAllAttributes(const char ***name,
     delete tmp_array;
     no_of_attr = attributes->get_length();
     chdatas = new char *[no_of_attr];
+    
+    int es = (sizeof(int)+sizeof(shmSizeType))/sizeof(int);
+
     for (i = 0; i < no_of_attr; i++)
     {
-        tmp_ch = new coCharShmArray(idata[2 * i], idata[2 * i + 1]);
+        tmp_ch = new coCharShmArray(idata[es * i], *(shmSizeType *)(&idata[es * i + 1]));
         chdatas[i] = (char *)tmp_ch->getDataPtr();
         size += (int)strlen(chdatas[i]) + 1;
         delete tmp_ch;
@@ -1651,7 +1691,7 @@ const char *coDoHeader::getName() const
 // shared memory for the namestring must have been reserved before
 // this call
 
-void coDoHeader::set_name(int sn, int o, char *n)
+void coDoHeader::set_name(int sn, shmSizeType o, char *n)
 {
     coCharShmArray *tmpcarr;
 
@@ -1718,8 +1758,8 @@ void coDistributedObject::getObjectFromShm()
     // this is a local message, so no conversion is necessary
     if (msg->type == COVISE_MESSAGE_OBJECT_FOUND)
     {
-        int *iPtr = (int *)msg->data;
-        shmarr = new coShmArray(iPtr[0], iPtr[1]);
+        char *cPtr = (char *)msg->data;
+        shmarr = new coShmArray(*(int *)cPtr, *(shmSizeType *)(cPtr+sizeof(int)));
         header = (coDoHeader *)shmarr->getPtr();
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "shmarr: %d %d", iPtr[0], iPtr[1]);
@@ -1745,7 +1785,7 @@ void coDistributedObject::getObjectFromShm()
 }
 
 /// Get my location in shared memory
-void coDistributedObject::getShmLocation(int &shmSegNo, int &offset) const
+void coDistributedObject::getShmLocation(int &shmSegNo, shmSizeType &offset) const
 {
     shmSegNo = shmarr->get_shm_seq_no();
     offset = shmarr->get_offset();
@@ -1759,7 +1799,7 @@ bool coDistributedObject::checkObject() const
 }
 
 // check a shm object
-bool coDistributedObject::checkObj(int shmSeg, int shmOffs, bool &printed) const
+bool coDistributedObject::checkObj(int shmSeg, shmSizeType shmOffs, bool &printed) const
 {
     coShmPtr sPtr(shmSeg, shmOffs);
     int *iPtr = (int *)sPtr.getPtr();
@@ -1803,7 +1843,7 @@ bool coDistributedObject::checkObj(int shmSeg, int shmOffs, bool &printed) const
             case SHMPTR:
             {
                 //cerr << "   found PTR type: " << iPtr[0] << endl;
-                if (iPtr[1] && !checkObj(iPtr[1], iPtr[2], printed))
+                if (iPtr[1] && !checkObj(iPtr[1], *(shmSizeType *)(&iPtr[2]), printed))
                 {
                     if (!printed) // do not print for parents of failed children
                     {
@@ -1855,12 +1895,12 @@ bool coDistributedObject::checkObj(int shmSeg, int shmOffs, bool &printed) const
                         return false;
                     }
                 }
-                iPtr += 3;
+                iPtr += 2 + sizeof(shmSizeType)/sizeof(int);
                 break;
             }
             case COVISE_NULLPTR:
             {
-                iPtr += 3;
+                iPtr += 2 + sizeof(shmSizeType)/sizeof(int);
                 break;
             }
             default:
@@ -1887,7 +1927,7 @@ bool coDistributedObject::checkObj(int shmSeg, int shmOffs, bool &printed) const
         //cerr << "   found ARRAY type: " << type
         //     << " size= " << msize << endl;
 
-        long size = sizeof(int); // all shm vars start with type
+        shmSizeType size = sizeof(int); // all shm vars start with type
 
         // calculate space (from ../dmgr_lib/dmgr_process.cpp)
         switch (type)
@@ -1964,8 +2004,8 @@ bool coDistributedObject::checkObj(int shmSeg, int shmOffs, bool &printed) const
         {
             for (int i = 0; i < msize; i++)
             {
-                iPtr += 2;
-                if (iPtr[0] && !checkObj(iPtr[0], iPtr[1], printed))
+                iPtr += 1 + sizeof(shmSizeType)/sizeof(int);
+                if (iPtr[0] && !checkObj(iPtr[0], *(shmSizeType *)(&iPtr[1]), printed))
                     return false;
             }
         }

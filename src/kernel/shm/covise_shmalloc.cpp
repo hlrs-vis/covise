@@ -75,12 +75,12 @@ void coShmItem::print()
 
 ShmAccess::ShmAccess(int k)
 {
-    shm = new SharedMemory(k, (int)ShmConfig::getMallocSize());
+    shm = new SharedMemory(k, (shmSizeType)ShmConfig::getMallocSize());
 }
 
 ShmAccess::ShmAccess(int *k)
 {
-    shm = new SharedMemory(k, (int)ShmConfig::getMallocSize());
+    shm = new SharedMemory(k, (shmSizeType)ShmConfig::getMallocSize());
 }
 
 ShmAccess::ShmAccess(char *d, int noDelete)
@@ -89,14 +89,16 @@ ShmAccess::ShmAccess(char *d, int noDelete)
     char tmp_str[255];
 #endif
 
-    int *ptr = (int *)d;
-    for (int i = 0; i < ptr[0]; i++)
+    char *ptr = (char *)d;
+    int num = *((int *)d);
+    ptr += sizeof(int);
+    for (int i = 0; i < num; i++)
     {
 #ifdef DEBUG
-        sprintf(tmp_str, "new SharedMemory(%d, %d)", ptr[i + 1], ptr[i + 2]);
+        sprintf(tmp_str, "new SharedMemory(%d, %d)", *((int *)ptr), *((shmSizeType *)(ptr+sizeof(int))));
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        shm = new SharedMemory(ptr[2 * i + 1], ptr[2 * i + 2], noDelete);
+        shm = new SharedMemory(*((int *)ptr), *((shmSizeType *)(ptr+sizeof(int))), noDelete);
     }
 }
 
@@ -105,7 +107,7 @@ ShmAccess::~ShmAccess()
     delete shm;
 }
 
-void ShmAccess::add_new_segment(int k, int size)
+void ShmAccess::add_new_segment(int k, shmSizeType size)
 {
     new SharedMemory(k, size, 1); // 1 means do not delete stored Memory segments
     // only detach
@@ -114,16 +116,22 @@ void ShmAccess::add_new_segment(int k, int size)
 char *coStringShmArray::operator[](int i)
 {
     char *tmpch;
-    int sn, of;
+    int sn;
+    shmSizeType of;
     coCharShmArray *tmparraych;
+    char *buf = (char *)(COVISE_POINTER_TYPE)ptr + 2 * sizeof(int);
+        // 2* sizeof(int) is seq_nr + key
+    
+    cerr << "check this, should be only two numbers, not three\n"
+         << i << " not in 0.." << length << endl;
 
     if (i >= 0 && i < length)
     {
-        // the following assignments migth be a problem, if the int
-        // is no longer large enough to hold the offset (i.e. the size
-        // of the shared Memory ist > 4GB!!
-        sn = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 1;
-        of = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 2;
+        //old sn = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 1;
+        //old of = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 2;
+        sn = *(int *)(buf+sizeof(int));
+        of = *(shmSizeType *)(buf+sizeof(int)+sizeof(int));
+        buf += sizeof(int) + sizeof(int) + sizeof(shmSizeType);
         tmparraych = new coCharShmArray(sn, of);
         tmpch = (char *)tmparraych->getDataPtr();
         delete tmparraych;
@@ -138,16 +146,21 @@ char *coStringShmArray::operator[](int i)
 const char *coStringShmArray::operator[](int i) const
 {
     char *tmpch;
-    int sn, of;
+    int sn;
+    shmSizeType of;
     coCharShmArray *tmparraych;
-
+    char *buf = (char *)(COVISE_POINTER_TYPE)ptr + 2 * sizeof(int);
+        // 2* sizeof(int) is seq_nr + key
+    
+    cerr << "check this, should be only two numbers, not three\n"
+         << i << " not in 0.." << length << endl;
     if (i >= 0 && i < length)
     {
-        // the following assignments migth be a problem, if the int
-        // is no longer large enough to hold the offset (i.e. the size
-        // of the shared Memory ist > 4GB!!
-        sn = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 1;
-        of = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 2;
+        //old sn = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 1;
+        //old of = (int)((COVISE_POINTER_TYPE)ptr + 2 * sizeof(int)) + 3 * i * sizeof(int) + 2;
+        sn = *(int *)(buf+sizeof(int));
+        of = *(shmSizeType *)(buf+sizeof(int)+sizeof(int));
+        buf += sizeof(int) + sizeof(int) + sizeof(shmSizeType);
         tmparraych = new coCharShmArray(sn, of);
         tmpch = (char *)tmparraych->getDataPtr();
         delete tmparraych;

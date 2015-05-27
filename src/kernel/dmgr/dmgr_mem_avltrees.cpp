@@ -97,7 +97,7 @@ MemChunk *new_memchunk()
     return tmpptr;
 }
 
-MemChunk *new_memchunk(int no, void *add, long s)
+MemChunk *new_memchunk(int no, void *add, shmSizeType s)
 {
     MemChunk *tmpptr;
 
@@ -1552,7 +1552,7 @@ int CO_MemSizeAVLTree::insert_node(MemChunk *data)
 {
     CO_MemSizeAVLNode *new_node, *node, *father;
     int add_balance = 0;
-    int new_size;
+    shmSizeType new_size;
 
     if (data == 0L)
         return 0;
@@ -1600,7 +1600,7 @@ int CO_MemSizeAVLTree::insert_node(MemChunk *data)
     return 1;
 } /* end insert_node */
 
-MemChunk *CO_MemSizeAVLTree::search_and_remove_node(int chunk_size, int search)
+MemChunk *CO_MemSizeAVLTree::search_and_remove_node(shmSizeType chunk_size, int search)
 {
 #ifdef DEBUG
     char tmp_str[255];
@@ -1614,7 +1614,7 @@ MemChunk *CO_MemSizeAVLTree::search_and_remove_node(int chunk_size, int search)
     CO_MemSizeAVLNode *node, *old_node, *father;
     //CO_MemSizeAVLNode *ptr = root;
     MemChunk *retchunk;
-    int best_size, add_balance = 0;
+    shmSizeType best_size, add_balance = 0;
 
     if (root == NULL)
         return (NULL);
