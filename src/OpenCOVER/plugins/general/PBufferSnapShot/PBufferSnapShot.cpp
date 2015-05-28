@@ -71,8 +71,8 @@ using covise::coDirectory;
 PBufferSnapShot::Resolution PBufferSnapShot::resolutions[] = {
     { "Custom", 0, 0 },
     { "Native", 0, 0 },
-    { "1024x786", 1024, 786 },
-    { "2048x1572", 2048, 1536 },
+    { "1024x768", 1024, 768 },
+    { "2048x1536", 2048, 1536 },
     { "4096x3072", 4096, 3072 },
     { "8192x6144", 8192, 6144 },
     { "Maxpect", PB_RESOLUTION_MAX_X, PB_RESOLUTION_MAX_X / 4 * 3 },
@@ -166,7 +166,7 @@ void PBufferSnapShot::prepareSnapshot()
 
         osg::Camera *cam = dynamic_cast<osg::Camera *>(coVRConfig::instance()->channels[0].camera.get());
 
-        tabletEvent(tuiResolutionSlider);
+        tabletEvent(tuiResolution);
         if (tuiTransparentBackground->getState() == true)
         {
             if (stereo)
@@ -306,6 +306,9 @@ void PBufferSnapShot::preSwapBuffers(int windowNumber)
 
         const int sx = coVRConfig::instance()->windows[0].sx;
         const int sy = coVRConfig::instance()->windows[0].sy;
+        resolutions[1].x = sx;
+        resolutions[1].y = sy;
+
         const double aspect = (double)sx / sy;
         if (aspect >= 1.)
         {
@@ -412,16 +415,17 @@ void PBufferSnapShot::tabletEvent(coTUIElement *tUIItem)
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::tabletEvent\n");
 
-    if (tUIItem == tuiResolutionSlider)
+    if (tUIItem == tuiResolution)
     {
-        tuiResolutionLabel->setLabel(resolutions[(int)tuiResolutionSlider->getValue()].description.c_str());
-        if (tuiResolutionSlider->getValue() >= 2.0)
+        int sel = tuiResolution->getSelectedEntry();
+        tuiResolutionLabel->setLabel(resolutions[sel].description.c_str());
+        if (sel > 1)
         {
-            tuiResolutionX->setValue(resolutions[(int)tuiResolutionSlider->getValue()].x);
-            tuiResolutionY->setValue(resolutions[(int)tuiResolutionSlider->getValue()].y);
+            tuiResolutionX->setValue(resolutions[sel].x);
+            tuiResolutionY->setValue(resolutions[sel].y);
         }
 
-        if (tuiResolutionSlider->getValue() == 2.0)
+        if (sel == 1)
         {
             tuiResolutionX->setValue(coVRConfig::instance()->windows[0].sx);
             tuiResolutionY->setValue(coVRConfig::instance()->windows[0].sy);
@@ -430,12 +434,14 @@ void PBufferSnapShot::tabletEvent(coTUIElement *tUIItem)
 
     if (tUIItem == tuiResolutionX)
     {
-        tuiResolutionSlider->setValue(0.0);
+        tuiResolution->setSelectedEntry(0);
+        tuiResolutionLabel->setLabel(resolutions[0].description.c_str());
     }
 
     if (tUIItem == tuiResolutionY)
     {
-        tuiResolutionSlider->setValue(0.0);
+        tuiResolution->setSelectedEntry(0);
+        tuiResolutionLabel->setLabel(resolutions[0].description.c_str());
     }
 
     if (tUIItem == tuiFrameRateSlider)
@@ -545,12 +551,13 @@ void PBufferSnapShot::initUI()
 
     (new coTUILabel("Resolution", tuiSnapTab->getID()))->setPos(0, 0);
 
-    tuiResolutionSlider = new coTUIFloatSlider("Resolution", tuiSnapTab->getID());
-    tuiResolutionSlider->setValue(2.0);
-    tuiResolutionSlider->setEventListener(this);
-    tuiResolutionSlider->setRange(0, NumResolutions - 1);
-    tuiResolutionSlider->setTicks(NumResolutions - 1);
-    tuiResolutionSlider->setPos(1, 0);
+    tuiResolution = new coTUIComboBox("Rendering", tuiSnapTab->getID());
+    tuiResolution->setEventListener(this);
+    tuiResolution->setPos(1, 0);
+    for (int i=0; i<NumResolutions; ++i) {
+        tuiResolution->addEntry(resolutions[i].description);
+        tuiResolution->setSelectedEntry(1); // native
+    }
 
     tuiResolutionX = new coTUIEditIntField("Resolution X", tuiSnapTab->getID());
     tuiResolutionX->setValue(resolutions[1].x);
@@ -639,7 +646,7 @@ void PBufferSnapShot::deleteUI()
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::initUI\n");
 
-    delete tuiResolutionSlider;
+    delete tuiResolution;
     delete tuiResolutionX;
     delete tuiResolutionY;
     delete tuiResolutionLabel;
