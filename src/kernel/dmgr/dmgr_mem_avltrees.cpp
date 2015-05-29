@@ -1924,7 +1924,7 @@ MemChunk *CO_MemSizeAVLTree::remove_node(MemChunk *data)
     CO_MemSizeAVLNode *node, *old_node, *father;
     //CO_MemSizeAVLNode *ptr = root;
     MemChunk *retchunk;
-    int chunk_size, add_balance = 0; // best_size,
+    shmSizeType chunk_size, add_balance = 0; // best_size,
 
     if (root == NULL)
         return (NULL);
