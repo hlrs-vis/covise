@@ -34,7 +34,7 @@ coShmAlloc::coShmAlloc(int *key, DataManagerProcess *d)
 #endif
 }
 
-coShmPtr *coShmAlloc::malloc(unsigned long size)
+coShmPtr *coShmAlloc::malloc(shmSizeType size)
 {
     int msg_data[2];
     int tmp_key = 0;
@@ -108,7 +108,7 @@ coShmPtr *coShmAlloc::malloc(unsigned long size)
     return new_used_node->getAddress();
 }
 
-void coShmAlloc::free(int shm_seq_no, int offset)
+void coShmAlloc::free(int shm_seq_no, shmSizeType offset)
 {
     char *tmpptr = (char *)shm->get_pointer(shm_seq_no);
     char *shm_ptr = tmpptr + offset;
@@ -158,7 +158,8 @@ void coShmAlloc::new_desk(void)
 {
     MemChunk *mnode;
     SharedMemory *p_shm;
-    int seq_no, size;
+    int seq_no;
+    shmSizeType size;
 
     if (used_list)
         used_list->empty_trees(1);

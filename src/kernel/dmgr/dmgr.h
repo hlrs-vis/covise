@@ -195,7 +195,7 @@ public:
     {
         delete shm;
     };
-    coShmPtr *malloc(unsigned long size);
+    coShmPtr *malloc(shmSizeType size);
     void get_shmlist(char *ptr)
     {
         shm->get_shmlist((int *)ptr);
@@ -204,7 +204,7 @@ public:
     {
         free(adr->shm_seq_no, adr->offset);
     };
-    void free(int shm_seq_no, int offset);
+    void free(int shm_seq_no, shmSizeType offset);
     void print();
     void collect_garbage(){};
     void new_desk(void);
@@ -326,7 +326,7 @@ public:
     coShmPtr *shm_alloc(ShmMessage *msg); // allocate memory depending on msg
     // returns offset into shared memory
     // allocate memory of size
-    coShmPtr *shm_alloc(int type, unsigned long msize = 0);
+    coShmPtr *shm_alloc(int type, shmSizeType msize = 0);
     // returns offset into shared memory
     int shm_free(coShmPtr *); // free memory (recursive !!)
     void send_to_all_connections(Message *);

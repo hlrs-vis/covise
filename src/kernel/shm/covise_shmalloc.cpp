@@ -99,6 +99,7 @@ ShmAccess::ShmAccess(char *d, int noDelete)
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         shm = new SharedMemory(*((int *)ptr), *((shmSizeType *)(ptr+sizeof(int))), noDelete);
+        ptr += sizeof(int)+sizeof(shmSizeType);
     }
 }
 

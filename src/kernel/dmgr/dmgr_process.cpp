@@ -800,7 +800,7 @@ int DataManagerProcess::insert_new_part(ObjectEntry *object, ObjectEntry *part)
     return 1;
 }
 
-coShmPtr *DataManagerProcess::shm_alloc(int type, unsigned long msize)
+coShmPtr *DataManagerProcess::shm_alloc(int type, shmSizeType msize)
 {
     coShmPtr *chptr = NULL;
 #ifdef DEBUG
