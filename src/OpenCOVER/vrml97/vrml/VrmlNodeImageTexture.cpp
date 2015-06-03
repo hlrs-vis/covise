@@ -165,6 +165,7 @@ void VrmlNodeImageTexture::render(Viewer *viewer)
                                                     d_repeatS.get(),
                                                     d_repeatT.get(),
                                                     pix,
+                                                   *d_url.get(),
                                                     true, d_environment.get(), getBlendMode(), d_anisotropy.get(), d_filterMode.get());
             }
             else
@@ -198,6 +199,7 @@ void VrmlNodeImageTexture::render(Viewer *viewer)
                                                         d_repeatS.get(),
                                                         d_repeatT.get(),
                                                         pix,
+                                                       *d_url.get(),
                                                         true, d_environment.get(), getBlendMode(), d_anisotropy.get(), d_filterMode.get());
                 }
             }

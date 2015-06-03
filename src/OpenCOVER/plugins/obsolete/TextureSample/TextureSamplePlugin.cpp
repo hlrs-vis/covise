@@ -342,6 +342,7 @@ void VrmlNodeTextureSample::render(Viewer *viewer)
                                                 d_repeatS.get(),
                                                 d_repeatT.get(),
                                                 pix,
+                                                0,
                                                 true, d_environment.get(), d_blendMode.get(), d_anisotropy.get(), d_filterMode.get());
         }
     }
