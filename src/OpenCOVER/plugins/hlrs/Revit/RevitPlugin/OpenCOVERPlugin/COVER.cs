@@ -95,6 +95,11 @@ namespace OpenCOVERPlugin
               UIDocument uidoc = a.ActiveUIDocument;
               using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(a.ActiveUIDocument.Document))
               {
+                  FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
+
+                  failOpt.SetClearAfterRollback(true);
+                  failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
+                  transaction.SetFailureHandlingOptions(failOpt);
                   if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
                   {
                       while (COVER.Instance.messageQueue.Count > 0)
@@ -103,7 +108,9 @@ namespace OpenCOVERPlugin
                           COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document,uidoc);
                           if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
                           {
-                              Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                              // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                              //an error occured end resolution was cancled thus this change can't be committed.
+                              // just ignore it and dont bug the user
                           }
                           return;
                       }
@@ -1099,9 +1106,13 @@ void TestAllOverloads(
 
                       Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
                       Autodesk.Revit.DB.Element elem = document.GetElement(id);
-                      Autodesk.Revit.DB.LocationCurve ElementPosCurve = elem.Location as Autodesk.Revit.DB.LocationCurve;
                       Autodesk.Revit.DB.XYZ translationVec = new Autodesk.Revit.DB.XYZ(x, y, z);
-                      ElementPosCurve.Move(translationVec);
+                      Autodesk.Revit.DB.LocationCurve ElementPosCurve = elem.Location as Autodesk.Revit.DB.LocationCurve;
+                      if (ElementPosCurve != null)
+                          ElementPosCurve.Move(translationVec);
+                      Autodesk.Revit.DB.LocationPoint ElementPosPoint = elem.Location as Autodesk.Revit.DB.LocationPoint;
+                      if (ElementPosPoint != null)
+                          ElementPosPoint.Move(translationVec);
                   }
                   break;
               case MessageTypes.UpdateView:
@@ -1133,19 +1144,25 @@ void TestAllOverloads(
                       double dx = buf.readDouble();
                       double dy = buf.readDouble();
                       double dz = buf.readDouble();
+                      Level currentLevel = getLevel(doc, ez);
+                      string lev = "";
+                      if (currentLevel != null)
+                      {
+                          lev = currentLevel.Name;
+                      }
+                      Room testRaum = getRoom(doc, ex, ey, ez);
                       XYZ point = new XYZ(ex, ey, ez);
-                      Room testRaum = getRoom(doc,ex, ey, ez);
                       Room currentRoom = doc.GetRoomAtPoint(point);
                       if (currentRoom == null)
-                          currentRoom = testRaum;
+                      {
+                          point = new XYZ(ex, ey, currentLevel.ProjectElevation);
+                          currentRoom = doc.GetRoomAtPoint(point);
+                          if (currentRoom == null)
+                              currentRoom = testRaum;
+                      }
                       if (currentRoom != null)
                       {
-                          Level currentLevel = getLevel(doc, ez);
-                          string lev = "";
-                          if (currentLevel != null)
-                          {
-                              lev = currentLevel.Name;
-                          }
+                          
                           string nr = currentRoom.Number;
                           string name = currentRoom.Name;
                           double area = currentRoom.Area;
@@ -1158,12 +1175,6 @@ void TestAllOverloads(
                       }
                       else
                       {
-                          Level currentLevel = getLevel(doc, ez);
-                          string lev = "";
-                          if (currentLevel != null)
-                          {
-                              lev = currentLevel.Name;
-                          }
                           string nr = "-1";
                           string name = "No Room";
                           double area = 0.0;
@@ -1174,13 +1185,13 @@ void TestAllOverloads(
                           mb.add(lev);
                           sendMessage(mb.buf, MessageTypes.RoomInfo);
                       }
-                      /*if (avatarObject != null)
+                      if (avatarObject != null)
                       {
-
+                          /*
                           Autodesk.Revit.DB.LocationCurve ElementPosCurve = avatarObject.Location as Autodesk.Revit.DB.LocationCurve;
                           Autodesk.Revit.DB.XYZ translationVec = new Autodesk.Revit.DB.XYZ(ex, ey, ez);
-                          ElementPosCurve.Move(translationVec);
-                      }*/
+                          ElementPosCurve.Move(translationVec);*/
+                      }
                   }
                   break;
                   
@@ -1189,53 +1200,56 @@ void TestAllOverloads(
 
       public void handleMessages()
       {
-          Byte[] data = new Byte[2000];
-          while (true)
+          if (toCOVER != null)
           {
-              int len = 0;
-              while (len < 16)
+              Byte[] data = new Byte[2000];
+              while (true)
               {
-                  int numRead;
-                  try
+                  int len = 0;
+                  while (len < 16)
                   {
-                      numRead = toCOVER.GetStream().Read(data, len, 16 - len);
+                      int numRead;
+                      try
+                      {
+                          numRead = toCOVER.GetStream().Read(data, len, 16 - len);
+                      }
+                      catch (System.IO.IOException e)
+                      {
+                          // probably socket closed
+                          return;
+                      }
+                      len += numRead;
                   }
-                  catch (System.IO.IOException e)
+
+                  int msgType = BitConverter.ToInt32(data, 2 * 4);
+                  int length = BitConverter.ToInt32(data, 3 * 4);
+                  length = (int)ByteSwap.swap((uint)length);
+                  msgType = (int)ByteSwap.swap((uint)msgType);
+                  len = 0;
+                  while (len < length)
                   {
-                      // probably socket closed
-                      return;
+                      int numRead;
+                      try
+                      {
+                          numRead = toCOVER.GetStream().Read(data, len, length - len);
+                      }
+                      catch (System.IO.IOException e)
+                      {
+                          // probably socket closed
+                          return;
+                      }
+                      len += numRead;
                   }
-                  len += numRead;
+                  COVERMessage m = new COVERMessage(new MessageBuffer(data), msgType);
+                  messageQueue.Enqueue(m);
+
+                  messageEvent.Raise();
+                  IntPtr hBefore = GetForegroundWindow();
+
+                  SetForegroundWindow(Autodesk.Windows.ComponentManager.ApplicationWindow);
+
+                  SetForegroundWindow(hBefore);
               }
-
-              int msgType = BitConverter.ToInt32(data, 2*4);
-              int length = BitConverter.ToInt32(data, 3 * 4);
-              length = (int)ByteSwap.swap((uint)length);
-              msgType = (int)ByteSwap.swap((uint)msgType);
-              len = 0;
-              while (len < length)
-              {
-                  int numRead;
-                  try
-                  {
-                      numRead = toCOVER.GetStream().Read(data, len, length - len);
-                  }
-                  catch (System.IO.IOException e)
-                  {
-                      // probably socket closed
-                      return;
-                  }
-                  len += numRead;
-              }
-              COVERMessage m = new COVERMessage(new MessageBuffer(data), msgType);
-              messageQueue.Enqueue(m);
-
-              messageEvent.Raise();
-              IntPtr hBefore = GetForegroundWindow();
-              
-              SetForegroundWindow(Autodesk.Windows.ComponentManager.ApplicationWindow);
-
-              SetForegroundWindow(hBefore);
           }
       }
       public void startup(UIControlledApplication application)
@@ -1246,6 +1260,38 @@ void TestAllOverloads(
       public void shutdown(UIControlledApplication application)
       {
           application.Idling -= idlingHandler;
+      }
+      public class NoWarningsAndErrors : IFailuresPreprocessor
+      {
+          public FailureProcessingResult PreprocessFailures(
+            FailuresAccessor a)
+          {
+              // inside event handler, get all warnings
+
+              //IList<FailureMessageAccessor> failures
+              //   = a.GetFailureMessages();
+              a.DeleteAllWarnings();
+              /*foreach (FailureMessageAccessor f in failures)
+              {
+                  // check failure definition ids 
+                  // against ones to dismiss:
+
+                  FailureDefinitionId id
+                    = f.GetFailureDefinitionId();
+
+                  if (BuiltInFailures.RoomFailures.RoomNotEnclosed
+                    == id)
+                  {
+                      a.DeleteWarning(f);
+                  }
+              }*/
+
+              IList<FailureMessageAccessor> failures = a.GetFailureMessages();
+              if (failures.Count > 0)
+                  return FailureProcessingResult.ProceedWithRollBack;
+              else
+                  return FailureProcessingResult.Continue;
+          }
       }
       public void idleUpdate(object sender, Autodesk.Revit.UI.Events.IdlingEventArgs e)
       {
@@ -1259,6 +1305,12 @@ void TestAllOverloads(
           {
               using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(doc))
               {
+                  FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
+
+                  failOpt.SetClearAfterRollback(true);
+                  failOpt.SetFailuresPreprocessor( new NoWarningsAndErrors());
+                  transaction.SetFailureHandlingOptions(failOpt);
+
                   if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
                   {
                       while (COVER.Instance.messageQueue.Count > 0)
@@ -1267,7 +1319,9 @@ void TestAllOverloads(
                           COVER.Instance.handleMessage(m.message, m.messageType,doc,uidoc);
                           if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
                           {
-                              Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                              // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                              //an error occured end resolution was cancled thus this change can't be committed.
+                              // just ignore it and dont bug the user
                           }
                           return;
                       }
@@ -1294,6 +1348,7 @@ void TestAllOverloads(
          {
              if (toCOVER != null)
              {
+                 messageThread.Abort(); // stop reading from the old toCOVER connection
                  toCOVER.Close();
                  toCOVER = null;
              }

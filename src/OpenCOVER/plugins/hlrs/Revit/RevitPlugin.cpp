@@ -397,6 +397,7 @@ RevitPlugin::RevitPlugin()
 {
     fprintf(stderr, "RevitPlugin::RevitPlugin\n");
     plugin = this;
+    MoveFinished = true;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
     toRevit = NULL;
     serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
@@ -537,6 +538,10 @@ void RevitPlugin::message(int type, int len, const void *buf)
     if (type == PluginMessageTypes::MoveAddMoveNode)
     {
     }
+    else if (type == PluginMessageTypes::MoveMoveNodeFinished)
+    {
+        MoveFinished=true;
+    }
     else if (type == PluginMessageTypes::MoveMoveNode)
     {
         osg::Matrix m;
@@ -545,21 +550,39 @@ void RevitPlugin::message(int type, int len, const void *buf)
         tb >> path;
         tb >> path;
         osg::Node *selectedNode = coVRSelectionManager::validPath(path);
-        RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+        if(selectedNode)
+        {
+            RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+            if(info)
+            {
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        tb >> m(i, j);
+                if(MovedID!=info->ObjectID)
+                {
+                    MoveFinished=true;
+                }
+                
+                if(MoveFinished)
+                {
+                    MoveFinished = false;
+                    MovedID = info->ObjectID;
+                    invStartMoveMat.invert(m);
+                }
+                
+                osg::Matrix newMat = invStartMoveMat*m;
+                invStartMoveMat.invert(m);
+                TokenBuffer stb;
+                stb << info->ObjectID;
+                stb << (double)newMat.getTrans().x();
+                stb << (double)newMat.getTrans().y();
+                stb << (double)newMat.getTrans().z();
 
-
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                tb >> m(i, j);
-        TokenBuffer stb;
-        stb << info->ObjectID;
-        stb << (double)m.getTrans().x();
-        stb << (double)m.getTrans().y();
-        stb << (double)m.getTrans().z();
-        
-        Message message(stb);
-        message.type = (int)RevitPlugin::MSG_SetTransform;
-        RevitPlugin::instance()->sendMessage(message);
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_SetTransform;
+                RevitPlugin::instance()->sendMessage(message);
+            }
+        }
     }
 }
 
@@ -646,6 +669,10 @@ RevitPlugin::handleMessage(Message *m)
         osg::Group *newGroup = new osg::Group();
         newGroup->setName(name);
         currentGroup.top()->addChild(newGroup);
+        
+        RevitInfo *info = new RevitInfo();
+        info->ObjectID = ID;
+        OSGVruiUserDataCollection::setUserData(newGroup, "RevitInfo", info);
         currentGroup.push(newGroup);
     }
     break;
@@ -657,7 +684,7 @@ RevitPlugin::handleMessage(Message *m)
         std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
         if (it != ElementIDMap.end())
         {
-            fprintf(stderr, "DFound: %d\n", ID);
+            //fprintf(stderr, "DFound: %d\n", ID);
             ElementInfo *ei = it->second;
             for (std::list<osg::Node *>::iterator nodesIt = ei->nodes.begin(); nodesIt != ei->nodes.end(); nodesIt++)
             {
@@ -666,7 +693,7 @@ RevitPlugin::handleMessage(Message *m)
                 {
                     n->getParent(0)->removeChild(n);
                 }
-                fprintf(stderr, "DeleteID: %d\n", ID);
+                //fprintf(stderr, "DeleteID: %d\n", ID);
             }
             delete ei;
             ElementIDMap.erase(it);
@@ -851,13 +878,13 @@ RevitPlugin::handleMessage(Message *m)
         if (it != ElementIDMap.end())
         {
             ei = it->second;
-            fprintf(stderr, "NFound: %d\n", ID);
+            //fprintf(stderr, "NFound: %d\n", ID);
         }
         else
         {
             ei = new ElementInfo();
             ElementIDMap[ID] = ei;
-            fprintf(stderr, "NewID: %d\n", ID);
+            //fprintf(stderr, "NewID: %d\n", ID);
         }
         char *name;
         tb >> name;

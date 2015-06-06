@@ -655,6 +655,12 @@ void Move::preFrame()
                     {
                         level = numLevels;
                     }
+                    
+                    vrui::vruiUserData  *RevitInfo = OSGVruiUserDataCollection::getUserData(currentNode, "RevitInfo");
+                    if(RevitInfo!=NULL && numLevels == 1)
+                    {
+                        level = 1;
+                    }
                     info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
 
                     if (info)
@@ -969,7 +975,7 @@ void Move::preFrame()
                     if(info!=NULL)
                     {
                         cover->sendMessage(this, "Revit",
-                            PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
+                            PluginMessageTypes::MoveMoveNodeFinished, tb.get_length(), tb.get_data());
                     }
                     addUndo(mat, moveDCS.get());
                 }

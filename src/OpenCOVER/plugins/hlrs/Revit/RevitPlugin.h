@@ -242,6 +242,9 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> revitGroup;
     std::stack<osg::Group *> currentGroup;
     std::map<int, ElementInfo *> ElementIDMap;
+    osg::Matrix invStartMoveMat;
+    bool MoveFinished;
+    int MovedID;
 
     Message *msg;
 };
