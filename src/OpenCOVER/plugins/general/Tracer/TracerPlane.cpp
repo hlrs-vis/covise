@@ -1019,11 +1019,14 @@ TracerPlane::isRunning()
 osg::Vec3
 TracerPlane::getParameterStartpoint1()
 {
-    float *sp1;
+    float *sp1 = NULL;
     int dummy; // we know that the vector has 3 elements
     _inter->getFloatVectorParam(TracerInteraction::P_STARTPOINT1, dummy, sp1);
     osg::Vec3 startpoint1;
-    startpoint1.set(sp1[0], sp1[1], sp1[2]);
+    if (sp1)
+    {
+        startpoint1.set(sp1[0], sp1[1], sp1[2]);
+    }
     //fprintf(stderr,"TracerPlane::getParameterStartpoint1=[%f %f %f]\n", startpoint1[0], startpoint1[1], startpoint1[2]);
     return startpoint1;
 }
@@ -1037,11 +1040,14 @@ TracerPlane::setParameterStartpoint1(osg::Vec3 sp1)
 osg::Vec3
 TracerPlane::getParameterStartpoint2()
 {
-    float *sp2;
+    float *sp2 = NULL;
     int dummy; // we know that the vector has 3 elements
     _inter->getFloatVectorParam(TracerInteraction::P_STARTPOINT2, dummy, sp2);
     osg::Vec3 startpoint2;
-    startpoint2.set(sp2[0], sp2[1], sp2[2]);
+    if (sp2)
+    {
+        startpoint2.set(sp2[0], sp2[1], sp2[2]);
+    }
     //fprintf(stderr,"TracerPlane::getParameterStartpoint2=[%f %f %f]\n", startpoint2[0], startpoint2[1], startpoint2[2]);
 
     return startpoint2;
@@ -1056,11 +1062,14 @@ TracerPlane::setParameterStartpoint2(osg::Vec3 sp2)
 osg::Vec3
 TracerPlane::getParameterDirection()
 {
-    float *d;
+    float *d = NULL;
     int dummy; // we know that the vector has 3 elements
     _inter->getFloatVectorParam(TracerInteraction::P_DIRECTION, dummy, d);
     osg::Vec3 direction;
-    direction.set(d[0], d[1], d[2]);
+    if (d)
+    {
+        direction.set(d[0], d[1], d[2]);
+    }
     //fprintf(stderr,"TracerPlane::getParameterDirection=[%f %f %f]\n", direction[0], direction[1], direction[2]);
 
     return direction;
