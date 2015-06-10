@@ -63,7 +63,7 @@ coVRLighting::coVRLighting()
     , switchOtherlights_(NULL)
     , otherlightsState(false)
     , switchSpecularlight_(NULL)
-    , specularlightState(true)
+    , specularlightState(false)
     , switchSpotlight_(NULL)
     , spotlightState(false)
     , light1(NULL)
@@ -501,7 +501,7 @@ void coVRLighting::initMenu()
     switchSpecularlight_ = new coCheckboxMenuItem("Specular Light", specularlightState);
     switchSpecularlight_->setMenuListener(this);
     lightingMenu_->add(switchSpecularlight_);
-    switchSpecularlight_->setState(false);
+    switchSpecularlight_->setState(specularlightState);
 
     switchSpotlight_ = new coCheckboxMenuItem("Spotlight", spotlightState);
     switchSpotlight_->setMenuListener(this);
