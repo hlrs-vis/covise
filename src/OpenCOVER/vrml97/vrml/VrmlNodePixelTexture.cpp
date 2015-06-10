@@ -136,7 +136,7 @@ void VrmlNodePixelTexture::render(Viewer *viewer)
                                                     d_repeatS.get(),
                                                     d_repeatT.get(),
                                                     pixels,
-                                                    0,
+                                                    "",
                                                     true, (getBlendMode() != 0));
             }
         }
