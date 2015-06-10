@@ -216,11 +216,12 @@ namespace OpenCOVERPlugin
          | ((source & 0xFF000000) >> 24)));
       }
 
-      public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter)
+      public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, Autodesk.Revit.DB.Document doc)
       {
          MessageBuffer mb = new MessageBuffer();
          mb.add(1);
          sendMessage(mb.buf, MessageTypes.ClearAll);
+          // todo use the current or default view
          iter.Reset();
          while (iter.MoveNext())
          {
@@ -231,12 +232,25 @@ namespace OpenCOVERPlugin
             }
             // this one handles Group.
          }
+          ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
          iter.Reset();
          while (iter.MoveNext())
          {
-            SendElement(iter.Current as Autodesk.Revit.DB.Element);
+             Autodesk.Revit.DB.Element el = iter.Current as Autodesk.Revit.DB.Element;
+             if (el.DesignOption == null || el.DesignOption.Id == activeOptId)
+             {
+                 SendElement(el);
+             }
             // this one handles Group.
          }
+      }
+      public void SendTypeParameters(Autodesk.Revit.DB.FilteredElementIterator iter)
+      {
+          iter.Reset();
+          while (iter.MoveNext())
+          {
+              sendParameters(iter.Current as Autodesk.Revit.DB.Element);
+          }
       }
       public void deleteElement(Autodesk.Revit.DB.ElementId ID)
       {
@@ -277,6 +291,75 @@ namespace OpenCOVERPlugin
          }
       }
 
+       public void sendFamilySymbolParameters(Autodesk.Revit.DB.Element elem)
+      {
+          // iterate element's parameters
+          Autodesk.Revit.DB.ParameterSet vrps=new Autodesk.Revit.DB.ParameterSet();
+          foreach (Autodesk.Revit.DB.Parameter para in elem.Parameters)
+          {
+              if (para.Definition.Name != null && para.Definition.Name.Length > 4)
+              {
+                  if (String.Compare(para.Definition.Name, 0, "coVR", 0, 4, true) == 0)
+                  {
+                      vrps.Insert(para);
+                  }
+              }
+          }
+          if (vrps.Size > 0)
+          {
+              MessageBuffer mb = new MessageBuffer();
+              mb.add(elem.Id.IntegerValue);
+              mb.add(elem.Name + "_FamilySymbol");
+              mb.add((int)ObjectTypes.Mesh);
+              mb.add(false);
+              mb.add(0);
+
+              int i = 0;
+
+
+              mb.add((byte)220); // color
+              mb.add((byte)220);
+              mb.add((byte)220);
+              mb.add((byte)255);
+              mb.add(-1); // material ID
+              sendMessage(mb.buf, MessageTypes.NewObject);
+
+              mb = new MessageBuffer();
+              mb.add(elem.Id.IntegerValue);
+              mb.add(vrps.Size);
+              foreach (Autodesk.Revit.DB.Parameter para in vrps)
+              {
+                  mb.add(para.Id.IntegerValue);
+                  mb.add(para.Definition.Name);
+                  mb.add((int)para.StorageType);
+                  mb.add((int)para.Definition.ParameterType);
+                  switch (para.StorageType)
+                  {
+                      case Autodesk.Revit.DB.StorageType.Double:
+                          mb.add(para.AsDouble());
+                          break;
+                      case Autodesk.Revit.DB.StorageType.ElementId:
+                          //find out the name of the element
+                          Autodesk.Revit.DB.ElementId id = para.AsElementId();
+                          mb.add(id.IntegerValue);
+                          break;
+                      case Autodesk.Revit.DB.StorageType.Integer:
+                          mb.add(para.AsInteger());
+                          break;
+                      case Autodesk.Revit.DB.StorageType.String:
+                          mb.add(para.AsString());
+                          break;
+                      default:
+                          mb.add("Unknown Parameter Storage Type");
+                          break;
+                  }
+
+              }
+              sendMessage(mb.buf, MessageTypes.NewParameters);
+          }
+      }
+
+       
 
       public void sendParameters(Autodesk.Revit.DB.Element elem)
       {
@@ -459,6 +542,7 @@ namespace OpenCOVERPlugin
                        mb.add(-1); // material ID
                    }
                    sendMessage(mb.buf, MessageTypes.NewObject);
+                   if (num == 0)
                    sendParameters(elem);
                }
                else if ((geomObject is Autodesk.Revit.DB.Solid))
@@ -470,7 +554,8 @@ namespace OpenCOVERPlugin
                    SendSolid((Autodesk.Revit.DB.Solid)geomObject, elem);
                    mb = new MessageBuffer();
                    sendMessage(mb.buf, MessageTypes.EndGroup);
-                   sendParameters(elem);
+                   if(num == 0)
+                    sendParameters(elem);
                }
                num++;
             }
