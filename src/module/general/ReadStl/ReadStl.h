@@ -81,6 +81,7 @@ private:
     coBooleanParam *p_showFeatureLines;
     coFloatSliderParam *p_angle;
     coBooleanParam *p_flipNormals;
+    coBooleanParam *p_autoColors;
 
     // utility functions
     void readHeader();
@@ -100,6 +101,7 @@ private:
 
     // already opened file, alway rewound after use
     FILE *d_file;
+    int colorNumber;
 
 public:
     ReadStl(int argc, char *argv[]);
