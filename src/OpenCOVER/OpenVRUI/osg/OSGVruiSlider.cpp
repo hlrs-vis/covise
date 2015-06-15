@@ -155,7 +155,7 @@ void OSGVruiSlider::updateSlider()
 
     slider->adjustSlider(minVal, maxVal, value, step, precision);
 
-    if (precision < 0)
+    if (precision < 0 || precision > 15)
         precision = 0; //// @@@ change to exponential format if too high
     if (precision > 30)
     {
