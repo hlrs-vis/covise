@@ -177,7 +177,7 @@ void Tacx::init()
 {
     if (covise::coCoviseConfig::isOn("Bicycle.udp", true))
     {
-        const std::string host = covise::coCoviseConfig::getEntry("value", "Bicycle.serverHost", "141.58.8.171");
+        const std::string host = covise::coCoviseConfig::getEntry("value", "Bicycle.serverHost", "141.58.8.174");
         unsigned short localPort = covise::coCoviseConfig::getInt("Bicycle.localPort", 31445);
         unsigned short serverPort = covise::coCoviseConfig::getInt("Bicycle.serverPort", 31444);
         std::cerr << "Tacx config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
