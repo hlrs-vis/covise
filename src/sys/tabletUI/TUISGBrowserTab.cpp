@@ -1358,9 +1358,9 @@ void TUISGBrowserTab::handleClient(covise::Message *msg)
         {
             std::cerr << "unhandled Message!! type=" << msg->type << " - ";
             if (msg->type < covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE)
-                std::cerr << "UNKNOWN (out of range!)";
-            else
                 std::cerr << covise::covise_msg_types_array[msg->type];
+            else
+                std::cerr << "UNKNOWN (" << msg->type << " out of range!)";
             std::cerr << std::endl;
         }
     }
