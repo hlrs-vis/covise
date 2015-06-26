@@ -76,7 +76,7 @@ VrmlNodeType *VrmlNodeCOVERPerson::defineType(VrmlNodeType *t)
     VrmlNodeChild::defineType(t); // Parent class
 
     t->addExposedField("activePerson", VrmlField::SFINT32);
-
+    t->addExposedField("eyeDistance", VrmlField::SFFLOAT);
     return t;
 }
 
@@ -146,6 +146,8 @@ ostream &VrmlNodeCOVERPerson::printFields(ostream &os, int indent)
 {
     if (!d_activePerson.get())
         PRINT_FIELD(activePerson);
+    if (!d_eyeDistance.get())
+        PRINT_FIELD(eyeDistance);
 
     return os;
 }
@@ -164,12 +166,18 @@ void VrmlNodeCOVERPerson::setField(const char *fieldName,
     {
         Input::instance()->setActivePerson(d_activePerson.get());
     }
+    else if (strcmp(fieldName, "eyeDistance") == 0)
+    {
+        VRViewer::instance()->setSeparation(d_eyeDistance.get());
+    }
 }
 
 const VrmlField *VrmlNodeCOVERPerson::getField(const char *fieldName) const
 {
     if (strcmp(fieldName, "activePerson") == 0)
         return &d_activePerson;
+    else if (strcmp(fieldName, "eyeDistance") == 0)
+        return &d_eyeDistance;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
