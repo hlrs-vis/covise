@@ -214,6 +214,8 @@ private:
     coTUIEditFloatField *posZ;
     coTUIEditFloatField *fovH;
     coTUILabel *fovLabel;
+    coTUIEditFloatField *stereoSep;
+    coTUILabel *stereoSepLabel;
 
     coTUIEditFloatField *nearEdit;
     coTUIEditFloatField *farEdit;

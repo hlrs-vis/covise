@@ -63,5 +63,6 @@ public:
 private:
     // Fields
     VrmlSFInt d_activePerson;
+    VrmlSFFloat d_eyeDistance;
 };
 #endif //_VRMLNODECOVERPerson_
