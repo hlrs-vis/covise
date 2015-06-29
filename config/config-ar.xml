@@ -51,7 +51,14 @@
 		    <Marker name="ObjectMarker5" >
                         <Pattern value="35" />
                         <Size value="300" />
-                        <Offset x="1420" y="560" z="735" h="0" p="-90" r="0" />
+                        <Offset x="1782" y="737" z="595" h="180" p="-90" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+					
+		    <Marker name="ObjectMarker6" >
+                        <Pattern value="40" />
+                        <Size value="200" />
+                        <Offset x="1390" y="490" z="700" h="-90" p="0" r="-90" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 <!--
@@ -164,7 +171,7 @@
 
                 </ARToolKit>
 
-                <ALVAR value="OFF">
+                <ALVAR value="ON">
                     <Capture value="on" />
                     <VideoDevice value="0" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />

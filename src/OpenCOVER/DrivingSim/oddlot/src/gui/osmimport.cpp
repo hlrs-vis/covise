@@ -39,23 +39,23 @@ OsmImport::OsmImport()
     ui->minLatSpin->setDecimals(8);
     ui->minLatSpin->setMaximum(360);
     ui->minLatSpin->setMinimum(-360);
-    //ui->minLatSpin->setValue(48.709145);
-    ui->minLatSpin->setValue(31.23122);
+    ui->minLatSpin->setValue(48.709145);
+    //ui->minLatSpin->setValue(31.23122);
     ui->minLongSpin->setDecimals(8);
     ui->minLongSpin->setMaximum(360);
     ui->minLongSpin->setMinimum(-360);
-    //ui->minLongSpin->setValue(9.24237);
-    ui->minLongSpin->setValue(121.46355);
+    ui->minLongSpin->setValue(9.24237);
+    //ui->minLongSpin->setValue(121.46355);
     ui->maxLatSpin->setDecimals(8);
     ui->maxLatSpin->setMaximum(360);
     ui->maxLatSpin->setMinimum(-360);
-    //ui->maxLatSpin->setValue(48.727294);
-    ui->maxLatSpin->setValue(31.236);
+    ui->maxLatSpin->setValue(48.727294);
+    //ui->maxLatSpin->setValue(31.236);
     ui->maxLongSpin->setMaximum(360);
     ui->maxLongSpin->setMinimum(-360);
     ui->maxLongSpin->setDecimals(8);
-    // ui->maxLongSpin->setValue(9.291937);
-    ui->maxLongSpin->setValue(121.476);
+     ui->maxLongSpin->setValue(9.291937);
+    //ui->maxLongSpin->setValue(121.476);
 
     connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
     // Done //
