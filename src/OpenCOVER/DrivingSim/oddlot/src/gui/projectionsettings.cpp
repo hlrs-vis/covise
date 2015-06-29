@@ -56,12 +56,14 @@ ProjectionSettings::ProjectionSettings()
     ui->XOffsetSpin->setMaximum(10000000);
     ui->XOffsetSpin->setMinimum(-10000000);
     //ui->XOffsetSpin->setValue(-5439122.807299255);
-    ui->XOffsetSpin->setValue(-926151);
+    ui->XOffsetSpin->setValue(-3506000);
+    //ui->XOffsetSpin->setValue(-926151);
     ui->YOffsetSpin->setDecimals(10);
     ui->YOffsetSpin->setMaximum(10000000);
     ui->YOffsetSpin->setMinimum(-10000000);
     //ui->YOffsetSpin->setValue(-984970.1841083583);
-    ui->YOffsetSpin->setValue(-3463995);
+    //ui->YOffsetSpin->setValue(-3463995);
+    ui->YOffsetSpin->setValue(-5400147);
     ui->ZOffsetSpin->setDecimals(10);
     ui->ZOffsetSpin->setMaximum(10000000);
     ui->ZOffsetSpin->setMinimum(-10000000);
