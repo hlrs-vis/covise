@@ -307,7 +307,8 @@ void ModuleFeedbackPlugin::getSyncInteractors(coInteractor *inter_) // collect a
     interactors.clear();
     myInteractions_.reset();
     const char *syncGroup = NULL;
-    if (int nu = inter_->getNumUser() > 0)
+    int nu = inter_->getNumUser();
+    if (nu > 0)
     {
         for (int i = 0; i < nu; i++)
         {
@@ -332,7 +333,8 @@ void ModuleFeedbackPlugin::getSyncInteractors(coInteractor *inter_) // collect a
                 }
             }
             const char *syncGroup_ = NULL;
-            if (int nu = myInteractions_.current()->getInteractor()->getNumUser() > 0)
+            int nu = myInteractions_.current()->getInteractor()->getNumUser();
+            if ( nu > 0)
             {
                 for (int i = 0; i < nu; i++)
                 {

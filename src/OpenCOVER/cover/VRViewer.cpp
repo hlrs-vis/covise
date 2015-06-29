@@ -827,12 +827,13 @@ VRViewer::setSeparation(float sep)
     {
         animateSeparation = 1;
     }
-    else if (requestedSeparation < separation)
+    else if (requestedSeparation == 0)
     {
         animateSeparation = 2;
     }
     else
     {
+        separation = sep;
         animateSeparation = 0;
     }
 }

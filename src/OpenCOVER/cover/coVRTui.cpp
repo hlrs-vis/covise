@@ -247,6 +247,8 @@ coVRTui::coVRTui()
     posZ = new coTUIEditFloatField("ViewerZ", bottomContainer->getID());
     fovLabel = new coTUILabel("FieldOfView in ", bottomContainer->getID());
     fovH = new coTUIEditFloatField("ViewerZ", bottomContainer->getID());
+    stereoSepLabel = new coTUILabel("EyeDistance", bottomContainer->getID());
+    stereoSep = new coTUIEditFloatField("ViewerZ", bottomContainer->getID());
     FPSLabel = new coTUILabel("Fps:", bottomContainer->getID());
     CFPSLabel = new coTUILabel("Constant fps", bottomContainer->getID());
     CFPS = new coTUIEditFloatField("cfps", bottomContainer->getID());
@@ -283,6 +285,7 @@ coVRTui::coVRTui()
     posY->setEventListener(this);
     posZ->setEventListener(this);
     fovH->setEventListener(this);
+    stereoSep->setEventListener(this);
     driveNav->setEventListener(this);
     panNav->setEventListener(this);
     ViewAll->setEventListener(this);
@@ -331,6 +334,8 @@ coVRTui::coVRTui()
     posZ->setPos(2, 8);
     fovLabel->setPos(3, 7);
     fovH->setPos(3, 8);
+    stereoSepLabel->setPos(3, 9);
+    stereoSep->setPos(3, 10);
 
     scaleLabel->setPos(1, 3);
     ScaleSlider->setPos(1, 4);
@@ -514,6 +519,8 @@ coVRTui::~coVRTui()
     delete posZ;
     delete fovLabel;
     delete fovH;
+    delete stereoSepLabel;
+    delete stereoSep;
     delete FPSLabel;
     delete CFPSLabel;
     delete CFPS;
@@ -982,6 +989,10 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         viewMat.makeIdentity();
         viewMat.setTrans(viewPos);
         VRViewer::instance()->setViewerMat(viewMat);
+    }
+    else if (tUIItem == stereoSep)
+    {
+        VRViewer::instance()->setSeparation(stereoSep->getValue());
     }
     else if (tUIItem == CFPS)
     {
