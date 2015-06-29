@@ -98,7 +98,7 @@ private:
 
     coTUITab *tuiSnapTab;
     coTUIButton *tuiSnapButton;
-    coTUIFloatSlider *tuiResolutionSlider;
+    coTUIComboBox *tuiResolution;
     coTUILabel *tuiResolutionLabel;
     coTUIEditIntField *tuiResolutionX;
     coTUIEditIntField *tuiResolutionY;

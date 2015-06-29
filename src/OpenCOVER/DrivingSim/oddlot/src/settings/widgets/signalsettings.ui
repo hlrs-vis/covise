@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>727</width>
-    <height>450</height>
+    <height>524</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,30 @@
       <string>signalx</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="2">
+       <widget class="QDoubleSpinBox" name="zOffsetSpinBox"/>
+      </item>
+      <item row="16" column="0">
+       <widget class="QCheckBox" name="dynamicCheckBox">
+        <property name="text">
+         <string>dynamic</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="predecessorLabel">
+        <property name="text">
+         <string>country</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="lengthLabel">
+        <property name="text">
+         <string>zOffset</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <widget class="QTextEdit" name="idBox">
         <property name="enabled">
@@ -57,31 +81,21 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lengthLabel">
+      <item row="0" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="nameBox"/>
+        </item>
+       </layout>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>zOffset</string>
+         <string>value</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="predecessorLabel">
-        <property name="text">
-         <string>country</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0">
-       <widget class="QCheckBox" name="dynamicCheckBox">
-        <property name="text">
-         <string>dynamic</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QDoubleSpinBox" name="zOffsetSpinBox"/>
-      </item>
-      <item row="12" column="2">
+      <item row="15" column="2">
        <widget class="QComboBox" name="orientationComboBox">
         <item>
          <property name="text">
@@ -100,20 +114,6 @@
         </item>
        </widget>
       </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>value</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>subtype</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="nameLabel">
         <property name="text">
@@ -121,24 +121,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLineEdit" name="nameBox"/>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="idLabel">
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>id</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="successorLabel">
-        <property name="text">
-         <string>type</string>
+         <string>subtype</string>
         </property>
        </widget>
       </item>
@@ -170,24 +156,28 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="junctionLabel">
+      <item row="7" column="0">
+       <widget class="QLabel" name="successorLabel">
         <property name="text">
-         <string>s</string>
+         <string>type</string>
         </property>
        </widget>
       </item>
-      <item row="11" column="2">
-       <widget class="QDoubleSpinBox" name="valueSpinBox"/>
+      <item row="1" column="0">
+       <widget class="QLabel" name="idLabel">
+        <property name="text">
+         <string>id</string>
+        </property>
+       </widget>
       </item>
-      <item row="12" column="0">
+      <item row="15" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>orientation</string>
         </property>
        </widget>
       </item>
-      <item row="13" column="2">
+      <item row="16" column="2">
        <widget class="QCheckBox" name="poleCheckBox">
         <property name="text">
          <string>Pole</string>
@@ -204,6 +194,16 @@
         </property>
         <property name="maximum">
          <number>1000100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="2">
+       <widget class="QDoubleSpinBox" name="valueSpinBox"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="junctionLabel">
+        <property name="text">
+         <string>s</string>
         </property>
        </widget>
       </item>
@@ -261,6 +261,57 @@
       <item row="8" column="2">
        <widget class="QLineEdit" name="subclassLineEdit"/>
       </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>hOffset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>pitch</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>roll</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="2">
+       <widget class="QDoubleSpinBox" name="hOffsetSpinBox">
+        <property name="minimum">
+         <double>-360.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="2">
+       <widget class="QDoubleSpinBox" name="pitchSpinBox">
+        <property name="minimum">
+         <double>-360.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="2">
+       <widget class="QDoubleSpinBox" name="rollSpinBox">
+        <property name="minimum">
+         <double>-360.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+       </widget>
+      </item>
      </layout>
      <zorder>orientationComboBox</zorder>
      <zorder>label_3</zorder>
@@ -284,6 +335,12 @@
      <zorder>sizeComboBox</zorder>
      <zorder>label_6</zorder>
      <zorder>subclassLineEdit</zorder>
+     <zorder>label_9</zorder>
+     <zorder>label_10</zorder>
+     <zorder>label_11</zorder>
+     <zorder>hOffsetSpinBox</zorder>
+     <zorder>pitchSpinBox</zorder>
+     <zorder>rollSpinBox</zorder>
     </widget>
    </item>
    <item row="0" column="4">

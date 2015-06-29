@@ -27,7 +27,7 @@ public:
 
     virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
     virtual osg::BoundingBox computeBoundingBox() const;
 #else
     virtual osg::BoundingBox computeBound() const;

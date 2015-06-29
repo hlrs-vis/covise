@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -48,8 +49,38 @@ namespace OpenCOVERPlugin
            {
                if (transaction.Start("changeParameters") == TransactionStatus.Started)
                {
+                  // ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(commandData.Application.ActiveUIDocument.Document);
+
+                   //ElementDesignOptionFilter filter = new ElementDesignOptionFilter(activeOptId);
+
                    Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(commandData.Application.ActiveUIDocument.Document);
-                   COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator());
+                   COVER.Instance.SendGeometry(collector./*WherePasses(filter).*/WhereElementIsNotElementType().GetElementIterator(), commandData.Application.ActiveUIDocument.Document);
+
+                   ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
+                   FilteredElementCollector FamilyCollector = new FilteredElementCollector(commandData.Application.ActiveUIDocument.Document);
+                   ICollection<Element> AllFamilies = FamilyCollector.WherePasses(FamilyFilter).ToElements();
+                   foreach (FamilySymbol Fmly in AllFamilies)
+                   {
+                       COVER.Instance.sendFamilySymbolParameters(Fmly);
+                      /* string FamilyName = Fmly.Name;
+                       foreach (Parameter Param in Fmly.Parameters)
+                       {
+                           string ParamName = Param.Definition.Name;
+                       }*/
+                   }
+/*
+IEnumerable<Element> familiesCollector =
+new FilteredElementCollector(commandData.Application.ActiveUIDocument.Document).OfClass(typeof (FamilyInstance))
+.WhereElementIsNotElementType()
+.Cast<FamilyInstance>()
+.GroupBy(fi => fi.Symbol.Family) // (family,familyInstances)
+.Select(f=>f.Key);
+
+foreach (var f in familiesCollector)
+{
+    COVER.Instance.sendParameters(f);
+}*/
+
                    if (TransactionStatus.Committed != transaction.Commit())
                    {
                        TaskDialog.Show("Failure", "Transaction could not be committed");
@@ -183,6 +214,8 @@ namespace OpenCOVERPlugin
             // register the DocumentChanged event
             application.ControlledApplication.DocumentChanged += new EventHandler<Autodesk.Revit.DB.Events.DocumentChangedEventArgs>(CtrlApp_DocumentChanged);
 
+            OpenCOVERPlugin.COVER.Instance.startup(application);
+
 
          }
          catch (System.Exception)
@@ -271,6 +304,8 @@ namespace OpenCOVERPlugin
        public Autodesk.Revit.UI.Result OnShutdown(UIControlledApplication application)
       {
           application.ControlledApplication.DocumentChanged -= CtrlApp_DocumentChanged;
+
+          OpenCOVERPlugin.COVER.Instance.shutdown(application);
          return Autodesk.Revit.UI.Result.Succeeded;
       }
    }

@@ -36,10 +36,10 @@ coVRSelectionManager::coVRSelectionManager()
     selectedParentList.clear();
     selectionNodeList.clear();
     SelOnOff = 1;
-    SelWire = 2;
-    SelRed = 1.0f;
-    SelGreen = 0.0f;
-    SelBlue = 0.0f;
+    SelWire = 3;
+    SelRed = 0.0f;
+    SelGreen = 0.1f;
+    SelBlue = 1.0f;
 
     updateManager = cover->getUpdateManager();
     updateManager->add(this);

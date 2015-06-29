@@ -56,11 +56,6 @@ public:
             cerr << "wrong type in coShmPtrArray constructor from shared memory\n";
             print_exit(__LINE__, __FILE__, 1);
         }
-        if (length < 0)
-        {
-            cerr << "error in array length (< 0)\n";
-            print_exit(__LINE__, __FILE__, 1);
-        }
     };
     ~coShmPtrArray(){};
     const coDistributedObject *operator[](int i) const;

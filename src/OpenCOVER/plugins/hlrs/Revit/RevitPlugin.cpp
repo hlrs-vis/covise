@@ -194,7 +194,7 @@ void RevitParameter::createTUI(coTUIFrame *frame, int pos)
     tuiElement->setEventListener(this);
 }
 
-RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n)
+RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, RevitPlugin *plugin, std::string n, int id,coCheckboxMenuItem *me)
     : menuItem(NULL)
 {
     myPlugin = plugin;
@@ -203,10 +203,21 @@ RevitViewpointEntry::RevitViewpointEntry(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3
     eyePosition = pos;
     viewDirection = -dir;
     upDirection = up;
+    ID = id;
+    menuEntry = me;
+    isActive = false;
 
     tuiItem = new coTUIToggleButton(name.c_str(), plugin->revitTab->getID());
     tuiItem->setEventListener(plugin);
     tuiItem->setPos((int)(entryNumber / 10.0) + 1, entryNumber % 10);
+}
+
+void RevitViewpointEntry::setValues(osg::Vec3 pos, osg::Vec3 dir, osg::Vec3 up, std::string n)
+{
+    name = n;
+    eyePosition = pos;
+    viewDirection = -dir;
+    upDirection = up;
 }
 
 RevitViewpointEntry::~RevitViewpointEntry()
@@ -218,9 +229,20 @@ void RevitViewpointEntry::setMenuItem(coCheckboxMenuItem *aButton)
 {
     menuItem = aButton;
 }
+void RevitViewpointEntry::deactivate()
+{
+    menuEntry->setState(false);
+    tuiItem->setState(false);
+    isActive = false;
+}
 
 void RevitViewpointEntry::activate()
 {
+    RevitPlugin::instance()->deactivateAllViewpoints();
+    
+    tuiItem->setState(true);
+    menuEntry->setState(true);
+    isActive = true;
     osg::Matrix mat, rotMat;
     mat.makeTranslate(-eyePosition[0] * 0.3048, -eyePosition[1] * 0.3048, -eyePosition[2] * 0.3048);
     //rotMat.makeRotate(-ori[3], Vec3(ori[0],ori[1],ori[2]));
@@ -254,6 +276,63 @@ void RevitViewpointEntry::activate()
     cover->setXformMat(mat);
 }
 
+void RevitViewpointEntry::updateCamera()
+{
+    osg::Matrix m;
+    std::string path;
+    TokenBuffer stb;
+    stb << ID;
+
+    osg::Matrix mat = cover->getXformMat();
+    osg::Matrix viewerTrans;
+    viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
+    osg::Matrix itransMat;
+    itransMat.invert(viewerTrans);
+    mat.postMult(itransMat);
+
+
+    osg::Matrix scMat;
+    osg::Matrix iscMat;
+    float scaleFactor = cover->getScale();
+    scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
+    iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+    mat.postMult(iscMat);
+    mat.preMult(scMat);
+    
+    osg::Matrix irotMat = mat;
+    irotMat.setTrans(0,0,0);
+    
+    osg::Matrix rotMat;
+    rotMat.invert(irotMat);
+    mat.postMult(rotMat);
+    osg::Vec3 eyePos = mat.getTrans();
+    eyePosition[0] = -eyePos[0]/0.3048;
+    eyePosition[1] = -eyePos[1]/0.3048;
+    eyePosition[2] = -eyePos[2]/0.3048;
+    
+    viewDirection[0] = rotMat(1, 0);
+    viewDirection[1] = rotMat(1, 1);
+    viewDirection[2] = rotMat(1, 2);
+    upDirection[0] = rotMat(2, 0);
+    upDirection[1] = rotMat(2, 1);
+    upDirection[2] = rotMat(2, 2);
+
+    stb << (double)eyePosition[0];
+    stb << (double)eyePosition[1];
+    stb << (double)eyePosition[2];
+    stb << (double)viewDirection[0];
+    stb << (double)viewDirection[1];
+    stb << (double)viewDirection[2];
+    stb << (double)upDirection[0];
+    stb << (double)upDirection[1];
+    stb << (double)upDirection[2];
+
+    Message message(stb);
+    message.type = (int)RevitPlugin::MSG_UpdateView;
+    RevitPlugin::instance()->sendMessage(message);
+}
+
+
 void RevitViewpointEntry::menuEvent(coMenuItem *aButton)
 {
     if (((coCheckboxMenuItem *)aButton)->getState())
@@ -271,36 +350,46 @@ void RevitPlugin::createMenu()
 
     REVITButton = new coSubMenuItem("Revit");
     REVITButton->setMenu(viewpointMenu);
+    
+    roomInfoMenu = new coRowMenu("Room Information");
 
-    addVPButton = new coButtonMenuItem("SaveViewpoint");
-    addVPButton->setMenuListener(this);
-    viewpointMenu->add(addVPButton);
-    reloadButton = new coButtonMenuItem("Reload");
-    reloadButton->setMenuListener(this);
-    viewpointMenu->add(reloadButton);
+    roomInfoButton = new coSubMenuItem("Room Info");
+    roomInfoButton->setMenu(roomInfoMenu);
+    viewpointMenu->add(roomInfoButton);
+    label1 = new coLabelMenuItem("No Room");
+    roomInfoMenu->add(label1);
+    addCameraButton = new coButtonMenuItem("Add Camera");
+    addCameraButton->setMenuListener(this);
+    viewpointMenu->add(addCameraButton);
+    updateCameraButton = new coButtonMenuItem("UpdateCamera");
+    updateCameraButton->setMenuListener(this);
+    viewpointMenu->add(updateCameraButton);
 
     cover->getMenu()->add(REVITButton);
 
     revitTab = new coTUITab("Revit", coVRTui::instance()->mainFolder->getID());
     revitTab->setPos(0, 0);
 
-    reload = new coTUIButton("Reload", revitTab->getID());
-    reload->setEventListener(this);
-    reload->setPos(0, 0);
+    updateCameraTUIButton = new coTUIButton("Update Camera", revitTab->getID());
+    updateCameraTUIButton->setEventListener(this);
+    updateCameraTUIButton->setPos(0, 0);
 
-    saveViewpoint = new coTUIButton("Save Viewpoint", revitTab->getID());
-    saveViewpoint->setEventListener(this);
-    saveViewpoint->setPos(0, 1);
+    addCameraTUIButton = new coTUIButton("Add Camera", revitTab->getID());
+    addCameraTUIButton->setEventListener(this);
+    addCameraTUIButton->setPos(0, 1);
 }
 
 void RevitPlugin::destroyMenu()
 {
+    delete roomInfoButton;
+    delete roomInfoMenu;
+    delete label1;
     delete viewpointMenu;
     delete REVITButton;
     delete cbg;
 
-    delete saveViewpoint;
-    delete reload;
+    delete addCameraTUIButton;
+    delete updateCameraTUIButton;
     delete revitTab;
 }
 
@@ -308,6 +397,7 @@ RevitPlugin::RevitPlugin()
 {
     fprintf(stderr, "RevitPlugin::RevitPlugin\n");
     plugin = this;
+    MoveFinished = true;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
     toRevit = NULL;
     serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
@@ -374,23 +464,39 @@ RevitPlugin::~RevitPlugin()
 
 void RevitPlugin::menuEvent(coMenuItem *aButton)
 {
-    if (aButton == reloadButton)
+    if (aButton == updateCameraButton)
     {
+        for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
+            it != viewpointEntries.end(); it++)
+        {
+            if((*it)->isActive)
+            {
+                (*it)->updateCamera();
+            }
+        }
     }
-    if (aButton == addVPButton)
+    if (aButton == addCameraButton)
     {
     }
 }
 void RevitPlugin::tabletPressEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == reload)
+    if (tUIItem == updateCameraTUIButton)
     {
+        for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
+            it != viewpointEntries.end(); it++)
+        {
+            if((*it)->isActive)
+            {
+                (*it)->updateCamera();
+            }
+        }
     }
 }
 
 void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == saveViewpoint)
+    if (tUIItem == addCameraTUIButton)
     {
     }
     else
@@ -404,6 +510,15 @@ void RevitPlugin::tabletEvent(coTUIElement *tUIItem)
                 break;
             }
         }
+    }
+}
+
+void RevitPlugin::deactivateAllViewpoints()
+{
+    for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
+        it != viewpointEntries.end(); it++)
+    {
+            (*it)->deactivate();
     }
 }
 
@@ -423,6 +538,10 @@ void RevitPlugin::message(int type, int len, const void *buf)
     if (type == PluginMessageTypes::MoveAddMoveNode)
     {
     }
+    else if (type == PluginMessageTypes::MoveMoveNodeFinished)
+    {
+        MoveFinished=true;
+    }
     else if (type == PluginMessageTypes::MoveMoveNode)
     {
         osg::Matrix m;
@@ -431,21 +550,39 @@ void RevitPlugin::message(int type, int len, const void *buf)
         tb >> path;
         tb >> path;
         osg::Node *selectedNode = coVRSelectionManager::validPath(path);
-        RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+        if(selectedNode)
+        {
+            RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+            if(info)
+            {
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        tb >> m(i, j);
+                if(MovedID!=info->ObjectID)
+                {
+                    MoveFinished=true;
+                }
+                
+                if(MoveFinished)
+                {
+                    MoveFinished = false;
+                    MovedID = info->ObjectID;
+                    invStartMoveMat.invert(m);
+                }
+                
+                osg::Matrix newMat = invStartMoveMat*m;
+                invStartMoveMat.invert(m);
+                TokenBuffer stb;
+                stb << info->ObjectID;
+                stb << (double)newMat.getTrans().x();
+                stb << (double)newMat.getTrans().y();
+                stb << (double)newMat.getTrans().z();
 
-
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                tb >> m(i, j);
-        TokenBuffer stb;
-        stb << info->ObjectID;
-        stb << (double)m.getTrans().x();
-        stb << (double)m.getTrans().y();
-        stb << (double)m.getTrans().z();
-        
-        Message message(tb);
-        message.type = (int)RevitPlugin::MSG_SetTransform;
-        RevitPlugin::instance()->sendMessage(message);
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_SetTransform;
+                RevitPlugin::instance()->sendMessage(message);
+            }
+        }
     }
 }
 
@@ -459,7 +596,23 @@ RevitPlugin::handleMessage(Message *m)
 
     switch (type)
     {
-
+    case MSG_RoomInfo:
+        {
+            TokenBuffer tb(m);
+            double area;
+            char *roomNumber;
+            char *roomName;
+            char *levelName;
+            tb >> roomNumber;
+            tb >> roomName;
+            tb >> area;
+            tb >> levelName;
+            char info[1000];
+            sprintf(info,"Nr.: %s\n%s\nArea: %3.7lfm^2\nLevel: %s",roomNumber,roomName,area/10.0,levelName);
+            label1->setLabel(info);
+            //fprintf(stderr,"Room %s %s Area: %lf Level: %s\n", roomNumber,roomName,area,levelName);
+        }
+        break;
     case MSG_NewParameter:
     {
         TokenBuffer tb(m);
@@ -516,6 +669,10 @@ RevitPlugin::handleMessage(Message *m)
         osg::Group *newGroup = new osg::Group();
         newGroup->setName(name);
         currentGroup.top()->addChild(newGroup);
+        
+        RevitInfo *info = new RevitInfo();
+        info->ObjectID = ID;
+        OSGVruiUserDataCollection::setUserData(newGroup, "RevitInfo", info);
         currentGroup.push(newGroup);
     }
     break;
@@ -527,7 +684,7 @@ RevitPlugin::handleMessage(Message *m)
         std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
         if (it != ElementIDMap.end())
         {
-            fprintf(stderr, "DFound: %d\n", ID);
+            //fprintf(stderr, "DFound: %d\n", ID);
             ElementInfo *ei = it->second;
             for (std::list<osg::Node *>::iterator nodesIt = ei->nodes.begin(); nodesIt != ei->nodes.end(); nodesIt++)
             {
@@ -536,7 +693,7 @@ RevitPlugin::handleMessage(Message *m)
                 {
                     n->getParent(0)->removeChild(n);
                 }
-                fprintf(stderr, "DeleteID: %d\n", ID);
+                //fprintf(stderr, "DeleteID: %d\n", ID);
             }
             delete ei;
             ElementIDMap.erase(it);
@@ -678,15 +835,36 @@ RevitPlugin::handleMessage(Message *m)
         tb >> z;
         osg::Vec3 up(x, y, z);
 
+        bool foundIt=false;
+
+        for (list<RevitViewpointEntry *>::iterator it = viewpointEntries.begin();
+             it != viewpointEntries.end(); it++)
+        {
+            if ((*it)->ID == ID)
+            {
+                foundIt = true;
+                RevitViewpointEntry *vpe = (*it);
+                if(vpe->isActive)
+                {
+                    vpe->setValues(pos, dir, up,name);
+                    vpe->activate();
+                }
+                break;
+            }
+        }
+        if(!foundIt)
+        {
+
         coCheckboxMenuItem *menuEntry;
 
         menuEntry = new coCheckboxMenuItem(name, false, cbg);
         // add viewpoint to menu
-        RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name);
+        RevitViewpointEntry *vpe = new RevitViewpointEntry(pos, dir, up, this, name,ID,menuEntry);
         menuEntry->setMenuListener(vpe);
         viewpointMenu->add(menuEntry);
         vpe->setMenuItem(menuEntry);
         viewpointEntries.push_back(vpe);
+        }
     }
     break;
     case MSG_NewObject:
@@ -700,13 +878,13 @@ RevitPlugin::handleMessage(Message *m)
         if (it != ElementIDMap.end())
         {
             ei = it->second;
-            fprintf(stderr, "NFound: %d\n", ID);
+            //fprintf(stderr, "NFound: %d\n", ID);
         }
         else
         {
             ei = new ElementInfo();
             ElementIDMap[ID] = ei;
-            fprintf(stderr, "NewID: %d\n", ID);
+            //fprintf(stderr, "NewID: %d\n", ID);
         }
         char *name;
         tb >> name;
@@ -997,6 +1175,59 @@ RevitPlugin::preFrame()
     char gotMsg = '\0';
     if (coVRMSController::instance()->isMaster())
     {
+        if(toRevit)
+        {
+            static double lastTime = 0;
+            if(cover->frameTime() > lastTime+4)
+            {
+                lastTime = cover->frameTime();
+                TokenBuffer stb;
+
+                osg::Matrix mat = cover->getXformMat();
+                osg::Matrix viewerTrans;
+                viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
+                osg::Matrix itransMat;
+                itransMat.invert(viewerTrans);
+                mat.postMult(itransMat);
+
+
+                osg::Matrix scMat;
+                osg::Matrix iscMat;
+                float scaleFactor = cover->getScale();
+                scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
+                iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+                mat.postMult(iscMat);
+                mat.preMult(scMat);
+
+                osg::Matrix irotMat = mat;
+                irotMat.setTrans(0,0,0);
+
+                osg::Matrix rotMat;
+                rotMat.invert(irotMat);
+                mat.postMult(rotMat);
+                osg::Vec3 eyePos = mat.getTrans();
+                double eyePosition[3];
+                double viewDirection[3];
+                eyePosition[0] = -eyePos[0]/0.3048;
+                eyePosition[1] = -eyePos[1]/0.3048;
+                eyePosition[2] = -eyePos[2]/0.3048;
+
+                viewDirection[0] = rotMat(1, 0);
+                viewDirection[1] = rotMat(1, 1);
+                viewDirection[2] = rotMat(1, 2);
+
+                stb << (double)eyePosition[0];
+                stb << (double)eyePosition[1];
+                stb << (double)eyePosition[2];
+                stb << (double)viewDirection[0];
+                stb << (double)viewDirection[1];
+                stb << (double)viewDirection[2];
+
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_AvatarPosition;
+                RevitPlugin::instance()->sendMessage(message);
+            }
+        }
         while (toRevit && toRevit->check_for_input())
         {
             toRevit->recv_msg(msg);

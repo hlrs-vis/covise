@@ -10,7 +10,7 @@
 #include "coIntersection.h"
 #include <osg/Version>
 #include <osg/io_utils>
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 #define getBound getBoundingBox
 #endif
 #include <iostream>

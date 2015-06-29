@@ -228,7 +228,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 validToLane = laneSection->getLeftmostLaneId();
             }
             QList<UserData *> userData;
-            Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, true, 2, 0, validToLane);
+            Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
             AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
 
             getProjectGraph()->executeCommand(command);

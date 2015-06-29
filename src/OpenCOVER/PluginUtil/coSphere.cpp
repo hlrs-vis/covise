@@ -822,7 +822,7 @@ void coSphere::initTexture(int context)
     }
 }
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 osg::BoundingBox coSphere::computeBoundingBox() const
 #else
 osg::BoundingBox coSphere::computeBound() const

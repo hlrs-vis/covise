@@ -1692,17 +1692,17 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 #endif
 
                 // determine size of subParts
-                int elemOffset(0);
-                int connOffset(0);
+                uint64_t elemOffset(0);
+                uint64_t connOffset(0);
                 for (int i = 0; i < it->numEleRead3d(); ++i)
                 {
-                    int nextElementsConn = (i < it->numEleRead3d() - 1) ? (it->el3d_[i + 1]) : (it->numConnRead3d());
+                    uint64_t nextElementsConn = (i < it->numEleRead3d() - 1) ? (it->el3d_[i + 1]) : (it->numConnRead3d());
                     if (nextElementsConn > connOffset + MAX_LIST_SIZE)
                     {
                         // found a reason to split
                         // i is the first element after the split
-                        int numElem = i - elemOffset;
-                        int numConn = it->el3d_[i] - connOffset;
+                        unsigned int numElem = i - elemOffset;
+                        unsigned int numConn = it->el3d_[i] - connOffset;
                         it->subParts_numElem.push_back(numElem);
                         it->subParts_numConn.push_back(numConn);
                         elemOffset += numElem;

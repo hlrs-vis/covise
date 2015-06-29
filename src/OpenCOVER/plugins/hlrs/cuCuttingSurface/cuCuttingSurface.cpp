@@ -630,7 +630,7 @@ void CuttingDrawable::drawImplementation(osg::RenderInfo & /*info*/) const
     RenderCUDAState(state);
 }
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 osg::BoundingBox CuttingDrawable::computeBoundingBox() const
 #else
 osg::BoundingBox CuttingDrawable::computeBound() const

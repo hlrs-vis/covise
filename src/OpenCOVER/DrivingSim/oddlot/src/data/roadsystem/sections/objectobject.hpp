@@ -95,8 +95,9 @@ public:
 
     enum ObjectOrientation
     {
-        POSITIVE_TRACK_DIRECTION,
-        NEGATIVE_TRACK_DIRECTION
+        POSITIVE_TRACK_DIRECTION = 1,
+        NEGATIVE_TRACK_DIRECTION = 2,
+        BOTH_DIRECTIONS = 0
     };
 
     struct ObjectProperties
@@ -266,7 +267,7 @@ public:
     {
         return objectProps_.hdg;
     }
-    void setHeiading(const double hdg)
+    void setHeading(const double hdg)
     {
         objectProps_.hdg = hdg;
     }

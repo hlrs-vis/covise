@@ -112,7 +112,7 @@ void TiledDisplayOGLTexQuadDrawable::drawImplementation(osg::RenderInfo &renderI
     renderInfo.getState()->popStateSet();
 }
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 osg::BoundingBox TiledDisplayOGLTexQuadDrawable::computeBoundingBox() const
 #else
 osg::BoundingBox TiledDisplayOGLTexQuadDrawable::computeBound() const

@@ -47,6 +47,9 @@ public:
         int type;
         int subtype;
         double value;
+        double hOffset;
+        double pitch;
+        double roll;
         bool pole;
     };
 
@@ -69,7 +72,7 @@ public:
     //################//
 
 public:
-    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString &typeSubclass, int subtype, double value, bool pole, int size, int validFromLane, int validToLane, double probability = 0.0, double resetTime = 0);
+    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int validFromLane, int validToLane, double probability = 0.0, double resetTime = 0);
     explicit Signal(const QString &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData);
     virtual ~Signal()
     { /* does nothing */
@@ -174,6 +177,33 @@ public:
     void setValue(const double value)
     {
         signalProps_.value = value;
+    }
+
+    double getHeading() const
+    {
+        return signalProps_.hOffset;
+    }
+    void setHeading(const double hOffset)
+    {
+        signalProps_.hOffset = hOffset;
+    }
+
+    double getPitch() const
+    {
+        return signalProps_.pitch;
+    }
+    void setPitch(const double pitch)
+    {
+        signalProps_.pitch = pitch;
+    }
+
+    double getRoll() const
+    {
+        return signalProps_.roll;
+    }
+    void setRoll(const double roll)
+    {
+        signalProps_.roll = roll;
     }
 
     bool getPole() const

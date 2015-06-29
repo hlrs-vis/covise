@@ -107,6 +107,8 @@ FIND_LIBRARY(ABAQUS_LIBRARY_11 NAMES libABQSMABasMem.so
 
  #abaqus13   libJS0HTTP.so
 set (ABAQUS_SEARCH_LIBS
+   dl
+   pthread
    libABQSMAOdbAttrEO.so
    libABQSMAOdbCoreGeom.so
    libABQSMAShpCore.so

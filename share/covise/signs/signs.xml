@@ -267,9 +267,10 @@
 			<sign name="Germany/531" icon="Germany/531.png" type="531"  distance="0.5" height="2.0" />   
 			<sign name="Germany/590" icon="Germany/590.png" type="590"  distance="0.5" height="2.0" />
 		
-                        <sign name="Germany/605" icon="Germany/605.png" type="605"  distance="0.5" height="2.0" />
-                        <sign name="Germany/625-10" icon="Germany/625-10.png" type="625" subtype="10" distance="0.5" height="2.0" />
-                        <sign name="Germany/625-20" icon="Germany/625-20.png" type="625" subtype="20" distance="0.5" height="2.0" />
+                        <sign name="Germany/605" icon="Germany/605.png" type="605"  distance="0.5" height="2.0" />		 
+                        <sign name="Germany/625-10" icon="Germany/625-10.png" type="625" subtype="10" distance="0.5" height="1.2" />
+                        <sign name="Germany/625-20" icon="Germany/625-20.png" type="625" subtype="20" distance="0.5" height="1.2" />
+			<sign name="Germany/625.20-10" icon="Germany/625.20-10.png" type="625" subtype="10" subclass="20" distance="0.5" height="1.2" />
                         <sign name="Germany/626-10" icon="Germany/626-10.png" type="626" subtype="10"  distance="0.5" height="2.0" />
                         <sign name="Germany/626-20" icon="Germany/626-20.png" type="626" subtype="20"  distance="0.5" height="2.0" />
                         <sign name="Germany/628" icon="Germany/628.png" type="628"  distance="0.5" height="2.0" />
@@ -321,10 +322,7 @@
 			<object name="620-41" icon="Germany/620-41.png" type="620-41" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
 			<object name="reflectorPost" icon="" type="reflectorPost" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
 			<object name="reflectorPostYellow" icon="" type="reflectorPostYellow" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
-			<object name="625-10" icon="Germany/625-10.png" type="625-10" distance="0.5" width="0.5" length="0.5" height="1.2" radius="0.0" repeatDistance="50" />
-			<object name="625-20" icon="Germany/625-20.png" type="625-20" distance="0.5" width="0.5" length="0.5" height="1.2" radius="0.0" repeatDistance="50" />
-			<object name="625-10-20" icon="Germany/625-10-20.png" type="625-10-20" distance="0.5" width="0.5" length="0.5" height="1.2" radius="0.0" repeatDistance="50" />
-		 </objects>
+		</objects>
 		 
 		 </country>
 		

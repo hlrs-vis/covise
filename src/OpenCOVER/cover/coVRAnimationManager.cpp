@@ -47,6 +47,7 @@ coVRAnimationManager::coVRAnimationManager()
     , animRunning(true)
     , lastAnimationUpdate(0.0)
     , currentAnimationFrame(0)
+    , requestedAnimationFrame(-1)
     , timestepScale(1.0)
     , timestepBase(0.0)
     , timestepUnit("Time Step")
@@ -160,12 +161,10 @@ bool coVRAnimationManager::keyEvent(int type, int keySym, int mod)
             else if (keySym == '.')
             {
                 requestAnimationFrame(getAnimationFrame() + 1);
-                updateAnimationFrame();
             }
             else if (keySym == ',')
             {
                 requestAnimationFrame(getAnimationFrame() - 1);
-                updateAnimationFrame();
             }
         }
     }
@@ -281,12 +280,21 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
     else
         currentFrame = startFrame;
 
-    coVRPluginList::instance()->requestTimestep(currentFrame);
+    if (requestedAnimationFrame == -1)
+    {
+        requestedAnimationFrame = currentFrame;
+        coVRPluginList::instance()->requestTimestep(currentFrame);
+    }
 }
 
 void
 coVRAnimationManager::setAnimationFrame(int currentFrame)
 {
+    if (requestedAnimationFrame != -1 && currentFrame != requestedAnimationFrame)
+    {
+        std::cerr << "setAnimationFrame(" << currentFrame << "), but " << requestedAnimationFrame << " was requested" << std::endl;
+    }
+    requestedAnimationFrame = -1;
     if (currentAnimationFrame != currentFrame)
     {
         currentAnimationFrame = currentFrame;
@@ -388,8 +396,11 @@ coVRAnimationManager::update()
 
         requestAnimationFrame(getAnimationFrame() + animWheelInteraction->getWheelCount());
     }
-    // Set selected animation frame:
-    updateAnimationFrame();
+    else
+    {
+        // Set selected animation frame:
+        updateAnimationFrame();
+    }
 
 #if 0
    // rotate world menu button is checked

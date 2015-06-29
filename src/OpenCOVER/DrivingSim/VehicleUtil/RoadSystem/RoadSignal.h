@@ -70,7 +70,8 @@ public:
     };
 
     RoadSignal(const std::string &, const std::string &, const double &, const double &, const bool &, const OrientationType &,
-               const double &, const std::string &, const int &, const int &, const std::string &, const double &, const double &);
+               const double &, const std::string &, const int &, const int &, const std::string &, const double &, const double &,
+               const double &, const double &, const double &);
 
     const std::string &getName()
     {
@@ -112,6 +113,18 @@ public:
     {
         return value;
     }
+    const double &getHdg()
+    {
+        return hdg;
+    }
+    const double &getPitch()
+    {
+        return pitch;
+    }
+    const double &getRoll()
+    {
+        return roll;
+    }
 
     void setValue(const double &setVal)
     {
@@ -143,6 +156,9 @@ protected:
     int subtype;
     std::string subclass;
     double value;
+    double hdg;
+    double pitch;
+    double roll;
 
     Transform signalTransform;
 
@@ -189,7 +205,8 @@ public:
     };
 
     TrafficLightSignal(const std::string &, const std::string &, const double &, const double &, const bool &, const OrientationType &,
-                       const double &, const std::string &, const int &, const int &, const std::string &setSubclass, const double &setSize, const double &);
+                       const double &, const std::string &, const int &, const int &, const std::string &setSubclass, const double &setSize, const double &,
+                       const double &, const double &, const double &);
 
     void setSignalGreenCallback(SignalTurnCallback *);
     void setSignalYellowCallback(SignalTurnCallback *);

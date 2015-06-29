@@ -1395,33 +1395,27 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     std::string boundObjName = boundaryOutPort->getObjName();
                     boundObjName += sn.str();
 
-                    coDoPolygons *p;
                     std::string timedir = it->second;
                     std::string pointsdir = casedir;
                     std::stringstream s;
                     s << "/" << timedir << "/polyMesh";
                     pointsdir += s.str();
-                    std::string meshdir = casedir;
 
-                    if (!m_case.varyingGrid)
+                    std::string meshdir;
+                    if (m_case.varyingGrid)
                     {
-                        std::stringstream sConstant;
-                        sConstant << "/" << m_case.constantdir << "/polyMesh";
-                        meshdir += sConstant.str();
-                        if (i == 0)
-                        {
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, 0);
-                            basebounds[0] = p;
-                        }
-                        else
-                        {
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection, 0);
-                        }
+                        meshdir = pointsdir;
                     }
                     else
                     {
-                        meshdir = pointsdir;
-                        p = loadPatches(meshdir, pointsdir, boundObjName, selection);
+                        std::stringstream sConstant;
+                        sConstant << "/" << m_case.constantdir << "/polyMesh";
+                        meshdir = casedir + sConstant.str();
+                    }
+                    coDoPolygons *p = loadPatches(meshdir, pointsdir, boundObjName, selection);
+                    if (!m_case.varyingGrid && i == 0)
+                    {
+                        basebounds[0] = p;
                     }
                     boundaryObjects.push_back(p);
                     ++i;

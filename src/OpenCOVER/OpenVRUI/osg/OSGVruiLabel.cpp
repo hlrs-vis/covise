@@ -61,7 +61,7 @@ float OSGVruiLabel::getWidth() const
 
     if (labelText.valid())
     {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         BoundingBox bound = labelText->getBoundingBox();
 #else
         BoundingBox bound = labelText->getBound();
@@ -80,7 +80,7 @@ float OSGVruiLabel::getHeight() const
 
     if (labelText.valid())
     {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         BoundingBox bound = labelText->getBoundingBox();
 #else
         BoundingBox bound = labelText->getBound();
@@ -99,7 +99,7 @@ float OSGVruiLabel::getDepth() const
 
     if (labelText.valid())
     {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         BoundingBox bound = labelText->getBoundingBox();
 #else
         BoundingBox bound = labelText->getBound();

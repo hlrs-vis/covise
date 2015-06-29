@@ -28,8 +28,8 @@ find_path(JPEGTURBO_PREFIX "include/turbojpeg.h"
   $ENV{EXTERNLIBS}/libjpeg-turbo
   ~/Library/Frameworks
   /Library/Frameworks
-  /usr/local
   /usr/local/opt/jpeg-turbo # Homebrew
+  /usr/local
   /usr
   /sw # Fink
   /opt/local # DarwinPorts
@@ -47,8 +47,8 @@ FIND_PATH(JPEGTURBO_INCLUDE_DIR "turbojpeg.h"
   $ENV{EXTERNLIBS}/libjpeg-turbo/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include
-  /usr/local/include
   /usr/local/opt/jpeg-turbo/include
+  /usr/local/include
   /usr/include
   /sw/include # Fink
   /opt/local/include # DarwinPorts

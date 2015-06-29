@@ -1939,7 +1939,7 @@ void ShaderNode::drawImplementation(osg::RenderInfo &renderInfo) const
 {
     const unsigned int contextID = renderInfo.getState()->getContextID();
     const osg::ref_ptr<osg::GL2Extensions> extensions = osg::GL2Extensions::Get(contextID, true);
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 4)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
     if (!extensions->isGlslSupported)
         return;
 #else

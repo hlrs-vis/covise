@@ -86,6 +86,12 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->subtypeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
     connect(ui->valueSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->valueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->hOffsetSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->hOffsetSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->pitchSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->pitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+    connect(ui->rollSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->rollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->dynamicCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->orientationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->poleCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
@@ -138,6 +144,9 @@ SignalSettings::updateProperties()
         ui->subclassLineEdit->setText(signal_->getTypeSubclass());
         ui->subtypeSpinBox->setValue(signal_->getSubtype());
         ui->valueSpinBox->setValue(signal_->getValue());
+        ui->hOffsetSpinBox->setValue(signal_->getHeading());
+        ui->pitchSpinBox->setValue(signal_->getPitch());
+        ui->rollSpinBox->setValue(signal_->getRoll());
         ui->dynamicCheckBox->setChecked(signal_->getDynamic());
         ui->orientationComboBox->setCurrentIndex(signal_->getOrientation());
         ui->poleCheckBox->setChecked(signal_->getPole());
@@ -299,7 +308,7 @@ SignalSettings::onEditingFinished()
             toLane = fromLane;
         }
 
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, ui->crossingSpinBox->value(), ui->resetTimeSpinBox->value(), NULL);
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, ui->crossingSpinBox->value(), ui->resetTimeSpinBox->value(), NULL);
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
@@ -315,6 +324,7 @@ void
 SignalSettings::onNameBoxEditingFinished()
 {
     QString filename = ui->nameBox->text();
+
     if (filename != signal_->getName())
     {
         QString newId;
@@ -398,7 +408,7 @@ SignalSettings::on_signalComboBox_activated(int id)
 			else
 			{ */
 
-            command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, signalContainer->getSignalType(), signalContainer->getSignalTypeSubclass(), signalContainer->getSignalSubType(), signalContainer->getSignalValue(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime());
+            command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, signalContainer->getSignalType(), signalContainer->getSignalTypeSubclass(), signalContainer->getSignalSubType(), signalContainer->getSignalValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime());
             //		}
 
             getProjectSettings()->executeCommand(command);

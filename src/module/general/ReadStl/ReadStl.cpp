@@ -163,6 +163,10 @@ ReadStl::ReadStl(int argc, char *argv[])
     // flip output normals
     p_flipNormals = addBooleanParam("FlipNormals", "Flip output normals");
     p_flipNormals->setValue(0);
+    
+    // auto colors
+    p_autoColors = addBooleanParam("AutoColors", "Automaticallz color solids (CAD colors)");
+    p_autoColors->setValue(0);
 
     // Output ports
     p_polyOut = addOutputPort("mesh", "Polygons", "Polygons");
@@ -246,7 +250,17 @@ ReadStl::outputObjects(
                                           elemList.size(),
                                           (elemList.size() > 0) ? &elemList[0] : NULL);
     poly->addAttribute("vertexOrder", "2");
+    if(p_autoColors->getValue())
+    {
+#define NUMCOLORS 7
+        static const char *color[NUMCOLORS] = { "white", "red", "magenta", "blue", "cyan", "green", "yellow" };
+	colorNumber++;
+        poly->addAttribute("COLOR", color[colorNumber%NUMCOLORS]);
+    }
+    else
+    {
     poly->addAttribute("COLOR", p_color->getValue());
+    }
 
     coDoVec3 *norm = new coDoVec3(
         p_normOut->getObjName(),
@@ -503,6 +517,7 @@ int ReadStl::readASCII()
 
     char buf[600], *cbuf, tb1[600];
 
+    
     // 1st pass: count sizes
     int n_coord = 0;
     int n_elem = 0;
@@ -536,12 +551,28 @@ int ReadStl::readASCII()
         if (tolower(*cbuf) == 'n')
             n_normals++;
     }
-
     // 2nd pass: read actual files
     rewind(d_file);
     vector<float> x_n, y_n, z_n;
     vector<float> x_coord, y_coord, z_coord;
     vector<int> vl, el;
+    vector<Color> colors;
+    
+    vector<Color> colorArray;
+    Color c;
+    c.r=1;c.g=0;c.b=0;c.a=1;
+    colorArray.push_back(c);
+    c.r=1;c.g=1;c.b=0;c.a=1;
+    colorArray.push_back(c);
+    c.r=1;c.g=1;c.b=1;c.a=1;
+    colorArray.push_back(c);
+    c.r=0;c.g=1;c.b=1;c.a=1;
+    colorArray.push_back(c);
+    c.r=0;c.g=1;c.b=0;c.a=1;
+    colorArray.push_back(c);
+    c.r=0;c.g=0;c.b=1;c.a=1;
+    colorArray.push_back(c);
+    
     n_coord = 0;
     while (!feof(d_file))
     {
@@ -554,6 +585,10 @@ int ReadStl::readASCII()
         {
             cbuf++;
         }
+        if (tolower(*cbuf) == 's')
+        {
+	    colorNumber++;
+	}
         if (tolower(*cbuf) == 'v')
         {
             float x, y, z;
@@ -566,6 +601,11 @@ int ReadStl::readASCII()
             z_coord.push_back(z);
             vl.push_back(n_coord);
             n_coord++;
+	    
+	    if (p_autoColors->getValue())
+	    {
+	       colors.push_back(colorArray[colorNumber%colorArray.size()]);
+	    }
         }
         if (tolower(*cbuf) == 'f')
         {
@@ -663,10 +703,9 @@ int ReadStl::readASCII()
    cerr << ll.size() << endl;
 #endif
     // group here covise-library calls
-    vector<Color> dummy;
     outputObjects(x_coord, y_coord, z_coord, vl, el,
                   x_n, y_n, z_n,
-                  lx, ly, lz, cl, ll, dummy);
+                  lx, ly, lz, cl, ll, colors);
 
     rewind(d_file);
     return CONTINUE_PIPELINE;
@@ -674,6 +713,7 @@ int ReadStl::readASCII()
 
 int ReadStl::compute(const char *)
 {
+    colorNumber=0;
     // not opened any file yet ?
     if (!d_file || d_format == STL_NONE)
         readHeader();

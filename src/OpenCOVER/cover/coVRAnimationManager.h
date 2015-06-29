@@ -135,7 +135,7 @@ private:
 
     bool animRunning;
     double lastAnimationUpdate;
-    int currentAnimationFrame;
+    int currentAnimationFrame, requestedAnimationFrame;
     void updateAnimationFrame();
 
     void menuEvent(vrui::coMenuItem *);

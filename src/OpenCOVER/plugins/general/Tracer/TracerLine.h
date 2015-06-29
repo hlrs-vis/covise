@@ -107,6 +107,9 @@ public:
     bool wasStopped();
     bool wasStarted();
     bool isRunning();
+
+private:
+    TracerLine();
 };
 
 #endif

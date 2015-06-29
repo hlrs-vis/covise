@@ -592,7 +592,7 @@ coDoTensor::coDoTensor(const coObjInfo &info,
 {
     covise_data_list dl[3];
 
-    t_data.set_length(TensorType_ * no);
+    t_data.set_length(ttype * no);
     dl[0].type = INTSHM;
     dl[0].ptr = (void *)&no_of_points;
     dl[1].type = INTSHM;

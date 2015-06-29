@@ -155,7 +155,7 @@ void OSGVruiSlider::updateSlider()
 
     slider->adjustSlider(minVal, maxVal, value, step, precision);
 
-    if (precision < 0)
+    if (precision < 0 || precision > 15)
         precision = 0; //// @@@ change to exponential format if too high
     if (precision > 30)
     {
@@ -236,7 +236,7 @@ ref_ptr<Geode> OSGVruiSlider::createText(float xPos)
     numberText->setText(number, String::ENCODING_UTF8);
     numberText->dirtyBound();
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
     BoundingBox stringBoundingBox = numberText->getBoundingBox();
 #else
     BoundingBox stringBoundingBox = numberText->getBound();

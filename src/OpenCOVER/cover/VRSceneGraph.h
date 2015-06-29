@@ -168,7 +168,7 @@ public:
         {
             return NULL;
         }
-    };
+    }
 
     // attach a node to another (the attached node will be deleted with the other node)
     void attachNode(const char *attacheeName, osg::Node *attached);

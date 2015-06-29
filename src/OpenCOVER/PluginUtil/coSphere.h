@@ -76,7 +76,7 @@ public:
     void setVertexAttribArray(unsigned int index, const osg::Array *array, osg::Array::Binding binding = osg::Array::BIND_UNDEFINED);
 
 protected:
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
     virtual osg::BoundingBox computeBoundingBox() const;
 #else
     virtual osg::BoundingBox computeBound() const;

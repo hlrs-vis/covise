@@ -61,12 +61,15 @@ vruiUserData *OSGVruiUserDataCollection::getUserData(const std::string &name)
 
 vruiUserData *OSGVruiUserDataCollection::getUserData(osg::Node *node, const std::string &name)
 {
-    Referenced *nodeData = node->getUserData();
-    if (nodeData)
+    if(node)
     {
-        OSGVruiUserDataCollection *collection = dynamic_cast<OSGVruiUserDataCollection *>(nodeData);
-        if (collection)
-            return collection->getUserData(name);
+        Referenced *nodeData = node->getUserData();
+        if (nodeData)
+        {
+            OSGVruiUserDataCollection *collection = dynamic_cast<OSGVruiUserDataCollection *>(nodeData);
+            if (collection)
+                return collection->getUserData(name);
+        }
     }
 
     return 0;
