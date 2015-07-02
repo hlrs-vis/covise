@@ -34,7 +34,7 @@ class WritePolygon : public coModule
 private:
     // member functions
     virtual int compute(const char *port);
-    enum fileformats {TYPE_WRL=0,TYPE_STL};
+    enum fileformats {TYPE_WRL=0,TYPE_STL,TYPE_STL_TRI};
 
     // ports
     //      coOutputPort *p_dataOut;

@@ -61,7 +61,7 @@ WritePolygon::WritePolygon(int argc, char *argv[])
 	
 	p_fileFormat = addChoiceParam("type","File type");
     
-    const char *formatChoices[] = { "Vrml97", "stl" };
+    const char *formatChoices[] = { "Vrml97", "stl" , "stl_triangles"};
     p_fileFormat->setValue(2, formatChoices, 0);
 
     p_newFile = addBooleanParam("new", "Create new file");
@@ -859,23 +859,49 @@ WritePolygon::writeSTLObj(const char *offset, const coDistributedObject *new_dat
 
         obj->getAddresses(&v[0], &v[1], &v[2], &cl, &el);
         fprintf(file, "solid %s\n",obj->getName());
-        for (int p = 0; p < numE; p++) // loop over all polygons
+        if(outputtype == TYPE_STL)
         {
-            fprintf(file, "facet normal 0 0 0\n");
-            fprintf(file, "outer loop\n");
-            int numv;
-            if(p == numE-1)
+            for (int p = 0; p < numE; p++) // loop over all polygons
             {
-                numv = numC - el[p];
+                fprintf(file, "facet normal 0 0 0\n");
+                fprintf(file, "outer loop\n");
+                int numv;
+                if(p == numE-1)
+                {
+                    numv = numC - el[p];
+                }
+                else
+                    numv = el[p+1] - el[p];
+                for (int j = 0; j < numv; j++)
+                {
+                    fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]+j]],v[1][cl[el[p]+j]],v[2][cl[el[p]+j]]);
+                }
+                fprintf(file, "endloop\n");
+                fprintf(file, "endfacet\n");
             }
-            else
-                numv = el[p+1] - el[p];
-            for (int j = 0; j < numv; j++)
+        }
+        else
+        {
+            for (int p = 0; p < numE; p++) // loop over all polygons
             {
-                fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]+j]],v[1][cl[el[p]+j]],v[2][cl[el[p]+j]]);
+                fprintf(file, "facet normal 0 0 0\n");
+                fprintf(file, "outer loop\n");
+                int numv;
+                if(p == numE-1)
+                {
+                    numv = numC - el[p];
+                }
+                else
+                    numv = el[p+1] - el[p];
+                for (int j = 0; j < numv-2; j++)
+                {
+                    fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]]],v[1][cl[el[p]]],v[2][cl[el[p]]]);
+                    fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]+j]],v[1][cl[el[p]+j]],v[2][cl[el[p]+j]]);
+                    fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]+j+1]],v[1][cl[el[p]+j+1]],v[2][cl[el[p]+j+1]]);
+                }
+                fprintf(file, "endloop\n");
+                fprintf(file, "endfacet\n");
             }
-            fprintf(file, "endloop\n");
-            fprintf(file, "endfacet\n");
         }
         fprintf(file, "endsolid %s\n",obj->getName());
     }
