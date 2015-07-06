@@ -76,6 +76,7 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
+    echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug            "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
     echo -e "${MENU} ${OPT} 81)  ${MENU} start OpenCOVER           "
@@ -328,6 +329,11 @@ do
 	85)
 	    echo -e "starting elevatedFaSi";
 	    ssh covise2@192.168.0.74 "cd /data/BRICK-FAS && fasi ElevatedRoad.xodr > /dev/null"&
+	    ;;
+
+	86)
+	    echo -e "Thyssen Aufzug";
+	    covise -e /mnt/raid/home/hpcthobs/covise/net/ALL/2014/ThyssenNeu.net
 	    ;;
 
 # SYSTEM

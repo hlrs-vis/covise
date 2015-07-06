@@ -23,6 +23,10 @@
 #include "Collect.h"
 #include <do/coDoGeometry.h>
 #include <do/coDoSet.h>
+#include <boost/algorithm/string.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -63,6 +67,9 @@ Collect::Collect(int argc, char *argv[])
 
     p_varName = addStringParam("varName", "name of variant");
     p_varName->setValue("");
+
+    p_attribute = addStringParam("attribute", "attributes in the form name=value;name2=value2;...");
+    p_attribute->setValue("");
 
     p_boundsMinParam = addFloatVectorParam("minBound", "minimum bound");
     p_boundsMinParam->setValue(0., 0., 0.);
@@ -202,6 +209,21 @@ int Collect::compute(const char *)
                  minBound[0], minBound[1], minBound[2],
                  maxBound[0], maxBound[1], maxBound[2]);
         geom->addAttribute("BOUNDING_BOX", bounds);
+    }
+    if (strlen(p_attribute->getValue()) > 0)
+    {
+        std::string param = p_attribute->getValue();
+vector <string> fields;
+boost::split( fields, param, boost::is_any_of( ";" ) );
+for (size_t n = 0; n < fields.size(); n++)
+{
+vector <string> varVal;
+boost::split( varVal, fields[n], boost::is_any_of( "=" ) );
+if(varVal.size()==2)
+{
+geom->addAttribute(varVal[0].c_str(), varVal[1].c_str());
+}
+}
     }
 
     geom->addAttribute("VARIANT", p_varName->getValue());
