@@ -42,7 +42,7 @@ using std::tr1::unordered_map;
 #define unordered_map stdext::hash_map
 #include <hash_set>
 #define unordered_set stdext::hash_set
-#define HASH_NAMESPACE stdext
+#define HASH_NAMESPACE std
 #else
 #include <hash_map>
 #define unordered_map std::hash_map
