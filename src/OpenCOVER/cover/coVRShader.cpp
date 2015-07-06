@@ -1657,6 +1657,10 @@ osg::Uniform *coVRShaderList::getTime()
 {
     return timeUniform.get();
 }
+osg::Uniform *coVRShaderList::getTimeStep()
+{
+    return timeStepUniform.get();
+}
 //ab hier neu
 osg::Uniform *coVRShaderList::getLight()
 {
