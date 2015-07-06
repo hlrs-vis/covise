@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Car.h"
 #include "Elevator.h"
 #include "Exchanger.h"
+#include "Landing.h"
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -364,6 +365,10 @@ void VrmlNodeCar::update()
             timeoutStart = cover->frameTime();
             d_carDoorClose = System::the->time();
             eventOut(d_carDoorOpen.get(), "carDoorClose", d_carDoorClose);
+            if(elevator->landings[d_currentStationIndex.get()]!=NULL)
+            {
+                eventOut(d_carDoorOpen.get(), "doorClose",elevator->landings[ d_currentStationIndex.get()]->d_doorClose);
+            }
             state = DoorClosing;
         }
     }
@@ -525,9 +530,17 @@ bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landin
     int landing = d_stationList[nextIndex] % elevator->d_landingHeights.size();
     int shaft = d_stationList[nextIndex] / elevator->d_landingHeights.size();
 
-    if(elevator->exchangers.size() > d_stationList[nextIndex] &&elevator-> exchangers[d_stationList[nextIndex]] !=NULL)
+    if(elevator->exchangers.size() > d_stationList[nextIndex] &&elevator->exchangers[d_stationList[nextIndex]] !=NULL)
     {
         if(elevator->exchangers[d_stationList[nextIndex]]->getCar()!=NULL)
+            return false;
+    }
+    if(elevator->stations[d_stationList[nextIndex]]!=NULL)
+        return false;
+    
+    if(elevator->landings.size() > d_stationList[nextIndex] &&elevator->landings[d_stationList[nextIndex]] !=NULL)
+    {
+        if(elevator->landings[d_stationList[nextIndex]]->getCar()!=NULL)
             return false;
     }
     if(elevator->stations[d_stationList[nextIndex]]!=NULL)
@@ -587,6 +600,11 @@ void VrmlNodeCar::arrivedAtDestination() // the car arrived at its destination
     state = DoorOpening;
     d_carDoorOpen = System::the->time();
     eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
+    
+    if(elevator->landings[d_currentStationIndex.get()]!=NULL)
+    {
+        eventOut(d_carDoorOpen.get(), "doorOpen",elevator->landings[ d_currentStationIndex.get()]->d_doorOpen);
+    }
 
     int nextIndex = d_currentStationIndex.get()+1;
     if(nextIndex>=d_stationList.size())
