@@ -12,6 +12,7 @@
 #include <osg/Depth>
 #include <config/CoviseConfig.h>
 #include "VRSceneGraph.h"
+#include "coVRAnimationManager.h"
 
 #include <osg/Uniform>
 #include <osg/Program>
@@ -64,6 +65,10 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
         if (name == "Time")
         {
             uniform = coVRShaderList::instance()->getTime();
+        }
+        else if (name == "TimeStep")
+        {
+            uniform = coVRShaderList::instance()->getTimeStep();
         }
         else if (name == "Stereo")
         {
@@ -1526,6 +1531,7 @@ coVRShaderList::coVRShaderList()
     if (cover)
     {
         timeUniform = new osg::Uniform("Time", (int)(cover->frameTime() * 1000.0));
+        timeStepUniform = new osg::Uniform("TimeStep", coVRAnimationManager::instance()->getAnimationFrame());
         durationUniform = new osg::Uniform("Duration", (int)(cover->frameDuration() * 1000.0));
         viewportWidthUniform = new osg::Uniform("ViewportWidth", cover->frontWindowHorizontalSize);
         viewportHeightUniform = new osg::Uniform("ViewportHeight", cover->frontWindowVerticalSize);
@@ -1533,6 +1539,7 @@ coVRShaderList::coVRShaderList()
     else
     {
         timeUniform = new osg::Uniform("Time", 1000);
+        timeStepUniform = new osg::Uniform("TimeStep", 0);
         durationUniform = new osg::Uniform("Duration", 1);
         viewportWidthUniform = new osg::Uniform("ViewportWidth", 1024);
         viewportHeightUniform = new osg::Uniform("ViewportHeight", 768);

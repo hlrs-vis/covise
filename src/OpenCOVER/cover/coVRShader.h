@@ -271,6 +271,7 @@ private:
     coVRShaderList();
     void loadMaterials();
     osg::ref_ptr<osg::Uniform> timeUniform;
+    osg::ref_ptr<osg::Uniform> timeStepUniform;
     osg::ref_ptr<osg::Uniform> lightMatrix;
     osg::ref_ptr<osg::Uniform> projectionMatrix; //neue Projektionsmatrix
     osg::ref_ptr<osg::Uniform> viewMatrix;
@@ -284,6 +285,7 @@ public:
     static coVRShaderList *instance();
     void setData(covise::TokenBuffer &tb);
     osg::Uniform *getTime();
+    osg::Uniform *getTimeStep();
     osg::Uniform *getLight();
     osg::Uniform *getProjection(); // neue Projektionsmatrix
     osg::Uniform *getView();
