@@ -87,6 +87,7 @@
 
 #endif
 #include "Tacx.h"
+#include "FlightGear.h"
 
 using namespace vrml;
 using namespace opencover;
@@ -131,6 +132,8 @@ public:
 
 private:
     osg::Matrix bikeTrans;
+    osg::Matrix fgPlaneRot;
+    osg::Vec3d fgPlaneZeroPos;
     // Fields
     VrmlSFBool d_enabled;
     VrmlSFInt d_joystickNumber;
@@ -155,12 +158,15 @@ public:
 
     static BicyclePlugin *plugin;
     Tacx *tacx;
+    FlightGear *flightgear;
+    bool isPlane;
 
     coTUITab *BicycleTab;
     coTUIEditFloatField *velocityFactor;
     coTUILabel *velocityFactorLabel;
     coTUIEditFloatField *forceFactor;
     coTUILabel *forceFactorLabel;
+
 
     virtual void run();
 
@@ -186,7 +192,8 @@ public:
     int angleCounter;
     float angle;
     float speed;
-
+    float power;
+    
 private:
 };
 #endif

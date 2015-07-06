@@ -80,6 +80,7 @@ public:
     ~Tacx();
     void update();
     float getAngle();
+    float getRPM();
     float getSpeed()
     {
         return vrdata.drehzahl / 1000.0;
@@ -88,7 +89,7 @@ public:
     void setForce(float f)
     {
         vrdataout.force = ((unsigned short)(((float)0xf00) * f + 0x100));
-        fprintf(stderr, "force=0x%x\n", vrdataout.force);
+        //fprintf(stderr, "force=0x%x\n", vrdataout.force);
     }; // 0 - 1 min-max
 
 private:
