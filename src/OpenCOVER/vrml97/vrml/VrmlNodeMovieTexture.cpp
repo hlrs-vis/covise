@@ -373,6 +373,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
                                                 d_repeatS.get(),
                                                 d_repeatT.get(),
                                                 pix,
+                                                d_image->url(),
                                                 !d_isActive.get(), getBlendMode() != 0);
         }
     }

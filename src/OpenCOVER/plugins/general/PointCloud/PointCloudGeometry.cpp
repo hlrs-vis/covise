@@ -161,7 +161,7 @@ PointCloudGeometry::~PointCloudGeometry()
     //cerr << "~PointCloudPluginDrawable() called!\n" << endl;
 }
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 BoundingBox PointCloudGeometry::computeBoundingBox() const
 #else
 BoundingBox PointCloudGeometry::computeBound() const

@@ -172,6 +172,7 @@ public:
 
 private:
     void updatePlane();
+    TracerPlane();
 };
 
 // local variables:

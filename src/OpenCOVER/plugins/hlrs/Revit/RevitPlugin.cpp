@@ -350,7 +350,14 @@ void RevitPlugin::createMenu()
 
     REVITButton = new coSubMenuItem("Revit");
     REVITButton->setMenu(viewpointMenu);
+    
+    roomInfoMenu = new coRowMenu("Room Information");
 
+    roomInfoButton = new coSubMenuItem("Room Info");
+    roomInfoButton->setMenu(roomInfoMenu);
+    viewpointMenu->add(roomInfoButton);
+    label1 = new coLabelMenuItem("No Room");
+    roomInfoMenu->add(label1);
     addCameraButton = new coButtonMenuItem("Add Camera");
     addCameraButton->setMenuListener(this);
     viewpointMenu->add(addCameraButton);
@@ -374,6 +381,9 @@ void RevitPlugin::createMenu()
 
 void RevitPlugin::destroyMenu()
 {
+    delete roomInfoButton;
+    delete roomInfoMenu;
+    delete label1;
     delete viewpointMenu;
     delete REVITButton;
     delete cbg;
@@ -387,6 +397,7 @@ RevitPlugin::RevitPlugin()
 {
     fprintf(stderr, "RevitPlugin::RevitPlugin\n");
     plugin = this;
+    MoveFinished = true;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
     toRevit = NULL;
     serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
@@ -527,6 +538,10 @@ void RevitPlugin::message(int type, int len, const void *buf)
     if (type == PluginMessageTypes::MoveAddMoveNode)
     {
     }
+    else if (type == PluginMessageTypes::MoveMoveNodeFinished)
+    {
+        MoveFinished=true;
+    }
     else if (type == PluginMessageTypes::MoveMoveNode)
     {
         osg::Matrix m;
@@ -535,21 +550,39 @@ void RevitPlugin::message(int type, int len, const void *buf)
         tb >> path;
         tb >> path;
         osg::Node *selectedNode = coVRSelectionManager::validPath(path);
-        RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+        if(selectedNode)
+        {
+            RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+            if(info)
+            {
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++)
+                        tb >> m(i, j);
+                if(MovedID!=info->ObjectID)
+                {
+                    MoveFinished=true;
+                }
+                
+                if(MoveFinished)
+                {
+                    MoveFinished = false;
+                    MovedID = info->ObjectID;
+                    invStartMoveMat.invert(m);
+                }
+                
+                osg::Matrix newMat = invStartMoveMat*m;
+                invStartMoveMat.invert(m);
+                TokenBuffer stb;
+                stb << info->ObjectID;
+                stb << (double)newMat.getTrans().x();
+                stb << (double)newMat.getTrans().y();
+                stb << (double)newMat.getTrans().z();
 
-
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                tb >> m(i, j);
-        TokenBuffer stb;
-        stb << info->ObjectID;
-        stb << (double)m.getTrans().x();
-        stb << (double)m.getTrans().y();
-        stb << (double)m.getTrans().z();
-        
-        Message message(stb);
-        message.type = (int)RevitPlugin::MSG_SetTransform;
-        RevitPlugin::instance()->sendMessage(message);
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_SetTransform;
+                RevitPlugin::instance()->sendMessage(message);
+            }
+        }
     }
 }
 
@@ -563,7 +596,23 @@ RevitPlugin::handleMessage(Message *m)
 
     switch (type)
     {
-
+    case MSG_RoomInfo:
+        {
+            TokenBuffer tb(m);
+            double area;
+            char *roomNumber;
+            char *roomName;
+            char *levelName;
+            tb >> roomNumber;
+            tb >> roomName;
+            tb >> area;
+            tb >> levelName;
+            char info[1000];
+            sprintf(info,"Nr.: %s\n%s\nArea: %3.7lfm^2\nLevel: %s",roomNumber,roomName,area/10.0,levelName);
+            label1->setLabel(info);
+            //fprintf(stderr,"Room %s %s Area: %lf Level: %s\n", roomNumber,roomName,area,levelName);
+        }
+        break;
     case MSG_NewParameter:
     {
         TokenBuffer tb(m);
@@ -620,6 +669,10 @@ RevitPlugin::handleMessage(Message *m)
         osg::Group *newGroup = new osg::Group();
         newGroup->setName(name);
         currentGroup.top()->addChild(newGroup);
+        
+        RevitInfo *info = new RevitInfo();
+        info->ObjectID = ID;
+        OSGVruiUserDataCollection::setUserData(newGroup, "RevitInfo", info);
         currentGroup.push(newGroup);
     }
     break;
@@ -631,7 +684,7 @@ RevitPlugin::handleMessage(Message *m)
         std::map<int, ElementInfo *>::iterator it = ElementIDMap.find(ID);
         if (it != ElementIDMap.end())
         {
-            fprintf(stderr, "DFound: %d\n", ID);
+            //fprintf(stderr, "DFound: %d\n", ID);
             ElementInfo *ei = it->second;
             for (std::list<osg::Node *>::iterator nodesIt = ei->nodes.begin(); nodesIt != ei->nodes.end(); nodesIt++)
             {
@@ -640,7 +693,7 @@ RevitPlugin::handleMessage(Message *m)
                 {
                     n->getParent(0)->removeChild(n);
                 }
-                fprintf(stderr, "DeleteID: %d\n", ID);
+                //fprintf(stderr, "DeleteID: %d\n", ID);
             }
             delete ei;
             ElementIDMap.erase(it);
@@ -825,13 +878,13 @@ RevitPlugin::handleMessage(Message *m)
         if (it != ElementIDMap.end())
         {
             ei = it->second;
-            fprintf(stderr, "NFound: %d\n", ID);
+            //fprintf(stderr, "NFound: %d\n", ID);
         }
         else
         {
             ei = new ElementInfo();
             ElementIDMap[ID] = ei;
-            fprintf(stderr, "NewID: %d\n", ID);
+            //fprintf(stderr, "NewID: %d\n", ID);
         }
         char *name;
         tb >> name;
@@ -1122,6 +1175,59 @@ RevitPlugin::preFrame()
     char gotMsg = '\0';
     if (coVRMSController::instance()->isMaster())
     {
+        if(toRevit)
+        {
+            static double lastTime = 0;
+            if(cover->frameTime() > lastTime+4)
+            {
+                lastTime = cover->frameTime();
+                TokenBuffer stb;
+
+                osg::Matrix mat = cover->getXformMat();
+                osg::Matrix viewerTrans;
+                viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
+                osg::Matrix itransMat;
+                itransMat.invert(viewerTrans);
+                mat.postMult(itransMat);
+
+
+                osg::Matrix scMat;
+                osg::Matrix iscMat;
+                float scaleFactor = cover->getScale();
+                scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
+                iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
+                mat.postMult(iscMat);
+                mat.preMult(scMat);
+
+                osg::Matrix irotMat = mat;
+                irotMat.setTrans(0,0,0);
+
+                osg::Matrix rotMat;
+                rotMat.invert(irotMat);
+                mat.postMult(rotMat);
+                osg::Vec3 eyePos = mat.getTrans();
+                double eyePosition[3];
+                double viewDirection[3];
+                eyePosition[0] = -eyePos[0]/0.3048;
+                eyePosition[1] = -eyePos[1]/0.3048;
+                eyePosition[2] = -eyePos[2]/0.3048;
+
+                viewDirection[0] = rotMat(1, 0);
+                viewDirection[1] = rotMat(1, 1);
+                viewDirection[2] = rotMat(1, 2);
+
+                stb << (double)eyePosition[0];
+                stb << (double)eyePosition[1];
+                stb << (double)eyePosition[2];
+                stb << (double)viewDirection[0];
+                stb << (double)viewDirection[1];
+                stb << (double)viewDirection[2];
+
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_AvatarPosition;
+                RevitPlugin::instance()->sendMessage(message);
+            }
+        }
         while (toRevit && toRevit->check_for_input())
         {
             toRevit->recv_msg(msg);

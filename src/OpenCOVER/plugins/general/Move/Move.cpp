@@ -234,7 +234,7 @@ bool Move::init()
     moveh = new coCheckboxMenuItem("H", false);
     movep = new coCheckboxMenuItem("P", false);
     mover = new coCheckboxMenuItem("R", true);
-    local = new coCheckboxMenuItem("local", true);
+    local = new coCheckboxMenuItem("local", false);
     parentItem = new coButtonMenuItem("Parent");
     childItem = new coButtonMenuItem("Child");
     undoItem = new coButtonMenuItem("Undo");
@@ -655,6 +655,12 @@ void Move::preFrame()
                     {
                         level = numLevels;
                     }
+                    
+                    vrui::vruiUserData  *RevitInfo = OSGVruiUserDataCollection::getUserData(currentNode, "RevitInfo");
+                    if(RevitInfo!=NULL && numLevels == 1)
+                    {
+                        level = 1;
+                    }
                     info = (MoveInfo *)OSGVruiUserDataCollection::getUserData(currentNode, "MoveInfo");
 
                     if (info)
@@ -841,8 +847,7 @@ void Move::preFrame()
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
-                
-                
+               
                 vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
                 if(info!=NULL)
                 {
@@ -921,7 +926,7 @@ void Move::preFrame()
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::MoveMoveNode, tb.get_length(), tb.get_data());
-                
+            
                 vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
                 if(info!=NULL)
                 {
@@ -955,7 +960,25 @@ void Move::preFrame()
                 osg::Matrix mat;
                 mat = moveDCS->getMatrix();
                 if (didMove)
+                {
+                    
+                    TokenBuffer tb;
+                    std::string path = coVRSelectionManager::generatePath(selectedNodesParent);
+                    tb << path;
+                    path = coVRSelectionManager::generatePath(selectedNode);
+                    tb << path;
+
+                    for (int i = 0; i < 4; i++)
+                        for (int j = 0; j < 4; j++)
+                            tb << mat(i, j);
+                    vrui::vruiUserData  *info = OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo");
+                    if(info!=NULL)
+                    {
+                        cover->sendMessage(this, "Revit",
+                            PluginMessageTypes::MoveMoveNodeFinished, tb.get_length(), tb.get_data());
+                    }
                     addUndo(mat, moveDCS.get());
+                }
                 didMove = false;
             }
             allowMove = true;

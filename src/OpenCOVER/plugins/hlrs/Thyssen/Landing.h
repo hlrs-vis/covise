@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef _Elevator_NODE_PLUGIN_H
-#define _Elevator_NODE_PLUGIN_H
+#ifndef _Landing_NODE_PLUGIN_H
+#define _Landing_NODE_PLUGIN_H
 
 #include <util/common.h>
 #include <Thyssen.h>
@@ -36,6 +36,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlSFBool.h>
+#include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlMFFloat.h>
 #include <vrml97/vrml/VrmlSFInt.h>
@@ -53,24 +54,25 @@ using namespace opencover;
 using covise::ServerConnection;
 using covise::SimpleServerConnection;
 using covise::TokenBuffer;
-class VrmlNodeCar;
-class VrmlNodeExchanger;
-class VrmlNodeLanding;
 
-class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
+class VrmlNodeElevator;
+class VrmlNodeCar;
+
+class PLUGINEXPORT VrmlNodeLanding : public VrmlNodeChild
 {
 public:
-    // Define the fields of Elevator nodes
+    enum LandingState {Idle=0,Occupied, Uninitialized};
+    // Define the fields of Landing nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
 
-    VrmlNodeElevator(VrmlScene *scene = 0);
-    VrmlNodeElevator(const VrmlNodeElevator &n);
-    virtual ~VrmlNodeElevator();
+    VrmlNodeLanding(VrmlScene *scene = 0);
+    VrmlNodeLanding(const VrmlNodeLanding &n);
+    virtual ~VrmlNodeLanding();
 
     virtual VrmlNode *cloneMe() const;
 
-    virtual VrmlNodeElevator *toElevator() const;
+    virtual VrmlNodeLanding *toLanding() const;
 
     virtual ostream &printFields(ostream &os, int indent);
 
@@ -81,17 +83,26 @@ public:
         const VrmlField *fieldValue);
 
     virtual void render(Viewer *);
-    VrmlMFFloat d_landingHeights;
-    VrmlMFFloat  d_shaftPositions;
-    std::vector<VrmlNodeLanding *> landings;
-    std::vector<VrmlNodeExchanger *> exchangers;
-    std::vector<VrmlNodeCar *> cars;
-    std::vector<VrmlNodeCar *> stations; // stations[i] is set to a car if the car is currently close to that station
-    void occupy(int station,VrmlNodeCar *car);
-    void release(int station);
+    void update();
+    void setElevator(VrmlNodeElevator *);
+    enum LandingState getState(){return state;}
+    int getCarNumber();
+    void setCar(VrmlNodeCar *c);
+    VrmlNodeCar *getCar(){return currentCar;};
+    VrmlSFInt   d_LandingNumber;
+
+    VrmlSFTime  d_doorClose;
+    VrmlSFTime  d_doorOpen;
 
 private:
 
+    
+    
+    VrmlNodeCar *currentCar;
+    VrmlNodeElevator *elevator;
+    
+    enum LandingState state;
+    double timeoutStart;
 };
 
 #endif

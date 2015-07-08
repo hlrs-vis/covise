@@ -356,9 +356,32 @@ int main(int argc, char **argv)
     {
         if (strcasecmp(argv[2], "on") == 0)
         {
-            if (system("wol 48:44:f7:90:69:f2 48:44:f7:8f:2d:e2 48:44:f7:90:69:f3 48:44:f7:90:69:f5 48:44:f7:d9:39:d3 48:44:f7:d9:39:cf 48:44:f7:90:69:e9 48:44:f7:90:69:eb 48:44:f7:90:69:f4") == -1)
+            std::vector<std::string> macs;
+            if (argc < 4) {
+                macs.push_back("48:44:f7:90:69:f2");
+                macs.push_back("48:44:f7:8f:2d:e2");
+                macs.push_back("48:44:f7:90:69:f3");
+                macs.push_back("48:44:f7:90:69:f5");
+                macs.push_back("48:44:f7:d9:39:d3");
+                macs.push_back("48:44:f7:d9:39:cf");
+                macs.push_back("48:44:f7:90:69:e9");
+                macs.push_back("48:44:f7:90:69:eb");
+                macs.push_back("48:44:f7:90:69:f4");
+            }
+            else
             {
-                return 1;
+                for (int i = 0; i < (argc - 3); i++)
+                {
+                    macs.push_back(argv[i+3]);
+                }
+            }
+
+            for (std::vector<std::string>::iterator it = macs.begin(); it != macs.end(); ++it)
+            {
+                std::string cmd = "sudo /usr/sbin/ether-wake " + *it;
+                if (system(cmd.c_str()) == -1) {
+                    return 1;
+                }
             }
             return (0);
         }

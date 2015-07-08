@@ -3651,6 +3651,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
                          bool repeat_s,
                          bool repeat_t,
                          unsigned char *pixels,
+                         const char* filename,
                          bool /*retainHint*/,
                          bool environment, int blendMode, int anisotropy, int filter)
 {
@@ -3788,6 +3789,10 @@ ViewerOsg::insertTexture(int w, int h, int nc,
         //fprintf(stderr, "updating Texture\n");
         if (cover->debugLevel(1))
             cerr << "T";
+    }
+    if (d_currentObject->texData[textureNumber].texImage)
+    {
+        d_currentObject->texData[textureNumber].texImage->setFileName(filename);
     }
     d_currentObject->texData[textureNumber].texture->setMaxAnisotropy(anisotropy);
     if (filter)

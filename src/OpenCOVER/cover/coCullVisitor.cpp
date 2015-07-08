@@ -54,7 +54,7 @@
 #include <algorithm>
 
 #include <osg/Timer>
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 #else
 #define getBoundingBox getBound
 #endif

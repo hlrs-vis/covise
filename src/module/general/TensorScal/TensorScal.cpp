@@ -408,7 +408,7 @@ TensScal::S3D_Principal(int nopoints, const float *t_addr, int voption,
     } else if  (voption == 3) {
 
       // Third bigger than abs(first) ***********
-      if ( abs(d[2]) >= abs(d[0]) ) {
+      if ( fabs(d[2]) >= fabs(d[0]) ) {
 	xv[point] = d[2] * v[6];
 	yv[point] = d[2] * v[7];
 	zv[point] = d[2] * v[8]; 
@@ -484,7 +484,7 @@ TensScal::S3D_Principal_Scalar(int nopoints, const float *t_addr, int option)
     } else if  (option == 5) {
 
       // Third bigger than abs(first) ***********
-      if ( abs(d[2]) >= abs(d[0]) ) {
+      if ( fabs(d[2]) >= fabs(d[0]) ) {
 	ret[point] = d[2];
 
       // abs(First) bigger than third ***********

@@ -59,7 +59,7 @@ class DMGREXPORT MemChunk
     friend class CO_MemAddAVLTree;
     friend class CO_MemSizeAVLTree;
     int seq_no;
-    long size;
+    shmSizeType size;
     char *address;
 
 public:
@@ -69,13 +69,13 @@ public:
         , size(0)
         , address(0L)
         , next(0L){};
-    MemChunk(int no, void *add, long s)
+    MemChunk(int no, void *add, shmSizeType s)
         : seq_no(no)
         , size(s)
         , address((char *)add)
         , next(0L){};
     ~MemChunk(){};
-    MemChunk *split(long s)
+    MemChunk *split(shmSizeType s)
     {
         MemChunk *new_node = new MemChunk(seq_no, address, s);
         size = size - s;
@@ -92,16 +92,16 @@ public:
     {
         return address;
     };
-    long get_plain_size()
+    shmSizeType get_plain_size()
     {
         return size;
     };
-    void increase_size(long incr)
+    void increase_size(shmSizeType incr)
     {
         size += incr;
     };
     void print();
-    void set(int no, void *add, long s)
+    void set(int no, void *add, shmSizeType s)
     {
         seq_no = no;
         size = s;
@@ -110,7 +110,7 @@ public:
 };
 
 AVL_EXTERN MemChunk *new_memchunk();
-AVL_EXTERN MemChunk *new_memchunk(int no, void *add, long s);
+AVL_EXTERN MemChunk *new_memchunk(int no, void *add, shmSizeType s);
 AVL_EXTERN void delete_memchunk(MemChunk *);
 
 class DMGREXPORT CO_MemAVLNode /* structure for AVL-trees */
@@ -247,7 +247,7 @@ public:
     CO_MemSizeAVLNode *right; /* pointer to right subtree */
     CO_MemSizeAVLNode *up; /* pointer to father node */
     int balance; /* balance of subtrees =h(R)-h(L), normally -1..1 */
-    int size; /* data the tree is sorted by */
+    shmSizeType size; /* data the tree is sorted by */
     int number_of_chunks;
     MemChunk *node_list;
     CO_MemSizeAVLNode(MemChunk *d)
@@ -347,7 +347,7 @@ public:
     ~CO_MemSizeAVLTree(){};
     void rebalance_tree(CO_MemSizeAVLNode *tree_node, int add_balance,
                         int grow_shrink);
-    MemChunk *search_and_remove_node(int size, int search);
+    MemChunk *search_and_remove_node(shmSizeType size, int search);
     MemChunk *remove_node(MemChunk *data);
     int insert_node(MemChunk *data);
     void empty_tree(void)
@@ -369,7 +369,7 @@ private:
 public:
     SizeOrderedTree(){};
     ~SizeOrderedTree(){};
-    MemChunk *get_chunk(int size_wanted)
+    MemChunk *get_chunk(shmSizeType size_wanted)
     {
         return tree.search_and_remove_node(size_wanted, GT_EQUAL);
     };

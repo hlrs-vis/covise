@@ -199,7 +199,9 @@ public:
     static void *large_new(long size);
     static void large_delete(void *);
 };
-typedef void(shmCallback)(int shmKey, int size, char *address);
+typedef unsigned int shmSizeType;
+typedef unsigned int ArrayLengthType;
+typedef void(shmCallback)(int shmKey, shmSizeType size, char *address);
 
 extern SHMEXPORT SharedMemory *get_shared_memory();
 
@@ -218,7 +220,7 @@ class SHMEXPORT SharedMemory
     HANDLE handle;
     HANDLE filemap;
 #endif
-    int size;
+    shmSizeType size;
     char *data;
     enum state
     {
@@ -234,8 +236,8 @@ class SHMEXPORT SharedMemory
 
 public:
     SharedMemory(){};
-    SharedMemory(int shm_key, int shm_size, int noDelete = 0);
-    SharedMemory(int *shm_key, int shm_size);
+    SharedMemory(int shm_key, shmSizeType shm_size, int noDelete = 0);
+    SharedMemory(int *shm_key, shmSizeType shm_size);
     ~SharedMemory();
     static shmCallback *shmC;
 #if defined(__hpux) || defined(_SX)
@@ -272,7 +274,7 @@ public:
     {
         return key;
     };
-    int get_size()
+    shmSizeType get_size()
     {
         return size;
     };
@@ -316,7 +318,7 @@ public:
     ShmAccess(int *k);
     ShmAccess(char *, int noDelete = 1);
     ~ShmAccess();
-    void add_new_segment(int k, int size);
+    void add_new_segment(int k, shmSizeType size);
     void *get_pointer(int no)
     {
         return shm->get_pointer(no);
@@ -343,7 +345,7 @@ class SHMEXPORT coShmItem
     friend class coDistributedObject; //__alpha
 protected:
     int shm_seq_no;
-    int offset;
+    shmSizeType offset;
     int type;
     void *ptr;
 
@@ -359,7 +361,7 @@ public:
     {
         return shm_seq_no;
     };
-    int get_offset()
+    shmSizeType get_offset()
     {
         return offset;
     };
@@ -388,13 +390,13 @@ protected:
         if (shmptr == NULL)
             shmptr = get_shared_memory();
         ptr = (void *)((char *)shmptr->get_pointer(shm_seq_no) + offset);
-        type = *(int *)ptr;
+        type = *(int *)ptr; // the type is an integer at the beginning of the memory area
     };
 
 public:
     coShmPtr()
         : coShmItem(){};
-    coShmPtr(int no, int o)
+    coShmPtr(int no, shmSizeType o)
     {
         shm_seq_no = no;
         offset = o;
@@ -407,7 +409,7 @@ public:
         offset = *(int *)(&msg->data[sizeof(int)]);
         recalc();
     };
-    void setPtr(int no, int o)
+    void setPtr(int no, shmSizeType o)
     {
         shm_seq_no = no;
         offset = o;
@@ -415,7 +417,7 @@ public:
     };
     void *getDataPtr() const
     {
-        return (void *)((char *)ptr + sizeof(int));
+        return (void *)((char *)ptr + sizeof(int)); // extra int is the type
     };
     // first integer holds type
 };
@@ -427,7 +429,7 @@ public:
     coDataShm()
     {
     }
-    coDataShm(int no, int o)
+    coDataShm(int no, shmSizeType o)
         : coShmPtr(no, o)
     {
         if (type != typenum)
@@ -438,21 +440,21 @@ public:
     };
     DataType get() const
     {
-        return *((DataType *)(((char *)ptr) + sizeof(int)));
+        return *((DataType *)(((char *)ptr) + sizeof(int)));// int is the type
     }
     operator DataType() const
     {
-        return *((DataType *)(((char *)ptr) + sizeof(int)));
+        return *((DataType *)(((char *)ptr) + sizeof(int)));// extra int is the type
     }
     DataType set(DataType val)
     {
-        return (*((DataType *)(((char *)ptr) + sizeof(int))) = val);
+        return (*((DataType *)(((char *)ptr) + sizeof(int))) = val);// extra int is the type
     }
     DataType &operator=(const DataType &c)
     {
-        return *((DataType *)(((char *)ptr) + sizeof(int))) = c;
+        return *((DataType *)(((char *)ptr) + sizeof(int))) = c;// extra int is the type
     }
-    void setPtr(int no, int o)
+    void setPtr(int no, shmSizeType o)
     {
         coShmPtr::setPtr(no, o);
         if (type != typenum)
@@ -483,7 +485,7 @@ protected:
     friend class ShmMessage;
     friend class coShmAlloc;
     friend class coDistributedObject;
-    int length;
+    ArrayLengthType length;
     static SharedMemory *shmptr;
     inline void recalc()
     {
@@ -493,13 +495,13 @@ protected:
         {
             ptr = (void *)((char *)shmptr->get_pointer(shm_seq_no) + offset);
             type = *(int *)ptr;
-            length = *(int *)((char *)ptr + sizeof(int));
+            length = *(int *)((char *)ptr + sizeof(int)); // int type ArrayLengthType length
         }
         else
         {
             ptr = NULL;
             type = *(int *)ptr & 0x7F; // empty array here
-            length = -2; // there is no array yet!!
+            length = 0; // there is no array yet!!
         }
     };
 
@@ -507,10 +509,10 @@ public:
     coShmArray()
         : coShmItem()
     {
-        length = -1;
+        length = 0;
     }
 
-    coShmArray(int no, int o)
+    coShmArray(int no, shmSizeType o)
     {
         shm_seq_no = no;
         offset = o;
@@ -524,16 +526,15 @@ public:
         offset = *(int *)(&msg->data[sizeof(int)]);
         recalc();
     }
-    void set_length(int l)
+    void set_length(ArrayLengthType l)
     {
-        if (length == -1)
-            length = l;
+        length = l;
     }
-    int get_length() const
+    ArrayLengthType get_length() const
     {
         return length;
     }
-    void setPtr(int no, int o)
+    void setPtr(int no, shmSizeType o)
     {
         shm_seq_no = no;
         offset = o;
@@ -542,7 +543,7 @@ public:
     void *getDataPtr() const
     {
         if (ptr)
-            return (void *)((char *)ptr + 2 * sizeof(int));
+            return (void *)((char *)ptr + sizeof(int) + sizeof(ArrayLengthType));
         // first integer holds type, second holds length
         else
         {
@@ -560,7 +561,7 @@ public:
         : coShmArray()
     {
     }
-    coDataShmArray(int no, int o)
+    coDataShmArray(int no, shmSizeType o)
         : coShmArray(no, o)
     {
         if (type != typenum)
@@ -569,7 +570,7 @@ public:
             print_exit(__LINE__, __FILE__, 1);
         }
     }
-    void setPtr(int no, int o)
+    void setPtr(int no, shmSizeType o)
     {
         coShmArray::setPtr(no, o);
         if (type != typenum)
@@ -585,7 +586,7 @@ public:
     DataType &operator[](int i)
     {
         if (i >= 0 && i < length)
-            return ((DataType *)(((char *)ptr) + 2 * sizeof(int)))[i];
+            return ((DataType *)(((char *)ptr) + sizeof(int)+sizeof(ArrayLengthType)))[i];
         // else
         cerr << "Access error for coDataShmArray\n"
              << i << " not in 0.." << length - 1 << endl;
@@ -617,7 +618,7 @@ public:
     coCharShmArray()
     {
     }
-    coCharShmArray(int no, int o)
+    coCharShmArray(int no, shmSizeType o)
         : coDataShmArray<char, CHARSHMARRAY>(no, o)
     {
     }
@@ -627,7 +628,7 @@ public:
         if (chptr == NULL)
             return 0;
 
-        int i = 0;
+        ArrayLengthType i = 0;
         while (c[i] != '\0' && i < length)
         {
             chptr[i] = c[i];
@@ -656,23 +657,25 @@ public:
     coStringShmArray()
     {
     }
-    coStringShmArray(int no, int o)
+    coStringShmArray(int no, shmSizeType o)
         : coDataShmArray<char *, STRINGSHMARRAY>(no, o)
     {
     }
     char *operator[](int i);
     const char *operator[](int i) const;
-    void stringPtrSet(int no, int sn, int of)
+    void stringPtrSet(int no, int sn, shmSizeType of)
     {
-        int *iptr = (int *)ptr;
-        iptr[no * 2 + 2] = sn;
-        iptr[no * 2 + 2 + 1] = of;
+        char *cptr = (char *)ptr;
+        int pos = 2*sizeof(int)/*(seq_nr+key)*/ + no*(sizeof(int)+sizeof(shmSizeType));
+        *((int *)(cptr+pos)) = sn;
+        *((int *)(cptr+pos+sizeof(int))) = of;
     }
-    void stringPtrGet(int no, int *sn, int *of)
+    void stringPtrGet(int no, int *sn, shmSizeType *of)
     {
-        int *iptr = (int *)ptr;
-        *sn = iptr[no * 2 + 2];
-        *of = iptr[no * 2 + 2 + 1];
+        char *cptr = (char *)ptr;
+        int pos = 2*sizeof(int)/*(seq_nr+key)*/ + no*(sizeof(int)+sizeof(shmSizeType));
+        *sn = *((int *)(cptr+pos));
+        *of = *((int *)(cptr+pos+sizeof(int)));
     }
 };
 }

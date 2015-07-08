@@ -191,52 +191,57 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
 
                     std::string testimage = coCoviseConfig::getEntry("COVER.TestImage");
                     image = osgDB::readImageFile(testimage.c_str(), options);
+                }
+
+                if (image)
+                {
+                    glMatrixMode(GL_MODELVIEW);
+                    glPushMatrix();
+                    glMatrixMode(GL_PROJECTION);
+                    glPushMatrix();
+                    glGetIntegerv(GL_VIEWPORT, viewport);
+                    glDepthMask(false);
+
+                    glMatrixMode(GL_MODELVIEW);
+                    glLoadIdentity();
+                    glMatrixMode(GL_PROJECTION);
+                    glLoadIdentity();
+                    gluOrtho2D(-1, 1, -1, 1);
+
+                    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texHandle2);
+
+                    glEnable(GL_TEXTURE_RECTANGLE_ARB); //
+                    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); //
+
+                    float xPos = 1.0;
+                    float yPos = 1.0;
+
+                    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, image->s(), image->t(), 0, image->getPixelFormat(), GL_UNSIGNED_BYTE, image->data());
+                    glBegin(GL_QUADS);
+                    {
+                        glTexCoord2f(0, image->t());
+                        glVertex2f(-xPos, -yPos);
+                        glTexCoord2f(image->s(), image->t());
+                        glVertex2f(xPos, -yPos);
+                        glTexCoord2f(image->s(), 0);
+                        glVertex2f(xPos, yPos);
+                        glTexCoord2f(0, 0);
+                        glVertex2f(-xPos, yPos);
+                    }
+                    glEnd();
+
+                    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
+                    glDisable(GL_TEXTURE_RECTANGLE_ARB);
+
+                    glDepthMask(true);
+                    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+                    glMatrixMode(GL_PROJECTION);
+                    glPopMatrix();
+                    glMatrixMode(GL_MODELVIEW);
+                    glPopMatrix();
+
                     firstTime = false;
                 }
-                glMatrixMode(GL_MODELVIEW);
-                glPushMatrix();
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glGetIntegerv(GL_VIEWPORT, viewport);
-                glDepthMask(false);
-
-                glMatrixMode(GL_MODELVIEW);
-                glLoadIdentity();
-                glMatrixMode(GL_PROJECTION);
-                glLoadIdentity();
-                gluOrtho2D(-1, 1, -1, 1);
-
-                glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texHandle2);
-
-                glEnable(GL_TEXTURE_RECTANGLE_ARB); //
-                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); //
-
-                float xPos = 1.0;
-                float yPos = 1.0;
-
-                glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, image->s(), image->t(), 0, image->getPixelFormat(), GL_UNSIGNED_BYTE, image->data());
-                glBegin(GL_QUADS);
-                {
-                    glTexCoord2f(0, image->t());
-                    glVertex2f(-xPos, -yPos);
-                    glTexCoord2f(image->s(), image->t());
-                    glVertex2f(xPos, -yPos);
-                    glTexCoord2f(image->s(), 0);
-                    glVertex2f(xPos, yPos);
-                    glTexCoord2f(0, 0);
-                    glVertex2f(-xPos, yPos);
-                }
-                glEnd();
-
-                glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
-                glDisable(GL_TEXTURE_RECTANGLE_ARB);
-
-                glDepthMask(true);
-                glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-                glMatrixMode(GL_PROJECTION);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                glPopMatrix();
             }
         }
     }

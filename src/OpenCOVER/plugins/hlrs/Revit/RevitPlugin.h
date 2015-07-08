@@ -23,6 +23,7 @@
 #include <cover/coVRPlugin.h>
 #include <net/covise_connect.h>
 #include <OpenVRUI/coMenu.h>
+#include <OpenVRUI/coLabelMenuItem.h>
 #include <osg/Material>
 #include <osg/StateSet>
 #include <osg/Group>
@@ -182,6 +183,10 @@ public:
         MSG_EndInstance = 514,
         MSG_SetTransform = 515,
         MSG_UpdateView = 516,
+        MSG_AvatarPosition = 517,
+        MSG_RoomInfo = 518,
+        
+        
     };
     enum ObjectTypes
     {
@@ -217,7 +222,10 @@ public:
 protected:
     static RevitPlugin *plugin;
     coSubMenuItem *REVITButton;
+    coSubMenuItem *roomInfoButton;
+    coLabelMenuItem *label1;
     coRowMenu *viewpointMenu;
+    coRowMenu *roomInfoMenu;
     coCheckboxGroup *cbg;
     std::list<RevitViewpointEntry *> viewpointEntries;
     coButtonMenuItem *addCameraButton;
@@ -234,6 +242,9 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> revitGroup;
     std::stack<osg::Group *> currentGroup;
     std::map<int, ElementInfo *> ElementIDMap;
+    osg::Matrix invStartMoveMat;
+    bool MoveFinished;
+    int MovedID;
 
     Message *msg;
 };

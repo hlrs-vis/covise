@@ -148,6 +148,11 @@ void VrmlNodeCOVERBody::render(Viewer *viewer)
     {
         osg::Matrix m;
         m = body->getMat();
+	//fprintf(stderr,"bodyPos: %f %f %f %f\n",m(3,0),m(3,1),m(3,2),m(3,3));
+	/*fprintf(stderr,"bodyPos: %f %f %f %f\n",m(0,0),m(0,1),m(0,2),m(0,3));
+	fprintf(stderr,"bodyPos: %f %f %f %f\n",m(1,0),m(1,1),m(1,2),m(1,3));
+	fprintf(stderr,"bodyPos: %f %f %f %f\n",m(2,0),m(2,1),m(2,2),m(2,3));
+	fprintf(stderr,"bodyPos: %f %f %f %f\n",m(3,0),m(3,1),m(3,2),m(3,3));*/
         if(d_vrmlCoordinates.get())
         {
             osg::Matrix invbase = cover->getInvBaseMat();
@@ -155,17 +160,29 @@ void VrmlNodeCOVERBody::render(Viewer *viewer)
             osg::Matrix invVRMLRootMat;
             invVRMLRootMat.invert(VRMLRootMat);
             m = VRMLRootMat * m*invbase * invVRMLRootMat;
+	    //remove scale from rotation part
+	    osg::Vec3d v;
+	    v.set(m(0,0),m(0,1),m(0,2));
+	    v.normalize();
+	    m(0,0)=v[0];m(0,1)=v[1];m(0,2)=v[2];
+	    v.set(m(1,0),m(1,1),m(1,2));
+	    v.normalize();
+	    m(1,0)=v[0];m(1,1)=v[1];m(1,2)=v[2];
+	    v.set(m(2,0),m(2,1),m(2,2));
+	    v.normalize();
+	    m(2,0)=v[0];m(2,1)=v[1];m(2,2)=v[2];
         }
 
         d_position.set(m.getTrans()[0], m.getTrans()[1], m.getTrans()[2]);
-        eventOut(timeNow, "position_changed", d_position);
+        eventOut(timeNow, "position", d_position);
         osg::Quat q;
         q.set(m);
         osg::Quat::value_type orient[4];
         q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+	//fprintf(stderr,"bodyOri: %f %f %f %f\n",orient[3], orient[0], orient[1], orient[2]);
         d_orientation.set(orient[0], orient[1], orient[2], orient[3]);
 
-        eventOut(timeNow, "orientation_changed", d_orientation);
+        eventOut(timeNow, "orientation", d_orientation);
     }
 
     setModified();

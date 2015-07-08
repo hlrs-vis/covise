@@ -41,6 +41,7 @@ public:
         MeasureKit1,
         MoveAddMoveNode = 80,
         MoveMoveNode,
+        MoveMoveNodeFinished,
         Measure0 = 90,
         Measure1,
         PBufferDoSnap = 100,

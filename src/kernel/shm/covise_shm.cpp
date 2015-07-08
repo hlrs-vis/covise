@@ -202,14 +202,14 @@ ShmConfig::ShmConfig()
 extern int shmlist_exists;
 shmCallback *SharedMemory::shmC = NULL;
 
-SharedMemory::SharedMemory(int shm_key, int shm_size, int nD)
+SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
 {
     SharedMemory **tmp_array;
     SharedMemory *last_shm;
     int tmp_perm;
     noDelete = nD;
     data = 0L;
-    size = shm_size + 2 * sizeof(int);
+    size = shm_size + 2 * sizeof(int);// seq_nr and key
     next = (SharedMemory *)0L;
     shmstate = invalid;
     global_seq_no++;
@@ -356,7 +356,7 @@ SharedMemory::SharedMemory(int shm_key, int shm_size, int nD)
     //                    getpid(), global_seq_no, shm_key,shm_size,nD);
 }
 
-SharedMemory::SharedMemory(int *shm_key, int shm_size)
+SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
 {
     SharedMemory *tmpshm;
     SharedMemory **tmp_array;
@@ -367,7 +367,7 @@ SharedMemory::SharedMemory(int *shm_key, int shm_size)
 
     noDelete = 0;
     data = 0L;
-    size = shm_size + 2 * sizeof(int);
+    size = shm_size + 2 * sizeof(int); // seq_nr and key
     next = NULL;
     shmstate = invalid;
     seq_no = ++global_seq_no;
@@ -819,7 +819,7 @@ void SharedMemory::get_shmlist(int *ptr)
     while ((shmptr = shmlist->next()))
     {
         ptr[++i] = shmptr->key;
-        ptr[++i] = shmptr->size - 2 * sizeof(int);
+        ptr[++i] = shmptr->size - 2 * sizeof(int); // pointer to a shared memory which is two integers larger seq_nr and key
 #ifdef DEBUG
         sprintf(tmp_str, "get_shmlist(%d, %d)", shmptr->key, shmptr->size);
         print_comment(__LINE__, __FILE__, tmp_str);

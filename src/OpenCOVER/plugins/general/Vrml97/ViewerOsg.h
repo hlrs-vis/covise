@@ -289,6 +289,7 @@ public:
                                         bool repeat_s,
                                         bool repeat_t,
                                         unsigned char *pixels,
+                                        const char* filename,
                                         bool retainHint = false,
                                         bool environment = false, int blendMode = 0, int anisotropy = 1, int filter = 0);
 

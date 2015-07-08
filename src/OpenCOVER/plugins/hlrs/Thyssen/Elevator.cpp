@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Elevator.h"
 #include "Car.h"
 #include "Exchanger.h"
+#include "Landing.h"
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -123,6 +124,16 @@ void VrmlNodeElevator::setField(const char *fieldName,
                 exchangers[exchanger->d_LandingNumber.get()] = exchanger;
                 exchanger->setElevator(this);
             }
+            VrmlNodeLanding *landing = dynamic_cast<VrmlNodeLanding *>(d_children[i]);
+            if(landing)
+            {
+                if(landing->d_LandingNumber.get() >= landings.size())
+                {
+                    landings.resize(exchanger->d_LandingNumber.get()+1);
+                }
+                landings[landing->d_LandingNumber.get()] = landing;
+                landing->setElevator(this);
+            }
         }
         //assign cars to exchangers
         for(int i=0;i<cars.size();i++)
@@ -133,6 +144,13 @@ void VrmlNodeElevator::setField(const char *fieldName,
                 if(exchangers.size() > station && exchangers[station] !=NULL)
                 {
                     exchangers[station]->setCar(cars[i]);
+                }
+            }if(cars[i])
+            {
+                int station = cars[i]->d_stationList[cars[i]->d_currentStationIndex.get()];
+                if(landings.size() > station && landings[station] !=NULL)
+                {
+                    landings[station]->setCar(cars[i]);
                 }
             }
         }
@@ -256,6 +274,10 @@ void VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
     {
         exchangers[station]->setCar(car);
     }
+    if(landings.size() > station && landings[station] !=NULL)
+    {
+        landings[station]->setCar(car);
+    }
 }
 void VrmlNodeElevator::release(int station)
 {
@@ -263,6 +285,10 @@ void VrmlNodeElevator::release(int station)
     if(exchangers.size() > station && exchangers[station] !=NULL)
     {
         exchangers[station]->setCar(NULL);
+    }
+    if(landings.size() > station && landings[station] !=NULL)
+    {
+        landings[station]->setCar(NULL);
     }
 }
 

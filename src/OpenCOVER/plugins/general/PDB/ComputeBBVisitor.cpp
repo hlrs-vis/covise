@@ -50,7 +50,7 @@ void ComputeBBVisitor::apply(osg::Geode &geode)
     //cerr << "bbgeode\n";
     for (unsigned int i = 0; i < geode.getNumDrawables(); i++)
     {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         osg::BoundingBox bb = geode.getDrawable(i)->getBoundingBox();
 #else
         osg::BoundingBox bb = geode.getDrawable(i)->getBound();

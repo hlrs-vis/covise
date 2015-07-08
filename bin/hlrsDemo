@@ -76,6 +76,7 @@ do
     echo -e "${MENU} ${OPT} 78)  ${MENU} Wasserturbine Taubenloch  "
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
+    echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug            "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
     echo -e "${MENU} ${OPT} 81)  ${MENU} start OpenCOVER           "
@@ -90,8 +91,9 @@ do
     echo -e "${MENU} ${OPT} 93)  ${MENU} TiledDisplay OFF          "
     echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay 3D_ON        "
     echo -e "${MENU} ${OPT} 95)  ${MENU} TiledDisplay 3D_OFF       "
-    echo -e "${MENU} ${OPT} 96)  ${MENU} CAVE: Frame lock on       "
-    echo -e "${MENU} ${OPT} 97)  ${MENU} CAVE: Frame lock off      "
+    echo -e "${MENU} ${OPT} 96)  ${MENU} TiledDisplay Video Wall ON"
+    echo -e "${MENU} ${OPT} 97)  ${MENU} CAVE: Frame lock on       "
+    echo -e "${MENU} ${OPT} 98)  ${MENU} CAVE: Frame lock off      "
     echo -e "                                                      "
     echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
     echo -e "${MENU}---------------------------------------------"
@@ -329,6 +331,11 @@ do
 	    ssh covise2@192.168.0.74 "cd /data/BRICK-FAS && fasi ElevatedRoad.xodr > /dev/null"&
 	    ;;
 
+	86)
+	    echo -e "Thyssen Aufzug";
+	    covise -e /mnt/raid/home/hpcthobs/covise/net/ALL/2014/ThyssenNeu.net
+	    ;;
+
 # SYSTEM
 
 	91)
@@ -337,11 +344,12 @@ do
 	    ;;
 	92)
 	    echo -e "turn on tiled display"
-	    sasuctrl on
+	    samsungctrl power on
+        samsungctrl video_wall off
 	    ;;
 	93)
 	    echo -e "turn off tiled display"
-	    sasuctrl off
+	    samsungctrl power off
 	    ;;
 	94)
 	    echo -e "turn on 3D mode & frame lock"
@@ -355,11 +363,15 @@ do
 	    #sleep 3
             #framelock-powerwall off
 	    ;;
-    96)
+	96)
+	    echo -e "switch tiled display to video wall mode"
+        samsungctrl video_wall on
+	    ;;
+    97)
         echo -e "CAVE: Frame lock on"
         framelock-cave on
         ;;
-    97)
+    98)
         echo -e "CAVE: Frame lock off"
         framelock-cave off
         ;;

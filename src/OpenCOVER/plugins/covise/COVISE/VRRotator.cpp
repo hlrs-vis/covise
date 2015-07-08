@@ -179,7 +179,7 @@ Rotator *RotatorList::find(float x, float y, float z)
         osg::Geode *geode = (osg::Geode *)current()->node;
         gs = geode->getDrawable(0);
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         bb = gs->getBoundingBox();
 #else
         bb = gs->getBound();

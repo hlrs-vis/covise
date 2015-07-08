@@ -58,6 +58,9 @@ public:
     void hidePickInteractor();
 
     void setCaseTransform(osg::MatrixTransform *t);
+
+private:
+    TracerFreePoints();
 };
 
 #endif

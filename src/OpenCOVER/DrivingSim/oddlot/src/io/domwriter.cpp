@@ -303,7 +303,8 @@ DomWriter::visit(Object *object)
 
             }
 
-            QString id = roadSystem->getUniqueId(object->getId(), object->getName());
+            QString name = object->getName();
+            QString id = roadSystem->getUniqueId(object->getId(), name);
 
             Signal * signal = new Signal(id, "", s, object->getT(), false, (Signal::OrientationType)orientation, object->getzOffset(), "Germany", type, subclass, subtype, 0.0, object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), 2, fromLane, toLane, 0, 0);
             

@@ -34,11 +34,11 @@ coShmAlloc::coShmAlloc(int *key, DataManagerProcess *d)
 #endif
 }
 
-coShmPtr *coShmAlloc::malloc(unsigned long size)
+coShmPtr *coShmAlloc::malloc(shmSizeType size)
 {
     int msg_data[2];
     int tmp_key = 0;
-    int new_size;
+    shmSizeType new_size;
     SharedMemory *new_shm;
     MemChunk *mnode;
     MemChunk *new_used_node;
@@ -56,8 +56,10 @@ coShmPtr *coShmAlloc::malloc(unsigned long size)
         print_comment(__LINE__, __FILE__, "new SharedMemory");
         if (size > ShmConfig::getMallocSize())
         {
-            new_size = (size / ShmConfig::getMallocSize() + 1) * ShmConfig::getMallocSize();
-            if (new_size < 0)
+            uint64_t tmpSize = (size / ShmConfig::getMallocSize() + 1) * ShmConfig::getMallocSize();
+            
+            new_size = (shmSizeType)tmpSize;
+            if (tmpSize != new_size)
             {
                 new_size = size;
             }
@@ -106,7 +108,7 @@ coShmPtr *coShmAlloc::malloc(unsigned long size)
     return new_used_node->getAddress();
 }
 
-void coShmAlloc::free(int shm_seq_no, int offset)
+void coShmAlloc::free(int shm_seq_no, shmSizeType offset)
 {
     char *tmpptr = (char *)shm->get_pointer(shm_seq_no);
     char *shm_ptr = tmpptr + offset;
@@ -156,7 +158,8 @@ void coShmAlloc::new_desk(void)
 {
     MemChunk *mnode;
     SharedMemory *p_shm;
-    int seq_no, size;
+    int seq_no;
+    shmSizeType size;
 
     if (used_list)
         used_list->empty_trees(1);
@@ -182,6 +185,6 @@ void coShmAlloc::new_desk(void)
 
 void MemChunk::print()
 {
-    print_comment(__LINE__, __FILE__, "address: %lx  size: %ld ", (long unsigned int)&address, size);
+    print_comment(__LINE__, __FILE__, "address: %lx  size: %ld ", (long unsigned int)&address, (long)size);
     covise_list_size += size;
 }

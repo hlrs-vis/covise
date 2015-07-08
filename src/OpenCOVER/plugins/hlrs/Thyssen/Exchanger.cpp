@@ -219,7 +219,7 @@ void VrmlNodeExchanger::setAngle(float a)
     double timeStamp = System::the->time();
     d_Rotation.get()[3] = angle;
     eventOut(timeStamp, "Rotation", d_Rotation);
-    d_Fraction.set(angle/3.1415);
+    d_Fraction.set(angle/M_PI_2);
     eventOut(timeStamp, "Fraction", d_Fraction);
 }
 
