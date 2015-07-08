@@ -411,8 +411,11 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 	    }
 
 	  // log steps and increments *****************************************
+	  printf("%s%s\n",
+		 "|Total Time| Step Time| Max CSR  | Sol. DA  | PT ",
+		 "| SN | IN | PF |  Load PF |  Freq.   |  T Inc   |");
 	  for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
-	    printf("%3.3f %3.3f %3.3f %3.3f %3d %3d %3d %3d %3.3f %3.3f %3.3f\n",
+	    printf("%10.3e %10.3e %10.3e %10.3e %4d %4d %4d %4d %10.3e %10.3e %10.3e\n",
 	  	   (*it).Total_time  ,
 	  	   (*it).Step_time   ,
 	  	   (*it).Max_creep_strainrate_ratio,
@@ -713,7 +716,9 @@ int ReadABAQUSfil::compute(const char *port)
   float *outXCoord, *outYCoord, *outZCoord;
 
   // allocate new Unstructured grid *******************************************
-  coDoUnstructuredGrid *outGrid = new coDoUnstructuredGrid(p_gridOutPort->getObjName(),
+  string obj_name_ggrid = p_gridOutPort->getObjName();
+  obj_name_ggrid += "_Global_Grid";
+  coDoUnstructuredGrid *outGrid = new coDoUnstructuredGrid(obj_name_ggrid.c_str(),
 							   jobhead.no_sup_elems,
 							   jobhead.no_conn,
 							   jobhead.no_nodes,
@@ -722,7 +727,7 @@ int ReadABAQUSfil::compute(const char *port)
   if (!outGrid->objectOk())
     {
       sendError("Failed to create object '%s' for port '%s'",
-		p_gridOutPort->getObjName(), p_gridOutPort->getName());
+		"Global_Grid", p_gridOutPort->getName());
 
       return FAIL;
     }
@@ -1148,17 +1153,17 @@ int ReadABAQUSfil::compute(const char *port)
   for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
 
     //Allocate Output Data Objects ********************************************
-    string obj_name_eres = "ERes_Step_";
+    string obj_name_eres = p_eresOutPort->getObjName();
+    obj_name_eres += "ERes_Step_";
     obj_name_eres += std::to_string((*it).Step_no);
     obj_name_eres += "_Inc_";
     obj_name_eres += std::to_string((*it).Inc_no);
 
-    string obj_name_tres = "TRes_Step_";
+    string obj_name_tres = p_tresOutPort->getObjName();
+    obj_name_tres += "TRes_Step_";
     obj_name_tres += std::to_string((*it).Step_no);
     obj_name_tres += "_Inc_";
     obj_name_tres += std::to_string((*it).Inc_no);
-
-    printf("%ld %s\n",(long)(it-vsteps.begin()),obj_name_tres.c_str());
 
     coDoFloat  *data  = new coDoFloat (obj_name_eres.c_str(), jobhead.no_sup_elems);
     coDoTensor *tdata = new coDoTensor(obj_name_tres.c_str(), jobhead.no_sup_elems, coDoTensor::S3D);
@@ -1298,7 +1303,8 @@ int ReadABAQUSfil::compute(const char *port)
     // Load nodal data ********************************************************
 
     //Allocate Output Data Objects ********************************************
-    string obj_name_nres = "NRes_Step_";
+    string obj_name_nres = p_nresOutPort->getObjName();
+    obj_name_nres += "NRes_Step_";
     obj_name_nres += std::to_string((*it).Step_no);
     obj_name_nres += "_Inc_";
     obj_name_nres += std::to_string((*it).Inc_no);
@@ -1434,9 +1440,10 @@ int ReadABAQUSfil::compute(const char *port)
     int *setElemList, *setConnList, *setTypeList;
     float *setXCoord, *setYCoord, *setZCoord;
     
-    string obj_name_grid = "Grid_Set_No_";
+    string obj_name_grid = p_SetgridOutPort->getObjName();
+    obj_name_grid += "_Grid_Set_No_";
     obj_name_grid += std::to_string(it-set_nums.begin());
-
+    printf("setGrid name: %s\n",obj_name_grid.c_str());
     // allocate new Unstructured grid *****************************************
     coDoUnstructuredGrid *setGrid = 
       new coDoUnstructuredGrid(obj_name_grid.c_str(), //p_SetgridOutPort->getObjName(),
@@ -1523,8 +1530,26 @@ int ReadABAQUSfil::compute(const char *port)
       ii = ii + 1;
     }
 
+    //***************************************************************************
+    // Finally to be fully correct we make a set of pointers to the local grid **
+    // objects to match the Grid objects increment wise to the data objects    **
+    string obj_name_lgrid = p_SetgridOutPort->getObjName();
+    obj_name_lgrid += "_Local_Grid_Set_No_";
+    obj_name_lgrid += std::to_string(it-set_nums.begin());
+    coDoSet *incSet  = new coDoSet(obj_name_lgrid.c_str(),0);
+    for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
+      incSet ->addElement(setGrid);
+      incSet ->incRefCount();
+    }
+    // Add TIMESTEP attribute to GridSets ***************************
+    if (vsteps.size() > 1) {
+      char ts[100];
+      sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
+      incSet ->addAttribute("TIMESTEP", ts);   
+    }
+    
     // Add Set-Mesh to GridSet Output *********************
-    outSet->addElement(setGrid);
+    outSet->addElement(incSet);
 
     // ************************************************************************
     // Create set results *****************************************************
@@ -1535,7 +1560,8 @@ int ReadABAQUSfil::compute(const char *port)
     float *setnzdataList; // Nodal result z-comp.
 
     // Set for scalar element results per element set ***************
-    string obj_name_eres = "ERes_Set_No_";
+    string obj_name_eres = p_SetgridResPort->getObjName();
+    obj_name_eres += "ERes_Set_No_";
     obj_name_eres += std::to_string(it-set_nums.begin());
     coDoSet *outStepEResSet  = new coDoSet(obj_name_eres.c_str(),0);
 
@@ -1545,7 +1571,8 @@ int ReadABAQUSfil::compute(const char *port)
     }
 
     // Set for tensor element results per element set ***************
-    string obj_name_tres = "TRes_Set_No_";
+    string obj_name_tres = p_SetgridTResPort->getObjName();
+    obj_name_tres += "TRes_Set_No_";
     obj_name_tres += std::to_string(it-set_nums.begin());
     coDoSet *outStepTResSet  = new coDoSet(obj_name_tres.c_str(),0);
 
@@ -1555,7 +1582,8 @@ int ReadABAQUSfil::compute(const char *port)
     }
 
     // Set for nodal results per element set ************************
-    string obj_name_nres = "NRes_Set_No_";
+    string obj_name_nres = p_SetgridnResPort->getObjName();
+    obj_name_nres += "NRes_Set_No_";
     obj_name_nres += std::to_string(it-set_nums.begin());
     coDoSet *outStepNResSet  = new coDoSet(obj_name_nres.c_str(),0);
 
@@ -1568,7 +1596,6 @@ int ReadABAQUSfil::compute(const char *port)
     if (vsteps.size() > 1) {
 
       char ts[100];
-      printf("vsteps.size() %lu\n",(unsigned long)vsteps.size());
       sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
       outStepTResSet->addAttribute("TIMESTEP", ts);
       outStepEResSet->addAttribute("TIMESTEP", ts);
@@ -1582,21 +1609,24 @@ int ReadABAQUSfil::compute(const char *port)
     for (vector<tStephead>::iterator sit = vsteps.begin(); sit != vsteps.end(); ++sit) {
 
       // Create unique object names *********************************
-      string obj_name_steperes = "ERes_Set_No_";
+      string obj_name_steperes = p_SetgridResPort->getObjName();
+      obj_name_steperes += "_ERes_Set_No_";
       obj_name_steperes += std::to_string(it-set_nums.begin());
       obj_name_steperes += "_Step_";
       obj_name_steperes += std::to_string((*sit).Step_no);
       obj_name_steperes += "_Inc_";
       obj_name_steperes += std::to_string((*sit).Inc_no);
 
-      string obj_name_steptres = "TRes_Set_No_";
+      string obj_name_steptres = p_SetgridTResPort->getObjName();
+      obj_name_steptres += "_TRes_Set_No_";
       obj_name_steptres += std::to_string(it-set_nums.begin());
       obj_name_steptres += "_Step_";
       obj_name_steptres += std::to_string((*sit).Step_no);
       obj_name_steptres += "_Inc_";
       obj_name_steptres += std::to_string((*sit).Inc_no);
     
-      string obj_name_stepnres = "NRes_Set_No_";
+      string obj_name_stepnres = p_SetgridnResPort->getObjName();
+      obj_name_stepnres += "_NRes_Set_No_";
       obj_name_stepnres += std::to_string(it-set_nums.begin());
       obj_name_stepnres += "_Step_";
       obj_name_stepnres += std::to_string((*sit).Step_no);
@@ -1661,7 +1691,6 @@ int ReadABAQUSfil::compute(const char *port)
       }
 
       tsetdata->getAddress(&settdataList);
-      printf("%s\n",obj_name_steptres.c_str());
       // Pointer to global mesh nodal results for increment *********
       coDoFloat *setStepEdata;
 
@@ -1706,9 +1735,25 @@ int ReadABAQUSfil::compute(const char *port)
   printf("===========================================================");
   printf("===========================================================\n");
 
+  //***************************************************************************
+  // Finally to be fully correct we make a set of pointers to the global     **
+  // grid object to match the Grid object increment wise to the data objects **
+  coDoSet *incGrid = new coDoSet(p_gridOutPort->getObjName(),0);
+  for (vector<tStephead>::iterator it = vsteps.begin(); it != vsteps.end(); ++it) {
+    incGrid->addElement(outGrid);
+    incGrid->incRefCount();
+  }
+    
+  // Add TIMESTEP attribute to Global GridSet *********************
+  if (vsteps.size() > 1) {
+    char ts[100];
+    sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
+    incGrid->addAttribute("TIMESTEP", ts);    
+  }
+  
   // Set single grid objects to Out Ports ***************************
-  if (outGrid) 
-    p_gridOutPort->setCurrentObject(outGrid);
+  if (incGrid) 
+    p_gridOutPort->setCurrentObject(incGrid);
   if (outERes)
     p_eresOutPort->setCurrentObject(outERes);
   if (outTRes)
