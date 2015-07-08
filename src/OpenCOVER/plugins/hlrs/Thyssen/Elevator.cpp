@@ -129,7 +129,13 @@ void VrmlNodeElevator::setField(const char *fieldName,
             {
                 if(landing->d_LandingNumber.get() >= landings.size())
                 {
-                    landings.resize(exchanger->d_LandingNumber.get()+1);
+                    int oldSize=landings.size();
+                    int newSize=landing->d_LandingNumber.get()+1;
+                    landings.resize(landing->d_LandingNumber.get()+1);
+                    for(int i=oldSize;i<newSize;i++)
+                    {
+                        landings[i]=NULL;
+                    }
                 }
                 landings[landing->d_LandingNumber.get()] = landing;
                 landing->setElevator(this);

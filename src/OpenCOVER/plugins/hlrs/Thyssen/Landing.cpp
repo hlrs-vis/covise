@@ -157,3 +157,15 @@ void VrmlNodeLanding::setElevator(VrmlNodeElevator *e)
     state = Idle;
 
 }
+
+void VrmlNodeLanding::openDoor()
+{
+    d_doorOpen = System::the->time();
+    eventOut(d_doorOpen.get(), "doorOpen", d_doorOpen);
+}
+void VrmlNodeLanding::closeDoor()
+{
+
+    d_doorClose = System::the->time();
+    eventOut(d_doorClose.get(), "doorClose", d_doorClose);
+}

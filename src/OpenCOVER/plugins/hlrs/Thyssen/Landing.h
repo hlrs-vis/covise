@@ -88,6 +88,8 @@ public:
     enum LandingState getState(){return state;}
     int getCarNumber();
     void setCar(VrmlNodeCar *c);
+    void openDoor();
+    void closeDoor();
     VrmlNodeCar *getCar(){return currentCar;};
     VrmlSFInt   d_LandingNumber;
 

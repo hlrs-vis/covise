@@ -365,9 +365,9 @@ void VrmlNodeCar::update()
             timeoutStart = cover->frameTime();
             d_carDoorClose = System::the->time();
             eventOut(d_carDoorOpen.get(), "carDoorClose", d_carDoorClose);
-            if(elevator->landings[d_currentStationIndex.get()]!=NULL)
+            if(d_stationList[d_currentStationIndex.get()] < elevator->landings.size() && elevator->landings[d_stationList[d_currentStationIndex.get()]]!=NULL)
             {
-                eventOut(d_carDoorOpen.get(), "doorClose",elevator->landings[ d_currentStationIndex.get()]->d_doorClose);
+                elevator->landings[ d_stationList[d_currentStationIndex.get()]]->closeDoor();
             }
             state = DoorClosing;
         }
@@ -601,10 +601,11 @@ void VrmlNodeCar::arrivedAtDestination() // the car arrived at its destination
     d_carDoorOpen = System::the->time();
     eventOut(d_carDoorOpen.get(), "carDoorOpen", d_carDoorOpen);
     
-    if(elevator->landings[d_currentStationIndex.get()]!=NULL)
+    if(d_stationList[d_currentStationIndex.get()] < elevator->landings.size() && elevator->landings[d_stationList[d_currentStationIndex.get()]]!=NULL)
     {
-        eventOut(d_carDoorOpen.get(), "doorOpen",elevator->landings[ d_currentStationIndex.get()]->d_doorOpen);
+        elevator->landings[ d_stationList[d_currentStationIndex.get()]]->openDoor();
     }
+    
 
     int nextIndex = d_currentStationIndex.get()+1;
     if(nextIndex>=d_stationList.size())
