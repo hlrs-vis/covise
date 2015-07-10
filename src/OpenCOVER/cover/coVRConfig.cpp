@@ -78,14 +78,12 @@ int coVRConfig::parseStereoMode(const char *modeName)
 
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
-    , m_numBlendingTextures(0)
     , m_orthographic(false)
     , m_mouseNav(true)
     , m_useWiiMote(false)
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
 {
-    m_numWindows = 0;
     /// path for the viewpoint file: initialized by 1st param() call
 
     m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
@@ -93,8 +91,6 @@ coVRConfig::coVRConfig()
     collaborativeOptionsFile = NULL;
     viewpointsFile = NULL;
     int hsize, vsize, x, y, z;
-    m_numScreens = 1;
-    m_numPipes = 1;
     m_passiveStereo = false;
 
     m_mouseNav = coCoviseConfig::isOn("COVER.Input.MouseNav", m_mouseNav);
@@ -112,13 +108,77 @@ coVRConfig::coVRConfig()
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
-    m_numScreens = coCoviseConfig::getInt("COVER.NumScreens", 1);
-    m_numChannels = coCoviseConfig::getInt("COVER.NumChannels", m_numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
-    m_numWindows = coCoviseConfig::getInt("COVER.NumWindows", m_numScreens);
-    m_numViewports = coCoviseConfig::getInt("COVER.NumViewports", m_numChannels); // normally this is equal to the number of Channels
-    m_numBlendingTextures = coCoviseConfig::getInt("COVER.NumBlendingTextures", m_numBlendingTextures); 
-    m_numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", m_numChannels);
-    m_numPipes = coCoviseConfig::getInt("COVER.NumPipes", 1);
+    const int numScreens = coCoviseConfig::getInt("COVER.NumScreens", 1);
+    if (numScreens < 1)
+    {
+	std::cerr << "COVER.NumScreens cannot be < 1" << std::endl;
+	exit(1);
+    }
+    if (numScreens > 50)
+    {
+	std::cerr << "COVER.NumScreens cannot be > 50" << std::endl;
+	exit(1);
+    }
+    screens.resize(numScreens);
+
+    const int numChannels = coCoviseConfig::getInt("COVER.NumChannels", numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
+    if (numChannels < numScreens)
+    {
+	std::cerr << "COVER.NumChannels cannot be < COVER.NumScreens" << std::endl;
+	exit(1);
+    }
+    channels.resize(numChannels);
+    
+    const int numWindows = coCoviseConfig::getInt("COVER.NumWindows", numScreens);
+    if (numWindows < 1)
+    {
+	std::cerr << "COVER.NumWindows cannot be < 1" << std::endl;
+	exit(1);
+    }
+    if (numWindows > 50)
+    {
+	std::cerr << "COVER.NumWindows cannot be > 50" << std::endl;
+	exit(1);
+    }
+    windows.resize(numWindows);
+
+    const int numViewports = coCoviseConfig::getInt("COVER.NumViewports", numChannels); // normally this is equal to the number of Channels
+    if (numViewports < 0)
+    {
+	std::cerr << "COVER.NumViewports cannot be negative" << std::endl;
+	exit(1);
+    }
+    viewports.resize(numViewports);
+
+    const int numBlendingTextures = coCoviseConfig::getInt("COVER.NumBlendingTextures", 0); 
+    if (numBlendingTextures < 0)
+    {
+	std::cerr << "COVER.NumBlendingTextures cannot be negative" << std::endl;
+	exit(1);
+    }
+    blendingTextures.resize(numBlendingTextures);
+
+    const int numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", numChannels);
+    if (numPBOs < 0)
+    {
+	std::cerr << "COVER.NumPBOs cannot be negative" << std::endl;
+	exit(1);
+    }
+    PBOs.resize(numPBOs);
+
+    const int numPipes = coCoviseConfig::getInt("COVER.NumPipes", 1);
+    if (numPipes < 1)
+    {
+	std::cerr << "COVER.NumPipes cannot be < 1" << std::endl;
+	exit(1);
+    }
+    if (numPipes > 50)
+    {
+	std::cerr << "COVER.NumPipes cannot be > 50" << std::endl;
+	exit(1);
+    }
+    pipes.resize(numPipes);
+
     m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
     glVersion = coCoviseConfig::getEntry("COVER.GLVersion", "");
     m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
@@ -223,54 +283,11 @@ coVRConfig::coVRConfig()
 
     //bool isMaster = coVRMSController::instance()->isMaster();
 
-    if (m_numWindows < 1)
-    {
-        fprintf(stderr, "numWindows <1\n");
-        exit(-1);
-    }
-
-    if (m_numScreens < 1)
-    {
-        fprintf(stderr, "numScreens <1\n");
-        exit(-1);
-    }
-
-    if (m_numPipes < 1)
-    {
-        fprintf(stderr, "numPipes <1\n");
-        exit(-1);
-    }
-
-    if (m_numWindows > 50)
-    {
-        fprintf(stderr, "numWindows >50\n");
-        exit(-1);
-    }
-
-    if (m_numPipes > 50)
-    {
-        fprintf(stderr, "numPipes > 50\n");
-        exit(-1);
-    }
-
-    if (m_numScreens > 50)
-    {
-        fprintf(stderr, "numScreens > 50\n");
-        exit(-1);
-    }
-    
-    screens = new screenStruct[m_numScreens];
-    channels = new channelStruct[m_numChannels];
-    PBOs = new PBOStruct[m_numPBOs];
-    pipes = new pipeStruct[m_numPipes];
-    windows = new windowStruct[m_numWindows];
-    viewports = new viewportStruct[m_numViewports];
-    blendingTextures = new blendingTextureStruct[m_numBlendingTextures];
     windows[0].window = NULL;
 
     m_passiveStereo = false;
     m_flatDisplay = true;
-    for (int i = 0; i < m_numScreens; i++)
+    for (size_t i = 0; i < screens.size(); i++)
     {
 
         float h, p, r;
@@ -308,7 +325,7 @@ coVRConfig::coVRConfig()
         screens[i].bTan = -1; // left, right, top bottom field of views, default/not set is -1
     }
 
-    for (int i = 0; i < m_numPipes; i++)
+    for (size_t i = 0; i < pipes.size(); i++)
     {
         char str[200];
         sprintf(str, "COVER.PipeConfig.Pipe:%d", i);
@@ -316,7 +333,7 @@ coVRConfig::coVRConfig()
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
     }
 
-    for (int i = 0; i < m_numWindows; i++)
+    for (size_t i = 0; i < windows.size(); i++)
     {
         bool state = coCoverConfig::getWindowConfigEntry(i, windows[i].name,
                                                          &windows[i].pipeNum, &windows[i].ox, &windows[i].oy,
@@ -329,7 +346,7 @@ coVRConfig::coVRConfig()
         }
     }
 
-    for (int i = 0; i < m_numChannels; i++)
+    for (size_t i = 0; i < channels.size(); i++)
     {
         std::string stereoM;
 
@@ -378,7 +395,7 @@ coVRConfig::coVRConfig()
         channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
         
     }
-    for (int i = 0; i < m_numPBOs; i++)
+    for (size_t i = 0; i < PBOs.size(); i++)
     {
         std::string stereoM;
 
@@ -389,7 +406,7 @@ coVRConfig::coVRConfig()
         PBOs[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
         PBOs[i].windowNum = coCoviseConfig::getInt("windowIndex", str, -1);
     }
-    for (int i = 0; i < m_numViewports; i++)
+    for (size_t i = 0; i < viewports.size(); i++)
     {
         std::string stereoM;
 
@@ -404,6 +421,11 @@ coVRConfig::coVRConfig()
             
             sprintf(str, "COVER.ChannelConfig.Channel:%d", i);
             vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
+            if (!exists)
+            {
+                std::cerr << "no ChannelConfig for channel " << i << std::endl;
+                exit(1);
+            }
             vp.PBOnum = i;
         }
         else
@@ -415,13 +437,16 @@ coVRConfig::coVRConfig()
         vp.viewportXMin = coCoviseConfig::getFloat("left", str, 0);
         vp.viewportYMin = coCoviseConfig::getFloat("bottom", str, 0);
 
-        if (vp.viewportXMin > 1.0)
+	if (vp.window >= 0)
         {
-            vp.viewportXMin = vp.viewportXMin / ((float)(windows[vp.window].sx));
-        }
-        if (vp.viewportYMin > 1.0)
-        {
-            vp.viewportYMin = vp.viewportYMin / ((float)(windows[vp.window].sy));
+            if (vp.viewportXMin > 1.0)
+            {
+                vp.viewportXMin = vp.viewportXMin / ((float)(windows[vp.window].sx));
+            }
+            if (vp.viewportYMin > 1.0)
+            {
+                vp.viewportYMin = vp.viewportYMin / ((float)(windows[vp.window].sy));
+            }
         }
 
         vp.viewportXMax = coCoviseConfig::getFloat("right", str, -1);
@@ -431,26 +456,34 @@ coVRConfig::coVRConfig()
             float w,h;
             w = coCoviseConfig::getFloat("width", str, 1024);
             h = coCoviseConfig::getFloat("height", str, 768);
-            if (w > 1.0)
-                vp.viewportXMax = vp.viewportXMin + (w / ((float)(windows[vp.window].sx)));
-            else
-                vp.viewportXMax = vp.viewportXMin + w;
-            if (h > 1.0)
-                vp.viewportYMax = vp.viewportYMin + (h / ((float)(windows[vp.window].sy)));
-            else
-                vp.viewportYMax = vp.viewportYMin + h;
+            if (vp.window >= 0)
+            {
+                if (w > 1.0)
+                    vp.viewportXMax = vp.viewportXMin + (w / ((float)(windows[vp.window].sx)));
+                else
+                    vp.viewportXMax = vp.viewportXMin + w;
+                if (h > 1.0)
+                    vp.viewportYMax = vp.viewportYMin + (h / ((float)(windows[vp.window].sy)));
+                else
+                    vp.viewportYMax = vp.viewportYMin + h;
+            }
         }
         else
         {
-            if (vp.viewportXMax > 1.0)
-                vp.viewportXMax = vp.viewportXMax / ((float)(windows[vp.window].sx));
-            if (vp.viewportYMax > 1.0)
-                vp.viewportYMax = vp.viewportYMax / ((float)(windows[vp.window].sy));
+            if (vp.window >= 0)
+            {
+                if (vp.viewportXMax > 1.0)
+                    vp.viewportXMax = vp.viewportXMax / ((float)(windows[vp.window].sx));
+                if (vp.viewportYMax > 1.0)
+                    vp.viewportYMax = vp.viewportYMax / ((float)(windows[vp.window].sy));
+            }
         }
 
         vp.sourceXMin = coCoviseConfig::getFloat("sourceLeft", str, 0);
         vp.sourceYMin = coCoviseConfig::getFloat("sourceBottom", str, 0);
 
+if (vp.PBOnum >= 0)
+{
         if (vp.sourceXMin > 1.0)
         {
             vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
@@ -459,6 +492,7 @@ coVRConfig::coVRConfig()
         {
             vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
         }
+}
 
         vp.sourceXMax = coCoviseConfig::getFloat("sourceRight", str, -1);
         vp.sourceYMax = coCoviseConfig::getFloat("sourceTop", str, -1);
@@ -467,21 +501,27 @@ coVRConfig::coVRConfig()
             float w,h;
             w = coCoviseConfig::getFloat("sourceWidth", str, 1.0);
             h = coCoviseConfig::getFloat("sourceHeight", str, 1.0);
-            if (w > 1.0)
-                vp.sourceXMax = vp.sourceXMin + (w / ((float)(PBOs[vp.PBOnum].PBOsx)));
-            else
-                vp.sourceXMax = vp.sourceXMin + w;
-            if (h > 1.0)
-                vp.sourceYMax = vp.sourceYMin + (h / ((float)(PBOs[vp.PBOnum].PBOsy)));
-            else
-                vp.sourceYMax = vp.sourceYMin + h;
+            if (vp.PBOnum >= 0)
+            {
+                if (w > 1.0)
+                    vp.sourceXMax = vp.sourceXMin + (w / ((float)(PBOs[vp.PBOnum].PBOsx)));
+                else
+                    vp.sourceXMax = vp.sourceXMin + w;
+                if (h > 1.0)
+                    vp.sourceYMax = vp.sourceYMin + (h / ((float)(PBOs[vp.PBOnum].PBOsy)));
+                else
+                    vp.sourceYMax = vp.sourceYMin + h;
+            }
         }
         else
         {
-            if (vp.sourceXMax > 1.0)
-                vp.sourceXMax = vp.sourceXMax / ((float)(PBOs[vp.PBOnum].PBOsx));
-            if (vp.sourceYMax > 1.0)
-                vp.sourceYMax = vp.sourceYMax / ((float)(PBOs[vp.PBOnum].PBOsy));
+            if (vp.PBOnum >= 0)
+            {
+                if (vp.sourceXMax > 1.0)
+                    vp.sourceXMax = vp.sourceXMax / ((float)(PBOs[vp.PBOnum].PBOsx));
+                if (vp.sourceYMax > 1.0)
+                    vp.sourceYMax = vp.sourceYMax / ((float)(PBOs[vp.PBOnum].PBOsy));
+            }
         }
         
         vp.distortMeshName = coCoviseConfig::getEntry("distortMesh", str, "");
@@ -489,7 +529,7 @@ coVRConfig::coVRConfig()
 
     }
     
-    for (int i = 0; i < m_numBlendingTextures; i++)
+    for (size_t i = 0; i < blendingTextures.size(); i++)
     {
         char str[200];
         sprintf(str, "COVER.BlendingTextureConfig.BlendingTexture:%d", i);
@@ -609,24 +649,24 @@ int coVRConfig::lockToCPU() const
 }
 int coVRConfig::numScreens() const
 {
-    return m_numScreens;
+    return screens.size();
 }
 int coVRConfig::numViewports() const
 {
-    return m_numViewports;
+    return viewports.size();
 }
 int coVRConfig::numBlendingTextures() const
 {
-    return m_numBlendingTextures;
+    return blendingTextures.size();
 }
 int coVRConfig::numChannels() const
 {
-    return m_numChannels;
+    return channels.size();
 }
 
 int coVRConfig::numWindows() const
 {
-    return m_numWindows;
+    return windows.size();
 }
 
 bool coVRConfig::frozen() const
