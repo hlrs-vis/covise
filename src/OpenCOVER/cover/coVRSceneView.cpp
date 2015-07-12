@@ -47,7 +47,7 @@ coVRSceneView::coVRSceneView(DisplaySettings *ds, int c)
     : osgUtil::SceneView(ds)
 {
     setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
-    channel = c;
+    screen = coVRConfig::instance()->channels[c].screenNum;
 }
 
 coVRSceneView::~coVRSceneView()
@@ -76,7 +76,7 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
     invRot.invert(rotonly);
     nmv = (*(mv.get()) * invRot) * cover->invEnvCorrectMat;
     npm = cover->envCorrectMat * rotonly * *(proj.get());
-    if (coVRConfig::instance()->screens[channel].render == false)
+    if (coVRConfig::instance()->screens[screen].render == false)
         return false;
     bool retval = SceneView::cullStage(npm, nmv, cullVisitor, rendergraph, renderStage, viewport);
 
