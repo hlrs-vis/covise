@@ -44,7 +44,7 @@ namespace opencover
 {
 
 //! describes a physical screen, such as one wall of a CAVE
-typedef struct
+struct screenStruct
 {
     float hsize; // horizontal size in mm
     float vsize; // vertical size in mm
@@ -56,7 +56,20 @@ typedef struct
     float rTan;
     float tTan;
     float bTan;
-} screenStruct;
+
+    screenStruct()
+    : hsize(0)
+    , vsize(0)
+    , xyz(0, 0, 0)
+    , hpr(0, 0, 0)
+    , name("UninitializedScreen")
+    , render(false)
+    , lTan(-1)
+    , rTan(-1)
+    , tTan(-1)
+    , bTan(-1)
+    {}
+};
 
 //! describes a render Channel which renders to a PBO or viewport
 struct channelStruct

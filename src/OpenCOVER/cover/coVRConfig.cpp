@@ -482,17 +482,17 @@ coVRConfig::coVRConfig()
         vp.sourceXMin = coCoviseConfig::getFloat("sourceLeft", str, 0);
         vp.sourceYMin = coCoviseConfig::getFloat("sourceBottom", str, 0);
 
-if (vp.PBOnum >= 0)
-{
-        if (vp.sourceXMin > 1.0)
+        if (vp.PBOnum >= 0)
         {
-            vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
+            if (vp.sourceXMin > 1.0)
+            {
+                vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
+            }
+            if (vp.sourceYMin > 1.0)
+            {
+                vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
+            }
         }
-        if (vp.sourceYMin > 1.0)
-        {
-            vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
-        }
-}
 
         vp.sourceXMax = coCoviseConfig::getFloat("sourceRight", str, -1);
         vp.sourceYMax = coCoviseConfig::getFloat("sourceTop", str, -1);
