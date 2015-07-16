@@ -276,9 +276,9 @@ bool ALVARPlugin::init()
                 }
 
                 // Display capture plugins
-                //std::cout << "Available Plugins: ";
-                //outputEnumeratedPlugins(plugins);
-                //std::cout << std::endl;
+                std::cout << "Available Plugins: ";
+                outputEnumeratedPlugins(plugins);
+                std::cout << std::endl;
 
                 // Enumerate possible capture devices
                 alvar::CaptureFactory::CaptureDeviceVector devices = alvar::CaptureFactory::instance()->enumerateDevices();
