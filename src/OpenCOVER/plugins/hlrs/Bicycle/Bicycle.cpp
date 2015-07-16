@@ -654,8 +654,8 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
     cover->getObjectsXform()->accept(visitor);
     int num1 = visitor.getNumHits(ray1.get());
     int num2 = visitor.getNumHits(ray2.get());
-    fprintf(stderr, "num1%d\n", num1);
-    fprintf(stderr, "num2%d\n", num2);
+    //fprintf(stderr, "num1%d\n", num1);
+    //fprintf(stderr, "num2%d\n", num2);
     if (num1 || num2)
     {
         osgUtil::Hit hitInformation1;
@@ -769,7 +769,7 @@ void VrmlNodeBicycle::moveToStreet(osg::Matrix &carTrans)
 	       s+=0.5;
 #endif
                     BicyclePlugin::plugin->tacx->setForce(f);
-                    cerr << "Slope: " << s << ", Force: " << f << endl;
+                    //cerr << "Slope: " << s << ", Force: " << f << endl;
                 }
             }
             //cerr <<" carNormal: " << carNormal[0]  << " "<< carNormal[1] << " "<< carNormal[2] << endl;

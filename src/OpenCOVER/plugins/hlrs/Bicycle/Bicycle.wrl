@@ -3086,7 +3086,8 @@ DEF Lenkrad Transform {
 
 DEF BI Bicycle
 {
-bikeTranslation 3163.343994 309.431427 -1431.509644
+bikeTranslation 3028.822021 307.398590 -1518.175537
+#bikeTranslation 3163.343994 309.431427 -1431.509644
 }
 
 DEF Sw SteeringWheel
@@ -3170,35 +3171,78 @@ DEF HS Highscore {
 }
 
 DEF ProxSensorStart Transform {
-translation 3021.57 0.005 -1497.97
+translation 2826.77 301.491 -1010.37
+rotation 0 1 0 -0.523599
+scale 2.08551 1.67965 6.90119
 children [
 DEF ProxSensorStart ProximitySensor {
 enabled TRUE
-center 0 500 0
-size 30.7156 1000 19.3777
+center 0 1.99606 0
+size 6.39648 3.99212 2.52637
 }
 ]
 }
 DEF ProxSensorFinish Transform {
-translation 2198.04 0.005 3040.85
+translation 2196.51 400.639 3059.99
+rotation 0 1 0 -0.785398
 children [
 DEF ProxSensorFinish ProximitySensor {
 enabled TRUE
-center 0 500 0
-size 56.2883 1000 62.5813
+center 0 2.48764 0
+size 7.99219 4.97528 17.209
 }
 ]
 }
 DEF ProxSensorLap Transform {
-translation 3038.12 0.005 306.827
+translation 2820.25 385.653 1278.31
+rotation 0 1 0 -0.785398
 children [
 DEF ProxSensorLap ProximitySensor {
 enabled TRUE
-center 0 500 0
-size 78.3376 1000 66.54
+center 0 8.19408 0
+size 41.3242 16.3882 18.1416
 }
 ]
 }
+
+#StartArch
+Group {
+  children [
+    Transform {
+    translation 2859.82 303.608 -988.471
+    rotation 0 -1 0 -2.61799
+      children [
+         Inline { url "singleArch.wrl" }
+      ]
+    }
+  ]
+}
+#LapArch
+Group {
+  children [
+    Transform {
+    translation 3075.49 375.427 644.331
+    rotation 0 -1 0 -3.22886
+      children [
+         Inline { url "singleArch.wrl" }
+      ]
+    }
+  ]
+}
+#FinishArch
+Group {
+  children [
+    Transform {
+      translation 2222.89 402.181 3089.01
+      rotation 0 -1 0 -2.35619
+      children [
+         Inline { url "singleArch.wrl" }
+      ]
+    }
+  ]
+}
+
+
 ROUTE ProxSensorStart.enterTime TO HS.startTime
 ROUTE ProxSensorFinish.enterTime TO HS.startTime
 ROUTE ProxSensorLap.enterTime TO HS.interimTime
