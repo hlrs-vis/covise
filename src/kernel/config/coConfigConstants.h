@@ -34,6 +34,8 @@ public:
     static const QString &getBackend();
 
     static void setBackend(const QString &backend);
+    static void setRank(int rank);
+    static int getRank();
 
 protected:
     coConfigConstants();
@@ -43,6 +45,7 @@ private:
     QString backend;
     QString hostname;
     QStringList archlist;
+    int rank;
 
     static coConfigConstants *instance;
 
@@ -50,7 +53,7 @@ private:
     void terminateXerces();
 };
 
-class CONFIGEXPORT coConfigDefaultPaths : protected coConfigConstants
+class CONFIGEXPORT coConfigDefaultPaths
 {
 
 private:
