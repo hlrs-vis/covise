@@ -51,7 +51,7 @@ TraceModule::TraceModule(int ID, const char *n, int mInst, const char *fi, ARTra
 {
     inter = in;
     startpointOffset1.set(0, 0, 0.1);
-    startpointOffset2.set(0, 0, 1.1);
+    startpointOffset2.set(0, 0, 100.1);
     startnormal.set(1, 0, 0);
     startnormal2.set(0, 1, 0);
     lastPosition1.set(0, 0, 0);
@@ -118,7 +118,7 @@ TraceModule::TraceModule(int ID, const char *n, int mInst, const char *fi, ARTra
     p2Z->setEventListener(this);
 
     updateOnVisibilityChange->setState(false);
-    updateInterval->setValue(1.0);
+    updateInterval->setValue(0.4);
     p1X->setValue(0.0f);
     p1Y->setValue(0.0f);
     p1Z->setValue(0.1f);

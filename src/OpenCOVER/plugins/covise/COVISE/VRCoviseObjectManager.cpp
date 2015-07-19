@@ -1630,7 +1630,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 }
             }
 
-            if (geometry->getAttribute("DEPTH_ONLY"))
+            attr = geometry->getAttribute("DEPTH_ONLY");
+            if (!attr)
+                attr = container->getAttribute("DEPTH_ONLY");
+            if (attr)
             {
                 osg::StateSet *stateset;
                 stateset = newNode->getOrCreateStateSet();
@@ -1648,8 +1651,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 stateset->setAttributeAndModes(po, osg::StateAttribute::ON);
             }
             const char *shaderName = geometry->getAttribute("SHADER");
-            if (texture != NULL)
+            if (texture != NULL && !shaderName)
                 shaderName = texture->getAttribute("SHADER");
+            if (!shaderName)
+                shaderName = container->getAttribute("SHADER");
             if (shaderName)
             {
                 coVRShader *shader = coVRShaderList::instance()->get(shaderName);

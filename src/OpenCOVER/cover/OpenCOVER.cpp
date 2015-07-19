@@ -164,7 +164,11 @@ OpenCOVER::OpenCOVER(HWND pw)
 }
 #else
 OpenCOVER::OpenCOVER(int pw)
+    : m_visPlugin(NULL)
+    , m_forceMpi(false)
 {
+    initCudaGlInterop();
+
     parentWindow = pw;
 }
 #endif

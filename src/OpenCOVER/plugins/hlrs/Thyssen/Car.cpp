@@ -43,6 +43,7 @@ VrmlNodeType *VrmlNodeCar::defineType(VrmlNodeType *t)
     t->addExposedField("carNumber", VrmlField::SFINT32);
     t->addExposedField("carPos", VrmlField::SFVEC3F);
     t->addExposedField("stationList", VrmlField::MFINT32);
+    t->addExposedField("stationOpenTime", VrmlField::MFFLOAT);
     t->addExposedField("currentStationIndex", VrmlField::SFINT32);
     t->addEventOut("carDoorClose", VrmlField::SFTIME);
     t->addEventOut("carDoorOpen", VrmlField::SFTIME);
@@ -152,6 +153,8 @@ void VrmlNodeCar::setField(const char *fieldName,
     else if
     TRY_FIELD(stationList, MFInt)
     else if
+    TRY_FIELD(stationOpenTime, MFFloat)
+    else if
     TRY_FIELD(currentStationIndex, SFInt)
     else
     VrmlNodeChild::setField(fieldName, fieldValue);
@@ -171,6 +174,8 @@ const VrmlField *VrmlNodeCar::getField(const char *fieldName)
         return &d_carRotation;
     else if (strcmp(fieldName, "stationList") == 0)
         return &d_stationList;
+    else if (strcmp(fieldName, "stationOpenTime") == 0)
+        return &d_stationOpenTime;
     else if (strcmp(fieldName, "currentStationIndex") == 0)
         return &d_currentStationIndex;
     else
@@ -360,7 +365,12 @@ void VrmlNodeCar::update()
     }
     else if(state == DoorOpen)
     {
-        if((cover->frameTime() - timeoutStart) > d_doorTimeout.get() )
+        float doorOpenTime = d_doorTimeout.get();
+        if(d_stationOpenTime.size() > d_currentStationIndex.get() && d_stationOpenTime[d_currentStationIndex.get()]>0)
+        {
+            doorOpenTime = d_stationOpenTime[d_currentStationIndex.get()];
+        }
+        if((cover->frameTime() - timeoutStart) > doorOpenTime )
         {
             timeoutStart = cover->frameTime();
             d_carDoorClose = System::the->time();

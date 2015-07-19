@@ -58,7 +58,7 @@ protected:
     virtual bool cullStage(const osg::Matrixd &projection, const osg::Matrixd &modelview, osgUtil::CullVisitor *cullVisitor,
                            osgUtil::StateGraph *stategraph, osgUtil::RenderStage *renderStage,
                            osg::Viewport *viewport);
-    int channel;
+    int screen;
 };
 }
 #endif

@@ -20,19 +20,19 @@ class QRegExp;
 namespace covise
 {
 
-class CONFIGEXPORT coConfigEntryString : public QString, private coConfigConstants
+class CONFIGEXPORT coConfigEntryString : public QString
 {
 
 public:
     coConfigEntryString(const QString &string = QString::null,
-                        const ConfigScope scope = Default,
+                        const coConfigConstants::ConfigScope scope = coConfigConstants::Default,
                         const QString &configName = "",
                         bool isListItem = false);
 
     virtual ~coConfigEntryString();
 
-    ConfigScope getConfigScope() const;
-    coConfigEntryString &setConfigScope(ConfigScope scope);
+    coConfigConstants::ConfigScope getConfigScope() const;
+    coConfigEntryString &setConfigScope(coConfigConstants::ConfigScope scope);
 
     const QString &getConfigName() const;
     coConfigEntryString &setConfigName(const QString &name);
@@ -46,7 +46,7 @@ public:
 private:
     QString configName;
     QString configGroupName;
-    ConfigScope configScope;
+    coConfigConstants::ConfigScope configScope;
     bool listItem;
 };
 

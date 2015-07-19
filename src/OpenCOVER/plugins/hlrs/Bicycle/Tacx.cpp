@@ -208,13 +208,13 @@ void Tacx::update()
         int status = udp->receive(&vrdata, 64);
         if (status == 64)
         {
-            fprintf(stderr, "\r");
+/*            fprintf(stderr, "\r");
             fprintf(stderr, "Tasten: %1d ", vrdata.tasten);
             fprintf(stderr, "Lenkwinkel: %6d ", vrdata.Lenkwinkel);
             fprintf(stderr, "Drehzahl: %6d ", vrdata.drehzahl);
             fprintf(stderr, "Drehzahl: %6f ", getSpeed());
             fprintf(stderr, "Angle: %6f ", getAngle());
-            fprintf(stderr, "Trittfrequenz: %6d ", vrdata.trittfrequenz);
+            fprintf(stderr, "Trittfrequenz: %6d ", vrdata.trittfrequenz);*/
             //fprintf(stderr,"ti: %1d ",vrdata.trittfreqenzimpuls);
             /*	unsigned char *tmpc = (unsigned char *)&vrdata;
 		int i;
@@ -296,13 +296,13 @@ void Tacx::update()
             }
             else
             {
-                fprintf(stderr, "\r");
+/*                fprintf(stderr, "\r");
                 fprintf(stderr, "Tasten: %1d ", vrdata.tasten);
                 fprintf(stderr, "Lenkwinkel: %6d ", vrdata.Lenkwinkel);
                 fprintf(stderr, "Drehzahl: %6d ", vrdata.drehzahl);
                 fprintf(stderr, "Drehzahl: %6f ", getSpeed());
                 fprintf(stderr, "Angle: %6f ", getAngle());
-                fprintf(stderr, "Trittfrequenz: %6d ", vrdata.trittfrequenz);
+                fprintf(stderr, "Trittfrequenz: %6d ", vrdata.trittfrequenz);*/
                 //fprintf(stderr,"ti: %1d ",vrdata.trittfreqenzimpuls);
                 /*	unsigned char *tmpc = (unsigned char *)&vrdata;
 		int i;
@@ -335,6 +335,11 @@ void Tacx::update()
         }
     }
 }
+
+float Tacx::getRPM()
+{
+       return vrdata.drehzahl;
+} 
 
 float Tacx::getAngle()
 {

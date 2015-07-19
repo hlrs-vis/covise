@@ -55,6 +55,7 @@
 
 using namespace covise;
 
+bool flightgearReset=false;
 int s, rc, n, len;
 struct sockaddr_in cliAddr, servAddr;
 char puffer[BUF];
@@ -328,44 +329,123 @@ char BicyclePlugin::readps2(int fd)
 
 void VrmlNodeBicycle::render(Viewer *)
 {
+    
     double dT = cover->frameDuration();
     float wheelBase = 0.98;
     float v = BicyclePlugin::plugin->speed; //*0.06222222;
     //fprintf(stderr,"speed: %f", v);
-
-    float s = v * dT;
-    osg::Vec3 V(0, 0, -s);
-
-    float rotAngle = 0.0;
-    //if((vehicleParameters->getWheelAngle()>-0.0001 && vehicleParameters->getWheelAngle()><0.0001 )|| (s < 0.0001 && s > -0.0001)) // straight
-    if ((s < 0.0001 && s > -0.0001)) // straight
+    if (BicyclePlugin::plugin->isPlane)
+    { 
+	osg::Quat::value_type orient[4];
+        osg::Vec3d newPos;
+    if (BicyclePlugin::plugin->flightgear)
     {
+	int buttonState = 0;
+	buttonState = BicyclePlugin::plugin->tacx->getButtons();
+
+	if (flightgearReset)   //buttonState)
+	{
+	    osg::Vec3d referenceCoordSys(0,1,0); 
+	    osg::Vec3d zeroPosition(BicyclePlugin::plugin->flightgear->getPosition());
+	    double EarthRadius=zeroPosition.normalize();
+	    osg::Vec3d rotationAxis(zeroPosition^referenceCoordSys);
+	    osg::Quat fgRot;			
+	    double rotationAngle((zeroPosition*referenceCoordSys)); 
+	    //fprintf(stderr, "\r");
+	    /*for (unsigned i = 0; i < 3; ++i)
+            fprintf(stderr, "Ax: %6f ", rotationAxis[i]);
+	    fprintf(stderr, "An: %6f ", rotationAngle);*/
+	    fgPlaneRot.makeRotate(acos(rotationAngle),rotationAxis);
+	    flightgearReset=false;
+	    fgPlaneZeroPos=fgPlaneRot.preMult(osg::Vec3d(BicyclePlugin::plugin->flightgear->getPosition())); 
+	} 
+	osg::Vec3d currentPosition(BicyclePlugin::plugin->flightgear->getPosition());
+	newPos = fgPlaneRot.preMult(currentPosition)-fgPlaneZeroPos;
+
+/*	fprintf(stderr, "\r");
+	for (unsigned i = 0; i < 3; ++i)
+	fprintf(stderr, "CurrPos: %6f ", newPos[i]);*/
+
+	osg::Vec3d currentOrientation(BicyclePlugin::plugin->flightgear->getOrientation());
+	osg::Vec3d newOrientation = currentOrientation;
+	newOrientation.normalize();
+	osg::Matrix planeOrientationMatrix;
+	planeOrientationMatrix.makeRotate(currentOrientation.length(),newOrientation);
+
+	osg::Matrix viewcorrectionMatrix;
+	viewcorrectionMatrix.makeRotate(M_PI/3*2,osg::Vec3d(-1,-1,1));
+
+	planeOrientationMatrix.postMult(fgPlaneRot);
+	planeOrientationMatrix.preMult(viewcorrectionMatrix);
+
+	osg::Quat q=planeOrientationMatrix.getRotate();
+	q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+/*	fprintf(stderr, "\r");
+	for (unsigned i = 0; i < 3; ++i)
+	fprintf(stderr, "Pos: %6f ", newPos[i]);*/
+
+
+	//     double timeStamp = System::the->time();
+
+	// eventOut(timeStamp, "bikeTranslation", d_bikeTranslation);
+	//  eventOut(timeStamp, "bikeRotation", d_bikeRotation);
+    }
+    
+    
+           
+    if (coVRMSController::instance()->isMaster())
+    {
+        coVRMSController::instance()->sendSlaves((char *)newPos.ptr(), 3*sizeof(newPos[0]));
+        coVRMSController::instance()->sendSlaves((char *)orient, 4*sizeof(orient[0]));
     }
     else
     {
-        //float r = tan(M_PI_2-vehicleParameters->getWheelAngle()) * wheelBase;
-        float r = tan(M_PI_2 - BicyclePlugin::plugin->angle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
-        float u = 2.0 * r * M_PI;
-        rotAngle = (s / u) * 2.0 * M_PI;
-        V[2] = -r * sin(rotAngle);
-        V[0] = r - r * cos(rotAngle);
+        coVRMSController::instance()->readMaster((char *)newPos.ptr(), 3*sizeof(newPos[0]));
+        coVRMSController::instance()->readMaster((char *)orient, 4*sizeof(orient[0]));
     }
+    
+        d_bikeTranslation.set(newPos[0]+2595,newPos[1]+300,newPos[2]-50);
+        d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]); 
+}
+    
+    else
+    {
+	float s = v * dT;
+	osg::Vec3 V(0, 0, -s);
 
-    osg::Matrix relTrans;
-    osg::Matrix relRot;
-    relRot.makeRotate(rotAngle, 0, 1, 0);
-    relTrans.makeTranslate(V);
-    bikeTrans = relRot * relTrans * bikeTrans;
-    moveToStreet();
+	float rotAngle = 0.0;
+	//if((vehicleParameters->getWheelAngle()>-0.0001 && vehicleParameters->getWheelAngle()><0.0001 )|| (s < 0.0001 && s > -0.0001)) // straight
+	if ((s < 0.0001 && s > -0.0001)) // straight
+	{
+	}
+	else
+	{
+	    //float r = tan(M_PI_2-vehicleParameters->getWheelAngle()) * wheelBase;
+	    float r = tan(M_PI_2 - BicyclePlugin::plugin->angle * 0.2 / (((v * 0.2) + 1))) * wheelBase;
+	    float u = 2.0 * r * M_PI;
+	    rotAngle = (s / u) * 2.0 * M_PI;
+	    V[2] = -r * sin(rotAngle);
+	    V[0] = r - r * cos(rotAngle);
+	}
 
-    osg::Quat q;
-    q.set(bikeTrans);
-    osg::Quat::value_type orient[4];
-    q.getRotate(orient[3], orient[0], orient[1], orient[2]);
-    d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
-    d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
+	osg::Matrix relTrans;
+	osg::Matrix relRot;
+	relRot.makeRotate(rotAngle, 0, 1, 0);
+	relTrans.makeTranslate(V);
+	bikeTrans = relRot * relTrans * bikeTrans;
+	
+        moveToStreet();
+	
+
+	osg::Quat q;
+	q.set(bikeTrans);
+	osg::Quat::value_type orient[4];
+	q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+	d_bikeTranslation.set(bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2));
+	d_bikeRotation.set(orient[0], orient[1], orient[2], orient[3]);
+    }
     double timeStamp = System::the->time();
-
+    
     int buttonState = 0;
     if (coVRMSController::instance()->isMaster())
     {
@@ -478,7 +558,17 @@ counters[1]=0;
  */
     if (coVRMSController::instance()->isMaster())
     {
-        if (tacx != NULL)
+        if (tacx != NULL && flightgear != NULL)
+        {
+            float f= 0;
+            float propellerforce=0.5; //set to constant value for now, to be update from flight dynamics model
+            f += propellerforce * BicyclePlugin::plugin->forceFactor->getValue();
+	    angle = tacx->getAngle() * 2.0;
+            speed = tacx->getSpeed() * velocityFactor->getValue();
+	    power = tacx->getRPM()*0.5*velocityFactor->getValue();//*f;
+            BicyclePlugin::plugin->tacx->setForce(f);
+        }
+        else if (tacx != NULL)
         {
             angle = tacx->getAngle() * 2.0;
             speed = tacx->getSpeed() * velocityFactor->getValue();
@@ -706,16 +796,28 @@ bool BicyclePlugin::init()
     if (plugin)
         return false;
     plugin = this;
+    flightgear = NULL;
+    tacx = NULL;
+
+    isPlane=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.FlightGear",false));
+
     if (coVRMSController::instance()->isMaster())
     {
 
         tacx = new Tacx();
+        if (isPlane)
+        {
+	flightgear = new FlightGear(this);
+        flightgear->start(); 
+	}
         start();
     }
     else
     {
         tacx = NULL;
     }
+
+
 
     angleCounter = 0;
     angle = 0;
@@ -939,8 +1041,15 @@ BicyclePlugin::run()
     while (running)
     {
         usleep(5000);
-        tacx->update();
-    }
+        if (tacx)
+	{
+	    tacx->update();
+	}
+       /* if (flightgear)
+	{
+            flightgear->update();
+	}*/
+    } 
 }
 void
 BicyclePlugin::preFrame()
@@ -951,8 +1060,21 @@ BicyclePlugin::preFrame()
     UpdateInputState();
 }
 
-void BicyclePlugin::key(int /*type*/, int /*keySym*/, int /*mod*/)
+void BicyclePlugin::key(int type, int keySym, int mod)
 {
+/*    fprintf(stderr, "type: %d \n ", type);
+    fprintf(stderr, "keySym: %d \n ", keySym);
+    fprintf(stderr, "mod: %d \n " , mod);*/
+    if(type == 32) 
+    {
+	switch(keySym)
+	{
+	    case 114:
+		flightgearReset=true;
+		break;
+	}
+}
+
     /*
    Keyboard* keyb = dynamic_cast<Keyboard*>(BicyclePlugin::plugin->sitzkiste);
    if(keyb != NULL) {
