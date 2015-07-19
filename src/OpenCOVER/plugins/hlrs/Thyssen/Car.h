@@ -106,6 +106,7 @@ public:
     VrmlSFFloat d_doorTimeout;
     VrmlSFRotation d_carRotation;
     VrmlMFInt d_stationList;
+    VrmlMFFloat d_stationOpenTime;
     VrmlSFInt d_currentStationIndex;
 
 
