@@ -10,12 +10,14 @@ SET(HEADERS
   AVRserialcom.h
   Tacx.h
   Bicycle.h
+  FlightGear.h
   ../../drivingsim/SteeringWheel/UDPComm.h
 )
 SET(SOURCES
   AVRserialcom.cpp
   Tacx.cpp
   Bicycle.cpp
+  FlightGear.cpp
   ../../drivingsim/SteeringWheel/UDPComm.cpp
 )
 include_directories("../../drivingsim/SteeringWheel")

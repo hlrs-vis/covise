@@ -44,7 +44,7 @@ namespace opencover
 {
 
 //! describes a physical screen, such as one wall of a CAVE
-typedef struct
+struct screenStruct
 {
     float hsize; // horizontal size in mm
     float vsize; // vertical size in mm
@@ -56,10 +56,23 @@ typedef struct
     float rTan;
     float tTan;
     float bTan;
-} screenStruct;
+
+    screenStruct()
+    : hsize(0)
+    , vsize(0)
+    , xyz(0, 0, 0)
+    , hpr(0, 0, 0)
+    , name("UninitializedScreen")
+    , render(false)
+    , lTan(-1)
+    , rTan(-1)
+    , tTan(-1)
+    , bTan(-1)
+    {}
+};
 
 //! describes a render Channel which renders to a PBO or viewport
-typedef struct
+struct channelStruct
 {
     std::string name;
     
@@ -73,15 +86,29 @@ typedef struct
     int stereoMode;
     osg::Matrixd leftView, rightView;
     osg::Matrixd leftProj, rightProj;
-} channelStruct;
+
+    channelStruct()
+    : name("UninitializedChannel")
+    , PBONum(-1)
+    , viewportNum(-1)
+    , screenNum(-1)
+    , ds(NULL)
+    {}
+};
 
 //! describes a PBO
-typedef struct
+struct PBOStruct
 {
     int PBOsx, PBOsy; // PBO size
     int windowNum; // pipe to render to
     osg::ref_ptr<osg::Texture2D> renderTargetTexture;
-} PBOStruct;
+
+    PBOStruct()
+    : PBOsx(-1)
+    , PBOsy(-1)
+    , windowNum(-1)
+    {}
+};
 
 
 class COVEREXPORT angleStruct
@@ -96,7 +123,7 @@ public:
 };
 
 //! describes one window of the windowing system
-typedef struct
+struct windowStruct
 {
     int ox, oy;
     int sx, sy;
@@ -107,9 +134,23 @@ typedef struct
     bool resize;
     bool stereo;
     bool embedded;
-} windowStruct;
 
-typedef struct // describes an OpenGL Viewport
+    windowStruct()
+    : ox(-1)
+    , oy(-1)
+    , sx(-1)
+    , sy(-1)
+    , window(NULL)
+    , pipeNum(-1)
+    , name("UninitializedWindow")
+    , decoration(true)
+    , resize(true)
+    , stereo(false)
+    , embedded(false)
+    {}
+};
+
+struct viewportStruct // describes an OpenGL Viewport
 {  
     int window;
     int PBOnum;
@@ -125,9 +166,16 @@ typedef struct // describes an OpenGL Viewport
     
     std::string distortMeshName;
     std::string blendingTextureName;
-} viewportStruct;
 
-typedef struct // describes a blending Texture
+    viewportStruct()
+    : window(-1)
+    , PBOnum(-1)
+    , distortMeshName("NoDistortMesh")
+    , blendingTextureName("NoBlendingTexture")
+    {}
+};
+
+struct blendingTextureStruct // describes a blending Texture
 {  
     int window;
     float viewportXMin;
@@ -136,15 +184,25 @@ typedef struct // describes a blending Texture
     float viewportYMax;
     
     std::string blendingTextureName;
-} blendingTextureStruct;
+    
+    blendingTextureStruct()
+    : window(-1)
+    , blendingTextureName("UninitialzedBlendingTexture")
+    {}
+};
 
 //! describes what is responsible for rendering the  window
-typedef struct
+struct pipeStruct
 {
     int x11DisplayNum;
     int x11ScreenNum;
     //const char *display;
-} pipeStruct;
+
+    pipeStruct()
+    : x11DisplayNum(-1)
+    , x11ScreenNum(-1)
+    {}
+};
 
 class COVEREXPORT coVRConfig
 {
@@ -304,13 +362,13 @@ public:
     void setFrameRate(float fr);
     float frameRate() const;
     
-    screenStruct *screens; // list of physical screens
-    channelStruct *channels; // list of physical screens
-    PBOStruct *PBOs; // list of physical screens
-    pipeStruct *pipes; // list of pipes (X11: identified by display and screen)
-    windowStruct *windows; // list of windows
-    viewportStruct *viewports; // list of PixelBufferObjects
-    blendingTextureStruct *blendingTextures; // list of blendingTextures
+    std::vector<screenStruct> screens; // list of physical screens
+    std::vector<channelStruct> channels; // list of physical screens
+    std::vector<PBOStruct> PBOs; // list of physical screens
+    std::vector<pipeStruct> pipes; // list of pipes (X11: identified by display and screen)
+    std::vector<windowStruct> windows; // list of windows
+    std::vector<viewportStruct> viewports; // list of PixelBufferObjects
+    std::vector<blendingTextureStruct> blendingTextures; // list of blendingTextures
 
     bool useDisplayVariable() const
     {
@@ -354,6 +412,7 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
+#if 0
     int m_numWindows;
     int m_numViewports;
     int m_numBlendingTextures;
@@ -361,6 +420,7 @@ private:
     int m_numChannels;
     int m_numPBOs;
     int m_numPipes;
+#endif
     int m_stencilBits;
     float m_sceneSize;
 

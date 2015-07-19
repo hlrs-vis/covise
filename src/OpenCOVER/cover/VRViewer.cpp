@@ -863,15 +863,23 @@ VRViewer::createChannels(int i)
         return;
     }
     osg::ref_ptr<osgViewer::GraphicsWindow> gw = NULL;
-    if(coVRConfig::instance()->channels[i].viewportNum >= 0)
+    const int vp = coVRConfig::instance()->channels[i].viewportNum;
+    if (vp >= coVRConfig::instance()->numViewports())
     {
-        if (coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window >= coVRConfig::instance()->numWindows())
+        fprintf(stderr, "VRViewer:: error creating channel %d\n", i);
+        fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
+        return;
+    }
+    if(vp >= 0)
+    {
+        const int win = coVRConfig::instance()->viewports[vp].window;
+        if (win < 0 || win >= coVRConfig::instance()->numWindows())
         {
             fprintf(stderr, "VRViewer:: error creating channel %d\n", i);
-            fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window);
+            fprintf(stderr, "windowIndex %d is out of range (windows are counted starting from 0)\n", win);
             return;
         }
-        gw = coVRConfig::instance()->windows[coVRConfig::instance()->viewports[coVRConfig::instance()->channels[i].viewportNum].window].window;
+        gw = coVRConfig::instance()->windows[win].window;
     }
     else
     {

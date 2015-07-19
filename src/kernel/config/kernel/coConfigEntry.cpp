@@ -90,6 +90,17 @@ void coConfigEntry::entryChanged()
     notify();
 }
 
+bool coConfigEntry::matchingAttributes() const
+{
+    if (!matchingArch())
+        return false;
+
+    if (!matchingRank())
+        return false;
+
+    return true;
+}
+
 bool coConfigEntry::matchingArch() const
 {
     QString *arch = attributes["arch"];
@@ -101,6 +112,53 @@ bool coConfigEntry::matchingArch() const
     }
 
     return true;
+}
+
+bool coConfigEntry::matchingRank() const
+{
+    QString *rank = attributes["rank"];
+    if (!rank)
+        return true;
+
+    bool match = false;
+    QString r = rank->simplified();
+    QStringList ranges = r.split(",");
+    for (size_t i =0; i<ranges.size(); ++i)
+    {
+        QString range = ranges[i].simplified();
+        if (range == "-1" || range.toLower() == "all" || range.toLower() == "any")
+        {
+            match = true;
+        }
+        else if (range.contains("-"))
+        {
+            QStringList ext = range.split("-");
+            if (ext.size() != 2)
+            {
+                COCONFIGDBG("coConfigEntry::matchingRank info: cannot parse range of ranks " << range);
+            }
+            else if (coConfigConstants::getRank() < ext[0].toInt() || coConfigConstants::getRank() > ext[1].toInt())
+            {
+                COCONFIGDBG("coConfigEntry::matchingRank info: range of ranks " << range << " not matching");
+            }
+            else
+            {
+                match = true;
+            }
+        }
+        else
+        {
+            if (coConfigConstants::getRank() == range.toInt())
+                match = true;
+        }
+    }
+
+    if (!match)
+    {
+        COCONFIGDBG("coConfigEntry::matchingRank info: rank " << *rank << " not matching");
+    }
+
+    return match;
 }
 
 xercesc::DOMNode *coConfigXercesEntry::storeToDom(xercesc::DOMDocument &document, int indent)
@@ -214,11 +272,11 @@ coConfigEntry *coConfigXercesEntry::restoreFromDom(xercesc::DOMElement *node,
         QString configScope = QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getAttribute(scopeTag)));
         if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "GLOBAL")
         {
-            entry->configScope = Global;
+            entry->configScope = coConfigConstants::Global;
         }
         else if (QString::fromUtf16(reinterpret_cast<const ushort *>(scopeElement->getNodeName())).toUpper() == "LOCAL")
         {
-            entry->configScope = Host;
+            entry->configScope = coConfigConstants::Host;
         }
         else if (!configScope.isNull())
         {
@@ -389,7 +447,7 @@ coConfigEntryStringList coConfigEntry::getScopeList(QString scope)
 {
     coConfigEntryStringList list;
 
-    if (!matchingArch())
+    if (!matchingAttributes())
         return list;
 
     if (!scope.isNull())
@@ -451,7 +509,7 @@ coConfigEntryStringList coConfigEntry::getVariableList(QString scope)
     coConfigEntryStringList list;
     list.setListType(coConfigEntryStringList::VARIABLE);
 
-    if (!matchingArch())
+    if (!matchingAttributes())
         return list;
 
     if (!scope.isNull())
@@ -494,7 +552,7 @@ coConfigEntryStringList coConfigEntry::getVariableList(QString scope)
 
 coConfigEntryString coConfigEntry::getValue(const QString &variable, QString scope)
 {
-    if (!matchingArch())
+    if (!matchingAttributes())
     {
         return coConfigEntryString(QString::null);
     }
@@ -563,7 +621,7 @@ const char *coConfigEntry::getEntry(const char *variable)
     static size_t maxlen = 0;
     static char *entry = 0;
 
-    if (!matchingArch())
+    if (!matchingAttributes())
     {
         return 0;
     }
