@@ -171,7 +171,7 @@
 
                 </ARToolKit>
 
-                <ALVAR value="ON">
+                <ALVAR value="OFF">
                     <Capture value="on" />
                     <VideoDevice value="0" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
