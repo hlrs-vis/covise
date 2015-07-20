@@ -29,7 +29,7 @@
 		    <Marker name="ObjectMarker2" >
                         <Pattern value="7" />
                         <Size value="65" />
-                        <Offset x="65" y="0" z="0" h="90" p="0" r="0" />
+                        <Offset x="75" y="0" z="5" h="90" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Science Pub Bierglas kleiner Marker -->
@@ -60,6 +60,30 @@
                         <Size value="200" />
                         <Offset x="1390" y="490" z="700" h="-90" p="0" r="-90" />
                         <VrmlToPf value="TRUE" />
+                    </Marker>	
+		    <Marker name="ObjectMarker7" >
+                        <Pattern value="78" />
+                        <Size value="300" />
+                        <Offset x="1040" y="890" z="200" h="180" p="-2" r="-0.4" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+		    <Marker name="ObjectMarker8" >
+                        <Pattern value="72" />
+                        <Size value="300" />
+                        <Offset x="-155" y="0" z="-130" h="-90" p="-90" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+		    <Marker name="ObjectMarker9" >
+                        <Pattern value="36" />
+                        <Size value="300" />
+                        <Offset x="1040" y="-1120" z="-130" h="0" p="-90" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+		    <Marker name="ObjectMarker10" >
+                        <Pattern value="74" />
+                        <Size value="200" />
+                        <Offset x="4110" y="0" z="830" h="90" p="-74" r="0" />
+                        <VrmlToPf value="FALSE" />
                     </Marker>
 <!--
                     <Marker name="ObjectMarker0" >
@@ -136,7 +160,19 @@
                     </Marker>
 -->
                     <Marker name="Tracer1" >
-                        <Pattern value="16" />
+                        <Pattern value="73" />
+                        <Size value="100" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+                    <Marker name="Tracer2" >
+                        <Pattern value="73" />
+                        <Size value="100" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+                    <Marker name="Tracer3" >
+                        <Pattern value="73" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>

@@ -13,6 +13,7 @@
 #include <cover/coVRMSController.h>
 
 #include <config/coConfig.h>
+#include <config/coConfigConstants.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 
@@ -402,7 +403,7 @@ opencover::coVRDistributionManager::RenderNode::RenderNode(const std::string &na
         enabled.resize(coVRMSController::instance()->clusterSize());
     }
 
-    this->hostname = covise::coConfig::getInstance()->getHostname().toStdString();
+    this->hostname = covise::coConfigConstants::getHostname().toStdString();
 
     covise::coConfigString displaysConfig = covise::coConfig::getInstance()->getString("COVER.Parallel.Displays");
 

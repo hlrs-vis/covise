@@ -31,6 +31,7 @@
 #endif
 
 #include <config/CoviseConfig.h>
+#include <config/coConfigConstants.h>
 #include <cover/coCommandLine.h>
 
 #include <cover/OpenCOVER.h>
@@ -102,6 +103,14 @@ int main(int argc, char *argv[])
     signal(34, SIG_IGN);
     signal(13, SIG_IGN); // SIGPIPE //would be generated if you write to a closed socket
 #endif
+    covise::setupEnvironment(argc, argv);
+    opencover::coCommandLine(argc, argv);
+    int myID = 0;
+    if ((opencover::coCommandLine::argc() >= 5) && (!strcmp(opencover::coCommandLine::argv(1), "-c")))
+    {
+        myID = atoi(opencover::coCommandLine::argv(2));
+    }
+
     if (strcasestr(argv[0], ".mpi") != 0 || forceMpi)
     {
 #ifdef MPI_COVER
@@ -109,13 +118,13 @@ int main(int argc, char *argv[])
         if (!mpiinit)
             MPI_Init(&argc, &argv);
         forceMpi = true;
+        MPI_Comm_rank(MPI_COMM_WORLD, &myID);
 #else
         std::cerr << "OpenCOVER: not compiled with MPI support" << std::endl;
         exit(1);
 #endif
     }
-    covise::setupEnvironment(argc, argv);
-    opencover::coCommandLine(argc, argv);
+    covise::coConfigConstants::setRank(myID);
 
     if (!forceMpi)
     {
@@ -184,10 +193,6 @@ int main(int argc, char *argv[])
         }
     }
 
-#ifdef __APPLE__
-    MakeMeTheFrontProcess();
-#endif // __APPLE__
-
     if (argc > 1 && 0 == strcmp(argv[1], "-d"))
     {
 
@@ -219,6 +224,10 @@ int main(int argc, char *argv[])
              << "req" << '"' << endl;
         exit(EXIT_SUCCESS);
     }
+
+#ifdef __APPLE__
+    MakeMeTheFrontProcess();
+#endif // __APPLE__
 
 #ifdef _WIN32
     // note: console has to be allocated after possible handling of argument '-d',
@@ -259,7 +268,7 @@ int main(int argc, char *argv[])
 #ifdef MPI_COVER
     else
     {
-        int rank;
+        int rank = 0;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
         if (rank > 0)

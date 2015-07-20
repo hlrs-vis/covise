@@ -13,7 +13,7 @@
 using std::ostream;
 using namespace covise;
 
-coConfigEntryString::coConfigEntryString(const QString &string, const ConfigScope scope,
+coConfigEntryString::coConfigEntryString(const QString &string, const coConfigConstants::ConfigScope scope,
                                          const QString &configName, bool isListItem)
     : QString(string)
 {
@@ -32,9 +32,9 @@ coConfigConstants::ConfigScope coConfigEntryString::getConfigScope() const
     return configScope;
 }
 
-coConfigEntryString &coConfigEntryString::setConfigScope(ConfigScope scope)
+coConfigEntryString &coConfigEntryString::setConfigScope(coConfigConstants::ConfigScope scope)
 {
-    // if (scope == Default) {
+    // if (scope == coConfigConstants::Default) {
     //   std::cerr << "coConfigEntryString::setConfigScope warn: Setting default scope on " << *this << std::endl;
     // }
     configScope = scope;

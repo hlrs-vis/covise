@@ -8,6 +8,7 @@
 #include <util/common.h>
 
 #include <config/CoviseConfig.h>
+#include <config/coConfigConstants.h>
 #include <net/covise_connect.h>
 #include <net/covise_socket.h>
 #include <net/covise_host.h>
@@ -433,6 +434,11 @@ coVRMSController::coVRMSController(bool forceMpi, int AmyID, const char *addr, i
         }
         stats[0] = NULL;
     }
+
+    if (covise::coConfigConstants::getRank() != myID) {
+        std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
+    }
+    assert(covise::coConfigConstants::getRank() == myID);
 }
 
 coVRMSController::~coVRMSController()

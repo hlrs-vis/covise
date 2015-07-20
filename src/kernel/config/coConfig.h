@@ -26,7 +26,7 @@ EXPORT_TEMPLATE2(template class CONFIGEXPORT QHash<QString, covise::coConfigGrou
 namespace covise
 {
 
-class CONFIGEXPORT coConfig : public coConfigConstants
+class CONFIGEXPORT coConfig
 {
 
 public:
