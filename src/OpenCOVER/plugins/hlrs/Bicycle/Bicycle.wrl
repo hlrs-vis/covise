@@ -3171,7 +3171,7 @@ DEF HS Highscore {
 }
 
 DEF ProxSensorStart Transform {
-translation 2826.77 301.491 -1010.37
+translation 2828.46 301.491 -1007.15
 rotation 0 1 0 -0.523599
 scale 2.08551 1.67965 6.90119
 children [
@@ -3182,20 +3182,10 @@ size 6.39648 3.99212 2.52637
 }
 ]
 }
-DEF ProxSensorFinish Transform {
-translation 2196.51 400.639 3059.99
-rotation 0 1 0 -0.785398
-children [
-DEF ProxSensorFinish ProximitySensor {
-enabled TRUE
-center 0 2.48764 0
-size 7.99219 4.97528 17.209
-}
-]
-}
+
 DEF ProxSensorLap Transform {
-translation 2820.25 385.653 1278.31
-rotation 0 1 0 -0.785398
+translation 3029.88 376.044 644.67
+rotation 0 -1 0 -0.0872664
 children [
 DEF ProxSensorLap ProximitySensor {
 enabled TRUE
@@ -3205,38 +3195,55 @@ size 41.3242 16.3882 18.1416
 ]
 }
 
-#StartArch
+DEF ProxSensorFinish Transform {
+translation 2199.48 401.658 3049.31
+rotation 0 1 0 -2.00713
+children [
+DEF ProxSensorFinish ProximitySensor {
+enabled TRUE
+center 0 2.48764 0
+size 7.99219 4.97528 17.209
+}
+]
+}
+
+
+
 Group {
   children [
     Transform {
-    translation 2859.82 303.608 -988.471
-    rotation 0 -1 0 -2.61799
-      children [
-         Inline { url "singleArch.wrl" }
+      translation 2897.47 303.608 -939.215
+      rotation 0 -1 0 -2.61799
+      scale 2.37385 2.37385 2.37385
+         children [
+         Inline { url "/data/enbw/out/data/vrml/singleArchStart.wrl" }
       ]
     }
   ]
 }
-#LapArch
+
 Group {
   children [
     Transform {
-    translation 3075.49 375.427 644.331
-    rotation 0 -1 0 -3.22886
+translation 3112.06 375.427 654.784
+rotation 0 -1 0 -3.22886
+scale 2.03522 2.03522 2.03522
       children [
-         Inline { url "singleArch.wrl" }
+         Inline { url "/data/enbw/out/data/vrml/singleArchLap.wrl" }
       ]
     }
   ]
 }
-#FinishArch
+
 Group {
   children [
     Transform {
-      translation 2222.89 402.181 3089.01
-      rotation 0 -1 0 -2.35619
+translation 2291.19 402.181 3123.14
+rotation 0 -1 0 -2.70526
+scale 2.8963 2.8963 2.8963      
+
       children [
-         Inline { url "singleArch.wrl" }
+         Inline { url "/data/enbw/out/data/vrml/singleArchFinish.wrl" }
       ]
     }
   ]
