@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="Both" >config.isc15Common.xml</INCLUDE>
+ 
+ <LOCAL host="vishexa" >
+  <COVER>
+   <NumChannels value="2" />
+   <ChannelConfig>
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" windowIndex="0" viewportIndex="0" screenIndex="0" name="0" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="1" windowIndex="0" viewportIndex="1" screenIndex="0" name="1" />
+   </ChannelConfig>
+
+   <NumScreens value="1" />
+  <ScreenConfig>
+    <Screen width="1210" comment="FRONT" h="0.0" originX="-611" originZ="0" originY="0" height="1374" p="0.0" r="0.0" name="0" screen="0" />
+  </ScreenConfig>
+
+   <PipeConfig>
+    <Pipe server="0" screen="0" name="0" />
+   </PipeConfig>
+
+    </COVER>
+ </LOCAL>
+
+</COCONFIG>
