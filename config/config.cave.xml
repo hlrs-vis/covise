@@ -40,8 +40,18 @@
               <Offset x="0" y="-170" z="0" />
               <Orientation h="0" p="0" r="0" />
            </CaveHand>
-	   
 
+           <CaveCamera device="DTrackCave" bodyIndex="2">
+              <Offset x="0" y="120" z="-200" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveCamera>
+	   
+           <CaveGloves device="DTrackCave" bodyIndex="3">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveGloves>
+	   
+/*
            <CaveHead2 device="DTrackCave" bodyIndex="3">
               <Offset x="-105" y="-40" z="-50" />
               <Orientation h="0" p="0" r="0" />
@@ -51,7 +61,7 @@
               <Offset x="0" y="-170" z="0" />
               <Orientation h="0" p="0" r="0" />
            </CaveHand2>
-
+*/
            <TripodHead>
               <Offset x="0" y="-3000" z="0" />
            </TripodHead>
@@ -83,6 +93,7 @@
            <Person name="Tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
         </Persons>
      </Input>
    </COVER>
