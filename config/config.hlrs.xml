@@ -233,7 +233,6 @@
   <System>
 
     <CRB>
-    <DebugCommand value="ddd --args" /> 
 
     <Proxy>
      <ProxyCommand value="ssh uw_te@visit crb" />
