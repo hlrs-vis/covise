@@ -62,7 +62,7 @@ WritePolygon::WritePolygon(int argc, char *argv[])
 	p_fileFormat = addChoiceParam("type","File type");
     
     const char *formatChoices[] = { "Vrml97", "stl" , "stl_triangles"};
-    p_fileFormat->setValue(2, formatChoices, 0);
+    p_fileFormat->setValue(3, formatChoices, 0);
 
     p_newFile = addBooleanParam("new", "Create new file");
 	p_newFile->setInfo("Truncate file or append to existing file");
