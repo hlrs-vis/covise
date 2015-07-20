@@ -100,7 +100,7 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
 
     //color =  color * Diffuse;
     //color = clamp( color, 0.0, 1.0 );
-    gl_FrontColor = color * Diffuse + Specular;
+    gl_FrontColor = gl_FrontMaterial.diffuse * Diffuse + Specular;
     normal   = gl_NormalMatrix * gl_Normal;
 
     gl_FrontColor.a *= alphaFade;
