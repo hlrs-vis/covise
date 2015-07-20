@@ -29,6 +29,7 @@
 #include "WritePolygon.h"
 #include <ctype.h>
 #include <util/coviseCompat.h>
+#include <util/coVector.h>
 #include <do/coDoTriangleStrips.h>
 #include <do/coDoGeometry.h>
 #include <do/coDoData.h>
@@ -863,7 +864,15 @@ WritePolygon::writeSTLObj(const char *offset, const coDistributedObject *new_dat
         {
             for (int p = 0; p < numE; p++) // loop over all polygons
             {
-                fprintf(file, "facet normal 0 0 0\n");
+                
+                coVector a(v[0][cl[el[p]]],v[1][cl[el[p]]],v[2][cl[el[p]]]);
+                coVector b(v[0][cl[el[p]+1]],v[1][cl[el[p]+1]],v[2][cl[el[p]+1]]);
+                coVector c(v[0][cl[el[p]+2]],v[1][cl[el[p]+2]],v[2][cl[el[p]+2]]);
+                coVector ba = b-a;
+                coVector ca = c-a;
+                coVector n = ba.cross(ca);
+                n.normalize();
+                fprintf(file, "facet normal %f %f %f\n",n[0],n[1],n[2]);
                 fprintf(file, "outer loop\n");
                 int numv;
                 if(p == numE-1)
@@ -884,8 +893,13 @@ WritePolygon::writeSTLObj(const char *offset, const coDistributedObject *new_dat
         {
             for (int p = 0; p < numE; p++) // loop over all polygons
             {
-                fprintf(file, "facet normal 0 0 0\n");
-                fprintf(file, "outer loop\n");
+                coVector a(v[0][cl[el[p]]],v[1][cl[el[p]]],v[2][cl[el[p]]]);
+                coVector b(v[0][cl[el[p]+1]],v[1][cl[el[p]+1]],v[2][cl[el[p]+1]]);
+                coVector c(v[0][cl[el[p]+2]],v[1][cl[el[p]+2]],v[2][cl[el[p]+2]]);
+                coVector ba = b-a;
+                coVector ca = c-a;
+                coVector n = ba.cross(ca);
+                n.normalize();
                 int numv;
                 if(p == numE-1)
                 {
@@ -893,14 +907,17 @@ WritePolygon::writeSTLObj(const char *offset, const coDistributedObject *new_dat
                 }
                 else
                     numv = el[p+1] - el[p];
-                for (int j = 0; j < numv-2; j++)
+                for (int j = 1; j < numv-1; j++)
                 {
+                    fprintf(file, "facet normal %f %f %f\n",n[0],n[1],n[2]);
+                    fprintf(file, "outer loop\n");
                     fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]]],v[1][cl[el[p]]],v[2][cl[el[p]]]);
                     fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]+j]],v[1][cl[el[p]+j]],v[2][cl[el[p]+j]]);
                     fprintf(file, "vertex %f %f %f\n", v[0][cl[el[p]+j+1]],v[1][cl[el[p]+j+1]],v[2][cl[el[p]+j+1]]);
+
+                    fprintf(file, "endloop\n");
+                    fprintf(file, "endfacet\n");
                 }
-                fprintf(file, "endloop\n");
-                fprintf(file, "endfacet\n");
             }
         }
         fprintf(file, "endsolid %s\n",obj->getName());
@@ -927,13 +944,21 @@ WritePolygon::writeSTLObj(const char *offset, const coDistributedObject *new_dat
             }
             else
                 numv = sl[p+1] - sl[p];
-            for (int j = 2; j < numv; j++)
+            for (int j = 1; j < numv-1; j++)
             {
-                fprintf(file, "facet normal 0 0 0\n");
+                
+                coVector a(v[0][cl[sl[p]]],v[1][cl[sl[p]]],v[2][cl[sl[p]]]);
+                coVector b(v[0][cl[sl[p]+j]],v[1][cl[sl[p]+j]],v[2][cl[sl[p]+j]]);
+                coVector c(v[0][cl[sl[p]+j+1]],v[1][cl[sl[p]+j+1]],v[2][cl[sl[p]+j+1]]);
+                coVector ba = b-a;
+                coVector ca = c-a;
+                coVector n = ba.cross(ca);
+                n.normalize();
+                fprintf(file, "facet normal %f %f %f\n",n[0],n[1],n[2]);
                 fprintf(file, "outer loop\n");
-                fprintf(file, "vertex %f %f %f\n", v[0][cl[sl[p]+j-2]],v[1][cl[sl[p]+j-2]],v[2][cl[sl[p]+j-2]]);
-                fprintf(file, "vertex %f %f %f\n", v[0][cl[sl[p]+j-1]],v[1][cl[sl[p]+j-1]],v[2][cl[sl[p]+j-1]]);
-                fprintf(file, "vertex %f %f %f\n", v[0][cl[sl[p]+  j]],v[1][cl[sl[p]+  j]],v[2][cl[sl[p]+j  ]]);
+                fprintf(file, "vertex %f %f %f\n", a);
+                fprintf(file, "vertex %f %f %f\n", b);
+                fprintf(file, "vertex %f %f %f\n", c);
                 fprintf(file, "endloop\n");
                 fprintf(file, "endfacet\n");
             }
