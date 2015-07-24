@@ -956,9 +956,9 @@ WritePolygon::writeSTLObj(const char *offset, const coDistributedObject *new_dat
                 n.normalize();
                 fprintf(file, "facet normal %f %f %f\n",n[0],n[1],n[2]);
                 fprintf(file, "outer loop\n");
-                fprintf(file, "vertex %f %f %f\n", a);
-                fprintf(file, "vertex %f %f %f\n", b);
-                fprintf(file, "vertex %f %f %f\n", c);
+                fprintf(file, "vertex %f %f %f\n", a[0], a[1], a[2]);
+                fprintf(file, "vertex %f %f %f\n", b[0], b[1], b[2]);
+                fprintf(file, "vertex %f %f %f\n", c[0], c[1], c[2]);
                 fprintf(file, "endloop\n");
                 fprintf(file, "endfacet\n");
             }
