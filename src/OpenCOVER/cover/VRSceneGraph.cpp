@@ -545,6 +545,19 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 handled = true;
             }
 #endif
+            if (keySym == 'S')
+            {
+                coVRConfig::instance()->drawStatistics = !coVRConfig::instance()->drawStatistics;
+                //VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
+                cover->setBuiltInFunctionState("Statistics", coVRConfig::instance()->drawStatistics);
+                handled = true;
+                if (coVRConfig::instance()->drawStatistics)
+                {
+                    statsDisplay->showStats(4, VRViewer::instance()); 
+                }
+                else
+                    statsDisplay->showStats(0, VRViewer::instance());
+            }
         } // unmodified keys
         else
         {
@@ -561,7 +574,9 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 cover->setBuiltInFunctionState("Statistics", coVRConfig::instance()->drawStatistics);
                 handled = true;
                 if (coVRConfig::instance()->drawStatistics)
-                    statsDisplay->showStats(4, VRViewer::instance());
+                {
+                        statsDisplay->showStats(2, VRViewer::instance()); 
+                }
                 else
                     statsDisplay->showStats(0, VRViewer::instance());
             }
