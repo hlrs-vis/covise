@@ -11,6 +11,8 @@ SET(EXTRASOURCES
   Collect.h
 )
 
+using(BOOST)
+
 ADD_COVISE_MODULE(Tools Collect ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(Collect  coApi coAppl coCore )
 

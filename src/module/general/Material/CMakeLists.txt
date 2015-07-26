@@ -27,6 +27,8 @@ SET(EXTRASOURCES
 #  file_generator.cpp
 )
 
+using(BOOST)
+
 ADD_COVISE_MODULE(Tools Material ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(Material  coApi coAppl coCore )
 
