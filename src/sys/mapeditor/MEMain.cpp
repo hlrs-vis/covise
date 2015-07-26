@@ -109,6 +109,11 @@ void debugMsgHandler(QtMsgType type, const char *message)
         std::cerr << "Fatal: " << msg.toStdString() << std::endl;
         QMessageBox::critical(0, "Debug - Fatal", msg);
         break;
+#if QT_VERSION >= 0x050500
+    case QtInfoMsg:
+        std::cerr << "Info: " << msg.toStdString() << std::endl;
+        break;
+#endif
     }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
