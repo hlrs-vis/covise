@@ -1,0 +1,1017 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VRCWProjectionResSizeTiledClass</class>
+ <widget class="QWidget" name="VRCWProjectionResSizeTiledClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>920</width>
+    <height>422</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VRCWProjectionResSizeTiled</string>
+  </property>
+  <layout class="QVBoxLayout" name="VRCWProjectionResSizeTiledClassVLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item alignment="Qt::AlignLeft|Qt::AlignTop">
+    <widget class="QWidget" name="mainWidget" native="true">
+     <layout class="QGridLayout" name="mainWidgetGLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QWidget" name="rowColTypeDescWidget" native="true">
+        <layout class="QHBoxLayout" name="rowColTypeDescWidgetHLayout">
+         <property name="spacing">
+          <number>40</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="tiledTypeWidget" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="tiledTypeWidgetVLayout">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="tiledLabelWidget" native="true">
+              <layout class="QHBoxLayout" name="tiledLabelWidgetHLayout">
+               <property name="spacing">
+                <number>10</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>5</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="tiledLabel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Tiled configuration</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="tiledDescLabel">
+                 <property name="text">
+                  <string>The field row1-column1 is upper left. </string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="rowColWidget" native="true">
+              <layout class="QHBoxLayout" name="rowColWidgetHLayout">
+               <property name="spacing">
+                <number>30</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="rowWidget" native="true">
+                 <layout class="QHBoxLayout" name="rowWidgetHLayout">
+                  <property name="spacing">
+                   <number>15</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="tiledRowLabel">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Number of rows</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="tiledRowSpinBox">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="colWidget" native="true">
+                 <layout class="QHBoxLayout" name="colWidgetHLayout">
+                  <property name="spacing">
+                   <number>15</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="tiledColLabel">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Number of columns</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="tiledColSpinBox">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="projectionTypeWidget" native="true">
+              <layout class="QHBoxLayout" name="projectionTypeWidgetHLayout">
+               <property name="spacing">
+                <number>20</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="projectionTypeLabel">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Type of projection</string>
+                 </property>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="dispProjectWidget" native="true">
+                 <layout class="QHBoxLayout" name="dispProjectWidgetHLayout">
+                  <property name="spacing">
+                   <number>15</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QRadioButton" name="displayRadioButton">
+                    <property name="text">
+                     <string>Display/&amp;Monitor/TV</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="projectorRadioButton">
+                    <property name="text">
+                     <string>&amp;Projector</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="descPictWidget" native="true">
+           <layout class="QHBoxLayout" name="descPictWidgetHLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QLabel" name="tiledDisplayPictLabel">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="pixmap">
+               <pixmap>tiled-display.png</pixmap>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QLabel" name="tiledProjectorPictLabel">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="pixmap">
+               <pixmap>tiled-projector.png</pixmap>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QWidget" name="resSizeTiledWidget" native="true">
+        <layout class="QVBoxLayout" name="resSizeTiledWidgetVLayout">
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="resSizeWidget" native="true">
+           <layout class="QHBoxLayout" name="resSizeWidgetHLayout">
+            <property name="spacing">
+             <number>20</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>10</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>20</number>
+            </property>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="dimOneProjectWidget" native="true">
+              <layout class="QGridLayout" name="dimOneProjectWidgetGLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>10</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QLabel" name="dimOneProjectLabel">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Dimension for one projection</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QWidget" name="resSizeOneProjectWidget" native="true">
+                 <layout class="QGridLayout" name="resSizeOneProjectWidgetGLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="resSizeWidgetVLine">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="dimTiledWidget" native="true">
+              <layout class="QGridLayout" name="dimTiledWidgetGLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>10</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="wallSizeRadioButton">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>&amp;Dimension of the whole wall [mm]</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QRadioButton" name="overlapRadioButton">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>&amp;Overlap between two projections [mm]</string>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="overlapWidget" native="true">
+                 <layout class="QGridLayout" name="overlapWidgetGLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="horizontalSpacing">
+                   <number>10</number>
+                  </property>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="overlapVerticalLabel">
+                    <property name="text">
+                     <string>vertical (in a column)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="overlapHorizontalLabel">
+                    <property name="text">
+                     <string>horizontal (in a row)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QSpinBox" name="overlapHorizontalSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="maximum">
+                     <number>9999</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="overlapVerticalSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="maximum">
+                     <number>9999</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="2" column="0" colspan="2">
+                <widget class="QRadioButton" name="frameRadioButton">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>&amp;Frame dimension of a single display [mm]</string>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="frameWidget" native="true">
+                 <layout class="QGridLayout" name="frameWidgetGLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="horizontalSpacing">
+                   <number>10</number>
+                  </property>
+                  <item row="0" column="1">
+                   <widget class="QSpinBox" name="frameLRSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="maximum">
+                     <number>9999</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="frameBTLabel">
+                    <property name="text">
+                     <string>bottom/top</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="frameBTSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="maximum">
+                     <number>9999</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="frameLRLabel">
+                    <property name="text">
+                     <string>left/right</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="0" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="wallSizeWidget" native="true">
+                 <layout class="QHBoxLayout" name="wallSizeWidgetHLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="wallSizeWidthLabel">
+                    <property name="text">
+                     <string>width</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="wallSizeWidthSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="wallSizeHSpacer1">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>15</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="wallSizeHeightLabel">
+                    <property name="text">
+                     <string>height</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="wallSizeHeightSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="maximum">
+                     <number>99999</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+     <zorder>resSizeTiledWidget</zorder>
+     <zorder>rowColTypeDescWidget</zorder>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>displayRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>checkDispProjRB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>178</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>projectorRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>checkDispProjRB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>384</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>353</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wallSizeRadioButton</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>checkWallRB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>711</x>
+     <y>217</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>570</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>overlapRadioButton</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>checkOverlapFrameRB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>711</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>frameRadioButton</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>checkOverlapFrameRB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>722</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tiledRowSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>enableHoriVertOverlap()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tiledColSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>enableHoriVertOverlap()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>372</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>390</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tiledRowSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>repaint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>142</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tiledColSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>repaint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>678</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>overlapHorizontalSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>calcDisabledDims()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>923</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>944</x>
+     <y>128</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>overlapVerticalSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>calcDisabledDims()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>923</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>943</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>frameLRSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>calcDisabledDims()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>307</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>936</x>
+     <y>190</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>frameBTSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>calcDisabledDims()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>335</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>940</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wallSizeWidthSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>emitWallSizeWidthValChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>831</x>
+     <y>216</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>971</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wallSizeHeightSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeTiledClass</receiver>
+   <slot>emitWallSizeHeightValChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>970</x>
+     <y>216</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>978</x>
+     <y>75</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>checkDispProjRB()</slot>
+  <slot>checkWallRB()</slot>
+  <slot>checkOverlapFrameRB()</slot>
+  <slot>enableHoriVertOverlap()</slot>
+  <slot>calcDisabledDims()</slot>
+  <slot>emitWallSizeWidthValChanged(int)</slot>
+  <slot>emitWallSizeHeightValChanged(int)</slot>
+ </slots>
+</ui>

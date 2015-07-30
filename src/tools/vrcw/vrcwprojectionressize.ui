@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VRCWProjectionResSizeClass</class>
+ <widget class="QWidget" name="VRCWProjectionResSizeClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>746</width>
+    <height>220</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VRCWProjectionResSize</string>
+  </property>
+  <layout class="QVBoxLayout" name="VRCWProjectionResSizeClassVLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item alignment="Qt::AlignLeft|Qt::AlignTop">
+    <widget class="QWidget" name="mainWidget" native="true">
+     <layout class="QGridLayout" name="mainWidgetGLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>20</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QWidget" name="caveDimResSizeWidget" native="true">
+        <layout class="QGridLayout" name="caveDimResSizeWidgetGLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>20</number>
+         </property>
+         <item row="4" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="caveDimWidget" native="true">
+           <layout class="QHBoxLayout" name="caveDimWidgetHLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="caveDimWidthLabel">
+              <property name="text">
+               <string>width</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="caveDimWidthSpinBox">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="caveDimHSpacer1">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>15</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="caveDimDepthLabel">
+              <property name="text">
+               <string>depth</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="caveDimDepthSpinBox">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="caveDimHSpacer2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>15</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="caveDimHeightLabel">
+              <property name="text">
+               <string>height</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="caveDimHeightSpinBox">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="resCaveWallsSameResWidget" native="true">
+           <layout class="QVBoxLayout" name="resCaveWallsSameResWidgetVLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="aspectRatioWidget" native="true">
+              <layout class="QHBoxLayout" name="aspectRatioWidgetHLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="aspectRatioLabel">
+                 <property name="text">
+                  <string>Aspect ratio</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="aspectRatioWidgetHSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>5</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="aspRat4to3RadioButton">
+                 <property name="text">
+                  <string>&amp;4:3</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="aspRat16to9RadioButton">
+                 <property name="text">
+                  <string>&amp;16:9</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="aspRat16to10RadioButton">
+                 <property name="text">
+                  <string>1&amp;6:10</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="aspRatOtherRadioButton">
+                 <property name="text">
+                  <string>&amp;other</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="aspRatAllRadioButton">
+                 <property name="text">
+                  <string>&amp;all</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="resWidget" native="true">
+              <layout class="QHBoxLayout" name="resWidgetHLayout">
+               <property name="spacing">
+                <number>30</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item alignment="Qt::AlignLeft">
+                <widget class="QComboBox" name="preDefResComboBox">
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>preDef_ResList</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="userResWidget" native="true">
+                 <layout class="QHBoxLayout" name="userResWidgetHLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="userResWidthLabel">
+                    <property name="text">
+                     <string>width</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="userResWidthSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>9999</number>
+                    </property>
+                    <property name="value">
+                     <number>640</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="userResHSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>15</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="userResHeightLabel">
+                    <property name="text">
+                     <string>height</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="userResHeightSpinBox">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::NoButtons</enum>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>9999</number>
+                    </property>
+                    <property name="value">
+                     <number>480</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignTop">
+             <widget class="QCheckBox" name="wallsSameResConfCheckBox">
+              <property name="text">
+               <string>Every projection has the same resolution</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="caveDimLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>CAVE dimension [mm]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="screenSizeCalcWidget" native="true">
+           <layout class="QVBoxLayout" name="screenSizeCalcWidgetVLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="screenSizeWidget" native="true">
+              <layout class="QHBoxLayout" name="screenSizeWidgetHLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="screenSizeWidthLabel">
+                 <property name="text">
+                  <string>width</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="screenSizeWidthSpinBox">
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="buttonSymbols">
+                  <enum>QAbstractSpinBox::NoButtons</enum>
+                 </property>
+                 <property name="maximum">
+                  <number>99999</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="screenSizeHSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>15</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QLabel" name="screenSizeHeightLabel">
+                 <property name="text">
+                  <string>height</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="screenSizeHeightSpinBox">
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="buttonSymbols">
+                  <enum>QAbstractSpinBox::NoButtons</enum>
+                 </property>
+                 <property name="maximum">
+                  <number>99999</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="calcWidthHeightCheckBox">
+              <property name="text">
+               <string>calculate width/height</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="3" column="0" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="screenSizeLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Screen size [mm]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="resLabel">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Resolution [pixel]</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="1" alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QLabel" name="caveDimEdgesPictureLabel">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap>cave-edges.png</pixmap>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>aspRat4to3RadioButton</tabstop>
+  <tabstop>aspRat16to9RadioButton</tabstop>
+  <tabstop>aspRat16to10RadioButton</tabstop>
+  <tabstop>aspRatOtherRadioButton</tabstop>
+  <tabstop>userResWidthSpinBox</tabstop>
+  <tabstop>userResHeightSpinBox</tabstop>
+  <tabstop>screenSizeWidthSpinBox</tabstop>
+  <tabstop>screenSizeHeightSpinBox</tabstop>
+  <tabstop>caveDimWidthSpinBox</tabstop>
+  <tabstop>caveDimDepthSpinBox</tabstop>
+  <tabstop>caveDimHeightSpinBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>userResWidthSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitResValChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>385</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userResHeightSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitResValChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>501</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveDimWidthSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitCaveDimValChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>185</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>160</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveDimDepthSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitCaveDimValChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>361</x>
+     <y>185</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>337</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveDimHeightSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitCaveDimValChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>484</x>
+     <y>185</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>126</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>screenSizeWidthSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitSizeWidthValChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>screenSizeHeightSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitSizeHeightValChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>364</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>599</x>
+     <y>55</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wallsSameResConfCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitWallsResSameConfChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>599</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>preDefResComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitResValChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>preDefResComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>showUserRes_exec(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>aspRat4to3RadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>aspectRatioChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>192</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>aspRat16to9RadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>aspectRatioChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>352</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>-5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>aspRat16to10RadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>aspectRatioChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>415</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>377</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>aspRatOtherRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>aspectRatioChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>482</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>495</x>
+     <y>-25</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>aspRatAllRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>aspectRatioChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>563</x>
+     <y>-7</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>calcWidthHeightCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionResSizeClass</receiver>
+   <slot>emitCalcWidthHeightChecked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>289</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>emitResValChanged()</slot>
+  <slot>emitCaveDimValChanged()</slot>
+  <slot>emitSizeWidthValChanged(int)</slot>
+  <slot>emitSizeHeightValChanged(int)</slot>
+  <slot>emitWallsResSameConfChanged()</slot>
+  <slot>showUserRes_exec(int)</slot>
+  <slot>emitCalcWidthHeightChecked()</slot>
+  <slot>aspectRatioChanged(bool)</slot>
+ </slots>
+</ui>
