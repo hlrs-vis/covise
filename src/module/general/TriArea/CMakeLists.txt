@@ -1,0 +1,17 @@
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  TriArea.cpp
+)
+
+SET(EXTRASOURCES
+  TriArea.h
+)
+
+ADD_COVISE_MODULE(Tools TriArea ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(TriArea  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(TriArea)
