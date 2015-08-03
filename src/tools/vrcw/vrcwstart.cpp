@@ -4,8 +4,8 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #include "datatypes.h"
 #include "vrcwfinal.h"
