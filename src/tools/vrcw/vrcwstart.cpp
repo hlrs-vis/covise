@@ -450,7 +450,7 @@ QString VRCWStart::getEnvVariable(const QString& key) const
 {
    //getenv aus <stdlib.h>
 
-   char* val = std::getenv(key.toStdString().c_str());
+   const char* val = std::getenv(key.toStdString().c_str());
 
    return val == NULL ? "" : QString::fromStdString(val);
 }
@@ -462,7 +462,8 @@ bool VRCWStart::testWritePerm(const QString& dir)
    //fopen, fclose, remove aus <stdio.h>
 
    bool writePerm;
-   const char* fname = (dir + "/tmp.vrcw").toStdString().c_str();
+   QString tmpfile = dir + "/tmp.vrcw";
+   const char* fname = tmpfile.toStdString().c_str();
 
    FILE* tmpFile = fopen(fname, "w");
    if (tmpFile == NULL)
