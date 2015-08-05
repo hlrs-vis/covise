@@ -5,6 +5,16 @@
 #include <QTextStream>
 #include <QStringBuilder>
 #include <math.h>
+#ifdef WIN32
+static inline double round(double val)
+{    
+    return floor(val + 0.5);
+}
+inline double trunc(double x)
+{
+    return (x>0) ? floor(x) : ceil(x);
+}
+#endif
 
 #include "datatypes.h"
 
