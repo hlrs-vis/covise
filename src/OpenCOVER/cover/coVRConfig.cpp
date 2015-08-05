@@ -393,6 +393,11 @@ coVRConfig::coVRConfig()
             channels[i].viewportNum = -1;
         }
         channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
+        if (channels[i].screenNum >= screens.size())
+        {
+            std::cerr << "screenIndex " << channels[i].screenNum << " for channel " << i << " out of range (max: " << screens.size()-1 << ")" << std::endl;
+            exit(1);
+        }
         
     }
     for (size_t i = 0; i < PBOs.size(); i++)
