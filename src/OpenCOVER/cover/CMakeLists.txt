@@ -26,6 +26,9 @@ add_subdirectory(input/dev/legacy)
 add_subdirectory(input/dev/vrc) 
 add_subdirectory(input/dev/rift) 
 add_subdirectory(input/dev/mike)
+IF(WIN32)
+  add_subdirectory(input/dev/windowsHID) 
+ENDIF(WIN32)
 
 SET(HEADERS
   ARToolKit.h

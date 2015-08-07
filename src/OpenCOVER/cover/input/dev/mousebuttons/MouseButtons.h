@@ -58,7 +58,7 @@
 #define PS2_TYPE 0
 namespace opencover
 {
-class INPUT_LEGACY_EXPORT MouseButtons
+class MouseButtons
 {
 private:
     bool poll();
