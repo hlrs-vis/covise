@@ -462,8 +462,8 @@ bool VRCWStart::testWritePerm(const QString& dir)
    //fopen, fclose, remove aus <stdio.h>
 
    bool writePerm;
-   QString tmpfile = dir + "/tmp.vrcw";
-   const char* fname = tmpfile.toStdString().c_str();
+   std::string tmpfile = (dir + "/tmp.vrcw").toStdString();
+   const char* fname = tmpfile.c_str();
 
    FILE* tmpFile = fopen(fname, "w");
    if (tmpFile == NULL)
