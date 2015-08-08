@@ -378,7 +378,7 @@ int main(int argc, char **argv)
 
             for (std::vector<std::string>::iterator it = macs.begin(); it != macs.end(); ++it)
             {
-                std::string cmd = "sudo /usr/sbin/ether-wake " + *it;
+                std::string cmd = std::string("sudo /usr/sbin/ether-wake ").append(*it);
                 if (system(cmd.c_str()) == -1) {
                     return 1;
                 }
