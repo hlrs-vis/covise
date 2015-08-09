@@ -74,13 +74,18 @@ int VRCWHost::processGuiInput(const int& index,
    //Ueberpruefen, ob noch hosts in der Eingabezeile eingetragen sind
    if (!hHandled.empty())
    {
-      QString message = tr("You have entered some hosts in the \"Add\" line\n"
+      QMessageBox msgBox(this);
+      msgBox.setIcon(QMessageBox::Question);
+      msgBox.setInformativeText(tr("You have entered some hosts in the \"Add\" line\n"
             "but you didn't press the Add button.\n\n"
-            "Do you want to add them to the list of hosts?");
-      int ret = QMessageBox::question(this, tr("Configuration"), message,
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            "Do you want to add them to the list of hosts?"));
+      msgBox.setWindowTitle(tr("Configuration"));
+      QPushButton* addButton = msgBox.addButton(tr("Add"), QMessageBox::YesRole);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      msgBox.setDefaultButton(addButton);
+      msgBox.exec();
 
-      if (ret == QMessageBox::Yes)
+      if (msgBox.clickedButton() == addButton)
       {
          VRCWHost::add();
       }
@@ -394,12 +399,17 @@ void VRCWHost::remove()
             hostsModel->data(firstIndex, Qt::DisplayRole).toString();
 
       //Request
-      QString message = tr("Do you want to remove\n\n" "%1" "\n\n"
-            "from the list of hostnames?").arg(selEntry);
-      int ret = QMessageBox::question(this, tr("Configuration"), message,
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+      QMessageBox msgBox(this);
+      msgBox.setIcon(QMessageBox::Question);
+      msgBox.setInformativeText(tr("Do you want to remove\n\n" "%1" "\n\n"
+            "from the list of hostnames?").arg(selEntry));
+      msgBox.setWindowTitle(tr("Configuration"));
+      QPushButton* removeButton = msgBox.addButton(tr("Remove"), QMessageBox::YesRole);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      msgBox.setDefaultButton(removeButton);
+      msgBox.exec();
 
-      if (ret == QMessageBox::Yes)
+      if (msgBox.clickedButton() == removeButton)
       {
          //Delete entry
          hosts.removeAll(selEntry);

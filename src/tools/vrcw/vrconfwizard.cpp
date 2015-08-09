@@ -147,7 +147,7 @@ void VRConfWizard::changeProConfDimPowerCave(const int& index,
 
 //eigene Version des virtuellen Events
 //verwendet bei Signals (close()) abhaengig davon,
-//ob finish() oder cancel() ausgefuehrt wird
+//ob finish() oder abort_vrcw() ausgefuehrt wird
 //
 void VRConfWizard::closeEvent(QCloseEvent* event)
 {
@@ -164,7 +164,7 @@ void VRConfWizard::closeEvent(QCloseEvent* event)
    }
    else
    {
-      if (cancel())
+      if (abort_vrcw())
       {
          event->accept();
       }
@@ -274,15 +274,15 @@ bool VRConfWizard::finish()
    }
 }
 
-bool VRConfWizard::cancel()
+bool VRConfWizard::abort_vrcw()
 {
    QString message = tr("All changes will be lost!\n\n"
          "Do you want to abort the configuration?");
    int button = QMessageBox::warning(this,
          tr("COVISE VR Configuration Wizard"), message,
-         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+         QMessageBox::Abort | QMessageBox::Cancel, QMessageBox::Cancel);
 
-   if (button == QMessageBox::Yes)
+   if (button == QMessageBox::Abort)
    {
       return true;
    }
@@ -296,14 +296,18 @@ bool VRConfWizard::cancel()
 //
 bool VRConfWizard::exitVRConfWizard()
 {
-   QString message = tr("Do you want to exit\n"
-         "the\n"
-         "COVISE VR Configuration Wizard?");
-   int button = QMessageBox::question(this,
-         tr("COVISE VR Configuration Wizard"), message,
-         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+   QMessageBox msgBox(this);
+   msgBox.setIcon(QMessageBox::Question);
+   msgBox.setText("All changes are saved.");
+   msgBox.setInformativeText(tr("Do you want to exit the\n"
+         "COVISE VR Configuration Wizard?"));
+   msgBox.setWindowTitle(tr("COVISE VR Configuration Wizard"));
+   QPushButton* exitButton = msgBox.addButton(tr("Exit"), QMessageBox::NoRole);
+   QPushButton* cancelButton = msgBox.addButton(QMessageBox::Cancel);
+   msgBox.setDefaultButton(exitButton);
+   msgBox.exec();
 
-   if (button == QMessageBox::Yes)
+   if (msgBox.clickedButton() == exitButton)
    {
       return true;
    }
@@ -339,12 +343,12 @@ void VRConfWizard::next() const
       ui.backButton->setEnabled(true);
       ui.nextButton->setEnabled((index + 1) < (count - 1));
       ui.finishButton->setEnabled((index + 1) == (count - 1));
-      ui.cancelButton->setEnabled((index + 1) < (count - 1));
+      ui.abortButton->setEnabled((index + 1) < (count - 1));
 
       ui.action_Back->setEnabled(true);
       ui.action_Next->setEnabled((index + 1) < (count - 1));
       ui.action_Finish->setEnabled((index + 1) == (count - 1));
-      ui.action_Cancel->setEnabled((index + 1) < (count - 1));
+      ui.action_Abort->setEnabled((index + 1) < (count - 1));
    }
 }
 
@@ -360,12 +364,12 @@ void VRConfWizard::back() const
    ui.backButton->setEnabled(index - 1);
    ui.nextButton->setEnabled(true);
    ui.finishButton->setEnabled(false);
-   ui.cancelButton->setEnabled(true);
+   ui.abortButton->setEnabled(true);
 
    ui.action_Back->setEnabled(index - 1);
    ui.action_Next->setEnabled(true);
    ui.action_Finish->setEnabled(false);
-   ui.action_Cancel->setEnabled(true);
+   ui.action_Abort->setEnabled(true);
 }
 
 //Entgegennehmen des Modification-Status von textEdit von vrcwfinal
