@@ -7,7 +7,7 @@
 #include <math.h>
 #ifdef WIN32
 static inline double round(double val)
-{    
+{
     return floor(val + 0.5);
 }
 inline double trunc(double x)
@@ -195,7 +195,7 @@ void VRCWFinal::createXmlConfigs()
 //
 void VRCWFinal::createXmlConfigUser()
 {
-   configUser.generateConfigUser(confNameUser);
+   configUser.generateConfigUser(confNameVrcw);
    ui.configUserTextEdit->setPlainText(addNlToStrOut(configUser.strOutUser()));
 }
 

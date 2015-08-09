@@ -458,7 +458,7 @@ QString XMLConfigWriter::strOutVrcw(const int& indent, QTextCodec* codec) const
 
 //generate domDocUser for configUser.xml
 //
-void XMLConfigWriter::generateConfigUser(const QString& coConfNameUser)
+void XMLConfigWriter::generateConfigUser(const QString& coConfNameVrcw)
 {
    domDocUser.clear();
 
@@ -484,7 +484,7 @@ void XMLConfigWriter::generateConfigUser(const QString& coConfNameUser)
    includeVRCW.setAttribute("global","1");
    includeVRCW.setAttribute("configname", "VRCW-generated");
    coConfUser.appendChild(includeVRCW);
-   QDomText textVRCW = domDocUser.createTextNode(coConfNameUser);
+   QDomText textVRCW = domDocUser.createTextNode(coConfNameVrcw);
    includeVRCW.appendChild(textVRCW);
 
    QDomElement global = domDocUser.createElement("GLOBAL");
