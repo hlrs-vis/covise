@@ -251,7 +251,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="cancelButton">
+          <widget class="QPushButton" name="abortButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -259,7 +259,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Cancel</string>
+            <string>Abort</string>
            </property>
           </widget>
          </item>
@@ -291,7 +291,7 @@
      <string>E&amp;xit</string>
     </property>
     <addaction name="action_Finish"/>
-    <addaction name="action_Cancel"/>
+    <addaction name="action_Abort"/>
    </widget>
    <widget class="QMenu" name="menu_Navigation">
     <property name="title">
@@ -334,9 +334,9 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="action_Cancel">
+  <action name="action_Abort">
    <property name="text">
-    <string>&amp;Cancel</string>
+    <string>&amp;Abort</string>
    </property>
    <property name="shortcut">
     <string>Esc</string>
@@ -346,7 +346,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>cancelButton</sender>
+   <sender>abortButton</sender>
    <signal>clicked()</signal>
    <receiver>VRConfWizardClass</receiver>
    <slot>close()</slot>
@@ -410,7 +410,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>action_Cancel</sender>
+   <sender>action_Abort</sender>
    <signal>triggered()</signal>
    <receiver>VRConfWizardClass</receiver>
    <slot>close()</slot>

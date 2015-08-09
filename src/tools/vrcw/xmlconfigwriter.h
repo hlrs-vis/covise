@@ -101,7 +101,7 @@ public:
          QTextCodec* codec = QTextCodec::codecForName("ISO-8859-1")) const;
 
    //generate domDocUser for configUser.xml
-   void generateConfigUser(const QString& coConfNameUser);
+   void generateConfigUser(const QString& coConfNameVrcw);
 
    //Output of domDocUser
    QString strOutUser(const int& indent = 3,

@@ -63,7 +63,7 @@ private:
 
    //Button Action
    bool finish();
-   bool cancel();
+   bool abort_vrcw();
    bool exitVRConfWizard();
 
 

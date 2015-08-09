@@ -92,9 +92,6 @@
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
               <property name="maximum">
                <number>99999</number>
               </property>
@@ -128,9 +125,6 @@
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
               <property name="maximum">
                <number>99999</number>
               </property>
@@ -163,9 +157,6 @@
              <widget class="QSpinBox" name="caveDimHeightSpinBox">
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
               </property>
               <property name="maximum">
                <number>99999</number>
@@ -326,9 +317,6 @@
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
-                    <property name="buttonSymbols">
-                     <enum>QAbstractSpinBox::NoButtons</enum>
-                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -367,9 +355,6 @@
                    <widget class="QSpinBox" name="userResHeightSpinBox">
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buttonSymbols">
-                     <enum>QAbstractSpinBox::NoButtons</enum>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -456,9 +441,6 @@
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
-                 <property name="buttonSymbols">
-                  <enum>QAbstractSpinBox::NoButtons</enum>
-                 </property>
                  <property name="maximum">
                   <number>99999</number>
                  </property>
@@ -491,9 +473,6 @@
                 <widget class="QSpinBox" name="screenSizeHeightSpinBox">
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buttonSymbols">
-                  <enum>QAbstractSpinBox::NoButtons</enum>
                  </property>
                  <property name="maximum">
                   <number>99999</number>

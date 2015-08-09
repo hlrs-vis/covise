@@ -223,13 +223,18 @@ void VRCWHostProjection::remove()
             selRowEntry[0] % " - " % selRowEntryEye;
 
       //Abfrage, ob loeschen des Eintrags erwuenscht
-      QString message = tr("Do you want to remove\n\n"
-         "Projection: " "%1" "\n" "Host: " "%2" "\n\n"
-         "from the list?").arg(selRowEntryProjection).arg(selRowEntryHost);
-      int ret = QMessageBox::question(this, tr("Configuration"), message,
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+      QMessageBox msgBox(this);
+      msgBox.setIcon(QMessageBox::Question);
+      msgBox.setInformativeText(tr("Do you want to remove\n\n"
+            "Projection: " "%1" "\n" "Host: " "%2" "\n\n"
+            "from the list?").arg(selRowEntryProjection).arg(selRowEntryHost));
+      msgBox.setWindowTitle(tr("Configuration"));
+      QPushButton* removeButton = msgBox.addButton(tr("Remove"), QMessageBox::YesRole);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      msgBox.setDefaultButton(removeButton);
+      msgBox.exec();
 
-      if (ret == QMessageBox::Yes)
+      if (msgBox.clickedButton() == removeButton)
       {
          //Eintraege in projection- und hostComboBox einfuegen und sortieren
          QAbstractItemModel* projectCBModel =
