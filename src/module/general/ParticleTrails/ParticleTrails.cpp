@@ -152,30 +152,6 @@ ParticleTrails::compute(const char *)
         sendError("Did not receive a SET of points");
         return STOP_PIPELINE;
     }
-    /*
-                    shmSetElem = shmSet->getElement(thisElem);
-                const coDistributedObject **subset = new const coDistributedObject *[n_el + 1];
-
-                for (int index = 0; index < n_el; index++)
-                {
-                    subset[index] = shmSet->getElement(subsetElements[index]);
-                    subset[index]->incRefCount();
-                }
-                subset[n_el] = NULL;
-                coDoSet *outObj = new coDoSet(pOutPorts_[i]->getObjName(), subset);
-                outObj->copyAllAttributes(shmSet);
-
-                const char *timestep = shmSet->getAttribute("TIMESTEP");
-                if (timestep)
-                {
-                    char steps[32];
-                    sprintf(steps, "0 %i", n_el);
-                    outObj->addAttribute("TIMESTEP", steps);
-                }
-
-                pOutPorts_[i]->setCurrentObject(outObj);
-    }
-}*/
 
 return SUCCESS;
 }
