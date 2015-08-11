@@ -185,7 +185,7 @@ opSys VRCWHost::getNativeOs() const
       nOs = Linux;
    }
 //   #elif Q_OS_WIN32
-   #elif __WIN32__
+   #else
    {
       nOs = Windows;
    }
