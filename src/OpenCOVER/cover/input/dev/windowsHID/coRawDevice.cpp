@@ -472,8 +472,8 @@ coRawDeviceManager::coRawDeviceManager()
 {
 
     oldSize = 0;
+    nInputDevices = 0;
     lpb = NULL;
-
     instance_ = GetModuleHandle(0);
 
     WNDCLASS wndclass;
@@ -577,6 +577,7 @@ void coRawDeviceManager::setupDevices()
     PRAWINPUTDEVICELIST pRawInputDeviceList;
     int nSize;
     char *psName;
+    fprintf(stderr,"testit1 %d\n",nInputDevices);
     for (i = 0; i < nInputDevices; i++)
     {
         for (j = 0; j < MAX_RAW_MOUSE_BUTTONS; j++)
@@ -586,13 +587,15 @@ void coRawDeviceManager::setupDevices()
         delete[] rawDevices[i].deviceName;
     }
     delete[] rawDevices;
+    fprintf(stderr,"testit1\n");
     // 1st call to GetRawInputDeviceList: Pass NULL to get the number of devices.
     if (/* GetRawInputDeviceList */ (*_GRIDL)(NULL, &nInputDevices, sizeof(RAWINPUTDEVICELIST)) != 0)
     {
         fprintf(stderr, "ERROR: Unable to count raw input devices.\n");
         return;
     }
-
+    
+    fprintf(stderr,"testit2\n");
     // Allocate the array to hold the DeviceList
     if ((pRawInputDeviceList = new RAWINPUTDEVICELIST[nInputDevices]) == NULL)
     {
@@ -606,7 +609,7 @@ void coRawDeviceManager::setupDevices()
         fprintf(stderr, "ERROR: Unable to get raw input device list.\n");
         return;
     }
-
+    
     // Loop through all devices and count the mice
     for (i = 0; i < nInputDevices; i++)
     {
