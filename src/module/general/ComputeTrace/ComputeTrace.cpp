@@ -34,7 +34,7 @@ ComputeTrace::ComputeTrace(int argc, char *argv[])
     setComputeTimesteps(1);
 
     /*Fed in points*/
-    p_pointsIn = addInputPort("GridIn0", "Points|Spheres", "a set of spheres containing the particle/s to be traced over time");
+    p_pointsIn = addInputPort("GridIn0", "Points|Spheres", "a set of points or spheres containing the particle/s to be traced over time");
     p_dataIn = addInputPort("DataIn0", "Float|Byte|Int|Vec2|Vec3|RGBA|Mat3|Tensor", "data mapped associated with spheres");
     p_dataIn->setRequired(false);
     p_IDIn = addInputPort("IDIn0", "Int", "ID of each atom");
