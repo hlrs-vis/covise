@@ -18,13 +18,14 @@
 #include <osg/Matrix>
 #include <util/coExport.h>
 #include <iostream>
+#include "inputsource.h"
 
 namespace opencover
 {
 
 class InputDevice;
 
-class COVEREXPORT TrackingBody
+class COVEREXPORT TrackingBody: public InputSource
 {
     friend class Input;
 
@@ -35,7 +36,6 @@ public:
     void setOffsetMat(const osg::Matrix &m);
     bool isVarying() const;
     bool is6Dof() const;
-    const std::string &getName() const{return m_name;};
 
 
 private:
@@ -48,13 +48,12 @@ private:
     void setVarying(bool isVar);
     void set6Dof(bool is6Dof);
 
-    InputDevice *m_dev;
     TrackingBody *m_baseBody;
-    bool m_valid;
+    bool m_valid, m_oldValid;
     size_t m_idx;
-    osg::Matrix m_mat, m_deviceOffsetMat;
+    osg::Matrix m_mat, m_oldMat;
+    osg::Matrix m_deviceOffsetMat;
     bool m_varying, m_6dof;
-    std::string m_name;
 };
 }
 #endif /* TRACKINGBODY_H_ */

@@ -17,13 +17,14 @@
 
 #include <iostream>
 #include <map>
+#include "inputsource.h"
 
 namespace opencover
 {
 
 class InputDevice;
 
-class ButtonDevice
+class ButtonDevice: public InputSource
 {
     friend class Input;
     friend class coMousePointer;
@@ -42,8 +43,8 @@ private:
     void createButtonMap(const std::string &confbase);
     unsigned mapButton(unsigned raw) const;
 
-    InputDevice *m_dev;
-    unsigned int btnstatus; ///Saved buttonstatus
+    unsigned int m_raw, m_oldRaw;
+    unsigned int m_btnstatus; ///Saved buttonstatus
 };
 }
 #endif /* BUTTONDEVICE_H_ */

@@ -129,11 +129,11 @@ bool TrackObjects::init()
     std::string bodyName = coCoviseConfig::getEntry("value","COVER.Plugin.TrackObjects.BodyName", "");
     if(bodyName.length()==0 && Input::instance()->getNumBodies()>0)
     {
-        bodyName = Input::instance()->getBody(0)->getName();
+        bodyName = Input::instance()->getBody(0)->name();
     }
     for (size_t i = 0; i < Input::instance()->getNumBodies(); ++i)
     {
-        std::string name = Input::instance()->getBody(i)->getName();
+        std::string name = Input::instance()->getBody(i)->name();
         bodyChoice->addEntry(name);
         if(name == bodyName)
         {
