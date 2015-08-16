@@ -67,6 +67,10 @@ VRConfWizard::VRConfWizard(QWidget* parent) :
    //immer bei Seite 1 beginnen
    ui.mainStackedWidget->setCurrentIndex(0);
 
+   //at start hide button and menu entry 'Finish'
+   ui.finishButton->setVisible(false);
+   ui.action_Finish->setVisible(false);
+
    //Empfang des Signal von vrcwfinal
    connect(final, SIGNAL(configIsModified(bool)), this,
          SLOT(vrcwFinalConfigModified(bool)));
@@ -151,7 +155,7 @@ void VRConfWizard::changeProConfDimPowerCave(const int& index,
 //
 void VRConfWizard::closeEvent(QCloseEvent* event)
 {
-   if (ui.finishButton->isEnabled())
+   if (ui.finishButton->isVisible())
    {
       if (finish())
       {
@@ -280,7 +284,7 @@ bool VRConfWizard::abort_vrcw()
          "Do you want to abort the configuration?");
    int button = QMessageBox::warning(this,
          tr("COVISE VR Configuration Wizard"), message,
-         QMessageBox::Abort | QMessageBox::Cancel, QMessageBox::Cancel);
+         QMessageBox::Abort | QMessageBox::Cancel, QMessageBox::Abort);
 
    if (button == QMessageBox::Abort)
    {
@@ -342,13 +346,13 @@ void VRConfWizard::next() const
 
       ui.backButton->setEnabled(true);
       ui.nextButton->setEnabled((index + 1) < (count - 1));
-      ui.finishButton->setEnabled((index + 1) == (count - 1));
-      ui.abortButton->setEnabled((index + 1) < (count - 1));
+      ui.finishButton->setVisible((index + 1) == (count - 1));
+      ui.abortButton->setVisible((index + 1) < (count - 1));
 
       ui.action_Back->setEnabled(true);
       ui.action_Next->setEnabled((index + 1) < (count - 1));
-      ui.action_Finish->setEnabled((index + 1) == (count - 1));
-      ui.action_Abort->setEnabled((index + 1) < (count - 1));
+      ui.action_Finish->setVisible((index + 1) == (count - 1));
+      ui.action_Abort->setVisible((index + 1) < (count - 1));
    }
 }
 
@@ -363,13 +367,13 @@ void VRConfWizard::back() const
 
    ui.backButton->setEnabled(index - 1);
    ui.nextButton->setEnabled(true);
-   ui.finishButton->setEnabled(false);
-   ui.abortButton->setEnabled(true);
+   ui.finishButton->setVisible(false);
+   ui.abortButton->setVisible(true);
 
    ui.action_Back->setEnabled(index - 1);
    ui.action_Next->setEnabled(true);
-   ui.action_Finish->setEnabled(false);
-   ui.action_Abort->setEnabled(true);
+   ui.action_Finish->setVisible(false);
+   ui.action_Abort->setVisible(true);
 }
 
 //Entgegennehmen des Modification-Status von textEdit von vrcwfinal
