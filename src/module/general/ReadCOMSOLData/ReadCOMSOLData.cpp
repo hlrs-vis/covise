@@ -353,42 +353,42 @@ int ReadCOMSOLData::readASCIIData()
                 }
                 if (portID > 0)
                 {
-                    VarInfo &vi=varInfos[0];
+                    VarInfo *vi=&varInfos[0];
                     int varIndex = 0;
                     for (int n = 0; n < varInfos.size(); n++)
                     {
                         if (varInfos[n].valueIndex == i)
                         {
-                            vi = varInfos[n];
+                            vi = &varInfos[n];
                             varIndex = n;
                         }
                     }
                     string objName;
-                    if(vi.name == "Particle position")
+                    if(vi->name == "Particle position")
                     {
-                        vi.objectName = READER_CONTROL->getAssocObjName(GEOPORT1D);
+                        vi->objectName = READER_CONTROL->getAssocObjName(GEOPORT1D);
                     }
                     else
                     {
-                        vi.objectName = READER_CONTROL->getAssocObjName(portID);
+                        vi->objectName = READER_CONTROL->getAssocObjName(portID);
                     }
                     if (numTimesteps < 2)
                     {
-                        objName = vi.objectName;
+                        objName = vi->objectName;
                     }
                     else
                     {
                         char tmpName[500];
-                        sprintf(tmpName, "%s_%d", vi.objectName.c_str(), t);
+                        sprintf(tmpName, "%s_%d", vi->objectName.c_str(), t);
                         objName = tmpName;
                     }
-                    if (vi.components == 1)
+                    if (vi->components == 1)
                     {
                         nextLine(d_dataFile);
                         coDoFloat *dataObj = new coDoFloat(objName.c_str(), numPoints);
 
-                        vi.dataObjs[t] = dataObj;
-                        vi.dataObjs[t + 1] = NULL;
+                        vi->dataObjs[t] = dataObj;
+                        vi->dataObjs[t + 1] = NULL;
                         float *x_d;
                         float *y_d;
                         float *z_d;
@@ -406,7 +406,7 @@ int ReadCOMSOLData::readASCIIData()
                         float *x_d;
                         float *y_d;
                         float *z_d;
-                        if(vi.name == "Particle position")
+                        if(vi->name == "Particle position")
                         {
                             coDoPoints *dataObj = new coDoPoints(objName.c_str(), numPoints);
                             dataObj->getAddresses(&x_d, &y_d, &z_d);
@@ -418,8 +418,8 @@ int ReadCOMSOLData::readASCIIData()
                             dataObj->getAddresses(&x_d, &y_d, &z_d);
                             distrObj = dataObj;
                         }
-                        vi.dataObjs[t] = distrObj;
-                        vi.dataObjs[t + 1] = NULL;
+                        vi->dataObjs[t] = distrObj;
+                        vi->dataObjs[t + 1] = NULL;
                         for (int p = 0; p < numPoints; p++)
                         {
                             nextLine(d_dataFile);
@@ -432,7 +432,7 @@ int ReadCOMSOLData::readASCIIData()
                             nextLine(d_dataFile);
                             sscanf(buf, "%f", y_d + p);
                         }
-                        if (vi.components == 3)
+                        if (vi->components == 3)
                         {
                             i++; // next scalar
                             nextLine(d_dataFile);
