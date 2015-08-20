@@ -337,21 +337,25 @@ void OpenCOVER::init()
     }
     if (!useDISPLAY)
     {
-        std::string firstPipe = coCoviseConfig::getEntry("server", "COVER.PipeConfig.Pipe:0");
-        strcpy(envDisplay, "DISPLAY=:");
-        strcat(envDisplay, firstPipe.empty() ? "0" : firstPipe.c_str());
-        if (firstPipe.empty())
+        bool present = false;
+        if (!coCoviseConfig::isOn("useDISPLAY", "COVER.PipeConfig.Pipe:0", false, &present))
         {
-            cerr << "No PipeConfig for Pipe 0 found, using " << envDisplay << endl;
-        }
+            std::string firstPipe = coCoviseConfig::getEntry("server", "COVER.PipeConfig.Pipe:0");
+            strcpy(envDisplay, "DISPLAY=:");
+            strcat(envDisplay, firstPipe.empty() ? "0" : firstPipe.c_str());
+            if (firstPipe.empty())
+            {
+                cerr << "No PipeConfig for Pipe 0 found, using " << envDisplay << endl;
+            }
 
-        // do NOT use cover->debugLevel here : cover is not yet created!
-        int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
-        if (debugLevel > 1)
-        {
-            fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
+            // do NOT use cover->debugLevel here : cover is not yet created!
+            int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+            if (debugLevel > 1)
+            {
+                fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
+            }
+            putenv(envDisplay);
         }
-        putenv(envDisplay);
     }
 #endif
     int fsaa = coCoviseConfig::getInt("COVER.FSAAMode", -1);

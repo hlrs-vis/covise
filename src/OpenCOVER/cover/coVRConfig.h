@@ -197,10 +197,12 @@ struct pipeStruct
     int x11DisplayNum;
     int x11ScreenNum;
     std::string x11DisplayHost;
+    bool useDISPLAY;
 
     pipeStruct()
     : x11DisplayNum(-1)
     , x11ScreenNum(-1)
+    , useDISPLAY(false)
     {}
 };
 
