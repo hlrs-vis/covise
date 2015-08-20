@@ -26,6 +26,17 @@
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
 
+bool ReadCOMSOLData::readFloat(const char *s, float *f)
+{
+    if (!strncmp(s, "NaN", 3))
+    {
+        *f = nanValue;
+        return true;
+    }
+
+    return sscanf(s, "%f", f) == 1;
+}
+
 // remove  path from filename
 inline const char *coBasename(const char *str)
 {
@@ -44,8 +55,14 @@ inline const char *coBasename(const char *str)
 // Module set-up in Constructor
 ReadCOMSOLData::ReadCOMSOLData(int argc, char *argv[])
     : coReader(argc, argv, "Read COMSOLData mesh and data")
+    , nanValue(0.f)
 {
     d_dataFile = NULL;
+
+    useNan = addBooleanParam("useNanValue", "interpret 'NaN' as NaN (not a number)");
+    useNan->setValue(true);
+    nanValueParam = addFloatParam("nanValue", "value to replace 'NaN' with");
+    nanValueParam->setValue(nanValue);
 }
 
 ReadCOMSOLData::~ReadCOMSOLData()
@@ -396,7 +413,7 @@ int ReadCOMSOLData::readASCIIData()
                         for (int i = 0; i < numPoints; i++)
                         {
                             nextLine(d_dataFile);
-                            sscanf(buf, "%f", x_d + i);
+                            readFloat(buf, x_d + i);
                         }
                     }
                     else
@@ -423,14 +440,14 @@ int ReadCOMSOLData::readASCIIData()
                         for (int p = 0; p < numPoints; p++)
                         {
                             nextLine(d_dataFile);
-                            sscanf(buf, "%f", x_d + p);
+                            readFloat(buf, x_d + p);
                         }
                         i++; // next scalar
                         nextLine(d_dataFile);
                         for (int p = 0; p < numPoints; p++)
                         {
                             nextLine(d_dataFile);
-                            sscanf(buf, "%f", y_d + p);
+                            readFloat(buf, y_d + p);
                         }
                         if (vi->components == 3)
                         {
@@ -439,7 +456,7 @@ int ReadCOMSOLData::readASCIIData()
                             for (int p = 0; p < numPoints; p++)
                             {
                                 nextLine(d_dataFile);
-                                sscanf(buf, "%f", z_d + p);
+                                readFloat(buf, z_d + p);
                             }
                         }
                         else
@@ -486,6 +503,11 @@ int ReadCOMSOLData::readASCIIData()
 }
 int ReadCOMSOLData::compute(const char *)
 {
+    if (useNan->getValue())
+        nanValue = 0.f/0.f;
+    else
+        nanValue = nanValueParam->getValue();
+
     if (d_dataFile == NULL)
     {
         if (fileName.empty())
