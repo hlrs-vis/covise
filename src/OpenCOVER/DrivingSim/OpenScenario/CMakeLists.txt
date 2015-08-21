@@ -10,11 +10,14 @@ SET(HEADERS
    oscArrayMember.h
    oscFactories.h
    oscFactory.h
+   oscFile.h
    oscHeader.h
    oscMember.h
    oscMemberValue.h
    oscNamedObject.h
    oscObjectBase.h
+   oscObjectVariable.h
+   oscRoadNetwork.h
    oscVariables.h
    oscExport.h
 )

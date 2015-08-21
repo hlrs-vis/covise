@@ -9,6 +9,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVariables.h>
 #include <oscHeader.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
+
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/util/XercesVersion.hpp>
 #include <iostream>
 
 
@@ -59,7 +65,48 @@ int OpenScenarioBase::loadFile(std::string &fileName)
 }
 int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default false */)
 {
-    return false;
+    xercesc::DOMImplementation *impl;
+    impl = xercesc::DOMImplementation::getImplementation();
+    xmlDoc = impl->createDocument(0, xercesc::XMLString::transcode("OpenScenario"), 0);
+    rootElement = xmlDoc->getDocumentElement();
+    writeToDOM(rootElement,xmlDoc);;
+#if (XERCES_VERSION_MAJOR < 3)
+    xercesc::DOMWriter *writer = impl->createDOMWriter();
+#else
+    xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+    // set the format-pretty-print feature
+    if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+#endif
+
+    xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(fileName.c_str());
+
+#if (XERCES_VERSION_MAJOR < 3)
+    if (!writer->writeNode(xmlTarget, *document))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete xmlTarget;
+        delete writer;
+        return false;
+    }
+#else
+    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+    output->setByteStream(xmlTarget);
+
+    if (!writer->write(xmlDoc, output))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete xmlTarget;
+        delete writer;
+        return false;
+    }
+
+    delete output;
+#endif
+
+    delete xmlTarget;
+    delete writer;
+    return true;
 }
 
 xercesc::DOMElement *OpenScenarioBase::getRootElement(std::string filename)

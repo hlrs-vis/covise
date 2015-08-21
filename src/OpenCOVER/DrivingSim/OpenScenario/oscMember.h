@@ -30,6 +30,7 @@ protected:
 
     std::string name;
     oscMemberValue *value;
+    oscObjectBase* owner;
     enum oscMemberValue::MemberTypes type;
 
 public:
@@ -46,6 +47,7 @@ public:
     virtual void setValue(oscObjectBase *t){};
     void setType(oscMemberValue::MemberTypes t) {type = t;};
     oscMemberValue::MemberTypes getType() {return type;}; ///< return the type of this member
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document){if(value!=NULL) value->writeToDOM(currentElement,document,name.c_str());return true;};
     std::string &getName(){return name;};
 
 };

@@ -45,8 +45,10 @@ public:
     virtual ~oscObjectBase(); ///< destructor
     virtual void initialize(OpenScenarioBase *b);
     void addMember(oscMember *m);
+    OpenScenarioBase *getBase(){return base;};
     
     bool parseFromXML(xercesc::DOMElement *currentElement);
+    bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 };
 

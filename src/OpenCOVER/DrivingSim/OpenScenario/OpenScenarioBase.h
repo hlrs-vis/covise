@@ -9,6 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
+#include <oscRoadNetwork.h>
 #include <oscHeader.h>
 #include <string>
 #include <xercesc/util/XercesDefs.hpp>
@@ -33,23 +34,15 @@ protected:
 public:
     oscHeaderMember header;
     oscHeaderMember database;
-    oscHeaderMember roadNetwork;
+    oscRoadNetworkMember roadNetwork;
     oscHeaderMember environment;
     oscHeaderMember entities;
     oscHeaderMember storyboard;
     oscHeaderMember scenarioEnd;
 
-    
-    static oscFactory<oscObjectBase,std::string> *objectFactory;
-    static oscFactory<oscMemberValue,oscMemberValue::MemberTypes> *valueFactory;
 
     OpenScenarioBase(); /// constructor, initializes the class and sets a default factory
     ~OpenScenarioBase(); /// destructor, terminate xerces-c
-
-    void setObjectFactory(oscFactory<oscObjectBase,std::string> *factory); ///< set your own factory in order to create your own classes derived from the original OpenScenario ones
-                                                               ///set back to the default factory if factory is NULL
-    void setValueFactory(oscFactory<oscMemberValue,oscMemberValue::MemberTypes> *factory); ///< set your own factory in order to create your own classes derived from the original OpenScenario ones
-                                                               ///set back to the default factory if factory is NULL
 
     int loadFile(std::string &fileName); /*!< load an OpenScenario databas file in xml format
                                          \param fileName file to load.
@@ -63,6 +56,7 @@ public:
 
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
+    xercesc::DOMDocument *getDocument(){return xmlDoc;};
 
 };
 

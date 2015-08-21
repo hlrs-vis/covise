@@ -7,6 +7,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscFactories.h>
 #include <oscHeader.h>
+#include <oscFile.h>
+#include <oscDirectory.h>
+#include <oscRoadNetwork.h>
 #include <oscVariables.h>
 #include <oscObjectBase.h>
 
@@ -32,8 +35,21 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscShortValue>(oscMemberValue::SHORT);
     staticValueFactory.registerType<oscUShortValue>(oscMemberValue::USHORT);
     staticValueFactory.registerType<oscDoubleValue>(oscMemberValue::DOUBLE);
-
+    
     staticObjectFactory.registerType<oscHeader>("header");
+    staticObjectFactory.registerType<oscFile>("OpenDRIVE");
+    staticObjectFactory.registerType<oscFile>("SceneGraph");
+    staticObjectFactory.registerType<oscDirectory>("vehicleCatalog");
+    staticObjectFactory.registerType<oscDirectory>("driverCatalog");
+    staticObjectFactory.registerType<oscDirectory>("observerCatalog");
+    staticObjectFactory.registerType<oscDirectory>("pedestrianCatalog");
+    staticObjectFactory.registerType<oscDirectory>("miscObjectCatalog");
+    staticObjectFactory.registerType<oscDirectory>("entityCatalog");
+    staticObjectFactory.registerType<oscDirectory>("environmentCatalog");
+    staticObjectFactory.registerType<oscDirectory>("maneuverCatalog");
+    staticObjectFactory.registerType<oscDirectory>("routingCatalog");
+    staticObjectFactory.registerType<oscDirectory>("entityCatalog");
+    staticObjectFactory.registerType<oscRoadNetwork>("roadNetwork");
 }
 
 

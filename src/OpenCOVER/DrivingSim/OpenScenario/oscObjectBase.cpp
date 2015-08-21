@@ -7,8 +7,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscObjectBase.h>
 #include <oscArrayMember.h>
-#include <oscObjectMember.h>
+#include <oscObjectVariable.h>
 #include <OpenScenarioBase.h>
+#include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
@@ -38,6 +39,33 @@ void oscObjectBase::addMember(oscMember *m)
     members[m->getName()]=m;
 }
 
+bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+{
+    for(MemberMap::iterator it = members.begin();it != members.end();it++)
+    {
+        oscMember *member = it->second;
+        if(member)
+        {
+            if(member->getType() == oscMemberValue::OBJECT)
+            {
+                member->writeToDOM(currentElement,document);
+            }
+            else
+            {
+                oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
+                if(am)
+                {
+                    std::cerr << "Array values not yet implemented" << std::endl;
+                }
+                else
+                {
+                    member->writeToDOM(currentElement,document);
+                }
+            }
+        }
+    }
+    return true;
+}
 bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement)
 {
     xercesc::DOMNodeList *childrenList = currentElement->getChildNodes();

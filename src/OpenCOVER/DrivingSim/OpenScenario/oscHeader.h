@@ -8,7 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_HEADER_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
-#include <oscObjectMember.h>
+#include <oscObjectVariable.h>
 #include <oscVariables.h>
 
 namespace OpenScenario {
@@ -31,7 +31,7 @@ public:
 
 };
 
-typedef oscObjectMember<oscHeader *> oscHeaderMember;
+typedef oscObjectVariable<oscHeader *> oscHeaderMember;
 
 }
 

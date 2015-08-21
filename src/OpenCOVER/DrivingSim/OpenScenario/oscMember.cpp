@@ -20,14 +20,16 @@ using namespace OpenScenario;
 
 oscMember::oscMember()
 {
-    
+    value=NULL;
+    owner=NULL;
 }
 
 oscMember::~oscMember()
 {
 }
 
-void oscMember::registerWith(oscObjectBase* owner)
+void oscMember::registerWith(oscObjectBase* o)
 {
+    owner = o;
     owner->addMember(this);
 }

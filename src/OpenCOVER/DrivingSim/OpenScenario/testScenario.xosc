@@ -3,7 +3,10 @@
   <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
   <database>
   </database>
-  <roadNetwork openDrive="town.xodr">
+  <roadNetwork>
+    <OpenDRIVE URL="test.xodr"/>
+    <SceneGraph URL="test.ive"/>
+  </roadNetwork>
   <storyboard>
   </storyboard>
 </OpenScenario>
