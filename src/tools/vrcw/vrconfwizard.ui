@@ -236,9 +236,6 @@
          </item>
          <item>
           <widget class="QPushButton" name="finishButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -262,6 +259,22 @@
             <string>Abort</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="buttonHSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -324,9 +337,6 @@
    </property>
   </action>
   <action name="action_Finish">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>&amp;Finish</string>
    </property>
