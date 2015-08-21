@@ -353,42 +353,41 @@ int ReadCOMSOLData::readASCIIData()
                 }
                 if (portID > 0)
                 {
-                    VarInfo &vi=varInfos[0];
+                    
                     int varIndex = 0;
                     for (int n = 0; n < varInfos.size(); n++)
                     {
                         if (varInfos[n].valueIndex == i)
                         {
-                            vi = varInfos[n];
                             varIndex = n;
                         }
                     }
                     string objName;
-                    if(vi.name == "Particle position")
+                    if(varInfos[varIndex].name == "Particle position")
                     {
-                        vi.objectName = READER_CONTROL->getAssocObjName(GEOPORT1D);
+                        varInfos[varIndex].objectName = READER_CONTROL->getAssocObjName(GEOPORT1D);
                     }
                     else
                     {
-                        vi.objectName = READER_CONTROL->getAssocObjName(portID);
+                        varInfos[varIndex].objectName = READER_CONTROL->getAssocObjName(portID);
                     }
                     if (numTimesteps < 2)
                     {
-                        objName = vi.objectName;
+                        objName = varInfos[varIndex].objectName;
                     }
                     else
                     {
                         char tmpName[500];
-                        sprintf(tmpName, "%s_%d", vi.objectName.c_str(), t);
+                        sprintf(tmpName, "%s_%d", varInfos[varIndex].objectName.c_str(), t);
                         objName = tmpName;
                     }
-                    if (vi.components == 1)
+                    if (varInfos[varIndex].components == 1)
                     {
                         nextLine(d_dataFile);
                         coDoFloat *dataObj = new coDoFloat(objName.c_str(), numPoints);
 
-                        vi.dataObjs[t] = dataObj;
-                        vi.dataObjs[t + 1] = NULL;
+                        varInfos[varIndex].dataObjs[t] = dataObj;
+                        varInfos[varIndex].dataObjs[t + 1] = NULL;
                         float *x_d;
                         float *y_d;
                         float *z_d;
@@ -406,7 +405,7 @@ int ReadCOMSOLData::readASCIIData()
                         float *x_d;
                         float *y_d;
                         float *z_d;
-                        if(vi.name == "Particle position")
+                        if(varInfos[varIndex].name == "Particle position")
                         {
                             coDoPoints *dataObj = new coDoPoints(objName.c_str(), numPoints);
                             dataObj->getAddresses(&x_d, &y_d, &z_d);
@@ -418,12 +417,19 @@ int ReadCOMSOLData::readASCIIData()
                             dataObj->getAddresses(&x_d, &y_d, &z_d);
                             distrObj = dataObj;
                         }
-                        vi.dataObjs[t] = distrObj;
-                        vi.dataObjs[t + 1] = NULL;
+                        varInfos[varIndex].dataObjs[t] = distrObj;
+                        varInfos[varIndex].dataObjs[t + 1] = NULL;
                         for (int p = 0; p < numPoints; p++)
                         {
                             nextLine(d_dataFile);
-                            sscanf(buf, "%f", x_d + p);
+                            if(buf[0]=='N')
+                            {
+                                *(x_d+p)=0.0;
+                            }
+                            else
+                            {
+                                sscanf(buf, "%f", x_d + p);
+                            }
                         }
                         i++; // next scalar
                         nextLine(d_dataFile);
@@ -432,7 +438,7 @@ int ReadCOMSOLData::readASCIIData()
                             nextLine(d_dataFile);
                             sscanf(buf, "%f", y_d + p);
                         }
-                        if (vi.components == 3)
+                        if (varInfos[varIndex].components == 3)
                         {
                             i++; // next scalar
                             nextLine(d_dataFile);
