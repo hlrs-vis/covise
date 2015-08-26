@@ -104,12 +104,12 @@ bool OsmImport::parseDoc(QDomDocument &doc)
     QDomNodeList list = doc.elementsByTagName("node");
     for (int i = 0; i < list.count(); i++)
     {
-        nodes.append(osmNode(list.at(i).toElement()));
+        nodes.append(new osmNode(list.at(i).toElement()));
     }
     list = doc.elementsByTagName("way");
     for (int i = 0; i < list.count(); i++)
     {
-        ways.append(osmWay(list.at(i).toElement(), nodes));
+        ways.append(new osmWay(list.at(i).toElement(), nodes));
     }
     
     bool importPrimary();
@@ -142,7 +142,8 @@ bool OsmImport::parseDoc(QDomDocument &doc)
     bool doUnclassified = ImportSettings::instance()->importUnclassified();
     for (int i = 0; i < ways.count(); i++)
     {
-        osmWay::wayType t = ways.at(i).type;
+        osmWay *w = ways.at(i);
+        osmWay::wayType t = w->type;
 
         if ((t == osmWay::primary && doPrimary) ||
             (t == osmWay::secondary && doSecondary) ||
@@ -159,15 +160,17 @@ bool OsmImport::parseDoc(QDomDocument &doc)
             (t == osmWay::pedestrian && doPedestrian) ||
             (t == osmWay::unclassified && doUnclassified))
         {
-            project->XVector = ways.at(i).XVector;
-            project->YVector = ways.at(i).YVector;
-            project->ZVector = ways.at(i).ZVector;
+            project->XVector = w->XVector;
+            project->YVector = w->YVector;
+            project->ZVector = w->ZVector;
             if (project->XVector.size() > 0)
             {
-                project->addLineStrip(ways.at(i).name);
+                project->addLineStrip(w->name,w->maxSpeed,w->bridge,w->numLanes,w->type);
             }
         }
     }
+    qDeleteAll(ways.begin(), ways.end());
+    qDeleteAll(nodes.begin(), nodes.end());
     ways.clear();
     nodes.clear();
     // resize
@@ -249,8 +252,11 @@ osmWay::osmWay(const osmWay &w)
     YVector = w.YVector;
     ZVector = w.ZVector;
     name = w.name;
+    numLanes = w.numLanes;
+    maxSpeed = w.maxSpeed;
+    bridge = w.bridge;
 }
-osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
+osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
 {
     type = unknown;
     numLanes = 2;
@@ -264,10 +270,11 @@ osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
         unsigned int ref = ele.attribute("ref").toUInt();
         for (int n = 0; n < nodes.count(); n++)
         {
-            if (nodes.at(n).id == ref)
+            osmNode *node =nodes.at(n);
+            if (node->id == ref)
             {
                 double x, y, z;
-                nodes.at(n).getCoordinates(x, y, z);
+                node->getCoordinates(x, y, z);
                 XVector.push_back(x);
                 YVector.push_back(y);
                 ZVector.push_back(0.0);

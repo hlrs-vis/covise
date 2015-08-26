@@ -1152,8 +1152,33 @@ DomParser::parseTypeElement(QDomElement &element, RSystemElementRoad *road)
     double s = parseToDouble(element, "s", 0.0, false); // mandatory
     QString type = parseToQString(element, "type", "unknown", false); // mandatory
 
+
     TypeSection *typeSection = new TypeSection(s, TypeSection::parseRoadType(type));
+
+    
+    QDomElement speedRecord;
+    speedRecord = element.firstChildElement("speed");
+    if (!speedRecord.isNull())
+    {
+        parseSpeedElement(speedRecord, typeSection);
+    }
+
     road->addTypeSection(typeSection);
+
+    return true;
+}
+
+/*! \brief Parses a road:type:speed element.
+*
+*/
+bool
+DomParser::parseSpeedElement(QDomElement &element, TypeSection *type)
+{
+    QString max = parseToQString(element, "max", "undefined", false); // mandatory
+    QString unit = parseToQString(element, "unit", "m/s", true); // otional
+
+    SpeedRecord *sr = new SpeedRecord(max, unit);
+    type->setSpeedRecord(sr);
 
     return true;
 }

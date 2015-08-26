@@ -69,7 +69,7 @@ public:
     };
     osmWay();
     osmWay(const osmWay &w);
-    osmWay(QDomElement element, QVector<osmNode> &nodes);
+    osmWay(QDomElement element, QVector<osmNode *> &nodes);
     wayType type;
     QString name;
     int numLanes;
@@ -100,8 +100,8 @@ public:
     };
 
 private:
-    QVector<osmNode> nodes;
-    QVector<osmWay> ways;
+    QVector<osmNode*> nodes;
+    QVector<osmWay*> ways;
     QNetworkAccessManager *nam;
     //################//
     // SLOTS          //

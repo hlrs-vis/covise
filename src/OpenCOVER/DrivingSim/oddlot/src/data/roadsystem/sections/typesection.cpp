@@ -17,6 +17,27 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
+SpeedRecord::SpeedRecord()
+{
+    maxSpeed=0;
+}
+SpeedRecord::SpeedRecord(QString &max, QString &unit)
+{
+    if(max == "no limit")
+        maxSpeed = 0;
+    if(max == "undefined")
+        maxSpeed = -1;
+    maxSpeed = max.toFloat();
+    float factor = 1.0;
+    if(unit == "m/s")
+        factor = 1.0;
+    if(unit == "km/h")
+        factor = 0.277777778;
+    if(unit == "mph")
+        factor = 0.44704;
+    maxSpeed *= factor;
+}
+
 //####################//
 // Constructors       //
 //####################//
@@ -26,11 +47,25 @@ TypeSection::TypeSection(double s, TypeSection::RoadType type)
     , typeSectionChanges_(0x0)
     , type_(type)
 {
+    speedRecord=NULL;
+}
+TypeSection::~TypeSection()
+{
+    delete speedRecord;
 }
 
 //####################//
 // TypeSection        //
 //####################//
+
+void TypeSection::setSpeedRecord(SpeedRecord *sr)
+{
+    speedRecord = sr;
+}
+SpeedRecord *TypeSection::getSpeedRecord()
+{
+    return speedRecord;
+}
 
 /*! \brief Sets the RoadType of this section.
 *

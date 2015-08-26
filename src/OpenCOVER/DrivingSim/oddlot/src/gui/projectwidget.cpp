@@ -617,6 +617,11 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
 }
 RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
 {
+    return addLineStrip(name,-1,false,2,osmWay::unknown);
+}
+
+RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type)
+{
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
@@ -727,22 +732,21 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
 
     road->setElevationSections(newSections);
     road->superposePrototype(currentRoadPrototype_);
+    if(maxspeed>=0)
+    {
+        TypeSection *ts = road->getTypeSection(0);
+        if(ts==NULL)
+        {
+            // default entry 
+            ts = new TypeSection(0.0, TypeSection::RTP_UNKNOWN);
+            road->addTypeSection(ts);
+        }
+        SpeedRecord *sr=new SpeedRecord();
+        sr->maxSpeed = maxspeed * 0.277777778;
+        ts->setSpeedRecord(sr);
+    }
 
     roadSystem->addRoad(road); // This may change the ID!
-#ifdef tesselatedROAD
-    // add a testroad
-    road = new RSystemElementRoad("tr_" + number, "trID_" + number, "");
-    for (int i = 0; i < XVector.size() - 1; i++)
-    {
-        double dx = XVector[i + 1] - XVector[i];
-        double dy = YVector[i + 1] - YVector[i];
-        double length = sqrt(dx * dx + dy * dy);
-        TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dy, dx) * RAD_TO_DEG, road->getLength(), length);
-        road->addTrackComponent(line);
-    }
-    road->superposePrototype(testRoadPrototype_);
-    roadSystem->addRoad(road); // This may change the ID!
-#endif
 
     numLineStrips++;
     return road;
