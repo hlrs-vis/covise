@@ -169,3 +169,109 @@ void VrmlNodeLanding::closeDoor()
     d_doorClose = System::the->time();
     eventOut(d_doorClose.get(), "doorClose", d_doorClose);
 }
+
+void VrmlNodeLanding::putCarOnRail(VrmlNodeCar *car)
+{
+    VrmlNodeCar::carState cs = car->getTravelDirection();
+    if(cs==VrmlNodeCar::MoveDown || cs==VrmlNodeCar::MoveUp)
+    {
+        carsOnRailUp.push_back(car);
+    }
+    else
+    {
+        carsOnRailRight.push_back(car);
+    }
+}
+void VrmlNodeLanding::removeCarFromRail(VrmlNodeCar *car)
+{
+    carsOnRailRight.remove(car);
+    carsOnRailUp.remove(car);
+}
+
+float VrmlNodeLanding::getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar)
+{
+     VrmlNodeCar::carState cs = car->getTravelDirection();
+    closestCar = NULL;
+    float myHeight = car->d_carPos.y();
+    float myX = car->d_carPos.x();
+#define INFINITE_HEIGHT 1000000.0
+    float minDistance = INFINITE_HEIGHT;
+    if(cs==VrmlNodeCar::MoveDown)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRailUp.begin(); it != carsOnRailUp.end(); it++)
+        {
+            if(*it != car)
+            {
+                float height = (*it)->d_carPos.y();
+                if(height < myHeight)
+                {
+                    if((myHeight - height) < minDistance)
+                    {
+                        minDistance = myHeight - height;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+            
+    }
+    else if(cs==VrmlNodeCar::MoveUp)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRailUp.begin(); it != carsOnRailUp.end(); it++)
+        {
+            if(*it != car)
+            {
+                float height = (*it)->d_carPos.y();
+                if(height > myHeight)
+                {
+                    if((height - myHeight) < minDistance)
+                    {
+                        minDistance = height - myHeight;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+    }
+    
+    if(cs==VrmlNodeCar::MoveLeft)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRailRight.begin(); it != carsOnRailRight.end(); it++)
+        {
+            if(*it != car)
+            {
+                float currentX = (*it)->d_carPos.x();
+                if(currentX < myX)
+                {
+                    if((myX - currentX) < minDistance)
+                    {
+                        minDistance = myX - currentX;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+            
+    }
+    else if(cs==VrmlNodeCar::MoveRight)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRailRight.begin(); it != carsOnRailRight.end(); it++)
+        {
+            if(*it != car)
+            {
+                float currentX = (*it)->d_carPos.x();
+                if(currentX > myX)
+                {
+                    if((currentX - myX) < minDistance)
+                    {
+                        minDistance = currentX - myX;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+    }
+    if(minDistance == INFINITE_HEIGHT)
+        return -1;
+    return minDistance;
+}

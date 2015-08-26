@@ -272,18 +272,26 @@ void VrmlNodeElevator::render(Viewer *)
 }
 
 
-void VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
+bool VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
 {
     stations[station] = car;
+    bool success=false;
     
     if(exchangers.size() > station && exchangers[station] !=NULL)
     {
+        if(exchangers[station]->getCar() != NULL && exchangers[station]->getCar() != car)
+            return false;
         exchangers[station]->setCar(car);
+        success=true;
     }
     if(landings.size() > station && landings[station] !=NULL)
     {
+        if(landings[station]->getCar() != NULL && landings[station]->getCar() != car)
+            return false;
         landings[station]->setCar(car);
+        success=true;
     }
+    return success;
 }
 void VrmlNodeElevator::release(int station)
 {
