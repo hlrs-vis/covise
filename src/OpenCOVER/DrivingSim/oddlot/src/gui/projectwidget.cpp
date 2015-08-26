@@ -485,7 +485,7 @@ size_t ProjectWidget::getMaxLinearLength(size_t start)
     size_t maxLen = XVector.size() - start;
     for (size_t i = 3; i <= maxLen; i++)
     {
-        if (getLinearError(start, i) > ImportSettings::instance()->LinearError)
+        if (getLinearError(start, i) > ImportSettings::instance()->LinearError())
             return i - 1;
     }
     return maxLen;
@@ -551,7 +551,7 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
             if (curve->validParameters())
             {
 
-                if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError)
+                if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError())
                 {
                     //delete curve;
                     //return i-1;
@@ -591,7 +591,7 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
                     curve = new TrackSpiralArcSpiral(startPos, endPos, startHeadingDeg, endHeadingDeg, 0.5);
                     if (curve->validParameters())
                     {
-                        if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError)
+                        if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError())
                         {
                             //delete curve;
                             //return i-1;
@@ -620,7 +620,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
-    RSystemElementRoad *road = new RSystemElementRoad("", name, "");
+    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "");
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());

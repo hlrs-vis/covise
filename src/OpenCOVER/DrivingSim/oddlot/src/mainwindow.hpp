@@ -214,6 +214,7 @@ private slots:
     void importCarMakerRoad();
     void importCSVRoad();
     void importOSMRoad();
+    void importOSMFile();
     void about();
     void openRecentFile();
     void changeLODSettings();
