@@ -745,6 +745,11 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
         sr->maxSpeed = maxspeed * 0.277777778;
         ts->setSpeedRecord(sr);
     }
+    if(bridge)
+    {
+        Bridge *bridge = new Bridge("","","",0,0.0,road->getLength());
+        road->addBridge(bridge);
+    }
 
     roadSystem->addRoad(road); // This may change the ID!
 

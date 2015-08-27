@@ -1350,6 +1350,10 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
         {
             typenr = 2;
         }
+        else if (type == "wood")
+        {
+            typenr = 3;
+        }
 
         // Construct bridge object
         Bridge *bridge = new Bridge(id, modelFile, name, typenr, s, length);

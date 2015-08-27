@@ -499,6 +499,10 @@ DomWriter::visit(Bridge *bridge)
         {
             typeName = "brick";
         }
+        else if (bridge->getType() == 3)
+        {
+            typeName = "wood";
+        }
 
         bridgeElement.setAttribute("type", typeName);
     }
