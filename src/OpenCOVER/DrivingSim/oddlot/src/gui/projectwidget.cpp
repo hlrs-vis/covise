@@ -750,6 +750,27 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
         Bridge *bridge = new Bridge("","","",0,0.0,road->getLength());
         road->addBridge(bridge);
     }
+    TypeSection *ts = road->getTypeSection(0);
+    TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
+    if(type == osmWay::secondary)
+        rt = TypeSection::RTP_RURAL;
+    if(type == osmWay::tertiary)
+        rt = TypeSection::RTP_TOWN;
+    if(type == osmWay::living_street)
+        rt = TypeSection::RTP_LOWSPEED;
+    if(type == osmWay::service)
+        rt = TypeSection::RTP_LOWSPEED;
+    if(type == osmWay::pedestrian)
+        rt = TypeSection::RTP_PEDESTRIAN;
+    if(type == osmWay::unclassified)
+        rt = TypeSection::RTP_UNKNOWN;
+    if(ts==NULL)
+    {
+        TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
+        ts = new TypeSection(0.0,rt);
+        road->addTypeSection(ts);
+    }
+    ts->setRoadType(rt);
 
     roadSystem->addRoad(road); // This may change the ID!
 

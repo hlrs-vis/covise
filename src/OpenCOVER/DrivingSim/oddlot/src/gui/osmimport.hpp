@@ -58,6 +58,7 @@ public:
         primary,
         secondary,
         tertiary,
+        motorway,
         living_street,
         cycleway,
         turning_circle,

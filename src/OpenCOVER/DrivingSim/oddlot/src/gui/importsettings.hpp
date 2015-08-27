@@ -39,6 +39,7 @@ public:
     bool importPrimary();
     bool importSecondary();
     bool importTertiary();
+    bool importMotorway();
     bool importService();
     bool importPath();
     bool importSteps();

@@ -115,6 +115,7 @@ bool OsmImport::parseDoc(QDomDocument &doc)
     bool importPrimary();
     bool importSecondary();
     bool importTertiary();
+    bool importMotorway();
     bool importService();
     bool importPath();
     bool importSteps();
@@ -129,6 +130,7 @@ bool OsmImport::parseDoc(QDomDocument &doc)
     bool doPrimary = ImportSettings::instance()->importPrimary();
     bool doSecondary = ImportSettings::instance()->importSecondary();
     bool doTertiary = ImportSettings::instance()->importTertiary();
+    bool doMotorway = ImportSettings::instance()->importMotorway();
     bool doService = ImportSettings::instance()->importService();
     bool doPath = ImportSettings::instance()->importPath();
     bool doSteps = ImportSettings::instance()->importSteps();
@@ -148,6 +150,7 @@ bool OsmImport::parseDoc(QDomDocument &doc)
         if ((t == osmWay::primary && doPrimary) ||
             (t == osmWay::secondary && doSecondary) ||
             (t == osmWay::tertiary && doTertiary) ||
+            (t == osmWay::motorway && doMotorway) ||
             (t == osmWay::service && doService) ||
             (t == osmWay::path && doPath) ||
             (t == osmWay::steps && doSteps) ||
@@ -338,6 +341,10 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
             else if (v == "tertiary"|| v == "tertiary_link")
             {
                 type = tertiary;
+            }
+            else if (v == "motorway"|| v == "motorway_link")
+            {
+                type = motorway;
             }
             else if (v == "service"|| v == "service_link")
             {

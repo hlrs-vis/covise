@@ -68,6 +68,10 @@ bool ImportSettings::importTertiary()
 {
     return ui->tertiary_cb->isChecked();
 }
+bool ImportSettings::importMotorway()
+{
+    return ui->motorway_cb->isChecked();
+}
 bool ImportSettings::importService()
 {
     return ui->service_cb->isChecked();
