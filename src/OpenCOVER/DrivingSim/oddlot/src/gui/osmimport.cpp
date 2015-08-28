@@ -382,6 +382,41 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
     }
 }
 
+QString osmWay::getTypeName(wayType t)
+{
+    if(t == unclassified)
+        return QString("unclassified");
+    if(t == pedestrian)
+        return QString("pedestrian");
+    if(t == turning_circle)
+        return QString("turning_circle");
+    if(t == cycleway)
+        return QString("cycleway");
+    if(t == living_street)
+        return QString("living_street");
+    if(t == path)
+        return QString("path");
+    if(t == service)
+        return QString("service");
+    if(t == motorway)
+        return QString("motorway");
+    if(t == tertiary)
+        return QString("tertiary");
+    if(t == secondary)
+        return QString("secondary");
+    if(t == primary)
+        return QString("primary");
+    if(t == steps)
+        return QString("steps");
+    if(t == track)
+        return QString("track");
+    if(t == footway)
+        return QString("footway");
+    if(t == residential)
+        return QString("residential");
+    return("unclassified");
+}
+
 //################//
 // FUNCTIONS      //
 //################//

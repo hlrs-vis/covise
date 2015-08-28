@@ -68,6 +68,7 @@ public:
         service,
         unknown
     };
+    static QString getTypeName(wayType t);
     osmWay();
     osmWay(const osmWay &w);
     osmWay(QDomElement element, QVector<osmNode *> &nodes);

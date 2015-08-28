@@ -731,7 +731,15 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     }
 
     road->setElevationSections(newSections);
-    road->superposePrototype(currentRoadPrototype_);
+    QString typeName="osm:"+osmWay::getTypeName(type)+":"+QString::number(numLanes);
+    
+    RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype,typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
+  
+    road->superposePrototype(osmPrototype);
     if(maxspeed>=0)
     {
         TypeSection *ts = road->getTypeSection(0);
@@ -744,11 +752,6 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
         SpeedRecord *sr=new SpeedRecord();
         sr->maxSpeed = maxspeed * 0.277777778;
         ts->setSpeedRecord(sr);
-    }
-    if(bridge)
-    {
-        Bridge *bridge = new Bridge("","","",0,0.0,road->getLength());
-        road->addBridge(bridge);
     }
     TypeSection *ts = road->getTypeSection(0);
     TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
@@ -773,6 +776,12 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     ts->setRoadType(rt);
 
     roadSystem->addRoad(road); // This may change the ID!
+    
+    if(bridge)
+    {
+        Bridge *bridge = new Bridge("osmBridge","","",0,0.0,road->getLength());
+        road->addBridge(bridge);
+    }
 
     numLineStrips++;
     return road;
