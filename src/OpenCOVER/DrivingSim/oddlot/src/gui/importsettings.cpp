@@ -116,6 +116,11 @@ bool ImportSettings::importUnclassified()
 {
     return ui->unclassified_cb->isChecked();
 }
+bool ImportSettings::maximizeCurveRadius()
+{
+    return ui->maximize_curve_radius_cb->isChecked();
+}
+
 ImportSettings::~ImportSettings()
 {
     delete ui;

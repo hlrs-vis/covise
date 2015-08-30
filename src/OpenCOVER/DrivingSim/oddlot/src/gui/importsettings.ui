@@ -226,6 +226,22 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QCheckBox" name="maximize_curve_radius_cb">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>220</y>
+     <width>131</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>maximize curve radius</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

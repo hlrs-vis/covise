@@ -51,6 +51,7 @@ public:
     bool importTurning_circle();
     bool importPedestrian();
     bool importUnclassified();
+    bool maximizeCurveRadius();
     static ImportSettings *instance()
     {
         return inst;
