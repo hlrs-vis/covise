@@ -281,14 +281,14 @@ int ReadCOMSOLData::readASCIIData()
             {
                 nextLine(d_dataFile);
                 float tmpf;
-                sscanf(buf, "%d", &tmpf);
+                sscanf(buf, "%f", &tmpf);
             }
             nextLine(d_dataFile);
             for (int i = 0; i < numElements; i++)
             {
                 nextLine(d_dataFile);
                 float tmpf;
-                sscanf(buf, "%d", &tmpf);
+                sscanf(buf, "%f", &tmpf);
             }
         }
         else if (dimentions == 2)
