@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# some day there will be ansii color
+#LSCOLORS=exfxcxdxbxegedabagacad
+#export LSCOLORS
+#export CLICOLOR=1 
+MENU='\033[00;00m'  # white
+OPT='\033[32m'      # green
+ENTER='\033[33m'    # brown
+TYP='\033[36m'      # cyan
+NORMAL='\033[m'     # white
+
+#MENU=''
+#OPT=''
+#ENTER=''
+#TYP=''
+#NORMAL=''
+
+while [ opt != '' ] 
+do
+    echo -e "${MENU}-----${TYP} Thyssen ${MENU}---------------------------------"
+    echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 87)  ${MENU} Thyssen Turm              "
+    echo -e "${MENU} ${OPT} 88)  ${MENU} Thyssen CFD Multi         "
+
+    echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
+    echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
+    echo -e "${MENU} ${OPT} 97)  ${MENU} L-Bench: Frame lock on       "
+    echo -e "${MENU} ${OPT} 98)  ${MENU} L-Bench: Frame lock off      "
+    echo -e "                                                      "
+    echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
+    echo -e "${MENU}---------------------------------------------"
+    echo -e "${ENTER}   Enter choice ([Enter] reprints menu) ${NORMAL}"
+
+    opt=""
+    read opt
+
+    case $opt in
+
+	86)
+	    echo -e "Thyssen Aufzug";
+	    covise -e /data/covise_net/2014/ThyssenNeu.net
+	    ;;
+    87)
+	    echo -e "Thyssen Turm";
+	    opencover /data/Thyssen/Turm/turm_Aufzug.wrl
+	    ;;
+    88)
+	    echo -e "Thyssen CFD Multi";
+	    covise -e /data/covise_net/2015/PassingMulti01-10.net
+	    ;;
+
+# SYSTEM
+
+	91)
+	    echo -e "killing OpenCOVER";
+	    doallp killall opencover
+	    ;;
+    97)
+        echo -e "L-Bench: Frame lock on"
+        framelock-lbench on
+        ;;
+    98)
+        echo -e "L-Bench: Frame lock off"
+        framelock-lbench off
+        ;;
+
+# MENU
+
+	q)
+	    exit;
+	    ;;
+	*)
+	    ;;
+    esac
+done
