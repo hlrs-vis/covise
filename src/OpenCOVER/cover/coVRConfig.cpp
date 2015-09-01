@@ -331,6 +331,7 @@ coVRConfig::coVRConfig()
         sprintf(str, "COVER.PipeConfig.Pipe:%d", (int)i);
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
+        pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
     }
 
     for (size_t i = 0; i < windows.size(); i++)

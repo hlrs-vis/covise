@@ -239,6 +239,9 @@ VRWindow::createWin(int i)
     }
     else
     {
+        const std::string &host = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11DisplayHost;
+        if (!host.empty())
+            traits->hostName = host;
         traits->displayNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11DisplayNum;
         traits->screenNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11ScreenNum;
 
