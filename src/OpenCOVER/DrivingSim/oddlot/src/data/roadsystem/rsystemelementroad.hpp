@@ -342,13 +342,14 @@ public:
     virtual void acceptForCrosswalks(Visitor *visitor);
     virtual void acceptForSignals(Visitor *visitor);
     virtual void acceptForSensors(Visitor *visitor);
+    
+    double updateLength();
 
 private:
     RSystemElementRoad(); /* not allowed */
     RSystemElementRoad(const RSystemElementRoad &); /* not allowed */
     RSystemElementRoad &operator=(const RSystemElementRoad &); /* not allowed */
 
-    double updateLength();
 
     // IDs //
     //

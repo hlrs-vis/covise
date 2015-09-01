@@ -8,6 +8,8 @@
 #include "src/util/roadtypecombobox.h"
 
 #include <QWidget>
+#include <QLabel>
+#include <QDoubleSpinBox>
 
 class TypeSectionSettingsUI
 {
@@ -20,7 +22,17 @@ public:
     {
         return roadTypeComboBox_;
     };
+    QLabel *getLabel()
+    {
+        return maxSpeedLabel;
+    };
+    QDoubleSpinBox *getSpinBox()
+    {
+        return spinBox;
+    };
 
 private:
     RoadTypeComboBox *roadTypeComboBox_;
+    QLabel *maxSpeedLabel;
+    QDoubleSpinBox *spinBox;
 };

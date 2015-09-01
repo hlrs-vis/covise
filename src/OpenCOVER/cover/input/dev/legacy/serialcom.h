@@ -7,8 +7,8 @@
 
 typedef int T_Bool;
 
-bool INPUT_LEGACY_EXPORT Init(char *device, int baud_rate);
-bool INPUT_LEGACY_EXPORT close_port();
-bool INPUT_LEGACY_EXPORT send_command(char *command, int c_length);
-bool INPUT_LEGACY_EXPORT get_answer(unsigned int n, unsigned char *out);
-bool INPUT_LEGACY_EXPORT getDivisionAnswer(unsigned int n, unsigned char *out);
+bool Init(char *device, int baud_rate);
+bool close_port();
+bool send_command(char *command, int c_length);
+bool get_answer(unsigned int n, unsigned char *out);
+bool getDivisionAnswer(unsigned int n, unsigned char *out);

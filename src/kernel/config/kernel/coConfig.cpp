@@ -53,8 +53,8 @@ coConfig::coConfig()
 
     COCONFIGDBG_DEFAULT("coConfig::<init> info: debug level is " << debugLevel);
 
-    COCONFIGDBG("coConfigConstants::<init> info: hostname is " << getHostname());
-    activeHostname = getHostname();
+    COCONFIGDBG("coConfigConstants::<init> info: hostname is " << coConfigConstants::getHostname());
+    activeHostname = coConfigConstants::getHostname();
 
     load();
 }

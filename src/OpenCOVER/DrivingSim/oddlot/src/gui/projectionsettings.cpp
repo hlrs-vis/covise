@@ -79,16 +79,25 @@ ProjectionSettings::ProjectionSettings()
     XOffset = ui->XOffsetSpin->value();
     YOffset = ui->YOffsetSpin->value();
     ZOffset = ui->ZOffsetSpin->value();
-
-    if (!(pj_from = pj_init_plus(projFromString.toUtf8().constData())))
+    
+    projPJ new_pj_from, new_pj_to;
+    if (!(new_pj_from = pj_init_plus(projFromString.toUtf8().constData())))
     {
         //std::cerr << "RoadSystem::parseIntermapRoad(): couldn't initalize projection source: " << projFromString << std::endl;
         //return false;
     }
-    if (!(pj_to = pj_init_plus(projToString.toUtf8().constData())))
+    else
+    {
+        pj_from = new_pj_from;
+    }
+    if (!(new_pj_to = pj_init_plus(projToString.toUtf8().constData())))
     {
         //std::cerr << "RoadSystem::parseIntermapRoad(): couldn't initalize projection target: " << projToString << std::endl;
         //return false;
+    }
+    else
+    {
+        pj_to = new_pj_to;
     }
     inst = this;
 }

@@ -34,9 +34,13 @@ using covise::coCoviseConfig;
 
 void ClipPlanePlugin::message(int type, int len, const void *buf)
 {
+    const int numClip = cover->getNumClipPlanes();
+
     if (type == 1 && len == 1)
     {
         int planeNumber = atoi((const char *)buf);
+        if (planeNumber >= numClip)
+            return;
         plane[planeNumber].enabled = !plane[planeNumber].enabled;
         plane[planeNumber].EnableButton->setState(plane[planeNumber].enabled);
         return;
@@ -53,12 +57,17 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
     {
         sscanf(number, "set %d %lf %lf %lf %lf", &planeNumber, &eq[0], &eq[1], &eq[2], &eq[3]);
 
+        if (planeNumber >= numClip)
+            return;
+
         plane[planeNumber].clip->setClipPlane(eq);
         plane[planeNumber].valid = true;
     }
     else if (!strncasecmp(number, "enablePick", 10))
     {
         planeNumber = atoi(&number[11]);
+        if (planeNumber >= numClip)
+            return;
         plane[planeNumber].enabled = true;
         cover->getObjectsRoot()->addClipPlane(plane[planeNumber].clip.get());
         plane[planeNumber].PickInteractorButton->setState(true);
@@ -67,6 +76,8 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
     else if (!strncasecmp(number, "disablePick", 11))
     {
         planeNumber = atoi(&number[12]);
+        if (planeNumber >= numClip)
+            return;
         plane[planeNumber].enabled = false;
         cover->getObjectsRoot()->removeClipPlane(plane[planeNumber].clip.get());
         plane[planeNumber].PickInteractorButton->setState(false);
@@ -76,6 +87,8 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
     else if (!strncasecmp(number, "enable", 6))
     {
         planeNumber = atoi(&number[7]);
+        if (planeNumber >= numClip)
+            return;
         if (!plane[planeNumber].enabled)
         {
             plane[planeNumber].enabled = true;
@@ -86,6 +99,8 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
     else if (!strncasecmp(number, "disable", 7))
     {
         planeNumber = atoi(&number[8]);
+        if (planeNumber >= numClip)
+            return;
         if (plane[planeNumber].enabled)
         {
             plane[planeNumber].enabled = false;
@@ -102,6 +117,8 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
         for (int i = 0; i < 4; i++)
             tb >> eq[i];
         //fprintf(stderr,"ClipPlanePlugin::message for plane %d eq=[%f %f %f %f]\n", planeNumber, eq[0], eq[1], eq[2], eq[3]);
+        if (planeNumber >= numClip)
+            return;
 
         plane[planeNumber].clip->setClipPlane(eq);
         plane[planeNumber].valid = true;

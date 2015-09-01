@@ -293,7 +293,7 @@ coVRConfig::coVRConfig()
         float h, p, r;
         
         char str[200];
-        sprintf(str, "COVER.ScreenConfig.Screen:%d", i);
+        sprintf(str, "COVER.ScreenConfig.Screen:%d", (int)i);
         bool state = coCoverConfig::getScreenConfigEntry(i, screens[i].name, &hsize, &vsize, &x, &y, &z, &h, &p, &r);
         if (!state)
         {
@@ -328,9 +328,10 @@ coVRConfig::coVRConfig()
     for (size_t i = 0; i < pipes.size(); i++)
     {
         char str[200];
-        sprintf(str, "COVER.PipeConfig.Pipe:%d", i);
+        sprintf(str, "COVER.PipeConfig.Pipe:%d", (int)i);
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
+        pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
     }
 
     for (size_t i = 0; i < windows.size(); i++)
@@ -351,7 +352,7 @@ coVRConfig::coVRConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "COVER.ChannelConfig.Channel:%d", i);
+        sprintf(str, "COVER.ChannelConfig.Channel:%d", (int)i);
         std::string s = coCoviseConfig::getEntry("comment", str, "NoNameChannel");
         channels[i].name = s;
         stereoM = coCoviseConfig::getEntry("stereoMode", str);
@@ -393,6 +394,11 @@ coVRConfig::coVRConfig()
             channels[i].viewportNum = -1;
         }
         channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
+        if (channels[i].screenNum >= screens.size())
+        {
+            std::cerr << "screenIndex " << channels[i].screenNum << " for channel " << i << " out of range (max: " << screens.size()-1 << ")" << std::endl;
+            exit(1);
+        }
         
     }
     for (size_t i = 0; i < PBOs.size(); i++)
@@ -400,7 +406,7 @@ coVRConfig::coVRConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "COVER.PBOConfig.PBO:%d", i);
+        sprintf(str, "COVER.PBOConfig.PBO:%d", (int)i);
         
         PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
         PBOs[i].PBOsy = coCoviseConfig::getInt("PBOSizeY", str, -1);
@@ -411,7 +417,7 @@ coVRConfig::coVRConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "COVER.ViewportConfig.Viewport:%d", i);
+        sprintf(str, "COVER.ViewportConfig.Viewport:%d", (int)i);
         viewportStruct &vp = viewports[i];
         bool exists=false;
         vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
@@ -419,7 +425,7 @@ coVRConfig::coVRConfig()
         {
             // no viewport config, check for values in channelConfig for backward compatibility
             
-            sprintf(str, "COVER.ChannelConfig.Channel:%d", i);
+            sprintf(str, "COVER.ChannelConfig.Channel:%d", (int)i);
             vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
             if (!exists)
             {
@@ -482,17 +488,17 @@ coVRConfig::coVRConfig()
         vp.sourceXMin = coCoviseConfig::getFloat("sourceLeft", str, 0);
         vp.sourceYMin = coCoviseConfig::getFloat("sourceBottom", str, 0);
 
-if (vp.PBOnum >= 0)
-{
-        if (vp.sourceXMin > 1.0)
+        if (vp.PBOnum >= 0)
         {
-            vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
+            if (vp.sourceXMin > 1.0)
+            {
+                vp.sourceXMin = vp.sourceXMin / ((float)(PBOs[vp.PBOnum].PBOsx));
+            }
+            if (vp.sourceYMin > 1.0)
+            {
+                vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
+            }
         }
-        if (vp.sourceYMin > 1.0)
-        {
-            vp.sourceYMin = vp.sourceYMin / ((float)(PBOs[vp.PBOnum].PBOsy));
-        }
-}
 
         vp.sourceXMax = coCoviseConfig::getFloat("sourceRight", str, -1);
         vp.sourceYMax = coCoviseConfig::getFloat("sourceTop", str, -1);
@@ -532,7 +538,7 @@ if (vp.PBOnum >= 0)
     for (size_t i = 0; i < blendingTextures.size(); i++)
     {
         char str[200];
-        sprintf(str, "COVER.BlendingTextureConfig.BlendingTexture:%d", i);
+        sprintf(str, "COVER.BlendingTextureConfig.BlendingTexture:%d", (int)i);
         blendingTextureStruct &bt = blendingTextures[i];
         bool exists=false;
         bt.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);

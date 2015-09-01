@@ -37,6 +37,7 @@ private:
 
 private slots:
     void on_roadTypeBox_activated(int);
+    void on_maxSpeed_valueChanged(double);
 
     //################//
     // PROPERTIES     //

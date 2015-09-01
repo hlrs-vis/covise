@@ -44,7 +44,7 @@ namespace opencover
 {
 
 //! describes a physical screen, such as one wall of a CAVE
-typedef struct
+struct screenStruct
 {
     float hsize; // horizontal size in mm
     float vsize; // vertical size in mm
@@ -56,7 +56,20 @@ typedef struct
     float rTan;
     float tTan;
     float bTan;
-} screenStruct;
+
+    screenStruct()
+    : hsize(0)
+    , vsize(0)
+    , xyz(0, 0, 0)
+    , hpr(0, 0, 0)
+    , name("UninitializedScreen")
+    , render(false)
+    , lTan(-1)
+    , rTan(-1)
+    , tTan(-1)
+    , bTan(-1)
+    {}
+};
 
 //! describes a render Channel which renders to a PBO or viewport
 struct channelStruct
@@ -183,7 +196,7 @@ struct pipeStruct
 {
     int x11DisplayNum;
     int x11ScreenNum;
-    //const char *display;
+    std::string x11DisplayHost;
 
     pipeStruct()
     : x11DisplayNum(-1)
@@ -399,15 +412,6 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
-#if 0
-    int m_numWindows;
-    int m_numViewports;
-    int m_numBlendingTextures;
-    int m_numScreens;
-    int m_numChannels;
-    int m_numPBOs;
-    int m_numPipes;
-#endif
     int m_stencilBits;
     float m_sceneSize;
 

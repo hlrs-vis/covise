@@ -95,6 +95,11 @@ private:
     float *yCoords;
     float *zCoords;
 
+    coBooleanParam *useNan;
+    coFloatParam *nanValueParam;
+    float nanValue;
+    bool readFloat(const char *s, float *f);
+
 public:
     ReadCOMSOLData(int argc, char *argv[]);
     virtual ~ReadCOMSOLData();

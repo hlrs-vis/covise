@@ -32,7 +32,6 @@ coConfigConstants *coConfigConstants::instance = 0;
 
 coConfigConstants::coConfigConstants()
 {
-
     if (instance == 0)
         initXerces();
 
@@ -45,6 +44,8 @@ coConfigConstants::coConfigConstants()
 #endif
 
     hostname = QString::null;
+
+    rank = -1;
 }
 
 coConfigConstants::~coConfigConstants()
@@ -141,6 +142,20 @@ const QString &coConfigConstants::getHostname()
     return instance->hostname;
 }
 
+void coConfigConstants::setRank(int rank)
+{
+    if (!instance)
+        new coConfigConstants();
+    instance->rank = rank;
+}
+
+int coConfigConstants::getRank()
+{
+    if (!instance)
+        new coConfigConstants();
+    return instance->rank;
+}
+
 void coConfigConstants::setBackend(const QString &backend)
 {
     if (!instance)
@@ -228,12 +243,12 @@ void coConfigDefaultPaths::setNames()
     QString configLocalOverride = getenv("COCONFIG_LOCAL");
     QString configDir = getenv("COCONFIG_DIR");
 
-    if (getBackend() == "yac")
+    if (coConfigConstants::getBackend() == "yac")
     {
         COCONFIGDBG_DEFAULT("coConfigConstants::setNames info: yac environment");
         yacdir = getenv("YACDIR");
     }
-    else if (getBackend() == "covise")
+    else if (coConfigConstants::getBackend() == "covise")
     {
         COCONFIGDBG_DEFAULT("coConfigConstants::setNames info: covise environment");
         yacdir = getenv("COVISEDIR");
@@ -270,9 +285,9 @@ void coConfigDefaultPaths::setNames()
             if (!configGlobalOverride.isEmpty())
                 COCONFIGLOG("coConfigDefaultPaths::setNames warn: global override not found, trying default config");
 
-            if (QFile::exists(QString("%1config.%2.xml").arg(configGlobalPath, getHostname())))
+            if (QFile::exists(QString("%1config.%2.xml").arg(configGlobalPath, coConfigConstants::getHostname())))
             {
-                configGlobal = configGlobalPath + "config." + getHostname() + ".xml";
+                configGlobal = configGlobalPath + "config." + coConfigConstants::getHostname() + ".xml";
             }
             else
             {
@@ -289,10 +304,10 @@ void coConfigDefaultPaths::setNames()
 // define local config file
 #ifndef _WIN32
     QString homedir = getenv("HOME");
-    QString path = QString("/.%1/").arg(getBackend());
+    QString path = QString("/.%1/").arg(coConfigConstants::getBackend());
 #else
     QString homedir = getenv("USERPROFILE");
-    QString path = QString("/%1/").arg(getBackend());
+    QString path = QString("/%1/").arg(coConfigConstants::getBackend());
 #endif
 
     if (!homedir.isEmpty())
@@ -332,9 +347,9 @@ void coConfigDefaultPaths::setNames()
             if (!configLocalOverride.isEmpty())
                 COCONFIGLOG("coConfigDefaultPaths::setNames warn: local override not found, trying default config");
 
-            if (QFile::exists(configLocalPath + "config." + getHostname() + ".xml"))
+            if (QFile::exists(configLocalPath + "config." + coConfigConstants::getHostname() + ".xml"))
             {
-                configLocal = configLocalPath + "config." + getHostname() + ".xml";
+                configLocal = configLocalPath + "config." + coConfigConstants::getHostname() + ".xml";
             }
             else
             {
@@ -354,9 +369,9 @@ void coConfigDefaultPaths::setNames()
 
     QString sPath;
 
-    if (getBackend() == "covise")
+    if (coConfigConstants::getBackend() == "covise")
         sPath = getenv("COVISE_PATH");
-    else if (getBackend() == "yac")
+    else if (coConfigConstants::getBackend() == "yac")
         sPath = getenv("YAC_PATH");
     else
         COCONFIGDBG("coConfigDefaultPaths::setNames warn: unknown environment, not setting any search path");

@@ -56,9 +56,9 @@ PrototypeManager::~PrototypeManager()
 }
 
 void
-PrototypeManager::addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type)
+PrototypeManager::addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type,QString &system,QString &typeName,QString &lanes)
 {
-    roadPrototypes_.insert(type, new PrototypeContainer<RSystemElementRoad *>(name, icon, road));
+    roadPrototypes_.insert(type, new PrototypeContainer<RSystemElementRoad *>(name, icon, road,system,typeName,lanes));
 }
 
 void
@@ -98,4 +98,47 @@ PrototypeManager::loadPrototypes(const QString &fileName)
     QApplication::restoreOverrideCursor();
     file.close();
     return true;
+}
+
+/// find prototypes of a certain type with an appropriate typeName, otherwise return the first one of that type as a fallback.
+
+RSystemElementRoad *PrototypeManager::getRoadPrototype(PrototypeManager::PrototypeType type,QString combinedType)
+{
+    RSystemElementRoad *rp=NULL;
+    QString systemName="osm";
+    QString typeName="unknown";
+    QString laneNumbers="1";
+    QStringList sl = combinedType.split(':');
+    if(sl.size()>0)
+        systemName = sl[0];
+    if(sl.size()>1)
+        typeName = sl[1];
+    if(sl.size()>2)
+        laneNumbers = sl[2];
+    QList<PrototypeContainer<RSystemElementRoad *> *> values = roadPrototypes_.values(type);
+    for (int i = 0; i < values.size(); ++i)
+    {
+        PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
+        if(ptc->getSystemName() == systemName && ptc->getTypeName() == typeName)
+        {
+            rp = ptc->getPrototype();
+            if( ptc->getLaneNumbers() == laneNumbers)
+                break;
+        }
+    }
+    if(rp == NULL) // if we did not find the type take one with the same number of lanes
+    {
+        for (int i = 0; i < values.size(); ++i)
+        {
+            PrototypeContainer<RSystemElementRoad *> *ptc = values.at(i);
+            if(ptc->getSystemName() == systemName && ptc->getLaneNumbers() == laneNumbers )
+            {
+                rp = ptc->getPrototype();
+                break;
+            }
+        }
+    }
+    if(rp == NULL)
+        rp = values.first()->getPrototype();
+    return rp;
 }

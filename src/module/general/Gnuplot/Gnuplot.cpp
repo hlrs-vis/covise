@@ -307,14 +307,16 @@ int Gnuplot::compute(const char *)
         numData = data->getNumPoints();
     }
 
-    const char *command = 0;
-    const char *blocks = 0;
+    const char *command = p_command->getValue();
+    const char *blocks = p_blocks->getValue();
     std::vector<int> dataBlockSize;
 
     if (data)
     {
-        command = data->getAttribute("GNUPLOT_COMMAND");
-        blocks = data->getAttribute("GNUPLOT_DATABLOCKS");
+        if (const char *c = data->getAttribute("GNUPLOT_COMMAND"))
+            command = c;
+        if (const char *b = data->getAttribute("GNUPLOT_DATABLOCKS"))
+            blocks = b;
 
         if (blocks)
         {

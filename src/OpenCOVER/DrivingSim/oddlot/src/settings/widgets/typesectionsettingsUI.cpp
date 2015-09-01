@@ -9,6 +9,8 @@
 
 #include <QMetaObject>
 #include <QGridLayout>
+#include <QLabel>
+#include <QDoubleSpinBox>
 
 TypeSectionSettingsUI::TypeSectionSettingsUI()
 {
@@ -28,6 +30,13 @@ void TypeSectionSettingsUI::setupUI(QWidget *TypeSectionSettings)
     roadTypeComboBox_ = new RoadTypeComboBox();
     roadTypeBox = roadTypeComboBox_->getComboBox();
     roadTypeBox->setObjectName(QString::fromUtf8("roadTypeBox"));
+
+    maxSpeedLabel = new QLabel();
+    maxSpeedLabel->setText("maxSpeed:");
+    spinBox = new QDoubleSpinBox();
+    spinBox->setObjectName(QString::fromUtf8("maxSpeed"));
+    gridLayout->addWidget(maxSpeedLabel);
+    gridLayout->addWidget(spinBox);
 
     gridLayout->addWidget(roadTypeBox);
 

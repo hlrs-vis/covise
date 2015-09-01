@@ -1705,6 +1705,7 @@ void coVRShaderList::update()
     if (firstFrameTime == 0.0)
         firstFrameTime = cover->frameTime();
     timeUniform->set((int)((cover->frameTime() - firstFrameTime) * 1000.0));
+    timeStepUniform->set(coVRAnimationManager::instance()->getAnimationFrame());
     durationUniform->set((int)(cover->frameDuration() * 1000.0));
 
     //neu--------------------------------------------------------------------------------------------------------------------

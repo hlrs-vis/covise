@@ -1,0 +1,907 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VRCWProjectionHwClass</class>
+ <widget class="QWidget" name="VRCWProjectionHwClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>495</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VRCWProjectionHW</string>
+  </property>
+  <layout class="QVBoxLayout" name="vrcwProjectionHwClassVLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="headerWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>66</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>60</height>
+      </size>
+     </property>
+     <layout class="QHBoxLayout" name="headerWidgetHLayout">
+      <item>
+       <layout class="QHBoxLayout" name="headerHLayout">
+        <item>
+         <layout class="QVBoxLayout" name="headingVLayout">
+          <item>
+           <widget class="QLabel" name="header">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Projection Configuration - Hardware</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="description">
+            <property name="text">
+             <string>Projection - Tiled - Stereo mode - Graphic cards - Control monitor</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="headerVSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="headerHSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="headerLine">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignLeft|Qt::AlignTop">
+    <widget class="QWidget" name="mainWidget" native="true">
+     <layout class="QVBoxLayout" name="mainWidgetVLayout">
+      <property name="spacing">
+       <number>40</number>
+      </property>
+      <item alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QWidget" name="hwCaveWidget" native="true">
+        <layout class="QHBoxLayout" name="hwCaveWidgetHLayout">
+         <property name="spacing">
+          <number>40</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="hwWidget" native="true">
+           <layout class="QGridLayout" name="hwWidgetGLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <property name="horizontalSpacing">
+             <number>20</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>15</number>
+            </property>
+            <item row="1" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QLabel" name="stereoLabel">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Stereo mode</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QLabel" name="projectionLabel">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Kind of projection</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" alignment="Qt::AlignLeft">
+             <widget class="QSpinBox" name="grakaSpinBox">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="grakaLabel">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Graphic cards per host</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="stereoEyesWidget" native="true">
+              <layout class="QVBoxLayout" name="stereoEyesWidgetVLayout">
+               <property name="spacing">
+                <number>5</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item alignment="Qt::AlignLeft">
+                <widget class="QComboBox" name="stereoComboBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>stereoModes</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="bothEyesCheckBox">
+                 <property name="text">
+                  <string>both eyes per graphic card</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="1" alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="projectTiledWidget" native="true">
+              <layout class="QGridLayout" name="projectTiledWidgetGLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>5</number>
+               </property>
+               <item row="0" column="1" rowspan="3" alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="displayProjectorWidget" native="true">
+                 <layout class="QVBoxLayout" name="dispProjectWidgetGlLayout">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QRadioButton" name="projectorRadioButton">
+                    <property name="text">
+                     <string>&amp;Projector</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="displayRadioButton">
+                    <property name="text">
+                     <string>&amp;Display/Monitor/TV</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QComboBox" name="projectionComboBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Powerwall</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>CAVE</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>3D TV</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QCheckBox" name="tiledCheckBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Tiled</string>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>16</width>
+                   <height>16</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="caveWidget" native="true">
+           <layout class="QVBoxLayout" name="caveWidgetVLayout">
+            <property name="spacing">
+             <number>15</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="caveLabelWidget" native="true">
+              <layout class="QVBoxLayout" name="caveLabelWidgetVLayout">
+               <property name="spacing">
+                <number>5</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="caveLabel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>CAVE configuration</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="caveDescLabel1">
+                 <property name="text">
+                  <string>Which walls do you want to configure?</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="caveDescLabel2">
+                 <property name="text">
+                  <string>Front is always to configure.</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="caveWallsWidget" native="true">
+              <layout class="QGridLayout" name="caveWallsWidgetGLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>10</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>5</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="caveFrontCheckBox">
+                 <property name="text">
+                  <string>Front</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="caveLeftCheckBox">
+                 <property name="text">
+                  <string>Left</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QCheckBox" name="caveRightCheckBox">
+                 <property name="text">
+                  <string>Right</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="caveBottomCheckBox">
+                 <property name="text">
+                  <string>Bottom</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="caveTopCheckBox">
+                 <property name="text">
+                  <string>Top</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QCheckBox" name="caveBackCheckBox">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Back</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QWidget" name="ctrlMonWidget" native="true">
+        <layout class="QVBoxLayout" name="ctrlMonWidgetVLayout">
+         <property name="spacing">
+          <number>15</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QCheckBox" name="ctrlMonCheckBox">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Control monitor</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="ctrlMonResWidget" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>10</width>
+             <height>10</height>
+            </size>
+           </property>
+           <layout class="QGridLayout" name="ctrlMonResWidgetGLayout">
+            <property name="leftMargin">
+             <number>20</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignLeft|Qt::AlignTop">
+          <widget class="QWidget" name="ctrlMonOrientWidget" native="true">
+           <layout class="QVBoxLayout" name="ctrlMonOrientWidgetVLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>20</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignLeft">
+             <widget class="QLabel" name="crtlMonOrientLabel">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Desktop orientation control monitor &lt;-&gt; 3D projection</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft">
+             <widget class="QLabel" name="crtlMonOrientHintLabel">
+              <property name="text">
+               <string>Only nessessary if control monitor and 3D projection on the same host.
+Upper left edge of control monitor has offset 0,0</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+             <widget class="QWidget" name="lrRBDescPictWidget" native="true">
+              <layout class="QHBoxLayout" name="lrRBDescPictWidgetHLayout">
+               <property name="spacing">
+                <number>20</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="lrRBWidget" native="true">
+                 <layout class="QVBoxLayout" name="lRWidgetVLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QRadioButton" name="leftOfRadioButton">
+                    <property name="text">
+                     <string>&amp;Monitor left of 3D</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="rightOfRadioButton">
+                    <property name="text">
+                     <string>Monitor &amp;right of 3D</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignLeft|Qt::AlignTop">
+                <widget class="QWidget" name="lrDescPictWidget" native="true">
+                 <layout class="QHBoxLayout" name="lrDescPictWidgetHLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="loDescPictLabel">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap>monitor-lo-3D.png</pixmap>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="roDescPictLabel">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="pixmap">
+                     <pixmap>monitor-ro-3D.png</pixmap>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>projectionComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>kindPro_exec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stereoComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>stereo_exec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>209</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveLeftCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>backEnable()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>581</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveFrontCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>frontChecked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>521</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveTopCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>backEnable()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>581</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveRightCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>backEnable()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>648</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>caveBottomCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>backEnable()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>521</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tiledCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>tiled_exec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>109</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>projectorRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>typePro_exec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>340</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ctrlMonCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>ctrlMon_exec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>466</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>leftOfRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VRCWProjectionHwClass</receiver>
+   <slot>lrRB_exec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>kindPro_exec()</slot>
+  <slot>tiledConfig_exec()</slot>
+  <slot>frontChecked()</slot>
+  <slot>backEnable()</slot>
+  <slot>stereo_exec()</slot>
+  <slot>tiled_exec()</slot>
+  <slot>typePro_exec()</slot>
+  <slot>ctrlMon_exec()</slot>
+  <slot>lrRB_exec()</slot>
+ </slots>
+</ui>

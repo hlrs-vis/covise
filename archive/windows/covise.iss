@@ -538,6 +538,7 @@ Source: {#EXTERNLIBS}\opencv\build\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesn
 
 Source: {#EXTERNLIBS}\collada\lib\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\cudpp\bin\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\vtk\bin\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#AUDIOFILE}\lib\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#FFTW}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#GDAL}\bin\*.dll; DestDir: {#DLIB}; Components: opencover

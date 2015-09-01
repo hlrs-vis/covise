@@ -30,7 +30,7 @@ EXPORT_TEMPLATE2(template class CONFIGEXPORT QHash<QString, QString *>)
 namespace covise
 {
 
-class CONFIGEXPORT coConfigEntry : public coConfigConstants, public Subject<coConfigEntry>
+class CONFIGEXPORT coConfigEntry : public Subject<coConfigEntry>
 {
     friend class coConfigXercesEntry;
 
@@ -84,9 +84,11 @@ protected:
     void makeSection(const QString &section);
 
 private:
+    bool matchingAttributes() const;
     bool matchingArch() const;
+    bool matchingRank() const;
 
-    ConfigScope configScope;
+    coConfigConstants::ConfigScope configScope;
     QString configName;
     QString path;
 

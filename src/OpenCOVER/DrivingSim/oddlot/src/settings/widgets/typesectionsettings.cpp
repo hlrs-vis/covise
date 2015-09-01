@@ -34,6 +34,12 @@ TypeSectionSettings::~TypeSectionSettings(void)
 void TypeSectionSettings::updateProperties()
 {
     ui->getRoadTypeComboBox()->getComboBox()->setCurrentIndex(typeSection_->getRoadType() - 1);
+    if(typeSection_->getSpeedRecord()!=NULL)
+    {
+        bool before = ui->getSpinBox()->blockSignals(true);
+        ui->getSpinBox()->setValue(typeSection_->getSpeedRecord()->maxSpeed);
+        ui->getSpinBox()->blockSignals(before);
+    }
 }
 
 //##################//
@@ -66,6 +72,37 @@ TypeSectionSettings::updateObserver()
 // SLOTS          //
 //################//
 
+void TypeSectionSettings::on_maxSpeed_valueChanged(double ms)
+{
+    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
+
+        // Macro Command //
+        //
+        int numberOfSelectedElements = selectedElements.size();
+        if (numberOfSelectedElements > 1)
+        {
+            getProjectData()->getUndoStack()->beginMacro(QObject::tr("Set MaxSpeed"));
+        }
+
+        // Change types of selected items //
+        //
+        foreach (DataElement *element, selectedElements)
+        {
+            TypeSection *typeSection = dynamic_cast<TypeSection *>(element);
+            if (typeSection)
+            {
+                SetSpeedTypeSectionCommand *command = new SetSpeedTypeSectionCommand(typeSection, ms, NULL);
+                getProjectSettings()->executeCommand(command);
+            }
+        }
+
+        // Macro Command //
+        //
+        if (numberOfSelectedElements > 1)
+        {
+            getProjectData()->getUndoStack()->endMacro();
+        }
+}
 void
 TypeSectionSettings::on_roadTypeBox_activated(int id)
 {

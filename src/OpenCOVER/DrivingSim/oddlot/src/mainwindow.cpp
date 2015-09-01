@@ -218,10 +218,14 @@ MainWindow::createActions()
     importMenu->addAction(importCarMakerAction);
     connect(importCarMakerAction, SIGNAL(triggered()), this, SLOT(importCarMakerRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCarMakerAction, SLOT(setEnabled(bool)));
-    QAction *importOSMAction = new QAction(tr("Import OSM Data"), exportMenu);
+    QAction *importOSMAction = new QAction(tr("Download OSM Data"), exportMenu);
     importMenu->addAction(importOSMAction);
     connect(importOSMAction, SIGNAL(triggered()), this, SLOT(importOSMRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importOSMAction, SLOT(setEnabled(bool)));
+    QAction *importOSMFileAction = new QAction(tr("Import OSM file"), exportMenu);
+    importMenu->addAction(importOSMFileAction);
+    connect(importOSMFileAction, SIGNAL(triggered()), this, SLOT(importOSMFile()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importOSMFileAction, SLOT(setEnabled(bool)));
 
     QAction *exitAction = new QAction(tr("&Exit"), this);
     exitAction->setShortcuts(QKeySequence::Quit);
@@ -819,6 +823,31 @@ MainWindow::importCarMakerRoad()
 
 
         if (project->importCarMakerFile(fileName))
+        {
+            statusBar()->showMessage(tr("File has been imported."), 2000);
+            project->show();
+        }
+    }
+    return;
+}
+
+/*! \brief load OpenStreetMap OSM file.
+*
+*/
+void
+MainWindow::importOSMFile()
+{
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+    {
+        osmi->setProject(project);
+        if (osmi->importOSMFile(fileName))
         {
             statusBar()->showMessage(tr("File has been imported."), 2000);
             project->show();

@@ -288,6 +288,9 @@ DomParser::parsePrototypes(QIODevice *source)
             //
             QString name = parseToQString(prototype, "name", "noname", false); // mandatory
             QString icon = parseToQString(prototype, "icon", "", true); // optional
+            QString system = parseToQString(prototype, "system", "", true); // optional
+            QString type = parseToQString(prototype, "type", "", true); // optional
+            QString lanes = parseToQString(prototype, "lanes", "", true); // optional
 
             // Road //
             //
@@ -296,7 +299,7 @@ DomParser::parsePrototypes(QIODevice *source)
             RSystemElementRoad *road = parseRoadElement(child, p);
             road->accept(spArcSMergeVisitor);
 
-            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_RoadTypePrototype);
+            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_RoadTypePrototype,system,type,lanes);
 
             prototype = prototype.nextSiblingElement("roadTypePrototype");
         }
@@ -314,6 +317,9 @@ DomParser::parsePrototypes(QIODevice *source)
             //
             QString name = parseToQString(prototype, "name", "noname", false); // mandatory
             QString icon = parseToQString(prototype, "icon", "", true); // optional
+            QString system = parseToQString(prototype, "system", "", true); // optional
+            QString type = parseToQString(prototype, "type", "", true); // optional
+            QString lanes = parseToQString(prototype, "lanes", "", true); // optional
 
             // Road //
             //
@@ -322,7 +328,7 @@ DomParser::parsePrototypes(QIODevice *source)
             RSystemElementRoad *road = parseRoadElement(child, p);
             road->accept(spArcSMergeVisitor);
 
-            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_TrackPrototype);
+            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_TrackPrototype,system,type,lanes);
 
             prototype = prototype.nextSiblingElement("trackPrototype");
         }
@@ -340,6 +346,9 @@ DomParser::parsePrototypes(QIODevice *source)
             //
             QString name = parseToQString(prototype, "name", "noname", false); // mandatory
             QString icon = parseToQString(prototype, "icon", "", true); // optional
+            QString system = parseToQString(prototype, "system", "", true); // optional
+            QString type = parseToQString(prototype, "type", "", true); // optional
+            QString lanes = parseToQString(prototype, "lanes", "", true); // optional
 
             // Road //
             //
@@ -348,7 +357,7 @@ DomParser::parsePrototypes(QIODevice *source)
             RSystemElementRoad *road = parseRoadElement(child, p);
             road->accept(spArcSMergeVisitor);
 
-            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_ElevationPrototype);
+            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_ElevationPrototype,system,type,lanes);
 
             prototype = prototype.nextSiblingElement("elevationPrototype");
         }
@@ -366,6 +375,9 @@ DomParser::parsePrototypes(QIODevice *source)
             //
             QString name = parseToQString(prototype, "name", "noname", false); // mandatory
             QString icon = parseToQString(prototype, "icon", "", true); // optional
+            QString system = parseToQString(prototype, "system", "", true); // optional
+            QString type = parseToQString(prototype, "type", "", true); // optional
+            QString lanes = parseToQString(prototype, "lanes", "", true); // optional
 
             // Road //
             //
@@ -374,7 +386,7 @@ DomParser::parsePrototypes(QIODevice *source)
             RSystemElementRoad *road = parseRoadElement(child, p);
             road->accept(spArcSMergeVisitor);
 
-            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_SuperelevationPrototype);
+            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_SuperelevationPrototype,system,type,lanes);
 
             prototype = prototype.nextSiblingElement("superelevationPrototype");
         }
@@ -392,6 +404,9 @@ DomParser::parsePrototypes(QIODevice *source)
             //
             QString name = parseToQString(prototype, "name", "noname", false); // mandatory
             QString icon = parseToQString(prototype, "icon", "", true); // optional
+            QString system = parseToQString(prototype, "system", "", true); // optional
+            QString type = parseToQString(prototype, "type", "", true); // optional
+            QString lanes = parseToQString(prototype, "lanes", "", true); // optional
 
             // Road //
             //
@@ -400,7 +415,7 @@ DomParser::parsePrototypes(QIODevice *source)
             RSystemElementRoad *road = parseRoadElement(child, p);
             road->accept(spArcSMergeVisitor);
 
-            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_CrossfallPrototype);
+            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_CrossfallPrototype,system,type,lanes);
 
             prototype = prototype.nextSiblingElement("crossfallPrototype");
         }
@@ -418,6 +433,9 @@ DomParser::parsePrototypes(QIODevice *source)
             //
             QString name = parseToQString(prototype, "name", "noname", false); // mandatory
             QString icon = parseToQString(prototype, "icon", "", true); // optional
+            QString system = parseToQString(prototype, "system", "", true); // optional
+            QString type = parseToQString(prototype, "type", "", true); // optional
+            QString lanes = parseToQString(prototype, "lanes", "", true); // optional
 
             // Road //
             //
@@ -426,7 +444,7 @@ DomParser::parsePrototypes(QIODevice *source)
             RSystemElementRoad *road = parseRoadElement(child, p);
             road->accept(spArcSMergeVisitor);
 
-            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_LaneSectionPrototype);
+            ODD::mainWindow()->getPrototypeManager()->addRoadPrototype(name, QIcon(icon), road, PrototypeManager::PTP_LaneSectionPrototype,system,type,lanes);
 
             prototype = prototype.nextSiblingElement("laneSectionPrototype");
         }
@@ -1153,8 +1171,33 @@ DomParser::parseTypeElement(QDomElement &element, RSystemElementRoad *road)
     double s = parseToDouble(element, "s", 0.0, false); // mandatory
     QString type = parseToQString(element, "type", "unknown", false); // mandatory
 
+
     TypeSection *typeSection = new TypeSection(s, TypeSection::parseRoadType(type));
+
+    
+    QDomElement speedRecord;
+    speedRecord = element.firstChildElement("speed");
+    if (!speedRecord.isNull())
+    {
+        parseSpeedElement(speedRecord, typeSection);
+    }
+
     road->addTypeSection(typeSection);
+
+    return true;
+}
+
+/*! \brief Parses a road:type:speed element.
+*
+*/
+bool
+DomParser::parseSpeedElement(QDomElement &element, TypeSection *type)
+{
+    QString max = parseToQString(element, "max", "undefined", false); // mandatory
+    QString unit = parseToQString(element, "unit", "m/s", true); // otional
+
+    SpeedRecord *sr = new SpeedRecord(max, unit);
+    type->setSpeedRecord(sr);
 
     return true;
 }
@@ -1325,6 +1368,10 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road, Q
         else if (type == "brick")
         {
             typenr = 2;
+        }
+        else if (type == "wood")
+        {
+            typenr = 3;
         }
 
         // Construct bridge object

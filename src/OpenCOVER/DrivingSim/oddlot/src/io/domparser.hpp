@@ -52,6 +52,8 @@ class ScenerySystem;
 
 class TileSystem;
 
+class TypeSection;
+
 class DomParser : public QObject
 {
     Q_OBJECT
@@ -117,6 +119,7 @@ public:
 
     RSystemElementRoad *parseRoadElement(QDomElement &child, QString &oldTileId);
     bool parseTypeElement(QDomElement &element, RSystemElementRoad *road);
+    bool parseSpeedElement(QDomElement &element, TypeSection *type);
     bool parseSurfaceElement(QDomElement &element, RSystemElementRoad *road);
     bool parseObjectsElement(QDomElement &element, RSystemElementRoad *road, QString &oldTileId);
     bool parseSignalsElement(QDomElement &element, RSystemElementRoad *road, QString &oldTileId);

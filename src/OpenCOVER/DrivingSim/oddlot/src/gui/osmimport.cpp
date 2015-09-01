@@ -14,15 +14,26 @@
 **************************************************************************/
 
 #include "osmimport.hpp"
+#include "importsettings.hpp"
 #include "ui_osmimport.h"
 #include <QDomDocument>
+#include <QFile>
 
 #include "projectwidget.hpp"
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
 #include "src/graph/topviewgraph.hpp"
-// Data //
 
+// Data //
+#include "src/data/visitors/boundingboxvisitor.hpp"
+#include "src/data/projectdata.hpp"
+#include "src/data/commands/projectdatacommands.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/scenerysystem/scenerysystem.hpp"
+
+// Settings //
+//
+#include "src/settings/projectsettings.hpp"
 //################//
 // CONSTRUCTOR    //
 //################//
@@ -68,6 +79,114 @@ OsmImport::~OsmImport()
     delete ui;
 }
 
+/** \brief imports a OSM file.
+*
+*/
+bool
+OsmImport::importOSMFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+ 
+    QDomDocument doc;
+    if (!doc.setContent(&file)) {
+        file.close();
+        return false;
+    }
+    file.close();
+    return parseDoc(doc);
+}
+
+bool OsmImport::parseDoc(QDomDocument &doc)
+{
+
+    QDomNodeList list = doc.elementsByTagName("node");
+    for (int i = 0; i < list.count(); i++)
+    {
+        nodes.append(new osmNode(list.at(i).toElement()));
+    }
+    list = doc.elementsByTagName("way");
+    for (int i = 0; i < list.count(); i++)
+    {
+        ways.append(new osmWay(list.at(i).toElement(), nodes));
+    }
+    
+    bool importPrimary();
+    bool importSecondary();
+    bool importTertiary();
+    bool importMotorway();
+    bool importService();
+    bool importPath();
+    bool importSteps();
+    bool importTrack();
+    bool importFootway();
+    bool importResidential();
+    bool importLiving_street();
+    bool importCycleway();
+    bool importTurning_circle();
+    bool importPedestrian();
+    bool importUnclassified();
+    bool doPrimary = ImportSettings::instance()->importPrimary();
+    bool doSecondary = ImportSettings::instance()->importSecondary();
+    bool doTertiary = ImportSettings::instance()->importTertiary();
+    bool doMotorway = ImportSettings::instance()->importMotorway();
+    bool doService = ImportSettings::instance()->importService();
+    bool doPath = ImportSettings::instance()->importPath();
+    bool doSteps = ImportSettings::instance()->importSteps();
+    bool doTrack = ImportSettings::instance()->importTrack();
+    bool doFootpath = ImportSettings::instance()->importFootway();
+    bool doResidential = ImportSettings::instance()->importResidential();
+    bool doLiving_street = ImportSettings::instance()->importLiving_street();
+    bool doCycleway = ImportSettings::instance()->importCycleway();
+    bool doTurning_circle = ImportSettings::instance()->importTurning_circle();
+    bool doPedestrian = ImportSettings::instance()->importPedestrian();
+    bool doUnclassified = ImportSettings::instance()->importUnclassified();
+    for (int i = 0; i < ways.count(); i++)
+    {
+        osmWay *w = ways.at(i);
+        osmWay::wayType t = w->type;
+
+        if ((t == osmWay::primary && doPrimary) ||
+            (t == osmWay::secondary && doSecondary) ||
+            (t == osmWay::tertiary && doTertiary) ||
+            (t == osmWay::motorway && doMotorway) ||
+            (t == osmWay::service && doService) ||
+            (t == osmWay::path && doPath) ||
+            (t == osmWay::steps && doSteps) ||
+            (t == osmWay::track && doTrack) ||
+            (t == osmWay::footway && doFootpath) ||
+            (t == osmWay::residential && doResidential) ||
+            (t == osmWay::living_street && doLiving_street) ||
+            (t == osmWay::cycleway && doCycleway) ||
+            (t == osmWay::turning_circle && doTurning_circle) ||
+            (t == osmWay::pedestrian && doPedestrian) ||
+            (t == osmWay::unclassified && doUnclassified))
+        {
+            project->XVector = w->XVector;
+            project->YVector = w->YVector;
+            project->ZVector = w->ZVector;
+            if (project->XVector.size() > 0)
+            {
+                project->addLineStrip(w->name,w->maxSpeed,w->bridge,w->numLanes,w->type);
+            }
+        }
+    }
+    qDeleteAll(ways.begin(), ways.end());
+    qDeleteAll(nodes.begin(), nodes.end());
+    ways.clear();
+    nodes.clear();
+    // resize
+    BoundingBoxVisitor *visitor = new BoundingBoxVisitor();
+    project->getProjectData()->getRoadSystem()->accept(visitor);
+    project->getProjectData()->getScenerySystem()->accept(visitor);
+    QRectF box = visitor->getBoundingBox();
+    SetProjectDimensionsCommand *command = new SetProjectDimensionsCommand(project->getProjectData(), box.bottom() + 0.1 * box.height(), box.top() - 0.1 * box.height(), box.right() + 0.1 * box.width(), box.left() - 0.1 * box.width());
+    project->getProjectSettings()->executeCommand(command);
+
+    return true;
+}
+
 void OsmImport::finishedSlot(QNetworkReply *reply)
 {
     // Reading attributes of the reply
@@ -85,31 +204,7 @@ void OsmImport::finishedSlot(QNetworkReply *reply)
 
         QDomDocument doc;
         doc.setContent(bytes);
-        QDomNodeList list = doc.elementsByTagName("node");
-        for (int i = 0; i < list.count(); i++)
-        {
-            nodes.append(osmNode(list.at(i).toElement()));
-        }
-        list = doc.elementsByTagName("way");
-        for (int i = 0; i < list.count(); i++)
-        {
-            ways.append(osmWay(list.at(i).toElement(), nodes));
-        }
-        for (int i = 0; i < ways.count(); i++)
-        {
-            osmWay::wayType t = ways.at(i).type;
-
-            if (ui->importunknownways->checkState() || (t == osmWay::residential || t == osmWay::primary || t == osmWay::secondary || t == osmWay::tertiary || t == osmWay::living_street))
-            {
-                project->XVector = ways.at(i).XVector;
-                project->YVector = ways.at(i).YVector;
-                project->ZVector = ways.at(i).ZVector;
-                if (project->XVector.size() > 0)
-                {
-                    project->addLineStrip(ways.at(i).name);
-                }
-            }
-        }
+        parseDoc(doc);
     }
     else
     {
@@ -160,10 +255,16 @@ osmWay::osmWay(const osmWay &w)
     YVector = w.YVector;
     ZVector = w.ZVector;
     name = w.name;
+    numLanes = w.numLanes;
+    maxSpeed = w.maxSpeed;
+    bridge = w.bridge;
 }
-osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
+osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
 {
     type = unknown;
+    numLanes = 2;
+    maxSpeed = -1;
+    bridge=false;
     name = "id" + element.attribute("id");
     QDomNodeList list = element.elementsByTagName("nd");
     for (int i = 0; i < list.count(); i++)
@@ -172,10 +273,11 @@ osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
         unsigned int ref = ele.attribute("ref").toUInt();
         for (int n = 0; n < nodes.count(); n++)
         {
-            if (nodes.at(n).id == ref)
+            osmNode *node =nodes.at(n);
+            if (node->id == ref)
             {
                 double x, y, z;
-                nodes.at(n).getCoordinates(x, y, z);
+                node->getCoordinates(x, y, z);
                 XVector.push_back(x);
                 YVector.push_back(y);
                 ZVector.push_back(0.0);
@@ -190,7 +292,26 @@ osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
         QDomElement ele = list.at(i).toElement();
         QString k = ele.attribute("k");
         QString v = ele.attribute("v");
-        if (k == "highway")
+        if (k == "name")
+        {
+            name = v;
+        }
+        else if (k == "lanes")
+        {
+            numLanes = v.toInt();
+        }
+        else if (k == "maxspeed")
+        {
+            maxSpeed = v.toInt();
+        }
+        else if (k == "bridge")
+        {
+            if (v == "yes")
+            {
+                bridge = true;
+            }
+        }
+        else if (k == "highway")
         {
             //type = highway;
             if (v == "residential")
@@ -209,19 +330,23 @@ osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
             {
                 type = steps;
             }
-            else if (v == "primary")
+            else if (v == "primary" || v == "primary_link")
             {
                 type = secondary;
             }
-            else if (v == "secondary")
+            else if (v == "secondary"|| v == "secondary_link")
             {
                 type = secondary;
             }
-            else if (v == "tertiary")
+            else if (v == "tertiary"|| v == "tertiary_link")
             {
                 type = tertiary;
             }
-            else if (v == "service")
+            else if (v == "motorway"|| v == "motorway_link")
+            {
+                type = motorway;
+            }
+            else if (v == "service"|| v == "service_link")
             {
                 type = service;
             }
@@ -237,6 +362,14 @@ osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
             {
                 type = cycleway;
             }
+            else if (v == "turning_circle")
+            {
+                type = turning_circle;
+            }
+            else if (v == "pedestrian")
+            {
+                type = pedestrian;
+            }
             else if (v == "unclassified")
             {
                 type = unclassified;
@@ -246,11 +379,42 @@ osmWay::osmWay(QDomElement element, QVector<osmNode> &nodes)
         {
             type = building;
         }
-        else if (k == "name")
-        {
-            name = v;
-        }
     }
+}
+
+QString osmWay::getTypeName(wayType t)
+{
+    if(t == unclassified)
+        return QString("unclassified");
+    if(t == pedestrian)
+        return QString("pedestrian");
+    if(t == turning_circle)
+        return QString("turning_circle");
+    if(t == cycleway)
+        return QString("cycleway");
+    if(t == living_street)
+        return QString("living_street");
+    if(t == path)
+        return QString("path");
+    if(t == service)
+        return QString("service");
+    if(t == motorway)
+        return QString("motorway");
+    if(t == tertiary)
+        return QString("tertiary");
+    if(t == secondary)
+        return QString("secondary");
+    if(t == primary)
+        return QString("primary");
+    if(t == steps)
+        return QString("steps");
+    if(t == track)
+        return QString("track");
+    if(t == footway)
+        return QString("footway");
+    if(t == residential)
+        return QString("residential");
+    return("unclassified");
 }
 
 //################//

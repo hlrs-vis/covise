@@ -37,6 +37,7 @@ private:
     coInputPort *p_data;
 
     coBooleanParam *windowed;
+    coStringParam *p_command, *p_blocks;
 
     bool gnuplot_running;
     int fdpc[2]; // pipe parent -> client

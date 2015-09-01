@@ -91,6 +91,12 @@ public:
     void openDoor();
     void closeDoor();
     VrmlNodeCar *getCar(){return currentCar;};
+    std::list<VrmlNodeCar *> carsOnRailUp;
+    std::list<VrmlNodeCar *> carsOnRailRight;
+    void putCarOnRail(VrmlNodeCar *);
+    void removeCarFromRail(VrmlNodeCar *);
+    float getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar); // returns the distance to the closest car in travel direction on the current rail or -1 if there is none;
+
     VrmlSFInt   d_LandingNumber;
 
     VrmlSFTime  d_doorClose;

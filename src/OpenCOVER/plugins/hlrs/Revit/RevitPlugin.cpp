@@ -529,7 +529,10 @@ void RevitPlugin::setDefaultMaterial(osg::StateSet *geoState)
 
 void RevitPlugin::sendMessage(Message &m)
 {
-    toRevit->send_msg(&m);
+    if(toRevit) // false on slaves
+    {
+        toRevit->send_msg(&m);
+    }
 }
 
 

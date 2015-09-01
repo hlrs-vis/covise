@@ -39,10 +39,10 @@ private:
     virtual void param(const char *name, bool inMapLoading);
 
     /*tracing particle*/
-    coDoLines *computeCurrentTrace(const char *name, coDoLines *old_trace,
+    coDoLines *computeCurrentTrace(const std::string &name, coDoLines *old_trace,
                                    int i, float x_new, float y_new, float z_new);
     coDistributedObject **computeDynamicTrace(const coDoSet *, bool compute);
-    coDistributedObject **computeFloats(bool, float (*)(float, int));
+    coDistributedObject *computeFloats(float (*)(float, int), const char *objName);
     coDoLines *computeStaticTrace(const std::string &name, const coDoSet *spheres);
     coDistributedObject *extractData(const std::string &name, const coDoSet *set, bool animate);
     coDistributedObject *extractDataForParticle(const std::string &name, const coDoSet *set, int timestep);

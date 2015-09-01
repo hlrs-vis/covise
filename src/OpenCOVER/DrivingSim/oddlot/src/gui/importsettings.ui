@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>159</height>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>120</y>
+     <y>370</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -32,8 +32,8 @@
   <widget class="QDoubleSpinBox" name="LinearErrorSpin">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>60</y>
+     <x>205</x>
+     <y>256</y>
      <width>121</width>
      <height>22</height>
     </rect>
@@ -42,8 +42,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>5</x>
-     <y>64</y>
+     <x>140</x>
+     <y>260</y>
      <width>61</width>
      <height>20</height>
     </rect>
@@ -55,8 +55,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>5</x>
-     <y>94</y>
+     <x>140</x>
+     <y>290</y>
      <width>61</width>
      <height>20</height>
     </rect>
@@ -68,11 +68,178 @@
   <widget class="QDoubleSpinBox" name="CurveErrorSpin">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>90</y>
+     <x>205</x>
+     <y>286</y>
      <width>121</width>
      <height>22</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>121</width>
+     <height>371</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>import road types</string>
+   </property>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>20</y>
+      <width>121</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QCheckBox" name="motorway_cb">
+       <property name="text">
+        <string>motorway</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="secondary_cb">
+       <property name="text">
+        <string>secondary</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="primary_cb">
+       <property name="text">
+        <string>primary</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="tertiary_cb">
+       <property name="text">
+        <string>tertiary</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="service_cb">
+       <property name="text">
+        <string>service</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="path_cb">
+       <property name="text">
+        <string>path</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="steps_cb">
+       <property name="text">
+        <string>steps</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="track_cb">
+       <property name="text">
+        <string>track</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="footway_cb">
+       <property name="text">
+        <string>footway</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="residential_cb">
+       <property name="text">
+        <string>residential</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="living_street_cb">
+       <property name="text">
+        <string>living_street</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cycleway_cb">
+       <property name="text">
+        <string>cycleway</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="turning_circle_cb">
+       <property name="text">
+        <string>turning_circle</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="pedestrian_cb">
+       <property name="text">
+        <string>pedestrian</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="unclassified_cb">
+       <property name="text">
+        <string>unclassified</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QCheckBox" name="maximize_curve_radius_cb">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>220</y>
+     <width>131</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>maximize curve radius</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

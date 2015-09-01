@@ -112,4 +112,34 @@ private:
     TypeSection::RoadType oldRoadType_;
 };
 
+//################//
+// SetSpeedRecord        //
+//################//
+
+class SetSpeedTypeSectionCommand : public DataCommand
+{
+public:
+    explicit SetSpeedTypeSectionCommand(TypeSection *typeSection, double maxSpeed, DataCommand *parent = NULL);
+    virtual ~SetSpeedTypeSectionCommand();
+
+    virtual int id() const
+    {
+        return 0x2205;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    SetSpeedTypeSectionCommand(); /* not allowed */
+    SetSpeedTypeSectionCommand(const SetSpeedTypeSectionCommand &); /* not allowed */
+    SetSpeedTypeSectionCommand &operator=(const SetSpeedTypeSectionCommand &); /* not allowed */
+
+private:
+    TypeSection *typeSection_;
+
+    SpeedRecord *newSpeedRecord;
+    SpeedRecord *oldSpeedRecord;
+};
+
 #endif // TYPESECTIONCOMMANDS_HPP

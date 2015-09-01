@@ -57,6 +57,13 @@ using covise::TokenBuffer;
 
 class VrmlNodeElevator;
 class VrmlNodeExchanger;
+class VrmlNodeLanding;
+
+#define CAR_WIDTH_2 1.0 // Half with of the car
+#define CAR_HEIGHT_2 1.8 // Half height of the car
+#define LANDING_WIDTH_2 1.8 // Half with of the exchanger or landing
+#define LANDING_HEIGHT_2 1.8 // Half height of the exchanger
+#define SAFETY_DISTANCE 0.1
 
 class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
 {
@@ -98,6 +105,7 @@ public:
     void arrivedAtDestination(); // the car arrived at its destination
     bool nextPositionIsEmpty(); // return true if the destination landing is empty
     void startTurning(); // turn if necessarry and possible
+    float getV(){return v;};
 
     VrmlSFInt   d_carNumber;
     VrmlSFVec3f d_carPos;
@@ -106,7 +114,9 @@ public:
     VrmlSFFloat d_doorTimeout;
     VrmlSFRotation d_carRotation;
     VrmlMFInt d_stationList;
+    VrmlMFFloat d_stationOpenTime;
     VrmlSFInt d_currentStationIndex;
+
 
 
 private:
@@ -142,6 +152,7 @@ private:
     double timeoutStart;
     int ID;
     std::list<VrmlNodeExchanger *> currentExchangers;
+    VrmlNodeLanding *lowerLeftLanding;
 };
 
 #endif

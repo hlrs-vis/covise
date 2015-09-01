@@ -67,7 +67,7 @@ bool MouseButtonsDriver::poll()
 
             //unsigned long timestamp = chrono::high_resolution_clock::now().time_since_epoch().count(); //nanoseconds?
             //cout << timestamp/1000000 <<endl;
-            m_buttonStates[i] = btnstatus & btn_mask;
+            m_buttonStates[i] = (btnstatus & btn_mask)!=0;
         }
         m_mutex.unlock();
     }
