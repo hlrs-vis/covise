@@ -50,7 +50,7 @@
         <file>Germany/223.1.png</file>
         <file>Germany/223.2.png</file>
         <file>Germany/223.3.png</file>
-        <file>Germany/224-50.png</file>
+		<file>Germany/224-50.png</file>
         <file>Germany/229.png</file>
         <file>Germany/237.png</file>
         <file>Germany/238.png</file>
@@ -199,11 +199,9 @@
         <file>Germany/625.png</file>
         <file>Germany/620-40.png</file>
         <file>Germany/620-41.png</file>
-        <file>Germany/625-10.png</file>
-        <file>Germany/625-20.png</file>
 		<file>Germany/625.20-10.png</file>
         <file>Germany/626-10.png</file>
-	<file>Germany/626-20.png</file>
+		<file>Germany/626-20.png</file>
         <file>Germany/627.png</file>
         <file>Germany/628.png</file>
         <file>Germany/629.png</file>
@@ -230,7 +228,7 @@
         <file>Germany/1010-10.png</file>
         <file>Germany/1010-11.png</file>
         <file>Germany/1012-30.png</file>
-	<file>Germany/1012-31.png</file>
+		<file>Germany/1012-31.png</file>
         <file>Germany/1022-10.png</file>
         <file>Germany/1030-10.png</file>
         <file>Germany/1031.png</file>
@@ -246,123 +244,124 @@
 		<file>Germany/1000001-00.png</file>
 		<file>Germany/1000002-00.png</file>
 
-<file>China/1-1.png</file>
-<file>China/1-3.png</file>
-<file>China/2.1.png</file>
-<file>China/2.2.png</file>
-<file>China/3.1-1.png</file>
-<file>China/3.2-1.png</file>
-<file>China/3.1-2.png</file>
-<file>China/3.2-2.png</file>
-<file>China/3.1-3.png</file>
-<file>China/3.2-3.png</file>
+		<file>China/1-1.png</file>
+		<file>China/1-3.png</file>
+		<file>China/2.1.png</file>
+		<file>China/2.2.png</file>
+		<file>China/3.1-1.png</file>
+		<file>China/3.2-1.png</file>
+		<file>China/3.1-2.png</file>
+		<file>China/3.2-2.png</file>
+		<file>China/3.1-3.png</file>
+		<file>China/3.2-3.png</file>
 
-<file>China/102.png</file>
-<file>China/108.png</file>
-<file>China/10.png</file>
-<file>China/114.png</file>
-<file>China/11.png</file>
-<file>China/122.a.png</file>
-<file>China/122.b.png</file>
-<file>China/123.a.png</file>
-<file>China/124.a.png</file>
-<file>China/124.b.png</file>
-<file>China/124.c.png</file>
-<file>China/124.d.png</file>
-<file>China/124.e.png</file>
-<file>China/125.a.png</file>
-<file>China/125.b.png</file>
+		<file>China/102.png</file>
+		<file>China/108.png</file>
+		<file>China/10.png</file>
+		<file>China/114.png</file>
+		<file>China/11.png</file>
+		<file>China/122.a.png</file>
+		<file>China/122.b.png</file>
+		<file>China/123.a.png</file>
+		<file>China/124.a.png</file>
+		<file>China/124.b.png</file>
+		<file>China/124.c.png</file>
+		<file>China/124.d.png</file>
+		<file>China/124.e.png</file>
+		<file>China/125.a.png</file>
+		<file>China/125.b.png</file>
 
-<file>China/125.c.png</file>
-<file>China/125.d.png</file>
-<file>China/125.e.png</file>
-<file>China/126.a.png</file>
-<file>China/126.b.png</file>
-<file>China/133.b.png</file>
-<file>China/135.c.png</file>
-<file>China/135.d.png</file>
-<file>China/139.a.png</file>
-<file>China/139.b.png</file>
-<file>China/14.m.png</file>
-<file>China/145.b.png</file>
-<file>China/145.d.png</file>
-<file>China/145.e.png</file>
-<file>China/146.png</file>
+		<file>China/125.c.png</file>
+		<file>China/125.d.png</file>
+		<file>China/125.e.png</file>
+		<file>China/126.a.png</file>
+		<file>China/126.b.png</file>
+		<file>China/133.b.png</file>
+		<file>China/135.c.png</file>
+		<file>China/135.d.png</file>
+		<file>China/139.a.png</file>
+		<file>China/139.b.png</file>
+		<file>China/14.m.png</file>
+		<file>China/145.b.png</file>
+		<file>China/145.d.png</file>
+		<file>China/145.e.png</file>
+		<file>China/146.png</file>
 
-<file>China/147.a.png</file>
-<file>China/147.b.png</file>
-<file>China/167.a.png</file>
-<file>China/167.b.png</file>
-<file>China/169.png</file>
-<file>China/170.png</file>
-<file>China/171.png</file>
-<file>China/172.a.png</file>
-<file>China/172.b.png</file>
-<file>China/173.c.png</file>
-<file>China/173.e.png</file>
-<file>China/173.f.png</file>
-<file>China/175.a.png</file>
-<file>China/175.c.png</file>
-<file>China/175.d.png</file>
+		<file>China/147.a.png</file>
+		<file>China/147.b.png</file>
+		<file>China/161.a.png</file>
+		<file>China/167.a.png</file>
+		<file>China/167.b.png</file>
+		<file>China/169.png</file>
+		<file>China/170.png</file>
+		<file>China/171.png</file>
+		<file>China/172.a.png</file>
+		<file>China/172.b.png</file>
+		<file>China/173.c.png</file>
+		<file>China/173.e.png</file>
+		<file>China/173.f.png</file>
+		<file>China/175.a.png</file>
+		<file>China/175.c.png</file>
+		<file>China/175.d.png</file>
 
-<file>China/177.c.png</file>
-<file>China/179.a.png</file>
-<file>China/179.b.png</file>
-<file>China/179.c.png</file>
-<file>China/179.d.png</file>
-<file>China/180.a.png</file>
-<file>China/180.b.png</file>
-<file>China/180.c.png</file>
-<file>China/181.a.png</file>
-<file>China/181.b.png</file>
-<file>China/181.d.png</file>
-<file>China/181.e.png</file>
-<file>China/181.f.png</file>
-<file>China/182.d.png</file>
-<file>China/183.a.png</file>
-<file>China/183.b.png</file>
+		<file>China/177.c.png</file>
+		<file>China/179.a.png</file>
+		<file>China/179.b.png</file>
+		<file>China/179.c.png</file>
+		<file>China/179.d.png</file>
+		<file>China/180.a.png</file>
+		<file>China/180.b.png</file>
+		<file>China/180.c.png</file>
+		<file>China/181.a.png</file>
+		<file>China/181.b.png</file>
+		<file>China/181.d.png</file>
+		<file>China/181.e.png</file>
+		<file>China/181.f.png</file>
+		<file>China/182.d.png</file>
+		<file>China/183.a.png</file>
+		<file>China/183.b.png</file>
 
-<file>China/183.c.png</file>
-<file>China/183.d.png</file>
-<file>China/183.e.png</file>
-<file>China/192.a.png</file>
-<file>China/192.b.png</file>
-<file>China/1.i.png</file>
-<file>China/228.png</file>
-<file>China/229.b.png</file>
-<file>China/231.a.png</file>
+		<file>China/183.c.png</file>
+		<file>China/183.d.png</file>
+		<file>China/183.e.png</file>
+		<file>China/192.a.png</file>
+		<file>China/192.b.png</file>
+		<file>China/1.i.png</file>
+		<file>China/228.png</file>
+		<file>China/229.b.png</file>
+		<file>China/231.a.png</file>
 
-<file>China/231.b.png</file>
-<file>China/234.i.png</file>
-<file>China/234.j.png</file>
-<file>China/242.png</file>
-<file>China/249.a.png</file>
-<file>China/249.b.png</file>
-<file>China/249.c.png</file>
-<file>China/2.a.png</file>
-<file>China/35.m.png</file>
-<file>China/38.a.png</file>
-<file>China/38.b.png</file>
-<file>China/38.c.png</file>
-<file>China/38.d.png</file>
-<file>China/38.e.png</file>
-<file>China/38.f.png</file>
-<file>China/44.b.png</file>
+		<file>China/231.b.png</file>
+		<file>China/234.i.png</file>
+		<file>China/234.j.png</file>
+		<file>China/242.png</file>
+		<file>China/249.a.png</file>
+		<file>China/249.b.png</file>
+		<file>China/249.c.png</file>
+		<file>China/2.a.png</file>
+		<file>China/35.m.png</file>
+		<file>China/38.a.png</file>
+		<file>China/38.b.png</file>
+		<file>China/38.c.png</file>
+		<file>China/38.d.png</file>
+		<file>China/38.e.png</file>
+		<file>China/38.f.png</file>
+		<file>China/44.b.png</file>
 
-<file>China/48.png</file>
-<file>China/52.png</file>
-<file>China/53.png</file>
-<file>China/54.png</file>
-<file>China/57.m.png</file>
-<file>China/60.m.png</file>
-<file>China/61.a.png</file>
-<file>China/61.b.png</file>
-<file>China/63.png</file>
-<file>China/70.png</file>
-<file>China/75.png</file>
-<file>China/80.png</file>
-<file>China/82.png</file>
-<file>China/98.png</file>	
+		<file>China/48.png</file>
+		<file>China/52.png</file>
+		<file>China/53.png</file>
+		<file>China/54.png</file>
+		<file>China/57.m.png</file>
+		<file>China/60.m.png</file>
+		<file>China/61.a.png</file>
+		<file>China/61.b.png</file>
+		<file>China/63.png</file>
+		<file>China/70.png</file>
+		<file>China/75.png</file>
+		<file>China/80.png</file>
+		<file>China/82.png</file>
+		<file>China/98.png</file>	
 
     </qresource>
 </RCC>

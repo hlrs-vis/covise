@@ -205,6 +205,7 @@ SET(ODDLOT_SOURCES
 	 src/wizards/superelevationwizard.cpp
 	 src/wizards/wizardmanager.cpp
 	 src/tree/projecttreewidget.cpp
+	 src/tree/signaltreewidget.cpp
 	 src/data/scenerysystem/heightmap.cpp
 	 src/settings/projectsettings.cpp
 	 src/tree/items/typesectiontreeitem.cpp
@@ -489,6 +490,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/wizards/superelevationwizard.hpp
 	 src/wizards/wizardmanager.hpp
 	 src/tree/projecttreewidget.hpp
+	 src/tree/signaltreewidget.hpp
 	 src/data/scenerysystem/heightmap.hpp
 	 src/settings/projectsettings.hpp
 	 src/tree/items/typesectiontreeitem.hpp

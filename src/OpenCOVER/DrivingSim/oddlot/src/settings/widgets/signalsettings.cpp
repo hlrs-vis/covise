@@ -143,6 +143,12 @@ SignalSettings::updateProperties()
         ui->typeSpinBox->setValue(signal_->getType());
         ui->subclassLineEdit->setText(signal_->getTypeSubclass());
         ui->subtypeSpinBox->setValue(signal_->getSubtype());
+		SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(),signal_->getTypeSubclass(),signal_->getSubtype());
+		if (signalContainer)
+		{
+			QIcon icon = signalContainer->getSignalIcon();
+			ui->imageTextLabel->setPixmap(icon.pixmap(icon.availableSizes().first()).scaledToHeight(80));
+		}
         ui->valueSpinBox->setValue(signal_->getValue());
         ui->hOffsetSpinBox->setValue(signal_->getHeading());
         ui->pitchSpinBox->setValue(signal_->getPitch());
@@ -150,7 +156,6 @@ SignalSettings::updateProperties()
         ui->dynamicCheckBox->setChecked(signal_->getDynamic());
         ui->orientationComboBox->setCurrentIndex(signal_->getOrientation());
         ui->poleCheckBox->setChecked(signal_->getPole());
-
         ui->sizeComboBox->setCurrentIndex(signal_->getSize() - 1);
 
         ui->fromLaneSpinBox->setValue(signal_->getValidFromLane());
@@ -219,7 +224,7 @@ SignalSettings::updateProperties(QString country, SignalContainer *signalPropert
 void
 SignalSettings::addSignals()
 {
-    foreach (const SignalContainer *container, signalManager_->getSignals("China"))
+   /* foreach (const SignalContainer *container, signalManager_->getSignals("China"))
     {
         ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
     }
@@ -238,7 +243,7 @@ SignalSettings::addSignals()
     foreach (const SignalContainer *container, signalManager_->getSignals("USA"))
     {
         ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
-    }
+    }*/
 }
 
 //################//

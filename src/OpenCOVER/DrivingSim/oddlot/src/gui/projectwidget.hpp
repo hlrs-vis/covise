@@ -48,6 +48,8 @@ class RSystemElementRoad;
 
 class TrackSpiralArcSpiral;
 
+class SignalTreeWidget;
+
 /** \brief The ProjectWidget class is the main class for each project.
 * It is a container for the Model-View-Controller classes.
 *
@@ -240,6 +242,7 @@ private:
 
     ProjectTree *projectTree_; // view			// owned
     ProjectSettings *projectSettings_; // view			// owned
+	SignalTreeWidget *signalTree_;
 
     // ChangeManager //
     //
