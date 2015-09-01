@@ -333,7 +333,7 @@ do
 
 	86)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /mnt/raid/home/hpcthobs/covise/net/ALL/2014/ThyssenNeu.net
+	    covise -e /data/covise_net/ALL/2014/ThyssenNeu.net
 	    ;;
 
 # SYSTEM
