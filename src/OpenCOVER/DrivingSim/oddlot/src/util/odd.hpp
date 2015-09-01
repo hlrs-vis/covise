@@ -98,7 +98,6 @@ public:
         TRL_LINK,
         TRL_ROADLINK,
         TRL_UNLINK,
-        TRL_LANELINK,
 
         // Road Type Editor
         TRT_SELECT,
