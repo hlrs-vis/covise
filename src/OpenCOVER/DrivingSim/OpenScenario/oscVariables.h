@@ -49,7 +49,7 @@ namespace OpenScenario
         void setMemberValue(oscMemberValue *v) {value = v;};
         const T& getValue() const {if(value) {oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value); if(ov!=NULL) return ov->getValue();} return defaultValue;};
         bool exists(){return value!=NULL;};
-        void setDefault(T &d) {default = d;};
+        void setDefault(T &d) {defaultValue = d;};
         virtual void setValue(T &v) {if(value==NULL) {value = oscFactories::instance()->valueFactory->create(type);} if(value!=NULL) {oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value); if(ov!=NULL) ov->setValue(v);}};
         virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document){if(value!=NULL) { value->writeToDOM(currentElement,document,name.c_str());} return true;};
         OPENSCENARIOEXPORT oscMemberValue::MemberTypes getType();

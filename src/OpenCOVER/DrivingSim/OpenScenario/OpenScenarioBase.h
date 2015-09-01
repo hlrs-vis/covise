@@ -52,7 +52,7 @@ public:
                                                               \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is retured if a file with that name already exists.
                                                               \return false if writing to the file failed.*/
 
-    xercesc::DOMElement *OpenScenarioBase::getRootElement(std::string filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
+    xercesc::DOMElement *getRootElement(std::string filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
 
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
