@@ -4748,7 +4748,7 @@ CreateInnerLaneLinksCommand::CreateInnerLaneLinksCommand(RSystemElementRoad *roa
         }
 
         nextLaneId = lane->getSuccessor();
-        if (nextLaneId != Lane::NOLANE)
+        if ((nextLaneId != Lane::NOLANE) && !road_->getSuccessor())
         {
             LaneLinkPair oldLaneLinkPair = {id, nextLaneId};
             oldSuccessorLaneLinks_.insert(s, oldLaneLinkPair);
@@ -4966,6 +4966,15 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
 
                     if (laneId != nextLaneId)
                     {
+                        if (laneId == 0)
+                        {
+                            LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                            oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                            LaneLinkPair laneLinkPairNew = {id, Lane::NOLANE};
+                            newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
+                            continue;
+                        }
+
                         LaneLinkPair laneLinkPairOld = { id, nextLaneId};
                         oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
                         LaneLinkPair laneLinkPairNew = {id, laneId};
@@ -5014,7 +5023,7 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
         RSystemElementRoad * succRoad = roadSystem_->getRoad(roadSuccessor->getElementId());
         if (succRoad)
         {
-            QPointF laneMid = road->getGlobalPoint(0.0, 0.0);
+            QPointF laneMid = road->getGlobalPoint(roadLength, 0.0);
             QVector2D vecStart = QVector2D(laneMid - succRoad->getGlobalPoint(0.0));
             QVector2D vecEnd = QVector2D(laneMid - succRoad->getGlobalPoint(succRoad->getLength()));
 
@@ -5075,6 +5084,15 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
 
                     if (laneId != nextLaneId)
                     {
+                        if (laneId == 0)
+                        {
+                            LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                            oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                            LaneLinkPair laneLinkPairNew = {id, Lane::NOLANE};
+                            newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
+                            continue;
+                        }
+
                         LaneLinkPair laneLinkPairOld = { id, nextLaneId};
                         oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
                         LaneLinkPair laneLinkPairNew = {id, laneId};
@@ -5101,6 +5119,21 @@ CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadS
         }
     }
 
+/*    qDebug() << road_->getID();
+    QMultiMap<QString, LaneLinkPair>::const_iterator it = newPredecessorLaneLinks_.constBegin();
+    while (it != newPredecessorLaneLinks_.constEnd())
+    {
+        LaneLinkPair laneLinkPair = it.value();
+        qDebug() << it.key() << " Predecessor: " << laneLinkPair.laneId << " " << laneLinkPair.linkId;
+        it++;
+    }
+    it = newSuccessorLaneLinks_.constBegin();
+    while (it != newSuccessorLaneLinks_.constEnd())
+    {
+        LaneLinkPair laneLinkPair = it.value();
+        qDebug() << it.key() << "Successor: " << laneLinkPair.laneId << " " << laneLinkPair.linkId;
+        it++;
+    }*/
 
     setValid();
     setText(QObject::tr("Create Lane Links"));
@@ -5202,7 +5235,6 @@ CreateNextRoadLaneLinksCommand::redo()
             junction_->addConnection(junctionPredecessorConnection_);
         }
     }
-
 
     setRedone();
 }
@@ -5387,3 +5419,46 @@ LinkRoadsAndLanesCommand::LinkRoadsAndLanesCommand(const QList<SetRoadLinkRoadsC
 LinkRoadsAndLanesCommand::~LinkRoadsAndLanesCommand()
 {
 }
+
+//#########################//
+// LinkLanesCommand //
+//#########################//
+
+LinkLanesCommand::LinkLanesCommand(RSystemElementRoad *road, DataCommand *parent)
+    : DataCommand(parent)
+    , road_(road)
+    , createInnerLaneLinksCommand_(NULL)
+    , createNextRoadLaneLinksCommand_(NULL)
+{
+
+    // Check for validity //
+    //
+    RoadSystem * roadSystem = road_->getRoadSystem();
+    if (!roadSystem)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("LinkLanesCommand: Internal error! No valid roadsystem."));
+        return;
+    }
+
+    createInnerLaneLinksCommand_ = new CreateInnerLaneLinksCommand(road_, this);
+    if (!createInnerLaneLinksCommand_->isValid())
+    {
+        return;
+    }
+
+    createNextRoadLaneLinksCommand_ = new CreateNextRoadLaneLinksCommand(roadSystem, road, this);
+
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Link lanes"));
+}
+
+/*! \brief .
+*
+*/
+LinkLanesCommand::~LinkLanesCommand()
+{
+}
+

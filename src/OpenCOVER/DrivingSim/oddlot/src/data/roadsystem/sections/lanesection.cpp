@@ -169,32 +169,32 @@
 	    int i = 0;
 	    double width = 0;
 	    Lane * lane = getLane(i);
-	    if (t < 0.0)
-	    {
-		while (width < fabs(t))  
-		{
-		    lane = getNextLower(i);
-		    if (!lane)
-		    {
-			return i;
-		    }
-		    width += getLaneWidth(--i, s);
-		}
-	    }
-	    else
-	    {
-		while (width < t)  
-		{
-		    lane = getNextUpper(i);
-		    if (!lane)
-		    {
-			return i;
-		    }
-		    width += getLaneWidth(++i, s);
-		} 
-	    }
-	    return i;
-	}
+        if (t < 0.0)
+        {
+            while (width < fabs(t))  
+            {
+                lane = getNextLower(i);
+                if (!lane)
+                {
+                    return i;
+                }
+                width += getLaneWidth(--i, s);
+            }
+        }
+        else
+        {
+            while (width < t)  
+            {
+                lane = getNextUpper(i);
+                if (!lane)
+                {
+                    return i;
+                }
+                width += getLaneWidth(++i, s);
+            } 
+        }
+        return i;
+    }
 
 	void
 	LaneSection::setLanes(QMap<int, Lane *> newLanes)

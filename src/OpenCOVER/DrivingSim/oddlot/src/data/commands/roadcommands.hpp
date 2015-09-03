@@ -741,7 +741,7 @@ public:
 
     virtual int id() const
     {
-        return 0x1054;
+        return 0x1056;
     }
 
     virtual void undo();
@@ -778,7 +778,7 @@ public:
 
     virtual int id() const
     {
-        return 0x1054;
+        return 0x1058;
     }
 
     virtual void undo();
@@ -814,7 +814,7 @@ public:
 
     virtual int id() const
     {
-        return 0x1042;
+        return 0x1060;
     }
 
     virtual void undo()
@@ -837,6 +837,42 @@ private:
     double threshold_;
 
     SetRoadLinkRoadsCommand *setRoadLinkRoadsCommand_;
+    CreateInnerLaneLinksCommand *createInnerLaneLinksCommand_;
+    CreateNextRoadLaneLinksCommand *createNextRoadLaneLinksCommand_;
+};
+
+//#########################//
+// LinkLanesCommand //
+//#########################//
+
+class LinkLanesCommand : public DataCommand
+{
+public:
+    explicit LinkLanesCommand(RSystemElementRoad *road, DataCommand *parent = NULL);
+    virtual ~LinkLanesCommand();
+
+    virtual int id() const
+    {
+        return 0x1062;
+    }
+
+    virtual void undo()
+    {
+        QUndoCommand::undo();
+    };
+    virtual void redo()
+    {
+        QUndoCommand::redo();
+    };
+
+private:
+    LinkLanesCommand(); /* not allowed */
+    LinkLanesCommand(const LinkLanesCommand &); /* not allowed */
+    LinkLanesCommand &operator=(const LinkLanesCommand &); /* not allowed */
+
+private:
+    RSystemElementRoad * road_;
+
     CreateInnerLaneLinksCommand *createInnerLaneLinksCommand_;
     CreateNextRoadLaneLinksCommand *createNextRoadLaneLinksCommand_;
 };
