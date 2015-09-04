@@ -17,8 +17,10 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QTreeWidgetItem>
 
 #include <src/util/odd.hpp>
+
 
 class QMdiArea;
 class QMdiSubWindow;
@@ -61,6 +63,7 @@ class MainWindow : public QMainWindow
     //################//
 
 public:
+
     explicit MainWindow(QWidget *parent = NULL);
     virtual ~MainWindow();
 
@@ -130,12 +133,22 @@ public:
     //
     void setProjectTree(QWidget *widget);
 
+	 // SignalTree //
+    //
+    void setSignalTree(QWidget *widget);
+
+
     // ProjectSettings //
     //
     void setProjectSettings(QWidget *widget);
 
+	// ProjectSignals //
+    //
+    void setProjectSignals(QWidget *widget);
+
     void open(QString fileName);
     void openTile(QString fileName);
+
 
 private:
     // Init functions //
@@ -261,6 +274,9 @@ private:
 
     QDockWidget *treeDock_;
     QWidget *emptyTreeWidget_;
+
+	QDockWidget *signalsDock_;
+    QWidget *emptySignalsWidget_;
 
     QDockWidget *settingsDock_;
     QWidget *emptySettingsWidget_;

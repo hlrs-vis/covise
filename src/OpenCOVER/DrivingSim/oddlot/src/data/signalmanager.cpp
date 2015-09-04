@@ -50,15 +50,24 @@ SignalManager::~SignalManager()
 }
 
 void
-SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, int type, const QString &typeSubclass, int subType, double value, double distance, double height)
+SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double height)
 {
-    signals_.insert(country, new SignalContainer(name, icon, type, typeSubclass, subType, value, distance, height));
+    signals_.insert(country, new SignalContainer(name, icon, categoryName, type, typeSubclass, subType, value, distance, height));
 }
 
 void
 SignalManager::addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
 {
     objects_.insert(country, new ObjectContainer(name, file, icon, type, length, width, radius, height, distance, heading, repeatDistance, corners));
+}
+
+void
+	SignalManager::addCountry(const QString &country)
+{
+	if (!countries_.contains(country))
+	{
+		countries_.append(country);
+	}
 }
 
 ObjectContainer *
@@ -76,7 +85,47 @@ SignalManager::getObjectContainer(const QString &type)
 
    return NULL;
 } 
-    
+
+QString 
+SignalManager::getCountry(SignalContainer *signalContainer)
+{
+	return signals_.key(signalContainer, "");
+
+}
+
+SignalContainer * 
+SignalManager::getSignalContainer(int type, const QString &typeSubclass, int subType)
+{
+   QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
+   while (iter != signals_.constEnd())
+   {
+	   if ((iter.value()->getSignalType() == type) && (iter.value()->getSignalSubType() == subType) && (iter.value()->getSignalTypeSubclass() == typeSubclass))
+      {
+         return iter.value();
+      }
+   iter++;
+   }
+
+   return NULL;
+} 
+
+SignalContainer * 
+SignalManager::getSignalContainer(const QString &name)
+{
+   QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
+   while (iter != signals_.constEnd())
+   {
+	   if (iter.value()->getSignalName() == name)
+      {
+         return iter.value();
+      }
+   iter++;
+   }
+
+   return NULL;
+} 
+
+
 bool
 SignalManager::loadSignals(const QString &fileName)
 {

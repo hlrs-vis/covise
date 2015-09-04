@@ -41,9 +41,14 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+
 // Utils //
 //
 #include "src/util/odd.hpp"
+
+// tree //
+//
+#include "src/tree/signaltreewidget.hpp"
 
 //################//
 // Constructors   //
@@ -85,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     createSignals();
     createTools();
     createWizards();
+	
 
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
@@ -394,11 +400,31 @@ MainWindow::createSignals()
             exit(-1);
         }
     }
+	
+    // Dock Area //
+    //
+    signalsDock_ = new QDockWidget(tr("Signals View"), this);
+    signalsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, signalsDock_);
+	tabifyDockWidget(treeDock_, signalsDock_);
+
+    // Show/Hide Action //
+    //
+    QAction *signalsDockToggleAction = signalsDock_->toggleViewAction();
+    signalsDockToggleAction->setStatusTip(tr("Show/hide the Signals view."));
+    viewMenu_->addAction(signalsDockToggleAction);
+
+	// SignalTree //
+	//
+	SignalTreeWidget *signalTree = new SignalTreeWidget(signalManager_, this);
+	setSignalTree(signalTree);
+
 }
 
 /*! \brief Creates the ToolManager and the tool box on the left side.
 *
 */
+
 void
 MainWindow::createTools()
 {
@@ -492,7 +518,7 @@ MainWindow::createUndo()
     undoDock_ = new QDockWidget(tr("Undo History"), this);
     undoDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, undoDock_);
-    tabifyDockWidget(undoDock_, treeDock_);
+	tabifyDockWidget(undoDock_, treeDock_);
 
     // Show/Hide Action //
     //
@@ -965,6 +991,14 @@ MainWindow::activateProject()
         // Pass currently selected tools //
         //
         toolManager_->resendCurrentTool();
+
+		// Pass selected project to signal treewidget //
+		//
+		SignalTreeWidget *signalTreeWidget = dynamic_cast<SignalTreeWidget *>(signalsDock_->widget());
+		if(signalTreeWidget)
+		{
+			signalTreeWidget->setActiveProject(project);
+		}
     }
 }
 
@@ -1030,6 +1064,23 @@ MainWindow::setProjectTree(QWidget *widget)
     }
 }
 
+/*! \brief Set the widget of the Tree View.
+*
+* If NULL is passed, an empty widget will be displayed.
+*/
+void
+MainWindow::setSignalTree(QWidget *widget)
+{
+    if (widget)
+    {
+        signalsDock_->setWidget(widget);
+    }
+    else
+    {
+        signalsDock_->setWidget(emptyTreeWidget_);
+    }
+}
+
 /*! \brief Set the widget of the Settings View.
 *
 * If NULL is passed, an empty widget will be displayed.
@@ -1046,6 +1097,7 @@ MainWindow::setProjectSettings(QWidget *widget)
         settingsDock_->setWidget(emptySettingsWidget_);
     }
 }
+
 
 //################//
 // EVENTS         //
