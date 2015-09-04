@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>SignalSettings</class>
  <widget class="QWidget" name="SignalSettings">
@@ -6,13 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-<<<<<<< HEAD
     <width>789</width>
     <height>612</height>
-=======
-    <width>612</width>
-    <height>582</height>
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,17 +16,10 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0" rowspan="3">
     <widget class="QGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="title">
       <string>signalx</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-<<<<<<< HEAD
       <item row="9" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -41,28 +29,6 @@
          <widget class="QLabel" name="label_9">
           <property name="text">
            <string>                      hOffset</string>
-=======
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>value</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QDoubleSpinBox" name="sSpinBox">
-          <property name="maximum">
-           <double>99999.990000000005239</double>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>t</string>
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -70,85 +36,19 @@
          </widget>
         </item>
         <item>
-<<<<<<< HEAD
          <widget class="QDoubleSpinBox" name="hOffsetSpinBox">
           <property name="minimum">
            <double>-360.000000000000000</double>
           </property>
           <property name="maximum">
            <double>360.000000000000000</double>
-=======
-         <widget class="QDoubleSpinBox" name="tSpinBox">
-          <property name="minimum">
-           <double>-99.989999999999995</double>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="17" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QSpinBox" name="fromLaneSpinBox">
-          <property name="minimum">
-           <number>-10</number>
-          </property>
-          <property name="maximum">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item alignment="Qt::AlignRight">
-         <widget class="QLabel" name="label_8">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>valid to lane</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="toLaneSpinBox">
-          <property name="minimum">
-           <number>-10</number>
-          </property>
-          <property name="maximum">
-           <number>10</number>
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
-          </property>
-         </widget>
-        </item>
-       </layout>
-<<<<<<< HEAD
       </item>
       <item row="23" column="0">
        <widget class="QLabel" name="label_4">
-=======
-      </item>
-      <item row="17" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>valid from lane</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QDoubleSpinBox" name="zOffsetSpinBox"/>
-      </item>
-      <item row="16" column="2">
-       <widget class="QCheckBox" name="poleCheckBox">
-        <property name="text">
-         <string>Pole</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="0">
-       <widget class="QCheckBox" name="dynamicCheckBox">
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
         <property name="text">
          <string>orientation</string>
         </property>
@@ -196,57 +96,8 @@
         </property>
        </widget>
       </item>
-<<<<<<< HEAD
       <item row="23" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_6">
-=======
-      <item row="1" column="2">
-       <widget class="QTextEdit" name="idBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="undoRedoEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLineEdit" name="nameBox"/>
-        </item>
-       </layout>
-      </item>
-      <item row="15" column="2">
-       <widget class="QComboBox" name="orientationComboBox">
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
         <item>
          <widget class="QComboBox" name="orientationComboBox">
           <item>
@@ -295,7 +146,6 @@
         </property>
        </widget>
       </item>
-<<<<<<< HEAD
       <item row="20" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
@@ -366,14 +216,6 @@
          </widget>
         </item>
        </layout>
-=======
-      <item row="7" column="0">
-       <widget class="QLabel" name="successorLabel">
-        <property name="text">
-         <string>type</string>
-        </property>
-       </widget>
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
       </item>
       <item row="25" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -417,7 +259,6 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
-<<<<<<< HEAD
         <property name="text">
          <string>crossing probability</string>
         </property>
@@ -427,17 +268,6 @@
        <widget class="QLabel" name="successorLabel">
         <property name="text">
          <string>type</string>
-=======
-       </widget>
-      </item>
-      <item row="7" column="2">
-       <widget class="QSpinBox" name="typeSpinBox">
-        <property name="minimum">
-         <number>-1</number>
-        </property>
-        <property name="maximum">
-         <number>1000100</number>
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
         </property>
        </widget>
       </item>
@@ -638,56 +468,11 @@
         </property>
        </widget>
       </item>
-      <item row="18" column="0">
-       <widget class="QLabel" name="crossingProbLabel">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>crossing probability</string>
-        </property>
-       </widget>
-      </item>
-      <item row="18" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QDoubleSpinBox" name="crossingSpinBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="value">
-           <double>0.750000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item alignment="Qt::AlignRight">
-         <widget class="QLabel" name="resetTimeLabel">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>reset time</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="resetTimeSpinBox">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="value">
-           <double>20.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
      <zorder>junctionLabel</zorder>
      <zorder>lengthLabel</zorder>
      <zorder>label_4</zorder>
      <zorder>label_10</zorder>
-<<<<<<< HEAD
      <zorder>label_7</zorder>
      <zorder>crossingProbLabel</zorder>
      <zorder>successorLabel</zorder>
@@ -720,18 +505,6 @@
       <string>no icon available</string>
      </property>
     </widget>
-=======
-     <zorder>label_11</zorder>
-     <zorder>hOffsetSpinBox</zorder>
-     <zorder>pitchSpinBox</zorder>
-     <zorder>rollSpinBox</zorder>
-     <zorder>label_7</zorder>
-     <zorder>crossingProbLabel</zorder>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QComboBox" name="signalComboBox"/>
->>>>>>> a8127979e8a06101b4c13ca67dbdf6f2f8041f12
    </item>
   </layout>
  </widget>
