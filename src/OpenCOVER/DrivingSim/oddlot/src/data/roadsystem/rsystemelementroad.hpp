@@ -254,6 +254,10 @@ public:
     double getMaxWidth(double s) const;
     double getMinWidth(double s) const;
 
+    // check if the lanes are linked at their ends
+    //
+    void verifyLaneLinkage();
+
     // road:objects:crosswalk //
     //
     void addCrosswalk(Crosswalk *crosswalk);

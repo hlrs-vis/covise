@@ -74,6 +74,24 @@ RoadSystem::getRoad(const QString &id) const
     return roads_.value(id, NULL);
 }
 
+QList<RSystemElementRoad *> 
+RoadSystem::getRoads(const QString &junction) const
+{
+    QList<RSystemElementRoad *> roadList;
+
+    QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+    while (it != roads_.constEnd())
+    {
+        if (it.value()->getJunction() == junction)
+        {
+            roadList.append(it.value());
+        }
+        it++;
+    }
+
+    return roadList;
+}
+
 QList<RSystemElementRoad *>
 RoadSystem::getTileRoads(const QString &tileId) const
 {
@@ -754,6 +772,18 @@ RoadSystem::updateControllers()
          }
          controlIt++;
      }
+}
+
+//##################//
+// OpenDRIVEData      //
+//##################//
+void
+RoadSystem::verify()
+{
+    foreach (RSystemElementRoad * road, roads_)
+    {
+        road->verifyLaneLinkage();
+    }
 }
 
 

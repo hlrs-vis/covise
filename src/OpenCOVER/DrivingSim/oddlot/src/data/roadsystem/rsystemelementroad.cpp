@@ -31,6 +31,7 @@
 #include "sections/superelevationsection.hpp"
 #include "sections/crossfallsection.hpp"
 #include "sections/lanesection.hpp"
+#include "sections/lane.hpp"
 #include "sections/objectobject.hpp"
 #include "sections/crosswalkobject.hpp"
 #include "sections/signalobject.hpp"
@@ -1720,6 +1721,42 @@ RSystemElementRoad::getMinWidth(double s) const
     else
     {
         return -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), s);
+    }
+}
+
+void RSystemElementRoad::verifyLaneLinkage()
+{
+    // Remove predecessors and successors, if the road has none
+    //
+
+    if (!predecessor_)
+    {
+        LaneSection * laneSection = laneSections_.value(0.0);
+        if (laneSection)
+        {
+            foreach (Lane *lane, laneSection->getLanes())
+            {
+                if (lane->getPredecessor() != Lane::NOLANE)
+                {
+                    lane->setPredecessor(Lane::NOLANE);
+                }
+            }
+        }
+    }
+
+    if (!successor_)
+    {
+        LaneSection * laneSection = getLaneSection(cachedLength_);
+        if (laneSection)
+        {
+            foreach (Lane *lane, laneSection->getLanes())
+            {
+                if (lane->getSuccessor() != Lane::NOLANE)
+                {
+                    lane->setSuccessor(Lane::NOLANE);
+                }
+            }
+        }
     }
 }
 

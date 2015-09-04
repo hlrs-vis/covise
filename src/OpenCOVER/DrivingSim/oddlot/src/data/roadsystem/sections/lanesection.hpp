@@ -72,6 +72,10 @@ public:
     int getRightmostLaneId() const;
     void checkAndFixLanes();
 
+    // Returns distance from road center to mid of lane
+    //
+    double getTValue(Lane * lane, double s, double laneWidth);
+
     // Observer Pattern //
     //
     virtual void notificationDone();

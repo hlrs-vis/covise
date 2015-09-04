@@ -194,6 +194,7 @@ DomParser::parseXODR(QIODevice *source)
         roadSystem_->checkIDs(elementIDs_);
         elementIDs_.clear();
     }
+    roadSystem_->verify();
     roadSystem_->updateControllers();
 
     // VehicleSystem //

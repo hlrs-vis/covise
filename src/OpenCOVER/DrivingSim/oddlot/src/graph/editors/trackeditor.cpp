@@ -333,8 +333,13 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                         // Append Prototype //
                         //
                         linePrototype->superposePrototype(currentRoadPrototype_);
+
+                        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
                         AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, linePrototype, isStart, NULL);
                         getProjectGraph()->executeCommand(command);
+                        LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+                        getProjectGraph()->executeCommand(linkLanesCommand);
+                        getProjectData()->getUndoStack()->endMacro();
                     }
 
                     // Curve //
@@ -475,16 +480,25 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                         // Append Prototype //
                         //
                         spiralPrototype->superposePrototype(currentRoadPrototype_);
+
+                        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
                         AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, spiralPrototype, isStart, NULL);
                         getProjectGraph()->executeCommand(command);
-                    }
+                        LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+                        getProjectGraph()->executeCommand(linkLanesCommand);
+                        getProjectData()->getUndoStack()->endMacro();
+                   }
 
                     // Prototypes //
                     //
                     else if (getCurrentTool() == ODD::TTE_ADD)
                     {
+                        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
                         AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, currentRoadPrototype_, isStart, NULL);
                         getProjectGraph()->executeCommand(command);
+                        LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+                        getProjectGraph()->executeCommand(linkLanesCommand);
+                        getProjectData()->getUndoStack()->endMacro();
                     }
                 }
             }
