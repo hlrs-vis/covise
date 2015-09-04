@@ -61,6 +61,8 @@ public:
     // Commands //
     //
     bool executeCommand(DataCommand *command);
+    void beginMacro(const QString &text);
+    void endMacro();
 
     // Observer Pattern //
     //

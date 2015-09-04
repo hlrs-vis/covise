@@ -220,9 +220,18 @@ TrackComponentItem::removeSection()
     {
         // Remove track //
         //
+        getProjectGraph()->beginMacro(QObject::tr("Remove Track"));
         RemoveTrackCommand *command = new RemoveTrackCommand(trackComponent->getParentRoad(), trackComponent, false, NULL);
         //RemoveTrackCommand * command = new RemoveTrackCommand(trackComponent->getParentRoad(), trackComponent, true, NULL);
-        return getProjectGraph()->executeCommand(command);
+        bool commandExecuted = getProjectGraph()->executeCommand(command);
+        if (commandExecuted)
+        {
+            LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+            getProjectGraph()->executeCommand(linkLanesCommand);
+        }
+
+        getProjectGraph()->endMacro();
+        return commandExecuted;
     }
 }
 
