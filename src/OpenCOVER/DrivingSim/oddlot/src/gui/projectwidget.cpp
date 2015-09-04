@@ -62,7 +62,6 @@
 // Tree //
 //
 #include "src/tree/projecttree.hpp"
-#include "src/tree/signaltreewidget.hpp"
 
 // Settings //
 //
@@ -240,10 +239,6 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     testRoadPrototype_->superposePrototype(laneSectionPrototypes.at(3)->getPrototype());
     testRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
-
-	// SignalTree //
-	//
-	signalTree_ = new SignalTreeWidget(this, projectData_);
 }
 
 /*!
@@ -1539,9 +1534,8 @@ ProjectWidget::setProjectActive(bool active)
 {
     if (active)
     {
-        mainWindow_->setProjectTree(projectTree_); 
+        mainWindow_->setProjectTree(projectTree_);
         mainWindow_->setProjectSettings(projectSettings_);
-		mainWindow_->setSignalTree(signalTree_);
     }
 
     projectData_->projectActivated(active); // Undo, etc
