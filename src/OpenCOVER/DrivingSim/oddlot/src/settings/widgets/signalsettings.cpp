@@ -62,7 +62,6 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     signalManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
     ui->setupUi(this);
 
-    addSignals();
 
     // Initial Values //
     //
@@ -138,7 +137,6 @@ SignalSettings::updateProperties()
         ui->tSpinBox->setValue(signal_->getT());
         ui->zOffsetSpinBox->setValue(signal_->getZOffset());
         ui->countryBox->setText(signal_->getCountry());
-        //	ui->typeComboBox->setCurrentIndex(signal_->getType()-100001);
 
         ui->typeSpinBox->setValue(signal_->getType());
         ui->subclassLineEdit->setText(signal_->getTypeSubclass());
@@ -221,30 +219,6 @@ SignalSettings::updateProperties(QString country, SignalContainer *signalPropert
     }
 }
 
-void
-SignalSettings::addSignals()
-{
-   /* foreach (const SignalContainer *container, signalManager_->getSignals("China"))
-    {
-        ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
-    }
-    foreach (const SignalContainer *container, signalManager_->getSignals("OpenDRIVE"))
-    {
-        ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
-    }
-    foreach (const SignalContainer *container, signalManager_->getSignals("France"))
-    {
-        ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
-    }
-    foreach (const SignalContainer *container, signalManager_->getSignals("Germany"))
-    {
-        ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
-    }
-    foreach (const SignalContainer *container, signalManager_->getSignals("USA"))
-    {
-        ui->signalComboBox->addItem(container->getSignalIcon(), container->getSignalName());
-    }*/
-}
 
 //################//
 // SLOTS          //
@@ -345,86 +319,6 @@ SignalSettings::onNameBoxEditingFinished()
         }
         SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, newId, filename, signal_->getProperties(), signal_->getValidity(), signal_->getSignalUserData(), NULL);
         getProjectSettings()->executeCommand(command);
-    }
-}
-
-void
-SignalSettings::on_signalComboBox_activated(int id)
-{
-    QString country = "";
-    int count = signalManager_->getSignals("OpenDRIVE").count();
-
-    if (count > id)
-    {
-        country = "OpenDRIVE";
-    }
-    else if ((count += signalManager_->getSignals("China").count()) > id)
-    {
-        country = "China";
-        id -= count - signalManager_->getSignals("China").count();
-    }
-    else if ((count += signalManager_->getSignals("France").count()) > id)
-    {
-        country = "France";
-        id -= count - signalManager_->getSignals("France").count();
-    }
-    else if ((count += signalManager_->getSignals("Germany").count()) > id)
-    {
-        country = "Germany";
-        id -= count - signalManager_->getSignals("Germany").count();
-    }
-    else if ((count += signalManager_->getSignals("USA").count()) > id)
-    {
-        country = "USA";
-        id -= count - signalManager_->getSignals("USA").count();
-    }
-    else
-    {
-        qDebug() << "ID out of range";
-        return;
-    }
-
-    SignalContainer *signalContainer = signalManager_->getSignals(country).at(id);
-    updateProperties(country, signalContainer);
-
-    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
-    int numberOfSelectedElements = selectedElements.size();
-
-    if (numberOfSelectedElements > 1)
-    {
-        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Signal Type"));
-    }
-
-    // Change types of selected items //
-    //
-    foreach (DataElement *element, selectedElements)
-    {
-        Signal *signal = dynamic_cast<Signal *>(element);
-        if (signal)
-        {
-            double t = signalT(signal->getSStart(), signal->getT(), signalContainer->getSignalDistance());
-            SetSignalPropertiesCommand *command;
-            /*	if (country == "China")
-			{
-				QString newName = signalContainer->getSignalName().at(0);
-				QString newId = signal->getNewId(newName);  // the first letter of the name defines the group (round, rectangular, ..)
-				command = new SetSignalPropertiesCommand(signal, newId, newName, t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, signalContainer->getSignalType(), signalContainer->getSignalTypeSubclass(), signalContainer->getSignalSubType(), signalContainer->getSignalValue(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime());
-			}
-			else
-			{ */
-
-            command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, signalContainer->getSignalType(), signalContainer->getSignalTypeSubclass(), signalContainer->getSignalSubType(), signalContainer->getSignalValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime());
-            //		}
-
-            getProjectSettings()->executeCommand(command);
-        }
-    }
-
-    // Macro Command //
-    //
-    if (numberOfSelectedElements > 1)
-    {
-        getProjectData()->getUndoStack()->endMacro();
     }
 }
 
