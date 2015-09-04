@@ -242,6 +242,7 @@ public:
         return signals_.values(country);
     };
 	SignalContainer * getSignalContainer(int type, const QString &typeSubclass, int subType);
+	SignalContainer * getSignalContainer(const QString &name);
 
     QList<ObjectContainer *> getObjects(QString country) const
     {
@@ -250,6 +251,7 @@ public:
 
     ObjectContainer * getObjectContainer(const QString &type);
 
+	QString getCountry(SignalContainer *signalContainer);
 	QList<QString> getCountries() const
     {
 		return countries_;

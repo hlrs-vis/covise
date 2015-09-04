@@ -46,6 +46,10 @@
 //
 #include "src/util/odd.hpp"
 
+// tree //
+//
+#include "src/tree/signaltreewidget.hpp"
+
 //################//
 // Constructors   //
 //################//
@@ -410,45 +414,11 @@ MainWindow::createSignals()
     signalsDockToggleAction->setStatusTip(tr("Show/hide the Signals view."));
     viewMenu_->addAction(signalsDockToggleAction);
 
-    // Signals Widget //
-    //
-	/*QTreeWidget *signalTree = new QTreeWidget();
-	signalTree->setIconSize(QSize(40,40));
-	signalsDock_->setWidget(signalTree);
-	signalTree->setHeaderLabel("");
-	
-	QList<QTreeWidgetItem *> rootList;
+	// SignalTree //
+	//
+	SignalTreeWidget *signalTree = new SignalTreeWidget(signalManager_, this);
+	setSignalTree(signalTree);
 
-	QList<QString> countries = signalManager_->getCountries();
-
-	for (int i = 0; i < countries.size(); i++)
-	{
-		QTreeWidgetItem *countryWidget = new QTreeWidgetItem;   
-		countryWidget->setText(0,countries.at(i));
-		rootList.append(countryWidget);
-		QMap<QString, QTreeWidgetItem *> categoryMap;
-		foreach (const SignalContainer *container, signalManager_->getSignals(countries.at(i)))
-		{
-			const QString &signCategory = container->getsignalCategory();
-			//qDebug() << signCategory;
-			QTreeWidgetItem *categoryWidget;
-			if (categoryMap.contains(signCategory))
-			{
-				categoryWidget = categoryMap.value(signCategory);
-			}
-			else 
-			{
-				categoryWidget = new QTreeWidgetItem(countryWidget,QStringList(signCategory));
-				categoryMap.insert(signCategory,categoryWidget);
-				countryWidget->addChild(categoryWidget);   
-			}
-			QTreeWidgetItem *signs = new QTreeWidgetItem(categoryWidget,QStringList(container->getSignalName())); 
-			signs->setIcon(0,container->getSignalIcon());
-			signs->setSizeHint(0,QSize(45,45));
-			categoryWidget->addChild(signs);	
-		}
-	}
-	signalTree->insertTopLevelItems(0,rootList);*/
 }
 
 /*! \brief Creates the ToolManager and the tool box on the left side.
@@ -1021,6 +991,14 @@ MainWindow::activateProject()
         // Pass currently selected tools //
         //
         toolManager_->resendCurrentTool();
+
+		// Pass selected project to signal treewidget //
+		//
+		SignalTreeWidget *signalTreeWidget = dynamic_cast<SignalTreeWidget *>(signalsDock_->widget());
+		if(signalTreeWidget)
+		{
+			signalTreeWidget->setActiveProject(project);
+		}
     }
 }
 

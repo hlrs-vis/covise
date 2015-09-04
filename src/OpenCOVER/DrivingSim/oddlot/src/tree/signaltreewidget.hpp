@@ -20,6 +20,10 @@
 
 class ProjectData;
 class ProjectWidget;
+class SignalManager;
+//class SetSignalPropertiesCommand;
+//class SettingsElement;
+class MainWindow;
 
 class SignalTreeWidget : public QTreeWidget
 {
@@ -30,13 +34,13 @@ class SignalTreeWidget : public QTreeWidget
     //################//
 
 public:
-	explicit SignalTreeWidget(ProjectWidget *projectWidget, ProjectData *projectData);
+	explicit SignalTreeWidget(SignalManager *signalManager, MainWindow *mainWindow);
     virtual ~SignalTreeWidget();
 
-    ProjectData *getProjectData() const
-    {
-        return projectData_;
-    }
+	void setActiveProject(ProjectWidget *projectWidget)
+	{
+		projectWidget_ = projectWidget ;
+	}
 
 protected:
 private:
@@ -60,6 +64,8 @@ public:
 private:
 	ProjectWidget *projectWidget_;
     ProjectData *projectData_; // Model, linked
+	SignalManager *signalManager_;
+	MainWindow *mainWindow_;
 };
 
 #endif // PROJECTTREEWIDGET_HPP

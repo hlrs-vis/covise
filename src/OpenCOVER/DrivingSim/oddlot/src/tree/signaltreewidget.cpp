@@ -22,8 +22,10 @@
 // Data //
 //
 #include "src/data/projectdata.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/commands/signalcommands.hpp"
 
-// gui //
+// GUI //
 //
 #include "src/gui/projectwidget.hpp"
 
@@ -31,6 +33,9 @@
 //
 #include "src/mainwindow.hpp"
 
+//Settings//
+//
+#include "src/settings/projectsettings.hpp"
 
 #include <QWidget>
 
@@ -38,10 +43,11 @@
 // CONSTRUCTOR    //
 //################//
 
-SignalTreeWidget::SignalTreeWidget(ProjectWidget *projectWidget, ProjectData *projectData)
-	: QTreeWidget(projectWidget)
-	, projectWidget_(projectWidget)
-    , projectData_(projectData)
+SignalTreeWidget::SignalTreeWidget(SignalManager *signalManager, MainWindow *mainWindow)
+	: QTreeWidget()
+	, signalManager_(signalManager)
+	, mainWindow_(mainWindow)
+	, projectWidget_(NULL)
 {
     init();
 }
@@ -64,16 +70,14 @@ SignalTreeWidget::init()
 
 	  // Signals Widget //
     //
-	/*QTreeWidget *signalTree = new QTreeWidget();
-	signalTree->setIconSize(QSize(40,40));
-	signalsDock_->setWidget(signalTree);
-	signalTree->setHeaderLabel(""); */
+	//QTreeWidget *signalTree = new QTreeWidget();
+	//setIconSize(QSize(50,50));
+	//signalsDock_->setWidget(signalTree);
+	setHeaderLabel(""); 
 	
 	QList<QTreeWidgetItem *> rootList;
 
-	SignalManager *signalManager = projectWidget_->getMainWindow()->getSignalManager();
-
-	QList<QString> countries = signalManager->getCountries();
+	QList<QString> countries = signalManager_->getCountries();
 
 	for (int i = 0; i < countries.size(); i++)
 	{
@@ -81,7 +85,7 @@ SignalTreeWidget::init()
 		countryWidget->setText(0,countries.at(i));
 		rootList.append(countryWidget);
 		QMap<QString, QTreeWidgetItem *> categoryMap;
-		foreach (const SignalContainer *container, signalManager->getSignals(countries.at(i)))
+		foreach (const SignalContainer *container, signalManager_->getSignals(countries.at(i)))
 		{
 			const QString &signCategory = container->getsignalCategory();
 			//qDebug() << signCategory;
@@ -102,7 +106,7 @@ SignalTreeWidget::init()
 			categoryWidget->addChild(signs);	
 		}
 	}
-	//signalTree->insertTopLevelItems(0,rootList);
+	insertTopLevelItems(0,rootList);
 }
 
   
@@ -113,20 +117,24 @@ SignalTreeWidget::init()
 void
 SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    //	qDebug() << "selected: " << selected.indexes().count();
-    //	qDebug() << "deselected: " << deselected.indexes().count();
-
-    // Set the data of the item, so the item notices it's selection
-    //
-   /* foreach (QModelIndex index, deselected.indexes())
-    {
-        model()->setData(index, false, Qt::UserRole + ProjectTree::PTR_Selection);
-    }
-
-    foreach (QModelIndex index, selected.indexes())
-    {
-        model()->setData(index, true, Qt::UserRole + ProjectTree::PTR_Selection);
-    }*/
-
+	QTreeWidgetItem *item = selectedItems().at(0);
+	SignalContainer *signalContainer = signalManager_->getSignalContainer(item->text(0));
+	if(signalContainer && projectWidget_)
+	{
+		const QString &country = signalManager_->getCountry(signalContainer);
+		int type = signalContainer->getSignalType();
+		const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
+		int subtype = signalContainer->getSignalSubType();
+		
+		foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
+		{
+			Signal *signal = dynamic_cast<Signal *>(element);
+			if (signal)
+			{
+				SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
+				projectWidget_->getProjectSettings()->executeCommand(command);
+			}
+		}
+	}
     QTreeWidget::selectionChanged(selected, deselected);
 }

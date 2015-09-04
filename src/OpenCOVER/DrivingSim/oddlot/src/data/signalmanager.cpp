@@ -86,6 +86,13 @@ SignalManager::getObjectContainer(const QString &type)
    return NULL;
 } 
 
+QString 
+SignalManager::getCountry(SignalContainer *signalContainer)
+{
+	return signals_.key(signalContainer, "");
+
+}
+
 SignalContainer * 
 SignalManager::getSignalContainer(int type, const QString &typeSubclass, int subType)
 {
@@ -101,6 +108,23 @@ SignalManager::getSignalContainer(int type, const QString &typeSubclass, int sub
 
    return NULL;
 } 
+
+SignalContainer * 
+SignalManager::getSignalContainer(const QString &name)
+{
+   QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
+   while (iter != signals_.constEnd())
+   {
+	   if (iter.value()->getSignalName() == name)
+      {
+         return iter.value();
+      }
+   iter++;
+   }
+
+   return NULL;
+} 
+
 
 bool
 SignalManager::loadSignals(const QString &fileName)
