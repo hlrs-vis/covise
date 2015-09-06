@@ -106,9 +106,16 @@ void VRPNDriver::processTrackerData(const vrpn_TRACKERCB &vrpnData)
     for(int n=0;n<3;n++)
         for(int m=0;m<3;m++)
             matrix(n,m) = mat[n][m];
-    matrix(0,3)=vrpnData.pos[0];
-    matrix(1,3)=vrpnData.pos[1];
-    matrix(2,3)=vrpnData.pos[2];
+    matrix(3,0)=vrpnData.pos[0];
+    matrix(3,1)=vrpnData.pos[1];
+    matrix(3,2)=vrpnData.pos[2];
+    
+    if (m_bodyMatricesValid.size() <= vrpnData.sensor)
+    {
+        m_bodyMatricesValid.resize(vrpnData.sensor+1);
+        m_bodyMatrices.resize(vrpnData.sensor+1);
+    }
+
     m_bodyMatricesValid[vrpnData.sensor]=true;
     m_bodyMatrices[vrpnData.sensor]=matrix;
     m_mutex.unlock();
@@ -119,6 +126,11 @@ void VRPNDriver::processButtonData(const vrpn_BUTTONCB &vrpnButtonData)
 {
 
     m_mutex.lock();
+    
+    if (m_buttonStates.size() <= vrpnButtonData.button)
+    {
+        m_buttonStates.resize(vrpnButtonData.button+1);
+    }
     m_buttonStates[vrpnButtonData.button]=vrpnButtonData.state!=0;
     m_mutex.unlock();
 
