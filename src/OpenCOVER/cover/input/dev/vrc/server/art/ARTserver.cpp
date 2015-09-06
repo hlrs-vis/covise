@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 
     // get port on which the dtrack sends the data
     int artPort = atoi(portStr);
-    float rate = atof(rateStr);
+    float rate = (float)atof(rateStr);
 
     // verbose max. once per second
     int sendsPerVerbose;
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
         sendsPerVerbose = (int)rate;
 
     // select() delay record
-    rate = 1.0 / rate;
+    rate = 1.0f / rate;
     struct timeval delay;
     delay.tv_sec = (int)rate;
     delay.tv_usec = (int)(1e6 * (rate - delay.tv_sec));
@@ -307,9 +307,9 @@ int main(int argc, char **argv)
 
             if (x == 0.0 && y == 0.0 && z == 0.0)
             {
-                x = 0.001;
-                y = 0.001;
-                z = 0.001;
+                x = 0.001f;
+                y = 0.001f;
+                z = 0.001f;
             }
 
             unsigned int b;

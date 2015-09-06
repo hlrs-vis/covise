@@ -786,7 +786,6 @@ osg::Geode *RoadObject::createOutlineGeode()
     RoadPoint nextRailPoint;
 
     osg::Vec3 n;
-    double startWidth;
 
     int numVert = outline->size();
     int numSegments = numVert - 1;
