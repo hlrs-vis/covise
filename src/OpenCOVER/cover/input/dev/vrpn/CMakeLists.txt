@@ -1,12 +1,10 @@
 USING(VRPN)
 
 SET(HEADERS
-   VRPN.h
    VRPNDriver.h
 )
 
 SET(SOURCES
-   VRPN.cpp
    VRPNDriver.cpp
 )
 
