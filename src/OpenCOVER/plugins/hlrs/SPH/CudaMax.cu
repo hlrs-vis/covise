@@ -23,7 +23,7 @@ namespace SimLib
 		cudppPlan(&scanPlan, config, elements, 1, 0);
 #endif
 
-		d_odata; CUDA_SAFE_CALL(cudaMalloc( (void**) &d_odata, mMemSize));
+		/*d_odata; */CUDA_SAFE_CALL(cudaMalloc( (void**) &d_odata, mMemSize));
 // 		h_idata = (float*)malloc(mMemSize); memset(h_idata,0, mMemSize);
 // 		h_odata = (float*)malloc(mMemSize); memset(h_odata,0, mMemSize);
 	}

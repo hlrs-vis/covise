@@ -57,7 +57,7 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
     }
 
     int in, r, g, b, u, v;
-    float x, y, z, i, rf, gf, bf;
+    float rf, gf, bf;
     Point point;
 
     char buf[1000];
@@ -197,8 +197,8 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
         return;
     }
 
-    int in, r, g, b, u, v;
-    float x, y, z, i, rf, gf, bf, fa, fb, fc;
+    int in, r, g, b;
+    float fa, fb, fc;
     Point point;
 
     char buf[1000];
@@ -325,7 +325,6 @@ void WriteData(char *filename, std::vector<Point> &vec)
     cout << "Output Data: " << filename << endl;
 
     ofstream file(filename, ios::out | ios::binary | ios::ate);
-    int numPointsToWrite;
 
     if (file.is_open())
     {

@@ -32,9 +32,9 @@ public:
     coGRDocVisibleMsg(const char *msg);
 
     // specific functions
-    int isVisible()
+    bool isVisible()
     {
-        return is_visible_;
+        return is_visible_!=0;
     };
 
 private:

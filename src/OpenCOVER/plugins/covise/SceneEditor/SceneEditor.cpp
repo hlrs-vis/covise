@@ -147,7 +147,7 @@ SceneEditor::init()
     //shadowedScene->setCastsShadowTraversalMask(opencover::Isect::Intersection);
     //fprintf(stderr, "castShadow %x\n", shadowedScene->getCastsShadowTraversalMask());
     osg::Group *parent = opencover::cover->getObjectsRoot()->getParent(0);
-    for (int i = 0; i < parent->getNumChildren(); i++)
+    for (unsigned int i = 0; i < parent->getNumChildren(); i++)
         shadowedScene->addChild(parent->getChild(i));
     parent->removeChildren(0, parent->getNumChildren());
     parent->addChild(shadowedScene);

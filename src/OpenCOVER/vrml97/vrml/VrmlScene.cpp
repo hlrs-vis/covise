@@ -527,14 +527,14 @@ void DecryptVrmlBuffer()
     CryptoPP::StringSource(&encryptedBuffer[0], encryptedBuffer.size(), true,
                            new CryptoPP::DefaultDecryptorWithMAC(&key[0], key.size(), new CryptoPP::StringSink(decryptedString)));
 #endif
-    InitVrmlBuffer(decryptedString.c_str(), decryptedString.length());
+    InitVrmlBuffer(decryptedString.c_str(), (int)decryptedString.length());
 }
 
 void FillEncryptedVrmlBuffer(gzFile file)
 {
     ResetEncryptedVrmlBuffer();
     vector<unsigned char> tmpBuf(4096);
-    int readBytes = 0;
+    size_t readBytes = 0;
     while ((readBytes = gzread(file, &tmpBuf[0], tmpBuf.size())) > 0)
     {
         encryptedBuffer.insert(encryptedBuffer.end(), tmpBuf.begin(), tmpBuf.begin() + readBytes);
@@ -545,7 +545,7 @@ void FillEncryptedVrmlBuffer(FILE *file)
 {
     ResetEncryptedVrmlBuffer();
     vector<unsigned char> tmpBuf(4096);
-    int readBytes = 0;
+    size_t readBytes = 0;
     while ((readBytes = fread(&tmpBuf[0], 1, tmpBuf.size(), file)) > 0)
     {
         encryptedBuffer.insert(encryptedBuffer.end(), tmpBuf.begin(), tmpBuf.begin() + readBytes);
