@@ -331,6 +331,7 @@ coVRConfig::coVRConfig()
         sprintf(str, "COVER.PipeConfig.Pipe:%d", (int)i);
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
+        pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
     }
 
     for (size_t i = 0; i < windows.size(); i++)
@@ -393,6 +394,11 @@ coVRConfig::coVRConfig()
             channels[i].viewportNum = -1;
         }
         channels[i].screenNum = coCoviseConfig::getInt("screenIndex", str, i);
+        if (channels[i].screenNum >= screens.size())
+        {
+            std::cerr << "screenIndex " << channels[i].screenNum << " for channel " << i << " out of range (max: " << screens.size()-1 << ")" << std::endl;
+            exit(1);
+        }
         
     }
     for (size_t i = 0; i < PBOs.size(); i++)

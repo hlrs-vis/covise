@@ -213,29 +213,52 @@ void VrmlNodeCar::update()
         float dt = cover->frameDuration();
         if(dt > 1000) // first frameDuration is off because last FrameTime is 0
             dt=0.00001;
+        VrmlNodeCar *nextCarOnRail;
+        float distanceToNextCar = lowerLeftLanding->getNextCarOnRail(this,nextCarOnRail);
         if(d_carPos.x() != destinationX) //moving horizontally
         {
             float direction;
             float diff = fabs(destinationX - d_carPos.x());
             float diffS = fabs(startingX - d_carPos.x());
-            if(diffS > 2 && (oldLandingIndex >= 0))
-            {
-                elevator->release(oldLandingIndex);
-                oldLandingIndex = -1;
-            }
-            if(diff < 2 && (destinationLandingIndex >= 0))
-            {
-                
-                elevator->occupy(destinationLandingIndex,this);
-                destinationLandingIndex = -1;
-            }
+            float v2 = v*v;
+            float bakeDistance = (v2/(2*aMax))*1.5; // distance the car travels until it stops at max decelleration
             
             if(d_carPos.x() < destinationX)
                 direction = 1;
             else
                 direction = -1;
-            float v2 = v*v;
-            if(diff > (v2/(2*aMax))*1.5)
+            
+            if(distanceToNextCar > 0)
+            {
+                float vd = v - nextCarOnRail->getV();
+                if(vd > 0) // we only have to care if our car is faster than the next one, otherwise there is no chance to collide
+                {
+                    float vd2 = vd*vd;
+                    float bakeDistance = (vd2/(2*aMax))*1.5; // distance the car travels until it reaches the velocity of the other car at max decelleration
+                    if(diff < (distanceToNextCar - (CAR_WIDTH_2 + CAR_WIDTH_2 + SAFETY_DISTANCE + bakeDistance)))
+                    {
+                        diff = distanceToNextCar - (CAR_WIDTH_2 + CAR_WIDTH_2 + SAFETY_DISTANCE); // only travel to next car
+                    }
+                }
+            }
+
+            if(diffS > (CAR_WIDTH_2 + LANDING_WIDTH_2 + SAFETY_DISTANCE) && (oldLandingIndex >= 0))
+            {
+                elevator->release(oldLandingIndex);
+                oldLandingIndex = -1;
+            }
+            if((diff < (CAR_WIDTH_2 + LANDING_WIDTH_2 + SAFETY_DISTANCE + bakeDistance)) )
+            {
+                if(elevator->occupy(destinationLandingIndex,this) == true)
+                {
+                }
+                else
+                {   // we can't occupy the landing yet, thus stop in front of the landing
+                    diff = fabs(destinationX - d_carPos.x()) - (CAR_WIDTH_2 + LANDING_WIDTH_2 + SAFETY_DISTANCE);
+                }
+            }
+            
+            if(diff > bakeDistance)
             { // beschleunigen
                 a+=0.5*dt;
                 if(a > aMax)
@@ -256,12 +279,16 @@ void VrmlNodeCar::update()
                 {
                     a=0;v=0;
                 }
-                d_carPos.get()[0] += direction*v*dt;
-                if(v <= 0)
+                if(direction * (destinationX - d_carPos.get()[0]) < 0)
                 {
                     d_carPos.get()[0]=destinationX;
                     v=0;
                 }
+                if(v < 0)
+                {
+                    v=0;
+                }
+                d_carPos.get()[0] += direction*v*dt;
             }
             if(direction > 0 && d_carPos.get()[0]>destinationX)
             {
@@ -281,17 +308,40 @@ void VrmlNodeCar::update()
         {
             float direction;
             float diff = fabs(destinationY - d_carPos.y());
-
             float diffS = fabs(startingY - d_carPos.y());
-            if(diffS > 2 && (oldLandingIndex >= 0))
+
+            float v2 = v*v;
+            float bakeDistance = (v2/(2*aMax))*1.5; // distance the car travels until it stops at max decelleration
+
+            if(diffS > (CAR_HEIGHT_2 + LANDING_HEIGHT_2 + SAFETY_DISTANCE) && (oldLandingIndex >= 0))
             {
                 elevator->release(oldLandingIndex);
                 oldLandingIndex = -1;
             }
-            if(diff < 2 && (destinationLandingIndex >= 0))
+            
+            if(distanceToNextCar > 0)
             {
-                elevator->occupy(destinationLandingIndex,this);
-                destinationLandingIndex = -1;
+                float vd = v - nextCarOnRail->getV();
+                if(vd > 0) // we only have to care if our car is faster than the next one, otherwise there is no chance to collide
+                {
+                    float vd2 = vd*vd;
+                    float bakeDistance = (vd2/(2*aMax))*1.5; // distance the car travels until it reaches the velocity of the other car at max decelleration
+                    if(diff < (distanceToNextCar - (CAR_WIDTH_2 + CAR_WIDTH_2 + SAFETY_DISTANCE + bakeDistance)))
+                    {
+                        diff = distanceToNextCar - (CAR_WIDTH_2 + CAR_WIDTH_2 + SAFETY_DISTANCE); // only travel to next car
+                    }
+                }
+            }
+
+            if((diff < (CAR_HEIGHT_2 + LANDING_HEIGHT_2 + SAFETY_DISTANCE + bakeDistance)) )
+            {
+                if(elevator->occupy(destinationLandingIndex,this) == true)
+                {
+                }
+                else
+                {   // we can't occupy the landing yet, thus stop in front of the landing
+                    diff = fabs(destinationY - d_carPos.y()) - (CAR_HEIGHT_2 + LANDING_HEIGHT_2 + SAFETY_DISTANCE);
+                }
             }
 
 
@@ -299,7 +349,6 @@ void VrmlNodeCar::update()
                 direction = 1;
             else
                 direction = -1;
-            float v2 = v*v;
             if(diff > (v2/(2*aMax))*1.5)
             { // beschleunigen
                 a+=0.5*dt;
@@ -321,9 +370,13 @@ void VrmlNodeCar::update()
                 {
                     a=0;v=0;
                 }
-                if(v <= 0)
+                if(direction * (destinationY - d_carPos.get()[1]) < 0)
                 {
                     d_carPos.get()[1]=destinationY;
+                    v=0;
+                }
+                if(v < 0)
+                {
                     v=0;
                 }
                 else
@@ -352,6 +405,8 @@ void VrmlNodeCar::update()
         else // we are there
         {
             v=0;a=0;
+            if(oldLandingIndex >=0)
+            elevator->release(oldLandingIndex);
             arrivedAtDestination();
         }
     }
@@ -495,6 +550,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     elevator->stations[d_stationList[d_currentStationIndex.get()]]=this;
     landingNumber = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
     shaftNumber = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
+    lowerLeftLanding = NULL;
     d_carPos.set(elevator->d_shaftPositions[shaftNumber],elevator->d_landingHeights[landingNumber],0);
     double timeStamp = System::the->time();
     eventOut(timeStamp, "carPos", d_carPos);
@@ -504,7 +560,7 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 void VrmlNodeCar::setDestination(int landing, int shaft)
 {
     if(landing != landingNumber || shaft != shaftNumber)
-    {
+    {   
         oldLandingNumber=landingNumber;
         oldShaftNumber=shaftNumber;
 
@@ -528,7 +584,30 @@ void VrmlNodeCar::moveToNext()
         d_currentStationIndex=0;
     destinationLandingIndex =  d_stationList[d_currentStationIndex.get()];
     int landing = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
+    if(lowerLeftLanding)
+        lowerLeftLanding->removeCarFromRail(this);
+    if(landing > landingNumber)
+    {
+        lowerLeftLanding = elevator->landings[oldLandingIndex];
+        setTravelDirection(VrmlNodeCar::MoveUp);
+    }
+    if(landing < landingNumber)
+    {
+        lowerLeftLanding = elevator->landings[destinationLandingIndex];
+        setTravelDirection(VrmlNodeCar::MoveDown);
+    }
     int shaft = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
+    if(shaft > shaftNumber)
+    {
+        lowerLeftLanding = elevator->landings[oldLandingIndex];
+        setTravelDirection(VrmlNodeCar::MoveRight);
+    }
+    if(shaft < shaftNumber)
+    {
+        lowerLeftLanding = elevator->landings[destinationLandingIndex];
+        setTravelDirection(VrmlNodeCar::MoveLeft);
+    }
+    lowerLeftLanding->putCarOnRail(this);
     setDestination(landing, shaft);
 }
 

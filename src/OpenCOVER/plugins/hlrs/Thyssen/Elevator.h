@@ -87,7 +87,7 @@ public:
     std::vector<VrmlNodeExchanger *> exchangers;
     std::vector<VrmlNodeCar *> cars;
     std::vector<VrmlNodeCar *> stations; // stations[i] is set to a car if the car is currently close to that station
-    void occupy(int station,VrmlNodeCar *car);
+    bool occupy(int station,VrmlNodeCar *car); // returns true, if successfull, false if station is occupied by someone else
     void release(int station);
 
 private:

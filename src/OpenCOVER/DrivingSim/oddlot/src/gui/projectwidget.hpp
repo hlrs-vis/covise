@@ -18,7 +18,7 @@
 
 #include <QWidget>
 #include <QMap>
-
+#include <src/gui/osmimport.hpp>
 #include "src/util/odd.hpp"
 
 #include "src/gui/projectionsettings.hpp"
@@ -99,8 +99,9 @@ public:
     bool importCSVFile(const QString &fileName);
     bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
-
+    
     RSystemElementRoad *addLineStrip(QString name = "");
+    RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
     size_t getMaxLinearLength(size_t start);
     float getLinearError(size_t start, size_t len);
 

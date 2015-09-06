@@ -58,18 +58,25 @@ public:
         primary,
         secondary,
         tertiary,
+        motorway,
         living_street,
         cycleway,
+        turning_circle,
+        pedestrian,
         unclassified,
         path,
         service,
         unknown
     };
+    static QString getTypeName(wayType t);
     osmWay();
     osmWay(const osmWay &w);
-    osmWay(QDomElement element, QVector<osmNode> &nodes);
+    osmWay(QDomElement element, QVector<osmNode *> &nodes);
     wayType type;
     QString name;
+    int numLanes;
+    int maxSpeed;
+    bool bridge;
     std::vector<double> XVector;
     std::vector<double> YVector;
     std::vector<double> ZVector;
@@ -88,14 +95,15 @@ class OsmImport : public QDialog
 public:
     explicit OsmImport();
     virtual ~OsmImport();
+    bool importOSMFile(const QString &fileName);
     void setProject(ProjectWidget *pw)
     {
         project = pw;
     };
 
 private:
-    QVector<osmNode> nodes;
-    QVector<osmWay> ways;
+    QVector<osmNode*> nodes;
+    QVector<osmWay*> ways;
     QNetworkAccessManager *nam;
     //################//
     // SLOTS          //
@@ -107,6 +115,8 @@ private slots:
     void okPressed();
     void on_preview_released();
     void finishedSlot(QNetworkReply *reply);
+    bool parseDoc(QDomDocument &doc);
+    
 
     //################//
     // PROPERTIES     //

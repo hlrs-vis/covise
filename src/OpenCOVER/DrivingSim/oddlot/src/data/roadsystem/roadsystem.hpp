@@ -66,6 +66,8 @@ public:
     {
         return roads_;
     }
+    QList<RSystemElementRoad *> getRoads(const QString &junction) const;
+
     QList<RSystemElementRoad *> getTileRoads(const QString &tileId) const;
 
     void addRoad(RSystemElementRoad *road);
@@ -142,6 +144,10 @@ public:
     void changeUniqueId(RSystemElement *element, QString newId);
     const QString getUniqueId(const QString &suggestion, QString &name);
     void updateControllers();
+
+    // OpenDRIVE Data //
+    //
+    void verify();
 
 
 private:

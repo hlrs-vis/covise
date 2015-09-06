@@ -284,7 +284,6 @@ osg::Node *JTOpenPlugin::createShape(JtkShape *partShape, const char *objName)
                 }
                 if (normCount == vertexCount)
                 {
-                    geom->setNormalBinding(Geometry::BIND_PER_VERTEX);
                 }
                 else
                 {
@@ -307,7 +306,6 @@ osg::Node *JTOpenPlugin::createShape(JtkShape *partShape, const char *objName)
 
                 if (colorCount == vertexCount)
                 {
-                    geom->setColorBinding(Geometry::BIND_PER_VERTEX);
                 }
                 else
                 {
@@ -343,9 +341,15 @@ osg::Node *JTOpenPlugin::createShape(JtkShape *partShape, const char *objName)
         geom->setVertexArray(vert);
         geom->addPrimitiveSet(primitives);
         if (normalArray->size() > 0)
+        {
             geom->setNormalArray(normalArray);
+            geom->setNormalBinding(Geometry::BIND_PER_VERTEX);
+        }
         if (colorArray->size() > 0)
+        {
             geom->setColorArray(colorArray);
+            geom->setColorBinding(Geometry::BIND_PER_VERTEX);
+        }
         if (tcArray->size() > 0)
             geom->setTexCoordArray(0, tcArray);
         if (normalArray->size() == 0)

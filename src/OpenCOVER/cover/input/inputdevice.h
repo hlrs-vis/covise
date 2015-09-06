@@ -97,7 +97,7 @@ protected:
     bool isBodyMatrixValid(size_t idx) const;
     const osg::Matrix &getBodyMatrix(size_t idx) const;
 
-    void update(); //< called by Input::update()
+    virtual void update(); //< called by Input::update()
 
 private:
     // per-frame state

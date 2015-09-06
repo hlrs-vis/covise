@@ -36,6 +36,16 @@ class PrototypeContainer
     //################//
 
 public:
+    explicit PrototypeContainer(const QString &name, const QIcon &icon, T_DERIVED prototype,QString &system,QString &tn,QString &ln)
+        : prototypeName_(name)
+        , prototypeIcon_(icon)
+        , prototype_(prototype)
+        , systemName(system)
+        , typeName(tn)
+        , laneNumbers(ln)
+    {
+        /* does nothing */
+    }
     explicit PrototypeContainer(const QString &name, const QIcon &icon, T_DERIVED prototype)
         : prototypeName_(name)
         , prototypeIcon_(icon)
@@ -61,6 +71,30 @@ public:
     {
         return prototype_;
     }
+    void setSystemName(QString &s)
+    {
+        systemName = s;
+    }
+    void setTypeName(QString &s)
+    {
+        typeName = s;
+    }
+    void setLaneNumbers(QString &s)
+    {
+        laneNumbers = s;
+    }
+    QString &getLaneNumbers()
+    {
+        return laneNumbers;
+    }
+    QString &getTypeName()
+    {
+        return typeName;
+    }
+    QString &getSystemName()
+    {
+        return systemName;
+    }
 
 protected:
 private:
@@ -77,6 +111,10 @@ private:
     QString prototypeName_;
     QIcon prototypeIcon_;
     T_DERIVED prototype_;
+    
+    QString systemName;
+    QString typeName;
+    QString laneNumbers;
 };
 
 class PrototypeManager : public QObject
@@ -115,11 +153,13 @@ public:
     //
     bool loadPrototypes(const QString &fileName);
 
-    void addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type);
+    void addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type,QString &system,QString &typeName,QString &lanes);
     QList<PrototypeContainer<RSystemElementRoad *> *> getRoadPrototypes(PrototypeManager::PrototypeType type) const
     {
         return roadPrototypes_.values(type);
     }
+    
+    RSystemElementRoad *getRoadPrototype(PrototypeManager::PrototypeType type,QString typeName);
 
     void addRoadSystemPrototype(const QString &name, const QIcon &icon, RoadSystem *roadSystem);
     QList<PrototypeContainer<RoadSystem *> *> getRoadSystemPrototypes() const

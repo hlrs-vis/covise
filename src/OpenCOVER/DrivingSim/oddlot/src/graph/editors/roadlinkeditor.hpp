@@ -67,10 +67,6 @@ private:
     RoadLinkRoadSystemItem *roadSystemItem_;
     double threshold_;
 
-    // create lane links //
-    //
-    void createLaneLinks(RSystemElementRoad * road);
-    double getTValue(LaneSection * laneSection, Lane * lane, double s, double laneWidth);
     void removeZeroWidthLanes(RSystemElementRoad * road); 
 };
 

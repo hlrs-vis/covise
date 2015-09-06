@@ -253,3 +253,63 @@ SetTypeTypeSectionCommand::undo()
 
     setUndone();
 }
+
+
+
+
+//###########################//
+// SetSpeedTypeSectionCommand //
+//###########################//
+
+SetSpeedTypeSectionCommand::SetSpeedTypeSectionCommand(TypeSection *typeSection, double maxSpeed, DataCommand *parent)
+    : DataCommand(parent)
+    , typeSection_(typeSection)
+{
+    // Road Type //
+    //
+    newSpeedRecord = new SpeedRecord();
+    newSpeedRecord->maxSpeed = maxSpeed;
+    oldSpeedRecord = typeSection->getSpeedRecord();
+    setValid();
+}
+
+/*! \brief Does nothing.
+*/
+SetSpeedTypeSectionCommand::~SetSpeedTypeSectionCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done
+    }
+    else
+    {
+        delete oldSpeedRecord;
+        // nothing to be done
+    }
+}
+
+/*! \brief Sets the Road Type of a TypeSection.
+*/
+void
+SetSpeedTypeSectionCommand::redo()
+{
+    // Set //
+    //
+    typeSection_->setSpeedRecord(newSpeedRecord);
+
+    setRedone();
+}
+
+/*! \brief Resets the Road Type of a TypeSection.
+*/
+void
+SetSpeedTypeSectionCommand::undo()
+{
+    // Reset //
+    //
+    typeSection_->setSpeedRecord(oldSpeedRecord);
+
+    setUndone();
+}

@@ -196,7 +196,7 @@ struct pipeStruct
 {
     int x11DisplayNum;
     int x11ScreenNum;
-    //const char *display;
+    std::string x11DisplayHost;
 
     pipeStruct()
     : x11DisplayNum(-1)
@@ -412,15 +412,6 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
-#if 0
-    int m_numWindows;
-    int m_numViewports;
-    int m_numBlendingTextures;
-    int m_numScreens;
-    int m_numChannels;
-    int m_numPBOs;
-    int m_numPipes;
-#endif
     int m_stencilBits;
     float m_sceneSize;
 

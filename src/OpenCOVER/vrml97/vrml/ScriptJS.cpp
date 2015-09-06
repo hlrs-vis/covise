@@ -3938,9 +3938,15 @@ eventOut_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *val)
     if (f)
         delete f;
 
+    /*
+    no idea why this should be done.
+    val is the value that is assigned to an event out
+    _eventOut Properties should only be added to event our fields not to the values that are assigned to an event out...
+    it causes fields to be destroyed when assigned to an event out.
     // Don't overwrite the property value.
     if (JSVAL_IS_OBJECT(*val) && JSVAL_TO_OBJECT(*val) != 0 && !JS_DefineProperty(cx, JSVAL_TO_OBJECT(*val), "_eventOut", PRIVATE_TO_JSVAL((long int)eventName), 0, 0, JSPROP_READONLY | JSPROP_PERMANENT))
         System::the->error("JS_DefineProp _eventOut failed\n");
+        */
 
     return JS_TRUE;
 }

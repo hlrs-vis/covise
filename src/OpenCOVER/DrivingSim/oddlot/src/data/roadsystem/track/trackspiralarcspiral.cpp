@@ -556,7 +556,15 @@ SpArcSParameters::init()
     h_ = QVector2D::dotProduct(p, n0) / QVector2D::dotProduct(t1, n0);
     g_ = QVector2D::dotProduct(p, n1) / QVector2D::dotProduct(t0, n1);
 
-    k_ = g_ / h_;
+    if(h_ < 0.000001)
+    {
+        k_ = 0;
+        h_ = -1; // invalid
+    }
+    else
+    {
+        k_ = g_ / h_;
+    }
 }
 
 /*! \brief Set Parameter.

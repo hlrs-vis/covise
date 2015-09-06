@@ -48,7 +48,6 @@ public:
 private:
     void updateProperties();
     void updateProperties(QString country, SignalContainer *signalProperties);
-    void addSignals();
     double signalT(double s, double t, double roadDistance);
     void enableCrossingParams(bool value);
 
@@ -57,7 +56,6 @@ private:
     //################//
 
 private slots:
-    void on_signalComboBox_activated(int);
     void onEditingFinished();
     void onEditingFinished(int);
     void onNameBoxEditingFinished();

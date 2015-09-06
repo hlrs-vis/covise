@@ -103,9 +103,10 @@ JunctionItem::updatePathList()
 {
     QList<RSystemElementRoad *> newPaths;
 
-    foreach (JunctionConnection *connection, junction_->getConnections())
+ //   foreach (JunctionConnection *connection, junction_->getConnections())
+    foreach (RSystemElementRoad * path, junction_->getRoadSystem()->getRoads(junction_->getID()))
     {
-        RSystemElementRoad *path = junction_->getRoadSystem()->getRoad(connection->getConnectingRoad());
+ //       RSystemElementRoad *path = junction_->getRoadSystem()->getRoad(connection->getConnectingRoad());
 
         if (path)
         {
@@ -115,10 +116,10 @@ JunctionItem::updatePathList()
                 path->attachObserver(this);
             }
         }
-        else
+     /*   else
         {
             junction_->delConnection(connection);
-        }
+        }*/
     }
 
     foreach (RSystemElementRoad *path, paths_)
