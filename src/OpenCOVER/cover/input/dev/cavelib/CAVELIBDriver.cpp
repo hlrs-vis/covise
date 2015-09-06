@@ -23,6 +23,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 #include <stdio.h>
+
+using std::ios;
+using std::flush;
+
+#ifndef _WIN32
+#include <sys/shm.h>
+#include <sys/ipc.h>
+#endif
 using namespace std;
 using namespace covise;
 
