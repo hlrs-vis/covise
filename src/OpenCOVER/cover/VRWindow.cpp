@@ -87,8 +87,8 @@ VRWindow::config()
         fprintf(stderr, "\nVRWindow::config\n");
     }
 
-    origVSize = new float[coVRConfig::instance()->numWindows()];
-    origHSize = new float[coVRConfig::instance()->numWindows()];
+    origVSize = new int[coVRConfig::instance()->numWindows()];
+    origHSize = new int[coVRConfig::instance()->numWindows()];
     for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
     {
         origVSize[i] = -1;
@@ -150,8 +150,8 @@ VRWindow::update()
         if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[0].embedded))
         {
             float width, height;
-            width = origHSize[0];
-            height = origVSize[0];
+            width = (float)origHSize[0];
+            height = (float)origVSize[0];
             float vsize = coVRConfig::instance()->screens[0].hsize * (height / width);
             coVRConfig::instance()->screens[0].vsize = vsize;
             _firstTimeEmbedded = false;

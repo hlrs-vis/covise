@@ -35,7 +35,7 @@ class COVEREXPORT VRWindow
 {
 
 private:
-    float *origVSize, *origHSize;
+    int *origVSize, *origHSize;
 
     void createWin(int i);
 
