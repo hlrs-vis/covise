@@ -3052,11 +3052,18 @@ DomParser::parseSignals(QIODevice *source)
     {
 
         countryName = parseToQString(country, "name", "noname", false);
+		ODD::mainWindow()->getSignalManager()->addCountry(countryName);
 
         QDomElement element = country.firstChildElement("signals");
         if (!element.isNull())
         {
-            parseSignalPrototypes(element, countryName);
+			QDomElement category = element.firstChildElement("category");
+			while (!category.isNull())
+			{		
+				QString categoryName = parseToQString(category, "name", "noname", false);
+				parseSignalPrototypes(category, categoryName, countryName);
+				category = category.nextSiblingElement("category");
+			}
         }
 
         element = country.firstChildElement("objects");
@@ -3079,7 +3086,7 @@ DomParser::parseSignals(QIODevice *source)
 }
 
 bool
-DomParser::parseSignalPrototypes(const QDomElement &element, const QString &countryName)
+DomParser::parseSignalPrototypes(const QDomElement &element, const QString &categoryName, const QString &countryName)
 {
     QDomElement sign = element.firstChildElement("sign");
     while (!sign.isNull())
@@ -3095,7 +3102,7 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &coun
         double distance = parseToDouble(sign, "distance", 0.0, true);
         double height = parseToDouble(sign, "height", 0.0, true);
 
-        ODD::mainWindow()->getSignalManager()->addSignal(countryName, name, QIcon(icon), type, typeSubclass, subType, value, distance, height);
+		ODD::mainWindow()->getSignalManager()->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, height);
 
         sign = sign.nextSiblingElement("sign");
     }
