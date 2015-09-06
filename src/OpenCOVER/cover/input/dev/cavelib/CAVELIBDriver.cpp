@@ -30,6 +30,7 @@ using std::flush;
 #ifndef _WIN32
 #include <sys/shm.h>
 #include <sys/ipc.h>
+#define PERMS 0666
 #endif
 using namespace std;
 using namespace covise;
