@@ -67,7 +67,7 @@ int SceneUtils::removeNode(osg::Group *node)
     node->ref(); // make sure node wont be deleted when we remove it from its parent
     osg::Group *parent = node->getParent(0);
     parent->removeChild(node);
-    for (int i = 0; i < node->getNumChildren(); i++)
+    for (unsigned int i = 0; i < node->getNumChildren(); i++)
     {
         parent->addChild(node->getChild(0));
         node->removeChild(node->getChild(0));
