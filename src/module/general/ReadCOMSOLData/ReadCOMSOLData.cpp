@@ -25,6 +25,7 @@
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
+#include <cmath>
 
 bool ReadCOMSOLData::readFloat(const char *s, float *f)
 {
@@ -265,7 +266,6 @@ int ReadCOMSOLData::readHeader()
 // taken from old ReadCOMSOLData module: 2-Pass reading
 int ReadCOMSOLData::readASCIIData()
 {
-    char *cbuf;
     int res = readHeader();
     if (res != STOP_PIPELINE)
     {
@@ -407,8 +407,6 @@ int ReadCOMSOLData::readASCIIData()
                         vi->dataObjs[t] = dataObj;
                         vi->dataObjs[t + 1] = NULL;
                         float *x_d;
-                        float *y_d;
-                        float *z_d;
                         dataObj->getAddress(&x_d);
                         for (int i = 0; i < numPoints; i++)
                         {
@@ -503,8 +501,9 @@ int ReadCOMSOLData::readASCIIData()
 }
 int ReadCOMSOLData::compute(const char *)
 {
+    float nu=0.0f;
     if (useNan->getValue())
-        nanValue = 0.f/0.f;
+        nanValue = 0.0/nu;
     else
         nanValue = nanValueParam->getValue();
 
