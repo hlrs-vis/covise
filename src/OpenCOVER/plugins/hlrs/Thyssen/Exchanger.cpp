@@ -60,6 +60,7 @@ VrmlNodeExchanger::VrmlNodeExchanger(VrmlScene *scene)
     av=0;aa=0;
     angle=0;
     currentCar = NULL;
+    rotatingState = Idle;
 }
 
 VrmlNodeExchanger::VrmlNodeExchanger(const VrmlNodeExchanger &n)
@@ -71,6 +72,7 @@ VrmlNodeExchanger::VrmlNodeExchanger(const VrmlNodeExchanger &n)
     av=0;aa=0;
     angle=0;
     currentCar = NULL;
+    rotatingState = Idle;
 }
 
 VrmlNodeExchanger::~VrmlNodeExchanger()
@@ -133,42 +135,54 @@ void VrmlNodeExchanger::render(Viewer *)
 
 
 }
+void VrmlNodeExchanger::rotateLeft()
+{
+    if(angle !=0)
+    {
+        rotatingState = RotatingLeft;
+    }
+}
+void VrmlNodeExchanger::rotateRight()
+{
+    if(angle != M_PI_2)
+    {
+        rotatingState = RotatingRight;
+    }
+}
 
 void VrmlNodeExchanger::update()
 {
-    /*if(state == RotatingLeft || state == RotatingRight)
+    if(rotatingState == RotatingLeft || rotatingState == RotatingRight)
     {
         float dt = cover->frameDuration();
         if(dt > 1000) // first frameDuration is off because last FrameTime is 0
             dt=0.00001;
         float direction;
         float diff;
-        float destinationAngle;
-        if(state == RotatingRight)
+        double destinationAngle;
+        if(rotatingState == RotatingRight)
         {
             direction = 1;
             diff = M_PI_2 - angle;
             destinationAngle = M_PI_2;
             if(angle == M_PI_2) // we are there
             {
-                timeoutStart = cover->frameTime();
-                state = Moving;
+                rotatingState = Idle;
                 av=0;aa=0;
             }
         }
-        if(state == RotatingLeft)
+        if(rotatingState == RotatingLeft)
         {
             direction = -1;
             diff = angle;
             destinationAngle = 0;
             if(angle == 0) // we are there
             {
-                timeoutStart = cover->frameTime();
-                state = DoorOpening;
+                rotatingState = Idle;
                 av=0;aa=0;
             }
         }
-        if(state ==RotatingLeft || state ==RotatingRight ) // not there yet
+        if(rotatingState ==RotatingLeft || rotatingState ==RotatingRight ) // not there yet
         {
             float v2 = av*av;
             if(diff > (v2/(2*aaMax))*1.5)
@@ -195,7 +209,7 @@ void VrmlNodeExchanger::update()
                 if(av <= 0)
                 {
                     angle=destinationAngle;
-                    v=0;
+                    av=0;
                 }
                 else
                 {
@@ -204,13 +218,15 @@ void VrmlNodeExchanger::update()
             }
             if(!(av>=0) || !(aa>=0) || !(av<10) || !(aa<4))
             {
-                fprintf(stderr,"oops\n");
+                fprintf(stderr,"Excanger oops\n");
             }
-            double timeStamp = System::the->time();
-            d_ExchangerRotation.get()[3] = angle;
-            eventOut(timeStamp, "ExchangerRotation", d_ExchangerRotation);
+            setAngle(angle);
+            if(currentCar)
+            {
+                currentCar->setAngle(angle);
+            }
         }
-    }*/
+    }
 
 }
 void VrmlNodeExchanger::setAngle(float a)
