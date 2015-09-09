@@ -34,6 +34,7 @@
 #endif
 
 #ifdef HAVE_VRPN
+#define _TIMEZONE_DEFINED
 #include <vrpn_Tracker.h>
 #endif
 

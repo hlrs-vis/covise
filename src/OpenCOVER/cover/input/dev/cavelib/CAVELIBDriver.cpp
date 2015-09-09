@@ -91,7 +91,7 @@ CAVELIBDriver::CAVELIBDriver(const std::string &config)
     else
     {
         scaleFactor = 1.0;
-        sscanf(unit.c_str(), "%f", &scaleFactor);
+        sscanf(unit.c_str(), "%lf", &scaleFactor);
     }
     Yup = coCoviseConfig::isOn("Yup",configPath(), true);
     //fprintf(stderr, " \n\n\n\n Unit: %s factor: %f\n\n\n\n\n", unit.c_str(), scaleFactor);

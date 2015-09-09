@@ -106,6 +106,7 @@ public:
     bool nextPositionIsEmpty(); // return true if the destination landing is empty
     void startTurning(); // turn if necessarry and possible
     float getV(){return v;};
+    void setAngle(float a);
 
     VrmlSFInt   d_carNumber;
     VrmlSFVec3f d_carPos;
@@ -113,6 +114,7 @@ public:
     VrmlSFTime  d_carDoorOpen;
     VrmlSFFloat d_doorTimeout;
     VrmlSFRotation d_carRotation;
+    VrmlSFFloat d_carFraction;
     VrmlMFInt d_stationList;
     VrmlMFFloat d_stationOpenTime;
     VrmlSFInt d_currentStationIndex;
@@ -152,6 +154,7 @@ private:
     double timeoutStart;
     int ID;
     std::list<VrmlNodeExchanger *> currentExchangers;
+    std::list<VrmlNodeExchanger *> lastExchangers;
     VrmlNodeLanding *lowerLeftLanding;
 };
 

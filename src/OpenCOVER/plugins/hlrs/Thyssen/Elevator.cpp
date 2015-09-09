@@ -190,40 +190,7 @@ void VrmlNodeElevator::eventIn(double timeStamp,
 
 void VrmlNodeElevator::render(Viewer *)
 {
-    bool allIdle = true;
-    for(int i=0;i<d_children.size();i++)
-    {
-        VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
-        if(car!=NULL)
-        {
-            int lowerLanding=0;
-            if(car->getID()%2)
-                lowerLanding = 1;
-            int upperLanding=d_landingHeights.size()-1;
-            if(car->getID()%2)
-                upperLanding--;
-            if(car->getState()!=VrmlNodeCar::Idle)
-            {
-                allIdle = false;
-            }
-            if(car->d_carPos.x()==d_shaftPositions[0] && car->getLandingNumber() == upperLanding && car->getState()==VrmlNodeCar::DoorOpening) // we are on top and want to move right
-            {
-             
-                if(car->getTravelDirection()!=VrmlNodeCar::MoveRight)
-                {
-                    car->setTravelDirection(VrmlNodeCar::MoveRight);
-                }
-            }
-            if(car->d_carPos.x()==d_shaftPositions[1] && car->getLandingNumber() == lowerLanding && car->getState()==VrmlNodeCar::DoorOpening) // we are on top and want to move right
-            {
-                
-                if(car->getTravelDirection()!=VrmlNodeCar::MoveLeft)
-                {
-                    car->setTravelDirection(VrmlNodeCar::MoveLeft);
-                }
-            }
-        }
-    }
+    
     for(int i=0;i<cars.size();i++)
     {
         VrmlNodeCar *car = cars[i];
@@ -240,32 +207,16 @@ void VrmlNodeElevator::render(Viewer *)
             {
                 // tell it to move to next stop
                 car->moveToNext();
-                /*
-                if(d_shaftPositions.size()==2)
-                {
-                    if(car->d_carPos.x()==d_shaftPositions[0]) // left shat, move up
-                    {
-                        if(car->getLandingNumber() ==upperLanding) // we are on top
-                        {
-                            car->setDestination(car->getLandingNumber(),1);
-                            car->setTravelDirection(VrmlNodeCar::MoveDown);
-                        }
-                        else
-                            car->setDestination(car->getLandingNumber()+1,0);
-                    }
-                    else // right shaft, move down
-                    {
-                        if(car->getLandingNumber() == lowerLanding) // we are on the lowest level
-                        {
-                            car->setDestination(car->getLandingNumber(),0);
-                            car->setTravelDirection(VrmlNodeCar::MoveUp);
-                        }
-                        else
-                            car->setDestination(car->getLandingNumber()-1,1);
-                    }
-                }*/
             }
             car->update();
+        }
+    }
+    for(int i=0;i<exchangers.size();i++)
+    {
+        VrmlNodeExchanger *exchanger = exchangers[i];
+        if(exchanger!=NULL)
+        {
+            exchanger->update();
         }
     }
 
