@@ -100,6 +100,7 @@ public:
     enum carState getTravelDirection();
     void setTravelDirection(enum carState t);
     int getLandingNumber(){return landingNumber;};
+    int getShaftNumber(){return shaftNumber;};
     void setDestination(int landing, int shaft);
     void moveToNext(); // move to next station
     void arrivedAtDestination(); // the car arrived at its destination
@@ -154,8 +155,6 @@ private:
     double timeoutStart;
     int ID;
     std::list<VrmlNodeExchanger *> currentExchangers;
-    std::list<VrmlNodeExchanger *> lastExchangers;
-    VrmlNodeLanding *lowerLeftLanding;
 };
 
 #endif

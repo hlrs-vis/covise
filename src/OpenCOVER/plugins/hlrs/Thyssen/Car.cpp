@@ -221,7 +221,7 @@ void VrmlNodeCar::update()
         if(dt > 1000) // first frameDuration is off because last FrameTime is 0
             dt=0.00001;
         VrmlNodeCar *nextCarOnRail;
-        float distanceToNextCar = lowerLeftLanding->getNextCarOnRail(this,nextCarOnRail);
+        float distanceToNextCar = elevator->getNextCarOnRail(this,nextCarOnRail);
         if(d_carPos.x() != destinationX) //moving horizontally
         {
             float direction;
@@ -489,7 +489,6 @@ void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
     elevator->stations[d_stationList[d_currentStationIndex.get()]]=this;
     landingNumber = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
     shaftNumber = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
-    lowerLeftLanding = NULL;
     d_carPos.set(elevator->d_shaftPositions[shaftNumber],elevator->d_landingHeights[landingNumber],0);
     double timeStamp = System::the->time();
     eventOut(timeStamp, "carPos", d_carPos);
@@ -517,6 +516,8 @@ void VrmlNodeCar::setDestination(int landing, int shaft)
 }
 void VrmlNodeCar::moveToNext()
 {
+    
+    elevator->removeCarFromRail(this);
     oldLandingIndex =  d_stationList[d_currentStationIndex.get()];
     d_currentStationIndex = d_currentStationIndex.get()+1;
     if(d_currentStationIndex.get()>=d_stationList.size())
@@ -525,31 +526,25 @@ void VrmlNodeCar::moveToNext()
 
     destinationLandingIndex =  d_stationList[d_currentStationIndex.get()];
     int landing = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
-    if(lowerLeftLanding)
-        lowerLeftLanding->removeCarFromRail(this);
     if(landing > landingNumber)
     {
-        lowerLeftLanding = elevator->landings[oldLandingIndex];
         setTravelDirection(VrmlNodeCar::MoveUp);
     }
     if(landing < landingNumber)
     {
-        lowerLeftLanding = elevator->landings[destinationLandingIndex];
         setTravelDirection(VrmlNodeCar::MoveDown);
     }
     int shaft = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
     if(shaft > shaftNumber)
     {
-        lowerLeftLanding = elevator->landings[oldLandingIndex];
         setTravelDirection(VrmlNodeCar::MoveRight);
     }
     if(shaft < shaftNumber)
     {
-        lowerLeftLanding = elevator->landings[destinationLandingIndex];
         setTravelDirection(VrmlNodeCar::MoveLeft);
     }
-    lowerLeftLanding->putCarOnRail(this);
     setDestination(landing, shaft);
+    elevator->putCarOnRail(this);
 }
 
 bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landing is empty and all exchangers are in the right orientation (if not turn them)

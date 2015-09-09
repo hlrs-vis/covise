@@ -57,6 +57,17 @@ class VrmlNodeCar;
 class VrmlNodeExchanger;
 class VrmlNodeLanding;
 
+class Rail
+{
+protected:
+    std::list<VrmlNodeCar *> carsOnRail;
+public:
+    void putCarOnRail(VrmlNodeCar *);
+    void removeCarFromRail(VrmlNodeCar *);
+    float getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar); // returns the distance to the closest car in travel direction on the current rail or -1 if there is none;
+};
+
+
 class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
 {
 public:
@@ -83,10 +94,18 @@ public:
     virtual void render(Viewer *);
     VrmlMFFloat d_landingHeights;
     VrmlMFFloat  d_shaftPositions;
+    std::vector<Rail *> shafts;
+    std::vector<Rail *> hShafts;
+    
+    void putCarOnRail(VrmlNodeCar *);
+    void removeCarFromRail(VrmlNodeCar *);
+    float getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar); // returns the distance to the closest car in travel direction on the current rail or -1 if there is none;
+
     std::vector<VrmlNodeLanding *> landings;
     std::vector<VrmlNodeExchanger *> exchangers;
     std::vector<VrmlNodeCar *> cars;
     std::vector<VrmlNodeCar *> stations; // stations[i] is set to a car if the car is currently close to that station
+    
     bool occupy(int station,VrmlNodeCar *car); // returns true, if successfull, false if station is occupied by someone else
     void release(int station);
 
