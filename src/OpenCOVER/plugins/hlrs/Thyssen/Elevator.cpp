@@ -101,6 +101,14 @@ void VrmlNodeElevator::setField(const char *fieldName,
         {
             stations[i]=NULL;
         }
+        for(int i=0;i<d_landingHeights.size();i++)
+        {
+            hShafts.push_back(new Rail);
+        }
+        for(int i=0;i<d_shaftPositions.size();i++)
+        {
+            shafts.push_back(new Rail);
+        }
 
         for(int i=0;i<d_children.size();i++)
         {
@@ -257,3 +265,142 @@ void VrmlNodeElevator::release(int station)
     }
 }
 
+
+void VrmlNodeElevator::putCarOnRail(VrmlNodeCar *car)
+{
+    VrmlNodeCar::carState cs = car->getTravelDirection();
+    if(cs==VrmlNodeCar::MoveDown || cs==VrmlNodeCar::MoveUp)
+    {
+        shafts[car->getShaftNumber()]->putCarOnRail(car);
+    }
+    else
+    {
+        hShafts[car->getLandingNumber()]->putCarOnRail(car);
+    }
+}
+void VrmlNodeElevator::removeCarFromRail(VrmlNodeCar *car)
+{
+    VrmlNodeCar::carState cs = car->getTravelDirection();
+    if(cs==VrmlNodeCar::MoveDown || cs==VrmlNodeCar::MoveUp)
+    {
+        shafts[car->getShaftNumber()]->removeCarFromRail(car);
+    }
+    else
+    {
+        hShafts[car->getLandingNumber()]->removeCarFromRail(car);
+    }
+}
+
+float VrmlNodeElevator::getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar)
+{
+    VrmlNodeCar::carState cs = car->getTravelDirection();
+    if(cs==VrmlNodeCar::MoveDown || cs==VrmlNodeCar::MoveUp)
+    {
+        return shafts[car->getShaftNumber()]->getNextCarOnRail(car,closestCar);
+    }
+    else
+    {
+        return hShafts[car->getLandingNumber()]->getNextCarOnRail(car,closestCar);
+    }
+}
+
+
+
+
+
+void Rail::putCarOnRail(VrmlNodeCar *car)
+{
+    carsOnRail.push_back(car);
+}
+void Rail::removeCarFromRail(VrmlNodeCar *car)
+{
+    carsOnRail.remove(car);
+}
+
+float Rail::getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar)
+{
+     VrmlNodeCar::carState cs = car->getTravelDirection();
+    closestCar = NULL;
+    float myHeight = car->d_carPos.y();
+    float myX = car->d_carPos.x();
+#define INFINITE_HEIGHT 1000000.0
+    float minDistance = INFINITE_HEIGHT;
+    if(cs==VrmlNodeCar::MoveDown)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRail.begin(); it != carsOnRail.end(); it++)
+        {
+            if(*it != car)
+            {
+                float height = (*it)->d_carPos.y();
+                if(height < myHeight)
+                {
+                    if((myHeight - height) < minDistance)
+                    {
+                        minDistance = myHeight - height;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+            
+    }
+    else if(cs==VrmlNodeCar::MoveUp)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRail.begin(); it != carsOnRail.end(); it++)
+        {
+            if(*it != car)
+            {
+                float height = (*it)->d_carPos.y();
+                if(height > myHeight)
+                {
+                    if((height - myHeight) < minDistance)
+                    {
+                        minDistance = height - myHeight;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+    }
+    
+    if(cs==VrmlNodeCar::MoveLeft)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRail.begin(); it != carsOnRail.end(); it++)
+        {
+            if(*it != car)
+            {
+                float currentX = (*it)->d_carPos.x();
+                if(currentX < myX)
+                {
+                    if((myX - currentX) < minDistance)
+                    {
+                        minDistance = myX - currentX;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+            
+    }
+    else if(cs==VrmlNodeCar::MoveRight)
+    {
+        for(std::list<VrmlNodeCar *>::iterator it = carsOnRail.begin(); it != carsOnRail.end(); it++)
+        {
+            if(*it != car)
+            {
+                float currentX = (*it)->d_carPos.x();
+                if(currentX > myX)
+                {
+                    if((currentX - myX) < minDistance)
+                    {
+                        minDistance = currentX - myX;
+                        closestCar = (*it);
+                    }
+                }
+            }
+        }
+    }
+    if(minDistance == INFINITE_HEIGHT)
+        return -1;
+    return minDistance;
+}
