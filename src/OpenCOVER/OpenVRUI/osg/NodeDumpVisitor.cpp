@@ -5,14 +5,16 @@
 
  * License: LGPL 2+ */
 
-#include <OpenVRUI/util/NodeDumpVisitor.h>
+#include "NodeDumpVisitor.h"
 #include <OpenVRUI/util/vruiLog.h>
 
 #include <string>
 
 using namespace osg;
 using namespace std;
-using namespace covise;
+
+namespace vrui
+{
 
 NodeDumpVisitor::NodeDumpVisitor()
     : NodeVisitor(TRAVERSE_ALL_CHILDREN)
@@ -30,4 +32,6 @@ void NodeDumpVisitor::apply(osg::Node &node)
         VRUILOG(sfill << "  | Name: " << node.getName())
     traverse(node);
     --level;
+}
+
 }
