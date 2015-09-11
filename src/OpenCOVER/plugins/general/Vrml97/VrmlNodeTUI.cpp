@@ -1069,6 +1069,24 @@ void VrmlNodeTUIFloatSlider::eventIn(double timeStamp,
         else if(strcmp(fieldName,"value")==0)
         {
             ts->setValue(d_value.get());
+	    if (strlen(d_shaderParam.get()) > 0)
+    {
+        std::string shaderName;
+        std::string param;
+        shaderName = d_shaderParam.get();
+        size_t pos = shaderName.find_last_of('.');
+        param = shaderName.substr(pos + 1, std::string::npos);
+        shaderName = shaderName.substr(0, pos);
+        coVRShader *shader = coVRShaderList::instance()->get(shaderName);
+        if (shader != NULL)
+        {
+            osg::Uniform *uniform = shader->getUniform(param);
+            if (uniform != NULL)
+            {
+                uniform->set(d_value.get());
+            }
+        }
+    }
         }
         else if(strcmp(fieldName,"orientation")==0)
         {
