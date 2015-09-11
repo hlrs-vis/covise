@@ -60,6 +60,7 @@
   </System>
 
   <COVER>
+      <Snap value="ON" />
     <!--LODScale value="0.000000000001" /-->
     <DepthPeeling value="false" />
     <LODScale value="1" />
