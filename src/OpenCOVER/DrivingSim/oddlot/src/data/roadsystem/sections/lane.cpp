@@ -586,11 +586,15 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
     //
     foreach (LaneRoadMark *child, marks_)
     {
-        if (child->getSSectionStart() < sOffsetStart)
+        double childStart = child->getParentLane()->getParentLaneSection()->getSStart() + child->getSOffset();
+        if (childStart < sOffsetStart)
         {
-            // a) Starts and ends before cloned region //
+
+            double childEnd = child->getParentLane()->getParentLaneSection()->getSEnd() + child->getSOffset();
+
+            // a) Starts and ends before cloned region //)
             //
-            if (child->getSSectionEnd() < sOffsetStart)
+            if (childEnd < sOffsetStart)
             {
                 continue; // do not add
             }
@@ -604,11 +608,11 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
                 clone->addRoadMarkEntry(newEntry);
             }
         }
-        else if (child->getSSectionStart() < sOffsetEnd)
+        else if (childStart < sOffsetEnd)
         {
             // c) Starts in cloned region //
             //
-            double newSStart = child->getSOffset() - sOffsetStart;
+            double newSStart = childStart - sOffsetStart;
             if (fabs(newSStart) < NUMERICAL_ZERO6)
             {
                 newSStart = 0.0; // round to zero, so it isn't negative (e.g. -1e-7)
