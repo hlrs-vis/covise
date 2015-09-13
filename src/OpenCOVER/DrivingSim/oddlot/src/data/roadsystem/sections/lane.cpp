@@ -543,11 +543,14 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
     //
     foreach (LaneWidth *child, widths_)
     {
-        if (child->getSSectionStart() < sOffsetStart)
+        double parentStart = child->getParentLane()->getParentLaneSection()->getSStart();
+        double childStart = parentStart + child->getSOffset();
+        if (childStart < sOffsetStart)
         {
+            double childEnd = child->getParentLane()->getParentLaneSection()->getSEnd() + child->getSOffset();
             // a) Starts and ends before cloned region //
             //
-            if (child->getSSectionEnd() < sOffsetStart)
+            if (childEnd < sOffsetStart)
             {
                 continue; // do not add
             }
@@ -556,16 +559,16 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
             //
             else
             {
-                LaneWidth *newEntry = new LaneWidth(0.0, child->getWidth(sOffsetStart), child->getSlope(sOffsetStart), child->getCurvature(sOffsetStart) / 2.0, child->getD());
+                LaneWidth *newEntry = new LaneWidth(0.0, child->getWidth(sOffsetStart - parentStart), child->getSlope(sOffsetStart - parentStart), child->getCurvature(sOffsetStart - parentStart) / 2.0, child->getD());
                 newEntry->setSOffset(0.0);
                 clone->addWidthEntry(newEntry);
             }
         }
-        else if (child->getSSectionStart() < sOffsetEnd)
+        else if (childStart < sOffsetEnd)
         {
             // c) Starts in cloned region //
             //
-            double newSStart = child->getSOffset() - sOffsetStart;
+            double newSStart = childStart - sOffsetStart;
             if (fabs(newSStart) < NUMERICAL_ZERO6)
             {
                 newSStart = 0.0; // round to zero, so it isn't negative (e.g. -1e-7)
