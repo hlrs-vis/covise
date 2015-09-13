@@ -11,7 +11,7 @@ public:
 		// for 2d
 		//float c = 2/(M_PI * smoothing_length * smoothing_length);
 		// for 3d
-		float c = 5/(4*M_PI*smoothing_length*smoothing_length*smoothing_length);
+		float c = 5.0f/(4.0f*(float)M_PI*smoothing_length*smoothing_length*smoothing_length);
 		
 		return c;
 	}
@@ -22,7 +22,7 @@ public:
 		
 		if(0<=q && q<=2)
 		{
-			return 0.1875f*q*q - 0.75*q + 0.75;
+			return 0.1875f*q*q - 0.75f*q + 0.75f;
 		}
 		return 0.f;
 	}	

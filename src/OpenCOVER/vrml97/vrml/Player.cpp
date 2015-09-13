@@ -265,7 +265,7 @@ Player::addSource(Source *src)
 
     if (sources.size() == numSources)
     {
-        handle = sources.size();
+        handle = (int)sources.size();
         sources.resize(handle + 1);
     }
     else

@@ -11,7 +11,7 @@ public:
 		// for 2d
 		//float c = 1/(M_PI * smoothing_length_pow2);
 		// for 3d
-		float c = 1/(powf(M_PI, 1.5f)*smoothing_length_pow2*smoothing_length);
+		float c = 1.0f/(powf((float)M_PI, 1.5f)*smoothing_length_pow2*smoothing_length);
 		return c;
 	}
 
@@ -34,7 +34,7 @@ public:
 	static __device__ __host__ float Gradient_Constant(float smoothing_length, float smoothing_length_pow2)
 	{
 		// for 3d
-		float c = -2/(powf(M_PI, 0.5f)*smoothing_length_pow2*smoothing_length_pow2*smoothing_length);
+		float c = -2.0f/(powf((float)M_PI, 0.5f)*smoothing_length_pow2*smoothing_length_pow2*smoothing_length);
 		return c;
 	}
 

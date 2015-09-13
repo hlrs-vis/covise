@@ -13,7 +13,7 @@
 #include <osg/NodeVisitor>
 #include <osg/Node>
 
-namespace covise
+namespace vrui
 {
 
 class OSGVRUIEXPORT NodeDumpVisitor : public osg::NodeVisitor
@@ -27,5 +27,6 @@ public:
 private:
     int level;
 };
+
 }
 #endif

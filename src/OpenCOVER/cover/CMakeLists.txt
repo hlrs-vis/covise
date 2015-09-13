@@ -22,10 +22,13 @@ INCLUDE_DIRECTORIES(
 
 add_subdirectory(input/dev/dtrack) 
 add_subdirectory(input/dev/mousebuttons) 
-add_subdirectory(input/dev/legacy)
+#don't build legacy tracking system, port it to the new system if you need anything
+#add_subdirectory(input/dev/legacy)
 add_subdirectory(input/dev/vrc) 
 add_subdirectory(input/dev/rift) 
 add_subdirectory(input/dev/mike)
+add_subdirectory(input/dev/vrpn)
+add_subdirectory(input/dev/cavelib)
 IF(WIN32)
   add_subdirectory(input/dev/windowsHID) 
 ENDIF(WIN32)

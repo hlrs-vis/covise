@@ -65,17 +65,17 @@ SimSnowSPH::SimSnowSPH(SimLib::SimCudaAllocator* simCudaAllocator, SimLib::SimCu
 	mSettings->AddSetting("Particles Number", 32*1024, 1024, 0, "");
 	mSettings->AddSetting("Grid World Size", 1024, 1, 0, "");
 
-	mSettings->AddSetting("Timestep", 0.0005, 0, 1, "");
+	mSettings->AddSetting("Timestep", 0.0005f, 0, 1, "");
 
 	mSettings->AddSetting("Rest Density", 1000, 0, 10000, "kg / m^3");
 	mSettings->AddSetting("Rest Pressure", 0, 0, 10000, "");
-	mSettings->AddSetting("Ideal Gas Constant", 1.5, 0.001, 10, "");
+	mSettings->AddSetting("Ideal Gas Constant", 1.5f, 0.001f, 10, "");
 	mSettings->AddSetting("Viscosity", 1, 0, 100, "Pa·s");
 
  	mSettings->AddSetting("Boundary Stiffness", 20000, 0, 100000, "");
  	mSettings->AddSetting("Boundary Dampening", 256, 0, 10000, "");
  	mSettings->AddSetting("Velocity Limit", 600, 0, 10000, "");
- 	mSettings->AddSetting("Simulation Scale", 0.001, 0, 1, "");
+ 	mSettings->AddSetting("Simulation Scale", 0.001f, 0, 1, "");
 	mSettings->AddSetting("XSPH Factor", 0.5, 0, 1, "");
 	mSettings->AddSetting("Static Friction Limit", 0, 0, 10000, "");
 	mSettings->AddSetting("Kinetic Friction", 0, 0, 10000, "");
@@ -104,7 +104,7 @@ void SimSnowSPH::SettingChanged(std::string settingName)
 	{ 
 		//ensure multiple of block size!!
 		int numParticles = (int)mSettings->GetValue("Particles Number");
-		mSettings->SetValue("Particles Number", numParticles + ((numParticles % 256)));
+		mSettings->SetValue("Particles Number", (float)(numParticles + ((numParticles % 256))));
 
 		mSettings->SetValue("Particle Mass", (128*1024.0f)/(mSettings->GetValue("Particles Number")) * 0.0002f);
 	}
@@ -228,7 +228,7 @@ void SimSnowSPH::Clear()
 
 float SimSnowSPH::GetParticleSize()
 {
-	return 0.7*hFluidParams.smoothing_length / hFluidParams.scale_to_simulation;
+	return 0.7f*hFluidParams.smoothing_length / hFluidParams.scale_to_simulation;
 }
 
 float SimSnowSPH::GetParticleSpacing()

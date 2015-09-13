@@ -17,7 +17,7 @@ public:
 			// for 2D
 			//float c = 7.0f/(4.0f*M_PI*rlen_sq);
 			// for 3D
-			float c = 7.0f/(8.0f*M_PI*rlen*rlen_sq);
+			float c = 7.0f/(8.0f*(float)M_PI*rlen*rlen_sq);
 			return c * pow(1-0.5f*Q, 4) * (2*Q+1);
 		}
 		return 0;
@@ -31,7 +31,7 @@ public:
 			// for 2D
 			//scalar c = (-35 * M_1_PI / 4 * rlen_sq*rlen_sq);
 			// for 3D
-			float c =  (-35 * M_1_PI) / (8 * rlen_sq*rlen_sq);
+			float c =  (-35 * (float)M_1_PI) / (8 * rlen_sq*rlen_sq);
 			float dif = 2 - Q;
 			return r * (c * dif * dif / r);
 		}

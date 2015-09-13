@@ -539,7 +539,7 @@ idRestChar  ([^\x00-\x20\x22\x23\x27\x2c\x2e\x5b-\x5d\x7b\x7d])
                   System::the->warn(yytext);
                   System::the->warn("\" unsupported, TRUE or FALSE are only allowed for a SFBOOL field\n");
                }
-               yylval.field = new VrmlSFBool(b); 
+               yylval.field = new VrmlSFBool(b!=0); 
                return SF_BOOL; 
              }
 
@@ -591,13 +591,13 @@ idRestChar  ([^\x00-\x20\x22\x23\x27\x2c\x2e\x5b-\x5d\x7b\x7d])
              }
 
    /* All the floating-point types are pretty similar: */
-<SFF>{float}   { yylval.field = new VrmlSFFloat(atof(yytext));
+<SFF>{float}   { yylval.field = new VrmlSFFloat((float)atof(yytext));
                  BEGIN NODE; 
                  expectToken = 0;
                  return SF_FLOAT;
                }
 
-<MFF>{float}   { float f = atof(yytext);
+<MFF>{float}   { float f = (float)atof(yytext);
                  if (parsing_mf)
                  {
                     addFloat(f);
@@ -1322,7 +1322,7 @@ idRestChar  ([^\x00-\x20\x22\x23\x27\x2c\x2e\x5b-\x5d\x7b\x7d])
 
                           int i, j = sfImageNC * sfImageIntsParsed++;
                           for (i=0; i<sfImageNC; ++i)
-                             sfImagePixels[i+j] = (sfImageMask[i] & pixval) >> (8*i);
+                             sfImagePixels[i+j] = (char)((sfImageMask[i] & pixval) >> (8*i));
                           if (sfImageIntsParsed == sfImageIntsExpected) 
                           {
                              BEGIN NODE; expectToken = 0;

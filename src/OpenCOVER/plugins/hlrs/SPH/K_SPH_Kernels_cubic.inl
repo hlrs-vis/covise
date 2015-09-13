@@ -21,7 +21,7 @@ public:
 			// for 2D
 			//float c = 10 * M_1_PI / 7 * smoothInvSq;
 			// for 3D
-			float c = 1/(M_PI*(smoothing_length*smoothing_length*smoothing_length));
+			float c = 1.0f/((float)M_PI*(smoothing_length*smoothing_length*smoothing_length));
 			return c * (1 - 1.5f*Q*Q + 0.75f*Q*Q*Q);
 		}
 		else if(Q <= 2)
@@ -29,7 +29,7 @@ public:
 			// for 2D
 			//float c = 10 * M_1_PI / 28 * smoothInvSq;
 			// for 3D
-			float c = 0.25f/(M_PI/(smoothing_length*smoothing_length*smoothing_length));
+			float c = 0.25f/((float)M_PI/(smoothing_length*smoothing_length*smoothing_length));
 
 			float dif = Q-2;
 			return - c * dif * dif * dif;
@@ -44,13 +44,13 @@ public:
 		if(Q <= 1)
 		{
 			// for 3D
-			float c =  1 / (M_PI *(smoothing_length_pow3));
+			float c =  1 / ((float)M_PI *(smoothing_length_pow3));
 			return - r * c * ( 3/(smoothing_length_pow2) - (9*rlen)/(4*smoothing_length_pow3) );
 		}
 		else if(Q <= 2)
 		{
 			// for 3D
-			float c = 3 / ( 4* M_PI * (smoothing_length_pow4));
+			float c = 3 / ( 4* (float)M_PI * (smoothing_length_pow4));
 			float dif = Q-2;
 			return - r * (c * dif * dif) / rlen;
 		}

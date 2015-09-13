@@ -8,7 +8,7 @@ public:
 
 	static __device__ __host__ float Kernel_Constant(float smoothing_length)
 	{
-		return 15.0f / (M_PI * pow(smoothing_length, 6.0f) );
+		return 15.0f / ((float)M_PI * pow(smoothing_length, 6.0f) );
 	}
 
 	static __device__ __host__ float Kernel_Variable(float smoothing_length, float3 r, float rlen)
@@ -25,7 +25,7 @@ public:
 
 	static __device__ __host__ float Gradient_Constant(float smoothing_length)
 	{
-		return -45.0f / (M_PI * pow(smoothing_length, 6.0f) );
+		return -45.0f / ((float)M_PI * pow(smoothing_length, 6.0f) );
 	}
 
 	static __device__ __host__ float3 Gradient_Variable(float smoothing_length, float3 r, float rlen)
@@ -37,7 +37,7 @@ public:
 
 	static __device__ __host__ float Laplace_Constant(float smoothing_length)
 	{
-		return -90.0f / (M_PI * pow(smoothing_length, 6.0f) );
+		return -90.0f / ((float)M_PI * pow(smoothing_length, 6.0f) );
 	}
 
 	static __device__ __host__ float3 Laplace_Variable(float smoothing_length, float3 r, float rlen)

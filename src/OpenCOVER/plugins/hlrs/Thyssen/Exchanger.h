@@ -61,7 +61,7 @@ class VrmlNodeCar;
 class PLUGINEXPORT VrmlNodeExchanger : public VrmlNodeChild
 {
 public:
-    enum ExchangerState {Idle=0,Occupied, Uninitialized};
+    enum ExchangerState {Idle=0,Occupied, Uninitialized,RotatingLeft,RotatingRight};
     // Define the fields of Exchanger nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
@@ -93,6 +93,9 @@ public:
     VrmlSFInt   d_LandingNumber;
     VrmlSFFloat   d_Fraction;
     VrmlSFRotation d_Rotation;
+    void rotateLeft();
+    void rotateRight();
+    float getAngle(){return angle;};
 
 
 private:
@@ -107,6 +110,7 @@ private:
     VrmlNodeCar *currentCar;
     VrmlNodeElevator *elevator;
     enum ExchangerState state;
+    enum ExchangerState rotatingState;
     double timeoutStart;
 };
 

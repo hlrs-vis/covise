@@ -51,7 +51,6 @@ bool sortfunction(Point i, Point j) { return (i.l < j.l); };
 void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 {
 
-    FILE *inputFile;
     cout << "Input Data: " << filename << endl;
 
     ifstream file(filename, ios::in | ios::binary);
@@ -64,7 +63,7 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
         cerr << "Total num of sets is " << (size) << endl;
         cerr << "max_size: " << vec.max_size() << "\n";
         cerr << "size: " << vec.size() << "\n";
-        for (int i = 0; i < size; i++)
+        for (uint32_t i = 0; i < size; i++)
         {
             unsigned int psize;
             file.read((char *)&psize, sizeof(psize));
@@ -198,7 +197,7 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
 
     if (file.is_open())
     {
-        int number_of_sets = lookUp.size();
+        int number_of_sets = (int)lookUp.size();
         int index = 0;
 
         // write the number of sets

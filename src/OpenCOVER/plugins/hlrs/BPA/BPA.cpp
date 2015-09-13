@@ -589,9 +589,6 @@ void BPA::loadDxf(std::string filename)
                             t->startVelocity *= velocity->getValue();
 			    t->viscosity= 0.005;
 			    t->surfacetension=0.06;
-			    double velo;
-			    double Vol;
-			    float kappa;
 			    t->gamma = 0.0;
 			    t->alpha = 0.0;    
 			    t->W = 3.8 / 1000.0;

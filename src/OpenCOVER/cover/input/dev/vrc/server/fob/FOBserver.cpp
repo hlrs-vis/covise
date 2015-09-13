@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
     std::string cyberC = arg.getOpt("-c", "--cyberClassroom", "0");
 
     int baudrate = atoi(baudrateStr ? baudrateStr : "19200");
-    float rate = atoi(rateStr ? rateStr : "20");
+    float rate = (float)atoi(rateStr ? rateStr : "20");
     int numBirds = atoi(numBirdsStr ? numBirdsStr : "-1");
 
     // Protocol: arr 3rd 0.0 or not
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
         sendsPerVerbose = (int)rate;
 
     // select() delay record
-    rate = 1.0 / rate;
+    rate = 1.0f / rate;
     struct timeval delay;
     delay.tv_sec = (int)rate;
     delay.tv_usec = (int)(1e6 * (rate - delay.tv_sec));
@@ -398,9 +398,9 @@ int main(int argc, char *argv[])
 
                 if (x == 0.0 && y == 0.0 && z == 0.0)
                 {
-                    x = 0.00001;
-                    y = 0.00001;
-                    z = 0.00001;
+                    x = 0.00001f;
+                    y = 0.00001f;
+                    z = 0.00001f;
                 }
 
                 unsigned short int buttons;
@@ -421,9 +421,9 @@ int main(int argc, char *argv[])
                         mat[2][0], mat[2][1], mat[2][2],
                         compatStr);
 
-                sender.send(sendbuffer, strlen(sendbuffer) + 1);
+                sender.send(sendbuffer, (int)strlen(sendbuffer) + 1);
                 if (cyberC != "0")
-                    sender2.send(sendbuffer, strlen(sendbuffer) + 1);
+                    sender2.send(sendbuffer, (int)strlen(sendbuffer) + 1);
 
                 if (frame % sendsPerVerbose == 0)
                 {
