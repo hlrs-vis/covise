@@ -625,7 +625,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
-    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "");
+    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "-1");
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());
