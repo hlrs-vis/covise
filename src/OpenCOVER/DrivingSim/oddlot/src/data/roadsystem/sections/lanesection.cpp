@@ -484,7 +484,7 @@ LaneSection::getClone(double sStart, double sEnd) const
     //
     foreach (Lane *child, lanes_)
     {
-        clone->addLane(child->getClone(sStart - getSStart(), sEnd - getSStart()));
+        clone->addLane(child->getClone(sStart, sEnd));
     }
 
     return clone;

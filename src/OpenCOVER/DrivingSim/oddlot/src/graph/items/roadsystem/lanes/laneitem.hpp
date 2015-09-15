@@ -78,6 +78,7 @@ public slots:
 protected:
     //	virtual void			mousePressEvent(QGraphicsSceneMouseEvent * event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
     //	virtual void			mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 
     //################//
