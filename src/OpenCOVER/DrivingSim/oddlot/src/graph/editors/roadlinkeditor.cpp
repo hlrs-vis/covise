@@ -264,7 +264,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                 if (maybeRoad)
                 {
                     RSystemElementRoad * road = maybeRoad->getRoad();
-                    if (!road->getPredecessor() && !road->getSuccessor())
+                    if (!road->getPredecessor() || !road->getSuccessor())
                     {
                         removeZeroWidthLanes(road);             // error correction must not be undone TODO: move to laneeditor
                         roadLinkRoadItems.append(road);

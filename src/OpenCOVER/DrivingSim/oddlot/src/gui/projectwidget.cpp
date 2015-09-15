@@ -625,7 +625,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
-    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "");
+    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "-1");
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());
@@ -731,7 +731,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
                                 TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, lastLineElement->getHeading(0), endHeadingDeg, 0.5);
                                 if (curve->validParameters())
                                 {
-                                    float currentError = getArcError(i, i+j, curve);
+                                    float currentError = getArcError(i, j, curve);
 
                                     if (currentError < minError)
                                     {

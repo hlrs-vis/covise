@@ -16,7 +16,7 @@
 #include <OpenVRUI/osg/OSGVruiTexture.h>
 
 #include <OpenVRUI/util/vruiLog.h>
-#include <OpenVRUI/util/NodeDumpVisitor.h>
+#include <OpenVRUI/osg/NodeDumpVisitor.h>
 
 #include <osg/Array>
 #include <osg/Geometry>

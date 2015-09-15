@@ -69,29 +69,32 @@ InsertLaneCommand::redo()
 
     if (laneSection_->getLanes()[id_] != NULL)
     {
-
-        QMap<int, Lane *> newLanes;
-
-        foreach (Lane *lane, laneSection_->getLanes())
+        if (id_ < 0)
         {
-            if ((id_ > 0) && (lane->getId() >= id_))
+            for (int i = laneSection_->getRightmostLaneId(); i <= id_;  i++)
             {
-                lane->setId(lane->getId() + 1);
+                Lane *lane = laneSection_->getLane(i);
+                if (lane)
+                {
+                    lane->setId(i-1);
+                }
             }
-            else if ((id_ < 0) && (lane->getId() <= id_))
-            {
-                lane->setId(lane->getId() - 1);
-            }
-            newLanes.insert(lane->getId(), lane);
         }
-        newLanes.insert(newLane_->getId(), newLane_);
+        else
+        {
+            for (int i = laneSection_->getLeftmostLaneId(); i >= id_;  i--)
+            {
+                Lane *lane = laneSection_->getLane(i);
+                if (lane)
+                {
+                    lane->setId(i+1);
+                }
+            }
+        }
+    }
 
-        laneSection_->setLanes(newLanes);
-    }
-    else
-    {
-        laneSection_->addLane(newLane_);
-    }
+    laneSection_->addLane(newLane_);
+
 
     setRedone();
 }
@@ -99,28 +102,32 @@ InsertLaneCommand::redo()
 void
 InsertLaneCommand::undo()
 {
-    QMap<int, Lane *> newLanes;
 
-    foreach (Lane *lane, laneSection_->getLanes())
+    laneSection_->removeLane(newLane_);
+
+    if (id_ < 0)
     {
-        if (lane->getId() == id_)
+        for (int i = id_ - 1; i >= laneSection_->getRightmostLaneId(); i--)
         {
-            continue; // this one's out again!
+            Lane *lane = laneSection_->getLane(i);
+            if (lane)
+            {
+                lane->setId(i+1);
+            }
         }
-
-        if ((id_ > 0) && (lane->getId() > id_))
-        {
-            lane->setId(lane->getId() - 1);
-        }
-        else if ((id_ < 0) && (lane->getId() < id_))
-        {
-            lane->setId(lane->getId() + 1);
-        }
-
-        newLanes.insert(lane->getId(), lane);
     }
+    else
+    {
+        for (int i = id_ + 1; i <= laneSection_->getLeftmostLaneId(); i++)
+        {
+            Lane *lane = laneSection_->getLane(i);
+            if (lane)
+            {
+                lane->setId(i-1);
+            }
+        }
 
-    laneSection_->setLanes(newLanes);
+    }
 
     setUndone();
 }
