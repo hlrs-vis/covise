@@ -19,7 +19,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(OSGVRUI_SOURCES
-  ../util/NodeDumpVisitor.cpp
+  NodeDumpVisitor.cpp
   OSGVruiColoredBackground.cpp
   OSGVruiDefaultButtonGeometry.cpp
   OSGVruiFlatButtonGeometry.cpp
@@ -48,7 +48,7 @@ SET(OSGVRUI_SOURCES
 )
 
 SET(OSGVRUI_HEADERS
-  ../util/NodeDumpVisitor.h
+  NodeDumpVisitor.h
   OSGVruiColoredBackground.h
   OSGVruiDefaultButtonGeometry.h
   OSGVruiFlatButtonGeometry.h

@@ -16,13 +16,19 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="1">
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>repeat</string>
      </property>
      <widget class="QLabel" name="label_11">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>30</y>
         <width>53</width>
         <height>16</height>
@@ -35,7 +41,7 @@
      <widget class="QLabel" name="label_12">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>60</y>
         <width>53</width>
         <height>16</height>
@@ -48,7 +54,7 @@
      <widget class="QLabel" name="label_13">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>10</x>
         <y>90</y>
         <width>53</width>
         <height>16</height>
@@ -100,9 +106,9 @@
      <widget class="QComboBox" name="objectComboBox">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>440</y>
-        <width>231</width>
+        <x>70</x>
+        <y>170</y>
+        <width>201</width>
         <height>22</height>
        </rect>
       </property>
@@ -110,8 +116,8 @@
      <widget class="QCheckBox" name="poleCheckBox">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>410</y>
+        <x>10</x>
+        <y>130</y>
         <width>247</width>
         <height>20</height>
        </rect>
@@ -121,6 +127,19 @@
       </property>
       <property name="checked">
        <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_14">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>170</y>
+        <width>47</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Object</string>
       </property>
      </widget>
     </widget>
@@ -137,6 +156,13 @@
       <string>objectx</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>radius</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="2">
        <widget class="QTextEdit" name="idBox">
         <property name="enabled">
@@ -204,13 +230,6 @@
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>pitch</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>radius</string>
         </property>
        </widget>
       </item>

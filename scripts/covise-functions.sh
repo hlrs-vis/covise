@@ -48,7 +48,7 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=lion
                     ;;
 
-                13.*|14.*)
+                13.*|14.*|15.*)
 	            export ARCHSUFFIX=libc++
                     ;;
             esac

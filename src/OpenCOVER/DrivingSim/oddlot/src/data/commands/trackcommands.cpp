@@ -2071,7 +2071,7 @@ TranslateTrackComponentsCommand::translate(TrackMoveProperties *props)
         {
             props->highSlot->setGlobalStartHeading(props->heading);
         }
-        else if (props->lowSlot || props->highSlot)
+        else if (props->lowSlot && props->highSlot)
         {
             props->lowSlot->setGlobalEndHeading(props->heading);
             props->highSlot->setGlobalStartHeading(props->heading);
@@ -2123,7 +2123,6 @@ TranslateTrackComponentsCommand::undoTranslate(TrackMoveProperties *props)
 void
 TranslateTrackComponentsCommand::redo()
 {
-
     for (int i = 0; i < translateTracks_.size(); i++)
     {
 
