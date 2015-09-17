@@ -64,7 +64,7 @@
     <DepthPeeling value="false" />
     <LODScale value="1" />
 
-    <SyncToVBlank value="ON" device="DFP-0" />
+    <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
      <TabletUI>
@@ -264,7 +264,7 @@
    <ViewerPosition x="0" y="-1500" z="0" />
    <SceneSize value="1000" />
    <DebugLevel value="1" />
-   <FPS value="false" />
+   <FPS value="true" />
 
    <PipeConfig>
       <Pipe display="only needed for multiple X11 displays/screens" server="0" screen="0" name="0" />
