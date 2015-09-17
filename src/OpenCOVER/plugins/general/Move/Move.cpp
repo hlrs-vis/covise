@@ -977,6 +977,7 @@ void Move::preFrame()
                         cover->sendMessage(this, "Revit",
                             PluginMessageTypes::MoveMoveNodeFinished, tb.get_length(), tb.get_data());
                     }
+		    
                     addUndo(mat, moveDCS.get());
                 }
                 didMove = false;

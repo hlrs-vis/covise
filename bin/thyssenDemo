@@ -19,9 +19,11 @@ NORMAL='\033[m'     # white
 while [ opt != '' ] 
 do
     echo -e "${MENU}-----${TYP} Thyssen ${MENU}---------------------------------"
-    echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 85)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug mit Sideguide "
     echo -e "${MENU} ${OPT} 87)  ${MENU} Thyssen Turm              "
     echo -e "${MENU} ${OPT} 88)  ${MENU} Thyssen CFD Multi         "
+    echo -e "${MENU} ${OPT} 89)  ${MENU} Thyssen CFD Turm         "
 
     echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
     echo -e "${MENU} ${OPT} 91)  ${MENU} kill OpenCOVER            "
@@ -37,17 +39,25 @@ do
 
     case $opt in
 
+	85)
+	    echo -e "Thyssen Aufzug";
+	    covise -e /data/covise_net/2014/ThyssenNeuNoSide.net
+	    ;;
 	86)
 	    echo -e "Thyssen Aufzug";
 	    covise -e /data/covise_net/2014/ThyssenNeu.net
 	    ;;
     87)
 	    echo -e "Thyssen Turm";
-	    opencover /data/Thyssen/Turm/turm_Aufzug.wrl
+	    opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
 	    ;;
     88)
 	    echo -e "Thyssen CFD Multi";
-	    covise -e /data/covise_net/2015/PassingMulti01-10.net
+	    covise -e /data/covise_net/2015/PassingMulti02-10_demo.net
+	    ;;
+    89)
+	    echo -e "Thyssen CFD Turm";
+	    covise -e /data/covise_net/2015/Turm_59e_reduced.net
 	    ;;
 
 # SYSTEM

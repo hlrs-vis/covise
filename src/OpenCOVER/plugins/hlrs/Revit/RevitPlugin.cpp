@@ -544,6 +544,19 @@ void RevitPlugin::message(int type, int len, const void *buf)
     else if (type == PluginMessageTypes::MoveMoveNodeFinished)
     {
         MoveFinished=true;
+	std::string path;
+        TokenBuffer tb((const char *)buf, len);
+        tb >> path;
+        tb >> path;
+                TokenBuffer stb;
+                stb << MovedID;
+                stb << -(double)lastMoveMat.getTrans().x();
+                stb << (double)lastMoveMat.getTrans().y();
+                stb << (double)lastMoveMat.getTrans().z();
+
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_SetTransform;
+                RevitPlugin::instance()->sendMessage(message);
     }
     else if (type == PluginMessageTypes::MoveMoveNode)
     {
@@ -555,7 +568,7 @@ void RevitPlugin::message(int type, int len, const void *buf)
         osg::Node *selectedNode = coVRSelectionManager::validPath(path);
         if(selectedNode)
         {
-            RevitInfo  *info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
+            info = dynamic_cast<RevitInfo *>(OSGVruiUserDataCollection::getUserData(selectedNode, "RevitInfo"));
             if(info)
             {
                 for (int i = 0; i < 4; i++)
@@ -566,24 +579,25 @@ void RevitPlugin::message(int type, int len, const void *buf)
                     MoveFinished=true;
                 }
                 
+                lastMoveMat = invStartMoveMat*m;
+                //invStartMoveMat.invert(m);
+		
                 if(MoveFinished)
                 {
                     MoveFinished = false;
                     MovedID = info->ObjectID;
                     invStartMoveMat.invert(m);
-                }
                 
-                osg::Matrix newMat = invStartMoveMat*m;
-                invStartMoveMat.invert(m);
-                TokenBuffer stb;
+             /*   TokenBuffer stb;
                 stb << info->ObjectID;
-                stb << (double)newMat.getTrans().x();
-                stb << (double)newMat.getTrans().y();
-                stb << (double)newMat.getTrans().z();
+                stb << (double)lastMoveMat.getTrans().x();
+                stb << (double)lastMoveMat.getTrans().y();
+                stb << (double)lastMoveMat.getTrans().z();
 
                 Message message(stb);
                 message.type = (int)RevitPlugin::MSG_SetTransform;
-                RevitPlugin::instance()->sendMessage(message);
+                RevitPlugin::instance()->sendMessage(message);*/
+                }
             }
         }
     }

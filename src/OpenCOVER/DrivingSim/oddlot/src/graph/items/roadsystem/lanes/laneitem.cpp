@@ -348,6 +348,13 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     parentLaneSectionItem_->mouseReleaseEvent(event);
 }
 
+
+void 
+LaneItem::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
+{
+    parentLaneSectionItem_->hoverMoveEvent(event);
+}
+
 //void
 //	LaneItem
 //	::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
