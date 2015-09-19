@@ -97,9 +97,13 @@ void VrmlNodeElevator::setField(const char *fieldName,
     {
         
         stations.resize(d_landingHeights.size()*d_shaftPositions.size());
+        exchangers.resize(d_landingHeights.size()*d_shaftPositions.size());
+        landings.resize(d_landingHeights.size()*d_shaftPositions.size());
         for(int i=0;i<stations.size();i++)
         {
-            stations[i]=NULL;
+            stations[i].car=NULL;
+            exchangers[i]=NULL;
+            landings[i]=NULL;
         }
         for(int i=0;i<d_landingHeights.size();i++)
         {
@@ -128,6 +132,13 @@ void VrmlNodeElevator::setField(const char *fieldName,
                 if(exchanger->d_LandingNumber.get() >= exchangers.size())
                 {
                     exchangers.resize(exchanger->d_LandingNumber.get()+1);
+                    int oldSize=exchangers.size();
+                    int newSize=exchanger->d_LandingNumber.get()+1;
+                    exchangers.resize(newSize);
+                    for(int i=oldSize;i<newSize;i++)
+                    {
+                        exchangers[i]=NULL;
+                    }
                 }
                 exchangers[exchanger->d_LandingNumber.get()] = exchanger;
                 exchanger->setElevator(this);
@@ -139,7 +150,7 @@ void VrmlNodeElevator::setField(const char *fieldName,
                 {
                     int oldSize=landings.size();
                     int newSize=landing->d_LandingNumber.get()+1;
-                    landings.resize(landing->d_LandingNumber.get()+1);
+                    landings.resize(newSize);
                     for(int i=oldSize;i<newSize;i++)
                     {
                         landings[i]=NULL;
@@ -167,6 +178,15 @@ void VrmlNodeElevator::setField(const char *fieldName,
                     landings[station]->setCar(cars[i]);
                 }
             }
+        }
+        
+        for(int i=0;i<stations.size();i++)
+        {
+            
+            int landing = i % d_landingHeights.size();
+            int shaft = i / d_landingHeights.size();
+            stations[i].setX(d_shaftPositions[shaft]);
+            stations[i].setY(d_landingHeights[landing]);
         }
     }
 }
@@ -233,13 +253,49 @@ void VrmlNodeElevator::render(Viewer *)
 
 bool VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
 {
-    stations[station] = car;
     bool success=false;
+    if(stations[station].car == NULL || stations[station].car == car)
+    {
+        success = true;
+        stations[station].car = car;
+    }
+    else
+    {
+        return false;
+    }
     
     if(exchangers.size() > station && exchangers[station] !=NULL)
     {
-        if(exchangers[station]->getCar() != NULL && exchangers[station]->getCar() != car)
+        VrmlNodeExchanger *ex = exchangers[station];
+        if(ex->getCar() != NULL && ex->getCar() != car)
             return false;
+        // find out if the exchanger is posittioned right, otherwise we can't occupy it.
+        if(car->getTravelDirection() == VrmlNodeCar::MoveLeft || car->getTravelDirection() == VrmlNodeCar::MoveRight)
+        {
+            if(ex->getAngle()!=(float)M_PI_2)
+            {
+                // turn it right
+                if(((ex->getState()==VrmlNodeExchanger::Idle) && (ex->getCar()==NULL))||ex->getCar()==car)
+                {
+                    exchangers[station]->setCar(car);
+                    ex->rotateRight();
+                }
+                return false;
+            }
+        }
+        else
+        {
+            if(ex->getAngle()!=0)
+            {
+                // turn it right
+                if(((ex->getState()==VrmlNodeExchanger::Idle) && (ex->getCar()==NULL))||ex->getCar()==car)
+                {
+                    exchangers[station]->setCar(car);
+                    ex->rotateLeft();
+                }
+                return false;
+            }
+        }
         exchangers[station]->setCar(car);
         success=true;
     }
@@ -250,11 +306,11 @@ bool VrmlNodeElevator::occupy(int station,VrmlNodeCar *car)
         landings[station]->setCar(car);
         success=true;
     }
-    return success;
+    return success; // no landing and no exchanger
 }
 void VrmlNodeElevator::release(int station)
 {
-    stations[station] = NULL;
+    stations[station].car = NULL;
     if(exchangers.size() > station && exchangers[station] !=NULL)
     {
         exchangers[station]->setCar(NULL);
@@ -281,14 +337,8 @@ void VrmlNodeElevator::putCarOnRail(VrmlNodeCar *car)
 void VrmlNodeElevator::removeCarFromRail(VrmlNodeCar *car)
 {
     VrmlNodeCar::carState cs = car->getTravelDirection();
-    if(cs==VrmlNodeCar::MoveDown || cs==VrmlNodeCar::MoveUp)
-    {
-        shafts[car->getShaftNumber()]->removeCarFromRail(car);
-    }
-    else
-    {
-        hShafts[car->getLandingNumber()]->removeCarFromRail(car);
-    }
+    shafts[car->getShaftNumber()]->removeCarFromRail(car);
+    hShafts[car->getLandingNumber()]->removeCarFromRail(car);
 }
 
 float VrmlNodeElevator::getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar)

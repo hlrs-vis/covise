@@ -144,6 +144,7 @@ private:
     int oldShaftNumber;
     int oldLandingIndex; // is >=0 until we left the station
     int destinationLandingIndex; // is >=0 until we are close to the destination
+    std::list<int>::iterator currentPassingStation;
     double doorTime;
     VrmlNodeElevator *elevator;
     enum carState state;
@@ -154,7 +155,9 @@ private:
     enum carState oldTravelDirection;
     double timeoutStart;
     int ID;
-    std::list<VrmlNodeExchanger *> currentExchangers;
+    std::list<VrmlNodeExchanger *> currentExchangers; // list of exchangers we pass
+    std::list<int> passingStations; // stations that we pass including the current destination, excluding the start
+    std::list<int> occupiedStations; // stations that we occupied and which have not peen released
 };
 
 #endif
