@@ -20,6 +20,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coTabletUI.h>
+
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
@@ -121,6 +123,8 @@ public:
     
     bool occupy(int station,VrmlNodeCar *car); // returns true, if successfull, false if station is occupied by someone else
     void release(int station);
+    
+    coTUITab *elevatorTab;
 
 private:
 

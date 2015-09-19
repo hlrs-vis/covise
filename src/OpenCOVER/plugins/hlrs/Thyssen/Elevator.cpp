@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Car.h"
 #include "Exchanger.h"
 #include "Landing.h"
+#include <cover/coVRTui.h>
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -53,12 +54,15 @@ VrmlNodeElevator::VrmlNodeElevator(VrmlScene *scene)
     : VrmlNodeGroup(scene)
 {
     setModified();
+    elevatorTab = new coTUITab("Elevator", coVRTui::instance()->mainFolder->getID());
+    elevatorTab->setPos(0, 0);
 }
 
 VrmlNodeElevator::VrmlNodeElevator(const VrmlNodeElevator &n)
     : VrmlNodeGroup(n.d_scene)
 {
     setModified();
+    elevatorTab = n.elevatorTab;
 }
 
 VrmlNodeElevator::~VrmlNodeElevator()

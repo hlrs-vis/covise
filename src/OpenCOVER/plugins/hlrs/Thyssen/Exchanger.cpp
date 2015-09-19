@@ -221,9 +221,10 @@ void VrmlNodeExchanger::update()
                 fprintf(stderr,"Excanger oops\n");
             }
             setAngle(angle);
-            if(currentCar)
+            if(currentCar) // the car might not be standing in the exchanger but outside and only occupied the exchanger so that noone else uses it thus check here whether we are actually standing at the right position
             {
-                currentCar->setAngle(angle);
+                if((currentCar->d_carPos.x()==elevator->stations[d_LandingNumber.get()].x()) && (currentCar->d_carPos.y()==elevator->stations[d_LandingNumber.get()].y()))
+                    currentCar->setAngle(angle);
             }
         }
     }

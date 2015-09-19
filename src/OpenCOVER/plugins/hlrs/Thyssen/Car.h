@@ -20,6 +20,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coTabletUI.h>
+
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
@@ -65,7 +67,7 @@ class VrmlNodeLanding;
 #define LANDING_HEIGHT_2 1.8 // Half height of the exchanger
 #define SAFETY_DISTANCE 0.1
 
-class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
+class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild,public coTUIListener
 {
 public:
     enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight,StartRotatingRight,StartRotatingLeft};
@@ -108,6 +110,9 @@ public:
     void startTurning(); // turn if necessarry and possible
     float getV(){return v;};
     void setAngle(float a);
+
+    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    virtual void tabletEvent(coTUIElement *tUIItem);
 
     VrmlSFInt   d_carNumber;
     VrmlSFVec3f d_carPos;
@@ -158,6 +163,9 @@ private:
     std::list<VrmlNodeExchanger *> currentExchangers; // list of exchangers we pass
     std::list<int> passingStations; // stations that we pass including the current destination, excluding the start
     std::list<int> occupiedStations; // stations that we occupied and which have not peen released
+    coTUIToggleButton *openButton;
+    coTUILabel *carLabel;
+    coTUIEditField *stationListEdit;
 };
 
 #endif
