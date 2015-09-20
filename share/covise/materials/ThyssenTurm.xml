@@ -18,7 +18,8 @@
     uniform vec3 WaveLength;
     uniform vec3 WaveOffSet;
     uniform float WaveScale;
-    
+
+    uniform float deflection=0.75;
     uniform float pi=3.14159;
     
     uniform int Time;
@@ -147,7 +148,7 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
 
      	vec4 myVertex =  gl_Vertex;
         if (Mode==1) 
-        myVertex.y+=((sin(2.0*pi*((WaveOffSet[0]+time)*WaveSpeed[0])))*gl_Color[0]*WaveScale *gl_Color[0])*(-1+cos(0.5*myVertex.z/245*pi));
+        myVertex.y+=((sin(2.0*pi*((WaveOffSet[0]+time)*WaveSpeed[0])))*gl_Color[0]*deflection*WaveScale *gl_Color[0])*(-1+cos(0.5*myVertex.z/245*pi));
         else if (Mode==2)
         myVertex.y+=((sin(WaveLength[0]+time*WaveSpeed[0]))*gl_Color[0]*WaveScale *gl_Color[0])*0.5*(-1+cos(1*myVertex.z/245*pi))*(sin(1.5*myVertex.z/245*pi));
 
