@@ -540,12 +540,131 @@ void VrmlNodeCar::update()
 
 void VrmlNodeCar::tabletPressEvent(coTUIElement *tUIItem)
 {
-    if(tUIItem == stationListEdit)
-    {
-    }
 }
+
 void VrmlNodeCar::tabletEvent(coTUIElement *tUIItem)
 {
+    if(tUIItem == stationListEdit)
+    {
+        temporaryStationList.clear();
+        std::string listtext = stationListEdit->getText();
+        istringstream iss(listtext);
+        do
+        {
+            int st= -1;
+            iss >> st;
+            if(st > 0 && st < elevator->stations.size())
+            {
+                temporaryStationList.push_back(st);
+            }
+        } while (iss);
+        // check station list for consistency (can't travel diagonal)
+
+        int numHeights = elevator->d_landingHeights.size();
+
+        int oldLandingNumber=-1;
+        int oldShaftNumber=-1;
+        std::list<int>::iterator it;
+        for(it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
+        {
+            int landingNumber = *it % numHeights;
+            int shaftNumber = *it / numHeights;
+            if(oldLandingNumber > 0)
+            {
+                if(oldLandingNumber != landingNumber && oldShaftNumber != shaftNumber) // this does not work.
+                {
+                    // add another step
+                    temporaryStationList.insert(it,oldShaftNumber*numHeights+landingNumber);
+                    oldLandingNumber = landingNumber;
+                }
+            }
+            oldLandingNumber = landingNumber;
+            oldShaftNumber = shaftNumber;
+        }
+        it=temporaryStationList.begin();
+        int landingNumber = *it % numHeights;
+        int shaftNumber = *it / numHeights;
+        if(oldLandingNumber > 0)
+        {
+            if(oldLandingNumber != landingNumber && oldShaftNumber != shaftNumber) // this does not work.
+            {
+                // add another step
+                temporaryStationList.insert(it,oldShaftNumber*numHeights+landingNumber);
+                oldLandingNumber = landingNumber;
+            }
+        }
+        std::string stationListString;
+        for(std::list<int>::iterator it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
+        {
+            stationListString += std::to_string(*it);
+                stationListString += " ";
+        }
+        stationListEdit->setText(stationListString.c_str());
+
+    }
+}
+
+
+bool VrmlNodeCar::stationListChanged()
+{
+    return temporaryStationList.size()>0;
+}
+
+void VrmlNodeCar::switchToNewStationList()// try to switch to new stationList
+{
+    int currentStation = d_stationList[d_currentStationIndex.get()];
+    int index = 0;
+    for(std::list<int>::iterator it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
+    {
+        if(*it == currentStation)
+        {
+            // the current station is also in the new station list --> we stay here.
+            d_currentStationIndex.set(index);
+            int *sl = new int[temporaryStationList.size()];
+            int i=0;
+            for(std::list<int>::iterator it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
+            {
+                sl[i] = *it;
+                i++;
+            }
+            d_stationList.set(temporaryStationList.size(),sl);
+            delete[] sl;
+            temporaryStationList.clear();
+            return;
+        }
+        index++;
+    }
+    index = 0;
+    // the current station is not in the new station list, thus check if any station is empty and jump to it.
+    for(std::list<int>::iterator it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
+    {
+        if(elevator->stations[*it].car == NULL) //this one is empty, jump there
+        {
+            elevator->release(currentStation); // we jump away, this release it.
+            elevator->occupy(*it,this); // occupy the destination
+            d_currentStationIndex.set(index);
+            d_carPos.set(elevator->stations[*it].x(),elevator->stations[*it].y(),0);
+            landingNumber = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
+            shaftNumber = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
+            oldLandingNumber = landingNumber;
+            oldShaftNumber = shaftNumber;
+            oldLandingIndex = *it; // is >=0 until we left the station
+            destinationLandingIndex = *it; // is >=0 until we are close to the destination
+            int *sl = new int[temporaryStationList.size()];
+            int i=0;
+            for(std::list<int>::iterator it=temporaryStationList.begin();it !=temporaryStationList.end(); it++)
+            {
+                sl[i] = *it;
+                i++;
+            }
+            d_stationList.set(temporaryStationList.size(),sl);
+            delete[] sl;
+            temporaryStationList.clear();
+            return;
+        }
+        index++;
+    }
+    // don't do anything and hope next time one of my stations is empty
 }
 void VrmlNodeCar::setAngle(float a)
 {
@@ -649,6 +768,13 @@ void VrmlNodeCar::moveToNext()
         {
             passingStations.push_back(i);
         }
+    }
+    if(passingStations.size()==0)
+    {
+        // oops, invalid destination, can't reach it
+        // work around: just place the destination in there
+
+        passingStations.push_back(destinationLandingIndex);
     }
     setDestination(landing, shaft);
     
@@ -772,36 +898,6 @@ bool VrmlNodeCar::nextPositionIsEmpty() // return true if the destination landin
     return true;
 }
 
-
-void VrmlNodeCar::startTurning() // turn if necessarry and possible
-{
-    
-    int nextIndex = d_currentStationIndex.get()+1;
-    if(nextIndex>=d_stationList.size())
-        nextIndex=0;
-    // find all exchangers on the way to the next destination so that we can also turn them right and left
-    if(chassisState == StartRotatingRight || chassisState == StartRotatingLeft)
-    {
-        timeoutStart = cover->frameTime();
-
-        
-
-        if(travelDirection == MoveLeft || travelDirection == MoveRight)
-        {
-            int nextIndex = d_currentStationIndex.get()+1;
-            if(nextIndex>=d_stationList.size())
-                nextIndex=0;
-            if(elevator->stations[d_stationList[nextIndex]].car==NULL)
-            {
-                chassisState = RotatingRight;
-            }
-        }
-        if(travelDirection == MoveUp || travelDirection == MoveDown)
-        {
-            chassisState = RotatingLeft;
-        }
-    }
-}
 
 void VrmlNodeCar::arrivedAtDestination() // the car arrived at its destination
 {

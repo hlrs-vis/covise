@@ -106,10 +106,11 @@ public:
     void setDestination(int landing, int shaft);
     void moveToNext(); // move to next station
     void arrivedAtDestination(); // the car arrived at its destination
-    bool nextPositionIsEmpty(); // return true if the destination landing is empty
-    void startTurning(); // turn if necessarry and possible
+    bool nextPositionIsEmpty(); // return true if the next station towards the destination landing is empty
     float getV(){return v;};
     void setAngle(float a);
+    bool stationListChanged();
+    void switchToNewStationList();// try to switch to new stationList
 
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletEvent(coTUIElement *tUIItem);
@@ -166,6 +167,7 @@ private:
     coTUIToggleButton *openButton;
     coTUILabel *carLabel;
     coTUIEditField *stationListEdit;
+    std::list<int> temporaryStationList;
 };
 
 #endif

@@ -228,17 +228,18 @@ void VrmlNodeElevator::render(Viewer *)
         VrmlNodeCar *car = cars[i];
         if(car!=NULL)
         {
-            int lowerLanding=0;
-            if(car->getID()%2)
-                lowerLanding = 1;
-            int upperLanding=d_landingHeights.size()-1;
-            if(car->getID()%2)
-                upperLanding--;
-            
-            if(car->getState()==VrmlNodeCar::Idle && car->nextPositionIsEmpty())
+            if(car->getState()==VrmlNodeCar::Idle)
             {
-                // tell it to move to next stop
-                car->moveToNext();
+                if(car->stationListChanged())
+                {
+                    // try to switch to new stationList
+                    car->switchToNewStationList();
+                }
+                if(car->nextPositionIsEmpty())
+                {
+                    // tell it to move to next stop
+                    car->moveToNext();
+                }
             }
             car->update();
         }
