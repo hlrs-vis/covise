@@ -297,7 +297,7 @@ void VrmlNodeCar::update()
                 }
                 else
                 {   // we can't occupy the landing yet, thus stop in front of the landing
-                    diff = fabs(destinationX - d_carPos.x()) - (CAR_WIDTH_2 + LANDING_WIDTH_2 + SAFETY_DISTANCE);
+                    diff = passingDiff - (CAR_WIDTH_2 + LANDING_WIDTH_2 + SAFETY_DISTANCE);
                 }
             }
             
@@ -382,7 +382,7 @@ void VrmlNodeCar::update()
                 {
                     float vd2 = vd*vd;
                     float bakeDistance = (vd2/(2*aMax))*1.5; // distance the car travels until it reaches the velocity of the other car at max decelleration
-                    if(diff < (distanceToNextCar - (CAR_HEIGHT_2 + CAR_HEIGHT_2 + SAFETY_DISTANCE + bakeDistance)))
+                    if(distanceToNextCar < (CAR_HEIGHT_2 + CAR_HEIGHT_2 + SAFETY_DISTANCE + bakeDistance))
                     {
                         diff = distanceToNextCar - (CAR_HEIGHT_2 + CAR_HEIGHT_2 + SAFETY_DISTANCE); // only travel to next car
                     }
@@ -421,7 +421,7 @@ void VrmlNodeCar::update()
                 }
                 else
                 {   // we can't occupy the landing yet, thus stop in front of the landing
-                    diff = fabs(destinationY - d_carPos.y()) - (CAR_WIDTH_2 + LANDING_WIDTH_2 + SAFETY_DISTANCE);
+                    diff = passingDiff - (CAR_HEIGHT_2 + LANDING_HEIGHT_2 + SAFETY_DISTANCE);
                 }
             }
 
@@ -553,7 +553,7 @@ void VrmlNodeCar::tabletEvent(coTUIElement *tUIItem)
         {
             int st= -1;
             iss >> st;
-            if(st > 0 && st < elevator->stations.size())
+            if(st >= 0 && st < elevator->stations.size())
             {
                 temporaryStationList.push_back(st);
             }
@@ -677,6 +677,11 @@ void VrmlNodeCar::setAngle(float a)
 void VrmlNodeCar::setElevator(VrmlNodeElevator *e)
 {
     elevator = e;
+    if(d_currentStationIndex.get() >= d_stationList.size())
+    {
+        fprintf(stderr,"currentStationIndex out of range\n");
+        d_currentStationIndex.set(0);
+    }
     elevator->stations[d_stationList[d_currentStationIndex.get()]].car=this;
     landingNumber = d_stationList[d_currentStationIndex.get()] % elevator->d_landingHeights.size();
     shaftNumber = d_stationList[d_currentStationIndex.get()] / elevator->d_landingHeights.size();
