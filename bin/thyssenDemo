@@ -64,7 +64,7 @@ do
 
 	91)
 	    echo -e "killing OpenCOVER";
-	    killall opencover
+	    doallp killall opencover
 	    ;;
     97)
         echo -e "L-Bench: Frame lock on"
