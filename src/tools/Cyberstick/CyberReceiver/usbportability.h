@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+/*
 General Description:
 This header is intended to contain all (or at least most of) the compiler
 and library dependent stuff. The C code is written for avr-gcc and avr-libc.
@@ -108,7 +109,7 @@ static inline void sei(void)
 
 #define macro .macro
 #define endm .endmacro
-#define nop2 rjmp.+ 0 /* jump to next instruction */
+#define nop2 rjmp+ 0 /* jump to next instruction */
 
 /* ------------------------------------------------------------------------- */
 #else /* default development environment is avr-gcc/avr-libc */
@@ -129,7 +130,7 @@ static inline void sei(void)
 
 #define macro .macro
 #define endm .endm
-#define nop2 rjmp.+ 0 /* jump to next instruction */
+#define nop2 rjmp+ 0 /* jump to next instruction */
 
 #endif /* development environment */
 
