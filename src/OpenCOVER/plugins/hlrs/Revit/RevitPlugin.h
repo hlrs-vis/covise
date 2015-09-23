@@ -243,8 +243,11 @@ protected:
     std::stack<osg::Group *> currentGroup;
     std::map<int, ElementInfo *> ElementIDMap;
     osg::Matrix invStartMoveMat;
+    osg::Matrix lastMoveMat;
     bool MoveFinished;
     int MovedID;
+    RevitInfo  *info;
+    
 
     Message *msg;
 };

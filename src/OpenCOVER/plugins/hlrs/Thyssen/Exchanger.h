@@ -93,6 +93,7 @@ public:
     VrmlSFInt   d_LandingNumber;
     VrmlSFFloat   d_Fraction;
     VrmlSFRotation d_Rotation;
+    int getStationNumber(){return d_LandingNumber.get();};
     void rotateLeft();
     void rotateRight();
     float getAngle(){return angle;};

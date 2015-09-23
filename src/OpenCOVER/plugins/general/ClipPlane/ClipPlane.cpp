@@ -446,6 +446,7 @@ void ClipPlanePlugin::muiEvent(mui::Element *muiItem)
                     coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
                     plane[i].enabled = true;
                     clipNode->addClipPlane(plane[i].clip.get());
+                    plane[i].EnableButton->setState(true);
                 }
             }
             else
@@ -471,6 +472,7 @@ void ClipPlanePlugin::muiEvent(mui::Element *muiItem)
                 plane[i].pickInteractor->enableIntersection();
 
                 plane[i].enabled = true;
+                plane[i].EnableButton->setState(true);
                 clipNode->addClipPlane(plane[i].clip.get());
 
                 if (!plane[i].valid)

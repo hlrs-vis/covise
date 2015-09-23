@@ -705,12 +705,16 @@ public:
     virtual void undo();
     virtual void redo();
 
+    void removeLinkRoadLink(RSystemElementRoad * linkRoad, const QString &contactPoint);
+    void saveConnectingRoadLanes(RSystemElementJunction * junction);
+
 private:
     RemoveRoadLinkCommand(); /* not allowed */
     RemoveRoadLinkCommand(const RemoveRoadLinkCommand &); /* not allowed */
     RemoveRoadLinkCommand &operator=(const RemoveRoadLinkCommand &); /* not allowed */
 
 private:
+    RoadSystem * roadSystem_;
     RSystemElementRoad *road_;
     RoadLink *predecessor_;
     RoadLink *successor_;
@@ -718,8 +722,8 @@ private:
     RoadLink *successorLink_;
     RSystemElementJunction *junction_;
     QList<JunctionConnection *> junctionConnections_;
-    QMap<int,int> laneLinksRoadStart_;
-    QMap<int,int> laneLinksRoadEnd_;
+    QMap<QString, QMap<int,int>> laneLinksRoadStart_;
+    QMap<QString, QMap<int,int>> laneLinksRoadEnd_;
 };
 
 

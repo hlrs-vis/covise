@@ -91,7 +91,7 @@ PathConnectionSet Junction::getPathConnectionSet(Road *incoming, int incomingLan
         oldit = it++;
         if(p->getConnectingLane(incomingLane,false)==Lane::NOLANE)
         {
-            
+            std::cerr << "No connecting lane to incoming lane" << incomingLane << std::endl;
             ps.remove(oldit);
         }
     }
