@@ -22,6 +22,7 @@ class SignalObject;
 class RoadSystemItem;
 class SignalTextItem;
 class SignalEditor;
+class SignalManager;
 
 class QColor;
 
@@ -103,6 +104,10 @@ private:
     QColor outerColor_;
 
     SignalEditor *signalEditor_;
+    
+	SignalManager *signalManager_;
+
+	int categorySize_;
 };
 
 #endif // ROADITEM_HPP

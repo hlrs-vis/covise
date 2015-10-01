@@ -67,21 +67,21 @@ SignalTreeWidget::init()
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
 
-
-	  // Signals Widget //
+	// Signals Widget //
     //
-	//QTreeWidget *signalTree = new QTreeWidget();
-	//setIconSize(QSize(50,50));
-	//signalsDock_->setWidget(signalTree);
-	setHeaderLabel(""); 
-	
+	setColumnCount(3);
+	setColumnWidth(0, 180);
+	setColumnWidth(1, 30);
+	QStringList headers;
+	headers << "" << "" <<"" ;
+	setHeaderLabels(QStringList(headers));
 	QList<QTreeWidgetItem *> rootList;
 
 	QList<QString> countries = signalManager_->getCountries();
-
+	int categorySize = signalManager_->getCategoriesSize();
 	for (int i = 0; i < countries.size(); i++)
 	{
-		QTreeWidgetItem *countryWidget = new QTreeWidgetItem;   
+		QTreeWidgetItem *countryWidget = new QTreeWidgetItem; 
 		countryWidget->setText(0,countries.at(i));
 		rootList.append(countryWidget);
 		QMap<QString, QTreeWidgetItem *> categoryMap;
@@ -96,13 +96,19 @@ SignalTreeWidget::init()
 			}
 			else 
 			{
-				categoryWidget = new QTreeWidgetItem(countryWidget,QStringList(signCategory));
+				categoryWidget = new QTreeWidgetItem(countryWidget);
+				categoryWidget->setText(0,signCategory);
+				categoryWidget->setText(1,tr(""));
 				categoryMap.insert(signCategory,categoryWidget);
-				countryWidget->addChild(categoryWidget);   
+				countryWidget->addChild(categoryWidget);  
+				int j = 360 / categorySize;
+				QColor color;
+	            color.setHsv(signalManager_->getCategoryNumber(signCategory) * j, 255, 255, 255);
+				categoryWidget->setBackgroundColor(1, color);
 			}
-			QTreeWidgetItem *signs = new QTreeWidgetItem(categoryWidget,QStringList(container->getSignalName())); 
-			signs->setIcon(0,container->getSignalIcon());
-			signs->setSizeHint(0,QSize(45,45));
+			QTreeWidgetItem *signs = new QTreeWidgetItem(categoryWidget); 
+			signs->setText(0,container->getSignalName());
+			signs->setIcon(0,container->getSignalIcon());	
 			categoryWidget->addChild(signs);	
 		}
 	}

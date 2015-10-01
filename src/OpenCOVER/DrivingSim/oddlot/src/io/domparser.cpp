@@ -3102,7 +3102,9 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
         double distance = parseToDouble(sign, "distance", 0.0, true);
         double height = parseToDouble(sign, "height", 0.0, true);
 
-		ODD::mainWindow()->getSignalManager()->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, height);
+		SignalManager *signalManager = ODD::mainWindow()->getSignalManager();
+		signalManager->addSignal(countryName, name, QIcon(icon), categoryName, type, typeSubclass, subType, value, distance, height);
+		signalManager->addCategory(categoryName);
 
         sign = sign.nextSiblingElement("sign");
     }
