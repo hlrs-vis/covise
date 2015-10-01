@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+#ifndef __usbconfig_h_included__
 #define __usbconfig_h_included__
 
 /*

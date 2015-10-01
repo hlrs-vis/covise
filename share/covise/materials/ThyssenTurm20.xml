@@ -19,7 +19,7 @@
     uniform vec3 WaveOffSet;
     uniform float WaveScale;
 
-    uniform float deflection=0.75;
+    uniform float deflection=0.1;
     uniform float pi=3.14159;
     
     uniform int Time;

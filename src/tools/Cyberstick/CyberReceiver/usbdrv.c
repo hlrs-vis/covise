@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+#include "usbdrv.h"
 #include "oddebug.h"
 
 /*

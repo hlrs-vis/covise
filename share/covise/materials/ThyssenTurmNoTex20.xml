@@ -19,9 +19,8 @@
     uniform vec3 WaveOffSet;
     uniform float WaveScale;
 
-    uniform float deflection=0.75;
+    uniform float deflection=0.1;
     uniform float pi=3.14159;
-    
     uniform int Time;
     uniform int TimeStep;
     uniform float fps;
@@ -148,11 +147,11 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
 
      	vec4 myVertex =  gl_Vertex;
         if (Mode==1) 
-        myVertex.y+=((sin(2.0*pi*((WaveOffSet[0]+time)*WaveSpeed[0])))*gl_Color[0]*deflection*WaveScale *gl_Color[0])*(-1+cos(0.5*myVertex.z/245*pi));
-        else if (Mode==2)
-        myVertex.y+=((sin(WaveLength[0]+time*WaveSpeed[0]))*gl_Color[0]*WaveScale *gl_Color[0])*0.5*(-1+cos(1*myVertex.z/245*pi))*(sin(1.5*myVertex.z/245*pi));
+			myVertex.y+=((sin(2.0*pi*((WaveOffSet[0]+time)*WaveSpeed[0])))*gl_Color[0]*deflection*WaveScale *gl_Color[0])*(-1+cos(0.5*myVertex.z/245*pi));
+		else if (Mode==2)
+        myVertex.y+=((sin(WaveLength[0]+time*WaveSpeed[0]))*gl_Color[0]*WaveScale *gl_Color[0])*0.5*(-1+cos(1*myVertex.z/245*3.141))*(sin(1.5*myVertex.z/245*3.141));
 
-        myVertex.z+=0*((sin(WaveLength[1]+time*WaveSpeed[1]))*gl_Color[0]*gl_Color[0])*(myVertex.y);
+        myVertex.z+=0*((sin(WaveLength[1]+time*WaveSpeed[1]))*gl_Color[0] *gl_Color[0])*(myVertex.y);
 
     // Eye-coordinate position of vertex, needed in various calculations
     vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;
@@ -174,10 +173,10 @@ void main (void)
 
     color = gl_Color;
 	
-    gl_FragColor = color * texture2D(texUnit0,Texcoord);
+    gl_FragColor = color;
 }
 
    
    
 
-  </fragmentProgram></ThyssenTurm>
+  </fragmentProgram></ThyssenTurmNoTex>

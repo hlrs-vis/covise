@@ -20,6 +20,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coTabletUI.h>
+
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
@@ -67,6 +69,19 @@ public:
     float getNextCarOnRail(VrmlNodeCar *car, VrmlNodeCar *&closestCar); // returns the distance to the closest car in travel direction on the current rail or -1 if there is none;
 };
 
+class StationInfo
+{
+protected:
+    float xPos;
+    float yPos;
+public:
+    VrmlNodeCar *car;
+    float x(){return xPos;};
+    float y(){return yPos;};
+    void setX(float x){xPos = x;};
+    void setY(float y){yPos = y;};
+
+};
 
 class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
 {
@@ -104,10 +119,12 @@ public:
     std::vector<VrmlNodeLanding *> landings;
     std::vector<VrmlNodeExchanger *> exchangers;
     std::vector<VrmlNodeCar *> cars;
-    std::vector<VrmlNodeCar *> stations; // stations[i] is set to a car if the car is currently close to that station
+    std::vector<StationInfo> stations; // stations[i] is set to a car if the car is currently close to that station
     
     bool occupy(int station,VrmlNodeCar *car); // returns true, if successfull, false if station is occupied by someone else
     void release(int station);
+    
+    coTUITab *elevatorTab;
 
 private:
 

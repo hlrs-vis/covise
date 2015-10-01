@@ -89,30 +89,36 @@ namespace OpenCOVERPlugin
               // to be tested in more depth (or at all).
 
               //Document doc = a.ActiveUIDocument.Document;
-
               //Debug.Assert( doc.Title.Equals( _doc.Title ),
               //  "oops ... different documents ... test this" );
               UIDocument uidoc = a.ActiveUIDocument;
-              using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(a.ActiveUIDocument.Document))
-              {
-                  FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
 
-                  failOpt.SetClearAfterRollback(true);
-                  failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
-                  transaction.SetFailureHandlingOptions(failOpt);
-                  if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
+              while (COVER.Instance.messageQueue.Count > 0)
+              {
+                  COVERMessage m = COVER.Instance.messageQueue.Dequeue();
+                  if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition)//read only messages
                   {
-                      while (COVER.Instance.messageQueue.Count > 0)
+                      COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc);
+                  }
+                  else
+                  {
+                      using (Autodesk.Revit.DB.Transaction transaction = new Autodesk.Revit.DB.Transaction(a.ActiveUIDocument.Document))
                       {
-                          COVERMessage m = COVER.Instance.messageQueue.Dequeue();
-                          COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document,uidoc);
-                          if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
+                          FailureHandlingOptions failOpt = transaction.GetFailureHandlingOptions();
+
+                          failOpt.SetClearAfterRollback(true);
+                          failOpt.SetFailuresPreprocessor(new NoWarningsAndErrors());
+                          transaction.SetFailureHandlingOptions(failOpt);
+                          if (transaction.Start("changeParameters") == Autodesk.Revit.DB.TransactionStatus.Started)
                           {
-                              // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
-                              //an error occured end resolution was cancled thus this change can't be committed.
-                              // just ignore it and dont bug the user
+                              COVER.Instance.handleMessage(m.message, m.messageType, a.ActiveUIDocument.Document, uidoc);
+                              if (Autodesk.Revit.DB.TransactionStatus.Committed != transaction.Commit())
+                              {
+                                  // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");
+                                  //an error occured end resolution was cancled thus this change can't be committed.
+                                  // just ignore it and dont bug the user
+                              }
                           }
-                          return;
                       }
                   }
               }

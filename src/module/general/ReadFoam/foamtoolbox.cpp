@@ -161,7 +161,7 @@ bool isTimeDir(const std::string &dir)
             if (numdots > 1)
                 return false;
         }
-        else if (!isdigit(dir[i]))
+        else if (!isdigit(dir[i]) && dir[i]!='e')
             return false;
     }
 

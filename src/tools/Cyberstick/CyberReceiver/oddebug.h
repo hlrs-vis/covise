@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+#ifndef __oddebug_h_included__
 #define __oddebug_h_included__
 
 /*
