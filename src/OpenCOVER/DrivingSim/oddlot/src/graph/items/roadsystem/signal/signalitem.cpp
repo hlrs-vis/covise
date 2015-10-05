@@ -17,6 +17,7 @@
 
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
+#include "src/mainwindow.hpp"
 
 // Data //
 //
@@ -37,6 +38,11 @@
 #include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
+
+// Manager //
+//
+#include "src/data/signalmanager.hpp" 
+
 
 // Qt //
 //
@@ -70,6 +76,14 @@ SignalItem::init()
     //
     signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
 
+	// Signal Manager
+	//
+	signalManager_ = getProjectData()->getProjectWidget()->getMainWindow()->getSignalManager();
+
+	// Category Size
+	//
+	categorySize_ = signalManager_->getCategoriesSize();
+
     // Context Menu //
     //
 
@@ -94,26 +108,17 @@ SignalItem::init()
 void
 SignalItem::updateColor()
 {
-
-    if (signal_->getCountry() == "Germany")
-    {
-        if (signal_->getType() < 201) // Gefahrzeichen
-        {
-            outerColor_.setRgb(255, 0, 0);
-        }
-        else if (signal_->getType() < 298) // Vorschriftzeichen
-        {
-            outerColor_.setRgb(0, 255, 0);
-        }
-        else if (signal_->getType() < 532) // Richtzeichen
-        {
-            outerColor_.setRgb(0, 0, 255);
-        }
-        else
-        {
-            outerColor_.setRgb(80, 80, 80);
-        }
-    }
+	SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
+	if (signalContainer)
+	{
+		QString category = signalContainer->getsignalCategory();
+		int i = 360 / categorySize_;
+	    outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
+	}
+	else
+	{
+		outerColor_.setRgb(80, 80, 80);
+	}
 }
 
 /*!

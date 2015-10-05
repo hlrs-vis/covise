@@ -211,7 +211,8 @@ VRWindow::createWin(int i)
     if (traits->inheritedWindowData != NULL)
         traits->windowDecoration = false;
 
-    if (coVRConfig::instance()->useDisplayVariable())
+    const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
+    if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
     {
         static char display[1024];
         strncpy(display, getenv("DISPLAY"), sizeof(display));
@@ -239,11 +240,11 @@ VRWindow::createWin(int i)
     }
     else
     {
-        const std::string &host = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11DisplayHost;
+        const std::string &host = coVRConfig::instance()->pipes[pipeNum].x11DisplayHost;
         if (!host.empty())
             traits->hostName = host;
-        traits->displayNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11DisplayNum;
-        traits->screenNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11ScreenNum;
+        traits->displayNum = coVRConfig::instance()->pipes[pipeNum].x11DisplayNum;
+        traits->screenNum = coVRConfig::instance()->pipes[pipeNum].x11ScreenNum;
 
         // if possible, share graphics context with other windows
         for (int j=0; j<i; ++j)

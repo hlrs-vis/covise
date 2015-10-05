@@ -259,6 +259,18 @@ public:
 
 	void addCountry(const QString &country);
 
+	void addCategory(const QString &category);
+
+	int getCategoriesSize()
+	{
+		return categories_.size();
+	}
+
+	int getCategoryNumber(const QString &category)
+	{
+		return categories_.indexOf(category);      //location of the category
+	}
+
 protected:
 private:
     SignalManager(); /* not allowed */
@@ -282,6 +294,12 @@ private:
     // User Objects //
     //
     QMultiMap<QString, ObjectContainer *> objects_;
+
+	// Signal Categories //
+	//
+	QList<QString> categories_;
+
+
 };
 
 #endif // SIGNAL_HPP
