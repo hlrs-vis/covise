@@ -467,7 +467,7 @@ void VrmlNodeVehicle::init()
 
 VrmlNodeVehicle::~VrmlNodeVehicle()
 {
-    int i;
+    /*int i;
     for (i = 0; i < MAX_BODIES; i++)
     {
         delete[] bodyTransName[i];
@@ -481,7 +481,7 @@ VrmlNodeVehicle::~VrmlNodeVehicle()
     delete source;
     delete gearSound;
     delete hornSound;
-#endif
+#endif */
 }
 
 VrmlNode *VrmlNodeVehicle::cloneMe() const
@@ -2082,6 +2082,7 @@ void VrmlNodeVehicle::setVRMLVehicle(const osg::Matrix &trans)
     q.getRotate(orient[3], orient[0], orient[1], orient[2]);
     d_carTranslation.set(trans(3, 0), trans(3, 1), trans(3, 2));
     d_carRotation.set(orient[0], orient[1], orient[2], orient[3]);
+    //fprintf(stderr,"orientVehicle: %f %f %f %f\n",orient[0], orient[1], orient[2], orient[3]);
 
     eventOut(timeStamp, "carTranslation", d_carTranslation);
     eventOut(timeStamp, "carRotation", d_carRotation);
