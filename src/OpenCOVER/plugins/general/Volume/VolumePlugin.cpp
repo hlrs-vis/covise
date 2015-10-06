@@ -473,7 +473,7 @@ bool VolumePlugin::init()
 
     clipModeItem->setMenuListener(this);
     preintItem->setMenuListener(this);
-    preintItem->setState(true);
+    preintItem->setState(false);
     lightingItem->setMenuListener(this);
     fpsItem->setMenuListener(this);
     hqItem->setMenuListener(this);
