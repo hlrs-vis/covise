@@ -4936,6 +4936,7 @@ void ViewerOsg::setViewpoint(float *position,
         mat.makeTranslate(-pos[0], -pos[1], -pos[2]);
         rotMat.makeRotate(-ori[3], Vec3(ori[0], ori[1], ori[2]));
 
+    //fprintf(stderr,"orientCamera: %f %f %f %f\n",ori[0], ori[1], ori[2], ori[3]);
         mat.postMult(rotMat);
 
         //get rid of scale part of the matrix
