@@ -37,11 +37,14 @@ RiftPlugin::RiftPlugin()
 
     if (hmd->getHMD())
     {
-        fprintf(stderr, "found %s, serial Nr.: %s %d %d\n", hmd->getHMD()->ProductName, hmd->getHMD()->SerialNumber, hmd->getHMD()->WindowsPos.x, hmd->getHMD()->WindowsPos.y);
-        coVRConfig::instance()->windows[0].ox = hmd->getHMD()->WindowsPos.x;
-        coVRConfig::instance()->windows[0].oy = hmd->getHMD()->WindowsPos.y;
-        ovrFovPort fovLeft = hmd->getHMD()->DefaultEyeFov[ovrEye_Left];
-        ovrFovPort fovRight = hmd->getHMD()->DefaultEyeFov[ovrEye_Right];
+        //fprintf(stderr, "found %s, serial Nr.: %s %d %d\n", hmd->getHMD()->ProductName, hmd->getHMD()->SerialNumber, hmd->getHMD()->WindowsPos.x, hmd->getHMD()->WindowsPos.y);
+        //coVRConfig::instance()->windows[0].ox = hmd->getHMD()->WindowsPos.x;
+        //coVRConfig::instance()->windows[0].oy = hmd->getHMD()->WindowsPos.y;
+        
+        ovrFovPort fovLeft = ovr_GetHmdDesc(hmd->getHMD()).DefaultEyeFov[ovrEye_Left];
+        ovrFovPort fovRight = ovr_GetHmdDesc(hmd->getHMD()).DefaultEyeFov[ovrEye_Right];
+        //ovr_GetRenderDesc(hmd->getHMD(),ovrEye_Left, fovLeft);
+        //ovr_GetRenderDesc(hmd->getHMD(),ovrEye_Right, fovRight);
         coVRConfig::instance()->screens[0].tTan = fovLeft.UpTan;
         coVRConfig::instance()->screens[0].bTan = fovLeft.DownTan;
         coVRConfig::instance()->screens[0].lTan = fovLeft.LeftTan;
@@ -59,13 +62,33 @@ RiftPlugin::RiftPlugin()
 }
 
 // this will be called in PreFrame
+void RiftPlugin::preDraw(osg::RenderInfo &ri)
+{
+    if(m_frameIndex == 0)
+    {
+        osg::GraphicsContext* gc =ri.getCurrentCamera()->getGraphicsContext(); 
+		gc->makeCurrent();
+
+		if (osgViewer::GraphicsWindow* window = dynamic_cast<osgViewer::GraphicsWindow*>(gc))
+		{
+			// Run wglSwapIntervalEXT(0) to force VSync Off
+			window->setSyncToVBlank(false);
+		}
+
+		osg::ref_ptr<osg::State> state = gc->getState();
+		hmd->createRenderBuffers(state);
+		// Init the oculus system
+		hmd->init();
+    }
+}
+// this will be called in PreFrame
 void RiftPlugin::preFrame()
 {
 }
 void RiftPlugin::postFrame()
 {
     osg::Matrix m;
-    ovrTrackingState ts = ovrHmd_GetTrackingState(hmd->getHMD(), 0);
+    ovrTrackingState ts = ovr_GetTrackingState(hmd->getHMD(), 0);
     osg::Quat q;
     q.set(ts.HeadPose.ThePose.Orientation.x, ts.HeadPose.ThePose.Orientation.y, ts.HeadPose.ThePose.Orientation.z, ts.HeadPose.ThePose.Orientation.w);
     m.makeRotate(q);
@@ -79,17 +102,23 @@ void RiftPlugin::preSwapBuffers(int windowNumber)
 {
 
     // End frame timing when swap buffer is done
-    ovrHmd_EndFrameTiming(hmd->getHMD());
+   // ovr_EndFrameTiming(hmd->getHMD());
     // Start a new frame with incremented frame index
 
-    ovrHmd_BeginFrameTiming(hmd->getHMD(), ++m_frameIndex);
+    //ovr_GetFrameTiming(hmd->getHMD(), ++m_frameIndex);
+    m_frameIndex++;
+    // Submit rendered frame to compositor
+	hmd->submitFrame();
+
+	// Blit mirror texture to backbuffer
+	hmd->blitMirrorTexture(VRViewer::instance()->getCamera()->getGraphicsContext());
 }
 
 void RiftPlugin::getMatrix(int station, osg::Matrix &mat)
 {
     if (station == 0)
     {
-        ovrTrackingState ts = ovrHmd_GetTrackingState(hmd->getHMD(), 0);
+        ovrTrackingState ts = ovr_GetTrackingState(hmd->getHMD(), 0);
         osg::Quat q;
         q.set(ts.HeadPose.ThePose.Orientation.x, ts.HeadPose.ThePose.Orientation.y, ts.HeadPose.ThePose.Orientation.z, ts.HeadPose.ThePose.Orientation.w);
         mat.makeRotate(q);
@@ -125,16 +154,16 @@ bool RiftPlugin::init()
     }
 
 #ifdef WIN32 // enable Display on HMD
-    osgViewer::ViewerBase::Windows windows;
+    /*osgViewer::ViewerBase::Windows windows;
     VRViewer::instance()->getWindows(windows);
     if (windows.size() > 0)
     {
         osgViewer::GraphicsHandleWin32 *hdl = dynamic_cast<osgViewer::GraphicsHandleWin32 *>(windows.at(0));
         if (hdl)
         {
-            ovrHmd_AttachToWindow(hmd->getHMD(), hdl->getHWND(), NULL, NULL);
+            ovr_AttachToWindow(hmd->getHMD(), hdl->getHWND(), NULL, NULL);
         }
-    }
+    }*/
 #endif
     tab = new coTUITab("Rift", coVRTui::instance()->mainFolder->getID());
     tab->setPos(0, 0);
@@ -154,38 +183,28 @@ bool RiftPlugin::init()
     hideSticks = new coTUIButton("hide", tab->getID());
     hideSticks->setEventListener(this);
     hideSticks->setPos(3, 0);
-    // Create warp ortho camera
 
-    osg::ref_ptr<osg::Camera> cameraWarp = hmd->createWarpOrthoCamera(0.0, 1.0, 0.0, 1.0);
-    cameraWarp->setName("WarpOrtho");
-    cameraWarp->setViewport(new osg::Viewport(0, 0, hmd->screenResolutionWidth(), hmd->screenResolutionHeight()));
+    osg::GraphicsContext* gc =VRViewer::instance()->getCamera()->getGraphicsContext(); 
+    gc->makeCurrent();
 
-    // Create shader program
-    osg::ref_ptr<osg::Program> program = hmd->createShaderProgram();
+    if (osgViewer::GraphicsWindow* window = dynamic_cast<osgViewer::GraphicsWindow*>(gc))
+    {
+        // Run wglSwapIntervalEXT(0) to force VSync Off
+        window->setSyncToVBlank(false);
+    }
 
-    // Create distortionMesh for each camera
-    //osg::ref_ptr<osg::Geode> leftDistortionMesh = hmd->distortionMesh(OculusDevice::LEFT, program, 0, 0, coVRConfig::instance()->screens[0].viewportXMax-coVRConfig::instance()->screens[0].viewportXMin, coVRConfig::instance()->screens[0].viewportYMax-coVRConfig::instance()->screens[0].viewportYMin);
-    osg::ref_ptr<osg::Geode> leftDistortionMesh = hmd->distortionMesh(OculusDevice::LEFT, program, 0, 0, 960, 1080);
-    cameraWarp->addChild(leftDistortionMesh);
+    osg::ref_ptr<osg::State> state = gc->getState();
+    hmd->createRenderBuffers(state);
+    // Init the oculus system
+    hmd->init();
 
-    //osg::ref_ptr<osg::Geode> rightDistortionMesh = hmd->distortionMesh(OculusDevice::RIGHT, program, 0, 0, coVRConfig::instance()->screens[1].viewportXMax-coVRConfig::instance()->screens[1].viewportXMin, coVRConfig::instance()->screens[1].viewportYMax-coVRConfig::instance()->screens[1].viewportYMin);
-    osg::ref_ptr<osg::Geode> rightDistortionMesh = hmd->distortionMesh(OculusDevice::RIGHT, program, 0, 0, 960, 1080);
-    cameraWarp->addChild(rightDistortionMesh);
-
-    // Add pre draw camera to handle time warp
-    cameraWarp->setPreDrawCallback(new WarpCameraPreDrawCallback(hmd));
-
-    // Attach shaders to each distortion mesh
-    osg::StateSet *leftEyeStateSet = leftDistortionMesh->getOrCreateStateSet();
-    osg::StateSet *rightEyeStateSet = rightDistortionMesh->getOrCreateStateSet();
-
-    hmd->applyShaderParameters(leftEyeStateSet, program.get(), coVRConfig::instance()->PBOs[0].renderTargetTexture.get(), OculusDevice::LEFT);
-    hmd->applyShaderParameters(rightEyeStateSet, program.get(), coVRConfig::instance()->PBOs[1].renderTargetTexture.get(), OculusDevice::RIGHT);
-
-    //osg::Group *renderGroup = new osg::Group();
-    //renderGroup->addChild(cameraWarp.get());
-
-    cover->getScene()->addChild(cameraWarp.get());
+    osg::ref_ptr<osg::Camera> cameraWarpLeft = hmd->createRTTCamera(OculusDevice::LEFT,osg::Camera::RELATIVE_RF,osg::Vec4(0.0, 1.0, 0.0, 1.0),VRViewer::instance()->getCamera()->getGraphicsContext());
+    osg::ref_ptr<osg::Camera> cameraWarpRight = hmd->createRTTCamera(OculusDevice::RIGHT,osg::Camera::RELATIVE_RF,osg::Vec4(1.0, 1.0, 0.0, 1.0),VRViewer::instance()->getCamera()->getGraphicsContext());
+    cameraWarpLeft->setName("cameraWarpLeft");
+    cameraWarpRight->setName("cameraWarpRight");
+    
+    cover->getScene()->addChild(cameraWarpLeft.get());
+    cover->getScene()->addChild(cameraWarpRight.get());
     return true;
 }
 
