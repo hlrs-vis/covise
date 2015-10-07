@@ -25,8 +25,8 @@ FIND_PATH(OVR_INCLUDE_DIR "OVR.h"
   DOC "OVR - Headers"
 )
 
-SET(OVR_NAMES libovr64)
-SET(OVR_DBG_NAMES libovr64d)
+SET(OVR_NAMES libovr64 libovr)
+SET(OVR_DBG_NAMES libovr64d libovrd libovr)
 
 FIND_LIBRARY(OVR_LIBRARY NAMES ${OVR_NAMES}
   PATHS
@@ -41,7 +41,7 @@ FIND_LIBRARY(OVR_LIBRARY NAMES ${OVR_NAMES}
   /opt/local
   /opt/csw
   /opt
-  PATH_SUFFIXES bin lib lib64 Lib/x64/VS2012
+  PATH_SUFFIXES bin lib lib64 Lib/x64/VS2012 Lib/Windows/x64/Release/VS2012 Lib/Windows/x64/Debug/VS2012
   DOC "OVR - Library"
 )
 
@@ -63,7 +63,7 @@ IF(MSVC)
   /opt/local
   /opt/csw
   /opt
-  PATH_SUFFIXES bin lib lib64 Lib/x64/VS2012
+  PATH_SUFFIXES bin lib lib64 Lib/x64/VS2012 Lib/Windows/x64/Debug/VS2012 Lib/Windows/x64/Release/VS2012
     DOC "OVR - Library (Debug)"
   )
   

@@ -443,7 +443,7 @@
       <Pipe display="only needed for multiple X11 displays/screens" server="0" screen="0" name="0" />
    </PipeConfig>
    <NumChannels value="2" />
-   <NumScreens value="1" />
+   <NumScreens value="2" />
    <NumViewports value="2" />
    <NumPBOs value="2" />
    <Stereo value="true" />
@@ -455,12 +455,13 @@
 
    <ScreenConfig>
    <Screen width="960" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="960" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="1" screen="1" />
    </ScreenConfig>
 
    <ChannelConfig>
       <!-- each Screen needs a Channel -->
     <Channel  comment="MAIN" channel="0" stereoMode="LEFT"  screenIndex="0" windowIndex="0"  PBOIndex="0" name="0"  />
-    <Channel comment="MAIN" channel="1" stereoMode="RIGHT" screenIndex="0"  windowIndex="0"  PBOIndex="1" name="1"  />
+    <Channel comment="MAIN" channel="1" stereoMode="RIGHT" screenIndex="1"  windowIndex="0"  PBOIndex="1" name="1"  />
    </ChannelConfig>
    <PBOConfig>
     <PBO windowIndex="0" PBOSizeX="960" PBOSizeY="1080" name="0"  />
