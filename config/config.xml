@@ -268,7 +268,7 @@
    <FPS value="true" />
 
    <PipeConfig>
-      <Pipe display="only needed for multiple X11 displays/screens" server="0" screen="0" name="0" />
+       <Pipe name="0" useDISPLAY="true" />
    </PipeConfig>
 
    <WindowConfig>

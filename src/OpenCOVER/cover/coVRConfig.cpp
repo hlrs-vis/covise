@@ -334,6 +334,8 @@ coVRConfig::coVRConfig()
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
         pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
+        bool present = false;
+        pipes[i].useDISPLAY = coCoviseConfig::isOn("useDISPLAY", str, false, &present);
     }
 
     for (size_t i = 0; i < windows.size(); i++)

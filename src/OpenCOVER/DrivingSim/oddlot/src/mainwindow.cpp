@@ -407,7 +407,8 @@ MainWindow::createSignals()
     signalsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, signalsDock_);
 	tabifyDockWidget(treeDock_, signalsDock_);
-
+	treeDock_->raise();
+	
     // Show/Hide Action //
     //
     QAction *signalsDockToggleAction = signalsDock_->toggleViewAction();
@@ -477,6 +478,7 @@ MainWindow::createTree()
     QAction *treeDockToggleAction = treeDock_->toggleViewAction();
     treeDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
     viewMenu_->addAction(treeDockToggleAction);
+	
 
     // Tree Widget //
     //
@@ -546,6 +548,7 @@ MainWindow::createUndo()
     undoView_ = new QUndoView(undoGroup_);
     undoDock_->setWidget(undoView_);
 }
+
 
 //################//
 // SLOTS          //

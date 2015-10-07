@@ -70,6 +70,15 @@ void
 	}
 }
 
+void
+	SignalManager::addCategory(const QString &category)
+{
+	if (!categories_.contains(category))
+	{
+		categories_.append(category);
+	}
+}
+
 ObjectContainer *
 SignalManager::getObjectContainer(const QString &type)
 {
