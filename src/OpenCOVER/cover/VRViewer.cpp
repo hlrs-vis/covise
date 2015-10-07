@@ -971,6 +971,8 @@ VRViewer::createChannels(int i)
         coVRConfig::instance()->channels[i].camera->setCullMask(Isect::Visible | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
         coVRConfig::instance()->channels[i].camera->setCullMaskLeft(Isect::Visible | Isect::Left | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
         coVRConfig::instance()->channels[i].camera->setCullMaskRight(Isect::Visible | Isect::Right | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+       
+        coVRConfig::instance()->channels[i].camera->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
         //coVRConfig::instance()->screens[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else

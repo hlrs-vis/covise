@@ -20,6 +20,7 @@
 */
 #include "coBillboard.h"
 #include "coVRPluginSupport.h"
+#include "coVRConfig.h"
 #include <osg/CullStack>
 #include <iostream>
 
@@ -174,7 +175,13 @@ void coBillboard::accept(NodeVisitor &nv)
             else if (_mode == POINT_ROT_WORLD)
             {
                 //osg::Quat rotation;
-                osg::Matrix tmpMat = (*cs->getModelViewMatrix() * cover->envCorrectMat);
+                osg::Matrix tmpMat;
+                if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+                {
+                    tmpMat = *cs->getModelViewMatrix();
+                }
+                else
+                    tmpMat = (*cs->getModelViewMatrix() * cover->envCorrectMat);
                 //tmpMat.get(rotation);
 
                 Matrix axisNormal;
@@ -230,7 +237,13 @@ void coBillboard::accept(NodeVisitor &nv)
                 osg::Vec3 PosToEye = eyePoint;
                 PosToEye.normalize();
                 osg::Matrix matrix;
-                osg::Matrix modelview = Matrix::inverse((*cs->getModelViewMatrix() * cover->envCorrectMat));
+                osg::Matrix modelview;
+                if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+                {
+                    modelview = Matrix::inverse(*cs->getModelViewMatrix());
+                }
+                else
+                    modelview = Matrix::inverse((*cs->getModelViewMatrix() * cover->envCorrectMat));
                 Vec3 up(modelview(2, 0), modelview(2, 1), modelview(2, 2));
                 Vec3 right(up ^ PosToEye);
                 right.normalize();

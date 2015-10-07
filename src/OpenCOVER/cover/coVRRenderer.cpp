@@ -91,6 +91,8 @@ coVRRenderer::coVRRenderer(osg::Camera *camera, int channel)
     {
         _sceneView[i]->setGlobalStateSet(stateset);
         _sceneView[i]->setDefaults(sceneViewOptions);
+        _sceneView[i]->setInheritanceMask(_sceneView[i]->getInheritanceMask() & ~osg::CullSettings::LIGHTING_MODE);
+        _sceneView[i]->setInheritanceMask(_sceneView[i]->getInheritanceMask() & ~osg::CullSettings::LIGHT);
         _sceneView[i]->setCamera(_camera.get(), false);
         int channel = -1;
         for (int n = 0; n < coVRConfig::instance()->numChannels(); n++)

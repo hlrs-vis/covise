@@ -27,6 +27,7 @@ SET(LIB_HEADERS
   VrmlNodeMultiTouchSensor.h
   VrmlNodeCOVISEObject.h
   VrmlNodeClippingPlane.h
+  VrmlNodeShadowedScene.h
 )
 
 SET(LIB_SOURCES
@@ -42,6 +43,7 @@ SET(LIB_SOURCES
   VrmlNodeMultiTouchSensor.cpp
   VrmlNodeCOVISEObject.cpp
   VrmlNodeClippingPlane.cpp
+  VrmlNodeShadowedScene.cpp
 )
 
 add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES})

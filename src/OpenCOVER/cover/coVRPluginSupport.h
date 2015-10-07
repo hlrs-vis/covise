@@ -97,6 +97,8 @@ struct Isect
         NoMirror = 64,
         Left = 128,
         Right = 256,
+        CastShadow = 512,
+        ReceiveShadow = 1024,
         OsgEarthSecondary = 0x80000000,
     };
 

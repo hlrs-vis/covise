@@ -66,6 +66,7 @@
 #include "VrmlNodeMultiTouchSensor.h"
 #include "VrmlNodeCOVISEObject.h"
 #include "VrmlNodeClippingPlane.h"
+#include "VrmlNodeShadowedScene.h"
 
 #include <osgGA/GUIEventAdapter>
 #include <osgDB/Registry>
@@ -350,6 +351,7 @@ bool Vrml97Plugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeMirrorCamera::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMultiTouchSensor::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeClippingPlane::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeShadowedScene::defineType());
 
     coEventQueue::registerEventType(&VrmlNodeARSensor::AREventType);
     coEventQueue::registerEventType(&VrmlNodeMultiTouchSensor::MultiTouchEventType);

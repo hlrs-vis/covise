@@ -265,6 +265,8 @@ coVRConfig::coVRConfig()
             m_envMapMode = FIXED_TO_VIEWER_FRONT;
         if (strcasecmp(entry.c_str(), "fixedToObjectsRootFront") == 0)
             m_envMapMode = FIXED_TO_OBJROOT_FRONT;
+        if (strcasecmp(entry.c_str(), "none") == 0)
+            m_envMapMode = NONE;
     }
 
     m_LODScale = coCoviseConfig::getFloat("COVER.LODScale", 1.0);

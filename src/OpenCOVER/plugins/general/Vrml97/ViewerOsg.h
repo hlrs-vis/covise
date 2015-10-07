@@ -335,6 +335,9 @@ public:
                          int number,
                          bool enabled);
 
+    virtual void setShadow(int number,
+                         bool enabled);
+
     virtual void unsetTransform(float * /*center*/,
                                 float * /*rotation*/,
                                 float * /*scale*/,
