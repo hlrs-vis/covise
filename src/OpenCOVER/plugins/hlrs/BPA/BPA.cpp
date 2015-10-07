@@ -38,6 +38,8 @@ static const FileHandler handlers[] = {
 BPA::BPA(std::string filename, osg::Group *parent)
 {
     fprintf(stderr, "BPA::BPA\n");
+    
+    floorHeight = 0;
     int pos = BPAPlugin::plugin->bpa_map.size() * 4 + 1;
 
     velocity = new coTUIFloatSlider("velocity", BPAPlugin::plugin->BPATab->getID());
@@ -117,22 +119,38 @@ BPA::BPA(std::string filename, osg::Group *parent)
         cover->getObjectsRoot()->addChild(trajectoriesGroup);
 
     std::list<Trajectory *>::iterator it;
+    float minAngle = 1000;
+    float maxAngle = -1000;
+    for (it = trajectories.begin(); it != trajectories.end(); it++)
+    {
+        if(!(*it)->correctVelocity)
+        {
+            float angle = atan2((*it)->startVelocity[1],(*it)->startVelocity[0]);
+            if(angle< minAngle)
+                minAngle = angle;
+            if(angle> maxAngle)
+                maxAngle = angle;
+        }
+    }
+    float midAngle = minAngle + ((maxAngle - minAngle)/2.0);
+
     for (it = trajectories.begin(); it != trajectories.end(); it++)
     {
         if((*it)->correctVelocity)
         {
-        	if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
-        	    right.push_back((*it));
-        	else
-        	    left.push_back((*it));
-	}
-	else
-	{
             if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
                 right.push_back((*it));
             else
                 left.push_back((*it));
-	}
+        }
+        else
+        {
+            float angle = atan2((*it)->startVelocity[1],(*it)->startVelocity[0]);
+            if (angle < midAngle) // sort them into left and right pointing
+                right.push_back((*it));
+            else
+                left.push_back((*it));
+        }
     }
     geode = NULL;
     sphere = new osg::Sphere(osg::Vec3(0, 0, 0), 0.1);
@@ -391,7 +409,7 @@ void Trajectory::recalc()
     osg::Vec3 pos = startPos;
     osg::Vec3 vel = startVelocity;
     bool res = BPAPlugin::plugin->airResistance->getState();
-    while (len < length && pos[2] > 0.0)
+    while (len < length && pos[2] > bpa->floorHeight)
     {
         float v = vel.length();
         if (res)
@@ -538,6 +556,7 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
 }
 void BPA::loadDxf(std::string filename)
 {
+    floorHeight = -2;
     BPAPlugin::plugin->airResistance->setState(false);
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
@@ -609,6 +628,8 @@ void BPA::loadDxf(std::string filename)
 
 void BPA::loadnfix(std::string filename)
 {
+    
+    floorHeight = 0;
     BPAPlugin::plugin->OriginComputationType->setState(true);
     velocityLabel->setLabel("Kappa");
     velocity->setMin(0.05);
@@ -654,6 +675,7 @@ void BPA::loadnfix(std::string filename)
 }
 void BPA::loadTxt(std::string filename)
 {
+    floorHeight = 0;
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
     {

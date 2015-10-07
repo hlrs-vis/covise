@@ -115,6 +115,7 @@ public:
     void calcIntersection();
 
     osg::ref_ptr<osg::Group> trajectoriesGroup;
+    float floorHeight;
 };
 
 class BPAPlugin : public coVRPlugin, public coTUIListener
