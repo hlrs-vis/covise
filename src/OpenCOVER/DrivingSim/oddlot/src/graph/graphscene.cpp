@@ -19,6 +19,7 @@
 //
 #include "src/gui/mouseaction.hpp"
 #include "src/gui/keyaction.hpp"
+#include "src/gui/wheelaction.hpp"
 
 #include "src/mainwindow.hpp"
 
@@ -26,6 +27,7 @@
 //
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
+#include <QWheelEvent>
 
 GraphScene::GraphScene(const QRectF &sceneRect, QObject *parent)
     : QGraphicsScene(sceneRect, parent)
@@ -154,6 +156,22 @@ GraphScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
     MouseAction *mouseAction = new MouseAction(MouseAction::ATM_DOUBLECLICK, mouseEvent);
     emit(mouseActionSignal(mouseAction));
     delete mouseAction;
+}
+
+//################//
+// WHEEL EVENTS     //
+//################//
+
+void
+GraphScene::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+    // Forward Event to Selected Item //
+    //
+    //QGraphicsScene::wheelEvent(event);
+
+    WheelAction *wheelAction = new WheelAction(event);
+    emit(wheelActionSignal(wheelAction));
+    delete wheelAction;
 }
 
 //################//

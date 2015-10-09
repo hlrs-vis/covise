@@ -34,7 +34,8 @@
 
 // Graph //
 //
-
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/graphview.hpp"
 #include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
@@ -43,6 +44,10 @@
 //
 #include "src/data/signalmanager.hpp" 
 
+// Tools //
+//
+#include "src/gui/tools/toolaction.hpp"
+#include "src/gui/tools/zoomtool.hpp"
 
 // Qt //
 //
@@ -56,6 +61,7 @@ SignalItem::SignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF p
     : GraphElement(roadSystemItem, signal)
     , signal_(signal)
     , pos_(pos)
+    , pixmapItem_(NULL)
 {
     init();
 }
@@ -98,27 +104,120 @@ SignalItem::init()
         signalTextItem_->setZValue(1.0); // stack before siblings
     }
 
-    updateColor();
+    // value for pixmap representation
+    //
+    lodThreshold_ = 5.0;
+    size_ = 8.0;
+    halfsize_ = size_ / 2.0;
+    updateCategory();
     updatePosition();
     createPath();
 }
+
+
+/*! \brief Sets the color according to the number of links.
+*/
+void
+SignalItem::updateCategory()
+{
+    if ((signal_->getType() == 294) || (signal_->getType() == 293) || (signal_->getType() == 341))
+    {
+        if (pixmapItem_)
+        {
+            delete pixmapItem_;
+            pixmapItem_ = NULL;
+        }
+    }
+    else
+    {
+        SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
+        if (signalContainer)
+        {
+            QString category = signalContainer->getsignalCategory();
+            int i = 360 / categorySize_;
+            outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
+
+
+            QIcon icon = signalContainer->getSignalIcon();
+            pixmap_ = icon.pixmap(icon.availableSizes().first());
+            if (pixmap_.isNull())
+            {
+                qDebug("ERROR 1006111429! Pixmap could not be loaded!");
+            }
+            else
+            {
+                // Pixmap //
+                //
+                if (pixmapItem_)
+                {
+                    delete pixmapItem_;
+                }
+                pixmapItem_ = new QGraphicsPixmapItem(pixmap_);
+                pixmapItem_->setParentItem(this);
+
+                // Transformation //
+                //
+                // Note: The y-Axis must be flipped so the image is not mirrored
+                QTransform trafo;
+
+                double s;
+                if (pixmap_.width() > pixmap_.height())
+                {
+                    s = size_/pixmap_.width();
+                    width_ = size_;
+                    height_ = s * pixmap_.height();
+                    x_ = pos_.x() - halfsize_;
+                    double h = height_ / 2.0;
+                    trafo.translate(x_, pos_.y() + h);
+                    y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
+                }
+                else
+                {
+                    s = size_/pixmap_.height();
+                    width_ = s * pixmap_.width();
+                    height_ = size_;
+                    x_ = pos_.x() - width_ / 2.0;
+                    trafo.translate(x_, pos_.y() + halfsize_);
+                    y_ = pos_.y() - halfsize_;
+                }
+                trafo.rotate(180, Qt::XAxis);
+                trafo.scale(s, s);
+
+                pixmapItem_->setTransform(trafo);
+                if (!showPixmap_)
+                {
+                    pixmapItem_->hide();
+                }
+            }
+        }
+        else
+        {
+            showPixmap_ = false;
+            outerColor_.setRgb(80, 80, 80);
+        }
+    }
+}
+
 
 /*! \brief Sets the color according to the number of links.
 */
 void
 SignalItem::updateColor()
 {
-	SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
-	if (signalContainer)
-	{
-		QString category = signalContainer->getsignalCategory();
-		int i = 360 / categorySize_;
-	    outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
-	}
-	else
-	{
-		outerColor_.setRgb(80, 80, 80);
-	}
+    if (pixmapItem_)
+    {
+        double scaling = getTopviewGraph()->getView()->getScaling();
+        if ((scaling < lodThreshold_) &&  showPixmap_)
+        {
+            showPixmap_ = false;
+            pixmapItem_->hide();
+        }
+        else if ((scaling > lodThreshold_) && !showPixmap_)
+        {
+            showPixmap_ = true;
+            pixmapItem_->show();
+        }
+    }
 }
 
 /*!
@@ -193,22 +292,31 @@ SignalItem::createPath()
     }
     else
     {
-        setBrush(QBrush(outerColor_));
-        setPen(QPen(outerColor_));
-        double size = 4.0;
-        double length = 2.0;
+        if (pixmapItem_ && showPixmap_)
+        {
+            setBrush(QBrush(QColor(0,0,0,0)));
+            setPen(QPen(QColor(0,0,0,0)));
+            path.addRect(x_, y_, width_, height_);
+        }
+        else
+        {
+            double length = halfsize_/2.0;
+            setBrush(QBrush(outerColor_));
+            setPen(QPen(outerColor_));
 
-        path.addEllipse(pos_, size, size);
+            path.addEllipse(pos_, halfsize_, halfsize_);
 
-        setPen(QPen(QColor(255, 255, 255)));
-        path.moveTo(pos_.x() - length, pos_.y());
-        path.lineTo(pos_.x() + length, pos_.y());
+            setPen(QPen(QColor(255, 255, 255)));
+            path.moveTo(pos_.x() - length, pos_.y());
+            path.lineTo(pos_.x() + length, pos_.y());
 
-        path.moveTo(pos_.x(), pos_.y() - length);
-        path.lineTo(pos_.x(), pos_.y() + length);
+            path.moveTo(pos_.x(), pos_.y() - length);
+            path.lineTo(pos_.x(), pos_.y() + length);
+        }
     }
 
     setPath(path);
+    
 }
 
 /*
@@ -247,6 +355,20 @@ SignalItem::removeSignal()
 {
     RemoveSignalCommand *command = new RemoveSignalCommand(signal_, signal_->getParentRoad());
     return getProjectGraph()->executeCommand(command);
+}
+
+/*! \brief .
+*
+*/
+void
+SignalItem::zoomAction()
+{
+    // Zoom //
+    //
+
+    updateColor();
+    createPath();
+
 }
 
 //################//
@@ -407,7 +529,12 @@ SignalItem::updateObserver()
     //
     int changes = signal_->getSignalChanges();
 
-    if ((changes & Signal::CEL_ParameterChange))
+    if ((changes & Signal::CEL_TypeChange))
+    {
+        updateCategory();
+        updatePosition();
+    }
+    else if ((changes & Signal::CEL_ParameterChange))
     {
         updatePosition();
     }

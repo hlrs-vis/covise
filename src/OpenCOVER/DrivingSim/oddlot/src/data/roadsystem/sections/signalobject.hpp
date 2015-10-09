@@ -34,7 +34,8 @@ public:
     };
     enum SignalChange
     {
-        CEL_ParameterChange = 0x1
+        CEL_ParameterChange = 0x1,
+        CEL_TypeChange = 0x2
     };
 
     struct SignalProperties

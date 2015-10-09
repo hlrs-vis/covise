@@ -23,6 +23,7 @@ class RoadSystemItem;
 class SignalTextItem;
 class SignalEditor;
 class SignalManager;
+class ToolAction;
 
 class QColor;
 
@@ -52,6 +53,7 @@ public:
     void updateColor();
     virtual void createPath();
     void updatePosition();
+    void updateCategory();
 
     // Text //
     //
@@ -73,6 +75,10 @@ public:
     //################//
 
 public slots:
+
+    //Tools
+    //
+    void zoomAction();
 
     bool removeSignal();
 
@@ -98,8 +104,20 @@ private:
 
     Signal *signal_;
     QPointF pos_;
+    double size_;
+    double halfsize_;
+    double x_;
+    double y_;
+    double width_;
+    double height_;
 
     SignalTextItem *signalTextItem_;
+
+    QGraphicsPixmapItem *pixmapItem_;
+    QPixmap pixmap_;
+    double lodThreshold_;
+    
+    bool showPixmap_;
 
     QColor outerColor_;
 
