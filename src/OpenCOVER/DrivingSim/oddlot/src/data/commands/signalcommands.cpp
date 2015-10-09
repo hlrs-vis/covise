@@ -280,7 +280,14 @@ SetSignalPropertiesCommand::redo()
     signal_->setSignalUserData(newUserData_);
     //	road_->addSignal(signal_);
 
-    signal_->addSignalChanges(Signal::CEL_ParameterChange);
+    if ((newSignalProps_.type != oldSignalProps_.type) || (newSignalProps_.subtype != oldSignalProps_.subtype) || (newUserData_.typeSubclass != oldUserData_.typeSubclass))
+    {
+        signal_->addSignalChanges(Signal::CEL_TypeChange);
+    }
+    else
+    {
+        signal_->addSignalChanges(Signal::CEL_ParameterChange);
+    }
 
     setRedone();
 }
@@ -300,8 +307,14 @@ SetSignalPropertiesCommand::undo()
     signal_->setSignalUserData(oldUserData_);
 
     //	road_->addSignal(signal_);
-
-    signal_->addSignalChanges(Signal::CEL_ParameterChange);
+    if ((newSignalProps_.type != oldSignalProps_.type) || (newSignalProps_.subtype != oldSignalProps_.subtype) || (newUserData_.typeSubclass != oldUserData_.typeSubclass))
+    {
+        signal_->addSignalChanges(Signal::CEL_TypeChange);
+    }
+    else
+    {
+        signal_->addSignalChanges(Signal::CEL_ParameterChange);
+    }
 
     setUndone();
 }

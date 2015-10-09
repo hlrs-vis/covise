@@ -20,6 +20,7 @@
 
 class GraphScene;
 class GraphView;
+class WheelAction;
 
 class TopviewGraph : public ProjectGraph
 {
@@ -44,6 +45,8 @@ public:
         return graphView_;
     }
 
+    void notifySignals();
+
     // Observer Pattern //
     //
     virtual void updateObserver();
@@ -64,6 +67,8 @@ signals:
     void toolActionSignal(ToolAction *);
     void mouseActionSignal(MouseAction *);
     void keyActionSignal(KeyAction *);
+    void wheelActionSignal(WheelAction *);
+
 
     //################//
     // SLOTS          //
@@ -76,6 +81,7 @@ public slots:
     void toolAction(ToolAction *);
     void mouseAction(MouseAction *);
     void keyAction(KeyAction *);
+    void wheelAction(WheelAction *);
 
     // Change //
     //

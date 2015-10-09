@@ -21,6 +21,7 @@
 
 class MouseAction;
 class KeyAction;
+class WheelAction;
 
 class GraphScene : public QGraphicsScene, public Observer
 {
@@ -39,6 +40,7 @@ public:
     //	void						toolAction(ToolAction *);
     void mouseAction(MouseAction *);
     void keyAction(KeyAction *);
+    void wheelAction(WheelAction *);
 
 private:
     GraphScene(); /* not allowed */
@@ -59,10 +61,15 @@ protected:
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent);
 
+    // Wheel Events //
+    //
+    virtual void wheelEvent(QGraphicsSceneWheelEvent *event);
+
     // Key Events //
     //
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
+
 
 //################//
 // SIGNALS        //
@@ -75,6 +82,7 @@ signals:
     //	void						toolActionSignal(ToolAction *);
     void mouseActionSignal(MouseAction *);
     void keyActionSignal(KeyAction *);
+    void wheelActionSignal(WheelAction *);
 
     //################//
     // SLOTS          //

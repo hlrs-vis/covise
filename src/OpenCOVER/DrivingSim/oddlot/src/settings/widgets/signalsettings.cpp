@@ -361,7 +361,7 @@ SignalSettings::updateObserver()
     //
     int changes = signal_->getSignalChanges();
 
-    if ((changes & Signal::CEL_ParameterChange))
+    if ((changes & Signal::CEL_ParameterChange) || (changes & Signal::CEL_TypeChange))
     {
         updateProperties();
     }

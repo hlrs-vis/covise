@@ -99,6 +99,11 @@ public slots:
     void zoomOut();
     void zoomBox();
     void viewSelected();
+    void scaleView(qreal sx, qreal sy);
+    double getScaling() 
+    {
+        return scaling_;
+    }
 
     // Background Images //
     //
@@ -139,6 +144,8 @@ private:
     // ScenerySystem //
     //
     ScenerySystemItem *scenerySystemItem_;
+
+    double scaling_;
 };
 
 #endif // GRAPHVIEW_HPP
