@@ -28,7 +28,7 @@
 #include <osg/Matrix>
 #include <osg/Material>
 
-#include "OVR.h"
+#include "OVR_CAPI_GL.h"
 #include "oculusdevice.h"
 
 using namespace covise;
@@ -49,6 +49,7 @@ public:
     void tabletReleaseEvent(coTUIElement *);
     void tabletEvent(coTUIElement *);
     // this will be called in PreFrame
+    virtual void preDraw(osg::RenderInfo &);
     void preFrame();
     void postFrame();
     void preSwapBuffers(int windowNumber);

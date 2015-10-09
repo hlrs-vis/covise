@@ -209,7 +209,7 @@
 
                 <ALVAR value="OFF">
                     <Capture value="on" />
-                    <VideoDevice value="0" width="1920" height="1080" />
+                    <VideoDevice value="1" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />

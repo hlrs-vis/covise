@@ -39,6 +39,7 @@ static const int NUM_TEXUNITS = 4;
 
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
+#include <cover/coVRLighting.h>
 
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
@@ -75,6 +76,8 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/Tessellator>
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/TangentSpaceGenerator>
+#include <osgShadow/ShadowedScene>
+#include <osgShadow/ShadowMap>
 
 #include <vtrans/vtrans.h>
 
@@ -3586,6 +3589,14 @@ void ViewerOsg::setModesByName(const char *objectName)
             {
                 d_currentObject->pNode.get()->setNodeMask(Isect::Right);
             }
+            else if (strncmp(name, "coReceiveShadow", 15) == 0)
+            {
+                d_currentObject->pNode.get()->setNodeMask(d_currentObject->pNode->getNodeMask() | Isect::ReceiveShadow);
+            }
+            else if (strncmp(name, "coCastShadow", 12) == 0)
+            {
+                d_currentObject->pNode.get()->setNodeMask(d_currentObject->pNode->getNodeMask() | Isect::CastShadow);
+            }
         }
     }
     if (cover->debugLevel(5))
@@ -4726,6 +4737,46 @@ void ViewerOsg::setClip(float *pos,
             cn->removeClipPlane((unsigned int)0);
     }
 }
+
+
+void ViewerOsg::setShadow(int number,
+                        bool enabled)
+{
+    if (cover->debugLevel(5))
+        cerr << "ViewerOsg::setShadow" << endl;
+    osgShadow::ShadowedScene *shadowedScene = (osgShadow::ShadowedScene *)d_currentObject->pNode.get();
+    if (!d_currentObject->pNode)
+    {
+        shadowedScene = new osgShadow::ShadowedScene();
+        d_currentObject->pNode = shadowedScene;
+        setModesByName();
+        addToScene(d_currentObject);
+        d_currentObject->addChildrensNodes();
+    }
+
+    if (enabled)
+    {
+        const int ReceivesShadowTraversalMask = 0x1;
+
+        const int CastsShadowTraversalMask = 0x2;
+
+
+        shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
+        shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
+
+        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
+        sm->setLight(coVRLighting::instance()->headlight);
+        shadowedScene->setShadowTechnique(sm.get());
+
+        int mapres = 1024;
+        sm->setTextureSize(osg::Vec2s(mapres,mapres));
+
+    }
+    else
+    {
+    }
+}
+
 // Transforms
 // P' = T x C x R x SR x S x -SR x -C x P
 
@@ -5606,23 +5657,28 @@ void ViewerOsg::update(double timeNow)
 
             osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
             osg::Matrix mv = mirrors[i].camera->getViewMatrix();
-            osg::Matrix rotonly = mv;
-            rotonly(3, 0) = 0;
-            rotonly(3, 1) = 0;
-            rotonly(3, 2) = 0;
-            rotonly(3, 3) = 1;
-            osg::Matrix invRot;
 
             osg::Matrix nmv;
             osg::Matrix npm;
-            invRot.invert(rotonly);
-#if 1
-            nmv = ((mv * invRot) * cover->invEnvCorrectMat);
-            npm = (cover->envCorrectMat * rotonly * proj);
-#else
-            nmv = (mv * invRot);
-            npm = (rotonly * proj);
-#endif
+            if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+            {
+                nmv = mv;
+                npm = proj;
+            }
+            else
+            {
+                osg::Matrix rotonly = mv;
+                rotonly(3, 0) = 0;
+                rotonly(3, 1) = 0;
+                rotonly(3, 2) = 0;
+                rotonly(3, 3) = 1;
+                osg::Matrix invRot;
+
+                invRot.invert(rotonly);
+                nmv = (mv * invRot) * cover->invEnvCorrectMat;
+                npm = cover->envCorrectMat * rotonly * proj;
+            }
+
             mirrors[i].camera->setViewMatrix(nmv);
             mirrors[i].camera->setProjectionMatrix(npm);
             if (mirrors[i].shader)
