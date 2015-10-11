@@ -179,18 +179,52 @@ void BPA::calcIntersection()
     std::list<Trajectory *>::iterator itr;
     int numIntersections = 0;
     osg::Vec3 p;
-    osg::Vec3Array *positions = new osg::Vec3Array(left.size() * right.size());
-    for (itl = left.begin(); itl != left.end(); itl++)
+    osg::Vec3Array *positions=NULL;
+    if(BPAPlugin::plugin->allToAll->getState())
     {
-        for (itr = right.begin(); itr != right.end(); itr++)
+        float angleThreshold = BPAPlugin::plugin->angleEdit->getValue() * M_PI / 180.0;
+        positions = new osg::Vec3Array(trajectories.size() * trajectories.size());
+        for (itl = trajectories.begin(); itl != trajectories.end(); itl++)
         {
-            osg::Vec3 tmpP;
-            float d = (*itl)->getMinimalDistance((*itr), tmpP);
-            if (d > 0)
+            for (itr = trajectories.begin(); itr != trajectories.end(); itr++)
             {
-                positions->at(numIntersections) = tmpP;
-                p += tmpP;
-                numIntersections++;
+                if(*itl != *itr)
+                {
+                    osg::Vec3 s1 = (*itl)->startVelocity;
+                    osg::Vec3 s2 = (*itr)->startVelocity;
+                    s1.normalize();
+                    s2.normalize();
+                    float angle = acos(s1 * s2);
+                    if(angle > angleThreshold)
+                    {
+                        osg::Vec3 tmpP;
+                        float d = (*itl)->getMinimalDistance((*itr), tmpP);
+                        if (d > 0)
+                        {
+                            positions->at(numIntersections) = tmpP;
+                            p += tmpP;
+                            numIntersections++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        positions = new osg::Vec3Array(left.size() * right.size());
+        for (itl = left.begin(); itl != left.end(); itl++)
+        {
+            for (itr = right.begin(); itr != right.end(); itr++)
+            {
+                osg::Vec3 tmpP;
+                float d = (*itl)->getMinimalDistance((*itr), tmpP);
+                if (d > 0)
+                {
+                    positions->at(numIntersections) = tmpP;
+                    p += tmpP;
+                    numIntersections++;
+                }
             }
         }
     }
@@ -470,6 +504,20 @@ BPAPlugin::BPAPlugin()
     ignoreUpward->setEventListener(this);
     ignoreUpward->setPos(2, 0);
     ignoreUpward->setState(false);
+    
+    allToAll = new coTUIToggleButton("All to all", BPATab->getID(), true);
+    allToAll->setEventListener(this);
+    allToAll->setPos(3, 0);
+    allToAll->setState(true);
+    
+    angleLabel = new coTUILabel("Angle", BPATab->getID());
+    angleLabel->setPos(4, 0);
+
+    angleEdit = new coTUIEditFloatField("angleEdit", BPATab->getID(), 5);
+    angleEdit->setEventListener(this);
+    angleEdit->setPos(5, 0);
+    angleEdit->setValue(5);
+
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
 }
@@ -500,7 +548,7 @@ void BPAPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 
 void BPAPlugin::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == airResistance || tUIItem == ignoreUpward)
+    if (tUIItem == airResistance || tUIItem == ignoreUpward|| tUIItem == allToAll|| tUIItem == angleEdit)
     {
         std::map<std::string, BPA *>::iterator it;
         for (it = bpa_map.begin(); it != bpa_map.end(); it++)
