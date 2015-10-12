@@ -181,7 +181,8 @@ public:
     static void statisticsCallback(void *sceneGraph, buttonSpecCell *spec);
 
     void culling(bool enable, osg::CullSettings::CullingModeValues mode = osg::CullSettings::ENABLE_ALL_CULLING, bool once = false);
-
+    
+    void forceCompile();
     // request angle for movable screen
     angleStruct *getAngleStruct()
     {

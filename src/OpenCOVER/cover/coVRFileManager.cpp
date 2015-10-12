@@ -27,6 +27,8 @@
 #include "coVRIOReader.h"
 #include "coTUIFileBrowser/NetHelp.h"
 #include "VRRegisterSceneGraph.h"
+#include "coVRConfig.h"
+#include "coVRRenderer.h"
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -189,7 +191,6 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     std::string key;
     bool allocated = false;
 
-    VRViewer::instance()->culling(false, osg::CullSettings::ENABLE_ALL_CULLING, true); // disable culling for one frame to load data to all GPUs
 
     if (fb)
     {
@@ -398,6 +399,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         OpenCOVER::instance()->hud->redraw();
         lastNode = node;
         this->fileFBMap.erase(key);
+        
+        VRViewer::instance()->forceCompile();
         return node;
     }
 
@@ -406,6 +409,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         delete[] adjustedFileName;
     }
+    VRViewer::instance()->forceCompile();
     return NULL;
 }
 
