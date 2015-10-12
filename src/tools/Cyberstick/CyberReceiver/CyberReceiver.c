@@ -13,6 +13,7 @@
  */
 
 #define F_CPU 12000000L
+
 /*! \brief Pin number of IRQ contact on RFM73 module.*/
 #define RFM73_IRQ_PIN DDD3
 /*! \brief PORT register to IRQ contact on RFM73 module.*/
@@ -109,10 +110,74 @@ uint8_t oldDX = 0;
 uint8_t oldDY = 0;
 
 //----------------------------------------------------------------------------------
+// Acknowledge Received Payload
+//
+
+uint8_t rfm70SendAckPayload()
+{
+	uint8_t ack_payload[32]; // acknowledgment message to transmit
+	uint8_t status;
+
+    rfm70SetModeTX();
+    _delay_ms(1);
+
+    ack_payload[0]= 0xFF; // 0xFF user defined code for acknowledgment
+
+    // read status register
+    status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
+
+    // if the FIFO is full, do nothing just return false
+    if (status & RFM70_FIFO_STATUS_TX_FULL)
+    {
+
+    	return false;
+    }
+
+    // enable CSN
+    spiSelect(csRFM73);
+    _delay_ms(0);
+
+    // cmd: write TX payload and disable AUTOACK
+    spiSendMsg(RFM70_CMD_W_TX_PAYLOAD_NOACK);
+
+    int len = 0;
+    while(len < 32)
+    {
+    	spiSendMsg(ack_payload[len]);
+    	len++;
+    }
+    // disable CSN
+    spiSelect(csNONE);
+    _delay_ms(0);
+    _delay_ms(10);
+
+    uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
+    if ((value & 0x20) == 0x00)
+    {
+       _delay_ms(50);
+    }
+
+    value = rfm70ReadRegValue(RFM70_REG_STATUS);
+    if ((value & 0x20) == 0x20 )
+    {
+        sbi(PORTD, LED_RED);
+        _delay_ms(10);
+        cbi(PORTD, LED_RED);
+
+    }
+
+    rfm70SetModeRX();
+
+
+    return true;
+}
+
+
+//----------------------------------------------------------------------------------
 // Receive Payload
 //----------------------------------------------------------------------------------
 
-uint8_t rfm70ReceivePayload()
+int rfm70ReceivePayload()
 {
     uint8_t len;
     uint8_t status;
@@ -143,8 +208,11 @@ uint8_t rfm70ReceivePayload()
                 oldDY = rx_buf[2];
                 sbi(PORTD, LED_RED);
 
-                _delay_ms(10);
+                _delay_ms(10); //chnage to 10 ms
                 cbi(PORTD, LED_RED);
+
+                rfm70SendAckPayload();
+
             }
             else
             {
@@ -157,16 +225,12 @@ uint8_t rfm70ReceivePayload()
 
         if ((rx_buf[0] == 0xAA) && (rx_buf[1] == 0x80))
         {
-            sbi(PORTD, LED_RED);
-            _delay_ms(10);
-            cbi(PORTD, LED_RED);
-
             rfm70SetModeRX();
         }
     }
     rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, status);
 
-    return 0;
+    return true;
 }
 
 int main()
@@ -244,6 +308,7 @@ int main()
 
         rfm70ReceivePayload();
 
+
         if (usbInterruptIsReady())
         { // if the interrupt is ready, feed data
             // pseudo-random sequence generator, thanks to Dan Frederiksen @AVRfreaks
@@ -291,3 +356,6 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     return 0; // by default don't return any data
 }
+
+
+
