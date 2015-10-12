@@ -34,8 +34,6 @@ Person::Person(const std::string &name)
 
     m_head = Input::instance()->getBody(coCoviseConfig::getEntry("head", conf, ""));
 
-    m_personOffset = Input::instance()->getBody(coCoviseConfig::getEntry("personOffset", conf, ""));
-
     for (int i = 0; i < 4; ++i)
     {
         std::stringstream str;
@@ -148,7 +146,6 @@ TrackingBody *Person::getHand(size_t num) const
 
     return m_hands[num];
 }
-osg::Matrix tmpHead;
 
 const osg::Matrix &Person::getHeadMat() const
 {
@@ -156,11 +153,6 @@ const osg::Matrix &Person::getHeadMat() const
     if (!hasHead())
         return s_identity;
 
-    if(m_personOffset)
-    {
-        tmpHead = getHead()->getMat() * m_personOffset->getMat();
-        return (tmpHead);
-    }
     return getHead()->getMat();
 }
 

@@ -63,10 +63,8 @@ private:
     ButtonDevice *m_buttondev;
     std::vector<Valuator *> m_valuators;
     float m_eyeDistance;
-    TrackingBody *m_personOffset;
 
     static const osg::Matrix s_identity;
-    osg::Matrix headTrans;
 };
 }
 #endif /* PERSON_H_ */
