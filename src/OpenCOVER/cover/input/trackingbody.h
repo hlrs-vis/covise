@@ -42,12 +42,14 @@ private:
     TrackingBody(const std::string &name);
 
     void update();
+    void updateRelative();
     void setValid(bool);
     void setMat(const osg::Matrix &mat);
     void setVarying(bool isVar);
     void set6Dof(bool is6Dof);
 
     InputDevice *m_dev;
+    TrackingBody *m_baseBody;
     bool m_valid;
     size_t m_idx;
     osg::Matrix m_mat, m_deviceOffsetMat;
