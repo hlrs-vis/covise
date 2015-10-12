@@ -32,9 +32,10 @@ class SignalContainer
     //################//
 
 public:
-    explicit SignalContainer(const QString &name, const QIcon &icon, int type, const QString &typeSubclass, int subType, double value, double distance, double height)
+    explicit SignalContainer(const QString &name, const QIcon &icon, const QString &category, int type, const QString &typeSubclass, int subType, double value, double distance, double height)
         : signalName_(name)
         , signalIcon_(icon)
+		, signalCategory_(category)
         , signalType_(type)
         , signalTypeSubclass_(typeSubclass)
         , signalSubType_(subType)
@@ -81,6 +82,10 @@ public:
     {
         return signalHeight_;
     }
+	const QString &getsignalCategory() const
+    {
+        return signalCategory_;
+    }
 
 protected:
 private:
@@ -96,6 +101,7 @@ protected:
 private:
     QString signalName_;
     QIcon signalIcon_;
+	QString signalCategory_;
     int signalType_;
     QString signalTypeSubclass_;
     int signalSubType_;
@@ -229,18 +235,41 @@ public:
     //
     bool loadSignals(const QString &fileName);
 
-    void addSignal(const QString &country, const QString &name, const QIcon &icon, int type, const QString &typeSubclass, int subType, double value, double distance, double height);
+	void addSignal(const QString &country, const QString &name, const QIcon &icon,const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double height);
     void addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners);
     QList<SignalContainer *> getSignals(QString country) const
     {
         return signals_.values(country);
     };
+	SignalContainer * getSignalContainer(int type, const QString &typeSubclass, int subType);
+	SignalContainer * getSignalContainer(const QString &name);
+
     QList<ObjectContainer *> getObjects(QString country) const
     {
         return objects_.values(country);
     };
 
     ObjectContainer * getObjectContainer(const QString &type);
+
+	QString getCountry(SignalContainer *signalContainer);
+	QList<QString> getCountries() const
+    {
+		return countries_;
+    };
+
+	void addCountry(const QString &country);
+
+	void addCategory(const QString &category);
+
+	int getCategoriesSize()
+	{
+		return categories_.size();
+	}
+
+	int getCategoryNumber(const QString &category)
+	{
+		return categories_.indexOf(category);      //location of the category
+	}
 
 protected:
 private:
@@ -254,6 +283,10 @@ private:
 
 protected:
 private:
+	// countries//
+	//
+	QList<QString> countries_;
+
     // User Signals //
     //
     QMultiMap<QString, SignalContainer *> signals_;
@@ -261,6 +294,12 @@ private:
     // User Objects //
     //
     QMultiMap<QString, ObjectContainer *> objects_;
+
+	// Signal Categories //
+	//
+	QList<QString> categories_;
+
+
 };
 
 #endif // SIGNAL_HPP

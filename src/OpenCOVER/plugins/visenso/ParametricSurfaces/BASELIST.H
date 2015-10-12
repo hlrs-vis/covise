@@ -47,7 +47,7 @@ public:
     virtual ~HlBaseList();
 
     // Argumentanzahl lesen und setzen
-    int Length();
+    size_t Length();
 
     // Typ des Listenkopfs (IDENT, NUMBER, SIN, ...)
     types typeOfHead();
@@ -183,7 +183,7 @@ inline bool HlBaseList::Is(double v)
 }
 
 // Argumentanzahl zurueckgeben
-inline int HlBaseList::Length()
+inline size_t HlBaseList::Length()
 {
     return mArg.size();
 }

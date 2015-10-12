@@ -254,6 +254,10 @@ public:
     double getMaxWidth(double s) const;
     double getMinWidth(double s) const;
 
+    // check if the lanes are linked at their ends
+    //
+    void verifyLaneLinkage();
+
     // road:objects:crosswalk //
     //
     void addCrosswalk(Crosswalk *crosswalk);
@@ -338,13 +342,14 @@ public:
     virtual void acceptForCrosswalks(Visitor *visitor);
     virtual void acceptForSignals(Visitor *visitor);
     virtual void acceptForSensors(Visitor *visitor);
+    
+    double updateLength();
 
 private:
     RSystemElementRoad(); /* not allowed */
     RSystemElementRoad(const RSystemElementRoad &); /* not allowed */
     RSystemElementRoad &operator=(const RSystemElementRoad &); /* not allowed */
 
-    double updateLength();
 
     // IDs //
     //

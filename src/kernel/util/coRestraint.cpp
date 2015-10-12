@@ -214,42 +214,35 @@ const std::string &coRestraint::getRestraintString() const
 
 const std::string coRestraint::getRestraintString(std::vector<ssize_t> sortedValues) const
 {
-    std::ostringstream restraintStream;
-    ssize_t old = -1, size = sortedValues.size();
-    bool started = false, firsttime = true;
+    const size_t size = sortedValues.size();
     if (size == 0)
         return "";
-    for (ssize_t i = 0; i < size; ++i)
+    std::ostringstream restraintStream;
+    ssize_t old = sortedValues[0];
+    restraintStream << old;
+
+    bool inSequence = false;
+    for (ssize_t i = 1; i < size; ++i)
     {
-        ssize_t actual = sortedValues[i];
-        if (firsttime)
+        const ssize_t cur = sortedValues[i];
+        if (cur == old + 1)
         {
-            firsttime = false;
-            restraintStream << actual;
-            old = actual;
-            continue;
-        }
-        else if (actual == old + 1 && i < size - 1)
-        {
-            if (!started)
+            if (i == size-1)
             {
-                restraintStream << "-";
-                started = true;
+                restraintStream << "-" << cur;
             }
-            old = actual;
-            continue;
-        }
-        else if (started)
-        {
-            started = false;
-            restraintStream << old << ", " << actual;
+            inSequence = true;
         }
         else
         {
-            restraintStream << ", " << actual;
+            if (inSequence)
+                restraintStream << "-" << old;
+            restraintStream << ", " << cur;
+            inSequence = false;
         }
-        old = actual;
+        old = cur;
     }
+
     return restraintStream.str();
 }
 

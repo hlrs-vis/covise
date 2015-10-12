@@ -34,6 +34,8 @@
 // Graph //
 //
 #include "src/graph/items/graphelement.hpp"
+#include "src/graph/items/roadsystem/signal/signalitem.hpp"
+#include "src/graph/editors/signaleditor.hpp"
 
 // Qt //
 //
@@ -57,6 +59,7 @@ TopviewGraph::TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectDat
 
     connect(graphScene_, SIGNAL(mouseActionSignal(MouseAction *)), this, SIGNAL(mouseActionSignal(MouseAction *)));
     connect(graphScene_, SIGNAL(keyActionSignal(KeyAction *)), this, SIGNAL(keyActionSignal(KeyAction *)));
+    connect(graphScene_, SIGNAL(wheelActionSignal(WheelAction *)), this, SLOT(wheelAction(WheelAction *)));
 
     // Qt View //
     //
@@ -94,6 +97,24 @@ void
 TopviewGraph::updateSceneSize()
 {
     graphScene_->setSceneRect(getProjectData()->getWest(), getProjectData()->getSouth(), getProjectData()->getEast() - getProjectData()->getWest(), getProjectData()->getNorth() - getProjectData()->getSouth());
+}
+
+void
+    TopviewGraph::notifySignals()
+{
+    SignalEditor * signalEditor = dynamic_cast<SignalEditor *>(getProjectWidget()->getProjectEditor());
+    if (signalEditor)
+    {
+        QList<QGraphicsItem *> items = graphView_->items();
+        foreach (QGraphicsItem * item, items)
+        {
+            SignalItem * signalItem = dynamic_cast<SignalItem *>(item);
+            if (signalItem)
+            {
+                signalItem->zoomAction();
+            }
+        }
+    }
 }
 
 //################//
@@ -207,8 +228,13 @@ TopviewGraph::toolAction(ToolAction *toolAction)
             UnhideDataElementCommand *command = new UnhideDataElementCommand(getProjectData()->getHiddenElements(), NULL);
             executeCommand(command);
         }
+        else if ((id == ZoomTool::TZM_ZOOMIN) || (id == ZoomTool::TZM_ZOOMOUT) || (id == ZoomTool::TZM_ZOOMTO))
+        {
+            notifySignals();
+        }
     }
 }
+
 
 void
 TopviewGraph::mouseAction(MouseAction *mouseAction)
@@ -220,6 +246,12 @@ void
 TopviewGraph::keyAction(KeyAction *keyAction)
 {
     graphScene_->keyAction(keyAction);
+}
+
+void 
+    TopviewGraph::wheelAction(WheelAction *wheelAction)
+{
+    notifySignals();
 }
 
 /*! \brief Called right before the editor will be changed.

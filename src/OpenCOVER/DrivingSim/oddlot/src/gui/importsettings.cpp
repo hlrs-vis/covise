@@ -1,9 +1,9 @@
 /* This file is part of COVISE.
 
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
+You can use it under the terms of the GNU Lesser General Public License
+version 2.1 or later, see lgpl-2.1.txt.
 
- * License: LGPL 2+ */
+* License: LGPL 2+ */
 
 /**************************************************************************
 ** ODD: OpenDRIVE Designer
@@ -23,8 +23,6 @@ ImportSettings *ImportSettings::inst = NULL;
 void ImportSettings::okPressed()
 {
 
-    LinearError = ui->LinearErrorSpin->value();
-    CurveError = ui->CurveErrorSpin->value();
 }
 //################//
 // CONSTRUCTOR    //
@@ -46,10 +44,81 @@ ImportSettings::ImportSettings()
     ui->CurveErrorSpin->setMaximum(100);
     ui->CurveErrorSpin->setMinimum(0);
     ui->CurveErrorSpin->setValue(1.4);
-    LinearError = ui->LinearErrorSpin->value();
-    CurveError = ui->CurveErrorSpin->value();
 
     inst = this;
+}
+double ImportSettings::LinearError()
+{
+    return ui->LinearErrorSpin->value();
+}
+double ImportSettings::CurveError()
+{
+    return ui->CurveErrorSpin->value();
+}
+
+bool ImportSettings::importPrimary()
+{
+    return ui->primary_cb->isChecked();
+}
+bool ImportSettings::importSecondary()
+{
+    return ui->secondary_cb->isChecked();
+}
+bool ImportSettings::importTertiary()
+{
+    return ui->tertiary_cb->isChecked();
+}
+bool ImportSettings::importMotorway()
+{
+    return ui->motorway_cb->isChecked();
+}
+bool ImportSettings::importService()
+{
+    return ui->service_cb->isChecked();
+}
+bool ImportSettings::importPath()
+{
+    return ui->path_cb->isChecked();
+}
+bool ImportSettings::importSteps()
+{
+    return ui->steps_cb->isChecked();
+}
+bool ImportSettings::importTrack()
+{
+    return ui->track_cb->isChecked();
+}
+bool ImportSettings::importFootway()
+{
+    return ui->footway_cb->isChecked();
+}
+bool ImportSettings::importResidential()
+{
+    return ui->residential_cb->isChecked();
+}
+bool ImportSettings::importLiving_street()
+{
+    return ui->living_street_cb->isChecked();
+}
+bool ImportSettings::importCycleway()
+{
+    return ui->cycleway_cb->isChecked();
+}
+bool ImportSettings::importTurning_circle()
+{
+    return ui->turning_circle_cb->isChecked();
+}
+bool ImportSettings::importPedestrian()
+{
+    return ui->pedestrian_cb->isChecked();
+}
+bool ImportSettings::importUnclassified()
+{
+    return ui->unclassified_cb->isChecked();
+}
+bool ImportSettings::maximizeCurveRadius()
+{
+    return ui->maximize_curve_radius_cb->isChecked();
 }
 
 ImportSettings::~ImportSettings()

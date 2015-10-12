@@ -20,6 +20,14 @@
 
 #include <QString>
 
+class SpeedRecord
+{
+public:
+    SpeedRecord();
+    SpeedRecord(QString &max, QString &unit);
+    float maxSpeed;
+};
+
 class TypeSection : public RoadSection
 {
 
@@ -52,9 +60,7 @@ public:
 
 public:
     explicit TypeSection(double s, TypeSection::RoadType type);
-    virtual ~TypeSection()
-    { /* does nothing */
-    }
+    virtual ~TypeSection();
 
     // TypeSection //
     //
@@ -63,6 +69,9 @@ public:
         return type_;
     }
     void setRoadType(TypeSection::RoadType roadType);
+
+    void setSpeedRecord(SpeedRecord *sr);
+    SpeedRecord *getSpeedRecord();
 
     // RoadSection //
     //
@@ -104,6 +113,8 @@ private:
     // Type Properties //
     //
     TypeSection::RoadType type_;
+
+    SpeedRecord *speedRecord;
 };
 
 #endif // TYPESECTION_HPP

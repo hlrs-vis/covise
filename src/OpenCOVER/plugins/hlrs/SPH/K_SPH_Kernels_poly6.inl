@@ -19,7 +19,7 @@ public:
 
 	static __device__ __host__ float Gradient_Constant(float smoothing_length)
 	{
-		return -945.0f / (32.0f * M_PI * pow(smoothing_length, 9.0f) );
+		return -945.0f / (32.0f * (float)M_PI * pow(smoothing_length, 9.0f) );
 	}
 
 	static __device__ __host__ float Gradient_Variable(float smoothing_length, float smoothing_length_pow2, float3 r, float rlen)
@@ -36,7 +36,7 @@ public:
 
 	static __device__ __host__ float Laplace_Constant(float smoothing_length, float smoothing_length_pow2, float3 r, float rlen)
 	{
-		return -945.0f / (32.0f * M_PI * pow(smoothing_length, 9.0f) );
+		return -945.0f / (32.0f * (float)M_PI * pow(smoothing_length, 9.0f) );
 	}
 
 	static __device__ __host__ float Laplace_Variable(float smoothing_length, float smoothing_length_pow2, float3 r, float rlen)

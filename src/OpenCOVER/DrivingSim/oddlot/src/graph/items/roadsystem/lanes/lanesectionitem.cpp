@@ -190,6 +190,7 @@ LaneSectionItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     else if (tool == ODD::TLE_ADD || tool == ODD::TLE_ADD_WIDTH)
     {
         setCursor(Qt::CrossCursor);
+        laneEditor_->getInsertSectionHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
         laneEditor_->getInsertSectionHandle()->show();
     }
     else if (tool == ODD::TLE_DEL)

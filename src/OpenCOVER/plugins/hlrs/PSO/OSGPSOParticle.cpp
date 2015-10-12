@@ -81,7 +81,7 @@ void OSGPSOParticle::init(double (*setresponse)(double *), double *setlowerbound
     par.clear();
 
     //ParticleGeode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,0), 10)));
-    ParticleGeode->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 0, 0), 0.01, 0.05)));
+    ParticleGeode->addDrawable(new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 0, 0), 0.01f, 0.05f)));
 }
 
 void OSGPSOParticle::destroy()

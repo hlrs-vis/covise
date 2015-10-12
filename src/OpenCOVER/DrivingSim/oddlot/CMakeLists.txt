@@ -57,6 +57,7 @@ SET(ODDLOT_SOURCES
      src/gui/projectionsettings.cpp
      src/gui/importsettings.cpp
 	 src/gui/lodsettings.cpp
+     src/gui/wheelaction.cpp
 	 src/data/projectdata.cpp
 	 src/data/roadsystem/roadsystem.cpp
 	 src/data/roadsystem/rsystemelement.cpp
@@ -205,6 +206,7 @@ SET(ODDLOT_SOURCES
 	 src/wizards/superelevationwizard.cpp
 	 src/wizards/wizardmanager.cpp
 	 src/tree/projecttreewidget.cpp
+	 src/tree/signaltreewidget.cpp
 	 src/data/scenerysystem/heightmap.cpp
 	 src/settings/projectsettings.cpp
 	 src/tree/items/typesectiontreeitem.cpp
@@ -341,6 +343,7 @@ SET(ODDLOT_MOC_HEADERS
      src/gui/projectionsettings.hpp
      src/gui/importsettings.hpp
 	 src/gui/lodsettings.hpp
+     src/gui/wheelaction.hpp
 	 src/data/projectdata.hpp
 	 src/data/roadsystem/roadsystem.hpp
 	 src/data/roadsystem/rsystemelement.hpp
@@ -489,6 +492,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/wizards/superelevationwizard.hpp
 	 src/wizards/wizardmanager.hpp
 	 src/tree/projecttreewidget.hpp
+	 src/tree/signaltreewidget.hpp
 	 src/data/scenerysystem/heightmap.hpp
 	 src/settings/projectsettings.hpp
 	 src/tree/items/typesectiontreeitem.hpp

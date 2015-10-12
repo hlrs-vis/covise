@@ -41,9 +41,14 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+
 // Utils //
 //
 #include "src/util/odd.hpp"
+
+// tree //
+//
+#include "src/tree/signaltreewidget.hpp"
 
 //################//
 // Constructors   //
@@ -85,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     createSignals();
     createTools();
     createWizards();
+	
 
     projectionSettings = new ProjectionSettings();
     importSettings = new ImportSettings();
@@ -218,10 +224,14 @@ MainWindow::createActions()
     importMenu->addAction(importCarMakerAction);
     connect(importCarMakerAction, SIGNAL(triggered()), this, SLOT(importCarMakerRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importCarMakerAction, SLOT(setEnabled(bool)));
-    QAction *importOSMAction = new QAction(tr("Import OSM Data"), exportMenu);
+    QAction *importOSMAction = new QAction(tr("Download OSM Data"), exportMenu);
     importMenu->addAction(importOSMAction);
     connect(importOSMAction, SIGNAL(triggered()), this, SLOT(importOSMRoad()));
     connect(this, SIGNAL(hasActiveProject(bool)), importOSMAction, SLOT(setEnabled(bool)));
+    QAction *importOSMFileAction = new QAction(tr("Import OSM file"), exportMenu);
+    importMenu->addAction(importOSMFileAction);
+    connect(importOSMFileAction, SIGNAL(triggered()), this, SLOT(importOSMFile()));
+    connect(this, SIGNAL(hasActiveProject(bool)), importOSMFileAction, SLOT(setEnabled(bool)));
 
     QAction *exitAction = new QAction(tr("&Exit"), this);
     exitAction->setShortcuts(QKeySequence::Quit);
@@ -390,11 +400,32 @@ MainWindow::createSignals()
             exit(-1);
         }
     }
+	
+    // Dock Area //
+    //
+    signalsDock_ = new QDockWidget(tr("Signals View"), this);
+    signalsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, signalsDock_);
+	tabifyDockWidget(treeDock_, signalsDock_);
+	treeDock_->raise();
+	
+    // Show/Hide Action //
+    //
+    QAction *signalsDockToggleAction = signalsDock_->toggleViewAction();
+    signalsDockToggleAction->setStatusTip(tr("Show/hide the Signals view."));
+    viewMenu_->addAction(signalsDockToggleAction);
+
+	// SignalTree //
+	//
+	SignalTreeWidget *signalTree = new SignalTreeWidget(signalManager_, this);
+	setSignalTree(signalTree);
+
 }
 
 /*! \brief Creates the ToolManager and the tool box on the left side.
 *
 */
+
 void
 MainWindow::createTools()
 {
@@ -447,6 +478,7 @@ MainWindow::createTree()
     QAction *treeDockToggleAction = treeDock_->toggleViewAction();
     treeDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
     viewMenu_->addAction(treeDockToggleAction);
+	
 
     // Tree Widget //
     //
@@ -488,7 +520,7 @@ MainWindow::createUndo()
     undoDock_ = new QDockWidget(tr("Undo History"), this);
     undoDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, undoDock_);
-    tabifyDockWidget(undoDock_, treeDock_);
+	tabifyDockWidget(undoDock_, treeDock_);
 
     // Show/Hide Action //
     //
@@ -516,6 +548,7 @@ MainWindow::createUndo()
     undoView_ = new QUndoView(undoGroup_);
     undoDock_->setWidget(undoView_);
 }
+
 
 //################//
 // SLOTS          //
@@ -826,6 +859,31 @@ MainWindow::importCarMakerRoad()
     }
     return;
 }
+
+/*! \brief load OpenStreetMap OSM file.
+*
+*/
+void
+MainWindow::importOSMFile()
+{
+    ProjectWidget *project = getActiveProject();
+    if (project == NULL)
+    {
+        project = createProject();
+        project->newFile();
+    }
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+    {
+        osmi->setProject(project);
+        if (osmi->importOSMFile(fileName))
+        {
+            statusBar()->showMessage(tr("File has been imported."), 2000);
+            project->show();
+        }
+    }
+    return;
+}
 /*! \brief load OSM file.
 *
 */
@@ -936,6 +994,14 @@ MainWindow::activateProject()
         // Pass currently selected tools //
         //
         toolManager_->resendCurrentTool();
+
+		// Pass selected project to signal treewidget //
+		//
+		SignalTreeWidget *signalTreeWidget = dynamic_cast<SignalTreeWidget *>(signalsDock_->widget());
+		if(signalTreeWidget)
+		{
+			signalTreeWidget->setActiveProject(project);
+		}
     }
 }
 
@@ -1001,6 +1067,23 @@ MainWindow::setProjectTree(QWidget *widget)
     }
 }
 
+/*! \brief Set the widget of the Tree View.
+*
+* If NULL is passed, an empty widget will be displayed.
+*/
+void
+MainWindow::setSignalTree(QWidget *widget)
+{
+    if (widget)
+    {
+        signalsDock_->setWidget(widget);
+    }
+    else
+    {
+        signalsDock_->setWidget(emptyTreeWidget_);
+    }
+}
+
 /*! \brief Set the widget of the Settings View.
 *
 * If NULL is passed, an empty widget will be displayed.
@@ -1017,6 +1100,7 @@ MainWindow::setProjectSettings(QWidget *widget)
         settingsDock_->setWidget(emptySettingsWidget_);
     }
 }
+
 
 //################//
 // EVENTS         //

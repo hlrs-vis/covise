@@ -42,7 +42,7 @@
 */
 SignalEditorTool::SignalEditorTool(ToolManager *toolManager)
     : Tool(toolManager)
-    , toolId_(ODD::TNO_TOOL)
+    , toolId_(ODD::TSG_SELECT)
     , active_(false)
 {
     // Connect //

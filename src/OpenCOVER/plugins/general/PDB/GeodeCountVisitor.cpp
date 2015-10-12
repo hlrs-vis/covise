@@ -38,7 +38,7 @@ void GeodeCountVisitor::printNumGeodes()
 // only interested in optimizing cones, sphere and cylinders
 void GeodeCountVisitor::apply(osg::Geode &node)
 {
-    for (int i = 0; i < node.getNumDrawables(); i++)
+    for (unsigned int i = 0; i < node.getNumDrawables(); i++)
     {
         osg::Geometry *sd = dynamic_cast<osg::Geometry *>(node.getDrawable(i));
         if (sd)

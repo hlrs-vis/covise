@@ -31,6 +31,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QDir>
+#include <QDataStream>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>

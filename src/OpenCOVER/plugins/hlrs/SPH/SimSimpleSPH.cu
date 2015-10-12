@@ -60,17 +60,17 @@ SimSimpleSPH::SimSimpleSPH(SimLib::SimCudaAllocator* simCudaAllocator, SimLib::S
 	mSPHBuffers->SetBuffer(BufferSphPressureSorted,		new SimBufferCuda(mSimCudaAllocator, Device, sizeof(float)));
 	mSPHBuffers->SetBuffer(BufferSphDensitySorted,		new SimBufferCuda(mSimCudaAllocator, Device, sizeof(float)));
 
-	mSettings->AddSetting("Timestep", 0.002, 0, 1, "");
+	mSettings->AddSetting("Timestep", 0.002f, 0, 1, "");
 
 	mSettings->AddSetting("Rest Density", 1000, 0, 10000, "kg / m^3");
 	mSettings->AddSetting("Rest Pressure", 0, 0, 10000, "");
-	mSettings->AddSetting("Ideal Gas Constant", 1, 0.001, 10, "");
+	mSettings->AddSetting("Ideal Gas Constant", 1, 0.001f, 10, "");
 	mSettings->AddSetting("Viscosity", 1, 0, 100, "Pa·s");
 
 	mSettings->AddSetting("Boundary Stiffness", 20000, 0, 100000, "");
 	mSettings->AddSetting("Boundary Dampening", 256, 0, 10000, "");
 	mSettings->AddSetting("Velocity Limit", 600, 0, 10000, "");
-	mSettings->AddSetting("Simulation Scale", 0.001, 0, 1, "");
+	mSettings->AddSetting("Simulation Scale", 0.001f, 0, 1, "");
 	mSettings->AddSetting("Static Friction Limit", 0, 0, 10000, "");
 	mSettings->AddSetting("Kinetic Friction", 0, 0, 10000, "");
 
@@ -153,7 +153,7 @@ void SimSimpleSPH::UpdateParams()
 	default:
 	case SPH_PRESSURE_MUELLER:
 		{
-			hPrecalcParams.kernel_pressure_precalc = -0.5 * hPrecalcParams.kernel_spiky_grad_coeff;
+			hPrecalcParams.kernel_pressure_precalc = -0.5f * hPrecalcParams.kernel_spiky_grad_coeff;
 		}
 		break;
 	case SPH_PRESSURE_VISCOPLASTIC:

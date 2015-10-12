@@ -633,7 +633,9 @@ void coInputTUI::updateTUI()
             personsChoice->addEntry(Input::instance()->getPerson(i)->getName());
         }
     }
-    personsChoice->setSelectedEntry(Input::instance()->getActivePerson());
+    int activePerson = Input::instance()->getActivePerson();
+    if(activePerson != personsChoice->getSelectedEntry())
+        personsChoice->setSelectedEntry(activePerson);
 
     if (size_t(bodiesChoice->getNumEntries()) != Input::instance()->getNumBodies())
     {

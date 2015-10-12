@@ -971,6 +971,8 @@ VRViewer::createChannels(int i)
         coVRConfig::instance()->channels[i].camera->setCullMask(Isect::Visible | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
         coVRConfig::instance()->channels[i].camera->setCullMaskLeft(Isect::Visible | Isect::Left | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
         coVRConfig::instance()->channels[i].camera->setCullMaskRight(Isect::Visible | Isect::Right | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+       
+        coVRConfig::instance()->channels[i].camera->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
         //coVRConfig::instance()->screens[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
@@ -1013,6 +1015,19 @@ VRViewer::createChannels(int i)
   
 }
 
+void VRViewer::forceCompile()
+{
+    culling(false, osg::CullSettings::ENABLE_ALL_CULLING, true); // disable culling for one frame to load data to all GPUs
+    for(int i=0;i<coVRConfig::instance()->channels.size();i++)
+    {
+        osg::GraphicsOperation *rop = coVRConfig::instance()->channels[i].camera->getRenderer();
+        coVRRenderer *r = dynamic_cast<coVRRenderer *>(rop); 
+        if(r)
+        {
+            r->setCompileOnNextDraw(true);
+        }
+    }
+}
 void
 VRViewer::culling(bool enable, osg::CullSettings::CullingModeValues mode, bool once)
 {

@@ -34,8 +34,24 @@ public:
     explicit ImportSettings();
     virtual ~ImportSettings();
 
-    double LinearError;
-    double CurveError;
+    double LinearError();
+    double CurveError();
+    bool importPrimary();
+    bool importSecondary();
+    bool importTertiary();
+    bool importMotorway();
+    bool importService();
+    bool importPath();
+    bool importSteps();
+    bool importTrack();
+    bool importFootway();
+    bool importResidential();
+    bool importLiving_street();
+    bool importCycleway();
+    bool importTurning_circle();
+    bool importPedestrian();
+    bool importUnclassified();
+    bool maximizeCurveRadius();
     static ImportSettings *instance()
     {
         return inst;

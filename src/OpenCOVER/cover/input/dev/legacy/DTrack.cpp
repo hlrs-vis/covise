@@ -130,7 +130,7 @@ bool DTrack::openUDPPort()
     sock = -1;
 
     // CREATING UDP SOCKET
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    sock = (int)socket(AF_INET, SOCK_DGRAM, 0);
     if (socket < 0)
     {
         fprintf(stderr, "socket creation failed\n");

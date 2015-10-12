@@ -88,12 +88,14 @@ JunctionConnection::removeLaneLink(int from)
     {
         laneLinks_.remove(from);
     }
+    addJunctionConnectionChanges(CJC_LaneLinkChanged);
 }
 
 void 
 JunctionConnection::removeLaneLinks()
 {
     laneLinks_.clear();
+    addJunctionConnectionChanges(CJC_LaneLinkChanged);
 }
 
 

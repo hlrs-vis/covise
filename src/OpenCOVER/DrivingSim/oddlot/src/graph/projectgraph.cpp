@@ -106,6 +106,18 @@ ProjectGraph::executeCommand(DataCommand *command)
     }
 }
 
+void
+ProjectGraph::beginMacro(const QString &text)
+{
+    getProjectData()->getUndoStack()->beginMacro(text);
+}
+
+void
+ProjectGraph::endMacro()
+{
+    getProjectData()->getUndoStack()->endMacro();
+}
+
 //################//
 // SLOTS          //
 //################//

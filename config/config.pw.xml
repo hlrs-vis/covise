@@ -2,7 +2,7 @@
 
 <COCONFIG version="1" >
 
- <LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >  
+ <LOCAL host="viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >  
    <COVER>
      <Background r="0.0" g="0.0" b="0.0" />
      <Console arch="windows" value="true" file="c:\OpenCOVER" />
@@ -87,7 +87,7 @@
  </LOCAL>
 
 
- <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >
+ <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
 
   <System>
 
@@ -421,7 +421,7 @@
 
 
 
- <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79,viscluster80" >
+ <LOCAL host="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
 
 
 

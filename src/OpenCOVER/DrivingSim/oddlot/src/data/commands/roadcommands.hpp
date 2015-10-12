@@ -705,17 +705,183 @@ public:
     virtual void undo();
     virtual void redo();
 
+    void removeLinkRoadLink(RSystemElementRoad * linkRoad, const QString &contactPoint);
+    void saveConnectingRoadLanes(RSystemElementJunction * junction);
+
 private:
     RemoveRoadLinkCommand(); /* not allowed */
     RemoveRoadLinkCommand(const RemoveRoadLinkCommand &); /* not allowed */
     RemoveRoadLinkCommand &operator=(const RemoveRoadLinkCommand &); /* not allowed */
 
 private:
+    RoadSystem * roadSystem_;
     RSystemElementRoad *road_;
     RoadLink *predecessor_;
     RoadLink *successor_;
+    RoadLink *predecessorLink_;
+    RoadLink *successorLink_;
     RSystemElementJunction *junction_;
     QList<JunctionConnection *> junctionConnections_;
+    QMap<QString, QMap<int,int>> laneLinksRoadStart_;
+    QMap<QString, QMap<int,int>> laneLinksRoadEnd_;
 };
+
+
+//#########################//
+// CreateInnerLaneLinksCommand //
+//#########################//
+
+class CreateInnerLaneLinksCommand : public DataCommand
+{
+    struct LaneLinkPair
+    {
+        int laneId;
+        int linkId;
+    };
+
+public:
+    explicit CreateInnerLaneLinksCommand(RSystemElementRoad *road, DataCommand *parent = NULL);
+    virtual ~CreateInnerLaneLinksCommand();
+
+    virtual int id() const
+    {
+        return 0x1056;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    CreateInnerLaneLinksCommand(); /* not allowed */
+    CreateInnerLaneLinksCommand(const CreateInnerLaneLinksCommand &); /* not allowed */
+    CreateInnerLaneLinksCommand &operator=(const CreateInnerLaneLinksCommand &); /* not allowed */
+
+private:
+    RSystemElementRoad *road_;
+    QMultiMap<double,LaneLinkPair> newSuccessorLaneLinks_;
+    QMultiMap<double,LaneLinkPair> oldSuccessorLaneLinks_;
+    QMultiMap<double,LaneLinkPair> newPredecessorLaneLinks_;
+    QMultiMap<double,LaneLinkPair> oldPredecessorLaneLinks_;
+};
+
+//#########################//
+// CreateNextRoadLaneLinksCommand //
+//#########################//
+
+class CreateNextRoadLaneLinksCommand : public DataCommand
+{
+    struct LaneLinkPair
+    {
+        int laneId;
+        int linkId;
+    };
+
+public:
+    explicit CreateNextRoadLaneLinksCommand(RoadSystem *roadSystem, RSystemElementRoad *road, DataCommand *parent = NULL);
+    virtual ~CreateNextRoadLaneLinksCommand();
+
+    virtual int id() const
+    {
+        return 0x1058;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    CreateNextRoadLaneLinksCommand(); /* not allowed */
+    CreateNextRoadLaneLinksCommand(const CreateNextRoadLaneLinksCommand &); /* not allowed */
+    CreateNextRoadLaneLinksCommand &operator=(const CreateNextRoadLaneLinksCommand &); /* not allowed */
+
+private:
+    RoadSystem *roadSystem_;
+    RSystemElementRoad *road_;
+    RSystemElementJunction *junction_;
+    JunctionConnection *junctionPredecessorConnection_;
+    JunctionConnection *junctionSuccessorConnection_;
+    QMultiMap<QString, LaneLinkPair> newSuccessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> oldSuccessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> newPredecessorLaneLinks_;
+    QMultiMap<QString, LaneLinkPair> oldPredecessorLaneLinks_;
+};
+
+//#########################//
+// LinkRoadsAndLanesCommand //
+//#########################//
+
+class LinkRoadsAndLanesCommand : public DataCommand
+{
+public:
+    explicit LinkRoadsAndLanesCommand(const QList<RSystemElementRoad *> &roads, double threshold, DataCommand *parent = NULL);
+    explicit LinkRoadsAndLanesCommand(const QList<SetRoadLinkRoadsCommand::RoadPair *> &roadPairs, DataCommand *parent = NULL);
+    virtual ~LinkRoadsAndLanesCommand();
+
+    virtual int id() const
+    {
+        return 0x1060;
+    }
+
+    virtual void undo()
+    {
+        QUndoCommand::undo();
+    };
+    virtual void redo()
+    {
+        QUndoCommand::redo();
+    };
+
+private:
+    LinkRoadsAndLanesCommand(); /* not allowed */
+    LinkRoadsAndLanesCommand(const LinkRoadsAndLanesCommand &); /* not allowed */
+    LinkRoadsAndLanesCommand &operator=(const LinkRoadsAndLanesCommand &); /* not allowed */
+
+private:
+    QList<RSystemElementRoad *> roads_;
+    QList<SetRoadLinkRoadsCommand::RoadPair *> roadPairs_;
+    double threshold_;
+
+    SetRoadLinkRoadsCommand *setRoadLinkRoadsCommand_;
+    CreateInnerLaneLinksCommand *createInnerLaneLinksCommand_;
+    CreateNextRoadLaneLinksCommand *createNextRoadLaneLinksCommand_;
+};
+
+//#########################//
+// LinkLanesCommand //
+//#########################//
+
+class LinkLanesCommand : public DataCommand
+{
+public:
+    explicit LinkLanesCommand(RSystemElementRoad *road, DataCommand *parent = NULL);
+    virtual ~LinkLanesCommand();
+
+    virtual int id() const
+    {
+        return 0x1062;
+    }
+
+    virtual void undo()
+    {
+        QUndoCommand::undo();
+    };
+    virtual void redo()
+    {
+        QUndoCommand::redo();
+    };
+
+private:
+    LinkLanesCommand(); /* not allowed */
+    LinkLanesCommand(const LinkLanesCommand &); /* not allowed */
+    LinkLanesCommand &operator=(const LinkLanesCommand &); /* not allowed */
+
+private:
+    RSystemElementRoad * road_;
+
+    CreateInnerLaneLinksCommand *createInnerLaneLinksCommand_;
+    CreateNextRoadLaneLinksCommand *createNextRoadLaneLinksCommand_;
+};
+
+
+
 
 #endif // ROADCOMMANDS_HPP

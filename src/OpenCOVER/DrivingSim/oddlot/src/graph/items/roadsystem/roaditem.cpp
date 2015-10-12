@@ -102,8 +102,15 @@ RoadItem::notifyDeletion()
 bool
 RoadItem::removeRoad()
 {
+    getProjectGraph()->beginMacro(QObject::tr("Remove Road"));
+
+    RemoveRoadLinkCommand * removeRoadLinkCommand = new RemoveRoadLinkCommand(road_);
+    getProjectGraph()->executeCommand(removeRoadLinkCommand);
     RemoveRoadCommand *command = new RemoveRoadCommand(road_, NULL);
-    return getProjectGraph()->executeCommand(command);
+    bool commandExecution =  getProjectGraph()->executeCommand(command);
+
+    getProjectGraph()->endMacro();
+    return commandExecution;
 }
 
 void

@@ -13,6 +13,7 @@
 #include <config/CoviseConfig.h>
 #include "VRSceneGraph.h"
 #include "coVRAnimationManager.h"
+#include "coVRConfig.h"
 
 #include <osg/Uniform>
 #include <osg/Program>
@@ -1745,7 +1746,13 @@ void coVRShaderList::update()
 
     //neue Weltkoordinaten berechnen und diese der Light-Uniform zuweisen auf die in Shader zugegriffen wird (Lichtposition)
     osg::Matrix nWorldViewMat;
-    nWorldViewMat = (BMat * WorldViewMat * InvRot) * cover->invEnvCorrectMat;
+    
+    if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+    {
+        nWorldViewMat = (BMat * WorldViewMat);
+    }
+    else
+        nWorldViewMat = (BMat * WorldViewMat * InvRot) * cover->invEnvCorrectMat;
     osg::Matrix InvnWorldViewMat;
     InvnWorldViewMat.invert(nWorldViewMat);
 
@@ -1754,12 +1761,6 @@ void coVRShaderList::update()
     nWVMRotOnly(3, 1) = 0;
     nWVMRotOnly(3, 2) = 0;
     nWVMRotOnly(3, 3) = 1;
-    /*
-   osg::Matrix Translig;
-   Translig.makeTranslate(0,200,0);
-   osg::Matrix Rotlig;
-   Rotlig.makeRotate(osg::DegreesToRadians(90.0),1,0,0);
-   lightMatrix->set(nWVMRotOnly*Translig);*/
 
     //Projektionsmatrix berechnen, mit entsprechender Translation und Rotation
     osg::Matrix ProjMat;
@@ -1771,7 +1772,13 @@ void coVRShaderList::update()
     projectionMatrix->set(osg::Matrixf(InvnWorldViewMat * Scalepro * Transpro * ProjMat));
 
     osg::Matrix Translig = Translig.translate(0, 0, 300); //alt lig: 0,400,300 - neu ohne y weil versch der fahrbahn etc
-    lightMatrix->set(osg::Matrixf((BMat * WorldViewMat * InvRot) * cover->invEnvCorrectMat * Translig)); //korrekt bis auf skalierung - mit ProjMat oder InvnWorldViewMat mult bringt nur verschiebung mit kamera
+    
+    if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+    {
+        lightMatrix->set(osg::Matrixf((BMat * WorldViewMat)  * Translig)); //korrekt bis auf skalierung - mit ProjMat oder InvnWorldViewMat mult bringt nur verschiebung mit kamera
+    }
+    else
+        lightMatrix->set(osg::Matrixf((BMat * WorldViewMat * InvRot) * cover->invEnvCorrectMat * Translig)); //korrekt bis auf skalierung - mit ProjMat oder InvnWorldViewMat mult bringt nur verschiebung mit kamera
 
     /*osg::Matrix ProjMat;
    ProjMat.makePerspective(160.0,(1024/768),1.0,10000.0);

@@ -115,6 +115,7 @@ public:
     void calcIntersection();
 
     osg::ref_ptr<osg::Group> trajectoriesGroup;
+    float floorHeight;
 };
 
 class BPAPlugin : public coVRPlugin, public coTUIListener
@@ -129,6 +130,9 @@ public:
     coTUIToggleButton *airResistance;
     coTUIToggleButton *OriginComputationType;
     coTUIToggleButton *ignoreUpward;
+    coTUIToggleButton *allToAll;
+    coTUILabel *angleLabel;
+    coTUIEditFloatField *angleEdit;
 
     static int SloadBPA(const char *filename, osg::Group *parent, const char *ck = "");
     int loadBPA(const char *filename, osg::Group *parent);

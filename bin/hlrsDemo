@@ -212,7 +212,7 @@ do
 	    echo -e "starting Blutspuranalyse";
 	    cd /data/UTM
             #opencover /data/UTM/Trajectories_texture.wrl
-	    opencover testroom.wrl *.bpadxf
+	    opencover Trajectories.bpadxf testroom.wrl
 	    ;;
 	47)
 	    echo -e "starting Car Crash";
@@ -333,7 +333,7 @@ do
 
 	86)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /mnt/raid/home/hpcthobs/covise/net/ALL/2014/ThyssenNeu.net
+	    covise -e /data/covise_net/ALL/2014/ThyssenNeu.net
 	    ;;
 
 # SYSTEM

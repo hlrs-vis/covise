@@ -265,6 +265,8 @@ coVRConfig::coVRConfig()
             m_envMapMode = FIXED_TO_VIEWER_FRONT;
         if (strcasecmp(entry.c_str(), "fixedToObjectsRootFront") == 0)
             m_envMapMode = FIXED_TO_OBJROOT_FRONT;
+        if (strcasecmp(entry.c_str(), "none") == 0)
+            m_envMapMode = NONE;
     }
 
     m_LODScale = coCoviseConfig::getFloat("COVER.LODScale", 1.0);
@@ -331,6 +333,9 @@ coVRConfig::coVRConfig()
         sprintf(str, "COVER.PipeConfig.Pipe:%d", (int)i);
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
+        pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
+        bool present = false;
+        pipes[i].useDISPLAY = coCoviseConfig::isOn("useDISPLAY", str, false, &present);
     }
 
     for (size_t i = 0; i < windows.size(); i++)

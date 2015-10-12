@@ -133,9 +133,132 @@
 			</crossfallPrototype>
 		</crossfallPrototypes>
 
-
-
 		<laneSectionPrototypes>
+		
+					<laneSectionPrototype name = "osm secondary" icon = "" system="osm" type="secondary" lanes="2">
+				<road name="osm secondary" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			<laneSectionPrototype name = "osm secondary 1" icon = "" system="osm" type="secondary" lanes="1">
+				<road name="osm secondary 1" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+								<lane id="-2" type="sidewalk" level= "0">
+									<width sOffset="0.0" a="1.7" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="none" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			<laneSectionPrototype name = "osm tertiary" icon = "" system="osm" type="tertiary" lanes="2">
+				<road name="osm tertiary" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<left>
+								<lane id="1" type="driving" level= "0">
+									<link>
+										<predecessor id="1"/>
+										<successor id="1"/>
+									</link>
+									<width sOffset="0.0" a="3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</left>
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
+			<laneSectionPrototype name = "osm tertiary 1" icon = "" system="osm" type="tertiary" lanes="1">
+				<road name="osm tertiary 1" length="100.0" id="prototype" junction="-1">
+					<lanes>
+						<laneSection s="0.0">
+							<center>
+								<lane id="0" type="border" level= "0">
+									<roadMark sOffset="0.0" type="broken" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</center>
+							<right>
+								<lane id="-1" type="driving" level= "0">
+									<link>
+										<predecessor id="-1"/>
+										<successor id="-1"/>
+									</link>
+									<width sOffset="0.0" a="3" b="0.0" c="0.0" d="0.0"/>
+									<roadMark sOffset="0.0" type="solid" weight="standard" color="standard" width="0.12"/>
+								</lane>
+							</right>
+						</laneSection>
+					</lanes>
+				</road>
+			</laneSectionPrototype>
 
                         <!-- Ramp1-->
 			<laneSectionPrototype name = "Ramp1" icon = "">

@@ -20,6 +20,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coTabletUI.h>
+
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
@@ -57,8 +59,15 @@ using covise::TokenBuffer;
 
 class VrmlNodeElevator;
 class VrmlNodeExchanger;
+class VrmlNodeLanding;
 
-class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild
+#define CAR_WIDTH_2 1.0 // Half with of the car
+#define CAR_HEIGHT_2 1.8 // Half height of the car
+#define LANDING_WIDTH_2 1.8 // Half with of the exchanger or landing
+#define LANDING_HEIGHT_2 1.8 // Half height of the exchanger
+#define SAFETY_DISTANCE 0.1
+
+class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild,public coTUIListener
 {
 public:
     enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight,StartRotatingRight,StartRotatingLeft};
@@ -93,11 +102,18 @@ public:
     enum carState getTravelDirection();
     void setTravelDirection(enum carState t);
     int getLandingNumber(){return landingNumber;};
+    int getShaftNumber(){return shaftNumber;};
     void setDestination(int landing, int shaft);
     void moveToNext(); // move to next station
     void arrivedAtDestination(); // the car arrived at its destination
-    bool nextPositionIsEmpty(); // return true if the destination landing is empty
-    void startTurning(); // turn if necessarry and possible
+    bool nextPositionIsEmpty(); // return true if the next station towards the destination landing is empty
+    float getV(){return v;};
+    void setAngle(float a);
+    bool stationListChanged();
+    void switchToNewStationList();// try to switch to new stationList
+
+    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    virtual void tabletEvent(coTUIElement *tUIItem);
 
     VrmlSFInt   d_carNumber;
     VrmlSFVec3f d_carPos;
@@ -105,9 +121,11 @@ public:
     VrmlSFTime  d_carDoorOpen;
     VrmlSFFloat d_doorTimeout;
     VrmlSFRotation d_carRotation;
+    VrmlSFFloat d_carFraction;
     VrmlMFInt d_stationList;
     VrmlMFFloat d_stationOpenTime;
     VrmlSFInt d_currentStationIndex;
+
 
 
 private:
@@ -132,6 +150,7 @@ private:
     int oldShaftNumber;
     int oldLandingIndex; // is >=0 until we left the station
     int destinationLandingIndex; // is >=0 until we are close to the destination
+    std::list<int>::iterator currentPassingStation;
     double doorTime;
     VrmlNodeElevator *elevator;
     enum carState state;
@@ -142,7 +161,13 @@ private:
     enum carState oldTravelDirection;
     double timeoutStart;
     int ID;
-    std::list<VrmlNodeExchanger *> currentExchangers;
+    std::list<VrmlNodeExchanger *> currentExchangers; // list of exchangers we pass
+    std::list<int> passingStations; // stations that we pass including the current destination, excluding the start
+    std::list<int> occupiedStations; // stations that we occupied and which have not peen released
+    coTUIToggleButton *openButton;
+    coTUILabel *carLabel;
+    coTUIEditField *stationListEdit;
+    std::list<int> temporaryStationList;
 };
 
 #endif

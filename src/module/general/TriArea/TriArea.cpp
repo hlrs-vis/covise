@@ -142,7 +142,7 @@ coDistributedObject *TriArea::tri_area(const coDistributedObject *mesh_in,
 /*
             for (i = 0; i < numcoord; i++)
             {
-                //*NU = *NV = *NW = 0;
+                // *NU = *NV = *NW = 0;
                 *NTA =0.0;
                 for (n = nli[i]; n < nli[i + 1]; n++)
                 {

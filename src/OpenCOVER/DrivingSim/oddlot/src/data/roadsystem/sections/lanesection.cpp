@@ -169,32 +169,32 @@
 	    int i = 0;
 	    double width = 0;
 	    Lane * lane = getLane(i);
-	    if (t < 0.0)
-	    {
-		while (width < fabs(t))  
-		{
-		    lane = getNextLower(i);
-		    if (!lane)
-		    {
-			return i;
-		    }
-		    width += getLaneWidth(--i, s);
-		}
-	    }
-	    else
-	    {
-		while (width < t)  
-		{
-		    lane = getNextUpper(i);
-		    if (!lane)
-		    {
-			return i;
-		    }
-		    width += getLaneWidth(++i, s);
-		} 
-	    }
-	    return i;
-	}
+        if (t < 0.0)
+        {
+            while (width < fabs(t))  
+            {
+                lane = getNextLower(i);
+                if (!lane)
+                {
+                    return i;
+                }
+                width += getLaneWidth(--i, s);
+            }
+        }
+        else
+        {
+            while (width < t)  
+            {
+                lane = getNextUpper(i);
+                if (!lane)
+                {
+                    return i;
+                }
+                width += getLaneWidth(++i, s);
+            } 
+        }
+        return i;
+    }
 
 	void
 	LaneSection::setLanes(QMap<int, Lane *> newLanes)
@@ -297,6 +297,8 @@
 
 void LaneSection::checkAndFixLanes()
 {
+    // Lane ids should be subsequent
+    //
     for (int i = 1; i < lanes_.size(); i++)
     {
         if (!lanes_.contains(i)) // not found
@@ -335,6 +337,57 @@ void LaneSection::checkAndFixLanes()
             }
         }
     }
+}
+
+// Returns distance from road center to mid of lane
+//
+double
+LaneSection::getTValue(Lane * lane, double s, double laneWidth)
+{
+    double t = 0.0;
+
+    if (lane->getId() < 0)
+    {
+        if (laneWidth < NUMERICAL_ZERO3)
+        {
+            if (lane->getId() == getRightmostLaneId())
+            {
+                t = NUMERICAL_ZERO3;
+            }
+            else
+            {
+                t = -NUMERICAL_ZERO3;
+            }
+        }
+        else
+        {
+            t = -laneWidth / 2;
+        }
+
+        t = -getLaneSpanWidth(lane->getId() + 1, 0, s) + t;
+    }
+    else if (lane->getId() > 0)
+    {
+        if (laneWidth < NUMERICAL_ZERO3)
+        {
+            if (lane->getId() == getLeftmostLaneId())
+            {
+                t = -NUMERICAL_ZERO3;
+            }
+            else
+            {
+                t = NUMERICAL_ZERO3;
+            }
+        }
+        else
+        {
+            t = laneWidth / 2;
+        }
+
+        t = getLaneSpanWidth(0, lane->getId() - 1, s) + t;
+    }
+
+    return t;
 }
 
 int
@@ -431,7 +484,7 @@ LaneSection::getClone(double sStart, double sEnd) const
     //
     foreach (Lane *child, lanes_)
     {
-        clone->addLane(child->getClone(sStart - getSStart(), sEnd - getSStart()));
+        clone->addLane(child->getClone(sStart, sEnd));
     }
 
     return clone;

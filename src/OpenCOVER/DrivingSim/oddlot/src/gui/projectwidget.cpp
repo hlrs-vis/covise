@@ -485,7 +485,7 @@ size_t ProjectWidget::getMaxLinearLength(size_t start)
     size_t maxLen = XVector.size() - start;
     for (size_t i = 3; i <= maxLen; i++)
     {
-        if (getLinearError(start, i) > ImportSettings::instance()->LinearError)
+        if (getLinearError(start, i) > ImportSettings::instance()->LinearError())
             return i - 1;
     }
     return maxLen;
@@ -551,7 +551,7 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
             if (curve->validParameters())
             {
 
-                if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError)
+                if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError())
                 {
                     //delete curve;
                     //return i-1;
@@ -591,7 +591,7 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
                     curve = new TrackSpiralArcSpiral(startPos, endPos, startHeadingDeg, endHeadingDeg, 0.5);
                     if (curve->validParameters())
                     {
-                        if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError)
+                        if (getArcError(start, i, curve) > ImportSettings::instance()->CurveError())
                         {
                             //delete curve;
                             //return i-1;
@@ -617,26 +617,33 @@ size_t ProjectWidget::getMaxArcLength(size_t start, double startHeadingDeg)
 }
 RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
 {
+    return addLineStrip(name,-1,false,2,osmWay::unknown);
+}
+
+RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type)
+{
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
-    RSystemElementRoad *road = new RSystemElementRoad("", name, "");
+    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "-1");
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());
+    
+    bool maximizeCurveRadius = ImportSettings::instance()->maximizeCurveRadius();
 
     double dxs = 0;
     double dys = 0;
     dxs = XVector[1] - XVector[0];
     dys = YVector[1] - YVector[0];
     double startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
-    bool lastLine = false;
+    TrackElementLine *lastLineElement=NULL;
     for (size_t i = 0; i < XVector.size() - 1; i++)
     {
         SVector[i] = road->getLength();
         size_t len = getMaxLinearLength(i);
         size_t arcLen = getMaxArcLength(i, startHeadingDeg);
-        if (arcLen > len || (lastLine && (arcLen > 0)))
+        if (arcLen > len || (lastLineElement!=NULL && (arcLen > 0))) // create an arc if the last element was a line of if an arc element would be longer than a linear element
         {
             double dxe = 0;
             double dye = 0;
@@ -670,23 +677,167 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
                 SVector[i + j] = SVector[i + j - 1] + SegLen(i + j, i + j - 1);
             }
             i += arcLen - 2;
-            lastLine = false;
             startHeadingDeg = endHeadingDeg;
+            lastLineElement=NULL;
         }
         else
         {
+            
             double dxs = XVector[i + len - 1] - XVector[i];
             double dys = YVector[i + len - 1] - YVector[i];
-            startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
-            double length = sqrt(dxs * dxs + dys * dys);
-            TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dys, dxs) * RAD_TO_DEG, road->getLength(), length);
-            road->addTrackComponent(line);
-            for (int j = 1; j < len; j++)
-            {
-                SVector[i + j] = SVector[i] + SegLen(i, i + j);
+            if(lastLineElement!=NULL) // two line elements should never follow each other. what we have to do is go back a little until we can fit an arc
+            { // we can safely go back as much as the shorter length of the two inear segments.
+                double len1 = lastLineElement->getLength();
+                double len2 = sqrt(dxs*dxs + dys*dys);
+                double maxArc = std::min(len1,len2);
+                if(maxArc < 2.5)
+                {
+                    fprintf(stderr,"maxArc very small, creating two line segments %f\n",maxArc);
+                    startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
+                    double length = sqrt(dxs * dxs + dys * dys);
+                    TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dys, dxs) * RAD_TO_DEG, road->getLength(), length);
+                    road->addTrackComponent(line);
+                    lastLineElement = line;
+                    for (int j = 1; j < len; j++)
+                    {
+                        SVector[i + j] = SVector[i] + SegLen(i, i + j);
+                    }
+                    i += len - 2;
+                }
+                else
+                {
+                    int minIndex = 0;
+                    float minError = 100000;
+                    if(maximizeCurveRadius)
+                    {
+                        for(int j = 1;j<len;j++)
+                        {
+                            double dx = XVector[i + j] - XVector[i];
+                            double dy = YVector[i + j] - YVector[i];
+                            double dxe = dx;
+                            double dye = dy;
+                            if(i+j+1 < XVector.size())
+                            {
+                                dxe = XVector[i + j + 1] - XVector[i];
+                                dye = YVector[i + j + 1] - YVector[i];
+                            }
+                            double currentlen = sqrt(dx*dx + dy*dy);
+                            if(currentlen < maxArc)
+                            {
+                                QPointF endPos(XVector[i + j], YVector[i +j]);
+                                double endHeadingDeg = atan2(dye, dxe) * RAD_TO_DEG;
+                                double HeadingDiff = endHeadingDeg - lastLineElement->getHeading(0);
+                                QPointF pf = lastLineElement->getLocalPoint((len1-currentlen)+lastLineElement->getSStart());
+                                TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, lastLineElement->getHeading(0), endHeadingDeg, 0.5);
+                                if (curve->validParameters())
+                                {
+                                    float currentError = getArcError(i, j, curve);
+
+                                    if (currentError < minError)
+                                    {
+                                        minError=currentError;
+                                        minIndex = j;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(minIndex > 0) // we have found a valid curve, create it.
+                    {
+                        double dx = XVector[i + minIndex] - XVector[i];
+                        double dy = YVector[i + minIndex] - YVector[i];
+                        double dxe = dx;
+                        double dye = dy;
+                        if(i+minIndex+1 < XVector.size())
+                        {
+                            dxe = XVector[i + minIndex + 1] - XVector[i];
+                            dye = YVector[i + minIndex + 1] - YVector[i];
+                        }
+                        double currentlen = sqrt(dx*dx + dy*dy);
+                        QPointF endPos(XVector[i + minIndex], YVector[i + minIndex]);
+                        double endHeadingDeg = atan2(dye, dxe) * RAD_TO_DEG;
+                        startHeadingDeg = lastLineElement->getLocalHeading(0);
+                        QPointF pf = lastLineElement->getLocalPoint((len1-currentlen)+lastLineElement->getSStart());
+                        TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, startHeadingDeg, endHeadingDeg, 0.5);
+                        if (curve->validParameters())
+                        {
+                            lastLineElement->setLength(len1-currentlen);
+                            road->updateLength();
+                            curve->setSStart(road->getLength());
+                            road->addTrackComponent(curve);
+                        }
+                        else
+                        {
+                            fprintf(stderr, "Can't create curve which worked before...\n");
+                        }
+                        for (size_t j = 1; j < minIndex; j++)
+                        {
+                            SVector[i + j] = SVector[i + j - 1] + SegLen(i + j, i + j - 1);
+                        }
+                        i += minIndex - 1;
+                        startHeadingDeg = endHeadingDeg;
+                        lastLineElement=NULL;
+                    }
+                    else
+                    {
+                        // we could not create a valid curve to one of the existing nodes, thus try to create a very small one, 1.5m this should always work if the next segment is larger then 1.5 m
+                        double dx = XVector[i + 1] - XVector[i];
+                        double dy = YVector[i + 1] - YVector[i];
+                        double currentLen = sqrt(dx*dx + dy*dy);
+                        double minLen = std::min(currentLen*0.9,2.5);
+                        minLen= std::min(minLen,currentLen);
+                        
+                        dx = (dx / currentLen) * minLen;
+                        dy = (dy / currentLen) * minLen;
+                        XVector[i] += dx;
+                        YVector[i] += dy; // move this one vertex to the end of this curve
+                        QPointF endPos(XVector[i], YVector[i]);
+                        double endHeadingDeg = atan2(dy, dx) * RAD_TO_DEG;
+                        startHeadingDeg = lastLineElement->getLocalHeading(0);
+                        QPointF pf = lastLineElement->getLocalPoint((len1-minLen)+lastLineElement->getSStart());
+                        TrackSpiralArcSpiral *curve = new TrackSpiralArcSpiral(pf, endPos, startHeadingDeg, endHeadingDeg, 0.5);
+                        if (curve->validParameters())
+                        {
+                            lastLineElement->setLength(len1-minLen);
+                            road->updateLength();
+                            curve->setSStart(road->getLength());
+                            road->addTrackComponent(curve);
+                            i --;
+                            startHeadingDeg = endHeadingDeg;
+                            lastLineElement=NULL;
+                        }
+                        else
+                        {
+                            fprintf(stderr, "Can't create curve even the smallest curve...\n");
+                            startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
+                            double length = sqrt(dxs * dxs + dys * dys);
+                            TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dys, dxs) * RAD_TO_DEG, road->getLength(), length);
+                            road->addTrackComponent(line);
+                            lastLineElement = line;
+                            for (int j = 1; j < len; j++)
+                            {
+                                SVector[i + j] = SVector[i] + SegLen(i, i + j);
+                            }
+                            i += len - 2;
+                        }
+                    }
+
+                }
+
             }
-            i += len - 2;
-            lastLine = true;
+            else
+            {
+                startHeadingDeg = atan2(dys, dxs) * RAD_TO_DEG;
+                double length = sqrt(dxs * dxs + dys * dys);
+                TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dys, dxs) * RAD_TO_DEG, road->getLength(), length);
+                road->addTrackComponent(line);
+                lastLineElement = line;
+                for (int j = 1; j < len; j++)
+                {
+                    SVector[i + j] = SVector[i] + SegLen(i, i + j);
+                }
+                i += len - 2;
+            }
         }
     }
     // Calculate Slopes //
@@ -726,23 +877,57 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name)
     }
 
     road->setElevationSections(newSections);
-    road->superposePrototype(currentRoadPrototype_);
+    QString typeName="osm:"+osmWay::getTypeName(type)+":"+QString::number(numLanes);
+    
+    RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype,typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
+    osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
+  
+    road->superposePrototype(osmPrototype);
+    if(maxspeed>=0)
+    {
+        TypeSection *ts = road->getTypeSection(0);
+        if(ts==NULL)
+        {
+            // default entry 
+            ts = new TypeSection(0.0, TypeSection::RTP_UNKNOWN);
+            road->addTypeSection(ts);
+        }
+        SpeedRecord *sr=new SpeedRecord();
+        sr->maxSpeed = maxspeed * 0.277777778;
+        ts->setSpeedRecord(sr);
+    }
+    TypeSection *ts = road->getTypeSection(0);
+    TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
+    if(type == osmWay::secondary)
+        rt = TypeSection::RTP_RURAL;
+    if(type == osmWay::tertiary)
+        rt = TypeSection::RTP_TOWN;
+    if(type == osmWay::living_street)
+        rt = TypeSection::RTP_LOWSPEED;
+    if(type == osmWay::service)
+        rt = TypeSection::RTP_LOWSPEED;
+    if(type == osmWay::pedestrian)
+        rt = TypeSection::RTP_PEDESTRIAN;
+    if(type == osmWay::unclassified)
+        rt = TypeSection::RTP_UNKNOWN;
+    if(ts==NULL)
+    {
+        TypeSection::RoadType rt=TypeSection::RTP_MOTORWAY;
+        ts = new TypeSection(0.0,rt);
+        road->addTypeSection(ts);
+    }
+    ts->setRoadType(rt);
 
     roadSystem->addRoad(road); // This may change the ID!
-#ifdef tesselatedROAD
-    // add a testroad
-    road = new RSystemElementRoad("tr_" + number, "trID_" + number, "");
-    for (int i = 0; i < XVector.size() - 1; i++)
+    
+    if(bridge)
     {
-        double dx = XVector[i + 1] - XVector[i];
-        double dy = YVector[i + 1] - YVector[i];
-        double length = sqrt(dx * dx + dy * dy);
-        TrackElementLine *line = new TrackElementLine(XVector[i], YVector[i], atan2(dy, dx) * RAD_TO_DEG, road->getLength(), length);
-        road->addTrackComponent(line);
+        Bridge *bridge = new Bridge("osmBridge","","",0,0.0,road->getLength());
+        road->addBridge(bridge);
     }
-    road->superposePrototype(testRoadPrototype_);
-    roadSystem->addRoad(road); // This may change the ID!
-#endif
 
     numLineStrips++;
     return road;

@@ -499,6 +499,10 @@ DomWriter::visit(Bridge *bridge)
         {
             typeName = "brick";
         }
+        else if (bridge->getType() == 3)
+        {
+            typeName = "wood";
+        }
 
         bridgeElement.setAttribute("type", typeName);
     }
@@ -856,6 +860,24 @@ DomWriter::visit(TypeSection *section)
     QDomElement element = doc_->createElement("type");
     element.setAttribute("s", section->getSStart());
     element.setAttribute("type", TypeSection::parseRoadTypeBack(section->getRoadType()));
+    if(section->getSpeedRecord()!=NULL)
+    {
+        QDomElement speedElement = doc_->createElement("speed");
+        double speed = section->getSpeedRecord()->maxSpeed;
+        if(speed == 0)
+        {
+            speedElement.setAttribute("max", "no limit");
+        }
+        else if(speed < 0)
+        {
+            speedElement.setAttribute("max", "undefined");
+        }
+        else
+        {
+            speedElement.setAttribute("max", QString::number(speed));
+        }
+        element.appendChild(speedElement);
+    }
     currentRoad_.appendChild(element);
 }
 

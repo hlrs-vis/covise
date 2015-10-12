@@ -87,8 +87,8 @@ VRWindow::config()
         fprintf(stderr, "\nVRWindow::config\n");
     }
 
-    origVSize = new float[coVRConfig::instance()->numWindows()];
-    origHSize = new float[coVRConfig::instance()->numWindows()];
+    origVSize = new int[coVRConfig::instance()->numWindows()];
+    origHSize = new int[coVRConfig::instance()->numWindows()];
     for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
     {
         origVSize[i] = -1;
@@ -150,8 +150,8 @@ VRWindow::update()
         if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[0].embedded))
         {
             float width, height;
-            width = origHSize[0];
-            height = origVSize[0];
+            width = (float)origHSize[0];
+            height = (float)origVSize[0];
             float vsize = coVRConfig::instance()->screens[0].hsize * (height / width);
             coVRConfig::instance()->screens[0].vsize = vsize;
             _firstTimeEmbedded = false;
@@ -211,36 +211,48 @@ VRWindow::createWin(int i)
     if (traits->inheritedWindowData != NULL)
         traits->windowDecoration = false;
 
-    if (coVRConfig::instance()->useDisplayVariable())
+    const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
+    if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
     {
-        static char display[1024];
-        strncpy(display, getenv("DISPLAY"), sizeof(display));
-        display[sizeof(display) - 1] = '\0';
-        const char *host = display;
-        char *p = strchr(display, ':');
-        if (p)
+        char *display = NULL;
+        
+        traits->displayNum = 0;
+        traits->screenNum = 0;
+        char *disp = getenv("DISPLAY");
+        if(disp)
         {
-            *p = '\0';
-            ++p;
-            char *server = p;
-            const char *screen = NULL;
-            p = strchr(server, '.');
+            display=new char[strlen(disp)+1];
+            strcpy(display,disp);
+            const char *host = display;
+            char *p = strchr(display, ':');
             if (p)
             {
                 *p = '\0';
                 ++p;
-                screen = p;
+                char *server = p;
+                const char *screen = NULL;
+                p = strchr(server, '.');
+                if (p)
+                {
+                    *p = '\0';
+                    ++p;
+                    screen = p;
+                }
+                if (host && strlen(host) > 0)
+                    traits->hostName = host;
+                traits->displayNum = server ? atoi(server) : 0;
+                traits->screenNum = screen ? atoi(screen) : 0;
             }
-            if (host && strlen(host) > 0)
-                traits->hostName = host;
-            traits->displayNum = server ? atoi(server) : 0;
-            traits->screenNum = screen ? atoi(screen) : 0;
+            delete[] display;
         }
     }
     else
     {
-        traits->displayNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11DisplayNum;
-        traits->screenNum = coVRConfig::instance()->pipes[coVRConfig::instance()->windows[i].pipeNum].x11ScreenNum;
+        const std::string &host = coVRConfig::instance()->pipes[pipeNum].x11DisplayHost;
+        if (!host.empty())
+            traits->hostName = host;
+        traits->displayNum = coVRConfig::instance()->pipes[pipeNum].x11DisplayNum;
+        traits->screenNum = coVRConfig::instance()->pipes[pipeNum].x11ScreenNum;
 
         // if possible, share graphics context with other windows
         for (int j=0; j<i; ++j)

@@ -196,11 +196,13 @@ struct pipeStruct
 {
     int x11DisplayNum;
     int x11ScreenNum;
-    //const char *display;
+    std::string x11DisplayHost;
+    bool useDISPLAY;
 
     pipeStruct()
     : x11DisplayNum(-1)
     , x11ScreenNum(-1)
+    , useDISPLAY(false)
     {}
 };
 
@@ -231,7 +233,8 @@ public:
         FIXED_TO_VIEWER,
         FIXED_TO_OBJROOT,
         FIXED_TO_VIEWER_FRONT,
-        FIXED_TO_OBJROOT_FRONT
+        FIXED_TO_OBJROOT_FRONT,
+        NONE
     } envMapModes;
     /*
             //my
@@ -243,7 +246,7 @@ public:
                ANNOTATION
             };
       */
-    
+    int getEnvMapMode(){return m_envMapMode;};
     int numScreens() const;
     int numChannels() const;
     int numPBOs() const;
@@ -412,15 +415,6 @@ private:
     bool m_useVBOs;
 
     bool m_useDISPLAY;
-#if 0
-    int m_numWindows;
-    int m_numViewports;
-    int m_numBlendingTextures;
-    int m_numScreens;
-    int m_numChannels;
-    int m_numPBOs;
-    int m_numPipes;
-#endif
     int m_stencilBits;
     float m_sceneSize;
 

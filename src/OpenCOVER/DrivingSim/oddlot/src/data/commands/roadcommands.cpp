@@ -3857,101 +3857,104 @@ SetRoadLinkRoadsCommand::~SetRoadLinkRoadsCommand()
 void
 SetRoadLinkRoadsCommand::redo()
 {
-
-    foreach (RSystemElementRoad *road, roads_)
+    if (isUndone())
     {
-        QList<RoadLink *> newRoadLinks = newRoadLinks_.values(road);
-        QList<RoadLink::RoadLinkType> roadLinkTypes = roadLinkTypes_.values(road);
-
-        for (int i = 0; i < roadLinkTypes.size(); i++)
+        foreach (RSystemElementRoad *road, roads_)
         {
-            if (roadLinkTypes.at(i) == RoadLink::DRL_PREDECESSOR)
+            QList<RoadLink *> newRoadLinks = newRoadLinks_.values(road);
+            QList<RoadLink::RoadLinkType> roadLinkTypes = roadLinkTypes_.values(road);
+
+            for (int i = 0; i < roadLinkTypes.size(); i++)
             {
-                road->setPredecessor(newRoadLinks.at(i));
-                // Lane Predecessors
-                LaneSection *laneSection = road->getLaneSection(0.0);
-                RSystemElementRoad *linkRoad = road->getRoadSystem()->getRoad(newRoadLinks.at(i)->getElementId());
-                if (linkRoad != NULL) // else road ends at a junction
+                if (roadLinkTypes.at(i) == RoadLink::DRL_PREDECESSOR)
                 {
+                    road->setPredecessor(newRoadLinks.at(i));
+                    /*
+                    // Lane Predecessors
+                    LaneSection *laneSection = road->getLaneSection(0.0);
+                    RSystemElementRoad *linkRoad = road->getRoadSystem()->getRoad(newRoadLinks.at(i)->getElementId());
+                    if (linkRoad != NULL) // else road ends at a junction
+                    {
                     if (newRoadLinks.at(i)->getContactPoint() == "start")
                     {
-                        LaneSection *linkSection = linkRoad->getLaneSection(0.0);
-                        QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                        foreach (Lane *lane, laneSection->getLanes())
-                        {
-                            if (linkSectionLanes.contains(-lane->getId()))
-                            {
-                                lane->setPredecessor(-lane->getId());
-                                linkSectionLanes.value(-lane->getId())->setPredecessor(lane->getId());
-                            }
-                        }
+                    LaneSection *linkSection = linkRoad->getLaneSection(0.0);
+                    QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
+                    foreach (Lane *lane, laneSection->getLanes())
+                    {
+                    if (linkSectionLanes.contains(-lane->getId()))
+                    {
+                    lane->setPredecessor(-lane->getId());
+                    linkSectionLanes.value(-lane->getId())->setPredecessor(lane->getId());
+                    }
+                    }
                     }
                     else
                     {
-                        LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
-                        QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                        foreach (Lane *lane, laneSection->getLanes())
-                        {
-                            if (linkSectionLanes.contains(lane->getId()))
-                            {
-                                lane->setPredecessor(lane->getId());
-                                linkSectionLanes.value(lane->getId())->setSuccessor(lane->getId());
-                            }
-                        }
+                    LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
+                    QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
+                    foreach (Lane *lane, laneSection->getLanes())
+                    {
+                    if (linkSectionLanes.contains(lane->getId()))
+                    {
+                    lane->setPredecessor(lane->getId());
+                    linkSectionLanes.value(lane->getId())->setSuccessor(lane->getId());
                     }
+                    }
+                    }
+                    } */
                 }
-            }
 
-            else
-            {
-                road->setSuccessor(newRoadLinks.at(i));
-                // Lane Successors
-
-                LaneSection *laneSection = road->getLaneSection(road->getLength());
-                RSystemElementRoad *linkRoad = road->getRoadSystem()->getRoad(newRoadLinks.at(i)->getElementId());
-                if (linkRoad != NULL) // else road ends at a junction
+                else
                 {
+                    road->setSuccessor(newRoadLinks.at(i));
+                    // Lane Successors
+
+                    /*          LaneSection *laneSection = road->getLaneSection(road->getLength());
+                    RSystemElementRoad *linkRoad = road->getRoadSystem()->getRoad(newRoadLinks.at(i)->getElementId());
+                    if (linkRoad != NULL) // else road ends at a junction
+                    {
                     if (newRoadLinks.at(i)->getContactPoint() == "start")
                     {
-                        LaneSection *linkSection = linkRoad->getLaneSection(0.0);
-                        QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                        foreach (Lane *lane, laneSection->getLanes())
-                        {
-                            if (linkSectionLanes.contains(lane->getId()))
-                            {
-                                lane->setSuccessor(lane->getId());
-                                linkSectionLanes.value(lane->getId())->setPredecessor(lane->getId());
-                            }
-                        }
+                    LaneSection *linkSection = linkRoad->getLaneSection(0.0);
+                    QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
+                    foreach (Lane *lane, laneSection->getLanes())
+                    {
+                    if (linkSectionLanes.contains(lane->getId()))
+                    {
+                    lane->setSuccessor(lane->getId());
+                    linkSectionLanes.value(lane->getId())->setPredecessor(lane->getId());
+                    }
+                    }
                     }
                     else
                     {
-                        LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
-                        QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                        foreach (Lane *lane, laneSection->getLanes())
-                        {
-                            if (linkSectionLanes.contains(-lane->getId()))
-                            {
-                                lane->setSuccessor(-lane->getId());
-                                linkSectionLanes.value(-lane->getId())->setSuccessor(lane->getId());
-                            }
-                        }
+                    LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
+                    QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
+                    foreach (Lane *lane, laneSection->getLanes())
+                    {
+                    if (linkSectionLanes.contains(-lane->getId()))
+                    {
+                    lane->setSuccessor(-lane->getId());
+                    linkSectionLanes.value(-lane->getId())->setSuccessor(lane->getId());
                     }
+                    }
+                    }
+                    } */
                 }
             }
         }
-    }
 
-    foreach (RSystemElementJunction *junction, junctions_)
-    {
-        QList<JunctionConnection *> junctionConnections = newConnections_.values(junction);
-        for (int i = 0; i < junctionConnections.size(); ++i)
+        foreach (RSystemElementJunction *junction, junctions_)
         {
-            junction->addConnection(junctionConnections.at(i));
+            QList<JunctionConnection *> junctionConnections = newConnections_.values(junction);
+            for (int i = 0; i < junctionConnections.size(); ++i)
+            {
+                junction->addConnection(junctionConnections.at(i));
+            }
         }
-    }
 
-    setRedone();
+        setRedone();
+    }
 }
 
 void
@@ -3969,7 +3972,7 @@ SetRoadLinkRoadsCommand::undo()
                 road->setPredecessor(oldRoadLinks.at(i));
                 // Lane Predecessors
 
-                if (oldRoadLinks.at(i))
+      /*          if (oldRoadLinks.at(i))
                 {
                     LaneSection *laneSection = road->getLaneSection(0.0);
                     RSystemElementRoad *linkRoad = road->getRoadSystem()->getRoad(oldRoadLinks.at(i)->getElementId());
@@ -4016,14 +4019,14 @@ SetRoadLinkRoadsCommand::undo()
                     {
                         lane->setPredecessor(lane->getId());
                     }
-                }
+                }*/
             }
             else
             {
                 road->setSuccessor(oldRoadLinks.at(i));
                 // Lane Successors
 
-                if (oldRoadLinks.at(i))
+         /*      if (oldRoadLinks.at(i))
                 {
                     LaneSection *laneSection = road->getLaneSection(road->getLength());
                     RSystemElementRoad *linkRoad = road->getRoadSystem()->getRoad(oldRoadLinks.at(i)->getElementId());
@@ -4070,7 +4073,7 @@ SetRoadLinkRoadsCommand::undo()
                     {
                         lane->setSuccessor(lane->getId());
                     }
-                }
+                } */
             }
         }
     }
@@ -4212,7 +4215,7 @@ SetRoadLinkRoadsCommand::findPathContactPoint(RSystemElementRoad *road1, RSystem
 
     JunctionConnection *newConnection = new JunctionConnection(QString("jc0"), road2->getID(), road1->getID(), contactPoint, 1);
 
-    QMap<double, LaneSection *> lanes = road1->getLaneSections();
+/*    QMap<double, LaneSection *> lanes = road1->getLaneSections();
     LaneSection *lsC = *lanes.begin();
     bool even = false;
     if (contactPoint == "start")
@@ -4260,12 +4263,13 @@ SetRoadLinkRoadsCommand::findPathContactPoint(RSystemElementRoad *road1, RSystem
                 newConnection->addLaneLink(lane->getId(), -lane->getId());
             }
         }
-    }
+    }*/
 
     newRoadLinks_.insert(road2, new RoadLink("junction", road1->getJunction(), contactPoint));
     roadLinkTypes_.insert(road2, roadLinkType);
 
-    junction->addConnection(newConnection);
+ //   junction->addConnection(newConnection);
+    newConnections_.insert(junction, newConnection);
 
     if (!junctions_.contains(junction))
     {
@@ -4364,11 +4368,13 @@ RemoveRoadLinkCommand::RemoveRoadLinkCommand(RSystemElementRoad *road, DataComma
     , road_(road)
     , predecessor_(NULL)
     , successor_(NULL)
+    , predecessorLink_(NULL)
+    , successorLink_(NULL)
     , junction_(NULL)
 {
     // Check for validity //
     //
-    if (!road_ || !road_->getRoadSystem())
+     if (!road_ || !road_->getRoadSystem())
     {
         setInvalid(); // Invalid
         setText(QObject::tr("RemoveRoadLinkCommand: Internal error! No road specified."));
@@ -4376,13 +4382,101 @@ RemoveRoadLinkCommand::RemoveRoadLinkCommand(RSystemElementRoad *road, DataComma
     }
     else
     {
-        predecessor_ = road->getPredecessor();
-        successor_ = road->getSuccessor();
+        predecessor_ = road_->getPredecessor();
+        successor_ = road_->getSuccessor();
+        roadSystem_ = road_->getRoadSystem();
 
-        if (road->getJunction() != "-1" && road->getJunction() != "")
+        if (road_->getJunction() != "-1" && road_->getJunction() != "")
         {
-            junction_ = road->getRoadSystem()->getJunction(road->getJunction());
+            junction_ = roadSystem_->getJunction(road_->getJunction());
             junctionConnections_ = junction_->getConnectingRoadConnections(road_->getID());
+        }
+
+        LaneSection *laneSection = road_->getLaneSection(0.0);
+        QMap<int, int> laneMapPredecessor;
+        foreach (Lane *lane, laneSection->getLanes())
+        {
+            const int laneId = lane->getId();
+            const int predecessorId = lane->getPredecessor();
+            if (predecessorId != Lane::NOLANE)
+            {
+                laneMapPredecessor.insert(laneId, predecessorId);
+            }
+        }
+        if (laneMapPredecessor.count() > 0)
+        {
+            laneLinksRoadStart_.insert(road_->getID(), laneMapPredecessor);
+        }
+
+        if (predecessor_)
+        {
+            if (predecessor_->getElementType() == "junction")
+            {
+                RSystemElementJunction *junction = roadSystem_->getJunction(predecessor_->getElementId());
+                if (junction)
+                {
+                    saveConnectingRoadLanes(junction);
+                }
+            }
+            else
+            {
+                RSystemElementRoad *linkRoad = roadSystem_->getRoad(predecessor_->getElementId());
+
+                if (linkRoad)
+                {
+                    if (predecessor_->getContactPoint() == "start")
+                    {
+                        predecessorLink_ = linkRoad->getPredecessor();
+                    }
+                    else
+                    {
+                        predecessorLink_ = linkRoad->getSuccessor();
+                    }
+                }
+            }
+        }
+
+        laneSection = road_->getLaneSection(road_->getLength());
+        QMap<int, int> laneMapSuccessor;
+        foreach (Lane *lane, laneSection->getLanes())
+        {
+            const int laneId = lane->getId();
+            const int successorId = lane->getSuccessor();
+            if (successorId != Lane::NOLANE)
+            {
+                laneMapSuccessor.insert(laneId, successorId);
+            }
+        }
+        if (laneMapSuccessor.count() > 0)
+        {
+            laneLinksRoadEnd_.insert(road_->getID(), laneMapSuccessor);
+        }
+
+        if (successor_)
+        {
+            if (successor_->getElementType() == "junction")
+            {
+                RSystemElementJunction *junction = roadSystem_->getJunction(successor_->getElementId());
+                if (junction)
+                {
+                    saveConnectingRoadLanes(junction);
+                }
+            }
+            else
+            {
+                RSystemElementRoad *linkRoad = roadSystem_->getRoad(successor_->getElementId());
+                if (linkRoad)
+                {
+                    if (successor_->getContactPoint() == "start")
+                    {
+                        successorLink_ = linkRoad->getPredecessor();
+                    }
+                    else
+                    {
+                        successorLink_ = linkRoad->getSuccessor();
+                    }
+                }
+            }
         }
 
         setValid();
@@ -4404,6 +4498,8 @@ RemoveRoadLinkCommand::~RemoveRoadLinkCommand()
     else
     {
         junctionConnections_.clear();
+        laneLinksRoadStart_.clear();
+        laneLinksRoadEnd_.clear();
     }
 }
 
@@ -4413,28 +4509,63 @@ RemoveRoadLinkCommand::~RemoveRoadLinkCommand()
 void
 RemoveRoadLinkCommand::redo()
 {
-
-    road_->delPredecessor();
-    road_->delSuccessor();
-    if (junction_)
+    foreach (JunctionConnection *connection, junctionConnections_)
     {
-        foreach (JunctionConnection *connection, junctionConnections_)
+        RSystemElementJunction * junction = connection->getParentJunction();
+        if (junction != junction_)
         {
-            junction_->delConnection(connection);
+            RSystemElementRoad * connectingRoad = roadSystem_->getRoad(connection->getConnectingRoad());
+            if (connectingRoad)
+            {
+                removeLinkRoadLink(connectingRoad, connection->getContactPoint());
+            }
+        }
+        junction->delConnection(connection);
+    }
+
+    if (predecessor_)
+    {
+        road_->delPredecessor();
+    }
+
+    if (successor_)
+    {
+        road_->delSuccessor();
+    }
+
+
+    if (predecessor_)
+    {
+        RSystemElementRoad *linkRoad = roadSystem_->getRoad(predecessor_->getElementId());
+        if (linkRoad)
+        {
+            removeLinkRoadLink(linkRoad, predecessor_->getContactPoint());
         }
     }
 
     LaneSection *laneSection = road_->getLaneSection(0.0);
     foreach (Lane *lane, laneSection->getLanes())
     {
-        lane->setPredecessor(lane->getId());
+        lane->setPredecessor(Lane::NOLANE);
+    }
+
+
+    if (successor_)
+    {
+        RSystemElementRoad *linkRoad = roadSystem_->getRoad(successor_->getElementId());
+
+        if (linkRoad)
+        {
+            removeLinkRoadLink(linkRoad, successor_->getContactPoint());
+        }
     }
 
     laneSection = road_->getLaneSection(road_->getLength());
     foreach (Lane *lane, laneSection->getLanes())
     {
-        lane->setSuccessor(lane->getId());
+        lane->setSuccessor(Lane::NOLANE);
     }
+
 
     setRedone();
 }
@@ -4455,84 +4586,137 @@ RemoveRoadLinkCommand::undo()
             junction_->addConnection(connection);
         }
     }
-    if (predecessor_)
+    else
     {
-        LaneSection *laneSection = road_->getLaneSection(0.0);
-        RSystemElementRoad *linkRoad = road_->getRoadSystem()->getRoad(predecessor_->getElementId());
 
-        if (linkRoad)
+        foreach (JunctionConnection *connection, junctionConnections_)
         {
-            if (predecessor_->getContactPoint() == "start")
+            QString junctionID = roadSystem_->getRoad(connection->getConnectingRoad())->getJunction();
+
+            RSystemElementJunction * junction = roadSystem_->getJunction(junctionID);
+            if (junction)
             {
-                LaneSection *linkSection = linkRoad->getLaneSection(0.0);
-                QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                foreach (Lane *lane, laneSection->getLanes())
+                junction->addConnection(connection);
+                QString connectingRoadID = connection->getConnectingRoad();
+                RSystemElementRoad * connectingRoad = roadSystem_->getRoad(connectingRoadID);
+                if (connectingRoad)
                 {
-                    if (lane->getId() > 0)
+                    RoadLink * roadLink;
+                    if (predecessor_ && (predecessor_->getElementId() == junctionID))
                     {
-                        if (linkSectionLanes.contains(-lane->getId()))
+                        roadLink = new RoadLink("road", road_->getID(), "start");
+                        if (connection->getContactPoint() == "start")
                         {
-                            lane->setPredecessor(-lane->getId());
-                            linkSectionLanes.value(-lane->getId())->setPredecessor(lane->getId());
+                            connectingRoad->setPredecessor(roadLink);
+                        }
+                        else
+                        {
+                            connectingRoad->setSuccessor(roadLink);
+                        }
+
+
+                        LaneSection *linkSection = connectingRoad->getLaneSection(0.0);
+
+                        QMap<int,int> connectingLanes = laneLinksRoadStart_.value(connectingRoadID);
+                        QMap<int,int>::ConstIterator it = connectingLanes.constBegin();
+                        while (it != connectingLanes.constEnd())
+                        {
+                            linkSection->getLane(it.value())->setPredecessor(it.key());
+                            it++;
                         }
                     }
-                }
-            }
-            else
-            {
-                LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
-                QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                foreach (Lane *lane, laneSection->getLanes())
-                {
-                    if (lane->getId() > 0)
+                    else
                     {
-                        if (linkSectionLanes.contains(lane->getId()))
+                        roadLink = new RoadLink("road", road_->getID(), "end");
+                        if (connection->getContactPoint() == "start")
                         {
-                            lane->setPredecessor(lane->getId());
-                            linkSectionLanes.value(lane->getId())->setSuccessor(lane->getId());
+                            connectingRoad->setPredecessor(roadLink);
+                        }
+                        else
+                        {
+                            connectingRoad->setSuccessor(roadLink);
+                        }
+
+                        LaneSection *linkSection = connectingRoad->getLaneSection(connectingRoad->getLength());
+
+                        QMap<int,int> connectingLanes = laneLinksRoadStart_.value(connectingRoadID);
+                        QMap<int,int>::ConstIterator it = connectingLanes.constBegin();
+                        while (it != connectingLanes.constEnd())
+                        {
+                            linkSection->getLane(it.value())->setSuccessor(it.key());
+                            it++;
                         }
                     }
                 }
             }
         }
     }
-    else if (successor_)
-    {
 
-        LaneSection *laneSection = road_->getLaneSection(road_->getLength());
-        RSystemElementRoad *linkRoad = road_->getRoadSystem()->getRoad(successor_->getElementId());
+    if (predecessor_)
+    {
+        LaneSection *laneSection = road_->getLaneSection(0.0);       
+        RSystemElementRoad *linkRoad = roadSystem_->getRoad(predecessor_->getElementId());
+
         if (linkRoad)
         {
-            if (successor_->getContactPoint() == "start")
+            if (predecessor_->getContactPoint() == "start")
             {
+                linkRoad->setPredecessor(predecessorLink_);
                 LaneSection *linkSection = linkRoad->getLaneSection(0.0);
-                QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                foreach (Lane *lane, laneSection->getLanes())
+                
+                QMap<int,int>::ConstIterator it = laneLinksRoadStart_.value(road_->getID()).constBegin();
+                while (it != laneLinksRoadStart_.value(road_->getID()).constEnd())
                 {
-                    if (lane->getId() < 0)
-                    {
-                        if (linkSectionLanes.contains(lane->getId()))
-                        {
-                            lane->setSuccessor(lane->getId());
-                            linkSectionLanes.value(lane->getId())->setPredecessor(lane->getId());
-                        }
-                    }
+                    laneSection->getLane(it.key())->setPredecessor(it.value());
+                    linkSection->getLane(it.value())->setPredecessor(it.key());
+                    it++;
                 }
             }
             else
             {
+                linkRoad->setSuccessor(predecessorLink_);
                 LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
-                QMap<int, Lane *> linkSectionLanes = linkSection->getLanes();
-                foreach (Lane *lane, laneSection->getLanes())
+                QMap<int,int>::ConstIterator it = laneLinksRoadStart_.value(road_->getID()).constBegin();
+                while (it != laneLinksRoadStart_.value(road_->getID()).constEnd())
                 {
-                    if (lane->getId() < 0)
-                    {
-                        if (linkSectionLanes.contains(-lane->getId()))
-                        {
-                            lane->setSuccessor(-lane->getId());
-                            linkSectionLanes.value(-lane->getId())->setSuccessor(lane->getId());
-                        }
-                    }
+                    laneSection->getLane(it.key())->setPredecessor(it.value());
+                    linkSection->getLane(it.value())->setSuccessor(it.key());
+                    it++;
+                }
+            }
+        }
+    }
+
+    if (successor_)
+    {
+        LaneSection *laneSection = road_->getLaneSection(road_->getLength());
+        RSystemElementRoad *linkRoad = roadSystem_->getRoad(successor_->getElementId());
+
+        if (linkRoad)
+        {
+            if (successor_->getContactPoint() == "start")
+            {
+                linkRoad->setPredecessor(successorLink_);
+                LaneSection *linkSection = linkRoad->getLaneSection(0.0);
+
+                QMap<int,int>::ConstIterator it = laneLinksRoadEnd_.value(road_->getID()).constBegin();
+                while (it != laneLinksRoadEnd_.value(road_->getID()).constEnd())
+                {
+                    laneSection->getLane(it.key())->setSuccessor(it.value());
+                    linkSection->getLane(it.value())->setPredecessor(it.key());
+                    it++;
+                }
+            }
+            else
+            {
+                linkRoad->setSuccessor(successorLink_);
+                LaneSection *linkSection = linkRoad->getLaneSection(linkRoad->getLength());
+                QMap<int,int>::ConstIterator it = laneLinksRoadEnd_.value(road_->getID()).constBegin();
+                while (it != laneLinksRoadEnd_.value(road_->getID()).constEnd())
+                {
+                    laneSection->getLane(it.key())->setSuccessor(it.value());
+                    linkSection->getLane(it.value())->setSuccessor(it.key());
+                    it++;
                 }
             }
         }
@@ -4540,3 +4724,895 @@ RemoveRoadLinkCommand::undo()
 
     setUndone();
 }
+
+void
+    RemoveRoadLinkCommand::saveConnectingRoadLanes(RSystemElementJunction * junction)
+{
+    QList<JunctionConnection *> connections = junction->getConnections(road_->getID());
+    foreach (JunctionConnection * connection, connections)
+    {
+
+        RSystemElementRoad * connectingRoad = roadSystem_->getRoad(connection->getConnectingRoad());
+        QMap<int, int> connectingRoadLaneMap;
+        if (connection->getContactPoint() == "start")
+        {
+            connectingRoad->delPredecessor();
+
+            LaneSection *laneSection = connectingRoad->getLaneSection(0.0);
+            foreach (Lane *lane, laneSection->getLanes())
+            {
+                const int laneId = lane->getId();
+                const int predecessorId = lane->getPredecessor();
+                if (predecessorId != Lane::NOLANE)
+                {
+                    connectingRoadLaneMap.insert(laneId, predecessorId);
+                }
+            }
+
+            if (connectingRoadLaneMap.count() > 0)
+            {
+                laneLinksRoadStart_.insert(connection->getConnectingRoad(), connectingRoadLaneMap);
+            }
+        }
+        else
+        {
+            connectingRoad->delSuccessor();
+
+            LaneSection *laneSection = connectingRoad->getLaneSection(connectingRoad->getLength());
+            foreach (Lane *lane, laneSection->getLanes())
+            {
+                const int laneId = lane->getId();
+                const int successorId = lane->getSuccessor();
+                if (successorId != Lane::NOLANE)
+                {
+                    connectingRoadLaneMap.insert(laneId, successorId);
+                }
+            }
+            if (connectingRoadLaneMap.count() > 0)
+            {
+                laneLinksRoadEnd_.insert(connection->getConnectingRoad(), connectingRoadLaneMap);
+            }
+        }
+    }
+    junctionConnections_.append(connections);
+}
+
+void 
+RemoveRoadLinkCommand::removeLinkRoadLink(RSystemElementRoad * linkRoad, const QString &contactPoint)
+{
+    LaneSection *linkSection;
+    int connectionCount = 0;
+    if (junction_)
+    {
+        connectionCount = junction_->getConnections(linkRoad->getID()).count();
+    }
+
+    if ((contactPoint == "start") && linkRoad->getPredecessor() && ((linkRoad->getPredecessor()->getElementType() != "junction") || (connectionCount < 1)))
+    {
+        linkRoad->delPredecessor();
+        linkSection = linkRoad->getLaneSection(0.0);
+        foreach (Lane * lane, linkSection->getLanes())
+        {
+            lane->setPredecessor(Lane::NOLANE);
+        }
+    }
+    else if ((contactPoint == "end") && linkRoad->getSuccessor() && ((linkRoad->getSuccessor()->getElementType() != "junction") || (connectionCount < 1)))
+    {
+        linkRoad->delSuccessor();
+        linkSection = linkRoad->getLaneSection(linkRoad->getLength());
+        foreach (Lane * lane, linkSection->getLanes())
+        {
+            lane->setSuccessor(Lane::NOLANE);
+        }
+    }
+}
+
+//#########################//
+// CreateInnerLaneLinksCommand //
+//#########################//
+
+CreateInnerLaneLinksCommand::CreateInnerLaneLinksCommand(RSystemElementRoad *road, DataCommand *parent)
+    : DataCommand(parent)
+    , road_(road)
+{
+    // Check for validity //
+    //
+    if (!road_ || !road_->getRoadSystem())
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("CreateInnerLaneLinksCommand: Internal error! No road specified."));
+        return;
+    }
+
+    QMap<double, LaneSection *>::const_iterator it = road_->getLaneSections().constBegin();
+    while (it != road_->getLaneSections().constEnd() - 1)
+    {
+        LaneSection * laneSection = it.value();
+        double s = laneSection->getSStart();
+        LaneSection * nextLaneSection = road_->getLaneSectionNext(s);
+        LaneSection * lastLaneSection = road_->getLaneSectionBefore(s);
+
+        double nextS = nextLaneSection->getSStart();
+
+        foreach (Lane * lane, laneSection->getLanes())
+        {
+            int id = lane->getId();
+            int nextLaneId = lane->getPredecessor();
+            double laneWidth = laneSection->getLaneWidth(id, 0.0);
+            if (((laneWidth < NUMERICAL_ZERO3) || !lastLaneSection) && (nextLaneId != Lane::NOLANE))
+            {
+                LaneLinkPair oldLaneLinkPair = {id, nextLaneId};
+                oldPredecessorLaneLinks_.insert(s, oldLaneLinkPair);
+                LaneLinkPair newLaneLinkPair = {id, Lane::NOLANE};
+                newPredecessorLaneLinks_.insert(s, newLaneLinkPair); 
+            }
+
+            nextLaneId = lane->getSuccessor();
+            laneWidth = laneSection->getLaneWidth(id, laneSection->getSEnd());
+            if ((laneWidth < NUMERICAL_ZERO3) || !nextLaneSection)
+            {
+                if (nextLaneId != Lane::NOLANE)
+                {
+                    LaneLinkPair oldLaneLinkPair = {id, nextLaneId};
+                    oldSuccessorLaneLinks_.insert(s, oldLaneLinkPair);
+                    LaneLinkPair newLaneLinkPair = {id, Lane::NOLANE};
+                    newSuccessorLaneLinks_.insert(s, newLaneLinkPair); 
+                }
+                continue;
+            }
+            double t = laneSection->getTValue(lane, laneSection->getSEnd(), laneWidth);
+
+            int laneId = nextLaneSection->getLaneId(0, t);
+            if (laneId != nextLaneId)
+            {
+                LaneLinkPair oldLaneLinkPair = {id, nextLaneId};
+                oldSuccessorLaneLinks_.insert(s, oldLaneLinkPair);
+                LaneLinkPair newLaneLinkPair = {id, laneId};
+                newSuccessorLaneLinks_.insert(s, newLaneLinkPair);
+            }
+
+            int nextLanePredecessor = nextLaneSection->getLane(laneId)->getPredecessor();
+            if (nextLanePredecessor != id)
+            {
+                LaneLinkPair oldNextLaneLinkPair = {laneId, nextLanePredecessor};
+                oldPredecessorLaneLinks_.insert(nextS, oldNextLaneLinkPair);
+                LaneLinkPair newNextLaneLinkPair = {laneId, id};
+                newPredecessorLaneLinks_.insert(nextS, newNextLaneLinkPair);
+            }
+
+        }
+        it++;
+    }
+
+    LaneSection * laneSection = road_->getLaneSection(road_->getLength());
+    double s = laneSection->getSStart();
+    LaneSection * lastLaneSection = road_->getLaneSectionBefore(s);
+
+    foreach (Lane * lane, laneSection->getLanes())
+    {
+        int id = lane->getId();
+        int nextLaneId = lane->getPredecessor();
+        double laneWidth = laneSection->getLaneWidth(id, 0.0);
+        if (((laneWidth < NUMERICAL_ZERO3) || !lastLaneSection) && (nextLaneId != Lane::NOLANE))
+        {
+            LaneLinkPair oldLaneLinkPair = {id, nextLaneId};
+            oldPredecessorLaneLinks_.insert(s, oldLaneLinkPair);
+            LaneLinkPair newLaneLinkPair = {id, Lane::NOLANE};
+            newPredecessorLaneLinks_.insert(s, newLaneLinkPair); 
+        }
+
+        nextLaneId = lane->getSuccessor();
+        if ((nextLaneId != Lane::NOLANE) && !road_->getSuccessor())
+        {
+            LaneLinkPair oldLaneLinkPair = {id, nextLaneId};
+            oldSuccessorLaneLinks_.insert(s, oldLaneLinkPair);
+            LaneLinkPair newLaneLinkPair = {id, Lane::NOLANE};
+            newSuccessorLaneLinks_.insert(s, newLaneLinkPair); 
+        }
+    }
+
+
+    setValid();
+    setText(QObject::tr("Create Links between lane sections"));
+}
+
+/*! \brief .
+*
+*/
+CreateInnerLaneLinksCommand::~CreateInnerLaneLinksCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done (road is still owned by the roadsystem)
+    }
+    else
+    {
+        oldSuccessorLaneLinks_.clear();
+        newSuccessorLaneLinks_.clear();
+        oldPredecessorLaneLinks_.clear();
+        newPredecessorLaneLinks_.clear();
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+CreateInnerLaneLinksCommand::redo()
+{
+    QMultiMap<double, LaneLinkPair>::const_iterator it = newSuccessorLaneLinks_.constBegin();
+    while (it != newSuccessorLaneLinks_.constEnd())
+    {
+        double s = it.key();
+        LaneLinkPair laneLinkPair = it.value();
+        LaneSection * laneSection = road_->getLaneSection(s);
+        laneSection->getLane(laneLinkPair.laneId)->setSuccessor(laneLinkPair.linkId);
+
+        it++;
+    }
+
+    it = newPredecessorLaneLinks_.constBegin();
+    while (it != newPredecessorLaneLinks_.constEnd())
+    {
+        double s = it.key();
+        LaneLinkPair laneLinkPair = it.value();
+        LaneSection * laneSection = road_->getLaneSection(s);
+        laneSection->getLane(laneLinkPair.laneId)->setPredecessor(laneLinkPair.linkId);
+
+        it++;
+    }
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+CreateInnerLaneLinksCommand::undo()
+{
+    QMultiMap<double, LaneLinkPair>::ConstIterator it = oldSuccessorLaneLinks_.constBegin();
+    while (it != oldSuccessorLaneLinks_.constEnd())
+    {
+        double s = it.key();
+        LaneLinkPair laneLinkPair = it.value();
+        LaneSection * laneSection = road_->getLaneSection(s);
+        laneSection->getLane(laneLinkPair.laneId)->setSuccessor(laneLinkPair.linkId);
+
+        it++;
+    }
+    it = oldPredecessorLaneLinks_.constBegin();
+    while (it != oldPredecessorLaneLinks_.constEnd())
+    {
+        double s = it.key();
+        LaneLinkPair laneLinkPair = it.value();
+        LaneSection * laneSection = road_->getLaneSection(s);
+        laneSection->getLane(laneLinkPair.laneId)->setPredecessor(laneLinkPair.linkId);
+
+        it++;
+    }
+
+    setUndone();
+}
+
+//#########################//
+// CreateNextRoadLaneLinksCommand //
+//#########################//
+
+CreateNextRoadLaneLinksCommand::CreateNextRoadLaneLinksCommand(RoadSystem *roadSystem, RSystemElementRoad *road, DataCommand *parent)
+    : DataCommand(parent)
+    , roadSystem_(roadSystem)
+    , road_(road)
+    , junction_(NULL)
+    , junctionPredecessorConnection_(NULL)
+    , junctionSuccessorConnection_(NULL)
+{
+    // Check for validity //
+    //
+    if (!road_ || !roadSystem_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("CreateNextRoadLaneLinksCommand: Internal error! No road specified."));
+        return;
+    }
+
+    RoadLink * roadPredecessor = road_->getPredecessor();
+    RoadLink * roadSuccessor = road_->getSuccessor();        // Successor
+    QString roadId = road_->getID();
+
+    if (road_->getJunction() != "-1")
+    {
+        junction_ = roadSystem_->getJunction(road->getJunction());
+
+        if (roadPredecessor)
+        {
+            junctionPredecessorConnection_ = junction_->getConnection(roadPredecessor->getElementId(), road->getID());
+        }
+        if (roadSuccessor)
+        {
+            junctionSuccessorConnection_ = junction_->getConnection(roadSuccessor->getElementId(), road->getID());
+        }
+
+    }
+
+    // Predecessor
+    LaneSection * laneSection = road_->getLaneSection(0.0);
+    if (!roadPredecessor || (roadPredecessor->getElementType() == "junction"))
+    {
+        foreach (Lane * lane, laneSection->getLanes())
+        {
+            int id = lane->getId();
+            double laneWidth = laneSection->getLaneWidth(id, 0.0);
+            if ((lane->getPredecessor() != Lane::NOLANE) || (laneWidth < NUMERICAL_ZERO3))
+            {
+                LaneLinkPair laneLinkPairOld = { id, lane->getPredecessor()};
+                oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                LaneLinkPair laneLinkPairNew = { id, Lane::NOLANE};
+                newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
+            }
+        }
+    }
+    else
+    {
+        RSystemElementRoad * predRoad = roadSystem_->getRoad(roadPredecessor->getElementId());
+        if (predRoad)
+        {
+            QPointF laneMid = road_->getGlobalPoint(0.0, 0.0);
+            QVector2D vecStart = QVector2D(laneMid - predRoad->getGlobalPoint(0.0));
+            QVector2D vecEnd = QVector2D(laneMid - predRoad->getGlobalPoint(predRoad->getLength()));
+
+            double nextStart;
+            bool start = true;
+            QMultiMap<QString, LaneLinkPair> oldLaneLinks;
+            QMultiMap<QString, LaneLinkPair> newLaneLinks;
+            if (vecStart.length() > vecEnd.length())
+            {
+                start = false;
+                nextStart = predRoad->getLength();
+                oldLaneLinks = oldSuccessorLaneLinks_;
+                newLaneLinks = newSuccessorLaneLinks_;
+            }
+            else
+            {
+                nextStart = 0.0;
+                oldLaneLinks = oldPredecessorLaneLinks_;
+                newLaneLinks = newPredecessorLaneLinks_;
+            }
+            LaneSection * nextLaneSection = predRoad->getLaneSection(nextStart);
+
+            foreach (Lane * lane, laneSection->getLanes())
+            {
+                int id = lane->getId();
+                int nextLaneId = lane->getPredecessor();
+                double laneWidth = laneSection->getLaneWidth(id, 0.0);
+                if (laneWidth < NUMERICAL_ZERO3) 
+                {
+                    if (nextLaneId != Lane::NOLANE)
+                    {
+                        LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                        oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                        LaneLinkPair laneLinkPairNew = {nextLaneId, Lane::NOLANE};
+                        newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
+                    }
+                }
+                else // find the connecting lane 
+                {
+                    double t = laneSection->getTValue(lane, 0.0, laneWidth);
+                    QVector2D vecT = QVector2D(road_->getGlobalPoint(0.0, t) - predRoad->getGlobalPoint(nextStart));
+                    float dist = vecT.length();
+                    float dotVec = QVector2D::dotProduct(predRoad->getGlobalNormal(nextStart), vecT.normalized());
+
+                    if (dist < NUMERICAL_ZERO3)
+                    {
+                        if (id > 0)
+                        {
+                            dist = -dist;
+                        }
+                    }
+                    else if (dotVec > 0)
+                    {
+                        dist = -dist;
+                    }
+
+                    int laneId = nextLaneSection->getLaneId(nextStart, dist);
+
+                    if (laneId != nextLaneId)
+                    {
+                        if (laneId == 0)
+                        {
+                            LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                            oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                            LaneLinkPair laneLinkPairNew = {id, Lane::NOLANE};
+                            newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
+                            continue;
+                        }
+
+                        LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                        oldPredecessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                        LaneLinkPair laneLinkPairNew = {id, laneId};
+                        newPredecessorLaneLinks_.insert(roadId, laneLinkPairNew);
+
+                        QString predRoadId = predRoad->getID();
+                        LaneLinkPair laneLinkNextOld = { laneId, nextLaneSection->getLane(laneId)->getPredecessor()};
+                        oldLaneLinks.insert(predRoadId, laneLinkNextOld);
+                        if (!junctionPredecessorConnection_)
+                        {
+                            LaneLinkPair laneLinkPairNext = {laneId, id};
+                            newLaneLinks.insert(predRoadId, laneLinkPairNext);
+
+                        }
+                        else
+                        {
+                            LaneLinkPair laneLinkPairNext = {laneId, Lane::NOLANE};
+                            newLaneLinks.insert(predRoadId, laneLinkPairNext);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Successor
+    double roadLength = road_->getLength();
+    laneSection = road_->getLaneSection(roadLength);
+    if (!roadSuccessor || (roadSuccessor->getElementType() == "junction"))
+    {
+        foreach (Lane * lane, laneSection->getLanes())
+        {
+            int id = lane->getId();
+            double laneWidth = laneSection->getLaneWidth(id, roadLength);
+            if ((lane->getSuccessor() != Lane::NOLANE) || (laneWidth < NUMERICAL_ZERO3))
+            {
+                LaneLinkPair laneLinkPairOld = { id, lane->getSuccessor()};
+                oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                LaneLinkPair laneLinkPairNew = { id, Lane::NOLANE};
+                newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
+            }
+        }
+    }
+    else
+    {
+        RSystemElementRoad * succRoad = roadSystem_->getRoad(roadSuccessor->getElementId());
+        if (succRoad)
+        {
+            QPointF laneMid = road->getGlobalPoint(roadLength, 0.0);
+            QVector2D vecStart = QVector2D(laneMid - succRoad->getGlobalPoint(0.0));
+            QVector2D vecEnd = QVector2D(laneMid - succRoad->getGlobalPoint(succRoad->getLength()));
+
+            bool start = true;
+            double nextStart;
+            QMultiMap<QString, LaneLinkPair> oldLaneLinks;
+            QMultiMap<QString, LaneLinkPair> newLaneLinks;
+            if (vecStart.length() > vecEnd.length())
+            {
+                start = false;
+                nextStart = succRoad->getLength();
+                oldLaneLinks = oldSuccessorLaneLinks_;
+                newLaneLinks = newSuccessorLaneLinks_;
+            }
+            else
+            {
+                nextStart = 0.0;
+                oldLaneLinks = oldPredecessorLaneLinks_;
+                newLaneLinks = newPredecessorLaneLinks_;
+            }
+            LaneSection * nextLaneSection = succRoad->getLaneSection(nextStart);
+
+            foreach (Lane * lane, laneSection->getLanes())
+            {
+                int id = lane->getId();
+                int nextLaneId = lane->getSuccessor();
+                double laneWidth = laneSection->getLaneWidth(id, roadLength);
+                if (laneWidth < NUMERICAL_ZERO3) 
+                {
+                    if (nextLaneId != Lane::NOLANE)
+                    {
+                        LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                        oldLaneLinks.insert(roadId, laneLinkPairOld);
+                        LaneLinkPair laneLinkPairNew = {nextLaneId, Lane::NOLANE};
+                        newLaneLinks.insert(roadId, laneLinkPairNew);
+                    }
+                }
+                else // find the connecting lane 
+                {
+                    double t = laneSection->getTValue(lane, roadLength, laneWidth);
+                    QVector2D vecT = QVector2D(road_->getGlobalPoint(roadLength, t) - succRoad->getGlobalPoint(nextStart));
+                    float dist = vecT.length();
+                    float dotVec = QVector2D::dotProduct(succRoad->getGlobalNormal(nextStart), vecT.normalized());
+
+                    if (dist < NUMERICAL_ZERO3)
+                    {
+                        if (id > 0)
+                        {
+                            dist = -dist;
+                        }
+                    }
+                    else if (dotVec > 0)
+                    {
+                        dist = -dist;
+                    }
+
+                    int laneId = nextLaneSection->getLaneId(nextStart, dist);
+
+                    if (laneId != nextLaneId)
+                    {
+                        if (laneId == 0)
+                        {
+                            LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                            oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                            LaneLinkPair laneLinkPairNew = {id, Lane::NOLANE};
+                            newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
+                            continue;
+                        }
+
+                        LaneLinkPair laneLinkPairOld = { id, nextLaneId};
+                        oldSuccessorLaneLinks_.insert(roadId, laneLinkPairOld);
+                        LaneLinkPair laneLinkPairNew = {id, laneId};
+                        newSuccessorLaneLinks_.insert(roadId, laneLinkPairNew);
+
+                        QString succRoadId = succRoad->getID();
+
+                        LaneLinkPair laneLinkNextOld = { laneId, nextLaneSection->getLane(laneId)->getPredecessor()};
+                        oldLaneLinks.insert(succRoadId, laneLinkNextOld);
+
+                        if (!junctionSuccessorConnection_)
+                        {
+                            LaneLinkPair laneLinkPairNext = {laneId, id};
+                            newLaneLinks.insert(succRoadId, laneLinkPairNext);
+                        }
+                        else
+                        {
+                            LaneLinkPair laneLinkPairNext = {laneId, Lane::NOLANE};
+                            newLaneLinks.insert(succRoadId, laneLinkPairNext);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+/*    qDebug() << road_->getID();
+    QMultiMap<QString, LaneLinkPair>::const_iterator it = newPredecessorLaneLinks_.constBegin();
+    while (it != newPredecessorLaneLinks_.constEnd())
+    {
+        LaneLinkPair laneLinkPair = it.value();
+        qDebug() << it.key() << " Predecessor: " << laneLinkPair.laneId << " " << laneLinkPair.linkId;
+        it++;
+    }
+    it = newSuccessorLaneLinks_.constBegin();
+    while (it != newSuccessorLaneLinks_.constEnd())
+    {
+        LaneLinkPair laneLinkPair = it.value();
+        qDebug() << it.key() << "Successor: " << laneLinkPair.laneId << " " << laneLinkPair.linkId;
+        it++;
+    }*/
+
+    setValid();
+    setText(QObject::tr("Create Lane Links"));
+}
+
+/*! \brief .
+*
+*/
+CreateNextRoadLaneLinksCommand::~CreateNextRoadLaneLinksCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done (road is still owned by the roadsystem)
+    }
+    else
+    {
+        oldSuccessorLaneLinks_.clear();
+        newSuccessorLaneLinks_.clear();
+        oldPredecessorLaneLinks_.clear();
+        newPredecessorLaneLinks_.clear();
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+CreateNextRoadLaneLinksCommand::redo()
+{
+    QMultiMap<QString, LaneLinkPair>::const_iterator it = newSuccessorLaneLinks_.constBegin();
+    while (it != newSuccessorLaneLinks_.constEnd())
+    {
+        RSystemElementRoad * road = roadSystem_->getRoad(it.key());
+        LaneSection * laneSection = road->getLaneSection(road->getLength());
+        LaneLinkPair laneLinkPair = it.value();
+        int oldSuccessor = laneSection->getLane(laneLinkPair.laneId)->getSuccessor();
+        laneSection->getLane(laneLinkPair.laneId)->setSuccessor(laneLinkPair.linkId);
+        if (junctionSuccessorConnection_)
+        {
+            if ((laneLinkPair.laneId != 0) && (laneLinkPair.linkId != Lane::NOLANE))
+            {
+                junctionSuccessorConnection_->addLaneLink(laneLinkPair.linkId, laneLinkPair.laneId);
+            }
+            else
+            {
+                junctionSuccessorConnection_->removeLaneLink(oldSuccessor);
+            }
+        }
+
+        it++;
+    }
+
+    if (junctionSuccessorConnection_)
+    {
+       /* if (junctionSuccessorConnection_->getLaneLinks().count() == 0)
+        {
+            junction_->delConnection(junctionSuccessorConnection_);
+        }
+        else */ if (!junction_->getConnectingRoadConnections(road_->getID()).contains(junctionSuccessorConnection_))
+        {
+            junction_->addConnection(junctionSuccessorConnection_);
+        }
+    }
+
+
+    it = newPredecessorLaneLinks_.constBegin();
+    while (it != newPredecessorLaneLinks_.constEnd())
+    {
+        RSystemElementRoad * road = roadSystem_->getRoad(it.key());
+        LaneSection * laneSection = road->getLaneSection(0.0);
+        LaneLinkPair laneLinkPair = it.value();
+        int oldPredecessor = laneSection->getLane(laneLinkPair.laneId)->getPredecessor();
+        laneSection->getLane(laneLinkPair.laneId)->setPredecessor(laneLinkPair.linkId);
+        if (junctionPredecessorConnection_) 
+        {
+            if ((laneLinkPair.laneId != 0) && (laneLinkPair.linkId != Lane::NOLANE))
+            {
+                junctionPredecessorConnection_->addLaneLink(laneLinkPair.linkId, laneLinkPair.laneId);
+            }
+            else
+            {
+                junctionPredecessorConnection_->removeLaneLink(oldPredecessor);
+            }
+        }
+
+        it++;
+    }
+
+    if (junctionPredecessorConnection_)
+    {
+   /*     if (junctionPredecessorConnection_->getLaneLinks().count() == 0)
+        {
+            junction_->delConnection(junctionPredecessorConnection_);
+        }
+        else*/ if (!junction_->getConnectingRoadConnections(road_->getID()).contains(junctionPredecessorConnection_))
+        {
+            junction_->addConnection(junctionPredecessorConnection_);
+        }
+    }
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+CreateNextRoadLaneLinksCommand::undo()
+{
+    QMultiMap<QString, LaneLinkPair>::const_iterator it = oldSuccessorLaneLinks_.constBegin();
+    while (it != oldSuccessorLaneLinks_.constEnd())
+    {
+        RSystemElementRoad * road = roadSystem_->getRoad(it.key());
+        LaneSection * laneSection = road->getLaneSection(road->getLength());
+        LaneLinkPair laneLinkPair = it.value();
+        int newSuccessor = laneSection->getLane(laneLinkPair.laneId)->getSuccessor();
+        laneSection->getLane(laneLinkPair.laneId)->setSuccessor(laneLinkPair.linkId);
+        if (junctionSuccessorConnection_)
+        {
+            if ((laneLinkPair.laneId != 0) && (laneLinkPair.linkId != Lane::NOLANE))
+            {
+                junctionSuccessorConnection_->addLaneLink(laneLinkPair.linkId, laneLinkPair.laneId);
+            }
+            else
+            {
+                junctionSuccessorConnection_->removeLaneLink(newSuccessor);
+            }
+        }
+
+        it++;
+    }
+
+    if (junctionSuccessorConnection_)
+    {
+        if (junctionSuccessorConnection_->getLaneLinks().count() == 0)
+        {
+            junction_->delConnection(junctionSuccessorConnection_);
+        }
+        else if (!junction_->getConnectingRoadConnections(road_->getID()).contains(junctionSuccessorConnection_))
+        {
+            junction_->addConnection(junctionSuccessorConnection_);
+        }
+    }
+
+    it = oldPredecessorLaneLinks_.constBegin();
+    while (it != oldPredecessorLaneLinks_.constEnd())
+    {
+        QString predRoadId = it.key();
+        RSystemElementRoad * road = roadSystem_->getRoad(it.key());
+        LaneSection * laneSection = road->getLaneSection(0.0);
+        LaneLinkPair laneLinkPair = it.value();
+        int newPredecessor = laneSection->getLane(laneLinkPair.laneId)->getPredecessor();
+        laneSection->getLane(laneLinkPair.laneId)->setPredecessor(laneLinkPair.linkId);
+        if (junctionPredecessorConnection_) 
+        {
+            if ((laneLinkPair.laneId != 0) && (laneLinkPair.linkId != Lane::NOLANE))
+            {
+                junctionPredecessorConnection_->addLaneLink(laneLinkPair.linkId, laneLinkPair.laneId);
+            }
+            else
+            {
+                junctionPredecessorConnection_->removeLaneLink(newPredecessor);
+            }
+        }
+
+        it++;
+    }
+
+    if (junctionPredecessorConnection_)
+    {
+        if (junctionPredecessorConnection_->getLaneLinks().count() == 0)
+        {
+            junction_->delConnection(junctionPredecessorConnection_);
+        }
+        else if (!junction_->getConnectingRoadConnections(road_->getID()).contains(junctionPredecessorConnection_))
+        {
+            junction_->addConnection(junctionPredecessorConnection_);
+        }
+    }
+
+    setUndone();
+}
+
+//#########################//
+// LinkRoadsAndLanesCommand //
+//#########################//
+
+LinkRoadsAndLanesCommand::LinkRoadsAndLanesCommand(const QList<RSystemElementRoad *> &roads, double threshold, DataCommand *parent)
+    : DataCommand(parent)
+    , roads_(roads)
+    , threshold_(threshold)
+    , setRoadLinkRoadsCommand_(NULL)
+    , createInnerLaneLinksCommand_(NULL)
+    , createNextRoadLaneLinksCommand_(NULL)
+{
+    setRoadLinkRoadsCommand_ = new SetRoadLinkRoadsCommand(roads_, threshold_, this);
+    if (setRoadLinkRoadsCommand_->isValid())
+    {
+        setRoadLinkRoadsCommand_->redo(); // have to call redo, otherwise the roads are not linked
+    }
+    else
+    {
+        return;
+    }
+
+    // Check for validity //
+    //
+    RoadSystem * roadSystem = roads_.first()->getRoadSystem();
+    if (!roadSystem)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("LinkRoadsAndLanesCommand: Internal error! No valid roadsystem."));
+        return;
+    }
+
+    foreach (RSystemElementRoad * road, roads_)
+    {
+        createInnerLaneLinksCommand_ = new CreateInnerLaneLinksCommand(road, this);
+        if (!createInnerLaneLinksCommand_->isValid())
+        {
+            return;
+        }
+
+        createNextRoadLaneLinksCommand_ = new CreateNextRoadLaneLinksCommand(roadSystem, road, this);
+    }
+
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Link roads and lanes"));
+}
+
+LinkRoadsAndLanesCommand::LinkRoadsAndLanesCommand(const QList<SetRoadLinkRoadsCommand::RoadPair *> &roadPairs, DataCommand *parent)
+    : DataCommand(parent)
+    , roadPairs_(roadPairs)
+    , setRoadLinkRoadsCommand_(NULL)
+    , createInnerLaneLinksCommand_(NULL)
+    , createNextRoadLaneLinksCommand_(NULL)
+{
+
+    // Check for validity //
+    //
+    RoadSystem * roadSystem = roadPairs.first()->road1->getRoadSystem();
+    if (!roadSystem)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("LinkRoadsAndLanesCommand: Internal error! No valid roadsystem."));
+        return;
+    }
+
+    setRoadLinkRoadsCommand_ = new SetRoadLinkRoadsCommand(roadPairs_, this);
+    if (setRoadLinkRoadsCommand_->isValid())
+    {
+        setRoadLinkRoadsCommand_->redo(); // have to call redo, otherwise the roads are not linked
+    }
+    else
+    {
+        return;
+    }
+
+    foreach (RSystemElementRoad * road, roads_)
+    {
+        createInnerLaneLinksCommand_ = new CreateInnerLaneLinksCommand(road, this);
+        if (!createInnerLaneLinksCommand_->isValid())
+        {
+            return;
+        }
+
+        createNextRoadLaneLinksCommand_ = new CreateNextRoadLaneLinksCommand(roadSystem, road, this);
+    }
+
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Link roads and lanes"));
+}
+
+/*! \brief .
+*
+*/
+LinkRoadsAndLanesCommand::~LinkRoadsAndLanesCommand()
+{
+}
+
+//#########################//
+// LinkLanesCommand //
+//#########################//
+
+LinkLanesCommand::LinkLanesCommand(RSystemElementRoad *road, DataCommand *parent)
+    : DataCommand(parent)
+    , road_(road)
+    , createInnerLaneLinksCommand_(NULL)
+    , createNextRoadLaneLinksCommand_(NULL)
+{
+
+    // Check for validity //
+    //
+    RoadSystem * roadSystem = road_->getRoadSystem();
+    if (!roadSystem)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("LinkLanesCommand: Internal error! No valid roadsystem."));
+        return;
+    }
+
+    createInnerLaneLinksCommand_ = new CreateInnerLaneLinksCommand(road_, this);
+    if (!createInnerLaneLinksCommand_->isValid())
+    {
+        return;
+    }
+
+    createNextRoadLaneLinksCommand_ = new CreateNextRoadLaneLinksCommand(roadSystem, road, this);
+
+    // Done //
+    //
+    setValid();
+    setText(QObject::tr("Link lanes"));
+}
+
+/*! \brief .
+*
+*/
+LinkLanesCommand::~LinkLanesCommand()
+{
+}
+

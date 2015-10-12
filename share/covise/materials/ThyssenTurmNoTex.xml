@@ -1,0 +1,182 @@
+<ThyssenTurm transparent="false">
+<uniform name="TimeStep" type="int" value="0"/>
+<uniform name="Mode" type="int" value="1"/>
+<uniform name="Time" type="int" value="0"/>
+<uniform name="WaveSpeed" type="vec3" value="0.147 1 1"/>
+<uniform name="WaveOffSet" type="vec3" value="-0.4 0 0"/>
+<uniform name="WaveLength" type="vec3" value="1 1 1"/>
+<uniform name="WaveScale" type="float" value="0.75" min="0.75" max="20"/>
+<uniform name="diffuseMap" type="sampler2D" value="0"/>
+<uniform name="fps" type="float" value="1"/>
+<uniform max="100.0" min="0.1" name="Bumpiness" type="float" value="1.0"/>
+
+<vertexProgram>
+  // varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+
+    uniform vec3 WaveSpeed;
+    uniform vec3 WaveLength;
+    uniform vec3 WaveOffSet;
+    uniform float WaveScale;
+
+    uniform float deflection=0.75;
+    uniform float pi=3.14159;
+    uniform int Time;
+    uniform int TimeStep;
+    uniform float fps;
+    uniform int Mode;
+  
+vec4 Ambient;
+vec4 Diffuse;
+vec4 Specular;
+
+
+
+void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
+{
+   float nDotVP;       // normal . light direction
+   float nDotHV;       // normal . light half vector
+   float pf;           // power factor
+   float attenuation;  // computed attenuation factor
+   float d;            // distance from surface to light source
+   vec3  VP;           // direction from surface to light position
+   vec3  halfVector;   // direction of maximum highlights
+
+   // Compute vector from surface to light position
+   VP = vec3 (gl_LightSource[i].position) - ecPosition3;
+
+   // Compute distance between surface and light position
+   d = length(VP);
+
+   // Normalize the vector from surface to light position
+   VP = normalize(VP);
+
+   // Compute attenuation
+   attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +
+       gl_LightSource[i].linearAttenuation * d +
+       gl_LightSource[i].quadraticAttenuation * d * d);
+
+   halfVector = normalize(VP + eye);
+
+   nDotVP = dot(normal, VP);
+   if(nDotVP &lt; 0)
+    nDotVP = -nDotVP;
+   nDotHV = dot(normal, halfVector);
+   if(nDotHV &lt; 0)
+    nDotHV = -nDotHV;
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+   }
+   Ambient  += gl_LightSource[i].ambient * attenuation;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;
+   Specular += gl_LightSource[i].specular * pf * attenuation;
+}
+
+void directionalLight(in int i, in vec3 normal)
+{
+   float nDotVP;         // normal . light direction
+   float nDotHV;         // normal . light half vector
+   float pf;             // power factor
+
+   nDotVP = max(0.0, dot(normal, normalize(vec3 (gl_LightSource[i].position))));
+   nDotHV = max(0.0, dot(normal, vec3 (gl_LightSource[i].halfVector)));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+
+   }
+   Ambient  += gl_LightSource[i].ambient;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP;
+   Specular += gl_LightSource[i].specular * pf;
+}
+
+vec3 fnormal(void)
+{
+    //Compute the normal 
+    vec3 normal = gl_NormalMatrix * gl_Normal;
+    normal = normalize(normal);
+    return normal;
+}
+
+void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
+{
+    vec3 ecPosition3;
+    vec3 eye;
+
+    ecPosition3 = (vec3 (ecPosition)) / ecPosition.w;
+    eye = vec3 (0.0, 0.0, 1.0);
+
+    // Clear the light intensity accumulators
+    Ambient  = vec4 (0.0,0,0,1);
+    Diffuse  = vec4 (0.0,0,0,1);
+    Specular =vec4 (0.0,0,0,1);
+
+    pointLight(0, normal, eye, ecPosition3);
+
+    //pointLight(1, normal, eye, ecPosition3);
+
+    //directionalLight(2, normal);
+
+    //color =  color * Diffuse;
+    //color = clamp( color, 0.0, 1.0 );
+    gl_FrontColor = gl_FrontMaterial.diffuse * Diffuse + Specular;
+    normal   = gl_NormalMatrix * gl_Normal;
+
+    gl_FrontColor.a *= alphaFade;
+}
+
+    void main( void )
+    {
+    
+    vec3  transformedNormal;
+        //float time = (Time/1000.0)*fps;
+        float time = (TimeStep)/10.0;
+        Texcoord.x = gl_MultiTexCoord0.x ;
+        Texcoord.y = gl_MultiTexCoord0.y ;
+
+     	vec4 myVertex =  gl_Vertex;
+        if (Mode==1) 
+			myVertex.y+=((sin(2.0*pi*((WaveOffSet[0]+time)*WaveSpeed[0])))*gl_Color[0]*deflection*WaveScale *gl_Color[0])*(-1+cos(0.5*myVertex.z/245*pi));
+		else if (Mode==2)
+        myVertex.y+=((sin(WaveLength[0]+time*WaveSpeed[0]))*gl_Color[0]*WaveScale *gl_Color[0])*0.5*(-1+cos(1*myVertex.z/245*3.141))*(sin(1.5*myVertex.z/245*3.141));
+
+        myVertex.z+=0*((sin(WaveLength[1]+time*WaveSpeed[1]))*gl_Color[0] *gl_Color[0])*(myVertex.y);
+
+    // Eye-coordinate position of vertex, needed in various calculations
+    vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;
+    transformedNormal = fnormal();
+    gl_Position =gl_ProjectionMatrix * gl_ModelViewMatrix *  myVertex;;	
+    flight(transformedNormal, ecPosition, 1.0);
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+
+    }
+
+  </vertexProgram><fragmentProgram>
+   uniform sampler2D texUnit0;
+    varying vec2 Texcoord;
+void main (void) 
+{
+    vec4 color;
+
+    color = gl_Color;
+	
+    gl_FragColor = color;
+}
+
+   
+   
+
+  </fragmentProgram></ThyssenTurmNoTex>

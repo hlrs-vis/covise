@@ -157,6 +157,7 @@ GraphView::toolAction(ToolAction *toolAction)
         {
             activateRulers(zoomToolAction->isToggled());
         }
+
     }
 
     // Selection //
@@ -336,7 +337,7 @@ GraphView::zoomTo(const QString &zoomFactor)
     //	translate(vm.dx(), vm.dy()); // this is 0.0 anyway!
 
     resetViewTransformation();
-    scale(scaleFactor, scaleFactor);
+    scaleView(scaleFactor, scaleFactor);
 }
 
 /**
@@ -360,7 +361,7 @@ GraphView::zoomIn(double zoom)
     {
         zoom = MAX_ZOOM_IN / getScale();
     }
-    scale(zoom, zoom);
+    scaleView(zoom, zoom);
     //		update();
     rebuildRulers();
 #undef MAX_ZOOM_IN
@@ -371,9 +372,16 @@ GraphView::zoomIn(double zoom)
 void
 GraphView::zoomOut()
 {
-    scale(0.8, 0.8);
+    scaleView(0.8, 0.8);
     //	update();
     rebuildRulers();
+}
+
+void
+GraphView::scaleView(qreal sx, qreal sy)
+{
+    scale(sx, sy);
+    scaling_ = getScale();
 }
 
 /**
@@ -757,6 +765,8 @@ GraphView::wheelEvent(QWheelEvent *event)
     {
         zoomOut();
     }
+
+    QGraphicsView::wheelEvent(event);
 }
 
 void

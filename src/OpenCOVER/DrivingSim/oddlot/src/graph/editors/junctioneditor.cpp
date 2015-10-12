@@ -1779,8 +1779,132 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                     newLaneSection = new LaneSection(0.0);
                                     spiralPrototype->addLaneSection(newLaneSection);
                                 }
+                                Lane::LaneType lastType = startLanes.value(0)->getLaneType();
+                                
+                                
+                                for(int lr=0;lr<2;lr++)
+                                {
+                                    int lrMult=1;
+                                    if(lr==1)
+                                        lrMult=-1;
 
-                                while (startLanesIterator != prototypeLaneSectionStart->getLanes().constEnd())
+                                    // try to connect all possible lanes (inner, driving and outer lanes)
+                                    int startLaneNums[3]; // number of inner lanes, number of driving lanes, nummer outer lanes
+                                    int endLaneNums[3]; // number of inner lanes, number of driving lanes, nummer outer lanes
+                                    int n=0;
+                                    int num=0;
+                                    for(int i=1;i<=startLanes.size();i++) // fill startLaneNums
+                                    {
+                                        if(!startLanes.contains(i*lrMult))
+                                        {
+                                            while(n<3)
+                                            {
+                                                startLaneNums[n]=num;
+                                                num=0;
+                                                n++;
+                                            }
+                                            break;
+                                        }
+                                        if(n==0 && startLanes[i*lrMult]->getLaneType()==Lane::LT_DRIVING)
+                                        {
+                                            startLaneNums[n]=num;
+                                            num=0;
+                                            n++;
+                                        }
+                                        if(n==1 && startLanes[i*lrMult]->getLaneType()!=Lane::LT_DRIVING)
+                                        {
+                                            startLaneNums[n]=num;
+                                            num=0;
+                                            n++;
+                                        }
+                                        num++;
+                                    }
+                                    n=0;
+                                    num=0;
+                                    for(int i=1;i<=endLanes.size();i++) // fill endLaneNums
+                                    {
+                                        if(!endLanes.contains(i*lrMult))
+                                        {
+                                            while(n<3)
+                                            {
+                                                endLaneNums[n]=num;
+                                                num=0;
+                                                n++;
+                                            }
+                                            break;
+                                        }
+                                        if(n==0 && endLanes[i*lrMult]->getLaneType()==Lane::LT_DRIVING)
+                                        {
+                                            endLaneNums[n]=num;
+                                            num=0;
+                                            n++;
+                                        }
+                                        if(n==1 && endLanes[i*lrMult]->getLaneType()!=Lane::LT_DRIVING)
+                                        {
+                                            endLaneNums[n]=num;
+                                            num=0;
+                                            n++;
+                                        }
+                                        num++;
+                                    }
+
+                                    int endLaneNum = 1;
+                                    int startLaneNum=1;
+                                    int newLaneNum=1;
+                                    Lane *startLane = NULL;
+                                    Lane *endLane = NULL;
+                                    // do not connect anything if ther is no driving lane on either start or end
+                                    if(startLaneNums[1]!=0 && endLaneNums[1]!=0)
+                                    {
+                                        for(int i=0;i<3;i++) // connect inner, driving and outer lanes
+                                        {
+                                            int sn=0,en=0;
+                                            while(sn < startLaneNums[i] || en < endLaneNums[i])
+                                            {
+                                                startLane=NULL;
+                                                endLane=NULL;
+                                                Lane *newLane=NULL;
+                                                LaneRoadMark *roadMark=NULL;
+                                                double a=0, b=0;
+
+
+
+                                                if(sn < startLaneNums[i])
+                                                {
+                                                    startLane = startLanes[startLaneNum*lrMult];
+                                                    startLaneNum++;
+                                                    newLane = new Lane(newLaneNum*lrMult, startLane->getLaneType());
+                                                    roadMark = startLane->getRoadMarkEntry(paramStart);
+                                                    a = startLane->getWidth(paramStart);
+                                                }
+                                                b = (0 - a) / spiralPrototype->getLength();
+                                                if(en < endLaneNums[i])
+                                                {
+                                                    endLane = endLanes[endLaneNum*lrMult];
+                                                    endLaneNum++;
+                                                    newLane = new Lane(newLaneNum*lrMult, endLane->getLaneType());
+                                                    roadMark = endLane->getRoadMarkEntry(paramEnd);
+                                                    b = (endLane->getWidth(paramEnd) - a) / spiralPrototype->getLength();
+                                                }
+                                                sn++;
+                                                en++;
+                                                if (roadMark)
+                                                {
+                                                    LaneRoadMark *newRoadMark = new LaneRoadMark(0.0, roadMark->getRoadMarkType(), roadMark->getRoadMarkWeight(), roadMark->getRoadMarkColor(), 0.12);
+                                                    newLane->addRoadMarkEntry(newRoadMark);
+                                                }
+                                                newLaneNum++;
+
+                                                LaneWidth *width = new LaneWidth(0.0, a, b, 0.0, 0.0);
+                                                newLane->addWidthEntry(width);
+                                                InsertLaneCommand *command = new InsertLaneCommand(newLaneSection, newLane);
+                                                getProjectGraph()->executeCommand(command);
+                                            }
+                                        }
+                                    }
+                                }
+
+                   /*             while (startLanesIterator != prototypeLaneSectionStart->getLanes().constEnd())
                                 {
                                     Lane *startLane = startLanesIterator.value();
                                     Lane *newLane = new Lane(startLane->getId() * laneIDStart, startLane->getLaneType());
@@ -1833,7 +1957,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                     getProjectGraph()->executeCommand(command);
 
                                     startLanesIterator++;
-                                }
+                                }*/
 
                                 NewRoadCommand *command = new NewRoadCommand(spiralPrototype, getProjectData()->getRoadSystem(), NULL);
                                 getProjectGraph()->executeCommand(command);

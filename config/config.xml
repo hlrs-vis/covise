@@ -60,11 +60,12 @@
   </System>
 
   <COVER>
+      <Snap value="ON" />
     <!--LODScale value="0.000000000001" /-->
     <DepthPeeling value="false" />
     <LODScale value="1" />
 
-    <SyncToVBlank value="ON" device="DFP-0" />
+    <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
      <TabletUI>
@@ -264,10 +265,10 @@
    <ViewerPosition x="0" y="-1500" z="0" />
    <SceneSize value="1000" />
    <DebugLevel value="1" />
-   <FPS value="false" />
+   <FPS value="true" />
 
    <PipeConfig>
-      <Pipe display="only needed for multiple X11 displays/screens" server="0" screen="0" name="0" />
+       <Pipe name="0" useDISPLAY="true" />
    </PipeConfig>
 
    <WindowConfig>
@@ -276,7 +277,7 @@
     <!--Window arch="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" bottom="0" name="0" decoration="false" /-->
     <!--Window arch="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" bottom="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" /-->
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" bottom="0" name="0" decoration="false" />
+    <Window width="1200" comment="FRONT" window="0" pipeIndex="0" height="800" left="0" bottom="0" name="0" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>

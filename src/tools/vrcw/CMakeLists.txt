@@ -1,3 +1,7 @@
+if (COVISE_USE_QT4)
+    return()
+endif()
+
 # PROJECT(VRConfWizard)
 
 set(HEADERS
