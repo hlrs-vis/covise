@@ -40,6 +40,10 @@
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
 
+// Gui //
+//
+#include "src/gui/lodsettings.hpp"
+
 // Manager //
 //
 #include "src/data/signalmanager.hpp" 
@@ -86,6 +90,10 @@ SignalItem::init()
 	//
 	signalManager_ = getProjectData()->getProjectWidget()->getMainWindow()->getSignalManager();
 
+    // LOD settings
+    //
+    lodSettings_ = getProjectData()->getProjectWidget()->getLODSettings();
+
 	// Category Size
 	//
 	categorySize_ = signalManager_->getCategoriesSize();
@@ -106,7 +114,6 @@ SignalItem::init()
 
     // value for pixmap representation
     //
-    lodThreshold_ = 5.0;
     size_ = 8.0;
     halfsize_ = size_ / 2.0;
 
@@ -207,13 +214,14 @@ SignalItem::updateColor()
 {
     if (pixmapItem_)
     {
+        double lodThreshold = lodSettings_->SignalEditorScalingLevel;
         double scaling = getTopviewGraph()->getView()->getScaling();
-        if ((scaling < lodThreshold_) &&  showPixmap_)
+        if ((scaling < lodThreshold) &&  showPixmap_)
         {
             showPixmap_ = false;
             pixmapItem_->hide();
         }
-        else if ((scaling > lodThreshold_) && !showPixmap_)
+        else if ((scaling > lodThreshold) && !showPixmap_)
         {
             showPixmap_ = true;
             pixmapItem_->show();

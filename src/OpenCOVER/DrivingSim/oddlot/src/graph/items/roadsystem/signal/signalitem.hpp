@@ -24,6 +24,7 @@ class SignalTextItem;
 class SignalEditor;
 class SignalManager;
 class ToolAction;
+class LODSettings;
 
 class QColor;
 
@@ -120,7 +121,6 @@ private:
 
     QGraphicsPixmapItem *pixmapItem_;
     QPixmap pixmap_;
-    double lodThreshold_;
     
     bool showPixmap_;
 
@@ -129,6 +129,8 @@ private:
     SignalEditor *signalEditor_;
     
 	SignalManager *signalManager_;
+
+    LODSettings * lodSettings_;
 
 	int categorySize_;
 };
