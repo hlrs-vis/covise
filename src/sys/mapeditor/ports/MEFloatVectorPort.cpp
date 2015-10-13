@@ -67,18 +67,6 @@ void MEFloatVectorPort::textCB(const QString &)
     else
         qCritical() << "did not find FloatVector line edit" << endl;
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << m_nVect;
-
-    for (int i = 0; i < m_nVect; i++)
-        sb << m_vectorList[type].at(i)->text().toFloat();
-
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
 
     m_vector.clear();
     for (int i = 0; i < m_nVect; i++)
@@ -87,42 +75,8 @@ void MEFloatVectorPort::textCB(const QString &)
         m_vector.append(v);
     }
     sendParamMessage();
-#endif
 
     // inform parent widget that value has been changed
     node->setModified(true);
 }
 
-#ifdef YAC
-
-//------------------------------------------------------------------------
-void MEFloatVectorPort::setValues(covise::coRecvBuffer &tb)
-//------------------------------------------------------------------------
-{
-    tb >> m_nVect;
-
-    float ff;
-    m_vector.clear();
-
-    for (int j = 0; j < m_nVect; j++)
-    {
-        tb >> ff;
-        QVariant v(ff);
-        m_vector.append(v);
-    }
-
-    // modify module & control line content
-
-    if (!m_vectorList[MODULE].isEmpty())
-    {
-        for (int j = 0; j < m_nVect; j++)
-            m_vectorList[MODULE].at(j)->setText(m_vector.at(j).toString());
-    }
-
-    if (!m_vectorList[CONTROL].isEmpty())
-    {
-        for (int j = 0; j < m_nVect; j++)
-            m_vectorList[CONTROL].at(j)->setText(m_vector.at(j).toString());
-    }
-}
-#endif

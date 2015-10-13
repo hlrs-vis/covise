@@ -49,7 +49,7 @@ MEScalarPort::~MEScalarPort()
 void MEScalarPort::restoreParam()
 {
     m_value = m_valueold;
-    sendParamMessage(m_value.toString());
+    sendParamMessage(toString(m_value));
 }
 
 //!
@@ -65,7 +65,7 @@ void MEScalarPort::storeParam()
 //!
 void MEScalarPort::moduleParameterRequest()
 {
-    sendParamMessage(m_value.toString());
+    sendParamMessage(toString(m_value));
 }
 
 //!
@@ -73,16 +73,9 @@ void MEScalarPort::moduleParameterRequest()
 //!
 void MEScalarPort::defineParam(QString svalue, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(svalue);
-    Q_UNUSED(apptype);
-
-#else
     m_value.setValue(svalue);
     m_step.setValue(1);
     MEParameterPort::defineParam(svalue, apptype);
-#endif
 }
 
 //!
@@ -90,15 +83,6 @@ void MEScalarPort::defineParam(QString svalue, int apptype)
 //!
 void MEScalarPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     Q_UNUSED(noOfValues);
 
     m_value.setValue(list[istart]);
@@ -106,14 +90,13 @@ void MEScalarPort::modifyParam(QStringList list, int noOfValues, int istart)
     // modify module & control line content
 
     if (m_textField)
-        m_textField->setText(m_value.toString());
+        m_textField->setText(toString(m_value));
 
     if (!m_editList.isEmpty())
     {
-        m_editList.at(0)->setText(m_value.toString());
-        m_editList.at(1)->setText(m_step.toString());
+        m_editList.at(0)->setText(toString(m_value));
+        m_editList.at(1)->setText(toString(m_step));
     }
-#endif
 }
 
 //!
@@ -121,12 +104,6 @@ void MEScalarPort::modifyParam(QStringList list, int noOfValues, int istart)
 //!
 void MEScalarPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     m_value.setValue(lvalue);
 
     // modify module & control line content
@@ -137,9 +114,8 @@ void MEScalarPort::modifyParameter(QString lvalue)
     if (!m_editList.isEmpty())
     {
         m_editList.at(0)->setText(lvalue);
-        m_editList.at(1)->setText(m_step.toString());
+        m_editList.at(1)->setText(toString(m_step));
     }
-#endif
 }
 
 //!
@@ -157,7 +133,7 @@ void MEScalarPort::removeFromControlPanel()
     hb2->addWidget(l);                                                                         \
     le = new MELineEdit(secondLine);                                                           \
     le->setMinimumWidth(MEMainHandler::instance()->getSliderWidth());                          \
-    le->setText(m_value.toString());                                                           \
+    le->setText(toString(m_value));                                                           \
     connect(le, SIGNAL(contentChanged(const QString &)), this, SLOT(textCB(const QString &))); \
     hb2->addWidget(le, 4);                                                                     \
     m_editList << le;
@@ -176,7 +152,7 @@ void MEScalarPort::makeControlLine(layoutType, QWidget *w)
     // text editor line
 
     m_textField = new MELineEdit(w);
-    m_textField->setText(m_value.toString());
+    m_textField->setText(toString(m_value));
     m_textField->setMinimumWidth(MEMainHandler::instance()->getSliderWidth());
     connect(m_textField, SIGNAL(contentChanged(const QString &)), this, SLOT(text2CB(const QString &)));
     connect(m_textField, SIGNAL(focusChanged(bool)), this, SLOT(setFocusCB(bool)));
@@ -215,7 +191,7 @@ void MEScalarPort::makeModuleLine(layoutType, QWidget *w)
     // text editor line
 
     MELineEdit *le = new MELineEdit(firstLine);
-    le->setText(m_value.toString());
+    le->setText(toString(m_value));
     le->setMinimumWidth(MEMainHandler::instance()->getSliderWidth());
     connect(le, SIGNAL(focusChanged(bool)), this, SLOT(setFocusCB(bool)));
     connect(le, SIGNAL(contentChanged(const QString &)), this, SLOT(textCB(const QString &)));
@@ -224,20 +200,6 @@ void MEScalarPort::makeModuleLine(layoutType, QWidget *w)
     hb1->addWidget(le, 6);
 
     QLabel *l;
-
-#ifdef YAC
-    connect(le, SIGNAL(editingFinished()), this, SLOT(boundaryCB()));
-    connect(le, SIGNAL(returnPressed()), this, SLOT(boundaryCB()));
-
-    addValue("Min ", m_min);
-    connect(m_editList.at(1), SIGNAL(editingFinished()), this, SLOT(boundaryCB()));
-    connect(m_editList.at(1), SIGNAL(returnPressed()), this, SLOT(boundaryCB()));
-
-    addValue("Max ", m_max);
-    connect(m_editList.at(2), SIGNAL(editingFinished()), this, SLOT(boundaryCB()));
-    connect(m_editList.at(2), SIGNAL(returnPressed()), this, SLOT(boundaryCB()));
-#endif
-
     addValue("Step", m_step);
 }
 
@@ -256,7 +218,7 @@ void MEScalarPort::makeStepper(layoutType, QWidget *w)
     // text filed with current value
 
     m_textField = new MELineEdit(w);
-    m_textField->setText(m_value.toString());
+    m_textField->setText(toString(m_value));
     m_textField->setMinimumWidth(MEMainHandler::instance()->getSliderWidth());
 
     connect(m_textField, SIGNAL(contentChanged(const QString &)), this, SLOT(text2CB(const QString &)));
