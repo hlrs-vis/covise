@@ -544,6 +544,7 @@ void Input::update()
         for (TrackingBodyMap::iterator ob = trackingbodies.begin(); ob != trackingbodies.end(); ++ob)
         {
             ob->second->update();
+            ob->second->updateRelative();
             int isVal = ob->second->isValid(), isVar = ob->second->isVarying(), is6Dof = ob->second->is6Dof();
             tb << isVal;
             tb << isVar;

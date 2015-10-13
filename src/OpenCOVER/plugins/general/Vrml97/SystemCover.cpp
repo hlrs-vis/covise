@@ -1005,9 +1005,9 @@ void SystemCover::transformByMatrix(const double *M, float pos[3], float ori[4])
     mat2.makeTranslate(pos[0], pos[1], pos[2]);
     rotMat.makeRotate(ori[3], osg::Vec3(ori[0], ori[1], ori[2]));
     osg::Matrix m = rotMat * mat2 * mat;
-    coCoord coord(m);
-    //m.makeCoord(&coord);
-    coord.makeMat(m);
+    // remove scale and shear from matrix the question is why... coCoord has issues with angles < 0.002 rad
+    //coCoord coord(m);
+    //coord.makeMat(m);
     if (pos)
     {
         for (int i = 0; i < 3; i++)

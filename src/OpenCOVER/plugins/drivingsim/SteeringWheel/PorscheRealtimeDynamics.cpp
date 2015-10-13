@@ -812,16 +812,10 @@ if(coVRMSController::instance()->isMaster()) {
         DSpaceData.ffz1_yaw, osg::Vec3(0, 1, 0));
     ffz1inertialToCogTransform.setRotate(ffz1inertialToCogRotation);
 
-    // center of mass to chassis
-    osg::Matrix cogToChassisTransform;
-    cogToChassisTransform.setTrans(osg::Vec3(-DSpaceData.CoGDist, -0.5, 0));
-    //cogToChassisTransform.setRotate(osg::Quat( 0,0,0,1 ));
-
     // total
-    chassisTransform = cogToChassisTransform * inertialToCogTransform;
-    //chassisTransform = inertialToCogTransform * cogToChassisTransform;
+    chassisTransform = inertialToCogTransform;
 
-    ffz1chassisTransform = cogToChassisTransform * ffz1inertialToCogTransform;
+    ffz1chassisTransform = ffz1inertialToCogTransform;
 
     dSpacePose = chassisTransform;
 
@@ -869,6 +863,8 @@ if(coVRMSController::instance()->isMaster()) {
 // OFFSET //
 //
 // an offset to the dSPACE translation values, to place the car in the scene
+/*
+only absolute vaulues from the realtime dynamics, reset will not work.
 #if 1
     chassisTransform.setRotate(chassisTransform.getRotate() * dSpaceOrigin.getRotate());
     chassisTransform.setTrans(dSpaceOrigin.getTrans() + osg::Matrix(dSpaceOrigin.getRotate().inverse()) * chassisTransform.getTrans());
@@ -891,10 +887,11 @@ if(coVRMSController::instance()->isMaster()) {
     chassisTransform.setTrans(targetReference.getTrans() + osg::Matrix(targetReference.getRotate().inverse()) * osg::Matrix(dSpaceReference.getRotate()) * deltaC);
     chassisTransform.setRotate(targetReference.getRotate() * deltaQ);
 #endif
+*/
 
     // SNAP TO GROUND //
     //
-    if (vehicle->followTerrain())
+    /*if (vehicle->followTerrain())
     {
         // calculate matrix
         osg::Matrix moveMat;
@@ -910,13 +907,20 @@ if(coVRMSController::instance()->isMaster()) {
     else
     {
         // DIRTY HACK FOR PRE-CRASH STUDY //
-        chassisTransform.setTrans(chassisTransform.getTrans()[0], chassisTransform.getTrans()[1], chassisTransform.getTrans()[2]);
-        ffz1chassisTransform.setTrans(ffz1chassisTransform.getTrans()[0], ffz1chassisTransform.getTrans()[1], ffz1chassisTransform.getTrans()[2]);
+        //chassisTransform.setTrans(chassisTransform.getTrans()[0], chassisTransform.getTrans()[1], chassisTransform.getTrans()[2]);
+        //ffz1chassisTransform.setTrans(ffz1chassisTransform.getTrans()[0], ffz1chassisTransform.getTrans()[1], ffz1chassisTransform.getTrans()[2]);
     }
+    */
 
     // UPDATE VRML //
     //
     //cerr << "m: " << chassisTransform.getTrans()[0] << " " << chassisTransform.getTrans()[1] << " " << chassisTransform.getTrans()[2] << " " << endl;
+    //cerr << "m: " << chassisTransform(0,0) << " " << chassisTransform.getTrans()[1] << " " << chassisTransform.getTrans()[2] << " " << endl;
+   /* fprintf(stderr,"chassisTransform\n");
+    fprintf(stderr," %3.3f %3.3f %3.3f %3.3f\n", chassisTransform(0,0), chassisTransform(1,0), chassisTransform(2,0), chassisTransform(3,0));
+    fprintf(stderr," %3.3f %3.3f %3.3f %3.3f\n", chassisTransform(0,1), chassisTransform(1,1), chassisTransform(2,1), chassisTransform(3,1));
+    fprintf(stderr," %3.3f %3.3f %3.3f %3.3f\n", chassisTransform(0,2), chassisTransform(1,2), chassisTransform(2,2), chassisTransform(3,2));
+    fprintf(stderr," %3.3f %3.3f %3.3f %3.3f\n", chassisTransform(0,3), chassisTransform(1,3), chassisTransform(2,3), chassisTransform(3,3));*/
     vehicle->setVRMLVehicle(chassisTransform);
     vehicle->setVRMLVehicleFFZBody(ffz1chassisTransform);
     vehicle->setVRMLVehicleBody(chassisTransform);
