@@ -47,6 +47,11 @@ MEVectorPort::~MEVectorPort()
 {
 }
 
+QString MEVectorPort::asString(int idx) const
+{
+    return toString(m_vector.at(idx).toDouble());
+}
+
 //------------------------------------------------------------------------
 // restore saved parameters
 // after the user has pressed cancel in module parameter window
@@ -137,13 +142,13 @@ void MEVectorPort::modifyParam(QStringList list, int noOfValues, int istart)
         if (!m_vectorList[MODULE].isEmpty())
         {
             for (int j = 0; j < m_nVect; j++)
-                m_vectorList[MODULE].at(j)->setText(m_vector.at(j).toString());
+                m_vectorList[MODULE].at(j)->setText(asString(j));
         }
 
         if (!m_vectorList[CONTROL].isEmpty())
         {
             for (int j = 0; j < m_nVect; j++)
-                m_vectorList[CONTROL].at(j)->setText(m_vector.at(j).toString());
+                m_vectorList[CONTROL].at(j)->setText(asString(j));
         }
     }
 
@@ -184,13 +189,13 @@ void MEVectorPort::modifyParameter(QString lvalue)
         if (!m_vectorList[MODULE].isEmpty())
         {
             for (int j = 0; j < m_nVect; j++)
-                m_vectorList[MODULE].at(j)->setText(m_vector.at(j).toString());
+                m_vectorList[MODULE].at(j)->setText(asString(j));
         }
 
         if (!m_vectorList[CONTROL].isEmpty())
         {
             for (int j = 0; j < m_nVect; j++)
-                m_vectorList[CONTROL].at(j)->setText(m_vector.at(j).toString());
+                m_vectorList[CONTROL].at(j)->setText(asString(j));
         }
     }
 
@@ -218,7 +223,7 @@ void MEVectorPort::makeLayout(layoutType type, QWidget *w)
     {
         MELineEdit *le = new MELineEdit();
         le->setMinimumWidth(MEMainHandler::instance()->getSliderWidth());
-        le->setText(m_vector.at(i).toString());
+        le->setText(asString(i));
 
         connect(le, SIGNAL(contentChanged(const QString &)), this, SLOT(textCB(const QString &)));
         connect(le, SIGNAL(focusChanged(bool)), this, SLOT(setFocusCB(bool)));
@@ -237,7 +242,7 @@ void MEVectorPort::sendParamMessage()
 
     for (int k = 0; k < m_nVect; k++)
     {
-        buffer.append(m_vector.at(k).toString());
+        buffer.append(asString(k));
         buffer.append(" ");
     }
 

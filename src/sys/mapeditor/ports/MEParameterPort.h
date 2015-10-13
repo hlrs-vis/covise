@@ -29,6 +29,9 @@ class MEControlParameter;
 class MEFileBrowser;
 class METimer;
 
+QString toString(double value);
+QString toString(const QVariant &value);
+
 //================================================
 class MEParameterPort : public MEPort
 //================================================

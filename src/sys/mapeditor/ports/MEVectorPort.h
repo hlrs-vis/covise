@@ -43,5 +43,8 @@ protected:
 
     void removeFromControlPanel();
     void sendParamMessage();
+
+private:
+    QString asString(int idx) const;
 };
 #endif

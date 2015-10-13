@@ -25,10 +25,6 @@ public:
 
     void makeLayout(layoutType type, QWidget *parent);
 
-#ifdef YAC
-    void setValues(covise::coRecvBuffer &rb);
-#endif
-
 private slots:
 
     void textCB(const QString &value);
