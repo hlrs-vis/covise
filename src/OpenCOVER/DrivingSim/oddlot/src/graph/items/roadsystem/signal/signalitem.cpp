@@ -109,6 +109,8 @@ SignalItem::init()
     lodThreshold_ = 5.0;
     size_ = 8.0;
     halfsize_ = size_ / 2.0;
+
+    pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
     updateCategory();
     updatePosition();
     createPath();
@@ -158,14 +160,13 @@ SignalItem::updateCategory()
                 // Transformation //
                 //
                 // Note: The y-Axis must be flipped so the image is not mirrored
-                QTransform trafo;
 
-                double s;
+                QTransform trafo;
                 if (pixmap_.width() > pixmap_.height())
                 {
-                    s = size_/pixmap_.width();
+                    scale_ = size_/pixmap_.width();
                     width_ = size_;
-                    height_ = s * pixmap_.height();
+                    height_ = scale_ * pixmap_.height();
                     x_ = pos_.x() - halfsize_;
                     double h = height_ / 2.0;
                     trafo.translate(x_, pos_.y() + h);
@@ -173,15 +174,15 @@ SignalItem::updateCategory()
                 }
                 else
                 {
-                    s = size_/pixmap_.height();
-                    width_ = s * pixmap_.width();
+                    scale_ = size_/pixmap_.height();
+                    width_ = scale_ * pixmap_.width();
                     height_ = size_;
                     x_ = pos_.x() - width_ / 2.0;
                     trafo.translate(x_, pos_.y() + halfsize_);
                     y_ = pos_.y() - halfsize_;
                 }
                 trafo.rotate(180, Qt::XAxis);
-                trafo.scale(s, s);
+                trafo.scale(scale_, scale_);
 
                 pixmapItem_->setTransform(trafo);
                 if (!showPixmap_)
@@ -327,6 +328,7 @@ SignalItem::updatePosition()
 {
 
     pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
+
     updateColor();
     createPath();
 }
@@ -378,11 +380,17 @@ SignalItem::zoomAction()
 void
 SignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-
-    // Text //
-    //
-    getSignalTextItem()->setVisible(true);
-    getSignalTextItem()->setPos(event->scenePos());
+    if (signalEditor_->getCurrentTool() == ODD::TSG_MOVE)
+    {
+        setCursor(Qt::OpenHandCursor);
+    }
+    else
+    {
+        // Text //
+        //
+        getSignalTextItem()->setVisible(true);
+        getSignalTextItem()->setPos(event->scenePos());
+    }
 
     // Parent //
     //
@@ -392,6 +400,7 @@ SignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 void
 SignalItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
+    setCursor(Qt::ArrowCursor);
 
     // Text //
     //
@@ -414,6 +423,7 @@ SignalItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 void
 SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    pressPos_ = event->pos();
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Signal
     if (tool == ODD::TSG_DEL)
     {
@@ -501,9 +511,63 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             }
         }
     }
+    else if (tool == ODD::TSG_MOVE)
+    {
+        if (pixmapItem_ && showPixmap_)
+        {
+            pixmapItem_->hide();
+            showPixmap_ = false;
+            createPath();
+        }
+    }
     else
     {
         GraphElement::mousePressEvent(event); // pass to baseclass
+    }
+}
+
+void
+SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    ODD::ToolId tool = signalEditor_->getCurrentTool();
+    if (tool == ODD::TSG_MOVE)
+    {
+        pos_ = event->scenePos();
+        createPath();
+    }
+}
+
+void
+SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    ODD::ToolId tool = signalEditor_->getCurrentTool();
+    if (tool == ODD::TSG_MOVE)
+    {
+        bool parentChanged = signalEditor_->translateSignal(signal_, event->scenePos());
+
+        if (!parentChanged && pixmapItem_)
+        {
+            QTransform trafo;
+            if (pixmap_.width() > pixmap_.height())
+            {
+                x_ = pos_.x() - halfsize_;
+                double h = height_ / 2.0;
+                trafo.translate(x_, pos_.y() + h);
+                y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
+            }
+            else
+            {
+                x_ = pos_.x() - width_ / 2.0;
+                trafo.translate(x_, pos_.y() + halfsize_);
+                y_ = pos_.y() - halfsize_;
+            }
+            trafo.rotate(180, Qt::XAxis);
+            trafo.scale(scale_, scale_);
+            pixmapItem_->setTransform(trafo);
+
+            updateColor();
+            createPath();
+        }
     }
 }
 

@@ -179,6 +179,7 @@ public:
         TSG_ADD_CONTROL_ENTRY,
         TSG_REMOVE_CONTROL_ENTRY,
         TSG_DEL,
+        TSG_MOVE,
 
         // No Tool
         TNO_TOOL

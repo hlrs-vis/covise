@@ -660,6 +660,38 @@ RSystemElementRoad::getSFromGlobalPoint(const QPointF &globalPos, double sStart,
     return sApprox;
 }
 
+double
+RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
+{
+    LaneSection *laneSection = getLaneSection(s);
+    double t = 0.0;
+    Lane *nextLane;
+    double sSection = s - laneSection->getSStart();
+    int i = 0;
+    QVector2D normal = getGlobalNormal(s);
+
+    QVector2D vec = QVector2D(globalPos - getGlobalPoint(s));
+
+    if (QVector2D::dotProduct(normal, vec) < 0)
+    {
+        while (nextLane = laneSection->getNextUpper(i))
+        {
+            t += nextLane->getWidth(sSection);
+            i = nextLane->getId();
+        }
+    }
+    else
+    {
+        while (nextLane = laneSection->getNextLower(i))
+        {
+            t -= nextLane->getWidth(sSection);
+            i = nextLane->getId();
+        }
+    }
+    
+    return t;
+}
+
 //###################//
 // road:type         //
 //###################//

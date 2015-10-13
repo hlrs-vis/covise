@@ -189,36 +189,13 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
         // calculate t at s
         //
-        LaneSection *laneSection = road_->getLaneSection(s);
-        double t = 0.0;
-        Lane *nextLane;
-        double sSection = s - laneSection->getSStart();
-        int i = 0;
-        QVector2D normal = road_->getGlobalNormal(s);
-
-        QVector2D vec = QVector2D(pos_ - road_->getGlobalPoint(s));
-
-        if (QVector2D::dotProduct(normal, vec) < 0)
-        {
-            while (nextLane = laneSection->getNextUpper(i))
-            {
-                t += nextLane->getWidth(sSection);
-                i = nextLane->getId();
-            }
-        }
-        else
-        {
-            while (nextLane = laneSection->getNextLower(i))
-            {
-                t -= nextLane->getWidth(sSection);
-                i = nextLane->getId();
-            }
-        }
+        double t = road_->getTFromGlobalPoint(pos_, s);
 
         if (tool == ODD::TSG_SIGNAL)
         {
             int validToLane = 0;
 
+            LaneSection *laneSection = road_->getLaneSection(s);
             if (t < 0)
             {
                 validToLane = laneSection->getRightmostLaneId();

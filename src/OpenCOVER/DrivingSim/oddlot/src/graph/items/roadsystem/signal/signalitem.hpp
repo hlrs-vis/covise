@@ -89,6 +89,8 @@ public slots:
 public:
     //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -110,6 +112,9 @@ private:
     double y_;
     double width_;
     double height_;
+    double scale_;
+
+    QPointF pressPos_;
 
     SignalTextItem *signalTextItem_;
 

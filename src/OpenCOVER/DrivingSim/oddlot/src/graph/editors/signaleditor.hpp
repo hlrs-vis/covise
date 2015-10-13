@@ -28,6 +28,7 @@ class SignalHandle;
 class SignalItem;
 class ObjectItem;
 class BridgeItem;
+class Signal;
 
 class SignalEditor : public ProjectEditor
 {
@@ -52,6 +53,10 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *);
+
+    // Move Signal //
+    //
+    bool translateSignal(Signal * signal, const QPointF &to);
 
     // RoadType //
     //

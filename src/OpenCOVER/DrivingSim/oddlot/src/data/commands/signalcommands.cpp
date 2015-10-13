@@ -121,7 +121,7 @@ RemoveSignalCommand::~RemoveSignalCommand()
     }
     else
     {
-        delete signal_;
+ //       delete signal_;
     }
 }
 

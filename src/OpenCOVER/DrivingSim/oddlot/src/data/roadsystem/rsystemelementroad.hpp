@@ -186,6 +186,7 @@ public:
 
     double getSFromGlobalPoint(const QPointF &globalPos, double sInit = -1.0);
     double getSFromGlobalPoint(const QPointF &globalPos, double sStart, double sEnd);
+    double getTFromGlobalPoint(const QPointF &globalPos, double s);
 
     // road:elevationProfile:elevation //
     //

@@ -75,6 +75,11 @@ SignalEditorTool::initToolWidget()
     toolGroup->addButton(toolButton, ODD::TSG_SELECT); // button, id
     toolButton->setChecked(true);
 
+    toolButton = new QPushButton(tr("Move"));
+    toolButton->setCheckable(true);
+    toolLayout->addWidget(toolButton, ++row, 0);
+    toolGroup->addButton(toolButton, ODD::TSG_MOVE); // button, id
+
     toolButton = new QPushButton(tr("New Signal"));
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
