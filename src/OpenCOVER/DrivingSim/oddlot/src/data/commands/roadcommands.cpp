@@ -4389,7 +4389,10 @@ RemoveRoadLinkCommand::RemoveRoadLinkCommand(RSystemElementRoad *road, DataComma
         if (road_->getJunction() != "-1" && road_->getJunction() != "")
         {
             junction_ = roadSystem_->getJunction(road_->getJunction());
-            junctionConnections_ = junction_->getConnectingRoadConnections(road_->getID());
+            if (junction_)
+            {
+                junctionConnections_ = junction_->getConnectingRoadConnections(road_->getID());
+            }
         }
 
         LaneSection *laneSection = road_->getLaneSection(0.0);
