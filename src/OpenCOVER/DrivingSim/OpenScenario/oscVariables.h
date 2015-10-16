@@ -62,6 +62,8 @@ namespace OpenScenario
     typedef oscVariable<short> oscShort;
     typedef oscVariable<unsigned short> oscUShort;
     typedef oscVariable<double> oscDouble;
+	typedef oscVariable<bool> oscBool;
+	typedef oscVariable<float> oscFloat;
 
     typedef oscValue<std::string> oscStringValue;
     typedef oscValue<int> oscIntValue;
