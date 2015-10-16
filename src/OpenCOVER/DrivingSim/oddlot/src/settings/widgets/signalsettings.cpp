@@ -37,6 +37,11 @@
 //
 #include "src/gui/projectwidget.hpp"
 
+// Editor //
+//
+#include "src/graph/editors/signaleditor.hpp"
+#include "src/graph/editors/projecteditor.hpp"
+
 // Qt //
 //
 #include <QInputDialog>
@@ -60,6 +65,7 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     , valueChanged_(false)
 {
     signalManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
+	signalEditor_ = dynamic_cast <SignalEditor *> (getProjectSettings()->getProjectWidget()->getProjectEditor());
     ui->setupUi(this);
 
 
@@ -158,6 +164,8 @@ SignalSettings::updateProperties()
 
         ui->fromLaneSpinBox->setValue(signal_->getValidFromLane());
         ui->toLaneSpinBox->setValue(signal_->getValidToLane());
+
+		signalEditor_->setLastSignal(signal_);
     }
 }
 
@@ -289,6 +297,8 @@ SignalSettings::onEditingFinished()
 
         SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, ui->crossingSpinBox->value(), ui->resetTimeSpinBox->value(), NULL);
         getProjectSettings()->executeCommand(command);
+
+		
 
         valueChanged_ = false;
         QWidget * focusWidget = QApplication::focusWidget();

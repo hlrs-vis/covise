@@ -73,6 +73,7 @@ SignalEditor::SignalEditor(ProjectWidget *projectWidget, ProjectData *projectDat
     , lastSelectedSignalItem_(NULL)
     , lastSelectedObjectItem_(NULL)
     , lastSelectedBridgeItem_(NULL)
+	, lastCreatedSignal_(NULL)
 {
 }
 

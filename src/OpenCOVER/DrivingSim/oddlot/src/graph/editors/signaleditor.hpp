@@ -58,6 +58,19 @@ public:
     //
     bool translateSignal(Signal * signal, const QPointF &to);
 
+	// Get signal, set signal //
+	//
+	Signal *getLastSignal()
+	{
+		return lastCreatedSignal_;
+	}
+
+	void setLastSignal(Signal *signal)
+	{
+		lastCreatedSignal_ = signal;
+	}
+
+
     // RoadType //
     //
     //	TypeSection::RoadType	getCurrentRoadType() const { return currentRoadType_; }
@@ -101,6 +114,8 @@ private:
     QMultiMap<double, BridgeItem *> obscuredBridgeItems_;
 
     ODD::ToolId lastTool_;
+
+	Signal *lastCreatedSignal_;
 
     // RoadType //
     //

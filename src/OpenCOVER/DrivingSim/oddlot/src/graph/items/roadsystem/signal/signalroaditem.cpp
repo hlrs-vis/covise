@@ -205,10 +205,19 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 validToLane = laneSection->getLeftmostLaneId();
             }
             QList<UserData *> userData;
-            Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
-            AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
-
-            getProjectGraph()->executeCommand(command);
+			Signal *lastSignal = signalEditor_->getLastSignal();
+			if (lastSignal)
+			{
+				Signal *newSignal = new Signal("signal", "", s, t, false, lastSignal->getOrientation(), 0.0, lastSignal->getCountry(), lastSignal->getType(), lastSignal->getTypeSubclass(), lastSignal->getSubtype(), 0.0, lastSignal->getHeading(), lastSignal->getPitch(), lastSignal->getRoll(), lastSignal->getPole(), 2, 0, validToLane);
+				AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
+				getProjectGraph()->executeCommand(command);
+			}
+			else
+			{
+				Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
+				AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
+				getProjectGraph()->executeCommand(command);
+			}         
         }
         else if (tool == ODD::TSG_OBJECT)
         {
