@@ -25,7 +25,7 @@ class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
-#define OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getType());
+#define OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType());
 
 namespace OpenScenario {
 

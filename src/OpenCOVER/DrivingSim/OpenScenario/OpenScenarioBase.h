@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscRoadNetwork.h>
 #include <oscHeader.h>
+#include <oscEnvironment.h>
 #include <string>
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
@@ -35,7 +36,7 @@ public:
     oscHeaderMember header;
     oscHeaderMember database;
     oscRoadNetworkMember roadNetwork;
-    oscHeaderMember environment;
+    oscEnvironmentMember environment; // temp only, should be a reference
     oscHeaderMember entities;
     oscHeaderMember storyboard;
     oscHeaderMember scenarioEnd;

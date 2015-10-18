@@ -14,19 +14,23 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getType(){return oscMemberValue::INT;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getValueType(){return oscMemberValue::INT;};
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned int>::getType(){return oscMemberValue::UINT;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned int>::getValueType(){return oscMemberValue::UINT;};
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<short>::getType(){return oscMemberValue::SHORT;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<short>::getValueType(){return oscMemberValue::SHORT;};
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned short>::getType(){return oscMemberValue::USHORT;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned short>::getValueType(){return oscMemberValue::USHORT;};
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<std::string>::getType(){return oscMemberValue::STRING;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<std::string>::getValueType(){return oscMemberValue::STRING;};
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<double>::getType(){return oscMemberValue::DOUBLE;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<double>::getValueType(){return oscMemberValue::DOUBLE;};
 template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<time_t>::getType(){return oscMemberValue::DATE_TIME;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<time_t>::getValueType(){return oscMemberValue::DATE_TIME;};
+template<>
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<bool>::getValueType(){return oscMemberValue::BOOL;};
+
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType(){return oscMemberValue::ENUM;};
 
 
 template<>
@@ -42,7 +46,16 @@ OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attr
 template<>
 OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
+OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute){ return false;};
+
+OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
+{
+    std::string valstr = xercesc::XMLString::transcode(attribute->getValue()); 
+    value = enumType->getEnum(valstr);
+    return true;
+};
 
 template<>
 OPENSCENARIOEXPORT bool oscValue<int>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){char buf[100]; sprintf(buf, "%d", value); currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf)); return true;};
@@ -58,5 +71,19 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<double>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(std::to_string(value).c_str())); return true;};
 template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){char buf[100]; sprintf(buf, "%ld", (long)value); currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf)); return true;};
+template<>
+OPENSCENARIOEXPORT bool oscValue<bool>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){if(value) currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode("true")); else currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode("false")); return true;};
+
+OPENSCENARIOEXPORT bool oscEnumValue::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
+{
+    for(std::map<std::string,int>::iterator it = enumType->enumValues.begin();it != enumType->enumValues.end(); it++)
+    {
+        if(it->second == value)
+        {
+            currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(it->first.c_str()));
+        }
+    }
+    return true;
+};
 
 }

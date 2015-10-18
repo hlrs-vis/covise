@@ -89,6 +89,15 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement)
                     oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
                     if(v)
                     {
+                        if(type == oscMemberValue::ENUM)
+                        {
+                            oscEnumValue *ev = dynamic_cast<oscEnumValue *>(v);
+                            oscEnum *em = dynamic_cast<oscEnum *>(m);
+                            if(ev && em)
+                            {
+                                ev->enumType = em->enumType;
+                            }
+                        }
                         v->initialize(attribute);
                         m->setValue(v);
                     }
