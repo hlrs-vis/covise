@@ -27,7 +27,7 @@ public:
     oscHeader(); ///< constructor
     virtual ~oscHeader(); ///< destructor
 
-    virtual int parseFromXML(xercesc::DOMElement *currentElement);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement);
 
 };
 

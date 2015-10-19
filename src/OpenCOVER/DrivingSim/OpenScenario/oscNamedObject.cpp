@@ -17,11 +17,11 @@ oscNamedObject::oscNamedObject(): oscObjectBase()
 }
 oscNamedObject::~oscNamedObject()
 {
-    
+
 }
 
 
-int oscNamedObject::parseFromXML(xercesc::DOMElement *currentElement)
+bool oscNamedObject::parseFromXML(xercesc::DOMElement *currentElement)
 {
     return true;
 }

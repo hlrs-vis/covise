@@ -30,7 +30,7 @@ public:
     oscNamedObject(); ///< constructor
     virtual ~oscNamedObject(); ///< destructor
 
-    virtual int parseFromXML(xercesc::DOMElement *currentElement);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement);
 
 };
 

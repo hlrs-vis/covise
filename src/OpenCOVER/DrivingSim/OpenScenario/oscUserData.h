@@ -33,7 +33,7 @@ public:
     virtual ~oscObjectBase(); ///< destructor
     virtual void initialize(OpenScenarioBase *b);
 
-    virtual int parseFromXML(xercesc::DOMElement *currentElement);
+    virtual bool parseFromXML(xercesc::DOMElement *currentElement);
 
 };
 

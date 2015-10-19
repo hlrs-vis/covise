@@ -18,7 +18,7 @@ oscObjectBase::oscObjectBase()
 }
 oscObjectBase::~oscObjectBase()
 {
-    
+
 }
 
 void oscObjectBase::initialize(OpenScenarioBase *b)
@@ -27,7 +27,7 @@ void oscObjectBase::initialize(OpenScenarioBase *b)
 }
 
 
-int oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement)
+bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement)
 {
     return true;
 }
