@@ -14,6 +14,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscHeader.h>
 #include <oscFile.h>
 #include <oscBody.h>
+#include <oscNamedObject.h>
 
 namespace OpenScenario {
 
@@ -51,11 +52,10 @@ public:
         OSC_ADD_MEMBER(adaptToRoadConditions);
 		OSC_ADD_MEMBER(adaptToWeatherConditions);
         OSC_ADD_MEMBER(body);
-		OSC_ADD_MEMBER(include);
         OSC_ADD_MEMBER(geometry);
     };
     oscHeaderMember header;
-    oscNameMember name;
+    oscNamedObjectMember name;
 	oscBool obeyTrafficLights;
 	oscBool obeyTrafficSigns;
 	oscDouble steeringDistance;

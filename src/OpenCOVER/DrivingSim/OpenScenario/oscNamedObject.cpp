@@ -14,14 +14,11 @@ using namespace OpenScenario;
 
 oscNamedObject::oscNamedObject(): oscObjectBase()
 {
+		OSC_ADD_MEMBER(name);
+		OSC_ADD_MEMBER(userData);
+		OSC_ADD_MEMBER(include);
 }
 oscNamedObject::~oscNamedObject()
 {
     
-}
-
-
-int oscNamedObject::parseFromXML(xercesc::DOMElement *currentElement)
-{
-    return true;
 }
