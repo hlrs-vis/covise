@@ -9,7 +9,7 @@ datatypes.h tablemodel.h vrconfwizard.h vrcwbase.h vrcwfinal.h vrcwhost.h vrcwho
 )
 
 qt_wrap_cpp(MOC_SOURCES
-datatypes.h tablemodel.h vrconfwizard.h vrcwbase.h vrcwfinal.h vrcwhost.h vrcwhostprojection.h vrcwhsensbindex.h vrcwperson.h vrcwprojectiondimcave.h vrcwprojectiondimpowerwall.h vrcwprojectionhw.h vrcwprojectionressize.h vrcwprojectionressizetiled.h vrcwprojectionvposfloor.h vrcwsensortracksysdim.h vrcwstart.h vrcwtemplate.h vrcwtrackingdim.h vrcwtrackinghw.h vrcwutils.h xmlconfigwriter.h
+tablemodel.h vrconfwizard.h vrcwfinal.h vrcwhost.h vrcwhostprojection.h vrcwhsensbindex.h vrcwperson.h vrcwprojectiondimcave.h vrcwprojectiondimpowerwall.h vrcwprojectionhw.h vrcwprojectionressize.h vrcwprojectionressizetiled.h vrcwprojectionvposfloor.h vrcwsensortracksysdim.h vrcwstart.h vrcwtemplate.h vrcwtrackingdim.h vrcwtrackinghw.h
 )
 
 set(SOURCES
