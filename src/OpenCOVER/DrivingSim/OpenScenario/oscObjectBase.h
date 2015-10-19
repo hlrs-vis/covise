@@ -38,7 +38,7 @@ public:
     typedef unordered_map<std::string, oscMember *> MemberMap;
 protected:
     OpenScenarioBase *base;
-    MemberMap members; ///< lost of all member variables
+    MemberMap members; ///< list of all member variables
 
 public:
     oscObjectBase(); ///< constructor
@@ -46,7 +46,7 @@ public:
     virtual void initialize(OpenScenarioBase *b);
     void addMember(oscMember *m);
     OpenScenarioBase *getBase(){return base;};
-    
+
     bool parseFromXML(xercesc::DOMElement *currentElement);
     bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
