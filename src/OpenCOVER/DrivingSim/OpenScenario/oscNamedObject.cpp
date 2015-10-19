@@ -20,5 +20,7 @@ oscNamedObject::oscNamedObject(): oscObjectBase()
 }
 oscNamedObject::~oscNamedObject()
 {
-    
+
 }
+
+

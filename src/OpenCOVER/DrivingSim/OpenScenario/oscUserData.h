@@ -33,3 +33,4 @@ namespace OpenScenario {
 }
 
 #endif //OSC_USERDATA_H
+
