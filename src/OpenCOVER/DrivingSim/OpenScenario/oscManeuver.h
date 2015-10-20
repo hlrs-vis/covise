@@ -4,34 +4,33 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_DATE_H
-#define OSC_DATE_H
+#ifndef OSC_MANEUVER_H
+#define OSC_MANEUVER_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscHeader.h>
 
 namespace OpenScenario {
 
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscDate: public oscObjectBase
+class OPENSCENARIOEXPORT oscManeuver: public oscObjectBase
 {
 public:
-    oscDate()
+    oscManeuver()
     {
-        OSC_ADD_MEMBER(day);
-		OSC_ADD_MEMBER(month);
-		OSC_ADD_MEMBER(year);
+        OSC_ADD_MEMBER(header);
+		OSC_ADD_MEMBER(name);
     };
-    oscUInt day;
-	oscUInt month;
-	oscUInt year;
+    oscHeaderMember header;
+	oscString name;
 };
 
-typedef oscObjectVariable<oscDate *> oscDateMember;
+typedef oscObjectVariable<oscManeuver *>oscManeuverMember;
 
 }
 
-#endif //OSC_DATE_H
+#endif //OSC_MANEUVER_H

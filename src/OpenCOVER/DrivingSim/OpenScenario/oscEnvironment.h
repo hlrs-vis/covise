@@ -28,7 +28,7 @@ public:
         OSC_ADD_MEMBER(header);
         OSC_ADD_MEMBER(timeOfDay);
         OSC_ADD_MEMBER(weather);
-        OSC_ADD_MEMBER(roadConditions );
+        OSC_ADD_MEMBER(roadConditions);
     };
     oscHeaderMember header;
     oscTimeOfDayMember timeOfDay;
