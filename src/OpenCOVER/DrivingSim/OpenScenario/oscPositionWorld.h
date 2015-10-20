@@ -4,14 +4,13 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_COORD_H
-#define OSC_COORD_H
+#ifndef OSC_POSITION_WORLD_H
+#define OSC_POSITION_WORLD_H
 #include <oscExport.h>
-#include <oscFile.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscPositionXyz.h>
+#include <oscCoordinate.h>
 #include <oscOrientation.h>
 
 namespace OpenScenario {
@@ -19,20 +18,20 @@ namespace OpenScenario {
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscCoord: public oscObjectBase
+class OPENSCENARIOEXPORT oscPisitionWorld: public oscObjectBase
 {
 public:
-    oscCoord()
+    oscPisitionWorld()
     {
-        OSC_ADD_MEMBER(position);
-        OSC_ADD_MEMBER(orientation);
+        OSC_ADD_MEMBER(coordinate);
+		OSC_ADD_MEMBER(orientation);		
     };
-    oscPositionXyzMember position;
-    oscOrientationMember orientation;
+    oscCoordinateMember coordinate;
+	oscOrientationMember orientation;
 };
 
-typedef oscObjectVariable<oscCoord *> oscCoordMember;
+typedef oscObjectVariable<oscPisitionWorld *> oscPisitionWorldMember;
 
 }
 
-#endif //OSC_COORD_H
+#endif //OSC_POSITION_WORLD_H

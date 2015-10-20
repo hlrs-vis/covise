@@ -4,35 +4,34 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_COORD_H
-#define OSC_COORD_H
+#ifndef OSC_LANE_COORD_H
+#define OSC_LANE_COORD_H
 #include <oscExport.h>
-#include <oscFile.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscPositionXyz.h>
-#include <oscOrientation.h>
 
 namespace OpenScenario {
 
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscCoord: public oscObjectBase
+class OPENSCENARIOEXPORT oscLaneCoord: public oscObjectBase
 {
 public:
-    oscCoord()
+    oscLaneCoord()
     {
-        OSC_ADD_MEMBER(position);
-        OSC_ADD_MEMBER(orientation);
+        OSC_ADD_MEMBER(pathS);
+        OSC_ADD_MEMBER(laneId);
+		OSC_ADD_MEMBER(laneOffset);
     };
-    oscPositionXyzMember position;
-    oscOrientationMember orientation;
+    oscDouble pathS;
+    oscInt laneId;
+	oscDouble laneOffset
 };
 
-typedef oscObjectVariable<oscCoord *> oscCoordMember;
+typedef oscObjectVariable<oscLaneCoord *> oscLaneCoordMember;
 
 }
 
-#endif //OSC_COORD_H
+#endif //OSC_LANE_COORD_H
