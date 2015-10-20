@@ -10,7 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscCoordinate.h>
+#include <oscPositionXyz.h>
 #include <oscOrientation.h>
 
 namespace OpenScenario {
@@ -23,14 +23,14 @@ class OPENSCENARIOEXPORT oscPisitionWorld: public oscObjectBase
 public:
     oscPisitionWorld()
     {
-        OSC_ADD_MEMBER(coordinate);
+        OSC_ADD_MEMBER(position);
 		OSC_ADD_MEMBER(orientation);		
     };
-    oscCoordinateMember coordinate;
+    oscPositionXyzMember position;
 	oscOrientationMember orientation;
 };
 
-typedef oscObjectVariable<oscPisitionWorld *> oscPisitionWorldMember;
+typedef oscObjectVariable<oscPisitionWorld *> oscPositionWorldMember;
 
 }
 
