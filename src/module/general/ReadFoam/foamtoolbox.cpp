@@ -221,7 +221,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
             }
         }
     }
-
+    // 
     if (meshfiles.size() == 4)
     {
         if (time)
@@ -237,6 +237,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
         info.varyingCoords = true;
         return true;
     }
+	// this usually never occurs:
     if (meshfiles.size() == 3 && time && !havePoints)
     {
         info.varyingGrid = true;

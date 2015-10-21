@@ -593,7 +593,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
     }
     else
     { //if Processor >= 0  ->  Copy everything but the Coordinates from basemeshs[processor]
-        std::cerr << std::time(0) << " copying mesh from first timestep in Processor" << Processor << std::endl;
+        std::cerr << std::time(0) << " copying mesh from most recent timestep in Processor" << Processor << std::endl;
         coDoUnstructuredGrid *oldMesh = basemeshs[Processor];
         index_t num_elem, num_conn, void_points;
         oldMesh->getGridSize(&num_elem, &num_conn, &void_points);
@@ -1080,12 +1080,17 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
             { //Mesh DOES change over time AND is distributed over multiple Processor Directories
                 index_t i = 0;
                 std::vector<coDistributedObject *> meshSubSets;
-                for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+            
+			
+				std::string meshdir = casedir;
+			    for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                      it != m_case.timedirs.end();
                      ++it)
                 {
-                    std::vector<coDistributedObject *> meshObjects;
-                    for (index_t j = 0; j < m_case.numblocks; ++j)
+                    //checkSubDirectory(info, timedir, true) 
+				    std::vector<coDistributedObject *> meshObjects;
+                    
+					for (index_t j = 0; j < m_case.numblocks; ++j)
                     {
                         std::stringstream sn;
                         sn << "_timestep_" << i << "_processor_" << j;
@@ -1097,15 +1102,14 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         std::stringstream s;
                         s << "/processor" << j << "/" << timedir << "/polyMesh";
                         pointsdir += s.str();
-                        std::string meshdir = casedir;
 
                         if (!m_case.varyingGrid)
                         { //if grid does not changes over time
-                            std::stringstream sConstant;
-                            sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
-                            meshdir += sConstant.str();
                             if (i == 0)
                             { //If first timestep
+								std::stringstream sConstant;
+								sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
+								meshdir += sConstant.str();
                                 m = loadMesh(meshdir, pointsdir, meshObjName); //Read the first timestep from every processor directory.
                                 basemeshs[j] = m;
                             }
@@ -1118,6 +1122,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         { //If grid also changes
                             meshdir = pointsdir;
                             m = loadMesh(meshdir, pointsdir, meshObjName); //reload everything
+							basemeshs[j] = m;
                         }
                         meshObjects.push_back(m);
                     }
@@ -1144,6 +1149,13 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                 index_t i = 0;
                 std::vector<coDistributedObject *> meshObjects;
                 coDoSet *meshSet;
+				
+				{					
+				std::string meshdir = casedir;
+				std::stringstream sConstant;
+				sConstant << "/" << m_case.constantdir << "/polyMesh";
+				meshdir += sConstant.str();
+				
                 for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                      it != m_case.timedirs.end();
                      ++it)
@@ -1152,7 +1164,6 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     sn << "_timestep_" << i;
                     std::string meshObjName = meshOutPort->getObjName();
                     meshObjName += sn.str();
-
                     coDoUnstructuredGrid *m;
                     coDoPolygons *p;
                     std::string timedir = it->second;
@@ -1160,13 +1171,9 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     std::stringstream s;
                     s << "/" << timedir << "/polyMesh";
                     pointsdir += s.str();
-                    std::string meshdir = casedir;
-
+					checkSubDirectory(m_case, casedir + timedir, true);
                     if (!m_case.varyingGrid)
                     {
-                        std::stringstream sConstant;
-                        sConstant << "/" << m_case.constantdir << "/polyMesh";
-                        meshdir += sConstant.str();
                         if (i == 0)
                         {
                             m = loadMesh(meshdir, pointsdir, meshObjName);
@@ -1181,11 +1188,13 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     {
                         meshdir = pointsdir;
                         m = loadMesh(meshdir, pointsdir, meshObjName);
+						basemeshs[0] =m;
                     }
 
                     meshObjects.push_back(m);
                     ++i;
                 }
+				}
                 std::string meshSetName = meshOutPort->getObjName();
                 meshSet = new coDoSet(meshSetName, meshObjects.size(), &meshObjects.front());
                 std::stringstream sMesh;

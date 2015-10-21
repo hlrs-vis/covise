@@ -153,6 +153,7 @@ public:
 };
 
 CaseInfo getCaseInfo(const std::string &casedir, double mintime, double maxtime, int skipfactor = 1, bool exact = false);
+bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time);
 boost::shared_ptr<std::istream> getStreamForFile(const std::string &filename);
 boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename);
 HeaderInfo readFoamHeader(std::istream &stream);
