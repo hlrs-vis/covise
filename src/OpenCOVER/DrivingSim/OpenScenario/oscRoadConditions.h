@@ -10,45 +10,24 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscRoadCondition.h>
 
 namespace OpenScenario {
 
 class OpenScenarioBase;
-class oscRoadConditions;
-
-class OPENSCENARIOEXPORT effectType: public oscEnumType
-{
-public:
-    static effectType *instance(); 
-private:
-    effectType();
-    static effectType *inst;
-};
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscRoadConditions: public oscObjectBase
 {
 public:
-	oscDouble frictionScale;
-	oscDouble intensity;
-    enum effect
-    {
-        dry,
-        water,
-        snow,
-        oil,
-        dirt,
-		leaves,
-    };
-	
-    oscRoadConditions()
+	 oscRoadConditions()
     {
         OSC_ADD_MEMBER(frictionScale);
-		OSC_ADD_MEMBER(intensity);
-		OSC_ADD_MEMBER(effect);
-		effect.enumType = effectType::instance();
+        OSC_ADD_MEMBER(roadCondition);
     };
-	oscEnum effect;
+	oscDouble frictionScale;
+	oscRoadConditionMember roadCondition;
+   
 };
 
 typedef oscObjectVariable<oscRoadConditions *> oscRoadConditionsMember;

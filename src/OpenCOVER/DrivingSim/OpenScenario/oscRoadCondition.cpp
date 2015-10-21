@@ -4,18 +4,18 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#include <oscRoadConditions.h>
+#include <oscRoadCondition.h>
 
 using namespace OpenScenario;
 
 effectType::effectType()
 {
-    addEnum("dry",oscRoadConditions::dry);
-    addEnum("water",oscRoadConditions::water);
-    addEnum("snow",oscRoadConditions::snow);
-    addEnum("oil",oscRoadConditions::oil);
-    addEnum("dirt",oscRoadConditions::dirt);
-	addEnum("leaves",oscRoadConditions::leaves);
+    addEnum("dry",oscRoadCondition::dry);
+    addEnum("water",oscRoadCondition::water);
+    addEnum("snow",oscRoadCondition::snow);
+    addEnum("oil",oscRoadCondition::oil);
+    addEnum("dirt",oscRoadCondition::dirt);
+	addEnum("leaves",oscRoadCondition::leaves);
 }
 
 effectType *effectType::instance()

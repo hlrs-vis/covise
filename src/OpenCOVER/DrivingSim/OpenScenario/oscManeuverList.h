@@ -4,8 +4,8 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_NAME_ID_H
-#define OSC_NAME_ID_H
+#ifndef OSC_MANEUVER_LIST_H
+#define OSC_MANEUVER_LIST_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
@@ -16,20 +16,18 @@ namespace OpenScenario {
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscNameId: public oscObjectBase
+class OPENSCENARIOEXPORT oscManeuverList: public oscObjectBase
 {
 public:
-    oscNameId()
+    oscManeuverList()
     {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(refId);
+       
     };
-    oscString name;
-    oscInt refId;
+    
 };
 
-typedef oscObjectVariable<oscNameId *> oscNameIdMember;
+typedef oscObjectVariable<oscManeuverList *>oscManeuverListMember;
 
 }
 
-#endif //OSC_NAME_ID_H
+#endif //OSC_MANEUVER_LIST_H

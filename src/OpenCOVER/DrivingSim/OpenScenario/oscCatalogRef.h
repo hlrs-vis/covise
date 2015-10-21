@@ -4,12 +4,13 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_CATALOGREF_H
-#define OSC_CATALOGREF_H
+#ifndef OSC_CATALOG_REF_H
+#define OSC_CATALOG_REF_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscParameter.h>
 
 namespace OpenScenario {
 
@@ -21,15 +22,15 @@ class OPENSCENARIOEXPORT oscCatalogRef: public oscObjectBase
 public:
     oscCatalogRef()
     {
-        OSC_ADD_MEMBER(name);
-        OSC_ADD_MEMBER(refId);
+        OSC_ADD_MEMBER(catalogId);
+        OSC_ADD_MEMBER(parameter);
     };
     oscString catalogId;
-    oscInt refId;
+    oscParameterMember parameter;
 };
 
 typedef oscObjectVariable<oscCatalogRef *> oscCatalogRefMember;
 
 }
 
-#endif //OSC_CATALOGREF_H
+#endif //OSC_CATALOG_REF_H

@@ -22,7 +22,9 @@
           </boundingBox>
         </fog>
         <precipitation type="dry" intensity="0.5"/>
-        <roadConditions frictionScale="0.1" effect="dry" intensity="0.2"/>
+        <roadConditions frictionScale="0.1">
+          <roadCondition  effect="dry" intensity="0.2"/>  
+        </roadConditions>
        </weather> 
   </environment>
   <roadNetwork>
