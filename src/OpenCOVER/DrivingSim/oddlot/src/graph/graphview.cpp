@@ -766,7 +766,7 @@ GraphView::wheelEvent(QWheelEvent *event)
         zoomOut();
     }
 
-    QGraphicsView::wheelEvent(event);
+//    QGraphicsView::wheelEvent(event);
 }
 
 void
