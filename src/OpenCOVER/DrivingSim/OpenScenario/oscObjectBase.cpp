@@ -24,6 +24,7 @@ using namespace OpenScenario;
 
 oscObjectBase::oscObjectBase()
 {
+    base = NULL;
 }
 oscObjectBase::~oscObjectBase()
 {
@@ -68,11 +69,11 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 }
 bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement)
 {
-    xercesc::DOMNodeList *childrenList = currentElement->getChildNodes();
+    xercesc::DOMNodeList *membersList = currentElement->getChildNodes();
     xercesc::DOMNamedNodeMap *attributes = currentElement->getAttributes();
-    for (unsigned int childIndex = 0; childIndex < attributes->getLength(); ++childIndex)
+    for (unsigned int attrIndex = 0; attrIndex < attributes->getLength(); ++attrIndex)
     {
-        xercesc::DOMAttr *attribute = dynamic_cast<xercesc::DOMAttr *>(attributes->item(childIndex));
+        xercesc::DOMAttr *attribute = dynamic_cast<xercesc::DOMAttr *>(attributes->item(attrIndex));
         if(attribute !=NULL)
         {
             oscMember *m = members[xercesc::XMLString::transcode(attribute->getName())];
@@ -113,74 +114,62 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement)
             }
         }
     }
-    for (unsigned int childIndex = 0; childIndex < childrenList->getLength(); ++childIndex)
+
+    for (unsigned int memberIndex = 0; memberIndex < membersList->getLength(); ++memberIndex)
     {
-        xercesc::DOMElement *childElement = dynamic_cast<xercesc::DOMElement *>(childrenList->item(childIndex));
-        if(childElement !=NULL)
+        xercesc::DOMElement *memberElem = dynamic_cast<xercesc::DOMElement *>(membersList->item(memberIndex));
+        if(memberElem !=NULL)
         {
-            std::string childName = xercesc::XMLString::transcode(childElement->getNodeName());
-            oscMember *m = members[childName];
+            std::string memberName = xercesc::XMLString::transcode(memberElem->getNodeName());
+            oscMember *m = members[memberName];
+            std::string memTypeName = m->getTypeName();
             if(m)
             {
                 oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
                 if(am)
                 {
-                    
-                    xercesc::DOMNodeList *arrayChildrenList = childElement->getChildNodes();
-                    for (unsigned int arrayIndex = 0; arrayIndex < arrayChildrenList->getLength(); ++arrayIndex)
+                    xercesc::DOMNodeList *arrayMembersList = memberElem->getChildNodes();
+                    for (unsigned int arrayIndex = 0; arrayIndex < arrayMembersList->getLength(); ++arrayIndex)
                     {
-                        
-                        xercesc::DOMElement *arrayElement = dynamic_cast<xercesc::DOMElement *>(arrayChildrenList->item(arrayIndex));
-                        std::string arrayElemName = xercesc::XMLString::transcode(arrayElement->getNodeName());
-                        oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayElemName);
+                        xercesc::DOMElement *arrayMemElem = dynamic_cast<xercesc::DOMElement *>(arrayMembersList->item(arrayIndex));
+                        std::string arrayMemName = xercesc::XMLString::transcode(arrayMemElem->getNodeName());
+                        oscMember *ame = members[arrayMemName];
+                        std::string arrayMemTypeName = ame->getTypeName();
+                        oscObjectBase *obj = oscFactories::instance()->objectFactory->create(arrayMemTypeName);
                         if(obj)
                         {
                             obj->initialize(base);
                             am->push_back(obj);
-                            obj->parseFromXML(arrayElement);
+                            obj->parseFromXML(arrayMemElem);
                         }
                         else
                         {
-                            std::cerr << "could not create an object of type " << arrayElemName << std::endl; 
+                            std::cerr << "could not create an object array of type " << arrayMemTypeName << std::endl;
                         }
                     }
                 }
                 else
                 {
-                    oscObjectBase *obj = oscFactories::instance()->objectFactory->create(childName);
+                    oscObjectBase *obj = oscFactories::instance()->objectFactory->create(memTypeName);
+
                     if(obj)
                     {
                         obj->initialize(base);
                         m->setValue(obj);
-                        obj->parseFromXML(childElement);
+                        obj->parseFromXML(memberElem);
                     }
                     else
                     {
-                        std::cerr << "could not create an object of type " << childName << std::endl; 
+                        std::cerr << "could not create an object member of type " << memTypeName << std::endl;
                     }
                 }
             }
             else
             {
-                std::cerr << "Node " << xercesc::XMLString::transcode(currentElement->getNodeName()) << " does not have any member called " << childName << std::endl;
+                std::cerr << "Node " << xercesc::XMLString::transcode(currentElement->getNodeName()) << " does not have any member called " << memberName << std::endl;
             }
         }
     }
-    /*for(MemberMap::iterator it = members.begin();it != members.end();it++)
-    {
-        oscMember *member = it->second;
-        if(member->type == OBJECT)
-        {
 
-            oscObjectBase *value = base->objectDactory.create(typeName);
-            member->getValue(value);
-            value.
-            
-        }
-        else
-        {
-            oscMemberValue *value = oscMemberValue::factory. 
-        }
-    }*/
     return true;
 }

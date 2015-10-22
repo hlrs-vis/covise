@@ -25,7 +25,13 @@ class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
-#define OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType());
+//varName is of type oscMember
+//set the name of varName as string of varName (oscMember[.cpp,.h])
+//register varName in MemberMap members ([oscMember,oscObjectBase][.cpp,.h])
+//set the type of variable varName ([oscMember,oscMemberValue,oscVariables][.cpp,.h])
+//set the type name of varName (element name in xml file) (oscMember[.cpp,.h])
+#define OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType())
+#define OSC_OBJECT_ADD_MEMBER(varName,typeName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.setTypeName(typeName)
 
 namespace OpenScenario {
 
