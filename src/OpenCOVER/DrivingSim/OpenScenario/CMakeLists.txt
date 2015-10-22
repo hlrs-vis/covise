@@ -20,6 +20,9 @@ SET(HEADERS
    oscRoadNetwork.h
    oscVariables.h
    oscExport.h
+   oscEnvironment.h
+   oscWeather.h
+   oscTimeOfDay.h
 )
 
 SET(SOURCES
@@ -32,6 +35,7 @@ SET(SOURCES
    oscNamedObject.cpp
    oscObjectBase.cpp
    oscVariables.cpp
+   oscWeather.cpp
 )
 
 IF(WIN32)

@@ -22,10 +22,10 @@ oscHeader::oscHeader(): oscObjectBase()
 }
 oscHeader::~oscHeader()
 {
-   
+
 }
 
-int oscHeader::parseFromXML(xercesc::DOMElement *currentElement)
+bool oscHeader::parseFromXML(xercesc::DOMElement *currentElement)
 {
     return true;
 }

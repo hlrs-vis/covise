@@ -9,6 +9,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscHeader.h>
 #include <oscFile.h>
 #include <oscDirectory.h>
+#include <oscEnvironment.h>
+#include <oscWeather.h>
+#include <oscTimeOfDay.h>
 #include <oscRoadNetwork.h>
 #include <oscVariables.h>
 #include <oscObjectBase.h>
@@ -35,6 +38,7 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscShortValue>(oscMemberValue::SHORT);
     staticValueFactory.registerType<oscUShortValue>(oscMemberValue::USHORT);
     staticValueFactory.registerType<oscDoubleValue>(oscMemberValue::DOUBLE);
+    staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
     staticObjectFactory.registerType<oscHeader>("header");
     staticObjectFactory.registerType<oscFile>("OpenDRIVE");
@@ -49,6 +53,9 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscDirectory>("maneuverCatalog");
     staticObjectFactory.registerType<oscDirectory>("routingCatalog");
     staticObjectFactory.registerType<oscDirectory>("entityCatalog");
+    staticObjectFactory.registerType<oscEnvironment>("environment");
+    staticObjectFactory.registerType<oscWeather>("weather");
+    staticObjectFactory.registerType<oscTimeOfDay>("timeOfDay");
     staticObjectFactory.registerType<oscRoadNetwork>("roadNetwork");
 }
 

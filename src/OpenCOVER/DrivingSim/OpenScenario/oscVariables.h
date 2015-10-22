@@ -52,8 +52,16 @@ namespace OpenScenario
         void setDefault(T &d) {defaultValue = d;};
         virtual void setValue(T &v) {if(value==NULL) {value = oscFactories::instance()->valueFactory->create(type);} if(value!=NULL) {oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value); if(ov!=NULL) ov->setValue(v);}};
         virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document){if(value!=NULL) { value->writeToDOM(currentElement,document,name.c_str());} return true;};
-        OPENSCENARIOEXPORT oscMemberValue::MemberTypes getType();
+        OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
 
+    };
+
+    class oscEnumType
+    {
+    public:
+        std::map<std::string,int> enumValues;
+        int getEnum(const std::string &n){ return enumValues[n];};
+        void addEnum(const std::string &n,int val){ enumValues[n]=val;};
     };
     
     typedef oscVariable<std::string> oscString;
@@ -62,6 +70,14 @@ namespace OpenScenario
     typedef oscVariable<short> oscShort;
     typedef oscVariable<unsigned short> oscUShort;
     typedef oscVariable<double> oscDouble;
+	typedef oscVariable<bool> oscBool;
+	typedef oscVariable<float> oscFloat;
+    class oscEnum: public oscVariable<int>
+    {
+    public:
+        oscEnumType *enumType;
+        OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
+    };
 
     typedef oscValue<std::string> oscStringValue;
     typedef oscValue<int> oscIntValue;
@@ -70,6 +86,13 @@ namespace OpenScenario
     typedef oscValue<unsigned short> oscUShortValue;
     typedef oscValue<double> oscDoubleValue;
     typedef oscValue<oscObjectBase *> oscObjectValue;
+    class oscEnumValue: public oscValue<int>
+    {
+    public:
+        oscEnumType *enumType;
+        OPENSCENARIOEXPORT virtual bool initialize(xercesc::DOMAttr *);
+        OPENSCENARIOEXPORT virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name);
+    };
 }
 
 
