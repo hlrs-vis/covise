@@ -33,7 +33,7 @@ public:
     oscNamedObjectMember name;
 	oscAutonomousMember autonomous;
 	oscSpeedMember speed;
-	oscLaneChangeMember labeChange;
+	oscLaneChangeMember laneChange;
 };
 
 typedef oscObjectVariable<oscAction *> oscActionMember;
