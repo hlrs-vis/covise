@@ -25,6 +25,7 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
 {
     rootElement = NULL;
     parser = NULL;
+    xmlDoc = NULL;
     oscFactories::instance();
 
     OSC_ADD_MEMBER(header);

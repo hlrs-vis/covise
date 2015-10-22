@@ -13,6 +13,7 @@ using namespace OpenScenario;
 
 oscMemberValue::oscMemberValue()
 {
+    type = INT;
 }
 
 oscMemberValue::~oscMemberValue()

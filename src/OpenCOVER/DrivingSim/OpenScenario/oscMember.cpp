@@ -20,8 +20,9 @@ using namespace OpenScenario;
 
 oscMember::oscMember()
 {
-    value=NULL;
-    owner=NULL;
+    value = NULL;
+    owner = NULL;
+    type = oscMemberValue::MemberTypes::INT;
 }
 
 oscMember::~oscMember()
