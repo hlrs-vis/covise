@@ -25,6 +25,7 @@ class oscFactory
 {
 
 public:
+    virtual ~oscFactory() {} ///< destructor
     
     template <typename TDerived>
     void registerType(TType &name)

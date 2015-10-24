@@ -142,10 +142,16 @@ JunctionItem::updatePath()
 {
     QPainterPath thePath;
 
-    if (paths_.size() < 2)
-    {
-        return;
-    }
+	if (paths_.size() < 1)
+	{
+		thePath.addRect(-5.0, -5.0, 10.0, 10.0);
+		setPath(thePath);
+
+		// Text //
+		//
+		textHandle_->setPos(-5.0, 5.0);
+		return;
+	}
 
     QPointF firstPoint = paths_.at(0)->getGlobalPoint(0.0);
     double minX = firstPoint.x();
@@ -228,8 +234,7 @@ JunctionItem::updateObserver()
     // Get change flags //
     //
     int changes = junction_->getJunctionChanges();
-    if ((changes & RSystemElementJunction::CJN_ConnectionChanged)
-        || (changes & RSystemElementRoad::CRD_JunctionChange))
+    if (changes & RSystemElementJunction::CJN_ConnectionChanged)
     {
         doUpdate = true;
     }
@@ -243,7 +248,8 @@ JunctionItem::updateObserver()
         int changes = path->getRoadChanges();
         if ((changes & RSystemElementRoad::CRD_LengthChange)
             || (changes & RSystemElementRoad::CRD_ShapeChange)
-            || (changes & RSystemElementRoad::CRD_TrackSectionChange))
+            || (changes & RSystemElementRoad::CRD_TrackSectionChange)
+			|| (changes & RSystemElementRoad::CRD_JunctionChange))
         {
             doUpdate = true;
             break;

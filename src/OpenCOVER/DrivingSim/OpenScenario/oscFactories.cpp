@@ -40,23 +40,13 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscDoubleValue>(oscMemberValue::DOUBLE);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
-    staticObjectFactory.registerType<oscHeader>("header");
-    staticObjectFactory.registerType<oscFile>("OpenDRIVE");
-    staticObjectFactory.registerType<oscFile>("SceneGraph");
-    staticObjectFactory.registerType<oscDirectory>("vehicleCatalog");
-    staticObjectFactory.registerType<oscDirectory>("driverCatalog");
-    staticObjectFactory.registerType<oscDirectory>("observerCatalog");
-    staticObjectFactory.registerType<oscDirectory>("pedestrianCatalog");
-    staticObjectFactory.registerType<oscDirectory>("miscObjectCatalog");
-    staticObjectFactory.registerType<oscDirectory>("entityCatalog");
-    staticObjectFactory.registerType<oscDirectory>("environmentCatalog");
-    staticObjectFactory.registerType<oscDirectory>("maneuverCatalog");
-    staticObjectFactory.registerType<oscDirectory>("routingCatalog");
-    staticObjectFactory.registerType<oscDirectory>("entityCatalog");
-    staticObjectFactory.registerType<oscEnvironment>("environment");
-    staticObjectFactory.registerType<oscWeather>("weather");
-    staticObjectFactory.registerType<oscTimeOfDay>("timeOfDay");
-    staticObjectFactory.registerType<oscRoadNetwork>("roadNetwork");
+    staticObjectFactory.registerType<oscHeader>("oscHeader");
+    staticObjectFactory.registerType<oscFile>("oscFile");
+    staticObjectFactory.registerType<oscDirectory>("oscDirectory");
+    staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
+    staticObjectFactory.registerType<oscWeather>("oscWeather");
+    staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
+    staticObjectFactory.registerType<oscRoadNetwork>("oscRoadNetwork");
 }
 
 

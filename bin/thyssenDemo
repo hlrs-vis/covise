@@ -53,7 +53,7 @@ do
 	    ;;
     88)
 	    echo -e "Thyssen CFD Multi";
-	    covise -e /data/covise_net/2015/PassingMulti02-10_demo.net
+	    covise -e /data/covise_net/2015/PassingMulti01u02_demo.net
 	    ;;
     89)
 	    echo -e "Thyssen CFD Turm";
