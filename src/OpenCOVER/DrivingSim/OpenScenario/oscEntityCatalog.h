@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscEntityCatalog: public oscObjectBase
 public:
     oscEntityCatalog()
     {
-        OSC_ADD_MEMBER(entity);
+        OSC_OBJECT_ADD_MEMBER(entity,"oscCatalog");
     };
     oscCatalogMember entity;
 };

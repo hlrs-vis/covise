@@ -32,7 +32,7 @@ class OPENSCENARIOEXPORT oscEvent: public oscObjectBase
 {
 public:
 	oscString name;
-	enum priorities
+	enum priority
     {
         overwrite,
         following,
@@ -47,8 +47,8 @@ public:
         OSC_ADD_MEMBER(name);
 		OSC_ADD_MEMBER(priority);
 		priority.enumType = priorityType::instance();
-		OSC_ADD_MEMBER(startConditionGroup);
-		OSC_ADD_MEMBER(action);
+		OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscStartConditionGroup");
+		OSC_OBJECT_ADD_MEMBER(action,"oscAction");
 		
     };
 	

@@ -27,7 +27,7 @@ public:
     };
     oscDouble pathS;
     oscInt laneId;
-	oscDouble laneOffset
+	oscDouble laneOffset;
 };
 
 typedef oscObjectVariable<oscLaneCoord *> oscLaneCoordMember;

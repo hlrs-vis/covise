@@ -28,18 +28,18 @@ class OPENSCENARIOEXPORT oscPosition: public oscObjectBase
 public:
     oscPosition()
     {
-        OSC_ADD_MEMBER(positionWorld);
-		OSC_ADD_MEMBER(positionRoad);
-		OSC_ADD_MEMBER(positionLane);
-		OSC_ADD_MEMBER(relativePositionWorld);
-		OSC_ADD_MEMBER(relativePositionRoad);
-		OSC_ADD_MEMBER(relativePositionLane);
-		OSC_ADD_MEMBER(positionRoute);
+        OSC_OBJECT_ADD_MEMBER(positionWorld,"oscPositionWorld");
+        OSC_OBJECT_ADD_MEMBER(positionRoad,"oscPositionRoad");
+		OSC_OBJECT_ADD_MEMBER(positionLane,"oscPositionLane");
+		OSC_OBJECT_ADD_MEMBER(relativePositionWorld,"oscRelativePositionWorld");
+		OSC_OBJECT_ADD_MEMBER(relativePositionRoad,"oscRelativePositionRoad");
+		OSC_OBJECT_ADD_MEMBER(relativePositionLane,"oscRelativePositionLane");
+		OSC_OBJECT_ADD_MEMBER(positionRoute,"oscPositionRoute");
     };
     oscPositionWorldMember positionWorld;
 	oscPositionRoadMember positionRoad;
 	oscPositionLaneMember positionLane;
-	oscRelativePisitionWorldMember relativePositionWorld;
+	oscRelativePositionWorldMember relativePositionWorld;
 	oscRelativePositionRoadMember relativePositionRoad;
 	oscRelativePositionLaneMember relativePositionLane;
 	oscPositionRouteMember positionRoute;

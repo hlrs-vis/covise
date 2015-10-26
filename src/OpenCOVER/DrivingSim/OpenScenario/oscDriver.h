@@ -26,8 +26,8 @@ class OPENSCENARIOEXPORT oscDriver: public oscObjectBase
 public:
     oscDriver()
     {
-        OSC_ADD_MEMBER(header);
-        OSC_ADD_MEMBER(name);
+        OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
+        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
 		OSC_ADD_MEMBER(obeyTrafficLights);
         OSC_ADD_MEMBER(obeyTrafficSigns);
 		OSC_ADD_MEMBER(steeringDistance);
@@ -51,8 +51,9 @@ public:
 		OSC_ADD_MEMBER(adaptToTimeOfDay);
         OSC_ADD_MEMBER(adaptToRoadConditions);
 		OSC_ADD_MEMBER(adaptToWeatherConditions);
-        OSC_ADD_MEMBER(body);
-        OSC_ADD_MEMBER(geometry);
+        OSC_OBJECT_ADD_MEMBER(body,"oscBody");
+        OSC_OBJECT_ADD_MEMBER(geometry,"oscFile");
+        OSC_OBJECT_ADD_MEMBER(include,"oscFile");
     };
     oscHeaderMember header;
     oscNamedObjectMember name;
@@ -80,8 +81,8 @@ public:
 	oscDouble adaptToRoadConditions;
 	oscDouble adaptToWeatherConditions;
 	oscBodyMember body;
-	oscFileMember include;
 	oscFileMember geometry;
+    oscFileMember include;
 };
 
 typedef oscObjectVariable<oscDriver *> oscDriverMember;

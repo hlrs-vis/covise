@@ -26,10 +26,10 @@ public:
     {
         OSC_ADD_MEMBER(routeId);
 		OSC_ADD_MEMBER(current);
-		OSC_ADD_MEMBER(roadCoord);
-		OSC_ADD_MEMBER(laneCoord);
+		OSC_OBJECT_ADD_MEMBER(roadCoord,"oscRoadCoord");
+		OSC_OBJECT_ADD_MEMBER(laneCoord,"oscLaneCoord");
 		OSC_ADD_MEMBER(relativeOrientation);
-		OSC_ADD_MEMBER(orientation);
+		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscString routeId;
 	oscBool current;

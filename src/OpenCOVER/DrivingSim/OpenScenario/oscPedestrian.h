@@ -39,10 +39,10 @@ public:
 	oscString model;
 	oscDouble mass;
 	oscBehaviorMember behavior;
-	oscDimensionMember demension;
-	oscFileMember Geometry;
+	oscDimensionMember dimension;
+	oscFileMember geometry;
 	
-	enum pedestrianClasses
+	enum pedestrianClass
     {
         pedestrian,
         wheelchair,
@@ -51,13 +51,13 @@ public:
 	
     oscPedestrian()
     {
-        OSC_ADD_MEMBER(header);
-        OSC_ADD_MEMBER(name);
+        OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
+        OSC_OBJECT_ADD_MEMBER(name,"oscNameId");
         OSC_ADD_MEMBER(model);
 		OSC_ADD_MEMBER(mass);
-        OSC_ADD_MEMBER(behavior);
-		OSC_ADD_MEMBER(demension);
-        OSC_ADD_MEMBER(Geometry);
+        OSC_OBJECT_ADD_MEMBER(behavior,"oscBehavior");
+		OSC_OBJECT_ADD_MEMBER(dimension,"oscDimension");
+        OSC_OBJECT_ADD_MEMBER(geometry,"oscFile");
 		OSC_ADD_MEMBER(pedestrianClass);
 		pedestrianClass.enumType = pedestrianClassType::instance();
     };

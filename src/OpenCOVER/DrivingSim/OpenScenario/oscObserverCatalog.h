@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscObserverCatalog: public oscObjectBase
 public:
     oscObserverCatalog()
     {
-        OSC_ADD_MEMBER(observer);
+        OSC_OBJECT_ADD_MEMBER(observer,"oscCatalog");
     };
     oscCatalogMember observer;
 };

@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscRoutingCatalog: public oscObjectBase
 public:
     oscRoutingCatalog()
     {
-        OSC_ADD_MEMBER(routing);
+        OSC_OBJECT_ADD_MEMBER(routing,"oscCatalog");
     };
     oscCatalogMember routing;
 };

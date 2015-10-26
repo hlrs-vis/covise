@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscManeuverCatalog: public oscObjectBase
 public:
     oscManeuverCatalog()
     {
-        OSC_ADD_MEMBER(maneuver);
+        OSC_OBJECT_ADD_MEMBER(maneuver,"oscCatalog");
     };
     oscCatalogMember maneuver;
 };

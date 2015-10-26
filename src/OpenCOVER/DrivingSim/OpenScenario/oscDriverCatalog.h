@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscDriverCatalog: public oscObjectBase
 public:
     oscDriverCatalog()
     {
-        OSC_ADD_MEMBER(driver);
+        OSC_OBJECT_ADD_MEMBER(driver,"oscCatalog");
     };
     oscCatalogMember driver;
 };

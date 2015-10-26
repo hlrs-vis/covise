@@ -24,9 +24,9 @@ class OPENSCENARIOEXPORT oscSpeed: public oscObjectBase
 public:
     oscSpeed()
     {
-		OSC_ADD_MEMBER(dynamics);
-		OSC_ADD_MEMBER(relative);
-		OSC_ADD_MEMBER(absolute);
+		OSC_OBJECT_ADD_MEMBER(dynamics,"oscSpeedDynamics");
+		OSC_OBJECT_ADD_MEMBER(relative,"oscRelativeChoice");
+		OSC_OBJECT_ADD_MEMBER(absolute,"oscAbsolute");
     };
     oscSpeedDynamicsMember dynamics;
 	oscRelativeChoiceMember relative;

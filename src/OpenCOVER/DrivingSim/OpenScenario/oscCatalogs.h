@@ -35,17 +35,17 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-		OSC_ADD_MEMBER(vehicle);
-		OSC_ADD_MEMBER(driver);
-		OSC_ADD_MEMBER(observer);
-		OSC_ADD_MEMBER(pedestrian);
-		OSC_ADD_MEMBER(miscObject);
-		OSC_ADD_MEMBER(entity);
-		OSC_ADD_MEMBER(environment);
-		OSC_ADD_MEMBER(maneuver);
-		OSC_ADD_MEMBER(routing);
-		OSC_ADD_MEMBER(userData);
-		OSC_ADD_MEMBER(include);
+		OSC_OBJECT_ADD_MEMBER(vehicle,"oscVehicleCatalog");
+		OSC_OBJECT_ADD_MEMBER(driver,"oscDriverCatalog");
+		OSC_OBJECT_ADD_MEMBER(observer,"oscObserverCatalog");
+		OSC_OBJECT_ADD_MEMBER(pedestrian,"oscPedestrianCatalog");
+		OSC_OBJECT_ADD_MEMBER(miscObject,"oscMiscObjectCatalog");
+		OSC_OBJECT_ADD_MEMBER(entity,"oscEntityCatalog");
+		OSC_OBJECT_ADD_MEMBER(environment,"oscEntityCatalog");
+		OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuverCatalog");
+		OSC_OBJECT_ADD_MEMBER(routing,"oscRoutingCatalog");
+		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+		OSC_OBJECT_ADD_MEMBER(include,"oscFile");
 		
     };
 	oscVehicleCatalogMember vehicle;

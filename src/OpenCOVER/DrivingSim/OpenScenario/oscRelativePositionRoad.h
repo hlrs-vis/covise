@@ -26,7 +26,7 @@ public:
 		OSC_ADD_MEMBER(ds);
 		OSC_ADD_MEMBER(dt);
 		OSC_ADD_MEMBER(relativeOrientation);
-		OSC_ADD_MEMBER(orientation);
+		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscString refObject;
 	oscDouble ds;

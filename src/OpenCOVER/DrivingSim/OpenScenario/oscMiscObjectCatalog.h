@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscMiscObjectCatalog: public oscObjectBase
 public:
     oscMiscObjectCatalog()
     {
-        OSC_ADD_MEMBER(miscObject);
+        OSC_OBJECT_ADD_MEMBER(miscObject,"oscCatalog");
     };
     oscCatalogMember miscObject;
 };

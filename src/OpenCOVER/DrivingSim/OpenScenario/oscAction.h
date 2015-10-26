@@ -25,10 +25,10 @@ class OPENSCENARIOEXPORT oscAction: public oscObjectBase
 public:
     oscAction()
     {
-        OSC_ADD_MEMBER(name);
-		OSC_ADD_MEMBER(autonomous);
-		OSC_ADD_MEMBER(speed);
-		OSC_ADD_MEMBER(laneChange);
+        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
+		OSC_OBJECT_ADD_MEMBER(autonomous,"oscAutonomous");
+		OSC_OBJECT_ADD_MEMBER(speed,"oscSpeed");
+		OSC_OBJECT_ADD_MEMBER(laneChange,"oscLaneChange");
     };
     oscNamedObjectMember name;
 	oscAutonomousMember autonomous;

@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscVehicleCatalog: public oscObjectBase
 public:
     oscVehicleCatalog()
     {
-        OSC_ADD_MEMBER(vehicle);
+        OSC_OBJECT_ADD_MEMBER(vehicle,"oscCatalog");
     };
     oscCatalogMember vehicle;
 };

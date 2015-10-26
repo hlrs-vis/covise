@@ -22,7 +22,7 @@ class OPENSCENARIOEXPORT oscPedestrianCatalog: public oscObjectBase
 public:
     oscPedestrianCatalog()
     {
-        OSC_ADD_MEMBER(pedestrian);
+        OSC_OBJECT_ADD_MEMBER(pedestrian,"oscCatalog");
     };
     oscCatalogMember pedestrian;
 };
