@@ -38,15 +38,31 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscShortValue>(oscMemberValue::SHORT);
     staticValueFactory.registerType<oscUShortValue>(oscMemberValue::USHORT);
     staticValueFactory.registerType<oscDoubleValue>(oscMemberValue::DOUBLE);
+    staticValueFactory.registerType<oscBoolValue>(oscMemberValue::BOOL);
+    staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
-    staticObjectFactory.registerType<oscHeader>("oscHeader");
-    staticObjectFactory.registerType<oscFile>("oscFile");
+    // sorted alphabetically
+    staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
+    staticObjectFactory.registerType<oscCenter>("oscCenter");
+    staticObjectFactory.registerType<oscColor>("oscColor");
+    staticObjectFactory.registerType<oscDate>("oscDate");
+    staticObjectFactory.registerType<oscDimensions>("oscDimensions");
     staticObjectFactory.registerType<oscDirectory>("oscDirectory");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
-    staticObjectFactory.registerType<oscWeather>("oscWeather");
-    staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
+    staticObjectFactory.registerType<oscFile>("oscFile");
+    staticObjectFactory.registerType<oscFog>("oscFog");
+    staticObjectFactory.registerType<oscHeader>("oscHeader");
+    staticObjectFactory.registerType<oscIntensity>("oscIntensity");
+    staticObjectFactory.registerType<oscLight>("oscLight");
+    staticObjectFactory.registerType<oscPrecipitation>("oscPrecipitation");
+    staticObjectFactory.registerType<oscRoadCondition>("oscRoadCondition");
+    staticObjectFactory.registerType<oscRoadConditions>("oscRoadConditions");
     staticObjectFactory.registerType<oscRoadNetwork>("oscRoadNetwork");
+    staticObjectFactory.registerType<oscTime>("oscTime");
+    staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
+    staticObjectFactory.registerType<oscWeather>("oscWeather");
+//    staticObjectFactory.registerType<>("");
 }
 
 

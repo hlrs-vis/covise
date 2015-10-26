@@ -29,6 +29,8 @@ template<>
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<time_t>::getValueType(){return oscMemberValue::DATE_TIME;};
 template<>
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<bool>::getValueType(){return oscMemberValue::BOOL;};
+template<>
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<float>::getValueType(){return oscMemberValue::FLOAT;};
 
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType(){return oscMemberValue::ENUM;};
 
@@ -46,9 +48,11 @@ OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attr
 template<>
 OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
+OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute){ return false;};
+template<>
 OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute){ return false;};
+OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 
 OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
 {
@@ -73,6 +77,8 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){char buf[100]; sprintf(buf, "%ld", (long)value); currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf)); return true;};
 template<>
 OPENSCENARIOEXPORT bool oscValue<bool>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){if(value) currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode("true")); else currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode("false")); return true;};
+template<>
+OPENSCENARIOEXPORT bool oscValue<float>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name){currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(std::to_string(value).c_str())); return true;};
 
 OPENSCENARIOEXPORT bool oscEnumValue::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {

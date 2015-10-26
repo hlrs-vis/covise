@@ -23,8 +23,8 @@ class OPENSCENARIOEXPORT oscFog: public oscObjectBase
 public:
     oscFog()
     {
-		OSC_ADD_MEMBER(color);
-		OSC_ADD_MEMBER(boundingBox);
+		OSC_OBJECT_ADD_MEMBER(color,"oscColor");
+		OSC_OBJECT_ADD_MEMBER(boundingBox,"oscBoundingBox");
 		OSC_ADD_MEMBER(visibility);
     };
     oscColorMember color;

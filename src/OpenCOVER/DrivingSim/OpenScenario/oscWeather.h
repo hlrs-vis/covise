@@ -35,7 +35,7 @@ public:
 	oscLightMember sun;
 	oscFogMember fog;
 	oscPrecipitationMember precipitation;
-    enum cloudStates
+    enum cloudState
     {
         sky_off,
         free,
@@ -45,9 +45,9 @@ public:
     };
     oscWeather()
     {
-        OSC_ADD_MEMBER(sun);
-		OSC_ADD_MEMBER(fog);
-		OSC_ADD_MEMBER(precipitation);
+        OSC_OBJECT_ADD_MEMBER(sun,"oscLight");
+		OSC_OBJECT_ADD_MEMBER(fog,"oscFog");
+		OSC_OBJECT_ADD_MEMBER(precipitation,"oscPrecipitation");
 		OSC_ADD_MEMBER(cloudState);
 		cloudState.enumType = cloudStateType::instance();
     };
