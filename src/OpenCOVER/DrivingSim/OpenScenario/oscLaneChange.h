@@ -34,8 +34,7 @@ public:
 	oscRelativeMember relative;
     oscAbsoluteMember absolute;
     oscLaneDynamicsMember dynamics;
-	oscDouble targetLaneOffset
-	
+	oscDouble targetLaneOffset;
 };
 
 typedef oscObjectVariable<oscLaneChange *> oscLaneChangeMember;
