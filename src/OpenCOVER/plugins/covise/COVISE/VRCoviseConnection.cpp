@@ -34,6 +34,7 @@
 #include <cover/coCommandLine.h>
 #include <cover/coVRShader.h>
 #include <cover/coVRConfig.h>
+#include <cover/VRViewer.h>
 #include <config/CoviseConfig.h>
 
 #include <util/coTimer.h>
@@ -392,6 +393,7 @@ VRCoviseConnection::addObject(void *cbPtr)
     } *cbData;
     cbData = (CBdata *)cbPtr;
     ObjectManager::instance()->addObject(cbData->name, cbData->obj);
+    //VRViewer::instance()->forceCompile();
 }
 
 void
