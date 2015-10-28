@@ -23,7 +23,7 @@ public:
 	 oscRoadConditions()
     {
         OSC_ADD_MEMBER(frictionScale);
-        OSC_ADD_MEMBER(roadCondition);
+        OSC_OBJECT_ADD_MEMBER(roadCondition,"oscRoadCondition");
     };
 	oscDouble frictionScale;
 	oscRoadConditionMember roadCondition;

@@ -85,6 +85,8 @@ namespace OpenScenario
     typedef oscValue<short> oscShortValue;
     typedef oscValue<unsigned short> oscUShortValue;
     typedef oscValue<double> oscDoubleValue;
+    typedef oscValue<bool> oscBoolValue;
+    typedef oscValue<float> oscFloatValue;
     typedef oscValue<oscObjectBase *> oscObjectValue;
     class oscEnumValue: public oscValue<int>
     {

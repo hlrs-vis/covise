@@ -17,16 +17,16 @@ namespace OpenScenario {
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRelativePisitionWorld: public oscObjectBase
+class OPENSCENARIOEXPORT oscRelativePositionWorld: public oscObjectBase
 {
 public:
-    oscRelativePisitionWorld()
+    oscRelativePositionWorld()
     {
         OSC_ADD_MEMBER(refObject);
 		OSC_ADD_MEMBER(dx);
 		OSC_ADD_MEMBER(dy);
 		OSC_ADD_MEMBER(dz);
-		OSC_ADD_MEMBER(orientation);		
+		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscString refObject;
 	oscDouble dx;
@@ -35,7 +35,7 @@ public:
 	oscOrientationMember orientation;
 };
 
-typedef oscObjectVariable<oscRelativePisitionWorld *> oscRelativePisitionWorldMember;
+typedef oscObjectVariable<oscRelativePositionWorld *> oscRelativePositionWorldMember;
 
 }
 

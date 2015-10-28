@@ -24,8 +24,8 @@ class OPENSCENARIOEXPORT oscCoord: public oscObjectBase
 public:
     oscCoord()
     {
-        OSC_ADD_MEMBER(position);
-        OSC_ADD_MEMBER(orientation);
+        OSC_OBJECT_ADD_MEMBER(position,"oscPositionXyz");
+        OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscPositionXyzMember position;
     oscOrientationMember orientation;

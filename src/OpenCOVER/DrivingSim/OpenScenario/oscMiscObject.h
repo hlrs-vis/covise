@@ -25,12 +25,12 @@ class OPENSCENARIOEXPORT oscMiscObject: public oscObjectBase
 public:
     oscMiscObject()
     {
-		OSC_ADD_MEMBER(header);
+		OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
 		OSC_ADD_MEMBER(name);
 		OSC_ADD_MEMBER(type);
 		OSC_ADD_MEMBER(mass);
-		OSC_ADD_MEMBER(dimension);
-		OSC_ADD_MEMBER(Geometry);
+		OSC_OBJECT_ADD_MEMBER(dimension,"oscDimension");
+		OSC_OBJECT_ADD_MEMBER(Geometry,"oscFile");
     };
     oscHeaderMember header;
 	oscString name;

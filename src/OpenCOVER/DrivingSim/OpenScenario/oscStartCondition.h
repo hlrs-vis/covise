@@ -23,9 +23,9 @@ class OPENSCENARIOEXPORT oscStartCondition: public oscObjectBase
 public:
     oscStartCondition()
     {
-        OSC_ADD_MEMBER(name);
+        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
         OSC_ADD_MEMBER(delayTime);
-		OSC_ADD_MEMBER(condition);
+		OSC_OBJECT_ADD_MEMBER(condition,"oscCondition");
     };
     oscNamedObjectMember name;
     oscDouble delayTime;

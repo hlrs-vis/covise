@@ -18,19 +18,19 @@ namespace OpenScenario {
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPisitionWorld: public oscObjectBase
+class OPENSCENARIOEXPORT oscPositionWorld: public oscObjectBase
 {
 public:
-    oscPisitionWorld()
+    oscPositionWorld()
     {
-        OSC_ADD_MEMBER(position);
-		OSC_ADD_MEMBER(orientation);		
+        OSC_OBJECT_ADD_MEMBER(position,"oscPositionXyz");
+		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscPositionXyzMember position;
 	oscOrientationMember orientation;
 };
 
-typedef oscObjectVariable<oscPisitionWorld *> oscPositionWorldMember;
+typedef oscObjectVariable<oscPositionWorld *> oscPositionWorldMember;
 
 }
 

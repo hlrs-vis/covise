@@ -26,7 +26,7 @@ public:
 		OSC_ADD_MEMBER(s);
 		OSC_ADD_MEMBER(t);
 		OSC_ADD_MEMBER(relativeOrientation);
-		OSC_ADD_MEMBER(orientation);
+		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscString roadId;
 	oscDouble s;

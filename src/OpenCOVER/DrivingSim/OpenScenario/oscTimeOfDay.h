@@ -23,8 +23,8 @@ class OPENSCENARIOEXPORT oscTimeOfDay: public oscObjectBase
 public:
     oscTimeOfDay()
     {
-        OSC_ADD_MEMBER(time);
-        OSC_ADD_MEMBER(date);
+        OSC_OBJECT_ADD_MEMBER(time,"oscTime");
+        OSC_OBJECT_ADD_MEMBER(date,"oscDate");
 		OSC_ADD_MEMBER(animation);
     };
     oscTimeMember time;

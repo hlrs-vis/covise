@@ -23,7 +23,7 @@ public:
     oscCatalogRef()
     {
         OSC_ADD_MEMBER(catalogId);
-        OSC_ADD_MEMBER(parameter);
+        OSC_OBJECT_ADD_MEMBER(parameter,"oscParameter");
     };
     oscString catalogId;
     oscParameterMember parameter;

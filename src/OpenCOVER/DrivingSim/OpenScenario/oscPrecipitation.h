@@ -30,7 +30,7 @@ class OPENSCENARIOEXPORT oscPrecipitation: public oscObjectBase
 {
 public:
 	oscDouble intensity;
-    enum precipitation
+    enum type
     {
         dry,
         rain,
@@ -40,10 +40,10 @@ public:
     oscPrecipitation()
     {
 		OSC_ADD_MEMBER(intensity);
-		OSC_ADD_MEMBER(precipitation);
-		precipitation.enumType = precipitationType::instance();
+		OSC_ADD_MEMBER(type);
+		type.enumType = precipitationType::instance();
     };
-	oscEnum precipitation;
+	oscEnum type;
 };
 
 typedef oscObjectVariable<oscPrecipitation *> oscPrecipitationMember;
