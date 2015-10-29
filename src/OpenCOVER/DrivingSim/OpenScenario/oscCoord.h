@@ -11,7 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscPosition.h>
+#include <oscPositionXyz.h>
 #include <oscOrientation.h>
 
 namespace OpenScenario {
@@ -24,10 +24,10 @@ class OPENSCENARIOEXPORT oscCoord: public oscObjectBase
 public:
     oscCoord()
     {
-        OSC_ADD_MEMBER(position);
-        OSC_ADD_MEMBER(orientation);
+        OSC_OBJECT_ADD_MEMBER(position,"oscPositionXyz");
+        OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
-    oscPositionMember position;
+    oscPositionXyzMember position;
     oscOrientationMember orientation;
 };
 

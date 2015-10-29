@@ -12,6 +12,7 @@ find_path(GEOTIFF_INCLUDE_DIR geotiff.h
    /usr/local/include
    /usr/include
    /sw/include
+   /usr/include/libgeotiff
    /opt/local/include
    DOC "The directory where geotiff.h resides")
 

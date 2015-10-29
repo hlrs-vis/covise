@@ -23,8 +23,8 @@ class OPENSCENARIOEXPORT oscLight: public oscObjectBase
 public:
     oscLight()
     {
-        OSC_ADD_MEMBER(color);
-        OSC_ADD_MEMBER(intensity);
+        OSC_OBJECT_ADD_MEMBER(color,"oscColor");
+        OSC_OBJECT_ADD_MEMBER(intensity,"oscIntensity");
     };
     oscColorMember color;
     oscIntensityMember intensity;

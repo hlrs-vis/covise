@@ -498,6 +498,15 @@
 
  </LOCAL>
 
+ <LOCAL host="viscluster50" >
+  <COVER>
+
+   <SyncToVBlank value="Off" device="DFP-3"/>
+  </COVER>
+
+
+ </LOCAL>
+
 
  <LOCAL host="viscluster50,viscluster51,visent,visent.hlrs.de,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60" >
 

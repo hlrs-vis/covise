@@ -558,6 +558,10 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 else
                     statsDisplay->showStats(0, VRViewer::instance());
             }
+            if (keySym == 'C')
+            {
+                 VRViewer::instance()->forceCompile();
+            }
         } // unmodified keys
         else
         {

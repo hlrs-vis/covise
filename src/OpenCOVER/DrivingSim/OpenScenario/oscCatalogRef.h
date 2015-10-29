@@ -4,30 +4,33 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_NAME_H
-#define OSC_NAME_H
+#ifndef OSC_CATALOG_REF_H
+#define OSC_CATALOG_REF_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscParameter.h>
 
 namespace OpenScenario {
 
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscName: public oscObjectBase
+class OPENSCENARIOEXPORT oscCatalogRef: public oscObjectBase
 {
 public:
-    oscName()
+    oscCatalogRef()
     {
-        OSC_ADD_MEMBER(name);
+        OSC_ADD_MEMBER(catalogId);
+        OSC_OBJECT_ADD_MEMBER(parameter,"oscParameter");
     };
-    oscString name;
+    oscString catalogId;
+    oscParameterMember parameter;
 };
 
-typedef oscObjectVariable<oscName *> oscNameMember;
+typedef oscObjectVariable<oscCatalogRef *> oscCatalogRefMember;
 
 }
 
-#endif //OSC_NAME_H
+#endif //OSC_CATALOG_REF_H

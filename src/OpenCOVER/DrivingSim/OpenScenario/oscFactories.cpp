@@ -5,16 +5,68 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include <oscFactories.h>
-#include <oscHeader.h>
-#include <oscFile.h>
+//sort alphabetically
+#include <oscAbsolute.h>
+#include <oscAction.h>
+#include <oscAutonomous.h>
+#include <oscBehavior.h>
+#include <oscBody.h>
+#include <oscBoundingBox.h>
+#include <oscCatalog.h>
+#include <oscCenter.h>
+#include <oscColor.h>
+#include <oscCondition.h>
+#include <oscDate.h>
+#include <oscDimension.h>
+#include <oscDimensions.h>
 #include <oscDirectory.h>
+#include <oscDriverCatalog.h>
+#include <oscEntityCatalog.h>
 #include <oscEnvironment.h>
-#include <oscWeather.h>
-#include <oscTimeOfDay.h>
-#include <oscRoadNetwork.h>
-#include <oscVariables.h>
+#include <oscFactories.h>
+#include <oscFile.h>
+#include <oscFog.h>
+#include <oscHeader.h>
+#include <oscIntensity.h>
 #include <oscObjectBase.h>
+#include <oscRoadNetwork.h>
+#include <oscTimeOfDay.h>
+#include <oscVariables.h>
+#include <oscWeather.h>
+#include <oscLaneChange.h>
+#include <oscLaneCoord.h>
+#include <oscLaneDynamics.h>
+#include <oscLight.h>
+#include <oscManeuverCatalog.h>
+#include <oscMiscObjectCatalog.h>
+#include <oscNamedObject.h>
+#include <oscNameId.h>
+#include <oscObserverCatalog.h>
+#include <oscOrientation.h>
+#include <oscParameter.h>
+#include <oscParameters.h>
+#include <oscPedestrianCatalog.h>
+#include <oscPositionLane.h>
+#include <oscPositionRoad.h>
+#include <oscPositionRoute.h>
+#include <oscPositionWorld.h>
+#include <oscPositionXyz.h>
+#include <oscPrecipitation.h>
+#include <oscRelative.h>
+#include <oscRelativeChoice.h>
+#include <oscRelativePositionLane.h>
+#include <oscRelativePositionRoad.h>
+#include <oscRelativePositionWorld.h>
+#include <oscRoadCondition.h>
+#include <oscRoadConditions.h>
+#include <oscRoadCoord.h>
+#include <oscRoutingCatalog.h>
+#include <oscSpeed.h>
+#include <oscSpeedDynamics.h>
+#include <oscStartConditionGroup.h>
+#include <oscTime.h>
+#include <oscUserData.h>
+#include <oscVehicleCatalog.h>
 
 
 using namespace OpenScenario;
@@ -38,25 +90,70 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscShortValue>(oscMemberValue::SHORT);
     staticValueFactory.registerType<oscUShortValue>(oscMemberValue::USHORT);
     staticValueFactory.registerType<oscDoubleValue>(oscMemberValue::DOUBLE);
+    staticValueFactory.registerType<oscBoolValue>(oscMemberValue::BOOL);
+    staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
-    staticObjectFactory.registerType<oscHeader>("header");
-    staticObjectFactory.registerType<oscFile>("OpenDRIVE");
-    staticObjectFactory.registerType<oscFile>("SceneGraph");
-    staticObjectFactory.registerType<oscDirectory>("vehicleCatalog");
-    staticObjectFactory.registerType<oscDirectory>("driverCatalog");
-    staticObjectFactory.registerType<oscDirectory>("observerCatalog");
-    staticObjectFactory.registerType<oscDirectory>("pedestrianCatalog");
-    staticObjectFactory.registerType<oscDirectory>("miscObjectCatalog");
-    staticObjectFactory.registerType<oscDirectory>("entityCatalog");
-    staticObjectFactory.registerType<oscDirectory>("environmentCatalog");
-    staticObjectFactory.registerType<oscDirectory>("maneuverCatalog");
-    staticObjectFactory.registerType<oscDirectory>("routingCatalog");
-    staticObjectFactory.registerType<oscDirectory>("entityCatalog");
-    staticObjectFactory.registerType<oscEnvironment>("environment");
-    staticObjectFactory.registerType<oscWeather>("weather");
-    staticObjectFactory.registerType<oscTimeOfDay>("timeOfDay");
-    staticObjectFactory.registerType<oscRoadNetwork>("roadNetwork");
+    // sorted alphabetically
+    staticObjectFactory.registerType<oscAbsolute>("oscAbsolute");
+    staticObjectFactory.registerType<oscAction>("oscAction");
+    staticObjectFactory.registerType<oscAutonomous>("oscAutonomous");
+    staticObjectFactory.registerType<oscBehavior>("oscBehavior");
+    staticObjectFactory.registerType<oscBody>("oscBody");
+    staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
+    staticObjectFactory.registerType<oscCatalog>("oscCatalog");
+    staticObjectFactory.registerType<oscCenter>("oscCenter");
+    staticObjectFactory.registerType<oscColor>("oscColor");
+    staticObjectFactory.registerType<oscCondition>("oscCondition");
+    staticObjectFactory.registerType<oscDate>("oscDate");
+    staticObjectFactory.registerType<oscDimension>("oscDimension");
+    staticObjectFactory.registerType<oscDimensions>("oscDimensions");
+    staticObjectFactory.registerType<oscDirectory>("oscDirectory");
+    staticObjectFactory.registerType<oscDriverCatalog>("oscDriverCatalog");
+    staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
+    staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
+    staticObjectFactory.registerType<oscFile>("oscFile");
+    staticObjectFactory.registerType<oscFog>("oscFog");
+    staticObjectFactory.registerType<oscHeader>("oscHeader");
+    staticObjectFactory.registerType<oscIntensity>("oscIntensity");
+    staticObjectFactory.registerType<oscLaneChange>("oscLaneChange");
+    staticObjectFactory.registerType<oscLaneCoord>("oscLaneCoord");
+    staticObjectFactory.registerType<oscLaneDynamics>("oscLaneDynamics");
+    staticObjectFactory.registerType<oscLight>("oscLight");
+    staticObjectFactory.registerType<oscManeuverCatalog>("oscManeuverCatalog");
+    staticObjectFactory.registerType<oscMiscObjectCatalog>("oscMiscObjectCatalog");
+    staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");
+    staticObjectFactory.registerType<oscNameId>("oscNameId");
+    staticObjectFactory.registerType<oscObserverCatalog>("oscObserverCatalog");
+    staticObjectFactory.registerType<oscOrientation>("oscOrientation");
+    staticObjectFactory.registerType<oscParameter>("oscParameter");
+    staticObjectFactory.registerType<oscParameters>("oscParameters");
+    staticObjectFactory.registerType<oscPedestrianCatalog>("oscPedestrianCatalog");
+    staticObjectFactory.registerType<oscPositionLane>("oscPositionLane");
+    staticObjectFactory.registerType<oscPositionRoad>("oscPositionRoad");
+    staticObjectFactory.registerType<oscPositionRoute>("oscPositionRoute");
+    staticObjectFactory.registerType<oscPositionWorld>("oscPositionWorld");
+    staticObjectFactory.registerType<oscPositionXyz>("oscPositionXyz");
+    staticObjectFactory.registerType<oscPrecipitation>("oscPrecipitation");
+    staticObjectFactory.registerType<oscRelative>("oscRelative");
+    staticObjectFactory.registerType<oscRelativeChoice>("oscRelativeChoice");
+    staticObjectFactory.registerType<oscRelativePositionLane>("oscRelativePositionLane");
+    staticObjectFactory.registerType<oscRelativePositionRoad>("oscRelativePositionRoad");
+    staticObjectFactory.registerType<oscRelativePositionWorld>("oscRelativePositionWorld");
+    staticObjectFactory.registerType<oscRoadCondition>("oscRoadCondition");
+    staticObjectFactory.registerType<oscRoadConditions>("oscRoadConditions");
+    staticObjectFactory.registerType<oscRoadCoord>("oscRoadCoord");
+    staticObjectFactory.registerType<oscRoadNetwork>("oscRoadNetwork");
+    staticObjectFactory.registerType<oscRoutingCatalog>("oscRoutingCatalog");
+    staticObjectFactory.registerType<oscSpeed>("oscSpeed");
+    staticObjectFactory.registerType<oscSpeedDynamics>("oscSpeedDynamics");
+    staticObjectFactory.registerType<oscStartConditionGroup>("oscStartConditionGroup");
+    staticObjectFactory.registerType<oscTime>("oscTime");
+    staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
+    staticObjectFactory.registerType<oscUserData>("oscUserData");
+    staticObjectFactory.registerType<oscVehicleCatalog>("oscVehicleCatalog");
+    staticObjectFactory.registerType<oscWeather>("oscWeather");
+//    staticObjectFactory.registerType<>("");
 }
 
 

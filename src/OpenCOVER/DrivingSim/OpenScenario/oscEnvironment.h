@@ -10,9 +10,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscHeader.h>
 #include <oscTimeOfDay.h>
 #include <oscNamedObject.h>
 #include <oscWeather.h>
+#include <oscRoadConditions.h>
 
 namespace OpenScenario {
 
@@ -24,15 +26,15 @@ class OPENSCENARIOEXPORT oscEnvironment: public oscNamedObject
 public:
     oscEnvironment()
     {
-        OSC_ADD_MEMBER(header);
-        OSC_ADD_MEMBER(timeOfDay);
-        OSC_ADD_MEMBER(weather);
-        //OSC_ADD_MEMBER(roadConditions );
+        OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
+        OSC_OBJECT_ADD_MEMBER(timeOfDay,"oscTimeOfDay");
+        OSC_OBJECT_ADD_MEMBER(weather,"oscWeather");
+        OSC_OBJECT_ADD_MEMBER(roadConditions,"oscRoadConditions");
     };
     oscHeaderMember header;
     oscTimeOfDayMember timeOfDay;
     oscWeatherMember weather;
-    //oscRoadConditionsMember roadConditions;
+    oscRoadConditionsMember roadConditions;
 };
 
 typedef oscObjectVariable<oscEnvironment *> oscEnvironmentMember;

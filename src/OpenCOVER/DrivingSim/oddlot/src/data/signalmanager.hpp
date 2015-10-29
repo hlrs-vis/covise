@@ -82,7 +82,7 @@ public:
     {
         return signalHeight_;
     }
-	const QString &getsignalCategory() const
+	const QString &getSignalCategory() const
     {
         return signalCategory_;
     }

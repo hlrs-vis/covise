@@ -10,6 +10,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscLight.h>
+#include <oscFog.h>
+#include <oscPrecipitation.h>
 
 namespace OpenScenario {
 
@@ -29,7 +32,10 @@ private:
 class OPENSCENARIOEXPORT oscWeather: public oscObjectBase
 {
 public:
-    enum cloudStates
+	oscLightMember sun;
+	oscFogMember fog;
+	oscPrecipitationMember precipitation;
+    enum cloudState
     {
         sky_off,
         free,
@@ -39,7 +45,10 @@ public:
     };
     oscWeather()
     {
-        OSC_ADD_MEMBER(cloudState);
+        OSC_OBJECT_ADD_MEMBER(sun,"oscLight");
+		OSC_OBJECT_ADD_MEMBER(fog,"oscFog");
+		OSC_OBJECT_ADD_MEMBER(precipitation,"oscPrecipitation");
+		OSC_ADD_MEMBER(cloudState);
 		cloudState.enumType = cloudStateType::instance();
     };
 	oscEnum cloudState;

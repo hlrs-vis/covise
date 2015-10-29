@@ -120,7 +120,6 @@ SignalItem::init()
     pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
     updateCategory();
     updatePosition();
-    createPath();
 }
 
 
@@ -142,7 +141,7 @@ SignalItem::updateCategory()
         SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
         if (signalContainer)
         {
-            QString category = signalContainer->getsignalCategory();
+            QString category = signalContainer->getSignalCategory();
             int i = 360 / categorySize_;
             outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
 
@@ -336,6 +335,27 @@ SignalItem::updatePosition()
 {
 
     pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
+
+	if (pixmapItem_)
+	{
+		QTransform trafo;
+		if (pixmap_.width() > pixmap_.height())
+		{
+			x_ = pos_.x() - halfsize_;
+			double h = height_ / 2.0;
+			trafo.translate(x_, pos_.y() + h);
+			y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
+		}
+		else
+		{
+			x_ = pos_.x() - width_ / 2.0;
+			trafo.translate(x_, pos_.y() + halfsize_);
+			y_ = pos_.y() - halfsize_;
+		}
+		trafo.rotate(180, Qt::XAxis);
+		trafo.scale(scale_, scale_);
+		pixmapItem_->setTransform(trafo);
+	}
 
     updateColor();
     createPath();
@@ -555,26 +575,7 @@ SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
         if (!parentChanged && pixmapItem_)
         {
-            QTransform trafo;
-            if (pixmap_.width() > pixmap_.height())
-            {
-                x_ = pos_.x() - halfsize_;
-                double h = height_ / 2.0;
-                trafo.translate(x_, pos_.y() + h);
-                y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
-            }
-            else
-            {
-                x_ = pos_.x() - width_ / 2.0;
-                trafo.translate(x_, pos_.y() + halfsize_);
-                y_ = pos_.y() - halfsize_;
-            }
-            trafo.rotate(180, Qt::XAxis);
-            trafo.scale(scale_, scale_);
-            pixmapItem_->setTransform(trafo);
-
-            updateColor();
-            createPath();
+			updatePosition();
         }
     }
 }

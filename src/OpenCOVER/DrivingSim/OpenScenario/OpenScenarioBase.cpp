@@ -25,15 +25,16 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
 {
     rootElement = NULL;
     parser = NULL;
+    xmlDoc = NULL;
     oscFactories::instance();
 
-    OSC_ADD_MEMBER(header);
-    OSC_ADD_MEMBER(database);
-    OSC_ADD_MEMBER(roadNetwork);
-    OSC_ADD_MEMBER(environment);
-    OSC_ADD_MEMBER(entities);
-    OSC_ADD_MEMBER(storyboard);
-    OSC_ADD_MEMBER(scenarioEnd);
+    OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(database,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(roadNetwork,"oscRoadNetwork");
+    OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironment");
+    OSC_OBJECT_ADD_MEMBER(entities,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(storyboard,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscHeader");
 
     base=this;
 }

@@ -19,9 +19,11 @@
 
    <PipeConfig>
     <Pipe server="0" screen="0" name="0" />
-   </PipeConfig>
+</PipeConfig>
 
-    </COVER>
+   <WelcomeMessage value="Welcome to HLRS at Thyssen Krupp Elevator Innovation" />
+
+</COVER>
  </LOCAL>
 
 </COCONFIG>

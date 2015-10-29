@@ -10,6 +10,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscPositionWorld.h>
+#include <oscPositionRoad.h>
+#include <oscPositionLane.h>
+#include <oscRelativePositionWorld.h>
+#include <oscRelativePositionRoad.h>
+#include <oscRelativePositionLane.h>
+#include <oscPositionRoute.h>
 
 namespace OpenScenario {
 
@@ -21,14 +28,21 @@ class OPENSCENARIOEXPORT oscPosition: public oscObjectBase
 public:
     oscPosition()
     {
-		OSC_ADD_MEMBER(x);
-		OSC_ADD_MEMBER(y);
-		OSC_ADD_MEMBER(z);
+        OSC_OBJECT_ADD_MEMBER(positionWorld,"oscPositionWorld");
+        OSC_OBJECT_ADD_MEMBER(positionRoad,"oscPositionRoad");
+		OSC_OBJECT_ADD_MEMBER(positionLane,"oscPositionLane");
+		OSC_OBJECT_ADD_MEMBER(relativePositionWorld,"oscRelativePositionWorld");
+		OSC_OBJECT_ADD_MEMBER(relativePositionRoad,"oscRelativePositionRoad");
+		OSC_OBJECT_ADD_MEMBER(relativePositionLane,"oscRelativePositionLane");
+		OSC_OBJECT_ADD_MEMBER(positionRoute,"oscPositionRoute");
     };
-    oscDouble x;
-	oscDouble y;
-	oscDouble z;
-	
+    oscPositionWorldMember positionWorld;
+	oscPositionRoadMember positionRoad;
+	oscPositionLaneMember positionLane;
+	oscRelativePositionWorldMember relativePositionWorld;
+	oscRelativePositionRoadMember relativePositionRoad;
+	oscRelativePositionLaneMember relativePositionLane;
+	oscPositionRouteMember positionRoute;
 };
 
 typedef oscObjectVariable<oscPosition *> oscPositionMember;

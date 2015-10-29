@@ -28,7 +28,8 @@ class OPENSCENARIOEXPORT oscMember
 {
 protected:
 
-    std::string name;
+    std::string name; ///< name of member
+    std::string typeName; ///< type name of member
     oscMemberValue *value;
     oscObjectBase* owner;
     enum oscMemberValue::MemberTypes type;
@@ -37,6 +38,8 @@ public:
     oscMember(); ///< constructor
     void setName(const char *n){name = n;};
     void setName(std::string &n){name = n;};
+    void setTypeName(std::string tn) {typeName = tn;};
+    std::string getTypeName() {return typeName;}; ///< return the typeName of this member
     void registerWith(oscObjectBase* owner); ///< constructor
     
 

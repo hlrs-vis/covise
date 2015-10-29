@@ -14,34 +14,54 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscHeader.h>
 #include <oscDimension.h>
 #include <oscBehavior.h>
+#include <oscNameId.h>
 
 namespace OpenScenario {
 
 class OpenScenarioBase;
+class oscPedestrian;
+
+class OPENSCENARIOEXPORT pedestrianClassType: public oscEnumType
+{
+public:
+    static pedestrianClassType *instance(); 
+private:
+    pedestrianClassType();
+    static pedestrianClassType *inst;
+};
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscPedestrian: public oscObjectBase
 {
 public:
-    oscPedestrian()
-    {
-        OSC_ADD_MEMBER(header);
-        OSC_ADD_MEMBER(name);
-		OSC_ADD_MEMBER(refId);
-        OSC_ADD_MEMBER(model);
-		OSC_ADD_MEMBER(mass);
-        OSC_ADD_MEMBER(behavior);
-		OSC_ADD_MEMBER(demension);
-        OSC_ADD_MEMBER(Geometry);
-    };
-    oscHeaderMember header;
-    oscInt name;
-	oscInt refId;
+	oscHeaderMember header;
+	oscNameIdMember name;
 	oscString model;
 	oscDouble mass;
 	oscBehaviorMember behavior;
-	oscDimensionMember demension;
-	oscFileMember Geometry;
+	oscDimensionMember dimension;
+	oscFileMember geometry;
+	
+	enum pedestrianClass
+    {
+        pedestrian,
+        wheelchair,
+        animal,
+    };
+	
+    oscPedestrian()
+    {
+        OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
+        OSC_OBJECT_ADD_MEMBER(name,"oscNameId");
+        OSC_ADD_MEMBER(model);
+		OSC_ADD_MEMBER(mass);
+        OSC_OBJECT_ADD_MEMBER(behavior,"oscBehavior");
+		OSC_OBJECT_ADD_MEMBER(dimension,"oscDimension");
+        OSC_OBJECT_ADD_MEMBER(geometry,"oscFile");
+		OSC_ADD_MEMBER(pedestrianClass);
+		pedestrianClass.enumType = pedestrianClassType::instance();
+    };
+   oscEnum pedestrianClass;
 };
 
 typedef oscObjectVariable<oscPedestrian *> oscPedestrianMember;

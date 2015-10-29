@@ -82,7 +82,7 @@ ToolManager::initTools()
 
     // Zoom //
     //
-    new ZoomTool(this);
+    zoomTool_ = new ZoomTool(this);
 
     // Selection //
     //

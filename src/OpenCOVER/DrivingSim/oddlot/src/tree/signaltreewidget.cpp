@@ -87,7 +87,7 @@ SignalTreeWidget::init()
 		QMap<QString, QTreeWidgetItem *> categoryMap;
 		foreach (const SignalContainer *container, signalManager_->getSignals(countries.at(i)))
 		{
-			const QString &signCategory = container->getsignalCategory();
+			const QString &signCategory = container->getSignalCategory();
 			//qDebug() << signCategory;
 			QTreeWidgetItem *categoryWidget;
 			if (categoryMap.contains(signCategory))

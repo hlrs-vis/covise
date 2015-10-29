@@ -22,6 +22,7 @@
 
 class ToolAction;
 class ToolWidget;
+class ZoomTool;
 
 class PrototypeManager;
 class SelectionTool;
@@ -66,6 +67,11 @@ public:
     {
         return selectionTool_;
     }
+
+	ZoomTool *getZoomTool()
+	{
+		return zoomTool_;
+	}
 
 protected:
 private:
@@ -112,6 +118,10 @@ private:
     // Selection Tool
     //
     SelectionTool *selectionTool_;
+
+	// ZoomTool //
+	//
+	ZoomTool *zoomTool_;
 };
 
 #endif // TOOLMANAGER_HPP
