@@ -18,6 +18,10 @@
 #include "topviewgraph.hpp"
 #include "graphscene.hpp"
 
+//MainWindow //
+//
+#include "src/mainwindow.hpp"
+
 // Data //
 //
 #include "src/data/projectdata.hpp"
@@ -31,10 +35,12 @@
 // Tools //
 //
 #include "src/gui/tools/toolaction.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 #include "src/gui/tools/zoomtool.hpp"
 #include "src/gui/tools/selectiontool.hpp"
 #include "src/gui/tools/maptool.hpp"
 #include "src/gui/tools/junctioneditortool.hpp"
+#include "src/gui/projectwidget.hpp"
 
 // Qt //
 //
@@ -73,6 +79,10 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     //
     scenerySystemItem_ = new ScenerySystemItem(topviewGraph_, topviewGraph_->getProjectData()->getScenerySystem());
     scene()->addItem(scenerySystemItem_);
+
+	// Zoom tool //
+	//
+	zoomTool_ = topviewGraph_->getProjectWidget()->getMainWindow()->getToolManager()->getZoomTool();
 
     // Zoom to mouse pos //
     //
@@ -759,14 +769,15 @@ GraphView::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
     {
-        zoomIn();
+		zoomTool_->zoomIn();
     }
     else
     {
-        zoomOut();
+		zoomTool_->zoomOut();
     }
 
-//    QGraphicsView::wheelEvent(event);
+
+ //   QGraphicsView::wheelEvent(event);
 }
 
 void
