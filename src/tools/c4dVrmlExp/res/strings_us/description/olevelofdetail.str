@@ -1,0 +1,13 @@
+STRINGTABLE Olevelofdetail
+{
+	Olevelofdetail 		"Level of Detail";
+
+	LOD_OBJECT				"LevelOfDetail";
+	BESCHREIBUNG			"Center of Lod Object";
+	LOD_CENTER_X			"Center X:";
+	LOD_CENTER_Y			"Center Y:";
+	LOD_CENTER_Z			"Center Z:";
+	DISTANCE_CIRCLES		"Display Distance Circles";
+	LOD_OBJECT_CIRCLES		"";
+
+}

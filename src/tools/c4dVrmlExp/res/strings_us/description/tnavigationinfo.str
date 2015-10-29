@@ -1,0 +1,4 @@
+STRINGTABLE tnavigationinfo
+{
+	tnavigationinfo			"Navigation Info Object";
+}

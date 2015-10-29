@@ -1,0 +1,95 @@
+// C4D-StringResource
+// Identifier	Text
+
+STRINGTABLE
+{
+  IDS_GRADIENTTITLE "Power Gradient";
+  IDS_TYPE "Type";
+  IDS_U "U";
+  IDS_V "V";
+  IDS_DIAGONAL "Diagonal";
+  IDS_RADIAL "Radial";
+  IDS_CIRCULAR "Circular";
+  IDS_BOX "Box";
+  IDS_STAR "Star";
+  IDS_4CORNER "Four Corner";
+  IDS_INTERPOLATION "Interpolation";
+  IDS_NONE "None";
+  IDS_LINEAR "Linear";
+  IDS_EXPUP "Exponent Up";
+  IDS_EXPDOWN "Exponent Down";
+  IDS_SMOOTH "Smooth";
+
+  IDS_PARTICLEVOLUME_HIGH_DENSITY "High Density";
+  IDS_PARTICLEVOLUME_LOW_DENSITY "Low Density";
+
+  IDS_POSITION "Position";
+  IDS_TURBULENCE "Turbulence";
+  IDS_OCTAVES "Octaves";
+  IDS_SCALE "Scale";
+  IDS_FREQ "Frequency";
+  IDS_ABSOLUTE "Absolute";
+	IDS_ATOM_POINT "Point";
+	IDS_ATOM_EDGE "Edge";
+	IDS_APPLY_FILTER "Applying Filter...";
+
+	IDS_MORPHNAME					"Object '#'";
+	IDS_MORPHRECORD				"Record";
+	IDS_MORPHSTRENGTH			"Strength";
+	IDS_MORPHIMPORT				"Magpie Pro import...";
+	IDS_MORPHSELECT				"Select Magpie Pro file";
+	IDS_IMPORTFAILED			"Wrong data format|Magpie Pro import failed!";
+
+	// change from here to customize
+	IDS_SPHERIZE					"C++ SDK - Spherify";
+	IDS_ROUNDED_TUBE			"C++ SDK - Rounded Tube";
+	IDS_ATOM							"C++ SDK - Atom";
+	IDS_CIRCLE						"C++ SDK - Double Circle";
+	IDS_TRIANGULATE				"C++ SDK - Triangulate";
+	IDS_LOOKATCAMERA			"C++ SDK - Look At Camera";
+	IDS_SIMPLEMATERIAL		"C++ SDK - Simple Material";
+	IDS_PARTICLEVOLUME		"C++ SDK - Particle Volume";
+	IDS_MANDELBROT				"C++ SDK - Mandelbrot";
+	IDS_SDKGRADIENT				"C++ SDK - SDK Gradient";
+	IDS_BITMAPDISTORTION	"C++ SDK - Bitmap Distortion";
+	IDS_BLINKER						"C++ SDK - Blinker";
+	IDS_GRAVITATION				"C++ SDK - Gravity";
+	IDS_BFF								"C++ SDK - BFF";
+	IDS_STL								"C++ SDK - STL";
+	IDS_MENUTEST					"C++ SDK - Menu Test";
+	IDS_ASYNCTEST					"C++ SDK - Async Test";
+	IDS_ACTIVEOBJECT			"C++ SDK - Active Object Dialog";
+	IDS_LISTVIEW					"C++ SDK - Listview Example";
+	IDS_THRESHOLD         "C++ SDK/Threshold...";
+	IDS_MATRIX	          "C++ SDK/Matrix...";
+	IDS_VIDEOPOST					"C++ SDK - Selective Colorize";
+	IDS_PRIMITIVETOOL			"C++ SDK - Liquid Painting Tool";
+	IDS_SUBDIALOG					"C++ SDK - Sub-Dialog Example";
+	IDS_VPINVERTIMAGE     "C++ SDK - Invert Image";
+	IDS_MORPHMIXER				"C++ SDK - Morph Mixer";
+	IDS_VPVISUALIZEPOST		"C++ SDK - Visualize Normals";
+	IDS_VPRECONSTRUCT			"C++ SDK - Reconstruct Image";
+
+	IDS_HLP_EDGECUT_SDK   "C++ SDK - Edge Cut";
+	IDS_EDGECUT_SDK       "C++ SDK - Edge Cut";
+	IDS_HLP_REVERSE_NORMALS_SDK   "C++ SDK - Reverse Normals";
+	IDS_REVERSE_NORMALS_SDK       "C++ SDK - Reverse Normals";
+
+	IDS_LAYER_SHADER_BROWSER      "C++ SDK - Layer Shader Browser";
+	
+	IDS_RANDOMFALLOFF			"C++ SDK - Random Falloff";
+	
+	IDS_NOISEEFFECTOR			"C++ SDK - Noise Effector";
+	IDS_DROPEFFECTOR			"C++ SDK - Drop to Surface Effector";
+
+	IDS_HAIR_DEFOMER_EXAMPLE	"Hair SDK - Comb Deformer";
+	IDS_HAIR_FORCE_EXAMPLE		"Hair SDK - Object Force";
+	IDS_HAIR_COLLIDER_EXAMPLE	"Hair SDK - Collider Object";
+	IDS_HAIR_CONSTRAINT_EXAMPLE	"Hair SDK - Constraint";
+	IDS_HAIR_GRASS_EXAMPLE		"Hair SDK - Grass";
+	IDS_HAIR_SHADER_EXAMPLE		"Hair SDK - Shader";
+	IDS_HAIR_VIDEOPOST_EXAMPLE	"Hair SDK - Videopost";
+	IDS_HAIR_STYLING_EXAMPLE	"Hair SDK - Styling";
+	IDS_HAIR_RENDERING_EXAMPLE	"Hair SDK - Render Modifier";
+	IDS_HAIR_GENERATOR_EXAMPLE	"Hair SDK - Generator Object";
+}
