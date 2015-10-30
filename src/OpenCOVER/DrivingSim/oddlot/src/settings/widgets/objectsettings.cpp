@@ -396,7 +396,7 @@ ObjectSettings::updateObserver()
     //
     int changes = object_->getObjectChanges();
 
-    if ((changes & Object::CEL_ParameterChange))
+	if ((changes & Object::CEL_ParameterChange) || (changes & Object::CEL_TypeChange))
     {
         updateProperties();
     }

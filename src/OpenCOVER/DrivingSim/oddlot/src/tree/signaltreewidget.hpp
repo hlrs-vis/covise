@@ -21,9 +21,8 @@
 class ProjectData;
 class ProjectWidget;
 class SignalManager;
-//class SetSignalPropertiesCommand;
-//class SettingsElement;
 class MainWindow;
+class SignalEditor;
 
 class SignalTreeWidget : public QTreeWidget
 {
@@ -40,6 +39,11 @@ public:
 	void setActiveProject(ProjectWidget *projectWidget)
 	{
 		projectWidget_ = projectWidget ;
+	}
+
+	void setSignalEditor(SignalEditor *signalEditor)
+	{
+		signalEditor_ = signalEditor;
 	}
 
 protected:
@@ -66,6 +70,7 @@ private:
     ProjectData *projectData_; // Model, linked
 	SignalManager *signalManager_;
 	MainWindow *mainWindow_;
+	SignalEditor *signalEditor_;
 };
 
 #endif // PROJECTTREEWIDGET_HPP

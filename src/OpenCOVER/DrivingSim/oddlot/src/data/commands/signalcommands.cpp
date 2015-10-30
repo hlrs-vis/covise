@@ -566,7 +566,14 @@ SetObjectPropertiesCommand::redo()
     object_->setProperties(newObjectProps_);
     object_->setRepeatProperties(newObjectRepeat_);
 
-    object_->addObjectChanges(Object::CEL_ParameterChange);
+	if (newObjectProps_.type != oldObjectProps_.type)
+	{
+		object_->addObjectChanges(Object::CEL_TypeChange);
+	}
+	else
+	{
+		object_->addObjectChanges(Object::CEL_ParameterChange);
+	}
 
     setRedone();
 }
@@ -584,7 +591,14 @@ SetObjectPropertiesCommand::undo()
     object_->setProperties(oldObjectProps_);
     object_->setRepeatProperties(oldObjectRepeat_);
 
-    object_->addObjectChanges(Object::CEL_ParameterChange);
+	if (newObjectProps_.type != oldObjectProps_.type)
+	{
+		object_->addObjectChanges(Object::CEL_TypeChange);
+	}
+	else
+	{
+		object_->addObjectChanges(Object::CEL_ParameterChange);
+	}
 
     setUndone();
 }

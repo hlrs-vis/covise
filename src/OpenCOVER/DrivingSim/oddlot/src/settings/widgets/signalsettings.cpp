@@ -164,8 +164,6 @@ SignalSettings::updateProperties()
 
         ui->fromLaneSpinBox->setValue(signal_->getValidFromLane());
         ui->toLaneSpinBox->setValue(signal_->getValidToLane());
-
-		signalEditor_->setLastSignal(signal_);
     }
 }
 

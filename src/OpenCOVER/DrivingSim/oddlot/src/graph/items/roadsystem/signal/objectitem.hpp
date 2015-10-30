@@ -22,6 +22,7 @@ class ObjectObject;
 class RoadSystemItem;
 class ObjectTextItem;
 class SignalEditor;
+class SignalManager;
 
 class QColor;
 
@@ -51,6 +52,7 @@ public:
     void updateColor();
     virtual void createPath();
     void updatePosition();
+	void updateCategory();
 
     // Text //
     //
@@ -101,8 +103,13 @@ private:
     ObjectTextItem *objectTextItem_;
 
     QColor outerColor_;
+	int categorySize_;
 
     SignalEditor *signalEditor_;
+
+	SignalManager *signalManager_;
+
+
 };
 
 #endif // ROADITEM_HPP

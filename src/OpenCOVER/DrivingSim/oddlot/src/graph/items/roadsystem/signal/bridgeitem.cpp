@@ -17,6 +17,7 @@
 
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
+#include "src/mainwindow.hpp"
 
 // Data //
 //
@@ -35,6 +36,10 @@
 #include "src/graph/items/roadsystem/signal/bridgetextitem.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
+
+// Manager //
+//
+#include "src/data/signalmanager.hpp" 
 
 // Qt //
 //
@@ -69,6 +74,14 @@ BridgeItem::init()
     //
     signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
 
+	// Signal Manager
+	//
+	signalManager_ = getProjectData()->getProjectWidget()->getMainWindow()->getSignalManager();
+
+	// Category Size
+	//
+	categorySize_ = signalManager_->getCategoriesSize();
+
     // Context Menu //
     //
 
@@ -93,7 +106,7 @@ BridgeItem::init()
 void
 BridgeItem::updateColor()
 {
-    outerColor_.setRgb(0, 255, 0);
+	outerColor_.setHsv((categorySize_ - 1) * 360/(categorySize_ + 1), 255, 255, 255);
 }
 
 /*!

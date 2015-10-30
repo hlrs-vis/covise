@@ -37,6 +37,10 @@
 //
 #include "src/settings/projectsettings.hpp"
 
+// Editor //
+//
+#include "src/graph/editors/signaleditor.hpp"
+
 #include <QWidget>
 
 //################//
@@ -77,13 +81,28 @@ SignalTreeWidget::init()
 	setHeaderLabels(QStringList(headers));
 	QList<QTreeWidgetItem *> rootList;
 
+	// Signals //
+	//
+	QTreeWidgetItem *signalsWidget = new QTreeWidgetItem;
+	signalsWidget->setText(0, "Signals");
+	rootList.append(signalsWidget);
+
+	// Objects //
+	//
+	QTreeWidgetItem *objectsWidget = new QTreeWidgetItem;
+	objectsWidget->setText(0, "Objects");
+	rootList.append(objectsWidget);
+
 	QList<QString> countries = signalManager_->getCountries();
 	int categorySize = signalManager_->getCategoriesSize();
+	int colorIndex = 360 / (categorySize + 1);
+
 	for (int i = 0; i < countries.size(); i++)
 	{
-		QTreeWidgetItem *countryWidget = new QTreeWidgetItem; 
-		countryWidget->setText(0,countries.at(i));
-		rootList.append(countryWidget);
+		QTreeWidgetItem *signalsCountryWidget = new QTreeWidgetItem(signalsWidget); 
+		signalsCountryWidget->setText(0,countries.at(i));
+
+		// Add Signals //
 		QMap<QString, QTreeWidgetItem *> categoryMap;
 		foreach (const SignalContainer *container, signalManager_->getSignals(countries.at(i)))
 		{
@@ -96,22 +115,64 @@ SignalTreeWidget::init()
 			}
 			else 
 			{
-				categoryWidget = new QTreeWidgetItem(countryWidget);
+				categoryWidget = new QTreeWidgetItem(signalsCountryWidget);
 				categoryWidget->setText(0,signCategory);
 				categoryWidget->setText(1,tr(""));
-				categoryMap.insert(signCategory,categoryWidget);
-				countryWidget->addChild(categoryWidget);  
-				int j = 360 / categorySize;
+				categoryMap.insert(signCategory,categoryWidget); 
 				QColor color;
-	            color.setHsv(signalManager_->getCategoryNumber(signCategory) * j, 255, 255, 255);
+	            color.setHsv(signalManager_->getCategoryNumber(signCategory) * colorIndex, 255, 255, 255);
 				categoryWidget->setBackgroundColor(1, color);
 			}
 			QTreeWidgetItem *signs = new QTreeWidgetItem(categoryWidget); 
 			signs->setText(0,container->getSignalName());
 			signs->setIcon(0,container->getSignalIcon());	
-			categoryWidget->addChild(signs);	
+		}
+
+		QTreeWidgetItem *objectsCountryWidget = new QTreeWidgetItem(objectsWidget); 
+		objectsCountryWidget->setText(0,countries.at(i));
+
+		// Add objects //
+		categoryMap.clear();
+		foreach (const ObjectContainer *container, signalManager_->getObjects(countries.at(i)))
+		{
+			const QString &objectCategory = container->getObjectCategory();
+			QTreeWidgetItem *categoryWidget;
+			if (categoryMap.contains(objectCategory))
+			{
+				categoryWidget = categoryMap.value(objectCategory);
+			}
+			else 
+			{
+				categoryWidget = new QTreeWidgetItem(objectsCountryWidget);
+				categoryWidget->setText(0,objectCategory);
+				categoryWidget->setText(1,tr(""));
+				categoryMap.insert(objectCategory, categoryWidget); 
+				QColor color;
+	            color.setHsv(signalManager_->getCategoryNumber(objectCategory) * colorIndex, 255, 255, 255);
+				categoryWidget->setBackgroundColor(1, color);
+			}
+			QTreeWidgetItem *object = new QTreeWidgetItem(categoryWidget); 
+			object->setText(0,container->getObjectType());	
+			object->setIcon(0,container->getObjectIcon());
 		}
 	}
+	// add bridge
+	QTreeWidgetItem *bridgeWidget = new QTreeWidgetItem();
+	bridgeWidget->setText(0, "Bridge");
+	bridgeWidget->setText(1,tr(""));
+	QColor color;
+	color.setHsv((categorySize - 1) * colorIndex, 255, 255, 255);
+	bridgeWidget->setBackgroundColor(1, color);
+	rootList.append(bridgeWidget);
+
+	// add tunnel
+	QTreeWidgetItem *tunnelWidget = new QTreeWidgetItem();
+	tunnelWidget->setText(0, "Tunnel");
+	tunnelWidget->setText(1,tr(""));
+	color.setHsv(categorySize * colorIndex, 255, 255, 255);
+	tunnelWidget->setBackgroundColor(1, color);
+	rootList.append(tunnelWidget);
+
 	insertTopLevelItems(0,rootList);
 }
 
@@ -123,24 +184,87 @@ SignalTreeWidget::init()
 void
 SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
+
 	QTreeWidgetItem *item = selectedItems().at(0);
-	SignalContainer *signalContainer = signalManager_->getSignalContainer(item->text(0));
-	if(signalContainer && projectWidget_)
+	const QString text = item->text(0);
+	SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
+	if (signalContainer)				// selected item is a signal
 	{
-		const QString &country = signalManager_->getCountry(signalContainer);
-		int type = signalContainer->getSignalType();
-		const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
-		int subtype = signalContainer->getSignalSubType();
-		
-		foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
+		signalManager_->setSelectedSignalContainer(signalContainer);
+		if (signalEditor_ && projectWidget_)
 		{
-			Signal *signal = dynamic_cast<Signal *>(element);
-			if (signal)
+			signalEditor_->setTool(ODD::TSG_SIGNAL);
+
+			const QString &country = signalManager_->getCountry(signalContainer);
+			int type = signalContainer->getSignalType();
+			const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
+			int subtype = signalContainer->getSignalSubType();
+
+			foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
 			{
-				SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
-				projectWidget_->getProjectSettings()->executeCommand(command);
+				Signal *signal = dynamic_cast<Signal *>(element);
+				if (signal)
+				{
+					SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
+					projectWidget_->getProjectSettings()->executeCommand(command);
+				}
 			}
 		}
+		return;
 	}
+	
+	ObjectContainer *objectContainer = signalManager_->getObjectContainer(text);
+	if (objectContainer)				// selected item is an object
+	{
+		signalManager_->setSelectedObjectContainer(objectContainer);
+		if (signalEditor_ && projectWidget_)
+		{
+			signalEditor_->setTool(ODD::TSG_OBJECT);
+
+			const QString &country = signalManager_->getCountry(objectContainer);
+			const QString &type = objectContainer->getObjectType();
+			double length = objectContainer->getObjectLength();
+			double width = objectContainer->getObjectWidth();
+			double radius = objectContainer->getObjectRadius();
+			double height = objectContainer->getObjectHeight();
+			double heading = objectContainer->getObjectHeading();
+			double repeatDistance = objectContainer->getObjectRepeatDistance();
+			const QString &file = objectContainer->getObjectFile();
+
+
+			foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
+			{
+				Object *object = dynamic_cast<Object *>(element);
+
+				if (object)
+				{
+					SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), type, object->getT(), object->getzOffset(), 
+						object->getValidLength(), object->getOrientation(), length, width, radius, height, heading,
+						object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), repeatDistance, object->getTextureFileName());
+					projectWidget_->getProjectSettings()->executeCommand(command);
+				}
+			}
+		}
+		return;
+	}
+
+	if (text == "Bridge")
+	{
+		if (signalEditor_)
+		{
+			signalEditor_->setTool(ODD::TSG_BRIDGE);
+		}
+	}
+	else if (text == "Tunnel")
+	{
+		if (signalEditor_)
+		{
+			signalEditor_->setTool(ODD::TSG_TUNNEL);
+		}
+
+	}
+
+
     QTreeWidget::selectionChanged(selected, deselected);
 }
+

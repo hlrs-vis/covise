@@ -142,7 +142,7 @@ SignalItem::updateCategory()
         if (signalContainer)
         {
             QString category = signalContainer->getSignalCategory();
-            int i = 360 / categorySize_;
+            int i = 360 / (categorySize_ + 1);
             outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
 
 

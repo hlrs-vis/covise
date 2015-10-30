@@ -14,7 +14,6 @@
 **************************************************************************/
 
 #include "signaleditortool.hpp"
-#include "src/util/roadtypecombobox.h"
 
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"

@@ -29,6 +29,7 @@ class SignalItem;
 class ObjectItem;
 class BridgeItem;
 class Signal;
+class SignalTreeWidget;
 
 class SignalEditor : public ProjectEditor
 {
@@ -57,18 +58,6 @@ public:
     // Move Signal //
     //
     bool translateSignal(Signal * signal, const QPointF &to);
-
-	// Get signal, set signal //
-	//
-	Signal *getLastSignal()
-	{
-		return lastCreatedSignal_;
-	}
-
-	void setLastSignal(Signal *signal)
-	{
-		lastCreatedSignal_ = signal;
-	}
 
 
     // RoadType //
@@ -115,7 +104,10 @@ private:
 
     ODD::ToolId lastTool_;
 
-	Signal *lastCreatedSignal_;
+
+	// Signal Tree //
+	//
+	SignalTreeWidget *signalTree_;
 
     // RoadType //
     //

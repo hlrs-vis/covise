@@ -19,6 +19,10 @@
 //
 #include "src/gui/projectwidget.hpp"
 
+//MainWindow //
+//
+#include "src/mainwindow.hpp"
+
 // Data //
 //
 #include "src/data/projectdata.hpp"
@@ -53,6 +57,10 @@
 #include "src/gui/tools/signaleditortool.hpp"
 #include "src/gui/mouseaction.hpp"
 
+// Tree //
+//
+#include "src/tree/signaltreewidget.hpp"
+
 // Visitor //
 //
 //#include "src/graph/visitors/roadmarkvisitor.hpp"
@@ -73,8 +81,8 @@ SignalEditor::SignalEditor(ProjectWidget *projectWidget, ProjectData *projectDat
     , lastSelectedSignalItem_(NULL)
     , lastSelectedObjectItem_(NULL)
     , lastSelectedBridgeItem_(NULL)
-	, lastCreatedSignal_(NULL)
 {
+	signalTree_ = projectWidget->getMainWindow()->getSignalTree();
 }
 
 SignalEditor::~SignalEditor()
@@ -106,6 +114,10 @@ SignalEditor::init()
     }
 
     lastTool_ = getCurrentTool();
+
+	// Raise Signal Tree //
+	//
+	signalTree_->setSignalEditor(this);
 }
 
 /*!
@@ -115,6 +127,7 @@ SignalEditor::kill()
 {
     delete signalRoadSystemItem_;
     signalRoadSystemItem_ = NULL;
+	signalTree_->setSignalEditor(NULL);
 }
 
 SignalHandle *

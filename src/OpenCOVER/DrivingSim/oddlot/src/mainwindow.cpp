@@ -57,6 +57,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+	, signalTree_(NULL)
 {
     ui->setupUi(this);
 
@@ -403,7 +404,7 @@ MainWindow::createSignals()
 	
     // Dock Area //
     //
-    signalsDock_ = new QDockWidget(tr("Signals View"), this);
+    signalsDock_ = new QDockWidget(tr("Signals & Objects"), this);
     signalsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, signalsDock_);
 	tabifyDockWidget(treeDock_, signalsDock_);
@@ -417,8 +418,10 @@ MainWindow::createSignals()
 
 	// SignalTree //
 	//
-	SignalTreeWidget *signalTree = new SignalTreeWidget(signalManager_, this);
-	setSignalTree(signalTree);
+	signalTree_ = new SignalTreeWidget(signalManager_, this);
+	setSignalTree(signalTree_);
+
+	signalsDock_->hide();
 
 }
 
@@ -997,10 +1000,9 @@ MainWindow::activateProject()
 
 		// Pass selected project to signal treewidget //
 		//
-		SignalTreeWidget *signalTreeWidget = dynamic_cast<SignalTreeWidget *>(signalsDock_->widget());
-		if(signalTreeWidget)
+		if(signalTree_)
 		{
-			signalTreeWidget->setActiveProject(project);
+			signalTree_->setActiveProject(project);
 		}
     }
 }
@@ -1082,6 +1084,20 @@ MainWindow::setSignalTree(QWidget *widget)
     {
         signalsDock_->setWidget(emptyTreeWidget_);
     }
+}
+
+void 
+	MainWindow::showSignalsDock(bool visible)
+{
+	if (visible)
+	{
+		signalsDock_->show();
+		signalsDock_->raise();
+	}
+	else
+	{
+		signalsDock_->hide();
+	}
 }
 
 /*! \brief Set the widget of the Settings View.

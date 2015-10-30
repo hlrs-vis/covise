@@ -22,6 +22,7 @@ class Bridge;
 class RoadSystemItem;
 class BridgeTextItem;
 class SignalEditor;
+class SignalManager;
 
 class QColor;
 
@@ -101,8 +102,11 @@ private:
     BridgeTextItem *bridgeTextItem_;
 
     QColor outerColor_;
+	int categorySize_;
 
     SignalEditor *signalEditor_;
+
+	SignalManager *signalManager_;
 };
 
 #endif // ROADITEM_HPP

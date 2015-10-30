@@ -18,6 +18,8 @@
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
 
+#include "src/mainwindow.hpp"
+
 // Data //
 //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -43,6 +45,10 @@
 #include "src/graph/items/roadsystem/signal/signalhandle.hpp"
 #include "src/graph/editors/signaleditor.hpp"
 
+// SignalManager //
+//
+#include "src/data/signalmanager.hpp"
+
 // Qt //
 //
 #include <QBrush>
@@ -67,7 +73,10 @@ SignalRoadItem::init()
     // Hover Events //
     //
     setAcceptHoverEvents(true);
-    signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+	ProjectWidget *projectWidget = getProjectGraph()->getProjectWidget();
+    signalEditor_ = dynamic_cast<SignalEditor *>(projectWidget->getProjectEditor());
+	signalManager_ = projectWidget->getMainWindow()->getSignalManager();
+
 
     foreach (Signal *signal, road_->getSignals())
     {
@@ -205,10 +214,18 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 validToLane = laneSection->getLeftmostLaneId();
             }
             QList<UserData *> userData;
-			Signal *lastSignal = signalEditor_->getLastSignal();
+			SignalContainer *lastSignal = signalManager_->getSelectedSignalContainer();
 			if (lastSignal)
 			{
-				Signal *newSignal = new Signal("signal", "", s, t, false, lastSignal->getOrientation(), 0.0, lastSignal->getCountry(), lastSignal->getType(), lastSignal->getTypeSubclass(), lastSignal->getSubtype(), 0.0, lastSignal->getHeading(), lastSignal->getPitch(), lastSignal->getRoll(), lastSignal->getPole(), 2, 0, validToLane);
+				if (t < 0)
+				{
+					t -= lastSignal->getSignalDistance();
+				}
+				else
+				{
+					t += lastSignal->getSignalDistance();
+				}
+				Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), lastSignal->getSignalHeight(), 0.0, 0.0, true, 2, 0, validToLane);
 				AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
 				getProjectGraph()->executeCommand(command);
 			}
@@ -221,10 +238,32 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         }
         else if (tool == ODD::TSG_OBJECT)
         {
-            Object *newObject = new Object("object", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, "");
-            AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
+			ObjectContainer *lastObject = signalManager_->getSelectedObjectContainer();
+			if (lastObject)
+			{
+				if (t < 0)
+				{
+					t -= lastObject->getObjectDistance();
+				}
+				else
+				{
+					t += lastObject->getObjectDistance();
+				}
 
-            getProjectGraph()->executeCommand(command);
+				Object *newObject = new Object("object", "", lastObject->getObjectType(), s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, lastObject->getObjectLength(), 
+					lastObject->getObjectWidth(), lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
+					0.0, 0.0, false, 0.0, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile());
+				AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
+
+				getProjectGraph()->executeCommand(command);
+			}
+			else
+			{
+				Object *newObject = new Object("object", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, "");
+				AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
+
+				getProjectGraph()->executeCommand(command);
+			}
         }
         else if (tool == ODD::TSG_BRIDGE)
         {
