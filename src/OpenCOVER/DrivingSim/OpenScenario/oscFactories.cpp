@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-//sort alphabetically
+// sort alphabetically
 #include <oscAbsolute.h>
 #include <oscAction.h>
 #include <oscAutonomous.h>
@@ -28,11 +28,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscFog.h>
 #include <oscHeader.h>
 #include <oscIntensity.h>
-#include <oscObjectBase.h>
-#include <oscRoadNetwork.h>
-#include <oscTimeOfDay.h>
-#include <oscVariables.h>
-#include <oscWeather.h>
 #include <oscLaneChange.h>
 #include <oscLaneCoord.h>
 #include <oscLaneDynamics.h>
@@ -41,6 +36,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscMiscObjectCatalog.h>
 #include <oscNamedObject.h>
 #include <oscNameId.h>
+#include <oscObjectBase.h>
 #include <oscObserverCatalog.h>
 #include <oscOrientation.h>
 #include <oscParameter.h>
@@ -60,13 +56,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscRoadCondition.h>
 #include <oscRoadConditions.h>
 #include <oscRoadCoord.h>
+#include <oscRoadNetwork.h>
 #include <oscRoutingCatalog.h>
 #include <oscSpeed.h>
 #include <oscSpeedDynamics.h>
 #include <oscStartConditionGroup.h>
 #include <oscTime.h>
+#include <oscTimeOfDay.h>
 #include <oscUserData.h>
+#include <oscVariables.h>
 #include <oscVehicleCatalog.h>
+#include <oscWeather.h>
 
 
 using namespace OpenScenario;
@@ -94,7 +94,7 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
-    // sorted alphabetically
+    // sort alphabetically
     staticObjectFactory.registerType<oscAbsolute>("oscAbsolute");
     staticObjectFactory.registerType<oscAction>("oscAction");
     staticObjectFactory.registerType<oscAutonomous>("oscAutonomous");
