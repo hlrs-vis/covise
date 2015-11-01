@@ -274,7 +274,7 @@ DLabPlugin::preFrame()
     if (conn)
     {
     const char * dataFromRemote=NULL;
-        while (dataFromRemote=conn->readLine())
+        while ((dataFromRemote=conn->readLine()))
         {
 	if(strcmp(dataFromRemote,"ConnectionClosed")==0)
 	{
