@@ -1,141 +1,142 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Intel|x64">
+      <Configuration>Intel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7AAFFB96-803D-4512-B343-06D5EB4E51A4}</ProjectGuid>
-    <RootNamespace>cinema4dsdk</RootNamespace>
+    <ProjectGuid>{21895B69-DE91-7035-0009-38CB8C5CDEA3}</ProjectGuid>
+    <RootNamespace>maxon</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Intel|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Intel C++ Compiler XE 15.0</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="./projectsettings.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\settings\DebugWin64.props" />
+    <Import Project="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\project\cinema.framework.includes.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="./projectsettings.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\settings\ReleaseWin64.props" />
+    <Import Project="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\project\cinema.framework.includes.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Intel|x64'" Label="PropertySheets">
+    <Import Project="./projectsettings.props" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\settings\IntelWin64.props" />
+    <Import Project="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\project\cinema.framework.includes.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>11.0.61030.0</_ProjectFileVersion>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.cdl64</TargetExt>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.cdl64</TargetExt>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Intel|x64'">$(ProjectName)</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Intel|x64'">.cdl64</TargetExt>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\CINEMA 4D R10\plugins\VRMLExporter\source\tag;C:\Program Files (x86)\CINEMA 4D R10\plugins\VRMLExporter\source\dialog;.\source\WriteElements;.\source\scenesaver;.\source\object;..\..\resource\_api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ObjectFileName>$(IntDir)obj\</ObjectFileName>
-    </ClCompile>
-    <Link>
-      <OutputFile>vrmlexporter.cdl</OutputFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention />
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
     <ClCompile>
-      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>c:\src\covise\src\tools\c4dVrmlExp\source\dialog;c:\src\covise\src\tools\c4dVrmlExp\res\description;c:\src\covise\src\tools\c4dVrmlExp\res;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source\c4d_libs;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source\c4d_customgui;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source\c4d_gv;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source;.\source\WriteElements;.\source\scenesaver;.\source\object;..\..\resource\_api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ObjectFileName>$(IntDir)obj\</ObjectFileName>
+      <AdditionalIncludeDirectories>./source;./res;./res/description;%(AdditionalIncludeDirectories);C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_customgui;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_gv;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_libs;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_misc;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_misc/datastructures;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_misc/memory;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_misc/utilities;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_preview;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/c4d_scaling;C:\Program Files\MAXON\CINEMA 4D R17/frameworks/cinema.framework/source/description;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <OutputFile>vrmlexporter.cdl64</OutputFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention />
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\CINEMA 4D R10\plugins\VRMLExporter\source\dialog;.\source\WriteElements;.\source\scenesaver;.\source\object;..\..\resource\_api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ObjectFileName>$(IntDir)obj\</ObjectFileName>
-    </ClCompile>
-    <Link>
-      <OutputFile>vrmlexporter.cdl</OutputFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention />
+      <IgnoreSpecificDefaultLibraries />
+      <SubSystem>Console</SubSystem>
+      <OutputFile>C:\Program Files\MAXON\CINEMA 4D R17\modules\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>C:\Program Files\MAXON\CINEMA 4D R17\modules\$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>c:\src\covise\src\tools\c4dVrmlExp\source\dialog;c:\src\covise\src\tools\c4dVrmlExp\res\description;c:\src\covise\src\tools\c4dVrmlExp\res;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source\c4d_libs;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source\c4d_customgui;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source\c4d_gv;C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\source;.\source\WriteElements;.\source\scenesaver;.\source\object;..\..\resource\_api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ObjectFileName>$(IntDir)vrmlexporter</ObjectFileName>
+      <AdditionalIncludeDirectories>./source;./res;./res/description;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <OutputFile>vrmlexporter.cdl64</OutputFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention />
+      <IgnoreSpecificDefaultLibraries />
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Intel|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>./source;./res;./res/description;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <IgnoreSpecificDefaultLibraries />
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\Main.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)obj\</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="source\object\LOD.cpp" />
-    <ClCompile Include="source\object\NavigationInfo.cpp" />
-    <ClCompile Include="source\tag\HelperTag.cpp" />
-    <ClCompile Include="source\scenesaver\VRMLexp.cpp" />
+    <ProjectReference Include="C:\Program Files\MAXON\CINEMA 4D R17\frameworks\cinema.framework\project\cinema.framework.vcxproj">
+      <Project>{69BF9B7D-7EB2-7FC5-0009-38CB8C5CDEA3}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="source\dialog\ConfirmTextureCopy.cpp" />
     <ClCompile Include="source\dialog\StartDialog.cpp" />
+    <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\object\LOD.cpp" />
+    <ClCompile Include="source\object\NavigationInfo.cpp" />
+    <ClCompile Include="source\scenesaver\VRMLexp.cpp" />
+    <ClCompile Include="source\tag\HelperTag.cpp" />
     <ClCompile Include="source\WriteElements\WriteAnimation.cpp" />
     <ClCompile Include="source\WriteElements\WriteCamera.cpp" />
     <ClCompile Include="source\WriteElements\WriteGeometry.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="source\dialog\ConfirmTextureCopy.h" />
+    <ClInclude Include="source\dialog\StartDialog.h" />
     <ClInclude Include="source\object\LOD.h" />
     <ClInclude Include="source\object\NavigationInfo.h" />
-    <ClInclude Include="source\dialog\StartDialog.h" />
     <ClInclude Include="source\scenesaver\VRMLexp.h" />
+    <ClInclude Include="source\tag\HelperTag.h" />
     <ClInclude Include="source\WriteElements\WriteAnimation.h" />
     <ClInclude Include="source\WriteElements\WriteCamera.h" />
     <ClInclude Include="source\WriteElements\WriteGeometry.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="VRMLexporter1.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
 </Project>

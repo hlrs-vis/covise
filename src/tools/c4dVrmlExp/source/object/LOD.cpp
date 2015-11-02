@@ -561,9 +561,7 @@ void LODObject::WriteEndLOD(VRMLSAVE &vrml)
 Bool RegisterLOD(void)
 {
 	// decide by name if the plugin shall be registered - just for user convenience
-	String name="VRMLExporter-LOD"; 
-	if (!name.Content()) return TRUE;
-	if(RegisterObjectPlugin(ID_LODOBJECT,name,OBJECT_GENERATOR,LODObject::Alloc,"Olevelofdetail",AutoBitmap("lod.tif"),0))  //spaeter noch auf Olod umstellen
+	if (RegisterObjectPlugin(ID_LODOBJECT, "VRMLExporter-LOD", OBJECT_GENERATOR, LODObject::Alloc, "Olevelofdetail", AutoBitmap("lod.tif"), 0))  //spaeter noch auf Olod umstellen
 	{return TRUE;}
 	return FALSE;
 }

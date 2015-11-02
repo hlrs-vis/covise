@@ -1,7 +1,7 @@
 #ifndef VRML_NAVIGATIONINFO_H
 #define VRML_NAVIGATIONINFO_H
 
-#include "VRMLexp.h"
+#include "../scenesaver/VRMLexp.h"
 #include "onavigationinfo.h"
 #include "c4d_baseobject.h"
 

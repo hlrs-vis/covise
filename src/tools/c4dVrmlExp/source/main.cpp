@@ -14,6 +14,8 @@ Bool RegisterVRML();			//Registierung des VRML-Exporters
 
 Bool PluginStart(void)
 {	
+
+	VERSIONTYPE versionType = GeGetVersionType();
 	//OBJECT
 	if(!RegisterLOD()) return FALSE;
 	if(!RegisterNavigationInfo()) return FALSE;
@@ -32,6 +34,9 @@ void PluginEnd(void)
 
 Bool PluginMessage(Int32 id, void *data)
 {
+	String description("testit");
+	int len = description.GetLength();
+
     switch (id)
     {
         case C4DPL_INIT_SYS:

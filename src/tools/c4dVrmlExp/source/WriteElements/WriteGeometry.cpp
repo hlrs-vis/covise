@@ -40,7 +40,7 @@ void WriteGeometricObjects(VRMLSAVE &vrml, Matrix up, VRMLmgmt *dataMgmt)
 	vrml.increaseLevel();
 	vrml.writeC4DString("geometry DEF "+dataMgmt->getKnotenName() +"-GEOMETRY IndexedFaceSet {\n");
 	vrml.increaseLevel();
-	vrml.writeC4DString("solid FALSE\n");
+	vrml.writeC4DString("solid TRUE\n");
 
 	//Schreibt die Polygon Koordinaten, ein Wuerfel wird so ausgegeben: 
 	//			-100 -100 -100, #0 links unten hinten
@@ -63,8 +63,7 @@ void WriteGeometricObjects(VRMLSAVE &vrml, Matrix up, VRMLmgmt *dataMgmt)
 		//Ortsvektoren werden ausgegeben //a,b,c jeweils Ortsvektor fuer eine Ecke des Polygon
 		if(i==0)vrml.noIndent(); //Kein Einschub
 		vrml.writeC4DString(String::FloatToString(dataMgmt->getPadr()[i].z) +" " +String::FloatToString(dataMgmt->getPadr()[i].y) +" " +String::FloatToString(dataMgmt->getPadr()[i].x) +", ");
-		//So wäre es richtig für Normalen und UV Koordinaten! 
-	//	vrml.writeC4DString(String::FloatToString(dataMgmt->getPadr()[i].x) +" " +String::FloatToString(dataMgmt->getPadr()[i].y) +" " +String::FloatToString(dataMgmt->getPadr()[i].z) +", ");
+		//vrml.writeC4DString(String::FloatToString(dataMgmt->getPadr()[i].x) +" " +String::FloatToString(dataMgmt->getPadr()[i].y) +" " +String::FloatToString(dataMgmt->getPadr()[i].z) +", ");
 		vrml.noIndent(); //Kein Einschub
 		if ((i%pointInRow == 0) && i!=0){vrml.writeC4DString("\n");}
 	}
@@ -104,11 +103,13 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 		//a,b,c,d Vertices Liste wird ausgegeben
 		if(dataMgmt->getVadr()[i].c==dataMgmt->getVadr()[i].d)
 		{
-			vrml.writeC4DString(String::IntToString(dataMgmt->getVadr()[i].a) +", " +String::IntToString(dataMgmt->getVadr()[i].b) +", " +String::IntToString(dataMgmt->getVadr()[i].c) +", -1,\n");
+			//vrml.writeC4DString(String::IntToString(dataMgmt->getVadr()[i].a) + ", " + String::IntToString(dataMgmt->getVadr()[i].b) + ", " + String::IntToString(dataMgmt->getVadr()[i].c) + ", -1,\n");
+			vrml.writeC4DString(String::IntToString(dataMgmt->getVadr()[i].c) + ", " + String::IntToString(dataMgmt->getVadr()[i].b) + ", " + String::IntToString(dataMgmt->getVadr()[i].a) + ", -1,\n");
 		}
 		else
 		{
-			vrml.writeC4DString(String::IntToString(dataMgmt->getVadr()[i].a) +", " +String::IntToString(dataMgmt->getVadr()[i].b) +", " +String::IntToString(dataMgmt->getVadr()[i].c) +", " +String::IntToString(dataMgmt->getVadr()[i].d) +", -1,\n");
+			//vrml.writeC4DString(String::IntToString(dataMgmt->getVadr()[i].a) + ", " + String::IntToString(dataMgmt->getVadr()[i].b) + ", " + String::IntToString(dataMgmt->getVadr()[i].c) + ", " + String::IntToString(dataMgmt->getVadr()[i].d) + ", -1,\n");
+			vrml.writeC4DString(String::IntToString(dataMgmt->getVadr()[i].d) + ", " + String::IntToString(dataMgmt->getVadr()[i].c) + ", " + String::IntToString(dataMgmt->getVadr()[i].b) + ", " + String::IntToString(dataMgmt->getVadr()[i].a) + ", -1,\n");
 		}
 	}
 	vrml.writeC4DString("]\n");  
@@ -156,7 +157,8 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 					for (Int32 j=0; j<3; j++)
 					{
 						if(i==0)vrml.noIndent(); //Kein Einschub
-						vrml.writeC4DString(String::FloatToString(phongNormal[punktnummer].z) +" " +String::FloatToString(phongNormal[punktnummer].y) +" " +String::FloatToString(phongNormal[punktnummer].x) +", ");
+						vrml.writeC4DString(String::FloatToString(phongNormal[punktnummer].z) + " " + String::FloatToString(phongNormal[punktnummer].y) + " " + String::FloatToString(phongNormal[punktnummer].x) + ", ");
+						//vrml.writeC4DString(String::FloatToString(phongNormal[punktnummer].x) + " " + String::FloatToString(phongNormal[punktnummer].y) + " " + String::FloatToString(phongNormal[punktnummer].z) + ", ");
 						vrml.noIndent(); //Kein Einschub
 						punktnummer++;
 					}
@@ -168,7 +170,8 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 					for (Int32 j=0; j<4; j++)
 					{
 						if(i==0)vrml.noIndent(); //Kein Einschub
-						vrml.writeC4DString(String::FloatToString(phongNormal[punktnummer].z) +" " +String::FloatToString(phongNormal[punktnummer].y) +" " +String::FloatToString(phongNormal[punktnummer].x) +", ");
+						//vrml.writeC4DString(String::FloatToString(phongNormal[punktnummer].x) + " " + String::FloatToString(phongNormal[punktnummer].y) + " " + String::FloatToString(phongNormal[punktnummer].z) + ", ");
+						vrml.writeC4DString(String::FloatToString(phongNormal[punktnummer].z) + " " + String::FloatToString(phongNormal[punktnummer].y) + " " + String::FloatToString(phongNormal[punktnummer].x) + ", ");
 						vrml.noIndent(); //Kein Einschub
 						punktnummer++;
 					}
@@ -217,15 +220,22 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 			vrml.increaseLevel();
 			vrml.writeC4DString("point [ \n");
 
+			UVWStruct uvwKoord;
+			Int32 dataCount = uvwTag->GetDataCount();
+			ConstUVWHandle data = uvwTag->GetDataAddressR();
+			
+
 			for (i=0; i<dataMgmt->getVcnt(); i++)
 			{			 
-				//UVWStruct uvwKoord;
+				//
 				//uvwTag->Get(,i,uvwKoord);  //Int32 i, The index of the polygon to get the coordinates for.
 				
-		UVWStruct uvwKoord = uvwTag->GetSlow(i);
+		//UVWStruct uvwKoord = uvwTag->GetSlow(i);
+
+				UVWTag::Get(data, i, uvwKoord);
 				if(dataMgmt->getVadr()[i].c==dataMgmt->getVadr()[i].d)
 				{
-					//Vektoren spiegeln an der x -Achse
+					/*//Vektoren spiegeln an der x -Achse
 					Vector a = Vector(uvwKoord.a.x,uvwKoord.a.y,uvwKoord.a.z);
 					Vector b = Vector(uvwKoord.b.x,uvwKoord.b.y,uvwKoord.b.z);
 					Vector c = Vector(uvwKoord.c.x,uvwKoord.c.y,uvwKoord.c.z);
@@ -238,12 +248,12 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 					d = mirrorX * d;
 					
 					vrml.writeC4DString(String::FloatToString(a.x) +" " +String::FloatToString(a.y) +", " +String::FloatToString(b.x) +" " +String::FloatToString(b.y) +", " +String::FloatToString(c.x) +" " +String::FloatToString(c.y) +",\n");  //So gehts im Textur-Testfall mit Transformknoten, nicht aber für Speciosa.
-
-					//	vrml.writeC4DString(String::FloatToString(uvwKoord.a.x) +" " +String::FloatToString(uvwKoord.a.y) +", " +String::FloatToString(uvwKoord.b.x) +" " +String::FloatToString(uvwKoord.b.y) +", " +String::FloatToString(uvwKoord.c.x) +" " +String::FloatToString(uvwKoord.c.y) +",\n");  //So gehts im Textur-Testfall mit Transformknoten, nicht aber für Speciosa.					
+					*/
+					vrml.writeC4DString(String::FloatToString(uvwKoord.a.x) + " " + String::FloatToString(1 - uvwKoord.a.y) + ", " + String::FloatToString(uvwKoord.b.x) + " " + String::FloatToString(1 - uvwKoord.b.y) + ", " + String::FloatToString(uvwKoord.c.x) + " " + String::FloatToString(1 - uvwKoord.c.y) + ",\n");  //So gehts im Textur-Testfall mit Transformknoten, nicht aber für Speciosa.					
 				}
 				else
 				{
-					//Vektoren an der x-Achse Spiegeln
+					/*//Vektoren an der x-Achse Spiegeln
 					Vector a = Vector(uvwKoord.a.x,uvwKoord.a.y,uvwKoord.a.z);
 					Vector b = Vector(uvwKoord.b.x,uvwKoord.b.y,uvwKoord.b.z);
 					Vector c = Vector(uvwKoord.c.x,uvwKoord.c.y,uvwKoord.c.z);
@@ -257,8 +267,8 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 					d = mirrorX * d;
 						
 					vrml.writeC4DString(String::FloatToString(a.x) +" " +String::FloatToString(a.y) +", " +String::FloatToString(b.x) +" " +String::FloatToString(b.y) +", " +String::FloatToString(c.x) +" " +String::FloatToString(c.y) +", " +String::FloatToString(d.x) +" " +String::FloatToString(d.y) +",\n");
-					
-					//vrml.writeC4DString(String::FloatToString(uvwKoord.a.x) +" " +String::FloatToString(uvwKoord.a.y) +", " +String::FloatToString(uvwKoord.b.x) +" " +String::FloatToString(uvwKoord.b.y) +", " +String::FloatToString(uvwKoord.c.x) +" " +String::FloatToString(uvwKoord.c.y) +", " +String::FloatToString(uvwKoord.d.x) +" " +String::FloatToString(uvwKoord.d.y) +",\n");
+					*/
+					vrml.writeC4DString(String::FloatToString(uvwKoord.a.x) + " " + String::FloatToString(1 - uvwKoord.a.y) + ", " + String::FloatToString(uvwKoord.b.x) + " " + String::FloatToString(1 - uvwKoord.b.y) + ", " + String::FloatToString(uvwKoord.c.x) + " " + String::FloatToString(1 - uvwKoord.c.y) + ", " + String::FloatToString(uvwKoord.d.x) + " " + String::FloatToString(1 - uvwKoord.d.y) + ",\n");
 				}
 			}
 			vrml.writeC4DString("] \n"); 
@@ -316,12 +326,14 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 		{	
 			if((dataMgmt->getVadr())[i].c==(dataMgmt->getVadr())[i].d)
 			{
-				vrml.writeC4DString(" "+String::IntToString(punktcnt) +", " +String::IntToString(punktcnt+1) +", " +String::IntToString(punktcnt+2) +", -1,\n ");
+				//vrml.writeC4DString(" " + String::IntToString(punktcnt) + ", " + String::IntToString(punktcnt + 1) + ", " + String::IntToString(punktcnt + 2) + ", -1,\n ");
+				vrml.writeC4DString(" " + String::IntToString(punktcnt+2) + ", " + String::IntToString(punktcnt + 1) + ", " + String::IntToString(punktcnt) + ", -1,\n ");
 				punktcnt+=3;
 			}
 			else
 			{
-				vrml.writeC4DString(" "+String::IntToString(punktcnt) +", " +String::IntToString(punktcnt+1) +", " +String::IntToString(punktcnt+2) +", " +String::IntToString(punktcnt+3) +", -1,\n ");
+				//vrml.writeC4DString(" " + String::IntToString(punktcnt) + ", " + String::IntToString(punktcnt + 1) + ", " + String::IntToString(punktcnt + 2) + ", " + String::IntToString(punktcnt + 3) + ", -1,\n ");
+				vrml.writeC4DString(" " + String::IntToString(punktcnt+3) + ", " + String::IntToString(punktcnt + 2) + ", " + String::IntToString(punktcnt + 1) + ", " + String::IntToString(punktcnt) + ", -1,\n ");
 				punktcnt+=4;
 			}
 		}
@@ -361,12 +373,14 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 			{			 
 				if((dataMgmt->getVadr())[i].c==(dataMgmt->getVadr())[i].d)
 				{
-					vrml.writeC4DString(String::IntToString(punktCnt+0) +", " +String::IntToString(punktCnt+1) +", " +String::IntToString(punktCnt+2) +", -1,\n");
+					//vrml.writeC4DString(String::IntToString(punktCnt + 0) + ", " + String::IntToString(punktCnt + 1) + ", " + String::IntToString(punktCnt + 2) + ", -1,\n");
+					vrml.writeC4DString(String::IntToString(punktCnt + 2) + ", " + String::IntToString(punktCnt + 1) + ", " + String::IntToString(punktCnt + 0) + ", -1,\n");
 					punktCnt+=3;
 				}
 				else
 				{
-					vrml.writeC4DString(String::IntToString(punktCnt+0) +", " +String::IntToString(punktCnt+1) +", " +String::IntToString(punktCnt+2) +", " +String::IntToString(punktCnt+3) +", -1,\n");
+					//vrml.writeC4DString(String::IntToString(punktCnt + 0) + ", " + String::IntToString(punktCnt + 1) + ", " + String::IntToString(punktCnt + 2) + ", " + String::IntToString(punktCnt + 3) + ", -1,\n");
+					vrml.writeC4DString(String::IntToString(punktCnt + 3) + ", " + String::IntToString(punktCnt + 2) + ", " + String::IntToString(punktCnt + 1) + ", " + String::IntToString(punktCnt + 0) + ", -1,\n");
 					punktCnt+=4;
 				}
 			}
@@ -401,7 +415,8 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 	Vector TransparencyColor;
 	Float TransparencyBrightnes= 0;
 	//Specular Channel
-	Float SpecularWidth= 0;
+	Float SpecularWidth = 0;
+	Float SpecularHeight = 0;
 
 	//Sonstiges: 
 	Float shininess= 0;
@@ -465,7 +480,8 @@ void WriteCoordinateIndex(VRMLSAVE &vrml,VRMLmgmt* dataMgmt)
 								break;
 
 							case CHANNEL_SPECULAR: //The specular channel of the material.
-								SpecularWidth = bc->GetFloat(MATERIAL_SPECULAR_WIDTH,0);
+								SpecularWidth = bc->GetFloat(MATERIAL_SPECULAR_WIDTH, 0);
+								SpecularHeight = bc->GetFloat(MATERIAL_SPECULAR_HEIGHT, 0);
 								//MATERIAL_SPECULAR_MODE
 								//MATERIAL_SPECULAR_WIDTH
 								//MATERIAL_SPECULAR_HEIGHT

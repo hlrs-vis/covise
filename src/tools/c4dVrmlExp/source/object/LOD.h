@@ -1,7 +1,7 @@
 #ifndef VRML_EXPLOD_H
 #define VRML_EXPLOD_H
 
-#include "VRMLexp.h"
+#include "../scenesaver/VRMLexp.h"
 #include "olevelofdetail.h"
 
 //Fuers Tag-Plugin

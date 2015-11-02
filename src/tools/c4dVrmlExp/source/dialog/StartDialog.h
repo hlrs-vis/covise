@@ -1,6 +1,6 @@
 #ifndef VRML_DIALOG_H
 #define VRML_DIALOG_H
-#include "VRMLexp.h"
+#include "../scenesaver/VRMLexp.h"
 #include "c4d_symbols.h"
 
 ///Zustaendig fuer den StartDialog. Abgeleitet von ModalDialog

@@ -1,7 +1,7 @@
 #ifndef VRML_EXP_WRITEGEOM_H
 #define VRML_EXP_WRITEGEOM_H
 
-#include "VRMLexp.h"
+#include "../scenesaver/VRMLexp.h"
 
 
  void WriteGeometricObjects(class VRMLSAVE &vrml, Matrix up,class VRMLmgmt *dataMgmt);  //Exportiert geometrische Objekten 

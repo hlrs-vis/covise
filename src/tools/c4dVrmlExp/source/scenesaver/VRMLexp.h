@@ -24,18 +24,18 @@
 #include "c4d_symbols.h"
 
 //Fuers LOD - Objekt
-#include "LOD.h"
+#include "../object/LOD.h"
 //Fuers NavigationInfo - Objekt
-#include "NavigationInfo.h"
+#include "../object/NavigationInfo.h"
 
 //Fuer den Dialog
-#include "StartDialog.h"
-#include "ConfirmTextureCopy.h"
+#include "../dialog/StartDialog.h"
+#include "../dialog/ConfirmTextureCopy.h"
 
 //Fuer die WriteElements Methoden (Hier später alle zusätzlichen WriteElement Methode inkludieren)
-#include "WriteGeometry.h"
-#include "WriteAnimation.h"
-#include "WriteCamera.h"
+#include "../WriteElements/WriteGeometry.h"
+#include "../WriteElements/WriteAnimation.h"
+#include "../WriteElements/WriteCamera.h"
 
 
 

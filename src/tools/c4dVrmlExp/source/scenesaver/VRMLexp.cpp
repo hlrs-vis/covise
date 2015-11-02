@@ -316,11 +316,12 @@ void GetCopyPaths(VRMLSAVE &vrml)
 	while(bc.GetNext(&id, &dat)) 
 	{ 
 		Filename fn = dat->GetFilename();
-		String bitmapDirectory = fn.GetString() ;
-		Int32 bitmapDirectoryLength = bitmapDirectory.GetLength();
+		Filename bitmapDirectory = fn.GetDirectory();
+		Int32 bitmapDirectoryLength = bitmapDirectory.GetString().GetLength();
 		String bitmapFileName = fn.GetFileString();
 		Int32 bitmapFileNameLength = bitmapFileName.GetLength();
-		bitmapDirectory.Delete((bitmapDirectoryLength-bitmapFileNameLength),bitmapDirectoryLength);
+		String bitmapDirectoryString = bitmapDirectory.GetString();
+		//bitmapDirectoryString.Delete((bitmapDirectoryLength - bitmapFileNameLength), bitmapDirectoryLength);
 		String out = vrml.getFolderName();
 		Int32 outLength = out.GetLength();
 		out.Delete(outLength-vrml.getFileName().GetLength(),outLength);
@@ -328,7 +329,7 @@ void GetCopyPaths(VRMLSAVE &vrml)
 
 		//Falls der Pfad nicht geladen wurde schau in den SearchPaths
 		//und anschliessend im /tex/ Pfad des Dokumentenpfads nach
-		if(bitmapDirectory.GetLength()==0)
+		if (bitmapDirectoryString.GetLength() == 0)
 		{
 			Filename documentPath = vrml.getDoc()->GetDocumentPath();
 			Filename temp = NULL ;
@@ -341,8 +342,8 @@ void GetCopyPaths(VRMLSAVE &vrml)
 
 					if(GenerateTexturePath(documentPath,bitmapFileName,searchPath.GetString(),&temp))
 					{
-						bitmapDirectory = temp.GetString();
-						bitmapDirectory.Delete(temp.GetString().GetLength()-bitmapFileNameLength,temp.GetString().GetLength());
+						bitmapDirectoryString = temp.GetString();
+						bitmapDirectoryString.Delete(temp.GetString().GetLength() - bitmapFileNameLength, temp.GetString().GetLength());
 						break;
 					}
 				}
@@ -356,7 +357,7 @@ void GetCopyPaths(VRMLSAVE &vrml)
 				}
 			}
 		}
-		Bool check = CopyTextures(vrml, bitmapDirectory, bitmapFileName, out) ;
+		Bool check = CopyTextures(vrml, bitmapDirectoryString, bitmapFileName, out);
 	} //END while
 	//vrml.getStartDialog()->setDLGTextureCopy(FALSE);
 } //END if(vrml.getDLGTextureCopy())
@@ -493,7 +494,18 @@ Bool CopyTextures(VRMLSAVE &vrml, String bitmapDirectory, String bitmapFileName,
 				/*    progressText = TSTR("copying ") + bitmapFile + TSTR(" to ") + destFile; 
 				SendMessage(hWndPDlg, 666, 0,	(LPARAM) (char *)progressText);*/
 			}
-			CopyFile(bitmapFile, destFile, FALSE);
+			int lenA = lstrlenA(bitmapFile);
+			int lenW = ::MultiByteToWideChar(CP_ACP, 0, bitmapFile, -1, NULL, 0);
+			int lenAd = lstrlenA(destFile);
+			int lenWd = ::MultiByteToWideChar(CP_ACP, 0, destFile, -1, NULL, 0);
+			if (lenW>0&&lenWd>0)
+			{
+				wchar_t *wBitmapFile = new wchar_t[lenW];
+				::MultiByteToWideChar(CP_ACP, 0, bitmapFile, -1, wBitmapFile, lenW);
+				wchar_t *wDestFile = new wchar_t[lenW];
+				::MultiByteToWideChar(CP_ACP, 0, destFile, -1, wDestFile, lenWd);
+				CopyFile(wBitmapFile, wDestFile, FALSE);
+			}
 		}
 		else if(copyFromDest)
 		{
@@ -502,7 +514,18 @@ Bool CopyTextures(VRMLSAVE &vrml, String bitmapDirectory, String bitmapFileName,
 				/*  progressText = TSTR("copying ") + destFile + TSTR(" to ") + bitmapFile; 
 				SendMessage(hWndPDlg, 666, 0,	(LPARAM) (char *)progressText);*/
 			}
-			CopyFile(destFile, bitmapFile, FALSE);
+			int lenA = lstrlenA(bitmapFile);
+			int lenW = ::MultiByteToWideChar(CP_ACP, 0, bitmapFile, -1, NULL, 0);
+			int lenAd = lstrlenA(destFile);
+			int lenWd = ::MultiByteToWideChar(CP_ACP, 0, destFile, -1, NULL, 0);
+			if (lenW>0 && lenWd>0)
+			{
+				wchar_t *wBitmapFile = new wchar_t[lenW];
+				::MultiByteToWideChar(CP_ACP, 0, bitmapFile, -1, wBitmapFile, lenW);
+				wchar_t *wDestFile = new wchar_t[lenW];
+				::MultiByteToWideChar(CP_ACP, 0, destFile, -1, wDestFile, lenWd);
+				CopyFile(wDestFile, wBitmapFile, FALSE);
+			}
 		}
 		DeleteMem(destDir);
 		DeleteMem(bitmapFile);
@@ -519,15 +542,22 @@ Bool CopyTextures(VRMLSAVE &vrml, String bitmapDirectory, String bitmapFileName,
 #define CTL_CHARS      31
 String VRMLName(String nameIN)
 {
-	CHAR* name = new CHAR[nameIN.GetCStringLen()+1];
+	char* name = new char[nameIN.GetCStringLen() + 1];
 	nameIN.GetCString(name, nameIN.GetCStringLen()+1,STRINGENCODING_XBIT);	//Hier vielleicht noch ne andere Formatierung
 
-	static char buffer[256];
-	TCHAR* cPtr;
-	Int32 firstCharacter = 1;
+	char * cPtr;
 
-	_tcscpy(buffer, name);
-	cPtr = buffer;
+	cPtr = name;
+	if (*cPtr >= '0' && *cPtr <= '9')
+	{
+		char* name2 = new char[nameIN.GetCStringLen() + 1];
+		name2[0] = '_';
+		strcpy(name2 + 1, name);
+		cPtr = name2;
+		delete[] name;
+		name = name2;
+
+	}
 	while(*cPtr) {
 		if( *cPtr <= CTL_CHARS ||
 			*cPtr == ' ' ||
@@ -542,13 +572,13 @@ String VRMLName(String nameIN)
 			*cPtr == ']' ||
 			*cPtr == '.' ||
 			*cPtr == '#' ||
-			*cPtr >= 127 ||
-			(firstCharacter && (*cPtr >= '0' && *cPtr <= '9'))) *cPtr = '_';
-		firstCharacter = 0;
+			*cPtr >= 127
+			) *cPtr = '_';
 		cPtr++;
 	}
+	String n(name);
 	delete[] name;
-	return String(buffer);
+	return n;
 }
 
 

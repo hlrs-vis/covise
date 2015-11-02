@@ -11,7 +11,7 @@
 #ifndef VRML_EXP_WRITEANI_H
 #define VRML_EXP_WRITEANI_H
 
-#include "VRMLexp.h"
+#include "../scenesaver/VRMLexp.h"
 
 
 void WriteAnimation(VRMLSAVE &vrml, BaseDocument *doc, BaseObject *op, Bool parentEditorMode, Bool parentRenderMode, Bool timeSensorWritten);	//Schreibt die Animation raus und ruft die dazugehörigen Methoden auf
