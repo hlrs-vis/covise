@@ -400,7 +400,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         lastNode = node;
         this->fileFBMap.erase(key);
         
-        VRViewer::instance()->forceCompile();
+        //VRViewer::instance()->Compile();
         return node;
     }
 
@@ -409,7 +409,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         delete[] adjustedFileName;
     }
-    VRViewer::instance()->forceCompile();
+    //VRViewer::instance()->forceCompile();
     return NULL;
 }
 

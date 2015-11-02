@@ -595,6 +595,8 @@ void OpenCOVER::init()
     beginAppTraversal = VRViewer::instance()->elapsedTime();
 
     coVRShaderList::instance()->init();
+
+    VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
 }
 
 bool OpenCOVER::initDone()
