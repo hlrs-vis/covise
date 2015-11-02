@@ -3083,8 +3083,13 @@ void ViewerOsg::setModesByName(const char *objectName)
                                 renderImplementation = osg::Camera::PIXEL_BUFFER_RTT;
                             if (strcasecmp(buf.c_str(), "fb") == 0)
                                 renderImplementation = osg::Camera::FRAME_BUFFER;
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
+                            if (strcasecmp(buf.c_str(), "window") == 0)
+                                renderImplementation = osg::Camera::SEPARATE_WINDOW;
+#else
                             if (strcasecmp(buf.c_str(), "window") == 0)
                                 renderImplementation = osg::Camera::SEPERATE_WINDOW;
+#endif
                         }
 
                         osg::Texture *texture = NULL;
