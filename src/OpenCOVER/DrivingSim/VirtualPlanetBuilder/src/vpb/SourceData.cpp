@@ -162,7 +162,7 @@ float SourceData::getInterpolatedValue(GDALRasterBand *band, double x, double y,
                 }
             }
         }
-        else
+        if (currentRoad==NULL)
         {
             // left road searching for the next road over all roads in the system
             v_c = RoadSystem::Instance()->searchPosition(v_w, currentRoad, currentLongPos);
