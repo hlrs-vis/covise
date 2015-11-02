@@ -106,6 +106,8 @@ private:
     void init();
 
     Signal *signal_;
+	RSystemElementRoad *road_;
+
     QPointF pos_;
     double size_;
     double halfsize_;
@@ -116,6 +118,8 @@ private:
     double scale_;
 
     QPointF pressPos_;
+	QPointF lastPos_;
+	bool doPan_;
 
     SignalTextItem *signalTextItem_;
 
