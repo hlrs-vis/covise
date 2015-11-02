@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
-
 /* -*-c++-*- VirtualPlanetBuilder - Copyright (C) 1998-2009 Robert Osfield
  *
  * This library is open source and may be redistributed and/or modified under
@@ -44,43 +37,43 @@ TaskManager::TaskManager()
     _buildName = "build";
 
     char str[2048];
-    _runPath = vpb::getCurrentWorkingDirectory(str, sizeof(str));
+    _runPath = vpb::getCurrentWorkingDirectory( str, sizeof(str));
 
     _defaultSignalAction = COMPLETE_RUNNING_TASKS_THEN_EXIT;
 }
 
 TaskManager::~TaskManager()
 {
-    log(osg::INFO, "TaskManager::~TaskManager()");
+    log(osg::INFO,"TaskManager::~TaskManager()");
 }
 
-void TaskManager::setBuildLog(BuildLog *bl)
+void TaskManager::setBuildLog(BuildLog* bl)
 {
     Logger::setBuildLog(bl);
 
-    if (getMachinePool())
-        getMachinePool()->setBuildLog(bl);
+    if (getMachinePool()) getMachinePool()->setBuildLog(bl);
 }
 
-void TaskManager::setRunPath(const std::string &runPath)
+
+void TaskManager::setRunPath(const std::string& runPath)
 {
     _runPath = runPath;
     chdir(_runPath.c_str());
 
-    log(osg::NOTICE, "setRunPath = %s", _runPath.c_str());
+    log(osg::NOTICE,"setRunPath = %s",_runPath.c_str());
 }
 
-MachinePool *TaskManager::getMachinePool()
+MachinePool* TaskManager::getMachinePool()
 {
     return System::instance()->getMachinePool();
 }
 
-const MachinePool *TaskManager::getMachinePool() const
+const MachinePool* TaskManager::getMachinePool() const
 {
     return System::instance()->getMachinePool();
 }
 
-void TaskManager::readPatchSetUp(const std::string &patchFile)
+void TaskManager::readPatchSetUp(const std::string& patchFile)
 {
     bool firstTimeBuild = false;
     std::string originalSourceFile;
@@ -88,7 +81,7 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
     std::string extension = osgDB::getFileExtension(patchFile);
     std::string filename = osgDB::getSimpleFileName(patchFile);
     std::string basename = osgDB::getNameLessExtension(filename);
-    if (extension == "source")
+    if (extension=="source")
     {
         originalSourceFile = patchFile;
 
@@ -99,14 +92,13 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
         if (!extension.empty())
         {
             unsigned int i;
-            for (i = 0; i < extension.size(); ++i)
+            for(i=0; i<extension.size(); ++i)
             {
                 char c = extension[i];
-                if (c < '0' || c > '9')
-                    break;
+                if (c<'0' || c>'9') break;
             }
 
-            bool isNumeric = i == extension.size();
+            bool isNumeric = i==extension.size();
             //int revisionNum = -1;
             if (isNumeric)
             {
@@ -121,24 +113,24 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
         if (checkSourceFileDirectly)
         {
             osg::ref_ptr<osgTerrain::TerrainTile> terrainTile = readSourceFile(patchFile);
-            vpb::DatabaseBuilder *db = dynamic_cast<vpb::DatabaseBuilder *>(terrainTile->getTerrainTechnique());
-            vpb::BuildOptions *bo = db ? db->getBuildOptions() : 0;
+            vpb::DatabaseBuilder* db = dynamic_cast<vpb::DatabaseBuilder*>(terrainTile->getTerrainTechnique());
+            vpb::BuildOptions* bo = db ? db->getBuildOptions() : 0;
             if (bo)
             {
                 path = bo->getDirectory();
                 filename = bo->getDestinationTileBaseName();
                 basename = filename;
-                extension = bo->getDestinationTileExtension();
+                extension =  bo->getDestinationTileExtension();
 
-                osg::notify(osg::NOTICE) << "   path " << path << std::endl;
-                osg::notify(osg::NOTICE) << "   filename " << filename << std::endl;
-                osg::notify(osg::NOTICE) << "   extension " << extension << std::endl;
+                osg::notify(osg::NOTICE)<<"   path "<<path<<std::endl;
+                osg::notify(osg::NOTICE)<<"   filename "<<filename<<std::endl;
+                osg::notify(osg::NOTICE)<<"   extension "<<extension<<std::endl;
 
                 std::string rootTile = path + basename + extension;
 
                 // check to see if database has already been built.
                 osgDB::FileType type = osgDB::fileType(rootTile);
-                if (type != osgDB::REGULAR_FILE)
+                if (type!=osgDB::REGULAR_FILE)
                 {
                     firstTimeBuild = true;
                 }
@@ -154,29 +146,28 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
     SourceMap sourceMap;
 
     osgDB::DirectoryContents directoryContents = osgDB::getDirectoryContents(path);
-    for (osgDB::DirectoryContents::iterator itr = directoryContents.begin();
-         itr != directoryContents.end();
-         ++itr)
+    for(osgDB::DirectoryContents::iterator itr = directoryContents.begin();
+        itr != directoryContents.end();
+        ++itr)
     {
         std::string file = *itr;
 
-        if (file.size() >= basename.size() && file.compare(0, basename.size(), basename) == 0)
+        if (file.size()>=basename.size() && file.compare(0, basename.size(), basename)==0)
         {
-            if (osgDB::getFileExtension(file) == "source")
+            if (osgDB::getFileExtension(file)=="source")
             {
                 std::string nameLessSourceExtension = osgDB::getNameLessExtension(file);
                 std::string revisionExtension = osgDB::getFileExtension(nameLessSourceExtension);
                 if (!revisionExtension.empty())
                 {
                     unsigned int i;
-                    for (i = 0; i < revisionExtension.size(); ++i)
+                    for(i=0; i<revisionExtension.size(); ++i)
                     {
                         char c = revisionExtension[i];
-                        if (c < '0' || c > '9')
-                            break;
+                        if (c<'0' || c>'9') break;
                     }
 
-                    bool isNumeric = i == revisionExtension.size();
+                    bool isNumeric = i==revisionExtension.size();
                     int revisionNum = -1;
                     if (isNumeric)
                     {
@@ -207,15 +198,16 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
                     throw std::string("Error: Unable to read source file ") + originalSourceFile;
                 }
 
-                vpb::DatabaseBuilder *db = dynamic_cast<vpb::DatabaseBuilder *>(_previousTerrainTile->getTerrainTechnique());
-                vpb::BuildOptions *bo = db ? db->getBuildOptions() : 0;
+                vpb::DatabaseBuilder* db = dynamic_cast<vpb::DatabaseBuilder*>(_previousTerrainTile->getTerrainTechnique());
+                vpb::BuildOptions* bo = db ? db->getBuildOptions() : 0;
                 unsigned int lastRevisionNum = bo ? bo->getRevisionNumber() : 0;
-                unsigned int newRevisionNum = lastRevisionNum + 1;
+                unsigned int newRevisionNum = lastRevisionNum+1;
 
                 readSource(originalSourceFile);
 
                 getBuildOptions()->setRevisionNumber(newRevisionNum);
             }
+
         }
         else
         {
@@ -227,7 +219,7 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
         int lastRevisionNum = sourceMap.rbegin()->first;
         std::string previousSourceFile = osgDB::concatPaths(path, sourceMap.rbegin()->second);
 
-        int newRevisionNum = lastRevisionNum + 1;
+        int newRevisionNum = lastRevisionNum+1;
 
         readPreviousSource(previousSourceFile);
         readSource(previousSourceFile);
@@ -236,46 +228,43 @@ void TaskManager::readPatchSetUp(const std::string &patchFile)
     }
 }
 
-int TaskManager::read(osg::ArgumentParser &arguments)
+
+int TaskManager::read(osg::ArgumentParser& arguments)
 {
     std::string patchFile;
-    while (arguments.read("--patch", patchFile))
+    while (arguments.read("--patch",patchFile))
     {
-        osg::notify(osg::NOTICE) << "--patch " << patchFile << std::endl;
+        osg::notify(osg::NOTICE)<<"--patch "<<patchFile<<std::endl;
         readPatchSetUp(patchFile);
     }
 
     std::string logFileName;
-    while (arguments.read("--master-log", logFileName))
+    while (arguments.read("--master-log",logFileName))
     {
-        BuildLog *bl = new BuildLog(logFileName);
+        BuildLog* bl = new BuildLog(logFileName);
         setBuildLog(bl);
         pushOperationLog(bl);
     }
 
     std::string sourceName;
-    while (arguments.read("-s", sourceName))
+    while (arguments.read("-s",sourceName))
     {
         readSource(sourceName);
     }
 
-    if (!_terrainTile)
-        _terrainTile = new osgTerrain::TerrainTile;
+    if (!_terrainTile) _terrainTile = new osgTerrain::TerrainTile;
 
     std::string terrainOutputName;
-    while (arguments.read("--so", terrainOutputName))
-    {
-    }
+    while (arguments.read("--so",terrainOutputName)) {}
+
 
     Commandline commandlineParser;
 
-    int result = commandlineParser.read(std::cout, arguments, _terrainTile.get());
-    if (result)
-        return result;
 
-    while (arguments.read("--build-name", _buildName))
-    {
-    }
+    int result = commandlineParser.read(std::cout, arguments, _terrainTile.get());
+    if (result) return result;
+
+    while (arguments.read("--build-name",_buildName)) {}
 
     if (!terrainOutputName.empty())
     {
@@ -288,14 +277,12 @@ int TaskManager::read(osg::ArgumentParser &arguments)
         }
         else
         {
-            log(osg::NOTICE, "Error: unable to create terrain output \"%s\"", terrainOutputName.c_str());
+            log(osg::NOTICE,"Error: unable to create terrain output \"%s\"",terrainOutputName.c_str());
         }
     }
 
     std::string taskSetFileName;
-    while (arguments.read("--tasks", taskSetFileName))
-    {
-    }
+    while (arguments.read("--tasks",taskSetFileName)) {}
 
     if (!taskSetFileName.empty())
     {
@@ -310,22 +297,22 @@ int TaskManager::read(osg::ArgumentParser &arguments)
     return 0;
 }
 
-void TaskManager::setSource(osgTerrain::TerrainTile *terrainTile)
+void TaskManager::setSource(osgTerrain::TerrainTile* terrainTile)
 {
     _terrainTile = terrainTile;
 }
 
-osgTerrain::TerrainTile *TaskManager::getSource()
+osgTerrain::TerrainTile* TaskManager::getSource()
 {
     return _terrainTile.get();
 }
 
-void TaskManager::setPreviousSource(osgTerrain::TerrainTile *terrainTile)
+void TaskManager::setPreviousSource(osgTerrain::TerrainTile* terrainTile)
 {
     _previousTerrainTile = terrainTile;
 }
 
-osgTerrain::TerrainTile *TaskManager::getPreviousSource()
+osgTerrain::TerrainTile* TaskManager::getPreviousSource()
 {
     return _previousTerrainTile.get();
 }
@@ -333,32 +320,30 @@ osgTerrain::TerrainTile *TaskManager::getPreviousSource()
 void TaskManager::nextTaskSet()
 {
     // don't need to add a new task set if last task set is still empty.
-    if (!_taskSetList.empty() && _taskSetList.back().empty())
-        return;
+    if (!_taskSetList.empty() && _taskSetList.back().empty()) return;
 
     _taskSetList.push_back(TaskSet());
 }
 
-void TaskManager::addTask(Task *task)
+void TaskManager::addTask(Task* task)
 {
-    if (!task)
-        return;
+    if (!task) return;
 
-    if (_taskSetList.empty())
-        _taskSetList.push_back(TaskSet());
+    if (_taskSetList.empty()) _taskSetList.push_back(TaskSet());
     _taskSetList.back().push_back(task);
+
 }
 
-void TaskManager::addTask(const std::string &taskFileName, const std::string &application, const std::string &sourceFile,
-                          const std::string &fileListBaseName)
+void TaskManager::addTask(const std::string& taskFileName, const std::string& application, const std::string& sourceFile,
+                          const std::string& fileListBaseName)
 {
     osg::ref_ptr<Task> taskFile = new Task(taskFileName);
 
     if (taskFile->valid())
     {
-        taskFile->setProperty("application", application);
-        taskFile->setProperty("source", sourceFile);
-        taskFile->setProperty("fileListBaseName", fileListBaseName);
+        taskFile->setProperty("application",application);
+        taskFile->setProperty("source",sourceFile);
+        taskFile->setProperty("fileListBaseName",fileListBaseName);
 
         taskFile->write();
 
@@ -380,8 +365,8 @@ void TaskManager::buildWithoutSlaves()
         {
             osg::ref_ptr<vpb::DataSet> dataset = new vpb::DataSet;
 
-            vpb::DatabaseBuilder *db = dynamic_cast<vpb::DatabaseBuilder *>(_terrainTile->getTerrainTechnique());
-            vpb::BuildOptions *bo = db ? db->getBuildOptions() : 0;
+            vpb::DatabaseBuilder* db = dynamic_cast<vpb::DatabaseBuilder*>(_terrainTile->getTerrainTechnique());
+            vpb::BuildOptions* bo = db ? db->getBuildOptions() : 0;
 
             if (bo && !(bo->getLogFileName().empty()))
             {
@@ -397,31 +382,32 @@ void TaskManager::buildWithoutSlaves()
 
             int result = dataset->run();
 
-            log(osg::NOTICE, "dataset->run() completed, return value %d", result);
+            log(osg::NOTICE,"dataset->run() completed, return value %d",result);
 
             if (dataset->getBuildLog())
             {
                 dataset->getBuildLog()->report(std::cout);
             }
+
         }
-        catch (...)
+        catch(...)
         {
             printf("Caught exception.\n");
         }
+
     }
 }
 
 bool TaskManager::generateTasksFromSource()
 {
-    if (!_terrainTile)
-        return false;
+    if (!_terrainTile) return false;
     try
     {
 
         osg::ref_ptr<vpb::DataSet> dataset = new vpb::DataSet;
 
-        vpb::DatabaseBuilder *db = dynamic_cast<vpb::DatabaseBuilder *>(_terrainTile->getTerrainTechnique());
-        vpb::BuildOptions *bo = db ? db->getBuildOptions() : 0;
+        vpb::DatabaseBuilder* db = dynamic_cast<vpb::DatabaseBuilder*>(_terrainTile->getTerrainTechnique());
+        vpb::BuildOptions* bo = db ? db->getBuildOptions() : 0;
 
         if (getBuildLog())
         {
@@ -432,6 +418,7 @@ bool TaskManager::generateTasksFromSource()
             dataset->setBuildLog(new vpb::BuildLog(bo->getLogFileName()));
         }
 
+
         if (_taskFile.valid())
         {
             dataset->setTask(_taskFile.get());
@@ -440,9 +427,9 @@ bool TaskManager::generateTasksFromSource()
         if (_previousTerrainTile.valid())
         {
             unsigned int numberAlteredSources = dataset->addPatchedTerrain(_previousTerrainTile.get(), _terrainTile.get());
-            if (numberAlteredSources == 0)
+            if (numberAlteredSources==0)
             {
-                dataset->log(osg::NOTICE, "No new, modified or removed sources in patch, so no need to patch database.");
+                dataset->log(osg::NOTICE,"No new, modified or removed sources in patch, so no need to patch database.");
                 return false;
             }
         }
@@ -453,7 +440,7 @@ bool TaskManager::generateTasksFromSource()
 
         if (dataset->requiresReprojection())
         {
-            dataset->log(osg::NOTICE, "Error: vpbmaster can not run without all source data being in the correct destination coordinates system, please reproject them.");
+            dataset->log(osg::NOTICE,"Error: vpbmaster can not run without all source data being in the correct destination coordinates system, please reproject them.");
             return false;
         }
 
@@ -469,7 +456,7 @@ bool TaskManager::generateTasksFromSource()
             dataset->getBuildLog()->report(std::cout);
         }
     }
-    catch (...)
+    catch(...)
     {
         printf("Caught exception.\n");
         return false;
@@ -479,7 +466,7 @@ bool TaskManager::generateTasksFromSource()
 
 bool TaskManager::run()
 {
-    log(osg::NOTICE, "Begining run");
+    log(osg::NOTICE,"Begining run");
 
     if (getBuildOptions() && getBuildOptions()->getAbortRunOnError())
     {
@@ -491,10 +478,13 @@ bool TaskManager::run()
     std::string revisionsFileName;
     if (getBuildOptions())
     {
-        revisionsFileName = getBuildOptions()->getDirectory() + getBuildOptions()->getDestinationTileBaseName() + getBuildOptions()->getDestinationTileExtension() + std::string(".revisions");
+        revisionsFileName = getBuildOptions()->getDirectory() +
+                            getBuildOptions()->getDestinationTileBaseName() +
+                            getBuildOptions()->getDestinationTileExtension() + std::string(".revisions");
+
 
         osg::ref_ptr<osg::Object> object = osgDB::readObjectFile(revisionsFileName);
-        osg::ref_ptr<osgDB::DatabaseRevisions> dr = dynamic_cast<osgDB::DatabaseRevisions *>(object.get());
+        osg::ref_ptr<osgDB::DatabaseRevisions> dr = dynamic_cast<osgDB::DatabaseRevisions*>(object.get());
 
         if (!dr)
         {
@@ -505,45 +495,48 @@ bool TaskManager::run()
         setDatabaseRevisions(dr.get());
     }
 
-    for (TaskSetList::iterator tsItr = _taskSetList.begin();
-         tsItr != _taskSetList.end() && !done();)
+
+    for(TaskSetList::iterator tsItr = _taskSetList.begin();
+        tsItr != _taskSetList.end() && !done();
+        )
     {
-        for (TaskSet::iterator itr = tsItr->begin();
-             itr != tsItr->end() && !done();
-             ++itr)
+        for(TaskSet::iterator itr = tsItr->begin();
+            itr != tsItr->end() && !done();
+            ++itr)
         {
-            Task *task = itr->get();
+            Task* task = itr->get();
             Task::Status status = task->getStatus();
-            switch (status)
+            switch(status)
             {
-            case (Task::RUNNING):
-            {
-                // do we check to see if this process is still running?
-                // do we kill this process?
-                log(osg::NOTICE, "Task claims still to be running: %s", task->getFileName().c_str());
-                break;
+                case(Task::RUNNING):
+                {
+                    // do we check to see if this process is still running?
+                    // do we kill this process?
+                    log(osg::NOTICE,"Task claims still to be running: %s",task->getFileName().c_str());
+                    break;
+                }
+                case(Task::COMPLETED):
+                {
+                    // task already completed so we can ignore it.
+                    log(osg::NOTICE,"Task claims to have been completed: %s",task->getFileName().c_str());
+                    break;
+                }
+                case(Task::FAILED):
+                {
+                    // run the task
+                    log(osg::NOTICE,"Task previously failed attempting re-run: %s",task->getFileName().c_str());
+                    getMachinePool()->run(task);
+                    break;
+                }
+                case(Task::PENDING):
+                {
+                    // run the task
+                    log(osg::NOTICE,"scheduling task : %s",task->getFileName().c_str());
+                    getMachinePool()->run(task);
+                    break;
+                }
             }
-            case (Task::COMPLETED):
-            {
-                // task already completed so we can ignore it.
-                log(osg::NOTICE, "Task claims to have been completed: %s", task->getFileName().c_str());
-                break;
-            }
-            case (Task::FAILED):
-            {
-                // run the task
-                log(osg::NOTICE, "Task previously failed attempting re-run: %s", task->getFileName().c_str());
-                getMachinePool()->run(task);
-                break;
-            }
-            case (Task::PENDING):
-            {
-                // run the task
-                log(osg::NOTICE, "scheduling task : %s", task->getFileName().c_str());
-                getMachinePool()->run(task);
-                break;
-            }
-            }
+
         }
 
         // now need to wait till all dispatched tasks are complete.
@@ -554,65 +547,68 @@ bool TaskManager::run()
         unsigned int tasksRunning = 0;
         unsigned int tasksCompleted = 0;
         unsigned int tasksFailed = 0;
-        for (TaskSet::iterator itr = tsItr->begin();
-             itr != tsItr->end();
-             ++itr)
+        for(TaskSet::iterator itr = tsItr->begin();
+            itr != tsItr->end();
+            ++itr)
         {
-            Task *task = itr->get();
+            Task* task = itr->get();
             Task::Status status = task->getStatus();
-            switch (status)
+            switch(status)
             {
-            case (Task::RUNNING):
-            {
-                ++tasksRunning;
-                break;
-            }
-            case (Task::COMPLETED):
-            {
-                ++tasksCompleted;
-                break;
-            }
-            case (Task::FAILED):
-            {
-                ++tasksFailed;
-                break;
-            }
-            case (Task::PENDING):
-            {
-                ++tasksPending;
-                break;
-            }
+                case(Task::RUNNING):
+                {
+                    ++tasksRunning;
+                    break;
+                }
+                case(Task::COMPLETED):
+                {
+                    ++tasksCompleted;
+                    break;
+                }
+                case(Task::FAILED):
+                {
+                    ++tasksFailed;
+                    break;
+                }
+                case(Task::PENDING):
+                {
+                    ++tasksPending;
+                    break;
+                }
             }
         }
-        log(osg::NOTICE, "End of TaskSet: tasksPending=%d taskCompleted=%d taskRunning=%d tasksFailed=%d", tasksPending, tasksCompleted, tasksRunning, tasksFailed);
+        log(osg::NOTICE,"End of TaskSet: tasksPending=%d taskCompleted=%d taskRunning=%d tasksFailed=%d",tasksPending,tasksCompleted,tasksRunning,tasksFailed);
 
         // if (tasksFailed != 0) break;
 
-        if (getBuildOptions() && getBuildOptions()->getAbortRunOnError() && tasksFailed > 0)
+        if (getBuildOptions() && getBuildOptions()->getAbortRunOnError() && tasksFailed>0)
         {
-            log(osg::NOTICE, "Task failed aborting.");
+            log(osg::NOTICE,"Task failed aborting.");
             break;
         }
 
-        if (getMachinePool()->getNumThreadsNotDone() == 0)
+
+        if (getMachinePool()->getNumThreadsNotDone()==0)
         {
-            while (getMachinePool()->getNumThreadsRunning() > 0)
+            while(getMachinePool()->getNumThreadsRunning()>0)
             {
-                log(osg::INFO, "TaskManager::run() - Waiting for threads to exit.");
+                log(osg::INFO,"TaskManager::run() - Waiting for threads to exit.");
                 OpenThreads::Thread::YieldCurrentThread();
             }
 
             break;
         }
 
-        if (tasksPending != 0 || tasksFailed != 0 || tasksRunning != 0)
+
+        if (tasksPending!=0 || tasksFailed!=0 || tasksRunning!=0)
         {
-            log(osg::NOTICE, "Continuing with existing TaskSet.");
+            log(osg::NOTICE,"Continuing with existing TaskSet.");
         }
         else
         {
             ++tsItr;
         }
+
     }
 
     // tally up the tasks to see how we've done overall
@@ -620,73 +616,72 @@ bool TaskManager::run()
     unsigned int tasksRunning = 0;
     unsigned int tasksCompleted = 0;
     unsigned int tasksFailed = 0;
-    for (TaskSetList::iterator tsItr = _taskSetList.begin();
-         tsItr != _taskSetList.end();
-         ++tsItr)
+    for(TaskSetList::iterator tsItr = _taskSetList.begin();
+        tsItr != _taskSetList.end();
+        ++tsItr)
     {
-        for (TaskSet::iterator itr = tsItr->begin();
-             itr != tsItr->end();
-             ++itr)
+        for(TaskSet::iterator itr = tsItr->begin();
+            itr != tsItr->end();
+            ++itr)
         {
-            Task *task = itr->get();
+            Task* task = itr->get();
             Task::Status status = task->getStatus();
-            switch (status)
+            switch(status)
             {
-            case (Task::RUNNING):
-            {
-                ++tasksPending;
-                break;
-            }
-            case (Task::COMPLETED):
-            {
-                ++tasksCompleted;
-                break;
-            }
-            case (Task::FAILED):
-            {
-                ++tasksFailed;
-                break;
-            }
-            case (Task::PENDING):
-            {
-                ++tasksPending;
-                break;
-            }
+                case(Task::RUNNING):
+                {
+                    ++tasksPending;
+                    break;
+                }
+                case(Task::COMPLETED):
+                {
+                    ++tasksCompleted;
+                    break;
+                }
+                case(Task::FAILED):
+                {
+                    ++tasksFailed;
+                    break;
+                }
+                case(Task::PENDING):
+                {
+                    ++tasksPending;
+                    break;
+                }
             }
         }
     }
-    log(osg::NOTICE, "End of run: tasksPending=%d taskCompleted=%d taskRunning=%d tasksFailed=%d", tasksPending, tasksCompleted, tasksRunning, tasksFailed);
+    log(osg::NOTICE,"End of run: tasksPending=%d taskCompleted=%d taskRunning=%d tasksFailed=%d",tasksPending,tasksCompleted,tasksRunning,tasksFailed);
 
     getMachinePool()->reportTimingStats();
 
-    if (tasksFailed == 0)
+    if (tasksFailed==0)
     {
-        if (tasksPending == 0)
-            log(osg::NOTICE, "Finished run successfully.");
-        else
-            log(osg::NOTICE, "Finished run, but did not complete %d tasks.", tasksPending);
+        if (tasksPending==0) log(osg::NOTICE,"Finished run successfully.");
+        else log(osg::NOTICE,"Finished run, but did not complete %d tasks.",tasksPending);
     }
-    else
-        log(osg::NOTICE, "Finished run, but failed on %d  tasks.", tasksFailed);
+    else log(osg::NOTICE,"Finished run, but failed on %d  tasks.",tasksFailed);
 
-    return tasksFailed == 0 && tasksPending == 0;
+    return tasksFailed==0 && tasksPending==0;
 }
 
-bool TaskManager::writeSource(const std::string &filename)
+
+bool TaskManager::writeSource(const std::string& filename)
 {
     if (_terrainTile.valid())
     {
         _sourceFileName = filename;
 
+
         std::string path = osgDB::getFilePath(filename);
         if (!path.empty())
         {
             osgDB::FileType type = osgDB::fileType(path);
-            if (type == osgDB::REGULAR_FILE)
+            if (type==osgDB::REGULAR_FILE)
             {
-                throw std::string("Error: TaskManager::writeSource(") + filename + std::string("), path has already been assigned to a regular file.");
+                throw std::string("Error: TaskManager::writeSource(")+filename+std::string("), path has already been assigned to a regular file.");
             }
-            else if (type == osgDB::FILE_NOT_FOUND)
+            else if (type==osgDB::FILE_NOT_FOUND)
             {
                 vpb::mkpath(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
             }
@@ -705,12 +700,12 @@ bool TaskManager::writeSource(const std::string &filename)
     }
 }
 
-osgTerrain::TerrainTile *TaskManager::readSourceFile(const std::string &filename)
+osgTerrain::TerrainTile* TaskManager::readSourceFile(const std::string& filename)
 {
     osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(filename);
     if (node.valid())
     {
-        osg::ref_ptr<osgTerrain::TerrainTile> loaded_terrain = dynamic_cast<osgTerrain::TerrainTile *>(node.get());
+        osg::ref_ptr<osgTerrain::TerrainTile> loaded_terrain = dynamic_cast<osgTerrain::TerrainTile*>(node.get());
 
         // make sure loaded_terrain is the only one with a reference so we can release it safely on return
         node = 0;
@@ -721,20 +716,20 @@ osgTerrain::TerrainTile *TaskManager::readSourceFile(const std::string &filename
         }
         else
         {
-            log(osg::WARN, "Error: source file \"%s\" not suitable terrain data.", filename.c_str());
+            log(osg::WARN,"Error: source file \"%s\" not suitable terrain data.",filename.c_str());
         }
     }
     else
     {
-        log(osg::WARN, "Error: unable to load source file \"%s\" not suitable terrain data.", filename.c_str());
+        log(osg::WARN,"Error: unable to load source file \"%s\" not suitable terrain data.",filename.c_str());
     }
 
     return 0;
 }
 
-bool TaskManager::readSource(const std::string &filename)
+bool TaskManager::readSource(const std::string& filename)
 {
-    osgTerrain::TerrainTile *loaded_terrain = readSourceFile(filename);
+    osgTerrain::TerrainTile* loaded_terrain = readSourceFile(filename);
     if (loaded_terrain)
     {
         _sourceFileName = filename;
@@ -747,9 +742,9 @@ bool TaskManager::readSource(const std::string &filename)
     }
 }
 
-bool TaskManager::readPreviousSource(const std::string &filename)
+bool TaskManager::readPreviousSource(const std::string& filename)
 {
-    osgTerrain::TerrainTile *loaded_terrain = readSourceFile(filename);
+    osgTerrain::TerrainTile* loaded_terrain = readSourceFile(filename);
     if (loaded_terrain)
     {
         _previousSourceFileName = filename;
@@ -762,12 +757,13 @@ bool TaskManager::readPreviousSource(const std::string &filename)
     }
 }
 
+
 void TaskManager::clearTaskSetList()
 {
     _taskSetList.clear();
 }
 
-Task *TaskManager::readTask(osgDB::Input &fr, bool &itrAdvanced)
+Task* TaskManager::readTask(osgDB::Input& fr, bool& itrAdvanced)
 {
     if (fr.matchSequence("exec {"))
     {
@@ -777,7 +773,7 @@ Task *TaskManager::readTask(osgDB::Input &fr, bool &itrAdvanced)
 
         std::string application;
 
-        while (!fr.eof() && fr[0].getNoNestedBrackets() > local_entry)
+        while (!fr.eof() && fr[0].getNoNestedBrackets()>local_entry)
         {
             if (fr[0].getStr())
             {
@@ -805,17 +801,18 @@ Task *TaskManager::readTask(osgDB::Input &fr, bool &itrAdvanced)
 
             if (task->valid())
             {
-                task->setProperty("application", application);
+                task->setProperty("application",application);
 
                 task->write();
 
                 return task.release();
             }
         }
+
     }
 
     std::string filename;
-    if (fr.read("taskfile", filename))
+    if (fr.read("taskfile",filename))
     {
         itrAdvanced = true;
 
@@ -828,39 +825,39 @@ Task *TaskManager::readTask(osgDB::Input &fr, bool &itrAdvanced)
     return 0;
 }
 
-bool TaskManager::readTasks(const std::string &filename)
+bool TaskManager::readTasks(const std::string& filename)
 {
-    log(osg::NOTICE, "Reading tasks from file...");
+    log(osg::NOTICE,"Reading tasks from file...");
 
     std::string foundFile = osgDB::findDataFile(filename);
     if (foundFile.empty())
     {
-        log(osg::WARN, "Error: could not find task file '%s'", filename.c_str());
+        log(osg::WARN,"Error: could not find task file '%s'",filename.c_str());
         return false;
     }
 
     _tasksFileName = filename;
 
-    std::ifstream fin(foundFile.c_str());
+    osgDB::ifstream fin(foundFile.c_str());
 
     if (fin)
     {
         osgDB::Input fr;
         fr.attach(&fin);
 
-        while (!fr.eof())
+        while(!fr.eof())
         {
             bool itrAdvanced = false;
 
             std::string readFilename;
-            if (fr.read("file", readFilename))
+            if (fr.read("file",readFilename))
             {
                 nextTaskSet();
                 readTasks(readFilename);
                 ++itrAdvanced;
             }
 
-            Task *task = readTask(fr, itrAdvanced);
+            Task* task = readTask(fr, itrAdvanced);
             if (task)
             {
                 nextTaskSet();
@@ -875,91 +872,91 @@ bool TaskManager::readTasks(const std::string &filename)
 
                 fr += 2;
 
-                while (!fr.eof() && fr[0].getNoNestedBrackets() > local_entry)
+                while (!fr.eof() && fr[0].getNoNestedBrackets()>local_entry)
                 {
                     bool localAdvanced = false;
 
-                    Task *task = readTask(fr, localAdvanced);
+                    Task* task = readTask(fr, localAdvanced);
                     if (task)
                     {
                         addTask(task);
                     }
 
-                    if (!localAdvanced)
-                        ++fr;
+                    if (!localAdvanced) ++fr;
                 }
 
                 ++fr;
 
                 itrAdvanced = true;
+
             }
 
-            if (!itrAdvanced)
-                ++fr;
+            if (!itrAdvanced) ++fr;
         }
     }
 
-    log(osg::NOTICE, "Task file read");
+    log(osg::NOTICE,"Task file read");
     return false;
 }
 
-bool TaskManager::writeTask(osgDB::Output &fout, const Task *task, bool asFileNames) const
+bool TaskManager::writeTask(osgDB::Output& fout, const Task* task, bool asFileNames) const
 {
     if (asFileNames)
     {
-        fout.indent() << "taskfile " << task->getFileName() << std::endl;
+        fout.indent()<<"taskfile "<<task->getFileName()<<std::endl;
     }
     else
     {
         std::string application;
         std::string arguments;
-        if (task->getProperty("application", application))
+        if (task->getProperty("application",application))
         {
-            fout.indent() << "exec { " << application << " }" << std::endl;
+            fout.indent()<<"exec { "<<application<<" }"<<std::endl;
         }
     }
     return true;
 }
 
-bool TaskManager::writeTasks(const std::string &filename, bool asFileNames)
+bool TaskManager::writeTasks(const std::string& filename, bool asFileNames)
 {
     _tasksFileName = filename;
 
     osgDB::Output fout(filename.c_str());
 
-    for (TaskSetList::const_iterator tsItr = _taskSetList.begin();
-         tsItr != _taskSetList.end();
-         ++tsItr)
+    for(TaskSetList::const_iterator tsItr = _taskSetList.begin();
+        tsItr != _taskSetList.end();
+        ++tsItr)
     {
-        const TaskSet &taskSet = *tsItr;
+        const TaskSet& taskSet = *tsItr;
 
-        if (taskSet.size() == 1)
+        if (taskSet.size()==1)
         {
-            writeTask(fout, taskSet.front().get(), asFileNames);
+            writeTask(fout,taskSet.front().get(), asFileNames);
         }
-        else if (taskSet.size() > 1)
+        else if (taskSet.size()>1)
         {
-            fout.indent() << "Tasks {" << std::endl;
+            fout.indent()<<"Tasks {"<<std::endl;
             fout.moveIn();
 
-            for (TaskSet::const_iterator itr = taskSet.begin();
-                 itr != taskSet.end();
-                 ++itr)
+            for(TaskSet::const_iterator itr = taskSet.begin();
+                itr != taskSet.end();
+                ++itr)
             {
-                writeTask(fout, itr->get(), asFileNames);
+                writeTask(fout,itr->get(), asFileNames);
             }
 
             fout.moveOut();
-            fout.indent() << "}" << std::endl;
+            fout.indent()<<"}"<<std::endl;
         }
     }
+
 
     return true;
 }
 
-BuildOptions *TaskManager::getBuildOptions()
+BuildOptions* TaskManager::getBuildOptions()
 {
-    vpb::DatabaseBuilder *db = _terrainTile.valid() ? dynamic_cast<vpb::DatabaseBuilder *>(_terrainTile->getTerrainTechnique()) : 0;
+    vpb::DatabaseBuilder* db = _terrainTile.valid() ? dynamic_cast<vpb::DatabaseBuilder*>(_terrainTile->getTerrainTechnique()) : 0;
     return db ? db->getBuildOptions() : 0;
 }
 
@@ -968,23 +965,24 @@ void TaskManager::setOutOfDateTasksToPending()
     typedef std::map<std::string, Date> FileNameDateMap;
     FileNameDateMap filenameDateMap;
 
-    for (TaskSetList::iterator tsItr = _taskSetList.begin();
-         tsItr != _taskSetList.end();
-         ++tsItr)
+    for(TaskSetList::iterator tsItr = _taskSetList.begin();
+        tsItr != _taskSetList.end();
+        ++tsItr)
     {
-        TaskSet &taskSet = *tsItr;
-        for (TaskSet::iterator itr = taskSet.begin();
-             itr != taskSet.end();
-             ++itr)
+        TaskSet& taskSet = *tsItr;
+        for(TaskSet::iterator itr = taskSet.begin();
+            itr != taskSet.end();
+            ++itr)
         {
-            Task *task = itr->get();
+            Task* task = itr->get();
             task->read();
 
-            if (task->getStatus() == Task::COMPLETED)
+            if (task->getStatus()==Task::COMPLETED)
             {
                 std::string sourceFile;
                 Date buildDate;
-                if (task->getProperty("source", sourceFile) && task->getDate("date", buildDate))
+                if (task->getProperty("source", sourceFile) &&
+                    task->getDate("date",buildDate))
                 {
                     Date sourceFileLastModified;
 
@@ -1000,7 +998,7 @@ void TaskManager::setOutOfDateTasksToPending()
                             if (sourceFileLastModified < buildDate)
                             {
                                 osg::ref_ptr<osg::Node> loadedModel = osgDB::readNodeFile(sourceFile);
-                                osgTerrain::TerrainTile *terrainTile = dynamic_cast<osgTerrain::TerrainTile *>(loadedModel.get());
+                                osgTerrain::TerrainTile* terrainTile = dynamic_cast<osgTerrain::TerrainTile*>(loadedModel.get());
                                 if (terrainTile)
                                 {
                                     System::instance()->getDateOfLastModification(terrainTile, sourceFileLastModified);
@@ -1021,12 +1019,12 @@ void TaskManager::setOutOfDateTasksToPending()
     }
 }
 
+
 void TaskManager::setDone(bool done)
 {
     _done = done;
 
-    if (_done)
-        getMachinePool()->release();
+    if (_done) getMachinePool()->release();
 }
 
 void TaskManager::exit(int sig)
@@ -1039,66 +1037,66 @@ void TaskManager::handleSignal(int sig)
 {
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(_signalHandleMutex);
 
-    switch (getSignalAction(sig))
+    switch(getSignalAction(sig))
     {
-    case (IGNORE_SIGNAL):
-    {
-        log(osg::NOTICE, "Ignoring signal %d.", sig);
-        break;
-    }
-    case (DO_NOT_HANDLE):
-    {
-        log(osg::NOTICE, "DO_NOT_HANDLE signal %d.", sig);
-        break;
-    }
-    case (COMPLETE_RUNNING_TASKS_THEN_EXIT):
-    {
-        log(osg::NOTICE, "Recieved signal %d, doing COMPLETE_RUNNING_TASKS_THEN_EXIT.", sig);
+        case(IGNORE_SIGNAL):
+        {
+            log(osg::NOTICE,"Ignoring signal %d.",sig);
+            break;
+        }
+        case(DO_NOT_HANDLE):
+        {
+            log(osg::NOTICE,"DO_NOT_HANDLE signal %d.",sig);
+            break;
+        }
+        case(COMPLETE_RUNNING_TASKS_THEN_EXIT):
+        {
+            log(osg::NOTICE,"Recieved signal %d, doing COMPLETE_RUNNING_TASKS_THEN_EXIT.",sig);
 
-        _done = true;
-        getMachinePool()->removeAllOperations();
-        getMachinePool()->release();
+            _done = true;
+            getMachinePool()->removeAllOperations();
+            getMachinePool()->release();
 
-        break;
-    }
-    case (TERMINATE_RUNNING_TASKS_THEN_EXIT):
-    {
-        log(osg::NOTICE, "Recieved signal %d, doing TERMINATE_RUNNING_TASKS_THEN_EXIT.", sig);
+            break;
+        }
+        case(TERMINATE_RUNNING_TASKS_THEN_EXIT):
+        {
+            log(osg::NOTICE,"Recieved signal %d, doing TERMINATE_RUNNING_TASKS_THEN_EXIT.",sig);
 
-        _done = true;
+            _done = true;
 
-        getMachinePool()->removeAllOperations();
-        getMachinePool()->signal(sig);
+            getMachinePool()->removeAllOperations();
+            getMachinePool()->signal(sig);
 
-        getMachinePool()->cancelThreads();
-        getMachinePool()->release();
+            getMachinePool()->cancelThreads();
+            getMachinePool()->release();
 
-        break;
-    }
-    case (RESET_MACHINE_POOL):
-    {
-        log(osg::NOTICE, "Recieved signal %d, doing RESET_MACHINE_POOL.", sig);
-        getMachinePool()->release();
-        getMachinePool()->resetMachinePool();
-        break;
-    }
-    case (UPDATE_MACHINE_POOL):
-    {
-        log(osg::NOTICE, "Recieved signal %d, doing UPDATE_MACHINE_POOL.", sig);
-        getMachinePool()->release();
-        getMachinePool()->updateMachinePool();
-        break;
-    }
+            break;
+        }
+        case(RESET_MACHINE_POOL):
+        {
+            log(osg::NOTICE,"Recieved signal %d, doing RESET_MACHINE_POOL.",sig);
+            getMachinePool()->release();
+            getMachinePool()->resetMachinePool();
+            break;
+        }
+        case(UPDATE_MACHINE_POOL):
+        {
+            log(osg::NOTICE,"Recieved signal %d, doing UPDATE_MACHINE_POOL.",sig);
+            getMachinePool()->release();
+            getMachinePool()->updateMachinePool();
+            break;
+        }
     }
 }
 
 void TaskManager::setSignalAction(int sig, SignalAction action)
 {
-    OpenThreads::ScopedLock<OpenThreads::Mutex> lock(_signalHandleMutex);
+    OpenThreads::ScopedLock<OpenThreads::Mutex>  lock(_signalHandleMutex);
 
-    if (action == DO_NOT_HANDLE)
+    if (action==DO_NOT_HANDLE)
     {
-        if (_signalActionMap.count(sig) != 0)
+        if (_signalActionMap.count(sig)!=0)
         {
             // remove signal handler for signal.
             signal(sig, 0);
@@ -1108,7 +1106,7 @@ void TaskManager::setSignalAction(int sig, SignalAction action)
     }
     else
     {
-        if (_signalActionMap.count(sig) == 0)
+        if (_signalActionMap.count(sig)==0)
         {
             // need to register signal handler for signal
             signal(sig, TaskManager::signalHandler);
@@ -1121,8 +1119,7 @@ void TaskManager::setSignalAction(int sig, SignalAction action)
 TaskManager::SignalAction TaskManager::getSignalAction(int sig) const
 {
     SignalActionMap::const_iterator itr = _signalActionMap.find(sig);
-    if (itr == _signalActionMap.end())
-        return _defaultSignalAction;
+    if (itr==_signalActionMap.end()) return _defaultSignalAction;
     return itr->second;
 }
 
@@ -1133,23 +1130,21 @@ void TaskManager::signalHandler(int sig)
 
 std::string TaskManager::checkBuildValidity()
 {
-    BuildOptions *buildOptions = getBuildOptions();
-    if (!buildOptions)
-        return std::string("No BuildOptions supplied in source file");
+    BuildOptions* buildOptions = getBuildOptions();
+    if (!buildOptions) return std::string("No BuildOptions supplied in source file");
 
-    bool isTerrain = buildOptions->getGeometryType() == BuildOptions::TERRAIN;
+    bool isTerrain = buildOptions->getGeometryType()==BuildOptions::TERRAIN;
     bool containsOptionalLayers = !(buildOptions->getOptionalLayerSet().empty());
 
-    if (containsOptionalLayers && !isTerrain)
-        return std::string("Can not mix optional layers with POLYGONAL and HEIGHTFIELD builds, must use --terrain to enable optional layer support.");
+    if (containsOptionalLayers && !isTerrain) return std::string("Can not mix optional layers with POLYGONAL and HEIGHTFIELD builds, must use --terrain to enable optional layer support.");
 
     if (_previousTerrainTile.valid() && _terrainTile.valid())
     {
-        vpb::DatabaseBuilder *db = dynamic_cast<vpb::DatabaseBuilder *>(_previousTerrainTile->getTerrainTechnique());
-        vpb::BuildOptions *previous_bo = db ? db->getBuildOptions() : 0;
+        vpb::DatabaseBuilder* db = dynamic_cast<vpb::DatabaseBuilder*>(_previousTerrainTile->getTerrainTechnique());
+        vpb::BuildOptions* previous_bo = db ? db->getBuildOptions() : 0;
 
-        db = dynamic_cast<vpb::DatabaseBuilder *>(_terrainTile->getTerrainTechnique());
-        vpb::BuildOptions *current_bo = db ? db->getBuildOptions() : 0;
+        db = dynamic_cast<vpb::DatabaseBuilder*>(_terrainTile->getTerrainTechnique());
+        vpb::BuildOptions* current_bo = db ? db->getBuildOptions() : 0;
 
         if (previous_bo && current_bo)
         {
@@ -1163,27 +1158,27 @@ std::string TaskManager::checkBuildValidity()
     return std::string();
 }
 
-void TaskManager::setDatabaseRevisions(osgDB::DatabaseRevisions *db)
+void TaskManager::setDatabaseRevisions(osgDB::DatabaseRevisions* db)
 {
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(_databaseRevisionsMutex);
     _databaseRevisions = db;
 }
 
-osgDB::DatabaseRevisions *TaskManager::getDatabaseRevisions()
+osgDB::DatabaseRevisions* TaskManager::getDatabaseRevisions()
 {
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(_databaseRevisionsMutex);
     return _databaseRevisions.get();
 }
 
-void TaskManager::addRevisionFileList(const std::string &filename)
+void TaskManager::addRevisionFileList(const std::string& filename)
 {
-    log(osg::INFO, "addRevisionFileList(%s)", filename.c_str());
+    log(osg::INFO,"addRevisionFileList(%s)",filename.c_str());
 
     osg::ref_ptr<osg::Object> object = osgDB::readObjectFile(filename);
-    osg::ref_ptr<osgDB::FileList> fileList = dynamic_cast<osgDB::FileList *>(object.get());
+    osg::ref_ptr<osgDB::FileList> fileList = dynamic_cast<osgDB::FileList*>(object.get());
     if (!fileList)
     {
-        log(osg::INFO, "   failed to load file list %s", filename.c_str());
+        log(osg::INFO,"   failed to load file list %s",filename.c_str());
         return;
     }
 
@@ -1202,78 +1197,73 @@ void TaskManager::addRevisionFileList(const std::string &filename)
             osg::ref_ptr<osgDB::DatabaseRevision> dbRevision;
 
             // look for a suitable database revision to append to
-            for (osgDB::DatabaseRevisions::DatabaseRevisionList::iterator itr = _databaseRevisions->getDatabaseRevisionList().begin();
-                 itr != _databaseRevisions->getDatabaseRevisionList().end() && !dbRevision;
-                 ++itr)
+            for(osgDB::DatabaseRevisions::DatabaseRevisionList::iterator itr = _databaseRevisions->getDatabaseRevisionList().begin();
+                itr != _databaseRevisions->getDatabaseRevisionList().end() && !dbRevision;
+                ++itr)
             {
-                if ((*itr)->getName() == revisionName)
+                if ((*itr)->getName()==revisionName)
                 {
-                    log(osg::INFO, "   reusing exsiting DatabaseRevision structure");
+                    log(osg::INFO,"   reusing exsiting DatabaseRevision structure");
                     dbRevision = *itr;
                 }
             }
 
             if (!dbRevision)
             {
-                log(osg::INFO, "   create new DatabaseRevision structure %s", revisionName.c_str());
+                log(osg::INFO,"   create new DatabaseRevision structure %s", revisionName.c_str());
 
                 dbRevision = new osgDB::DatabaseRevision;
                 dbRevision->setName(revisionName);
                 dbRevision->setDatabasePath(getBuildOptions()->getDirectory());
 
                 _databaseRevisions->addRevision(dbRevision.get());
-            }
+           }
 
             std::stringstream sstr;
             sstr << getBuildOptions()->getDirectory()
                  << getBuildOptions()->getDestinationTileBaseName()
                  << getBuildOptions()->getDestinationTileExtension()
-                 << "." << getBuildOptions()->getRevisionNumber();
+                 << "."<<getBuildOptions()->getRevisionNumber();
 
-            std::string fileListBaseName = sstr.str();
+            std::string fileListBaseName =sstr.str();
 
-            if (ext == "added")
+            if (ext=="added")
             {
                 if (!dbRevision->getFilesAdded())
                 {
                     dbRevision->setFilesAdded(new osgDB::FileList);
-                    dbRevision->getFilesAdded()->setName(fileListBaseName + ".added");
-                    if (writeChangesImmediately)
-                        osgDB::writeObjectFile(*_databaseRevisions, _databaseRevisions->getName());
+                    dbRevision->getFilesAdded()->setName(fileListBaseName+".added");
+                    if (writeChangesImmediately) osgDB::writeObjectFile(*_databaseRevisions, _databaseRevisions->getName());
                 }
                 dbRevision->getFilesAdded()->append(fileList.get());
 
-                if (writeChangesImmediately)
-                    osgDB::writeObjectFile(*(dbRevision->getFilesAdded()), dbRevision->getFilesAdded()->getName());
+                if (writeChangesImmediately) osgDB::writeObjectFile(*(dbRevision->getFilesAdded()),dbRevision->getFilesAdded()->getName());
             }
-            else if (ext == "removed")
+            else if (ext=="removed")
             {
                 if (!dbRevision->getFilesRemoved())
                 {
                     dbRevision->setFilesRemoved(new osgDB::FileList);
-                    dbRevision->getFilesRemoved()->setName(fileListBaseName + ".removed");
-                    if (writeChangesImmediately)
-                        osgDB::writeObjectFile(*_databaseRevisions, _databaseRevisions->getName());
+                    dbRevision->getFilesRemoved()->setName(fileListBaseName+".removed");
+                    if (writeChangesImmediately) osgDB::writeObjectFile(*_databaseRevisions, _databaseRevisions->getName());
                 }
                 dbRevision->getFilesRemoved()->append(fileList.get());
 
-                if (writeChangesImmediately)
-                    osgDB::writeObjectFile(*(dbRevision->getFilesRemoved()), dbRevision->getFilesRemoved()->getName());
+                if (writeChangesImmediately) osgDB::writeObjectFile(*(dbRevision->getFilesRemoved()),dbRevision->getFilesRemoved()->getName());
             }
-            else if (ext == "modified")
+            else if (ext=="modified")
             {
                 if (!dbRevision->getFilesModified())
                 {
                     dbRevision->setFilesModified(new osgDB::FileList);
-                    dbRevision->getFilesModified()->setName(fileListBaseName + ".modified");
-                    if (writeChangesImmediately)
-                        osgDB::writeObjectFile(*_databaseRevisions, _databaseRevisions->getName());
+                    dbRevision->getFilesModified()->setName(fileListBaseName+".modified");
+                    if (writeChangesImmediately) osgDB::writeObjectFile(*_databaseRevisions, _databaseRevisions->getName());
                 }
                 dbRevision->getFilesModified()->append(fileList.get());
 
-                if (writeChangesImmediately)
-                    osgDB::writeObjectFile(*(dbRevision->getFilesModified()), dbRevision->getFilesModified()->getName());
+                if (writeChangesImmediately) osgDB::writeObjectFile(*(dbRevision->getFilesModified()),dbRevision->getFilesModified()->getName());
             }
         }
     }
 }
+
