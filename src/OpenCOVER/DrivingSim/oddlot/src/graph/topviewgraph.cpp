@@ -59,7 +59,6 @@ TopviewGraph::TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectDat
 
     connect(graphScene_, SIGNAL(mouseActionSignal(MouseAction *)), this, SIGNAL(mouseActionSignal(MouseAction *)));
     connect(graphScene_, SIGNAL(keyActionSignal(KeyAction *)), this, SIGNAL(keyActionSignal(KeyAction *)));
-    connect(graphScene_, SIGNAL(wheelActionSignal(WheelAction *)), this, SLOT(wheelAction(WheelAction *)));
 
     // Qt View //
     //
@@ -246,12 +245,6 @@ void
 TopviewGraph::keyAction(KeyAction *keyAction)
 {
     graphScene_->keyAction(keyAction);
-}
-
-void 
-    TopviewGraph::wheelAction(WheelAction *wheelAction)
-{
-    notifySignals();
 }
 
 /*! \brief Called right before the editor will be changed.

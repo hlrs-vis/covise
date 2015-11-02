@@ -20,7 +20,6 @@
 
 class GraphScene;
 class GraphView;
-class WheelAction;
 
 class TopviewGraph : public ProjectGraph
 {
@@ -56,19 +55,6 @@ private:
     TopviewGraph(const TopviewGraph &); /* not allowed */
     TopviewGraph &operator=(const TopviewGraph &); /* not allowed */
 
-//################//
-// SIGNALS        //
-//################//
-
-signals:
-
-    // Tools, Mouse & Key //
-    //
-    void toolActionSignal(ToolAction *);
-    void mouseActionSignal(MouseAction *);
-    void keyActionSignal(KeyAction *);
-    void wheelActionSignal(WheelAction *);
-
 
     //################//
     // SLOTS          //
@@ -81,7 +67,6 @@ public slots:
     void toolAction(ToolAction *);
     void mouseAction(MouseAction *);
     void keyAction(KeyAction *);
-    void wheelAction(WheelAction *);
 
     // Change //
     //

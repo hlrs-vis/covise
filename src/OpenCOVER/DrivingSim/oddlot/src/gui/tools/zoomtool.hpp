@@ -78,13 +78,15 @@ signals:
     //################//
     // SLOTS          //
     //################//
+public slots:
+	void zoomIn();
+    void zoomOut();
+
 
 private slots:
     void activateProject(bool);
 
     void zoomTo(const QString &zoomFactor);
-    void zoomIn();
-    void zoomOut();
     void zoomBox();
     void viewSelected();
 

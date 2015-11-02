@@ -1,0 +1,33 @@
+STRINGTABLE Onavigationinfo
+{
+	Onavigationinfo 		"NavigationInfo";
+
+	IDS_UEBERSCHRIFT		"Scale: (Initialiesed to the Edit/Preferences/Units Setting)";	
+	IDC_BASICUNITS	 		"Basic Unit";
+		IDS_PIXEL			"Pixel";
+		IDS_KILOMETER		"Kilometer";
+		IDS_METER 			"Meter";
+		IDS_CENTIMETER		"Centimeter";
+		IDS_MILLIMETER		"Millimeter";
+		IDS_MICROMETER		"Micrometer";
+		IDS_NANOMETER		"Nanometer"; 
+		IDS_MILE			"Mile"; 
+		IDS_YARD			"Yard";
+		IDS_FOOT			"Foot";
+		IDS_INCH			"Inch";  
+	IDS_FELDER				"Fields of the NavigationInfo - Node:";
+	SPEED					"Speed";
+	IDC_TYPE				"Type";
+		IDS_TYPE_ANY				"Any";
+		IDS_TYPE_WALK			"Walk";
+		IDS_TYPE_EXAMINE			"Examine";
+		IDS_TYPE_FLY				"Fly";
+		IDS_TYPE_NONE			"None";
+	IDS_HEADLIGHTS			"Headlights";
+	IDC_HEADLIGHTS			"Headlights";
+	IDS_AVATAR_SIZE			"Avatar Size:";
+	AVATAR_DISTANCE			"max distance User - Collision geometry";
+	AVATAR_HEIGHT_TERRAIN	"max height from terrain";
+	AVATAR_HEIGHT_OBJECT	"max height form tallest object";
+	IDC_VISIBILITY_LIMIT	"visibilityLimit";
+}

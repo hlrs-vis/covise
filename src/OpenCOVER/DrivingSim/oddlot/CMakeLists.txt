@@ -57,7 +57,6 @@ SET(ODDLOT_SOURCES
      src/gui/projectionsettings.cpp
      src/gui/importsettings.cpp
 	 src/gui/lodsettings.cpp
-     src/gui/wheelaction.cpp
 	 src/data/projectdata.cpp
 	 src/data/roadsystem/roadsystem.cpp
 	 src/data/roadsystem/rsystemelement.cpp
@@ -343,7 +342,6 @@ SET(ODDLOT_MOC_HEADERS
      src/gui/projectionsettings.hpp
      src/gui/importsettings.hpp
 	 src/gui/lodsettings.hpp
-     src/gui/wheelaction.hpp
 	 src/data/projectdata.hpp
 	 src/data/roadsystem/roadsystem.hpp
 	 src/data/roadsystem/rsystemelement.hpp

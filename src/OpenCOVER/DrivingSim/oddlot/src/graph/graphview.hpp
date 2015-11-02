@@ -21,6 +21,7 @@
 
 class TopviewGraph;
 class GraphScene;
+class ZoomTool;
 
 class Ruler;
 class ScenerySystemItem;
@@ -123,6 +124,7 @@ public slots:
 private:
     TopviewGraph *topviewGraph_;
     GraphScene *graphScene_;
+	ZoomTool *zoomTool_;
 
     bool doPan_;
     bool doKeyPan_;

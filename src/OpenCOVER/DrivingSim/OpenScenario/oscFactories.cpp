@@ -5,16 +5,68 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include <oscFactories.h>
-#include <oscHeader.h>
-#include <oscFile.h>
+// sort alphabetically
+#include <oscAbsolute.h>
+#include <oscAction.h>
+#include <oscAutonomous.h>
+#include <oscBehavior.h>
+#include <oscBody.h>
+#include <oscBoundingBox.h>
+#include <oscCatalog.h>
+#include <oscCenter.h>
+#include <oscColor.h>
+#include <oscCondition.h>
+#include <oscDate.h>
+#include <oscDimension.h>
+#include <oscDimensions.h>
 #include <oscDirectory.h>
+#include <oscDriverCatalog.h>
+#include <oscEntityCatalog.h>
 #include <oscEnvironment.h>
-#include <oscWeather.h>
-#include <oscTimeOfDay.h>
-#include <oscRoadNetwork.h>
-#include <oscVariables.h>
+#include <oscFactories.h>
+#include <oscFile.h>
+#include <oscFog.h>
+#include <oscHeader.h>
+#include <oscIntensity.h>
+#include <oscLaneChange.h>
+#include <oscLaneCoord.h>
+#include <oscLaneDynamics.h>
+#include <oscLight.h>
+#include <oscManeuverCatalog.h>
+#include <oscMiscObjectCatalog.h>
+#include <oscNamedObject.h>
+#include <oscNameId.h>
 #include <oscObjectBase.h>
+#include <oscObserverCatalog.h>
+#include <oscOrientation.h>
+#include <oscParameter.h>
+#include <oscParameters.h>
+#include <oscPedestrianCatalog.h>
+#include <oscPositionLane.h>
+#include <oscPositionRoad.h>
+#include <oscPositionRoute.h>
+#include <oscPositionWorld.h>
+#include <oscPositionXyz.h>
+#include <oscPrecipitation.h>
+#include <oscRelative.h>
+#include <oscRelativeChoice.h>
+#include <oscRelativePositionLane.h>
+#include <oscRelativePositionRoad.h>
+#include <oscRelativePositionWorld.h>
+#include <oscRoadCondition.h>
+#include <oscRoadConditions.h>
+#include <oscRoadCoord.h>
+#include <oscRoadNetwork.h>
+#include <oscRoutingCatalog.h>
+#include <oscSpeed.h>
+#include <oscSpeedDynamics.h>
+#include <oscStartConditionGroup.h>
+#include <oscTime.h>
+#include <oscTimeOfDay.h>
+#include <oscUserData.h>
+#include <oscVariables.h>
+#include <oscVehicleCatalog.h>
+#include <oscWeather.h>
 
 
 using namespace OpenScenario;
@@ -42,7 +94,7 @@ oscFactories::oscFactories()
     staticValueFactory.registerType<oscFloatValue>(oscMemberValue::FLOAT);
     staticValueFactory.registerType<oscEnumValue>(oscMemberValue::ENUM);
     
-    // sorted alphabetically
+    // sort alphabetically
     staticObjectFactory.registerType<oscAbsolute>("oscAbsolute");
     staticObjectFactory.registerType<oscAction>("oscAction");
     staticObjectFactory.registerType<oscAutonomous>("oscAutonomous");
