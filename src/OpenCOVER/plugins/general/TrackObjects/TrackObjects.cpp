@@ -8,13 +8,13 @@
 /****************************************************************************\ 
  **                                                            (C)2001 HLRS  **
  **                                                                          **
- ** Description: TangiblePosition Plugin (does nothing)                              **
+ ** Description: TrackObjects Plugin (does nothing)                          **
  **                                                                          **
  **                                                                          **
- ** Author: U.Woessner		                                                **
+ ** Author: U.Woessner		                                                 **
  **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
+ ** History:  								                                 **
+ ** Nov-01  v1	    				       		                             **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
@@ -26,6 +26,7 @@
 #include <cover/coVRTui.h>
 #include <PluginUtil/coBaseCoviseInteractor.h>
 #include <OpenVRUI/coToolboxMenu.h>
+#include <cover/coVRCollaboration.h>
 
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 
@@ -107,23 +108,23 @@ TrackObjects::~TrackObjects()
 
 void TrackObjects::preFrame()
 {    
+    osg::Matrix tmpMat;
+    static float angle = 0.0;
+    angle+=0.01;
+    tmpMat.makeRotate(angle,1,0,0);
      cover->getObjectsXform()->setMatrix(tmpMat);
      coVRCollaboration::instance()->SyncXform();
 }
+
 void TrackObjects::menuEvent(coMenuItem *m)
 {
     if (m == execButton || m == ToolbarButton)
     {
-        updateAndExec();
     }
 }
 
 void TrackObjects::tabletPressEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == RestartSimulation)
-    {
-        updateAndExec();
-    }
 }
 
 void TrackObjects::tabletEvent(coTUIElement *tUIItem)

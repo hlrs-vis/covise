@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-#ifndef _TangiblePosition_PLUGIN_H
-#define _TangiblePosition_PLUGIN_H
+#ifndef _TrackObjects_PLUGIN_H
+#define _TrackObjects_PLUGIN_H
 /****************************************************************************\ 
  **                                                            (C)2001 HLRS  **
  **                                                                          **
- ** Description: TangiblePosition Plugin (does nothing)                              **
+ ** Description: TrackObjects Plugin (does nothing)                          **
  **                                                                          **
  **                                                                          **
- ** Author: U.Woessner		                                                **
+ ** Author: U.Woessner		                                                 **
  **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
+ ** History:  								                                 **
+ ** Nov-01  v1	    				       		                             **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
@@ -44,7 +44,8 @@ public:
     void menuEvent(coMenuItem *);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletEvent(coTUIElement *tUIItem);
-
+    
+    void preFrame();
 
     std::list<coInteractor *> interactors;
     coButtonMenuItem *execButton;
