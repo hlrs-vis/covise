@@ -285,7 +285,7 @@ public:
     //	virtual double					getAcceleration() { return 0.0; } // inherited
     virtual double getEngineSpeed()
     {
-        return round(DSpaceData.Motordrehzahl*60 / (2.0 * M_PI));
+        return (int)(DSpaceData.Motordrehzahl*30.0 / (M_PI));
     }
     //	virtual double					getSteeringWheelTorque() { return 0.0; } // inherited
 
