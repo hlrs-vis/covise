@@ -215,6 +215,10 @@ coDoSet::coDoSet(const coObjInfo &info, int numElem, const coDistributedObject *
 coDoSet *coDoSet::cloneObject(const coObjInfo &newinfo) const
 {
     const coDistributedObject *const *elems = getAllElements();
+    for (size_t i=0; i<getNumElements(); ++i) {
+        elems[i]->incRefCount();
+    }
+
     coDoSet *set = new coDoSet(newinfo, getNumElements(), elems);
     delete[] elems;
     return set;
