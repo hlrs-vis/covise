@@ -41,7 +41,7 @@ public:
 		OSC_OBJECT_ADD_MEMBER(pedestrian,"oscPedestrianCatalog");
 		OSC_OBJECT_ADD_MEMBER(miscObject,"oscMiscObjectCatalog");
 		OSC_OBJECT_ADD_MEMBER(entity,"oscEntityCatalog");
-		OSC_OBJECT_ADD_MEMBER(environment,"oscEntityCatalog");
+		OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentCatalog");
 		OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuverCatalog");
 		OSC_OBJECT_ADD_MEMBER(routing,"oscRoutingCatalog");
 		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
@@ -54,7 +54,7 @@ public:
 	oscPedestrianCatalogMember pedestrian;
 	oscMiscObjectCatalogMember miscObject;
 	oscEntityCatalogMember entity;
-	oscEntityCatalogMember environment;
+	oscEnvironmentCatalogMember environment;
 	oscManeuverCatalogMember maneuver;
 	oscRoutingCatalogMember routing;
 	oscUserDataMember userData;
