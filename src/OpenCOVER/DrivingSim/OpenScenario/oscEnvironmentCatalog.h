@@ -17,17 +17,17 @@ namespace OpenScenario {
 class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscManeuverCatalog: public oscObjectBase
+class OPENSCENARIOEXPORT oscEnvironmentCatalog: public oscObjectBase
 {
 public:
-    oscManeuverCatalog()
+    oscEnvironmentCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER(maneuver,"oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(environment,"oscCatalog");
     };
-    oscCatalogMember maneuver;
+    oscCatalogMember environment;
 };
 
-typedef oscObjectVariable<oscManeuverCatalog *> oscManeuverCatalogMember;
+typedef oscObjectVariable<oscEnvironmentCatalog *> oscEnvironmentCatalogMember;
 
 }
 
