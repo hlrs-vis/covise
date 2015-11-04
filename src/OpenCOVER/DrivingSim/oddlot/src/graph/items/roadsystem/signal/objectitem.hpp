@@ -84,6 +84,9 @@ public slots:
 public:
     //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -97,8 +100,16 @@ protected:
 private:
     void init();
 
+	RoadSystemItem * roadSystemItem_;
+
     Object *object_;
+	RSystemElementRoad *road_;
+	RSystemElementRoad *closestRoad_;
     QPointF pos_;
+	QPointF pressPos_;
+	QPointF lastPos_;
+
+	bool doPan_;
 
     ObjectTextItem *objectTextItem_;
 

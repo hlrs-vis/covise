@@ -419,7 +419,7 @@ RemoveObjectCommand::~RemoveObjectCommand()
     }
     else
     {
-        delete object_;
+//        delete object_;
     }
 }
 

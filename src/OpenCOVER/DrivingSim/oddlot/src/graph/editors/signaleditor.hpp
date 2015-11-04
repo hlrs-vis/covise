@@ -32,6 +32,7 @@ class Signal;
 class SignalTreeWidget;
 class RSystemElementRoad;
 class SignalManager;
+class Object;
 
 class SignalEditor : public ProjectEditor
 {
@@ -65,6 +66,12 @@ public:
 	// New Signal with properties chosen in SignalTreeWidget //
 	//
 	Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
+
+	bool translateObject(Object * object, RSystemElementRoad * newRoad, QPointF &to);
+
+	// New Object with properties chosen in SignalTreeWidget //
+	//
+	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
 
 
     // RoadType //

@@ -95,7 +95,7 @@ SignalTextItem::updatePosition()
 void
 SignalTextItem::updateName()
 {
-	if (signal_->getName() == "")
+	if ((signal_->getName() == "") || (signal_->getName() == "unnamed"))
 	{
 		QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 

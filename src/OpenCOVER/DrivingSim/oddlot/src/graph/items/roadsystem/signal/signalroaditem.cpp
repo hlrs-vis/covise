@@ -211,32 +211,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         }
         else if (tool == ODD::TSG_OBJECT)
         {
-			ObjectContainer *lastObject = signalManager_->getSelectedObjectContainer();
-			if (lastObject)
-			{
-				if (t < 0)
-				{
-					t -= lastObject->getObjectDistance();
-				}
-				else
-				{
-					t += lastObject->getObjectDistance();
-				}
-
-				Object *newObject = new Object("object", "", lastObject->getObjectType(), s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, lastObject->getObjectLength(), 
-					lastObject->getObjectWidth(), lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
-					0.0, 0.0, false, 0.0, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile());
-				AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
-
-				getProjectGraph()->executeCommand(command);
-			}
-			else
-			{
-				Object *newObject = new Object("object", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, "");
-				AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
-
-				getProjectGraph()->executeCommand(command);
-			}
+			signalEditor_->addObjectToRoad(road_, s, t);
         }
         else if (tool == ODD::TSG_BRIDGE)
         {

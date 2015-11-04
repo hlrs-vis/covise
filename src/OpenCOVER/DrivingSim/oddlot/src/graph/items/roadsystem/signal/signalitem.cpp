@@ -124,6 +124,8 @@ SignalItem::init()
     pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT());
     updateCategory();
     updatePosition();
+
+	doPan_ = false;
 }
 
 
@@ -571,6 +573,7 @@ SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		createPath();
 
 		QPointF to = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
+
 		double s;
 		QVector2D vec;
 		double dist;

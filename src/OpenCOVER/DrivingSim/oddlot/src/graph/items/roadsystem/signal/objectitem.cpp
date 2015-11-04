@@ -14,6 +14,7 @@
 **************************************************************************/
 
 #include "objectitem.hpp"
+#include "signalroaditem.hpp"
 
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
@@ -36,6 +37,7 @@
 
 #include "src/graph/items/roadsystem/signal/objecttextitem.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
+#include "src/graph/items/roadsystem/roaditem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
 
 // Manager //
@@ -53,6 +55,7 @@
 
 ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
     : GraphElement(roadSystemItem, object)
+	, roadSystemItem_(roadSystemItem)
     , object_(object)
     , pos_(pos)
 {
@@ -97,8 +100,13 @@ ObjectItem::init()
         objectTextItem_->setZValue(1.0); // stack before siblings
     }
 
+	road_ = object_->getParentRoad(); 
+	closestRoad_ = road_;
+
     updateCategory();
     updatePosition();
+
+	doPan_ = false;
 }
 
 void 
@@ -359,6 +367,7 @@ ObjectItem::removeObject()
 void
 ObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+	setCursor(Qt::OpenHandCursor);
 
     // Text //
     //
@@ -373,6 +382,7 @@ ObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 void
 ObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
+	setCursor(Qt::ArrowCursor);
 
     // Text //
     //
@@ -395,6 +405,7 @@ ObjectItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 void
 ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	pressPos_ = lastPos_ = event->scenePos();
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Object
     if (tool == ODD::TSG_DEL)
     {
@@ -402,7 +413,58 @@ ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     else
     {
+		doPan_ = true;
+
         GraphElement::mousePressEvent(event); // pass to baseclass
+    }
+}
+
+void
+ObjectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{	
+	if (doPan_)
+	{
+
+		QPointF newPos = event->scenePos();
+		pos_ += newPos - lastPos_;
+		lastPos_ = newPos;
+		createPath();
+
+		QPointF to = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
+
+		double s;
+		QVector2D vec;
+		double dist;
+
+		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		if (!nearestRoad)
+		{
+			nearestRoad = road_;
+		}
+		if (nearestRoad != closestRoad_)
+		{
+			RoadItem *nearestRoadItem = roadSystemItem_->getRoadItem(nearestRoad->getID());
+			nearestRoadItem->setHighlighting(true);
+			setZValue(nearestRoadItem->zValue() + 1);
+			roadSystemItem_->getRoadItem(closestRoad_->getID())->setHighlighting(false);
+			closestRoad_ = nearestRoad;
+		}
+
+		GraphElement::mouseMoveEvent(event);
+	}
+}
+
+void
+ObjectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	GraphElement::mouseReleaseEvent(event);
+
+    if (doPan_)
+    {
+		pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
+		signalEditor_->translateObject(object_, closestRoad_, pos_);
+
+		doPan_ = false;
     }
 }
 
