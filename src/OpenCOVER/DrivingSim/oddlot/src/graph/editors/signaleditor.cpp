@@ -26,6 +26,7 @@
 // Data //
 //
 #include "src/data/projectdata.hpp"
+#include "src/data/signalmanager.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementcontroller.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -82,7 +83,9 @@ SignalEditor::SignalEditor(ProjectWidget *projectWidget, ProjectData *projectDat
     , lastSelectedObjectItem_(NULL)
     , lastSelectedBridgeItem_(NULL)
 {
-	signalTree_ = projectWidget->getMainWindow()->getSignalTree();
+	MainWindow * mainWindow = projectWidget->getMainWindow();
+	signalTree_ = mainWindow->getSignalTree();
+	signalManager_ = mainWindow->getSignalManager();
 }
 
 SignalEditor::~SignalEditor()
@@ -142,61 +145,85 @@ SignalEditor::getInsertSignalHandle() const
 
 // Move Signal //
 //
+RSystemElementRoad *
+SignalEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
+{
+	RoadSystem * roadSystem = getProjectData()->getRoadSystem();
+	QMap<QString, RSystemElementRoad *>::const_iterator it = roadSystem->getRoads().constBegin();
+	RSystemElementRoad *road = it.value();
+	s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
+	vec = QVector2D(road->getGlobalPoint(s) - to);
+	t = vec.length();
+
+	while (++it != roadSystem->getRoads().constEnd())
+	{
+		RSystemElementRoad *newRoad = it.value();
+		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
+		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(s) - to);
+		double dist = newVec.length();
+
+		if (dist < t)
+		{
+			road = newRoad;
+			t = dist;
+			s = newS;
+			vec = newVec;
+		}
+	}
+
+	QVector2D normal = road->getGlobalNormal(s);
+
+	if (QVector2D::dotProduct(normal, vec) < 0)
+	{
+		t = -t;
+	}
+
+	return road;
+}
+
 bool 
-SignalEditor::translateSignal(Signal * signal, const QPointF &to)
+SignalEditor::translateSignal(Signal * signal, RSystemElementRoad *newRoad, QPointF &to)
 {
     RSystemElementRoad * road = signal->getParentRoad();
-    double s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
-    double dist = QVector2D(road->getGlobalPoint(s) - to).length();
-
-    RSystemElementRoad * nearestRoad = NULL;
-    double newS;
-    double newDist;
-    if (dist > signal->getT() + 0.5)
-    {
-        RoadSystem * roadSystem = getProjectData()->getRoadSystem();
-        foreach (RSystemElementRoad * newRoad, roadSystem->getRoads())
-        {
-            newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
-            newDist = QVector2D(newRoad->getGlobalPoint(newS) - to).length();
-
-            if (newDist < dist)
-            {
-                nearestRoad = newRoad;
-                dist = newDist;
-                s = newS;
-            }
-        }
-    }
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Signal"));
     bool parentChanged = false;
-    if (nearestRoad)
+    if (newRoad != road)
     {
         RemoveSignalCommand * removeSignalCommand = new RemoveSignalCommand(signal, road);
         getProjectGraph()->executeCommand(removeSignalCommand);
 
-        AddSignalCommand * addSignalCommand = new AddSignalCommand(signal, nearestRoad);
+        AddSignalCommand * addSignalCommand = new AddSignalCommand(signal, newRoad);
         getProjectGraph()->executeCommand(addSignalCommand);
+		signal->setElementSelected(false);
 
-        road = nearestRoad;
+        road = newRoad;
         parentChanged = true;
-    }            
+    }  
 
-    double t = road->getTFromGlobalPoint(to, s);
-    LaneSection *laneSection = road->getLaneSection(s);
+	double s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
+	QVector2D vec = QVector2D(road->getGlobalPoint(s) - to);
+	double t = vec.length();
+
+	QVector2D normal = road->getGlobalNormal(s);
+
+	if (QVector2D::dotProduct(normal, vec) < 0)
+	{
+		t = -t;
+	}
+
+	LaneSection *laneSection = road->getLaneSection(s);
     int validToLane;
     if (t < 0)
     {
         validToLane = laneSection->getRightmostLaneId();
-        dist = -dist;
-    }
+	}
     else
     {
         validToLane = laneSection->getLeftmostLaneId();
     }
 
-    SetSignalPropertiesCommand * signalPropertiesCommand = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), dist, signal->getDynamic(), signal->getOrientation(), signal->getValue(), signal->getCountry(), signal->getType(), signal->getTypeSubclass(), signal->getSubtype(), signal->getValue(), signal->getZOffset(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), 0, validToLane);
+    SetSignalPropertiesCommand * signalPropertiesCommand = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getValue(), signal->getCountry(), signal->getType(), signal->getTypeSubclass(), signal->getSubtype(), signal->getValue(), signal->getZOffset(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), 0, validToLane);
     getProjectGraph()->executeCommand(signalPropertiesCommand);
     MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(signal, s, RSystemElementRoad::DRS_SignalSection);
     getProjectGraph()->executeCommand(moveSectionCommand);
@@ -204,6 +231,48 @@ SignalEditor::translateSignal(Signal * signal, const QPointF &to)
     getProjectData()->getUndoStack()->endMacro();
 
     return parentChanged;
+}
+
+Signal *
+SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
+{
+	int validToLane = 0;	// make a new signal //
+
+	LaneSection *laneSection = road->getLaneSection(s);
+	if (t < 0)
+	{
+		validToLane = laneSection->getRightmostLaneId();
+	}
+	else
+	{
+		validToLane = laneSection->getLeftmostLaneId();
+	}
+	QList<UserData *> userData;
+	SignalContainer *lastSignal = signalManager_->getSelectedSignalContainer();
+	Signal *newSignal = NULL;
+
+	if (lastSignal)
+	{
+		if (t < 0)
+		{
+			t -= lastSignal->getSignalDistance();
+		}
+		else
+		{
+			t += lastSignal->getSignalDistance();
+		}
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), lastSignal->getSignalHeight(), 0.0, 0.0, true, 2, 0, validToLane);
+		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
+		getProjectGraph()->executeCommand(command);
+	}
+	else
+	{
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
+		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
+		getProjectGraph()->executeCommand(command);
+	}
+
+	return newSignal;
 }
 
 /*
@@ -375,6 +444,28 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
         {
         }
     }
+	else if (getCurrentTool() == ODD::TSG_SIGNAL)
+	{
+		QPointF mousePoint = mouseAction->getEvent()->scenePos();
+
+        if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
+		{
+			if (mouseEvent->button() == Qt::LeftButton)
+			{
+				QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);
+
+				if (underMouseItems.count() == 0)		// find the closest road //
+				{
+					double s;
+					double t;
+					QVector2D vec;
+					RSystemElementRoad * road = findClosestRoad(mousePoint, s, t, vec);
+
+					addSignalToRoad(road, s, t);    
+				}
+			}
+		}
+	}
 
     //	ProjectEditor::mouseAction(mouseAction);
 }

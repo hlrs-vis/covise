@@ -30,6 +30,8 @@ class ObjectItem;
 class BridgeItem;
 class Signal;
 class SignalTreeWidget;
+class RSystemElementRoad;
+class SignalManager;
 
 class SignalEditor : public ProjectEditor
 {
@@ -57,7 +59,12 @@ public:
 
     // Move Signal //
     //
-    bool translateSignal(Signal * signal, const QPointF &to);
+	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
+    bool translateSignal(Signal * signal, RSystemElementRoad * newRoad, QPointF &to);
+
+	// New Signal with properties chosen in SignalTreeWidget //
+	//
+	Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
 
 
     // RoadType //
@@ -108,6 +115,7 @@ private:
 	// Signal Tree //
 	//
 	SignalTreeWidget *signalTree_;
+	SignalManager *signalManager_;
 
     // RoadType //
     //

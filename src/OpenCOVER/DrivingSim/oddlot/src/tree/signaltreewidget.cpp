@@ -52,6 +52,8 @@ SignalTreeWidget::SignalTreeWidget(SignalManager *signalManager, MainWindow *mai
 	, signalManager_(signalManager)
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
+	, signalEditor_(NULL)
+	, currentTool_(ODD::TNO_TOOL)
 {
     init();
 }
@@ -176,95 +178,112 @@ SignalTreeWidget::init()
 	insertTopLevelItems(0,rootList);
 }
 
+
+void 
+SignalTreeWidget::setSignalEditor(SignalEditor *signalEditor)
+{
+	signalEditor_ = signalEditor;
+	
+	if (!signalEditor_)
+	{
+		clearSelection();
+	}
+}
+
   
 //################//
 // EVENTS         //
 //################//
-
 void
 SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-
-	QTreeWidgetItem *item = selectedItems().at(0);
-	const QString text = item->text(0);
-	SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
-	if (signalContainer)				// selected item is a signal
+	if (signalEditor_)
 	{
-		signalManager_->setSelectedSignalContainer(signalContainer);
-		if (signalEditor_ && projectWidget_)
+		QTreeWidgetItem *item = selectedItems().at(0);
+		const QString text = item->text(0);
+		SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
+		if (signalContainer)				// selected item is a signal
 		{
-			signalEditor_->setTool(ODD::TSG_SIGNAL);
-
-			const QString &country = signalManager_->getCountry(signalContainer);
-			int type = signalContainer->getSignalType();
-			const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
-			int subtype = signalContainer->getSignalSubType();
-
-			foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
+			signalManager_->setSelectedSignalContainer(signalContainer);
+			currentTool_ = ODD::TSG_SIGNAL;
+			if (signalEditor_ && projectWidget_)
 			{
-				Signal *signal = dynamic_cast<Signal *>(element);
-				if (signal)
+				const QString &country = signalManager_->getCountry(signalContainer);
+				int type = signalContainer->getSignalType();
+				const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
+				int subtype = signalContainer->getSignalSubType();
+
+				foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
 				{
-					SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
-					projectWidget_->getProjectSettings()->executeCommand(command);
+					Signal *signal = dynamic_cast<Signal *>(element);
+					if (signal)
+					{
+						SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
+						projectWidget_->getProjectSettings()->executeCommand(command);
+					}
 				}
 			}
 		}
-		return;
-	}
-	
-	ObjectContainer *objectContainer = signalManager_->getObjectContainer(text);
-	if (objectContainer)				// selected item is an object
-	{
-		signalManager_->setSelectedObjectContainer(objectContainer);
-		if (signalEditor_ && projectWidget_)
+		else
 		{
-			signalEditor_->setTool(ODD::TSG_OBJECT);
 
-			const QString &country = signalManager_->getCountry(objectContainer);
-			const QString &type = objectContainer->getObjectType();
-			double length = objectContainer->getObjectLength();
-			double width = objectContainer->getObjectWidth();
-			double radius = objectContainer->getObjectRadius();
-			double height = objectContainer->getObjectHeight();
-			double heading = objectContainer->getObjectHeading();
-			double repeatDistance = objectContainer->getObjectRepeatDistance();
-			const QString &file = objectContainer->getObjectFile();
-
-
-			foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
+			ObjectContainer *objectContainer = signalManager_->getObjectContainer(text);
+			if (objectContainer)				// selected item is an object
 			{
-				Object *object = dynamic_cast<Object *>(element);
-
-				if (object)
+				signalManager_->setSelectedObjectContainer(objectContainer);
+				currentTool_ = ODD::TSG_OBJECT;
+				if (signalEditor_ && projectWidget_)
 				{
-					SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), type, object->getT(), object->getzOffset(), 
-						object->getValidLength(), object->getOrientation(), length, width, radius, height, heading,
-						object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), repeatDistance, object->getTextureFileName());
-					projectWidget_->getProjectSettings()->executeCommand(command);
+					const QString &country = signalManager_->getCountry(objectContainer);
+					const QString &type = objectContainer->getObjectType();
+					double length = objectContainer->getObjectLength();
+					double width = objectContainer->getObjectWidth();
+					double radius = objectContainer->getObjectRadius();
+					double height = objectContainer->getObjectHeight();
+					double heading = objectContainer->getObjectHeading();
+					double repeatDistance = objectContainer->getObjectRepeatDistance();
+					const QString &file = objectContainer->getObjectFile();
+
+
+					foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
+					{
+						Object *object = dynamic_cast<Object *>(element);
+
+						if (object)
+						{
+							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), type, object->getT(), object->getzOffset(), 
+								object->getValidLength(), object->getOrientation(), length, width, radius, height, heading,
+								object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), repeatDistance, object->getTextureFileName());
+							projectWidget_->getProjectSettings()->executeCommand(command);
+						}
+					}
 				}
 			}
-		}
-		return;
-	}
 
-	if (text == "Bridge")
-	{
+			else if (text == "Bridge")
+			{
+				currentTool_ = ODD::TSG_BRIDGE;
+			}
+			else if (text == "Tunnel")
+			{
+				currentTool_ = ODD::TSG_TUNNEL;
+
+			}
+		}
+
 		if (signalEditor_)
 		{
-			signalEditor_->setTool(ODD::TSG_BRIDGE);
+			signalEditor_->setTool(currentTool_);
 		}
+
+
+		QTreeWidget::selectionChanged(selected, deselected);
 	}
-	else if (text == "Tunnel")
+	else
 	{
-		if (signalEditor_)
-		{
-			signalEditor_->setTool(ODD::TSG_TUNNEL);
-		}
-
+		clearSelection();
+		clearFocus();
 	}
 
-
-    QTreeWidget::selectionChanged(selected, deselected);
 }
 

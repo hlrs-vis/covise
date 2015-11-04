@@ -103,10 +103,12 @@ protected:
     //################//
 
 private:
+	RoadSystemItem * roadSystemItem_;
     void init();
 
     Signal *signal_;
 	RSystemElementRoad *road_;
+	RSystemElementRoad *closestRoad_;
 
     QPointF pos_;
     double size_;

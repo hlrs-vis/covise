@@ -54,6 +54,7 @@ SignalTextItem::SignalTextItem(SignalItem *signalItem)
 
     // Path //
     //
+	updateName();
     updatePosition();
 
     // Hide the text item on creation and show it only on mouse hover of the parent //
@@ -94,7 +95,38 @@ SignalTextItem::updatePosition()
 void
 SignalTextItem::updateName()
 {
-    textHandle_->setText(signal_->getName());
+	if (signal_->getName() == "")
+	{
+		QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
+
+		if (signal_->getType() >= 0)
+		{
+			if (!signal_->getTypeSubclass().isEmpty())
+			{
+				if (signal_->getSubtype() >= 0)
+				{
+					signalName = QString::number(signal_->getType()) + "." + signal_->getTypeSubclass() + "-" + QString::number(signal_->getSubtype());
+				}
+				else
+				{
+					signalName = QString::number(signal_->getType()) + "." + signal_->getTypeSubclass();
+				}
+			}
+			else if (signal_->getSubtype() >= 0)
+			{
+				signalName = QString::number(signal_->getType()) + "-" + QString::number(signal_->getSubtype());
+			}
+			else
+			{
+				signalName = QString::number(signal_->getType());
+			}
+		}
+		textHandle_->setText(signalName);
+	}
+	else
+	{
+		textHandle_->setText(signal_->getName());
+	}
 }
 
 //################//

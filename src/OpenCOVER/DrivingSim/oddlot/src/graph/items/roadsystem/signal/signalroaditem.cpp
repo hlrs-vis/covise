@@ -198,43 +198,16 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
         // calculate t at s
         //
-        double t = road_->getTFromGlobalPoint(pos_, s);
+		QVector2D vec = QVector2D(road_->getGlobalPoint(s) - pos_);
+		double t = vec.length();
+		if (QVector2D::dotProduct(road_->getGlobalNormal(s), vec) < 0)
+		{
+			t = -t;
+		}
 
         if (tool == ODD::TSG_SIGNAL)
         {
-            int validToLane = 0;
-
-            LaneSection *laneSection = road_->getLaneSection(s);
-            if (t < 0)
-            {
-                validToLane = laneSection->getRightmostLaneId();
-            }
-            else
-            {
-                validToLane = laneSection->getLeftmostLaneId();
-            }
-            QList<UserData *> userData;
-			SignalContainer *lastSignal = signalManager_->getSelectedSignalContainer();
-			if (lastSignal)
-			{
-				if (t < 0)
-				{
-					t -= lastSignal->getSignalDistance();
-				}
-				else
-				{
-					t += lastSignal->getSignalDistance();
-				}
-				Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), lastSignal->getSignalHeight(), 0.0, 0.0, true, 2, 0, validToLane);
-				AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
-				getProjectGraph()->executeCommand(command);
-			}
-			else
-			{
-				Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
-				AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
-				getProjectGraph()->executeCommand(command);
-			}         
+			signalEditor_->addSignalToRoad(road_, s, t);
         }
         else if (tool == ODD::TSG_OBJECT)
         {
@@ -326,12 +299,12 @@ SignalRoadItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 	//
 	getTextItem()->setVisible(true);
 	getTextItem()->setPos(event->scenePos());
-
+*/
 	// Parent //
 	//
 	RoadItem::hoverEnterEvent(event); // pass to baseclass
 
-	*/
+	
 }
 
 void
@@ -356,12 +329,12 @@ SignalRoadItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 	// Text //
 	//
 	getTextItem()->setVisible(false);
-
+*/
 	// Parent //
 	//
 	RoadItem::hoverLeaveEvent(event); // pass to baseclass
 
-	*/
+	
 }
 
 void
@@ -380,12 +353,12 @@ SignalRoadItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 	{
 		// does nothing //
 	}
-
+*/
 	// Parent //
 	//
 	RoadItem::hoverMoveEvent(event);
 
-	*/
+	
 }
 
 //##################//

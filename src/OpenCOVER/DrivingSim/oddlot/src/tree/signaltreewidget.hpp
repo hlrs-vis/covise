@@ -16,6 +16,8 @@
 #ifndef SIGNALTREEWIDGET_HPP
 #define SIGNALTREEWIDGET_HPP
 
+#include "src/util/odd.hpp"
+
 #include <QTreeWidget>
 
 class ProjectData;
@@ -41,10 +43,7 @@ public:
 		projectWidget_ = projectWidget ;
 	}
 
-	void setSignalEditor(SignalEditor *signalEditor)
-	{
-		signalEditor_ = signalEditor;
-	}
+	void setSignalEditor(SignalEditor *signalEditor);
 
 protected:
 private:
@@ -71,6 +70,7 @@ private:
 	SignalManager *signalManager_;
 	MainWindow *mainWindow_;
 	SignalEditor *signalEditor_;
+	ODD::ToolId currentTool_;
 };
 
 #endif // PROJECTTREEWIDGET_HPP
