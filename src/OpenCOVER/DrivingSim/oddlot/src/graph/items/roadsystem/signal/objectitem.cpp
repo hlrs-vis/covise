@@ -58,6 +58,7 @@ ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF p
 	, roadSystemItem_(roadSystemItem)
     , object_(object)
     , pos_(pos)
+	, path_(NULL)
 {
     init();
 }
@@ -139,12 +140,16 @@ ObjectItem::updateColor()
 void
 ObjectItem::createPath()
 {
+	if (path_)
+	{
+		delete path_;
+	}
+
+	path_ = new QPainterPath();
+
     setBrush(QBrush(outerColor_));
     setPen(QPen(outerColor_));
 
-    QPainterPath path;
-
-    RSystemElementRoad *road = object_->getParentRoad();
 	double t = object_->getT();
 	double w;
 	if (object_->getT() <= 0)
@@ -174,18 +179,18 @@ ObjectItem::createPath()
 			dist = 1 / getProjectGraph()->getProjectWidget()->getLODSettings()->TopViewEditorPointsPerMeter;
 		}
 
-		LaneSection * currentLaneSection = road->getLaneSection(currentS);
+		LaneSection * currentLaneSection = road_->getLaneSection(currentS);
 		double sSection = currentS - currentLaneSection->getSStart();
 		currentLaneSection = NULL;
 
 		int currentLaneId = 0;
 		double d = 0.0;
-		while ((totalLength < object_->getRepeatLength()) && (currentS < road->getLength()))
+		while ((totalLength < object_->getRepeatLength()) && (currentS < road_->getLength()))
 		{
 
-			if (road->getLaneSection(currentS) != currentLaneSection)
+			if (road_->getLaneSection(currentS) != currentLaneSection)
 			{
-				LaneSection * newLaneSection = road->getLaneSection(currentS);
+				LaneSection * newLaneSection = road_->getLaneSection(currentS);
 				while (currentLaneSection && (currentLaneSection != newLaneSection))
 				{
 					if (object_->getT() < -NUMERICAL_ZERO3)
@@ -197,7 +202,7 @@ ObjectItem::createPath()
 						t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentLaneSection->getSEnd()) + d;
 					}
 
-					currentLaneSection = road->getLaneSectionNext(currentLaneSection->getSStart() + NUMERICAL_ZERO3);
+					currentLaneSection = road_->getLaneSectionNext(currentLaneSection->getSStart() + NUMERICAL_ZERO3);
 					currentLaneId = currentLaneSection->getLaneId(0, t);
 					sSection = 0;
 				}
@@ -230,7 +235,7 @@ ObjectItem::createPath()
 			{
 				t = currentLaneSection->getLaneSpanWidth(0, currentLaneId, currentS) + d;
 			}
-			QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS, t);
+			QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
 
 			if (object_->getRepeatDistance() > 0.0) // multiple objects
@@ -239,14 +244,14 @@ ObjectItem::createPath()
 
 				if (object_->getRadius() > 0.0) // circular object
 				{
-					path.addEllipse(currentPos, object_->getRadius(), object_->getRadius());
+					path_->addEllipse(currentPos, object_->getRadius(), object_->getRadius());
 
 					//               setPen(QPen(QColor(255, 255, 255)));
-					path.moveTo(currentPos.x() - length, currentPos.y());
-					path.lineTo(currentPos.x() + length, currentPos.y());
+					path_->moveTo(currentPos.x() - length, currentPos.y());
+					path_->lineTo(currentPos.x() + length, currentPos.y());
 
-					path.moveTo(currentPos.x(), currentPos.y() - length);
-					path.lineTo(currentPos.x(), currentPos.y() + length);
+					path_->moveTo(currentPos.x(), currentPos.y() - length);
+					path_->lineTo(currentPos.x(), currentPos.y() + length);
 				}
 				else
 				{
@@ -256,9 +261,9 @@ ObjectItem::createPath()
 
 					transformationMatrix.translate(currentPos.x(), currentPos.y());
 					tmpPath.addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
-					rotationMatrix.rotate(road->getGlobalHeading(currentS) - 90 + object_->getHeading());
+					rotationMatrix.rotate(road_->getGlobalHeading(currentS) - 90 + object_->getHeading());
 					tmpPath = transformationMatrix.map(rotationMatrix.map(tmpPath));
-					path += tmpPath;
+					*path_ += tmpPath;
 				}
 
 				if ((totalLength + dist) > object_->getRepeatLength())
@@ -271,19 +276,19 @@ ObjectItem::createPath()
 				// line object
 				if (totalLength == 0)
 				{
-					path.moveTo(currentPos.x(), currentPos.y());
+					path_->moveTo(currentPos.x(), currentPos.y());
 				}
 				else
 				{
-					path.lineTo(currentPos.x(), currentPos.y());
-					path.moveTo(currentPos.x(), currentPos.y());
+					path_->lineTo(currentPos.x(), currentPos.y());
+					path_->moveTo(currentPos.x(), currentPos.y());
 				}
 
 
 				if ((totalLength + dist) > object_->getRepeatLength())
 				{
-					QPointF currentPos = object_->getParentRoad()->getGlobalPoint(currentS + totalLength - object_->getRepeatLength(), t);
-					path.lineTo(currentPos.x(), currentPos.y());
+					QPointF currentPos = road_->getGlobalPoint(currentS + totalLength - object_->getRepeatLength(), t);
+					path_->lineTo(currentPos.x(), currentPos.y());
 				}
 			}
 
@@ -296,15 +301,15 @@ ObjectItem::createPath()
 	{
 		if (object_->getRadius() > 0.0) // circular object
 		{
-			path.addEllipse(pos_, object_->getRadius(), object_->getRadius());
+			path_->addEllipse(pos_, object_->getRadius(), object_->getRadius());
 			double length = object_->getRadius() / 4;
 
 			//            setPen(QPen(QColor(255, 255, 255)));
-			path.moveTo(pos_.x() - length, pos_.y());
-			path.lineTo(pos_.x() + length, pos_.y());
+			path_->moveTo(pos_.x() - length, pos_.y());
+			path_->lineTo(pos_.x() + length, pos_.y());
 
-			path.moveTo(pos_.x(), pos_.y() - length);
-			path.lineTo(pos_.x(), pos_.y() + length);
+			path_->moveTo(pos_.x(), pos_.y() - length);
+			path_->lineTo(pos_.x(), pos_.y() + length);
 		}
 		else
 		{
@@ -313,13 +318,13 @@ ObjectItem::createPath()
 
 			transformationMatrix.translate(pos_.x(), pos_.y());
 
-			path.addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
-			rotationMatrix.rotate(road->getGlobalHeading(object_->getSStart()) - 90 + object_->getHeading());
-			path = transformationMatrix.map(rotationMatrix.map(path));
+			path_->addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
+			rotationMatrix.rotate(road_->getGlobalHeading(object_->getSStart()) - 90 + object_->getHeading());
+			*path_ = transformationMatrix.map(rotationMatrix.map(*path_));
 		}
 	}
 
-	setPath(path);
+	setPath(*path_);
 }
 
 /*
@@ -329,7 +334,7 @@ void
 ObjectItem::updatePosition()
 {
 
-    pos_ = object_->getParentRoad()->getGlobalPoint(object_->getSStart(), object_->getT());
+    pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT());
 
     createPath();
 }
@@ -356,7 +361,7 @@ ObjectItem::deleteRequest()
 bool
 ObjectItem::removeObject()
 {
-    RemoveObjectCommand *command = new RemoveObjectCommand(object_, object_->getParentRoad());
+    RemoveObjectCommand *command = new RemoveObjectCommand(object_, road_);
     return getProjectGraph()->executeCommand(command);
 }
 
@@ -426,9 +431,9 @@ ObjectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 
 		QPointF newPos = event->scenePos();
-		pos_ += newPos - lastPos_;
+		path_->translate(newPos-lastPos_);
 		lastPos_ = newPos;
-		createPath();
+		setPath(*path_);
 
 		QPointF to = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
 

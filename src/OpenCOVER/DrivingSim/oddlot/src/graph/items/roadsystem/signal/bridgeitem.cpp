@@ -35,6 +35,7 @@
 
 #include "src/graph/items/roadsystem/signal/bridgetextitem.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
+#include "src/graph/items/roadsystem/roaditem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
 
 // Manager //
@@ -52,8 +53,10 @@
 
 BridgeItem::BridgeItem(RoadSystemItem *roadSystemItem, Bridge *bridge, QPointF pos)
     : GraphElement(roadSystemItem, bridge)
+	, roadSystemItem_(roadSystemItem)
     , bridge_(bridge)
     , pos_(pos)
+	, path_(NULL)
 {
     init();
 }
@@ -96,9 +99,14 @@ BridgeItem::init()
         bridgeTextItem_->setZValue(1.0); // stack before siblings
     }
 
+	road_ = bridge_->getParentRoad(); 
+	closestRoad_ = road_;
+
     updateColor();
     updatePosition();
     createPath();
+
+	doPan_ = false;
 }
 
 /*! \brief Sets the color according to the number of links.
@@ -115,12 +123,16 @@ BridgeItem::updateColor()
 void
 BridgeItem::createPath()
 {
+	if (path_)
+	{
+		delete path_;
+	}
+
+	path_ = new QPainterPath();
+
     setBrush(QBrush(outerColor_));
     setPen(QPen(outerColor_, 2.0));
 
-    QPainterPath path;
-
-    RSystemElementRoad *road = bridge_->getParentRoad();
 
     if (bridge_->getLength() > NUMERICAL_ZERO3) // Bridge is repeated
     {
@@ -129,20 +141,20 @@ BridgeItem::createPath()
 
         // Left and right side //
         //
-        while ((totalLength < bridge_->getLength()) && (currentS < road->getLength()))
+        while ((totalLength < bridge_->getLength()) && (currentS < road_->getLength()))
         {
-            LaneSection *laneSection = bridge_->getParentRoad()->getLaneSection(currentS);
+            LaneSection *laneSection = road_->getLaneSection(currentS);
             double t = laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId() - 1, currentS);
-            QPointF currentPos = bridge_->getParentRoad()->getGlobalPoint(currentS, t);
+            QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
             if (totalLength == 0)
             {
-                path.moveTo(currentPos.x(), currentPos.y());
+                path_->moveTo(currentPos.x(), currentPos.y());
             }
             else
             {
-                path.lineTo(currentPos.x(), currentPos.y());
-                path.moveTo(currentPos.x(), currentPos.y());
+                path_->lineTo(currentPos.x(), currentPos.y());
+                path_->moveTo(currentPos.x(), currentPos.y());
             }
 
             //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
@@ -150,8 +162,8 @@ BridgeItem::createPath()
 
             if ((totalLength + dist) > bridge_->getLength())
             {
-                QPointF currentPos = bridge_->getParentRoad()->getGlobalPoint(currentS + (bridge_->getLength() - totalLength), t);
-                path.lineTo(currentPos.x(), currentPos.y());
+                QPointF currentPos = road_->getGlobalPoint(currentS + (bridge_->getLength() - totalLength), t);
+                path_->lineTo(currentPos.x(), currentPos.y());
             }
 
             totalLength += dist;
@@ -163,20 +175,20 @@ BridgeItem::createPath()
 
         // Left and right side //
         //
-        while ((totalLength < bridge_->getLength()) && (currentS < road->getLength()))
+        while ((totalLength < bridge_->getLength()) && (currentS < road_->getLength()))
         {
-            LaneSection *laneSection = bridge_->getParentRoad()->getLaneSection(currentS);
+            LaneSection *laneSection = road_->getLaneSection(currentS);
             double t = -laneSection->getLaneSpanWidth(laneSection->getLeftmostLaneId(), 0, currentS);
-            QPointF currentPos = bridge_->getParentRoad()->getGlobalPoint(currentS, t);
+            QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
             if (totalLength == 0)
             {
-                path.moveTo(currentPos.x(), currentPos.y());
+                path_->moveTo(currentPos.x(), currentPos.y());
             }
             else
             {
-                path.lineTo(currentPos.x(), currentPos.y());
-                path.moveTo(currentPos.x(), currentPos.y());
+                path_->lineTo(currentPos.x(), currentPos.y());
+                path_->moveTo(currentPos.x(), currentPos.y());
             }
 
             //				double dist = 4; // TODO get configured tesselation length Jutta knows where to get this from
@@ -184,8 +196,8 @@ BridgeItem::createPath()
 
             if ((totalLength + dist) > bridge_->getLength())
             {
-                QPointF currentPos = bridge_->getParentRoad()->getGlobalPoint(currentS + (bridge_->getLength() - totalLength), t);
-                path.lineTo(currentPos.x(), currentPos.y());
+                QPointF currentPos = road_->getGlobalPoint(currentS + (bridge_->getLength() - totalLength), t);
+                path_->lineTo(currentPos.x(), currentPos.y());
             }
 
             totalLength += dist;
@@ -193,7 +205,7 @@ BridgeItem::createPath()
         }
     }
 
-    setPath(path);
+    setPath(*path_);
 }
 
 /*
@@ -203,7 +215,7 @@ void
 BridgeItem::updatePosition()
 {
 
-    //	pos_ = bridge_->getParentRoad()->getGlobalPoint(bridge_->getSStart(), bridge_->getT());
+ //   pos_ = road_->getGlobalPoint(bridge_->getSStart());
     updateColor();
     createPath();
 }
@@ -230,7 +242,7 @@ BridgeItem::deleteRequest()
 bool
 BridgeItem::removeBridge()
 {
-    RemoveBridgeCommand *command = new RemoveBridgeCommand(bridge_, bridge_->getParentRoad());
+    RemoveBridgeCommand *command = new RemoveBridgeCommand(bridge_, road_);
     return getProjectGraph()->executeCommand(command);
 }
 
@@ -241,6 +253,7 @@ BridgeItem::removeBridge()
 void
 BridgeItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+	setCursor(Qt::OpenHandCursor);
 
     // Text //
     //
@@ -255,6 +268,7 @@ BridgeItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 void
 BridgeItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
+	setCursor(Qt::ArrowCursor);
 
     // Text //
     //
@@ -277,6 +291,7 @@ BridgeItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 void
 BridgeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	pressPos_ = lastPos_ = event->scenePos();
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Bridge
     if (tool == ODD::TSG_DEL)
     {
@@ -284,7 +299,57 @@ BridgeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     else
     {
+		doPan_ = true;
         GraphElement::mousePressEvent(event); // pass to baseclass
+    }
+}
+
+void
+BridgeItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{	
+	if (doPan_)
+	{
+
+		QPointF newPos = event->scenePos();
+		path_->translate(newPos - lastPos_);
+		lastPos_ = newPos;
+		setPath(*path_);
+
+		QPointF to = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_;
+
+		double s;
+		QVector2D vec;
+		double dist;
+
+		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		if (!nearestRoad)
+		{
+			nearestRoad = road_;
+		}
+		if (nearestRoad != closestRoad_)
+		{
+			RoadItem *nearestRoadItem = roadSystemItem_->getRoadItem(nearestRoad->getID());
+			nearestRoadItem->setHighlighting(true);
+			setZValue(nearestRoadItem->zValue() + 1);
+			roadSystemItem_->getRoadItem(closestRoad_->getID())->setHighlighting(false);
+			closestRoad_ = nearestRoad;
+		}
+
+		GraphElement::mouseMoveEvent(event);
+	}
+}
+
+void
+BridgeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	GraphElement::mouseReleaseEvent(event);
+
+    if (doPan_)
+    {
+		pos_ = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_;
+		signalEditor_->translateBridge(bridge_, closestRoad_, pos_);
+
+		doPan_ = false;
     }
 }
 

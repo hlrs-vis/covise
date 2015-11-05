@@ -190,7 +190,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	}*/
 
     pos_ = event->scenePos();
-    if ((tool == ODD::TSG_SIGNAL) || (tool == ODD::TSG_OBJECT) || (tool == ODD::TSG_BRIDGE))
+    if ((tool == ODD::TSG_SIGNAL) || (tool == ODD::TSG_OBJECT))
     {
         // Add new Signal //
         //
@@ -213,23 +213,19 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         {
 			signalEditor_->addObjectToRoad(road_, s, t);
         }
-        else if (tool == ODD::TSG_BRIDGE)
-        {
-            QList<ObjectCorner *> corners;
-            Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
-            AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
-
-            getProjectGraph()->executeCommand(command);
-        }
     }
 
-    else if ((tool == ODD::TSG_OBJECT) || (tool == ODD::TSG_BRIDGE))
-    {
-        // Add new Object //
-        //
-        RSystemElementRoad *road = getRoad();
-        double s = road->getSFromGlobalPoint(event->scenePos(), 0.0, road->getLength());
-    }
+	else if ((tool == ODD::TSG_TUNNEL) || (tool == ODD::TSG_BRIDGE))
+	{
+		double s = road_->getSFromGlobalPoint(pos_, 0.0, road_->getLength());
+
+		// Add new bridge //
+		//
+		Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
+		AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
+
+		getProjectGraph()->executeCommand(command);
+	}
 }
 
 void

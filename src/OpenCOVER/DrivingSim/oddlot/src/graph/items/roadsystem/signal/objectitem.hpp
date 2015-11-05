@@ -108,6 +108,7 @@ private:
     QPointF pos_;
 	QPointF pressPos_;
 	QPointF lastPos_;
+	QPainterPath *path_;
 
 	bool doPan_;
 

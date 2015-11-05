@@ -355,6 +355,40 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 	return newObject;
 }
 
+bool 
+SignalEditor::translateBridge(Bridge * bridge, RSystemElementRoad *newRoad, QPointF &to)
+{
+    RSystemElementRoad * road = bridge->getParentRoad();
+
+    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Bridge"));
+    bool parentChanged = false;
+    if (newRoad != road)
+    {
+        RemoveBridgeCommand * removeBridgeCommand = new RemoveBridgeCommand(bridge, road);
+        getProjectGraph()->executeCommand(removeBridgeCommand);
+
+        AddBridgeCommand * addBridgeCommand = new AddBridgeCommand(bridge, newRoad);
+        getProjectGraph()->executeCommand(addBridgeCommand);
+		bridge->setElementSelected(false);
+
+        road = newRoad;
+        parentChanged = true;
+    }  
+
+	double s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
+
+
+	SetBridgePropertiesCommand * bridgePropertiesCommand = new SetBridgePropertiesCommand(bridge, bridge->getId(), bridge->getFileName(), bridge->getName(), bridge->getType(),bridge->getLength());
+    getProjectGraph()->executeCommand(bridgePropertiesCommand);
+    MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(bridge, s, RSystemElementRoad::DRS_BridgeSection);
+    getProjectGraph()->executeCommand(moveSectionCommand);
+
+    getProjectData()->getUndoStack()->endMacro();
+
+    return parentChanged;
+}
+
+
 /*
 void
 	SignalEditor

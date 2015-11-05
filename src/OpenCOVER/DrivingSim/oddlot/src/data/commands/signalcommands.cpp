@@ -703,7 +703,7 @@ RemoveBridgeCommand::~RemoveBridgeCommand()
     }
     else
     {
-        delete bridge_;
+ //       delete bridge_;
     }
 }
 
