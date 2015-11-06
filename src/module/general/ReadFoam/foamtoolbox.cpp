@@ -282,7 +282,10 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
         {
             std::string stem = p.stem().string();
             if (time)
-                ++info.varyingFields[stem];
+                {
+				++info.varyingFields[stem];
+				std::cerr << "counting timedir : " << timedir << std::endl;
+				}
             else
                 ++info.constantFields[stem];
         }
@@ -422,7 +425,8 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-            if (isTimeDir(bn))
+			std::cerr << "directory :" << bn << std::endl;
+            if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());
                 if (info.timedirs.find(t) != info.timedirs.end())
