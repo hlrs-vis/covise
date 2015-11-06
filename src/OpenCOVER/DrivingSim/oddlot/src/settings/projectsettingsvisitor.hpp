@@ -81,6 +81,7 @@ public:
     virtual void visit(Signal *);
     virtual void visit(Object *);
     virtual void visit(Bridge *);
+	virtual void visit(Tunnel *);
 
     // Junctions //
     //

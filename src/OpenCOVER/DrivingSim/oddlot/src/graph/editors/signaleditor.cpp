@@ -625,7 +625,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
             }
         }
         else if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT) 
-            || (currentTool == ODD::TSG_BRIDGE))
+			|| (currentTool == ODD::TSG_BRIDGE) || (currentTool = ODD::TSG_TUNNEL))
         {
             foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->selectedItems())
             {

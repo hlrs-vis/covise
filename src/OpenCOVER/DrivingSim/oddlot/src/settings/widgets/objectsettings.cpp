@@ -270,7 +270,7 @@ ObjectSettings::onEditingFinished()
 void
 ObjectSettings::onValueChanged()
 {
-    valueChanged_ = true;
+	valueChanged_ = true;
 }
 
 

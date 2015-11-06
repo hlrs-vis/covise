@@ -85,6 +85,7 @@ SET(ODDLOT_SOURCES
 	 src/data/roadsystem/sections/crosswalkobject.cpp
 	 src/data/roadsystem/sections/signalobject.cpp
 	 src/data/roadsystem/sections/bridgeobject.cpp
+	 src/data/roadsystem/sections/tunnelobject.cpp
 	 src/data/roadsystem/sections/sensorobject.cpp
 	 src/util/odd.cpp
 	 src/io/domwriter.cpp
@@ -261,6 +262,7 @@ SET(ODDLOT_SOURCES
     src/settings/widgets/signalsettings.cpp
 	src/settings/widgets/objectsettings.cpp
 	src/settings/widgets/bridgesettings.cpp
+	src/settings/widgets/tunnelsettings.cpp
     src/tree/items/vehiclesystem/vehiclesystemtreeitem.cpp
     src/tree/items/vehiclesystem/vehiclegrouptreeitem.cpp
     src/tree/items/vehiclesystem/roadvehicletreeitem.cpp
@@ -368,6 +370,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/data/roadsystem/sections/laneheight.hpp
 	 src/data/roadsystem/sections/objectobject.hpp
 	 src/data/roadsystem/sections/bridgeobject.hpp
+	 src/data/roadsystem/sections/tunnelobject.hpp
 	 src/data/roadsystem/sections/crosswalkobject.hpp
 	 src/data/roadsystem/sections/signalobject.hpp
 	 src/data/roadsystem/sections/sensorobject.hpp
@@ -546,6 +549,7 @@ SET(ODDLOT_MOC_HEADERS
     src/settings/widgets/signalsettings.hpp
 	src/settings/widgets/objectsettings.hpp
 	src/settings/widgets/bridgesettings.hpp
+	src/settings/widgets/tunnelsettings.hpp
     src/tree/items/vehiclesystem/vehiclesystemtreeitem.hpp
     src/tree/items/vehiclesystem/vehiclegrouptreeitem.hpp
     src/tree/items/vehiclesystem/roadvehicletreeitem.hpp
@@ -632,6 +636,7 @@ SET(ODDLOT_FORMS
      src/settings/widgets/signalsettings.ui
 	 src/settings/widgets/objectsettings.ui
 	 src/settings/widgets/bridgesettings.ui
+	 src/settings/widgets/tunnelsettings.ui
      src/settings/widgets/lanesettings.ui
      src/wizards/roadlinkwizard.ui
 	 src/settings/widgets/controllersettings.ui

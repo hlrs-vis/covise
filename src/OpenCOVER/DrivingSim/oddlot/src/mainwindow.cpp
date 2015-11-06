@@ -88,8 +88,8 @@ MainWindow::MainWindow(QWidget *parent)
     createSettings();
     createUndo();
     createPrototypes();
-    createSignals();
     createTools();
+	createSignals();
     createWizards();
 	
 

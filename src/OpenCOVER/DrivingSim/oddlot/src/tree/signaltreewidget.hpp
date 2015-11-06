@@ -25,6 +25,7 @@ class ProjectWidget;
 class SignalManager;
 class MainWindow;
 class SignalEditor;
+class ToolAction;
 
 class SignalTreeWidget : public QTreeWidget
 {
@@ -59,6 +60,13 @@ private:
 
 public:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+
+	//################//
+	// SIGNALS        //
+	//################//
+
+signals:
+    void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
 
     //################//
     // PROPERTIES     //

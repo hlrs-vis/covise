@@ -24,6 +24,7 @@
 //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 
@@ -215,7 +216,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         }
     }
 
-	else if ((tool == ODD::TSG_TUNNEL) || (tool == ODD::TSG_BRIDGE))
+	else if (tool == ODD::TSG_BRIDGE)
 	{
 		double s = road_->getSFromGlobalPoint(pos_, 0.0, road_->getLength());
 
@@ -223,6 +224,17 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		//
 		Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
 		AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
+
+		getProjectGraph()->executeCommand(command);
+	}
+	else if (tool == ODD::TSG_TUNNEL)
+	{
+		double s = road_->getSFromGlobalPoint(pos_, 0.0, road_->getLength());
+
+		// Add new bridge //
+		//
+		Tunnel *newTunnel = new Tunnel("tunnel", "", "", 0, s, 100.0, 0.0, 0.0);
+		AddBridgeCommand *command = new AddBridgeCommand(newTunnel, road_, NULL);
 
 		getProjectGraph()->executeCommand(command);
 	}

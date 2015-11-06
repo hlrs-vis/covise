@@ -13,14 +13,14 @@
 **
 **************************************************************************/
 
-#include "bridgesettings.hpp"
-#include "ui_bridgesettings.h"
+#include "tunnelsettings.hpp"
+#include "ui_tunnelsettings.h"
 
 #include "src/mainwindow.hpp"
 
 // Data //
 //
-#include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/commands/roadsectioncommands.hpp"
@@ -43,10 +43,10 @@
 // CONSTRUCTOR    //
 //################//
 
-BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Bridge *bridge)
-    : SettingsElement(projectSettings, parentSettingsElement, bridge)
-    , ui(new Ui::BridgeSettings)
-    , bridge_(bridge)
+TunnelSettings::TunnelSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Tunnel *tunnel)
+    : SettingsElement(projectSettings, parentSettingsElement, tunnel)
+    , ui(new Ui::TunnelSettings)
+    , tunnel_(tunnel)
     , init_(false)
     , valueChanged_(true)
 {
@@ -63,11 +63,15 @@ BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->typeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->lengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->lengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->lightingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->lightingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->daylightSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->daylightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
     init_ = true;
 }
 
-BridgeSettings::~BridgeSettings()
+TunnelSettings::~TunnelSettings()
 {
     delete ui;
 }
@@ -77,16 +81,18 @@ BridgeSettings::~BridgeSettings()
 //################//
 
 void
-BridgeSettings::updateProperties()
+TunnelSettings::updateProperties()
 {
-    if (bridge_)
+    if (tunnel_)
     {
-        ui->nameBox->setText(bridge_->getName());
-        ui->idBox->setText(bridge_->getId());
-        ui->sSpinBox->setValue(bridge_->getSStart());
-        ui->typeComboBox->setCurrentIndex(bridge_->getType());
+        ui->nameBox->setText(tunnel_->getName());
+        ui->idBox->setText(tunnel_->getId());
+        ui->sSpinBox->setValue(tunnel_->getSStart());
+        ui->typeComboBox->setCurrentIndex(tunnel_->getType());
 
-        ui->lengthSpinBox->setValue(bridge_->getLength());
+        ui->lengthSpinBox->setValue(tunnel_->getLength());
+		ui->lightingSpinBox->setValue(tunnel_->getLighting());
+		ui->daylightSpinBox->setValue(tunnel_->getDaylight());
     }
 }
 
@@ -94,9 +100,9 @@ BridgeSettings::updateProperties()
 // SLOTS          //
 //################//
 void
-BridgeSettings::onEditingFinished(int i)
+TunnelSettings::onEditingFinished(int i)
 {
-    if (ui->typeComboBox->currentIndex() != bridge_->getType())
+    if (ui->typeComboBox->currentIndex() != tunnel_->getType())
     {
         valueChanged_ = true;
         onEditingFinished();
@@ -104,15 +110,15 @@ BridgeSettings::onEditingFinished(int i)
 }
 
 void
-BridgeSettings::onEditingFinished()
+TunnelSettings::onEditingFinished()
 {
     if (valueChanged_)
     {
         QString filename = ui->nameBox->text();
-        QString newId = bridge_->getId();
-        if (filename != bridge_->getName())
+        QString newId = tunnel_->getId();
+        if (filename != tunnel_->getName())
         {
-            QStringList parts = bridge_->getId().split("_");
+            QStringList parts = tunnel_->getId().split("_");
 
             if (parts.size() > 2)
             {
@@ -120,12 +126,12 @@ BridgeSettings::onEditingFinished()
             }
             else
             {
-                newId = bridge_->getParentRoad()->getRoadSystem()->getUniqueId(bridge_->getId(), filename);
+                newId = tunnel_->getParentRoad()->getRoadSystem()->getUniqueId(tunnel_->getId(), filename);
             }
         }
     
 
-        SetBridgePropertiesCommand *command = new SetBridgePropertiesCommand(bridge_, newId, filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value());
+        SetTunnelPropertiesCommand *command = new SetTunnelPropertiesCommand(tunnel_, newId, filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->lightingSpinBox->value(), ui->daylightSpinBox->value());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
@@ -138,17 +144,17 @@ BridgeSettings::onEditingFinished()
 }
 
 void
-BridgeSettings::on_sSpinBox_editingFinished()
+TunnelSettings::on_sSpinBox_editingFinished()
 {
     if (valueChanged_)
     {
-        MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(bridge_, ui->sSpinBox->value(), RSystemElementRoad::DRS_BridgeSection);
+        MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(tunnel_, ui->sSpinBox->value(), RSystemElementRoad::DRS_BridgeSection);
         if (moveSectionCommand->isValid())
         {
             getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Value"));
             getProjectSettings()->executeCommand(moveSectionCommand);
 
-            SetBridgePropertiesCommand *setPropertiesCommand = new SetBridgePropertiesCommand(bridge_, bridge_->getId(), bridge_->getFileName(), bridge_->getName(), bridge_->getType(), bridge_->getLength());
+            SetTunnelPropertiesCommand *setPropertiesCommand = new SetTunnelPropertiesCommand(tunnel_, tunnel_->getId(), tunnel_->getFileName(), tunnel_->getName(), tunnel_->getType(), tunnel_->getLength(), tunnel_->getLighting(), tunnel_->getDaylight());
             getProjectSettings()->executeCommand(setPropertiesCommand);
 
             // Macro Command //
@@ -168,7 +174,7 @@ BridgeSettings::on_sSpinBox_editingFinished()
 }
 
 void
-    BridgeSettings::onValueChanged()
+    TunnelSettings::onValueChanged()
 {
     valueChanged_ = true;
 }
@@ -178,7 +184,7 @@ void
 //##################//
 
 void
-BridgeSettings::updateObserver()
+TunnelSettings::updateObserver()
 {
 
     // Parent //
@@ -189,11 +195,11 @@ BridgeSettings::updateObserver()
         return; // no need to go on
     }
 
-    // Bridge //
+    // Tunnel //
     //
-    int changes = bridge_->getBridgeChanges();
+    int changes = tunnel_->getTunnelChanges();
 
-    if ((changes & Bridge::CEL_ParameterChange))
+    if ((changes & Tunnel::CEL_ParameterChange))
     {
         updateProperties();
     }

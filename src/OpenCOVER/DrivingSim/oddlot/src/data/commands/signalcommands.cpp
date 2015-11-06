@@ -623,7 +623,7 @@ AddBridgeCommand::AddBridgeCommand(Bridge *bridge, RSystemElementRoad *road, Dat
     else
     {
         setValid();
-        setText(QObject::tr("AddBridge"));
+        setText(QObject::tr("AddBridge/AddTunnel"));
     }
 }
 
@@ -811,3 +811,79 @@ SetBridgePropertiesCommand::undo()
 
     setUndone();
 }
+
+//#########################//
+// SetTunnelPropertiesCommand //
+//#########################//
+SetTunnelPropertiesCommand::SetTunnelPropertiesCommand(Tunnel *tunnel, const QString &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent)
+	: SetBridgePropertiesCommand(tunnel, id, file, name, type, length, parent)
+    , tunnel_(tunnel)
+	, newLighting_(lighting)
+	, newDaylight_(daylight)
+{
+    // Check for validity //
+    //
+    if (!tunnel)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("SetTunnelPropertiesCommand: Internal error! No tunnel specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("SetProperties"));
+    }
+
+    oldLighting_ = tunnel_->getLighting();
+	oldDaylight_ = tunnel_->getDaylight();
+}
+
+/*! \brief .
+*
+*/
+SetTunnelPropertiesCommand::~SetTunnelPropertiesCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+    }
+    else
+    {
+        // nothing to be done (tunnel is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+SetTunnelPropertiesCommand::redo()
+{
+	SetBridgePropertiesCommand::redo();	// pass to baseclass /
+
+	tunnel_->setLighting(newLighting_);
+	tunnel_->setDaylight(newDaylight_);
+
+    tunnel_->addTunnelChanges(Tunnel::CEL_ParameterChange);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+SetTunnelPropertiesCommand::undo()
+{
+	SetBridgePropertiesCommand::undo();
+
+    tunnel_->setLighting(oldLighting_);
+	tunnel_->setDaylight(oldDaylight_);
+
+    tunnel_->addTunnelChanges(Tunnel::CEL_ParameterChange);
+
+    setUndone();
+}
+

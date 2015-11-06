@@ -22,6 +22,7 @@
 // Data //
 //
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/commands/signalcommands.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
@@ -114,7 +115,14 @@ BridgeItem::init()
 void
 BridgeItem::updateColor()
 {
-	outerColor_.setHsv((categorySize_ - 1) * 360/(categorySize_ + 1), 255, 255, 255);
+	if (dynamic_cast<Tunnel *>(bridge_)) // Bridge is a tunnel //
+	{
+		outerColor_.setHsv(categorySize_ * 360/(categorySize_ + 1), 255, 255, 255);
+	}
+	else
+	{
+		outerColor_.setHsv((categorySize_ - 1) * 360/(categorySize_ + 1), 255, 255, 255);
+	}
 }
 
 /*!

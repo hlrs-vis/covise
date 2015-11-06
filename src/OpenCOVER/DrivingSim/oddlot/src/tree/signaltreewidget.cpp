@@ -28,6 +28,8 @@
 // GUI //
 //
 #include "src/gui/projectwidget.hpp"
+#include "src/gui/tools/signaleditortool.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 
 // MainWindow//
 //
@@ -70,6 +72,14 @@ SignalTreeWidget::~SignalTreeWidget()
 void
 SignalTreeWidget::init()
 {
+	// Connect with the ToolManager to send the selected signal or object //
+    //
+	ToolManager *toolManager = mainWindow_->getToolManager();
+	if (toolManager)
+	{
+		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+	}
+
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
 
@@ -273,7 +283,11 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 
 		if (signalEditor_)
 		{
-			signalEditor_->setTool(currentTool_);
+			// Set a tool //
+			//
+			SignalEditorToolAction *action = new SignalEditorToolAction(currentTool_);
+			emit toolAction(action);
+			delete action;
 		}
 
 
