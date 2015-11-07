@@ -2842,29 +2842,34 @@ void ViewerOsg::setFog(float *color,
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::setFog\n";
+#if 0
     (void)color;
     (void)visibilityRange;
     (void)fogType;
 // nebel tut nicht weil er in Z-Richtung geht.
-#if 0
    // XXX
    fprintf(stderr, "ViewerOsg::setFog(color=(%f %f %f), range=%f, type=%s)\n",
       color[0], color[1], color[2], visibilityRange, fogType);
 
    Vec3 scale = currentTransform.getScale();
    fprintf(stderr, "current scale: (%f %f %f)\n", scale[0], scale[1], scale[2]);
-
+   
+#endif
 #if 1
-
-   if(visibilityRange == 0)
-      return;
+   
    StateSet *state = VRMLRoot->getOrCreateStateSet();
    Fog *fog = new Fog();
+   if(visibilityRange == 0)
+   {
+       state->setAttributeAndModes(fog, StateAttribute::OFF);
+       return;
+   }
    fog->setColor(Vec4(color[0], color[1], color[2], 1.0));
    fog->setStart(0.1);
-   fog->setEnd(0.1+visibilityRange*currentTransform.getScale());
+   fog->setEnd(0.1+visibilityRange*1000.0);
    fog->setFogCoordinateSource(Fog::FRAGMENT_DEPTH);
    //fog->setFogCoordinateSource(Fog::FOG_COORDINATE);
+   fog->setUseRadialFog(true);
    Fog::Mode fogMode = Fog::LINEAR;
    if(!strcmp(fogType, "LINEAR"))
    {
@@ -2879,10 +2884,9 @@ void ViewerOsg::setFog(float *color,
       CERR << "unknown fog mode " << fogType << endl;
    }
    fog->setMode(fogMode);
+   state->setAttributeAndModes(fog, StateAttribute::ON);
 
    state->setAttributeAndModes(fog, StateAttribute::ON);
-   //VRMLRoot->setStateSet(state);
-#endif
 #endif
 }
 
