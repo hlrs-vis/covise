@@ -233,54 +233,54 @@ PorscheRealtimeDynamics::moveToStreet(osg::Matrix &carTrans, osg::Matrix &moveMa
     if (false)
     { /*
 
-	//Auswertung von 25 Strahlen:
-	//Koordinaten einlsen
-	//float coordA[50];
-	float height_ds = DSpaceData.PosZ;
-	osg::Vec3 s0,t0;
-	//coordA = DSpaceData.coordA;
+   //Auswertung von 25 Strahlen:
+   //Koordinaten einlsen
+   //float coordA[50];
+   float height_ds = DSpaceData.PosZ;
+   osg::Vec3 s0,t0;
+   //coordA = DSpaceData.coordA;
 
-	// Strahlen generieren
-	osg::ref_ptr<osg::LineSegment> rayA[25]= new osg::LineSegment();
-	int a = 0;
-	for (int i=0; i<25; i++)
-	{
-		s0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height_ds+40000.0); // Strahlen +- 40 m
-		t0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height_ds-40000.0);
-		rayA[i]->set(s0, t0);
-		a +=2;
-	}
+   // Strahlen generieren
+   osg::ref_ptr<osg::LineSegment> rayA[25]= new osg::LineSegment();
+   int a = 0;
+   for (int i=0; i<25; i++)
+   {
+      s0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height_ds+40000.0); // Strahlen +- 40 m
+      t0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height_ds-40000.0);
+      rayA[i]->set(s0, t0);
+      a +=2;
+   }
 
-	// Schnittpunkte auslesen
-	osgUtil::IntersectVisitor visitorR;
-	visitorR.setTraversalMask(Isect::Collision);
-	for (int w=0; w<25; w++)
-	{ //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
-		visitorR.addLineSegment(rayA[w].get());
-	}
+   // Schnittpunkte auslesen
+   osgUtil::IntersectVisitor visitorR;
+   visitorR.setTraversalMask(Isect::Collision);
+   for (int w=0; w<25; w++)
+   { //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
+      visitorR.addLineSegment(rayA[w].get());
+   }
 
-	cover->getObjectsXform()->accept(visitorR);
+   cover->getObjectsXform()->accept(visitorR);
 
-	int test[25]; // Falls SP vorhanden, wird in diese Variable geschrieben
-	for (int nr=0; nr<25; nr++)
-	{ //Ueberpruefung ob es SP gab
-		test[nr]= visitorR.getNumHits(rayA[nr].get());
-		cout << ">>>>>>>>SP:" << test[nr] << endl;
-	}
+   int test[25]; // Falls SP vorhanden, wird in diese Variable geschrieben
+   for (int nr=0; nr<25; nr++)
+   { //Ueberpruefung ob es SP gab
+      test[nr]= visitorR.getNumHits(rayA[nr].get());
+      cout << ">>>>>>>>SP:" << test[nr] << endl;
+   }
 
-	osgUtil::Hit hitInformationA[25];
-	float hoehe[25];
-	for (int h=0; h<25; h++)
-	{
-		if (test[h])
-		{
-			hitInformationA[h] = visitorR.getHitList(rayA[h].get()).front();
-			hoehe[h] = hitInformationA[h].getWorldIntersectPoint()[2];
-			cout << hoehe[h] << " " << h << endl;
-		}
-	}
-	int udpcheck = toDSPACE->send(&hoehe,sizeof(hoehe));
-	cout << "udpcheck: " << udpcheck << endl;
+   osgUtil::Hit hitInformationA[25];
+   float hoehe[25];
+   for (int h=0; h<25; h++)
+   {
+      if (test[h])
+      {
+         hitInformationA[h] = visitorR.getHitList(rayA[h].get()).front();
+         hoehe[h] = hitInformationA[h].getWorldIntersectPoint()[2];
+         cout << hoehe[h] << " " << h << endl;
+      }
+   }
+   int udpcheck = toDSPACE->send(&hoehe,sizeof(hoehe));
+   cout << "udpcheck: " << udpcheck << endl;
 */
     }
     //////
@@ -289,69 +289,69 @@ PorscheRealtimeDynamics::moveToStreet(osg::Matrix &carTrans, osg::Matrix &moveMa
     // 		   TEST 20 Strahlen			  //
     //////////////////////////////////
     /*
-	// Strahlen generieren
-	osg::ref_ptr<osg::LineSegment> rayA[20]= new osg::LineSegment();;
-	for (int i=0; i<20; i++) {
-	//	rayA[i] = new osg::LineSegment();
-		p0.set(pos[0]+2000+i*20,  pos[1]+1500,  pos[2]+1500.0);
-		q0.set(pos[0]+2000+i*20,  pos[1]+1500, pos[2]-40000.0);
-		rayA[i]->set(p0, q0);
-	}
+   // Strahlen generieren
+   osg::ref_ptr<osg::LineSegment> rayA[20]= new osg::LineSegment();;
+   for (int i=0; i<20; i++) {
+   //	rayA[i] = new osg::LineSegment();
+      p0.set(pos[0]+2000+i*20,  pos[1]+1500,  pos[2]+1500.0);
+      q0.set(pos[0]+2000+i*20,  pos[1]+1500, pos[2]-40000.0);
+      rayA[i]->set(p0, q0);
+   }
 
-	// Schnittpunkte auslesen
-	osgUtil::IntersectVisitor visitorS;
-	visitorS.setTraversalMask(Isect::Collision);
-	for (int w=0; w<20; w++) { //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
-		visitorS.addLineSegment(rayA[w].get());
-	}
+   // Schnittpunkte auslesen
+   osgUtil::IntersectVisitor visitorS;
+   visitorS.setTraversalMask(Isect::Collision);
+   for (int w=0; w<20; w++) { //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
+      visitorS.addLineSegment(rayA[w].get());
+   }
 
-	cover->getObjectsXform()->accept(visitorS);
+   cover->getObjectsXform()->accept(visitorS);
 
-	int test[20]; // Falls SP vorhanden, wird in diese Variable geschrieben
-	for (int nr=0; nr<20; nr++) { //Ueberpruefung ob es SP gab
-	test[nr]= visitorS.getNumHits(rayA[nr].get());
-	cout << ">>>>>>>>" << test[nr] << endl;
-	}
+   int test[20]; // Falls SP vorhanden, wird in diese Variable geschrieben
+   for (int nr=0; nr<20; nr++) { //Ueberpruefung ob es SP gab
+   test[nr]= visitorS.getNumHits(rayA[nr].get());
+   cout << ">>>>>>>>" << test[nr] << endl;
+   }
 
-	osgUtil::Hit hitInformationA[20];
-	double hoehe[20];
-	for (int h=0; h<20; h++) {
-				if (test[h]) {
-				hitInformationA[h] = visitorS.getHitList(rayA[h].get()).front();
-				hoehe[h] = hitInformationA[h].getWorldIntersectPoint()[2];
-				//cout << hitInformationA[h] << endl;
-				cout << hoehe[h] << " " << h << endl;
-			}
-	}
+   osgUtil::Hit hitInformationA[20];
+   double hoehe[20];
+   for (int h=0; h<20; h++) {
+            if (test[h]) {
+            hitInformationA[h] = visitorS.getHitList(rayA[h].get()).front();
+            hoehe[h] = hitInformationA[h].getWorldIntersectPoint()[2];
+            //cout << hitInformationA[h] << endl;
+            cout << hoehe[h] << " " << h << endl;
+         }
+   }
 */
     /*
 // KOMPAKTE VERSION
-	osg::ref_ptr<osg::LineSegment> rayA[20];
-	osgUtil::IntersectVisitor visitorS;
-	visitorS.setTraversalMask(Isect::Collision);
-	cover->getObjectsXform()->accept(visitorS);
-	int test[20]; // Falls SP vorhanden, wird in diese Variable geschrieben
-	osgUtil::Hit hitInformationA[20];
-	double hoehe[20];
+   osg::ref_ptr<osg::LineSegment> rayA[20];
+   osgUtil::IntersectVisitor visitorS;
+   visitorS.setTraversalMask(Isect::Collision);
+   cover->getObjectsXform()->accept(visitorS);
+   int test[20]; // Falls SP vorhanden, wird in diese Variable geschrieben
+   osgUtil::Hit hitInformationA[20];
+   double hoehe[20];
 
-	for (int i=0; i<20; i++) {
-		rayA[i] = new osg::LineSegment();
-		p0.set(pos[0]+2000+i*20,  pos[1]+1500,  pos[2]+1500.0);
-		q0.set(pos[0]+2000+i*20,  pos[1]+1500, pos[2]-40000.0);
-		rayA[i]->set(p0, q0);
+   for (int i=0; i<20; i++) {
+      rayA[i] = new osg::LineSegment();
+      p0.set(pos[0]+2000+i*20,  pos[1]+1500,  pos[2]+1500.0);
+      q0.set(pos[0]+2000+i*20,  pos[1]+1500, pos[2]-40000.0);
+      rayA[i]->set(p0, q0);
 
-		visitorS.addLineSegment(rayA[i].get());//Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
+      visitorS.addLineSegment(rayA[i].get());//Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
 
-		test[i]= visitorS.getNumHits(rayA[i].get());
+      test[i]= visitorS.getNumHits(rayA[i].get());
 
 
 
-		if (test[i]) {
-				hitInformationA[i] = visitorS.getHitList(rayA[i].get()).front();
-				hoehe[i] = hitInformationA[i].getWorldIntersectPoint()[2];
-				cout << "Hoehe["<<i<<"]" <<hoehe[i] << sendl;
-			}
-	}
+      if (test[i]) {
+            hitInformationA[i] = visitorS.getHitList(rayA[i].get()).front();
+            hoehe[i] = hitInformationA[i].getWorldIntersectPoint()[2];
+            cout << "Hoehe["<<i<<"]" <<hoehe[i] << sendl;
+         }
+   }
 // ENDE KOMPAKT
 */
     //////////////////////////////////
@@ -678,10 +678,10 @@ PorscheRealtimeDynamics::move(VrmlNodeVehicle *vehicle)
 
     //Neu 16-02-2011
     /*
-	float distance;
+   float distance;
 if(coVRMSController::instance()->isMaster()) {
-	distance = sqrt((DSpaceData.PosX-oX)*(DSpaceData.PosX-oX)+(DSpaceData.PosY-oY)*(DSpaceData.PosY-oY));
-	cout << " >> dist: " << distance << endl;*/
+   distance = sqrt((DSpaceData.PosX-oX)*(DSpaceData.PosX-oX)+(DSpaceData.PosY-oY)*(DSpaceData.PosY-oY));
+   cout << " >> dist: " << distance << endl;*/
     // Aktuelle Position speichern:
     //	oX = DSpaceData.PosX;
     //  oY = DSpaceData.PosY;
@@ -691,52 +691,52 @@ if(coVRMSController::instance()->isMaster()) {
     if (false)
     {
         /*
-	//Auswertung von 25 Strahlen:
-	//Koordinaten einlesen
-	float height = DSpaceData.PosZ;
-	osg::Vec3 p0,q0;
+   //Auswertung von 25 Strahlen:
+   //Koordinaten einlesen
+   float height = DSpaceData.PosZ;
+   osg::Vec3 p0,q0;
 
-	// Strahlen generieren
-	osg::ref_ptr<osg::LineSegment> rayA[25]= new osg::LineSegment();
-	int a = 0;
-	for (int i=0; i<25; i++)
-	{
-		p0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height+40000.0); // Strahlen +- 40 m
-		q0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height-40000.0);
-		rayA[i]->set(p0, q0);
-		a +=2;
-	}
+   // Strahlen generieren
+   osg::ref_ptr<osg::LineSegment> rayA[25]= new osg::LineSegment();
+   int a = 0;
+   for (int i=0; i<25; i++)
+   {
+      p0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height+40000.0); // Strahlen +- 40 m
+      q0.set(-DSpaceData.coordA[a+1],  DSpaceData.coordA[a], height-40000.0);
+      rayA[i]->set(p0, q0);
+      a +=2;
+   }
 
-	// Schnittpunkte auslesen
-	osgUtil::IntersectVisitor visitorR;
-	visitorR.setTraversalMask(Isect::Collision);
-	for (int w=0; w<25; w++)
-	{ //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
-		visitorR.addLineSegment(rayA[w].get());
-	}
+   // Schnittpunkte auslesen
+   osgUtil::IntersectVisitor visitorR;
+   visitorR.setTraversalMask(Isect::Collision);
+   for (int w=0; w<25; w++)
+   { //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
+      visitorR.addLineSegment(rayA[w].get());
+   }
 
-	cover->getObjectsXform()->accept(visitorR);
+   cover->getObjectsXform()->accept(visitorR);
 
-	int test[25]; // Falls SP vorhanden, wird in diese Variable geschrieben
-	for (int nr=0; nr<25; nr++)
-	{ //Ueberpruefung ob es SP gab
-		test[nr]= visitorR.getNumHits(rayA[nr].get());
-		cout << ">>>>>>>>SP:" << test[nr] << endl;
-	}
+   int test[25]; // Falls SP vorhanden, wird in diese Variable geschrieben
+   for (int nr=0; nr<25; nr++)
+   { //Ueberpruefung ob es SP gab
+      test[nr]= visitorR.getNumHits(rayA[nr].get());
+      cout << ">>>>>>>>SP:" << test[nr] << endl;
+   }
 
-	osgUtil::Hit hitInformationA[25];
-	float hoehe[25];
-	for (int h=0; h<25; h++)
-	{
-		if (test[h])
-		{
-			hitInformationA[h] = visitorR.getHitList(rayA[h].get()).front();
-			hoehe[h] = hitInformationA[h].getWorldIntersectPoint()[2];
-			cout << hoehe[h] << " " << h << endl;
-		}
-	}
-	int udpcheck = toDSPACE->send(&hoehe,sizeof(hoehe));
-	cout << "udpcheck: " << udpcheck << endl;
+   osgUtil::Hit hitInformationA[25];
+   float hoehe[25];
+   for (int h=0; h<25; h++)
+   {
+      if (test[h])
+      {
+         hitInformationA[h] = visitorR.getHitList(rayA[h].get()).front();
+         hoehe[h] = hitInformationA[h].getWorldIntersectPoint()[2];
+         cout << hoehe[h] << " " << h << endl;
+      }
+   }
+   int udpcheck = toDSPACE->send(&hoehe,sizeof(hoehe));
+   cout << "udpcheck: " << udpcheck << endl;
 */
     }
     ////
@@ -750,9 +750,9 @@ if(coVRMSController::instance()->isMaster()) {
         osg::Vec3 p0, q0;
 
         /*if(coVRMSController::instance()->isMaster())
-	{
-		cout << "-RadPosY " << -DSpaceData.RadPosY[0] <<" RadPosX " <<  DSpaceData.RadPosX[0] << endl;
-	}*/
+   {
+      cout << "-RadPosY " << -DSpaceData.RadPosY[0] <<" RadPosX " <<  DSpaceData.RadPosX[0] << endl;
+   }*/
 
         // Strahlen generieren
 
@@ -794,8 +794,8 @@ if(coVRMSController::instance()->isMaster()) {
             }
         }
         /*
-	int udpcheck = toDSPACE->send(&hoehe[0],sizeof(hoehe));
-	cout << "udpcheck: " << udpcheck << endl;
+   int udpcheck = toDSPACE->send(&hoehe[0],sizeof(hoehe));
+   cout << "udpcheck: " << udpcheck << endl;
 */
     }
     ////
@@ -1727,7 +1727,7 @@ VrmlNodePorscheVFP::connectToServer(std::string targetIP, int targetPort /*, int
     //
     if (clientConn_ && clientConn_->is_connected())
     {
-        std::cout << "\nWARNING: CONNECTION ALREADY ESTABLISHED, Please stop reconnecting!\n" << std::cout;
+        std::cout << "\nWARNING: CONNECTION ALREADY ESTABLISHED, Please stop reconnecting!\n" << std::endl;
         return;
     }
 
@@ -1735,7 +1735,7 @@ VrmlNodePorscheVFP::connectToServer(std::string targetIP, int targetPort /*, int
     //
     if (targetIP == "" || targetPort == 0 /*|| localPort == 0*/)
     {
-        std::cout << "\nWARNING: TRYING TO CONNECT TO SERVER BUT NO SERVER SPECIFIED!\n" << std::cout;
+        std::cout << "\nWARNING: TRYING TO CONNECT TO SERVER BUT NO SERVER SPECIFIED!\n" << std::endl;
         return;
     }
 
@@ -1744,7 +1744,7 @@ VrmlNodePorscheVFP::connectToServer(std::string targetIP, int targetPort /*, int
     serverHost_ = new Host(targetIP.c_str(), true); // numeric = true: ip, not domain
     if ((serverHost_ == NULL))
     {
-        std::cout << "WARNING: COULD NOT PARSE SERVER IP: " << targetIP << std::cout;
+        std::cout << "WARNING: COULD NOT PARSE SERVER IP: " << targetIP << std::endl;
         delete serverHost_;
         serverHost_ = NULL;
         return;
