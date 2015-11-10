@@ -220,17 +220,18 @@ SignalEditor::translateSignal(Signal * signal, RSystemElementRoad *newRoad, QPoi
 	}
 
 	LaneSection *laneSection = road->getLaneSection(s);
-    int validToLane;
+    int validToLane = 0;
+	int validFromLane = 0;
     if (t < 0)
     {
         validToLane = laneSection->getRightmostLaneId();
 	}
     else
     {
-        validToLane = laneSection->getLeftmostLaneId();
+        validFromLane = laneSection->getLeftmostLaneId();
     }
 
-    SetSignalPropertiesCommand * signalPropertiesCommand = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getValue(), signal->getCountry(), signal->getType(), signal->getTypeSubclass(), signal->getSubtype(), signal->getValue(), signal->getZOffset(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), 0, validToLane);
+	SetSignalPropertiesCommand * signalPropertiesCommand = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), t, signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), signal->getCountry(), signal->getType(), signal->getTypeSubclass(), signal->getSubtype(), signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), validFromLane, validToLane, signal->getCrossingProbability(), signal->getResetTime());
     getProjectGraph()->executeCommand(signalPropertiesCommand);
     MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(signal, s, RSystemElementRoad::DRS_SignalSection);
     getProjectGraph()->executeCommand(moveSectionCommand);
@@ -244,6 +245,7 @@ Signal *
 SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 {
 	int validToLane = 0;	// make a new signal //
+	int validFromLane = 0;
 
 	LaneSection *laneSection = road->getLaneSection(s);
 	if (t < 0)
@@ -252,7 +254,7 @@ SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 	}
 	else
 	{
-		validToLane = laneSection->getLeftmostLaneId();
+		validFromLane = laneSection->getLeftmostLaneId();
 	}
 
 	SignalContainer *lastSignal = signalManager_->getSelectedSignalContainer();
@@ -268,13 +270,13 @@ SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 		{
 			t += lastSignal->getSignalDistance();
 		}
-		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), lastSignal->getSignalHeight(), 0.0, 0.0, true, 2, 0, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), lastSignal->getSignalHeight(), 0.0, 0.0, true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}
 	else
 	{
-		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
+		newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, validFromLane, validToLane);
 		AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}

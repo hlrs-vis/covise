@@ -270,6 +270,9 @@ SignalItem::createPath()
         setPen(QPen(QColor(255, 255, 255), 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
         LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
+		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+		QPointF tangent = road_->getGlobalTangent(signal_->getSStart()).toPointF();
+		QPointF pos = pos_ + (normal * signal_->getT());
 
         if (signal_->getValidFromLane() > 0)
         {
@@ -278,8 +281,9 @@ SignalItem::createPath()
             {
                 while (width >= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
                 {
-                    path.moveTo(road_->getGlobalPoint(signal_->getSStart(), width));
-                    path.lineTo(road_->getGlobalPoint(signal_->getSStart() + signal_->getValue(), width));
+					QPointF newPos = pos - width * normal;
+                    path.moveTo(newPos);
+                    path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
                 }
             }
@@ -287,8 +291,9 @@ SignalItem::createPath()
             {
                 while (width >= -laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
                 {
-                    path.moveTo(road_->getGlobalPoint(signal_->getSStart(), width));
-                    path.lineTo(road_->getGlobalPoint(signal_->getSStart() + signal_->getValue(), width));
+					QPointF newPos = pos - width * normal;
+                    path.moveTo(newPos);
+                    path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
                 }
             }
@@ -298,8 +303,9 @@ SignalItem::createPath()
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
             while (width <= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
             {
-                path.moveTo(road_->getGlobalPoint(signal_->getSStart(), -width));
-                path.lineTo(road_->getGlobalPoint(signal_->getSStart() + signal_->getValue(), -width));
+				QPointF newPos = pos + width * normal;
+                path.moveTo(newPos);
+                path.lineTo(newPos + signal_->getValue() * tangent);
                 width += 1;
             }
         }
@@ -563,7 +569,10 @@ SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (showPixmap_)
 		{
-			pixmapItem_->hide();
+			if (pixmapItem_)
+			{
+				pixmapItem_->hide();
+			}
 			showPixmap_ = false;
 		}
 

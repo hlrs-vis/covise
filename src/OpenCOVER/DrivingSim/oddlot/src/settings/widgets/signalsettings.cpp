@@ -164,6 +164,14 @@ SignalSettings::updateProperties()
 
         ui->fromLaneSpinBox->setValue(signal_->getValidFromLane());
         ui->toLaneSpinBox->setValue(signal_->getValidToLane());
+
+		// User data //
+		if (ui->crossingSpinBox->isEnabled())
+		{
+			ui->crossingSpinBox->setValue(signal_->getCrossingProbability());
+			ui->resetTimeSpinBox->setValue(signal_->getResetTime());
+		}
+
     }
 }
 
@@ -189,11 +197,11 @@ double SignalSettings::
 void
 SignalSettings::enableCrossingParams(bool value)
 {
-    ui->crossingSpinBox->setEnabled(value);
+	ui->crossingSpinBox->setEnabled(value);
     ui->crossingProbLabel->setEnabled(value);
     ui->resetTimeLabel->setEnabled(value);
     ui->resetTimeSpinBox->setEnabled(value);
-    ui->poleCheckBox->setChecked(!value);
+//    ui->poleCheckBox->setChecked(!value); this will send updateWidget and call signalsettings
 }
 
 void
@@ -293,10 +301,20 @@ SignalSettings::onEditingFinished()
             toLane = fromLane;
         }
 
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, ui->crossingSpinBox->value(), ui->resetTimeSpinBox->value(), NULL);
-        getProjectSettings()->executeCommand(command);
+		double crossingProb = 0.0;
+		double resetTime = 0.0;
+		if (ui->crossingProbLabel->isEnabled())
+		{
+			crossingProb = ui->crossingSpinBox->value();
+			resetTime = ui->resetTimeSpinBox->value();
+		}
 
-		
+		qDebug() << signal_->getZOffset() << " 4" << signal_->getHeading();
+
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
+        getProjectSettings()->executeCommand(command);	
+
+		qDebug() << signal_->getZOffset() << " 5" << signal_->getHeading();
 
         valueChanged_ = false;
         QWidget * focusWidget = QApplication::focusWidget();

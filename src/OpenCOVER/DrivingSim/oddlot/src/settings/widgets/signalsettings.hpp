@@ -46,6 +46,7 @@ public:
     //
     virtual void updateObserver();
 
+
 private:
     void updateProperties();
     void updateProperties(QString country, SignalContainer *signalProperties);

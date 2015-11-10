@@ -203,7 +203,7 @@
 					<sign name="286-30" icon="Germany/286-30.png" type="286" subtype="30" distance="0.5" height="2.0" />
 					<sign name="290" icon="Germany/290.png" type="290"  distance="0.5" height="2.0" />
 					<sign name="290-2" icon="Germany/290-2.png" type="290" subtype="2" distance="0.5" height="2.0" />
-					<sign name="293" icon="Germany/293.png" type="293"  distance="0.0" height="0.0" />
+					<sign name="293" icon="Germany/293.png" type="293"  distance="0.0" height="0.0" value="5.0"/>
 					<sign name="294" icon="Germany/294.png" type="294"  distance="0.0" height="0.0" />
 				</category>			
 				
