@@ -249,20 +249,28 @@ SignalItem::createPath()
         setPen(QPen(QColor(255, 255, 255), 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
         LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
+		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+		QPointF pos = pos_ + (normal * signal_->getT());
 
-        if (signal_->getT() > 0)
+        if (signal_->getValidFromLane() >= 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() - 1, signal_->getSStart());
-            path.moveTo(road_->getGlobalPoint(signal_->getSStart(), width));
-            width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
-            path.lineTo(road_->getGlobalPoint(signal_->getSStart(), width));
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            path.moveTo(pos - width * normal);
+		}
+		else
+        {
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
+			path.moveTo(pos + width * normal);
+		}
+		if (signal_->getValidToLane() > 0)
+		{
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart());
+            path.lineTo(pos - width * normal);
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
-            path.moveTo(road_->getGlobalPoint(signal_->getSStart(), -width));
-            width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
-            path.lineTo(road_->getGlobalPoint(signal_->getSStart(), -width));
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
+			path.lineTo(pos + width * normal);
         }
     }
     else if (signal_->getType() == 293)
@@ -612,13 +620,21 @@ SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     if (doPan_)
     {
-		pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
-		bool parentChanged = signalEditor_->translateSignal(signal_, closestRoad_, pos_);
+		double diff = (lastPos_ - pressPos_).manhattanLength();
+		if (diff > 0.01) // otherwise item has not been moved by intention
+		{
+			pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
+			bool parentChanged = signalEditor_->translateSignal(signal_, closestRoad_, pos_);
 
-        if (!parentChanged && pixmapItem_)
-        {
-			updatePosition();
-        }
+			if (!parentChanged && pixmapItem_)
+			{
+				updatePosition();
+			}
+		}
+		else
+		{
+			pos_ = lastPos_;
+		}
 
 		doPan_ = false;
     }

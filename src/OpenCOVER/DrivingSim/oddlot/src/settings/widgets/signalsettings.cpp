@@ -259,9 +259,14 @@ SignalSettings::onEditingFinished()
 {
     if (valueChanged_)
     {
-        double t = ui->tSpinBox->value();
+		double t = ui->tSpinBox->value();
         int fromLane = ui->fromLaneSpinBox->value();
         int toLane = ui->toLaneSpinBox->value();
+
+		if (toLane > fromLane)
+        {
+            toLane = fromLane;
+        }
 
         if (signal_->getType() != 293)
         {
@@ -277,6 +282,20 @@ SignalSettings::onEditingFinished()
         }
         else
         {
+			if ((fromLane != signal_->getValidFromLane()) || (toLane != signal_->getValidToLane()))
+			{
+				if ((fromLane >= 0) && (toLane >= 0) && (t < 0))
+				{
+					LaneSection *laneSection = signal_->getParentRoad()->getLaneSection(signal_->getSStart());
+					t = laneSection->getLaneSpanWidth(fromLane, toLane, signal_->getSStart());
+				}
+				else if ((fromLane <= 0) && (toLane <= 0) && (t > 0))
+				{
+					LaneSection *laneSection = signal_->getParentRoad()->getLaneSection(signal_->getSStart());
+					t = -laneSection->getLaneSpanWidth(fromLane, toLane, signal_->getSStart());
+				}
+			}
+
             if (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId())
             {
                 fromLane = signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId();
@@ -296,10 +315,6 @@ SignalSettings::onEditingFinished()
             }
         }
 
-        if (((t < 0) && (toLane > fromLane)) || ((t > 0) && (toLane < fromLane)))
-        {
-            toLane = fromLane;
-        }
 
 		double crossingProb = 0.0;
 		double resetTime = 0.0;
@@ -309,12 +324,8 @@ SignalSettings::onEditingFinished()
 			resetTime = ui->resetTimeSpinBox->value();
 		}
 
-		qDebug() << signal_->getZOffset() << " 4" << signal_->getHeading();
-
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), ui->tSpinBox->value(), ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
         getProjectSettings()->executeCommand(command);	
-
-		qDebug() << signal_->getZOffset() << " 5" << signal_->getHeading();
 
         valueChanged_ = false;
         QWidget * focusWidget = QApplication::focusWidget();
