@@ -230,7 +230,7 @@ void VRCWHostProjection::remove()
             "from the list?").arg(selRowEntryProjection).arg(selRowEntryHost));
       msgBox.setWindowTitle(tr("Configuration"));
       QPushButton* removeButton = msgBox.addButton(tr("Remove"), QMessageBox::YesRole);
-      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::Cancel);
       msgBox.setDefaultButton(removeButton);
       msgBox.exec();
 

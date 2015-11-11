@@ -81,7 +81,7 @@ int VRCWHost::processGuiInput(const int& index,
             "Do you want to add them to the list of hosts?"));
       msgBox.setWindowTitle(tr("Configuration"));
       QPushButton* addButton = msgBox.addButton(tr("Add"), QMessageBox::YesRole);
-      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::Cancel);
       msgBox.setDefaultButton(addButton);
       msgBox.exec();
 
@@ -405,7 +405,7 @@ void VRCWHost::remove()
             "from the list of hostnames?").arg(selEntry));
       msgBox.setWindowTitle(tr("Configuration"));
       QPushButton* removeButton = msgBox.addButton(tr("Remove"), QMessageBox::YesRole);
-      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::Cancel);
       msgBox.setDefaultButton(removeButton);
       msgBox.exec();
 
