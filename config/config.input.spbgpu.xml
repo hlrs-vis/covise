@@ -41,6 +41,11 @@
                   <Orientation h="0" p="-90" r="0" />
                </CaveHand2>
 
+               <CaveHandFT device="DTrackCave" bodyIndex="4">
+                  <Offset x="0" y="0" z="0" />
+                  <Orientation h="-90" p="0" r="180" />
+               </CaveHandFT>
+
                <LegacyTracker0 device="Legacy" bodyIndex="0" />
                <LegacyTracker1 device="Legacy" bodyIndex="1" />
 
@@ -62,6 +67,10 @@
                        <Map name="10" value="MENU_BUTTON" />
                        <Map name="11" value="MENU_BUTTON" />
 
+                       <Map name="12" value="XFORM_BUTTON" />
+                       <Map name="13" value="ACTION_BUTTON" />
+
+                       
                </DTrackBtns>
                
                <PowerWallMouse device="Buttons" />
@@ -72,7 +81,7 @@
                <!--<Person name="0" head="ConstHead" />-->
                <!--<Person name="1" head="LegacyTracker0" hand="LegacyTracker1" buttons="LegacyMouse" />-->
                <Person name="1" head="CaveHead" hand="CaveHand" buttons="DTrackBtns" />
-               <Person name="2" head="CaveHead2" hand="CaveHand2" buttons="DTrackBtns" />
+               <Person name="2" head="CaveHead2" hand="CaveHandFT" buttons="DTrackBtns" />
             </Persons>
         </Input>
     </COVER>

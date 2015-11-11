@@ -38,9 +38,14 @@ class DTrackDriver : public opencover::InputDevice
     DTrackSDK *dt; ///ART DTrack SDK class
     size_t m_numFlySticks; ///Number of DTrack flysticks
     size_t m_numBodies; ///Number of DTrack bodies
+    size_t m_numHands;  ///Number of DTrack hands
     size_t m_bodyBase;
-    std::vector<size_t> m_buttonBase;
+    size_t m_handBase;
+    std::vector<size_t> m_buttonBase;   //Button base indices for flysticks
     std::vector<size_t> m_valuatorBase;
+
+    std::vector<size_t> m_handButtonBase; //Temp button base indices for hands
+
 
     bool init();
     virtual bool poll();
@@ -52,5 +57,6 @@ public:
     //==============Hardware related interface methods=====================
     bool updateBodyMatrix(size_t idx); ///get DTrack body matrix
     bool updateFlyStick(size_t idx); ///get flystick body matrix
+    bool updateHand(size_t idx);	/// get Hand matrix and other data
 };
 #endif
