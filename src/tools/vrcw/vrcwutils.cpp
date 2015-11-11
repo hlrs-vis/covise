@@ -1,10 +1,11 @@
 #include "vrcwutils.h"
 
 #include <QHash>
-#include <iostream>
 #include <QHostInfo>
 #include <QHostAddress>
 #include <QStringList>
+
+#include <iostream>
 
 #include "datatypes.h"
 
@@ -365,8 +366,6 @@ hIPLkpVal* hostIPLookup(const QString& host)
    }
    else
    {
-      //prints for testing
-      //
       //foreach ist fuer hosts, die mehrere Adressen haben,
       //wie z.B. www.google.de
       std::cout << "Nur erste IP-Adresse wurde verwendet!" << std::endl;
@@ -400,8 +399,6 @@ hIPLkpVal* hostIPLookup(const QString& host)
       }
       else
       {
-         //prints for testing
-         //
          //foreach ist fuer hosts, die mehrere Adressen haben,
          //wie z.B. www.google.de
          std::cout << "Reverse Lookup." << std::endl;

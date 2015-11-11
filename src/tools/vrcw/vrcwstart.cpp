@@ -212,10 +212,15 @@ int VRCWStart::processGuiInput(const QList<VRCWBase*>& vrcwList)
          success = ERROR_05;
          break;
       }
-      default:
+      case DEF_WARN:
       {
          //do nothing
          break;
+      }
+      default:
+      {
+          qDebug() << "WarningCode can't be evaluated";
+          break;
       }
    }
 

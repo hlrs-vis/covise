@@ -119,9 +119,14 @@ int VRCWProjectionDimPowerwall::processGuiInput(const int& index,
          success = ERROR_02;
          break;
       }
+      case DEF_WARN:
+      {
+         //do nothing
+         break;
+      }
       default:
       {
-         qDebug() << "No warning appeared or warningCode can't be evaluated";
+         qDebug() << "WarningCode can't be evaluated";
          break;
       }
    }
@@ -448,7 +453,7 @@ QStringList VRCWProjectionDimPowerwall::createProjection()
       }
       default:
       {
-         qDebug() << "Projection Modus konnte nicht identifiziert werden!!!";
+         qDebug() << "Projection Mode can't be identified!!!";
          break;
       }
    }

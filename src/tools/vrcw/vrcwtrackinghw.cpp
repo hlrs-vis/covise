@@ -593,24 +593,6 @@ int VRCWTrackingHw::processGuiInput(const int& index,
       }
       case WARN_05:
       {
-         //prints for testing
-         //
-         qDebug() << "host: " << hostToLookup;
-         qDebug() << "Lookup 1 failed:"
-               << hostIPLookupValue->hostInfo_1.errorString();
-         qDebug() << "Error 1: "
-               << hostIPLookupValue->hostInfo_1.error();
-         if (!hostIPLookupValue->hostInfo_2.errorString().isEmpty())
-         {
-            qDebug() << "Lookup 2 failed:"
-                  << hostIPLookupValue->hostInfo_2.errorString();
-            qDebug() << "Error 2: "
-                  << hostIPLookupValue->hostInfo_2.error();
-         }
-         qDebug() << "";
-         //
-
-
          QString message = tr("The hostname/IP address\n\n" "%1" "\n\n"
                "doesn't seem to be valid.\n"
                "Please make sure the hostname/IP address is in your "
@@ -722,9 +704,14 @@ int VRCWTrackingHw::processGuiInput(const int& index,
          success = ERROR_09;
          break;
       }
+      case DEF_WARN:
+      {
+         //do nothing
+         break;
+      }
       default:
       {
-         qDebug() << "No warning appeared or warningCode can't be evaluated";
+         qDebug() << "WarningCode can't be evaluated";
          break;
       }
    }

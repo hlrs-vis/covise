@@ -95,21 +95,11 @@ QModelIndex ListStrListTModel::index(int row, int column,
 {
    if (row < 0 || row > listStrList.size())
    {
-      //prints for testing
-      //
-      qDebug() << "Index: RowNo out of range!";
-      //
-
       return QModelIndex();
    }
 
    if (column < 0 || column >= tableHeader.size())
    {
-      //prints for testing
-      //
-      qDebug() << "Index: ColumnNo out of range!";
-      //
-
       return QModelIndex();
    }
 

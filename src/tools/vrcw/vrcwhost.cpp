@@ -334,24 +334,6 @@ void VRCWHost::add()
             }
             else if (errorCode == HIPLKP_EC_1)
             {
-               //prints for testing
-               //
-               qDebug() << "host: " << hostToLookup;
-               qDebug() << "Lookup 1 failed:"
-                     << hostIPLookupValue->hostInfo_1.errorString();
-               qDebug() << "Error 1: "
-                     << hostIPLookupValue->hostInfo_1.error();
-               if (!hostIPLookupValue->hostInfo_2.errorString().isEmpty())
-               {
-                  qDebug() << "Lookup 2 failed:"
-                        << hostIPLookupValue->hostInfo_2.errorString();
-                  qDebug() << "Error 2: "
-                        << hostIPLookupValue->hostInfo_2.error();
-               }
-               qDebug() << "";
-               //
-
-
                QString message = tr("The hostname\n\n" "%1" "\n\n"
                      "doesn't seem to be valid.\n"
                      "Please make sure the hostname is in your hosts file\n"
@@ -359,10 +341,6 @@ void VRCWHost::add()
                      .arg(hostToLookup);
                QMessageBox::warning(this, tr("Configuration"), message,
                      QMessageBox::Ok);
-            }
-            else
-            {
-               qDebug() << "WarningCode can't be evaluated";
             }
          }
 
