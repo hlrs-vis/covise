@@ -9,8 +9,8 @@ class hIPLkpVal;
 /*****
  * Constants
  *****/
-const int DEF_WARN = 99;
-const int DEF_ERROR = 99;
+const int DEF_WARN = 99999;
+const int DEF_ERROR = 99999;
 const int UNUSED_ADDR = 99;
 const QString OTHER = "--other--";
 const QString HIPLKP_EC_1 = "hostInvalid";

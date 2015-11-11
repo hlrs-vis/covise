@@ -49,8 +49,8 @@ VRCWHostProjection::~VRCWHostProjection()
 int VRCWHostProjection::processGuiInput(
       const QList<VRCWBase*>& vrcwList)
 {
-   const int ERROR_1 = 51;
-   const int ERROR_2 = 52;
+   const int ERROR_1 = 501;
+   const int ERROR_2 = 502;
    const int OK = 5;
 
    int success = DEF_ERROR;

@@ -62,9 +62,9 @@ VRCWHost::~VRCWHost()
 int VRCWHost::processGuiInput(const int& index,
       const QList<VRCWBase*>& vrcwList)
 {
-   const int ERROR_1 = 41;
-   const int ERROR_2 = 42;
-   const int PART_OK = 49;
+   const int ERROR_1 = 401;
+   const int ERROR_2 = 402;
+   const int PART_OK = 409;
    const int OK = 4;
 
    int success = DEF_ERROR;

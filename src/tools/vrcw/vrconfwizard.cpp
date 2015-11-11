@@ -14,6 +14,7 @@
 #include "vrcwtrackinghw.h"
 #include "vrcwtrackingdim.h"
 #include "vrcwfinal.h"
+#include "vrcwutils.h"
 
 
 /*****
@@ -188,54 +189,61 @@ void VRConfWizard::closeEvent(QCloseEvent* event)
 //
 int VRConfWizard::procPageInput(const int& index) const
 {
-   const int ERROR_1 = 91;
-   const int DEF_ERROR = 99;
+    const int ERROR_1 = 10001;
 
-   int success = DEF_ERROR;
+    int retVal = DEF_ERROR;
 
-   if (index < vrcwList.size())
-   {
-      switch (index)
-      {
+    if (index < vrcwList.size())
+    {
+        switch (index)
+        {
             // fuer index = (
             //               1 == ProjectionHW (Seite 2)
             //          oder 2 == ProjectionDim... (Seite 3)
             //          oder 3 == Host (Seite 4)
             //          oder 5 == TrackingHW (Seite 6) )
             // soll die gleiche Funktion aufgerufen werden
-         case 1:
-         case 2:
-         case 3:
-         case 5:
-         {
-            success = vrcwList[index]->processGuiInput(index, vrcwList);
-            break;
-         }
-            // fuer index = (
-            //               0 == Start (Seite 1)
-            //               4 == HostProjection (Seite 5)
-            //          oder 6 == TrackingDim (Seite 7) )
-            // soll die gleiche Funktion aufgerufen werden
-         default:
-         {
-            success = vrcwList[index]->processGuiInput(vrcwList);
-            break;
-         }
-      }
-   }
-   else
-   {
-      std::cout << "Fuer Index " << index << " (Seite " << index + 1
-            << ") ist kein Eintrag in der WidgetListe vrcwList enthalten!"
-            << std::endl;
+            case 1:
+            case 2:
+            case 3:
+            case 5:
+            {
+                retVal = vrcwList[index]->processGuiInput(index, vrcwList);
+                break;
+            }
+                // fuer index = (
+                //               0 == Start (Seite 1)
+                //               4 == HostProjection (Seite 5)
+                //          oder 6 == TrackingDim (Seite 7) )
+                // soll die gleiche Funktion aufgerufen werden
+            default:
+            {
+                retVal = vrcwList[index]->processGuiInput(vrcwList);
+                break;
+            }
+        }
+    }
+    else
+    {
+        std::cout << "Fuer Index " << index << " (Seite " << index + 1
+                << ") ist kein Eintrag in der WidgetListe vrcwList enthalten!"
+                << std::endl;
 
-      success = ERROR_1;
-   }
+        retVal = ERROR_1;
+    }
 
-   std::cout << "Success: " << success << std::endl;
-   std::cout << std::endl;
+    if (retVal <= 100)
+    {
+        std::cout << "Success: " << retVal << std::endl;
+        std::cout << std::endl;
+    }
+    else
+    {
+        std::cout << "Warning/Error: " << retVal << std::endl;
+        std::cout << std::endl;
+    }
 
-   return success;
+    return retVal;
 }
 
 //Button Action for closeEvent

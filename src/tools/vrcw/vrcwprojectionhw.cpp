@@ -55,7 +55,7 @@ VRCWProjectionHw::~VRCWProjectionHw()
 int VRCWProjectionHw::processGuiInput(const int& index,
       const QList<VRCWBase*>& vrcwList)
 {
-   const int ERROR_1 = 21;
+   const int ERROR_1 = 201;
    const int OK = 2;
 
    int success = DEF_ERROR;
