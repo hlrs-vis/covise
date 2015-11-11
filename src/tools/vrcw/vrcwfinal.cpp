@@ -1437,24 +1437,7 @@ void VRCWFinal::genInput()
    }
 
    //ConstHead
-   QString bName = cHEAD;
-   sensTrackSysDim* constHeadDim = new sensTrackSysDim();
-
-   if (thwvdData->headSDim[0]->x == 0 && thwvdData->headSDim[0]->y == 0
-         && thwvdData->headSDim[0]->z == 0 && thwvdData->headSDim[0]->h == 0
-         && thwvdData->headSDim[0]->p == 0 && thwvdData->headSDim[0]->r == 0)
-   {
-      //default values
-      constHeadDim->x = 0;
-      constHeadDim->y = -2000;
-      constHeadDim->z = 0;
-   }
-   else
-   {
-      constHeadDim = thwvdData->headSDim[0];
-   }
-
-   configVrcw.inputBody(bName, constHeadDim);
+   configVrcw.inputBody(cHEAD, thwvdData->headSDim[0]);
 
    //Head
    //Head Sensor 0 is ConstHead
