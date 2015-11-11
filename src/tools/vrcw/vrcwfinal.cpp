@@ -1718,9 +1718,6 @@ bool VRCWFinal::save()
    QTextStream outUser(&fileUser);
    outUser << ui.configUserTextEdit->toPlainText();
 
-   //set modified of configVrcwTextEdit and call configTextChanged()
-   ui.configUserTextEdit->document()->setModified(false);
-   configTextChanged();
 
    //configVrcw
    //
@@ -1740,6 +1737,13 @@ bool VRCWFinal::save()
    //write content of configUserTextEdit as plainText into fileVrcw
    QTextStream outVrcw(&fileVrcw);
    outVrcw << ui.configVrcwTextEdit->toPlainText();
+
+
+   ////
+   //set modified of configVrcwTextEdit and call configTextChanged()
+   //both files (outUser and outVrcw) must have been saved
+   ui.configUserTextEdit->document()->setModified(false);
+   configTextChanged();
 
    return true;
 }
