@@ -23,13 +23,6 @@ VRCWHost::VRCWHost(QWidget* parent) :
    ui.setupUi(this);
 
    hostsModel = new QStringListModel();
-   //Testing
-   //
-   hosts << "adventure" << "discovery" << "resolution" << "endeavour"
-         << "santa_maria" << "nina" << "pinta"
-         << "pamir" << "passat" << "gorch_fock" << "mayflower"
-         << "vasa" << "fala";
-   //
    hostsModel->setStringList(hosts);
    ui.hostsListView->setModel(hostsModel);
 

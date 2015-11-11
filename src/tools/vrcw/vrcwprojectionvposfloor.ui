@@ -14,31 +14,13 @@
    <string>VRCWProjectionVposFloor</string>
   </property>
   <layout class="QVBoxLayout" name="VRCWProjectionVposFloorClassVLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>0</number>
    </property>
    <item alignment="Qt::AlignLeft|Qt::AlignTop">
     <widget class="QWidget" name="mainWidget" native="true">
      <layout class="QGridLayout" name="mainWidgetGLayout">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <property name="spacing">
@@ -57,16 +39,7 @@
       <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
        <widget class="QWidget" name="posWidget" native="true">
         <layout class="QGridLayout" name="posWidgetGLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>0</number>
          </property>
          <property name="spacing">
@@ -88,16 +61,7 @@
          <item row="0" column="1" alignment="Qt::AlignLeft|Qt::AlignTop">
           <widget class="QWidget" name="vPosWidget" native="true">
            <layout class="QHBoxLayout" name="vPosHLayout">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
@@ -157,9 +121,6 @@
               <property name="maximum">
                <number>9999</number>
               </property>
-              <property name="value">
-               <number>-1500</number>
-              </property>
              </widget>
             </item>
             <item>
@@ -196,9 +157,6 @@
               <property name="maximum">
                <number>9999</number>
               </property>
-              <property name="value">
-               <number>575</number>
-              </property>
              </widget>
             </item>
            </layout>
@@ -227,9 +185,6 @@
            </property>
            <property name="maximum">
             <number>9999</number>
-           </property>
-           <property name="value">
-            <number>-1125</number>
            </property>
           </widget>
          </item>
