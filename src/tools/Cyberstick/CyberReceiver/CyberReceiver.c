@@ -12,7 +12,17 @@
  *  Author: hpcwoess
  */
 
-#define F_CPU 12000000L
+#define F_CPU 12000000UL // system clock in Hz -
+
+
+#define BAUD 9600UL     // Baud rate
+
+// Calculations UART serial communication BAUDRATE
+#define UBRR_VAL ((F_CPU + BAUD * 8) / (16 * BAUD) -1) // clever round
+#define BAUD_REAL (F_CPU / (16 * (UBRR_VAL + 1))) // Reale baud
+#define BAUD_ERROR ((BAUD_REAL * 1000) / BAUD) // error in per mil, 1000 = no error.
+
+
 
 /*! \brief Pin number of IRQ contact on RFM73 module.*/
 #define RFM73_IRQ_PIN DDD3
@@ -47,7 +57,7 @@
 #define sbi(port, bit) (port) |= (1 << (bit)) // set bit
 #define cbi(port, bit) (port) &= ~(1 << (bit)) // clear bit
 
-#define LED_RED 1 // red led is connected to pin 2 port d receiver only
+#define LED_RED 4 //1 // red led is connected to pin 6 port d receiver only
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -104,14 +114,35 @@ typedef struct
 } report_t;
 
 static report_t reportBuffer;
-static uchar idleRate; /* repeat rate for keyboards, never used for mice */
+static uchar 	idleRate; /* repeat rate for keyboards, never used for mice */
 
 uint8_t oldDX = 0;
 uint8_t oldDY = 0;
 
+
 //----------------------------------------------------------------------------------
-// Acknowledge Received Payload
-//
+// UART INIT and TRANSMIT
+//----------------------------------------------------------------------------------
+
+
+// function to send data
+void uart_transmit (unsigned char data)
+{
+    while (!( UCSR0A & (1<<UDRE0)));                // wait while register is free
+    UDR0 = data;                                   // load data in the register
+}
+
+void uart_init (void)
+  {
+	UBRR0 = UBRR_VAL;
+	UCSR0B |= (1 << TXEN0); // Frame Format: Asynchronous 8N1
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+  }
+
+
+//----------------------------------------------------------------------------------
+// Send Acknowledgment for Received Payload
+//----------------------------------------------------------------------------------
 
 uint8_t rfm70SendAckPayload()
 {
@@ -121,7 +152,7 @@ uint8_t rfm70SendAckPayload()
     rfm70SetModeTX();
     _delay_ms(1);
 
-    ack_payload[0]= 0xFF; // 0xFF user defined code for acknowledgment
+    ack_payload[0]= 0xFF; // 0xFF defined code for acknowledgment message
 
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
@@ -129,7 +160,6 @@ uint8_t rfm70SendAckPayload()
     // if the FIFO is full, do nothing just return false
     if (status & RFM70_FIFO_STATUS_TX_FULL)
     {
-
     	return false;
     }
 
@@ -157,14 +187,10 @@ uint8_t rfm70SendAckPayload()
        _delay_ms(50);
     }
 
-    value = rfm70ReadRegValue(RFM70_REG_STATUS);
-    if ((value & 0x20) == 0x20 )
-    {
-        sbi(PORTD, LED_RED);
-        _delay_ms(10);
-        cbi(PORTD, LED_RED);
+    sbi(PORTD, LED_RED);
+    _delay_ms(10);
+    cbi(PORTD, LED_RED);
 
-    }
 
     rfm70SetModeRX();
 
@@ -183,7 +209,7 @@ int rfm70ReceivePayload()
     uint8_t status;
     //uint8_t detect;
     uint8_t fifo_status;
-    uint8_t rx_buf[32];
+    unsigned char rx_buf[32];
 
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
 
@@ -201,17 +227,36 @@ int rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
-                reportBuffer.buttonMask = rx_buf[0];
-                reportBuffer.dx = rx_buf[1] - oldDX;
-                reportBuffer.dy = rx_buf[2] - oldDY;
-                oldDX = rx_buf[1];
-                oldDY = rx_buf[2];
-                sbi(PORTD, LED_RED);
+                if (rx_buf[30] == 0xCC) 	// code for send acknowledgment mess
+                {
+                	_delay_ms(5);			// critical delay from TX to RX on the remote side
+					rfm70SendAckPayload();
+                }
 
-                _delay_ms(10); //chnage to 10 ms
-                cbi(PORTD, LED_RED);
+				reportBuffer.buttonMask = rx_buf[0];
+				reportBuffer.dx = rx_buf[1] - oldDX;
+				reportBuffer.dy = rx_buf[2] - oldDY;
+				oldDX = rx_buf[1];
+				oldDY = rx_buf[2];
+				sbi(PORTD, LED_RED);
+				_delay_ms(10);
+				cbi(PORTD, LED_RED);
 
-                rfm70SendAckPayload();
+				if (rx_buf[31] == 0xEF)
+				{
+					uart_transmit(rx_buf[4]);
+				}
+                if (rx_buf[31]== 0xEE)      // code of timing message
+				{
+					int x=6;
+					while (x<15)
+					{
+						uart_transmit(rx_buf[x]);
+						x++;
+
+					}
+				}
+
 
             }
             else
@@ -233,27 +278,35 @@ int rfm70ReceivePayload()
     return true;
 }
 
+
+
 int main()
 {
     uchar i;
 
     wdt_enable(WDTO_1S); // enable 1s watchdog timer
-
+    //unsigned char p[] = {red, green, blue};
     //all unused ports as input with pullups
 
     DDRC &= ~((1 << DDC0) | (1 << DDC1) | (1 << DDC2) | (1 << DDC3) | (1 << DDC4) | (1 << DDC5));
-    PORTC |= ((1 << DDC0) | (1 << DDC1) | (1 << DDC2) | (1 << DDC3) | (1 << DDC4) | (1 << DDC5));
+    PORTC |= ( (1 << DDC0) | (1 << DDC1) |(1 << DDC2) | (1 << DDC3) | (1 << DDC4) | (1 << DDC5));
     DDRB &= ~((1 << DDB1));
     PORTB |= ((1 << DDB1));
-    DDRD &= ~((1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7));
-    PORTD |= ((1 << DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7));
+    DDRD &= ~((1 << DDD0)  | (1 << DDD5) | (1 << DDD6) );
+    PORTD |= ((1 << DDD0)  | (1 << DDD5) | (1 << DDD6) );
 
     // leds
-    // DDD2 - red led
-    DDRD |= (1 << DDD1);
-    PORTD &= ~((1 << DDD1));
+    // DDD1 changed to DDD4 - red led
+    DDRD |= (1 << DDD4) | (1 << DDD1);
+    PORTD &= ~((1 << DDD4)| (1 << DDD1));
 
-    sbi(PORTD, LED_RED);
+    // uart initialize and check on terminal serial communication is working
+    uart_init();
+
+   	uart_transmit('o');
+   	uart_transmit('k');
+
+   	sbi(PORTD, LED_RED);
 
     usbInit();
     cli();
@@ -277,7 +330,7 @@ int main()
     // IO-pins and pullups
     spiInit();
     spiSelect(csNONE);
-    sbi(PORTD, LED_RED);
+    //sbi(PORTD, LED_RED);
 
     // RFM70
     // write registers
@@ -300,6 +353,7 @@ int main()
     wdt_reset(); // keep the watchdog happy
     _delay_ms(50);
 
+
     int rand = 1234;
     while (1)
     {
@@ -307,7 +361,6 @@ int main()
         usbPoll();
 
         rfm70ReceivePayload();
-
 
         if (usbInterruptIsReady())
         { // if the interrupt is ready, feed data
@@ -356,6 +409,7 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     return 0; // by default don't return any data
 }
+
 
 
 
