@@ -61,6 +61,7 @@
 #include <QCursor>
 #include <QColor>
 #include <QString>
+#include <QKeyEvent>
 
 SignalItem::SignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF pos)
     : GraphElement(roadSystemItem, signal)
@@ -83,6 +84,7 @@ SignalItem::init()
     //
     setAcceptHoverEvents(true);
     setSelectable();
+	setFlag(ItemIsFocusable);
 
     // Signal Editor
     //
@@ -126,6 +128,7 @@ SignalItem::init()
     updatePosition();
 
 	doPan_ = false;
+	copyPan_ = false;
 }
 
 
@@ -430,6 +433,7 @@ SignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 
 	setCursor(Qt::OpenHandCursor);
+	setFocus();
 
 	// Text //
 	//
@@ -445,6 +449,10 @@ void
 SignalItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     setCursor(Qt::ArrowCursor);
+	if (!copyPan_)
+	{
+		clearFocus();
+	}
 
     // Text //
     //
@@ -565,6 +573,12 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
 
 		doPan_ = true;
+		if (copyPan_)
+		{
+			Signal * newSignal = signal_->getClone();
+			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
+			getProjectGraph()->executeCommand(command);
+		}
         GraphElement::mousePressEvent(event); // pass to baseclass
 
     }
@@ -637,6 +651,46 @@ SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		}
 
 		doPan_ = false;
+    }
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+SignalItem::keyPressEvent(QKeyEvent *event)
+{
+    // TODO: This will not notice a key pressed, when the view is not active
+    switch (event->key())
+    {
+	case Qt::Key_Shift:
+        copyPan_ = true;
+        break;
+
+    default:
+        QGraphicsItem::keyPressEvent(event);
+    }
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+SignalItem::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_Shift:
+        copyPan_ = false;
+		if (!isHovered())
+		{
+			clearFocus();
+		}
+        break;
+
+
+    default:
+        QGraphicsItem::keyReleaseEvent(event);
     }
 }
 
