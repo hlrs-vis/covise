@@ -59,8 +59,6 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     objectManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
     ui->setupUi(this);
 
-    addObjects();
-
     // Initial Values //
     //
     updateProperties();
@@ -186,31 +184,6 @@ ObjectSettings::updateProperties(QString country, ObjectContainer *objectPropert
     ui->hdgSpinBox->setValue(objectProperties->getObjectHeading());
 }
 
-void
-ObjectSettings::addObjects()
-{
-    foreach (const ObjectContainer *container, objectManager_->getObjects("OpenDRIVE"))
-    {
-        ui->objectComboBox->addItem(container->getObjectIcon(), container->getObjectName());
-    }
-    foreach (const ObjectContainer *container, objectManager_->getObjects("France"))
-    {
-        ui->objectComboBox->addItem(container->getObjectIcon(), container->getObjectName());
-    }
-    foreach (const ObjectContainer *container, objectManager_->getObjects("Germany"))
-    {
-        ui->objectComboBox->addItem(container->getObjectIcon(), container->getObjectName());
-    }
-    foreach (const ObjectContainer *container, objectManager_->getObjects("USA"))
-    {
-        ui->objectComboBox->addItem(container->getObjectIcon(), container->getObjectName());
-    }
-    foreach (const ObjectContainer *container, objectManager_->getObjects("China"))
-    {
-        ui->objectComboBox->addItem(container->getObjectIcon(), container->getObjectName());
-    }
-}
-
 //################//
 // SLOTS          //
 //################//
@@ -271,76 +244,6 @@ void
 ObjectSettings::onValueChanged()
 {
 	valueChanged_ = true;
-}
-
-
-void
-ObjectSettings::on_objectComboBox_activated(int id)
-{
-    QString country = "";
-    int count = objectManager_->getObjects("OpenDRIVE").count();
-
-    if (count > id)
-    {
-        country = "OpenDRIVE";
-    }
-    else if ((count += objectManager_->getObjects("China").count()) > id)
-    {
-        country = "China";
-        id -= count - objectManager_->getObjects("China").count();
-    }
-    else if ((count += objectManager_->getObjects("France").count()) > id)
-    {
-        country = "France";
-        id -= count - objectManager_->getObjects("France").count();
-    }
-    else if ((count += objectManager_->getObjects("Germany").count()) > id)
-    {
-        country = "Germany";
-        id -= count - objectManager_->getObjects("Germany").count();
-    }
-    else if ((count += objectManager_->getObjects("USA").count()) > id)
-    {
-        country = "USA";
-        id -= count - objectManager_->getObjects("USA").count();
-    }
-    else
-    {
-        qDebug() << "ID out of range";
-        return;
-    }
-
-    ObjectContainer *objectContainer = objectManager_->getObjects(country).at(id);
-
-    updateProperties(country, objectContainer);
-
-    QList<DataElement *> selectedElements = getProjectData()->getSelectedElements();
-    int numberOfSelectedElements = selectedElements.size();
-
-    if (numberOfSelectedElements > 1)
-    {
-        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Object Type"));
-    }
-
-    // Change types of selected items //
-    //
-    foreach (DataElement *element, selectedElements)
-    {
-        Object *object = dynamic_cast<Object *>(element);
-        if (object)
-        {
-            double t = objectT(object->getSStart(), object->getT(), objectContainer->getObjectDistance());
-            SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectContainer->getObjectType(), t, object->getzOffset(), objectContainer->getObjectLength(), object->getOrientation(), objectContainer->getObjectLength(), objectContainer->getObjectWidth(), objectContainer->getObjectRadius(), objectContainer->getObjectHeight(), objectContainer->getObjectHeading(), object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), objectContainer->getObjectRepeatDistance(), object->getTextureFileName());
-            getProjectSettings()->executeCommand(command);
-        }
-    }
-
-    // Macro Command //
-    //
-    if (numberOfSelectedElements > 1)
-    {
-        getProjectData()->getUndoStack()->endMacro();
-    }
 }
 
 void

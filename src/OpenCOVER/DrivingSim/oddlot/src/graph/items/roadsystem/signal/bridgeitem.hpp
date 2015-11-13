@@ -19,6 +19,7 @@
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 
 class Bridge;
+class Tunnel;
 class RoadSystemItem;
 class BridgeTextItem;
 class SignalEditor;
@@ -85,6 +86,8 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -100,12 +103,15 @@ private:
 
 	RoadSystemItem *roadSystemItem_;
     Bridge *bridge_;
+	Tunnel *tunnel_;
 	RSystemElementRoad *road_;
     QPointF pos_;
 
 	QPointF pressPos_;
 	QPointF lastPos_;
 	bool doPan_;
+	bool copyPan_;
+
 	QPainterPath *path_;
 
 	RSystemElementRoad *closestRoad_;

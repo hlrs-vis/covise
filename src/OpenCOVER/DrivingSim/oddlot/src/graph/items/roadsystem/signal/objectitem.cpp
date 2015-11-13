@@ -52,6 +52,7 @@
 #include <QColor>
 #include <QString>
 #include <QMatrix>
+#include <QKeyEvent>
 
 ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
     : GraphElement(roadSystemItem, object)
@@ -74,6 +75,7 @@ ObjectItem::init()
     //
     setAcceptHoverEvents(true);
     setSelectable();
+	setFlag(ItemIsFocusable);
 
     // Signal Editor
     //
@@ -103,11 +105,13 @@ ObjectItem::init()
 
 	road_ = object_->getParentRoad(); 
 	closestRoad_ = road_;
+	pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT());
 
     updateCategory();
     updatePosition();
 
 	doPan_ = false;
+	copyPan_ = false;
 }
 
 void 
@@ -373,6 +377,7 @@ void
 ObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::OpenHandCursor);
+	setFocus();
 
     // Text //
     //
@@ -388,6 +393,10 @@ void
 ObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::ArrowCursor);
+	if (!copyPan_)
+	{
+		clearFocus();
+	}
 
     // Text //
     //
@@ -419,6 +428,13 @@ ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     else
     {
 		doPan_ = true;
+
+		if (copyPan_)
+		{
+			Object * newObject = object_->getClone();
+			AddObjectCommand *command = new AddObjectCommand(newObject, object_->getParentRoad(), NULL);
+			getProjectGraph()->executeCommand(command);
+		}
 
         GraphElement::mousePressEvent(event); // pass to baseclass
     }
@@ -464,14 +480,64 @@ ObjectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	GraphElement::mouseReleaseEvent(event);
 
-    if (doPan_)
-    {
-		pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
-		signalEditor_->translateObject(object_, closestRoad_, pos_);
+	double diff = (lastPos_ - pressPos_).manhattanLength();
+	if (diff > 0.01) // otherwise item has not been moved by intention
+	{
+		if (doPan_)
+		{
+			pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
+			signalEditor_->translateObject(object_, closestRoad_, pos_);
 
-		doPan_ = false;
+		}
+	}
+	else
+	{
+		pos_ = lastPos_;
+	}
+
+	doPan_ = false;
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+ObjectItem::keyPressEvent(QKeyEvent *event)
+{
+    // TODO: This will not notice a key pressed, when the view is not active
+    switch (event->key())
+    {
+	case Qt::Key_Shift:
+        copyPan_ = true;
+        break;
+
+    default:
+        QGraphicsItem::keyPressEvent(event);
     }
 }
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+ObjectItem::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_Shift:
+        copyPan_ = false;
+		if (!isHovered())
+		{
+			clearFocus();
+		}
+        break;
+
+
+    default:
+        QGraphicsItem::keyReleaseEvent(event);
+    }
+}
+
 
 //##################//
 // Observer Pattern //

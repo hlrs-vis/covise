@@ -103,16 +103,6 @@
        <double>99999.990000000005239</double>
       </property>
      </widget>
-     <widget class="QComboBox" name="objectComboBox">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>170</y>
-        <width>201</width>
-        <height>22</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QCheckBox" name="poleCheckBox">
       <property name="geometry">
        <rect>
@@ -127,19 +117,6 @@
       </property>
       <property name="checked">
        <bool>false</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_14">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>170</y>
-        <width>47</width>
-        <height>13</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Object</string>
       </property>
      </widget>
     </widget>

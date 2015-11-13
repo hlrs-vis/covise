@@ -86,6 +86,8 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
 
 
 protected:
@@ -111,6 +113,7 @@ private:
 	QPainterPath *path_;
 
 	bool doPan_;
+	bool copyPan_;
 
     ObjectTextItem *objectTextItem_;
 

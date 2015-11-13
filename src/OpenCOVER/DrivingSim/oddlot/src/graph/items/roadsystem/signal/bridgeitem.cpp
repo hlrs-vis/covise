@@ -51,6 +51,7 @@
 #include <QColor>
 #include <QString>
 #include <QMatrix>
+#include <QKeyEvent>
 
 BridgeItem::BridgeItem(RoadSystemItem *roadSystemItem, Bridge *bridge, QPointF pos)
     : GraphElement(roadSystemItem, bridge)
@@ -73,7 +74,11 @@ BridgeItem::init()
     //
     setAcceptHoverEvents(true);
     setSelectable();
+	setFlag(ItemIsFocusable);
 
+	// Save a tunnel 
+	//
+	tunnel_ = dynamic_cast<Tunnel *>(bridge_);
     // Signal Editor
     //
     signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
@@ -108,6 +113,7 @@ BridgeItem::init()
     createPath();
 
 	doPan_ = false;
+	copyPan_ = false;
 }
 
 /*! \brief Sets the color according to the number of links.
@@ -115,7 +121,7 @@ BridgeItem::init()
 void
 BridgeItem::updateColor()
 {
-	if (dynamic_cast<Tunnel *>(bridge_)) // Bridge is a tunnel //
+	if (tunnel_) // Bridge is a tunnel //
 	{
 		outerColor_.setHsv(categorySize_ * 360/(categorySize_ + 1), 255, 255, 255);
 	}
@@ -262,6 +268,7 @@ void
 BridgeItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::OpenHandCursor);
+	setFocus();
 
     // Text //
     //
@@ -277,6 +284,10 @@ void
 BridgeItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::ArrowCursor);
+	if (!copyPan_)
+	{
+		clearFocus();
+	}
 
     // Text //
     //
@@ -308,6 +319,22 @@ BridgeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     else
     {
 		doPan_ = true;
+
+		if (copyPan_)
+		{
+			if (tunnel_)
+			{
+				Tunnel *newTunnel = tunnel_->getClone();
+				AddBridgeCommand *command = new AddBridgeCommand(newTunnel, bridge_->getParentRoad(), NULL);
+				getProjectGraph()->executeCommand(command);
+			}
+			else
+			{
+				Bridge *newBridge = bridge_->getClone();
+				AddBridgeCommand * command = new AddBridgeCommand(newBridge, bridge_->getParentRoad(), NULL);
+				getProjectGraph()->executeCommand(command);
+			}
+		}
         GraphElement::mousePressEvent(event); // pass to baseclass
     }
 }
@@ -352,14 +379,63 @@ BridgeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	GraphElement::mouseReleaseEvent(event);
 
-    if (doPan_)
-    {
-		pos_ = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_;
-		signalEditor_->translateBridge(bridge_, closestRoad_, pos_);
+	double diff = (lastPos_ - pressPos_).manhattanLength();
+	if (diff > 0.01) // otherwise item has not been moved by intention
+	{
+		if (doPan_)
+		{
+			pos_ = road_->getGlobalPoint(bridge_->getSStart()) + lastPos_ - pressPos_;
+			signalEditor_->translateBridge(bridge_, closestRoad_, pos_);
+		}
+	}
+	else
+	{
+		pos_ = lastPos_;
+	}
 
-		doPan_ = false;
+	doPan_ = false;
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+BridgeItem::keyPressEvent(QKeyEvent *event)
+{
+    // TODO: This will not notice a key pressed, when the view is not active
+    switch (event->key())
+    {
+	case Qt::Key_Shift:
+        copyPan_ = true;
+        break;
+
+    default:
+        QGraphicsItem::keyPressEvent(event);
     }
 }
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+BridgeItem::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_Shift:
+        copyPan_ = false;
+		if (!isHovered())
+		{
+			clearFocus();
+		}
+        break;
+
+
+    default:
+        QGraphicsItem::keyReleaseEvent(event);
+    }
+}
+
 
 //##################//
 // Observer Pattern //
