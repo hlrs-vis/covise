@@ -21,6 +21,7 @@ vrconfwizard.ui vrcwfinal.ui vrcwhost.ui vrcwhostprojection.ui vrcwhsensbindex.u
 )
 
 qt_add_resources(RESOURCES
+vrcwimages.qrc
 )
 
 add_covise_executable(VRConfWizard MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${UI_SOURCES} ${RESOURCES} ${MOC_SOURCES})
