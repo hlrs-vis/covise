@@ -29,7 +29,6 @@ private:
 class OPENSCENARIOEXPORT oscRoadCondition: public oscObjectBase
 {
 public:
-	oscDouble frictionScale;
 	oscDouble intensity;
     enum effect
     {
@@ -43,7 +42,6 @@ public:
 	
     oscRoadCondition()
     {
-        OSC_ADD_MEMBER(frictionScale);
 		OSC_ADD_MEMBER(intensity);
 		OSC_ADD_MEMBER(effect);
 		effect.enumType = effectType::instance();
