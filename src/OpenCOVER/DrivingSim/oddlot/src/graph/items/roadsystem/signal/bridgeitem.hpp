@@ -48,6 +48,11 @@ public:
         return bridge_;
     }
 
+	Tunnel *getTunnel() const
+    {
+        return tunnel_;
+    }
+
     // Graphics //
     //
     void updateColor();

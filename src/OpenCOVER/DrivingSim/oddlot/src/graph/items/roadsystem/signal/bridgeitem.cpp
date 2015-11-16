@@ -107,6 +107,7 @@ BridgeItem::init()
 
 	road_ = bridge_->getParentRoad(); 
 	closestRoad_ = road_;
+	pos_ = road_->getGlobalPoint(bridge_->getSStart());
 
     updateColor();
     updatePosition();

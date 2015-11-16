@@ -242,6 +242,7 @@ ObjectItem::createPath()
 			QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
 
+
 			if (object_->getRepeatDistance() > 0.0) // multiple objects
 			{
 				double length = object_->getRadius() / 4;
@@ -485,7 +486,14 @@ ObjectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (doPan_)
 		{
-			pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
+			if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
+			{
+				pos_ = road_->getGlobalPoint(object_->getRepeatS(), object_->getT()) + lastPos_ - pressPos_;
+			}
+			else
+			{
+				pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
+			}
 			signalEditor_->translateObject(object_, closestRoad_, pos_);
 
 		}
