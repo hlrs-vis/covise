@@ -96,9 +96,9 @@
 #include <string.h>
 
 
-
-#include "spi_init.h"
-#include "rfm73.h"
+#include "rfmSendReceivePayload.h"
+//#include "spi_init.h"
+//#include "rfm73.h"
 
 bool LEDonoff = false;
 bool LEDonoff_2 = false;
@@ -234,12 +234,17 @@ ISR(PCINT2_vect)
 
 }
 
+
+
+
+
 // ----------------------------------------------------------------------------
 // power down settings for RFM73 and Attiny88
 // ----------------------------------------------------------------------------
 
 void power_down_mode()
 {
+	rfm70SetCE(0);
 	// Power down for rfm73, PWR_UP = 0
     rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_CONFIG, (0<<1));
 
@@ -250,7 +255,7 @@ void power_down_mode()
     sei();
     sleep_cpu();
 }
-
+/*
 // ----------------------------------------------------------------------------
 // rfm70SendPayload
 // queries the FIFO status
@@ -316,18 +321,75 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 
     //_delay_ms(10);
 
-   /* uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
+    /*uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
         _delay_ms(50);
     }
 
     rfm70SetModeRX();
-	*/
+*/
 
-
+/*
     return true;
 }
+
+// ----------------------------------------------------------------------------
+// Search for current operating frequency of the receiver
+// ----------------------------------------------------------------------------
+
+bool find_receiver_freq()
+{
+	unsigned char buf[32];
+	bool ack_received = false;
+	uint8_t retr_msg_count = 0xFF;
+	int frequency = 0;
+
+	while((frequency < 84) & (ack_received == false))
+    {
+		//LED3ON;
+
+    	rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
+
+
+    	if (retr_msg_count == 0xFF)
+    	{
+    		rfm70SendPayload(buf, 32,AUTO_ACK);
+    		retr_msg_count = 0x00;
+    	}
+
+    	uint8_t status = rfm70ReadRegValue(RFM70_REG_STATUS);
+		// When Auto ack is on
+		// check if data is sent and ack is received (TX_DS) interrupt
+		if (status & RFM70_IRQ_STATUS_TX_DS)
+		{
+			ack_received = true;
+			break;
+			//LED3ON;
+			//_delay_ms(10);
+			//LED3OFF;
+
+		}
+
+		retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
+
+		if ((retr_msg_count == 0xFF))
+		{
+			ack_received = false;
+			frequency++;
+			// clear flag TX_FULL
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
+
+			LED2ON;
+			_delay_ms(10);
+			LED2OFF;
+		}
+
+    }
+
+    return ack_received;
+}
+
 
 // ----------------------------------------------------------------------------
 // rfm70ReceivePayload
@@ -343,18 +405,16 @@ uint8_t rfm70ReceivePayload()
     int ack_received = 0;
     fifo_status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
 
-   //rfm70SetModeRX();
-    //if(fifo_status & 0x01)
-    	//{LED3ON;}
+
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
-    //LED3ON;
+
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
     {
-    	//LED3ON;
+
     	do
         {
-    		//LED3ON;
+
             // read length of playload packet
             len = rfm70ReadRegValue(RFM70_CMD_RX_PL_WID);
 
@@ -396,13 +456,14 @@ uint8_t rfm70ReceivePayload()
 
     return true;
 }
-
+*/
 
 
 void CyberStick_Start()
 {
     bool stateChanged;
 	uint8_t value;
+	bool ack_received;
 
     stateCurrent.buttons = 0x00;
     stateCurrent.touchpadX = 0;
@@ -437,7 +498,7 @@ void CyberStick_Start()
 
 
 
-    	if ((AUTO_ACK == 2)) // Check for Auto ack is on
+    	/*if ((AUTO_ACK == 2)) // Check for Auto ack is on
     	{
     		uint8_t status = rfm70ReadRegValue(RFM70_REG_STATUS);
 
@@ -462,7 +523,7 @@ void CyberStick_Start()
     		// last 4 bits of register at address 0x08 are for counter
 			retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
 
-			if ((retr_msg_count == 0xFF) & (ack_not_received==false))
+			if ((retr_msg_count == 0xFF) )//& (ack_not_received==false))
 			{
 				rfm70SetModeRX();
 				receiver_mode_enable = true;
@@ -480,14 +541,16 @@ void CyberStick_Start()
     	{
     		rfm70ReceivePayload();
 
-    	}
+    	}*/
+
+    	//ack_not_received = find_receiver_freq();
+
+    	//if(ack_not_received == true)
+    	//	LED3ON;
 
     	// if button is not pressed for 5s go to power down mode
     	if (time_out_cyberstick > 5000)  // time is in ms
     	{
-    		//LED2ON;
-    		//_delay_ms(10);
-    		//LED2OFF;
     		LED4OFF;
     		power_down = true;
     		time_out_cyberstick = 0.0;
@@ -496,7 +559,9 @@ void CyberStick_Start()
 
     	}
 
-        if ((PINC & (1 << DDC0)) == 0)
+    	//rfm70ReceivePayload();
+
+       /* if ((PINC & (1 << DDC0)) == 0)
         {
             int8_t tmpdata[2];
             // data is ready, read it
@@ -517,7 +582,7 @@ void CyberStick_Start()
         }
         else
         {
-        }
+        }*/
         // get current state of all inputs
         // buttons
 
@@ -557,7 +622,7 @@ void CyberStick_Start()
             stateCurrent.buttons &= ~(1 << BUTTON_BIT3);
         }
 
-        if ((PINC & (1 << BUTTON_5)) == 0)
+        /*if ((PINC & (1 << BUTTON_5)) == 0)
         {
             stateCurrent.buttons |= (1 << BUTTON_BIT4);
         }
@@ -565,7 +630,7 @@ void CyberStick_Start()
         {
             stateCurrent.buttons &= ~(1 << BUTTON_BIT4);
         }
-
+*/
         //check if something changed
 
         if ((stateCurrent.buttons != stateLast.buttons) || (stateCurrent.touchpadX != stateLast.touchpadX) || (stateCurrent.touchpadY != stateLast.touchpadY))
@@ -629,7 +694,7 @@ void CyberStick_Start()
 				// which will be transmitted over wireless link
 				// buf[0] to buf[6] is for buttons of cyberstick
 				// buf[6] to buf[6+int_part+4] for floating point value
-			    for (int i=0; i<strIntpart_size; i++)
+			    for (int i=0; i < strIntpart_size; i++)
 			    {
 				   buf[6+i]=strInt[i];
 			    }
@@ -646,13 +711,18 @@ void CyberStick_Start()
 				buf[31] = 0xEE;      // code for Time to be publish on terminal
 
             }
-            ack_not_received = false;
-            receiver_mode_enable = false;
+            //ack_not_received = false;
+            //receiver_mode_enable = false;
             //LED4ON;
 
-            rfm70SendPayload(buf, 32,AUTO_ACK);
-
-
+            ack_received = rfm70SendPayload2(buf, 32,AUTO_ACK);
+            if(ack_received)
+            {
+            	LED3ON;
+            	_delay_ms(10);
+            	LED3OFF;
+            }
+            //rfm70SetModeRX();
             //button_pressed = 1;
 
         }
