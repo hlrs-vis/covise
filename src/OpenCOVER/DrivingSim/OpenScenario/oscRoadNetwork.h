@@ -22,8 +22,8 @@ class OPENSCENARIOEXPORT oscRoadNetwork: public oscObjectBase
 public:
     oscRoadNetwork()
     {
-        OSC_ADD_MEMBER(OpenDRIVE);
-        OSC_ADD_MEMBER(SceneGraph);
+        OSC_OBJECT_ADD_MEMBER(OpenDRIVE,"oscFile");
+        OSC_OBJECT_ADD_MEMBER(SceneGraph,"oscFile");
     };
     oscFileMember OpenDRIVE;
     oscFileMember SceneGraph;

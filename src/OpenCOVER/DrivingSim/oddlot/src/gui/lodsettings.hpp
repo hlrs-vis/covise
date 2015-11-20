@@ -36,6 +36,7 @@ public:
 
     double TopViewEditorPointsPerMeter;
     double HeightEditorPointsPerMeter;
+    double SignalEditorScalingLevel;
 
     static LODSettings *instance()
     {

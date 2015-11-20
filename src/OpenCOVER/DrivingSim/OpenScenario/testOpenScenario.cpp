@@ -26,9 +26,12 @@ int main(int argc, char **argv)
         return -1;
     }
     oscHeader * h = osdb->header.getObject();
-    std::cerr << "revMajor:" << h->revMajor.getValue() << std::endl;
-    std::cerr << "revMinor:" << osdb->header->revMinor.getValue() << std::endl;
-    std::cerr << "Author:" << osdb->header->author.getValue() << std::endl;
+    if (h != NULL)
+    {
+        std::cerr << "revMajor:" << h->revMajor.getValue() << std::endl;
+        std::cerr << "revMinor:" << osdb->header->revMinor.getValue() << std::endl;
+        std::cerr << "Author:" << osdb->header->author.getValue() << std::endl;
+    }
     if(argc > 2)
     {
         fileName = argv[2];

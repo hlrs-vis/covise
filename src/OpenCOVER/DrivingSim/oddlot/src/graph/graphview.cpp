@@ -18,6 +18,10 @@
 #include "topviewgraph.hpp"
 #include "graphscene.hpp"
 
+//MainWindow //
+//
+#include "src/mainwindow.hpp"
+
 // Data //
 //
 #include "src/data/projectdata.hpp"
@@ -31,10 +35,12 @@
 // Tools //
 //
 #include "src/gui/tools/toolaction.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 #include "src/gui/tools/zoomtool.hpp"
 #include "src/gui/tools/selectiontool.hpp"
 #include "src/gui/tools/maptool.hpp"
 #include "src/gui/tools/junctioneditortool.hpp"
+#include "src/gui/projectwidget.hpp"
 
 // Qt //
 //
@@ -73,6 +79,10 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     //
     scenerySystemItem_ = new ScenerySystemItem(topviewGraph_, topviewGraph_->getProjectData()->getScenerySystem());
     scene()->addItem(scenerySystemItem_);
+
+	// Zoom tool //
+	//
+	zoomTool_ = topviewGraph_->getProjectWidget()->getMainWindow()->getToolManager()->getZoomTool();
 
     // Zoom to mouse pos //
     //
@@ -157,6 +167,7 @@ GraphView::toolAction(ToolAction *toolAction)
         {
             activateRulers(zoomToolAction->isToggled());
         }
+
     }
 
     // Selection //
@@ -336,7 +347,7 @@ GraphView::zoomTo(const QString &zoomFactor)
     //	translate(vm.dx(), vm.dy()); // this is 0.0 anyway!
 
     resetViewTransformation();
-    scale(scaleFactor, scaleFactor);
+    scaleView(scaleFactor, scaleFactor);
 }
 
 /**
@@ -360,7 +371,7 @@ GraphView::zoomIn(double zoom)
     {
         zoom = MAX_ZOOM_IN / getScale();
     }
-    scale(zoom, zoom);
+    scaleView(zoom, zoom);
     //		update();
     rebuildRulers();
 #undef MAX_ZOOM_IN
@@ -371,9 +382,16 @@ GraphView::zoomIn(double zoom)
 void
 GraphView::zoomOut()
 {
-    scale(0.8, 0.8);
+    scaleView(0.8, 0.8);
     //	update();
     rebuildRulers();
+}
+
+void
+GraphView::scaleView(qreal sx, qreal sy)
+{
+    scale(sx, sy);
+    scaling_ = getScale();
 }
 
 /**
@@ -751,12 +769,15 @@ GraphView::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
     {
-        zoomIn();
+		zoomTool_->zoomIn();
     }
     else
     {
-        zoomOut();
+		zoomTool_->zoomOut();
     }
+
+
+ //   QGraphicsView::wheelEvent(event);
 }
 
 void

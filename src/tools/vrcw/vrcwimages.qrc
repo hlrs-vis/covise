@@ -1,0 +1,9 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/cave-edges.png</file>
+    <file>images/monitor-lo-3D.png</file>
+    <file>images/monitor-ro-3D.png</file>
+    <file>images/tiled-display.png</file>
+    <file>images/tiled-projector.png</file>
+</qresource>
+</RCC>

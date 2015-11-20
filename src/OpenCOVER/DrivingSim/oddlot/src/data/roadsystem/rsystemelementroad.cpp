@@ -37,6 +37,7 @@
 #include "sections/signalobject.hpp"
 #include "sections/sensorobject.hpp"
 #include "sections/bridgeobject.hpp"
+#include "sections/tunnelobject.hpp"
 
 // Qt //
 //
@@ -658,6 +659,38 @@ RSystemElementRoad::getSFromGlobalPoint(const QPointF &globalPos, double sStart,
 #endif
 
     return sApprox;
+}
+
+double
+RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
+{
+    LaneSection *laneSection = getLaneSection(s);
+    double t = 0.0;
+    Lane *nextLane;
+    double sSection = s - laneSection->getSStart();
+    int i = 0;
+    QVector2D normal = getGlobalNormal(s);
+
+    QVector2D vec = QVector2D(globalPos - getGlobalPoint(s));
+
+    if (QVector2D::dotProduct(normal, vec) < 0)
+    {
+        while (nextLane = laneSection->getNextUpper(i))
+        {
+            t += nextLane->getWidth(sSection);
+            i = nextLane->getId();
+        }
+    }
+    else
+    {
+        while (nextLane = laneSection->getNextLower(i))
+        {
+            t -= nextLane->getWidth(sSection);
+            i = nextLane->getId();
+        }
+    }
+    
+    return t;
 }
 
 //###################//
@@ -1874,7 +1907,14 @@ RSystemElementRoad::addBridge(Bridge *bridge)
     // Insert and Notify //
     //
     bridges_.insert(bridge->getSStart(), bridge);
-    addRoadChanges(RSystemElementRoad::CRD_BridgeChange);
+/*	if (dynamic_cast<Tunnel *>(bridge))
+	{
+		addRoadChanges(RSystemElementRoad::CRD_TunnelChange);
+	}
+	else
+	{*/
+		addRoadChanges(RSystemElementRoad::CRD_BridgeChange);
+//	}
 }
 
 bool
@@ -1907,10 +1947,11 @@ RSystemElementRoad::moveBridge(RoadSection *section, double newS)
     // Section //
     //
     Bridge *bridge = static_cast<Bridge *>(section);
-    if (!bridge)
-    {
-        return false;
-    }
+	Tunnel *tunnel = static_cast<Tunnel *>(section);;
+	if (!bridge)
+	{
+		return false;
+	}
 
     // Set and insert //
     //
@@ -1919,7 +1960,14 @@ RSystemElementRoad::moveBridge(RoadSection *section, double newS)
     bridges_.remove(oldS, bridge);
     bridges_.insert(newS, bridge);
 
-    bridge->addBridgeChanges(Bridge::CEL_ParameterChange);
+	if (tunnel)
+	{
+		tunnel->addBridgeChanges(Tunnel::CEL_ParameterChange);
+	}
+	else
+	{
+		bridge->addBridgeChanges(Bridge::CEL_ParameterChange);
+	}
 
     return true;
 }

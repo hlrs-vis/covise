@@ -23,6 +23,8 @@ class RoadSystemItem;
 class SignalTextItem;
 class SignalEditor;
 class SignalManager;
+class ToolAction;
+class LODSettings;
 
 class QColor;
 
@@ -52,6 +54,7 @@ public:
     void updateColor();
     virtual void createPath();
     void updatePosition();
+    void updateCategory();
 
     // Text //
     //
@@ -68,11 +71,22 @@ public:
     //
     virtual void updateObserver();
 
+	//################//
+	// SIGNALS        //
+	//################//
+
+signals:
+    void toolAction(ToolAction *);  // send action to copy the selected item //
+
     //################//
     // SLOTS          //
     //################//
 
 public slots:
+
+    //Tools
+    //
+    void zoomAction();
 
     bool removeSignal();
 
@@ -83,6 +97,10 @@ public slots:
 public:
     //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -94,18 +112,41 @@ protected:
     //################//
 
 private:
+	RoadSystemItem * roadSystemItem_;
     void init();
 
     Signal *signal_;
+	RSystemElementRoad *road_;
+	RSystemElementRoad *closestRoad_;
+
     QPointF pos_;
+    double size_;
+    double halfsize_;
+    double x_;
+    double y_;
+    double width_;
+    double height_;
+    double scale_;
+
+    QPointF pressPos_;
+	QPointF lastPos_;
+	bool doPan_;
+	bool copyPan_;
 
     SignalTextItem *signalTextItem_;
+
+    QGraphicsPixmapItem *pixmapItem_;
+    QPixmap pixmap_;
+    
+    bool showPixmap_;
 
     QColor outerColor_;
 
     SignalEditor *signalEditor_;
     
 	SignalManager *signalManager_;
+
+    LODSettings * lodSettings_;
 
 	int categorySize_;
 };

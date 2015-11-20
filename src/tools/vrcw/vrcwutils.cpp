@@ -1,10 +1,11 @@
 #include "vrcwutils.h"
 
 #include <QHash>
-#include <iostream>
 #include <QHostInfo>
 #include <QHostAddress>
 #include <QStringList>
+
+#include <iostream>
 
 #include "datatypes.h"
 
@@ -362,18 +363,24 @@ hIPLkpVal* hostIPLookup(const QString& host)
    if (hostInfo_1.error() != QHostInfo::NoError)
    {
       errorCode = HIPLKP_EC_1;
+
+      std::cout << "Error: " << hostInfo_1.error() << std::endl;
+      std::cout << "host: " << qPrintable(hostToLookup) << std::endl;
+      std::cout << "Lookup output: "
+            << qPrintable(hostInfo_1.errorString()) << std::endl;
+      std::cout << "Found name: " << qPrintable(hostInfo_1.hostName())
+            << std::endl;
+      std::cout << "" << std::endl;
    }
    else
    {
-      //prints for testing
-      //
       //foreach ist fuer hosts, die mehrere Adressen haben,
       //wie z.B. www.google.de
       std::cout << "Nur erste IP-Adresse wurde verwendet!" << std::endl;
 
       foreach (QHostAddress address, hostInfo_1.addresses())
       {
-         qDebug() << "Error: " << hostInfo_1.error();
+         std::cout << "Error: " << hostInfo_1.error() << std::endl;
          std::cout << "host: " << qPrintable(hostToLookup) << std::endl;
          std::cout << "Lookup output: "
                << qPrintable(hostInfo_1.errorString()) << std::endl;
@@ -397,11 +404,19 @@ hIPLkpVal* hostIPLookup(const QString& host)
       if (hostInfo_2.error() != QHostInfo::NoError)
       {
          errorCode = HIPLKP_EC_1;
+
+         std::cout << "Error: " << hostInfo_2.error() << std::endl;
+         std::cout << "host: " << qPrintable(hostToLookup)
+               << std::endl;
+         std::cout << "Lookup output: "
+               << qPrintable(hostInfo_2.errorString()) << std::endl;
+         std::cout << "Found name: "
+               << qPrintable(hostInfo_2.hostName())
+               << std::endl;
+         std::cout << "" << std::endl;
       }
       else
       {
-         //prints for testing
-         //
          //foreach ist fuer hosts, die mehrere Adressen haben,
          //wie z.B. www.google.de
          std::cout << "Reverse Lookup." << std::endl;
@@ -410,7 +425,7 @@ hIPLkpVal* hostIPLookup(const QString& host)
 
          foreach (QHostAddress address, hostInfo_2.addresses())
          {
-            qDebug() << "Error: " << hostInfo_2.error();
+            std::cout << "Error: " << hostInfo_2.error() << std::endl;
             std::cout << "host: " << qPrintable(hostToLookup)
                   << std::endl;
             std::cout << "Lookup output: "
@@ -435,6 +450,11 @@ hIPLkpVal* hostIPLookup(const QString& host)
          if (hostToLookupName_2 == hostToLookupAddress_1)
          {
             errorCode = HIPLKP_EC_1;
+
+            std::cout << "Error:\n"
+                    "Found address and found name are the same, "
+                    "but they should be different." <<std::endl;
+            std::cout << "" << std::endl;
          }
          else
          {

@@ -19,7 +19,7 @@
 #include <osg/Matrix>
 #include <string>
 
-#include "OVR.h"
+#include "OVR_CAPI.h"
 
 
 #include <cover/input/inputdevice.h>

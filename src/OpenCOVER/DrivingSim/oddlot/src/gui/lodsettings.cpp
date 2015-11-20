@@ -24,6 +24,7 @@ void LODSettings::okPressed()
 {
     TopViewEditorPointsPerMeter = ui->LODTopViewEditorSpin->value();
     HeightEditorPointsPerMeter = ui->LODHeightEditorSpin->value();
+    SignalEditorScalingLevel = ui->LODSignalEditorSpin->value();
 }
 //################//
 // CONSTRUCTOR    //
@@ -45,9 +46,14 @@ LODSettings::LODSettings()
     ui->LODHeightEditorSpin->setMaximum(100);
     ui->LODHeightEditorSpin->setMinimum(-100);
     ui->LODHeightEditorSpin->setValue(2.0);
+    ui->LODSignalEditorSpin->setDecimals(10);
+    ui->LODSignalEditorSpin->setMaximum(100);
+    ui->LODSignalEditorSpin->setMinimum(0.1);
+    ui->LODSignalEditorSpin->setValue(3.0);
 
     TopViewEditorPointsPerMeter = ui->LODTopViewEditorSpin->value();
     HeightEditorPointsPerMeter = ui->LODHeightEditorSpin->value();
+    SignalEditorScalingLevel = ui->LODSignalEditorSpin->value();
 
     inst = this;
 }

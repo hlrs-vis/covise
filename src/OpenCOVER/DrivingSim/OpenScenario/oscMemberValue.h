@@ -31,6 +31,9 @@ public:
         DOUBLE = 5,
         OBJECT = 6,
         DATE_TIME = 7,
+        ENUM = 8,
+        BOOL = 9,
+        FLOAT = 10,
     };
 protected:
     enum MemberTypes type;

@@ -167,10 +167,14 @@ CutGeometry::param(const char *paramname, bool /*in_map_loading*/)
         {
         case 0: // plane
             cylinder_bottom->disable();
+            distance_of_plane->enable();
+            normal_of_plane->enable();
             break;
 
-        case 1: // calinder
+        case 1: // cylinder
             cylinder_bottom->enable();
+            distance_of_plane->enable();
+            normal_of_plane->enable();
             if (p_method->getValue() == 1)
             {
                 p_geoMethod->setValue(0);
@@ -179,6 +183,7 @@ CutGeometry::param(const char *paramname, bool /*in_map_loading*/)
         case 2: // sphere
             cylinder_bottom->enable();
             normal_of_plane->disable();
+            distance_of_plane->enable();
             if (p_method->getValue() == 1)
             {
                 p_geoMethod->setValue(0);

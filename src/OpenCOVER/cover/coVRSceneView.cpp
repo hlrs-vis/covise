@@ -48,6 +48,8 @@ coVRSceneView::coVRSceneView(DisplaySettings *ds, int c)
 {
     setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     screen = coVRConfig::instance()->channels[c].screenNum;
+    _inheritanceMask &= ~osg::CullSettings::LIGHTING_MODE;
+    _inheritanceMask &= ~osg::CullSettings::LIGHT;
 }
 
 coVRSceneView::~coVRSceneView()
@@ -63,19 +65,26 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
 
     osg::ref_ptr<RefMatrix> proj = new osg::RefMatrix(projection);
     osg::ref_ptr<RefMatrix> mv = new osg::RefMatrix(modelview);
-
-    osg::Matrix rotonly = *(mv.get());
-    rotonly(3, 0) = 0;
-    rotonly(3, 1) = 0;
-    rotonly(3, 2) = 0;
-    rotonly(3, 3) = 1;
-    osg::Matrix invRot;
-
     osg::Matrix nmv;
     osg::Matrix npm;
-    invRot.invert(rotonly);
-    nmv = (*(mv.get()) * invRot) * cover->invEnvCorrectMat;
-    npm = cover->envCorrectMat * rotonly * *(proj.get());
+    if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+    {
+        nmv = *(mv.get());
+        npm = *(proj.get());
+    }
+    else
+    {
+        osg::Matrix rotonly = *(mv.get());
+        rotonly(3, 0) = 0;
+        rotonly(3, 1) = 0;
+        rotonly(3, 2) = 0;
+        rotonly(3, 3) = 1;
+        osg::Matrix invRot;
+
+        invRot.invert(rotonly);
+        nmv = (*(mv.get()) * invRot) * cover->invEnvCorrectMat;
+        npm = cover->envCorrectMat * rotonly * *(proj.get());
+    }
     if (coVRConfig::instance()->screens[screen].render == false)
         return false;
     bool retval = SceneView::cullStage(npm, nmv, cullVisitor, rendergraph, renderStage, viewport);

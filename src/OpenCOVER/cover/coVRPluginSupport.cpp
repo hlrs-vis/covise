@@ -852,6 +852,10 @@ void coVRPluginSupport::update()
     {
         envCorrectMat = frontRot * getXformMat();
     }
+    else if (coVRConfig::instance()->m_envMapMode == coVRConfig::NONE)
+    {
+        envCorrectMat = frontRot * getXformMat();
+    }
     invEnvCorrectMat.invert(envCorrectMat);
     //draw.baseMat = getBaseMat();
     //draw.invBaseMat = getInvBaseMat();

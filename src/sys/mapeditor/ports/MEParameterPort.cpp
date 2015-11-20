@@ -19,7 +19,15 @@
 #include "controlPanel/MEControlParameter.h"
 #include "controlPanel/MEControlParameterLine.h"
 
-;
+QString toString(double value)
+{
+    return QString::number(value, 'g', 9);
+}
+
+QString toString(const QVariant &value)
+{
+    return toString(value.toDouble());
+}
 
 /*!
     \class MEParameterPort

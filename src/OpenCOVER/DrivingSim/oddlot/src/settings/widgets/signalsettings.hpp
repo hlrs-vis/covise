@@ -26,6 +26,7 @@ class SignalSettings;
 class Signal;
 class SignalManager;
 class SignalContainer;
+class SignalEditor;
 
 class QDoubleSpinBox;
 
@@ -44,6 +45,7 @@ public:
     // Observer Pattern //
     //
     virtual void updateObserver();
+
 
 private:
     void updateProperties();
@@ -70,11 +72,13 @@ private:
     Ui::SignalSettings *ui;
 
     SignalManager *signalManager_;
-
+	SignalEditor *signalEditor_;
     Signal *signal_;
 
     bool init_;
     bool valueChanged_;
+
+
 };
 
 #endif // SIGNALSETTINGS_HPP

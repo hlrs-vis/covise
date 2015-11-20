@@ -28,6 +28,12 @@ class SignalHandle;
 class SignalItem;
 class ObjectItem;
 class BridgeItem;
+class Signal;
+class SignalTreeWidget;
+class RSystemElementRoad;
+class SignalManager;
+class Object;
+class Bridge;
 
 class SignalEditor : public ProjectEditor
 {
@@ -52,6 +58,25 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *);
+
+    // Move Signal //
+    //
+	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
+    bool translateSignal(Signal * signal, RSystemElementRoad * newRoad, QPointF &to);
+
+	// New Signal with properties chosen in SignalTreeWidget //
+	//
+	Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
+
+	bool translateObject(Object * object, RSystemElementRoad * newRoad, QPointF &to);
+
+	// New Object with properties chosen in SignalTreeWidget //
+	//
+	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
+
+	bool translateBridge(Bridge * bridge, RSystemElementRoad * newRoad, QPointF &to);
+
+
 
     // RoadType //
     //
@@ -96,6 +121,12 @@ private:
     QMultiMap<double, BridgeItem *> obscuredBridgeItems_;
 
     ODD::ToolId lastTool_;
+
+
+	// Signal Tree //
+	//
+	SignalTreeWidget *signalTree_;
+	SignalManager *signalManager_;
 
     // RoadType //
     //

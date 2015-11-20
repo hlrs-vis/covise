@@ -233,7 +233,8 @@ public:
         FIXED_TO_VIEWER,
         FIXED_TO_OBJROOT,
         FIXED_TO_VIEWER_FRONT,
-        FIXED_TO_OBJROOT_FRONT
+        FIXED_TO_OBJROOT_FRONT,
+        NONE
     } envMapModes;
     /*
             //my
@@ -245,7 +246,7 @@ public:
                ANNOTATION
             };
       */
-    
+    int getEnvMapMode(){return m_envMapMode;};
     int numScreens() const;
     int numChannels() const;
     int numPBOs() const;

@@ -214,28 +214,36 @@ VRWindow::createWin(int i)
     const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
     if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
     {
-        static char display[1024];
-        strncpy(display, getenv("DISPLAY"), sizeof(display));
-        display[sizeof(display) - 1] = '\0';
-        const char *host = display;
-        char *p = strchr(display, ':');
-        if (p)
+        char *display = NULL;
+        
+        traits->displayNum = 0;
+        traits->screenNum = 0;
+        char *disp = getenv("DISPLAY");
+        if(disp)
         {
-            *p = '\0';
-            ++p;
-            char *server = p;
-            const char *screen = NULL;
-            p = strchr(server, '.');
+            display=new char[strlen(disp)+1];
+            strcpy(display,disp);
+            const char *host = display;
+            char *p = strchr(display, ':');
             if (p)
             {
                 *p = '\0';
                 ++p;
-                screen = p;
+                char *server = p;
+                const char *screen = NULL;
+                p = strchr(server, '.');
+                if (p)
+                {
+                    *p = '\0';
+                    ++p;
+                    screen = p;
+                }
+                if (host && strlen(host) > 0)
+                    traits->hostName = host;
+                traits->displayNum = server ? atoi(server) : 0;
+                traits->screenNum = screen ? atoi(screen) : 0;
             }
-            if (host && strlen(host) > 0)
-                traits->hostName = host;
-            traits->displayNum = server ? atoi(server) : 0;
-            traits->screenNum = screen ? atoi(screen) : 0;
+            delete[] display;
         }
     }
     else

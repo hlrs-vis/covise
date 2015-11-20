@@ -14,6 +14,7 @@
 **************************************************************************/
 
 #include "signalitem.hpp"
+#include "signalroaditem.hpp"
 
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
@@ -34,15 +35,24 @@
 
 // Graph //
 //
-
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/graphview.hpp"
 #include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 #include "src/graph/editors/signaleditor.hpp"
+
+// Gui //
+//
+#include "src/gui/lodsettings.hpp"
 
 // Manager //
 //
 #include "src/data/signalmanager.hpp" 
 
+// Tools //
+//
+#include "src/gui/tools/toolaction.hpp"
+#include "src/gui/tools/zoomtool.hpp"
 
 // Qt //
 //
@@ -51,11 +61,14 @@
 #include <QCursor>
 #include <QColor>
 #include <QString>
+#include <QKeyEvent>
 
 SignalItem::SignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF pos)
     : GraphElement(roadSystemItem, signal)
+	, roadSystemItem_(roadSystemItem)
     , signal_(signal)
     , pos_(pos)
+    , pixmapItem_(NULL)
 {
     init();
 }
@@ -71,6 +84,7 @@ SignalItem::init()
     //
     setAcceptHoverEvents(true);
     setSelectable();
+	setFlag(ItemIsFocusable);
 
     // Signal Editor
     //
@@ -79,6 +93,10 @@ SignalItem::init()
 	// Signal Manager
 	//
 	signalManager_ = getProjectData()->getProjectWidget()->getMainWindow()->getSignalManager();
+
+    // LOD settings
+    //
+    lodSettings_ = getProjectData()->getProjectWidget()->getLODSettings();
 
 	// Category Size
 	//
@@ -98,27 +116,125 @@ SignalItem::init()
         signalTextItem_->setZValue(1.0); // stack before siblings
     }
 
-    updateColor();
+    // value for pixmap representation
+    //
+    size_ = 8.0;
+    halfsize_ = size_ / 2.0;
+
+	road_ = signal_->getParentRoad(); 
+	closestRoad_ = road_;
+    pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT());
+    updateCategory();
     updatePosition();
-    createPath();
+
+	doPan_ = false;
+	copyPan_ = false;
 }
+
+
+/*! \brief Sets the color according to the number of links.
+*/
+void
+SignalItem::updateCategory()
+{
+    if ((signal_->getType() == 294) || (signal_->getType() == 293) || (signal_->getType() == 341))
+    {
+        if (pixmapItem_)
+        {
+            delete pixmapItem_;
+            pixmapItem_ = NULL;
+        }
+    }
+    else
+    {
+        SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
+        if (signalContainer)
+        {
+            QString category = signalContainer->getSignalCategory();
+            int i = 360 / (categorySize_ + 1);
+            outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
+
+
+            QIcon icon = signalContainer->getSignalIcon();
+            pixmap_ = icon.pixmap(icon.availableSizes().first());
+            if (pixmap_.isNull())
+            {
+                qDebug("ERROR 1006111429! Pixmap could not be loaded!");
+            }
+            else
+            {
+                // Pixmap //
+                //
+                if (pixmapItem_)
+                {
+                    delete pixmapItem_;
+                }
+                pixmapItem_ = new QGraphicsPixmapItem(pixmap_);
+                pixmapItem_->setParentItem(this);
+
+                // Transformation //
+                //
+                // Note: The y-Axis must be flipped so the image is not mirrored
+
+                QTransform trafo;
+                if (pixmap_.width() > pixmap_.height())
+                {
+                    scale_ = size_/pixmap_.width();
+                    width_ = size_;
+                    height_ = scale_ * pixmap_.height();
+                    x_ = pos_.x() - halfsize_;
+                    double h = height_ / 2.0;
+                    trafo.translate(x_, pos_.y() + h);
+                    y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
+                }
+                else
+                {
+                    scale_ = size_/pixmap_.height();
+                    width_ = scale_ * pixmap_.width();
+                    height_ = size_;
+                    x_ = pos_.x() - width_ / 2.0;
+                    trafo.translate(x_, pos_.y() + halfsize_);
+                    y_ = pos_.y() - halfsize_;
+                }
+                trafo.rotate(180, Qt::XAxis);
+                trafo.scale(scale_, scale_);
+
+                pixmapItem_->setTransform(trafo);
+                if (!showPixmap_)
+                {
+                    pixmapItem_->hide();
+                }
+            }
+        }
+        else
+        {
+            showPixmap_ = false;
+            outerColor_.setRgb(80, 80, 80);
+        }
+    }
+}
+
 
 /*! \brief Sets the color according to the number of links.
 */
 void
 SignalItem::updateColor()
 {
-	SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
-	if (signalContainer)
-	{
-		QString category = signalContainer->getsignalCategory();
-		int i = 360 / categorySize_;
-	    outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
-	}
-	else
-	{
-		outerColor_.setRgb(80, 80, 80);
-	}
+    if (pixmapItem_)
+    {
+        double lodThreshold = lodSettings_->SignalEditorScalingLevel;
+        double scaling = getTopviewGraph()->getView()->getScaling();
+        if ((scaling < lodThreshold) &&  showPixmap_)
+        {
+            showPixmap_ = false;
+            pixmapItem_->hide();
+        }
+        else if ((scaling > lodThreshold) && !showPixmap_)
+        {
+            showPixmap_ = true;
+            pixmapItem_->show();
+        }
+    }
 }
 
 /*!
@@ -135,28 +251,39 @@ SignalItem::createPath()
     {
         setPen(QPen(QColor(255, 255, 255), 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
-        LaneSection *laneSection = signal_->getParentRoad()->getLaneSection(signal_->getSStart());
+        LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
+		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+		QPointF pos = pos_ + (normal * signal_->getT());
 
-        if (signal_->getT() > 0)
+        if (signal_->getValidFromLane() >= 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() - 1, signal_->getSStart());
-            path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
-            width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
-            path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            path.moveTo(pos - width * normal);
+		}
+		else
+        {
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
+			path.moveTo(pos + width * normal);
+		}
+		if (signal_->getValidToLane() > 0)
+		{
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart());
+            path.lineTo(pos - width * normal);
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
-            path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), -width));
-            width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
-            path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), -width));
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
+			path.lineTo(pos + width * normal);
         }
     }
     else if (signal_->getType() == 293)
     {
         setPen(QPen(QColor(255, 255, 255), 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
-        LaneSection *laneSection = signal_->getParentRoad()->getLaneSection(signal_->getSStart());
+        LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
+		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+		QPointF tangent = road_->getGlobalTangent(signal_->getSStart()).toPointF();
+		QPointF pos = pos_ + (normal * signal_->getT());
 
         if (signal_->getValidFromLane() > 0)
         {
@@ -165,8 +292,9 @@ SignalItem::createPath()
             {
                 while (width >= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
                 {
-                    path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
-                    path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart() + signal_->getValue(), width));
+					QPointF newPos = pos - width * normal;
+                    path.moveTo(newPos);
+                    path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
                 }
             }
@@ -174,8 +302,9 @@ SignalItem::createPath()
             {
                 while (width >= -laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
                 {
-                    path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
-                    path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart() + signal_->getValue(), width));
+					QPointF newPos = pos - width * normal;
+                    path.moveTo(newPos);
+                    path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
                 }
             }
@@ -185,30 +314,40 @@ SignalItem::createPath()
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
             while (width <= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
             {
-                path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), -width));
-                path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart() + signal_->getValue(), -width));
+				QPointF newPos = pos + width * normal;
+                path.moveTo(newPos);
+                path.lineTo(newPos + signal_->getValue() * tangent);
                 width += 1;
             }
         }
     }
     else
     {
-        setBrush(QBrush(outerColor_));
-        setPen(QPen(outerColor_));
-        double size = 4.0;
-        double length = 2.0;
+        if (pixmapItem_ && showPixmap_)
+        {
+            setBrush(QBrush(QColor(0,0,0,0)));
+            setPen(QPen(QColor(0,0,0,0)));
+            path.addRect(x_, y_, width_, height_);
+        }
+        else
+        {
+            double length = halfsize_/2.0;
+            setBrush(QBrush(outerColor_));
+            setPen(QPen(outerColor_));
 
-        path.addEllipse(pos_, size, size);
+            path.addEllipse(pos_, halfsize_, halfsize_);
 
-        setPen(QPen(QColor(255, 255, 255)));
-        path.moveTo(pos_.x() - length, pos_.y());
-        path.lineTo(pos_.x() + length, pos_.y());
+            setPen(QPen(QColor(255, 255, 255)));
+            path.moveTo(pos_.x() - length, pos_.y());
+            path.lineTo(pos_.x() + length, pos_.y());
 
-        path.moveTo(pos_.x(), pos_.y() - length);
-        path.lineTo(pos_.x(), pos_.y() + length);
+            path.moveTo(pos_.x(), pos_.y() - length);
+            path.lineTo(pos_.x(), pos_.y() + length);
+        }
     }
 
     setPath(path);
+    
 }
 
 /*
@@ -218,7 +357,29 @@ void
 SignalItem::updatePosition()
 {
 
-    pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
+    pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT());
+
+	if (pixmapItem_)
+	{
+		QTransform trafo;
+		if (pixmap_.width() > pixmap_.height())
+		{
+			x_ = pos_.x() - halfsize_;
+			double h = height_ / 2.0;
+			trafo.translate(x_, pos_.y() + h);
+			y_ = pos_.y() - h;   // Pixmap and drawing coordinate system differ
+		}
+		else
+		{
+			x_ = pos_.x() - width_ / 2.0;
+			trafo.translate(x_, pos_.y() + halfsize_);
+			y_ = pos_.y() - halfsize_;
+		}
+		trafo.rotate(180, Qt::XAxis);
+		trafo.scale(scale_, scale_);
+		pixmapItem_->setTransform(trafo);
+	}
+
     updateColor();
     createPath();
 }
@@ -245,8 +406,22 @@ SignalItem::deleteRequest()
 bool
 SignalItem::removeSignal()
 {
-    RemoveSignalCommand *command = new RemoveSignalCommand(signal_, signal_->getParentRoad());
+    RemoveSignalCommand *command = new RemoveSignalCommand(signal_, road_);
     return getProjectGraph()->executeCommand(command);
+}
+
+/*! \brief .
+*
+*/
+void
+SignalItem::zoomAction()
+{
+    // Zoom //
+    //
+
+    updateColor();
+    createPath();
+
 }
 
 //################//
@@ -257,19 +432,27 @@ void
 SignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 
-    // Text //
-    //
-    getSignalTextItem()->setVisible(true);
-    getSignalTextItem()->setPos(event->scenePos());
+	setCursor(Qt::OpenHandCursor);
+	setFocus();
 
-    // Parent //
-    //
-    //GraphElement::hoverEnterEvent(event); // pass to baseclass
+	// Text //
+	//
+	getSignalTextItem()->setVisible(true);
+	getSignalTextItem()->setPos(event->scenePos());
+
+	// Parent //
+	//
+	GraphElement::hoverEnterEvent(event); // pass to baseclass
 }
 
 void
 SignalItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
+    setCursor(Qt::ArrowCursor);
+	if (!copyPan_)
+	{
+		clearFocus();
+	}
 
     // Text //
     //
@@ -277,7 +460,7 @@ SignalItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
     // Parent //
     //
-    //GraphElement::hoverLeaveEvent(event); // pass to baseclass
+    GraphElement::hoverLeaveEvent(event); // pass to baseclass
 }
 
 void
@@ -286,12 +469,13 @@ SignalItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
     // Parent //
     //
-    //GraphElement::hoverMoveEvent(event);
+    GraphElement::hoverMoveEvent(event);
 }
 
 void
 SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    pressPos_ = lastPos_ = event->scenePos();
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Signal
     if (tool == ODD::TSG_DEL)
     {
@@ -379,9 +563,134 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             }
         }
     }
-    else
+    else 
     {
+        if (pixmapItem_ && showPixmap_)
+        {
+            pixmapItem_->hide();
+            showPixmap_ = false;
+            createPath();
+        }
+
+		doPan_ = true;
+		if (copyPan_)
+		{
+			Signal * newSignal = signal_->getClone();
+			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
+			getProjectGraph()->executeCommand(command);
+		}
         GraphElement::mousePressEvent(event); // pass to baseclass
+
+    }
+}
+
+void
+SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{	
+	if (doPan_)
+	{
+		if (showPixmap_)
+		{
+			if (pixmapItem_)
+			{
+				pixmapItem_->hide();
+			}
+			showPixmap_ = false;
+		}
+
+		QPointF newPos = event->scenePos();
+		pos_ += newPos - lastPos_;
+		lastPos_ = newPos;
+		createPath();
+
+		QPointF to = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
+
+		double s;
+		QVector2D vec;
+		double dist;
+
+		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		if (!nearestRoad)
+		{
+			nearestRoad = road_;
+		}
+		if (nearestRoad != closestRoad_)
+		{
+			RoadItem *nearestRoadItem = roadSystemItem_->getRoadItem(nearestRoad->getID());
+			nearestRoadItem->setHighlighting(true);
+			setZValue(nearestRoadItem->zValue() + 1);
+			roadSystemItem_->getRoadItem(closestRoad_->getID())->setHighlighting(false);
+			closestRoad_ = nearestRoad;
+		}
+
+		GraphElement::mouseMoveEvent(event);
+	}
+}
+
+void
+SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	GraphElement::mouseReleaseEvent(event);
+
+    if (doPan_)
+    {
+		double diff = (lastPos_ - pressPos_).manhattanLength();
+		if (diff > 0.01) // otherwise item has not been moved by intention
+		{
+			pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
+			bool parentChanged = signalEditor_->translateSignal(signal_, closestRoad_, pos_);
+
+			if (!parentChanged && pixmapItem_)
+			{
+				updatePosition();
+			}
+		}
+		else
+		{
+			pos_ = lastPos_;
+		}
+
+		doPan_ = false;
+    }
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+SignalItem::keyPressEvent(QKeyEvent *event)
+{
+    // TODO: This will not notice a key pressed, when the view is not active
+    switch (event->key())
+    {
+	case Qt::Key_Shift:
+        copyPan_ = true;
+        break;
+
+    default:
+        QGraphicsItem::keyPressEvent(event);
+    }
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+SignalItem::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_Shift:
+        copyPan_ = false;
+		if (!isHovered())
+		{
+			clearFocus();
+		}
+        break;
+
+
+    default:
+        QGraphicsItem::keyReleaseEvent(event);
     }
 }
 
@@ -407,7 +716,12 @@ SignalItem::updateObserver()
     //
     int changes = signal_->getSignalChanges();
 
-    if ((changes & Signal::CEL_ParameterChange))
+    if ((changes & Signal::CEL_TypeChange))
+    {
+        updateCategory();
+        updatePosition();
+    }
+    else if ((changes & Signal::CEL_ParameterChange))
     {
         updatePosition();
     }

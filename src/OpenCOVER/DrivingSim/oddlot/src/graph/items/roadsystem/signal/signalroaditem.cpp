@@ -18,10 +18,13 @@
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
 
+#include "src/mainwindow.hpp"
+
 // Data //
 //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 
@@ -42,6 +45,10 @@
 #include "src/graph/items/roadsystem/signal/bridgeitem.hpp"
 #include "src/graph/items/roadsystem/signal/signalhandle.hpp"
 #include "src/graph/editors/signaleditor.hpp"
+
+// SignalManager //
+//
+#include "src/data/signalmanager.hpp"
 
 // Qt //
 //
@@ -67,7 +74,10 @@ SignalRoadItem::init()
     // Hover Events //
     //
     setAcceptHoverEvents(true);
-    signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
+	ProjectWidget *projectWidget = getProjectGraph()->getProjectWidget();
+    signalEditor_ = dynamic_cast<SignalEditor *>(projectWidget->getProjectEditor());
+	signalManager_ = projectWidget->getMainWindow()->getSignalManager();
+
 
     foreach (Signal *signal, road_->getSignals())
     {
@@ -181,7 +191,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	}*/
 
     pos_ = event->scenePos();
-    if ((tool == ODD::TSG_SIGNAL) || (tool == ODD::TSG_OBJECT) || (tool == ODD::TSG_BRIDGE))
+    if ((tool == ODD::TSG_SIGNAL) || (tool == ODD::TSG_OBJECT))
     {
         // Add new Signal //
         //
@@ -189,74 +199,45 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
         // calculate t at s
         //
-        LaneSection *laneSection = road_->getLaneSection(s);
-        double t = 0.0;
-        Lane *nextLane;
-        double sSection = s - laneSection->getSStart();
-        int i = 0;
-        QVector2D normal = road_->getGlobalNormal(s);
-
-        QVector2D vec = QVector2D(pos_ - road_->getGlobalPoint(s));
-
-        if (QVector2D::dotProduct(normal, vec) < 0)
-        {
-            while (nextLane = laneSection->getNextUpper(i))
-            {
-                t += nextLane->getWidth(sSection);
-                i = nextLane->getId();
-            }
-        }
-        else
-        {
-            while (nextLane = laneSection->getNextLower(i))
-            {
-                t -= nextLane->getWidth(sSection);
-                i = nextLane->getId();
-            }
-        }
+		QVector2D vec = QVector2D(road_->getGlobalPoint(s) - pos_);
+		double t = vec.length();
+		if (QVector2D::dotProduct(road_->getGlobalNormal(s), vec) < 0)
+		{
+			t = -t;
+		}
 
         if (tool == ODD::TSG_SIGNAL)
         {
-            int validToLane = 0;
-
-            if (t < 0)
-            {
-                validToLane = laneSection->getRightmostLaneId();
-            }
-            else
-            {
-                validToLane = laneSection->getLeftmostLaneId();
-            }
-            QList<UserData *> userData;
-            Signal *newSignal = new Signal("signal", "", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", -1, "", -1, 0.0, 0.0, 0.0, 0.0, true, 2, 0, validToLane);
-            AddSignalCommand *command = new AddSignalCommand(newSignal, road_, NULL);
-
-            getProjectGraph()->executeCommand(command);
+			signalEditor_->addSignalToRoad(road_, s, t);
         }
         else if (tool == ODD::TSG_OBJECT)
         {
-            Object *newObject = new Object("object", "", "", s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, false, s, 0.0, 0.0, "");
-            AddObjectCommand *command = new AddObjectCommand(newObject, road_, NULL);
-
-            getProjectGraph()->executeCommand(command);
-        }
-        else if (tool == ODD::TSG_BRIDGE)
-        {
-            QList<ObjectCorner *> corners;
-            Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
-            AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
-
-            getProjectGraph()->executeCommand(command);
+			signalEditor_->addObjectToRoad(road_, s, t);
         }
     }
 
-    else if ((tool == ODD::TSG_OBJECT) || (tool == ODD::TSG_BRIDGE))
-    {
-        // Add new Object //
-        //
-        RSystemElementRoad *road = getRoad();
-        double s = road->getSFromGlobalPoint(event->scenePos(), 0.0, road->getLength());
-    }
+	else if (tool == ODD::TSG_BRIDGE)
+	{
+		double s = road_->getSFromGlobalPoint(pos_, 0.0, road_->getLength());
+
+		// Add new bridge //
+		//
+		Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
+		AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
+
+		getProjectGraph()->executeCommand(command);
+	}
+	else if (tool == ODD::TSG_TUNNEL)
+	{
+		double s = road_->getSFromGlobalPoint(pos_, 0.0, road_->getLength());
+
+		// Add new bridge //
+		//
+		Tunnel *newTunnel = new Tunnel("tunnel", "", "", 0, s, 100.0, 0.0, 0.0);
+		AddBridgeCommand *command = new AddBridgeCommand(newTunnel, road_, NULL);
+
+		getProjectGraph()->executeCommand(command);
+	}
 }
 
 void
@@ -301,12 +282,12 @@ SignalRoadItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 	//
 	getTextItem()->setVisible(true);
 	getTextItem()->setPos(event->scenePos());
-
+*/
 	// Parent //
 	//
 	RoadItem::hoverEnterEvent(event); // pass to baseclass
 
-	*/
+	
 }
 
 void
@@ -331,12 +312,12 @@ SignalRoadItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 	// Text //
 	//
 	getTextItem()->setVisible(false);
-
+*/
 	// Parent //
 	//
 	RoadItem::hoverLeaveEvent(event); // pass to baseclass
 
-	*/
+	
 }
 
 void
@@ -355,12 +336,12 @@ SignalRoadItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 	{
 		// does nothing //
 	}
-
+*/
 	// Parent //
 	//
 	RoadItem::hoverMoveEvent(event);
 
-	*/
+	
 }
 
 //##################//

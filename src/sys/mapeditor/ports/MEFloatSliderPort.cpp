@@ -45,20 +45,16 @@ MEFloatSliderPort::~MEFloatSliderPort()
 void MEFloatSliderPort::makeLayout(layoutType type, QWidget *w)
 {
 
-#ifdef YAC
-    if (appearanceType == A_STEPPER && type == CONTROL)
-#else
     if (appearanceType == STEPPER && type == CONTROL)
-#endif
-        makePlayer(type, w, QString::number(m_value));
+        makePlayer(type, w, toString(m_value));
 
     else if (type == CONTROL)
-        makeControlLine(type, w, QString::number(m_value));
+        makeControlLine(type, w, toString(m_value));
 
     else if (type == MODULE)
     {
         QStringList buffer;
-        buffer << QString::number(m_min) << QString::number(m_max) << QString::number(m_value) << QString::number(m_step);
+        buffer << toString(m_min) << toString(m_max) << toString(m_value) << toString(m_step);
         makeModuleLine(type, w, buffer);
     }
 }
@@ -122,13 +118,6 @@ void MEFloatSliderPort::moduleParameterRequest()
 //!
 void MEFloatSliderPort::defineParam(QString svalue, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(svalue);
-    Q_UNUSED(apptype);
-
-#else
-
     QStringList list = svalue.split(" ", QString::SkipEmptyParts);
 
     m_min = list[0].toFloat();
@@ -137,7 +126,6 @@ void MEFloatSliderPort::defineParam(QString svalue, int apptype)
     m_step = qAbs(m_max - m_min) / 30.;
 
     MEParameterPort::defineParam(svalue, apptype);
-#endif
 }
 
 //!
@@ -145,14 +133,6 @@ void MEFloatSliderPort::defineParam(QString svalue, int apptype)
 //!
 void MEFloatSliderPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     Q_UNUSED(noOfValues);
 
     if (list.count() > istart + 2)
@@ -163,14 +143,14 @@ void MEFloatSliderPort::modifyParam(QStringList list, int noOfValues, int istart
 
         if (!m_editList.isEmpty())
         {
-            m_editList.at(0)->setText(QString::number(m_value));
-            m_editList.at(1)->setText(QString::number(m_min));
-            m_editList.at(2)->setText(QString::number(m_max));
+            m_editList.at(0)->setText(toString(m_value));
+            m_editList.at(1)->setText(toString(m_min));
+            m_editList.at(2)->setText(toString(m_max));
         }
 
         // modify module & control line content
         if (m_textField)
-            m_textField->setText(QString::number(m_value));
+            m_textField->setText(toString(m_value));
 
         if (m_slider[MODULE])
         {
@@ -190,7 +170,6 @@ void MEFloatSliderPort::modifyParam(QStringList list, int noOfValues, int istart
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //!
@@ -198,12 +177,6 @@ void MEFloatSliderPort::modifyParam(QStringList list, int noOfValues, int istart
 //!
 void MEFloatSliderPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     QStringList list = QString(lvalue).split(" ");
 
     if (list.count() == 3)
@@ -214,14 +187,14 @@ void MEFloatSliderPort::modifyParameter(QString lvalue)
 
         if (!m_editList.isEmpty())
         {
-            m_editList.at(0)->setText(QString::number(m_value));
-            m_editList.at(1)->setText(QString::number(m_min));
-            m_editList.at(2)->setText(QString::number(m_max));
+            m_editList.at(0)->setText(toString(m_value));
+            m_editList.at(1)->setText(toString(m_min));
+            m_editList.at(2)->setText(toString(m_max));
         }
 
         // modify module & control line content
         if (m_textField)
-            m_textField->setText(QString::number(m_value));
+            m_textField->setText(toString(m_value));
 
         if (m_slider[MODULE])
         {
@@ -241,7 +214,6 @@ void MEFloatSliderPort::modifyParameter(QString lvalue)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //!
@@ -348,7 +320,7 @@ void MEFloatSliderPort::sendParamMessage()
 {
 
     QString buffer;
-    buffer = QString::number(m_min) + " " + QString::number(m_max) + " " + QString::number(m_value);
+    buffer = toString(m_min) + " " + toString(m_max) + " " + toString(m_value);
 
     MEParameterPort::sendParamMessage(buffer);
 }
@@ -423,18 +395,12 @@ void MEFloatSliderPort::slider1CB(int val)
         return;
 
     if (m_textField)
-        m_textField->setText(QString::number(ff));
+        m_textField->setText(toString(ff));
 
     if (!m_editList.isEmpty())
-        m_editList.at(0)->setText(QString::number(ff));
+        m_editList.at(0)->setText(toString(ff));
 
     // inform parent widget that m_value has been changed
 
     node->setModified(true);
 }
-
-#ifdef YAC
-void MEFloatSliderPort::setValues(covise::coRecvBuffer &)
-{
-}
-#endif

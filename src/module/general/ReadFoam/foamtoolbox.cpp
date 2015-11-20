@@ -221,7 +221,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
             }
         }
     }
-
+    // 
     if (meshfiles.size() == 4)
     {
         if (time)
@@ -237,6 +237,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
         info.varyingCoords = true;
         return true;
     }
+	// this usually never occurs:
     if (meshfiles.size() == 3 && time && !havePoints)
     {
         info.varyingGrid = true;
@@ -281,7 +282,10 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
         {
             std::string stem = p.stem().string();
             if (time)
-                ++info.varyingFields[stem];
+                {
+				++info.varyingFields[stem];
+				std::cerr << "counting timedir : " << timedir << std::endl;
+				}
             else
                 ++info.constantFields[stem];
         }
@@ -421,7 +425,8 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-            if (isTimeDir(bn))
+			std::cerr << "directory :" << bn << std::endl;
+            if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());
                 if (info.timedirs.find(t) != info.timedirs.end())

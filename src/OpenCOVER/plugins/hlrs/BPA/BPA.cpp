@@ -38,6 +38,8 @@ static const FileHandler handlers[] = {
 BPA::BPA(std::string filename, osg::Group *parent)
 {
     fprintf(stderr, "BPA::BPA\n");
+    
+    floorHeight = 0;
     int pos = BPAPlugin::plugin->bpa_map.size() * 4 + 1;
 
     velocity = new coTUIFloatSlider("velocity", BPAPlugin::plugin->BPATab->getID());
@@ -117,22 +119,38 @@ BPA::BPA(std::string filename, osg::Group *parent)
         cover->getObjectsRoot()->addChild(trajectoriesGroup);
 
     std::list<Trajectory *>::iterator it;
+    float minAngle = 1000;
+    float maxAngle = -1000;
+    for (it = trajectories.begin(); it != trajectories.end(); it++)
+    {
+        if(!(*it)->correctVelocity)
+        {
+            float angle = atan2((*it)->startVelocity[1],(*it)->startVelocity[0]);
+            if(angle< minAngle)
+                minAngle = angle;
+            if(angle> maxAngle)
+                maxAngle = angle;
+        }
+    }
+    float midAngle = minAngle + ((maxAngle - minAngle)/2.0);
+
     for (it = trajectories.begin(); it != trajectories.end(); it++)
     {
         if((*it)->correctVelocity)
         {
-        	if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
-        	    right.push_back((*it));
-        	else
-        	    left.push_back((*it));
-	}
-	else
-	{
             if ((*it)->gamma < 0 || (*it)->gamma > M_PI) // sort them into left and right pointing
                 right.push_back((*it));
             else
                 left.push_back((*it));
-	}
+        }
+        else
+        {
+            float angle = atan2((*it)->startVelocity[1],(*it)->startVelocity[0]);
+            if (angle < midAngle) // sort them into left and right pointing
+                right.push_back((*it));
+            else
+                left.push_back((*it));
+        }
     }
     geode = NULL;
     sphere = new osg::Sphere(osg::Vec3(0, 0, 0), 0.1);
@@ -161,18 +179,52 @@ void BPA::calcIntersection()
     std::list<Trajectory *>::iterator itr;
     int numIntersections = 0;
     osg::Vec3 p;
-    osg::Vec3Array *positions = new osg::Vec3Array(left.size() * right.size());
-    for (itl = left.begin(); itl != left.end(); itl++)
+    osg::Vec3Array *positions=NULL;
+    if(BPAPlugin::plugin->allToAll->getState())
     {
-        for (itr = right.begin(); itr != right.end(); itr++)
+        float angleThreshold = BPAPlugin::plugin->angleEdit->getValue() * M_PI / 180.0;
+        positions = new osg::Vec3Array(trajectories.size() * trajectories.size());
+        for (itl = trajectories.begin(); itl != trajectories.end(); itl++)
         {
-            osg::Vec3 tmpP;
-            float d = (*itl)->getMinimalDistance((*itr), tmpP);
-            if (d > 0)
+            for (itr = trajectories.begin(); itr != trajectories.end(); itr++)
             {
-                positions->at(numIntersections) = tmpP;
-                p += tmpP;
-                numIntersections++;
+                if(*itl != *itr)
+                {
+                    osg::Vec3 s1 = (*itl)->startVelocity;
+                    osg::Vec3 s2 = (*itr)->startVelocity;
+                    s1.normalize();
+                    s2.normalize();
+                    float angle = acos(s1 * s2);
+                    if(angle > angleThreshold)
+                    {
+                        osg::Vec3 tmpP;
+                        float d = (*itl)->getMinimalDistance((*itr), tmpP);
+                        if (d > 0)
+                        {
+                            positions->at(numIntersections) = tmpP;
+                            p += tmpP;
+                            numIntersections++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        positions = new osg::Vec3Array(left.size() * right.size());
+        for (itl = left.begin(); itl != left.end(); itl++)
+        {
+            for (itr = right.begin(); itr != right.end(); itr++)
+            {
+                osg::Vec3 tmpP;
+                float d = (*itl)->getMinimalDistance((*itr), tmpP);
+                if (d > 0)
+                {
+                    positions->at(numIntersections) = tmpP;
+                    p += tmpP;
+                    numIntersections++;
+                }
             }
         }
     }
@@ -391,7 +443,7 @@ void Trajectory::recalc()
     osg::Vec3 pos = startPos;
     osg::Vec3 vel = startVelocity;
     bool res = BPAPlugin::plugin->airResistance->getState();
-    while (len < length && pos[2] > 0.0)
+    while (len < length && pos[2] > bpa->floorHeight)
     {
         float v = vel.length();
         if (res)
@@ -452,6 +504,20 @@ BPAPlugin::BPAPlugin()
     ignoreUpward->setEventListener(this);
     ignoreUpward->setPos(2, 0);
     ignoreUpward->setState(false);
+    
+    allToAll = new coTUIToggleButton("All to all", BPATab->getID(), true);
+    allToAll->setEventListener(this);
+    allToAll->setPos(3, 0);
+    allToAll->setState(true);
+    
+    angleLabel = new coTUILabel("Angle", BPATab->getID());
+    angleLabel->setPos(4, 0);
+
+    angleEdit = new coTUIEditFloatField("angleEdit", BPATab->getID(), 5);
+    angleEdit->setEventListener(this);
+    angleEdit->setPos(5, 0);
+    angleEdit->setValue(5);
+
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
 }
@@ -482,7 +548,7 @@ void BPAPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 
 void BPAPlugin::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == airResistance || tUIItem == ignoreUpward)
+    if (tUIItem == airResistance || tUIItem == ignoreUpward|| tUIItem == allToAll|| tUIItem == angleEdit)
     {
         std::map<std::string, BPA *>::iterator it;
         for (it = bpa_map.begin(); it != bpa_map.end(); it++)
@@ -538,6 +604,7 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
 }
 void BPA::loadDxf(std::string filename)
 {
+    floorHeight = -2;
     BPAPlugin::plugin->airResistance->setState(false);
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
@@ -609,6 +676,8 @@ void BPA::loadDxf(std::string filename)
 
 void BPA::loadnfix(std::string filename)
 {
+    
+    floorHeight = 0;
     BPAPlugin::plugin->OriginComputationType->setState(true);
     velocityLabel->setLabel("Kappa");
     velocity->setMin(0.05);
@@ -654,6 +723,7 @@ void BPA::loadnfix(std::string filename)
 }
 void BPA::loadTxt(std::string filename)
 {
+    floorHeight = 0;
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
     {

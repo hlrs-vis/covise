@@ -77,6 +77,7 @@ do
     echo -e "${MENU} ${OPT} 79)  ${MENU} Buran                     "
     echo -e "${MENU} ${OPT} 80)  ${MENU} Maschinenhalle            "
     echo -e "${MENU} ${OPT} 86)  ${MENU} Thyssen Aufzug            "
+    echo -e "${MENU} ${OPT} 87)  ${MENU} Thyssen Turm              "
 
     echo -e "${MENU}-----${TYP} FaSi ${MENU}----------------------------------"
     echo -e "${MENU} ${OPT} 81)  ${MENU} start OpenCOVER           "
@@ -333,7 +334,12 @@ do
 
 	86)
 	    echo -e "Thyssen Aufzug";
-	    covise -e /data/covise_net/ALL/2014/ThyssenNeu.net
+	    covise -e /data/covise_net/2014/ThyssenNeu.net
+	    ;;
+
+	87)
+	    echo -e "Thyssen Turm (ohne Tueren)";
+	    opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
 	    ;;
 
 # SYSTEM

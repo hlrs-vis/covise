@@ -20,6 +20,7 @@ namespace opencover
 
 TrackingBody::TrackingBody(const std::string &name)
     : m_valid(false)
+    , m_baseBody(NULL)
 {
     const std::string conf = "COVER.Input.Body." + name;
     const std::string device = coCoviseConfig::getEntry("device", conf, "default");
@@ -49,6 +50,18 @@ TrackingBody::TrackingBody(const std::string &name)
     rot[1] = coCoviseConfig::getFloat("p", conf + ".Orientation", 0);
     rot[2] = coCoviseConfig::getFloat("r", conf + ".Orientation", 0);
 
+    std::string baseBody = coCoviseConfig::getEntry("bodyOffset", conf);
+    if (!baseBody.empty())
+    {
+        std::cout << "body " << m_name << " is based on " << baseBody << std::endl;
+        m_baseBody = Input::instance()->getBody(baseBody);
+        if (!m_baseBody)
+        {
+            std::cout << "did not find base body " << baseBody << " for body " << m_name << std::endl;
+            std::cerr << "did not find base body " << baseBody << " for body " << m_name << std::endl;
+        }
+    }
+
 #if 0
    std::cout<<name<<" is "<<device<<"; dev body no "<<m_idx
       <<" Offset=("<<trans[0]<<" "<<trans[1]<<" "<<trans[2]<<") "
@@ -63,6 +76,8 @@ TrackingBody::TrackingBody(const std::string &name)
     translationMat.makeTranslate(trans[0], trans[1], trans[2]);
     m_deviceOffsetMat.postMult(translationMat); //add translation
     m_mat = m_deviceOffsetMat;
+
+    updateRelative();
 }
 
 /**
@@ -80,6 +95,14 @@ void TrackingBody::update()
     }
     m_varying = m_dev->isVarying();
     m_6dof = m_dev->is6Dof();
+}
+
+void TrackingBody::updateRelative()
+{
+    if (m_baseBody)
+    {
+        m_mat = m_mat * m_baseBody->getMat();
+    }
 }
 
 const osg::Matrix &TrackingBody::getMat() const

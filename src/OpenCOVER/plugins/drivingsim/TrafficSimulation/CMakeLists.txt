@@ -12,7 +12,7 @@ IF(NOT OSGCAL_FOUND)
   RETURN()
 ENDIF()
 
-covise_find_package(OpenSceneGraph 2.8.0 COMPONENTS osgTerrain)
+covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
 COVISE_FIND_PACKAGE(GDAL)
 FIND_PACKAGE(V8)

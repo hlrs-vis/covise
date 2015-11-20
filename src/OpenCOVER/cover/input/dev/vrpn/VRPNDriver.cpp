@@ -106,9 +106,9 @@ void VRPNDriver::processTrackerData(const vrpn_TRACKERCB &vrpnData)
     for(int n=0;n<3;n++)
         for(int m=0;m<3;m++)
             matrix(n,m) = mat[n][m];
-    matrix(3,0)=vrpnData.pos[0];
-    matrix(3,1)=vrpnData.pos[1];
-    matrix(3,2)=vrpnData.pos[2];
+    matrix(3,0)=vrpnData.pos[0] * 1000.;
+    matrix(3,1)=vrpnData.pos[1] * 1000.;
+    matrix(3,2)=vrpnData.pos[2] * 1000.;
     
     if (m_bodyMatricesValid.size() <= vrpnData.sensor)
     {

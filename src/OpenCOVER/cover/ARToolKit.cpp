@@ -853,7 +853,6 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
     rotH->setPos(0, 4 + pos * 4 + 3);
     rotP->setPos(1, 4 + pos * 4 + 3);
     rotR->setPos(2, 4 + pos * 4 + 3);
-    rotR->setPos(2, 4 + pos * 4 + 3);
     displayQuad->setPos(2, 4 + pos * 4 + 1);
     calibrate->setPos(3, 4 + pos * 4 + 1);
     calibrate->setState(false);

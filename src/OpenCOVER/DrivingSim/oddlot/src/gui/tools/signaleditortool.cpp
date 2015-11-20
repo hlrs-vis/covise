@@ -14,7 +14,6 @@
 **************************************************************************/
 
 #include "signaleditortool.hpp"
-#include "src/util/roadtypecombobox.h"
 
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"
@@ -69,11 +68,16 @@ SignalEditorTool::initToolWidget()
     QPushButton *toolButton;
     int row = -1; // button row
 
-    toolButton = new QPushButton(tr("Select"));
+/*    toolButton = new QPushButton(tr("Select"));
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TSG_SELECT); // button, id
     toolButton->setChecked(true);
+
+    toolButton = new QPushButton(tr("Move"));
+    toolButton->setCheckable(true);
+    toolLayout->addWidget(toolButton, ++row, 0);
+    toolGroup->addButton(toolButton, ODD::TSG_MOVE); // button, id
 
     toolButton = new QPushButton(tr("New Signal"));
     toolButton->setCheckable(true);
@@ -88,7 +92,7 @@ SignalEditorTool::initToolWidget()
     toolButton = new QPushButton(tr("New Bridge"));
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
-    toolGroup->addButton(toolButton, ODD::TSG_BRIDGE); // button, id
+    toolGroup->addButton(toolButton, ODD::TSG_BRIDGE); // button, id */
 
     toolButton = new QPushButton(tr("New Controller"));
     toolButton->setCheckable(true);

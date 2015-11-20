@@ -96,7 +96,8 @@ public:
         CRD_SignalChange = 0x8000,
         CRD_SensorChange = 0x10000,
         CRD_SurfaceChange = 0x20000,
-        CRD_BridgeChange = 0x40000
+        CRD_BridgeChange = 0x40000,
+		CRD_TunnelChange = 0x80000
     };
 
     //################//
@@ -186,6 +187,7 @@ public:
 
     double getSFromGlobalPoint(const QPointF &globalPos, double sInit = -1.0);
     double getSFromGlobalPoint(const QPointF &globalPos, double sStart, double sEnd);
+    double getTFromGlobalPoint(const QPointF &globalPos, double s);
 
     // road:elevationProfile:elevation //
     //

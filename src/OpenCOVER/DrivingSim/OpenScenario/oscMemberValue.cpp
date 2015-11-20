@@ -13,10 +13,13 @@ using namespace OpenScenario;
 
 oscMemberValue::oscMemberValue()
 {
+    type = INT;
 }
 
 oscMemberValue::~oscMemberValue()
 {
 }
+
+oscMemberValue::MemberTypes oscMemberValue::getType() {return type;}; ///< return the type of this value
 
 bool oscMemberValue::initialize(xercesc::DOMAttr *){return false;};

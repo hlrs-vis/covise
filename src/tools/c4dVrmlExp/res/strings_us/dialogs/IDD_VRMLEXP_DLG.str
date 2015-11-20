@@ -1,0 +1,32 @@
+// C4D-DialogResource
+
+DIALOGSTRINGS IDD_VRMLEXP_DLG
+{
+  IDS_ASKREPLACE              "Confirm Before Replacing Textures";
+  IDS_BUTTON                  "Button";
+  IDS_BUTTON1                 "Button";
+  IDS_CHECK1                  "Check box";
+  IDS_CHECK2                  "Write Animation";
+  IDS_CHECK3                  "Export Normals";
+  IDS_CHECK_COPYTEXTURES      "Copy Textures to /maps/";
+  IDS_CHECK_SETCOLORWHITE     "Set the object color for textured objects to white";
+  IDS_CHECK_VISIBILITYEDITOR  "they are not visible in the editor";
+  IDS_CHECK_VISIBILITYRENDER  "they are not visible in the renderer";
+  IDS_DIALOG                  "Vrml Exp Dialog";
+  IDS_NORMALVRML              "Standard VRML";
+  IDS_OPENCOVERVRMLMOD        "OpenCover VRML";
+  IDS_REPLACEALL              "Replace all Textures";
+  IDS_SKIPEXISTING            "Skip existing Textures";
+  IDS_STATIC                  "Vrml Exporter - Settings:";
+  IDS_STATIC10                "Group";
+  IDS_STATIC11                "Group";
+  IDS_STATIC12                "Group";
+  IDS_STATIC13                "Animation:";
+  IDS_STATIC14                "Group";
+  IDS_STATIC15                "Group";
+  IDS_STATIC16                "No. of Keyframes";
+  IDS_STATIC6                 "Export Data Format:";
+  IDS_STATIC7                 "Export Objetcts even though: ";
+  IDS_STATIC8                 "Texture Settings: ";
+  IDS_STATIC9                 "Speficy ambientIntensity:";
+}

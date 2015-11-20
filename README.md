@@ -13,6 +13,15 @@ If not stated otherwise, COVISE and OpenCOVER source code is licensed under the 
 details.
 
 
+Support & Mailing Lists
+-----------------------
+
+As a user of COVISE, you might get answers to your questions on the [covise-users][4] mailing list.
+Please direct any questions related to installing/building/using COVISE there.
+
+You can receive notifications of changes to COVISE on the [covise-commits][5] list.
+
+
 Getting COVISE
 --------------
 
@@ -21,6 +30,11 @@ Getting COVISE
 Getting COVISE is as easy as
 
       git clone https://github.com/hlrs-vis/covise.git --recursive
+
+Update your existing copy to the current version by
+
+      git pull -r
+      git submodule update --init --recursive # update submodules to latest required version
 
 ### Windows
 
@@ -37,6 +51,8 @@ Build Requirements
 - **XercesC**:
 - **Qt**:
   Either Qt 4 or 5 is required by the graphical user interface.
+  If you want to use the Qt/Coin3D/SoQt based desktop renderer (QtRender),
+  then this version of Qt has to match the one that SoQt is built against.
 
   For Qt5, you need the following modules:
     - `Qt5Core`
@@ -76,7 +92,7 @@ Build Requirements
 - **GLEW**:
   Used for OpenGL extension handling in Virvo (direct volume rendering) and OpenCOVER
 - **OpenSceneGraph**:
-  3.2 or newer is required
+  3.2 or newer is required for the VR renderer OpenCOVER
 
 Optional dependencies
 ---------------------
@@ -90,8 +106,9 @@ CMake will show lists of met and unmet optional and required dependencies.
 You should check those and install additional prerequisites as needed.
 
 
-Git
----
+Workin with Git
+---------------
+
 ### UNIX
       cd covise
       git pull -r #-r requests a rebase of your changes to avoid trivial branching
@@ -103,7 +120,6 @@ Building COVISE
 ### UNIX
 
       cd covise
-      git submodule update --init --recursive # update submodules to latest required version
       source .covise.sh #set environment variables
       make #invoke cmake followed by make
 
@@ -130,6 +146,27 @@ No installation is required: you can use COVISE directly from the build tree.
        cd build.cover
        cmake-gui ../src/OpenCOVER
        devenv
+
+
+Changing CMake Settings
+-----------------------
+You can influence which parts of COVISE are built by editing CMake settings in
+`${COVISEDIR}/${ARCHSUFFIX}/build.covise/CMakeCache.txt`.
+This might help you work around build problems.
+
+    cd ${COVISEDIR}/${ARCHSUFFIX}/build.covise
+    ccmake ../..
+
+- `COVISE_USE_VIRVO`: disable support for direct volume rendering
+- `COVISE_BUILD_DRIVINGSIM`: enable the road editor oddlot as part of the OpenCOVER CMake project
+- `COVISE_USE_CUDA`: disable use of CUDA
+- `COVISE_USE_QT4`: enable Qt 4
+- `COVISE_NATIVE_ARCH`: disable optimization for the CPU in your computer
+- `COVISE_USE_CPP11`: disable compilation in C++11 mode
+- `COVISE_BUILD_RENDERER`: disable building the desktop renderer
+- `COVISE_GENERATE_DOCS`: generate HTML and PDF documentation
+
+After changing any of these settings, you have to restart the build process.
 
 
 Invoking COVISE
@@ -180,13 +217,6 @@ Source Code Organization
 
   - `src/OpenCOVER`:
     VR renderer with its plug-ins
-
-
-Mailing Lists
--------------
-
-As a user of COVISE, you might get answers to your questions on the [covise-users][4] mailing list.
-You can receive notifications of changes to COVISE on the [covise-commits][5] list.
 
 
 [1]:   http://www.hlrs.de/organization/av/vis/covise/

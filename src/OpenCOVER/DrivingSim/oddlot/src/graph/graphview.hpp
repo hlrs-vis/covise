@@ -21,6 +21,7 @@
 
 class TopviewGraph;
 class GraphScene;
+class ZoomTool;
 
 class Ruler;
 class ScenerySystemItem;
@@ -99,6 +100,11 @@ public slots:
     void zoomOut();
     void zoomBox();
     void viewSelected();
+    void scaleView(qreal sx, qreal sy);
+    double getScaling() 
+    {
+        return scaling_;
+    }
 
     // Background Images //
     //
@@ -118,6 +124,7 @@ public slots:
 private:
     TopviewGraph *topviewGraph_;
     GraphScene *graphScene_;
+	ZoomTool *zoomTool_;
 
     bool doPan_;
     bool doKeyPan_;
@@ -139,6 +146,8 @@ private:
     // ScenerySystem //
     //
     ScenerySystemItem *scenerySystemItem_;
+
+    double scaling_;
 };
 
 #endif // GRAPHVIEW_HPP

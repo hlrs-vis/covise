@@ -25,7 +25,13 @@ class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
-#define OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getType());
+//varName is of type oscMember
+//set the name of varName as string of varName (oscMember[.cpp,.h])
+//register varName in MemberMap members ([oscMember,oscObjectBase][.cpp,.h])
+//set the type of variable varName ([oscMember,oscMemberValue,oscVariables][.cpp,.h])
+//set the type name of varName (element name in xml file) (oscMember[.cpp,.h])
+#define OSC_ADD_MEMBER(varName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType())
+#define OSC_OBJECT_ADD_MEMBER(varName,typeName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.setTypeName(typeName)
 
 namespace OpenScenario {
 
@@ -38,7 +44,7 @@ public:
     typedef unordered_map<std::string, oscMember *> MemberMap;
 protected:
     OpenScenarioBase *base;
-    MemberMap members; ///< lost of all member variables
+    MemberMap members; ///< list of all member variables
 
 public:
     oscObjectBase(); ///< constructor
@@ -46,7 +52,7 @@ public:
     virtual void initialize(OpenScenarioBase *b);
     void addMember(oscMember *m);
     OpenScenarioBase *getBase(){return base;};
-    
+
     bool parseFromXML(xercesc::DOMElement *currentElement);
     bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 

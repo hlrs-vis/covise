@@ -39,6 +39,7 @@ static const int NUM_TEXUNITS = 4;
 
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
+#include <cover/coVRLighting.h>
 
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
@@ -75,6 +76,8 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/Tessellator>
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/TangentSpaceGenerator>
+#include <osgShadow/ShadowedScene>
+#include <osgShadow/ShadowMap>
 
 #include <vtrans/vtrans.h>
 
@@ -2839,29 +2842,34 @@ void ViewerOsg::setFog(float *color,
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::setFog\n";
+#if 0
     (void)color;
     (void)visibilityRange;
     (void)fogType;
 // nebel tut nicht weil er in Z-Richtung geht.
-#if 0
    // XXX
    fprintf(stderr, "ViewerOsg::setFog(color=(%f %f %f), range=%f, type=%s)\n",
       color[0], color[1], color[2], visibilityRange, fogType);
 
    Vec3 scale = currentTransform.getScale();
    fprintf(stderr, "current scale: (%f %f %f)\n", scale[0], scale[1], scale[2]);
-
+   
+#endif
 #if 1
-
-   if(visibilityRange == 0)
-      return;
+   
    StateSet *state = VRMLRoot->getOrCreateStateSet();
    Fog *fog = new Fog();
+   if(visibilityRange == 0)
+   {
+       state->setAttributeAndModes(fog, StateAttribute::OFF);
+       return;
+   }
    fog->setColor(Vec4(color[0], color[1], color[2], 1.0));
    fog->setStart(0.1);
-   fog->setEnd(0.1+visibilityRange*currentTransform.getScale());
+   fog->setEnd(0.1+visibilityRange*1000.0);
    fog->setFogCoordinateSource(Fog::FRAGMENT_DEPTH);
    //fog->setFogCoordinateSource(Fog::FOG_COORDINATE);
+   fog->setUseRadialFog(true);
    Fog::Mode fogMode = Fog::LINEAR;
    if(!strcmp(fogType, "LINEAR"))
    {
@@ -2876,10 +2884,9 @@ void ViewerOsg::setFog(float *color,
       CERR << "unknown fog mode " << fogType << endl;
    }
    fog->setMode(fogMode);
+   state->setAttributeAndModes(fog, StateAttribute::ON);
 
    state->setAttributeAndModes(fog, StateAttribute::ON);
-   //VRMLRoot->setStateSet(state);
-#endif
 #endif
 }
 
@@ -3080,8 +3087,13 @@ void ViewerOsg::setModesByName(const char *objectName)
                                 renderImplementation = osg::Camera::PIXEL_BUFFER_RTT;
                             if (strcasecmp(buf.c_str(), "fb") == 0)
                                 renderImplementation = osg::Camera::FRAME_BUFFER;
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
+                            if (strcasecmp(buf.c_str(), "window") == 0)
+                                renderImplementation = osg::Camera::SEPARATE_WINDOW;
+#else
                             if (strcasecmp(buf.c_str(), "window") == 0)
                                 renderImplementation = osg::Camera::SEPERATE_WINDOW;
+#endif
                         }
 
                         osg::Texture *texture = NULL;
@@ -3585,6 +3597,14 @@ void ViewerOsg::setModesByName(const char *objectName)
             else if (strncmp(name, "coRightOnly", 11) == 0)
             {
                 d_currentObject->pNode.get()->setNodeMask(Isect::Right);
+            }
+            else if (strncmp(name, "coReceiveShadow", 15) == 0)
+            {
+                d_currentObject->pNode.get()->setNodeMask(d_currentObject->pNode->getNodeMask() | Isect::ReceiveShadow);
+            }
+            else if (strncmp(name, "coCastShadow", 12) == 0)
+            {
+                d_currentObject->pNode.get()->setNodeMask(d_currentObject->pNode->getNodeMask() | Isect::CastShadow);
             }
         }
     }
@@ -4726,6 +4746,46 @@ void ViewerOsg::setClip(float *pos,
             cn->removeClipPlane((unsigned int)0);
     }
 }
+
+
+void ViewerOsg::setShadow(int number,
+                        bool enabled)
+{
+    if (cover->debugLevel(5))
+        cerr << "ViewerOsg::setShadow" << endl;
+    osgShadow::ShadowedScene *shadowedScene = (osgShadow::ShadowedScene *)d_currentObject->pNode.get();
+    if (!d_currentObject->pNode)
+    {
+        shadowedScene = new osgShadow::ShadowedScene();
+        d_currentObject->pNode = shadowedScene;
+        setModesByName();
+        addToScene(d_currentObject);
+        d_currentObject->addChildrensNodes();
+    }
+
+    if (enabled)
+    {
+        const int ReceivesShadowTraversalMask = 0x1;
+
+        const int CastsShadowTraversalMask = 0x2;
+
+
+        shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
+        shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
+
+        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
+        sm->setLight(coVRLighting::instance()->headlight);
+        shadowedScene->setShadowTechnique(sm.get());
+
+        int mapres = 1024;
+        sm->setTextureSize(osg::Vec2s(mapres,mapres));
+
+    }
+    else
+    {
+    }
+}
+
 // Transforms
 // P' = T x C x R x SR x S x -SR x -C x P
 
@@ -4936,6 +4996,7 @@ void ViewerOsg::setViewpoint(float *position,
         mat.makeTranslate(-pos[0], -pos[1], -pos[2]);
         rotMat.makeRotate(-ori[3], Vec3(ori[0], ori[1], ori[2]));
 
+    //fprintf(stderr,"orientCamera: %f %f %f %f\n",ori[0], ori[1], ori[2], ori[3]);
         mat.postMult(rotMat);
 
         //get rid of scale part of the matrix
@@ -5606,23 +5667,28 @@ void ViewerOsg::update(double timeNow)
 
             osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
             osg::Matrix mv = mirrors[i].camera->getViewMatrix();
-            osg::Matrix rotonly = mv;
-            rotonly(3, 0) = 0;
-            rotonly(3, 1) = 0;
-            rotonly(3, 2) = 0;
-            rotonly(3, 3) = 1;
-            osg::Matrix invRot;
 
             osg::Matrix nmv;
             osg::Matrix npm;
-            invRot.invert(rotonly);
-#if 1
-            nmv = ((mv * invRot) * cover->invEnvCorrectMat);
-            npm = (cover->envCorrectMat * rotonly * proj);
-#else
-            nmv = (mv * invRot);
-            npm = (rotonly * proj);
-#endif
+            if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+            {
+                nmv = mv;
+                npm = proj;
+            }
+            else
+            {
+                osg::Matrix rotonly = mv;
+                rotonly(3, 0) = 0;
+                rotonly(3, 1) = 0;
+                rotonly(3, 2) = 0;
+                rotonly(3, 3) = 1;
+                osg::Matrix invRot;
+
+                invRot.invert(rotonly);
+                nmv = (mv * invRot) * cover->invEnvCorrectMat;
+                npm = cover->envCorrectMat * rotonly * proj;
+            }
+
             mirrors[i].camera->setViewMatrix(nmv);
             mirrors[i].camera->setProjectionMatrix(npm);
             if (mirrors[i].shader)

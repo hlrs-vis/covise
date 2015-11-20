@@ -202,7 +202,7 @@ CuttingSurfaceInteraction::menuEvent(coMenuItem *menuItem)
              || (menuItem == clipPlaneIndexCheckbox_[4])
              || (menuItem == clipPlaneIndexCheckbox_[5]))
     {
-        int index;
+        int index=0;
         sscanf(menuItem->getName(), "ClipPlane %d", &index);
         switchClipPlane(index);
         sendClipPlaneToGui();
@@ -358,7 +358,7 @@ CuttingSurfaceInteraction::createMenu()
     clipPlaneNoneCheckbox_ = new coCheckboxMenuItem("No ClipPlane", true, clipPlaneIndexGroup_);
     clipPlaneNoneCheckbox_->setMenuListener(this);
     clipPlaneMenu_->add(clipPlaneNoneCheckbox_);
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 3; i++)
     {
         char name[100];
         sprintf(name, "ClipPlane %d", i);
@@ -521,7 +521,7 @@ CuttingSurfaceInteraction::deleteMenu()
 
     switchClipPlane(-1);
     delete clipPlaneNoneCheckbox_;
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 3; i++)
         delete clipPlaneIndexCheckbox_[i];
     delete clipPlaneOffsetSlider_;
     delete clipPlaneFlipCheckbox_;
@@ -710,12 +710,12 @@ void
 CuttingSurfaceInteraction::setClipPlaneFromGui(int index, float offset, bool flip)
 {
     // disable index-checkBoxes
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 3; i++)
     {
         clipPlaneIndexCheckbox_[i]->setState(false);
     }
     // set according to message
-    if ((index < 0) || (index > 5))
+    if ((index < 0) || (index > 2))
     {
         clipPlaneNoneCheckbox_->setState(true);
     }
