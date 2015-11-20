@@ -119,6 +119,8 @@ static uchar 	idleRate; /* repeat rate for keyboards, never used for mice */
 uint8_t oldDX = 0;
 uint8_t oldDY = 0;
 
+double carrier_detect_time = 0.0;
+
 
 //----------------------------------------------------------------------------------
 // UART INIT and TRANSMIT
@@ -138,6 +140,68 @@ void uart_init (void)
 	UCSR0B |= (1 << TXEN0); // Frame Format: Asynchronous 8N1
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
   }
+
+
+// ----------------------------------------------------------------------------
+// 8-bit timer0 initialization and its ISR implementation
+// ----------------------------------------------------------------------------
+
+void timer0_init()
+{
+	//cli();
+
+	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+	//sei();
+	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
+	//sei();								// 1 count = 0.0853 ms
+										// 1 timer overflow = 255*0.0853ms =21.76ms
+
+
+}
+
+
+ISR(TIMER0_OVF_vect)
+{
+	//sbi(PORTD, LED_RED);
+
+	carrier_detect_time += 21.76;   //ms
+
+}
+
+
+// ----------------------------------------------------------------------------
+// Convert floating point value into two integers for serial transmission
+// Function for the size of the integers
+// ----------------------------------------------------------------------------
+
+void double2Ints(double f, int p, int *i, int *d)
+{
+  // f = float, p=decimal precision, i=integer, d=decimal
+  int   li;
+  int   prec=1;
+
+  for(int x=p;x>0;x--)
+  {
+    prec*=10;
+  };  // same as power(10,p)
+
+  li = (int) f;              // get integer part
+  *d = (int) ((f-li)*prec);  // get decimal part
+  *i = li;
+}
+
+int lenHelper(unsigned x) {
+    if(x>=1000000000) return 10;
+    if(x>=100000000) return 9;
+    if(x>=10000000) return 8;
+    if(x>=1000000) return 7;
+    if(x>=100000) return 6;
+    if(x>=10000) return 5;
+    if(x>=1000) return 4;
+    if(x>=100) return 3;
+    if(x>=10) return 2;
+    return 1;
+}
 
 
 //----------------------------------------------------------------------------------
@@ -187,9 +251,9 @@ uint8_t rfm70SendAckPayload()
        _delay_ms(50);
     }
 
-    sbi(PORTD, LED_RED);
-    _delay_ms(10);
-    cbi(PORTD, LED_RED);
+    //sbi(PORTD, LED_RED);
+    //_delay_ms(10);
+    //cbi(PORTD, LED_RED);
 
 
     rfm70SetModeRX();
@@ -278,6 +342,64 @@ int rfm70ReceivePayload()
     return true;
 }
 
+//----------------------------------------------------------------------------------
+// Find free frequency channel
+//----------------------------------------------------------------------------------
+
+uint8_t Select_free_channel()
+{
+	uint8_t carrier_detect;
+	char Int[2];
+	int i=1; // frequency channel can be 2400Mhz+ 1-83
+	int j=0;
+	while (i<84)
+	{
+
+		//if(i>36)
+		//
+		rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, i );
+		//sprintf(hex,"%x",i);
+		_delay_ms(2);
+
+		for(j=0; j<5; j++)
+		{
+			carrier_detect = rfm70ReadRegValue(RFM70_REG_CD) | 0xFE;
+
+
+			if ( carrier_detect == 0xFF)
+			{
+				uart_transmit('_');
+				uart_transmit('_');
+				sprintf(Int, "%d", i);
+				uart_transmit('_');
+				uart_transmit(Int[0]);
+				uart_transmit(Int[1]);
+				uart_transmit('_');
+				j=0;
+				_delay_ms(10);
+				break;
+			}
+			else
+			{
+				/*if(i>36)
+				{
+					sprintf(Int, "%d", i);
+					uart_transmit('_');
+					uart_transmit(Int[0]);
+					uart_transmit(Int[1]);
+					uart_transmit('_');
+					//sbi(PORTD, LED_RED);
+				//_delay_ms(10);
+				//cbi(PORTD, LED_RED);
+				return true;
+				}*/}
+
+		}
+		i++;
+	}
+
+	return false;
+}
 
 
 int main()
@@ -303,10 +425,11 @@ int main()
     // uart initialize and check on terminal serial communication is working
     uart_init();
 
-   	uart_transmit('o');
+   	//uart_transmit('o');
    	uart_transmit('k');
 
-   	sbi(PORTD, LED_RED);
+   	//timer0_init();
+   	//sbi(PORTD, LED_RED);
 
     usbInit();
     cli();
@@ -345,6 +468,8 @@ int main()
         sbi(PORTD, LED_RED);
     }
 
+
+
     _delay_ms(50);
     // init and power up modules
     // goto RX mode
@@ -353,14 +478,78 @@ int main()
     wdt_reset(); // keep the watchdog happy
     _delay_ms(50);
 
+    // configure receiver to frequency channel which is currently free
+    //rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, Search_free_channel());
+    /*
+    int int_part,dec_part, strIntpart_size;
+
+    TCNT0 = 0x00;
+    Select_free_channel();
+    carrier_detect_time += TCNT0 * 0.0853;  //ms
+
+    for(int p=2;p<4;p++)
+	{
+	  double2Ints(carrier_detect_time, p, &int_part,&dec_part);
+	}
+
+	// conversion of both ints int_part and dec_part into char array
+	strIntpart_size = lenHelper(int_part);
+
+	char strDec[2];
+	char strInt[strIntpart_size];
+
+	sprintf(strInt, "%d", int_part);
+	sprintf(strDec, "%d", dec_part);
+
+	for (int x=0; x<strIntpart_size; x++)
+	{
+		uart_transmit(strInt[x]);
+	}
+	uart_transmit('.');
+	uart_transmit(strDec[0]);
+	uart_transmit(strDec[1]);
+	uart_transmit(strDec[2]);
+	*/
+	//Select_free_channel();
 
     int rand = 1234;
     while (1)
     {
-        wdt_reset(); // keep the watchdog happy
+    	Select_free_channel();
+    	rfm70ReceivePayload();
+    	//sbi(PORTD, LED_RED);
+    	/*carrier_detect_time += TCNT0 * 0.0853;  //ms
+    	if (carrier_detect_time >= 250)//0.0853)
+    	{
+			//sbi(PORTD, LED_RED);
+			//_delay_ms(10);
+			//cbi(PORTD, LED_RED);
+    		Select_free_channel();
+    		carrier_detect_time = 0.0;
+    		TCNT0 = 0x00;
+    	}*/
+    	wdt_reset(); // keep the watchdog happy
         usbPoll();
 
-        rfm70ReceivePayload();
+        /*uint8_t status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS) | 0xFD;
+
+        if (0xFF == status)
+        {
+        	//sbi(PORTD, LED_RED);
+        	//_delay_ms(10);
+            //cbi(PORTD, LED_RED);
+            // flush RX FIFO
+            rfm70WriteRegPgmBuf((uint8_t *)RFM70_CMD_FLUSH_RX, sizeof(RFM70_CMD_FLUSH_RX));
+
+
+        }*/
+
+       // char hex[2];
+        //hex[0]= '0';
+        //hex[1]='1';
+
+
+
 
         if (usbInterruptIsReady())
         { // if the interrupt is ready, feed data
@@ -381,6 +570,7 @@ int main()
 
     return 0;
 }
+
 
 usbMsgLen_t usbFunctionSetup(uchar data[8])
 {
