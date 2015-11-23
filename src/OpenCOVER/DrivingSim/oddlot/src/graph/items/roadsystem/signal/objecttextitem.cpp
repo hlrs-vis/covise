@@ -55,6 +55,7 @@ ObjectTextItem::ObjectTextItem(ObjectItem *objectItem)
     // Path //
     //
     updatePosition();
+	updateName();
 
     // Hide the text item on creation and show it only on mouse hover of the parent //
     //
@@ -94,7 +95,14 @@ ObjectTextItem::updatePosition()
 void
 ObjectTextItem::updateName()
 {
-    textHandle_->setText(object_->getName());
+	if ((object_->getName() == "") || (object_->getName() == "unnamed"))
+	{
+		textHandle_->setText(object_->getType());
+	}
+	else
+	{
+		textHandle_->setText(object_->getName());
+	}
 }
 
 //################//

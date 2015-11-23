@@ -2,466 +2,478 @@
 <ODDLot>
 	<signalsObjects>
 		<country name="OpenDRIVE" >
-		<objects>
-			<object name="GuardRail" icon="" distance="0.5" type="guardRail" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
-			<object name="STEPBarrier" icon="" distance="0.0" type="STEPBarrier" width="0.542" height="0.9" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="-0.271" z="0.0" height="0.0" />
-				<corner u="0.0" v="-0.249" z="0.15" height="0.0" />
-				<corner u="0.0" v="-0.189" z="0.2" height="0.0" />
-				<corner u="0.0" v="-0.091" z="0.9" height="0.0" />
-				<corner u="0.0" v="0.091" z="0.9" height="0.0" />
-				<corner u="0.0" v="0.189" z="0.2" height="0.0" />
-				<corner u="0.0" v="0.249" z="0.15" height="0.0" />
-				<corner u="0.0" v="-0.271" z="0.0" height="0.0" />
-			</object>
-			<object name="JerseyBarrier" icon="" distance="0.0" type="JerseyBarrier" width="0.82" height="1.145" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="-0.41" z="0.0" height="0.0" />
-				<corner u="0.0" v="-0.41" z="0.075" height="0.0" />
-				<corner u="0.0" v="-0.2" z="0.33" height="0.0" />
-				<corner u="0.0" v="-0.15" z="1.145" height="0.0" />
-				<corner u="0.0" v="0.15" z="1.145" height="0.0" />
-				<corner u="0.0" v="0.2" z="0.33" height="0.0" />
-				<corner u="0.0" v="0.41" z="0.075" height="0.0" />
-				<corner u="0.0" v="0.41" z="0.0" height="0.0" />
-			</object>
-                        <object name="JerseyBarrierChina" icon="" distance="0.0" type="JerseyBarrierChina" width="0.66" height="0.81" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="-0.33" z="0.0" height="0.0" />
-				<corner u="0.0" v="-0.33" z="0.075" height="0.0" />
-				<corner u="0.0" v="-0.2" z="0.25" height="0.0" />
-				<corner u="0.0" v="-0.1" z="0.81" height="0.0" />
-				<corner u="0.0" v="0.1" z="0.81" height="0.0" />
-				<corner u="0.0" v="0.2" z="0.25" height="0.0" />
-				<corner u="0.0" v="0.33" z="0.075" height="0.0" />
-				<corner u="0.0" v="0.33" z="0.0" height="0.0" />
-			</object>
-                        <object name="JerseyBarrierChinaHalfM" icon="" distance="0.0" type="JerseyBarrierChinaHalfM" width="0.45" height="0.81" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="-0.45" z="0.0" height="0.0" />
-				<corner u="0.0" v="-0.45" z="0.075" height="0.0" />
-				<corner u="0.0" v="-0.27" z="0.25" height="0.0" />
-				<corner u="0.0" v="-0.1" z="0.81" height="0.0" />
-				<corner u="0.0" v="0.0" z="0.81" height="0.0" />
-				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
-			</object>
-                        <object name="Fence" icon="" distance="0.0" type="Fence" width="0.1" height="1.0" length="1.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.0" z="1.0" height="0.0" />
-			</object>
-                        <object name="NoiseBarrier" icon="" distance="0.0" type="NoiseBarrier" width="0.1" height="3.0" length="3.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.0" z="0.0" height="0.0" />
-				<corner u="0.0" v="0.0" z="3.0" height="0.0" />
-			</object>
-                        <object name="ENoiseBarrier" icon="" distance="0.0" type="ENoiseBarrier" width="0.1" height="2.0" length="2.0" radius="0.0" heading="0" repeatDistance="0.0" >
-				<corner u="0.0" v="0.0" z="0.8" height="0.0" />
-				<corner u="0.0" v="0.0" z="2.8" height="0.0" />
-			</object>
-			<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Tree8m.WRL"/>
-                        <object name="AntiGlarePanel" icon="" distance="0.5" type="AntiGlarePanel" width="0.0" height="0.79" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="AntiGlarePanel.WRL"/>
-			<object name="Bush" icon="" distance="0.5" type="Bush" width="0.0" height="1.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Bush1m.WRL"/>
-                        <object name="PoleRight" icon="" distance="0.0" type="PoleRight" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Right.WRL" />
-                        <object name="PoleLeft" icon="" distance="0.0" type="PoleLeft" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left.WRL" />
-                        <object name="PoleLeft4m" icon="" distance="0.0" type="PoleLeft4m" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left4m.WRL" />
-                        <object name="PoleBoth" icon="" distance="0.0" type="PoleBoth" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Both.WRL"/>
-                        <object name="Traverse" icon="" distance="0.0" type="PoleTraverse" width="1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse.WRL"/>
-                        <object name="Traverse_105" icon="" distance="0.0" type="PoleTraverse_105" width="10.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_10_5.WRL"/>
-                        <object name="Traverse_120" icon="" distance="0.0" type="PoleTraverse_120" width="12.0" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_12.WRL"/>
-                        <object name="Traverse_145" icon="" distance="0.0" type="PoleTraverse_145" width="14.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_14_5.WRL"/>
-                        <object name="Traverse_185" icon="" distance="0.0" type="PoleTraverse_185" width="18.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_18_5.WRL"/>
-                        <object name="Traverse_180" icon="" distance="0.0" type="PoleTraverse_180" width="18" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_18.WRL"/>
-                        <object name="Traverse_195" icon="" distance="0.0" type="PoleTraverse_195" width="19.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_19_5.WRL"/>
-                        <object name="Traverse_190" icon="" distance="0.0" type="PoleTraverse_190" width="19" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_19.WRL"/>
-                        <object name="Traverse_200" icon="" distance="0.0" type="PoleTraverse_200" width="20" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_20.WRL"/>
-                        <object name="Traverse_220" icon="" distance="0.0" type="PoleTraverse_220" width="22" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_22.WRL"/>
-                        <object name="Traverse_70" icon="" distance="0.0" type="PoleTraverse_70" width="7" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_7.WRL"/>
-                        <object name="Traverse_85" icon="" distance="0.0" type="PoleTraverse_85" width="8.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_8_5.WRL"/>
-                        <object name="Traverse_98" icon="" distance="0.0" type="PoleTraverse_98" width="9.8" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_9_8.WRL"/>
-                        <object name="Light" icon="" distance="0.0" type="Light" width="0.0" height="8.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="Light.WRL"/>
-                        <object name="SeparationPillar" icon="" distance="0.0" type="SeparationPillar" width="0.0" height="0.8" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="SeparationPillar.WRL"/>
-                        <object name="WarningPillar" icon="" distance="0.0" type="WarningPillar" width="0.0" height="2.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="WarningPillar.WRL"/>
-		</objects>
+			<objects>
+				<category name="Barriers and Fences">
+					<object name="GuardRail" icon="" distance="0.5" type="guardRail" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" />
+					<object name="STEPBarrier" icon="" distance="0.0" type="STEPBarrier" width="0.542" height="0.9" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="-0.271" z="0.0" height="0.0" />
+						<corner u="0.0" v="-0.249" z="0.15" height="0.0" />
+						<corner u="0.0" v="-0.189" z="0.2" height="0.0" />
+						<corner u="0.0" v="-0.091" z="0.9" height="0.0" />
+						<corner u="0.0" v="0.091" z="0.9" height="0.0" />
+						<corner u="0.0" v="0.189" z="0.2" height="0.0" />
+						<corner u="0.0" v="0.249" z="0.15" height="0.0" />
+						<corner u="0.0" v="-0.271" z="0.0" height="0.0" />
+					</object>
+					<object name="JerseyBarrier" icon="" distance="0.0" type="JerseyBarrier" width="0.82" height="1.145" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="-0.41" z="0.0" height="0.0" />
+						<corner u="0.0" v="-0.41" z="0.075" height="0.0" />
+						<corner u="0.0" v="-0.2" z="0.33" height="0.0" />
+						<corner u="0.0" v="-0.15" z="1.145" height="0.0" />
+						<corner u="0.0" v="0.15" z="1.145" height="0.0" />
+						<corner u="0.0" v="0.2" z="0.33" height="0.0" />
+						<corner u="0.0" v="0.41" z="0.075" height="0.0" />
+						<corner u="0.0" v="0.41" z="0.0" height="0.0" />
+					</object>
+					<object name="JerseyBarrierChina" icon="" distance="0.0" type="JerseyBarrierChina" width="0.66" height="0.81" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="-0.33" z="0.0" height="0.0" />
+						<corner u="0.0" v="-0.33" z="0.075" height="0.0" />
+						<corner u="0.0" v="-0.2" z="0.25" height="0.0" />
+						<corner u="0.0" v="-0.1" z="0.81" height="0.0" />
+						<corner u="0.0" v="0.1" z="0.81" height="0.0" />
+						<corner u="0.0" v="0.2" z="0.25" height="0.0" />
+						<corner u="0.0" v="0.33" z="0.075" height="0.0" />
+						<corner u="0.0" v="0.33" z="0.0" height="0.0" />
+					</object>
+					<object name="JerseyBarrierChinaHalfM" icon="" distance="0.0" type="JerseyBarrierChinaHalfM" width="0.45" height="0.81" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="-0.45" z="0.0" height="0.0" />
+						<corner u="0.0" v="-0.45" z="0.075" height="0.0" />
+						<corner u="0.0" v="-0.27" z="0.25" height="0.0" />
+						<corner u="0.0" v="-0.1" z="0.81" height="0.0" />
+						<corner u="0.0" v="0.0" z="0.81" height="0.0" />
+						<corner u="0.0" v="0.0" z="0.0" height="0.0" />
+					</object>
+					<object name="Fence" icon="" distance="0.0" type="Fence" width="0.1" height="1.0" length="1.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="0.0" z="0.0" height="0.0" />
+						<corner u="0.0" v="0.0" z="1.0" height="0.0" />
+					</object>
+					<object name="NoiseBarrier" icon="" distance="0.0" type="NoiseBarrier" width="0.1" height="3.0" length="3.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="0.0" z="0.0" height="0.0" />
+						<corner u="0.0" v="0.0" z="3.0" height="0.0" />
+					</object>
+					<object name="ENoiseBarrier" icon="" distance="0.0" type="ENoiseBarrier" width="0.1" height="2.0" length="2.0" radius="0.0" heading="0" repeatDistance="0.0" >
+						<corner u="0.0" v="0.0" z="0.8" height="0.0" />
+						<corner u="0.0" v="0.0" z="2.8" height="0.0" />
+					</object>
+					<object name="AntiGlarePanel" icon="" distance="0.5" type="AntiGlarePanel" width="0.0" height="0.79" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="AntiGlarePanel.WRL"/>
+				</category>
+				
+				<category name="Trees and Bushes">
+					<object name="Tree" icon="" distance="0.5" type="Tree" width="0.0" height="3.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Tree8m.WRL"/>
+					<object name="Bush" icon="" distance="0.5" type="Bush" width="0.0" height="1.0" length="0.0" radius="0.2" heading="0" repeatDistance="0.0" file="Bush1m.WRL"/>
+				</category>
+				
+				<category name="Poles and Pillars">
+					<object name="PoleRight" icon="" distance="0.0" type="PoleRight" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Right.WRL" />
+					<object name="PoleLeft" icon="" distance="0.0" type="PoleLeft" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left.WRL" />
+					<object name="PoleLeft4m" icon="" distance="0.0" type="PoleLeft4m" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Left4m.WRL" />
+					<object name="PoleBoth" icon="" distance="0.0" type="PoleBoth" width="0.1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Both.WRL"/>
+					<object name="Traverse" icon="" distance="0.0" type="PoleTraverse" width="1" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse.WRL"/>
+					<object name="Traverse_105" icon="" distance="0.0" type="PoleTraverse_105" width="10.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_10_5.WRL"/>
+					<object name="Traverse_120" icon="" distance="0.0" type="PoleTraverse_120" width="12.0" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_12.WRL"/>
+					<object name="Traverse_145" icon="" distance="0.0" type="PoleTraverse_145" width="14.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_14_5.WRL"/>
+					<object name="Traverse_185" icon="" distance="0.0" type="PoleTraverse_185" width="18.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_18_5.WRL"/>
+					<object name="Traverse_180" icon="" distance="0.0" type="PoleTraverse_180" width="18" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_18.WRL"/>
+					<object name="Traverse_195" icon="" distance="0.0" type="PoleTraverse_195" width="19.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_19_5.WRL"/>
+					<object name="Traverse_190" icon="" distance="0.0" type="PoleTraverse_190" width="19" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_19.WRL"/>
+					<object name="Traverse_200" icon="" distance="0.0" type="PoleTraverse_200" width="20" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_20.WRL"/>
+					<object name="Traverse_220" icon="" distance="0.0" type="PoleTraverse_220" width="22" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_22.WRL"/>
+					<object name="Traverse_70" icon="" distance="0.0" type="PoleTraverse_70" width="7" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_7.WRL"/>
+					<object name="Traverse_85" icon="" distance="0.0" type="PoleTraverse_85" width="8.5" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_8_5.WRL"/>
+					<object name="Traverse_98" icon="" distance="0.0" type="PoleTraverse_98" width="9.8" height="0.6" length="4.0" radius="0.0" heading="0" repeatDistance="0.0" file="Pole_Traverse_9_8.WRL"/>
+					<object name="SeparationPillar" icon="" distance="0.0" type="SeparationPillar" width="0.0" height="0.8" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="SeparationPillar.WRL"/>
+					<object name="WarningPillar" icon="" distance="0.0" type="WarningPillar" width="0.0" height="2.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="WarningPillar.WRL"/>
+				</category>
+				
+				<category name="Lights">
+					<object name="Light" icon="" distance="0.0" type="Light" width="0.0" height="8.0" length="0.0" radius="1.0" heading="0" repeatDistance="0.0" file="Light.WRL"/>
+				</category>
+			</objects>
 		</country>
 		
-		<country name="Germany" >
-		<signals>
-		   <category name="Warning signs">
-				<sign name="101" icon="Germany/101.png" type="101"   distance="0.5" height="2.0" />
-				<sign name="102" icon="Germany/102.png" type="102"  distance="0.5" height="2.0" />
-				<sign name="103-10" icon="Germany/103-10.png" type="103" subtype="10" distance="0.5" height="2.0" />
-				<sign name="105-10" icon="Germany/105-10.png" type="105" subtype="10" distance="0.5" height="2.0" />
-				<sign name="108-54" icon="Germany/108-54.png" type="108" subtype="54" value="8.0" distance="0.5" height="2.0" />
-				<sign name="108-56" icon="Germany/108-56.png" type="108" subtype="56" value="8.0" distance="0.5" height="2.0" />
-				<sign name="110-58" icon="Germany/110-58.png" type="110" subtype="58" distance="0.5" height="2.0" /> 
-				<sign name="112" icon="Germany/112.png" type="112"  distance="0.5" height="2.0" />
-				<sign name="113" icon="Germany/113.png" type="113"  distance="0.5" height="2.0" />
-				<sign name="114" icon="Germany/114.png" type="114"  distance="0.5" height="2.0" />
-				<sign name="115-10" icon="Germany/115-10.png" type="115" subtype="10" distance="0.5" height="2.0" />
-				<sign name="115-20" icon="Germany/115-20.png" type="115" subtype="20" distance="0.5" height="2.0" />
-				<sign name="117-20" icon="Germany/117-20.png" type="117" subtype="20" distance="0.5" height="2.0" />
-				<sign name="120" icon="Germany/120.png" type="120"  distance="0.5" height="2.0" />
-				<sign name="121-10" icon="Germany/121-10.png" type="121" subtype="10" distance="0.5" height="2.0" />
-				<sign name="123" icon="Germany/123.png" type="123"  distance="0.5" height="2.0" /> 
-				<sign name="124" icon="Germany/124.png" type="124"  distance="0.5" height="2.0" />
-				<sign name="125" icon="Germany/125.png" type="125"  distance="0.5" height="2.0" />
-				<sign name="131" icon="Germany/131.png" type="131"  distance="0.5" height="2.0" />
-				<sign name="133-10" icon="Germany/133-10.png" type="133" subtype="10" distance="0.5" height="2.0" />
-				<sign name="134-10" icon="Germany/134-10.png" type="134" subtype="10" distance="0.5" height="2.0" />
-				<sign name="134-20" icon="Germany/134-20.png" type="134" subtype="20" distance="0.5" height="2.0" />
-				<sign name="136-10" icon="Germany/136-10.png" type="136" subtype="10" distance="0.5" height="2.0" />
-				<sign name="138-10" icon="Germany/138-10.png" type="138" subtype="10" distance="0.5" height="2.0" /> 
-				<sign name="142-10" icon="Germany/142-10.png" type="142" subtype="10" distance="0.5" height="2.0" />
-				<sign name="142-20" icon="Germany/142-20.png" type="142" subtype="20" distance="0.5" height="2.0" />
-				<sign name="151" icon="Germany/151.png" type="151"  distance="0.5" height="2.0" />
-				<sign name="156" icon="Germany/156.png" type="156"  distance="0.5" height="2.0" />
-				<sign name="159-10" icon="Germany/159-10.png" type="159" subtype="10" distance="0.5" height="2.0" />
-				<sign name="159-20" icon="Germany/159-20.png" type="159" subtype="20" distance="0.5" height="2.0" />
-				<sign name="162-10" icon="Germany/162-10.png" type="162" subtype="10" distance="0.5" height="2.0" />
-				<sign name="162-20" icon="Germany/162-20.png" type="162" subtype="20" distance="0.5" height="2.0" />
-			</category>
-			
-			<category name="Signs giving orders">
-				<sign name="201-50" icon="Germany/201-50.png" type="201" subtype="50" distance="0.5" height="2.0" /> 
-				<sign name="205" icon="Germany/205.png" type="205"  distance="0.5" height="2.0" />
-				<sign name="206" icon="Germany/206.png" type="206"  distance="0.5" height="2.0" />
-				<sign name="208" icon="Germany/208.png" type="208"  distance="0.5" height="2.0" />
-				<sign name="209-10" icon="Germany/209-10.png" type="209" subtype="10" distance="0.5" height="2.0" />
-				<sign name="209-20" icon="Germany/209-20.png" type="209" subtype="20" distance="0.5" height="2.0" />
-				<sign name="209-30" icon="Germany/209-30.png" type="209" subtype="30" distance="0.5" height="2.0" />
-				<sign name="211-20" icon="Germany/211-20.png" type="211" subtype="20" distance="0.5" height="2.0" />
-				<sign name="214-20" icon="Germany/214-20.png" type="214" subtype="20" distance="0.5" height="2.0" />  
-				<sign name="215" icon="Germany/215.png" type="215"  distance="0.5" height="2.0" />
-				<sign name="220-10" icon="Germany/220-10.png" type="220" subtype="10" distance="0.5" height="2.0" />
-				<sign name="220-20" icon="Germany/220-20.png" type="220" subtype="20" distance="0.5" height="2.0" />
-				<sign name="222-10" icon="Germany/222-10.png" type="222" subtype="10" distance="0.5" height="2.0" />
-				<sign name="222-20" icon="Germany/222-20.png" type="222" subtype="20" distance="0.5" height="2.0" />
-				<sign name="223.1" icon="Germany/223.1.png" type="223" subclass="1"  distance="0.5" height="2.0" />
-				<sign name="223.2" icon="Germany/223.2.png" type="223" subclass="2"  distance="0.5" height="2.0" />
-				<sign name="223.3" icon="Germany/223.3.png" type="223" subclass="3"  distance="0.5" height="2.0" /> 
-				<sign name="224-50" icon="Germany/224-50.png" type="224" subtype="50" distance="0.5" height="2.0" />
-				<sign name="229" icon="Germany/229.png" type="229"  distance="0.5" height="2.0" />
-				<sign name="237" icon="Germany/237.png" type="237"  distance="0.5" height="2.0" />
-				<sign name="238" icon="Germany/238.png" type="238"  distance="0.5" height="2.0" />
-				<sign name="239" icon="Germany/239.png" type="239"  distance="0.5" height="2.0" />
-				<sign name="240" icon="Germany/240.png" type="240"  distance="0.5" height="2.0" />  
-				<sign name="241-30" icon="Germany/241-30.png" type="241" subtype="30" distance="0.5" height="2.0" />
-				<sign name="242" icon="Germany/242.png" type="242"  distance="0.5" height="2.0" />
-				<sign name="242-2" icon="Germany/242-2.png" type="242" subtype="2" distance="0.5" height="2.0" />
-				<sign name="244" icon="Germany/244.png" type="244"  distance="0.5" height="2.0" />
-				<sign name="244a" icon="Germany/244a.png" type="244"  distance="0.5" height="2.0" />
-				<sign name="245" icon="Germany/245.png" type="245"  distance="0.5" height="2.0" />  
-				<sign name="250" icon="Germany/250.png" type="250"  distance="0.5" height="2.0" />
-				<sign name="251" icon="Germany/251.png" type="251"  distance="0.5" height="2.0" />
-				<sign name="253" icon="Germany/253.png" type="253"  distance="0.5" height="2.0" />
-				<sign name="254" icon="Germany/254.png" type="254"  distance="0.5" height="2.0" />
-				<sign name="255" icon="Germany/255.png" type="255"  distance="0.5" height="2.0" />
-				<sign name="259" icon="Germany/259.png" type="259"  distance="0.5" height="2.0" />               
-				<sign name="260" icon="Germany/260.png" type="260"  distance="0.5" height="2.0" />
-				<sign name="261" icon="Germany/261.png" type="261"  distance="0.5" height="2.0" />
-				<sign name="262" icon="Germany/262.png" type="262"  distance="0.5" height="2.0" />
-				<sign name="263" icon="Germany/263.png" type="263"  distance="0.5" height="2.0" />
-				<sign name="264" icon="Germany/264.png" type="264"  distance="0.5" height="2.0" />
-				<sign name="265" icon="Germany/265.png" type="265"  distance="0.5" height="2.0" />  
-				<sign name="266" icon="Germany/266.png" type="266"  distance="0.5" height="2.0" />
-				<sign name="267" icon="Germany/267.png" type="267"  distance="0.5" height="2.0" />
-				<sign name="268" icon="Germany/268.png" type="268"  distance="0.5" height="2.0" />
-				<sign name="269" icon="Germany/269.png" type="269"  distance="0.5" height="2.0" />
-				<sign name="270.1" icon="Germany/270.1.png" type="270" subclass="1" subtype="-1" distance="0.5" height="2.0" />
-				<sign name="270.2" icon="Germany/270.2.png" type="270" subclass="2" subtype="-1" distance="0.5" height="2.0" />   
-				<sign name="272" icon="Germany/272.png" type="272"  distance="0.5" height="2.0" />
-				<sign name="273" icon="Germany/273.png" type="273"  distance="0.5" height="2.0" />
-				<sign name="274.1-50" icon="Germany/274.1-50.png" type="274" subclass="1" subtype="50" distance="0.5" height="2.0" />
-				<sign name="274.2-50" icon="Germany/274.2-50.png" type="274" subclass="2" subtype="50" distance="0.5" height="2.0" />
-				<sign name="274-53" icon="Germany/274-53.png" type="274" subtype="53" distance="0.5" height="2.0" />
-				<sign name="274-55" icon="Germany/274-55.png" type="274" subtype="55" distance="0.5" height="2.0" />
-				<sign name="274-56" icon="Germany/274-56.png" type="274" subtype="56" distance="0.5" height="2.0" />
-				<sign name="274-57" icon="Germany/274-57.png" type="274" subtype="57" distance="0.5" height="2.0" />
-				<sign name="275" icon="Germany/275.png" type="275"  distance="0.5" height="2.0" />                        
-				<sign name="276" icon="Germany/276.png" type="276"  distance="0.5" height="2.0" />
-				<sign name="277" icon="Germany/277.png" type="277"  distance="0.5" height="2.0" />
-				<sign name="278-56" icon="Germany/278-56.png" type="278" subtype="56" distance="0.5" height="2.0" />
-				<sign name="278-57" icon="Germany/278-57.png" type="278" subtype="57" distance="0.5" height="2.0" />
-				<sign name="279" icon="Germany/279.png" type="279"  distance="0.5" height="2.0" />
-				<sign name="280" icon="Germany/280.png" type="280"  distance="0.5" height="2.0" />
-				<sign name="281" icon="Germany/281.png" type="281"  distance="0.5" height="2.0" />  
-				<sign name="282" icon="Germany/282.png" type="282"  distance="0.5" height="2.0" />
-				<sign name="283-10" icon="Germany/283-10.png" type="283" subtype="10" distance="0.5" height="2.0" />
-				<sign name="283-20" icon="Germany/283-20.png" type="283" subtype="20" distance="0.5" height="2.0" />
-				<sign name="283-30" icon="Germany/283-30.png" type="283" subtype="30" distance="0.5" height="2.0" />
-				<sign name="283-50" icon="Germany/283-50.png" type="283" subtype="50" distance="0.5" height="2.0" />
-				<sign name="286-50" icon="Germany/286-50.png" type="286" subtype="50" distance="0.5" height="2.0" />
-				<sign name="286-10" icon="Germany/286-10.png" type="286" subtype="10" distance="0.5" height="2.0" />
-				<sign name="286-20" icon="Germany/286-20.png" type="286" subtype="20" distance="0.5" height="2.0" />
-				<sign name="286-30" icon="Germany/286-30.png" type="286" subtype="30" distance="0.5" height="2.0" />
-				<sign name="290" icon="Germany/290.png" type="290"  distance="0.5" height="2.0" />
-				<sign name="290-2" icon="Germany/290-2.png" type="290" subtype="2" distance="0.5" height="2.0" />
-				<sign name="293" icon="Germany/293.png" type="293"  distance="0.0" height="0.0" />
-				<sign name="294" icon="Germany/294.png" type="294"  distance="0.0" height="0.0" />
-			</category>			
-			
-			<category name="Information signs">
-				<sign name="301" icon="Germany/301.png" type="301"  distance="0.5" height="2.0" />   
-				<sign name="306" icon="Germany/306.png" type="306"  distance="0.5" height="2.0" />
-				<sign name="307" icon="Germany/307.png" type="307"  distance="0.5" height="2.0" />
-				<sign name="308" icon="Germany/308.png" type="308"  distance="0.5" height="2.0" />
-				<sign name="310-50" icon="Germany/310-50.png" type="310" subtype="50" distance="0.5" height="2.0" />
-				<sign name="311-50" icon="Germany/311-50.png" type="311" subtype="50" distance="0.5" height="2.0" />
-				<sign name="314-10" icon="Germany/314-10.png" type="314" subtype="10"  distance="0.5" height="2.0" />  
-				<sign name="314-20" icon="Germany/314-20.png" type="314" subtype="20"  distance="0.5" height="2.0" /> 
-				<sign name="314.1" icon="Germany/314.1.png" type="314" subclass="1"  distance="0.5" height="2.0" />  
-				<sign name="314.2" icon="Germany/314.2.png" type="314" subclass="2"  distance="0.5" height="2.0" />
-				<sign name="314-50" icon="Germany/314-50.png" type="314" subtype="50" distance="0.5" height="2.0" />
-				<sign name="315-52" icon="Germany/315-52.png" type="315" subtype="52" distance="0.5" height="2.0" />
-				<sign name="315-55" icon="Germany/315-55.png" type="315" subtype="55" distance="0.5" height="2.0" />
-				<sign name="315-56" icon="Germany/315-56.png" type="315" subtype="56" distance="0.5" height="2.0" />
-				<sign name="315-57" icon="Germany/315-57.png" type="315" subtype="57" distance="0.5" height="2.0" />
-				<sign name="325" icon="Germany/325.png" type="325"  distance="0.5" height="2.0" />
-				<sign name="326-50" icon="Germany/326-50.png" type="326" subtype="50" distance="0.5" height="2.0" />
-				<sign name="327" icon="Germany/327.png" type="327"  distance="0.5" height="2.0" />  
-				<sign name="328" icon="Germany/328.png" type="328"  distance="0.5" height="2.0" />
-				<sign name="330" icon="Germany/330.png" type="330"  distance="0.5" height="2.0" />
-				<sign name="330-2" icon="Germany/330-2.png" type="330" subtype="2" distance="0.5" height="2.0" />
-				<sign name="331" icon="Germany/331.png" type="331"  distance="0.5" height="2.0" />
-				<sign name="331-2" icon="Germany/331-2.png" type="331" subtype="2" distance="0.5" height="2.0" />
-				<sign name="332-1" icon="Germany/332-1.png" type="332" subtype="1" distance="0.5" height="2.0" />   
-				<sign name="332-20" icon="Germany/332-20.png" type="332" subtype="20" distance="0.5" height="2.0" />
-				<sign name="333-20" icon="Germany/333-20.png" type="333" subtype="20" distance="0.5" height="2.0" />     
-				<sign name="350-10" icon="Germany/350-10.png" type="350" subtype="10" distance="0.5" height="2.0" />
-				<sign name="350-20" icon="Germany/350-20.png" type="350" subtype="20" distance="0.5" height="2.0" />
-				<sign name="354" icon="Germany/354.png" type="354"  distance="0.5" height="2.0" />  
-				<sign name="356" icon="Germany/356.png" type="356"  distance="0.5" height="2.0" />
-				<sign name="357" icon="Germany/357.png" type="357"  distance="0.5" height="2.0" />
-				<sign name="358" icon="Germany/358.png" type="358"  distance="0.5" height="2.0" />
-				<sign name="360-51" icon="Germany/360-51.png" type="360" subtype="51" distance="0.5" height="2.0" />
-				<sign name="363" icon="Germany/363.png" type="363"  distance="0.5" height="2.0" />
-				<sign name="385-50" icon="Germany/385-50.png" type="385" subtype="50" distance="0.5" height="2.0" />
-				<sign name="386-2" icon="Germany/386-2.png" type="386" subtype="2" distance="0.5" height="2.0" />  
-				<sign name="386-50" icon="Germany/386-50.png" type="386" subtype="50" distance="0.5" height="2.0" />
-				<sign name="393" icon="Germany/393.png" type="393"  distance="0.5" height="2.0" />   
-				<sign name="394-50" icon="Germany/394-50.png" type="394" subtype="50" distance="0.5" height="2.0" />
-				<sign name="401" icon="Germany/401.png" type="401"  distance="0.5" height="2.0" />
-				<sign name="405" icon="Germany/405.png" type="405"  distance="0.5" height="2.0" />
-				<sign name="406" icon="Germany/406.png" type="406"  distance="0.5" height="2.0" />
-				<sign name="410" icon="Germany/410.png" type="410"  distance="0.5" height="2.0" />
-				<sign name="415" icon="Germany/415.png" type="415"  distance="0.5" height="2.0" /> 
-				<sign name="418" icon="Germany/418.png" type="418"  distance="0.5" height="2.0" />
-				<sign name="419" icon="Germany/419.png" type="419"  distance="0.5" height="2.0" />
-				<sign name="421-20" icon="Germany/421-20.png" type="421" subtype="20" distance="0.5" height="2.0" />
-				<sign name="422" icon="Germany/422.png" type="422"  distance="0.5" height="2.0" />
-				<sign name="430" icon="Germany/430.png" type="430"  distance="0.5" height="2.0" />
-				<sign name="432" icon="Germany/432.png" type="432"  distance="0.5" height="2.0" />  
-				<sign name="434" icon="Germany/434.png" type="434"  distance="0.5" height="2.0" />
-				<sign name="438" icon="Germany/438.png" type="438"  distance="0.5" height="2.0" />
-				<sign name="439" icon="Germany/439.png" type="439"  distance="0.5" height="2.0" />
-				<sign name="440" icon="Germany/440.png" type="440"  distance="0.5" height="2.0" />
-				<sign name="441" icon="Germany/441.png" type="441"  distance="0.5" height="2.0" />   
-				<sign name="442" icon="Germany/442.png" type="442"  distance="0.5" height="2.0" />
-				<sign name="448.1" icon="Germany/448.1.png" type="448" subclass="1"  distance="0.5" height="2.0" />
-				<sign name="448" icon="Germany/448.png" type="448"  distance="0.5" height="2.0" />
-				<sign name="449" icon="Germany/449.png" type="449"  distance="0.5" height="2.0" />
-				<sign name="450" icon="Germany/450.png" type="450"  distance="0.5" height="2.0" />
-				<sign name="453" icon="Germany/453.png" type="453"  distance="0.5" height="2.0" /> 
-				<sign name="454-20" icon="Germany/454-20.png" type="454" subtype="20" distance="0.5" height="2.0" />
-				<sign name="455-1" icon="Germany/455-1.png" type="455" subtype="1" distance="0.5" height="2.0" />
-				<sign name="455-2" icon="Germany/455-2.png" type="455" subtype="2" distance="0.5" height="2.0" />
-				<sign name="457" icon="Germany/457.png" type="457"  distance="0.5" height="2.0" />
-				<sign name="457-2" icon="Germany/457-2.png" type="457" subtype="2" distance="0.5" height="2.0" />
-				<sign name="458" icon="Germany/458.png" type="458"  distance="0.5" height="2.0" />  
-				<sign name="460-30" icon="Germany/460-30.png" type="460" subtype="30" distance="0.5" height="2.0" />
-				<sign name="467" icon="Germany/467.png" type="467"  distance="0.5" height="2.0" />
-				<sign name="467-2" icon="Germany/467-2.png" type="467" subtype="2" distance="0.5" height="2.0" />
-				<sign name="501-11" icon="Germany/501-11.png" type="501" subtype="11" distance="0.5" height="2.0" />
-				<sign name="531" icon="Germany/531.png" type="531"  distance="0.5" height="2.0" />   
-				<sign name="590" icon="Germany/590.png" type="590"  distance="0.5" height="2.0" />
-			</category>	
-			
-			<category name="Traffic control devices">
-				<sign name="605" icon="Germany/605.png" type="605"  distance="0.5" height="2.0" />		 
-				<sign name="625.20-10" icon="Germany/625.20-10.png" type="625" subtype="10" subclass="20" distance="0.5" height="1.2" />
-				<sign name="626-10" icon="Germany/626-10.png" type="626" subtype="10"  distance="0.5" height="2.0" />
-				<sign name="626-20" icon="Germany/626-20.png" type="626" subtype="20"  distance="0.5" height="2.0" />
-				<sign name="628" icon="Germany/628.png" type="628"  distance="0.5" height="2.0" />
-			</category>	
-			
-			<category name="Supplemental signs">
-				<sign name="1000-21" icon="Germany/1000-21.png" type="1000" subtype="21" distance="0.5" height="2.0" />
-				<sign name="1000-32" icon="Germany/1000-32.png" type="1000" subtype="32" distance="0.5" height="2.0" />
-				<sign name="1000-33" icon="Germany/1000-33.png" type="1000" subtype="33" distance="0.5" height="2.0" />
-				<sign name="1001-30" icon="Germany/1001-30.png" type="1001" subtype="30" distance="0.5" height="2.0" />
-				<sign name="1001-31" icon="Germany/1001-31.png" type="1001" subtype="31" distance="0.5" height="2.0" />
-				<sign name="1002-10" icon="Germany/1002-10.png" type="1002" subtype="10" distance="0.5" height="2.0" />
-				<sign name="1002-12" icon="Germany/1002-12.png" type="1002" subtype="12" distance="0.5" height="2.0" />
-				<sign name="1002-13" icon="Germany/1002-13.png" type="1002" subtype="13" distance="0.5" height="2.0" />
-				<sign name="1002-14" icon="Germany/1002-14.png" type="1002" subtype="14" distance="0.5" height="2.0" />
-				<sign name="1002-21" icon="Germany/1002-21.png" type="1002" subtype="21" distance="0.5" height="2.0" /> 
-				<sign name="1002-22" icon="Germany/1002-22.png" type="1002" subtype="22" distance="0.5" height="2.0" /> 
-				<sign name="1002-24" icon="Germany/1002-24.png" type="1002" subtype="24" distance="0.5" height="2.0" />
-				<sign name="1004-30" icon="Germany/1004-30.png" type="1004" subtype="30" distance="0.5" height="2.0" />
-				<sign name="1004-31" icon="Germany/1004-31.png" type="1004" subtype="31" distance="0.5" height="2.0" />
-				<sign name="1006-33" icon="Germany/1006-33.png" type="1006" subtype="33" distance="0.5" height="2.0" />
-				<sign name="1006-34" icon="Germany/1006-34.png" type="1006" subtype="34" distance="0.5" height="2.0" />
-				<sign name="1006-35" icon="Germany/1006-35.png" type="1006" subtype="35" distance="0.5" height="2.0" />
-				<sign name="1008-30" icon="Germany/1008-30.png" type="1008" subtype="30" distance="0.5" height="2.0" />
-				<sign name="1008-31" icon="Germany/1008-31.png" type="1008" subtype="31" distance="0.5" height="2.0" />
-				<sign name="1010-10" icon="Germany/1010-10.png" type="1010" subtype="10" distance="0.5" height="2.0" />
-				<sign name="1010-11" icon="Germany/1010-11.png" type="1010" subtype="11" distance="0.5" height="2.0" />
-				<sign name="1012-30" icon="Germany/1012-30.png" type="1012" subtype="30" distance="0.5" height="2.0" />
-				<sign name="1012-31" icon="Germany/1012-31.png" type="1012" subtype="31" distance="0.5" height="2.0" />
-				<sign name="1022-10" icon="Germany/1022-10.png" type="1022" subtype="10" distance="0.5" height="2.0" />
-				<sign name="1030-10" icon="Germany/1030-10.png" type="1030" subtype="10" distance="0.5" height="2.0" />   
-				<sign name="1031" icon="Germany/1031.png" type="1031"  distance="0.5" height="2.0" />
-				<sign name="1040-30" icon="Germany/1040-30.png" type="1040" subtype="30" distance="0.5" height="2.0" />
-				<sign name="1040-31" icon="Germany/1040-31.png" type="1040" subtype="31" distance="0.5" height="2.0" />
-				<sign name="1048-12" icon="Germany/1048-12.png" type="1048" subtype="12" distance="0.5" height="2.0" />
-				<sign name="1049-10" icon="Germany/1049-10.png" type="1049" subtype="10" distance="0.5" height="2.0" />
-				<sign name="1052-35" icon="Germany/1052-35.png" type="1052" subtype="35" distance="0.5" height="2.0" />
-				<sign name="1052-36" icon="Germany/1052-36.png" type="1052" subtype="36" distance="0.5" height="2.0" />
-				<sign name="1052-37" icon="Germany/1052-37.png" type="1052" subtype="37" distance="0.5" height="2.0" />
-				<sign name="1052-38" icon="Germany/1052-38.png" type="1052" subtype="38" distance="0.5" height="2.0" />
-				<sign name="1053-38" icon="Germany/1053-38.png" type="1053" subtype="38" distance="0.5" height="2.0" /> 
-			</category>	            
-         </signals>	
+		<country name="Germany">
+			<signals>
+			   <category name="Warning signs">
+					<sign name="101" icon="Germany/101.png" type="101"   distance="0.5" height="2.0" />
+					<sign name="102" icon="Germany/102.png" type="102"  distance="0.5" height="2.0" />
+					<sign name="103-10" icon="Germany/103-10.png" type="103" subtype="10" distance="0.5" height="2.0" />
+					<sign name="105-10" icon="Germany/105-10.png" type="105" subtype="10" distance="0.5" height="2.0" />
+					<sign name="108-54" icon="Germany/108-54.png" type="108" subtype="54" value="8.0" distance="0.5" height="2.0" />
+					<sign name="108-56" icon="Germany/108-56.png" type="108" subtype="56" value="8.0" distance="0.5" height="2.0" />
+					<sign name="110-58" icon="Germany/110-58.png" type="110" subtype="58" distance="0.5" height="2.0" /> 
+					<sign name="112" icon="Germany/112.png" type="112"  distance="0.5" height="2.0" />
+					<sign name="113" icon="Germany/113.png" type="113"  distance="0.5" height="2.0" />
+					<sign name="114" icon="Germany/114.png" type="114"  distance="0.5" height="2.0" />
+					<sign name="115-10" icon="Germany/115-10.png" type="115" subtype="10" distance="0.5" height="2.0" />
+					<sign name="115-20" icon="Germany/115-20.png" type="115" subtype="20" distance="0.5" height="2.0" />
+					<sign name="117-20" icon="Germany/117-20.png" type="117" subtype="20" distance="0.5" height="2.0" />
+					<sign name="120" icon="Germany/120.png" type="120"  distance="0.5" height="2.0" />
+					<sign name="121-10" icon="Germany/121-10.png" type="121" subtype="10" distance="0.5" height="2.0" />
+					<sign name="123" icon="Germany/123.png" type="123"  distance="0.5" height="2.0" /> 
+					<sign name="124" icon="Germany/124.png" type="124"  distance="0.5" height="2.0" />
+					<sign name="125" icon="Germany/125.png" type="125"  distance="0.5" height="2.0" />
+					<sign name="131" icon="Germany/131.png" type="131"  distance="0.5" height="2.0" />
+					<sign name="133-10" icon="Germany/133-10.png" type="133" subtype="10" distance="0.5" height="2.0" />
+					<sign name="134-10" icon="Germany/134-10.png" type="134" subtype="10" distance="0.5" height="2.0" />
+					<sign name="134-20" icon="Germany/134-20.png" type="134" subtype="20" distance="0.5" height="2.0" />
+					<sign name="136-10" icon="Germany/136-10.png" type="136" subtype="10" distance="0.5" height="2.0" />
+					<sign name="138-10" icon="Germany/138-10.png" type="138" subtype="10" distance="0.5" height="2.0" /> 
+					<sign name="142-10" icon="Germany/142-10.png" type="142" subtype="10" distance="0.5" height="2.0" />
+					<sign name="142-20" icon="Germany/142-20.png" type="142" subtype="20" distance="0.5" height="2.0" />
+					<sign name="151" icon="Germany/151.png" type="151"  distance="0.5" height="2.0" />
+					<sign name="156" icon="Germany/156.png" type="156"  distance="0.5" height="2.0" />
+					<sign name="159-10" icon="Germany/159-10.png" type="159" subtype="10" distance="0.5" height="2.0" />
+					<sign name="159-20" icon="Germany/159-20.png" type="159" subtype="20" distance="0.5" height="2.0" />
+					<sign name="162-10" icon="Germany/162-10.png" type="162" subtype="10" distance="0.5" height="2.0" />
+					<sign name="162-20" icon="Germany/162-20.png" type="162" subtype="20" distance="0.5" height="2.0" />
+				</category>
+				
+				<category name="Signs giving orders">
+					<sign name="201-50" icon="Germany/201-50.png" type="201" subtype="50" distance="0.5" height="2.0" /> 
+					<sign name="205" icon="Germany/205.png" type="205"  distance="0.5" height="2.0" />
+					<sign name="206" icon="Germany/206.png" type="206"  distance="0.5" height="2.0" />
+					<sign name="208" icon="Germany/208.png" type="208"  distance="0.5" height="2.0" />
+					<sign name="209-10" icon="Germany/209-10.png" type="209" subtype="10" distance="0.5" height="2.0" />
+					<sign name="209-20" icon="Germany/209-20.png" type="209" subtype="20" distance="0.5" height="2.0" />
+					<sign name="209-30" icon="Germany/209-30.png" type="209" subtype="30" distance="0.5" height="2.0" />
+					<sign name="211-20" icon="Germany/211-20.png" type="211" subtype="20" distance="0.5" height="2.0" />
+					<sign name="214-20" icon="Germany/214-20.png" type="214" subtype="20" distance="0.5" height="2.0" />  
+					<sign name="215" icon="Germany/215.png" type="215"  distance="0.5" height="2.0" />
+					<sign name="220-10" icon="Germany/220-10.png" type="220" subtype="10" distance="0.5" height="2.0" />
+					<sign name="220-20" icon="Germany/220-20.png" type="220" subtype="20" distance="0.5" height="2.0" />
+					<sign name="222-10" icon="Germany/222-10.png" type="222" subtype="10" distance="0.5" height="2.0" />
+					<sign name="222-20" icon="Germany/222-20.png" type="222" subtype="20" distance="0.5" height="2.0" />
+					<sign name="223.1" icon="Germany/223.1.png" type="223" subclass="1"  distance="0.5" height="2.0" />
+					<sign name="223.2" icon="Germany/223.2.png" type="223" subclass="2"  distance="0.5" height="2.0" />
+					<sign name="223.3" icon="Germany/223.3.png" type="223" subclass="3"  distance="0.5" height="2.0" /> 
+					<sign name="224-50" icon="Germany/224-50.png" type="224" subtype="50" distance="0.5" height="2.0" />
+					<sign name="229" icon="Germany/229.png" type="229"  distance="0.5" height="2.0" />
+					<sign name="237" icon="Germany/237.png" type="237"  distance="0.5" height="2.0" />
+					<sign name="238" icon="Germany/238.png" type="238"  distance="0.5" height="2.0" />
+					<sign name="239" icon="Germany/239.png" type="239"  distance="0.5" height="2.0" />
+					<sign name="240" icon="Germany/240.png" type="240"  distance="0.5" height="2.0" />  
+					<sign name="241-30" icon="Germany/241-30.png" type="241" subtype="30" distance="0.5" height="2.0" />
+					<sign name="242" icon="Germany/242.png" type="242"  distance="0.5" height="2.0" />
+					<sign name="242-2" icon="Germany/242-2.png" type="242" subtype="2" distance="0.5" height="2.0" />
+					<sign name="244" icon="Germany/244.png" type="244"  distance="0.5" height="2.0" />
+					<sign name="244a" icon="Germany/244a.png" type="244"  distance="0.5" height="2.0" />
+					<sign name="245" icon="Germany/245.png" type="245"  distance="0.5" height="2.0" />  
+					<sign name="250" icon="Germany/250.png" type="250"  distance="0.5" height="2.0" />
+					<sign name="251" icon="Germany/251.png" type="251"  distance="0.5" height="2.0" />
+					<sign name="253" icon="Germany/253.png" type="253"  distance="0.5" height="2.0" />
+					<sign name="254" icon="Germany/254.png" type="254"  distance="0.5" height="2.0" />
+					<sign name="255" icon="Germany/255.png" type="255"  distance="0.5" height="2.0" />
+					<sign name="259" icon="Germany/259.png" type="259"  distance="0.5" height="2.0" />               
+					<sign name="260" icon="Germany/260.png" type="260"  distance="0.5" height="2.0" />
+					<sign name="261" icon="Germany/261.png" type="261"  distance="0.5" height="2.0" />
+					<sign name="262" icon="Germany/262.png" type="262"  distance="0.5" height="2.0" />
+					<sign name="263" icon="Germany/263.png" type="263"  distance="0.5" height="2.0" />
+					<sign name="264" icon="Germany/264.png" type="264"  distance="0.5" height="2.0" />
+					<sign name="265" icon="Germany/265.png" type="265"  distance="0.5" height="2.0" />  
+					<sign name="266" icon="Germany/266.png" type="266"  distance="0.5" height="2.0" />
+					<sign name="267" icon="Germany/267.png" type="267"  distance="0.5" height="2.0" />
+					<sign name="268" icon="Germany/268.png" type="268"  distance="0.5" height="2.0" />
+					<sign name="269" icon="Germany/269.png" type="269"  distance="0.5" height="2.0" />
+					<sign name="270.1" icon="Germany/270.1.png" type="270" subclass="1" subtype="-1" distance="0.5" height="2.0" />
+					<sign name="270.2" icon="Germany/270.2.png" type="270" subclass="2" subtype="-1" distance="0.5" height="2.0" />   
+					<sign name="272" icon="Germany/272.png" type="272"  distance="0.5" height="2.0" />
+					<sign name="273" icon="Germany/273.png" type="273"  distance="0.5" height="2.0" />
+					<sign name="274.1-50" icon="Germany/274.1-50.png" type="274" subclass="1" subtype="50" distance="0.5" height="2.0" />
+					<sign name="274.2-50" icon="Germany/274.2-50.png" type="274" subclass="2" subtype="50" distance="0.5" height="2.0" />
+					<sign name="274-53" icon="Germany/274-53.png" type="274" subtype="53" distance="0.5" height="2.0" />
+					<sign name="274-55" icon="Germany/274-55.png" type="274" subtype="55" distance="0.5" height="2.0" />
+					<sign name="274-56" icon="Germany/274-56.png" type="274" subtype="56" distance="0.5" height="2.0" />
+					<sign name="274-57" icon="Germany/274-57.png" type="274" subtype="57" distance="0.5" height="2.0" />
+					<sign name="275" icon="Germany/275.png" type="275"  distance="0.5" height="2.0" />                        
+					<sign name="276" icon="Germany/276.png" type="276"  distance="0.5" height="2.0" />
+					<sign name="277" icon="Germany/277.png" type="277"  distance="0.5" height="2.0" />
+					<sign name="278-56" icon="Germany/278-56.png" type="278" subtype="56" distance="0.5" height="2.0" />
+					<sign name="278-57" icon="Germany/278-57.png" type="278" subtype="57" distance="0.5" height="2.0" />
+					<sign name="279" icon="Germany/279.png" type="279"  distance="0.5" height="2.0" />
+					<sign name="280" icon="Germany/280.png" type="280"  distance="0.5" height="2.0" />
+					<sign name="281" icon="Germany/281.png" type="281"  distance="0.5" height="2.0" />  
+					<sign name="282" icon="Germany/282.png" type="282"  distance="0.5" height="2.0" />
+					<sign name="283-10" icon="Germany/283-10.png" type="283" subtype="10" distance="0.5" height="2.0" />
+					<sign name="283-20" icon="Germany/283-20.png" type="283" subtype="20" distance="0.5" height="2.0" />
+					<sign name="283-30" icon="Germany/283-30.png" type="283" subtype="30" distance="0.5" height="2.0" />
+					<sign name="283-50" icon="Germany/283-50.png" type="283" subtype="50" distance="0.5" height="2.0" />
+					<sign name="286-50" icon="Germany/286-50.png" type="286" subtype="50" distance="0.5" height="2.0" />
+					<sign name="286-10" icon="Germany/286-10.png" type="286" subtype="10" distance="0.5" height="2.0" />
+					<sign name="286-20" icon="Germany/286-20.png" type="286" subtype="20" distance="0.5" height="2.0" />
+					<sign name="286-30" icon="Germany/286-30.png" type="286" subtype="30" distance="0.5" height="2.0" />
+					<sign name="290" icon="Germany/290.png" type="290"  distance="0.5" height="2.0" />
+					<sign name="290-2" icon="Germany/290-2.png" type="290" subtype="2" distance="0.5" height="2.0" />
+					<sign name="293" icon="Germany/293.png" type="293"  distance="0.0" height="0.0" value="5.0"/>
+					<sign name="294" icon="Germany/294.png" type="294"  distance="0.0" height="0.0" />
+				</category>			
+				
+				<category name="Information signs">
+					<sign name="301" icon="Germany/301.png" type="301"  distance="0.5" height="2.0" />   
+					<sign name="306" icon="Germany/306.png" type="306"  distance="0.5" height="2.0" />
+					<sign name="307" icon="Germany/307.png" type="307"  distance="0.5" height="2.0" />
+					<sign name="308" icon="Germany/308.png" type="308"  distance="0.5" height="2.0" />
+					<sign name="310-50" icon="Germany/310-50.png" type="310" subtype="50" distance="0.5" height="2.0" />
+					<sign name="311-50" icon="Germany/311-50.png" type="311" subtype="50" distance="0.5" height="2.0" />
+					<sign name="314-10" icon="Germany/314-10.png" type="314" subtype="10"  distance="0.5" height="2.0" />  
+					<sign name="314-20" icon="Germany/314-20.png" type="314" subtype="20"  distance="0.5" height="2.0" /> 
+					<sign name="314.1" icon="Germany/314.1.png" type="314" subclass="1"  distance="0.5" height="2.0" />  
+					<sign name="314.2" icon="Germany/314.2.png" type="314" subclass="2"  distance="0.5" height="2.0" />
+					<sign name="314-50" icon="Germany/314-50.png" type="314" subtype="50" distance="0.5" height="2.0" />
+					<sign name="315-52" icon="Germany/315-52.png" type="315" subtype="52" distance="0.5" height="2.0" />
+					<sign name="315-55" icon="Germany/315-55.png" type="315" subtype="55" distance="0.5" height="2.0" />
+					<sign name="315-56" icon="Germany/315-56.png" type="315" subtype="56" distance="0.5" height="2.0" />
+					<sign name="315-57" icon="Germany/315-57.png" type="315" subtype="57" distance="0.5" height="2.0" />
+					<sign name="325" icon="Germany/325.png" type="325"  distance="0.5" height="2.0" />
+					<sign name="326-50" icon="Germany/326-50.png" type="326" subtype="50" distance="0.5" height="2.0" />
+					<sign name="327" icon="Germany/327.png" type="327"  distance="0.5" height="2.0" />  
+					<sign name="328" icon="Germany/328.png" type="328"  distance="0.5" height="2.0" />
+					<sign name="330" icon="Germany/330.png" type="330"  distance="0.5" height="2.0" />
+					<sign name="330-2" icon="Germany/330-2.png" type="330" subtype="2" distance="0.5" height="2.0" />
+					<sign name="331" icon="Germany/331.png" type="331"  distance="0.5" height="2.0" />
+					<sign name="331-2" icon="Germany/331-2.png" type="331" subtype="2" distance="0.5" height="2.0" />
+					<sign name="332-1" icon="Germany/332-1.png" type="332" subtype="1" distance="0.5" height="2.0" />   
+					<sign name="332-20" icon="Germany/332-20.png" type="332" subtype="20" distance="0.5" height="2.0" />
+					<sign name="333-20" icon="Germany/333-20.png" type="333" subtype="20" distance="0.5" height="2.0" />     
+					<sign name="350-10" icon="Germany/350-10.png" type="350" subtype="10" distance="0.5" height="2.0" />
+					<sign name="350-20" icon="Germany/350-20.png" type="350" subtype="20" distance="0.5" height="2.0" />
+					<sign name="354" icon="Germany/354.png" type="354"  distance="0.5" height="2.0" />  
+					<sign name="356" icon="Germany/356.png" type="356"  distance="0.5" height="2.0" />
+					<sign name="357" icon="Germany/357.png" type="357"  distance="0.5" height="2.0" />
+					<sign name="358" icon="Germany/358.png" type="358"  distance="0.5" height="2.0" />
+					<sign name="360-51" icon="Germany/360-51.png" type="360" subtype="51" distance="0.5" height="2.0" />
+					<sign name="363" icon="Germany/363.png" type="363"  distance="0.5" height="2.0" />
+					<sign name="385-50" icon="Germany/385-50.png" type="385" subtype="50" distance="0.5" height="2.0" />
+					<sign name="386-2" icon="Germany/386-2.png" type="386" subtype="2" distance="0.5" height="2.0" />  
+					<sign name="386-50" icon="Germany/386-50.png" type="386" subtype="50" distance="0.5" height="2.0" />
+					<sign name="393" icon="Germany/393.png" type="393"  distance="0.5" height="2.0" />   
+					<sign name="394-50" icon="Germany/394-50.png" type="394" subtype="50" distance="0.5" height="2.0" />
+					<sign name="401" icon="Germany/401.png" type="401"  distance="0.5" height="2.0" />
+					<sign name="405" icon="Germany/405.png" type="405"  distance="0.5" height="2.0" />
+					<sign name="406" icon="Germany/406.png" type="406"  distance="0.5" height="2.0" />
+					<sign name="410" icon="Germany/410.png" type="410"  distance="0.5" height="2.0" />
+					<sign name="415" icon="Germany/415.png" type="415"  distance="0.5" height="2.0" /> 
+					<sign name="418" icon="Germany/418.png" type="418"  distance="0.5" height="2.0" />
+					<sign name="419" icon="Germany/419.png" type="419"  distance="0.5" height="2.0" />
+					<sign name="421-20" icon="Germany/421-20.png" type="421" subtype="20" distance="0.5" height="2.0" />
+					<sign name="422" icon="Germany/422.png" type="422"  distance="0.5" height="2.0" />
+					<sign name="430" icon="Germany/430.png" type="430"  distance="0.5" height="2.0" />
+					<sign name="432" icon="Germany/432.png" type="432"  distance="0.5" height="2.0" />  
+					<sign name="434" icon="Germany/434.png" type="434"  distance="0.5" height="2.0" />
+					<sign name="438" icon="Germany/438.png" type="438"  distance="0.5" height="2.0" />
+					<sign name="439" icon="Germany/439.png" type="439"  distance="0.5" height="2.0" />
+					<sign name="440" icon="Germany/440.png" type="440"  distance="0.5" height="2.0" />
+					<sign name="441" icon="Germany/441.png" type="441"  distance="0.5" height="2.0" />   
+					<sign name="442" icon="Germany/442.png" type="442"  distance="0.5" height="2.0" />
+					<sign name="448.1" icon="Germany/448.1.png" type="448" subclass="1"  distance="0.5" height="2.0" />
+					<sign name="448" icon="Germany/448.png" type="448"  distance="0.5" height="2.0" />
+					<sign name="449" icon="Germany/449.png" type="449"  distance="0.5" height="2.0" />
+					<sign name="450" icon="Germany/450.png" type="450"  distance="0.5" height="2.0" />
+					<sign name="453" icon="Germany/453.png" type="453"  distance="0.5" height="2.0" /> 
+					<sign name="454-20" icon="Germany/454-20.png" type="454" subtype="20" distance="0.5" height="2.0" />
+					<sign name="455-1" icon="Germany/455-1.png" type="455" subtype="1" distance="0.5" height="2.0" />
+					<sign name="455-2" icon="Germany/455-2.png" type="455" subtype="2" distance="0.5" height="2.0" />
+					<sign name="457" icon="Germany/457.png" type="457"  distance="0.5" height="2.0" />
+					<sign name="457-2" icon="Germany/457-2.png" type="457" subtype="2" distance="0.5" height="2.0" />
+					<sign name="458" icon="Germany/458.png" type="458"  distance="0.5" height="2.0" />  
+					<sign name="460-30" icon="Germany/460-30.png" type="460" subtype="30" distance="0.5" height="2.0" />
+					<sign name="467" icon="Germany/467.png" type="467"  distance="0.5" height="2.0" />
+					<sign name="467-2" icon="Germany/467-2.png" type="467" subtype="2" distance="0.5" height="2.0" />
+					<sign name="501-11" icon="Germany/501-11.png" type="501" subtype="11" distance="0.5" height="2.0" />
+					<sign name="531" icon="Germany/531.png" type="531"  distance="0.5" height="2.0" />   
+					<sign name="590" icon="Germany/590.png" type="590"  distance="0.5" height="2.0" />
+				</category>	
+				
+				<category name="Traffic control devices">
+					<sign name="605" icon="Germany/605.png" type="605"  distance="0.5" height="2.0" />		 
+					<sign name="625.20-10" icon="Germany/625.20-10.png" type="625" subtype="10" subclass="20" distance="0.5" height="1.2" />
+					<sign name="626-10" icon="Germany/626-10.png" type="626" subtype="10"  distance="0.5" height="2.0" />
+					<sign name="626-20" icon="Germany/626-20.png" type="626" subtype="20"  distance="0.5" height="2.0" />
+					<sign name="628" icon="Germany/628.png" type="628"  distance="0.5" height="2.0" />
+				</category>	
+				
+				<category name="Supplemental signs">
+					<sign name="1000-21" icon="Germany/1000-21.png" type="1000" subtype="21" distance="0.5" height="2.0" />
+					<sign name="1000-32" icon="Germany/1000-32.png" type="1000" subtype="32" distance="0.5" height="2.0" />
+					<sign name="1000-33" icon="Germany/1000-33.png" type="1000" subtype="33" distance="0.5" height="2.0" />
+					<sign name="1001-30" icon="Germany/1001-30.png" type="1001" subtype="30" distance="0.5" height="2.0" />
+					<sign name="1001-31" icon="Germany/1001-31.png" type="1001" subtype="31" distance="0.5" height="2.0" />
+					<sign name="1002-10" icon="Germany/1002-10.png" type="1002" subtype="10" distance="0.5" height="2.0" />
+					<sign name="1002-12" icon="Germany/1002-12.png" type="1002" subtype="12" distance="0.5" height="2.0" />
+					<sign name="1002-13" icon="Germany/1002-13.png" type="1002" subtype="13" distance="0.5" height="2.0" />
+					<sign name="1002-14" icon="Germany/1002-14.png" type="1002" subtype="14" distance="0.5" height="2.0" />
+					<sign name="1002-21" icon="Germany/1002-21.png" type="1002" subtype="21" distance="0.5" height="2.0" /> 
+					<sign name="1002-22" icon="Germany/1002-22.png" type="1002" subtype="22" distance="0.5" height="2.0" /> 
+					<sign name="1002-24" icon="Germany/1002-24.png" type="1002" subtype="24" distance="0.5" height="2.0" />
+					<sign name="1004-30" icon="Germany/1004-30.png" type="1004" subtype="30" distance="0.5" height="2.0" />
+					<sign name="1004-31" icon="Germany/1004-31.png" type="1004" subtype="31" distance="0.5" height="2.0" />
+					<sign name="1006-33" icon="Germany/1006-33.png" type="1006" subtype="33" distance="0.5" height="2.0" />
+					<sign name="1006-34" icon="Germany/1006-34.png" type="1006" subtype="34" distance="0.5" height="2.0" />
+					<sign name="1006-35" icon="Germany/1006-35.png" type="1006" subtype="35" distance="0.5" height="2.0" />
+					<sign name="1008-30" icon="Germany/1008-30.png" type="1008" subtype="30" distance="0.5" height="2.0" />
+					<sign name="1008-31" icon="Germany/1008-31.png" type="1008" subtype="31" distance="0.5" height="2.0" />
+					<sign name="1010-10" icon="Germany/1010-10.png" type="1010" subtype="10" distance="0.5" height="2.0" />
+					<sign name="1010-11" icon="Germany/1010-11.png" type="1010" subtype="11" distance="0.5" height="2.0" />
+					<sign name="1012-30" icon="Germany/1012-30.png" type="1012" subtype="30" distance="0.5" height="2.0" />
+					<sign name="1012-31" icon="Germany/1012-31.png" type="1012" subtype="31" distance="0.5" height="2.0" />
+					<sign name="1022-10" icon="Germany/1022-10.png" type="1022" subtype="10" distance="0.5" height="2.0" />
+					<sign name="1030-10" icon="Germany/1030-10.png" type="1030" subtype="10" distance="0.5" height="2.0" />   
+					<sign name="1031" icon="Germany/1031.png" type="1031"  distance="0.5" height="2.0" />
+					<sign name="1040-30" icon="Germany/1040-30.png" type="1040" subtype="30" distance="0.5" height="2.0" />
+					<sign name="1040-31" icon="Germany/1040-31.png" type="1040" subtype="31" distance="0.5" height="2.0" />
+					<sign name="1048-12" icon="Germany/1048-12.png" type="1048" subtype="12" distance="0.5" height="2.0" />
+					<sign name="1049-10" icon="Germany/1049-10.png" type="1049" subtype="10" distance="0.5" height="2.0" />
+					<sign name="1052-35" icon="Germany/1052-35.png" type="1052" subtype="35" distance="0.5" height="2.0" />
+					<sign name="1052-36" icon="Germany/1052-36.png" type="1052" subtype="36" distance="0.5" height="2.0" />
+					<sign name="1052-37" icon="Germany/1052-37.png" type="1052" subtype="37" distance="0.5" height="2.0" />
+					<sign name="1052-38" icon="Germany/1052-38.png" type="1052" subtype="38" distance="0.5" height="2.0" />
+					<sign name="1053-38" icon="Germany/1053-38.png" type="1053" subtype="38" distance="0.5" height="2.0" /> 
+				</category>	            
+			 </signals>	
 
-		 <objects>
-			<object name="620-40" icon="Germany/620-40.png" type="620-40" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
-			<object name="620-41" icon="Germany/620-41.png" type="620-41" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
-			<object name="reflectorPost" icon="" type="reflectorPost" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
-			<object name="reflectorPostYellow" icon="" type="reflectorPostYellow" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
-		</objects>
-		 
+			 <objects>
+				<category name = "Poles and Pillars">
+					<object name="620-40" icon="Germany/620-40.png" type="620-40" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
+					<object name="620-41" icon="Germany/620-41.png" type="620-41" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
+					<object name="reflectorPost" icon="" type="reflectorPost" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
+					<object name="reflectorPostYellow" icon="" type="reflectorPostYellow" distance="0.5" width="0.1" length="0.15" height="1.2" radius="0.0" repeatDistance="50" />
+				</category>
+			</objects>		 
 		</country>
 		
         <country name="China" >
-		<signals>
-			<category name="Warning signs">
-			    <sign name="1.i" icon="China/1.i.png" type="1" subclass="i" distance="0.5" height="2.0" />
-				<sign name="2.a" icon="China/2.a.png" type="2" subclass="a" distance="0.5" height="2.0" />
-				<sign name="10" icon="China/10.png" type="10" distance="0.5" height="2.0" />
-				<sign name="11" icon="China/11.png" type="11" distance="0.5" height="2.0" />
-				<sign name="192.a" icon="China/192.a.png" type="192" subclass="a" distance="0.5" height="2.0" />
-				<sign name="192.b" icon="China/192.b.png" type="192" subclass="b" distance="0.5" height="2.0" />
-				<sign name="44.b" icon="China/44.b.png" type="44" subclass="b" distance="0.5" height="2.0" />
-			</category>	
+			<signals>
+				<category name="Warning signs">
+					<sign name="1.i" icon="China/1.i.png" type="1" subclass="i" distance="0.5" height="2.0" />
+					<sign name="2.a" icon="China/2.a.png" type="2" subclass="a" distance="0.5" height="2.0" />
+					<sign name="10" icon="China/10.png" type="10" distance="0.5" height="2.0" />
+					<sign name="11" icon="China/11.png" type="11" distance="0.5" height="2.0" />
+					<sign name="192.a" icon="China/192.a.png" type="192" subclass="a" distance="0.5" height="2.0" />
+					<sign name="192.b" icon="China/192.b.png" type="192" subclass="b" distance="0.5" height="2.0" />
+					<sign name="44.b" icon="China/44.b.png" type="44" subclass="b" distance="0.5" height="2.0" />
+				</category>	
+					
+				<category name="Mandatory signs">	
+					<sign name="98" icon="China/98.png" type="98" distance="0.5" height="2.0" />
+					<sign name="102" icon="China/102.png" type="102" distance="0.5" height="2.0" />
+					<sign name="108" icon="China/108.png" type="108" distance="0.5" height="2.0" />				
+					<sign name="114" icon="China/114.png" type="114" distance="0.5" height="2.0" />			
+					<sign name="122.a" icon="China/122.a.png" type="122" subclass="a" distance="0.5" height="2.0" />
+					<sign name="122.b" icon="China/122.b.png" type="122" subclass="b" distance="0.5" height="2.0" />
+					<sign name="123.a" icon="China/123.a.png" type="123" subclass="a" distance="0.5" height="2.0" />
+					<sign name="124.a" icon="China/124.a.png" type="124" subclass="a" distance="0.5" height="2.0" />
+					<sign name="124.b" icon="China/124.b.png" type="124" subclass="b" distance="0.5" height="2.0" />
+					<sign name="124.c" icon="China/124.c.png" type="124" subclass="c" distance="0.5" height="2.0" />
+					<sign name="124.d" icon="China/124.d.png" type="124" subclass="d" distance="0.5" height="2.0" />
+					<sign name="124.e" icon="China/124.e.png" type="124" subclass="e" distance="0.5" height="2.0" />
+					<sign name="125.a" icon="China/125.a.png" type="125" subclass="a" distance="0.5" height="2.0" />
+					<sign name="125.b" icon="China/125.b.png" type="125" subclass="b" distance="0.5" height="2.0" />
+					<sign name="125.c" icon="China/125.c.png" type="125" subclass="c" distance="0.5" height="2.0" />
+					<sign name="125.d" icon="China/125.d.png" type="125" subclass="d" distance="0.5" height="2.0" />
+					<sign name="125.e" icon="China/125.e.png" type="125" subclass="e" distance="0.5" height="2.0" />
+					<sign name="126.a" icon="China/126.a.png" type="126" subclass="a" distance="0.5" height="2.0" />
+					<sign name="126.b" icon="China/126.b.png" type="126" subclass="b" distance="0.5" height="2.0" />
+					<sign name="161.a" icon="China/161.a.png" type="126" subclass="a" distance="0.5" height="2.0" />
+				</category>	
 				
-			<category name="Mandatory signs">	
-				<sign name="98" icon="China/98.png" type="98" distance="0.5" height="2.0" />
-				<sign name="102" icon="China/102.png" type="102" distance="0.5" height="2.0" />
-				<sign name="108" icon="China/108.png" type="108" distance="0.5" height="2.0" />				
-				<sign name="114" icon="China/114.png" type="114" distance="0.5" height="2.0" />			
-				<sign name="122.a" icon="China/122.a.png" type="122" subclass="a" distance="0.5" height="2.0" />
-				<sign name="122.b" icon="China/122.b.png" type="122" subclass="b" distance="0.5" height="2.0" />
-				<sign name="123.a" icon="China/123.a.png" type="123" subclass="a" distance="0.5" height="2.0" />
-				<sign name="124.a" icon="China/124.a.png" type="124" subclass="a" distance="0.5" height="2.0" />
-				<sign name="124.b" icon="China/124.b.png" type="124" subclass="b" distance="0.5" height="2.0" />
-				<sign name="124.c" icon="China/124.c.png" type="124" subclass="c" distance="0.5" height="2.0" />
-				<sign name="124.d" icon="China/124.d.png" type="124" subclass="d" distance="0.5" height="2.0" />
-				<sign name="124.e" icon="China/124.e.png" type="124" subclass="e" distance="0.5" height="2.0" />
-				<sign name="125.a" icon="China/125.a.png" type="125" subclass="a" distance="0.5" height="2.0" />
-				<sign name="125.b" icon="China/125.b.png" type="125" subclass="b" distance="0.5" height="2.0" />
-				<sign name="125.c" icon="China/125.c.png" type="125" subclass="c" distance="0.5" height="2.0" />
-				<sign name="125.d" icon="China/125.d.png" type="125" subclass="d" distance="0.5" height="2.0" />
-				<sign name="125.e" icon="China/125.e.png" type="125" subclass="e" distance="0.5" height="2.0" />
-				<sign name="126.a" icon="China/126.a.png" type="126" subclass="a" distance="0.5" height="2.0" />
-				<sign name="126.b" icon="China/126.b.png" type="126" subclass="b" distance="0.5" height="2.0" />
-				<sign name="161.a" icon="China/161.a.png" type="126" subclass="a" distance="0.5" height="2.0" />
-			</category>	
-			
-			<category name="Guide signs">
-				<sign name="133.b" icon="China/133.b.png" type="133" subclass="b" distance="0.5" height="2.0" />
-				<sign name="135.c" icon="China/135.c.png" type="135" subclass="c" distance="0.5" height="2.0" />
-				<sign name="135.d" icon="China/135.d.png" type="135" subclass="d" distance="0.5" height="2.0" />
-				<sign name="139.a" icon="China/139.a.png" type="139" subclass="a" distance="0.5" height="2.0" />
-				<sign name="139.b" icon="China/139.b.png" type="139" subclass="b" distance="0.5" height="2.0" />				
-				<sign name="145.b" icon="China/145.b.png" type="145" subclass="b" distance="0.5" height="2.0" />
-				<sign name="145.d" icon="China/145.d.png" type="145" subclass="d" distance="0.5" height="2.0" />
-				<sign name="145.e" icon="China/145.e.png" type="145" subclass="e" distance="0.5" height="2.0" />
-				<sign name="146" icon="China/146.png" type="146" distance="0.5" height="2.0" />
-				<sign name="147.a" icon="China/147.a.png" type="147" subclass="a" distance="0.5" height="2.0" />
-				<sign name="147.b" icon="China/147.b.png" type="147" subclass="b" distance="0.5" height="2.0" />
-				<sign name="167.a" icon="China/167.a.png" type="167" subclass="a" distance="0.5" height="2.0" />
-				<sign name="167.b" icon="China/167.b.png" type="167" subclass="b" distance="0.5" height="2.0" />
-				<sign name="169" icon="China/169.png" type="169" distance="0.5" height="2.0" />
-				<sign name="170" icon="China/170.png" type="170" distance="0.5" height="2.0" />
-				<sign name="171" icon="China/171.png" type="171" distance="0.5" height="2.0" />
-				<sign name="172.a" icon="China/172.a.png" type="172" subclass="a" distance="0.5" height="2.0" />
-				<sign name="172.b" icon="China/172.b.png" type="172" subclass="b" distance="0.5" height="2.0" />
-				<sign name="173.c" icon="China/173.c.png" type="173" subclass="c" distance="0.5" height="2.0" />
-				<sign name="173.e" icon="China/173.e.png" type="173" subclass="e" distance="0.5" height="2.0" />
-				<sign name="173.f" icon="China/173.f.png" type="173" subclass="f" distance="0.5" height="2.0" />
-				<sign name="175.a" icon="China/175.a.png" type="175" subclass="a" distance="0.5" height="2.0" />
-				<sign name="175.c" icon="China/175.c.png" type="175" subclass="c" distance="0.5" height="2.0" />
-				<sign name="175.d" icon="China/175.d.png" type="175" subclass="d" distance="0.5" height="2.0" />
-				<sign name="177.c" icon="China/177.c.png" type="177" subclass="c" distance="0.5" height="2.0" />
-				<sign name="179.a" icon="China/179.a.png" type="179" subclass="a" distance="0.5" height="2.0" />
-				<sign name="179.b" icon="China/179.b.png" type="179" subclass="b" distance="0.5" height="2.0" />
-				<sign name="179.c" icon="China/179.c.png" type="179" subclass="c" distance="0.5" height="2.0" />
-				<sign name="179.d" icon="China/179.d.png" type="179" subclass="d" distance="0.5" height="2.0" />
-				<sign name="180.a" icon="China/180.a.png" type="180" subclass="a" distance="0.5" height="2.0" />
-				<sign name="180.b" icon="China/180.b.png" type="180" subclass="b" distance="0.5" height="2.0" />
-				<sign name="180.c" icon="China/180.c.png" type="180" subclass="c" distance="0.5" height="2.0" />
-				<sign name="181.a" icon="China/181.a.png" type="181" subclass="a" distance="0.5" height="2.0" />
-				<sign name="181.b" icon="China/181.b.png" type="181" subclass="b" distance="0.5" height="2.0" />
-				<sign name="181.d" icon="China/181.d.png" type="181" subclass="d" distance="0.5" height="2.0" />			   
-				<sign name="181.e" icon="China/181.e.png" type="181" subclass="e" distance="0.5" height="2.0" />
-				<sign name="181.f" icon="China/181.f.png" type="181" subclass="f" distance="0.5" height="2.0" />
-				<sign name="182.d" icon="China/182.d.png" type="182" subclass="d" distance="0.5" height="2.0" />
-				<sign name="183.a" icon="China/183.a.png" type="183" subclass="a" distance="0.5" height="2.0" />
-				<sign name="183.b" icon="China/183.b.png" type="183" subclass="b" distance="0.5" height="2.0" />
-				<sign name="183.c" icon="China/183.c.png" type="183" subclass="c" distance="0.5" height="2.0" />
-				<sign name="183.d" icon="China/183.d.png" type="183" subclass="d" distance="0.5" height="2.0" />
-				<sign name="183.e" icon="China/183.e.png" type="183" subclass="e" distance="0.5" height="2.0" />
-				<sign name="249.a" icon="China/249.a.png" type="249" subclass="a" distance="0.5" height="2.0" />
-				<sign name="249.b" icon="China/249.b.png" type="249" subclass="b" distance="0.5" height="2.0" />
-				<sign name="249.c" icon="China/249.c.png" type="249" subclass="c" distance="0.5" height="2.0" />
-			</category>
-			
-			<category name="Supplemental signs">
-				<sign name="228" icon="China/228.png" type="228" distance="0.5" height="2.0" />
-				<sign name="229.b" icon="China/229.b.png" type="229" subclass="b" distance="0.5" height="2.0" />
-				<sign name="231.a" icon="China/231.a.png" type="231" subclass="a" distance="0.5" height="2.0" />
-				<sign name="231.b" icon="China/231.b.png" type="231" subclass="b" distance="0.5" height="2.0" />
-				<sign name="234.i" icon="China/234.i.png" type="234" subclass="i" distance="0.5" height="2.0" />
-				<sign name="234.j" icon="China/234.j.png" type="234" subclass="j" distance="0.5" height="2.0" />
-				<sign name="242" icon="China/242.png" type="242" distance="0.5" height="2.0" />
-			</category>	
+				<category name="Guide signs">
+					<sign name="133.b" icon="China/133.b.png" type="133" subclass="b" distance="0.5" height="2.0" />
+					<sign name="135.c" icon="China/135.c.png" type="135" subclass="c" distance="0.5" height="2.0" />
+					<sign name="135.d" icon="China/135.d.png" type="135" subclass="d" distance="0.5" height="2.0" />
+					<sign name="139.a" icon="China/139.a.png" type="139" subclass="a" distance="0.5" height="2.0" />
+					<sign name="139.b" icon="China/139.b.png" type="139" subclass="b" distance="0.5" height="2.0" />				
+					<sign name="145.b" icon="China/145.b.png" type="145" subclass="b" distance="0.5" height="2.0" />
+					<sign name="145.d" icon="China/145.d.png" type="145" subclass="d" distance="0.5" height="2.0" />
+					<sign name="145.e" icon="China/145.e.png" type="145" subclass="e" distance="0.5" height="2.0" />
+					<sign name="146" icon="China/146.png" type="146" distance="0.5" height="2.0" />
+					<sign name="147.a" icon="China/147.a.png" type="147" subclass="a" distance="0.5" height="2.0" />
+					<sign name="147.b" icon="China/147.b.png" type="147" subclass="b" distance="0.5" height="2.0" />
+					<sign name="167.a" icon="China/167.a.png" type="167" subclass="a" distance="0.5" height="2.0" />
+					<sign name="167.b" icon="China/167.b.png" type="167" subclass="b" distance="0.5" height="2.0" />
+					<sign name="169" icon="China/169.png" type="169" distance="0.5" height="2.0" />
+					<sign name="170" icon="China/170.png" type="170" distance="0.5" height="2.0" />
+					<sign name="171" icon="China/171.png" type="171" distance="0.5" height="2.0" />
+					<sign name="172.a" icon="China/172.a.png" type="172" subclass="a" distance="0.5" height="2.0" />
+					<sign name="172.b" icon="China/172.b.png" type="172" subclass="b" distance="0.5" height="2.0" />
+					<sign name="173.c" icon="China/173.c.png" type="173" subclass="c" distance="0.5" height="2.0" />
+					<sign name="173.e" icon="China/173.e.png" type="173" subclass="e" distance="0.5" height="2.0" />
+					<sign name="173.f" icon="China/173.f.png" type="173" subclass="f" distance="0.5" height="2.0" />
+					<sign name="175.a" icon="China/175.a.png" type="175" subclass="a" distance="0.5" height="2.0" />
+					<sign name="175.c" icon="China/175.c.png" type="175" subclass="c" distance="0.5" height="2.0" />
+					<sign name="175.d" icon="China/175.d.png" type="175" subclass="d" distance="0.5" height="2.0" />
+					<sign name="177.c" icon="China/177.c.png" type="177" subclass="c" distance="0.5" height="2.0" />
+					<sign name="179.a" icon="China/179.a.png" type="179" subclass="a" distance="0.5" height="2.0" />
+					<sign name="179.b" icon="China/179.b.png" type="179" subclass="b" distance="0.5" height="2.0" />
+					<sign name="179.c" icon="China/179.c.png" type="179" subclass="c" distance="0.5" height="2.0" />
+					<sign name="179.d" icon="China/179.d.png" type="179" subclass="d" distance="0.5" height="2.0" />
+					<sign name="180.a" icon="China/180.a.png" type="180" subclass="a" distance="0.5" height="2.0" />
+					<sign name="180.b" icon="China/180.b.png" type="180" subclass="b" distance="0.5" height="2.0" />
+					<sign name="180.c" icon="China/180.c.png" type="180" subclass="c" distance="0.5" height="2.0" />
+					<sign name="181.a" icon="China/181.a.png" type="181" subclass="a" distance="0.5" height="2.0" />
+					<sign name="181.b" icon="China/181.b.png" type="181" subclass="b" distance="0.5" height="2.0" />
+					<sign name="181.d" icon="China/181.d.png" type="181" subclass="d" distance="0.5" height="2.0" />			   
+					<sign name="181.e" icon="China/181.e.png" type="181" subclass="e" distance="0.5" height="2.0" />
+					<sign name="181.f" icon="China/181.f.png" type="181" subclass="f" distance="0.5" height="2.0" />
+					<sign name="182.d" icon="China/182.d.png" type="182" subclass="d" distance="0.5" height="2.0" />
+					<sign name="183.a" icon="China/183.a.png" type="183" subclass="a" distance="0.5" height="2.0" />
+					<sign name="183.b" icon="China/183.b.png" type="183" subclass="b" distance="0.5" height="2.0" />
+					<sign name="183.c" icon="China/183.c.png" type="183" subclass="c" distance="0.5" height="2.0" />
+					<sign name="183.d" icon="China/183.d.png" type="183" subclass="d" distance="0.5" height="2.0" />
+					<sign name="183.e" icon="China/183.e.png" type="183" subclass="e" distance="0.5" height="2.0" />
+					<sign name="249.a" icon="China/249.a.png" type="249" subclass="a" distance="0.5" height="2.0" />
+					<sign name="249.b" icon="China/249.b.png" type="249" subclass="b" distance="0.5" height="2.0" />
+					<sign name="249.c" icon="China/249.c.png" type="249" subclass="c" distance="0.5" height="2.0" />
+				</category>
 				
-			<category name="Prohibitory signs">	
-				<sign name="38.a" icon="China/38.a.png" type="38" subclass="a" distance="0.5" height="2.0" />
-				<sign name="38.b" icon="China/38.b.png" type="38" subclass="b" distance="0.5" height="2.0" />
-				<sign name="38.c" icon="China/38.c.png" type="38" subclass="c" distance="0.5" height="2.0" />
-				<sign name="38.d" icon="China/38.d.png" type="38" subclass="d" distance="0.5" height="2.0" />
-				<sign name="38.e" icon="China/38.e.png" type="38" subclass="e" distance="0.5" height="2.0" />
-				<sign name="38.f" icon="China/38.f.png" type="38" subclass="f" distance="0.5" height="2.0" />
-				<sign name="48" icon="China/48.png" type="48" distance="0.5" height="2.0" />
-				<sign name="52" icon="China/52.png" type="52" distance="0.5" height="2.0" />
-				<sign name="53" icon="China/53.png" type="53" distance="0.5" height="2.0" />
-				<sign name="54" icon="China/54.png" type="54" distance="0.5" height="2.0" />
-				<sign name="61.a" icon="China/61.a.png" type="61" subclass="a" distance="0.5" height="2.0" />
-				<sign name="61.b" icon="China/61.b.png" type="61" subclass="b" distance="0.5" height="2.0" />
-				<sign name="63" icon="China/63.png" type="63" distance="0.5" height="2.0" />
-				<sign name="70" icon="China/70.png" type="70" distance="0.5" height="2.0" />
-				<sign name="75" icon="China/75.png" type="75" distance="0.5" height="2.0" />
-				<sign name="80" icon="China/80.png" type="80" distance="0.5" height="2.0" />
-				<sign name="82" icon="China/82.png" type="82" distance="0.5" height="2.0" />
-			</category>				
+				<category name="Supplemental signs">
+					<sign name="228" icon="China/228.png" type="228" distance="0.5" height="2.0" />
+					<sign name="229.b" icon="China/229.b.png" type="229" subclass="b" distance="0.5" height="2.0" />
+					<sign name="231.a" icon="China/231.a.png" type="231" subclass="a" distance="0.5" height="2.0" />
+					<sign name="231.b" icon="China/231.b.png" type="231" subclass="b" distance="0.5" height="2.0" />
+					<sign name="234.i" icon="China/234.i.png" type="234" subclass="i" distance="0.5" height="2.0" />
+					<sign name="234.j" icon="China/234.j.png" type="234" subclass="j" distance="0.5" height="2.0" />
+					<sign name="242" icon="China/242.png" type="242" distance="0.5" height="2.0" />
+				</category>	
+					
+				<category name="Prohibitory signs">	
+					<sign name="38.a" icon="China/38.a.png" type="38" subclass="a" distance="0.5" height="2.0" />
+					<sign name="38.b" icon="China/38.b.png" type="38" subclass="b" distance="0.5" height="2.0" />
+					<sign name="38.c" icon="China/38.c.png" type="38" subclass="c" distance="0.5" height="2.0" />
+					<sign name="38.d" icon="China/38.d.png" type="38" subclass="d" distance="0.5" height="2.0" />
+					<sign name="38.e" icon="China/38.e.png" type="38" subclass="e" distance="0.5" height="2.0" />
+					<sign name="38.f" icon="China/38.f.png" type="38" subclass="f" distance="0.5" height="2.0" />
+					<sign name="48" icon="China/48.png" type="48" distance="0.5" height="2.0" />
+					<sign name="52" icon="China/52.png" type="52" distance="0.5" height="2.0" />
+					<sign name="53" icon="China/53.png" type="53" distance="0.5" height="2.0" />
+					<sign name="54" icon="China/54.png" type="54" distance="0.5" height="2.0" />
+					<sign name="61.a" icon="China/61.a.png" type="61" subclass="a" distance="0.5" height="2.0" />
+					<sign name="61.b" icon="China/61.b.png" type="61" subclass="b" distance="0.5" height="2.0" />
+					<sign name="63" icon="China/63.png" type="63" distance="0.5" height="2.0" />
+					<sign name="70" icon="China/70.png" type="70" distance="0.5" height="2.0" />
+					<sign name="75" icon="China/75.png" type="75" distance="0.5" height="2.0" />
+					<sign name="80" icon="China/80.png" type="80" distance="0.5" height="2.0" />
+					<sign name="82" icon="China/82.png" type="82" distance="0.5" height="2.0" />
+				</category>				
+					
+				<category name="Markings">	
+					<sign name="14.m"  icon="China/14.m.png"  type="14"  subclass="m" distance="0.5" height="0" />
+					<sign name="35.m" icon="China/35.m.png" type="35" subclass="m" distance="0.5" height="0" />
+					<sign name="57.m" icon="China/57.m.png" type="57" subclass="m" distance="0.5" height="0" />
+					<sign name="60.m" icon="China/60.m.png" type="60" subclass="m" distance="0.5" height="0" />	
+				</category>
 				
-			<category name="Markings">	
-				<sign name="14.m"  icon="China/14.m.png"  type="14"  subclass="m" distance="0.5" height="0" />
-				<sign name="35.m" icon="China/35.m.png" type="35" subclass="m" distance="0.5" height="0" />
-				<sign name="57.m" icon="China/57.m.png" type="57" subclass="m" distance="0.5" height="0" />
-				<sign name="60.m" icon="China/60.m.png" type="60" subclass="m" distance="0.5" height="0" />	
-			</category>
-			
-			<category name="Traffic lights">
-				<sign name="1-1" icon="China/1-1.png" type="1" subtype="1" distance="0.5" height="2.0" />
-				<sign name="1-3" icon="China/1-3.png" type="1" subtype="3" distance="0.5" height="2.0" />
-				<sign name="2.1" icon="China/2.1.png" type="2" subclass="1" distance="0.5" height="2.0" />
-				<sign name="2.2" icon="China/2.2.png" type="2" subclass="2" distance="0.5" height="2.0" />
-				<sign name="3.1-1" icon="China/3.1-1.png" type="3" subtype="1" subclass="1" distance="0.5" height="2.0" />
-				<sign name="3.2-1" icon="China/3.2-1.png" type="3" subtype="1" subclass="2"distance="0.5" height="2.0" />
-				<sign name="3.1-2" icon="China/3.1-2.png" type="3" subtype="2" subclass="1" distance="0.5" height="2.0" />
-				<sign name="3.2-2" icon="China/3.2-2.png" type="3" subtype="2" subclass="2"distance="0.5" height="2.0" />
-				<sign name="3.1-3" icon="China/3.1-3.png" type="3" subtype="3" subclass="1" distance="0.5" height="2.0" />
-				<sign name="3.2-3" icon="China/3.2-3.png" type="3" subtype="3" subclass="2"distance="0.5" height="2.0" />
-			</category>	 
-		</signals>		
+				<category name="Traffic lights">
+					<sign name="1-1" icon="China/1-1.png" type="1" subtype="1" distance="0.5" height="2.0" />
+					<sign name="1-3" icon="China/1-3.png" type="1" subtype="3" distance="0.5" height="2.0" />
+					<sign name="2.1" icon="China/2.1.png" type="2" subclass="1" distance="0.5" height="2.0" />
+					<sign name="2.2" icon="China/2.2.png" type="2" subclass="2" distance="0.5" height="2.0" />
+					<sign name="3.1-1" icon="China/3.1-1.png" type="3" subtype="1" subclass="1" distance="0.5" height="2.0" />
+					<sign name="3.2-1" icon="China/3.2-1.png" type="3" subtype="1" subclass="2"distance="0.5" height="2.0" />
+					<sign name="3.1-2" icon="China/3.1-2.png" type="3" subtype="2" subclass="1" distance="0.5" height="2.0" />
+					<sign name="3.2-2" icon="China/3.2-2.png" type="3" subtype="2" subclass="2"distance="0.5" height="2.0" />
+					<sign name="3.1-3" icon="China/3.1-3.png" type="3" subtype="3" subclass="1" distance="0.5" height="2.0" />
+					<sign name="3.2-3" icon="China/3.2-3.png" type="3" subtype="3" subclass="2"distance="0.5" height="2.0" />
+				</category>	 
+			</signals>		
 		</country>
 	        
 		

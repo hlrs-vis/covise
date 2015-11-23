@@ -22,6 +22,7 @@ class RSystemElementRoad;
 class RoadSystemItem;
 class RoadTextItem;
 class SignalEditor;
+class SignalManager;
 
 class SignalRoadItem : public RoadItem
 {
@@ -78,6 +79,7 @@ private:
 
     RSystemElementRoad *road_;
     SignalEditor *signalEditor_;
+	SignalManager *signalManager_;
 
     QPointF pos_;
 };

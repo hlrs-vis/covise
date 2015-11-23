@@ -22,6 +22,7 @@ class ObjectObject;
 class RoadSystemItem;
 class ObjectTextItem;
 class SignalEditor;
+class SignalManager;
 
 class QColor;
 
@@ -51,6 +52,7 @@ public:
     void updateColor();
     virtual void createPath();
     void updatePosition();
+	void updateCategory();
 
     // Text //
     //
@@ -82,6 +84,11 @@ public slots:
 public:
     //	virtual QVariant		itemChange(GraphicsItemChange change, const QVariant & value);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
+
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -95,14 +102,29 @@ protected:
 private:
     void init();
 
+	RoadSystemItem * roadSystemItem_;
+
     Object *object_;
+	RSystemElementRoad *road_;
+	RSystemElementRoad *closestRoad_;
     QPointF pos_;
+	QPointF pressPos_;
+	QPointF lastPos_;
+	QPainterPath *path_;
+
+	bool doPan_;
+	bool copyPan_;
 
     ObjectTextItem *objectTextItem_;
 
     QColor outerColor_;
+	int categorySize_;
 
     SignalEditor *signalEditor_;
+
+	SignalManager *signalManager_;
+
+
 };
 
 #endif // ROADITEM_HPP

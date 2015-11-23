@@ -13,21 +13,20 @@
 **
 **************************************************************************/
 
-#ifndef OBJECTSETTINGS_HPP
-#define OBJECTSETTINGS_HPP
+#ifndef TUNNELSETTINGS_HPP
+#define TUNNELSETTINGS_HPP
 
 #include "src/settings/settingselement.hpp"
 
 namespace Ui
 {
-class ObjectSettings;
+class TunnelSettings;
 }
 
-class Object;
+class Tunnel;
 class SignalManager;
-class ObjectContainer;
 
-class ObjectSettings : public SettingsElement
+class TunnelSettings : public SettingsElement
 {
     Q_OBJECT
 
@@ -36,8 +35,8 @@ class ObjectSettings : public SettingsElement
     //################//
 
 public:
-    explicit ObjectSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Object *object);
-    virtual ~ObjectSettings();
+    explicit TunnelSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, Tunnel *tunnel);
+    virtual ~TunnelSettings();
 
     // Observer Pattern //
     //
@@ -45,8 +44,6 @@ public:
 
 private:
     void updateProperties();
-    void updateProperties(QString country, ObjectContainer *objectProperties);
-    double objectT(double s, double t, double roadDistance);
 
     //################//
     // SLOTS          //
@@ -63,15 +60,13 @@ private slots:
     //################//
 
 private:
-    Ui::ObjectSettings *ui;
+    Ui::TunnelSettings *ui;
 
-    SignalManager *objectManager_;
-
-    Object *object_;
+    Tunnel *tunnel_;
 
     bool init_;
 
     bool valueChanged_;
 };
 
-#endif // OBJECTSETTINGS_HPP
+#endif // TUNNELETTINGS_HPP

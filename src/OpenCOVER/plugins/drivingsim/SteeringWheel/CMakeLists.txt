@@ -1,12 +1,25 @@
 IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
+
+
 USING(XERCESC)
 using(VRML)
 
+
+COVISE_FIND_PACKAGE(V8)
+COVISE_FIND_PACKAGE(OpenCRG)
+COVISE_FIND_PACKAGE(Xenomai)
 #find_package(Boost 1.40 REQUIRED COMPONENTS date_time)
 #find_package(Boost 1.40)
 #USING(BOOST)
+
+
+#plugin SteeringWheel needs library coOpenVehicleUtil
+#for building VehicleUtil OpenCRG is needed
+IF(NOT OPENCRG_FOUND)
+ RETURN()
+ENDIF(NOT OPENCRG_FOUND)
 
 
 SET(HEADERS
@@ -67,7 +80,6 @@ SET(SOURCES ${SOURCES} TempWindow.cpp)
 ENDIF(WIN32)
 
 
-COVISE_FIND_PACKAGE(V8)
 INCLUDE_DIRECTORIES(
    ../../../DrivingSim/VehicleUtil
    ${V8_INCLUDE_DIR}
@@ -75,7 +87,6 @@ INCLUDE_DIRECTORIES(
 
 
 OPTION (COVISE_USE_XENOMAI "Use Xenomai" ON)
-COVISE_FIND_PACKAGE(Xenomai)
 if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
  SET(HEADERS ${HEADERS}
   EinspurDynamikRealtime.h

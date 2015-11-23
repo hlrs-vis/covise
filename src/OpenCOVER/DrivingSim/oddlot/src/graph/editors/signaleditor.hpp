@@ -29,6 +29,11 @@ class SignalItem;
 class ObjectItem;
 class BridgeItem;
 class Signal;
+class SignalTreeWidget;
+class RSystemElementRoad;
+class SignalManager;
+class Object;
+class Bridge;
 
 class SignalEditor : public ProjectEditor
 {
@@ -56,19 +61,21 @@ public:
 
     // Move Signal //
     //
-    bool translateSignal(Signal * signal, const QPointF &to);
+	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
+    bool translateSignal(Signal * signal, RSystemElementRoad * newRoad, QPointF &to);
 
-	// Get signal, set signal //
+	// New Signal with properties chosen in SignalTreeWidget //
 	//
-	Signal *getLastSignal()
-	{
-		return lastCreatedSignal_;
-	}
+	Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
 
-	void setLastSignal(Signal *signal)
-	{
-		lastCreatedSignal_ = signal;
-	}
+	bool translateObject(Object * object, RSystemElementRoad * newRoad, QPointF &to);
+
+	// New Object with properties chosen in SignalTreeWidget //
+	//
+	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
+
+	bool translateBridge(Bridge * bridge, RSystemElementRoad * newRoad, QPointF &to);
+
 
 
     // RoadType //
@@ -115,7 +122,11 @@ private:
 
     ODD::ToolId lastTool_;
 
-	Signal *lastCreatedSignal_;
+
+	// Signal Tree //
+	//
+	SignalTreeWidget *signalTree_;
+	SignalManager *signalManager_;
 
     // RoadType //
     //

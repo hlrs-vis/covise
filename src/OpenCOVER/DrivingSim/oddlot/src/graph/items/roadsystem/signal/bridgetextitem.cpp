@@ -56,6 +56,8 @@ BridgeTextItem::BridgeTextItem(BridgeItem *bridgeItem)
     //
     updatePosition();
 
+	updateName();
+
     // Hide the text item on creation and show it only on mouse hover of the parent //
     //
     setVisible(false);
@@ -94,7 +96,21 @@ BridgeTextItem::updatePosition()
 void
 BridgeTextItem::updateName()
 {
-    textHandle_->setText(bridge_->getName());
+	if ((bridge_->getName() == "") || (bridge_->getName() == "unnamed"))
+	{
+		if (bridgeItem_->getTunnel())
+		{
+			textHandle_->setText("Tunnel");
+		}
+		else
+		{
+			textHandle_->setText("Bridge");
+		}
+	}
+	else
+	{
+		textHandle_->setText(bridge_->getName());
+	}
 }
 
 //################//

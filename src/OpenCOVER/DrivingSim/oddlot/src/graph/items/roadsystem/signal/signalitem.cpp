@@ -14,6 +14,7 @@
 **************************************************************************/
 
 #include "signalitem.hpp"
+#include "signalroaditem.hpp"
 
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
@@ -60,9 +61,11 @@
 #include <QCursor>
 #include <QColor>
 #include <QString>
+#include <QKeyEvent>
 
 SignalItem::SignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF pos)
     : GraphElement(roadSystemItem, signal)
+	, roadSystemItem_(roadSystemItem)
     , signal_(signal)
     , pos_(pos)
     , pixmapItem_(NULL)
@@ -81,6 +84,7 @@ SignalItem::init()
     //
     setAcceptHoverEvents(true);
     setSelectable();
+	setFlag(ItemIsFocusable);
 
     // Signal Editor
     //
@@ -117,9 +121,14 @@ SignalItem::init()
     size_ = 8.0;
     halfsize_ = size_ / 2.0;
 
-    pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
+	road_ = signal_->getParentRoad(); 
+	closestRoad_ = road_;
+    pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT());
     updateCategory();
     updatePosition();
+
+	doPan_ = false;
+	copyPan_ = false;
 }
 
 
@@ -142,7 +151,7 @@ SignalItem::updateCategory()
         if (signalContainer)
         {
             QString category = signalContainer->getSignalCategory();
-            int i = 360 / categorySize_;
+            int i = 360 / (categorySize_ + 1);
             outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
 
 
@@ -242,28 +251,39 @@ SignalItem::createPath()
     {
         setPen(QPen(QColor(255, 255, 255), 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
-        LaneSection *laneSection = signal_->getParentRoad()->getLaneSection(signal_->getSStart());
+        LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
+		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+		QPointF pos = pos_ + (normal * signal_->getT());
 
-        if (signal_->getT() > 0)
+        if (signal_->getValidFromLane() >= 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() - 1, signal_->getSStart());
-            path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
-            width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
-            path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            path.moveTo(pos - width * normal);
+		}
+		else
+        {
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
+			path.moveTo(pos + width * normal);
+		}
+		if (signal_->getValidToLane() > 0)
+		{
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart());
+            path.lineTo(pos - width * normal);
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
-            path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), -width));
-            width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
-            path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), -width));
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
+			path.lineTo(pos + width * normal);
         }
     }
     else if (signal_->getType() == 293)
     {
         setPen(QPen(QColor(255, 255, 255), 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
-        LaneSection *laneSection = signal_->getParentRoad()->getLaneSection(signal_->getSStart());
+        LaneSection *laneSection = road_->getLaneSection(signal_->getSStart());
+		QPointF normal = road_->getGlobalNormal(signal_->getSStart()).toPointF();
+		QPointF tangent = road_->getGlobalTangent(signal_->getSStart()).toPointF();
+		QPointF pos = pos_ + (normal * signal_->getT());
 
         if (signal_->getValidFromLane() > 0)
         {
@@ -272,8 +292,9 @@ SignalItem::createPath()
             {
                 while (width >= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
                 {
-                    path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
-                    path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart() + signal_->getValue(), width));
+					QPointF newPos = pos - width * normal;
+                    path.moveTo(newPos);
+                    path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
                 }
             }
@@ -281,8 +302,9 @@ SignalItem::createPath()
             {
                 while (width >= -laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
                 {
-                    path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), width));
-                    path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart() + signal_->getValue(), width));
+					QPointF newPos = pos - width * normal;
+                    path.moveTo(newPos);
+                    path.lineTo(newPos + signal_->getValue() * tangent);
                     width -= 1;
                 }
             }
@@ -292,8 +314,9 @@ SignalItem::createPath()
             double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
             while (width <= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
             {
-                path.moveTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), -width));
-                path.lineTo(signal_->getParentRoad()->getGlobalPoint(signal_->getSStart() + signal_->getValue(), -width));
+				QPointF newPos = pos + width * normal;
+                path.moveTo(newPos);
+                path.lineTo(newPos + signal_->getValue() * tangent);
                 width += 1;
             }
         }
@@ -334,7 +357,7 @@ void
 SignalItem::updatePosition()
 {
 
-    pos_ = signal_->getParentRoad()->getGlobalPoint(signal_->getSStart(), signal_->getT());
+    pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT());
 
 	if (pixmapItem_)
 	{
@@ -383,7 +406,7 @@ SignalItem::deleteRequest()
 bool
 SignalItem::removeSignal()
 {
-    RemoveSignalCommand *command = new RemoveSignalCommand(signal_, signal_->getParentRoad());
+    RemoveSignalCommand *command = new RemoveSignalCommand(signal_, road_);
     return getProjectGraph()->executeCommand(command);
 }
 
@@ -408,27 +431,28 @@ SignalItem::zoomAction()
 void
 SignalItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    if (signalEditor_->getCurrentTool() == ODD::TSG_MOVE)
-    {
-        setCursor(Qt::OpenHandCursor);
-    }
-    else
-    {
-        // Text //
-        //
-        getSignalTextItem()->setVisible(true);
-        getSignalTextItem()->setPos(event->scenePos());
-    }
 
-    // Parent //
-    //
-    //GraphElement::hoverEnterEvent(event); // pass to baseclass
+	setCursor(Qt::OpenHandCursor);
+	setFocus();
+
+	// Text //
+	//
+	getSignalTextItem()->setVisible(true);
+	getSignalTextItem()->setPos(event->scenePos());
+
+	// Parent //
+	//
+	GraphElement::hoverEnterEvent(event); // pass to baseclass
 }
 
 void
 SignalItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     setCursor(Qt::ArrowCursor);
+	if (!copyPan_)
+	{
+		clearFocus();
+	}
 
     // Text //
     //
@@ -436,7 +460,7 @@ SignalItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
     // Parent //
     //
-    //GraphElement::hoverLeaveEvent(event); // pass to baseclass
+    GraphElement::hoverLeaveEvent(event); // pass to baseclass
 }
 
 void
@@ -445,13 +469,13 @@ SignalItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
     // Parent //
     //
-    //GraphElement::hoverMoveEvent(event);
+    GraphElement::hoverMoveEvent(event);
 }
 
 void
 SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    pressPos_ = event->pos();
+    pressPos_ = lastPos_ = event->scenePos();
     ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Signal
     if (tool == ODD::TSG_DEL)
     {
@@ -539,7 +563,7 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             }
         }
     }
-    else if (tool == ODD::TSG_MOVE)
+    else 
     {
         if (pixmapItem_ && showPixmap_)
         {
@@ -547,36 +571,126 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             showPixmap_ = false;
             createPath();
         }
-    }
-    else
-    {
+
+		doPan_ = true;
+		if (copyPan_)
+		{
+			Signal * newSignal = signal_->getClone();
+			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
+			getProjectGraph()->executeCommand(command);
+		}
         GraphElement::mousePressEvent(event); // pass to baseclass
+
     }
 }
 
 void
 SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    ODD::ToolId tool = signalEditor_->getCurrentTool();
-    if (tool == ODD::TSG_MOVE)
-    {
-        pos_ = event->scenePos();
-        createPath();
-    }
+{	
+	if (doPan_)
+	{
+		if (showPixmap_)
+		{
+			if (pixmapItem_)
+			{
+				pixmapItem_->hide();
+			}
+			showPixmap_ = false;
+		}
+
+		QPointF newPos = event->scenePos();
+		pos_ += newPos - lastPos_;
+		lastPos_ = newPos;
+		createPath();
+
+		QPointF to = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
+
+		double s;
+		QVector2D vec;
+		double dist;
+
+		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		if (!nearestRoad)
+		{
+			nearestRoad = road_;
+		}
+		if (nearestRoad != closestRoad_)
+		{
+			RoadItem *nearestRoadItem = roadSystemItem_->getRoadItem(nearestRoad->getID());
+			nearestRoadItem->setHighlighting(true);
+			setZValue(nearestRoadItem->zValue() + 1);
+			roadSystemItem_->getRoadItem(closestRoad_->getID())->setHighlighting(false);
+			closestRoad_ = nearestRoad;
+		}
+
+		GraphElement::mouseMoveEvent(event);
+	}
 }
 
 void
 SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    ODD::ToolId tool = signalEditor_->getCurrentTool();
-    if (tool == ODD::TSG_MOVE)
-    {
-        bool parentChanged = signalEditor_->translateSignal(signal_, event->scenePos());
+	GraphElement::mouseReleaseEvent(event);
 
-        if (!parentChanged && pixmapItem_)
-        {
-			updatePosition();
-        }
+    if (doPan_)
+    {
+		double diff = (lastPos_ - pressPos_).manhattanLength();
+		if (diff > 0.01) // otherwise item has not been moved by intention
+		{
+			pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
+			bool parentChanged = signalEditor_->translateSignal(signal_, closestRoad_, pos_);
+
+			if (!parentChanged && pixmapItem_)
+			{
+				updatePosition();
+			}
+		}
+		else
+		{
+			pos_ = lastPos_;
+		}
+
+		doPan_ = false;
+    }
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+SignalItem::keyPressEvent(QKeyEvent *event)
+{
+    // TODO: This will not notice a key pressed, when the view is not active
+    switch (event->key())
+    {
+	case Qt::Key_Shift:
+        copyPan_ = true;
+        break;
+
+    default:
+        QGraphicsItem::keyPressEvent(event);
+    }
+}
+
+/*! \brief Key events for panning, etc.
+*
+*/
+void
+SignalItem::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_Shift:
+        copyPan_ = false;
+		if (!isHovered())
+		{
+			clearFocus();
+		}
+        break;
+
+
+    default:
+        QGraphicsItem::keyReleaseEvent(event);
     }
 }
 

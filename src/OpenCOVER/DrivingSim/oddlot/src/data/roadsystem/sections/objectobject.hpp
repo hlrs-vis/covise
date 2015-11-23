@@ -90,7 +90,8 @@ class Object : public RoadSection
 public:
     enum ObjectChange
     {
-        CEL_ParameterChange = 0x1
+        CEL_ParameterChange = 0x1,
+		CEL_TypeChange = 0x2
     };
 
     enum ObjectOrientation

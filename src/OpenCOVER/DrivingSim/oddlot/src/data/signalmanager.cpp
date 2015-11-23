@@ -37,7 +37,8 @@
 //####################//
 
 SignalManager::SignalManager(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+	selectedSignalContainer_(NULL)
 {
 }
 
@@ -56,9 +57,9 @@ SignalManager::addSignal(const QString &country, const QString &name, const QIco
 }
 
 void
-SignalManager::addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
+SignalManager::addObject(const QString &country, const QString &name, const QString &file, const QIcon &icon, const QString &categoryName, const QString &type, double length, double width, double radius, double height, double distance, double heading, double repeatDistance, const QList<ObjectCorner *> &corners)
 {
-    objects_.insert(country, new ObjectContainer(name, file, icon, type, length, width, radius, height, distance, heading, repeatDistance, corners));
+    objects_.insert(country, new ObjectContainer(name, file, icon, categoryName, type, length, width, radius, height, distance, heading, repeatDistance, corners));
 }
 
 void
@@ -99,6 +100,13 @@ QString
 SignalManager::getCountry(SignalContainer *signalContainer)
 {
 	return signals_.key(signalContainer, "");
+
+}
+
+QString 
+SignalManager::getCountry(ObjectContainer *objectContainer)
+{
+	return objects_.key(objectContainer, "");
 
 }
 
