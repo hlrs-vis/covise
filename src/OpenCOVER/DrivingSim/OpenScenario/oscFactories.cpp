@@ -25,6 +25,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscEnvironment.h>
 #include <oscFactories.h>
 #include <oscFile.h>
+#include <oscFilter.h>
 #include <oscFog.h>
 #include <oscHeader.h>
 #include <oscIntensity.h>
@@ -37,6 +38,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscNamedObject.h>
 #include <oscNameId.h>
 #include <oscObjectBase.h>
+#include <oscObserver.h>
 #include <oscObserverCatalog.h>
 #include <oscOrientation.h>
 #include <oscParameter.h>
@@ -67,6 +69,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVariables.h>
 #include <oscVehicleCatalog.h>
 #include <oscWeather.h>
+#include <oscFrustum.h>
 
 
 using namespace OpenScenario;
@@ -113,7 +116,9 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
     staticObjectFactory.registerType<oscFile>("oscFile");
+	staticObjectFactory.registerType<oscFile>("oscFilter");
     staticObjectFactory.registerType<oscFog>("oscFog");
+	staticObjectFactory.registerType<oscFrustum>("oscFrustum");
     staticObjectFactory.registerType<oscHeader>("oscHeader");
     staticObjectFactory.registerType<oscIntensity>("oscIntensity");
     staticObjectFactory.registerType<oscLaneChange>("oscLaneChange");
@@ -124,6 +129,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscMiscObjectCatalog>("oscMiscObjectCatalog");
     staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");
     staticObjectFactory.registerType<oscNameId>("oscNameId");
+	staticObjectFactory.registerType<oscObserver>("oscObserver");
     staticObjectFactory.registerType<oscObserverCatalog>("oscObserverCatalog");
     staticObjectFactory.registerType<oscOrientation>("oscOrientation");
     staticObjectFactory.registerType<oscParameter>("oscParameter");
