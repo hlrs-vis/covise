@@ -302,7 +302,8 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
         {
             unsigned int numChildren = listOfSeq[i]->getNumChildren();
             //listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
-            listOfSeq[i]->setValue(currentFrame % numChildren);
+			if (numChildren>0)            
+				listOfSeq[i]->setValue(currentFrame % numChildren);
         }
         coVRPluginList::instance()->setTimestep(currentFrame);
         if (animFrameItem && numFrames != 0)
@@ -531,7 +532,8 @@ coVRAnimationManager::addSequence(osg::Sequence *seq)
     else
         seq->setValue(seq->getNumChildren());*/
     
-    seq->setValue(currentAnimationFrame % seq->getNumChildren());
+    if (seq->getNumChildren()>0)
+		seq->setValue(currentAnimationFrame % seq->getNumChildren());
     
 
     setNumTimesteps(seq->getNumChildren(), seq);
