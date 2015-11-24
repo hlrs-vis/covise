@@ -97,6 +97,7 @@ SET(HEADERS
 SET(SOURCES
    OpenScenarioBase.cpp
    oscArrayMember.cpp
+   oscBody.cpp
    oscEvent.cpp
    oscFactories.cpp
    oscHeader.cpp
