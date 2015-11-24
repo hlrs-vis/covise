@@ -284,7 +284,8 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
             if (time)
                 {
 				++info.varyingFields[stem];
-				std::cerr << "counting timedir : " << timedir << std::endl;
+				//std::cerr << "counting timedir : " << timedir << std::endl;
+				//std::cerr << "added varying field :" << stem << std::endl;
 				}
             else
                 ++info.constantFields[stem];

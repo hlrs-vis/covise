@@ -133,11 +133,14 @@ ReadFOAM::~ReadFOAM() //Destructor
 
 std::vector<const char *> ReadFOAM::getFieldList()
 {
-    int num = m_case.varyingFields.size() + m_case.constantFields.size() + 1;
+    int num = m_case.varyingFields.size() + m_case.constantFields.size() + 2;
     std::vector<const char *> choiceVal(num);
     int i = 0;
     choiceVal[i] = "none";
     ++i;
+    choiceVal[i] = "processorID";
+    ++i;
+
 
     for (std::map<std::string, int>::iterator it = m_case.varyingFields.begin();
          it != m_case.varyingFields.end();
@@ -212,6 +215,14 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
             info << bounds.boundaries[i].index << " ## " << bounds.boundaries[i].name;
             coModule::sendInfo("%s", info.str().c_str());
         }
+
+        coModule::sendInfo("Listing varying Fields!");
+		for (std::map<std::string, int>::iterator it = m_case.varyingFields.begin();
+				it != m_case.varyingFields.end();
+				++it)
+		{
+			coModule::sendInfo("%s", it->first.c_str());
+		}
 
         //fill the choiceParameters and set them to the previously selected item (if not possible set them to "none")
         index_t num = m_case.varyingFields.size() + m_case.constantFields.size() + 1;
@@ -1469,36 +1480,48 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                          it != m_case.timedirs.end();
                          ++it)
                     {
-                        for (index_t j = 0; j < m_case.numblocks; ++j)
-                        {
-                            std::string timedir = it->second;
-                            std::string dir = casedir;
-                            std::stringstream s;
-                            s << "/processor" << j << "/" << timedir;
-                            dir += s.str();
+						for (index_t j = 0; j < m_case.numblocks; ++j)
+						{
+							std::string timedir = it->second;
+							std::string dir = casedir;
+							std::stringstream s;
+							if (portchoice == 1)
+							{
+				            			
+							// select processorj/timestep/polyMesh if varyingGrid, lastdir(init with constant) if !varyingGrid 
+						    // Read mesh dimensions	
+							// coDoFloat with dim.cells entries j
 
-                            std::stringstream sn;
-                            sn << "_timestep_" << i << "_processor_" << j;
-                            std::string portObjName = outPorts[nPort]->getObjName();
-                            portObjName += sn.str();
+							}
+							else
+							{
 
-                            boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
-                            HeaderInfo header = readFoamHeader(*portIn);
-                            if (header.fieldclass == "volVectorField")
-                            {
-                                coDoVec3 *v = loadVectorField(dir, dataFilename, portObjName);
-                                tempSet.push_back(v);
-                            }
-                            else if (header.fieldclass == "volScalarField")
-                            {
-                                coDoFloat *v = loadScalarField(dir, dataFilename, portObjName);
-                                tempSet.push_back(v);
-                            }
-                            else
-                            {
-                                std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
-                            }
-                        }
+								s << "/processor" << j << "/" << timedir;
+								dir += s.str();
+
+								std::stringstream sn;
+								sn << "_timestep_" << i << "_processor_" << j;
+								std::string portObjName = outPorts[nPort]->getObjName();
+								portObjName += sn.str();
+
+								boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
+								HeaderInfo header = readFoamHeader(*portIn);
+								if (header.fieldclass == "volVectorField")
+								{
+									coDoVec3 *v = loadVectorField(dir, dataFilename, portObjName);
+									tempSet.push_back(v);
+								}
+								else if (header.fieldclass == "volScalarField")
+								{
+									coDoFloat *v = loadScalarField(dir, dataFilename, portObjName);
+									tempSet.push_back(v);
+								}
+								else
+								{
+									std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
+								}
+							}                        
+						}
                         std::string portSubSetName = outPorts[nPort]->getObjName();
                         std::stringstream s;
                         s << "_timestep_" << i;
