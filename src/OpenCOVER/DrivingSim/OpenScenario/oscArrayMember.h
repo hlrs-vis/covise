@@ -20,8 +20,6 @@ XERCES_CPP_NAMESPACE_END
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-
 /// \class This class represents a Member variable storing arrays of values
 class OPENSCENARIOEXPORT oscArrayMember: public oscMember
 {

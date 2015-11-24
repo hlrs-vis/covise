@@ -15,9 +15,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-class oscEvent;
-
 class OPENSCENARIOEXPORT priorityType: public oscEnumType
 {
 public:
