@@ -13,6 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscBody.h>
 #include <oscBoundingBox.h>
 #include <oscCatalog.h>
+#include <oscCatalogs.h>
 #include <oscCenter.h>
 #include <oscColor.h>
 #include <oscCondition.h>
@@ -20,6 +21,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscDimension.h>
 #include <oscDimensions.h>
 #include <oscDirectory.h>
+#include <oscDriver.h>
 #include <oscDriverCatalog.h>
 #include <oscEntityCatalog.h>
 #include <oscEnvironment.h>
@@ -105,6 +107,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscBody>("oscBody");
     staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
     staticObjectFactory.registerType<oscCatalog>("oscCatalog");
+    staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
     staticObjectFactory.registerType<oscCenter>("oscCenter");
     staticObjectFactory.registerType<oscColor>("oscColor");
     staticObjectFactory.registerType<oscCondition>("oscCondition");
@@ -112,6 +115,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscDimension>("oscDimension");
     staticObjectFactory.registerType<oscDimensions>("oscDimensions");
     staticObjectFactory.registerType<oscDirectory>("oscDirectory");
+	staticObjectFactory.registerType<oscDriver>("oscDriver");
     staticObjectFactory.registerType<oscDriverCatalog>("oscDriverCatalog");
     staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");

@@ -24,11 +24,23 @@
         <roadConditions frictionScale="0.1">
           <roadCondition  effect="dry" intensity="0.2"/>  
         </roadConditions>
+    <include URL="testinclude.xosc" />
   </environment>
+  <driver obeyTrafficLights="0" obeyTrafficSigns="1" steeringDistance="1" foresightDistance="2" respondToTailgating="3" urgeToOvertake="4" useOfIndicator="5" keepRightRule="6" laneChangeDynamic="7" speedKeeping="8" laneKeeping="9" distanceKeeping="10" observeSpeedLimits="11" curveSpeed="12" desiredDeceleration="13" desiredAcceleration="14" desiredVelocity="15" politeness="16" alertness="17" adaptToVehicleType="18" adaptToTimeOfDay="19" adaptToRoadConditions="20" adaptToWeatherConditions="21">
+    <header revMajor="1" revMinor="0" date="2015-11-23T12:15:00+01:00" description="testDriver" author="PW"/>  
+    <body weight="75" height="180" eyeDistance="65" sex="male"/>
+    <geometry URL="3d.max"/> 
+    <name name="joe">
+      <include URL="test.xodr"/>
+    </name>
+  </driver>
   <roadNetwork>
     <OpenDRIVE URL="test.xodr"/>
     <SceneGraph URL="test.ive"/>
   </roadNetwork>
   <storyboard>
   </storyboard>
+  <catalogs>
+    <vehicle/>
+  </catalogs>
 </OpenScenario>
