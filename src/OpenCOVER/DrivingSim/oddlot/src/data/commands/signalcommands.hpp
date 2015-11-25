@@ -16,13 +16,13 @@
 #ifndef SIGNALCOMMANDS_HPP
 #define SIGNALCOMMANDS_HPP
 
-// 1000
 
 #include "datacommand.hpp"
 
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 
 #include <QMap>
 
@@ -93,7 +93,7 @@ private:
 class SetSignalPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int fromLane, int toLane, double probability = 0.0, double resetTime = 0.0, DataCommand *parent = NULL);
+    explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent = NULL);
     explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent = NULL);
     virtual ~SetSignalPropertiesCommand();
 
@@ -310,6 +310,47 @@ private:
     int oldType_;
     double newLength_;
     double oldLength_;
+};
+
+//#########################//
+// SetTunnelPropertiesCommand //
+//#########################//
+
+class SetTunnelPropertiesCommand : public SetBridgePropertiesCommand
+{
+public:
+    explicit SetTunnelPropertiesCommand(Tunnel *tunnel, const QString &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent = NULL);
+    virtual ~SetTunnelPropertiesCommand();
+
+    virtual int id() const
+    {
+        return 0x1012;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    SetTunnelPropertiesCommand(); /* not allowed */
+    SetTunnelPropertiesCommand(const SetTunnelPropertiesCommand &); /* not allowed */
+    SetTunnelPropertiesCommand &operator=(const SetTunnelPropertiesCommand &); /* not allowed */
+
+private:
+    Tunnel *tunnel_;
+ /*   QString newId_;
+    QString newName_;
+    QString newFile_;
+    QString oldId_;
+    QString oldName_;
+    QString oldFile_;
+    int newType_;
+    int oldType_;
+    double newLength_;
+    double oldLength_; */
+	double newLighting_;
+	double oldLighting_;
+	double newDaylight_;
+	double oldDaylight_;
 };
 
 #endif // SIGNALCOMMANDS_HPP

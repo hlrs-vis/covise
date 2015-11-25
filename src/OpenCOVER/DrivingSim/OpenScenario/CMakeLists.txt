@@ -35,7 +35,9 @@ SET(HEADERS
    oscFactories.h
    oscFactory.h
    oscFile.h
+   oscFilter.h
    oscFog.h
+   oscFrustum.h
    oscHeader.h
    oscIntensity.h
    oscLaneChange.h
@@ -53,6 +55,7 @@ SET(HEADERS
    oscNameId.h
    oscObjectBase.h
    oscObjectVariable.h
+   oscObserver.h
    oscObserverCatalog.h
    oscOrientation.h
    oscParameter.h
@@ -94,6 +97,7 @@ SET(HEADERS
 SET(SOURCES
    OpenScenarioBase.cpp
    oscArrayMember.cpp
+   oscBody.cpp
    oscEvent.cpp
    oscFactories.cpp
    oscHeader.cpp

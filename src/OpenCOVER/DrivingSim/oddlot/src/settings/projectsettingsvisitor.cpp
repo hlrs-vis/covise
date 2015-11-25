@@ -43,6 +43,7 @@
 #include "widgets/objectsettings.hpp"
 
 #include "widgets/bridgesettings.hpp"
+#include "widgets/tunnelsettings.hpp"
 
 #include "widgets/junctionsettings.hpp"
 
@@ -213,6 +214,14 @@ void
 ProjectSettingsVisitor::visit(Bridge *acceptor)
 {
     settingsElement_ = new BridgeSettings(projectSettings_, NULL, acceptor);
+}
+
+// Tunnels //
+//
+void
+ProjectSettingsVisitor::visit(Tunnel *acceptor)
+{
+    settingsElement_ = new TunnelSettings(projectSettings_, NULL, acceptor);
 }
 
 // Junctions //

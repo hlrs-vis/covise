@@ -456,9 +456,6 @@
         <property name="text">
          <string>Pole</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
       <item row="29" column="2">

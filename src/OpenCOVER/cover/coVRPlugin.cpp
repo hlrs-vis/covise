@@ -12,7 +12,8 @@
 using namespace opencover;
 
 coVRPlugin::coVRPlugin()
-    : handle(NULL)
+    : m_initDone(false)
+    , handle(NULL)
     , m_outstandingTimestep(-1)
 {
 }

@@ -52,6 +52,7 @@ class CrossfallSection;
 
 class Object;
 class Bridge;
+class Tunnel;
 class Crosswalk;
 class Signal;
 class Sensor;
@@ -181,6 +182,9 @@ public:
     {
     }
     virtual void visit(Bridge *)
+    {
+    }
+	virtual void visit(Tunnel *)
     {
     }
 

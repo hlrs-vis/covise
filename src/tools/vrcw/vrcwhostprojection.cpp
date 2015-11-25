@@ -49,8 +49,8 @@ VRCWHostProjection::~VRCWHostProjection()
 int VRCWHostProjection::processGuiInput(
       const QList<VRCWBase*>& vrcwList)
 {
-   const int ERROR_1 = 51;
-   const int ERROR_2 = 52;
+   const int ERROR_1 = 501;
+   const int ERROR_2 = 502;
    const int OK = 5;
 
    int success = DEF_ERROR;
@@ -230,7 +230,7 @@ void VRCWHostProjection::remove()
             "from the list?").arg(selRowEntryProjection).arg(selRowEntryHost));
       msgBox.setWindowTitle(tr("Configuration"));
       QPushButton* removeButton = msgBox.addButton(tr("Remove"), QMessageBox::YesRole);
-      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::Cancel);
       msgBox.setDefaultButton(removeButton);
       msgBox.exec();
 

@@ -96,7 +96,8 @@ public:
         CRD_SignalChange = 0x8000,
         CRD_SensorChange = 0x10000,
         CRD_SurfaceChange = 0x20000,
-        CRD_BridgeChange = 0x40000
+        CRD_BridgeChange = 0x40000,
+		CRD_TunnelChange = 0x80000
     };
 
     //################//

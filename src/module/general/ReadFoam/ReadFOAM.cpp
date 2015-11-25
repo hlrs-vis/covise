@@ -203,7 +203,8 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
         {
             meshdir << casedir << "/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
         }
-        coModule::sendInfo("Listing Boundary Patches!");
+        coModule::sendInfo("%s", meshdir.str().c_str());
+		coModule::sendInfo("Listing Boundary Patches!");
         Boundaries bounds = loadBoundary(meshdir.str());
         for (int i = 0; i < bounds.boundaries.size(); ++i)
         {
@@ -1102,13 +1103,19 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         std::stringstream s;
                         s << "/processor" << j << "/" << timedir << "/polyMesh";
                         pointsdir += s.str();
-
+						if (j == 0)
+						{
+							std::stringstream subdir;
+							subdir << casedir <<  "/processor" << j << "/" << timedir;
+							checkSubDirectory(m_case, subdir.str(), true);
+						}
                         if (!m_case.varyingGrid)
                         { //if grid does not changes over time
                             if (i == 0)
                             { //If first timestep
 								std::stringstream sConstant;
 								sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
+								meshdir = casedir;
 								meshdir += sConstant.str();
                                 m = loadMesh(meshdir, pointsdir, meshObjName); //Read the first timestep from every processor directory.
                                 basemeshs[j] = m;

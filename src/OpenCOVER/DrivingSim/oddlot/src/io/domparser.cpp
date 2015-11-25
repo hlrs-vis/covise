@@ -3069,7 +3069,13 @@ DomParser::parseSignals(QIODevice *source)
         element = country.firstChildElement("objects");
         if (!element.isNull())
         {
-            parseObjectPrototypes(element, countryName);
+			QDomElement category = element.firstChildElement("category");
+			while (!category.isNull())
+			{		
+				QString categoryName = parseToQString(category, "name", "noname", false);
+				parseObjectPrototypes(category, categoryName, countryName);
+				category = category.nextSiblingElement("category");
+			}
         }
 
         country = country.nextSiblingElement("country");
@@ -3114,7 +3120,7 @@ DomParser::parseSignalPrototypes(const QDomElement &element, const QString &cate
 }
 
 bool
-DomParser::parseObjectPrototypes(const QDomElement &element, const QString &countryName)
+DomParser::parseObjectPrototypes(const QDomElement &element, const QString &categoryName, const QString &countryName)
 {
     QDomElement object = element.firstChildElement("object");
     while (!object.isNull())
@@ -3150,7 +3156,9 @@ DomParser::parseObjectPrototypes(const QDomElement &element, const QString &coun
             corner = corner.nextSiblingElement("corner");
         }
 
-        ODD::mainWindow()->getSignalManager()->addObject(countryName, name, file, QIcon(icon), type, length, width, radius, height, distance, heading, repeatDistance, corners);
+		SignalManager *manager = ODD::mainWindow()->getSignalManager();
+        manager->addObject(countryName, name, file, QIcon(icon), categoryName, type, length, width, radius, height, distance, heading, repeatDistance, corners);
+		manager->addCategory(categoryName);
 
         object = object.nextSiblingElement("object");
     }

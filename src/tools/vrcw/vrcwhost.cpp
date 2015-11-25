@@ -23,13 +23,6 @@ VRCWHost::VRCWHost(QWidget* parent) :
    ui.setupUi(this);
 
    hostsModel = new QStringListModel();
-   //Testing
-   //
-   hosts << "adventure" << "discovery" << "resolution" << "endeavour"
-         << "santa_maria" << "nina" << "pinta"
-         << "pamir" << "passat" << "gorch_fock" << "mayflower"
-         << "vasa" << "fala";
-   //
    hostsModel->setStringList(hosts);
    ui.hostsListView->setModel(hostsModel);
 
@@ -62,9 +55,9 @@ VRCWHost::~VRCWHost()
 int VRCWHost::processGuiInput(const int& index,
       const QList<VRCWBase*>& vrcwList)
 {
-   const int ERROR_1 = 41;
-   const int ERROR_2 = 42;
-   const int PART_OK = 49;
+   const int ERROR_1 = 401;
+   const int ERROR_2 = 402;
+   const int PART_OK = 409;
    const int OK = 4;
 
    int success = DEF_ERROR;
@@ -81,7 +74,7 @@ int VRCWHost::processGuiInput(const int& index,
             "Do you want to add them to the list of hosts?"));
       msgBox.setWindowTitle(tr("Configuration"));
       QPushButton* addButton = msgBox.addButton(tr("Add"), QMessageBox::YesRole);
-      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::Cancel);
       msgBox.setDefaultButton(addButton);
       msgBox.exec();
 
@@ -334,24 +327,6 @@ void VRCWHost::add()
             }
             else if (errorCode == HIPLKP_EC_1)
             {
-               //prints for testing
-               //
-               qDebug() << "host: " << hostToLookup;
-               qDebug() << "Lookup 1 failed:"
-                     << hostIPLookupValue->hostInfo_1.errorString();
-               qDebug() << "Error 1: "
-                     << hostIPLookupValue->hostInfo_1.error();
-               if (!hostIPLookupValue->hostInfo_2.errorString().isEmpty())
-               {
-                  qDebug() << "Lookup 2 failed:"
-                        << hostIPLookupValue->hostInfo_2.errorString();
-                  qDebug() << "Error 2: "
-                        << hostIPLookupValue->hostInfo_2.error();
-               }
-               qDebug() << "";
-               //
-
-
                QString message = tr("The hostname\n\n" "%1" "\n\n"
                      "doesn't seem to be valid.\n"
                      "Please make sure the hostname is in your hosts file\n"
@@ -359,10 +334,6 @@ void VRCWHost::add()
                      .arg(hostToLookup);
                QMessageBox::warning(this, tr("Configuration"), message,
                      QMessageBox::Ok);
-            }
-            else
-            {
-               qDebug() << "WarningCode can't be evaluated";
             }
          }
 
@@ -405,7 +376,7 @@ void VRCWHost::remove()
             "from the list of hostnames?").arg(selEntry));
       msgBox.setWindowTitle(tr("Configuration"));
       QPushButton* removeButton = msgBox.addButton(tr("Remove"), QMessageBox::YesRole);
-      QPushButton* noButton = msgBox.addButton(QMessageBox::No);
+      QPushButton* noButton = msgBox.addButton(QMessageBox::Cancel);
       msgBox.setDefaultButton(removeButton);
       msgBox.exec();
 

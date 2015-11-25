@@ -46,7 +46,6 @@ public:
 private:
     void updateProperties();
     void updateProperties(QString country, ObjectContainer *objectProperties);
-    void addObjects();
     double objectT(double s, double t, double roadDistance);
 
     //################//
@@ -54,7 +53,6 @@ private:
     //################//
 
 private slots:
-    void on_objectComboBox_activated(int);
     void onEditingFinished();
     void onEditingFinished(int);
     void on_sSpinBox_editingFinished();

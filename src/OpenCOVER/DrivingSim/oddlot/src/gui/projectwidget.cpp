@@ -320,6 +320,17 @@ ProjectWidget::setEditor(ODD::EditorId id)
             heightGraph_->hide();
         }
 
+		// Signal tree //
+		//
+		if (id == ODD::ESG)
+		{
+			mainWindow_->showSignalsDock(true);
+		}
+		else
+		{
+			mainWindow_->showSignalsDock(false);
+		}
+
         topviewGraph_->postEditorChange();
     }
     else

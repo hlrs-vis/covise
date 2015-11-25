@@ -13,8 +13,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscPositionXyz: public oscObjectBase
 {
@@ -36,4 +34,3 @@ typedef oscObjectVariable<oscPositionXyz *> oscPositionXyzMember;
 }
 
 #endif //OSC_POSITION_XYZ_H
-
