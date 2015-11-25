@@ -19,8 +19,8 @@ namespace vrui
 
 class coRotButton;
 class coBackground;
+class coCombinedButtonInteraction;
 
-class coBackground;
 class vruiHit;
 
 /** Menu item which can be used to open and close submenus
@@ -39,6 +39,8 @@ protected:
     coRotButton *subMenuIcon; ///< arrow button which is used for interaction
     coBackground *space; ///< blank space left of label text, used as a margin
     int attachment;
+    coMenuItem *secondaryItem; ///< item that is triggered on right-button clicks
+    coCombinedButtonInteraction *preventMoveInteraction;
 
 public:
     coSubMenuItem(const std::string &name);
@@ -75,6 +77,9 @@ public:
     virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname
     virtual bool isOfClassName(const char *) const;
+
+    /// trigger doActionRelease (i.e. toggle) this item on XFORM button release
+    void setSecondaryItem(coMenuItem *item);
 };
 }
 #endif
