@@ -26,14 +26,83 @@
         </roadConditions>
     <include URL="testinclude.xosc" />
   </environment>
-  <driver obeyTrafficLights="0" obeyTrafficSigns="1" steeringDistance="1" foresightDistance="2" respondToTailgating="3" urgeToOvertake="4" useOfIndicator="5" keepRightRule="6" laneChangeDynamic="7" speedKeeping="8" laneKeeping="9" distanceKeeping="10" observeSpeedLimits="11" curveSpeed="12" desiredDeceleration="13" desiredAcceleration="14" desiredVelocity="15" politeness="16" alertness="17" adaptToVehicleType="18" adaptToTimeOfDay="19" adaptToRoadConditions="20" adaptToWeatherConditions="21">
-    <header revMajor="1" revMinor="0" date="2015-11-23T12:15:00+01:00" description="testDriver" author="PW"/>  
-    <body weight="75" height="180" eyeDistance="65" sex="male"/>
-    <geometry URL="3d.max"/> 
-    <name name="joe">
-      <include URL="test.xodr"/>
-    </name>
-  </driver>
+  <test>
+    <driver obeyTrafficLights="0" obeyTrafficSigns="1" steeringDistance="1" foresightDistance="2" respondToTailgating="3" urgeToOvertake="4" useOfIndicator="5" keepRightRule="6" laneChangeDynamic="7" speedKeeping="8" laneKeeping="9" distanceKeeping="10" observeSpeedLimits="11" curveSpeed="12" desiredDeceleration="13" desiredAcceleration="14" desiredVelocity="15" politeness="16" alertness="17" adaptToVehicleType="18" adaptToTimeOfDay="19" adaptToRoadConditions="20" adaptToWeatherConditions="21">
+      <header revMajor="1" revMinor="0" date="2015-11-23T12:15:00+01:00" description="testDriver" author="PW"/>  
+      <body weight="75" height="180" eyeDistance="65" sex="male"/>
+      <geometry URL="3d.max"/> 
+      <name name="joe">
+        <include URL="test.xodr"/>
+      </name>
+    </driver>
+    <position>
+      <positionWorld>
+        <position x="10" y="10" z="10"/>
+        <orientation h="10" p="10" r="10"/>
+      </positionWorld>
+    </position>
+    
+    <condition>
+      <timeOfDay animation="1">
+        <time hour="12" min="15" sec="30"/>
+        <date day="20" month="10" year="2015"/>
+      </timeOfDay>
+      
+      <simulationTime simulationTime="30"/>
+      <reachPosition tolerance="0.5" conditions="exceed">
+        <position>
+        </position> 
+      </reachPosition>
+      
+      <distance freespace="1" >
+        <object object="V1" refObject="V2" value="50" condition="decceed"/>
+      </distance>
+      
+      <velocity>
+        <objectRef reference="relative">
+          <object></object>
+        </objectRef>
+      </velocity>
+      
+      <standsStill object="V3" duration="60"/>
+      
+      <acceleration>
+        <objectRef reference="relative">
+          <object object="V1" refObject="V2" value="50" condition="decceed"/>
+        </objectRef>
+      </acceleration>
+      
+      <stoppingDistance freespace="1">
+        <object></object>
+        <position></position>
+      </stoppingDistance>
+      
+      <timeToCollision freespace="1">
+        <object></object>
+        <position></position>
+      </timeToCollision>
+      
+      <timeHeadway></timeHeadway>
+      
+      <referenceHanding maneuverId="123" eventId="321" conditionRef="starts"/>
+      
+      <offroad object="wa" duration="100"/>
+
+        <collision object="aaa">
+          <partner object="bbb" objectType="vehicle"/>
+        </collision>
+    
+      <numericCondition name="May" value="20" rule="equal"/>
+      
+      <command name="joe"/>
+      <userDefined uid="ccc">
+        <parameter name="ff" value="2" type="w"/>
+        <parameter name="gg" value="3" type="e"/>
+      </userDefined>
+    
+	  
+    </condition>
+  </test>
   <roadNetwork>
     <OpenDRIVE URL="test.xodr"/>
     <SceneGraph URL="test.ive"/>

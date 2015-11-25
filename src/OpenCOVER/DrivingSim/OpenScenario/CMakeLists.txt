@@ -8,6 +8,7 @@ USING(XERCESC)
 SET(HEADERS
    OpenScenarioBase.h
    oscAbsolute.h
+   oscAcceleration.h
    oscAction.h
    oscArrayMember.h
    oscAutonomous.h
@@ -18,13 +19,16 @@ SET(HEADERS
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
+   oscCollision.h
    oscColor.h
+   oscCommand.h
    oscCondition.h
    oscCoord.h
    oscDate.h
    oscDimension.h
    oscDimensions.h
    oscDirectory.h
+   oscDistance.h
    oscDriverCatalog.h
    oscDriver.h
    oscEntityCatalog.h
@@ -53,14 +57,19 @@ SET(HEADERS
    oscMiscObject.h
    oscNamedObject.h
    oscNameId.h
+   oscNumericCondition.h
+   oscObject.h
    oscObjectBase.h
+   oscObjectRef.h
    oscObjectVariable.h
    oscObserver.h
    oscObserverCatalog.h
+   oscOffroad.h
    oscOrientation.h
    oscParameter.h
    oscParameterList.h
    oscParameters.h
+   oscPartner.h
    oscPedestrianCatalog.h
    oscPedestrian.h
    oscPosition.h
@@ -70,8 +79,10 @@ SET(HEADERS
    oscPositionWorld.h
    oscPositionXyz.h
    oscPrecipitation.h
+   oscReachPosition.h
    oscRefActor.h
    oscRelativeChoice.h
+   oscReferenceHanding.h
    oscRelative.h
    oscRelativePositionLane.h
    oscRelativePositionRoad.h
@@ -81,31 +92,46 @@ SET(HEADERS
    oscRoadCoord.h
    oscRoadNetwork.h
    oscRoutingCatalog.h
+   oscSimulationTime.h
    oscSpeedDynamics.h
    oscSpeed.h
+   oscStandsStill.h
    oscStartConditionGroup.h
    oscStartCondition.h
+   oscStoppingDistance.h
+   oscTest.h
    oscTime.h
+   oscTimeHeadway.h
    oscTimeOfDay.h
+   oscTimeToCollision.h
    oscUserData.h
+   oscUserDefined.h
    oscVariables.h
    oscVehicleAxle.h
    oscVehicleCatalog.h
+   oscVelocity.h
    oscWeather.h
 )
 
 SET(SOURCES
    OpenScenarioBase.cpp
    oscArrayMember.cpp
+   oscBody.cpp
    oscEvent.cpp
    oscFactories.cpp
    oscHeader.cpp
    oscMember.cpp
    oscMemberValue.cpp
    oscNamedObject.cpp
+   oscNumericCondition.cpp
+   oscObject.cpp
    oscObjectBase.cpp
+   oscObjectRef.cpp
+   oscPartner.cpp
    oscPedestrian.cpp
    oscPrecipitation.cpp
+   oscReachPosition.cpp
+   oscReferenceHanding.cpp
    oscRoadCondition.cpp
    oscVariables.cpp
    oscWeather.cpp
