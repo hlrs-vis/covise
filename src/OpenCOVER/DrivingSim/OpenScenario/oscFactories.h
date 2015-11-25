@@ -10,8 +10,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscFactory.h>
 #include <oscMemberValue.h>
 namespace OpenScenario {
-    
-    class oscObjectBase;
+
+class oscObjectBase;
 
 class OPENSCENARIOEXPORT oscFactories
 {
@@ -20,7 +20,7 @@ class OPENSCENARIOEXPORT oscFactories
     static oscFactories* inst;
 public:
     static oscFactories *instance(){if(inst == NULL) inst = new oscFactories(); return inst;};
-    
+
     oscFactory<oscObjectBase,std::string> *objectFactory;
     oscFactory<oscMemberValue,oscMemberValue::MemberTypes> *valueFactory;
 

@@ -19,9 +19,7 @@ XERCES_CPP_NAMESPACE_END
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
 class oscObjectBase;
-
 
 /// \class This class represents a generic OpenScenario Member variable
 class OPENSCENARIOEXPORT oscMember

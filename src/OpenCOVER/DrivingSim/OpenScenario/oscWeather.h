@@ -16,9 +16,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-class oscWeather;
-
 class OPENSCENARIOEXPORT cloudStateType: public oscEnumType
 {
 public:
