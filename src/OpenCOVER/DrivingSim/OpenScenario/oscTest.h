@@ -12,6 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscDriver.h>
 #include <oscCondition.h>
 #include <oscPosition.h>
+#include <oscEntity.h>
 
 namespace OpenScenario {
 
@@ -25,11 +26,12 @@ public:
         OSC_OBJECT_ADD_MEMBER(driver, "oscDriver");
 		OSC_OBJECT_ADD_MEMBER(condition, "oscCondition");
 		OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
+		OSC_OBJECT_ADD_MEMBER(entity, "oscEntity");
     };
    oscDriverMember driver;
    oscConditionMember condition;
    oscPositionMember position;
-
+   oscEntityMember entity;
 };
 
 typedef oscObjectVariable<oscTest *> oscTestMember;

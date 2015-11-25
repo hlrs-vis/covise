@@ -23,6 +23,7 @@ SET(HEADERS
    oscColor.h
    oscCommand.h
    oscCondition.h
+   oscControllerChoice.h
    oscCoord.h
    oscDate.h
    oscDimension.h
@@ -31,6 +32,8 @@ SET(HEADERS
    oscDistance.h
    oscDriverCatalog.h
    oscDriver.h
+   oscDriverRef.h
+   oscEntity.h
    oscEntityCatalog.h
    oscEnvironmentCatalog.h
    oscEnvironment.h
@@ -55,15 +58,18 @@ SET(HEADERS
    oscMemberValue.h
    oscMiscObjectCatalog.h
    oscMiscObject.h
+   oscMiscObjectRef.h
    oscNamedObject.h
    oscNameId.h
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
+   oscObjectChoice.h
    oscObjectRef.h
    oscObjectVariable.h
    oscObserver.h
    oscObserverCatalog.h
+   oscObserverId.h
    oscOffroad.h
    oscOrientation.h
    oscParameter.h
@@ -71,6 +77,8 @@ SET(HEADERS
    oscParameters.h
    oscPartner.h
    oscPedestrianCatalog.h
+   oscPedestrianController.h
+   oscPedestrianRef.h
    oscPedestrian.h
    oscPosition.h
    oscPositionLane.h
@@ -109,6 +117,7 @@ SET(HEADERS
    oscVariables.h
    oscVehicleAxle.h
    oscVehicleCatalog.h
+   oscVehicleRef.h
    oscVelocity.h
    oscWeather.h
 )
@@ -129,6 +138,7 @@ SET(SOURCES
    oscObjectRef.cpp
    oscPartner.cpp
    oscPedestrian.cpp
+   oscPedestrianController.cpp
    oscPrecipitation.cpp
    oscReachPosition.cpp
    oscReferenceHanding.cpp

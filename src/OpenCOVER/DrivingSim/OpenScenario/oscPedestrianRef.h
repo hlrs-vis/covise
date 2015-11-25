@@ -4,8 +4,8 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_MISC_OBJECT_REF_H
-#define OSC_MISC_OBJECT_REF_H
+#ifndef OSC_PEDESTRIAN_REF_H
+#define OSC_PEDESTRIAN_REF_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
@@ -16,18 +16,18 @@ namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscMiscObjectRef: public oscObjectBase
+class OPENSCENARIOEXPORT oscPedestrianRef: public oscObjectBase
 {
 public:
-    oscMiscObjectRef()
+    oscPedestrianRef()
     {
         OSC_OBJECT_ADD_MEMBER(name,"oscNameId");
     };
     oscNameIdMember name;
 };
 
-typedef oscObjectVariable<oscMiscObjectRef *> oscMiscObjectRefMember;
+typedef oscObjectVariable<oscPedestrianRef *> oscPedestrianRefMember;
 
 }
 
-#endif //OSC_MISC_OBJECT_REF_H
+#endif //OSC_PEDESTRIAN_REF_H
