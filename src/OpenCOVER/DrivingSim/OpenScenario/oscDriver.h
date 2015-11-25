@@ -17,8 +17,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-
-
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscDriver: public oscObjectBase
 {
