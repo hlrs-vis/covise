@@ -44,17 +44,14 @@ public:
 		OSC_OBJECT_ADD_MEMBER(timeOfDay, "oscTimeOfDay");
 		OSC_OBJECT_ADD_MEMBER(reachPosition, "oscReachPosition");
 		OSC_OBJECT_ADD_MEMBER(distance, "oscDistance");
-
 		OSC_OBJECT_ADD_MEMBER(velocity, "oscVelocity");
 		OSC_OBJECT_ADD_MEMBER(standsStill, "oscStandsStill");
 		OSC_OBJECT_ADD_MEMBER(acceleration, "oscAcceleration");
 		OSC_OBJECT_ADD_MEMBER(stoppingDistance, "oscStoppingDistance");
-
 		OSC_OBJECT_ADD_MEMBER(timeToCollision, "oscTimeToCollision");
 		OSC_OBJECT_ADD_MEMBER(timeHeadway, "oscTimeHeadway");
 		OSC_OBJECT_ADD_MEMBER(referenceHanding, "oscReferenceHanding");
 		OSC_OBJECT_ADD_MEMBER(offroad, "oscOffroad");
-
 		OSC_OBJECT_ADD_MEMBER(collision, "oscCollision");
 		OSC_OBJECT_ADD_MEMBER(numericCondition, "oscNumericCondition");
 		OSC_OBJECT_ADD_MEMBER(command, "oscCommand");
@@ -65,17 +62,14 @@ public:
 	oscTimeOfDayMember timeOfDay;
 	oscReachPositionMember reachPosition;
 	oscDistanceMember distance;
-
 	oscVelocityMember velocity;
 	oscStandsStillMember standsStill;
 	oscAccelerationMember acceleration;
 	oscStoppingDistanceMember stoppingDistance;
-
 	oscTimeToCollisionMember timeToCollision;
 	oscTimeHeadwayMember timeHeadway;
 	oscReferenceHandingMember referenceHanding;
 	oscOffroadMember offroad;
-
 	oscCollisionMember collision;
 	oscNumericConditionMember numericCondition;
 	oscCommandMember command;
