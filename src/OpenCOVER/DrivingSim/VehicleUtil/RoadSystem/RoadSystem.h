@@ -39,6 +39,7 @@ struct RoadSystemHeader
         , west(0.0)
         , xoffset(0.0)
         , yoffset(0.0)
+        , zoffset(0.0)
     {
     }
 
@@ -53,6 +54,7 @@ struct RoadSystemHeader
     double version;
     double xoffset;
     double yoffset;
+    double zoffset;
 };
 
 //Typ für Rasterung

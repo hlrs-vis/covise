@@ -8,6 +8,7 @@ USING(XERCESC)
 SET(HEADERS
    OpenScenarioBase.h
    oscAbsolute.h
+   oscAcceleration.h
    oscAction.h
    oscArrayMember.h
    oscAutonomous.h
@@ -18,15 +19,21 @@ SET(HEADERS
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
+   oscCollision.h
    oscColor.h
+   oscCommand.h
    oscCondition.h
+   oscControllerChoice.h
    oscCoord.h
    oscDate.h
    oscDimension.h
    oscDimensions.h
    oscDirectory.h
+   oscDistance.h
    oscDriverCatalog.h
    oscDriver.h
+   oscDriverRef.h
+   oscEntity.h
    oscEntityCatalog.h
    oscEnvironmentCatalog.h
    oscEnvironment.h
@@ -51,17 +58,27 @@ SET(HEADERS
    oscMemberValue.h
    oscMiscObjectCatalog.h
    oscMiscObject.h
+   oscMiscObjectRef.h
    oscNamedObject.h
    oscNameId.h
+   oscNumericCondition.h
+   oscObject.h
    oscObjectBase.h
+   oscObjectChoice.h
+   oscObjectRef.h
    oscObjectVariable.h
    oscObserver.h
    oscObserverCatalog.h
+   oscObserverId.h
+   oscOffroad.h
    oscOrientation.h
    oscParameter.h
    oscParameterList.h
    oscParameters.h
+   oscPartner.h
    oscPedestrianCatalog.h
+   oscPedestrianController.h
+   oscPedestrianRef.h
    oscPedestrian.h
    oscPosition.h
    oscPositionLane.h
@@ -70,8 +87,10 @@ SET(HEADERS
    oscPositionWorld.h
    oscPositionXyz.h
    oscPrecipitation.h
+   oscReachPosition.h
    oscRefActor.h
    oscRelativeChoice.h
+   oscReferenceHanding.h
    oscRelative.h
    oscRelativePositionLane.h
    oscRelativePositionRoad.h
@@ -81,16 +100,25 @@ SET(HEADERS
    oscRoadCoord.h
    oscRoadNetwork.h
    oscRoutingCatalog.h
+   oscSimulationTime.h
    oscSpeedDynamics.h
    oscSpeed.h
+   oscStandsStill.h
    oscStartConditionGroup.h
    oscStartCondition.h
+   oscStoppingDistance.h
+   oscTest.h
    oscTime.h
+   oscTimeHeadway.h
    oscTimeOfDay.h
+   oscTimeToCollision.h
    oscUserData.h
+   oscUserDefined.h
    oscVariables.h
    oscVehicleAxle.h
    oscVehicleCatalog.h
+   oscVehicleRef.h
+   oscVelocity.h
    oscWeather.h
 )
 
@@ -104,9 +132,16 @@ SET(SOURCES
    oscMember.cpp
    oscMemberValue.cpp
    oscNamedObject.cpp
+   oscNumericCondition.cpp
+   oscObject.cpp
    oscObjectBase.cpp
+   oscObjectRef.cpp
+   oscPartner.cpp
    oscPedestrian.cpp
+   oscPedestrianController.cpp
    oscPrecipitation.cpp
+   oscReachPosition.cpp
+   oscReferenceHanding.cpp
    oscRoadCondition.cpp
    oscVariables.cpp
    oscWeather.cpp

@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscRoadNetwork.h>
 #include <oscHeader.h>
 #include <oscEnvironment.h>
-#include <oscDriver.h>
+#include <oscTest.h>
 #include <string>
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
@@ -39,10 +39,10 @@ public:
     oscCatalogsMember catalogs;
     oscRoadNetworkMember roadNetwork;
     oscEnvironmentMember environment; // temp only, should be a reference
-	oscDriverMember driver;
     oscHeaderMember entities;
     oscHeaderMember storyboard;
     oscHeaderMember scenarioEnd;
+	oscTestMember test;
 
 	
 

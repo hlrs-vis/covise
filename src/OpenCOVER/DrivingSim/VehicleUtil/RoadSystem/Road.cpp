@@ -1157,8 +1157,21 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
             minPointer = i;
          }*/
             Vector3D t = (supportVectorVector[i + 1] - supportVectorVector[i]);
-            double gamma = t.dot(pos - supportVectorVector[i]) / t.dot(t);
-            Vector3D n = pos - supportVectorVector[i] - t * gamma;
+            double gamma;
+	    Vector3D n(0,0,0);
+	    if(pos[2]==0) // ignore height
+	    {
+	    Vector3D tmp = supportVectorVector[i];
+	    tmp[2]=0;
+	    gamma = t.dot(pos - tmp) / t.dot(t);
+            n = pos - tmp - t * gamma;
+	    }
+	    else
+	    {
+	    gamma = t.dot(pos - supportVectorVector[i]) / t.dot(t);
+            n = pos - supportVectorVector[i] - t * gamma;
+	    }
+	    
             double distance = n.dot(n);
             if (distance < minDistance)
             {
@@ -1190,6 +1203,10 @@ Vector2D Road::searchPositionNoBorder(const Vector3D &pos, double sinit)
     {
         sOld = s;
         rc = pos - getCenterLinePoint(s);
+	if(pos[2]==0)
+	{
+        rc[2]=0;
+	}
         t = getTangentVector(s);
         Vector3D n = getNormalVector(s);
         //Flo old:
@@ -1346,6 +1363,14 @@ osg::Geode *Road::createGuardRailGeode(std::map<double, LaneSection *>::iterator
         if (s >= (lsEnd - h))
         {
             s = (lsEnd - h);
+	    if(s < lsStart )
+	    {
+	     s = lsStart;
+	    }
+	    if(s < 0)
+	    {
+	     s = 0;
+	    }
             lastRound = true;
         }
 
@@ -1635,8 +1660,14 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
                 {
                     //std::cout << " Last round: s = " << s << ", lsEnd: " << lsEnd << std::endl;
                     s = lsEnd - 0.001;
-                    if (s < 0)
-                        s = 0;
+	    if(s < lsStart )
+	    {
+	     s = lsStart;
+	    }
+	    if(s < 0)
+	    {
+	     s = 0;
+	    }
                     lastRound = true;
                 }
                 double width;
@@ -1850,6 +1881,14 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
                         s = lsEnd - 0.001;
                         lastRound = true;
                     }
+		    if(s < lsStart )
+	    {
+	     s = lsStart;
+	    }
+	    if(s < 0)
+	    {
+	     s = 0;
+	    }
 
                     if ((0.01 * h / (s - lastTess) < fabs(getCurvature(s))) || (0.01 * h / (s - lastTess) < fabs(getChordLineElevationCurvature(s))) || lastRound || firstRound)
                     {
