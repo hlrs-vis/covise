@@ -55,7 +55,7 @@ VRCWProjectionHw::~VRCWProjectionHw()
 int VRCWProjectionHw::processGuiInput(const int& index,
       const QList<VRCWBase*>& vrcwList)
 {
-   const int ERROR_1 = 21;
+   const int ERROR_1 = 201;
    const int OK = 2;
 
    int success = DEF_ERROR;
@@ -66,7 +66,7 @@ int VRCWProjectionHw::processGuiInput(const int& index,
       QString message = tr("You selected a CAVE with only the "
             "front wall to configure.\n"
             "But this is the same as a Powerwall.\n\n"
-            "Please choose more walls or choose the Powerwall.");
+            "Please choose more walls or select the Powerwall.");
       QMessageBox::warning(this, tr("Configuration"), message,
             QMessageBox::Ok);
 

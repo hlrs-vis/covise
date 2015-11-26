@@ -261,10 +261,15 @@ int VRCWProjectionDimCave::processGuiInput(const int& index,
          success = ERROR_01;
          break;
       }
+      case DEF_WARN:
+      {
+         //do nothing
+         break;
+      }
       default:
       {
-         qDebug() << "No warning appeared or warningCode can't be evaluated";
-         break;
+          qDebug() << "WarningCode can't be evaluated";
+          break;
       }
    }
 
@@ -1264,7 +1269,7 @@ QStringList VRCWProjectionDimCave::createProjection()
       }
       default:
       {
-         qDebug() << "Projection Modus konnte nicht identifiziert werden!!!";
+         qDebug() << "Projection Mode can't be identified!!!";
          break;
       }
    }

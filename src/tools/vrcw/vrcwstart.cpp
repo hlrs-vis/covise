@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QUuid>
 #include <cstdlib>
 #include <cstdio>
 
@@ -211,10 +212,15 @@ int VRCWStart::processGuiInput(const QList<VRCWBase*>& vrcwList)
          success = ERROR_05;
          break;
       }
-      default:
+      case DEF_WARN:
       {
          //do nothing
          break;
+      }
+      default:
+      {
+          qDebug() << "WarningCode can't be evaluated";
+          break;
       }
    }
 
@@ -459,25 +465,27 @@ QString VRCWStart::getEnvVariable(const QString& key) const
 //
 bool VRCWStart::testWritePerm(const QString& dir)
 {
-   //fopen, fclose, remove aus <stdio.h>
+    //fopen, fclose, remove aus <stdio.h>
 
-   bool writePerm;
-   std::string tmpfile = (dir + "/tmp.vrcw").toStdString();
-   const char* fname = tmpfile.c_str();
+    bool writePerm = false;
 
-   FILE* tmpFile = fopen(fname, "w");
-   if (tmpFile == NULL)
-   {
-      writePerm = false;
-   }
-   else
-   {
+    //a more random file name
+    QString uuid =
+           QUuid::createUuid().toString().replace("{", "").replace("}", "");
+    QString tmpfileName = "vrcw_" + uuid + ".tmp";
+    std::string tmpfile =
+           QDir::toNativeSeparators(dir + "/" + tmpfileName).toStdString();
+    const char* fname = tmpfile.c_str();
+
+    FILE* tmpFile = fopen(fname, "w");
+    if (tmpFile != NULL)
+    {
       writePerm = true;
       fclose(tmpFile);
       remove(fname);
-   }
+    }
 
-   return writePerm;
+    return writePerm;
 }
 
 

@@ -35,7 +35,7 @@
     <CADCv3D value="off" />
     <VRAnim value="off" />
     <Variant value="off"/>
-    <CuttingSurface value="on"/> 
+    <CuttingSurface value="off"/> 
     <cuCuttingSurface value="off"/> 
     <cuIsoSurface value="off"/> 
     <cuTracer value="off"/> 

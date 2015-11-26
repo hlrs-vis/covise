@@ -71,6 +71,13 @@ public:
     //
     virtual void updateObserver();
 
+	//################//
+	// SIGNALS        //
+	//################//
+
+signals:
+    void toolAction(ToolAction *);  // send action to copy the selected item //
+
     //################//
     // SLOTS          //
     //################//
@@ -92,6 +99,8 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -103,9 +112,13 @@ protected:
     //################//
 
 private:
+	RoadSystemItem * roadSystemItem_;
     void init();
 
     Signal *signal_;
+	RSystemElementRoad *road_;
+	RSystemElementRoad *closestRoad_;
+
     QPointF pos_;
     double size_;
     double halfsize_;
@@ -116,6 +129,9 @@ private:
     double scale_;
 
     QPointF pressPos_;
+	QPointF lastPos_;
+	bool doPan_;
+	bool copyPan_;
 
     SignalTextItem *signalTextItem_;
 

@@ -13,24 +13,21 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-	class OpenScenarioBase;
+/// \class This class represents a generic OpenScenario Object
+class OPENSCENARIOEXPORT oscUserData : public oscObjectBase
+{
+public:
+    oscUserData()
+    {
+        OSC_ADD_MEMBER(code);
+        OSC_ADD_MEMBER(value);
+    };
+    oscString code;
+    oscString value;
+};
 
-	/// \class This class represents a generic OpenScenario Object
-	class OPENSCENARIOEXPORT oscUserData : public oscObjectBase
-	{
-	public:
-		oscUserData()
-		{
-			OSC_ADD_MEMBER(code);
-			OSC_ADD_MEMBER(value);
-		};
-		oscString code;
-		oscString value;
-	};
-
-	typedef oscObjectVariable<oscUserData *> oscUserDataMember;
+typedef oscObjectVariable<oscUserData *> oscUserDataMember;
 
 }
 
 #endif //OSC_USERDATA_H
-

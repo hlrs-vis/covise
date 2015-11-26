@@ -13,9 +13,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-class oscRoadCondition;
-
 class OPENSCENARIOEXPORT effectType: public oscEnumType
 {
 public:
@@ -29,7 +26,6 @@ private:
 class OPENSCENARIOEXPORT oscRoadCondition: public oscObjectBase
 {
 public:
-	oscDouble frictionScale;
 	oscDouble intensity;
     enum effect
     {
@@ -43,7 +39,6 @@ public:
 	
     oscRoadCondition()
     {
-        OSC_ADD_MEMBER(frictionScale);
 		OSC_ADD_MEMBER(intensity);
 		OSC_ADD_MEMBER(effect);
 		effect.enumType = effectType::instance();

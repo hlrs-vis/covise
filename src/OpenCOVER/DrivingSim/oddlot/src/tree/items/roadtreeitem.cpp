@@ -90,7 +90,7 @@ RoadTreeItem::init()
     // Bridges //
     //
     bridgesItem_ = new QTreeWidgetItem(this);
-    bridgesItem_->setText(0, tr("bridges"));
+    bridgesItem_->setText(0, tr("bridges and tunnels"));
     foreach (Bridge *element, road_->getBridges())
     {
         new BridgeTreeItem(this, element, bridgesItem_);

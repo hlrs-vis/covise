@@ -419,7 +419,7 @@ RemoveObjectCommand::~RemoveObjectCommand()
     }
     else
     {
-        delete object_;
+//        delete object_;
     }
 }
 
@@ -566,7 +566,14 @@ SetObjectPropertiesCommand::redo()
     object_->setProperties(newObjectProps_);
     object_->setRepeatProperties(newObjectRepeat_);
 
-    object_->addObjectChanges(Object::CEL_ParameterChange);
+	if (newObjectProps_.type != oldObjectProps_.type)
+	{
+		object_->addObjectChanges(Object::CEL_TypeChange);
+	}
+	else
+	{
+		object_->addObjectChanges(Object::CEL_ParameterChange);
+	}
 
     setRedone();
 }
@@ -584,7 +591,14 @@ SetObjectPropertiesCommand::undo()
     object_->setProperties(oldObjectProps_);
     object_->setRepeatProperties(oldObjectRepeat_);
 
-    object_->addObjectChanges(Object::CEL_ParameterChange);
+	if (newObjectProps_.type != oldObjectProps_.type)
+	{
+		object_->addObjectChanges(Object::CEL_TypeChange);
+	}
+	else
+	{
+		object_->addObjectChanges(Object::CEL_ParameterChange);
+	}
 
     setUndone();
 }
@@ -609,7 +623,7 @@ AddBridgeCommand::AddBridgeCommand(Bridge *bridge, RSystemElementRoad *road, Dat
     else
     {
         setValid();
-        setText(QObject::tr("AddBridge"));
+        setText(QObject::tr("AddBridge/AddTunnel"));
     }
 }
 
@@ -689,7 +703,7 @@ RemoveBridgeCommand::~RemoveBridgeCommand()
     }
     else
     {
-        delete bridge_;
+ //       delete bridge_;
     }
 }
 
@@ -797,3 +811,79 @@ SetBridgePropertiesCommand::undo()
 
     setUndone();
 }
+
+//#########################//
+// SetTunnelPropertiesCommand //
+//#########################//
+SetTunnelPropertiesCommand::SetTunnelPropertiesCommand(Tunnel *tunnel, const QString &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent)
+	: SetBridgePropertiesCommand(tunnel, id, file, name, type, length, parent)
+    , tunnel_(tunnel)
+	, newLighting_(lighting)
+	, newDaylight_(daylight)
+{
+    // Check for validity //
+    //
+    if (!tunnel)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("SetTunnelPropertiesCommand: Internal error! No tunnel specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("SetProperties"));
+    }
+
+    oldLighting_ = tunnel_->getLighting();
+	oldDaylight_ = tunnel_->getDaylight();
+}
+
+/*! \brief .
+*
+*/
+SetTunnelPropertiesCommand::~SetTunnelPropertiesCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+    }
+    else
+    {
+        // nothing to be done (tunnel is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+SetTunnelPropertiesCommand::redo()
+{
+	SetBridgePropertiesCommand::redo();	// pass to baseclass /
+
+	tunnel_->setLighting(newLighting_);
+	tunnel_->setDaylight(newDaylight_);
+
+    tunnel_->addTunnelChanges(Tunnel::CEL_ParameterChange);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+SetTunnelPropertiesCommand::undo()
+{
+	SetBridgePropertiesCommand::undo();
+
+    tunnel_->setLighting(oldLighting_);
+	tunnel_->setDaylight(oldDaylight_);
+
+    tunnel_->addTunnelChanges(Tunnel::CEL_ParameterChange);
+
+    setUndone();
+}
+

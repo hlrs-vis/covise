@@ -21,25 +21,25 @@ VRCWBase::~VRCWBase()
  *****/
 int VRCWBase::processGuiInput(const QList<VRCWBase*>& vrcwList)
 {
-   if (vrcwList.size() > 0)
-   {
-      return 999;
-   }
-   else
-   {
-      return 998;
-   }
+    if (vrcwList.size() > 0)
+    {
+        return 999999;
+    }
+    else
+    {
+        return 999998;
+    }
 }
 
 int VRCWBase::processGuiInput(const int& index,
-      const QList<VRCWBase*>& vrcwList)
+        const QList<VRCWBase*>& vrcwList)
 {
-   if (vrcwList.size() >= index)
-   {
-      return 9999 + index;
-   }
-   else
-   {
-      return 9998;
-   }
+    if (vrcwList.size() >= index)
+    {
+        return 9999999 + index;
+    }
+    else
+    {
+        return 9999998;
+    }
 }

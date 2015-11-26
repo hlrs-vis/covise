@@ -88,8 +88,8 @@ public:
     // Signals  and Objects prototypes //
     //
     bool parseSignals(QIODevice *device);
-    bool parseSignalPrototypes(const QDomElement &element, const QString &countryName, const QString &categoryName);
-    bool parseObjectPrototypes(const QDomElement &element, const QString &countryName);
+    bool parseSignalPrototypes(const QDomElement &element, const QString &categoryName, const QString &countryName);
+    bool parseObjectPrototypes(const QDomElement &element, const QString &categoryName, const QString &countryName);
 
     // Postprocessing //
     //

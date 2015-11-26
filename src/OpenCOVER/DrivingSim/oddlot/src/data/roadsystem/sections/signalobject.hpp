@@ -73,7 +73,7 @@ public:
     //################//
 
 public:
-    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int validFromLane, int validToLane, double probability = 0.0, double resetTime = 0);
+    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, bool pole, int size, int validFromLane, int validToLane, double probability = 0.75, double resetTime = 20.0);
     explicit Signal(const QString &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData);
     virtual ~Signal()
     { /* does nothing */
@@ -229,7 +229,7 @@ public:
     {
         return signalProps_;
     }
-    void setProperties(const SignalProperties signalProps)
+    void setProperties(const SignalProperties & signalProps)
     {
         signalProps_ = signalProps;
     }
@@ -247,7 +247,7 @@ public:
     {
         return validity_.fromLane;
     }
-    void setValidFromLane(int validFromLane)
+    void setValidFromLane(const int validFromLane)
     {
         validity_.fromLane = validFromLane;
     }
@@ -256,7 +256,7 @@ public:
     {
         return validity_.toLane;
     }
-    void setValidToLane(int validToLane)
+    void setValidToLane(const int validToLane)
     {
         validity_.toLane = validToLane;
     }
@@ -265,7 +265,7 @@ public:
     {
         return validity_;
     }
-    void setValidity(Validity validLanes)
+    void setValidity(Validity & validLanes)
     {
         validity_ = validLanes;
     }
@@ -274,7 +274,7 @@ public:
     {
         return signalUserData_.crossProb;
     }
-    void setCrossingProbability(double probability)
+    void setCrossingProbability(const double probability)
     {
         signalUserData_.crossProb = probability;
     }
@@ -283,7 +283,7 @@ public:
     {
         return signalUserData_.resetTime;
     }
-    void setResetTime(double resetTime)
+    void setResetTime(const double resetTime)
     {
         signalUserData_.resetTime = resetTime;
     }
@@ -292,7 +292,7 @@ public:
     {
         return signalUserData_;
     }
-    void setSignalUserData(SignalUserData userData)
+    void setSignalUserData(SignalUserData & userData)
     {
         signalUserData_ = userData;
     }

@@ -56,6 +56,8 @@ BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement
     //
     updateProperties();
 
+	connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->nameBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->nameBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
     connect(ui->typeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));

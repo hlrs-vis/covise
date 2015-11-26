@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
+    <width>763</width>
     <height>220</height>
    </rect>
   </property>
@@ -14,52 +14,25 @@
    <string>VRCWProjectionResSize</string>
   </property>
   <layout class="QVBoxLayout" name="VRCWProjectionResSizeClassVLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>0</number>
    </property>
    <item alignment="Qt::AlignLeft|Qt::AlignTop">
     <widget class="QWidget" name="mainWidget" native="true">
      <layout class="QGridLayout" name="mainWidgetGLayout">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
       <property name="horizontalSpacing">
        <number>20</number>
       </property>
       <property name="verticalSpacing">
        <number>0</number>
       </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
        <widget class="QWidget" name="caveDimResSizeWidget" native="true">
         <layout class="QGridLayout" name="caveDimResSizeWidgetGLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>0</number>
          </property>
          <property name="spacing">
@@ -68,16 +41,7 @@
          <item row="4" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
           <widget class="QWidget" name="caveDimWidget" native="true">
            <layout class="QHBoxLayout" name="caveDimWidgetHLayout">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
@@ -169,31 +133,13 @@
          <item row="1" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
           <widget class="QWidget" name="resCaveWallsSameResWidget" native="true">
            <layout class="QVBoxLayout" name="resCaveWallsSameResWidgetVLayout">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item alignment="Qt::AlignLeft|Qt::AlignTop">
              <widget class="QWidget" name="aspectRatioWidget" native="true">
               <layout class="QHBoxLayout" name="aspectRatioWidgetHLayout">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
+               <property name="margin">
                 <number>0</number>
                </property>
                <item>
@@ -266,16 +212,7 @@
                <property name="spacing">
                 <number>30</number>
                </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
+               <property name="margin">
                 <number>0</number>
                </property>
                <item alignment="Qt::AlignLeft">
@@ -293,16 +230,7 @@
                <item alignment="Qt::AlignLeft|Qt::AlignTop">
                 <widget class="QWidget" name="userResWidget" native="true">
                  <layout class="QHBoxLayout" name="userResWidgetHLayout">
-                  <property name="leftMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
+                  <property name="margin">
                    <number>0</number>
                   </property>
                   <item>
@@ -402,31 +330,13 @@
          <item row="3" column="2" alignment="Qt::AlignLeft|Qt::AlignTop">
           <widget class="QWidget" name="screenSizeCalcWidget" native="true">
            <layout class="QVBoxLayout" name="screenSizeCalcWidgetVLayout">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item alignment="Qt::AlignLeft|Qt::AlignTop">
              <widget class="QWidget" name="screenSizeWidget" native="true">
               <layout class="QHBoxLayout" name="screenSizeWidgetHLayout">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
+               <property name="margin">
                 <number>0</number>
                </property>
                <item>
@@ -530,7 +440,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>cave-edges.png</pixmap>
+         <pixmap resource="vrcwimages.qrc">:/images/cave-edges.png</pixmap>
         </property>
        </widget>
       </item>
@@ -553,7 +463,9 @@
   <tabstop>caveDimDepthSpinBox</tabstop>
   <tabstop>caveDimHeightSpinBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="vrcwimages.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>userResWidthSpinBox</sender>

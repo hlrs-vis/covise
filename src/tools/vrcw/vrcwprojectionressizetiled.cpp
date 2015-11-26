@@ -399,18 +399,6 @@ void VRCWProjectionResSizeTiled::calcDisabledDims() const
    QVector<int> frame = getGuiFrame();
 
 
-   qDebug() << "row = " << rowCol[0];
-   qDebug() << "col = " << rowCol[1];
-   qDebug() << "wallSize[0] = " << wallSize[0];
-   qDebug() << "wallSize[1] = " << wallSize[1];
-   qDebug() << "screenSize[0] = " << screenSize[0];
-   qDebug() << "screenSize[1] = " << screenSize[1];
-   qDebug() << "overlap[0] = " << overlap[0];
-   qDebug() << "overlap[1] = " << overlap[1];
-   qDebug() << "frame[0] = " << frame[0];
-   qDebug() << "frame[1] = " << frame[1];
-
-
    if (ui.displayRadioButton->isChecked())
    {
       if (ui.wallSizeRadioButton->isChecked())
@@ -418,18 +406,12 @@ void VRCWProjectionResSizeTiled::calcDisabledDims() const
          //left/right frame
          int lr = (wallSize[0] / rowCol[1]  - screenSize[0]) / 2;
 
-         qDebug() << "lr = " << lr;
-
          ui.frameLRSpinBox->setValue(lr);
 
          //bottom/top frame
          int bt = (wallSize[1] / rowCol[0] - screenSize[1]) / 2;
 
-         qDebug() << "bt = " << bt;
-
          ui.frameBTSpinBox->setValue(bt);
-
-         qDebug() << "";
       }
       else
       {
@@ -447,18 +429,13 @@ void VRCWProjectionResSizeTiled::calcDisabledDims() const
                //wallSize width
                int ww = (frame[0] * 2 + screenSize[0]) * rowCol[1];
 
-               qDebug() << "wallSize width = " << ww;
-
                ui.wallSizeWidthSpinBox->setValue(ww);
 
                //wallSize height
                int wh = (frame[1] * 2 + screenSize[1]) * rowCol[0];
 
-               qDebug() << "wallSize height = " << wh;
-
                ui.wallSizeHeightSpinBox->setValue(wh);
 
-               qDebug() << "";
                break;
             }
             case _3D_TV://tiled is not available for _3D_TV
@@ -485,8 +462,6 @@ void VRCWProjectionResSizeTiled::calcDisabledDims() const
             }
          }
 
-         qDebug() << "horizontal overlap = " << ho;
-
          ui.overlapHorizontalSpinBox->setValue(ho);
 
          //vertical overlap
@@ -501,11 +476,7 @@ void VRCWProjectionResSizeTiled::calcDisabledDims() const
             }
          }
 
-         qDebug() << "vertical overlap = " << vo;
-
          ui.overlapVerticalSpinBox->setValue(vo);
-
-         qDebug() << "";
       }
       else
       {
@@ -524,19 +495,14 @@ void VRCWProjectionResSizeTiled::calcDisabledDims() const
                int ww = screenSize[0] * rowCol[1] - overlap[0] *
                      (rowCol[1] - 1);
 
-               qDebug() << "wallSize width = " << ww;
-
                ui.wallSizeWidthSpinBox->setValue(ww);
 
                //wallSize height
                int wh = screenSize[1] * rowCol[0] - overlap[1] *
                      (rowCol[0] - 1);
 
-               qDebug() << "wallSize height = " << wh;
-
                ui.wallSizeHeightSpinBox->setValue(wh);
 
-               qDebug() << "";
                break;
             }
             case _3D_TV://tiled is not available for _3D_TV

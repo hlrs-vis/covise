@@ -19,9 +19,7 @@ XERCES_CPP_NAMESPACE_END
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
 class oscObjectBase;
-
 
 /// \class This class represents a generic OpenScenario Member variable
 class OPENSCENARIOEXPORT oscMember
@@ -38,7 +36,8 @@ public:
     oscMember(); ///< constructor
     void setName(const char *n){name = n;};
     void setName(std::string &n){name = n;};
-    void setTypeName(std::string tn) {typeName = tn;};
+    void setTypeName(const char *tn) {typeName = tn;};
+    void setTypeName(std::string &tn) {typeName = tn;};
     std::string getTypeName() {return typeName;}; ///< return the typeName of this member
     void registerWith(oscObjectBase* owner); ///< constructor
     

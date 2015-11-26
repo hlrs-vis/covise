@@ -42,6 +42,7 @@ class ToolAction;
 
 class PrototypeManager;
 class SignalManager;
+class SignalTreeWidget;
 class WizardManager;
 class OsmImport;
 
@@ -137,6 +138,12 @@ public:
     //
     void setSignalTree(QWidget *widget);
 
+	SignalTreeWidget * getSignalTree()
+	{
+		return signalTree_;
+	}
+
+	void showSignalsDock(bool visible);
 
     // ProjectSettings //
     //
@@ -277,6 +284,7 @@ private:
 
 	QDockWidget *signalsDock_;
     QWidget *emptySignalsWidget_;
+	SignalTreeWidget *signalTree_;
 
     QDockWidget *settingsDock_;
     QWidget *emptySettingsWidget_;

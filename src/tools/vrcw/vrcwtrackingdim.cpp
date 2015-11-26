@@ -65,6 +65,15 @@ VRCWTrackingDim::VRCWTrackingDim(QWidget *parent) :
    headSensors.append(headSensor_3);
 
 
+   //Default value headsensor_0 Const head
+   sensTrackSysDim* stsDim = new sensTrackSysDim();
+   stsDim->x = 0;
+   stsDim->y = -2000;
+   stsDim->z = 0;
+   headSensor_0->setSensTrackSysOffset(stsDim);
+   delete stsDim;
+
+
    //Set Variables
    //
    thwvdData = new trackHwValDim();
@@ -180,15 +189,21 @@ void VRCWTrackingDim::setTHwVDData(trackHwValDim*& thwvd)
 
 //set head sensor 0 (ConstHead) Offset with vPos
 //from dimPowerwall or dimCave
+//only if vPos is unequal zero
 //
 void VRCWTrackingDim::setCHeadOffset(QVector<int>& vPos)
 {
-   sensTrackSysDim* stsDim = new sensTrackSysDim();
-   stsDim->x = vPos[0];
-   stsDim->y = vPos[1];
-   stsDim->z = vPos[2];
+    QVector<int> zeroVec(3,0);
 
-   headSensor_0->setSensTrackSysOffset(stsDim);
+    if (vPos != zeroVec)
+    {
+        sensTrackSysDim* stsDim = new sensTrackSysDim();
+        stsDim->x = vPos[0];
+        stsDim->y = vPos[1];
+        stsDim->z = vPos[2];
+
+        headSensor_0->setSensTrackSysOffset(stsDim);
+    }
 }
 
 

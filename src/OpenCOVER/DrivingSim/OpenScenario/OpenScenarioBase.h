@@ -9,9 +9,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
+#include <oscCatalogs.h>
 #include <oscRoadNetwork.h>
 #include <oscHeader.h>
 #include <oscEnvironment.h>
+#include <oscTest.h>
 #include <string>
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
@@ -34,13 +36,15 @@ protected:
     
 public:
     oscHeaderMember header;
-    oscHeaderMember database;
+    oscCatalogsMember catalogs;
     oscRoadNetworkMember roadNetwork;
     oscEnvironmentMember environment; // temp only, should be a reference
     oscHeaderMember entities;
     oscHeaderMember storyboard;
     oscHeaderMember scenarioEnd;
+	oscTestMember test;
 
+	
 
     OpenScenarioBase(); /// constructor, initializes the class and sets a default factory
     ~OpenScenarioBase(); /// destructor, terminate xerces-c

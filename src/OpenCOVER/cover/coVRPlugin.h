@@ -317,6 +317,7 @@ protected:
 private:
     void requestTimestepWrapper(int t);
 
+    bool m_initDone;
     std::string m_name;
     CO_SHLIB_HANDLE handle;
     int m_outstandingTimestep;
