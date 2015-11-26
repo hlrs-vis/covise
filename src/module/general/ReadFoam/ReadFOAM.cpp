@@ -1343,52 +1343,62 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         else
         { //if points change over time
             if (m_case.numblocks > 0)
-            { //Boundary DOES change over time AND is distributed over multiple Processor Directories
-                index_t i = 0;
-                std::vector<coDistributedObject *> boundaryObjects;
-                coDoSet *boundarySet;
-                std::vector<coDistributedObject *> boundarySubSets;
-                for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
-                     it != m_case.timedirs.end();
-                     ++it)
-                {
-                    coDoSet *boundarySubSet;
-                    for (index_t j = 0; j < m_case.numblocks; ++j)
-                    {
-                        std::stringstream sn;
-                        sn << "_timestep_" << i << "_processor_" << j;
-                        std::string boundObjName = boundaryOutPort->getObjName();
-                        boundObjName += sn.str();
-                        coDoPolygons *p;
-                        std::string timedir = it->second;
-                        std::string pointsdir = casedir;
-                        std::stringstream s;
-                        s << "/processor" << j << "/" << timedir << "/polyMesh";
-                        pointsdir += s.str();
-                        std::string meshdir = casedir;
+			{ //Boundary DOES change over time AND is distributed over multiple Processor Directories
+				index_t i = 0;
+				std::vector<coDistributedObject *> boundaryObjects;
+				coDoSet *boundarySet;
+				std::vector<coDistributedObject *> boundarySubSets;
 
-                        if (!m_case.varyingGrid)
-                        { //if grid does not changes over time
-                            std::stringstream sConstant;
-                            sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
-                            meshdir += sConstant.str();
-                            if (i == 0)
-                            { //If first timestep
-                                p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, j); //Read the first timestep from every processor directory.
-                                basebounds[j] = p;
-                            }
-                            else
-                            { //If not first timestep
-                                p = loadPatches(meshdir, pointsdir, boundObjName, selection, j); //copy everything but the coordinates from the first timestep in Processor J
-                            }
-                        }
-                        else
-                        { //If grid also changes
-                            meshdir = pointsdir;
-                            p = loadPatches(meshdir, pointsdir, boundObjName, selection);
-                        }
-                        boundaryObjects.push_back(p);
-                    }
+                std::string meshdir = casedir;
+				for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+						it != m_case.timedirs.end();
+						++it)
+				{
+					coDoSet *boundarySubSet;
+					for (index_t j = 0; j < m_case.numblocks; ++j)
+					{
+						std::stringstream sn;
+						sn << "_timestep_" << i << "_processor_" << j;
+						std::string boundObjName = boundaryOutPort->getObjName();
+						boundObjName += sn.str();
+						coDoPolygons *p;
+						std::string timedir = it->second;
+						std::string pointsdir = casedir;
+						std::stringstream s;
+						s << "/processor" << j << "/" << timedir << "/polyMesh";
+						pointsdir += s.str();
+						if (j == 0)
+						{
+							std::stringstream subdir;
+							subdir << casedir <<  "/processor" << j << "/" << timedir;
+							checkSubDirectory(m_case, subdir.str(), true);
+						}
+
+						if (!m_case.varyingGrid)
+						{ //if grid does not changes over time
+							if (i == 0)
+							{ //If first timestep
+							std::stringstream sConstant;
+							sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
+                            meshdir = casedir;
+							meshdir += sConstant.str();
+								p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, j); //Read the first timestep from every processor directory.
+								basebounds[j] = p;
+							}
+							else
+							{ //If not first timestep
+								p = loadPatches(meshdir, pointsdir, boundObjName, selection, j); //copy everything but the coordinates from the first timestep in Processor J
+							}
+						}
+						else
+						{ //If grid also changes
+							meshdir = pointsdir;
+							p = loadPatches(meshdir, pointsdir, boundObjName, selection,-1,j);
+							basebounds[j] = p;
+						}
+						boundaryObjects.push_back(p);
+					}
+
                     std::string boundarySubSetName = boundaryOutPort->getObjName();
                     std::stringstream ss;
                     ss << "_set_timestep_" << i;
@@ -1632,21 +1642,37 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                 {
                     std::vector<coDistributedObject *> portSubSets;
                     index_t i = 0;
+					std::string meshdir = casedir;
+					std::string sLastMeshDir;
+					sLastMeshDir = m_case.constantdir;
                     for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                          it != m_case.timedirs.end();
                          ++it)
                     {
                         coDoSet *portSubSet;
+						
                         for (index_t j = 0; j < m_case.numblocks; ++j)
-                        {
+                        {	
                             std::string timedir = it->second;
+
                             std::string dir = casedir;
                             std::stringstream s;
                             s << "/processor" << j << "/" << timedir;
                             dir += s.str();
-                            std::string meshdir = casedir;
-                            std::stringstream ss;
-                            ss << "/processor" << j << "/" << m_case.constantdir << "/polyMesh/";
+
+						    if (j == 0)
+							{
+								std::stringstream subdir;
+								subdir << casedir <<  "/processor" << j << "/" << timedir;
+								checkSubDirectory(m_case, subdir.str(), true);
+							}	
+                            if (m_case.varyingGrid)
+							{
+								sLastMeshDir = timedir;
+							}                            
+                            meshdir = casedir;
+							std::stringstream ss;
+                            ss << "/processor" << j << "/" << sLastMeshDir << "/polyMesh/";
                             meshdir += ss.str();
 
                             std::stringstream sn;
