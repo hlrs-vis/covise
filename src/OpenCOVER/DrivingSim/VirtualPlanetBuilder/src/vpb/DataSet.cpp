@@ -2883,7 +2883,8 @@ bool DataSet::generateTasksImplementation(TaskManager* taskManager)
 
     std::string fileCacheName;
     if (System::instance()->getFileCache()) fileCacheName = System::instance()->getFileCache()->getFileName();
-
+std::string xodrName;
+    xodrName = System::instance()->getXodrName();
     bool logging = getNotifyLevel() > ALWAYS;
 
 
@@ -2899,6 +2900,10 @@ bool DataSet::generateTasksImplementation(TaskManager* taskManager)
         {
             app<<" --cache "<<fileCacheName;
         }
+	if (!xodrName.empty())
+        {
+            app << " --xodr " << xodrName;
+         }
 
         if (logging)
         {
@@ -2960,6 +2965,10 @@ bool DataSet::generateTasksImplementation(TaskManager* taskManager)
             {
                 app<<" --cache "<<fileCacheName;
             }
+	if (!xodrName.empty())
+        {
+            app << " --xodr " << xodrName;
+         }
 
             if (logging)
             {
@@ -3016,6 +3025,10 @@ bool DataSet::generateTasksImplementation(TaskManager* taskManager)
             {
                 app<<" --cache "<<fileCacheName;
             }
+	if (!xodrName.empty())
+        {
+            app << " --xodr " << xodrName;
+         }
 
             if (logging)
             {

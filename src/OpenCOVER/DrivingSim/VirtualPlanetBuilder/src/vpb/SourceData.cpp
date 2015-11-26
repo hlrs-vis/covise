@@ -117,10 +117,14 @@ float SourceData::getInterpolatedValue(osg::HeightField *hf, double x, double y)
 
 float SourceData::getInterpolatedValue(GDALRasterBand *band, double x, double y, float originalHeight)
 {
-    double xr = x - 3493000;
-    double yr = y - 5412700;
     if (RoadSystem::Instance())
     {
+        
+    double xr = x - 3493000;
+    double yr = y - 5412700;
+const RoadSystemHeader& header = RoadSystem::Instance()->getHeader();
+        xr = x - header.xoffset;
+	yr = y - header.yoffset;
         Vector2D v_c(std::numeric_limits<float>::signaling_NaN(), std::numeric_limits<float>::signaling_NaN());
         static Road *currentRoad = NULL;
         static double currentLongPos = -1;
@@ -133,7 +137,8 @@ float SourceData::getInterpolatedValue(GDALRasterBand *band, double x, double y,
                 if (currentRoad->isOnRoad(v_c))
                 {
                     RoadPoint point = currentRoad->getRoadPoint(v_c.u(), v_c.v());
-                    return point.z() + 453.8;
+		    fprintf(stderr,"height:  %f \n",point.z() + header.zoffset);
+                    return point.z() + header.zoffset;
                 }
                 else
                 {
@@ -149,7 +154,7 @@ float SourceData::getInterpolatedValue(GDALRasterBand *band, double x, double y,
                     if (currentRoad->isOnRoad(v_c))
                     {
                         RoadPoint point = currentRoad->getRoadPoint(v_c.u(), v_c.v());
-                        return point.z() + 453.8;
+                        return point.z() + header.zoffset;
                     }
                     else
                     {
@@ -171,7 +176,7 @@ float SourceData::getInterpolatedValue(GDALRasterBand *band, double x, double y,
                 if (currentRoad->isOnRoad(v_c))
                 {
                     RoadPoint point = currentRoad->getRoadPoint(v_c.u(), v_c.v());
-                    return point.z() + 453.8;
+                    return point.z() + header.zoffset;
                 }
                 else
                 {
