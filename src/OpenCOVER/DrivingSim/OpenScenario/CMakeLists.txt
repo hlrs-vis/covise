@@ -128,10 +128,8 @@ SET(SOURCES
    oscBody.cpp
    oscEvent.cpp
    oscFactories.cpp
-   oscHeader.cpp
    oscMember.cpp
    oscMemberValue.cpp
-   oscNamedObject.cpp
    oscNumericCondition.cpp
    oscObject.cpp
    oscObjectBase.cpp

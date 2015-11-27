@@ -22,11 +22,15 @@ namespace OpenScenario {
 class OPENSCENARIOEXPORT oscNamedObject: public oscObjectBase
 {
 public:
+    oscNamedObject()
+    {
+        OSC_ADD_MEMBER(name);
+        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(include,"oscFile");
+    }
     oscString name;
-	oscUserDataMember userData;
-	oscFileMember include;
-	oscNamedObject(); ///< constructor
-	virtual ~oscNamedObject(); ///< destructor
+    oscUserDataMember userData;
+    oscFileMember include;
 };
 
 typedef oscObjectVariable<oscNamedObject *> oscNamedObjectMember;

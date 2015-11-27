@@ -17,16 +17,19 @@ namespace OpenScenario {
 class OPENSCENARIOEXPORT oscHeader: public oscObjectBase
 {
 public:
+    oscHeader()
+    {
+        OSC_ADD_MEMBER(revMajor);
+        OSC_ADD_MEMBER(revMinor);
+        OSC_ADD_MEMBER(description);
+        OSC_ADD_MEMBER(date);
+        OSC_ADD_MEMBER(author);
+    }
     oscShort revMajor;
     oscShort revMinor;
     oscString description;
     oscString date;
     oscString author;
-    oscHeader(); ///< constructor
-    virtual ~oscHeader(); ///< destructor
-
-    virtual bool parseFromXML(xercesc::DOMElement *currentElement);
-
 };
 
 typedef oscObjectVariable<oscHeader *> oscHeaderMember;
