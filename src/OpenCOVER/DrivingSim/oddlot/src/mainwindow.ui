@@ -13,6 +13,98 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget{
+background-color: rgb(50,50,50);
+color: white;
+font: normal 10px;
+}
+QMainWindow{
+background-color: rgb(50, 50, 50);
+color: white;
+selection-color: yellow;
+selection-background-color: black;
+border-style: inset;
+border-width: 0;
+border-color: gray;
+/* border-radius: 10px; */
+font: normal 10px;
+padding: 3px;
+min-width: 3em;
+}
+QScrollBar:vertical {
+/*border: 2px solid grey;*/
+width: 10px;
+/* margin: 22px 0 22px 0;*/
+}
+QScrollBar:horizontal {
+height: 10px;
+}
+QToolBox::tab:selected {
+font: italic;
+}
+QToolBox::tab {
+background: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #444, stop: 0.1 #555, stop: 0.49 #333, stop: 0.5 #222, stop: 1 #333);
+color: white;
+}
+QMenuBar::item:title {
+background-color: rgb(50, 50, 50);
+}
+QMenuBar::title:icon{
+background-color: rgb(50,50,50);
+}
+QDockWidget {
+background-color: rgb(100, 100, 100);
+}
+QDockWidget::float-button {
+background-color: rgb(50, 50, 50);
+}
+
+QTreeView::item:hover {
+background-color: yellow;
+color :black;
+}
+QTreeView::item:selected {
+background-color: yellow;
+color: black;
+}
+QTreeView::branch:closed:has-children:!has-siblings,
+QTreeView::branch:closed:has-children:has-siblings {
+border-image: none;
+image: url(/src/covise/src/OpenCOVER/DrivingSim/oddlot/src/branch_closed.png);
+}
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings {
+border-image: none;
+image: url(/src/covise/src/OpenCOVER/DrivingSim/oddlot/src/branch_open.png);
+}
+QLineEdit{
+background-color: rgb(50, 50, 50);
+} 
+QLineEdit:hover{
+border: 1px solid gray;
+background-color: rgb(50, 50, 50);
+}
+QLabel{
+border-style: none;
+}
+QTabBar{
+color:  rgb(50, 50, 50);
+}
+QHeaderView::section{
+background-color: rgb(50,50,50);
+}
+
+
+
+
+
+
+</string>
+  </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -20,7 +112,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>20</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>

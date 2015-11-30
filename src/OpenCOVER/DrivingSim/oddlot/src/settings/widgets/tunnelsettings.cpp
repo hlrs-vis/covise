@@ -86,7 +86,7 @@ TunnelSettings::updateProperties()
     if (tunnel_)
     {
         ui->nameBox->setText(tunnel_->getName());
-        ui->idBox->setText(tunnel_->getId());
+        ui->idLabel->setText(tunnel_->getId());
         ui->sSpinBox->setValue(tunnel_->getSStart());
         ui->typeComboBox->setCurrentIndex(tunnel_->getType());
 
