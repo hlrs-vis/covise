@@ -21,7 +21,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscManeuverCatalog.h>
 #include <oscRoutingCatalog.h>
 
-#include <oscDirectory.h>
 #include <oscUserData.h>
 #include <oscFile.h>
 
@@ -33,28 +32,28 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-		OSC_OBJECT_ADD_MEMBER(vehicle,"oscVehicleCatalog");
-		OSC_OBJECT_ADD_MEMBER(driver,"oscDriverCatalog");
-		OSC_OBJECT_ADD_MEMBER(observer,"oscObserverCatalog");
-		OSC_OBJECT_ADD_MEMBER(pedestrian,"oscPedestrianCatalog");
-		OSC_OBJECT_ADD_MEMBER(miscObject,"oscMiscObjectCatalog");
-		OSC_OBJECT_ADD_MEMBER(entity,"oscEntityCatalog");
-		OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentCatalog");
-		OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuverCatalog");
-		OSC_OBJECT_ADD_MEMBER(routing,"oscRoutingCatalog");
+		OSC_OBJECT_ADD_MEMBER(vehicleCatalog,"oscVehicleCatalog");
+		OSC_OBJECT_ADD_MEMBER(driverCatalog,"oscDriverCatalog");
+		OSC_OBJECT_ADD_MEMBER(observerCatalog,"oscObserverCatalog");
+		OSC_OBJECT_ADD_MEMBER(pedestrianCatalog,"oscPedestrianCatalog");
+		OSC_OBJECT_ADD_MEMBER(miscObjectCatalog,"oscMiscObjectCatalog");
+		OSC_OBJECT_ADD_MEMBER(entityCatalog,"oscEntityCatalog");
+		OSC_OBJECT_ADD_MEMBER(environmentCatalog,"oscEnvironmentCatalog");
+		OSC_OBJECT_ADD_MEMBER(maneuverCatalog,"oscManeuverCatalog");
+		OSC_OBJECT_ADD_MEMBER(routingCatalog,"oscRoutingCatalog");
 		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
 		OSC_OBJECT_ADD_MEMBER(include,"oscFile");
 		
     };
-	oscVehicleCatalogMember vehicle;
-	oscDriverCatalogMember driver;
-	oscObserverCatalogMember observer;
-	oscPedestrianCatalogMember pedestrian;
-	oscMiscObjectCatalogMember miscObject;
-	oscEntityCatalogMember entity;
-	oscEnvironmentCatalogMember environment;
-	oscManeuverCatalogMember maneuver;
-	oscRoutingCatalogMember routing;
+	oscVehicleCatalogMember vehicleCatalog;
+	oscDriverCatalogMember driverCatalog;
+	oscObserverCatalogMember observerCatalog;
+	oscPedestrianCatalogMember pedestrianCatalog;
+	oscMiscObjectCatalogMember miscObjectCatalog;
+	oscEntityCatalogMember entityCatalog;
+	oscEnvironmentCatalogMember environmentCatalog;
+	oscManeuverCatalogMember maneuverCatalog;
+	oscRoutingCatalogMember routingCatalog;
 	oscUserDataMember userData;
 	oscFileMember include;
     

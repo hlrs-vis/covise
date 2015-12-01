@@ -14,7 +14,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscBehavior.h>
 #include <oscBody.h>
 #include <oscBoundingBox.h>
-#include <oscCatalog.h>
 #include <oscCatalogs.h>
 #include <oscCenter.h>
 #include <oscCog.h>
@@ -36,6 +35,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscEntity.h>
 #include <oscEntityCatalog.h>
 #include <oscEnvironment.h>
+#include <oscEnvironmentCatalog.h>
 #include <oscEyepoints.h>
 #include <oscFactories.h>
 #include <oscFeatures.h>
@@ -150,7 +150,6 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscBehavior>("oscBehavior");
     staticObjectFactory.registerType<oscBody>("oscBody");
     staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
-    staticObjectFactory.registerType<oscCatalog>("oscCatalog");
     staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
     staticObjectFactory.registerType<oscCenter>("oscCenter");
 	staticObjectFactory.registerType<oscCog>("oscCog");
@@ -172,6 +171,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscEntity>("oscEntity");
     staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
+	staticObjectFactory.registerType<oscEnvironmentCatalog>("oscEnvironmentCatalog");
 	staticObjectFactory.registerType<oscEyepoints>("oscEyepoints");
 	staticObjectFactory.registerType<oscFeatures>("oscFeatures");
     staticObjectFactory.registerType<oscFile>("oscFile");

@@ -17,7 +17,6 @@ SET(HEADERS
    oscBehavior.h
    oscBody.h
    oscBoundingBox.h
-   oscCatalog.h
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
