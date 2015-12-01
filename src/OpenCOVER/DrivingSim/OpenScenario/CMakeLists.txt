@@ -10,8 +10,10 @@ SET(HEADERS
    oscAbsolute.h
    oscAcceleration.h
    oscAction.h
+   oscAerodynamics.h
    oscArrayMember.h
    oscAutonomous.h
+   oscAxles.h
    oscBehavior.h
    oscBody.h
    oscBoundingBox.h
@@ -19,6 +21,7 @@ SET(HEADERS
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
+   oscCog.h
    oscCollision.h
    oscColor.h
    oscCommand.h
@@ -33,29 +36,35 @@ SET(HEADERS
    oscDriverCatalog.h
    oscDriver.h
    oscDriverRef.h
+   oscEngine.h
    oscEntity.h
    oscEntityCatalog.h
    oscEnvironmentCatalog.h
    oscEnvironment.h
    oscEvent.h
    oscExport.h
+   oscEyepoints.h
    oscFactories.h
    oscFactory.h
+   oscFeatures.h
    oscFile.h
    oscFilter.h
    oscFog.h
    oscFrustum.h
+   oscGearbox.h
    oscHeader.h
    oscIntensity.h
    oscLaneChange.h
    oscLaneCoord.h
    oscLaneDynamics.h
    oscLight.h
+   oscLighting.h
    oscManeuverCatalog.h
    oscManeuver.h
    oscManeuverList.h
    oscMember.h
    oscMemberValue.h
+   oscMirrors.h
    oscMiscObjectCatalog.h
    oscMiscObject.h
    oscMiscObjectRef.h
@@ -80,6 +89,7 @@ SET(HEADERS
    oscPedestrianController.h
    oscPedestrianRef.h
    oscPedestrian.h
+   oscPerformance.h
    oscPosition.h
    oscPositionLane.h
    oscPositionRoad.h
@@ -115,6 +125,7 @@ SET(HEADERS
    oscUserData.h
    oscUserDefined.h
    oscVariables.h
+   oscVehicle.h
    oscVehicleAxle.h
    oscVehicleCatalog.h
    oscVehicleRef.h
@@ -142,6 +153,7 @@ SET(SOURCES
    oscReferenceHanding.cpp
    oscRoadCondition.cpp
    oscVariables.cpp
+   oscVehicle.cpp
    oscWeather.cpp
 )
 

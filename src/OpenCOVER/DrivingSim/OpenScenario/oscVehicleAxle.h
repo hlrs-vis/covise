@@ -19,7 +19,7 @@ class OPENSCENARIOEXPORT oscVehicleAxle: public oscObjectBase
 public:
     oscVehicleAxle()
     {
-        OSC_ADD_MEMBER(rollingRsistance);
+        OSC_ADD_MEMBER(rollingResistance);
 		OSC_ADD_MEMBER(maxSteering);
 		OSC_ADD_MEMBER(wheelDiameter);
 		OSC_ADD_MEMBER(trackWidth);
@@ -27,7 +27,7 @@ public:
 		OSC_ADD_MEMBER(positionZ);
 		OSC_ADD_MEMBER(driven);
     };
-    oscDouble rollingRsistance;
+    oscDouble rollingResistance;
 	oscDouble maxSteering;
 	oscDouble wheelDiameter;
 	oscDouble trackWidth;
