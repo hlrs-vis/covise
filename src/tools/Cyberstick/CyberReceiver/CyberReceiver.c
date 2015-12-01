@@ -120,6 +120,12 @@ uint8_t oldDX = 0;
 uint8_t oldDY = 0;
 
 double carrier_detect_time = 0.0;
+double ack_timeout = 0.0;
+
+unsigned char occupied_frequencies[84];
+
+bool CyberStick1_detected = false;
+bool CyberStick2_detected = false;
 
 
 //----------------------------------------------------------------------------------
@@ -153,10 +159,8 @@ void timer0_init()
 	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
 	//sei();
 	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
-	//sei();								// 1 count = 0.0853 ms
+	//sei();							// 1 count = 0.0853 ms
 										// 1 timer overflow = 255*0.0853ms =21.76ms
-
-
 }
 
 
@@ -204,6 +208,94 @@ int lenHelper(unsigned x) {
 }
 
 
+//----------------------------------------------------------------------------------
+// Send beacon message
+//----------------------------------------------------------------------------------
+
+bool rfm70SendBeaconMsg(int toAck)
+{
+	uint8_t ack_payload[32]; // acknowledgment message to transmit
+	uint8_t status;
+	bool ack_received = false;
+
+
+    rfm70SetModeTX();
+    _delay_ms(1);
+
+    ack_payload[0]= 0xFF; // 0xFF defined code for acknowledgment message
+
+    // read status register
+    status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
+
+    // if the FIFO is full, do nothing just return false
+    if (status & RFM70_FIFO_STATUS_TX_FULL)
+    {
+    	return false;
+    }
+
+    // enable CSN
+    spiSelect(csRFM73);
+    _delay_ms(0);
+
+    // send TX cmd via SPI
+    if (toAck == -1)
+    {
+        // cmd: write payload with ack of received message used in RX mode
+        spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD);
+    }
+    else if (toAck == 0)
+    {
+        // cmd: write TX payload and disable AUTOACK
+        spiSendMsg(RFM70_CMD_W_TX_PAYLOAD_NOACK);
+    }
+    else
+    {
+        // cmd: write TX payload with defined ACK packet
+        spiSendMsg(RFM70_CMD_WR_TX_PLOAD);
+    }
+
+    int len = 0;
+    while(len < 32)
+    {
+    	spiSendMsg(ack_payload[len]);
+    	len++;
+    }
+    // disable CSN
+    spiSelect(csNONE);
+    _delay_ms(0);
+
+    while(true)
+    {
+		status = rfm70ReadRegValue(RFM70_REG_STATUS);
+		// When Auto ack is on
+		// check if data is sent and ack is received (TX_DS) interrupt
+		if (status & RFM70_IRQ_STATUS_TX_DS)
+		{
+			ack_received1 = true;
+			return ack_received;
+		}
+
+		uint8_t retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
+
+		if ((retr_msg_count == 0xFF))
+		{
+			ack_received = false;
+
+			// clear flag TX_FULL
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
+
+		}
+    }
+    //sbi(PORTD, LED_RED);
+    //_delay_ms(10);
+    //cbi(PORTD, LED_RED);
+
+
+    //rfm70SetModeRX();
+
+
+    return true;
+}
 //----------------------------------------------------------------------------------
 // Send Acknowledgment for Received Payload
 //----------------------------------------------------------------------------------
@@ -350,54 +442,52 @@ uint8_t Select_free_channel()
 {
 	uint8_t carrier_detect;
 	char Int[2];
-	int i=1; // frequency channel can be 2400Mhz+ 1-83
+	int i=0; // frequency channel can be 2400Mhz+ 1-83
 	int j=0;
+
+
 	while (i<84)
 	{
+		//wdt_reset();
 
-		//if(i>36)
-		//
-		rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, i );
-		//sprintf(hex,"%x",i);
-		_delay_ms(2);
-
-		for(j=0; j<5; j++)
+		for(j=0; j<3; j++)
 		{
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, i );
+			_delay_ms(1);
 			carrier_detect = rfm70ReadRegValue(RFM70_REG_CD) | 0xFE;
-
 
 			if ( carrier_detect == 0xFF)
 			{
-				uart_transmit('_');
-				uart_transmit('_');
-				sprintf(Int, "%d", i);
-				uart_transmit('_');
-				uart_transmit(Int[0]);
-				uart_transmit(Int[1]);
-				uart_transmit('_');
-				j=0;
-				_delay_ms(10);
-				break;
+				occupied_frequencies[i]='y';
 			}
-			else
-			{
-				/*if(i>36)
-				{
-					sprintf(Int, "%d", i);
-					uart_transmit('_');
-					uart_transmit(Int[0]);
-					uart_transmit(Int[1]);
-					uart_transmit('_');
-					//sbi(PORTD, LED_RED);
-				//_delay_ms(10);
-				//cbi(PORTD, LED_RED);
-				return true;
-				}*/}
 
+		}
+
+		if (occupied_frequencies[i] != 'y')
+		{
+			return true;
 		}
 		i++;
 	}
 
+	//uart_transmit('s');
+	/*for (int i=0; i<84; i++)
+	{
+
+		if (occupied_frequencies[i] == 'y')
+		{
+
+			uart_transmit('_');
+
+			sprintf(Int, "%d", i);
+			uart_transmit(Int[0]);
+			uart_transmit(Int[1]);
+			uart_transmit('_');
+
+		}
+
+	}*/
+	//uart_transmit('e');
 	return false;
 }
 
@@ -469,7 +559,6 @@ int main()
     }
 
 
-
     _delay_ms(50);
     // init and power up modules
     // goto RX mode
@@ -510,13 +599,30 @@ int main()
 	uart_transmit(strDec[1]);
 	uart_transmit(strDec[2]);
 	*/
+    //carrier_detect_time = 0.0;
 	//Select_free_channel();
-
+    //rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, 4 );
+    //_delay_ms(3);
+	//_delay_ms(2);
+	uint8_t carrier_detect;
     int rand = 1234;
     while (1)
     {
-    	Select_free_channel();
-    	rfm70ReceivePayload();
+
+		carrier_detect = rfm70ReadRegValue(RFM70_REG_CD) | 0xFE;
+
+		if ( carrier_detect == 0xFF)
+		{
+			if (Select_free_channel())
+			{
+			sbi(PORTD, LED_RED);
+			_delay_ms(10);
+			cbi(PORTD, LED_RED);
+			}
+
+		}
+    	//Select_free_channel();
+    	//rfm70ReceivePayload();
     	//sbi(PORTD, LED_RED);
     	/*carrier_detect_time += TCNT0 * 0.0853;  //ms
     	if (carrier_detect_time >= 250)//0.0853)
@@ -529,7 +635,7 @@ int main()
     		TCNT0 = 0x00;
     	}*/
     	wdt_reset(); // keep the watchdog happy
-        usbPoll();
+        //usbPoll();
 
         /*uint8_t status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS) | 0xFD;
 
@@ -551,7 +657,7 @@ int main()
 
 
 
-        if (usbInterruptIsReady())
+        /*if (usbInterruptIsReady())
         { // if the interrupt is ready, feed data
             // pseudo-random sequence generator, thanks to Dan Frederiksen @AVRfreaks
             // http://en.wikipedia.org/wiki/Linear_congruential_generator
@@ -565,7 +671,7 @@ int main()
 
             reportBuffer.dx = 0;
             reportBuffer.dy = 0;
-        }
+        }*/
     }
 
     return 0;

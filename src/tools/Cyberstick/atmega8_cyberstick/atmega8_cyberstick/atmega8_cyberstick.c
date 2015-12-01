@@ -15,7 +15,7 @@
 #ifndef F_CPU
 #define F_CPU 8000000UL
 #endif
-
+#include <avr/io.h>
 #define sbi(port, bit) (port) |= (1 << (bit)) // set bit
 #define cbi(port, bit) (port) &= ~(1 << (bit)) // clear
 
@@ -78,7 +78,7 @@
 /*! \brief Setting low level on CE line.*/
 #define RFM73_CE_LOW RFM73_CE_PORT &= ~(1 << RFM73_CE_PIN)
 
-#include <avr/io.h>
+
 #include <util/delay.h>
 #include <stdbool.h>
 #include <stdlib.h>

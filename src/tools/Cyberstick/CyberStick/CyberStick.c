@@ -364,21 +364,21 @@ uint8_t rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
-                if (MANUAL_ACK == 1)  // MANUAL ACK is on
-                {
-			if (rx_buf[0] == 0xFF) 	// 0xFF user defined ack msg code
-			{
-				// 1 count = 0.128 ms
-			   ack_time_current += TCNT0 * 0.128;//*(10^(-3));
-			   ack_time_previous = ack_time_current;
+				if (MANUAL_ACK == 1)  // MANUAL ACK is on
+				{
+					if (rx_buf[0] == 0xFF) 	// 0xFF user defined ack msg code
+					{
+					// 1 count = 0.128 ms
+				   ack_time_current += TCNT0 * 0.128;//*(10^(-3));
+				   ack_time_previous = ack_time_current;
 
-				LED3ON;
-				_delay_ms(10);
-				LED3OFF;
+					LED3ON;
+					_delay_ms(10);
+					LED3OFF;
+					}
+
+				}
 			}
-
-                }
-            }
             else
             {
                 // flush RX FIFO

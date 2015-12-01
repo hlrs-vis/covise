@@ -427,7 +427,7 @@ void rfm70SetModeTX(void)
     rfm70SetCE(0);
     value = rfm70ReadRegValue(RFM70_REG_CONFIG);
     value &= 0xFE; // clear RX bit (= TX enabled)
-    //value |= 0x02; // set PWR_UP bit
+    value |= 0x02; // set PWR_UP bit
     rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_CONFIG, value);
     // now the rfm73 goes to TX mode
 
