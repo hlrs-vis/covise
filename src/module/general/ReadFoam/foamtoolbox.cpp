@@ -370,7 +370,8 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
-                if (t >= mintime && t <= maxtime)
+				std::cerr << bn << "is a time directory, " << t  << std::endl;
+                //if (t >= mintime && t <= maxtime)
                 {
                     ++num_timesteps;
                     if (compare)
@@ -401,7 +402,8 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             }
         }
     }
-
+// ignore skipfactor in checkCaseDirectory for now
+/*
     if (!compare)
     {
         int counter = 0;
@@ -411,12 +413,13 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             ++next;
             if (counter % skipfactor != 0)
             {
-                info.timedirs.erase(it);
+                std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
+				info.timedirs.erase(it);
                 --num_timesteps;
             }
             ++counter;
         }
-    }
+    }*/
 
     bool varyingChecked = false, constantChecked = false;
     for (bf::directory_iterator it(dir);
@@ -426,7 +429,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-			std::cerr << "directory :" << bn << std::endl;
+			//std::cerr << "directory :" << bn << std::endl;
             if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());
