@@ -14,6 +14,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscPosition.h>
 #include <oscEntity.h>
 #include <oscVehicle.h>
+#include <oscRouting.h>
 
 namespace OpenScenario {
 
@@ -29,12 +30,14 @@ public:
 		OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
 		OSC_OBJECT_ADD_MEMBER(entity, "oscEntity");
 		OSC_OBJECT_ADD_MEMBER(vehicle, "oscVehicle");
+		OSC_OBJECT_ADD_MEMBER(routing, "oscRouting");
     };
    oscDriverMember driver;
    oscConditionMember condition;
    oscPositionMember position;
    oscEntityMember entity;
    oscVehicleMember vehicle;
+   oscRoutingMember routing;
 };
 
 typedef oscObjectVariable<oscTest *> oscTestMember;

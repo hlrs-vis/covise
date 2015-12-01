@@ -25,6 +25,7 @@ SET(HEADERS
    oscColor.h
    oscCommand.h
    oscCondition.h
+   oscContinuation.h
    oscControllerChoice.h
    oscCoord.h
    oscDate.h
@@ -51,6 +52,7 @@ SET(HEADERS
    oscFog.h
    oscFrustum.h
    oscGearbox.h
+   oscGeneral.h
    oscHeader.h
    oscIntensity.h
    oscLaneChange.h
@@ -108,8 +110,11 @@ SET(HEADERS
    oscRoadConditions.h
    oscRoadCoord.h
    oscRoadNetwork.h
+   oscRoute.h
+   oscRouting.h
    oscRoutingCatalog.h
    oscSimulationTime.h
+   oscShape.h
    oscSpeedDynamics.h
    oscSpeed.h
    oscStandsStill.h
@@ -129,6 +134,7 @@ SET(HEADERS
    oscVehicleCatalog.h
    oscVehicleRef.h
    oscVelocity.h
+   oscWaypoint.h
    oscWeather.h
 )
 
@@ -151,6 +157,8 @@ SET(SOURCES
    oscReachPosition.cpp
    oscReferenceHanding.cpp
    oscRoadCondition.cpp
+   oscRoute.cpp
+   oscShape.cpp
    oscVariables.cpp
    oscVehicle.cpp
    oscWeather.cpp

@@ -21,6 +21,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscColor.h>
 #include <oscCommand.h>
 #include <oscCondition.h>
+#include <oscContinuation.h>
 #include <oscCoord.h>
 #include <oscControllerChoice.h>
 #include <oscDate.h>
@@ -44,6 +45,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscFog.h>
 #include <oscFrustum.h>
 #include <oscGearbox.h>
+#include <oscGeneral.h>
 #include <oscHeader.h>
 #include <oscIntensity.h>
 #include <oscLaneChange.h>
@@ -92,8 +94,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscRoadConditions.h>
 #include <oscRoadCoord.h>
 #include <oscRoadNetwork.h>
+#include <oscRoute.h>
+#include <oscRouting.h>
 #include <oscRoutingCatalog.h>
 #include <oscSimulationTime.h>
+#include <oscShape.h>
 #include <oscSpeed.h>
 #include <oscSpeedDynamics.h>
 #include <oscStandsStill.h>
@@ -112,6 +117,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVehicleCatalog.h>
 #include <oscVehicleRef.h>
 #include <oscVelocity.h>
+#include <oscWaypoint.h>
 #include <oscWeather.h>
 
 
@@ -157,6 +163,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscColor>("oscColor");
 	staticObjectFactory.registerType<oscCommand>("oscCommand");
     staticObjectFactory.registerType<oscCondition>("oscCondition");
+	staticObjectFactory.registerType<oscContinuation>("oscContinuation");
 	staticObjectFactory.registerType<oscCoord>("oscCoord");
 	staticObjectFactory.registerType<oscControllerChoice>("oscControllerChoice");
     staticObjectFactory.registerType<oscDate>("oscDate");
@@ -179,6 +186,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscFog>("oscFog");
 	staticObjectFactory.registerType<oscFrustum>("oscFrustum");
 	staticObjectFactory.registerType<oscGearbox>("oscGearbox");
+	staticObjectFactory.registerType<oscGeneral>("oscGeneral");
     staticObjectFactory.registerType<oscHeader>("oscHeader");
     staticObjectFactory.registerType<oscIntensity>("oscIntensity");
     staticObjectFactory.registerType<oscLaneChange>("oscLaneChange");
@@ -226,8 +234,11 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscRoadConditions>("oscRoadConditions");
     staticObjectFactory.registerType<oscRoadCoord>("oscRoadCoord");
     staticObjectFactory.registerType<oscRoadNetwork>("oscRoadNetwork");
+	staticObjectFactory.registerType<oscRoute>("oscRoute");
+	staticObjectFactory.registerType<oscRouting>("oscRouting");
     staticObjectFactory.registerType<oscRoutingCatalog>("oscRoutingCatalog");
 	staticObjectFactory.registerType<oscSimulationTime>("oscSimulationTime");
+	staticObjectFactory.registerType<oscShape>("oscShape");
     staticObjectFactory.registerType<oscSpeed>("oscSpeed");
     staticObjectFactory.registerType<oscSpeedDynamics>("oscSpeedDynamics");
 	staticObjectFactory.registerType<oscStandsStill>("oscStandsStill");
@@ -246,6 +257,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscVehicle>("oscVehicle");
 	staticObjectFactory.registerType<oscVehicleRef>("oscVehicleRef");
 	staticObjectFactory.registerType<oscVelocity>("oscVelocity");
+	staticObjectFactory.registerType<oscWaypoint>("oscWaypoint");
     staticObjectFactory.registerType<oscWeather>("oscWeather");
 //    staticObjectFactory.registerType<>("");
 }
