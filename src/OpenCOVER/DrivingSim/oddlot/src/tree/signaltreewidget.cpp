@@ -82,15 +82,15 @@ SignalTreeWidget::init()
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
+	setIndentation(6);
 
 	// Signals Widget //
     //
 	setColumnCount(3);
 	setColumnWidth(0, 180);
 	setColumnWidth(1, 30);
-	QStringList headers;
-	headers << "" << "" <<"" ;
-	setHeaderLabels(QStringList(headers));
+
+	setHeaderHidden(true);
 	QList<QTreeWidgetItem *> rootList;
 
 	// Signals //
@@ -222,13 +222,15 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 				int type = signalContainer->getSignalType();
 				const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
 				int subtype = signalContainer->getSignalSubType();
+				double value = signalContainer->getSignalValue();
+
 
 				foreach (DataElement *element, projectWidget_->getProjectData()->getSelectedElements())
 				{
 					Signal *signal = dynamic_cast<Signal *>(element);
 					if (signal)
 					{
-						SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, signal->getValue(), signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
+						SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal, signal->getId(), signal->getName(), signal->getT(), signal->getDynamic(), signal->getOrientation(), signal->getZOffset(), country, type, typeSubclass, subtype, value, signal->getHeading(), signal->getPitch(), signal->getRoll(), signal->getPole(), signal->getSize(), signal->getValidFromLane(), signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
 						projectWidget_->getProjectSettings()->executeCommand(command);
 					}
 				}

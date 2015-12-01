@@ -99,7 +99,7 @@ void
 RoadSettings::updateProperties()
 {
     ui->nameBox->setText(road_->getName());
-    ui->idBox->setText(road_->getID());
+    ui->idLabel->setText(road_->getID());
     ui->lengthBox->setValue(road_->getLength());
     ui->junctionBox->setText(road_->getJunction());
     if (road_->getJunction() == QString("-1") || road_->getJunction() != QString(""))

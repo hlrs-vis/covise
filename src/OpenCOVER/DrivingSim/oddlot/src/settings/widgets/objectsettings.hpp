@@ -57,6 +57,7 @@ private slots:
     void onEditingFinished(int);
     void on_sSpinBox_editingFinished();
     void onValueChanged();
+	void activateRepeatWidget(bool);
 
     //################//
     // PROPERTIES     //

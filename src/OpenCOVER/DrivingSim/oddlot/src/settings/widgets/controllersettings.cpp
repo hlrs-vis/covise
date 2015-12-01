@@ -91,7 +91,7 @@ ControllerSettings::updateProperties()
     if (controller_)
     {
         ui->nameBox->setText(controller_->getName());
-        ui->idBox->setText(controller_->getID());
+        ui->idLabel->setText(controller_->getID());
         ui->sequenceSpinBox->setValue(controller_->getSequence());
         ui->scriptLineEdit->setText(controller_->getScript());
         ui->cycleTimeSpinBox->setValue(controller_->getCycleTime());

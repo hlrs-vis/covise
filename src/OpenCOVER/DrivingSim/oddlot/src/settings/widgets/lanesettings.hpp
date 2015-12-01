@@ -80,6 +80,8 @@ private slots:
     void on_addButton_released();
     void on_addWidthButton_released();
     void on_widthSpinBox_valueChanged(double w);
+	void activateInsertGroupBox(bool);
+	void activateWidthGroupBox(bool);
 
     //################//
     // PROPERTIES     //

@@ -6,417 +6,512 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
-    <height>522</height>
+    <width>200</width>
+    <height>550</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>152</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="1">
-    <widget class="QGroupBox" name="groupBox_2">
+  <property name="styleSheet">
+   <string notr="true">padding: 0px;
+min-width: 0em;</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="title">
-      <string>repeat</string>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
-     <widget class="QLabel" name="label_11">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>53</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>s</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_12">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>60</y>
-        <width>53</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>length</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_13">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>90</y>
-        <width>53</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>distance</string>
-      </property>
-     </widget>
-     <widget class="QDoubleSpinBox" name="repeatSSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>30</y>
-        <width>171</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="maximum">
-       <double>99999.990000000005239</double>
-      </property>
-     </widget>
-     <widget class="QDoubleSpinBox" name="repeatLengthSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>60</y>
-        <width>171</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="maximum">
-       <double>99999.990000000005239</double>
-      </property>
-     </widget>
-     <widget class="QDoubleSpinBox" name="repeatDistanceSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>90</y>
-        <width>171</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="maximum">
-       <double>99999.990000000005239</double>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="poleCheckBox">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>130</y>
-        <width>247</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Pole</string>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-     </widget>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
-     <property name="title">
-      <string>objectx</string>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>radius</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QTextEdit" name="idBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="undoRedoEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2">
-       <widget class="QDoubleSpinBox" name="zOffsetSpinBox">
-        <property name="minimum">
-         <double>-99.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="2">
-       <widget class="QComboBox" name="orientationComboBox">
-        <item>
-         <property name="text">
-          <string>Both</string>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>183</width>
+        <height>550</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>550</height>
+       </size>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QFrame" name="frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Positive</string>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
          </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Negative</string>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-        </item>
-       </widget>
-      </item>
-      <item row="14" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>pitch</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="nameLabel">
-        <property name="text">
-         <string>model</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLineEdit" name="nameBox"/>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="idLabel">
-        <property name="text">
-         <string>id</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="lengthLabel">
-        <property name="text">
-         <string>zOffset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="predecessorLabel">
-        <property name="text">
-         <string>validLength</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="successorLabel">
-        <property name="text">
-         <string>length</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QDoubleSpinBox" name="sSpinBox">
-          <property name="maximum">
-           <double>99999.990000000005239</double>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>170</width>
+            <height>441</height>
+           </rect>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>objectx</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
+           </property>
+           <item row="10" column="3">
+            <widget class="QDoubleSpinBox" name="validLengthSpinBox"/>
+           </item>
+           <item row="14" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>height</string>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="3">
+            <widget class="QDoubleSpinBox" name="rollSpinBox"/>
+           </item>
+           <item row="12" column="3">
+            <widget class="QDoubleSpinBox" name="widthSpinBox"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="junctionLabel">
+             <property name="text">
+              <string>s</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QDoubleSpinBox" name="sSpinBox">
+               <property name="maximum">
+                <double>99999.990000000005239</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="lengthLabel">
+             <property name="text">
+              <string>zOffset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="predecessorLabel">
+             <property name="text">
+              <string>validLength</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_14">
+             <property name="styleSheet">
+              <string notr="true">color:gray</string>
+             </property>
+             <property name="text">
+              <string>id</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="successorLabel">
+             <property name="text">
+              <string>length</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLineEdit" name="nameBox"/>
+             </item>
+            </layout>
+           </item>
+           <item row="16" column="3">
+            <widget class="QDoubleSpinBox" name="pitchSpinBox"/>
+           </item>
+           <item row="18" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>orientation</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>width</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="3">
+            <widget class="QDoubleSpinBox" name="lengthSpinBox"/>
+           </item>
+           <item row="8" column="3">
+            <widget class="QDoubleSpinBox" name="zOffsetSpinBox">
+             <property name="minimum">
+              <double>-99.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>radius</string>
+             </property>
+            </widget>
+           </item>
+           <item row="18" column="3">
+            <widget class="QComboBox" name="orientationComboBox">
+             <item>
+              <property name="text">
+               <string>Both</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Positive</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Negative</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="16" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>pitch</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="nameLabel">
+             <property name="text">
+              <string>model</string>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="3">
+            <widget class="QDoubleSpinBox" name="radiusSpinBox"/>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="textureLineEdit"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>type</string>
+             </property>
+            </widget>
+           </item>
+           <item row="15" column="3">
+            <widget class="QDoubleSpinBox" name="hdgSpinBox">
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-180.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>180.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="3">
+            <widget class="QLineEdit" name="countryBox"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>texture</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QLabel" name="idLabel">
+             <property name="styleSheet">
+              <string notr="true">color: gray</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="15" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>heading</string>
+             </property>
+            </widget>
+           </item>
+           <item row="19" column="0">
+            <widget class="QCheckBox" name="poleCheckBox">
+             <property name="text">
+              <string>Pole</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="3">
+            <widget class="QDoubleSpinBox" name="tSpinBox">
+             <property name="minimum">
+              <double>-99.989999999999995</double>
+             </property>
+            </widget>
+           </item>
+           <item row="14" column="3">
+            <widget class="QDoubleSpinBox" name="heightSpinBox"/>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>t</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>roll</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="typeBox"/>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="predecessorLabel_2">
+             <property name="text">
+              <string>country</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+          <zorder>orientationComboBox</zorder>
+          <zorder>label_3</zorder>
+          <zorder>label_2</zorder>
+          <zorder>nameLabel</zorder>
+          <zorder>label_14</zorder>
+          <zorder>lengthLabel</zorder>
+          <zorder>predecessorLabel</zorder>
+          <zorder>successorLabel</zorder>
+          <zorder>junctionLabel</zorder>
+          <zorder>pitchSpinBox</zorder>
+          <zorder>label_4</zorder>
+          <zorder>lengthSpinBox</zorder>
+          <zorder>radiusSpinBox</zorder>
+          <zorder>label_5</zorder>
+          <zorder>widthSpinBox</zorder>
+          <zorder>zOffsetSpinBox</zorder>
+          <zorder>label_6</zorder>
+          <zorder>validLengthSpinBox</zorder>
+          <zorder>label_7</zorder>
+          <zorder>rollSpinBox</zorder>
+          <zorder>heightSpinBox</zorder>
+          <zorder>label_8</zorder>
+          <zorder>hdgSpinBox</zorder>
+          <zorder>label_9</zorder>
+          <zorder>typeBox</zorder>
+          <zorder>predecessorLabel_2</zorder>
+          <zorder>countryBox</zorder>
+          <zorder>textureLineEdit</zorder>
+          <zorder>label_10</zorder>
+          <zorder>label</zorder>
+          <zorder>tSpinBox</zorder>
+          <zorder>poleCheckBox</zorder>
+          <zorder>idLabel</zorder>
          </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label">
+         <widget class="QGroupBox" name="repeatGroupBox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>450</y>
+            <width>170</width>
+            <height>86</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="repeatSLabel">
+             <property name="text">
+              <string>s</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="repeatSSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>2</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="repeatLengthLabel">
+             <property name="text">
+              <string>length</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="repeatLengthSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="repeatDistLabel">
+             <property name="text">
+              <string>distance</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="repeatDistanceSpinBox">
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="repeatButton">
+          <property name="geometry">
+           <rect>
+            <x>4</x>
+            <y>440</y>
+            <width>170</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{
+text-align: left;
+}</string>
+          </property>
           <property name="text">
-           <string>t</string>
+           <string>+                 repeat</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="tSpinBox">
-          <property name="minimum">
-           <double>-99.989999999999995</double>
+          <property name="flat">
+           <bool>false</bool>
           </property>
          </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="junctionLabel">
-        <property name="text">
-         <string>s</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="2">
-       <widget class="QDoubleSpinBox" name="pitchSpinBox"/>
-      </item>
-      <item row="16" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>orientation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="2">
-       <widget class="QDoubleSpinBox" name="lengthSpinBox"/>
-      </item>
-      <item row="11" column="2">
-       <widget class="QDoubleSpinBox" name="radiusSpinBox"/>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>width</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2">
-       <widget class="QDoubleSpinBox" name="widthSpinBox"/>
-      </item>
-      <item row="12" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>height</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2">
-       <widget class="QDoubleSpinBox" name="validLengthSpinBox"/>
-      </item>
-      <item row="15" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>roll</string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="2">
-       <widget class="QDoubleSpinBox" name="heightSpinBox"/>
-      </item>
-      <item row="15" column="2">
-       <widget class="QDoubleSpinBox" name="rollSpinBox"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLineEdit" name="typeBox"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>type</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="2">
-       <widget class="QDoubleSpinBox" name="hdgSpinBox">
-        <property name="decimals">
-         <number>4</number>
-        </property>
-        <property name="minimum">
-         <double>-180.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>180.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>heading</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="predecessorLabel_2">
-        <property name="text">
-         <string>country</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2">
-       <widget class="QLineEdit" name="countryBox"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="textureLineEdit"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>texture</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-     <zorder>orientationComboBox</zorder>
-     <zorder>label_3</zorder>
-     <zorder>label_2</zorder>
-     <zorder>nameLabel</zorder>
-     <zorder>idLabel</zorder>
-     <zorder>idBox</zorder>
-     <zorder>lengthLabel</zorder>
-     <zorder>predecessorLabel</zorder>
-     <zorder>successorLabel</zorder>
-     <zorder>junctionLabel</zorder>
-     <zorder>pitchSpinBox</zorder>
-     <zorder>label_4</zorder>
-     <zorder>lengthSpinBox</zorder>
-     <zorder>radiusSpinBox</zorder>
-     <zorder>label_5</zorder>
-     <zorder>widthSpinBox</zorder>
-     <zorder>zOffsetSpinBox</zorder>
-     <zorder>label_6</zorder>
-     <zorder>validLengthSpinBox</zorder>
-     <zorder>label_7</zorder>
-     <zorder>rollSpinBox</zorder>
-     <zorder>heightSpinBox</zorder>
-     <zorder>label_8</zorder>
-     <zorder>hdgSpinBox</zorder>
-     <zorder>label_9</zorder>
-     <zorder>typeBox</zorder>
-     <zorder>predecessorLabel_2</zorder>
-     <zorder>countryBox</zorder>
-     <zorder>textureLineEdit</zorder>
-     <zorder>label_10</zorder>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -424,9 +519,7 @@
  <tabstops>
   <tabstop>nameBox</tabstop>
   <tabstop>typeBox</tabstop>
-  <tabstop>idBox</tabstop>
   <tabstop>sSpinBox</tabstop>
-  <tabstop>tSpinBox</tabstop>
   <tabstop>zOffsetSpinBox</tabstop>
   <tabstop>validLengthSpinBox</tabstop>
   <tabstop>lengthSpinBox</tabstop>
@@ -437,9 +530,6 @@
   <tabstop>pitchSpinBox</tabstop>
   <tabstop>rollSpinBox</tabstop>
   <tabstop>orientationComboBox</tabstop>
-  <tabstop>repeatSSpinBox</tabstop>
-  <tabstop>repeatLengthSpinBox</tabstop>
-  <tabstop>repeatDistanceSpinBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -42,6 +42,7 @@
 #include <QMessageBox>
 
 
+
 // Utils //
 //
 #include "src/util/odd.hpp"
@@ -475,7 +476,7 @@ MainWindow::createTree()
     treeDock_ = new QDockWidget(tr("Tree View"), this);
     treeDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, treeDock_);
-
+		
     // Show/Hide Action //
     //
     QAction *treeDockToggleAction = treeDock_->toggleViewAction();
@@ -486,6 +487,7 @@ MainWindow::createTree()
     // Tree Widget //
     //
     emptyTreeWidget_ = new QWidget();
+
     treeDock_->setWidget(emptyTreeWidget_);
 }
 
@@ -497,9 +499,14 @@ MainWindow::createSettings()
     // Dock Area //
     //
     settingsDock_ = new QDockWidget(tr("Settings View"), this);
-    settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	
+	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	settingsDock_->setFixedWidth(200);
+
+
     //	settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);
-    addDockWidget(Qt::BottomDockWidgetArea, settingsDock_);
+    addDockWidget(Qt::RightDockWidgetArea, settingsDock_);
 
     // Show/Hide Action //
     //
@@ -511,6 +518,9 @@ MainWindow::createSettings()
     //
     emptySettingsWidget_ = new QWidget();
     settingsDock_->setWidget(emptySettingsWidget_);
+
+	connect(settingsDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
+ 
 }
 
 /*! \brief Creates the undo group and view.
@@ -938,6 +948,19 @@ MainWindow::toolAction(ToolAction *toolAction)
     {
         getActiveProject()->toolAction(toolAction);
     }
+}
+
+void
+MainWindow::settingsDockParentChanged(bool docked)
+{
+	if (docked)
+	{
+		settingsDock_->setMaximumWidth(400);
+	}
+	else
+	{
+		settingsDock_->setFixedWidth(200);
+	}
 }
 
 //###########//
