@@ -21,11 +21,11 @@ class OPENSCENARIOEXPORT oscStartCondition: public oscObjectBase
 public:
     oscStartCondition()
     {
-        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
+        OSC_OBJECT_ADD_MEMBER(namedObject,"oscNamedObject");
         OSC_ADD_MEMBER(delayTime);
 		OSC_OBJECT_ADD_MEMBER(condition,"oscCondition");
     };
-    oscNamedObjectMember name;
+    oscNamedObjectMember namedObject;
     oscDouble delayTime;
 	oscConditionMember condition;
 };
