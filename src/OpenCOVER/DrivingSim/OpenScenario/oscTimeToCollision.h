@@ -17,17 +17,15 @@ namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscTimeToCollision: public oscObjectBase
+class OPENSCENARIOEXPORT oscTimeToCollision: public oscObject
 {
 public:
     oscTimeToCollision()
     {	
 		OSC_ADD_MEMBER(freespace);
-		OSC_OBJECT_ADD_MEMBER(object, "oscObject");
 		OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
     };
 	oscBool freespace;
-	oscObjectMember object;
 	oscPositionMember position;
 };
 

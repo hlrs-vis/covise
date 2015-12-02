@@ -25,7 +25,7 @@ private:
 };
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObjectRef: public oscObjectBase
+class OPENSCENARIOEXPORT oscObjectRef: public oscObject
 {
 public:
 	
@@ -36,12 +36,9 @@ public:
     };
     oscObjectRef()
     {
-		OSC_OBJECT_ADD_MEMBER(object, "oscObject");
 		OSC_ADD_MEMBER(reference);
 		reference.enumType = referenceType::instance();
     };
-	
-	oscObjectMember object;
 	oscEnum reference;
 };
 

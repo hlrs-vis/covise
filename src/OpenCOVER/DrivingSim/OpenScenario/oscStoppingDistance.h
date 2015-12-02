@@ -17,17 +17,15 @@ namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscStoppingDistance: public oscObjectBase
+class OPENSCENARIOEXPORT oscStoppingDistance: public oscObject
 {
 public:
     oscStoppingDistance()
     {	
 		OSC_ADD_MEMBER(freespace);
-		OSC_OBJECT_ADD_MEMBER(object, "oscObject");
 		OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
     };
 	oscBool freespace;
-	oscObjectMember object;
 	oscPositionMember position;
 };
 

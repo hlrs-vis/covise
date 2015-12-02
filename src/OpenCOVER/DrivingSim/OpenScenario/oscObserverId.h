@@ -10,23 +10,21 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscNameId.h>
+#include <oscNameRefId.h>
 #include <oscCoord.h>
 
 namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObserverId: public oscObjectBase
+class OPENSCENARIOEXPORT oscObserverId: public oscNameRefId
 {
 public:
     oscObserverId()
     {
-        OSC_OBJECT_ADD_MEMBER(name,"oscNameId");
 		OSC_ADD_MEMBER(iid);
 		OSC_OBJECT_ADD_MEMBER(coord, "oscCoord");
     };
-    oscNameIdMember name;
 	oscInt iid;
     oscCoordMember coord;
 };

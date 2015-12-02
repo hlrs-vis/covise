@@ -70,7 +70,7 @@ SET(HEADERS
    oscMiscObject.h
    oscMiscObjectRef.h
    oscNamedObject.h
-   oscNameId.h
+   oscNameRefId.h
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
@@ -86,6 +86,7 @@ SET(HEADERS
    oscParameterList.h
    oscParameters.h
    oscPartner.h
+   oscPedestrian.h
    oscPedestrianCatalog.h
    oscPedestrianController.h
    oscPedestrianRef.h

@@ -9,21 +9,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
 #include <oscObjectRef.h>
 
 namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscVelocity: public oscObjectBase
+class OPENSCENARIOEXPORT oscVelocity: public oscObjectRef
 {
 public:
     oscVelocity()
-    {	
-		OSC_OBJECT_ADD_MEMBER(objectRef, "oscObjectRef");
+    {			
     };
-	oscObjectRefMember objectRef;
+	
 };
 
 typedef oscObjectVariable<oscVelocity *> oscVelocityMember;

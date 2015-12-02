@@ -58,7 +58,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscMiscObjectCatalog.h>
 #include <oscMiscObjectRef.h>
 #include <oscNamedObject.h>
-#include <oscNameId.h>
+#include <oscNameRefId.h>
 #include <oscNumericCondition.h>
 #include <oscObject.h>
 #include <oscObjectBase.h>
@@ -72,6 +72,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscParameter.h>
 #include <oscParameters.h>
 #include <oscPartner.h>
+#include <oscPedestrian.h>
 #include <oscPedestrianCatalog.h>
 #include <oscPedestrianController.h>
 #include <oscPedestrianRef.h>
@@ -199,7 +200,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscMiscObjectCatalog>("oscMiscObjectCatalog");
 	staticObjectFactory.registerType<oscMiscObjectRef>("oscMiscObjectRef");
     staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");
-    staticObjectFactory.registerType<oscNameId>("oscNameId");
+    staticObjectFactory.registerType<oscNameRefId>("oscNameRefId");
 	staticObjectFactory.registerType<oscNumericCondition>("oscNumericCondition");
 	staticObjectFactory.registerType<oscObject>("oscObject");
 	staticObjectFactory.registerType<oscObjectChoice>("oscObjectChoice");
@@ -213,9 +214,10 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscParameters>("oscParameters");
 	staticObjectFactory.registerType<oscPartner>("oscPartner");
     staticObjectFactory.registerType<oscPedestrianCatalog>("oscPedestrianCatalog");
+	staticObjectFactory.registerType<oscPedestrian>("oscPedestrian");
+	staticObjectFactory.registerType<oscPedestrianRef>("oscPedestrianRef");
 	staticObjectFactory.registerType<oscPedestrianController>("oscPedestrianController");
 	staticObjectFactory.registerType<oscPerformance>("oscPerformance"); 
-	staticObjectFactory.registerType<oscPedestrianRef>("oscPedestrianRef");
 	staticObjectFactory.registerType<oscPosition>("oscPosition");
     staticObjectFactory.registerType<oscPositionLane>("oscPositionLane");
     staticObjectFactory.registerType<oscPositionRoad>("oscPositionRoad");

@@ -15,16 +15,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscDistance: public oscObjectBase
+class OPENSCENARIOEXPORT oscDistance: public oscObject
 {
 public:
     oscDistance()
     {	
 		OSC_ADD_MEMBER(freespace);
-		OSC_OBJECT_ADD_MEMBER(object, "oscObject");
     };
 	oscBool freespace;
-	oscObjectMember object;
 };
 
 typedef oscObjectVariable<oscDistance *> oscDistanceMember;
