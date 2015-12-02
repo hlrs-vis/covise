@@ -11,7 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 #include <oscHeader.h>
 #include <oscGeneral.h>
-#include <oscUserdata.h>
+#include <oscUserData.h>
 #include <oscFile.h>
 #include <oscWaypoint.h>
 
