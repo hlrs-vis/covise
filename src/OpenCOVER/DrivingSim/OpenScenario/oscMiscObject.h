@@ -12,7 +12,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVariables.h>
 #include <oscHeader.h>
 #include <oscFile.h>
-//#include <oscNamedObject.h>
 #include <oscDimension.h>
 
 namespace OpenScenario {

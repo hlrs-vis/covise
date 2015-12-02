@@ -18,20 +18,18 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObserver: public oscObjectBase
+class OPENSCENARIOEXPORT oscObserver: public oscNamedObject
 {
 public:
     oscObserver()
     {
         OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
-		OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
 		OSC_ADD_MEMBER(refId);
 		OSC_ADD_MEMBER(type);
 		OSC_OBJECT_ADD_MEMBER(frustum,"oscFrustum");
 		OSC_OBJECT_ADD_MEMBER(filter,"oscFilter");
     };
     oscHeaderMember header;
-	oscNamedObjectMember name;
 	oscInt refId;
 	oscString type;
 	oscFrustumMember frustum;

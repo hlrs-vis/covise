@@ -33,14 +33,13 @@ private:
 };
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscVehicle: public oscObjectBase
+class OPENSCENARIOEXPORT oscVehicle: public oscNamedObject
 {
 public:
 
     oscVehicle()
     {
         OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
-		OSC_OBJECT_ADD_MEMBER(namedObject,"oscNamedObject");
 		OSC_ADD_MEMBER(manufacturer);
 		OSC_ADD_MEMBER(model);
 		OSC_ADD_MEMBER(color);
@@ -58,7 +57,6 @@ public:
     };
 	
 	oscHeaderMember header;
-	oscNamedObjectMember namedObject;
 	oscString manufacturer;
 	oscString model;
 	oscString color;

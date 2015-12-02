@@ -16,15 +16,13 @@ namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscGeneral: public oscObjectBase
+class OPENSCENARIOEXPORT oscGeneral: public oscNamedObject
 {
 public:
     oscGeneral()
     {
-        OSC_OBJECT_ADD_MEMBER(namedObject, "oscNamedObject");
 		OSC_ADD_MEMBER(closed);
     };	
-	oscNamedObjectMember namedObject;
 	oscBool closed;
 	
 };

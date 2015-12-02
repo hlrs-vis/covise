@@ -18,17 +18,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscAction: public oscObjectBase
+class OPENSCENARIOEXPORT oscAction: public oscNamedObject
 {
 public:
     oscAction()
     {
-        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
 		OSC_OBJECT_ADD_MEMBER(autonomous,"oscAutonomous");
 		OSC_OBJECT_ADD_MEMBER(speed,"oscSpeed");
 		OSC_OBJECT_ADD_MEMBER(laneChange,"oscLaneChange");
     };
-    oscNamedObjectMember name;
 	oscAutonomousMember autonomous;
 	oscSpeedMember speed;
 	oscLaneChangeMember laneChange;
