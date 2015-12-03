@@ -14,6 +14,9 @@
 #include <OpenVRUI/coLabel.h>
 #include <OpenVRUI/coBackground.h>
 #include <OpenVRUI/coColoredBackground.h>
+#include <OpenVRUI/coCheckboxMenuItem.h>
+#include <OpenVRUI/coInteractionManager.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
 
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/sginterface/vruiIntersection.h>
@@ -38,12 +41,15 @@ namespace vrui
 coSubMenuItem::coSubMenuItem(const string &name)
     : coRowMenuItem(name)
     , coGenericSubMenuItem(this)
+    , secondaryItem(NULL)
 {
     pressed = false;
     space = new coBackground();
     space->setMinWidth((float)LEFTMARGIN);
     subMenuIcon = new coRotButton(new coFlatButtonGeometry("UI/submenu"), this);
     subMenuIcon->setSize((float)LEFTMARGIN);
+
+    preventMoveInteraction = new coCombinedButtonInteraction(coInteraction::ButtonC, "Menu", coInteraction::Menu);
 
     attachment = coUIElement::RIGHT;
 
@@ -125,8 +131,14 @@ coSubMenuItem::~coSubMenuItem()
     if (myMenu)
         myMenu->remove(this);
     vruiIntersection::getIntersectorForAction("coAction")->remove(this);
+    delete preventMoveInteraction;
     delete subMenuIcon;
     delete space;
+}
+
+void coSubMenuItem::setSecondaryItem(coMenuItem *item)
+{
+    secondaryItem = item;
 }
 
 /** This method is called on intersections of the input device with this menu item.
@@ -146,6 +158,9 @@ int coSubMenuItem::hit(vruiHit *hit)
     if (preReturn != ACTION_UNDEF)
         return preReturn;
 
+    if (secondaryItem)
+        coInteractionManager::the()->registerInteraction(preventMoveInteraction);
+
     background->setHighlighted(true);
 
     vruiButtons *buttons = hit->isMouseHit()
@@ -155,6 +170,12 @@ int coSubMenuItem::hit(vruiHit *hit)
     if (buttons->wasPressed() & vruiButtons::ACTION_BUTTON)
     {
         pressed = true;
+    }
+
+    if (!pressed && (buttons->wasReleased() & vruiButtons::XFORM_BUTTON))
+    {
+        if (secondaryItem)
+            secondaryItem->doActionRelease();
     }
 
     if (pressed && buttons->wasReleased() & vruiButtons::ACTION_BUTTON)
@@ -174,6 +195,7 @@ int coSubMenuItem::hit(vruiHit *hit)
 
         pressed = false;
     }
+
     return ACTION_CALL_ON_MISS;
 }
 
@@ -183,6 +205,7 @@ void coSubMenuItem::miss()
     if (!vruiRendererInterface::the()->isRayActive())
         return;
 
+    coInteractionManager::the()->unregisterInteraction(preventMoveInteraction);
     background->setHighlighted(false);
 }
 

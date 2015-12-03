@@ -799,8 +799,16 @@ void CoviseBase::sendError(const char *fmt, ...)
 
     va_list args;
     va_start(args, fmt);
-    vsnprintf(text, strlen(fmt) + 500, fmt, args);
-    va_end(args);
+    int messageSize = vsnprintf(text, strlen(fmt) + 500, fmt, args);
+	va_end(args);
+	if (messageSize>(strlen(fmt) + 500))
+	{
+		delete[] text;
+		text = new char[strlen(fmt) + messageSize];
+		va_start(args, fmt);
+		vsnprintf(text, (strlen(fmt)+messageSize), fmt, args);
+		va_end(args);
+	}
 
     if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
     {
@@ -846,8 +854,16 @@ void CoviseBase::sendWarning(const char *fmt, ...)
 
     va_list args;
     va_start(args, fmt);
-    vsnprintf(text, strlen(fmt) + 500, fmt, args);
-    va_end(args);
+    int messageSize = vsnprintf(text, strlen(fmt) + 500, fmt, args);
+	va_end(args);
+	if (messageSize>(strlen(fmt) + 500))
+	{
+		delete[] text;
+		text = new char[strlen(fmt) + messageSize];
+		va_start(args, fmt);
+		vsnprintf(text, (strlen(fmt)+messageSize), fmt, args);
+		va_end(args);
+	}
 
     if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
     {
@@ -893,8 +909,16 @@ void CoviseBase::sendInfo(const char *fmt, ...)
 
     va_list args;
     va_start(args, fmt);
-    vsnprintf(text, strlen(fmt) + 500, fmt, args);
-    va_end(args);
+    int messageSize = vsnprintf(text, strlen(fmt) + 500, fmt, args);
+	va_end(args);
+	if (messageSize>(strlen(fmt) + 500))
+	{
+		delete[] text;
+		text = new char[strlen(fmt) + messageSize];
+		va_start(args, fmt);
+		vsnprintf(text, (strlen(fmt)+messageSize), fmt, args);
+		va_end(args);
+	}
 
     if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
     {

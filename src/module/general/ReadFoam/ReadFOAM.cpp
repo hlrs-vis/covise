@@ -188,7 +188,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
             coModule::sendInfo("Number of processors: %d", m_case.numblocks);
             coModule::sendInfo("Number of time directories in the specified interval: %ld", (long)m_case.timedirs.size());
             std::stringstream timeinfo;
-            timeinfo << "Selected Time Directories: | ";
+            timeinfo << "Available Time Directories: | ";
             for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin(); it != m_case.timedirs.end(); ++it)
             {
                 timeinfo << it->second << " | ";
@@ -967,263 +967,273 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     (void)port;
     m_case = getCaseInfo(casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactorParam->getValue());
     //Mesh
+    checkPolyMeshDirContent(m_case, casedir, starttimeParam->getValue(), stoptimeParam->getValue(), skipfactorParam->getValue());
+        int skipfactor = skipfactorParam->getValue();
+        if (skipfactor < 1)
+        {
+            skipfactor = 1;
+            skipfactorParam->setValue(1);
+        }
+	    float starttime = starttimeParam->getValue();
+		float stoptime = stoptimeParam->getValue();	
     basemeshs.clear();
     basebounds.clear();
     pointmaps.clear();
     pointmaps.resize(std::max(1,m_case.numblocks));
     if (meshParam->getValue())
-    {
-        coModule::sendInfo("Reading Mesh. Please wait ...");
-        if (!m_case.varyingCoords)
-        {
-            if (m_case.numblocks > 0)
-            { //Mesh does NOT change over time BUT is distributed over multiple Processor Directories
-                std::vector<coDistributedObject *> tempSet;
-                coDoSet *meshSet, *meshSubSet;
-                for (index_t i = 0; i < m_case.numblocks; i++)
-                { //fill vector:tempSet with all the mesh parts of all processors
-                    std::stringstream s;
-                    s << "/processor" << i << "/" << m_case.constantdir << "/polyMesh";
-                    std::string dir = casedir;
-                    dir += s.str();
-                    std::stringstream sn;
-                    sn << "_processor_" << i;
-                    std::string meshObjName = meshOutPort->getObjName();
-                    meshObjName += sn.str();
+	{
+		coModule::sendInfo("Reading Mesh. Please wait ...");
+		if (!m_case.varyingCoords)
+		{
+			if (m_case.numblocks > 0)
+			{ //Mesh does NOT change over time BUT is distributed over multiple Processor Directories
+				std::vector<coDistributedObject *> tempSet;
+				coDoSet *meshSet, *meshSubSet;
+				for (index_t i = 0; i < m_case.numblocks; i++)
+				{ //fill vector:tempSet with all the mesh parts of all processors
+					std::stringstream s;
+					s << "/processor" << i << "/" << m_case.constantdir << "/polyMesh";
+					std::string dir = casedir;
+					dir += s.str();
+					std::stringstream sn;
+					sn << "_processor_" << i;
+					std::string meshObjName = meshOutPort->getObjName();
+					meshObjName += sn.str();
 
-                    coDoUnstructuredGrid *m = loadMesh(dir, dir, meshObjName);
-                    tempSet.push_back(m);
-                }
-
-                if (m_case.timedirs.size() > 1)
-                { //more than 1 timestep -> mesh needs to be referenced multiple times in a set with TIMESTEP attribute
-                    std::stringstream s;
-                    s << "_set";
-                    std::string meshSubSetName = meshOutPort->getObjName();
-                    meshSubSetName += s.str();
-                    meshSubSet = new coDoSet(meshSubSetName, tempSet.size(), &tempSet.front());
-                    std::vector<coDistributedObject *> meshSubSets;
-                    for (index_t i = 0; i < m_case.timedirs.size(); i++)
-                    {
-                        meshSubSets.push_back(meshSubSet);
-                        if (i > 0)
-                        {
-                            meshSubSet->incRefCount();
-                        }
-                    }
-                    std::string meshSetName = meshOutPort->getObjName();
-                    meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
-
-                    std::stringstream sMesh;
-                    sMesh << "0-" << meshSubSets.size();
-                    meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
-                    meshSubSets.clear();
-                    meshOutPort->setCurrentObject(meshSet);
-                }
-                else
-                { //only 1 timestep
-                    std::stringstream s;
-                    s << "_set";
-                    std::string meshSubSetName = meshOutPort->getObjName();
-                    meshSubSetName += s.str();
-                    meshSubSet = new coDoSet(meshSubSetName, tempSet.size(), &tempSet.front());
-                    std::vector<coDistributedObject *> meshSubSets;
-                    meshSubSets.push_back(meshSubSet);
-                    std::string meshSetName = meshOutPort->getObjName();
-                    meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
-                    meshOutPort->setCurrentObject(meshSet);
-                }
-            }
-            else
-            { //Mesh does NOT change over time and is NOT distributed.
-                if (m_case.timedirs.size() > 1)
-                { //more than 1 timestep -> mesh needs to be referenced multiple times in a set with TIMESTEP attribute
-                    std::string dir = casedir;
-                    std::stringstream s;
-                    s << "/" << m_case.constantdir << "/polyMesh";
-                    dir += s.str();
-                    std::stringstream ss;
-                    ss << "_mesh";
-                    std::string meshSubObjName = meshOutPort->getObjName();
-                    meshSubObjName += ss.str();
-                    coDoUnstructuredGrid *meshSub = loadMesh(dir, dir, meshSubObjName);
-                    std::vector<coDistributedObject *> meshSubSets;
-                    for (index_t i = 0; i < m_case.timedirs.size(); i++)
-                    {
-                        meshSubSets.push_back(meshSub);
-                        if (i > 0)
-                        {
-                            meshSub->incRefCount();
-                        }
-                    }
-                    coDoSet *meshSet;
-                    std::string meshSetName = meshOutPort->getObjName();
-                    meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
-
-                    std::stringstream sMesh;
-                    sMesh << "0-" << meshSubSets.size();
-                    meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
-                    meshSubSets.clear();
-                    meshOutPort->setCurrentObject(meshSet);
-                }
-                else
-                { //only 1 timestep
-                    coDoSet *meshSet;
-                    std::string dir = casedir;
-                    std::string meshObjName = meshOutPort->getObjName();
-                    std::stringstream s;
-                    s << "/" << m_case.constantdir << "/polyMesh";
-                    dir += s.str();
-                    std::stringstream ss;
-                    ss << "_set";
-                    meshObjName += ss.str();
-                    coDoUnstructuredGrid *m = loadMesh(dir, dir, meshObjName);
-                    std::vector<coDistributedObject *> meshSubSets;
-                    meshSubSets.push_back(m);
-                    std::string meshSetName = meshOutPort->getObjName();
-                    meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
-                    meshOutPort->setCurrentObject(meshSet);
-                }
-            }
-        }
-        else
-        { //if points change over time
-            if (m_case.numblocks > 0)
-            { //Mesh DOES change over time AND is distributed over multiple Processor Directories
-                index_t i = 0;
-                std::vector<coDistributedObject *> meshSubSets;
-            
-			
-				std::string meshdir = casedir;
-			    for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
-                     it != m_case.timedirs.end();
-                     ++it)
-                {
-                    //checkSubDirectory(info, timedir, true) 
-				    std::vector<coDistributedObject *> meshObjects;
-                    
-					for (index_t j = 0; j < m_case.numblocks; ++j)
-                    {
-                        std::stringstream sn;
-                        sn << "_timestep_" << i << "_processor_" << j;
-                        std::string meshObjName = meshOutPort->getObjName();
-                        meshObjName += sn.str();
-                        coDoUnstructuredGrid *m;
-                        std::string timedir = it->second;
-                        std::string pointsdir = casedir;
-                        std::stringstream s;
-                        s << "/processor" << j << "/" << timedir << "/polyMesh";
-                        pointsdir += s.str();
-						if (j == 0)
-						{
-							std::stringstream subdir;
-							subdir << casedir <<  "/processor" << j << "/" << timedir;
-							checkSubDirectory(m_case, subdir.str(), true);
-						}
-                        if (!m_case.varyingGrid)
-                        { //if grid does not changes over time
-                            if (i == 0)
-                            { //If first timestep
-								std::stringstream sConstant;
-								sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
-								meshdir = casedir;
-								meshdir += sConstant.str();
-                                m = loadMesh(meshdir, pointsdir, meshObjName); //Read the first timestep from every processor directory.
-                                basemeshs[j] = m;
-                            }
-                            else
-                            { //If not first timestep
-                                m = loadMesh(meshdir, pointsdir, meshObjName, j); //copy everything but the coordinates from the first timestep in Processor J
-                            }
-                        }
-                        else
-                        { //If grid also changes
-                            meshdir = pointsdir;
-                            m = loadMesh(meshdir, pointsdir, meshObjName); //reload everything
-							basemeshs[j] = m;
-                        }
-                        meshObjects.push_back(m);
-                    }
-                    std::string meshSubSetName = meshOutPort->getObjName();
-                    std::stringstream s;
-                    s << "_set_timestep_" << i;
-                    meshSubSetName += s.str();
-                    coDoSet *meshSubSet = new coDoSet(meshSubSetName, meshObjects.size(), &meshObjects.front());
-                    meshSubSets.push_back(meshSubSet);
-
-                    ++i;
-                }
-
-                std::string meshSetName = meshOutPort->getObjName();
-                coDoSet *meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
-                std::stringstream sMesh;
-                sMesh << "0-" << meshSubSets.size();
-                meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
-                meshSubSets.clear();
-                meshOutPort->setCurrentObject(meshSet);
-            }
-            else
-            { //Mesh DOES change over time BUT is NOT distributed over multiple Processor Directories
-                index_t i = 0;
-                std::vector<coDistributedObject *> meshObjects;
-                coDoSet *meshSet;
-				
-				{					
-				std::string meshdir = casedir;
-				std::stringstream sConstant;
-				sConstant << "/" << m_case.constantdir << "/polyMesh";
-				meshdir += sConstant.str();
-				
-                for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
-                     it != m_case.timedirs.end();
-                     ++it)
-                {
-                    std::stringstream sn;
-                    sn << "_timestep_" << i;
-                    std::string meshObjName = meshOutPort->getObjName();
-                    meshObjName += sn.str();
-                    coDoUnstructuredGrid *m;
-                    coDoPolygons *p;
-                    std::string timedir = it->second;
-                    std::string pointsdir = casedir;
-                    std::stringstream s;
-                    s << "/" << timedir << "/polyMesh";
-                    pointsdir += s.str();
-					checkSubDirectory(m_case, casedir + timedir, true);
-                    if (!m_case.varyingGrid)
-                    {
-                        if (i == 0)
-                        {
-                            m = loadMesh(meshdir, pointsdir, meshObjName);
-                            basemeshs[0] = m;
-                        }
-                        else
-                        {
-                            m = loadMesh(meshdir, pointsdir, meshObjName, 0);
-                        }
-                    }
-                    else
-                    {
-                        meshdir = pointsdir;
-                        m = loadMesh(meshdir, pointsdir, meshObjName);
-						basemeshs[0] =m;
-                    }
-
-                    meshObjects.push_back(m);
-                    ++i;
-                }
+					coDoUnstructuredGrid *m = loadMesh(dir, dir, meshObjName);
+					tempSet.push_back(m);
 				}
-                std::string meshSetName = meshOutPort->getObjName();
-                meshSet = new coDoSet(meshSetName, meshObjects.size(), &meshObjects.front());
-                std::stringstream sMesh;
-                sMesh << "0-" << meshObjects.size();
-                meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
-                meshObjects.clear();
-                meshOutPort->setCurrentObject(meshSet);
-            }
-        }
-    }
 
+				if (m_case.timedirs.size() > 1)
+				{ //more than 1 timestep -> mesh needs to be referenced multiple times in a set with TIMESTEP attribute
+					std::stringstream s;
+					s << "_set";
+					std::string meshSubSetName = meshOutPort->getObjName();
+					meshSubSetName += s.str();
+					meshSubSet = new coDoSet(meshSubSetName, tempSet.size(), &tempSet.front());
+					std::vector<coDistributedObject *> meshSubSets;
+					for (index_t i = 0; i < m_case.timedirs.size(); i++)
+					{
+						meshSubSets.push_back(meshSubSet);
+						if (i > 0)
+						{
+							meshSubSet->incRefCount();
+						}
+					}
+					std::string meshSetName = meshOutPort->getObjName();
+					meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
+
+					std::stringstream sMesh;
+					sMesh << "0-" << meshSubSets.size();
+					meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
+					meshSubSets.clear();
+					meshOutPort->setCurrentObject(meshSet);
+				}
+				else
+				{ //only 1 timestep
+					std::stringstream s;
+					s << "_set";
+					std::string meshSubSetName = meshOutPort->getObjName();
+					meshSubSetName += s.str();
+					meshSubSet = new coDoSet(meshSubSetName, tempSet.size(), &tempSet.front());
+					std::vector<coDistributedObject *> meshSubSets;
+					meshSubSets.push_back(meshSubSet);
+					std::string meshSetName = meshOutPort->getObjName();
+					meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
+					meshOutPort->setCurrentObject(meshSet);
+				}
+			}
+			else
+			{ //Mesh does NOT change over time and is NOT distributed.
+				if (m_case.timedirs.size() > 1)
+				{ //more than 1 timestep -> mesh needs to be referenced multiple times in a set with TIMESTEP attribute
+					std::string dir = casedir;
+					std::stringstream s;
+					s << "/" << m_case.constantdir << "/polyMesh";
+					dir += s.str();
+					std::stringstream ss;
+					ss << "_mesh";
+					std::string meshSubObjName = meshOutPort->getObjName();
+					meshSubObjName += ss.str();
+					coDoUnstructuredGrid *meshSub = loadMesh(dir, dir, meshSubObjName);
+					std::vector<coDistributedObject *> meshSubSets;
+					for (index_t i = 0; i < m_case.timedirs.size(); i++)
+					{
+						meshSubSets.push_back(meshSub);
+						if (i > 0)
+						{
+							meshSub->incRefCount();
+						}
+					}
+					coDoSet *meshSet;
+					std::string meshSetName = meshOutPort->getObjName();
+					meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
+
+					std::stringstream sMesh;
+					sMesh << "0-" << meshSubSets.size();
+					meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
+					meshSubSets.clear();
+					meshOutPort->setCurrentObject(meshSet);
+				}
+				else
+				{ //only 1 timestep
+					coDoSet *meshSet;
+					std::string dir = casedir;
+					std::string meshObjName = meshOutPort->getObjName();
+					std::stringstream s;
+					s << "/" << m_case.constantdir << "/polyMesh";
+					dir += s.str();
+					std::stringstream ss;
+					ss << "_set";
+					meshObjName += ss.str();
+					coDoUnstructuredGrid *m = loadMesh(dir, dir, meshObjName);
+					std::vector<coDistributedObject *> meshSubSets;
+					meshSubSets.push_back(m);
+					std::string meshSetName = meshOutPort->getObjName();
+					meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
+					meshOutPort->setCurrentObject(meshSet);
+				}
+			}
+		}
+		else
+		{ //if points change over time
+			if (m_case.numblocks > 0)
+			{ //Mesh DOES change over time AND is distributed over multiple Processor Directories
+				index_t i = 0;
+				std::vector<coDistributedObject *> meshSubSets;
+
+				std::string meshdir = casedir;
+				std::vector <std::string> lastmeshdir(m_case.numblocks);
+				int counter = 0;
+				for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+						it != m_case.timedirs.end();
+						++it)
+				{
+					double t = it->first;
+					if (t >= starttime && t <= stoptime)
+					{
+						if (counter % skipfactor == 0)
+						{
+							std::vector<coDistributedObject *> meshObjects;
+							for (index_t j = 0; j < m_case.numblocks; ++j)
+							{
+								std::stringstream sn;
+								sn << "_timestep_" << i << "_processor_" << j;
+								std::string meshObjName = meshOutPort->getObjName();
+								meshObjName += sn.str();
+								coDoUnstructuredGrid *m;
+								std::string timedir = it->second;
+
+								std::string pointsdir = casedir;
+								std::stringstream s;
+								s << "/processor" << j << "/" << timedir << "/polyMesh";
+								pointsdir += s.str();
+								std::stringstream sMeshDir;
+								sMeshDir << "/processor" << j << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
+								meshdir = casedir;
+								meshdir += sMeshDir.str();
+								if (lastmeshdir[j]==meshdir)
+								{
+									m = loadMesh(meshdir, pointsdir, meshObjName, j);
+								}
+								else 
+								{
+									m = loadMesh(meshdir, pointsdir, meshObjName);
+									basemeshs[j] = m;
+									lastmeshdir[j]=meshdir;
+								}
+								meshObjects.push_back(m);
+							}
+							std::string meshSubSetName = meshOutPort->getObjName();
+							std::stringstream s;
+							s << "_set_timestep_" << i;
+							meshSubSetName += s.str();
+							coDoSet *meshSubSet = new coDoSet(meshSubSetName, meshObjects.size(), &meshObjects.front());
+							meshSubSets.push_back(meshSubSet);
+
+							++i;
+						}
+						++counter;					
+					}
+				}
+
+				std::string meshSetName = meshOutPort->getObjName();
+				coDoSet *meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
+				std::stringstream sMesh;
+				sMesh << "0-" << meshSubSets.size();
+				meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
+				meshSubSets.clear();
+				meshOutPort->setCurrentObject(meshSet);
+			}
+			else
+			{ //Mesh DOES change over time BUT is NOT distributed over multiple Processor Directories
+				index_t i = 0;
+				std::vector<coDistributedObject *> meshObjects;
+				coDoSet *meshSet;
+
+				std::string meshdir = casedir;
+
+				std::vector <std::string> lastmeshdir(1);
+
+				int counter = 0;
+
+				for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+						it != m_case.timedirs.end();
+						++it)
+				{
+					double t = it->first;
+					if (t >= starttime && t <= stoptime)
+					{
+						if (counter % skipfactor == 0)
+						{
+							int j=0;
+							std::stringstream sn;
+							sn << "_timestep_" << i;
+							std::string meshObjName = meshOutPort->getObjName();
+							meshObjName += sn.str();
+							coDoUnstructuredGrid *m;
+							coDoPolygons *p;
+							std::string timedir = it->second;
+							std::string pointsdir = casedir;
+							std::stringstream s;
+							s << "/" << timedir << "/polyMesh";
+							pointsdir += s.str();
+							std::stringstream sMeshDir;
+							sMeshDir << m_case.completeMeshDirs[it->first] << "/polyMesh";
+							meshdir = casedir;
+							meshdir += sMeshDir.str();    
+
+							if (lastmeshdir[j] == meshdir)
+							{
+								m = loadMesh(meshdir, pointsdir, meshObjName,0);
+							}
+							else
+							{
+								m = loadMesh(meshdir, pointsdir, meshObjName);
+								basemeshs[0] =m;
+								lastmeshdir[j]=meshdir;
+							}
+
+							meshObjects.push_back(m);
+							++i;
+						}
+						else
+						{
+							std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
+						}
+						++counter;
+					}			
+				}
+				std::string meshSetName = meshOutPort->getObjName();
+				meshSet = new coDoSet(meshSetName, meshObjects.size(), &meshObjects.front());
+				std::stringstream sMesh;
+				sMesh << "0-" << meshObjects.size();
+				meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
+				meshObjects.clear();
+				meshOutPort->setCurrentObject(meshSet);
+			}
+		}
+	}
     //BoundaryPatches
     if (boundaryParam->getValue())
     {
@@ -1350,66 +1360,61 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 				std::vector<coDistributedObject *> boundarySubSets;
 
                 std::string meshdir = casedir;
+				std::vector <std::string> lastmeshdir(m_case.numblocks);
+				int counter = 0;
 				for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
 						it != m_case.timedirs.end();
 						++it)
 				{
-					coDoSet *boundarySubSet;
-					for (index_t j = 0; j < m_case.numblocks; ++j)
+					double t = it->first;
+					if (t >= starttime && t <= stoptime)
 					{
-						std::stringstream sn;
-						sn << "_timestep_" << i << "_processor_" << j;
-						std::string boundObjName = boundaryOutPort->getObjName();
-						boundObjName += sn.str();
-						coDoPolygons *p;
-						std::string timedir = it->second;
-						std::string pointsdir = casedir;
-						std::stringstream s;
-						s << "/processor" << j << "/" << timedir << "/polyMesh";
-						pointsdir += s.str();
-						if (j == 0)
+						if (counter % skipfactor == 0)
 						{
-							std::stringstream subdir;
-							subdir << casedir <<  "/processor" << j << "/" << timedir;
-							checkSubDirectory(m_case, subdir.str(), true);
-						}
+							coDoSet *boundarySubSet;
+							for (index_t j = 0; j < m_case.numblocks; ++j)
+							{
+								std::stringstream sn;
+								sn << "_timestep_" << i << "_processor_" << j;
+								std::string boundObjName = boundaryOutPort->getObjName();
+								boundObjName += sn.str();
+								coDoPolygons *p;
+								std::string timedir = it->second;
+								std::string pointsdir = casedir;
+								std::stringstream s;
+								s << "/processor" << j << "/" << timedir << "/polyMesh";
+								pointsdir += s.str();
+								std::stringstream sMeshDir;
+								sMeshDir << "/processor" << j << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
+								meshdir = casedir;
+								meshdir += sMeshDir.str();
 
-						if (!m_case.varyingGrid)
-						{ //if grid does not changes over time
-							if (i == 0)
-							{ //If first timestep
-							std::stringstream sConstant;
-							sConstant << "/processor" << j << "/" << m_case.constantdir << "/polyMesh";
-                            meshdir = casedir;
-							meshdir += sConstant.str();
-								p = loadPatches(meshdir, pointsdir, boundObjName, selection, -1, j); //Read the first timestep from every processor directory.
-								basebounds[j] = p;
+								if (lastmeshdir[j] == meshdir)
+								{
+									p = loadPatches(meshdir, pointsdir, boundObjName, selection,j);
+								}
+								else
+								{
+									p = loadPatches(meshdir, pointsdir, boundObjName, selection,-1,j);
+									basebounds[j] = p;
+									lastmeshdir[j]=meshdir;
+								}
+								boundaryObjects.push_back(p);
 							}
-							else
-							{ //If not first timestep
-								p = loadPatches(meshdir, pointsdir, boundObjName, selection, j); //copy everything but the coordinates from the first timestep in Processor J
-							}
+
+							std::string boundarySubSetName = boundaryOutPort->getObjName();
+							std::stringstream ss;
+							ss << "_set_timestep_" << i;
+							boundarySubSetName += ss.str();
+							boundarySubSet = new coDoSet(boundarySubSetName, boundaryObjects.size(), &boundaryObjects.front());
+							boundaryObjects.clear();
+							boundarySubSets.push_back(boundarySubSet);
+
+							++i;
 						}
-						else
-						{ //If grid also changes
-							meshdir = pointsdir;
-							p = loadPatches(meshdir, pointsdir, boundObjName, selection,-1,j);
-							basebounds[j] = p;
-						}
-						boundaryObjects.push_back(p);
 					}
-
-                    std::string boundarySubSetName = boundaryOutPort->getObjName();
-                    std::stringstream ss;
-                    ss << "_set_timestep_" << i;
-                    boundarySubSetName += ss.str();
-                    boundarySubSet = new coDoSet(boundarySubSetName, boundaryObjects.size(), &boundaryObjects.front());
-                    boundaryObjects.clear();
-                    boundarySubSets.push_back(boundarySubSet);
-
-                    ++i;
-                }
-
+					++counter;
+				}
                 std::string boundarySetName = boundaryOutPort->getObjName();
                 boundarySet = new coDoSet(boundarySetName, boundarySubSets.size(), &boundarySubSets.front());
                 std::stringstream sBoundary;
@@ -1419,66 +1424,66 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                 boundaryOutPort->setCurrentObject(boundarySet);
             }
             else
-            { //Boundary DOES change over time BUT is NOT distributed over multiple Processor Directories
-                index_t i = 0;
-                std::vector<coDistributedObject *> boundaryObjects;
-                coDoSet *boundarySet;
+			{ //Boundary DOES change over time BUT is NOT distributed over multiple Processor Directories
+				index_t i = 0;
+				std::vector<coDistributedObject *> boundaryObjects;
+				coDoSet *boundarySet;
 
-                {
-                std::string meshdir = casedir;
-                std::stringstream sConstant;
-                sConstant << "/" << m_case.constantdir << "/polyMesh";
-                meshdir += sConstant.str();
-
-                for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
-                     it != m_case.timedirs.end();
-                     ++it)
+				std::string meshdir = casedir;
+				std::stringstream sConstant;
+				sConstant << "/" << m_case.constantdir << "/polyMesh";
+				meshdir += sConstant.str();
+                std::vector <std::string> lastmeshdir(1);
+				int counter = 0;
+				int j = 0;
+				for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+						it != m_case.timedirs.end();
+						++it)
 				{
-					std::stringstream sn;
-					sn << "_timestep_" << i;
-					std::string boundObjName = boundaryOutPort->getObjName();
-					boundObjName += sn.str();
-					coDoPolygons *p;
-					std::string timedir = it->second;
-					std::string pointsdir = casedir;
-					std::stringstream s;
-					s << "/" << timedir << "/polyMesh";
-					pointsdir += s.str();
-					checkSubDirectory(m_case, casedir + timedir, true);
+					double t = it->first;
+					if (t >= starttime && t <= stoptime)
+					{
+						if (counter % skipfactor == 0)
+						{
+							std::stringstream sn;
+							sn << "_timestep_" << i;
+							std::string boundObjName = boundaryOutPort->getObjName();
+							boundObjName += sn.str();
+							coDoPolygons *p;
+							std::string timedir = it->second;
+							std::string pointsdir = casedir;
+							std::stringstream s;
+							s << "/" << timedir << "/polyMesh";
+							pointsdir += s.str();
+                            std::stringstream sMeshDir;
+                            sMeshDir << m_case.completeMeshDirs[it->first] << "/polyMesh";
+                            meshdir = casedir;
+                            meshdir += sMeshDir.str();
 
-					if (!m_case.varyingGrid)
-					{
-						if (i==0)
-						{
-        					coModule::sendInfo("Reading Boundary points only i==0");
-							p = loadPatches(meshdir, pointsdir, boundObjName, selection,-1,0);
-							basebounds[0] = p;
+							if (lastmeshdir[j] == meshdir)
+                            {
+								p = loadPatches(meshdir, pointsdir, boundObjName, selection,j);
+                            }
+                            else
+                            {
+								p = loadPatches(meshdir, pointsdir, boundObjName, selection,-1,j);
+								basebounds[j] = p;
+                                lastmeshdir[j]=meshdir;
+                            }
+							boundaryObjects.push_back(p);
+							++i;
 						}
-						else
-						{
-        					coModule::sendInfo("Reading Boundary points only i!=0");
-							p = loadPatches(meshdir, pointsdir, boundObjName, selection,0);
-						}
+						++counter;	
 					}
-					else
-					{
-        			    coModule::sendInfo("Reading Boundary complete");
-						meshdir = pointsdir;
-						p = loadPatches(meshdir, pointsdir, boundObjName, selection,-1,0);
-						basebounds[0] = p;
-					}
-					boundaryObjects.push_back(p);
-					++i;
 				}
-                }
-                std::string boundarySetName = boundaryOutPort->getObjName();
-                boundarySet = new coDoSet(boundarySetName, boundaryObjects.size(), &boundaryObjects.front());
-                std::stringstream sBoundary;
-                sBoundary << "0-" << boundaryObjects.size();
-                boundarySet->addAttribute("TIMESTEP", sBoundary.str().c_str());
-                boundaryObjects.clear();
-                boundaryOutPort->setCurrentObject(boundarySet);
-            }
+				std::string boundarySetName = boundaryOutPort->getObjName();
+				boundarySet = new coDoSet(boundarySetName, boundaryObjects.size(), &boundaryObjects.front());
+				std::stringstream sBoundary;
+				sBoundary << "0-" << boundaryObjects.size();
+				boundarySet->addAttribute("TIMESTEP", sBoundary.str().c_str());
+				boundaryObjects.clear();
+				boundaryOutPort->setCurrentObject(boundarySet);
+			}
         }
     }
 
@@ -1500,10 +1505,16 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                 {
                     std::vector<coDistributedObject *> portSubSets;
                     index_t i = 0;
+					int counter = 0;
                     for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                          it != m_case.timedirs.end();
                          ++it)
                     {
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{
+							if (counter % skipfactor == 0)
+							{
 						for (index_t j = 0; j < m_case.numblocks; ++j)
 						{
 							std::string timedir = it->second;
@@ -1556,6 +1567,10 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         portSubSets.push_back(portSubSet);
                         ++i;
                     }
+}
+++counter;
+}
+
                     std::string portSetName = outPorts[nPort]->getObjName();
                     portSet = new coDoSet(portSetName, portSubSets.size(), &portSubSets.front());
                     if (m_case.timedirs.size() > 1)
@@ -1572,39 +1587,49 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                 if (m_case.timedirs.size() > 0)
                 {
                     index_t i = 0;
+					int counter = 0;
                     for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                          it != m_case.timedirs.end();
                          ++it)
-                    {
-                        std::string timedir = it->second;
-                        std::string dir = casedir;
-                        std::stringstream s;
-                        s << "/" << timedir;
-                        dir += s.str();
+					{
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{
+							if (counter % skipfactor == 0)
+							{
+								std::string timedir = it->second;
+								std::string dir = casedir;
+								std::stringstream s;
+								s << "/" << timedir;
+								dir += s.str();
 
-                        std::stringstream sn;
-                        sn << "_timestep_" << i;
-                        std::string portObjName = outPorts[nPort]->getObjName();
-                        portObjName += sn.str();
+								std::stringstream sn;
+								sn << "_timestep_" << i;
+								std::string portObjName = outPorts[nPort]->getObjName();
+								portObjName += sn.str();
 
-                        boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
-                        HeaderInfo header = readFoamHeader(*portIn);
-                        if (header.fieldclass == "volVectorField")
-                        {
-                            coDoVec3 *v = loadVectorField(dir, dataFilename, portObjName);
-                            tempSet.push_back(v);
-                        }
-                        else if (header.fieldclass == "volScalarField")
-                        {
-                            coDoFloat *v = loadScalarField(dir, dataFilename, portObjName);
-                            tempSet.push_back(v);
-                        }
-                        else
-                        {
-                            std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
-                        }
-                        ++i;
-                    }
+								boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
+								HeaderInfo header = readFoamHeader(*portIn);
+								if (header.fieldclass == "volVectorField")
+								{
+									coDoVec3 *v = loadVectorField(dir, dataFilename, portObjName);
+									tempSet.push_back(v);
+								}
+								else if (header.fieldclass == "volScalarField")
+								{
+									coDoFloat *v = loadScalarField(dir, dataFilename, portObjName);
+									tempSet.push_back(v);
+								}
+								else
+								{
+									std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
+								}
+								++i;
+							}
+						}
+						++counter;
+					}
+
                     std::string portSetName = outPorts[nPort]->getObjName();
                     portSet = new coDoSet(portSetName, tempSet.size(), &tempSet.front());
                     if (m_case.timedirs.size() > 1)
@@ -1645,67 +1670,76 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 					std::string meshdir = casedir;
 					std::string sLastMeshDir;
 					sLastMeshDir = m_case.constantdir;
+					int counter = 0;
                     for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                          it != m_case.timedirs.end();
                          ++it)
-                    {
-                        coDoSet *portSubSet;
-						
-                        for (index_t j = 0; j < m_case.numblocks; ++j)
-                        {	
-                            std::string timedir = it->second;
-
-                            std::string dir = casedir;
-                            std::stringstream s;
-                            s << "/processor" << j << "/" << timedir;
-                            dir += s.str();
-
-						    if (j == 0)
+					{
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{
+							if (counter % skipfactor == 0)
 							{
-								std::stringstream subdir;
-								subdir << casedir <<  "/processor" << j << "/" << timedir;
-								checkSubDirectory(m_case, subdir.str(), true);
-							}	
-                            if (m_case.varyingGrid)
-							{
-								sLastMeshDir = timedir;
-							}                            
-                            meshdir = casedir;
-							std::stringstream ss;
-                            ss << "/processor" << j << "/" << sLastMeshDir << "/polyMesh/";
-                            meshdir += ss.str();
+								coDoSet *portSubSet;
 
-                            std::stringstream sn;
-                            sn << "_timestep_" << i << "_processor_" << j;
-                            std::string portObjName = boundaryDataPorts[nPort]->getObjName();
-                            portObjName += sn.str();
+								for (index_t j = 0; j < m_case.numblocks; ++j)
+								{	
+									std::string timedir = it->second;
 
-                            boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
-                            HeaderInfo header = readFoamHeader(*portIn);
-                            if (header.fieldclass == "volVectorField")
-                            {
-                                coDoVec3 *v = loadBoundaryVectorField(dir, meshdir, dataFilename, portObjName, selection);
-                                tempSet.push_back(v);
-                            }
-                            else if (header.fieldclass == "volScalarField")
-                            {
-                                coDoFloat *v = loadBoundaryScalarField(dir, meshdir, dataFilename, portObjName, selection);
-                                tempSet.push_back(v);
-                            }
-                            else
-                            {
-                                std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
-                            }
-                        }
-                        std::string portSubSetName = boundaryDataPorts[nPort]->getObjName();
-                        std::stringstream s;
-                        s << "_timestep_" << i;
-                        portSubSetName += s.str();
-                        portSubSet = new coDoSet(portSubSetName, tempSet.size(), &tempSet.front());
-                        tempSet.clear();
-                        portSubSets.push_back(portSubSet);
-                        ++i;
-                    }
+									std::string dir = casedir;
+									std::stringstream s;
+									s << "/processor" << j << "/" << timedir;
+									dir += s.str();
+
+									if (j == 0)
+									{
+										std::stringstream subdir;
+										subdir << casedir <<  "/processor" << j << "/" << timedir;
+										checkSubDirectory(m_case, subdir.str(), true);
+									}	
+									if (m_case.varyingGrid)
+									{
+										sLastMeshDir = timedir;
+									}                            
+									meshdir = casedir;
+									std::stringstream ss;
+									ss << "/processor" << j << "/" << sLastMeshDir << "/polyMesh/";
+									meshdir += ss.str();
+
+									std::stringstream sn;
+									sn << "_timestep_" << i << "_processor_" << j;
+									std::string portObjName = boundaryDataPorts[nPort]->getObjName();
+									portObjName += sn.str();
+
+									boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
+									HeaderInfo header = readFoamHeader(*portIn);
+									if (header.fieldclass == "volVectorField")
+									{
+										coDoVec3 *v = loadBoundaryVectorField(dir, meshdir, dataFilename, portObjName, selection);
+										tempSet.push_back(v);
+									}
+									else if (header.fieldclass == "volScalarField")
+									{
+										coDoFloat *v = loadBoundaryScalarField(dir, meshdir, dataFilename, portObjName, selection);
+										tempSet.push_back(v);
+									}
+									else
+									{
+										std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
+									}
+								}
+								std::string portSubSetName = boundaryDataPorts[nPort]->getObjName();
+								std::stringstream s;
+								s << "_timestep_" << i;
+								portSubSetName += s.str();
+								portSubSet = new coDoSet(portSubSetName, tempSet.size(), &tempSet.front());
+								tempSet.clear();
+								portSubSets.push_back(portSubSet);
+								++i;
+							}
+						}
+					++counter;
+					}
                     std::string portSetName = boundaryDataPorts[nPort]->getObjName();
                     portSet = new coDoSet(portSetName, portSubSets.size(), &portSubSets.front());
                     if (m_case.timedirs.size() > 1)
@@ -1726,47 +1760,56 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 					std::stringstream sConstant;
 					sConstant << "/" << m_case.constantdir << "/polyMesh";
 					meshdir += sConstant.str();
+					int counter = 0;
 					for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
 							it != m_case.timedirs.end();
 							++it)
 					{
-						std::string timedir = it->second;
-						std::string dir = casedir;
-						std::stringstream s;
-						s << "/" << timedir;
-						dir += s.str();
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{
+							if (counter % skipfactor == 0)
+							{
+								std::string timedir = it->second;
+								std::string dir = casedir;
+								std::stringstream s;
+								s << "/" << timedir;
+								dir += s.str();
 
-					    checkSubDirectory(m_case, casedir + timedir, true);	
-						if (m_case.varyingGrid)
-						{
-						meshdir = casedir;
-						meshdir += "/";
-						meshdir += timedir;
-                        meshdir += "/polyMesh/";
-						}
+								checkSubDirectory(m_case, casedir + timedir, true);	
+								if (m_case.varyingGrid)
+								{
+									meshdir = casedir;
+									meshdir += "/";
+									meshdir += timedir;
+									meshdir += "/polyMesh/";
+								}
 
-						std::stringstream sn;
-						sn << "_timestep_" << i;
-						std::string portObjName = boundaryDataPorts[nPort]->getObjName();
-						portObjName += sn.str();
+								std::stringstream sn;
+								sn << "_timestep_" << i;
+								std::string portObjName = boundaryDataPorts[nPort]->getObjName();
+								portObjName += sn.str();
 
-						boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
-						HeaderInfo header = readFoamHeader(*portIn);
-						if (header.fieldclass == "volVectorField")
-						{
-							coDoVec3 *v = loadBoundaryVectorField(dir, meshdir, dataFilename, portObjName, selection);
-							tempSet.push_back(v);
+								boost::shared_ptr<std::istream> portIn = getStreamForFile(dir, dataFilename);
+								HeaderInfo header = readFoamHeader(*portIn);
+								if (header.fieldclass == "volVectorField")
+								{
+									coDoVec3 *v = loadBoundaryVectorField(dir, meshdir, dataFilename, portObjName, selection);
+									tempSet.push_back(v);
+								}
+								else if (header.fieldclass == "volScalarField")
+								{
+									coDoFloat *v = loadBoundaryScalarField(dir, meshdir, dataFilename, portObjName, selection);
+									tempSet.push_back(v);
+								}
+								else
+								{
+									std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
+								}
+								++i;
+							}
 						}
-						else if (header.fieldclass == "volScalarField")
-						{
-							coDoFloat *v = loadBoundaryScalarField(dir, meshdir, dataFilename, portObjName, selection);
-							tempSet.push_back(v);
-						}
-						else
-						{
-							std::cerr << "Unknown field type in file: " << dataFilename << std::endl;
-						}
-						++i;
+						++counter;
 					}
 					std::string portSetName = boundaryDataPorts[nPort]->getObjName();
 					portSet = new coDoSet(portSetName, tempSet.size(), &tempSet.front());
