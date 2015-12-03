@@ -19,11 +19,11 @@ class OPENSCENARIOEXPORT oscFilter: public oscObjectBase
 public:
     oscFilter()
     {
-        OSC_ADD_MEMBER(ObjectType);
+        OSC_ADD_MEMBER(objectType);
 		OSC_ADD_MEMBER(maxNum);
 		OSC_ADD_MEMBER(filterParam);
     };
-    oscString ObjectType;
+    oscString objectType;
 	oscInt maxNum;
 	oscDouble filterParam;
 };

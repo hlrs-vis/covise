@@ -18,6 +18,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscPedestrian.h>
 #include <oscVelocity.h>
 #include <oscRelativePositionWorld.h>
+#include <oscObserver.h>
+
 namespace OpenScenario {
 
 
@@ -36,6 +38,8 @@ public:
 		OSC_OBJECT_ADD_MEMBER(pedestrian, "oscPedestrian");
 		OSC_OBJECT_ADD_MEMBER(velocity, "oscVelocity");
 		OSC_OBJECT_ADD_MEMBER(relativePositionWorld, "oscRelativePositionWorld");
+		OSC_OBJECT_ADD_MEMBER(observer, "oscObserver");
+
     };
    oscDriverMember driver;
    oscConditionMember condition;
@@ -46,6 +50,7 @@ public:
    oscPedestrianMember pedestrian;
    oscVelocityMember velocity;
    oscRelativePositionWorldMember relativePositionWorld;
+   oscObserverMember observer;
 
 };
 
