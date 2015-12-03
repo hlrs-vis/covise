@@ -19,6 +19,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVelocity.h>
 #include <oscRelativePositionWorld.h>
 #include <oscObserver.h>
+#include <oscManeuver.h>
 
 namespace OpenScenario {
 
@@ -39,7 +40,7 @@ public:
 		OSC_OBJECT_ADD_MEMBER(velocity, "oscVelocity");
 		OSC_OBJECT_ADD_MEMBER(relativePositionWorld, "oscRelativePositionWorld");
 		OSC_OBJECT_ADD_MEMBER(observer, "oscObserver");
-
+		OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuver");
     };
    oscDriverMember driver;
    oscConditionMember condition;
@@ -51,6 +52,7 @@ public:
    oscVelocityMember velocity;
    oscRelativePositionWorldMember relativePositionWorld;
    oscObserverMember observer;
+   oscManeuverMember maneuver;
 
 };
 

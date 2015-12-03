@@ -4,6 +4,9 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+#ifndef OPENSCENARIO_HEADER
+#define OPENSCENARIO_HEADER
+
 #ifndef OSC_START_CONDITION_H
 #define OSC_START_CONGDITION_H
 #include <oscExport.h>
@@ -33,3 +36,4 @@ typedef oscObjectVariable<oscStartCondition *> oscStartConditionMember;
 }
 
 #endif //OSC_START_CONDITION_H
+#endif

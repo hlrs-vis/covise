@@ -14,6 +14,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscAutonomous.h>
 #include <oscSpeed.h>
 #include <oscLaneChange.h>
+#include <oscLaneOffset.h>
+#include <oscPosition.h>
+#include <oscDistanceLateral.h>
+#include <oscDistanceLongitudinal.h>
+#include <oscVisibility.h>
+#include <oscCharacterAppearance.h>
+#include <oscCharacterGesture.h>
+#include <oscCharacterMotion.h>
+#include <oscTrafficLight.h>
+#include <oscUserData.h>
+#include <oscFile.h>
 
 namespace OpenScenario {
 
@@ -26,10 +37,32 @@ public:
 		OSC_OBJECT_ADD_MEMBER(autonomous,"oscAutonomous");
 		OSC_OBJECT_ADD_MEMBER(speed,"oscSpeed");
 		OSC_OBJECT_ADD_MEMBER(laneChange,"oscLaneChange");
+		OSC_OBJECT_ADD_MEMBER(laneOffset,"oscLaneOffset");
+		OSC_OBJECT_ADD_MEMBER(position,"oscPosition");
+		OSC_OBJECT_ADD_MEMBER(distanceLateral,"oscDistanceLateral");
+		OSC_OBJECT_ADD_MEMBER(distanceLongitudinal,"oscDistanceLongitudinal");
+		OSC_OBJECT_ADD_MEMBER(visibility,"oscVisibility");
+	    OSC_OBJECT_ADD_MEMBER(characterAppearance,"oscCharacterAppearance");
+		OSC_OBJECT_ADD_MEMBER(characterGesture,"oscCharacterGesture");
+		OSC_OBJECT_ADD_MEMBER(characterMotion,"oscCharacterMotion");
+		OSC_OBJECT_ADD_MEMBER(trafficLight,"oscTrafficLight");
+		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+		OSC_OBJECT_ADD_MEMBER(include,"oscFile");
     };
 	oscAutonomousMember autonomous;
 	oscSpeedMember speed;
 	oscLaneChangeMember laneChange;
+	oscLaneOffsetMember laneOffset;
+	oscPositionMember position;
+	oscDistanceLateralMember distanceLateral;
+	oscDistanceLongitudinalMember distanceLongitudinal;
+	oscVisibilityMember visibility;
+	oscCharacterAppearanceMember characterAppearance;
+	oscCharacterGestureMember characterGesture;
+	oscCharacterMotionMember characterMotion;
+	oscTrafficLightMember trafficLight;
+	oscUserDataMember userData;
+	oscFileMember iclude;
 };
 
 typedef oscObjectVariable<oscAction *> oscActionMember;

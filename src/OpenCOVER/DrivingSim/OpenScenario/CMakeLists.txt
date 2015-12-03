@@ -20,6 +20,9 @@ SET(HEADERS
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
+   oscCharacterAppearance.h
+   oscCharacterGesture.h
+   oscCharacterMotion.h
    oscClothoid.h
    oscCog.h
    oscCollision.h
@@ -34,6 +37,8 @@ SET(HEADERS
    oscDimensions.h
    oscDirectory.h
    oscDistance.h
+   oscDistanceLateral.h
+   oscDistanceLongitudinal.h
    oscDriverCatalog.h
    oscDriver.h
    oscDriverRef.h
@@ -61,6 +66,8 @@ SET(HEADERS
    oscLaneChange.h
    oscLaneCoord.h
    oscLaneDynamics.h
+   oscLaneOffset.h
+   oscLaneOffsetDynamics.h
    oscLight.h
    oscLighting.h
    oscLights.h
@@ -119,6 +126,8 @@ SET(HEADERS
    oscRoute.h
    oscRouting.h
    oscRoutingCatalog.h
+   oscSetController.h
+   oscSetState.h
    oscSimulationTime.h
    oscShape.h
    oscSpeedDynamics.h
@@ -133,6 +142,7 @@ SET(HEADERS
    oscTimeHeadway.h
    oscTimeOfDay.h
    oscTimeToCollision.h
+   oscTrafficLight.h
    oscUserData.h
    oscUserDefined.h
    oscVariables.h
@@ -141,6 +151,7 @@ SET(HEADERS
    oscVehicleCatalog.h
    oscVehicleRef.h
    oscVelocity.h
+   oscVisibility.h
    oscWaypoint.h
    oscWeather.h
 )

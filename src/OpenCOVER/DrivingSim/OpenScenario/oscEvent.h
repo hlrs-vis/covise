@@ -28,6 +28,15 @@ private:
 class OPENSCENARIOEXPORT oscEvent: public oscObjectBase
 {
 public:
+    oscEvent()
+    {
+        OSC_ADD_MEMBER(name);
+		OSC_ADD_MEMBER(priority);
+		priority.enumType = priorityType::instance();
+		OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscStartConditionGroup");
+		OSC_OBJECT_ADD_MEMBER(action,"oscAction");
+		
+    };
 	oscString name;
 	enum priority
     {
@@ -38,16 +47,6 @@ public:
 	oscEnum priority;
 	oscStartConditionGroupMember startConditionGroup;
 	oscActionMember action;
-   
-    oscEvent()
-    {
-        OSC_ADD_MEMBER(name);
-		OSC_ADD_MEMBER(priority);
-		priority.enumType = priorityType::instance();
-		OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscStartConditionGroup");
-		OSC_OBJECT_ADD_MEMBER(action,"oscAction");
-		
-    };
 	
 };
 

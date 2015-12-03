@@ -4,8 +4,8 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_LANE_DYNAMICS_H
-#define OSC_LANE_DYNAMICS_H
+#ifndef OSC_LANE_OFFSET_DYNAMICS_H
+#define OSC_LANE_OFFSET_DYNAMICS_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
@@ -14,23 +14,21 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscLaneDynamics: public oscObjectBase
+class OPENSCENARIOEXPORT oscLaneOffsetDynamics: public oscObjectBase
 {
 public:
-    oscLaneDynamics()
+    oscLaneOffsetDynamics()
     {
-        OSC_ADD_MEMBER(shape);
         OSC_ADD_MEMBER(maxLateralAcc);
 		OSC_ADD_MEMBER(duration);
     };
-	oscString shape;
     oscDouble maxLateralAcc;
     oscDouble duration;
 	
 };
 
-typedef oscObjectVariable<oscLaneDynamics *> oscLaneDynamicsMember;
+typedef oscObjectVariable<oscLaneOffsetDynamics *> oscLaneeOffsetDynamicsMember;
 
 }
 
-#endif //OSC_LANE_DYNAMICS_H
+#endif //OSC_LANE_OFFSET_DYNAMICS_H
