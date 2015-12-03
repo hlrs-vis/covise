@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRelativePositionLane: public oscObjectBase
+class OPENSCENARIOEXPORT oscRelativePositionLane: public oscOrientation
 {
 public:
     oscRelativePositionLane()
@@ -25,14 +25,12 @@ public:
 		OSC_ADD_MEMBER(ds);
 		OSC_ADD_MEMBER(offset);
 		OSC_ADD_MEMBER(relativeOrientation);
-		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscString refObject;
 	oscInt dLane;
 	oscDouble ds;
 	oscDouble offset;
 	oscBool relativeOrientation;
-	oscOrientationMember orientation;
 };
 
 typedef oscObjectVariable<oscRelativePositionLane *> oscRelativePositionLaneMember;

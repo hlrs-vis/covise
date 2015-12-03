@@ -17,7 +17,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPositionRoute: public oscObjectBase
+class OPENSCENARIOEXPORT oscPositionRoute: public oscOrientation
 {
 public:
     oscPositionRoute()
@@ -27,14 +27,12 @@ public:
 		OSC_OBJECT_ADD_MEMBER(roadCoord,"oscRoadCoord");
 		OSC_OBJECT_ADD_MEMBER(laneCoord,"oscLaneCoord");
 		OSC_ADD_MEMBER(relativeOrientation);
-		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
     };
     oscString routeId;
 	oscBool current;
 	oscRoadCoordMember roadCoord;
 	oscLaneCoordMember laneCoord;
 	oscBool relativeOrientation;
-	oscOrientationMember orientation;
 };
 
 typedef oscObjectVariable<oscPositionRoute *> oscPositionRouteMember;

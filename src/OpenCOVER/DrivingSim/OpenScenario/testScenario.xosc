@@ -36,10 +36,16 @@
       </name>
     </driver>
     <position>
-      <positionWorld>
-        <position x="10" y="10" z="10"/>
-        <orientation h="10" p="10" r="10"/>
-      </positionWorld>
+      <positionWorld x="10" y="10" z="10" h="10" p="10" r="10"/>
+      <positionRoad roadId="1" s="2" t="3" relativeOrientation="0" h="10" p="10" r="10"/>
+      <positionLane roadId="1" laneId="2" offset="1" s="1" relativeOrientation="0" h="10" p="10" r="10"/>
+      <relativePositionWorld refObject="a" dx="1" dy="2" dz="3" h="1" p="2" r="3"/>
+      <relativePositionRoad refObject="a" ds="1" dt="2" relativeOrientation="0" h="1" p="2" r="3"/>
+      <relativePositionLane refObject="a" dLaneId="2" offset="1" ds="1" relativeOrientation="0" h="10" p="10" r="10"/>
+      <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
+        <roadCoord pathS="1" t="2"/>
+        <laneCoord pathS="1" laneId="2" laneOffset="3"/>
+      </positionRoute>
     </position>
     
     <condition>

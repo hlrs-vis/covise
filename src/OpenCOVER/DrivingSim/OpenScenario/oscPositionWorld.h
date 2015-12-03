@@ -10,22 +10,23 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscPositionXyz.h>
 #include <oscOrientation.h>
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPositionWorld: public oscObjectBase
+class OPENSCENARIOEXPORT oscPositionWorld: public oscOrientation
 {
 public:
     oscPositionWorld()
     {
-        OSC_OBJECT_ADD_MEMBER(position,"oscPositionXyz");
-		OSC_OBJECT_ADD_MEMBER(orientation,"oscOrientation");
+		OSC_ADD_MEMBER(x);
+		OSC_ADD_MEMBER(y);
+		OSC_ADD_MEMBER(z);
     };
-    oscPositionXyzMember position;
-	oscOrientationMember orientation;
+    oscDouble x;
+	oscDouble y;
+	oscDouble z;
 };
 
 typedef oscObjectVariable<oscPositionWorld *> oscPositionWorldMember;
