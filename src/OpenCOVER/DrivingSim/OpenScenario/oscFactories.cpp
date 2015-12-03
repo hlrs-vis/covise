@@ -16,6 +16,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscBoundingBox.h>
 #include <oscCatalogs.h>
 #include <oscCenter.h>
+#include <oscClothoid.h>
 #include <oscCog.h>
 #include <oscCollision.h>
 #include <oscColor.h>
@@ -106,6 +107,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscShape.h>
 #include <oscSpeed.h>
 #include <oscSpeedDynamics.h>
+#include <oscSpline.h>
 #include <oscStandsStill.h>
 #include <oscStartConditionGroup.h>
 #include <oscStoppingDistance.h>
@@ -163,6 +165,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
     staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
     staticObjectFactory.registerType<oscCenter>("oscCenter");
+	staticObjectFactory.registerType<oscClothoid>("oscClothoid");
 	staticObjectFactory.registerType<oscCog>("oscCog");
 	staticObjectFactory.registerType<oscCollision>("oscCollision");
     staticObjectFactory.registerType<oscColor>("oscColor");
@@ -251,6 +254,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscShape>("oscShape");
     staticObjectFactory.registerType<oscSpeed>("oscSpeed");
     staticObjectFactory.registerType<oscSpeedDynamics>("oscSpeedDynamics");
+	staticObjectFactory.registerType<oscSpline>("oscSpline");
 	staticObjectFactory.registerType<oscStandsStill>("oscStandsStill");
     staticObjectFactory.registerType<oscStartConditionGroup>("oscStartConditionGroup");
 	staticObjectFactory.registerType<oscStoppingDistance>("oscStoppingDistance");

@@ -10,6 +10,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscClothoid.h>
+#include <oscSpline.h>
 
 namespace OpenScenario {
 
@@ -37,8 +39,14 @@ public:
     {
         OSC_ADD_MEMBER(purpose);
 		purpose.enumType = purposeType::instance();
+		OSC_ADD_MEMBER(polyline);
+		OSC_OBJECT_ADD_MEMBER(clothoid, "oscClothoid");
+		OSC_OBJECT_ADD_MEMBER(spline, "oscSpline");
     };
 	oscEnum purpose;
+	oscString polyline;
+	oscClothoidMember clothoid;
+	oscSplineMember spline;
    
 };
 

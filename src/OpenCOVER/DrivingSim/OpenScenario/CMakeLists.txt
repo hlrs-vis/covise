@@ -20,6 +20,7 @@ SET(HEADERS
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
+   oscClothoid.h
    oscCog.h
    oscCollision.h
    oscColor.h
@@ -122,6 +123,7 @@ SET(HEADERS
    oscShape.h
    oscSpeedDynamics.h
    oscSpeed.h
+   oscSpline.h
    oscStandsStill.h
    oscStartConditionGroup.h
    oscStartCondition.h
