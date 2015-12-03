@@ -186,7 +186,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
             coModule::sendInfo("Done.");
             coModule::sendInfo("Case-directory: %s", casedir);
             coModule::sendInfo("Number of processors: %d", m_case.numblocks);
-            coModule::sendInfo("Number of time directories in the specified interval: %ld", (long)m_case.timedirs.size());
+            coModule::sendInfo("Number of available time directories: %ld", (long)m_case.timedirs.size());
             std::stringstream timeinfo;
             timeinfo << "Available Time Directories: | ";
             for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin(); it != m_case.timedirs.end(); ++it)
@@ -1103,7 +1103,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 				std::vector<coDistributedObject *> meshSubSets;
 
 				std::string meshdir = casedir;
-				std::vector <std::string> lastmeshdir(m_case.numblocks);
+				std::vector <std::string> lastmeshdir(std::max(1,m_case.numblocks));
 				int counter = 0;
 				for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
 						it != m_case.timedirs.end();
@@ -1522,11 +1522,24 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 							std::stringstream s;
 							if (portchoice == 1)
 							{
-				            			
-							// select processorj/timestep/polyMesh if varyingGrid, lastdir(init with constant) if !varyingGrid 
-						    // Read mesh dimensions	
-							// coDoFloat with dim.cells entries j
+								std::stringstream sMeshDir;
+								sMeshDir << "/processor" << j << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
+								std::string meshdir = casedir;
+								meshdir += sMeshDir.str(); 
+								DimensionInfo dim = readDimensions(meshdir);
+								std::stringstream sn;
+								sn << "_timestep_" << i << "_processor_" << j;
+								std::string portObjName = outPorts[nPort]->getObjName();
+								portObjName += sn.str();
 
+								coDoFloat *v = new coDoFloat(portObjName, dim.cells);
+								float *processorID = v->getAddress();
+
+								for (int i=0; i<dim.cells; ++i)
+								{
+									processorID[i] = j;
+								}
+								tempSet.push_back(v);							
 							}
 							else
 							{
@@ -1668,8 +1681,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     std::vector<coDistributedObject *> portSubSets;
                     index_t i = 0;
 					std::string meshdir = casedir;
-					std::string sLastMeshDir;
-					sLastMeshDir = m_case.constantdir;
+					std::vector <std::string> lastmeshdir(m_case.numblocks);
 					int counter = 0;
                     for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
                          it != m_case.timedirs.end();
@@ -1685,26 +1697,15 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 								for (index_t j = 0; j < m_case.numblocks; ++j)
 								{	
 									std::string timedir = it->second;
-
 									std::string dir = casedir;
 									std::stringstream s;
 									s << "/processor" << j << "/" << timedir;
 									dir += s.str();
-
-									if (j == 0)
-									{
-										std::stringstream subdir;
-										subdir << casedir <<  "/processor" << j << "/" << timedir;
-										checkSubDirectory(m_case, subdir.str(), true);
-									}	
-									if (m_case.varyingGrid)
-									{
-										sLastMeshDir = timedir;
-									}                            
+    
+	                                std::stringstream sMeshDir;
+ 									sMeshDir << "/processor" << j << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
 									meshdir = casedir;
-									std::stringstream ss;
-									ss << "/processor" << j << "/" << sLastMeshDir << "/polyMesh/";
-									meshdir += ss.str();
+									meshdir += sMeshDir.str();
 
 									std::stringstream sn;
 									sn << "_timestep_" << i << "_processor_" << j;
@@ -1760,6 +1761,8 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 					std::stringstream sConstant;
 					sConstant << "/" << m_case.constantdir << "/polyMesh";
 					meshdir += sConstant.str();
+					std::vector <std::string> lastmeshdir(1);
+
 					int counter = 0;
 					for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
 							it != m_case.timedirs.end();
@@ -1770,20 +1773,17 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 						{
 							if (counter % skipfactor == 0)
 							{
+								int j=0;
 								std::string timedir = it->second;
 								std::string dir = casedir;
 								std::stringstream s;
 								s << "/" << timedir;
 								dir += s.str();
 
-								checkSubDirectory(m_case, casedir + timedir, true);	
-								if (m_case.varyingGrid)
-								{
-									meshdir = casedir;
-									meshdir += "/";
-									meshdir += timedir;
-									meshdir += "/polyMesh/";
-								}
+								std::stringstream sMeshDir;
+								sMeshDir  << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
+								meshdir = casedir;
+								meshdir += sMeshDir.str();
 
 								std::stringstream sn;
 								sn << "_timestep_" << i;
