@@ -281,14 +281,17 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
         else
         {
             std::string stem = p.stem().string();
-            if (time)
+            if (!boost::algorithm::ends_with(stem, "Dict") && !boost::algorithm::ends_with(stem, "Properties"))
+            {
+                if (time)
                 {
-				++info.varyingFields[stem];
-				//std::cerr << "counting timedir : " << timedir << std::endl;
-				//std::cerr << "added varying field :" << stem << std::endl;
-				}
-            else
-                ++info.constantFields[stem];
+                    ++info.varyingFields[stem];
+                    //std::cerr << "counting timedir : " << timedir << std::endl;
+                    //std::cerr << "added varying field :" << stem << std::endl;
+                }
+                else
+                    ++info.constantFields[stem];
+            }
         }
     }
 
