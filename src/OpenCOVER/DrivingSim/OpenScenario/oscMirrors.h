@@ -9,8 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscCoord.h>
+#include <oscMirror.h>
 
 namespace OpenScenario {
 
@@ -20,11 +19,9 @@ class OPENSCENARIOEXPORT oscMirrors: public oscObjectBase
 public:
     oscMirrors()
     {
-		OSC_ADD_MEMBER(type);
-		OSC_OBJECT_ADD_MEMBER(coord, "oscCoord");
+		OSC_OBJECT_ADD_MEMBER(mirror, "oscMirror");
     };
-	oscString type;
-	oscCoordMember coord;
+	oscMirrorMember mirror;
 };
 
 typedef oscObjectVariable<oscMirrors *> oscMirrorsMember;

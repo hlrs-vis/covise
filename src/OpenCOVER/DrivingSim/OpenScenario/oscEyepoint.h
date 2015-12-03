@@ -4,27 +4,30 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_LIGHTING_H
-#define OSC_LIGHTING_H
+#ifndef OSC_EYEPOINT_H
+#define OSC_EYEPOINT_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscLights.h>
+#include <oscVariables.h>
+#include <oscCoord.h>
 
 namespace OpenScenario {
 
 	/// \class This class represents a generic OpenScenario Object
-	class OPENSCENARIOEXPORT oscLighting : public oscObjectBase
+	class OPENSCENARIOEXPORT oscEyepoint : public oscObjectBase
 	{
 	public:
-		oscLighting()
+		oscEyepoint()
 		{
-			OSC_OBJECT_ADD_MEMBER(light, "oscLights");
+			OSC_ADD_MEMBER(type);
+			OSC_OBJECT_ADD_MEMBER(coord, "oscCoord");
 		};
-		oscLightsMember light;
+		oscString type;
+		oscCoordMember coord;
 	};
 
-	typedef oscObjectVariable<oscLighting *> oscLightingMember;
+	typedef oscObjectVariable<oscEyepoint *> oscEyepointMember;
 
 }
-#endif //OSC_LIGHTING_H
+#endif //OSC_EYEPOINT_H

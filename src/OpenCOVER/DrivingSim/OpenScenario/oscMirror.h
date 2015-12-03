@@ -4,29 +4,31 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_FEATURES_H
-#define OSC_FEATURES_H
+#ifndef OSC_MIRROR_H
+#define OSC_MIRROR_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscFeature.h>
+#include <oscVariables.h>
+#include <oscCoord.h>
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscFeatures: public oscObjectBase
+class OPENSCENARIOEXPORT oscMirror: public oscObjectBase
 {
 public:
-    oscFeatures()
+    oscMirror()
     {
-		OSC_OBJECT_ADD_MEMBER(feature, "oscFeature");
+		OSC_ADD_MEMBER(type);
+		OSC_OBJECT_ADD_MEMBER(coord, "oscCoord");
     };
-	oscFeatureMember feature;
-	
+	oscString type;
+	oscCoordMember coord;
 };
 
-typedef oscObjectVariable<oscFeatures *> oscFeaturesMember;
+typedef oscObjectVariable<oscMirror *> oscMirrorMember;
 
 }
 
-#endif //OSC_FEATURES_H
+#endif //OSC_MIRROR_H

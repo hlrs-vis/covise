@@ -37,8 +37,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscEntityCatalog.h>
 #include <oscEnvironment.h>
 #include <oscEnvironmentCatalog.h>
+#include <oscEyepoint.h>
 #include <oscEyepoints.h>
 #include <oscFactories.h>
+#include <oscFeature.h>
 #include <oscFeatures.h>
 #include <oscFile.h>
 #include <oscFilter.h>
@@ -53,7 +55,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscLaneDynamics.h>
 #include <oscLight.h>
 #include <oscLighting.h>
+#include <oscLights.h>
 #include <oscManeuverCatalog.h>
+#include <oscMirror.h>
 #include <oscMirrors.h>
 #include <oscMiscObjectCatalog.h>
 #include <oscMiscObjectRef.h>
@@ -180,7 +184,9 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
 	staticObjectFactory.registerType<oscEnvironmentCatalog>("oscEnvironmentCatalog");
+	staticObjectFactory.registerType<oscEyepoint>("oscEyepoint");
 	staticObjectFactory.registerType<oscEyepoints>("oscEyepoints");
+	staticObjectFactory.registerType<oscFeature>("oscFeature");
 	staticObjectFactory.registerType<oscFeatures>("oscFeatures");
     staticObjectFactory.registerType<oscFile>("oscFile");
 	staticObjectFactory.registerType<oscFilter>("oscFilter");
@@ -195,7 +201,9 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscLaneDynamics>("oscLaneDynamics");
     staticObjectFactory.registerType<oscLight>("oscLight");
 	staticObjectFactory.registerType<oscLighting>("oscLighting");
+	staticObjectFactory.registerType<oscLights>("oscLights");
     staticObjectFactory.registerType<oscManeuverCatalog>("oscManeuverCatalog");
+	staticObjectFactory.registerType<oscMirror>("oscMirror");
 	staticObjectFactory.registerType<oscMirrors>("oscMirrors");
     staticObjectFactory.registerType<oscMiscObjectCatalog>("oscMiscObjectCatalog");
 	staticObjectFactory.registerType<oscMiscObjectRef>("oscMiscObjectRef");

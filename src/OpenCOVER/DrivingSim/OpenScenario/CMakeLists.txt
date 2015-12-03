@@ -43,9 +43,11 @@ SET(HEADERS
    oscEnvironment.h
    oscEvent.h
    oscExport.h
+   oscEyepoint.h
    oscEyepoints.h
    oscFactories.h
    oscFactory.h
+   oscFeature.h
    oscFeatures.h
    oscFile.h
    oscFilter.h
@@ -60,11 +62,13 @@ SET(HEADERS
    oscLaneDynamics.h
    oscLight.h
    oscLighting.h
+   oscLights.h
    oscManeuverCatalog.h
    oscManeuver.h
    oscManeuverList.h
    oscMember.h
    oscMemberValue.h
+   oscMirror.h
    oscMirrors.h
    oscMiscObjectCatalog.h
    oscMiscObject.h

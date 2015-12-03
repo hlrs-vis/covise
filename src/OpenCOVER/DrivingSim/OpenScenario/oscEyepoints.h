@@ -9,8 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscCoord.h>
+#include <oscEyepoint.h>
 
 namespace OpenScenario {
 
@@ -20,11 +19,9 @@ namespace OpenScenario {
 	public:
 		oscEyepoints()
 		{
-			OSC_ADD_MEMBER(type);
-			OSC_OBJECT_ADD_MEMBER(coord, "oscCoord");
+			OSC_OBJECT_ADD_MEMBER(eyepoint, "oscEyepoint");
 		};
-		oscString type;
-		oscCoordMember coord;
+		oscEyepointMember eyepoint;
 	};
 
 	typedef oscObjectVariable<oscEyepoints *> oscEyepointsMember;
