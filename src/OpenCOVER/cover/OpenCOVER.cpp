@@ -967,7 +967,7 @@ void
 OpenCOVER::quitCallback(void * /*sceneGraph*/, buttonSpecCell * /*spec*/)
 {
     OpenCOVER::instance()->setExitFlag(1);
-    coVRPluginList::instance()->requestQuit(false);
+    coVRPluginList::instance()->requestQuit(true);
     if (vrbc)
         delete vrbc;
     vrbc = NULL;

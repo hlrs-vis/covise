@@ -154,14 +154,14 @@ void CovisePlugin::requestQuit(bool killSession)
 {
     if (coVRMSController::instance()->isMaster())
     {
+        if (killSession)
+            CoviseRender::send_quit_message();
+
         // send DEL to controller to do a clean exit
         if (VRCoviseConnection::covconn)
         {
             VRCoviseConnection::covconn->sendQuit();
         }
-
-        if (killSession)
-            CoviseRender::send_quit_message();
     }
 }
 
