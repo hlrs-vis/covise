@@ -43,8 +43,10 @@ Input *Input::instance()
 }
 
 Input::Input()
+: activePerson(NULL)
+, m_mouse(NULL)
+, m_debug(0)
 {
-    activePerson = NULL;
 }
 
 bool Input::init()
