@@ -218,8 +218,8 @@ VRPinboard::VRPinboard()
     addFunction("Fly", BTYPE_NAVGROUP, "fly", "navigation", coVRNavigationManager::flyCallback, coVRNavigationManager::instance());
     addFunction("Walk", BTYPE_NAVGROUP, "walk", "navigation", coVRNavigationManager::walkCallback, coVRNavigationManager::instance());
     addFunction("Drive", BTYPE_NAVGROUP, "drive", "navigation", coVRNavigationManager::driveCallback, coVRNavigationManager::instance());
-    addFunction("XFormRotate", BTYPE_NAVGROUP, "rotate", "navigation", coVRNavigationManager::xformRotateCallback, coVRNavigationManager::instance());
-    addFunction("XFormTranslate", BTYPE_NAVGROUP, "translate", "navigation", coVRNavigationManager::xformTranslateCallback, coVRNavigationManager::instance());
+    //addFunction("XFormRotate", BTYPE_NAVGROUP, "rotate", "navigation", coVRNavigationManager::xformRotateCallback, coVRNavigationManager::instance());
+    //addFunction("XFormTranslate", BTYPE_NAVGROUP, "translate", "navigation", coVRNavigationManager::xformTranslateCallback, coVRNavigationManager::instance());
     addFunction("Selection", BTYPE_NAVGROUP, "select", "navigation", coVRSelectionManager::selectionCallback, coVRSelectionManager::instance());
     addFunction("ShowName", BTYPE_NAVGROUP, "show name", "navigation", coVRNavigationManager::showNameCallback, coVRNavigationManager::instance());
     //addFunction("Measure", BTYPE_NAVGROUP, "measure", "navigation", coVRNavigationManager::measureCallback, coVRNavigationManager::instance());
