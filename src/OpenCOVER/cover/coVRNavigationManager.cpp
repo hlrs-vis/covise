@@ -114,7 +114,8 @@ coVRNavigationManager::coVRNavigationManager()
     , ignoreCollision(true)
     , navMode(NavNone)
     , oldNavMode(NavNone)
-    , shiftEnabled(0)
+    , shiftEnabled(false)
+    , shiftMouseNav(false)
     , isViewerPosRotation(false)
     , currentVelocity(0)
     , rotationPoint(false)
@@ -123,7 +124,6 @@ coVRNavigationManager::coVRNavigationManager()
     , guiTranslateFactor(-1.0)
     , startFrame(-1)
     , actScaleFactor(0)
-    , oldShiftEnabled(0)
     , curTypeYRot(50)
     , curTypeZRot(50)
     , curTypeDef(68)
@@ -745,6 +745,8 @@ coVRNavigationManager::update()
             doMouseScale();
             break;
         case XForm:
+        case XFormTranslate:
+        case XFormRotate:
             doMouseXform();
             break;
         case Fly:
@@ -1788,14 +1790,18 @@ void coVRNavigationManager::doMouseXform()
     osg::Matrix dcs_mat;
     float widthX = mouseWinWidth(), widthY = mouseWinHeight();
     //Rotation funktioniert
-    if ((interactionMA->isRunning() && (mouseNavButtonRotate == 0))
-        || (interactionMC->isRunning() && (mouseNavButtonRotate == 1))
-        || (interactionMB->isRunning() && (mouseNavButtonRotate == 2)))
+    if ((navMode==XFormRotate && (interactionMA->isRunning() || interactionMB->isRunning() || interactionMC->isRunning()))
+            || (navMode==XForm &&
+                ((interactionMA->isRunning() && (mouseNavButtonRotate == 0))
+                 || (interactionMC->isRunning() && (mouseNavButtonRotate == 1))
+                 || (interactionMB->isRunning() && (mouseNavButtonRotate == 2)))))
     {
 
-        if (!shiftEnabled && !isViewerPosRotation) //Rotation um Weltursprung funktioniert
+        if (!shiftMouseNav && !isViewerPosRotation) //Rotation um Weltursprung funktioniert
         {
+            cover->setCurrentCursor(osgViewer::GraphicsWindow::CycleCursor);
 
+#if 0
             if (oldShiftEnabled != shiftEnabled)
             {
                 oldShiftEnabled = shiftEnabled;
@@ -1803,6 +1809,7 @@ void coVRNavigationManager::doMouseXform()
                 relx0 = mouseX() - originX;
                 rely0 = mouseY() - originY;
             }
+#endif
 
             float newx, newy; //newz;//relz0
             float heading, pitch, roll, rollVerti, rollHori;
@@ -1823,9 +1830,10 @@ void coVRNavigationManager::doMouseXform()
             relx0 = mouseX() - originX;
             rely0 = mouseY() - originY;
         }
-        else if (shiftEnabled || isViewerPosRotation) //Rotation um beliebigen Punkt funktioniert
+        else if (shiftMouseNav || isViewerPosRotation) //Rotation um beliebigen Punkt funktioniert
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::CycleCursor);
+#if 0
             if (oldShiftEnabled != shiftEnabled)
             {
                 oldShiftEnabled = shiftEnabled;
@@ -1833,6 +1841,7 @@ void coVRNavigationManager::doMouseXform()
                 relx0 = mouseX() - originX;
                 rely0 = mouseY() - originY;
             }
+#endif
 
             osg::Matrix doTrans, rot, doRot, doRotObj;
             dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -1889,18 +1898,20 @@ void coVRNavigationManager::doMouseXform()
     }
 
     //Translation funktioniert
-    if ((interactionMA->isRunning() && (mouseNavButtonTranslate == 0))
-        || (interactionMC->isRunning() && (mouseNavButtonTranslate == 1))
-        || (interactionMB->isRunning() && (mouseNavButtonTranslate == 2)))
+    if ((navMode==XFormTranslate && (interactionMA->isRunning() || interactionMB->isRunning() || interactionMC->isRunning()))
+            || (navMode==XForm && ((interactionMA->isRunning() && (mouseNavButtonTranslate == 0))
+                    || (interactionMC->isRunning() && (mouseNavButtonTranslate == 1))
+                    || (interactionMB->isRunning() && (mouseNavButtonTranslate == 2)))))
     {
         //irgendwas einbauen, damit die folgenden Anweisungen vor der
         //naechsten if-Schleife nicht unnoetigerweise dauernd ausgefuehrt werden
 
         //Translation in Bildschirmebene//letzte Ueberpruefung auch mal weglassen
-        if (!shiftEnabled /* && (yValObject >= yValViewer) */)
+        if (!shiftMouseNav /* && (yValObject >= yValViewer) */)
         {
-            cover->setCurrentCursor(osgViewer::GraphicsWindow::LeftArrowCursor);
+            cover->setCurrentCursor(osgViewer::GraphicsWindow::HandCursor);
 
+#if 0
             if (oldShiftEnabled != shiftEnabled)
             {
                 oldShiftEnabled = shiftEnabled;
@@ -1908,6 +1919,7 @@ void coVRNavigationManager::doMouseXform()
                 relx0 = mouseX() - originX;
                 rely0 = mouseY() - originY;
             }
+#endif
 
             float newxTrans = mouseX() - originX;
             float newyTrans = mouseY() - originY;
@@ -1926,9 +1938,10 @@ void coVRNavigationManager::doMouseXform()
             navigating = true;
         }
 
-        else if (shiftEnabled) //Translation in der Tiefe
+        else if (shiftMouseNav) //Translation in der Tiefe
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::UpDownCursor);
+#if 0
             if (oldShiftEnabled != shiftEnabled)
             {
                 oldShiftEnabled = shiftEnabled;
@@ -1936,6 +1949,7 @@ void coVRNavigationManager::doMouseXform()
                 relx0 = mouseX() - originX;
                 rely0 = mouseY() - originY;
             }
+#endif
 
             float newzTrans = mouseY() - originY;
             float zTrans;
@@ -1952,16 +1966,21 @@ void coVRNavigationManager::doMouseXform()
         }
         coVRCollaboration::instance()->SyncXform();
     }
-    if ((interactionMA->isRunning() && (mouseNavButtonScale == 0))
-        || (interactionMC->isRunning() && (mouseNavButtonScale == 1))
-        || (interactionMB->isRunning() && (mouseNavButtonScale == 2)))
+    if (navMode==XForm &&
+            ((interactionMA->isRunning() && (mouseNavButtonScale == 0))
+             || (interactionMC->isRunning() && (mouseNavButtonScale == 1))
+             || (interactionMB->isRunning() && (mouseNavButtonScale == 2))))
     {
-        doMouseScale();
+        if (navMode==XForm)
+        {
+            doMouseScale();
+        }
     }
 }
 
 void coVRNavigationManager::doMouseScale()
 {
+    cover->setCurrentCursor(osgViewer::GraphicsWindow::UpDownCursor);
     float ampl = mouseWinHeight()/2;
     float newScaleY = mouseY() - originY;
 
@@ -2022,6 +2041,8 @@ void coVRNavigationManager::doMouseWalk()
 
 void coVRNavigationManager::stopMouseNav()
 {
+    cover->setCurrentCursor(osgViewer::GraphicsWindow::LeftArrowCursor);
+
     actScaleFactor = cover->getScale();
     x0 = mx;
     y0 = my;
@@ -2034,6 +2055,8 @@ void coVRNavigationManager::stopMouseNav()
 
 void coVRNavigationManager::startMouseNav()
 {
+    shiftMouseNav = shiftEnabled;
+
     osg::Matrix dcs_mat;
     dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
     actScaleFactor = cover->getScale();
