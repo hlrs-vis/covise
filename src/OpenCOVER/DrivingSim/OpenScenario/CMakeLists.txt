@@ -130,6 +130,7 @@ SET(HEADERS
    oscSetState.h
    oscSimulationTime.h
    oscShape.h
+   oscSourceFile.h
    oscSpeedDynamics.h
    oscSpeed.h
    oscSpline.h
@@ -177,6 +178,7 @@ SET(SOURCES
    oscRoadCondition.cpp
    oscRoute.cpp
    oscShape.cpp
+   oscSourceFile.cpp
    oscVariables.cpp
    oscVehicle.cpp
    oscWeather.cpp

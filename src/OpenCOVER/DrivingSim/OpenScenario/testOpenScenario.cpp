@@ -25,10 +25,9 @@ int main(int argc, char **argv)
         std::cerr << "failed to load OpenScenarioBase from file " << fileName << std::endl;
         return -1;
     }
-    oscHeader * h = osdb->header.getObject();
-    if (h != NULL)
+    if (osdb->header.getObject() != NULL)
     {
-        std::cerr << "revMajor:" << h->revMajor.getValue() << std::endl;
+        std::cerr << "revMajor:" << osdb->header->revMajor.getValue() << std::endl;
         std::cerr << "revMinor:" << osdb->header->revMinor.getValue() << std::endl;
         std::cerr << "Author:" << osdb->header->author.getValue() << std::endl;
     }

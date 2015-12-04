@@ -14,7 +14,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscHeader.h>
 #include <oscEnvironment.h>
 #include <oscTest.h>
+
 #include <string>
+#include <vector>
+
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
@@ -24,7 +27,7 @@ XERCES_CPP_NAMESPACE_END
 
 namespace OpenScenario {
 
-class oscHeader;
+class oscSourceFile;
 
 /// \class This class represents an OpenScenario database
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
@@ -33,6 +36,8 @@ protected:
     xercesc::DOMElement *rootElement; ///< DOM Root element
     xercesc::XercesDOMParser *parser; ///< validating parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
+    std::vector<oscSourceFile *> srcFileVec;
+
     
 public:
     oscHeaderMember header;
@@ -62,6 +67,9 @@ public:
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
     xercesc::DOMDocument *getDocument(){return xmlDoc;};
+
+    void addToSrcFileVec(oscSourceFile *src);
+    std::vector<oscSourceFile *> getSrcFileVec();
 
 };
 
