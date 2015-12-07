@@ -70,6 +70,8 @@ int OpenScenarioBase::loadFile(std::string &fileName)
 int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default false */)
 {
     xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+    //oscSourceFile for OpenScenarioBase
+    oscSourceFile *osbSourceFile;
 
     //create xmlDocs for every source file
     //
@@ -81,15 +83,21 @@ int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default f
         if (srcFileRootElement == "OpenScenario")
         {
             srcFileVec[i]->setVariables(srcFileRootElement, fileName);
+            osbSourceFile = srcFileVec[i];
         }
 
         xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, xercesc::XMLString::transcode(srcFileRootElement.c_str()), 0);
-        srcFileVec[i]->setXmlDoc(xmlSrcDoc);
+
+        if (!srcFileVec[i]->getXmlDoc())
+        {
+            srcFileVec[i]->setXmlDoc(xmlSrcDoc);
+        }
     }
 
     //write objects to their own xmlDoc
+    //for start use OpenScenarioBase xml document
     //
-    writeToDOM(srcFileVec.front()->getXmlDoc()->getDocumentElement(), srcFileVec.front()->getXmlDoc());
+    writeToDOM(osbSourceFile->getXmlDoc()->getDocumentElement(), osbSourceFile->getXmlDoc());
 
     //write xmlDocs to disk
     //
@@ -140,10 +148,6 @@ int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default f
 
         delete xmlTarget;
         delete writer;
-
-
-
-
     }
 
     return true;

@@ -15,6 +15,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
+class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
@@ -29,20 +30,24 @@ public:
     oscSourceFile(); ///< constructor
     ~oscSourceFile(); ///< destructor
 
-    void initialize(OpenScenarioBase* b);
+    void initialize(OpenScenarioBase *b);
 
-    void setVariables(std::string ren, std::string sf=""); ///< set srcFile and rootElementName when object is used the first time
-    void setXmlDoc(xercesc::DOMDocument* xD);
+    void setVariables(std::string ren, std::string sf = ""); ///< set srcFile and rootElementName when object is used the first time
+    void setXmlDoc(xercesc::DOMDocument *xD);
+    void setIncludeParentElem(xercesc::DOMElement *inclParentElem);
 
     std::string getSrcFileName();
     std::string getRootElementName();
-    xercesc::DOMDocument* getXmlDoc();
+    xercesc::DOMDocument *getXmlDoc();
+    xercesc::DOMElement *getIncludeParentElem();
+
 
 protected:
-    OpenScenarioBase* base;
+    OpenScenarioBase *base;
     std::string srcFileName; ///< file name from which we read
     std::string rootElementName; ///< name of the root element of the file from which is read
-    xercesc::DOMDocument* xmlDoc;
+    xercesc::DOMDocument *xmlDoc;
+    xercesc::DOMElement *includeParentElem;
 
 };
 
