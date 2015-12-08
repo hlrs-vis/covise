@@ -44,7 +44,9 @@ SET(HEADERS
    oscDriverRef.h
    oscEngine.h
    oscEntity.h
+   oscEntityAdd.h
    oscEntityCatalog.h
+   oscEntityDelete.h
    oscEnvironmentCatalog.h
    oscEnvironment.h
    oscEvent.h
@@ -83,6 +85,7 @@ SET(HEADERS
    oscMiscObjectRef.h
    oscNamedObject.h
    oscNameRefId.h
+   oscNotify.h
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
@@ -142,9 +145,15 @@ SET(HEADERS
    oscTimeHeadway.h
    oscTimeOfDay.h
    oscTimeToCollision.h
+   oscTrafficJam.h
    oscTrafficLight.h
+   oscTrafficSink.h
+   oscTrafficSource.h
    oscUserData.h
    oscUserDefined.h
+   oscUserDefinedAction.h
+   oscUserDefinedCommand.h
+   oscUserScript.h
    oscVariables.h
    oscVehicle.h
    oscVehicleAxle.h
@@ -177,6 +186,8 @@ SET(SOURCES
    oscRoadCondition.cpp
    oscRoute.cpp
    oscShape.cpp
+   oscTrafficSource.cpp
+   oscUserScript.cpp
    oscVariables.cpp
    oscVehicle.cpp
    oscWeather.cpp

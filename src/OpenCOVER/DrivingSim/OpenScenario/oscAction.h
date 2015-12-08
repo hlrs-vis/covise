@@ -23,6 +23,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscCharacterGesture.h>
 #include <oscCharacterMotion.h>
 #include <oscTrafficLight.h>
+#include <oscEntityAdd.h>
+#include <oscEntityDelete.h>
+#include <oscTrafficJam.h>
+#include <oscTrafficSource.h>
+#include <oscTrafficSink.h>
+#include <oscUserDefinedAction.h>
+#include <oscUserDefinedCommand.h>
+#include <oscNotify.h>
+#include <oscUserScript.h>
 #include <oscUserData.h>
 #include <oscFile.h>
 
@@ -46,6 +55,15 @@ public:
 		OSC_OBJECT_ADD_MEMBER(characterGesture,"oscCharacterGesture");
 		OSC_OBJECT_ADD_MEMBER(characterMotion,"oscCharacterMotion");
 		OSC_OBJECT_ADD_MEMBER(trafficLight,"oscTrafficLight");
+		OSC_OBJECT_ADD_MEMBER(entityAdd,"oscEntityAdd");
+		OSC_OBJECT_ADD_MEMBER(entityDelete,"oscEntityDelete");
+		OSC_OBJECT_ADD_MEMBER(trafficJam,"oscTrafficJam");
+		OSC_OBJECT_ADD_MEMBER(trafficSource,"oscTrafficSource");
+		OSC_OBJECT_ADD_MEMBER(trafficSink,"oscTrafficSink");
+		OSC_OBJECT_ADD_MEMBER(userDefinedAction,"oscUserDefinedAction");
+		OSC_OBJECT_ADD_MEMBER(userDefinedCommand,"oscUserDefinedCommand");
+		OSC_OBJECT_ADD_MEMBER(userScript,"oscUserScript");
+		OSC_OBJECT_ADD_MEMBER(notify,"oscNotify");
 		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
 		OSC_OBJECT_ADD_MEMBER(include,"oscFile");
     };
@@ -61,6 +79,15 @@ public:
 	oscCharacterGestureMember characterGesture;
 	oscCharacterMotionMember characterMotion;
 	oscTrafficLightMember trafficLight;
+	oscEntityAddMember entityAdd;
+	oscEntityDeleteMember entityDelete;
+	oscTrafficJamMember trafficJam;
+	oscTrafficSourceMember trafficSource;
+	oscTrafficSinkMember trafficSink;
+	oscUserDefinedActionMember userDefinedAction;
+	oscUserDefinedCommandMember userDefinedCommand;
+	oscUserScriptMember userScript;
+	oscNotifyMember notify;
 	oscUserDataMember userData;
 	oscFileMember iclude;
 };

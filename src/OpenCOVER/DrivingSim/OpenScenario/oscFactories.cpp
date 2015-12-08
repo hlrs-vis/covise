@@ -40,7 +40,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscDriverCatalog.h>
 #include <oscEngine.h>
 #include <oscEntity.h>
+#include <oscEntityAdd.h>
 #include <oscEntityCatalog.h>
+#include <oscEntityDelete.h>
 #include <oscEnvironment.h>
 #include <oscEnvironmentCatalog.h>
 #include <oscEyepoint.h>
@@ -73,6 +75,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscMiscObjectRef.h>
 #include <oscNamedObject.h>
 #include <oscNameRefId.h>
+#include <oscNotify.h>
 #include <oscNumericCondition.h>
 #include <oscObject.h>
 #include <oscObjectBase.h>
@@ -129,9 +132,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscTimeHeadway.h>
 #include <oscTimeOfDay.h>
 #include <oscTimeToCollision.h>
+#include <oscTrafficJam.h>
 #include <oscTrafficLight.h>
+#include <oscTrafficSink.h>
+#include <oscTrafficSource.h>
 #include <oscUserData.h>
 #include <oscUserDefined.h>
+#include <oscUserDefinedAction.h>
+#include <oscUserDefinedCommand.h>
+#include <oscUserScript.h>
 #include <oscVariables.h>
 #include <oscVehicle.h>
 #include <oscVehicleAxle.h>
@@ -204,7 +213,9 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscDriverRef>("oscDriverRef");
 	staticObjectFactory.registerType<oscEngine>("oscEngine");
 	staticObjectFactory.registerType<oscEntity>("oscEntity");
+	staticObjectFactory.registerType<oscEntityAdd>("oscEntityAdd");
     staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
+	staticObjectFactory.registerType<oscEntityDelete>("oscEntityDelete");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
 	staticObjectFactory.registerType<oscEnvironmentCatalog>("oscEnvironmentCatalog");
 	staticObjectFactory.registerType<oscEyepoint>("oscEyepoint");
@@ -236,6 +247,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscMiscObjectRef>("oscMiscObjectRef");
     staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");
     staticObjectFactory.registerType<oscNameRefId>("oscNameRefId");
+	staticObjectFactory.registerType<oscNotify>("oscNotify");
 	staticObjectFactory.registerType<oscNumericCondition>("oscNumericCondition");
 	staticObjectFactory.registerType<oscObject>("oscObject");
 	staticObjectFactory.registerType<oscObjectChoice>("oscObjectChoice");
@@ -291,9 +303,15 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscTimeHeadway>("oscTimeHeadway");
 	staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
 	staticObjectFactory.registerType<oscTimeToCollision>("oscTimeToCollision");
+	staticObjectFactory.registerType<oscTrafficJam>("oscTrafficJam");
 	staticObjectFactory.registerType<oscTrafficLight>("oscTrafficLight");
+	staticObjectFactory.registerType<oscTrafficSink>("oscTrafficSink");
+	staticObjectFactory.registerType<oscTrafficSource>("oscTrafficSource");
     staticObjectFactory.registerType<oscUserData>("oscUserData");
 	staticObjectFactory.registerType<oscUserDefined>("oscUserDefined");
+	staticObjectFactory.registerType<oscUserDefinedAction>("oscUserDefinedAction");
+	staticObjectFactory.registerType<oscUserDefinedCommand>("oscUserDefinedCommand");
+	staticObjectFactory.registerType<oscUserScript>("oscUserScript");
 	staticObjectFactory.registerType<oscVehicleAxle>("oscVehicleAxle");
     staticObjectFactory.registerType<oscVehicleCatalog>("oscVehicleCatalog");
 	staticObjectFactory.registerType<oscVehicle>("oscVehicle");
