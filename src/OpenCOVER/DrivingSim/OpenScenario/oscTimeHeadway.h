@@ -10,14 +10,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscObject.h>
+#include <oscConditionChoiceObject.h>
 #include <oscPosition.h>
 
 namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscTimeHeadway: public oscObject
+class OPENSCENARIOEXPORT oscTimeHeadway: public oscConditionChoiceObject
 {
 public:
     oscTimeHeadway()

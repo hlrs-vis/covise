@@ -10,7 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscStartConditionGroup.h>
+#include <oscEventStartConditionGroup.h>
 #include <oscAction.h>
 
 namespace OpenScenario {
@@ -33,7 +33,7 @@ public:
         OSC_ADD_MEMBER(name);
 		OSC_ADD_MEMBER(priority);
 		priority.enumType = priorityType::instance();
-		OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscStartConditionGroup");
+		OSC_OBJECT_ADD_MEMBER(eventstartConditionGroup,"oscEventStartConditionGroup");
 		OSC_OBJECT_ADD_MEMBER(action,"oscAction");
 		
     };
@@ -45,7 +45,7 @@ public:
         skip,
     };
 	oscEnum priority;
-	oscStartConditionGroupMember startConditionGroup;
+	oscEventStartConditionGroupMember eventstartConditionGroup;
 	oscActionMember action;
 	
 };

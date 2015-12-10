@@ -9,41 +9,32 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
+#include <oscNamedObject.h>
+#include <oscCatalogRef.h>
+#include <oscInitPosition.h>
+#include <oscInitDynamics.h>
+#include <oscInitState.h>
+
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT conditionType: public oscEnumType
-{
-public:
-    static conditionType *instance(); 
-private:
-    conditionType();
-    static conditionType *inst;
-};
-
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObject: public oscObjectBase
+class OPENSCENARIOEXPORT oscObject: public oscNamedObject
 {
 public:
-	
-    enum condition
-    {
-        exceed,
-		deceed,
-    };
     oscObject()
     {
-		OSC_ADD_MEMBER(object);
-		OSC_ADD_MEMBER(refObject);
-		OSC_ADD_MEMBER(value);
-		OSC_ADD_MEMBER(condition);
-		condition.enumType = conditionType::instance();
+       OSC_OBJECT_ADD_MEMBER(catalogRef,"oscCatalogRef");
+       OSC_OBJECT_ADD_MEMBER(initPosition,"oscInitPosition");
+	   OSC_OBJECT_ADD_MEMBER(initDynamics,"oscInitDynamics");
+       OSC_OBJECT_ADD_MEMBER(initState,"oscInitState");
+
     };
-	oscString object;
-	oscString refObject;
-	oscDouble value;
-	oscEnum condition;
+    
+    oscCatalogRefMember catalogRef;
+	oscInitPositionMember initPosition;
+    oscInitDynamicsMember initDynamics;
+    oscInitStateMember initState;
 };
 
 typedef oscObjectVariable<oscObject *> oscObjectMember;

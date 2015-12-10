@@ -17,6 +17,8 @@ SET(HEADERS
    oscBehavior.h
    oscBody.h
    oscBoundingBox.h
+   oscCancelCondition.h
+   oscCancelConditionGroup.h
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
@@ -29,6 +31,9 @@ SET(HEADERS
    oscColor.h
    oscCommand.h
    oscCondition.h
+   oscConditionChoiceObject.h
+   oscConditionChoiceRefObject.h
+   oscConditionObject.h
    oscContinuation.h
    oscControllerChoice.h
    oscCoord.h
@@ -42,14 +47,19 @@ SET(HEADERS
    oscDriverCatalog.h
    oscDriver.h
    oscDriverRef.h
+   oscEndCondition.h
+   oscEndConditionGroup.h
    oscEngine.h
    oscEntity.h
+   oscEntities.h
    oscEntityAdd.h
    oscEntityCatalog.h
    oscEntityDelete.h
    oscEnvironmentCatalog.h
    oscEnvironment.h
    oscEvent.h
+   oscEventStartCondition.h
+   oscEventStartConditionGroup.h
    oscExport.h
    oscEyepoint.h
    oscEyepoints.h
@@ -64,6 +74,9 @@ SET(HEADERS
    oscGearbox.h
    oscGeneral.h
    oscHeader.h
+   oscInitDynamics.h
+   oscInitPosition.h
+   oscInitState.h
    oscIntensity.h
    oscLaneChange.h
    oscLaneCoord.h
@@ -76,6 +89,7 @@ SET(HEADERS
    oscManeuverCatalog.h
    oscManeuver.h
    oscManeuverList.h
+   oscManeuverRef.h
    oscMember.h
    oscMemberValue.h
    oscMirror.h
@@ -89,8 +103,7 @@ SET(HEADERS
    oscNumericCondition.h
    oscObject.h
    oscObjectBase.h
-   oscObjectChoice.h
-   oscObjectRef.h
+   oscObjectChoice.h  
    oscObjectVariable.h
    oscObserver.h
    oscObserverCatalog.h
@@ -129,6 +142,7 @@ SET(HEADERS
    oscRoute.h
    oscRouting.h
    oscRoutingCatalog.h
+   oscScenarioEnd.h
    oscSetController.h
    oscSetState.h
    oscSimulationTime.h
@@ -140,6 +154,7 @@ SET(HEADERS
    oscStartConditionGroup.h
    oscStartCondition.h
    oscStoppingDistance.h
+   oscStoryboard.h
    oscTest.h
    oscTime.h
    oscTimeHeadway.h
@@ -169,14 +184,14 @@ SET(SOURCES
    OpenScenarioBase.cpp
    oscArrayMember.cpp
    oscBody.cpp
+   oscConditionChoiceObject.cpp
+   oscConditionChoiceRefObject.cpp
    oscEvent.cpp
    oscFactories.cpp
    oscMember.cpp
    oscMemberValue.cpp
    oscNumericCondition.cpp
-   oscObject.cpp
    oscObjectBase.cpp
-   oscObjectRef.cpp
    oscPartner.cpp
    oscPedestrian.cpp
    oscPedestrianController.cpp
