@@ -19,6 +19,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
 
 
 using namespace OpenScenario;
@@ -54,17 +55,42 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
         {
             if(member->getType() == oscMemberValue::OBJECT)
             {
-                xercesc::DOMDocument *srcXmlDoc;
                 const oscObjectBase *obj = member->getObject();
+
                 if (obj)
                 {
-                    xercesc::DOMDocument *memSrcXmlDoc = obj->getSource()->getXmlDoc();
-                    srcXmlDoc = memSrcXmlDoc;
+                    //xml document for member
+                    xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
+                    //oscSourceFile of parent of member
+                    oscSourceFile *parentSrc = member->getOwner()->getSource();
 
-                    if (srcXmlDoc != document)
+                    if (document != srcXmlDoc)
                     {
                         document = srcXmlDoc;
-                        currentElement = srcXmlDoc->getDocumentElement();
+                        //element of parent of member
+                        xercesc::DOMElement *parentElement = parentSrc->getIncludeParentElem();
+
+                        if (parentElement)
+                        {
+                            if (parentElement->getOwnerDocument() == srcXmlDoc)
+                            {
+                                currentElement = parentElement;
+                            }
+                            else
+                            {
+                                //set element to root element of new document
+                                currentElement = srcXmlDoc->getDocumentElement();
+                            }
+                        }
+                        else
+                        {
+                            //set the element of the parent (is parent of include)
+                            //for the first time another xmlDoc appears under an object
+                            parentSrc->setIncludeParentElem(currentElement);
+
+                            //set element to root element of new document
+                            currentElement = srcXmlDoc->getDocumentElement();
+                        }
                     }
 
                     member->writeToDOM(currentElement,document);
@@ -209,10 +235,84 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //member has a value (exists)
                     if ( m->exists() )
                     {
-                        std::cerr << "\n Warning!" << std::endl;
-                        std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << xercesc::XMLString::transcode(currentElement->getNodeName()) << "\"" << std::endl;
-                        std::cerr << "  Only first entry is used." << std::endl;
-                        std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileName() << " is not used.\n" << std::endl;
+                        if (m->getName() != INCLUDE)
+                        {
+                            std::cerr << "\n Warning!" << std::endl;
+                            std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << xercesc::XMLString::transcode(currentElement->getNodeName()) << "\"" << std::endl;
+                            std::cerr << "  Only first entry is used." << std::endl;
+                            std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileName() << " is used.\n" << std::endl;
+                        }
+
+                        //
+                        // elements are read and stored in objects before
+                        //
+                        // further appearance of the same elements:
+                        //  - the warning above is printed
+                        //  - elements will be stored in an xml document: src->xmlDoc
+                        //    during the later writing the other elements will be added to this file
+                        //
+                        // => Important for include <=
+                        //
+                        // (if an include file contain another include, the file will be read but the the include URL itself
+                        //  can't be stored in an object. With the following code it will be copied into the xml file)
+                        //
+
+                        //generate xmlDoc for src if it doesn't exist
+                        //
+                        xercesc::DOMDocument *srcXmlDoc;
+                        bool success = true;
+
+                        if (!src->getXmlDoc())
+                        {
+                            try
+                            {
+                                const XMLCh* rootElemName = xercesc::XMLString::transcode(src->getRootElementName().c_str());
+                                xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+                                srcXmlDoc = impl->createDocument(0, rootElemName, 0);
+                                src->setXmlDoc(srcXmlDoc);
+                            }
+                            catch (...)
+                            {
+                                std::cerr << "Error while try to generate a DOMDocument for filename " << src->getSrcFileName() << std::endl;
+                                success = false;
+                            }
+                        }
+                        else
+                        {
+                            srcXmlDoc = src->getXmlDoc();
+                        }
+
+                        //clone member element and add to xml document in src->xmDoc
+                        //
+                        xercesc::DOMNode* memberElemClone = memberElem->cloneNode(true);
+
+                        if (success)
+                        {
+                            //append memberElemClone to root element of xml document in src->xmDoc
+                            xercesc::DOMNode* importedMemElem = srcXmlDoc->importNode(memberElemClone, true);
+
+                            try
+                            {
+                                xercesc::DOMElement* rootElem = srcXmlDoc->getDocumentElement();
+                                xercesc::DOMNode* firstChild = rootElem->getFirstChild();
+                                if (firstChild)
+                                {
+                                    //at the beginning
+                                    rootElem->insertBefore(importedMemElem, firstChild);
+                                }
+                                else
+                                {
+                                    //at the end
+                                    rootElem->appendChild(importedMemElem);
+                                }
+                            }
+                            catch (const xercesc::DOMException &toCatch)
+                            {
+                                char *message = xercesc::XMLString::transcode(toCatch.getMessage());
+                                std::cout << "Error during insert child in xml document! :\n" << message << std::endl;
+                                xercesc::XMLString::release(&message);
+                            }
+                        }
                     }
                     //member has no value (doesn't exist)
                     else

@@ -27,13 +27,11 @@
     <include URL="testinclude.xosc" />
   </environment>
   <test>
-    <driver obeyTrafficLights="0" obeyTrafficSigns="1" steeringDistance="1" foresightDistance="2" respondToTailgating="3" urgeToOvertake="4" useOfIndicator="5" keepRightRule="6" laneChangeDynamic="7" speedKeeping="8" laneKeeping="9" distanceKeeping="10" observeSpeedLimits="11" curveSpeed="12" desiredDeceleration="13" desiredAcceleration="14" desiredVelocity="15" politeness="16" alertness="17" adaptToVehicleType="18" adaptToTimeOfDay="19" adaptToRoadConditions="20" adaptToWeatherConditions="21">
+    <driver name="joe" obeyTrafficLights="0" obeyTrafficSigns="1" steeringDistance="1" foresightDistance="2" respondToTailgating="3" urgeToOvertake="4" useOfIndicator="5" keepRightRule="6" laneChangeDynamic="7" speedKeeping="8" laneKeeping="9" distanceKeeping="10" observeSpeedLimits="11" curveSpeed="12" desiredDeceleration="13" desiredAcceleration="14" desiredVelocity="15" politeness="16" alertness="17" adaptToVehicleType="18" adaptToTimeOfDay="19" adaptToRoadConditions="20" adaptToWeatherConditions="21">
       <header revMajor="1" revMinor="0" date="2015-11-23T12:15:00+01:00" description="testDriver" author="PW"/>  
       <body weight="75" height="180" eyeDistance="65" sex="male"/>
       <geometry URL="3d.max"/> 
-      <name name="joe">
-        <include URL="test.xodr"/>
-      </name>
+      <include URL="test.xodr"/>
     </driver>
     <position>
       <positionWorld x="10" y="10" z="10" h="10" p="10" r="10"/>
@@ -41,7 +39,7 @@
       <positionLane roadId="1" laneId="2" offset="1" s="1" relativeOrientation="0" h="10" p="10" r="10"/>
       <relativePositionWorld refObject="a" dx="1" dy="2" dz="3" h="1" p="2" r="3"/>
       <relativePositionRoad refObject="a" ds="1" dt="2" relativeOrientation="0" h="1" p="2" r="3"/>
-      <relativePositionLane refObject="a" dLaneId="2" offset="1" ds="1" relativeOrientation="0" h="10" p="10" r="10"/>
+      <relativePositionLane refObject="a" dLane="2" offset="1" ds="1" relativeOrientation="0" h="10" p="10" r="10"/>
       <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
         <roadCoord pathS="1" t="2"/>
         <laneCoord pathS="1" laneId="2" laneOffset="3"/>
@@ -60,31 +58,19 @@
         </position> 
       </reachPosition>
       
-      <distance freespace="1" >
-        <object object="V1" refObject="V2" value="50" condition="decceed"/>
-      </distance>
+      <distance freespace="1" object="V1" refObject="V2" value="50" condition="decceed"/>
       
-      <velocity>
-        <objectRef reference="relative">
-          <object></object>
-        </objectRef>
-      </velocity>
+      <velocity reference="relative"/>
       
       <standsStill object="V3" duration="60"/>
       
-      <acceleration>
-        <objectRef reference="relative">
-          <object object="V1" refObject="V2" value="50" condition="decceed"/>
-        </objectRef>
-      </acceleration>
+      <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
       
       <stoppingDistance freespace="1">
-        <object></object>
         <position></position>
       </stoppingDistance>
       
       <timeToCollision freespace="1">
-        <object></object>
         <position></position>
       </timeToCollision>
       
@@ -106,7 +92,6 @@
         <parameter name="gg" value="3" type="e"/>
       </userDefined>
     
-	  
     </condition>
   </test>
   <roadNetwork>
@@ -116,6 +101,5 @@
   <storyboard>
   </storyboard>
   <catalogs>
-    <vehicle/>
   </catalogs>
 </OpenScenario>

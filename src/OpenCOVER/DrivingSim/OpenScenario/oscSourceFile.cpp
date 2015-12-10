@@ -20,6 +20,7 @@ oscSourceFile::oscSourceFile()
 {
     base = NULL;
     xmlDoc = NULL;
+    includeParentElem = NULL;
 }
 
 oscSourceFile::~oscSourceFile()
@@ -33,7 +34,7 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
-void oscSourceFile::initialize(OpenScenarioBase* b)
+void oscSourceFile::initialize(OpenScenarioBase *b)
 {
     base = b;
 }
@@ -44,9 +45,14 @@ void oscSourceFile::setVariables(std::string ren, std::string sf)
     rootElementName = ren;
 }
 
-void oscSourceFile::setXmlDoc(xercesc::DOMDocument* xD)
+void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
 {
     xmlDoc = xD;
+}
+
+void oscSourceFile::setIncludeParentElem(xercesc::DOMElement *inclParentElem)
+{
+    includeParentElem = inclParentElem;
 }
 
 
@@ -60,9 +66,14 @@ std::string oscSourceFile::getRootElementName()
     return rootElementName;
 }
 
-xercesc::DOMDocument* oscSourceFile::getXmlDoc()
+xercesc::DOMDocument *oscSourceFile::getXmlDoc()
 {
     return xmlDoc;
+}
+
+xercesc::DOMElement *oscSourceFile::getIncludeParentElem()
+{
+    return includeParentElem;
 }
 
 
