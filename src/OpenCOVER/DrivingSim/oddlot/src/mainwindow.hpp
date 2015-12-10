@@ -156,6 +156,9 @@ public:
     void open(QString fileName);
     void openTile(QString fileName);
 
+	// add Catalog dock widgets when the project is openend
+	void createCatalog(const QString &, QWidget *widget);
+
 
 private:
     // Init functions //

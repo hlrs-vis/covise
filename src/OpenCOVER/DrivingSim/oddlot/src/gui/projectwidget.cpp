@@ -58,10 +58,12 @@
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/editors/junctioneditor.hpp"
 #include "src/graph/editors/signaleditor.hpp"
+#include "src/graph/editors/osceditor.hpp"
 
 // Tree //
 //
 #include "src/tree/projecttree.hpp"
+#include "src/tree/catalogtreewidget.hpp"
 
 // Settings //
 //
@@ -86,6 +88,11 @@
 #include "src/io/domparser.hpp"
 #include "src/io/domwriter.hpp"
 
+// OpenScenario //
+//
+#include "OpenScenarioBase.h"
+#include "src/io/oscparser.hpp"
+
 // Qt //
 //
 #include <QtGui>
@@ -99,6 +106,8 @@
 #include <QAction>
 #include <QApplication>
 #include <vector>
+
+using namespace OpenScenario;
 
 /** \brief Main Contructor. Use only this one.
 *
@@ -119,6 +128,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     , topviewGraph_(NULL)
     , projectEditor_(NULL)
     , changeManager_(NULL)
+	, osdb_(NULL)
 {
     // Layout //
     //
@@ -205,6 +215,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
+	editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
 
     // VIEW: Tree //
     //
@@ -248,6 +259,7 @@ ProjectWidget::~ProjectWidget()
 {
     delete projectSettings_;
     delete heightGraph_;
+
     foreach (ProjectEditor *editor, editors_)
     {
         delete editor;
@@ -411,6 +423,15 @@ ProjectWidget::loadFile(const QString &fileName)
     QApplication::setOverrideCursor(Qt::WaitCursor);
     DomParser *parser = new DomParser(projectData_);
     bool success = parser->parseXODR(&file);
+
+	if (!success)		// try OpenScenario
+	{
+		osdb_ = new OpenScenario::OpenScenarioBase();
+
+		OSCParser *oscParser = new OSCParser(osdb_, projectData_);
+		success = oscParser->parseXOSC(fileName);
+	}
+
     topviewGraph_->updateSceneSize();
     delete parser;
     // TODO
@@ -464,6 +485,15 @@ ProjectWidget::loadTile(const QString &fileName)
     setFile(fileName);
 
     return true;
+}
+
+void
+	ProjectWidget::addCatalogTree(const QString &type, OpenScenario::oscObjectBase *object)
+{
+	// add a catalog tree
+	//
+	CatalogTreeWidget *catalogWidget = new CatalogTreeWidget(mainWindow_, object);
+	mainWindow_->createCatalog(type, catalogWidget);
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)

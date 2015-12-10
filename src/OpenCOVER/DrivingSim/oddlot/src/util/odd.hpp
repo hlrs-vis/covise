@@ -83,6 +83,7 @@ public:
         ECF, /*!< CrossfallEditor */
         EJE, /*!< JunctionEditor */
         ESG, /*!< SignalEditor */
+		EOS, /*!< OpenScenatioEditor */
         ENO_EDITOR /*!< No Editor */
     };
 
@@ -181,6 +182,12 @@ public:
         TSG_REMOVE_CONTROL_ENTRY,
         TSG_DEL,
         TSG_MOVE,
+
+		// OpenScenario Editor
+		TOS_SELECT,
+		TOS_CREATE_CATALOG,
+		TOS_SAVE_CATALOG,
+		TOS_OBJECT,
 
         // No Tool
         TNO_TOOL

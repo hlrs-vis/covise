@@ -48,6 +48,13 @@ class RSystemElementRoad;
 
 class TrackSpiralArcSpiral;
 
+namespace OpenScenario
+{
+class OpenScenarioBase;
+class oscObjectBase;
+}
+
+
 /** \brief The ProjectWidget class is the main class for each project.
 * It is a container for the Model-View-Controller classes.
 *
@@ -99,6 +106,10 @@ public:
     bool importCSVFile(const QString &fileName);
     bool importCarMakerFile(const QString &fileName);
     bool maybeSave();
+
+	// Add catalogs //
+	//
+	void addCatalogTree(const QString & type, OpenScenario::oscObjectBase *object);
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
@@ -156,6 +167,10 @@ public:
     {
         return lodSettings;
     }
+	OpenScenario::OpenScenarioBase *getOpenScenarioBase()
+	{
+		return osdb_;
+	}
 
     void setEditor(ODD::EditorId id);
 
@@ -244,6 +259,10 @@ private:
     // ChangeManager //
     //
     ChangeManager *changeManager_; // owned
+
+	// OpenScenarioBase //
+	//
+	OpenScenario::OpenScenarioBase *osdb_;
 };
 
 #endif // PROJECTWIDGET_HPP

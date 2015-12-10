@@ -106,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+	delete signalTree_;
 
     ODD::kill();
 }
@@ -562,6 +563,34 @@ MainWindow::createUndo()
     undoDock_->setWidget(undoView_);
 }
 
+/*! \brief Creates the tree view dock.
+*/
+void
+MainWindow::createCatalog(const QString &name, QWidget *widget)
+{
+    // Dock Area //
+    //
+    QDockWidget * catalogDock = new QDockWidget(name, this);
+    catalogDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	catalogDock->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	catalogDock->setFixedWidth(200);
+
+    addDockWidget(Qt::RightDockWidgetArea, catalogDock);
+	tabifyDockWidget(treeDock_, catalogDock);
+	catalogDock->raise();
+		
+    // Show/Hide Action //
+    //
+    QAction *catalogDockToggleAction = catalogDock->toggleViewAction();
+    catalogDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
+    viewMenu_->addAction(catalogDockToggleAction);
+	
+
+    // Catalog Widget //
+    //
+    catalogDock->setWidget(widget);
+}
+
 
 //################//
 // SLOTS          //
@@ -632,7 +661,8 @@ MainWindow::open()
         }
         else
         {
-            project->close();
+ //           project->close();
+			delete project;
         }
     }
     return;
@@ -688,7 +718,8 @@ MainWindow::open(QString fileName)
         }
         else
         {
-            project->close();
+         //   project->close();
+			delete project;
         }
     }
     return;

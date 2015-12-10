@@ -32,6 +32,7 @@
 #include "laneeditortool.hpp"
 #include "junctioneditortool.hpp"
 #include "signaleditortool.hpp"
+#include "osceditortool.hpp"
 
 #include "maptool.hpp"
 
@@ -125,6 +126,10 @@ ToolManager::initTools()
     // Map //
     //
     new MapTool(this);
+
+	// OpenScenario //
+	//
+	new OpenScenarioEditorTool(this);
 
     // Default //
     //
