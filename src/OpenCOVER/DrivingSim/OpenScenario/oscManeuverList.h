@@ -25,12 +25,12 @@ public:
        OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscStartConditionGroup");
 	   OSC_OBJECT_ADD_MEMBER(endConditionGroup,"oscEndConditionGroup");
        OSC_OBJECT_ADD_MEMBER(cancelConditionGroup,"oscCancelConditionGroup");
-       OSC_OBJECT_ADD_MEMBER(maneuverRef,"oscManeuverRef");
+       OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuverRef");
     };
     oscStartConditionGroupMember startConditionGroup;
     oscEndConditionGroupMember endConditionGroup;
     oscCancelConditionGroupMember cancelConditionGroup;
-    oscManeuverRefMember maneuverRef;
+    oscManeuverRefMember maneuver;
 };
 
 typedef oscObjectVariable<oscManeuverList *>oscManeuverListMember;

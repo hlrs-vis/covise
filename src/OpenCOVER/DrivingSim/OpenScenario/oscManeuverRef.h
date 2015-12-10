@@ -14,7 +14,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscRefActor.h>
 #include <oscCatalogRef.h>
 #include <oscManeuver.h>
-
+#include <oscPriority.h>
 
 namespace OpenScenario {
 
@@ -25,14 +25,14 @@ public:
     oscManeuverRef()
     {
        OSC_OBJECT_ADD_MEMBER(refActor,"oscRefActor");
-	   OSC_ADD_MEMBER(priority);
+	   OSC_OBJECT_ADD_MEMBER(priority,"oscPriority");
        OSC_ADD_MEMBER(numberOfExecutions);
        OSC_OBJECT_ADD_MEMBER(catalogRef,"oscCatalogRef");
        OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuver");
     };
     oscRefActorMember refActor;
-    oscString priority;
-    oscString numberOfExecutions;
+    oscPriorityMember priority;
+    oscInt numberOfExecutions;
     oscCatalogRefMember catalogRef;
     oscManeuverMember maneuver;
 };

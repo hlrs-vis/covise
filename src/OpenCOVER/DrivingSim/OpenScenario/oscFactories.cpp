@@ -117,6 +117,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscPositionWorld.h>
 #include <oscPositionXyz.h>
 #include <oscPrecipitation.h>
+#include <oscPriority.h>
 #include <oscReachPosition.h>
 #include <oscRefActor.h>
 #include <oscReferenceHanding.h>
@@ -306,6 +307,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscPositionWorld>("oscPositionWorld");
     staticObjectFactory.registerType<oscPositionXyz>("oscPositionXyz");
     staticObjectFactory.registerType<oscPrecipitation>("oscPrecipitation");
+	staticObjectFactory.registerType<oscPriority>("oscPriority");
 	staticObjectFactory.registerType<oscReachPosition>("oscReachPosition");
 	staticObjectFactory.registerType<oscRefActor>("oscRefActor");
 	staticObjectFactory.registerType<oscReferenceHanding>("oscReferenceHanding");

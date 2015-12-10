@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscStartCondition.h>
+#include <oscEventStartCondition.h>
 
 namespace OpenScenario {
 
@@ -19,9 +19,9 @@ class OPENSCENARIOEXPORT oscEventStartConditionGroup: public oscObjectBase
 public:
     oscEventStartConditionGroup()
     {
-		OSC_OBJECT_ADD_MEMBER(startCondition, "oscStartCondition");
+		OSC_OBJECT_ADD_MEMBER(startCondition, "oscEventStartCondition");
     };
-	oscStartConditionMember startCondition;
+	oscEventStartConditionMember startCondition;
 };
 
 typedef oscObjectVariable<oscEventStartConditionGroup *> oscEventStartConditionGroupMember;

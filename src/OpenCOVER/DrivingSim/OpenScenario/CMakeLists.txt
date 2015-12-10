@@ -127,6 +127,7 @@ SET(HEADERS
    oscPositionWorld.h
    oscPositionXyz.h
    oscPrecipitation.h
+   oscPriority.h
    oscReachPosition.h
    oscRefActor.h
    oscRelativeChoice.h
@@ -201,6 +202,7 @@ SET(SOURCES
    oscReferenceHanding.cpp
    oscRoadCondition.cpp
    oscRoute.cpp
+   oscPriority.cpp
    oscShape.cpp
    oscSourceFile.cpp
    oscTrafficSource.cpp

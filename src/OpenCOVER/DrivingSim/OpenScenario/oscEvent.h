@@ -12,17 +12,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVariables.h>
 #include <oscEventStartConditionGroup.h>
 #include <oscAction.h>
+#include <oscPriority.h>
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT priorityType: public oscEnumType
-{
-public:
-    static priorityType *instance(); 
-private:
-    priorityType();
-    static priorityType *inst;
-};
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscEvent: public oscObjectBase
@@ -31,21 +24,14 @@ public:
     oscEvent()
     {
         OSC_ADD_MEMBER(name);
-		OSC_ADD_MEMBER(priority);
-		priority.enumType = priorityType::instance();
-		OSC_OBJECT_ADD_MEMBER(eventstartConditionGroup,"oscEventStartConditionGroup");
+		OSC_OBJECT_ADD_MEMBER(priority,"oscPriority");
+		OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscEventStartConditionGroup");
 		OSC_OBJECT_ADD_MEMBER(action,"oscAction");
 		
     };
 	oscString name;
-	enum priority
-    {
-        overwrite,
-        following,
-        skip,
-    };
-	oscEnum priority;
-	oscEventStartConditionGroupMember eventstartConditionGroup;
+	oscPriorityMember priority;
+	oscEventStartConditionGroupMember startConditionGroup;
 	oscActionMember action;
 	
 };
