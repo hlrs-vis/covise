@@ -335,8 +335,7 @@ public:
                          int number,
                          bool enabled);
 
-    virtual void setShadow(int number,
-                         bool enabled);
+    virtual void setShadow(const std::string &technique);
 
     virtual void unsetTransform(float * /*center*/,
                                 float * /*rotation*/,

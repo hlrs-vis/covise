@@ -22,6 +22,7 @@
 #include "coVRConfig.h"
 #include "coVRPluginList.h"
 #include "coVRCommunication.h"
+#include "coVRShadowManager.h"
 #include "coVRMSController.h"
 #include "coIntersection.h"
 #include "ARToolKit.h"
@@ -215,6 +216,18 @@ coVRTui::coVRTui()
     XForm = new coTUIToggleButton("Move world", topContainer->getID());
     DebugBins = new coTUIToggleButton("DebugBins", topContainer->getID(), false);
     DebugBins->setEventListener(this);
+    
+    ShadowChoice = new coTUIComboBox("shadowChoice",topContainer->getID());
+    ShadowChoice->setEventListener(this);
+    ShadowChoice->addEntry("none");
+    ShadowChoice->addEntry("ShadowVolume");
+    ShadowChoice->addEntry("ShadowTexture");
+    ShadowChoice->addEntry("SoftShadowMap");
+    ShadowChoice->addEntry("StandardShadowMap");
+    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapVB");
+    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapCB");
+    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapDB");
+    ShadowChoice->addEntry("ShadowMap");
 
     Scale = new coTUIToggleButton("Scale", topContainer->getID());
     Collision = new coTUIToggleButton("Detect collisions", topContainer->getID());
@@ -322,6 +335,7 @@ coVRTui::coVRTui()
     Scale->setPos(0, 4);
     Collision->setPos(0, 5);
     DebugBins->setPos(3, 0);
+    ShadowChoice->setPos(3,1);
     DisableIntersection->setPos(1, 5);
     testImage->setPos(2, 5);
 
@@ -502,6 +516,7 @@ coVRTui::~coVRTui()
     delete Scale;
     delete Collision;
     delete DebugBins;
+    delete ShadowChoice;
     delete DisableIntersection;
     delete testImage;
     delete speedLabel;
@@ -979,6 +994,10 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         {
             binList->removeAll();
         }
+    }
+    else if (tUIItem == ShadowChoice)
+    {
+        coVRShadowManager::instance()->setTechnique(ShadowChoice->getSelectedText());
     }
     else if (tUIItem == PresentationForward)
     {

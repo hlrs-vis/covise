@@ -301,8 +301,7 @@ public:
                          int number,
                          bool enabled) = 0;
 
-    virtual void setShadow(int number,
-                         bool enabled) = 0;
+    virtual void setShadow(const std::string &) = 0;
 
     // This is a hack to work around the glPushMatrix() limit (32 deep on Mesa).
     // It has some ugly disadvantages: it is slower and the resulting transform
