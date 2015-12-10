@@ -1155,7 +1155,7 @@ void ViewDesc::showTangent(bool state)
         showTangentCheck_->setState(state);
 
         if ((showTangentCheck_->getState() == false) && (showViewpointCheck_->getState() == false))
-            localDCS->setNodeMask(localDCS->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
+            localDCS->setNodeMask(localDCS->getNodeMask() & (~(Isect::Visible| Isect::OsgEarthSecondary)));
     }
 }
 

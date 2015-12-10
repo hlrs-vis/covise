@@ -28,6 +28,7 @@ SET(LIB_HEADERS
   VrmlNodeCOVISEObject.h
   VrmlNodeClippingPlane.h
   VrmlNodeShadowedScene.h
+  VrmlNodePrecipitation.h
 )
 
 SET(LIB_SOURCES
@@ -44,6 +45,7 @@ SET(LIB_SOURCES
   VrmlNodeCOVISEObject.cpp
   VrmlNodeClippingPlane.cpp
   VrmlNodeShadowedScene.cpp
+  VrmlNodePrecipitation.cpp
 )
 
 add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES})

@@ -80,6 +80,7 @@ SET(HEADERS
   coVRSelectionManager.h
   coVRIntersectionInteractorManager.h
   coVRIntersectionInteractor.h
+  coVRShadowManager.h
   VRViewer.h
   coVRRenderer.h
   VRVruiButtons.h
@@ -135,6 +136,7 @@ SET(SOURCES
   VRSceneGraph.cpp
   coVRLighting.cpp
   coVRAnimationManager.cpp
+  coVRShadowManager.cpp
   ARToolKit.cpp
   coBillboard.cpp
   VRViewer.cpp

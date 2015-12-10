@@ -56,6 +56,7 @@
 #include "coVRStatsDisplay.h"
 #include "RenderObject.h"
 #include "coVRIntersectionInteractorManager.h"
+#include "coVRShadowManager.h"
 
 #include <osg/LightModel>
 #include <osg/ClipNode>
@@ -248,8 +249,10 @@ void VRSceneGraph::initMatrices()
 void VRSceneGraph::initSceneGraph()
 {
     // create the scene node
-    m_scene = new osg::Group();
+    m_scene = new osgShadow::ShadowedScene();
     m_scene->setName("VR_RENDERER_SCENE_NODE");
+    m_scene->setShadowTechnique(NULL);
+    coVRShadowManager::instance();
 
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();
@@ -291,6 +294,7 @@ void VRSceneGraph::initSceneGraph()
 
     // we: render Menu first
     m_menuGroupNode = new osg::Group();
+    m_menuGroupNode->setNodeMask(m_menuGroupNode->getNodeMask()&~Isect::ReceiveShadow);
     m_menuGroupNode->setName("MenuGroupNode");
     m_scene->addChild(m_menuGroupNode.get());
 
@@ -713,7 +717,7 @@ void VRSceneGraph::applyMenuModeToMenus()
             if (menusAreHidden)
                 m_menuGroupNode->getChild(i)->setNodeMask(0x0);
             else
-                m_menuGroupNode->getChild(i)->setNodeMask(0xffffffff);
+                m_menuGroupNode->getChild(i)->setNodeMask(0xffffffff & ~Isect::ReceiveShadow);
         }
     }
 }
@@ -1741,7 +1745,7 @@ VRSceneGraph::storeCallback(void *sceneGraph, buttonSpecCell *)
                         || !strcmp(filename.c_str() + len - 5, ".osgb")
                         || !strcmp(filename.c_str() + len - 5, ".osgx"))))
     {
-        if (osgDB::writeNodeFile(sg->storeWithMenu ? *sg->m_scene : *sg->m_objectsRoot, filename.c_str()))
+        if (osgDB::writeNodeFile(sg->storeWithMenu ? *static_cast<osg::Group *>(sg->m_scene) : *sg->m_objectsRoot, filename.c_str()))
         {
             if (cover->debugLevel(3))
                 std::cerr << "Data written to \"" << filename << "\"." << std::endl;
