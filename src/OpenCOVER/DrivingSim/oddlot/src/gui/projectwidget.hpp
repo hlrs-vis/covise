@@ -51,7 +51,7 @@ class TrackSpiralArcSpiral;
 namespace OpenScenario
 {
 class OpenScenarioBase;
-class oscObjectBase;
+class oscObject;
 }
 
 
@@ -109,7 +109,7 @@ public:
 
 	// Add catalogs //
 	//
-	void addCatalogTree(const QString & type, OpenScenario::oscObjectBase *object);
+	void addCatalogTree(const QString & type, OpenScenario::oscObject *object);
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);

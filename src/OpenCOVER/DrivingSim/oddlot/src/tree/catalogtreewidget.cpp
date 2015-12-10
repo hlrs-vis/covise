@@ -18,6 +18,8 @@
 // Data //
 //
 #include "src/data/oscsystem/oscelement.hpp"
+#include "src/data/oscsystem/oscbase.hpp"
+#include "src/data/projectdata.hpp"
 
 // GUI //
 //
@@ -37,9 +39,17 @@
 //
 #include "src/graph/editors/osceditor.hpp"
 
+// Commands //
+//
+#include "src/data/commands/osccommands.hpp"
+
+// Graph //
+//
+#include "src/graph/topviewgraph.hpp"
+
 // OpenScenario //
 //
-#include "oscObjectBase.h"
+#include "oscObject.h"
 #include "oscMember.h"
 
 #include <QWidget>
@@ -50,13 +60,15 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObjectBase *object)
+CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObject *object)
 	: QTreeWidget()
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
 	, oscEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
 	, object_(object)
+	, oscElement_(NULL)
+	, currentSelectedItem_(NULL)
 {
     init();
 }
@@ -73,6 +85,12 @@ CatalogTreeWidget::~CatalogTreeWidget()
 void
 CatalogTreeWidget::init()
 {
+	projectWidget_ = mainWindow_->getActiveProject();
+
+	// OpenScenario Element base //
+	//
+	base_ = projectWidget_->getProjectData()->getOSCBase();
+		
 	// Connect with the ToolManager to send the selected signal or object //
     //
 	ToolManager *toolManager = mainWindow_->getToolManager();
@@ -140,38 +158,51 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 {
 	if (oscEditor_)
 	{
-		QTreeWidgetItem *item = selectedItems().at(0);
-		const QString text = item->text(0);
+		currentSelectedItem_ = selectedItems().at(0);
+		const QString text = currentSelectedItem_->text(0);
 
 		if (text == "New Element")
 		{
 			currentTool_ = ODD::TOS_OBJECT;
 			OpenScenario::oscObject *newObject;
 			/*		OpenScenario::oscObject *newObject = object->addObject("catalog element");
-			AddOSCObjectCommand *command = new AddOSCObjectCommand(base_, &objectName, NULL);
+			AddOSCObjectCommand *command = new AddOSCObjectCommand(base_, oscObject->getName(), NULL);
 
-			getProjectGraph()->executeCommand(command);
-			*/	
-			OSCElement *oscElement = new OSCElement(newObject);
-			oscElement->setElementSelected(true);
+			projectWidget_->getTopviewGraph()->executeCommand(command);
+			
+			if (command->isValid()) 
+			{*/
+			oscElement_ = new OSCElement("prototype", newObject);
+			if (oscElement_)
+			{
+				base_->addOSCElement(oscElement_);
+		//		oscElement_->setElementSelected(true);
 
-			QTreeWidgetItem *item = new QTreeWidgetItem();
-		//	item->setText(0, newObject->getName());
-			insertTopLevelItem(1, item);
+				QTreeWidgetItem *item = new QTreeWidgetItem(); // should be called by observer
+				//	item->setText(0, newObject->getName());
+				insertTopLevelItem(1, item);
+				item->setSelected(true);
+			}
+		//	}
 		}
-		else
+//		else
 		{
 			currentTool_ = ODD::TOS_SELECT;
-		//		OpenScenario::oscMember *member = object_->getMember(text);
+		/*		OpenScenario::oscMember *member = object_->getMember(text);
+			oscElement_ = base_->getOSCElement(member);
+			if (oscElement_)
+			{
+				oscElement_->setElementSelected(true);
+			}*/
+			
+
 		}
-
-
 
 		// Set a tool //
 		//
-		OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
+	/*	OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
 		emit toolAction(action);
-		delete action;
+		delete action;*/
 
 
 		QTreeWidget::selectionChanged(selected, deselected);
@@ -184,3 +215,30 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 }
 
+//##################//
+// Observer Pattern //
+//##################//
+
+/*! \brief Called when the observed DataElement has been changed.
+*
+*/
+void
+CatalogTreeWidget::updateObserver()
+{
+/*    if (isInGarbage())
+    {
+        return; // will be deleted anyway
+    }*/
+
+    // Object name //
+    //
+    int changes = oscElement_->getOSCElementChanges();
+
+	if (changes & DataElement::CDE_ChildChange)
+    {
+/*		if (currentSelectedItem_->text(0) != object_->getName())
+		{
+			currentSelectedItem_->setText(object_->getName());
+		}*/
+    }
+}

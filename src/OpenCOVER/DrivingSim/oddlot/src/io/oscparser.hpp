@@ -24,10 +24,14 @@
 /*class QIODevice;
 class QDomElement;*/
 class QDomDocument;
+class ProjectData;
+class OSCBase;
 
 namespace OpenScenario
 {
 class OpenScenarioBase;
+class oscObjectBase;
+class oscObject;
 }
 
 
@@ -57,6 +61,7 @@ public:
     // XODR //
     //
     bool parseXOSC(const QString &filename);
+	void createElements(OpenScenario::oscObject *oscObject);
 
 protected:
     //	OSCParser(){ /* not allowed */ };
@@ -70,8 +75,10 @@ private:
 
 /*    bool check(bool success, const QDomElement &element, const QString &attributeName, const QString &type);
     void setTile(const QString &id, QString &oldId);*/
+	ProjectData *projectData_;
 
-    OpenScenario::OpenScenarioBase *base_;
+	OSCBase *oscBase_; // ODDLOT OpenScenario base element
+    OpenScenario::OpenScenarioBase *base_; // OpenScenario base object
 	OSCParser::Mode mode_;
 
 };

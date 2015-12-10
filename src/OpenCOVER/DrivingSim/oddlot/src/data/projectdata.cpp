@@ -275,6 +275,22 @@ ProjectData::setScenerySystem(ScenerySystem *scenerySystem)
     }
 }
 
+void
+ProjectData::setOSCBase(OSCBase *base)
+{
+    // Can only be assigned once //
+    if (!oscBase_)
+    {
+        oscBase_ = base;
+  //      oscBase_->setParentProjectData(this);
+  //      addProjectDataChanges(ProjectData::CPD_RoadSystemChanged);
+    }
+    else
+    {
+        qDebug("WARNING 1003230927! Cannot assign RoadSystem to ProjectData twice!");
+    }
+}
+
 DataElement *
 ProjectData::getActiveElement() const
 {

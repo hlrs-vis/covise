@@ -28,6 +28,7 @@ namespace OpenScenario
 class OpenScenarioBase;
 }
 
+class OSCBase;
 
 class OpenScenarioEditor : public ProjectEditor
 {
@@ -98,7 +99,7 @@ private:
 
 	// OpenScenarioBase //
 	//
-	OpenScenario::OpenScenarioBase * base_;
+	OSCBase * base_;
 
 	ODD::ToolId lastTool_;
 

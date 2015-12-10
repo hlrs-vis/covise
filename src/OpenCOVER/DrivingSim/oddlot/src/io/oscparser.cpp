@@ -19,7 +19,9 @@
 
 // Data Model //
 //
-//#include "src/data/projectdata.hpp"
+#include "src/data/projectdata.hpp"
+#include "src/data/oscsystem/oscbase.hpp"
+#include "src/data/oscsystem/oscelement.hpp"
 
 //#include "src/data/changemanager.hpp"
 
@@ -28,6 +30,8 @@
 #include "oscFactories.h"
 #include "oscFactory.h"
 #include "OpenScenarioBase.h"
+#include "oscObject.h"
+
 
 /*#include "src/data/vehiclesystem/vehiclesystem.hpp"
 #include "src/data/vehiclesystem/vehiclegroup.hpp"
@@ -69,6 +73,8 @@ OSCParser::OSCParser(OpenScenario::OpenScenarioBase *base, QObject *parent)
     , mode_(MODE_NONE)
 {
  //   doc_ = new QDomDocument();
+	projectData_ = dynamic_cast<ProjectData *>(parent);
+	oscBase_ = projectData_->getOSCBase();
 }
 
 /** DESTRUCTOR.
@@ -133,8 +139,31 @@ OSCParser::parseXOSC(const QString &filename)
  //       parseHeaderElement(child);
     }
 
+	createElements(dynamic_cast<OpenScenario::oscObject *>(base_));
 
     return true;
 }
+
+void
+OSCParser::createElements(OpenScenario::oscObject *object)
+{
+/*	OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
+	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
+    {
+        oscMember *member = it->second;
+        if(member)
+        {
+			if(member->getType() == oscMemberValue::OBJECT)
+            {
+				oscObject *memberObject = member->getValue(); // OSCMemberValue should be object
+				OSCElement *oscElement = new OSCElement("prototype", memberObject); 
+				oscBase_->addOSCElement(oscElement);
+				createElements(memberObject);
+			}
+		}
+	}*/
+}
+
+
 
 

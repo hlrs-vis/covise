@@ -25,7 +25,7 @@ class oscObjectSettings;
 
 namespace OpenScenario
 {
-class oscObjectBase;
+class oscObject;
 }
 //class SignalManager;
 
@@ -67,7 +67,8 @@ private slots:
 
 private:
 	Ui::oscObjectSettings *ui;
-    OpenScenario::oscObjectBase *object_;
+    OpenScenario::oscObject *object_;
+	OSCElement *element_;
 
     bool init_;
 

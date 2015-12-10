@@ -40,6 +40,9 @@
 #include "src/data/pedestriansystem/pedestriansystem.hpp"
 #include "src/data/scenerysystem/scenerysystem.hpp"
 
+#include "src/data/oscsystem/oscbase.hpp"
+
+
 // Graph //
 //
 #include "src/graph/topviewgraph.hpp"
@@ -168,6 +171,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectData_->setVehicleSystem(new VehicleSystem());
     projectData_->setPedestrianSystem(new PedestrianSystem());
     projectData_->setScenerySystem(new ScenerySystem());
+	projectData_->setOSCBase(new OSCBase());
 
     // VIEW: Graph //
     //
@@ -430,6 +434,11 @@ ProjectWidget::loadFile(const QString &fileName)
 
 		OSCParser *oscParser = new OSCParser(osdb_, projectData_);
 		success = oscParser->parseXOSC(fileName);
+
+		if (success)
+		{
+			projectData_->getOSCBase()->setOSCObjectBase(osdb_);
+		}
 	}
 
     topviewGraph_->updateSceneSize();
@@ -488,7 +497,7 @@ ProjectWidget::loadTile(const QString &fileName)
 }
 
 void
-	ProjectWidget::addCatalogTree(const QString &type, OpenScenario::oscObjectBase *object)
+	ProjectWidget::addCatalogTree(const QString &type, OpenScenario::oscObject *object)
 {
 	// add a catalog tree
 	//

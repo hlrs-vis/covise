@@ -17,12 +17,16 @@
 #define OSCELEMENT_HPP
 
 #include "src/data/dataelement.hpp"
+
+#include "oscObjectBase.h"
 #include "oscObject.h"
 
 using namespace OpenScenario;
 
 
-class OSCElement : public DataElement, public OpenScenario::oscObject
+class OSCBase;
+
+class OSCElement : public DataElement, public OpenScenario::oscObjectBase
 {
 
     //################//
@@ -42,20 +46,37 @@ public:
         DRE_Object
     };*/
 
-/*    enum RSystemElementChange
+    enum OSCElementChange
     {
-        CRE_IdChange = 0x1,
-        CRE_NameChange = 0x2,
-        CRE_ParentRoadSystemChange = 0x4
-    };*/
+        COE_IdChange = 0x1,
+        COE_NameChange = 0x2,	// Name change is OpenScenario object name change 
+    };
 
     //################//
     // FUNCTIONS      //
     //################//
 
 public:
-    explicit OSCElement(OpenScenario::oscObject *oscObject);
+    explicit OSCElement(const QString &id, OpenScenario::oscObject *oscObject);
     virtual ~OSCElement();
+
+	const QString &getID() const
+    {
+        return id_;
+    }
+
+    void setID(const QString &id);
+
+	// OSCBaseSystem //
+    //
+    OSCBase *getOSCBase() const
+    {
+        return oscBase_;
+    }
+    void setOSCBase(OSCBase *oscBase)
+	{
+		oscBase_ = oscBase;
+	}
 
 	OpenScenario::oscObject *getObject()
 	{
@@ -69,12 +90,12 @@ public:
 
     // Observer Pattern //
     //
-  /*  virtual void notificationDone();
-    int getRSystemElementChanges() const
+    virtual void notificationDone();
+    int getOSCElementChanges() const
     {
-        return rSystemElementChanges_;
+        return oscElementChanges_;
     }
-    void addRSystemElementChanges(int changes);*/
+    void addOSCElementChanges(int changes);
 
 private:
     OSCElement(); /* not allowed */
@@ -86,11 +107,17 @@ private:
     //################//
 
 private:
+	// Base OSCElement //
+	//
+	OSCBase *oscBase_;
+
 	OpenScenario::oscObject *oscObject_;
+
+	QString id_; // unique ID within ODDLOT database
 
     // Observer Pattern //
     //
-//    int rSystemElementChanges_;
+    int oscElementChanges_;
 };
 
 #endif // OSCELEMENT_HPP

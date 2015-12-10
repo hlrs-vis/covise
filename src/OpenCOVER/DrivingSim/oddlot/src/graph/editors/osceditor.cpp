@@ -28,6 +28,7 @@
 #include "src/data/projectdata.hpp"
 #include "src/data/signalmanager.hpp"
 #include "src/data/oscsystem/oscelement.hpp"
+#include "src/data/oscsystem/oscbase.hpp"
 
 // Commands //
 //
@@ -83,7 +84,7 @@ OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData
 	, base_(NULL)
 {
 	mainWindow_ = projectWidget->getMainWindow();
-	base_ = projectWidget->getOpenScenarioBase();
+	base_ = projectData->getOSCBase();
 }
 
 OpenScenarioEditor::~OpenScenarioEditor()
@@ -354,6 +355,8 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			if (objectName != "")
 			{
 				OpenScenario::oscObject *object;
+				OpenScenario::oscObjectBase *objectBase = base_->getOSCObjectBase();
+				
 		/*		object = base_->addObject(objectName);
 				AddOSCObjectCommand *command = new AddOSCObjectCommand(base_, &objectName, NULL);
 
@@ -361,7 +364,13 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 				getProjectWidget()->addCatalogTree(objectName, object);   // sollte bei Generierung eines neuen catalog vom observer gemacht werden
 				*/	
 				getProjectWidget()->addCatalogTree(objectName, NULL);
-				OSCElement *oscElement = new OSCElement(object);
+
+	//			if (command->isValid())
+				{
+					OSCElement *oscElement = new OSCElement("prototype", object);
+					base_->addOSCElement(oscElement);
+				}
+
 			}
 		}
 	}

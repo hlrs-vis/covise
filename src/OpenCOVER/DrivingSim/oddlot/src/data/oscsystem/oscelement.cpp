@@ -15,14 +15,11 @@
 
 #include "oscelement.hpp"
 
-//#include "oscObject.h";
-
-//using namespace OpenScenario;
 
 /*! \brief The constructor does nothing special.
 *
 */
-OSCElement::OSCElement(OpenScenario::oscObject *oscObject)
+OSCElement::OSCElement(const QString &id, OpenScenario::oscObject *oscObject)
     : DataElement() 
 	, oscObject_(oscObject)
  //   , rSystemElementChanges_(0x0)
@@ -31,6 +28,13 @@ OSCElement::OSCElement(OpenScenario::oscObject *oscObject)
 
 OSCElement::~OSCElement()
 {
+}
+
+void
+OSCElement::setID(const QString &id)
+{
+    id_ = id;
+//    addRSystemElementChanges(RSystemElement::CRE_IdChange);
 }
 
 /*! \brief Accepts a visitor.
@@ -53,22 +57,22 @@ OSCElement::accept(Visitor *visitor)
 *
 * Resets the change flags to 0x0.
 */
-/*void
-RSystemElement::notificationDone()
+void
+OSCElement::notificationDone()
 {
-    rSystemElementChanges_ = 0x0;
+    oscElementChanges_ = 0x0;
     DataElement::notificationDone(); // pass to base class
-}*/
+}
 
 /*! \brief Add one or more change flags.
 *
 */
-/*void
-RSystemElement::addRSystemElementChanges(int changes)
+void
+OSCElement::addOSCElementChanges(int changes)
 {
     if (changes)
     {
-        rSystemElementChanges_ |= changes;
+        oscElementChanges_ |= changes;
         notifyObservers();
     }
-}*/
+}

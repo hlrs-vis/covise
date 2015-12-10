@@ -17,6 +17,7 @@
 #define CATALOGTREEWIDGET_HPP
 
 #include "src/util/odd.hpp"
+#include "src/data/observer.hpp"
 
 #include <QTreeWidget>
 
@@ -25,13 +26,16 @@ class ProjectWidget;
 class MainWindow;
 class ToolAction;
 class OpenScenarioEditor;
+class OSCBase;
+class OSCElement;
+class QTreeWidgetItem;
 
 namespace OpenScenario
 {
-class oscObjectBase;
+class oscObject;
 }
 
-class CatalogTreeWidget : public QTreeWidget
+class CatalogTreeWidget : public QTreeWidget, public Observer
 {
     Q_OBJECT
 
@@ -40,7 +44,7 @@ class CatalogTreeWidget : public QTreeWidget
     //################//
 
 public:
-	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObjectBase *object);
+	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObject *object);
     virtual ~CatalogTreeWidget();
 
 	void setActiveProject(ProjectWidget *projectWidget)
@@ -49,6 +53,10 @@ public:
 	}
 
 	void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
+
+	// Obsever Pattern //
+    //
+    virtual void updateObserver();
 
 protected:
 private:
@@ -82,7 +90,15 @@ private:
 	MainWindow *mainWindow_;
 	OpenScenarioEditor *oscEditor_;
 
-	OpenScenario::oscObjectBase *object_;
+	// OpenScenario Base //
+	//
+	OSCBase *base_;
+
+	OpenScenario::oscObject *object_;
+	OSCElement *oscElement_;
+
+	QTreeWidgetItem *currentSelectedItem_;
+
 	ODD::ToolId currentTool_;
 };
 
