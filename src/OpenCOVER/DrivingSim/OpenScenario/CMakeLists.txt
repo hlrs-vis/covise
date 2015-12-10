@@ -147,6 +147,7 @@ SET(HEADERS
    oscSetState.h
    oscSimulationTime.h
    oscShape.h
+   oscSourceFile.h
    oscSpeedDynamics.h
    oscSpeed.h
    oscSpline.h

@@ -24,6 +24,7 @@
 #include <osgUtil/UpdateVisitor>
 #include <cover/coVRConfig.h>
 #include <cover/coVRTui.h>
+#include <cover/coVRLighting.h>
 
 #include <osg/Timer>
 #include <osg/Notify>
@@ -87,6 +88,9 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
     }
     if (coVRConfig::instance()->screens[screen].render == false)
         return false;
+    // does not work, renderstage is Reset by cullStage renderStage->addPositionedAttribute(NULL,coVRLighting::instance()->headlight->getLight()); // add light which creates shadows
+    _lightingMode = HEADLIGHT;
+    _light = coVRLighting::instance()->headlight->getLight(); // ::SceneView::cullStage then sets PositionedAttribute to this light
     bool retval = SceneView::cullStage(npm, nmv, cullVisitor, rendergraph, renderStage, viewport);
 
     if (coVRTui::instance()->binList->size() > 0)

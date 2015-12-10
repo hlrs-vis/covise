@@ -1202,12 +1202,20 @@ void CTRLHandler::handleQuit(Message *msg)
     if (msg->send_type == RENDERER)
     {
         bool terminateOnCoverQuit = coCoviseConfig::isOn("COVER.TerminateCoviseOnQuit", false);
+        if (getenv("COVISE_TERMINATE_ON_QUIT"))
+        {
+            terminateOnCoverQuit = true;
+        }
         if (terminateOnCoverQuit)
         {
             net_module *p_mod = global.netList->get_mod(msg->conn->get_peer_id());
-            string name = p_mod->get_name();
-            if (p_mod && name == "OpenCOVER")
-                terminateForCover = true;
+            if (p_mod)
+            {
+                const string name = p_mod->get_name();
+
+                if (name == "VRRenderer" || name == "OpenCOVER" || name == "COVER" || name == "COVER_VRML")
+                    terminateForCover = true;
+            }
         }
     }
 

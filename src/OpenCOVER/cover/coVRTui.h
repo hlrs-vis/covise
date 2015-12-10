@@ -79,6 +79,14 @@ private:
     coTUILabel *deviceTransLabel[3];
     coTUIEditFloatField *deviceRot[3];
     coTUILabel *deviceRotLabel[3];
+
+    coTUIFrame *debugContainer;
+    coTUILabel *debugLabel;
+    coTUIToggleButton *debugMouseButton;
+    coTUIToggleButton *debugDriverButton;
+    coTUIToggleButton *debugRawButton;
+    coTUIToggleButton *debugTransformedButton;
+    coTUIToggleButton *debugMatrices, *debugOther;
 };
 
 class coPluginEntryList : public covise::DLinkList<coPluginEntry *>

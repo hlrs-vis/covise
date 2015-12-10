@@ -67,6 +67,7 @@
 #include "VrmlNodeCOVISEObject.h"
 #include "VrmlNodeClippingPlane.h"
 #include "VrmlNodeShadowedScene.h"
+#include "VrmlNodePrecipitation.h"
 
 #include <osgGA/GUIEventAdapter>
 #include <osgDB/Registry>
@@ -346,6 +347,7 @@ bool Vrml97Plugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeCOVERPerson::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeCOVERBody::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeCOVISEObject::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodePrecipitation::defineType());
 
     VrmlNamespace::addBuiltIn(VrmlNodeARSensor::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMirrorCamera::defineType());
@@ -688,7 +690,7 @@ void Vrml97Plugin::guiToRenderMsg(const char *msg)
                 }
                 else
                 {
-                    node->setNodeMask(node->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
+                    node->setNodeMask(node->getNodeMask() & (~(Isect::Visible| Isect::OsgEarthSecondary)));
                 }
             }
         }

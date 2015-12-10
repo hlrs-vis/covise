@@ -50,6 +50,7 @@
 #include <deque>
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
+#include <osgShadow/ShadowedScene>
 
 #define MAX_NUMBER_JOYSTICKS 64
 
@@ -196,7 +197,7 @@ public:
     // access to scene graph nodes and transformations
 
     //! get scene group node
-    osg::Group *getScene() const;
+    osgShadow::ShadowedScene *getScene() const;
 
     //! get the group node for all COVISE and model geometry
     osg::ClipNode *getObjectsRoot() const;

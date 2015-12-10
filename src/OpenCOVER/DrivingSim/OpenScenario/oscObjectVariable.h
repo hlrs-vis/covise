@@ -28,10 +28,20 @@ namespace OpenScenario
         oscObjectVariable(){type = oscMemberValue::OBJECT; valueT=NULL;};
         virtual bool initialize(xercesc::DOMAttr *){return false;};
         virtual T operator->(){return valueT;};
-        virtual const T getObject(){return valueT;};
+        virtual const oscObjectBase* getObject(){return valueT;};
         virtual void setValue(oscObjectBase *t){valueT = dynamic_cast<T>(t);};
         virtual bool exists(){return valueT!=NULL;};
-        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document){if(valueT !=NULL) {xercesc::DOMElement *memberElement; memberElement = document->createElement(xercesc::XMLString::transcode(name.c_str())); currentElement->appendChild(memberElement); valueT->writeToDOM(memberElement,document);}return true;};
+        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+        {
+            if(valueT !=NULL)
+            {
+                xercesc::DOMElement *memberElement;
+                memberElement = document->createElement(xercesc::XMLString::transcode(name.c_str()));
+                currentElement->appendChild(memberElement);
+                valueT->writeToDOM(memberElement,document);
+            }
+            return true;
+        };
         virtual oscMemberValue::MemberTypes getValueType(){return type;};   
             
     };
