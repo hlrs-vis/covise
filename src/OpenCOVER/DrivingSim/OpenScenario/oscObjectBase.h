@@ -48,7 +48,6 @@ public:
 protected:
     OpenScenarioBase *base;
     MemberMap members; ///< list of all member variables
-    const std::string INCLUDE = "include";
     oscSourceFile *source;
 
 public:

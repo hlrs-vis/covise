@@ -125,7 +125,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
     for (int i = 0; i < membersList->getLength(); i++)
     {
-        if (xercesc::XMLString::transcode(membersList->item(i)->getNodeName()) == INCLUDE)
+        if (xercesc::XMLString::transcode(membersList->item(i)->getNodeName()) == "include")
         {
             includeMember = membersList->item(i);
             inclPresent = true;
@@ -235,7 +235,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //member has a value (exists)
                     if ( m->exists() )
                     {
-                        if (m->getName() != INCLUDE)
+                        if (m->getName() != "include")
                         {
                             std::cerr << "\n Warning!" << std::endl;
                             std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << xercesc::XMLString::transcode(currentElement->getNodeName()) << "\"" << std::endl;
@@ -339,7 +339,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
             //read include files
             //
-            if (memberName == INCLUDE)
+            if (memberName == "include")
             {
                 oscSourceFile *inclSource = new oscSourceFile();
                 inclSource->initialize(base);
