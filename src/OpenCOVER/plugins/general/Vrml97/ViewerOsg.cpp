@@ -4747,8 +4747,7 @@ void ViewerOsg::setClip(float *pos,
 }
 
 
-void ViewerOsg::setShadow(int number,
-                        bool enabled)
+void ViewerOsg::setShadow(const std::string &technique)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::setShadow" << endl;
@@ -4764,26 +4763,8 @@ void ViewerOsg::setShadow(int number,
     
     osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
 
-    if (enabled)
-    {
-        std::string technique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","ShadowVolume");
-        coVRShadowManager::instance()->setTechnique(technique);
-        /*
-        shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
-        shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
+    coVRShadowManager::instance()->setTechnique(technique);
 
-        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
-        sm->setLight(coVRLighting::instance()->headlight);
-        shadowedScene->setShadowTechnique(sm.get());
-
-        int mapres = 1024;
-        sm->setTextureSize(osg::Vec2s(mapres,mapres));*/
-
-    }
-    else
-    {
-        shadowedScene->setShadowTechnique(NULL);
-    }
 }
 
 // Transforms

@@ -28,10 +28,6 @@
 #include <vrml97/vrml/VrmlScene.h>
 #include <osgShadow/ShadowedScene>
 
-namespace opencover
-{
-class ARToolKitMarker;
-}
 using namespace vrml;
 using namespace opencover;
 
@@ -61,18 +57,10 @@ public:
 
     virtual void render(Viewer *);
 
-    bool isEnabled()
-    {
-        return d_enabled.get();
-    }
 
 private:
     // Fields
-    VrmlSFBool d_global;
-    VrmlSFBool d_enabled;
-    VrmlSFVec3f d_position;
-    VrmlSFRotation d_orientation;
-    VrmlSFInt d_number;
+    VrmlSFString d_technique;
 
     Viewer::Object d_shadowObject;
 };

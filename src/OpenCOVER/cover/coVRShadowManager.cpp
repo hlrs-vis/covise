@@ -12,7 +12,7 @@ using namespace opencover;
 coVRShadowManager* coVRShadowManager::inst=NULL;
 coVRShadowManager::coVRShadowManager()
 {
-    std::string tech = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","ShadowVolume");
+    std::string tech = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
     
     osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
     
@@ -90,7 +90,7 @@ void coVRShadowManager::setTechnique(const std::string &tech)
         osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
         shadowedScene->setShadowTechnique(sm.get());
 
-        int mapres = 1024;
+        int mapres = 4096;
         sm->setTextureSize(osg::Vec2s(mapres,mapres));
     }
     else
