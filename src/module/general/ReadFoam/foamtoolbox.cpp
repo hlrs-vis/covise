@@ -341,6 +341,8 @@ bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double 
 		}
 		++counter;
 	}*/
+
+    return true;
 }
 
 
