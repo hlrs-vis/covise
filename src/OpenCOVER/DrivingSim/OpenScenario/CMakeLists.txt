@@ -202,6 +202,7 @@ SET(SOURCES
    oscRoadCondition.cpp
    oscRoute.cpp
    oscShape.cpp
+   oscSourceFile.cpp
    oscTrafficSource.cpp
    oscUserScript.cpp
    oscVariables.cpp
