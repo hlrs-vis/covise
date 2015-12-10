@@ -4,13 +4,13 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_OBJECT_REF_H
-#define OSC_OBJECT_REF_H
+#ifndef OSC_CONDITION_CHOICE_REF_OBJECT_H
+#define OSC_CONDITION_CHOICE_REF_OBJECT_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscObject.h>
+#include <oscConditionChoiceObject.h>
 
 namespace OpenScenario {
 
@@ -25,7 +25,7 @@ private:
 };
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObjectRef: public oscObject
+class OPENSCENARIOEXPORT oscConditionChoiceRefObject: public oscConditionChoiceObject
 {
 public:
 	
@@ -34,7 +34,7 @@ public:
         relative,
 		absolute,
     };
-    oscObjectRef()
+    oscConditionChoiceRefObject()
     {
 		OSC_ADD_MEMBER(reference);
 		reference.enumType = referenceType::instance();
@@ -42,8 +42,8 @@ public:
 	oscEnum reference;
 };
 
-typedef oscObjectVariable<oscObjectRef *> oscObjectRefMember;
+typedef oscObjectVariable<oscConditionChoiceRefObject *> oscConditionChoiceRefObjectMember;
 
 }
 
-#endif //OSC_OBJECT_REF_H
+#endif //OSC_CONDITION_CHOICE_REF_OBJECT_H

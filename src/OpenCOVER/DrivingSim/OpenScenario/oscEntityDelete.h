@@ -4,29 +4,28 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#ifndef OSC_DISTANCE_H
-#define OSC_DISTANCE_H
+#ifndef OSC_ENTITY_DELETE_H
+#define OSC_ENTITY_DELETE_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscConditionChoiceObject.h>
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscDistance: public oscConditionChoiceObject
+class OPENSCENARIOEXPORT oscEntityDelete: public oscObjectBase
 {
 public:
-    oscDistance()
-    {	
-		OSC_ADD_MEMBER(freespace);
+    oscEntityDelete()
+    {
+        OSC_ADD_MEMBER(name);
     };
-	oscBool freespace;
+    oscString name;
 };
 
-typedef oscObjectVariable<oscDistance *> oscDistanceMember;
+typedef oscObjectVariable<oscEntityDelete *> oscEntityDeleteMember;
 
 }
 
-#endif //OSC_DISTANCE_H
+#endif //OSC_ENTITY_DELETE_H

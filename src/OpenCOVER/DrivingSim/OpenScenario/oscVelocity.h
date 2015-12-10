@@ -9,13 +9,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscObjectRef.h>
+#include <oscConditionChoiceRefObject.h>
 
 namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscVelocity: public oscObjectRef
+class OPENSCENARIOEXPORT oscVelocity: public oscConditionChoiceRefObject
 {
 public:
     oscVelocity()

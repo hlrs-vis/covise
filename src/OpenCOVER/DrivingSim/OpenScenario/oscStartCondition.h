@@ -12,23 +12,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscNamedObject.h>
-#include <oscCondition.h>
+#include <oscConditionObject.h>
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscStartCondition: public oscNamedObject
+class OPENSCENARIOEXPORT oscStartCondition: public oscConditionObject
 {
 public:
     oscStartCondition()
     {
-        OSC_ADD_MEMBER(delayTime);
-		OSC_OBJECT_ADD_MEMBER(condition,"oscCondition");
     };
-    oscDouble delayTime;
-	oscConditionMember condition;
 };
 
 typedef oscObjectVariable<oscStartCondition *> oscStartConditionMember;
