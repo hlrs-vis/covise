@@ -8,7 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OPENSCENARIO_HEADER
 
 #ifndef OSC_START_CONDITION_H
-#define OSC_START_CONGDITION_H
+#define OSC_START_CONDITION_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>

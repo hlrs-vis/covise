@@ -18,22 +18,18 @@ namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscEvent: public oscObjectBase
+class OPENSCENARIOEXPORT oscEvent: public oscPriority
 {
 public:
     oscEvent()
     {
         OSC_ADD_MEMBER(name);
-		OSC_OBJECT_ADD_MEMBER(priority,"oscPriority");
 		OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscEventStartConditionGroup");
-		OSC_OBJECT_ADD_MEMBER(action,"oscAction");
-		
+		OSC_OBJECT_ADD_MEMBER(action,"oscAction");		
     };
 	oscString name;
-	oscPriorityMember priority;
 	oscEventStartConditionGroupMember startConditionGroup;
-	oscActionMember action;
-	
+	oscActionMember action;	
 };
 
 typedef oscObjectVariable<oscEvent *> oscEventMember;

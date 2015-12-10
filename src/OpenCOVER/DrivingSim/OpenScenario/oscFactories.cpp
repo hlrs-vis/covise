@@ -16,6 +16,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscBoundingBox.h>
 #include <oscCancelCondition.h>
 #include <oscCancelConditionGroup.h>
+#include <oscCancelConditionRef.h>
 #include <oscCatalogRef.h>
 #include <oscCatalogs.h>
 #include <oscCenter.h>
@@ -45,6 +46,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscDriverCatalog.h>
 #include <oscEndCondition.h>
 #include <oscEndConditionGroup.h>
+#include <oscEndConditionRef.h>
 #include <oscEngine.h>
 #include <oscEntities.h>
 #include <oscEntity.h>
@@ -84,11 +86,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscManeuverCatalog.h>
 #include <oscManeuverList.h>
 #include <oscManeuverRef.h>
+#include <oscManeuverRefActor.h>
 #include <oscMirror.h>
 #include <oscMirrors.h>
 #include <oscMiscObjectCatalog.h>
 #include <oscMiscObjectRef.h>
 #include <oscNamedObject.h>
+#include <oscNamedPriority.h>
 #include <oscNameRefId.h>
 #include <oscNotify.h>
 #include <oscNumericCondition.h>
@@ -120,6 +124,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscPriority.h>
 #include <oscReachPosition.h>
 #include <oscRefActor.h>
+#include <oscRefActorList.h>
 #include <oscReferenceHanding.h>
 #include <oscRelative.h>
 #include <oscRelativeChoice.h>
@@ -144,6 +149,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscStandsStill.h>
 #include <oscStartCondition.h>
 #include <oscStartConditionGroup.h>
+#include <oscStartConditionRef.h>
 #include <oscStoppingDistance.h>
 #include <oscStoryboard.h>
 #include <oscTime.h>
@@ -208,6 +214,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
 	staticObjectFactory.registerType<oscCancelCondition>("oscCancelCondition");
 	staticObjectFactory.registerType<oscCancelConditionGroup>("oscCancelConditionGroup");
+	staticObjectFactory.registerType<oscCancelConditionRef>("oscCancelConditionRef");
 	staticObjectFactory.registerType<oscCatalogRef>("oscCatalogRef");
     staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
     staticObjectFactory.registerType<oscCenter>("oscCenter");
@@ -237,6 +244,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscDriverRef>("oscDriverRef");
 	staticObjectFactory.registerType<oscEndCondition>("oscEndCondition");
 	staticObjectFactory.registerType<oscEndConditionGroup>("oscEndConditionGroup");
+	staticObjectFactory.registerType<oscEndConditionRef>("oscEndConditionRef");
 	staticObjectFactory.registerType<oscEngine>("oscEngine");
 	staticObjectFactory.registerType<oscEntities>("oscEntities");
 	staticObjectFactory.registerType<oscEntity>("oscEntity");
@@ -275,12 +283,14 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscManeuverList>("oscManeuverList");
     staticObjectFactory.registerType<oscManeuverCatalog>("oscManeuverCatalog");
 	staticObjectFactory.registerType<oscManeuverRef>("oscManeuverRef");
+	staticObjectFactory.registerType<oscManeuverRefActor>("oscManeuverRefActor");
 	staticObjectFactory.registerType<oscMirror>("oscMirror");
 	staticObjectFactory.registerType<oscMirrors>("oscMirrors");
     staticObjectFactory.registerType<oscMiscObjectCatalog>("oscMiscObjectCatalog");
 	staticObjectFactory.registerType<oscMiscObjectRef>("oscMiscObjectRef");
     staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");
     staticObjectFactory.registerType<oscNameRefId>("oscNameRefId");
+	staticObjectFactory.registerType<oscNamedPriority>("oscNamedPriority");
 	staticObjectFactory.registerType<oscNotify>("oscNotify");
 	staticObjectFactory.registerType<oscNumericCondition>("oscNumericCondition");
 	staticObjectFactory.registerType<oscConditionChoiceObject>("oscConditionChoiceObject");
@@ -310,6 +320,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscPriority>("oscPriority");
 	staticObjectFactory.registerType<oscReachPosition>("oscReachPosition");
 	staticObjectFactory.registerType<oscRefActor>("oscRefActor");
+	staticObjectFactory.registerType<oscRefActorList>("oscRefActorList");
 	staticObjectFactory.registerType<oscReferenceHanding>("oscReferenceHanding");
     staticObjectFactory.registerType<oscRelative>("oscRelative");
     staticObjectFactory.registerType<oscRelativeChoice>("oscRelativeChoice");
@@ -334,6 +345,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscStandsStill>("oscStandsStill");
 	staticObjectFactory.registerType<oscStartCondition>("oscStartCondition");
     staticObjectFactory.registerType<oscStartConditionGroup>("oscStartConditionGroup");
+	staticObjectFactory.registerType<oscStartConditionRef>("oscStartConditionRef");
 	staticObjectFactory.registerType<oscStoppingDistance>("oscStoppingDistance");
 	staticObjectFactory.registerType<oscStoryboard>("oscStoryboard");
 	staticObjectFactory.registerType<oscTest>("oscTest");

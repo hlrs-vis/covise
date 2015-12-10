@@ -10,30 +10,26 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscHeader.h>
-#include <oscTimeOfDay.h>
-#include <oscNamedObject.h>
-#include <oscWeather.h>
-#include <oscRoadConditions.h>
+#include <oscCatalogRef.h>
+#include <oscUserData.h>
+#include <oscFile.h>
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscEnvironment: public oscNamedObject
+class OPENSCENARIOEXPORT oscEnvironment: public oscObjectBase
 {
     
 public:
     oscEnvironment()
     {
-        OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
-        OSC_OBJECT_ADD_MEMBER(timeOfDay,"oscTimeOfDay");
-        OSC_OBJECT_ADD_MEMBER(weather,"oscWeather");
-        OSC_OBJECT_ADD_MEMBER(roadConditions,"oscRoadConditions");
+        OSC_OBJECT_ADD_MEMBER(catalogRef,"oscCatalogRef");
+		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+	    OSC_OBJECT_ADD_MEMBER(include,"oscFile");
     };
-    oscHeaderMember header;
-    oscTimeOfDayMember timeOfDay;
-    oscWeatherMember weather;
-    oscRoadConditionsMember roadConditions;
+    oscCatalogRefMember catalogRef;
+	oscUserDataMember userData;
+    oscFileMember include;
 };
 
 typedef oscObjectVariable<oscEnvironment *> oscEnvironmentMember;

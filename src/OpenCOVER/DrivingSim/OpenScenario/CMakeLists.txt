@@ -19,6 +19,7 @@ SET(HEADERS
    oscBoundingBox.h
    oscCancelCondition.h
    oscCancelConditionGroup.h
+   oscCancelConditionRef.h
    oscCatalogRef.h
    oscCatalogs.h
    oscCenter.h
@@ -49,6 +50,7 @@ SET(HEADERS
    oscDriverRef.h
    oscEndCondition.h
    oscEndConditionGroup.h
+   oscEndConditionRef.h
    oscEngine.h
    oscEntity.h
    oscEntities.h
@@ -90,6 +92,7 @@ SET(HEADERS
    oscManeuver.h
    oscManeuverList.h
    oscManeuverRef.h
+   oscManeuverRefActor.h
    oscMember.h
    oscMemberValue.h
    oscMirror.h
@@ -98,6 +101,7 @@ SET(HEADERS
    oscMiscObject.h
    oscMiscObjectRef.h
    oscNamedObject.h
+   oscNamedPriority.h
    oscNameRefId.h
    oscNotify.h
    oscNumericCondition.h
@@ -130,6 +134,7 @@ SET(HEADERS
    oscPriority.h
    oscReachPosition.h
    oscRefActor.h
+   oscRefActorList.h
    oscRelativeChoice.h
    oscReferenceHanding.h
    oscRelative.h
@@ -154,6 +159,7 @@ SET(HEADERS
    oscSpline.h
    oscStandsStill.h
    oscStartConditionGroup.h
+   oscStartConditionRef.h
    oscStartCondition.h
    oscStoppingDistance.h
    oscStoryboard.h
@@ -188,10 +194,10 @@ SET(SOURCES
    oscBody.cpp
    oscConditionChoiceObject.cpp
    oscConditionChoiceRefObject.cpp
-   oscEvent.cpp
    oscFactories.cpp
    oscMember.cpp
    oscMemberValue.cpp
+   oscNamedPriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp
    oscPartner.cpp
