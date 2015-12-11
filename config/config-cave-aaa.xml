@@ -76,7 +76,7 @@
   <COVER>
 
    <Plugin>
-    <animator value="on" />
+    <animator value="off" />
 
     <Vrml97>
       <GenerateTriangleStrips value="false" />

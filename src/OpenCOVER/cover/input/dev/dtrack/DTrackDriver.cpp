@@ -132,9 +132,10 @@ bool DTrackDriver::updateHand(size_t idx)
 
 	//std::cout<<"ft 1st:"  <<dist12<<" 2nd:"<< dist13<<endl;
 
-	// 50mm -- very bad precision
-	m_buttonStates[0 + m_handButtonBase[idx]] = (dist12>0)&&(dist12<23.0)?true:false;
-	m_buttonStates[1 + m_handButtonBase[idx]] = (dist12>0)&&(dist13<23.0)?true:false;
+	// 50mm for very bad precision, 23mm -- for good one
+	// 17..19 mm is a minimal distance between fingers
+	m_buttonStates[0 + m_handButtonBase[idx]] = (dist12>0)&&(dist12<23.0);
+	m_buttonStates[1 + m_handButtonBase[idx]] = (dist12>0)&&(dist13<23.0);
 
 
 	return getDTrackMatrix(m_bodyMatrices[m_handBase+idx],*h);
