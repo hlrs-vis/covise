@@ -374,6 +374,17 @@ oscFactories::oscFactories()
 }
 
 
+oscFactories *oscFactories::instance()
+{
+    if(inst == NULL)
+    {
+        inst = new oscFactories();
+    }
+
+    return inst;
+}
+
+
 void oscFactories::setObjectFactory(oscFactory<oscObjectBase,std::string> *f)
 {
     objectFactory = f;

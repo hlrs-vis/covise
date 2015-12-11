@@ -34,6 +34,7 @@ oscObjectBase::~oscObjectBase()
 {
 }
 
+
 void oscObjectBase::initialize(OpenScenarioBase *b, oscSourceFile *s)
 {
     base = b;
@@ -43,6 +44,16 @@ void oscObjectBase::initialize(OpenScenarioBase *b, oscSourceFile *s)
 void oscObjectBase::addMember(oscMember *m)
 {
     members[m->getName()]=m;
+}
+
+OpenScenarioBase *oscObjectBase::getBase()
+{
+    return base;
+}
+
+oscSourceFile *oscObjectBase::getSource() const
+{
+    return source;
 }
 
 

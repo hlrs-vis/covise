@@ -53,10 +53,11 @@ protected:
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
+
     virtual void initialize(OpenScenarioBase *b, oscSourceFile *s);
     void addMember(oscMember *m);
-    OpenScenarioBase *getBase(){return base;};
-    oscSourceFile *getSource() const {return source;};
+    OpenScenarioBase *getBase();
+    oscSourceFile *getSource() const;
 
     bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
     bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);

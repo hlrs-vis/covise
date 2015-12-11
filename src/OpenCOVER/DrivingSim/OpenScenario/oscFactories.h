@@ -17,9 +17,11 @@ class OPENSCENARIOEXPORT oscFactories
 {
     oscFactories();
     ~oscFactories();
+
     static oscFactories* inst;
+
 public:
-    static oscFactories *instance(){if(inst == NULL) inst = new oscFactories(); return inst;};
+    static oscFactories *instance();
 
     oscFactory<oscObjectBase,std::string> *objectFactory;
     oscFactory<oscMemberValue,oscMemberValue::MemberTypes> *valueFactory;

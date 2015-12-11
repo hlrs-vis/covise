@@ -153,6 +153,7 @@ int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default f
     return true;
 }
 
+
 xercesc::DOMElement *OpenScenarioBase::getRootElement(std::string filename)
 {
     try
@@ -192,6 +193,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(std::string filename)
     return rootElement;
 }
 
+
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *currentElement)
 {
     source = new oscSourceFile();
@@ -203,6 +205,13 @@ bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *currentElement)
 
     return oscObjectBase::parseFromXML(currentElement, source);
 }
+
+
+xercesc::DOMDocument *OpenScenarioBase::getDocument()
+{
+    return xmlDoc;
+}
+
 
 void OpenScenarioBase::addToSrcFileVec(oscSourceFile *src)
 {
