@@ -59,6 +59,7 @@ SET(HEADERS
    oscEntityDelete.h
    oscEnvironmentCatalog.h
    oscEnvironment.h
+   oscEnvironmentRef.h
    oscEvent.h
    oscEventStartCondition.h
    oscEventStartConditionGroup.h

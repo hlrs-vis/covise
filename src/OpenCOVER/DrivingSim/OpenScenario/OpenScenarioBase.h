@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscCatalogs.h>
 #include <oscRoadNetwork.h>
 #include <oscHeader.h>
-#include <oscEnvironment.h>
+#include <oscEnvironmentRef.h>
 #include <oscEntities.h>
 #include <oscStoryboard.h>
 #include <oscScenarioEnd.h>
@@ -47,7 +47,7 @@ public:
     oscHeaderMember header;
     oscCatalogsMember catalogs;
     oscRoadNetworkMember roadNetwork;
-    oscEnvironmentMember environment; // temp only, should be a reference
+    oscEnvironmentRefMember environment; // temp only, should be a reference
     oscEntitiesMember entities;
     oscStoryboardMember storyboard;
     oscScenarioEndMember scenarioEnd;

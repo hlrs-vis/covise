@@ -54,6 +54,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscEntityCatalog.h>
 #include <oscEntityDelete.h>
 #include <oscEnvironment.h>
+#include <oscEnvironmentRef.h>
 #include <oscEnvironmentCatalog.h>
 #include <oscEyepoint.h>
 #include <oscEyepoints.h>
@@ -89,6 +90,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscManeuverRefActor.h>
 #include <oscMirror.h>
 #include <oscMirrors.h>
+#include <oscMiscObject.h>
 #include <oscMiscObjectCatalog.h>
 #include <oscMiscObjectRef.h>
 #include <oscNamedObject.h>
@@ -252,6 +254,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscEntityCatalog>("oscEntityCatalog");
 	staticObjectFactory.registerType<oscEntityDelete>("oscEntityDelete");
     staticObjectFactory.registerType<oscEnvironment>("oscEnvironment");
+	staticObjectFactory.registerType<oscEnvironmentRef>("oscEnvironmentRef");
 	staticObjectFactory.registerType<oscEnvironmentCatalog>("oscEnvironmentCatalog");
 	staticObjectFactory.registerType<oscEyepoint>("oscEyepoint");
 	staticObjectFactory.registerType<oscEyepoints>("oscEyepoints");
@@ -286,6 +289,7 @@ oscFactories::oscFactories()
 	staticObjectFactory.registerType<oscManeuverRefActor>("oscManeuverRefActor");
 	staticObjectFactory.registerType<oscMirror>("oscMirror");
 	staticObjectFactory.registerType<oscMirrors>("oscMirrors");
+	staticObjectFactory.registerType<oscMiscObject>("oscMiscObject");
     staticObjectFactory.registerType<oscMiscObjectCatalog>("oscMiscObjectCatalog");
 	staticObjectFactory.registerType<oscMiscObjectRef>("oscMiscObjectRef");
     staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");

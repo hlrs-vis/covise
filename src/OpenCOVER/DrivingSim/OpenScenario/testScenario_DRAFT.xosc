@@ -10,6 +10,36 @@
       <directory path="driver.xml"/>
       <userData code="aaa" value="bbb"/>
     </driverCatalog>
+    <observerCatalog>
+      <directory path="observer.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </observerCatalog>
+    <pedestrianCatalog>
+      <directory path="pedestrian.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </pedestrianCatalog>
+    <miscObjectCatalog>
+      <directory path="miscObject.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </miscObjectCatalog>
+    <entityCatalog>
+      <directory path="entity.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </entityCatalog>
+    <environmentCatalog>
+      <directory path="environment.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </environmentCatalog>
+    <maneuverCatalog>
+      <directory path="maneuver.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </maneuverCatalog>
+    <routingCatalog>
+      <directory path="routing.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </routingCatalog>
+    <userData code="asd" value="ert"></userData>
+    <include URL="driver.xml"></include>
   </catalogs>
   <roadNetwork>
     <OpenDRIVE URL="test.xodr"/>
@@ -131,4 +161,11 @@
     <userData code="asd" value="ert"></userData>
     <include URL="AAAAAA.xml"></include>
   </scenarioEnd>
+  <environment>
+    <catalogRef catalogId="123">
+      <parameter name="a" value="b" type="c"/>
+    </catalogRef>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </environment>
 </OpenScenario>

@@ -22,13 +22,13 @@ class OPENSCENARIOEXPORT oscObjectChoice: public oscObjectBase
 public:
     oscObjectChoice()
     {
-        OSC_OBJECT_ADD_MEMBER(vehicle,"oscVehicleRef");
-		OSC_OBJECT_ADD_MEMBER(pedestrian, "oscPedestrianRef");
-		OSC_OBJECT_ADD_MEMBER(miscObject, "oscMiscObjectRef");
+        OSC_OBJECT_ADD_MEMBER(OSCVehicle,"oscVehicleRef");
+		OSC_OBJECT_ADD_MEMBER(OSCPedestrian, "oscPedestrianRef");
+		OSC_OBJECT_ADD_MEMBER(OSCMiscObject, "oscMiscObjectRef");
     };
-    oscVehicleRefMember vehicle;
-	oscPedestrianRefMember pedestrian;
-	oscMiscObjectRefMember miscObject;
+    oscVehicleRefMember OSCVehicle;
+	oscPedestrianRefMember OSCPedestrian;
+	oscMiscObjectRefMember OSCMiscObject;
 };
 
 typedef oscObjectVariable<oscObjectChoice *> oscObjectChoiceMember;

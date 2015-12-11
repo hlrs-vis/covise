@@ -22,11 +22,11 @@ class OPENSCENARIOEXPORT oscControllerChoice: public oscObjectBase
 public:
     oscControllerChoice()
     {
-        OSC_OBJECT_ADD_MEMBER(driverReference,"oscDriverRef");
-		OSC_OBJECT_ADD_MEMBER(pedestrianController, "oscPedestrianController");
+        OSC_OBJECT_ADD_MEMBER(OSCDriverReference,"oscDriverRef");
+		OSC_OBJECT_ADD_MEMBER(PedestrianController, "oscPedestrianController");
     };
-	oscDriverRefMember driverReference;
-    oscPedestrianControllerMember pedestrianController;
+	oscDriverRefMember OSCDriverReference;
+    oscPedestrianControllerMember PedestrianController;
 };
 
 typedef oscObjectVariable<oscControllerChoice *> oscControllerChoiceMember;

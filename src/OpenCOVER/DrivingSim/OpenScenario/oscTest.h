@@ -20,6 +20,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscRelativePositionWorld.h>
 #include <oscObserver.h>
 #include <oscManeuver.h>
+#include <oscMiscObject.h>
+#include <oscEnvironment.h>
 
 namespace OpenScenario {
 
@@ -41,6 +43,8 @@ public:
 		OSC_OBJECT_ADD_MEMBER(relativePositionWorld, "oscRelativePositionWorld");
 		OSC_OBJECT_ADD_MEMBER(observer, "oscObserver");
 		OSC_OBJECT_ADD_MEMBER(maneuver,"oscManeuver");
+		OSC_OBJECT_ADD_MEMBER(miscObject,"oscMiscObject");
+		OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironment");
     };
    oscDriverMember driver;
    oscConditionMember condition;
@@ -53,7 +57,8 @@ public:
    oscRelativePositionWorldMember relativePositionWorld;
    oscObserverMember observer;
    oscManeuverMember maneuver;
-
+   oscMiscObjectMember miscObject;
+   oscEnvironmentMember environment;
 };
 
 typedef oscObjectVariable<oscTest *> oscTestMember;
