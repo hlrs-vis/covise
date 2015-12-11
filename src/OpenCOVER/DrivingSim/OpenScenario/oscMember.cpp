@@ -29,8 +29,97 @@ oscMember::~oscMember()
 {
 }
 
+
 void oscMember::registerWith(oscObjectBase* o)
 {
     owner = o;
     owner->addMember(this);
+}
+
+// set, get of name and typeName
+//
+void oscMember::setName(const char *n)
+{
+    name = n;
+}
+
+void oscMember::setName(std::string &n)
+{
+    name = n;
+}
+
+std::string &oscMember::getName()
+{
+    return name;
+}
+
+void oscMember::setTypeName(const char *tn)
+{
+    typeName = tn;
+}
+
+void oscMember::setTypeName(std::string &tn)
+{
+    typeName = tn;
+}
+
+std::string oscMember::getTypeName() const
+{
+    return typeName;
+}
+
+//set, get of value and type
+//
+void oscMember::setValue(oscMemberValue *v)
+{
+    value = v;
+}
+
+void oscMember::setValue(oscObjectBase *t)
+{
+
+}
+
+oscMemberValue *oscMember::getValue()
+{
+    return value;
+}
+
+void oscMember::setType(oscMemberValue::MemberTypes t)
+{
+    type = t;
+}
+
+oscMemberValue::MemberTypes oscMember::getType() const
+{
+    return type;
+}
+
+
+//
+const oscObjectBase *oscMember::getObject() const
+{
+    return NULL;
+}
+
+bool oscMember::exists() const
+{
+    return false;
+}
+
+oscObjectBase *oscMember::getOwner() const
+{
+    return owner;
+}
+
+
+//
+bool oscMember::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+{
+    if(value != NULL)
+    {
+        value->writeToDOM(currentElement,document,name.c_str());
+    }
+
+    return true;
 }
