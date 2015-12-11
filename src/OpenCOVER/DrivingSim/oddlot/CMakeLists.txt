@@ -337,6 +337,7 @@ SET(ODDLOT_SOURCES
 	src/gui/tools/osceditortool.cpp
 	src/graph/editors/osceditor.cpp
 	src/tree/catalogtreewidget.cpp
+	src/tree/catalogwidget.cpp
 	src/data/commands/osccommands.cpp
 	src/settings/widgets/oscObjectsettings.cpp
 	src/data/oscsystem/oscelement.cpp
@@ -630,6 +631,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/gui/tools/osceditortool.hpp
 	src/graph/editors/osceditor.hpp
 	src/tree/catalogtreewidget.hpp
+	src/tree/catalogwidget.hpp
 	src/data/commands/osccommands.hpp
 	src/settings/widgets/oscObjectsettings.hpp
 	src/data/oscsystem/oscelement.hpp

@@ -10,4 +10,7 @@
     <qresource prefix="/tools/colors">
         <file>colors/orange.eps</file>
     </qresource>
+	<qresource prefix="/icons">
+        <file>recycle.png</file>
+    </qresource>
 </RCC>

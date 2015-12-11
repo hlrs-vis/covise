@@ -66,7 +66,7 @@
 // Tree //
 //
 #include "src/tree/projecttree.hpp"
-#include "src/tree/catalogtreewidget.hpp"
+#include "src/tree/catalogwidget.hpp"
 
 // Settings //
 //
@@ -501,7 +501,7 @@ void
 {
 	// add a catalog tree
 	//
-	CatalogTreeWidget *catalogWidget = new CatalogTreeWidget(mainWindow_, object);
+	CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, object);
 	mainWindow_->createCatalog(type, catalogWidget);
 }
 

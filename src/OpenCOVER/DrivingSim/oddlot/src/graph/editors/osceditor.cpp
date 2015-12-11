@@ -102,7 +102,7 @@ OpenScenarioEditor::~OpenScenarioEditor()
 void
 OpenScenarioEditor::init()
 {
- /*   if (!oscRoadSystemItem_)
+ /*   if (!oscRoadSystemItem_)   // Signaleditor graphischee Elemente
     {
         // Root item //
         //
@@ -354,22 +354,15 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			QString objectName = action->getText();
 			if (objectName != "")
 			{
-				OpenScenario::oscObject *object;
 				OpenScenario::oscObjectBase *objectBase = base_->getOSCObjectBase();
 				
-		/*		object = base_->addObject(objectName);
-				AddOSCObjectCommand *command = new AddOSCObjectCommand(base_, &objectName, NULL);
+				OSCElement *oscElement = new OSCElement("prototype");
+
+				AddOSCObjectCommand *command = new AddOSCObjectCommand(objectBase, objectName.toStdString(), oscElement, NULL);
 
 				getProjectGraph()->executeCommand(command);
-				getProjectWidget()->addCatalogTree(objectName, object);   // sollte bei Generierung eines neuen catalog vom observer gemacht werden
-				*/	
-				getProjectWidget()->addCatalogTree(objectName, NULL);
 
-	//			if (command->isValid())
-				{
-					OSCElement *oscElement = new OSCElement("prototype", object);
-					base_->addOSCElement(oscElement);
-				}
+				getProjectWidget()->addCatalogTree(objectName, oscElement->getObject());   
 
 			}
 		}

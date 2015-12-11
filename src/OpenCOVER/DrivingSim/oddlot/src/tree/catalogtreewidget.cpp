@@ -50,6 +50,7 @@
 // OpenScenario //
 //
 #include "oscObject.h"
+#include "oscObjectBase.h"
 #include "oscMember.h"
 
 #include <QWidget>
@@ -90,6 +91,7 @@ CatalogTreeWidget::init()
 	// OpenScenario Element base //
 	//
 	base_ = projectWidget_->getProjectData()->getOSCBase();
+	oscBase_ = base_->getOSCObjectBase();
 		
 	// Connect with the ToolManager to send the selected signal or object //
     //
@@ -100,6 +102,7 @@ CatalogTreeWidget::init()
 	}
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
+	setDragEnabled(true);
     setUniformRowHeights(true);
 	setIndentation(6);
 
@@ -129,6 +132,7 @@ CatalogTreeWidget::init()
 
 			QTreeWidgetItem *item = new QTreeWidgetItem();
 			item->setText(0,QString(elementName.c_str()));
+			item->setFlags(Qt::ItemIsDragEnabled);
 
 			rootList.append(item);
 		}*/
@@ -166,7 +170,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 			currentTool_ = ODD::TOS_OBJECT;
 			OpenScenario::oscObject *newObject;
 			/*		OpenScenario::oscObject *newObject = object->addObject("catalog element");
-			AddOSCObjectCommand *command = new AddOSCObjectCommand(base_, oscObject->getName(), NULL);
+			AddOSCObjectCommand *command = new AddOSCObjectCommand(oscBase_, oscObject->getName(), NULL);
 
 			projectWidget_->getTopviewGraph()->executeCommand(command);
 			
@@ -214,6 +218,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 	}
 
 }
+
 
 //##################//
 // Observer Pattern //

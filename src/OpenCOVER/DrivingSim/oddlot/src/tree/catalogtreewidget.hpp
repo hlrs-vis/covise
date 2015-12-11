@@ -33,6 +33,7 @@ class QTreeWidgetItem;
 namespace OpenScenario
 {
 class oscObject;
+class oscObjectBase;
 }
 
 class CatalogTreeWidget : public QTreeWidget, public Observer
@@ -53,6 +54,7 @@ public:
 	}
 
 	void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
+
 
 	// Obsever Pattern //
     //
@@ -93,6 +95,7 @@ private:
 	// OpenScenario Base //
 	//
 	OSCBase *base_;
+	OpenScenario::oscObjectBase *oscBase_;
 
 	OpenScenario::oscObject *object_;
 	OSCElement *oscElement_;
