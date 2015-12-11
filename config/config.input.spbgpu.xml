@@ -5,8 +5,8 @@
         <Input>
             <Device>
                <DTrackCave driver="dtrack" port="5000">
-                  <Offset x="2" y="-100" z="-390" />
-                  <Orientation h="0" p="90" r="0" />
+                  <Offset x="-200" y="-250" z="100" />
+                  <Orientation h="0" p="0" r="0" />
                </DTrackCave>
 
                <!--<CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>-->
