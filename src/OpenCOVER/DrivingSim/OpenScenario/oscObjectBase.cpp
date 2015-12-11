@@ -51,6 +51,11 @@ OpenScenarioBase *oscObjectBase::getBase()
     return base;
 }
 
+oscObjectBase::MemberMap oscObjectBase::getMembers() const
+{
+    return members;
+}
+
 oscSourceFile *oscObjectBase::getSource() const
 {
     return source;

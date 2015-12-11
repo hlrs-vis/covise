@@ -57,6 +57,7 @@ public:
     virtual void initialize(OpenScenarioBase *b, oscSourceFile *s);
     void addMember(oscMember *m);
     OpenScenarioBase *getBase();
+    MemberMap getMembers() const;
     oscSourceFile *getSource() const;
 
     bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);

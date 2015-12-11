@@ -373,6 +373,11 @@ oscFactories::oscFactories()
 //    staticObjectFactory.registerType<>("");
 }
 
+oscFactories::~oscFactories()
+{
+
+}
+
 
 oscFactories *oscFactories::instance()
 {
