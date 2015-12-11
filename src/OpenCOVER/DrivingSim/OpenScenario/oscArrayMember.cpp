@@ -26,7 +26,7 @@ oscArrayMember::~oscArrayMember()
 
 
 //
-oscObjectBase *oscArrayMember::getValue(size_t i)
+oscObjectBase *oscArrayMember::getValue(size_t i) const
 {
     if(values.size()>i)
     {

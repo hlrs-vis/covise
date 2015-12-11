@@ -207,7 +207,7 @@ bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *currentElement)
 }
 
 
-xercesc::DOMDocument *OpenScenarioBase::getDocument()
+xercesc::DOMDocument *OpenScenarioBase::getDocument() const
 {
     return xmlDoc;
 }
@@ -218,7 +218,7 @@ void OpenScenarioBase::addToSrcFileVec(oscSourceFile *src)
     srcFileVec.push_back(src);
 }
 
-std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec()
+std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec() const
 {
     return srcFileVec;
 }

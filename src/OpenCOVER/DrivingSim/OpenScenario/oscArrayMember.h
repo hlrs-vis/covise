@@ -30,7 +30,7 @@ public:
     oscArrayMember(); ///< constructor
     virtual ~oscArrayMember(); ///< destructor
 
-    oscObjectBase * getValue(size_t i);
+    oscObjectBase * getValue(size_t i) const;
     void setValue(size_t i,oscObjectBase *v);
     void push_back(oscObjectBase *v);
 };

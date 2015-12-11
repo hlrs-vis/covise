@@ -43,7 +43,7 @@ public:
     oscMemberValue(); ///< constructor
     virtual ~oscMemberValue(); ///< destructor
 
-    MemberTypes getType(); ///< return the type of this value
+    MemberTypes getType() const; ///< return the type of this value
     virtual bool initialize(xercesc::DOMAttr *);
 
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name)=0;

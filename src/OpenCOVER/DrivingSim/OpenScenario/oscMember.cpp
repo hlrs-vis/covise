@@ -63,7 +63,7 @@ void oscMember::setTypeName(std::string &tn)
     typeName = tn;
 }
 
-std::string oscMember::getTypeName()
+std::string oscMember::getTypeName() const
 {
     return typeName;
 }
@@ -90,24 +90,24 @@ void oscMember::setType(oscMemberValue::MemberTypes t)
     type = t;
 }
 
-oscMemberValue::MemberTypes oscMember::getType()
+oscMemberValue::MemberTypes oscMember::getType() const
 {
     return type;
 }
 
 
 //
-const oscObjectBase *oscMember::getObject()
+const oscObjectBase *oscMember::getObject() const
 {
     return NULL;
 }
 
-bool oscMember::exists()
+bool oscMember::exists() const
 {
     return false;
 }
 
-oscObjectBase *oscMember::getOwner()
+oscObjectBase *oscMember::getOwner() const
 {
     return owner;
 }

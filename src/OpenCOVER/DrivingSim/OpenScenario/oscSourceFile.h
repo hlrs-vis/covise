@@ -36,10 +36,10 @@ public:
     void setXmlDoc(xercesc::DOMDocument *xD);
     void setIncludeParentElem(xercesc::DOMElement *inclParentElem);
 
-    std::string getSrcFileName();
-    std::string getRootElementName();
-    xercesc::DOMDocument *getXmlDoc();
-    xercesc::DOMElement *getIncludeParentElem();
+    std::string getSrcFileName() const;
+    std::string getRootElementName() const;
+    xercesc::DOMDocument *getXmlDoc() const;
+    xercesc::DOMElement *getIncludeParentElem() const;
 
 
 protected:

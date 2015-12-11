@@ -46,7 +46,7 @@ void oscObjectBase::addMember(oscMember *m)
     members[m->getName()]=m;
 }
 
-OpenScenarioBase *oscObjectBase::getBase()
+OpenScenarioBase *oscObjectBase::getBase() const
 {
     return base;
 }

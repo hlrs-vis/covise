@@ -56,7 +56,7 @@ public:
 
     virtual void initialize(OpenScenarioBase *b, oscSourceFile *s);
     void addMember(oscMember *m);
-    OpenScenarioBase *getBase();
+    OpenScenarioBase *getBase() const;
     MemberMap getMembers() const;
     oscSourceFile *getSource() const;
 

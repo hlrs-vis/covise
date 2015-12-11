@@ -68,10 +68,10 @@ public:
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
 
-    xercesc::DOMDocument *getDocument();
+    xercesc::DOMDocument *getDocument() const;
 
     void addToSrcFileVec(oscSourceFile *src);
-    std::vector<oscSourceFile *> getSrcFileVec();
+    std::vector<oscSourceFile *> getSrcFileVec() const;
 
 };
 

@@ -22,7 +22,7 @@ oscMemberValue::~oscMemberValue()
 }
 
 
-oscMemberValue::MemberTypes oscMemberValue::getType()
+oscMemberValue::MemberTypes oscMemberValue::getType() const
 {
     return type;
 }

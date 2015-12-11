@@ -42,17 +42,17 @@ public:
     std::string &getName();
     void setTypeName(const char *tn);
     void setTypeName(std::string &tn);
-    std::string getTypeName(); ///< return the typeName of this member
+    std::string getTypeName() const; ///< return the typeName of this member
 
     virtual void setValue(oscMemberValue *v);
     virtual void setValue(oscObjectBase *t);
     virtual oscMemberValue *getValue();
     void setType(oscMemberValue::MemberTypes t);
-    oscMemberValue::MemberTypes getType(); ///< return the type of this member
+    oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
-    virtual const oscObjectBase *getObject();
-    virtual bool exists(); ///<for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists is executed
-    oscObjectBase *getOwner();
+    virtual const oscObjectBase *getObject() const;
+    virtual bool exists() const; ///<for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists is executed
+    oscObjectBase *getOwner() const;
 
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 

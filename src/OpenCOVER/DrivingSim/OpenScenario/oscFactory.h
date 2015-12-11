@@ -39,9 +39,11 @@ public:
         static_assert(std::is_base_of<T, TDerived>::value, "oscObjectFactory::registerType doesn't accept this type because doesn't derive from base class");
         _createFuncs[name] = &createFunc<TDerived>;
     }
-    virtual T* create(TType &name) {
+    virtual T* create(TType &name)
+    {
         typename std::map<TType,PCreateFunc>::const_iterator it = _createFuncs.find(name);
-        if (it != _createFuncs.end()) {
+        if (it != _createFuncs.end())
+        {
             return it->second();
         }
         return nullptr;

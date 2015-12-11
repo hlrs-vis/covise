@@ -56,22 +56,22 @@ void oscSourceFile::setIncludeParentElem(xercesc::DOMElement *inclParentElem)
 }
 
 
-std::string oscSourceFile::getSrcFileName()
+std::string oscSourceFile::getSrcFileName() const
 {
     return srcFileName;
 }
 
-std::string oscSourceFile::getRootElementName()
+std::string oscSourceFile::getRootElementName() const
 {
     return rootElementName;
 }
 
-xercesc::DOMDocument *oscSourceFile::getXmlDoc()
+xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
 {
     return xmlDoc;
 }
 
-xercesc::DOMElement *oscSourceFile::getIncludeParentElem()
+xercesc::DOMElement *oscSourceFile::getIncludeParentElem() const
 {
     return includeParentElem;
 }
