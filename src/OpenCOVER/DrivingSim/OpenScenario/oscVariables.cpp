@@ -35,6 +35,28 @@ OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<float>::getValueType(
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType(){return oscMemberValue::ENUM;};
 
 
+void oscEnum::setValueWStr(std::string &strVal)
+{
+    int val = enumType->getEnum(strVal);
+    this->setValue(val);
+}
+
+std::string oscEnum::getValueAsStr(int &val) const
+{
+    std::string strVal;
+
+    for(std::map<std::string,int>::iterator it = enumType->enumValues.begin();it != enumType->enumValues.end(); it++)
+    {
+        if(it->second == val)
+        {
+            strVal = it->first;
+        }
+    }
+
+    return strVal;
+}
+
+
 template<>
 OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute){value = atoi(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>

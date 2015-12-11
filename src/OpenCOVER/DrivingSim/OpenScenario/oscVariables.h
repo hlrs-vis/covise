@@ -115,6 +115,8 @@ namespace OpenScenario
     public:
         oscEnumType *enumType;
         OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
+        void setValueWStr(std::string &strVal); ///<set the value with the string of the value
+        std::string getValueAsStr(int &val) const; ///<get the value as a string
     };
 
     //
