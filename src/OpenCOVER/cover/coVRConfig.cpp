@@ -603,6 +603,18 @@ coVRConfig::debugLevel(int level) const
         return false;
 }
 
+int
+coVRConfig::getDebugLevel() const
+{
+    return m_dLevel;
+}
+
+void
+coVRConfig::setDebugLevel(int level)
+{
+    m_dLevel = level;
+}
+
 bool coVRConfig::mouseNav() const
 {
     return m_mouseNav;

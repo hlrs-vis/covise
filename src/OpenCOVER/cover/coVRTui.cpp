@@ -242,6 +242,8 @@ coVRTui::coVRTui()
     scaleLabel = new coTUILabel("Scale factor (log10)", topContainer->getID());
     ScaleSlider = new coTUIFloatSlider("ScaleFactor", topContainer->getID());
     Menu->setState(false);
+    debugLabel = new coTUILabel("Debug level", topContainer->getID());
+    debugLevel = new coTUIEditIntField("DebugLevel", topContainer->getID());
 #ifndef NOFB
     FileBrowser = new coTUIFileBrowserButton("Load file...", topContainer->getID());
     coVRCommunication::instance()->setFBData(FileBrowser->getVRBData());
@@ -305,6 +307,7 @@ coVRTui::coVRTui()
     CFPS->setEventListener(this);
     backgroundColor->setEventListener(this);
     LODScaleEdit->setEventListener(this);
+    debugLevel->setEventListener(this);
 
     nearEdit->setEventListener(this);
     farEdit->setEventListener(this);
@@ -338,6 +341,9 @@ coVRTui::coVRTui()
     ShadowChoice->setPos(3,1);
     DisableIntersection->setPos(1, 5);
     testImage->setPos(2, 5);
+
+    debugLabel->setPos(3,4);
+    debugLevel->setPos(3,5);
 
     speedLabel->setPos(0, 10);
     NavSpeed->setPos(1, 10);
@@ -571,6 +577,12 @@ coInputTUI::coInputTUI()
     personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
     personsChoice->setPos(1,0);
     personsChoice->setEventListener(this);
+
+    eyeDistanceLabel = new coTUILabel("Eye distance", personContainer->getID());
+    eyeDistanceLabel->setPos(1,3);
+    eyeDistanceEdit = new coTUIEditFloatField("EyeDistance", personContainer->getID());
+    eyeDistanceEdit->setPos(1,4);
+    eyeDistanceEdit->setEventListener(this);
     
     bodiesContainer = new coTUIFrame("bc",inputTab->getID());
     bodiesContainer->setPos(1,0);
@@ -670,12 +682,17 @@ void coInputTUI::updateTUI()
         personsChoice->clear();
         for (size_t i = 0; i < Input::instance()->getNumPersons(); i++)
         {
-            personsChoice->addEntry(Input::instance()->getPerson(i)->getName());
+            personsChoice->addEntry(Input::instance()->getPerson(i)->name());
         }
     }
     int activePerson = Input::instance()->getActivePerson();
     if(activePerson != personsChoice->getSelectedEntry())
         personsChoice->setSelectedEntry(activePerson);
+
+    if (eyeDistanceEdit->getValue() != Input::instance()->eyeDistance())
+    {
+        eyeDistanceEdit->setValue(Input::instance()->eyeDistance());
+    }
 
     if (size_t(bodiesChoice->getNumEntries()) != Input::instance()->getNumBodies())
     {
@@ -757,7 +774,13 @@ coInputTUI::~coInputTUI()
 
 void coInputTUI::tabletEvent(coTUIElement *tUIItem)
 {
-    if(tUIItem == personsChoice)
+    if (tUIItem == eyeDistanceEdit)
+    {
+        const int activePerson = Input::instance()->getActivePerson();
+        Input::instance()->getPerson(activePerson)->setEyeDistance(eyeDistanceEdit->getValue());
+        VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
+    }
+    else if(tUIItem == personsChoice)
     {
         Input::instance()->setActivePerson(personsChoice->getSelectedEntry());
     }
@@ -836,6 +859,10 @@ void coVRTui::updateFPS(double fps)
 
 void coVRTui::update()
 {
+    if (debugLevel->getValue() != coVRConfig::instance()->getDebugLevel())
+    {
+        debugLevel->setValue(coVRConfig::instance()->getDebugLevel());
+    }
     if (navigationMode != coVRNavigationManager::instance()->getMode())
     {
         navigationMode = coVRNavigationManager::instance()->getMode();
@@ -969,6 +996,11 @@ void coVRTui::update()
 
 void coVRTui::tabletEvent(coTUIElement *tUIItem)
 {
+
+    if (tUIItem == debugLevel)
+    {
+        coVRConfig::instance()->setDebugLevel(debugLevel->getValue());
+    }
 
     if (tUIItem == driveNav)
     {

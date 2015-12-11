@@ -62,6 +62,8 @@ private:
     coTUIFrame *personContainer;
     coTUILabel * personsLabel;
     coTUIComboBox * personsChoice;
+    coTUILabel *eyeDistanceLabel;
+    coTUIEditFloatField *eyeDistanceEdit;
 
     coTUIFrame *bodiesContainer;
     coTUILabel *bodiesLabel;
@@ -245,6 +247,9 @@ private:
     coTUILabel *backgroundLabel;
     coTUILabel *LODScaleLabel;
     coTUIEditFloatField *LODScaleEdit;
+
+    coTUILabel *debugLabel;
+    coTUIEditIntField *debugLevel;
 #ifndef NOFB
     coTUIFileBrowserButton *FileBrowser;
     coTUIFileBrowserButton *SaveFileFB;
