@@ -99,7 +99,7 @@ private:
 
 	// OpenScenarioBase //
 	//
-	OSCBase * base_;
+	OSCBase * oscBase_;
 
 	ODD::ToolId lastTool_;
 

@@ -22,7 +22,7 @@
 namespace OpenScenario
 {
 class oscObjectBase;
-class oscObject;
+class OpenScenarioBase;
 }
 
 class OSCElement;
@@ -60,22 +60,26 @@ public:
     //################//
 
 public:
-    explicit OSCBase(OpenScenario::oscObjectBase *oscObjectBase);
+	explicit OSCBase(OpenScenario::OpenScenarioBase *openScenarioBase);
 	explicit OSCBase();
     virtual ~OSCBase();
 
-	void setOSCObjectBase(OpenScenario::oscObjectBase *oscObject)
+	// ProjectData //
+	//
+	void setParentProjectData(ProjectData *projectData);
+
+	void setOpenScenarioBase(OpenScenario::OpenScenarioBase *openScenarioBase)
 	{
-		oscObjectBase_ = oscObject;
+		openScenarioBase_ = openScenarioBase;
 	}
 
-	OpenScenario::oscObjectBase *getOSCObjectBase()
+	OpenScenario::OpenScenarioBase *getOpenScenarioBase()
 	{
-		return oscObjectBase_;
+		return openScenarioBase_;
 	}
 
 	OSCElement *getOSCElement(const QString &id) const;
-	OSCElement *getOSCElement(OpenScenario::oscObject *oscObject) const;
+	OSCElement *getOSCElement(const OpenScenario::oscObjectBase *oscObjectBase) const;
 
     QMap<QString, OSCElement *> getOSCElements() const
     {
@@ -111,9 +115,13 @@ private:
     //################//
 
 private:
+	// ProjectData //
+	//
+	ProjectData *parentProjectData_;
+
 	// OpenScenario Base object //
 	//
-	OpenScenario::oscObjectBase *oscObjectBase_;
+	OpenScenario::OpenScenarioBase *openScenarioBase_;
 
 	// List of all OpenScenario objects
 	//

@@ -19,7 +19,7 @@
 #include "src/data/dataelement.hpp"
 
 #include "oscObjectBase.h"
-#include "oscObject.h"
+#include "OpenScenarioBase.h"
 
 using namespace OpenScenario;
 
@@ -57,7 +57,7 @@ public:
     //################//
 
 public:
-    explicit OSCElement(const QString &id, OpenScenario::oscObject *oscObject);
+    explicit OSCElement(const QString &id, const OpenScenario::oscObjectBase *oscObjectBase = NULL);
     virtual ~OSCElement();
 
 	const QString &getID() const
@@ -73,14 +73,17 @@ public:
     {
         return oscBase_;
     }
-    void setOSCBase(OSCBase *oscBase)
+
+    void setOSCBase(OSCBase *oscBase);
+
+	const OpenScenario::oscObjectBase *getObject()
 	{
-		oscBase_ = oscBase;
+		return oscObjectBase_;
 	}
 
-	OpenScenario::oscObject *getObject()
+	void setObjectBase(const OpenScenario::oscObjectBase * oscObjectBase)
 	{
-		return oscObject_;
+		oscObjectBase_ = oscObjectBase;
 	}
 
 	// Visitor Pattern //
@@ -111,7 +114,7 @@ private:
 	//
 	OSCBase *oscBase_;
 
-	OpenScenario::oscObject *oscObject_;
+	const OpenScenario::oscObjectBase *oscObjectBase_;
 
 	QString id_; // unique ID within ODDLOT database
 

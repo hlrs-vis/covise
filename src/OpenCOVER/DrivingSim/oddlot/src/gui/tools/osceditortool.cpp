@@ -72,15 +72,15 @@ OpenScenarioEditorTool::initToolWidget()
     //
     catalogComboBox_ = new QComboBox(); 
 	catalogComboBox_->addItem("Choose new catalog ...");
-	catalogComboBox_->addItem("oscVehicleCatalog");
-	catalogComboBox_->addItem("oscDriverCatalog");
-	catalogComboBox_->addItem("oscObserverCatalog");
-	catalogComboBox_->addItem("oscPedestrianCatalog");
-	catalogComboBox_->addItem("oscMiscObjectCatalog");
-	catalogComboBox_->addItem("oscEntityCatalog");
-	catalogComboBox_->addItem("oscEnvironmentCatalog");
-	catalogComboBox_->addItem("oscManeuverCatalog");
-	catalogComboBox_->addItem("oscRoutingCatalog");
+	catalogComboBox_->addItem("vehicleCatalog");
+	catalogComboBox_->addItem("driverCatalog");
+	catalogComboBox_->addItem("observerCatalog");
+	catalogComboBox_->addItem("pedestrianCatalog");
+	catalogComboBox_->addItem("miscObjectCatalog");
+	catalogComboBox_->addItem("entityCatalog");
+	catalogComboBox_->addItem("environmentCatalog");
+	catalogComboBox_->addItem("maneuverCatalog");
+	catalogComboBox_->addItem("routingCatalog");
    
     connect(catalogComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCatalogSelection(int)));
     catalogComboBox_->setCurrentIndex(0); // this doesn't trigger an event...

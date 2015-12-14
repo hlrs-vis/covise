@@ -25,6 +25,7 @@
 #include "oscMember.h"
 #include "oscMemberValue.h"
 #include "oscVariables.h"
+#include "oscCatalogs.h"
 
 using namespace OpenScenario;
 
@@ -32,19 +33,20 @@ using namespace OpenScenario;
 // AddOSCObjectCommand //
 //#########################//
 
-AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *oscBase, const std::string &name, OSCElement *element, DataCommand *parent)
+AddOSCObjectCommand::AddOSCObjectCommand(const OpenScenario::oscObjectBase *parentObject, OSCBase *base, const std::string &name, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
-    , memberName_(name)
-	, oscBase_(oscBase)
 	, element_(element)
-	, object_(NULL)
+	, parentObject_(parentObject)
+	, oscBase_(base)
 {
     // Check for validity //
     //
-    if (name == "")
+	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
+	member_ = members[name];
+    if ((name == "") || !member_)
     {
         setInvalid(); // Invalid
-        setText(QObject::tr("AddOSCObjectCommand: Internal error! No name specified."));
+        setText(QObject::tr("AddOSCObjectCommand: Internal error! No name specified or member already present."));
         return;
     }
     else
@@ -53,7 +55,9 @@ AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *oscBase, c
         setText(QObject::tr("AddOSCObject"));
     }
 
-	base_ = element_->getOSCBase();
+	typeName_ = member_->getTypeName();
+
+	openScenarioBase_ = parentObject_->getBase();
 }
 
 /*! \brief .
@@ -79,19 +83,22 @@ AddOSCObjectCommand::~AddOSCObjectCommand()
 void
 AddOSCObjectCommand::redo()
 {
+	OpenScenario::oscObjectBase *obj = oscFactories::instance()->objectFactory->create(typeName_);
 
-/*	oscMember *m = members[memberName_];
-	std::string memTypeName = m->getTypeName();
-	object_ = oscBase->getObjectFactory()->create(memTypeName);
-	object_->initialize(oscBase);
-	m->setValue(object_);
-	*/
-	element_->setObject(object_);
-	base_->addOSCElement(element_);
+	if(obj)
+	{
+		obj->initialize(openScenarioBase_, NULL);
+	
+		member_->setValue(obj);
 
-	element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
+		element_->setObjectBase(obj);
+		oscBase_->addOSCElement(element_);
 
-    setRedone();
+		element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
+
+	}
+
+	setRedone();
 }
 
 /*! \brief
@@ -100,9 +107,12 @@ AddOSCObjectCommand::redo()
 void
 AddOSCObjectCommand::undo()
 {
-//  oscBase->removeObject(object_);
-	element_->setObject(NULL);
-	base_->delOSCElement(element_);
+	const OpenScenario::oscObjectBase *obj = member_->getObject();
+//	member_->setValue(NULL);
+	delete obj;
+
+	element_->setObjectBase(NULL);
+	oscBase_->delOSCElement(element_);
 
 	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
 
@@ -113,18 +123,16 @@ AddOSCObjectCommand::undo()
 // RemoveOSCObjectCommand //
 //#########################//
 
-RemoveOSCObjectCommand::RemoveOSCObjectCommand(OpenScenario::oscObjectBase * oscBase, OpenScenario::oscObject *object, OSCElement *element, DataCommand *parent) // or oscObjectBase ??
+RemoveOSCObjectCommand::RemoveOSCObjectCommand(OSCElement *element, DataCommand *parent) // or oscObjectBase ??
     : DataCommand(parent)
-    , object_(object)
 	, element_(element)
-    , oscBase_(oscBase)
 {
     // Check for validity //
     //
-    if (!object)
+    if (!element_)
     {
         setInvalid(); // Invalid
-        setText(QObject::tr("RemoveOSCObjectCommand: Internal error! No object specified."));
+        setText(QObject::tr("RemoveOSCObjectCommand: Internal error! No element specified."));
         return;
     }
     else
@@ -132,7 +140,9 @@ RemoveOSCObjectCommand::RemoveOSCObjectCommand(OpenScenario::oscObjectBase * osc
         setValid();
         setText(QObject::tr("RemoveOSCObject"));
     }
-	base_ = element->getOSCBase();
+	oscBase_ = element_->getOSCBase();
+	openScenarioBase_ = oscBase_->getOpenScenarioBase();
+	object_ = element_->getObject();
 }
 
 /*! \brief .
@@ -158,8 +168,8 @@ RemoveOSCObjectCommand::~RemoveOSCObjectCommand()
 void
 RemoveOSCObjectCommand::redo()
 {
-    //oscBase_->removeObject(object_); 
-	base_->delOSCElement(element_);
+    element_->setObjectBase(NULL);				// todo: delete OpenScenario object/member
+	oscBase_->delOSCElement(element_);
 
 	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
 
@@ -172,8 +182,8 @@ RemoveOSCObjectCommand::redo()
 void
 RemoveOSCObjectCommand::undo()
 {
-   // oscBase_->addObject(object_);
-	base_->addOSCElement(element_);
+    element_->setObjectBase(object_);
+	oscBase_->addOSCElement(element_);
 
 	element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
 

@@ -61,15 +61,16 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObject *object)
+CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, const OpenScenario::oscObjectBase *object, const QString &type)
 	: QTreeWidget()
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
 	, oscEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
-	, object_(object)
+	, objectBase_(object)
 	, oscElement_(NULL)
 	, currentSelectedItem_(NULL)
+	, type_(type)
 {
     init();
 }
@@ -91,7 +92,7 @@ CatalogTreeWidget::init()
 	// OpenScenario Element base //
 	//
 	base_ = projectWidget_->getProjectData()->getOSCBase();
-	oscBase_ = base_->getOSCObjectBase();
+	openScenarioBase_ = objectBase_->getBase();
 		
 	// Connect with the ToolManager to send the selected signal or object //
     //
@@ -115,6 +116,25 @@ CatalogTreeWidget::init()
 	setHeaderHidden(true);
 	QList<QTreeWidgetItem *> rootList;
 
+	// temporary: make test base
+	if (!openScenarioBase_->test.exists())
+	{
+		testBase_ = new OSCElement("test");
+
+		AddOSCObjectCommand *command = new AddOSCObjectCommand(openScenarioBase_, base_, "test", testBase_, NULL);
+		projectWidget_->getTopviewGraph()->executeCommand(command);
+	}
+
+	type_ = type_.remove("Catalog");
+
+	createTree();
+}
+
+void
+CatalogTreeWidget::createTree()
+{
+	QList<QTreeWidgetItem *> rootList;
+
 	// emtpy item to create new elements //
 	//
 	QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -123,24 +143,26 @@ CatalogTreeWidget::init()
 
 	// add all catalog members //
 	//
-	if (object_)
+	if (objectBase_)
 	{
-//		OpenScenario::oscObjectBase::MemberMap *members = object_->getMembers();
-/*		for(MemberMap::iterator it = members.begin();it != members.end();it++)
+		OpenScenario::oscObjectBase::MemberMap members = objectBase_->getMembers();
+		for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 		{
-			std::string elementName = it->first();
+			std::string elementName = it->first;
 
-			QTreeWidgetItem *item = new QTreeWidgetItem();
-			item->setText(0,QString(elementName.c_str()));
-			item->setFlags(Qt::ItemIsDragEnabled);
+			if ((elementName != "directory") && (elementName != "userData"))
+			{
+				QTreeWidgetItem *item = new QTreeWidgetItem();
+				item->setText(0,QString(elementName.c_str()));
+				item->setFlags(Qt::ItemIsDragEnabled);
 
-			rootList.append(item);
-		}*/
+				rootList.append(item);
+			}
+		}
 	}
 
 	insertTopLevelItems(0,rootList);
 }
-
 
 void 
 CatalogTreeWidget::setOpenScenarioEditor(OpenScenarioEditor *oscEditor)
@@ -160,7 +182,7 @@ CatalogTreeWidget::setOpenScenarioEditor(OpenScenarioEditor *oscEditor)
 void
 CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-	if (oscEditor_)
+//	if (oscEditor_)
 	{
 		currentSelectedItem_ = selectedItems().at(0);
 		const QString text = currentSelectedItem_->text(0);
@@ -168,36 +190,32 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 		if (text == "New Element")
 		{
 			currentTool_ = ODD::TOS_OBJECT;
-			OpenScenario::oscObject *newObject;
-			/*		OpenScenario::oscObject *newObject = object->addObject("catalog element");
-			AddOSCObjectCommand *command = new AddOSCObjectCommand(oscBase_, oscObject->getName(), NULL);
-
+			oscElement_ = new OSCElement(type_);
+	
+//			testBase_ only temporary
+			AddOSCObjectCommand *command = new AddOSCObjectCommand(testBase_->getObject(), base_,type_.toStdString(), oscElement_, NULL);
 			projectWidget_->getTopviewGraph()->executeCommand(command);
 			
 			if (command->isValid()) 
-			{*/
-			oscElement_ = new OSCElement("prototype", newObject);
-			if (oscElement_)
 			{
-				base_->addOSCElement(oscElement_);
-		//		oscElement_->setElementSelected(true);
+				currentMember_ = testBase_->getObject()->getMembers().at(type_.toStdString());
+				oscElement_->setElementSelected(true);
 
 				QTreeWidgetItem *item = new QTreeWidgetItem(); // should be called by observer
-				//	item->setText(0, newObject->getName());
+				item->setText(0, type_);
 				insertTopLevelItem(1, item);
-				item->setSelected(true);
+//				item->setSelected(true);
 			}
-		//	}
 		}
-//		else
+		else
 		{
 			currentTool_ = ODD::TOS_SELECT;
-		/*		OpenScenario::oscMember *member = object_->getMember(text);
-			oscElement_ = base_->getOSCElement(member);
+			currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
+			oscElement_ = base_->getOSCElement(currentMember_->getObject());
 			if (oscElement_)
 			{
 				oscElement_->setElementSelected(true);
-			}*/
+			}
 			
 
 		}
@@ -211,11 +229,11 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 		QTreeWidget::selectionChanged(selected, deselected);
 	}
-	else
+/*	else
 	{
 		clearSelection();
 		clearFocus();
-	}
+	}*/
 
 }
 
@@ -241,9 +259,13 @@ CatalogTreeWidget::updateObserver()
 
 	if (changes & DataElement::CDE_ChildChange)
     {
-/*		if (currentSelectedItem_->text(0) != object_->getName())
+		if (currentSelectedItem_->text(0).toStdString() != currentMember_->getName())
 		{
-			currentSelectedItem_->setText(object_->getName());
-		}*/
+			currentSelectedItem_->setText(1, QString::fromStdString(currentMember_->getName()));
+		}
     }
+	else if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementDeleted))
+	{
+		createTree();
+	}
 }

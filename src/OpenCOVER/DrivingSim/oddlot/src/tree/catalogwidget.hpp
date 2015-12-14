@@ -33,7 +33,7 @@ class QDropEvent;
 
 namespace OpenScenario
 {
-class oscObject;
+class oscObjectBase;
 }
 
 class CatalogWidget : public QWidget
@@ -45,7 +45,7 @@ class CatalogWidget : public QWidget
     //################//
 
 public:
-	explicit CatalogWidget(MainWindow *mainWindow, OpenScenario::oscObject *object);
+	explicit CatalogWidget(MainWindow *mainWindow, OSCElement *element, const QString &type);
     virtual ~CatalogWidget();
 
 	void setActiveProject(ProjectWidget *projectWidget)
@@ -79,7 +79,9 @@ private:
 	//
 	OSCBase *base_;
 
-	OpenScenario::oscObject *object_;
+	const QString type_;	// catalog type
+
+	const OpenScenario::oscObjectBase *object_;
 	OSCElement *oscElement_;
 
 };
@@ -107,7 +109,6 @@ protected:
     void dropEvent(QDropEvent *event);
 
 private:
-    QLabel *recycleLabel_;
 	CatalogWidget *parent_;
 };
 

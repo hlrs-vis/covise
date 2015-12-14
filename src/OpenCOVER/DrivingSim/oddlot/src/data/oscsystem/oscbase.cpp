@@ -33,19 +33,32 @@ using namespace OpenScenario;
 */
 OSCBase::OSCBase()
     : DataElement()       //   , rSystemElementChanges_(0x0)
-	, oscObjectBase_(NULL)
+	, openScenarioBase_(NULL)
 {
 }
 
-OSCBase::OSCBase(OpenScenario::oscObjectBase *oscObjectBase)
+OSCBase::OSCBase(OpenScenario::OpenScenarioBase *openScenarioBase)
 	: DataElement()
-	, oscObjectBase_(oscObjectBase)
+	, openScenarioBase_(openScenarioBase)
 {
 }
 
 OSCBase::~OSCBase()
 {
 }
+
+//##################//
+// ProjectData      //
+//##################//
+
+void
+OSCBase::setParentProjectData(ProjectData *projectData)
+{
+    parentProjectData_ = projectData;
+    setParentElement(projectData);
+//    addScenerySystemChanges(ScenerySystem::CSC_ProjectDataChanged);
+}
+
 
 OSCElement *
 OSCBase::getOSCElement(const QString &id) const
@@ -54,7 +67,7 @@ OSCBase::getOSCElement(const QString &id) const
 }
 
 OSCElement *
-OSCBase::getOSCElement(OpenScenario::oscObject *oscObject) const
+OSCBase::getOSCElement(const OpenScenario::oscObjectBase *oscObjectBase) const
 {
 	OSCElement *oscElement;
 
@@ -62,7 +75,7 @@ OSCBase::getOSCElement(OpenScenario::oscObject *oscObject) const
 	while (it != oscElements_.constEnd())
 	{
 		oscElement = it.value();
-		if (oscObject == oscElement->getObject())
+		if (oscObjectBase == oscElement->getObject())
 		{
 			break;
 		}

@@ -55,13 +55,13 @@ class OSCParser : public QObject
     //################//
 
 public:
-	explicit OSCParser(OpenScenario::OpenScenarioBase *base, QObject *parent = NULL);
+	explicit OSCParser(OpenScenario::OpenScenarioBase *openScenarioBase, QObject *parent = NULL);
     ~OSCParser();
 
     // XODR //
     //
     bool parseXOSC(const QString &filename);
-	void createElements(OpenScenario::oscObject *oscObject);
+	void createElements(const OpenScenario::oscObjectBase *oscObjectBase);
 
 protected:
     //	OSCParser(){ /* not allowed */ };
@@ -78,7 +78,7 @@ private:
 	ProjectData *projectData_;
 
 	OSCBase *oscBase_; // ODDLOT OpenScenario base element
-    OpenScenario::OpenScenarioBase *base_; // OpenScenario base object
+    OpenScenario::OpenScenarioBase *openScenarioBase_; // OpenScenario base object
 	OSCParser::Mode mode_;
 
 };

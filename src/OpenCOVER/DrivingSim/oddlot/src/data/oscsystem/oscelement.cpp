@@ -14,20 +14,33 @@
 **************************************************************************/
 
 #include "oscelement.hpp"
+#include "oscbase.hpp"
 
 
 /*! \brief The constructor does nothing special.
 *
 */
-OSCElement::OSCElement(const QString &id, OpenScenario::oscObject *oscObject)
+OSCElement::OSCElement(const QString &id, const OpenScenario::oscObjectBase *oscObjectBase)
     : DataElement() 
-	, oscObject_(oscObject)
+	, oscObjectBase_(oscObjectBase)
  //   , rSystemElementChanges_(0x0)
 {
 }
 
 OSCElement::~OSCElement()
 {
+}
+
+//################//
+// OSCBase     //
+//################//
+
+void
+OSCElement::setOSCBase(OSCBase *base)
+{
+    setParentElement(base);
+	oscBase_ = base;
+ //   addRSystemElementChanges(RSystemElement::CRE_ParentRoadSystemChange);
 }
 
 void

@@ -30,7 +30,9 @@
 #include "oscFactories.h"
 #include "oscFactory.h"
 #include "OpenScenarioBase.h"
+#include "oscObjectBase.h"
 #include "oscObject.h"
+#include "oscHeader.h"
 
 
 /*#include "src/data/vehiclesystem/vehiclesystem.hpp"
@@ -67,9 +69,9 @@ using namespace OpenScenario;
 /** CONSTRUCTOR.
 *
 */
-OSCParser::OSCParser(OpenScenario::OpenScenarioBase *base, QObject *parent)
+OSCParser::OSCParser(OpenScenario::OpenScenarioBase *openScenarioBase, QObject *parent)
     : QObject(parent)
-    , base_(base)
+	, openScenarioBase_(openScenarioBase)
     , mode_(MODE_NONE)
 {
  //   doc_ = new QDomDocument();
@@ -106,14 +108,14 @@ OSCParser::parseXOSC(const QString &filename)
 	factory.create(tr("Driver").toStdString());*/
 
 
-	if(base_->loadFile(filename.toStdString())== false)
+	if (openScenarioBase_->loadFile(filename.toStdString())== false)
     {
         qDebug() << "failed to load OpenScenarioBase from file " << filename;
         return false;
     }
     // <OpenSCENARIO> //
     //
-	xercesc::DOMElement * root = base_->getRootElement(filename.toStdString());
+	xercesc::DOMElement *root = openScenarioBase_->getRootElement(filename.toStdString());
 
 	QString tagName =  xercesc::XMLString::transcode(root->getTagName());
 
@@ -126,7 +128,10 @@ OSCParser::parseXOSC(const QString &filename)
 
     // <OpenSCENARIO><header> //
     //
-	oscHeader * h = base_->header.getObject();
+	const OpenScenario::oscObjectBase * h = openScenarioBase_->header.getObject();
+	openScenarioBase_->catalogs.exists();
+	openScenarioBase_->catalogs.getObject()->getMembers(); //suche nach objectCatalog exist-> members->suche nach vehicle exit, anlegen
+	openScenarioBase_->test->vehicle; //exist, sonst über factory
     
     if (!h)
     {
@@ -139,15 +144,17 @@ OSCParser::parseXOSC(const QString &filename)
  //       parseHeaderElement(child);
     }
 
-	createElements(dynamic_cast<OpenScenario::oscObject *>(base_));
+	createElements(dynamic_cast<OpenScenario::oscObjectBase *>(openScenarioBase_));
+
+	oscBase_->setOpenScenarioBase(openScenarioBase_);
 
     return true;
 }
 
 void
-OSCParser::createElements(OpenScenario::oscObject *object)
+OSCParser::createElements(const OpenScenario::oscObjectBase *object)
 {
-/*	OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
+	OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
 	for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
     {
         oscMember *member = it->second;
@@ -155,13 +162,16 @@ OSCParser::createElements(OpenScenario::oscObject *object)
         {
 			if(member->getType() == oscMemberValue::OBJECT)
             {
-				oscObject *memberObject = member->getValue(); // OSCMemberValue should be object
-				OSCElement *oscElement = new OSCElement("prototype", memberObject); 
-				oscBase_->addOSCElement(oscElement);
-				createElements(memberObject);
+				const oscObjectBase *memberObject = member->getObject();
+				if (memberObject)
+				{
+					OSCElement *oscElement = new OSCElement(QString::fromStdString(it->first), memberObject); 
+					oscBase_->addOSCElement(oscElement);
+					createElements(memberObject);
+				}
 			}
 		}
-	}*/
+	}
 }
 
 

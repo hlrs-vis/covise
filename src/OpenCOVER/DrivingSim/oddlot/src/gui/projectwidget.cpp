@@ -41,6 +41,7 @@
 #include "src/data/scenerysystem/scenerysystem.hpp"
 
 #include "src/data/oscsystem/oscbase.hpp"
+#include "src/data/oscsystem/oscelement.hpp"
 
 
 // Graph //
@@ -131,7 +132,6 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     , topviewGraph_(NULL)
     , projectEditor_(NULL)
     , changeManager_(NULL)
-	, osdb_(NULL)
 {
     // Layout //
     //
@@ -430,15 +430,18 @@ ProjectWidget::loadFile(const QString &fileName)
 
 	if (!success)		// try OpenScenario
 	{
-		osdb_ = new OpenScenario::OpenScenarioBase();
+		// Create a Tile
+		Tile *tile = new Tile("Tile0", "0");
+		projectData_->getTileSystem()->addTile(tile);
+		projectData_->getTileSystem()->setCurrentTile(tile);
 
-		OSCParser *oscParser = new OSCParser(osdb_, projectData_);
-		success = oscParser->parseXOSC(fileName);
-
-		if (success)
+		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+		if (openScenarioBase)
 		{
-			projectData_->getOSCBase()->setOSCObjectBase(osdb_);
+			OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+			success = oscParser->parseXOSC(fileName);
 		}
+
 	}
 
     topviewGraph_->updateSceneSize();
@@ -497,11 +500,11 @@ ProjectWidget::loadTile(const QString &fileName)
 }
 
 void
-	ProjectWidget::addCatalogTree(const QString &type, OpenScenario::oscObject *object)
+	ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
 {
 	// add a catalog tree
 	//
-	CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, object);
+	CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
 	mainWindow_->createCatalog(type, catalogWidget);
 }
 

@@ -88,6 +88,10 @@ public:
     virtual void visit(RSystemElementJunction *);
     virtual void visit(JunctionConnection *);
 
+	// OpenScenario Elements //
+	//
+	virtual void visit(OSCElement *acceptor);
+
     // VehicleSystem //
     //
     virtual void visit(VehicleSystem *);

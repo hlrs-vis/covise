@@ -34,6 +34,8 @@ namespace OpenScenario
 {
 class oscObject;
 class oscObjectBase;
+class OpenScenarioBase;
+class oscMember;
 }
 
 class CatalogTreeWidget : public QTreeWidget, public Observer
@@ -45,7 +47,7 @@ class CatalogTreeWidget : public QTreeWidget, public Observer
     //################//
 
 public:
-	explicit CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObject *object);
+	explicit CatalogTreeWidget(MainWindow *mainWindow, const OpenScenario::oscObjectBase *object, const QString &type);
     virtual ~CatalogTreeWidget();
 
 	void setActiveProject(ProjectWidget *projectWidget)
@@ -67,6 +69,8 @@ private:
     CatalogTreeWidget &operator=(const CatalogTreeWidget &); /* not allowed */
 
     void init();
+
+	void createTree();
 
     //################//
     // EVENTS         //
@@ -95,12 +99,17 @@ private:
 	// OpenScenario Base //
 	//
 	OSCBase *base_;
-	OpenScenario::oscObjectBase *oscBase_;
+	OpenScenario::OpenScenarioBase *openScenarioBase_;
 
-	OpenScenario::oscObject *object_;
+	const OpenScenario::oscObjectBase *objectBase_;
+	// temporary: test base
+	OSCElement *testBase_;
+	QString type_; //catalog type
+
 	OSCElement *oscElement_;
 
 	QTreeWidgetItem *currentSelectedItem_;
+	OpenScenario::oscMember *currentMember_;
 
 	ODD::ToolId currentTool_;
 };

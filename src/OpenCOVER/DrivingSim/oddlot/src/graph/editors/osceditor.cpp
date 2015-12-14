@@ -65,6 +65,7 @@
 //
 #include "oscObjectBase.h"
 #include "oscObject.h"
+#include "oscCatalogs.h"
 
 
 // Qt //
@@ -81,10 +82,10 @@ using namespace OpenScenario;
 
 OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
     : ProjectEditor(projectWidget, projectData, topviewGraph)
-	, base_(NULL)
+	, oscBase_(NULL)
 {
 	mainWindow_ = projectWidget->getMainWindow();
-	base_ = projectData->getOSCBase();
+	oscBase_ = projectData->getOSCBase();
 }
 
 OpenScenarioEditor::~OpenScenarioEditor()
@@ -119,7 +120,7 @@ OpenScenarioEditor::init()
 
 	// Raise Catalog Trees //
 	//
-//	signalTree_->setOpenScenarioEditor(this);
+	//catalogTree_->setOpenScenarioEditor(this);
 }
 
 /*!
@@ -354,16 +355,35 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			QString objectName = action->getText();
 			if (objectName != "")
 			{
-				OpenScenario::oscObjectBase *objectBase = base_->getOSCObjectBase();
-				
-				OSCElement *oscElement = new OSCElement("prototype");
+				OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+				if (!openScenarioBase->catalogs.exists())
+				{
+					OSCElement *oscCatalogs = new OSCElement("catalogs");
 
-				AddOSCObjectCommand *command = new AddOSCObjectCommand(objectBase, objectName.toStdString(), oscElement, NULL);
+					AddOSCObjectCommand *command = new AddOSCObjectCommand(openScenarioBase, oscBase_, "catalogs", oscCatalogs, NULL);
+					getProjectGraph()->executeCommand(command);
 
-				getProjectGraph()->executeCommand(command);
+				}
+				const OpenScenario::oscObjectBase *catalogObject = openScenarioBase->catalogs.getObject();
+				if (catalogObject)
+				{
+					OpenScenario::oscObjectBase::MemberMap members = catalogObject->getMembers();
+					OpenScenario::oscMember *catalog = members[objectName.toStdString()];
 
-				getProjectWidget()->addCatalogTree(objectName, oscElement->getObject());   
+					OSCElement *oscElement;
+					if (!catalog->exists())
+					{
+						oscElement = new OSCElement(objectName);
 
+						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalogObject, oscBase_, objectName.toStdString(), oscElement, NULL);
+						getProjectGraph()->executeCommand(command);
+					}
+					else
+					{
+						oscElement = oscBase_->getOSCElement(catalog->getObject());
+					}
+					getProjectWidget()->addCatalogTree(objectName, oscElement);   
+				}
 			}
 		}
 	}

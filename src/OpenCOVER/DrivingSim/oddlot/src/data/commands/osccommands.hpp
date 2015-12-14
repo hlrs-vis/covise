@@ -28,7 +28,7 @@
 namespace OpenScenario
 {
 class oscObjectBase;
-class oscObject;
+class OpenScenarioBase;
 class oscMember;
 template<typename T>
 class oscValue;
@@ -44,7 +44,7 @@ class OSCBase;
 class AddOSCObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCObjectCommand(OpenScenario::oscObjectBase * oscBase, const std::string &name, OSCElement *element, DataCommand *parent = NULL);
+	explicit AddOSCObjectCommand(const OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, DataCommand *parent = NULL);
     virtual ~AddOSCObjectCommand();
 
     virtual int id() const
@@ -61,12 +61,13 @@ private:
     AddOSCObjectCommand &operator=(const AddOSCObjectCommand &); /* not allowed */
 
 private:
-	OpenScenario::oscObjectBase * oscBase_;
-    std::string memberName_;
-	OpenScenario::oscObject * object_;
+	OpenScenario::OpenScenarioBase * openScenarioBase_;
+    std::string typeName_;
+	const OpenScenario::oscObjectBase * parentObject_;
 
 	OSCElement *element_;
-	OSCBase *base_;
+	OSCBase *oscBase_;
+	OpenScenario::oscMember *member_;
 };
 
 //#########################//
@@ -76,7 +77,7 @@ private:
 class RemoveOSCObjectCommand : public DataCommand
 {
 public:
-    explicit RemoveOSCObjectCommand(OpenScenario::oscObjectBase * base, OpenScenario::oscObject *object, OSCElement *element,DataCommand *parent = NULL);
+    explicit RemoveOSCObjectCommand(OSCElement *element,DataCommand *parent = NULL);
     virtual ~RemoveOSCObjectCommand();
 
     virtual int id() const
@@ -93,10 +94,10 @@ private:
     RemoveOSCObjectCommand &operator=(const RemoveOSCObjectCommand &); /* not allowed */
 
 private:
-	OpenScenario::oscObjectBase * oscBase_;
-    OpenScenario::oscObject *object_;
+	const OpenScenario::OpenScenarioBase * openScenarioBase_;
+    const OpenScenario::oscObjectBase *object_;
 
-	OSCBase *base_;
+	OSCBase *oscBase_;
 	OSCElement *element_;
 };
 
@@ -107,14 +108,14 @@ template<typename T>
 class SetOSCObjectPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetOSCObjectPropertiesCommand(OpenScenario::oscObject *object, OSCElement *element, std::string &memberName, OpenScenario::oscValue<T> value, DataCommand *parent = NULL)
+    explicit SetOSCObjectPropertiesCommand(OSCElement *element, std::string &memberName, OpenScenario::oscValue<T> value, DataCommand *parent = NULL)
 	{
 	// Check for validity //
     //
-    if (!object)
+    if (!element)
     {
         setInvalid(); // Invalid
-        setText(QObject::tr("SetOSCObjectPropertiesCommand: Internal error! No object specified."));
+        setText(QObject::tr("SetOSCObjectPropertiesCommand: Internal error! No OSCElement specified."));
         return;
     }
     else
@@ -123,12 +124,11 @@ public:
         setText(QObject::tr("SetProperties"));
     }
 
-	object_ = object;
 	element_ = element;
+	object_ = element_->getObject();
 	newOSCValue_ = value;
-/*	member_ = object_->getMember(memberName);
-	oldOSCValue_ = member_->getValue();  */
-	
+	member_ = object_->getMembers().at(memberName);
+//	oldOSCValue_ = member_->getValue();
 	}
     virtual ~SetOSCObjectPropertiesCommand()
 	{
@@ -172,7 +172,7 @@ private:
 
 private:
 	OSCElement *element_;
-    OpenScenario::oscObject *object_;
+    const OpenScenario::oscObjectBase *object_;
 	OpenScenario::oscMember *member_;
 	OpenScenario::oscValue<T> newOSCValue_;
 	OpenScenario::oscValue<T> oldOSCValue_;

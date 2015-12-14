@@ -48,6 +48,8 @@ class RSystemElementRoad;
 
 class TrackSpiralArcSpiral;
 
+class OSCElement;
+
 namespace OpenScenario
 {
 class OpenScenarioBase;
@@ -109,7 +111,7 @@ public:
 
 	// Add catalogs //
 	//
-	void addCatalogTree(const QString & type, OpenScenario::oscObject *object);
+	void addCatalogTree(const QString & type, OSCElement *element);
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);
@@ -169,7 +171,7 @@ public:
     }
 	OpenScenario::OpenScenarioBase *getOpenScenarioBase()
 	{
-		return osdb_;
+		return openScenarioBase_;
 	}
 
     void setEditor(ODD::EditorId id);
@@ -262,7 +264,7 @@ private:
 
 	// OpenScenarioBase //
 	//
-	OpenScenario::OpenScenarioBase *osdb_;
+	OpenScenario::OpenScenarioBase *openScenarioBase_;
 };
 
 #endif // PROJECTWIDGET_HPP

@@ -53,7 +53,7 @@
 
 // OpenScenario //
 //
-#include "oscObject.h"
+#include "oscObjectBase.h"
 #include "oscMember.h"
 
 #include <QWidget>
@@ -61,7 +61,8 @@
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
-#include <QMimeData>
+#include <QGridLayout>
+
 
 using namespace OpenScenario;
 
@@ -69,13 +70,14 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogWidget::CatalogWidget(MainWindow *mainWindow, OpenScenario::oscObject *object)
+CatalogWidget::CatalogWidget(MainWindow *mainWindow, OSCElement *element, const QString &type)
 	: QWidget()
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
-	, object_(object)
-	, oscElement_(NULL)
+	, oscElement_(element)
+	, type_(type)
 {
+	object_ = oscElement_->getObject();
     init();
 }
 
@@ -93,17 +95,24 @@ CatalogWidget::init()
 {
 	projectData_ = mainWindow_->getActiveProject()->getProjectData();
 
+	// Widget/Layout //
+    //
+	QGridLayout *toolLayout = new QGridLayout;
 	const QPixmap recycleIcon(":/icons/recycle.png");
 	DropArea *recycleArea = new DropArea(recycleIcon, this);
+	recycleArea->setPixmap(recycleIcon);
+	toolLayout->addWidget(recycleArea, 0, 2);
 
-	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, object_);
+	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, object_, type_);
+	toolLayout->addWidget(catalogTreeWidget_, 0, 0);
+
+	this->setLayout(toolLayout);
 }
 
 void 
 CatalogWidget::onDeleteCatalogItem()
 {
-	OSCBase *base = projectData_->getOSCBase();
-	OpenScenario::oscObjectBase *oscBase = base->getOSCObjectBase();
+	OSCBase *base = oscElement_->getOSCBase();
 
 	bool deletedSomething = false;
 	do
@@ -115,12 +124,11 @@ CatalogWidget::onDeleteCatalogItem()
 			OSCElement *oscElement = dynamic_cast<OSCElement *>(element);
 			if (oscElement)
 			{
-	/*			RemoveOSCObjectCommand *command = new RemoveOSCObjectCommand(oscBase, oscElement->getObject());
+				RemoveOSCObjectCommand *command = new RemoveOSCObjectCommand(oscElement);
 				projectData_->getProjectWidget()->getTopviewGraph()->executeCommand(command);
 
-				if (command->isValid())*/
+				if (command->isValid())
 				{
-					base->delOSCElement(oscElement);
 					deletedSomething = true;
 					break;
 				}
@@ -138,12 +146,12 @@ DropArea::DropArea(const QPixmap &pixmap, CatalogWidget *parent)
     : QLabel(parent)
 	, parent_(parent)
 {
-    setMinimumSize(200, 200);
+    setMaximumSize(20, 20);
     setFrameStyle(QFrame::Sunken | QFrame::StyledPanel);
     setAlignment(Qt::AlignCenter);
     setAcceptDrops(true);
     setAutoFillBackground(true);
-	recycleLabel_->setPixmap(pixmap);
+	
 }
 
 //################//
