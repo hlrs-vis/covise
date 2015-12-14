@@ -10,8 +10,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscMemberValue.h>
 #include <oscMember.h>
-#include <string>
-#include <iostream>
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -26,12 +24,12 @@ namespace OpenScenario
         T valueT;
     public:
         oscObjectVariable(){type = oscMemberValue::OBJECT; valueT=NULL;};
-        virtual bool initialize(xercesc::DOMAttr *){return false;};
-        virtual T operator->(){return valueT;};
-        virtual const oscObjectBase* getObject() const {return valueT;};
-        virtual void setValue(oscObjectBase *t){valueT = dynamic_cast<T>(t);};
-        virtual bool exists() const {return valueT!=NULL;};
-        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+        bool initialize(xercesc::DOMAttr *){return false;};
+        T operator->(){return valueT;};
+        const oscObjectBase* getObject() const {return valueT;};
+        void setValue(oscObjectBase *t){valueT = dynamic_cast<T>(t);};
+        bool exists() const {return valueT!=NULL;};
+        bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
         {
             if(valueT !=NULL)
             {
@@ -42,7 +40,7 @@ namespace OpenScenario
             }
             return true;
         };
-        virtual oscMemberValue::MemberTypes getValueType() const {return type;};
+        oscMemberValue::MemberTypes getValueType() const {return type;};
             
     };
     
