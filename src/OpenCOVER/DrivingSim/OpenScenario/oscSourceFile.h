@@ -32,7 +32,7 @@ public:
 
     void initialize(OpenScenarioBase *b);
 
-    void setVariables(std::string ren, std::string sf = ""); ///< set srcFile and rootElementName when object is used the first time
+    void setVariables(const std::string &ren, const std::string &sf); ///< set srcFile and rootElementName when object is used the first time
     void setXmlDoc(xercesc::DOMDocument *xD);
     void setIncludeParentElem(xercesc::DOMElement *inclParentElem);
 

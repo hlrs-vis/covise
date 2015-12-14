@@ -39,7 +39,7 @@ void oscSourceFile::initialize(OpenScenarioBase *b)
     base = b;
 }
 
-void oscSourceFile::setVariables(std::string ren, std::string sf)
+void oscSourceFile::setVariables(const std::string &ren, const std::string &sf)
 {
     srcFileName = sf;
     rootElementName = ren;

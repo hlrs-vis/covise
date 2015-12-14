@@ -248,7 +248,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 }
                 else
                 {
-                    //member has a value (exists)
+                    //member has a value (value exists)
                     if ( m->exists() )
                     {
                         if (m->getName() != "include")
@@ -330,7 +330,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                             }
                         }
                     }
-                    //member has no value (doesn't exist)
+                    //member has no value (value doesn't exist)
                     else
                     {
                         oscObjectBase *obj = oscFactories::instance()->objectFactory->create(memTypeName);

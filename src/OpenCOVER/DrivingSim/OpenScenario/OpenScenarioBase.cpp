@@ -198,8 +198,9 @@ bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *currentElement)
 {
     source = new oscSourceFile();
     source->initialize(this);
+    std::string currElemName = xercesc::XMLString::transcode(currentElement->getNodeName());
     std::string srcFileName = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(currentElement)->getBaseURI());
-    source->setVariables(xercesc::XMLString::transcode(currentElement->getNodeName()), srcFileName);
+    source->setVariables(currElemName, srcFileName);
 
     this->addToSrcFileVec(source);
 
