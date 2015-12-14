@@ -27,7 +27,17 @@ namespace OpenScenario
         bool initialize(xercesc::DOMAttr *){return false;};
         T operator->(){return valueT;};
         const oscObjectBase* getObject() const {return valueT;};
-        void setValue(oscObjectBase *t){valueT = dynamic_cast<T>(t);};
+        void setValue(oscObjectBase *t)
+        {
+            if (t != NULL)
+            {
+                valueT = dynamic_cast<T>(t);
+            }
+            else
+            {
+                valueT = NULL;
+            }
+        };
         void deleteValue(){delete valueT; valueT = NULL;};
         bool exists() const {return valueT!=NULL;};
         bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
