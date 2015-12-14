@@ -46,6 +46,7 @@ public:
 
     virtual void setValue(oscMemberValue *v);
     virtual void setValue(oscObjectBase *t);
+    virtual void deleteValue();
     virtual oscMemberValue *getValue();
     void setType(oscMemberValue::MemberTypes t);
     oscMemberValue::MemberTypes getType() const; ///< return the type of this member

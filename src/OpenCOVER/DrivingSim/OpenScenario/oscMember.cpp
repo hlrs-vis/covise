@@ -80,6 +80,11 @@ void oscMember::setValue(oscObjectBase *t)
 
 }
 
+void oscMember::deleteValue()
+{
+
+}
+
 oscMemberValue *oscMember::getValue()
 {
     return value;
