@@ -82,7 +82,7 @@
 #define RFM73_CE_HIGH RFM73_CE_PORT |= (1 << RFM73_CE_PIN)
 /*! \brief Setting low level on CE line.*/
 #define RFM73_CE_LOW RFM73_CE_PORT &= ~(1 << RFM73_CE_PIN)
-
+/*
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdbool.h>
@@ -98,19 +98,23 @@
 
 
 #include "spi_init.h"
-#include "rfm73.h"
+#include "rfm73.h"*/
+#include "rfmSendReceivePayload.h"
 
 bool LEDonoff = false;
 bool LEDonoff_2 = false;
 bool counting = false;
+bool sendpayload;
+bool stateChanged;
 
-
+unsigned char buf[32];
 // ----------------------------------------------------------------------------
 // Variable declaration for debug timing messages
 // ----------------------------------------------------------------------------
 
 double ack_time_previous = 0.0;
 double ack_time_current = 0.0;
+double msg_receive_timeout = 0.0;
 
 // ----------------------------------------------------------------------------
 // Variable declaration for wake up ISR
@@ -192,7 +196,7 @@ void timer0_init()
 
 ISR(TIMER0_OVF_vect)
 {
-
+	msg_receive_timeout += 32.64;
 	ack_time_current += 32.64;   //261.12;
 	time_out_cyberstick += 32.64;//261.12;
 }
@@ -306,8 +310,8 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
         payload++;
     }
 
-    TCNT0 = 0x00;                        // clear the timer value= 00000000
-    ack_time_current = 0.0;
+    //TCNT0 = 0x00;                        // clear the timer value= 00000000
+    //ack_time_current = 0.0;
     //LED4ON;
 
     // disable CSN
@@ -316,14 +320,45 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 
     //_delay_ms(10);
 
-   /* uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
+    /*uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
-        _delay_ms(50);
-    }
+        _delay_ms(2);
+    }*/
 
-    rfm70SetModeRX();
-	*/
+    while(true)
+    {
+		uint8_t status = rfm70ReadRegValue(RFM70_REG_STATUS);
+
+		// When Auto ack is on
+		// check if data is sent and ack is received (TX_DS) interrupt
+		if (status & RFM70_IRQ_STATUS_TX_DS)
+		{
+			rfm70SetModeRX();
+
+			LED3ON;
+			_delay_ms(5);
+			LED3OFF;
+			break;
+		}
+
+		uint8_t retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
+
+		if ((retr_msg_count == 0xF5))//& (auto_ack_received==false))
+		{
+			rfm70SetModeRX();
+
+			//auto_ack_received = true;
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
+
+			LED2ON;
+			_delay_ms(5);
+			LED2OFF;
+			break;
+		}
+    }
+    //rfm70SetModeRX();
+
 
 
     return true;
@@ -340,21 +375,19 @@ uint8_t rfm70ReceivePayload()
     //uint8_t detect;
     uint8_t fifo_status;
     uint8_t rx_buf[32];
-    int ack_received = 0;
+    //rx_buf[0]=1;
+    bool msg_received = false;
     fifo_status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
 
-   //rfm70SetModeRX();
-    //if(fifo_status & 0x01)
-    	//{LED3ON;}
+
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
-    //LED3ON;
+
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
     {
-    	//LED3ON;
+
     	do
         {
-    		//LED3ON;
             // read length of playload packet
             len = rfm70ReadRegValue(RFM70_CMD_RX_PL_WID);
 
@@ -363,21 +396,32 @@ uint8_t rfm70ReceivePayload()
 
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
+                rx_buf[0]= 2;
 
-				if (MANUAL_ACK == 1)  // MANUAL ACK is on
-				{
+				//if (MANUAL_ACK == 1)  // MANUAL ACK is on
+				//{
 					if (rx_buf[0] == 0xFF) 	// 0xFF user defined ack msg code
 					{
 					// 1 count = 0.128 ms
 				   ack_time_current += TCNT0 * 0.128;//*(10^(-3));
 				   ack_time_previous = ack_time_current;
 
-					LED3ON;
-					_delay_ms(10);
-					LED3OFF;
 					}
 
-				}
+					msg_received = true;
+
+					if (rx_buf[1]==1 & stateChanged)
+					{
+					//	rx_buf[0] = 1;
+					//	rx_buf[1]== 0;
+					//	_delay_ms(2);
+						stateChanged = false;
+						//sendpayload = true;
+						rfm70SendPayload(buf, 32, 2);
+					}
+
+
+				//}
 			}
             else
             {
@@ -394,14 +438,116 @@ uint8_t rfm70ReceivePayload()
 
 
 
-    return true;
+    return msg_received;
 }
 
+bool find_receiver_frequency()
+{
+	uint8_t status;
+	bool msg_received = false;
+	uint8_t retr_msg_count = 0xFF;
+	int frequency = 0;
+	uint8_t payload[32];
+	payload[0]= 0xCE;
+	int len = 0;
 
+	rfm70SetModeRX();
+	/*//rfm70SetModeTX();
+	_delay_ms(1);
+
+	// read status register
+	status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
+
+	// if the FIFO is full, do nothing just return false
+	if (status & RFM70_FIFO_STATUS_TX_FULL)
+	{
+		return false;
+	}
+
+	// enable CSN
+	spiSelect(csRFM73);
+	_delay_ms(0);
+*/
+	while(true)
+	{
+
+
+		if (frequency == 83)
+		{
+			frequency = 0;
+		}
+
+		if (rfm70ReceivePayload())
+		{
+			msg_received = true;
+			break;
+		}
+
+
+		msg_receive_timeout = TCNT0 * 0.128;
+
+		if (msg_receive_timeout >= 12 & msg_received == false)
+		{
+			msg_receive_timeout = 0.0;
+			frequency++;
+			// change frequency
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
+		}
+		/*if (retr_msg_count == 0xFF)
+		{
+
+			retr_msg_count = 0x00;
+			// cmd: write TX payload with defined ACK packet
+			spiSendMsg(RFM70_CMD_WR_TX_PLOAD);
+
+			len = 0;
+			// send payload
+			while (len<32)
+			{
+				spiSendMsg((payload[len]));
+				len++;
+			}
+
+		}
+
+		// disable CSN
+		spiSelect(csNONE);
+		_delay_ms(0);
+
+		status = rfm70ReadRegValue(RFM70_REG_STATUS);
+
+		// check if data is sent and ack is received (TX_DS) interrupt
+		if (status & RFM70_IRQ_STATUS_TX_DS)
+		{
+			ack_received = true;
+			break;
+		}
+
+		retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
+
+		if ((retr_msg_count == 0xFF))
+		{
+
+			//rfm70SetModeRX();
+			//ack_received = false;
+			frequency++;
+			// change frequency
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
+
+			// clear flag TX_FULL
+			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
+
+
+		}*/
+
+	}
+
+	return msg_received;
+}
 
 void CyberStick_Start()
 {
-    bool stateChanged;
+    //bool stateChanged;
 	uint8_t value;
 
     stateCurrent.buttons = 0x00;
@@ -424,20 +570,44 @@ void CyberStick_Start()
     int int_part,dec_part, strIntpart_size;
     int button_pressed =0;
 
+    bool manual_ack = false;
+    bool auto_ack = true;
 
     bool receiver_mode_enable = false;
-    bool ack_not_received = false;
+    bool auto_ack_received = false;
+    bool manual_ack_received = false;
 
-    timer0_init();
+    // before establishing link with receiver
+    // auto retr delay = 1ms and auto retr count is 5
+	//rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x04, 0x53);
 
+	//rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, 40);
 
+	unsigned char rx_buf[32];
+	rfm70SetModeRX();
+
+	//timer0_init();
+
+	uint8_t payload[32];
+    payload[3] = CYBERSTICK_ID;
+    //auto_ack_received = find_receiver_frequency();
+
+    rx_buf[30] == 0xCC;
     while (true)
     {
     	LED4ON;
 
+    	//ack_time_current = TCNT0 * 0.128;
 
+    	//if (ack_time_current >= 1000)
+    	//{
 
-    	if ((AUTO_ACK == 2)) // Check for Auto ack is on
+    		//rx_buf[0] == 2;
+    		//rfm70SendPayload(rx_buf, 32, 0);
+    		//ack_time_current = 0.0;
+    	//}//
+
+    	/*if ((AUTO_ACK == 2)) // Check for Auto ack is on
     	{
     		uint8_t status = rfm70ReadRegValue(RFM70_REG_STATUS);
 
@@ -462,11 +632,11 @@ void CyberStick_Start()
     		// last 4 bits of register at address 0x08 are for counter
 			retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
 
-			if ((retr_msg_count == 0xFF) & (ack_not_received==false))
+			if ((retr_msg_count == 0xFF) )//& (auto_ack_received==false))
 			{
 				rfm70SetModeRX();
 				receiver_mode_enable = true;
-				ack_not_received = true;
+				//auto_ack_received = true;
 				rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
 
 				LED2ON;
@@ -474,27 +644,29 @@ void CyberStick_Start()
 				LED2OFF;
 			}
 
-    	}
+    	}*/
 
-    	if (receiver_mode_enable)
-    	{
+    	//if (manual_ack)//receiver_mode_enable)
+    	//{
+    		//if (manual_ack = true)
+    			//manual_ack_received = rfm70ReceivePayload();
+    		//else
+    			//manual_ack = true;
     		rfm70ReceivePayload();
+    	//}
 
-    	}
+
 
     	// if button is not pressed for 5s go to power down mode
-    	if (time_out_cyberstick > 5000)  // time is in ms
+    	/*if (time_out_cyberstick > 20000)  // time is in ms
     	{
-    		//LED2ON;
-    		//_delay_ms(10);
-    		//LED2OFF;
     		LED4OFF;
     		power_down = true;
     		time_out_cyberstick = 0.0;
     		enable_PCINT();
     		power_down_mode();
 
-    	}
+    	}*/
 
         if ((PINC & (1 << DDC0)) == 0)
         {
@@ -586,12 +758,12 @@ void CyberStick_Start()
 				spiSelect(csNONE);
 			}*/
 
-        	time_out_cyberstick = 0.0;       //restart time button is pressed
-            stateChanged = false;
+       // 	time_out_cyberstick = 0.0;       //restart time, button is pressed
+       //     stateChanged = false;
 
             // copy current state to buffer
 
-            unsigned char buf[32];
+            //unsigned char buf[32];
             buf[0] = stateCurrent.buttons;
             buf[1] = stateCurrent.touchpadX;
             buf[2] = stateCurrent.touchpadY;
@@ -600,7 +772,7 @@ void CyberStick_Start()
            // buf[30] = 0x00;   			//  when no ack is required
            // buf[31] = 0xEF;				//  when no timing mess is sent
 
-            if (MANUAL_ACK ==1)
+            if (manual_ack)
             {
             	buf[30] = 0xCC;      	// Manual ack message code
             }
@@ -646,20 +818,34 @@ void CyberStick_Start()
 				buf[31] = 0xEE;      // code for Time to be publish on terminal
 
             }
-            ack_not_received = false;
-            receiver_mode_enable = false;
-            //LED4ON;
+           // rfm70SendPayload2(buf, 32,0);
+            //if (auto_ack)
+            //{
+				//auto_ack_received = rfm70SendPayload(buf, 32,2);
+				/*if (auto_ack_received)
+				{
+					LED3ON;
+					_delay_ms(10);
+					LED3OFF;
 
-            rfm70SendPayload(buf, 32,AUTO_ACK);
+					//auto_ack = false;
 
+				}
 
+             }*/
+            /*if(sendpayload)
+            	if(rfm70SendPayload2(buf, 32,2))
+            	{
+            		sendpayload = false;
+            		LED3ON;
+            		_delay_ms(5);
+            		LED3OFF;
+            	}
+*/
             //button_pressed = 1;
 
         }
-        else
-        {
-            LED4OFF;
-        }
+
 
     }
 }
@@ -729,7 +915,7 @@ int main(void)
     // IO-pins and pullups
     spiInit();
     spiSelect(csNONE);
-    LED3ON;
+    //LED3ON;
     //LED2ON;
 
     if (rfm70InitRegisters())
@@ -747,9 +933,9 @@ int main(void)
     _delay_ms(50);
 
 
-    LED2ON;
-    _delay_ms(10);
-    LED2OFF;
+   // LED2ON;
+   // _delay_ms(10);
+   // LED2OFF;
 
     sei();
     cbi(PORTB, DDB2); // chip enable of the touchpad to low
