@@ -71,7 +71,7 @@ const uint8_t PROGMEM RFM70_Bank0Init[][2] = {
     { (0x20 | 0x01), 0x3F }, // enable auto acknowledgment data pipe 0-5
     { (0x20 | 0x02), 0x3F }, // enable RX addresses data pipe 0,1
     { (0x20 | 0x03), 0x03 }, // RX/TX address field width is 5 bytes
-    { (0x20 | 0x04), 0xff }, // auto retransmission delay (4000us), auto retransmission count(15)
+    { (0x20 | 0x04), 0x75 },//ff }, // auto retransmission delay (2000us), auto retransmission count(5)
     { (0x20 | 0x05), 0x18 }, // RF Channel 0x01 = 01 = 2400 MHz + 1*1 MHz = 2401 MHz
     { (0x20 | 0x06), 0x27 }, // 7-4 fix
     // 3  :0  air data rate = 0x07 1Mbps, 0x0F 2Mbps, 0x27 250Kbps, 0x2F 2Mbps
@@ -427,7 +427,7 @@ void rfm70SetModeTX(void)
     rfm70SetCE(0);
     value = rfm70ReadRegValue(RFM70_REG_CONFIG);
     value &= 0xFE; // clear RX bit (= TX enabled)
-    //value |= 0x02; // set PWR_UP bit
+    value |= 0x02; // set PWR_UP bit
     rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_CONFIG, value);
     // now the rfm73 goes to TX mode
 
