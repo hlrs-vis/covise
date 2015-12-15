@@ -263,6 +263,10 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 							}
 							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::ENUM)
 							{
+								int v = 0;
+								AddOSCEnumValueCommand *command = new AddOSCEnumValueCommand(object, it->first, v);
+								projectWidget_->getTopviewGraph()->executeCommand(command);
+
 							}
 							else
 							{

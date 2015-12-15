@@ -201,48 +201,58 @@ oscObjectSettings::updateProperties()
 			QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value());
 			if (spinBox)
 			{
-				char buf[100]; 
-				sprintf(buf, "%d", value);
-				spinBox->setValue(atoi(buf));
+				oscIntValue *iv = dynamic_cast<oscIntValue *>(it.value());
+				if (iv)
+				{
+					spinBox->setValue(iv->getValue());
+				}
 				continue;
 			}
 			QDoubleSpinBox *doubleSpinBox = dynamic_cast<QDoubleSpinBox *>(it.value());
 			if (doubleSpinBox)
 			{
-				char buf[100];
-				sprintf(buf, "%f", value);
-				doubleSpinBox->setValue(atof(buf));
+				oscFloatValue *fv = dynamic_cast<oscFloatValue *>(value);
+				if(fv)
+				{
+				   doubleSpinBox->setValue(fv->getValue());
+				}
 				continue;
 			}
 			QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(it.value());
 			if (lineEdit)
 			{
-				char buf[100];
-				sprintf(buf, "%c", value);
-				lineEdit->setText(QString::fromStdString(buf));
+				oscStringValue *sv = dynamic_cast<oscStringValue *>(it.value());
+				if (sv)
+				{
+					lineEdit->setText(QString::fromStdString(sv->getValue()));
+				}
 				continue;
 			}
 			QComboBox *comboBox = dynamic_cast<QComboBox *>(it.value());
 			if (comboBox)
 			{
-				char buf[100];
-				sprintf(buf, "%c", value);
-				OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(member);
-				comboBox->setCurrentIndex(oscVar->enumType->getEnum(buf));
+				oscIntValue *iv = dynamic_cast<oscIntValue *>(it.value());
+				if (iv)
+				{
+					comboBox->setCurrentIndex(iv->getValue());
+				}
+
 				continue;
 			}
 			QCheckBox *checkBox = dynamic_cast<QCheckBox *>(it.value());
 			if (checkBox)
 			{
-				char buf[100];
-				sprintf(buf, "%c", value);
-				if (buf == "true")
+				oscIntValue *iv = dynamic_cast<oscIntValue *>(it.value());
+				if (iv)
 				{
-					checkBox->setChecked(true);
-				}
-				else
-				{
-					checkBox->setChecked(false);
+					if (iv->getValue() == 1)
+					{
+						checkBox->setChecked(true);
+					}
+					else
+					{
+						checkBox->setChecked(false);
+					}
 				}
 				continue;
 			}

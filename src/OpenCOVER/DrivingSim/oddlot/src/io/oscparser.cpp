@@ -129,9 +129,6 @@ OSCParser::parseXOSC(const QString &filename)
     // <OpenSCENARIO><header> //
     //
 	const OpenScenario::oscObjectBase * h = openScenarioBase_->header.getObject();
-	openScenarioBase_->catalogs.exists();
-	openScenarioBase_->catalogs.getObject()->getMembers(); //suche nach objectCatalog exist-> members->suche nach vehicle exit, anlegen
-	openScenarioBase_->test->vehicle; //exist, sonst über factory
     
     if (!h)
     {

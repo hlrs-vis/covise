@@ -190,6 +190,94 @@ RemoveOSCObjectCommand::undo()
     setUndone();
 }
 
+//#########################//
+// AddOSCEnumValueCommand //
+//#########################//
+
+AddOSCEnumValueCommand::AddOSCEnumValueCommand(const OpenScenario::oscObjectBase *parentObject, const std::string &name, int value, DataCommand *parent)
+    : DataCommand(parent)
+	, parentObject_(parentObject)
+	, value_(value)
+{
+    // Check for validity //
+    //
+	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
+	member_ = members[name];
+    if ((name == "") || !member_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("AddOSCObjectCommand: Internal error! No name specified or member already present."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("AddOSCObject"));
+    }
+
+	type_ = member_->getType();
+	if (type_ != OpenScenario::oscMemberValue::ENUM)
+		{
+        setInvalid(); // Invalid
+        setText(QObject::tr("AddOSCObjectCommand: Internal error! Wrong type of value specified."));
+        return;
+    }
+
+
+	openScenarioBase_ = parentObject_->getBase();
+}
+
+/*! \brief .
+*
+*/
+AddOSCEnumValueCommand::~AddOSCEnumValueCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+//        delete object_;
+    }
+    else
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+}
+
+/*! \brief .
+*
+*/
+void
+AddOSCEnumValueCommand::redo()
+{
+	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type_);
+
+	if(v)
+	{
+		oscEnumValue *ev = dynamic_cast<oscEnumValue *>(v);
+		if(ev)
+		{
+			ev->setValue(value_);
+		}
+	}
+	member_->setValue(v);
+
+	setRedone();
+}
+
+/*! \brief
+*
+*/
+void
+AddOSCEnumValueCommand::undo()
+{
+	const OpenScenario::oscObjectBase *obj = member_->getObject();
+//	member_->setValue(NULL);
+	delete obj;
+
+   setUndone();
+}
+
 
 //#########################//
 // RemoveOSCValueCommand //

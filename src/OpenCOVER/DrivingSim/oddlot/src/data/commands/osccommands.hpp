@@ -30,6 +30,7 @@ namespace OpenScenario
 class oscObjectBase;
 class OpenScenarioBase;
 class oscMember;
+class oscMemberValue;
 template<typename T>
 class oscValue;
 }
@@ -102,6 +103,39 @@ private:
 };
 
 //#########################//
+// AddOSCEnumValueCommand //
+//#########################//
+
+class AddOSCEnumValueCommand : public DataCommand
+{
+public:
+	explicit AddOSCEnumValueCommand(const OpenScenario::oscObjectBase *parentObject, const std::string &name, int value, DataCommand *parent = NULL);
+    virtual ~AddOSCEnumValueCommand();
+
+    virtual int id() const
+    {
+        return 0x1011;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    AddOSCEnumValueCommand(); /* not allowed */
+    AddOSCEnumValueCommand(const AddOSCEnumValueCommand &); /* not allowed */
+    AddOSCEnumValueCommand &operator=(const AddOSCEnumValueCommand &); /* not allowed */
+
+private:
+	OpenScenario::OpenScenarioBase * openScenarioBase_;
+	OpenScenario::oscMemberValue::MemberTypes type_;
+	const OpenScenario::oscObjectBase * parentObject_;
+
+	OSCElement *element_;
+	OpenScenario::oscMember *member_;
+	int value_;
+};
+
+//#########################//
 // AddOSCValueCommand //
 //#########################//
 template<typename T>
@@ -163,7 +197,7 @@ public:
 
 	if(v)
 	{
-//		v->initialize(value_);	
+		v->setValue(value_);
 		member_->setValue(v);
 	}
 
