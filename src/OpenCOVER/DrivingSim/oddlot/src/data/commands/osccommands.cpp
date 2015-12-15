@@ -191,4 +191,77 @@ RemoveOSCObjectCommand::undo()
 }
 
 
+//#########################//
+// RemoveOSCValueCommand //
+//#########################//
+
+/*RemoveOSCValueCommand::RemoveOSCValueCommand(OSCElement *element, DataCommand *parent) // or oscObjectBase ??
+    : DataCommand(parent)
+	, element_(element)
+{
+    // Check for validity //
+    //
+    if (!element_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("RemoveOSCValueCommand: Internal error! No element specified."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("RemoveOSCObject"));
+    }
+	oscBase_ = element_->getOSCBase();
+	openScenarioBase_ = oscBase_->getOpenScenarioBase();
+	object_ = element_->getObject();
+}
+
+/*! \brief .
+*
+*/
+/*RemoveOSCValueCommand::~RemoveOSCValueCommand()
+{
+    // Clean up //
+    //
+    if (isUndone())
+    {
+        // nothing to be done (object is now owned by the road)
+    }
+    else
+    {
+//        delete object_;
+    }
+}
+
+/*! \brief .
+*
+*/
+/*void
+RemoveOSCValueCommand::redo()
+{
+    element_->setObjectBase(NULL);				// todo: delete OpenScenario object/member
+	oscBase_->delOSCElement(element_);
+
+	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
+
+    setRedone();
+}
+
+/*! \brief
+*
+*/
+/*void
+RemoveOSCValueCommand::undo()
+{
+    element_->setObjectBase(object_);
+	oscBase_->addOSCElement(element_);
+
+	element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
+
+    setUndone();
+}*/
+
+
+
 

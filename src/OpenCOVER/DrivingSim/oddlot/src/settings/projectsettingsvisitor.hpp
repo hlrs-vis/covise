@@ -90,7 +90,7 @@ public:
 
 	// OpenScenario Elements //
 	//
-	virtual void visit(OSCElement *acceptor);
+	virtual void visit(OSCElement *);
 
     // VehicleSystem //
     //

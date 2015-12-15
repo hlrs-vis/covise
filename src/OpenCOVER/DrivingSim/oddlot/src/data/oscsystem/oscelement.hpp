@@ -49,7 +49,7 @@ public:
     enum OSCElementChange
     {
         COE_IdChange = 0x1,
-        COE_NameChange = 0x2,	// Name change is OpenScenario object name change 
+        COE_ParameterChange = 0x2,	// Name change is OpenScenario object name change 
     };
 
     //################//

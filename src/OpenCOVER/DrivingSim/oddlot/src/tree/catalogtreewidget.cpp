@@ -42,6 +42,7 @@
 // Commands //
 //
 #include "src/data/commands/osccommands.hpp"
+#include "src/data/commands/dataelementcommands.hpp"
 
 // Graph //
 //
@@ -123,6 +124,8 @@ CatalogTreeWidget::init()
 
 		AddOSCObjectCommand *command = new AddOSCObjectCommand(openScenarioBase_, base_, "test", testBase_, NULL);
 		projectWidget_->getTopviewGraph()->executeCommand(command);
+
+		objectBase_ = testBase_->getObject();
 	}
 
 	type_ = type_.remove("Catalog");
@@ -133,6 +136,8 @@ CatalogTreeWidget::init()
 void
 CatalogTreeWidget::createTree()
 {
+	clear();
+
 	QList<QTreeWidgetItem *> rootList;
 
 	// emtpy item to create new elements //
@@ -148,13 +153,13 @@ CatalogTreeWidget::createTree()
 		OpenScenario::oscObjectBase::MemberMap members = objectBase_->getMembers();
 		for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 		{
-			std::string elementName = it->first;
+			QString elementName = QString::fromStdString(it->first);
 
-			if ((elementName != "directory") && (elementName != "userData"))
+			if ((elementName == type_) && (it->second->getObject()))
 			{
 				QTreeWidgetItem *item = new QTreeWidgetItem();
-				item->setText(0,QString(elementName.c_str()));
-				item->setFlags(Qt::ItemIsDragEnabled);
+				item->setText(0,elementName);
+				item->setFlags(Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 				rootList.append(item);
 			}
@@ -184,40 +189,96 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 {
 //	if (oscEditor_)
 	{
-		currentSelectedItem_ = selectedItems().at(0);
-		const QString text = currentSelectedItem_->text(0);
 
-		if (text == "New Element")
+
+		if (selectedItems().count() > 0)
 		{
-			currentTool_ = ODD::TOS_OBJECT;
-			oscElement_ = new OSCElement(type_);
-	
-//			testBase_ only temporary
-			AddOSCObjectCommand *command = new AddOSCObjectCommand(testBase_->getObject(), base_,type_.toStdString(), oscElement_, NULL);
-			projectWidget_->getTopviewGraph()->executeCommand(command);
-			
-			if (command->isValid()) 
-			{
-				currentMember_ = testBase_->getObject()->getMembers().at(type_.toStdString());
-				oscElement_->setElementSelected(true);
+			currentSelectedItem_ = selectedItems().at(0);
+			const QString text = currentSelectedItem_->text(0);
 
-				QTreeWidgetItem *item = new QTreeWidgetItem(); // should be called by observer
-				item->setText(0, type_);
-				insertTopLevelItem(1, item);
-//				item->setSelected(true);
-			}
-		}
-		else
-		{
-			currentTool_ = ODD::TOS_SELECT;
-			currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
-			oscElement_ = base_->getOSCElement(currentMember_->getObject());
-			if (oscElement_)
+			if (text == "New Element")
 			{
-				oscElement_->setElementSelected(true);
-			}
-			
+				currentTool_ = ODD::TOS_OBJECT;
+				oscElement_ = new OSCElement(type_);
 
+				if (oscElement_)
+				{
+					oscElement_->attachObserver(this);
+				}
+
+				//			testBase_ only temporary
+				AddOSCObjectCommand *command = new AddOSCObjectCommand(testBase_->getObject(), base_,type_.toStdString(), oscElement_, NULL);
+				projectWidget_->getTopviewGraph()->executeCommand(command);
+
+				/*if (command->isValid()) 
+				{
+					currentMember_ = testBase_->getObject()->getMembers().at(type_.toStdString());
+					oscElement_->setElementSelected(true);
+
+					QTreeWidgetItem *item = new QTreeWidgetItem(); // should be called by observer
+					item->setText(0, type_);
+					insertTopLevelItem(1, item);
+					currentSelectedItem_->setSelected(false);
+					item->setSelected(true);
+				}*/
+			}
+			else
+			{
+				if (oscElement_)
+				{
+					DeselectDataElementCommand *command = new DeselectDataElementCommand(oscElement_, NULL);
+					projectWidget_->getTopviewGraph()->executeCommand(command);
+				}
+
+				currentTool_ = ODD::TOS_SELECT;
+				currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
+				oscElement_ = base_->getOSCElement(currentMember_->getObject());
+				if (oscElement_)
+				{
+					const OpenScenario::oscObjectBase *object = oscElement_->getObject();
+					OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
+					for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
+					{
+						if (!it->second->exists())
+						{
+							OpenScenario::oscMemberValue::MemberTypes memberType = it->second->getType();
+							if (memberType == OpenScenario::oscMemberValue::MemberTypes::OBJECT)
+							{
+								OSCElement *memberElement = new OSCElement(QString::fromStdString(it->first));
+
+								AddOSCObjectCommand *command = new AddOSCObjectCommand(object, base_, it->first, memberElement, NULL);
+								projectWidget_->getTopviewGraph()->executeCommand(command);
+							}
+							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::BOOL)
+							{
+								bool v = true;
+								AddOSCValueCommand<bool> *command = new AddOSCValueCommand<bool>(object, it->first, v);
+								projectWidget_->getTopviewGraph()->executeCommand(command);
+							}
+							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::STRING)
+							{
+								std::string v = "";
+								AddOSCValueCommand<std::string> *command = new AddOSCValueCommand<std::string>(object, it->first, v);
+								projectWidget_->getTopviewGraph()->executeCommand(command);
+							}
+							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::ENUM)
+							{
+							}
+							else
+							{
+								int v = 0;
+								AddOSCValueCommand<int> *command = new AddOSCValueCommand<int>(object, it->first, v);
+								projectWidget_->getTopviewGraph()->executeCommand(command);
+							}
+						}
+					}
+
+					SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
+					projectWidget_->getTopviewGraph()->executeCommand(command);
+				}
+
+
+			}
 		}
 
 		// Set a tool //
@@ -257,7 +318,7 @@ CatalogTreeWidget::updateObserver()
     //
     int changes = oscElement_->getOSCElementChanges();
 
-	if (changes & DataElement::CDE_ChildChange)
+	if (changes & OSCElement::COE_ParameterChange)
     {
 		if (currentSelectedItem_->text(0).toStdString() != currentMember_->getName())
 		{

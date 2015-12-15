@@ -59,7 +59,8 @@ private:
     //################//
 
 private slots:
-    void onEditingFinished(const QString &name);
+    void onEditingFinished(QString name);
+	void onPushButtonPressed(QString name);
 
     //################//
     // PROPERTIES     //

@@ -102,20 +102,134 @@ private:
 };
 
 //#########################//
+// AddOSCValueCommand //
+//#########################//
+template<typename T>
+class AddOSCValueCommand : public DataCommand
+{
+public:
+	explicit AddOSCValueCommand(const OpenScenario::oscObjectBase *parentObject, const std::string &name, T &value, DataCommand *parent = NULL)
+		:DataCommand(parent)
+{
+
+	parentObject_ = parentObject;
+	value_ = value;
+    // Check for validity //
+    //
+	OpenScenario::oscObjectBase::MemberMap members = parentObject_->getMembers();
+	member_ = members[name];
+    if ((name == "") || !member_)
+    {
+        setInvalid(); // Invalid
+        setText(QObject::tr("AddOSCValueCommand: Internal error! No name specified or member already present."));
+        return;
+    }
+    else
+    {
+        setValid();
+        setText(QObject::tr("AddOSCObject"));
+    }
+
+	typeName_ = member_->getType();
+}
+
+    virtual ~AddOSCValueCommand()
+		{
+    if (isUndone())
+    {
+//        delete object_;
+    }
+    else
+    {
+
+    }
+}
+
+    virtual int id() const
+    {
+        return 0x1011;
+    }
+
+    virtual void undo()
+	{
+//	member_->setValue(NULL);
+
+   setUndone();
+}
+
+    virtual void redo()
+	{
+	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(typeName_);
+
+	if(v)
+	{
+//		v->initialize(value_);	
+		member_->setValue(v);
+	}
+
+	setRedone();
+}
+
+private:
+    AddOSCValueCommand(); /* not allowed */
+    AddOSCValueCommand(const AddOSCValueCommand &); /* not allowed */
+    AddOSCValueCommand &operator=(const AddOSCValueCommand &); /* not allowed */
+
+private:
+	OpenScenario::OpenScenarioBase * openScenarioBase_;
+	OpenScenario::oscMemberValue::MemberTypes typeName_;
+	const OpenScenario::oscObjectBase * parentObject_;
+
+	OpenScenario::oscMember *member_;
+	T value_;
+};
+
+//#########################//
+// RemoveOSCValueCommand //
+//#########################//
+
+/*class RemoveOSCValueCommand : public DataCommand
+{
+public:
+    explicit RemoveOSCValueCommand(OSCElement *element,DataCommand *parent = NULL);
+    virtual ~RemoveOSCValueCommand();
+
+    virtual int id() const
+    {
+        return 0x1011;
+    }
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    RemoveOSCValueCommand(); /* not allowed */
+ /*   RemoveOSCValueCommand(const RemoveOSCValueCommand &); /* not allowed */
+/*    RemoveOSCValueCommand &operator=(const RemoveOSCValueCommand &); /* not allowed */
+
+/*private:
+	const OpenScenario::OpenScenarioBase * openScenarioBase_;
+    const OpenScenario::oscObjectBase *object_;
+
+	OSCBase *oscBase_;
+	OSCElement *element_;
+};*/
+
+//#########################//
 // SetOSCObjectPropertiesCommand //
 //#########################//
 template<typename T>
-class SetOSCObjectPropertiesCommand : public DataCommand
+class SetOSCValuePropertiesCommand : public DataCommand
 {
 public:
-    explicit SetOSCObjectPropertiesCommand(OSCElement *element, std::string &memberName, OpenScenario::oscValue<T> value, DataCommand *parent = NULL)
+	explicit SetOSCValuePropertiesCommand(OSCElement *element, std::string &memberName, T &value, DataCommand *parent = NULL)
 	{
 	// Check for validity //
     //
     if (!element)
     {
         setInvalid(); // Invalid
-        setText(QObject::tr("SetOSCObjectPropertiesCommand: Internal error! No OSCElement specified."));
+        setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement specified."));
         return;
     }
     else
@@ -130,7 +244,7 @@ public:
 	member_ = object_->getMembers().at(memberName);
 //	oldOSCValue_ = member_->getValue();
 	}
-    virtual ~SetOSCObjectPropertiesCommand()
+    virtual ~SetOSCValuePropertiesCommand()
 	{
 		// Clean up //
     //
@@ -152,30 +266,30 @@ public:
 	{
 
 //	member_->setValue(oldOSCValue_);
-	element_->addOSCElementChanges(DataElement::CDE_ChildChange);
+	element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
 
     setUndone();
 	}
 
     virtual void redo()
 	{
-		//	member_->setValue(newOSCValue_);
-	element_->addOSCElementChanges(DataElement::CDE_ChildChange);
+//	member_->setValue(newOSCValue_);
+	element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
 
     setRedone();
 	}
 
 private:
-    SetOSCObjectPropertiesCommand(); /* not allowed */
-    SetOSCObjectPropertiesCommand(const SetOSCObjectPropertiesCommand &); /* not allowed */
-    SetOSCObjectPropertiesCommand &operator=(const SetOSCObjectPropertiesCommand &); /* not allowed */
+    SetOSCValuePropertiesCommand(); /* not allowed */
+    SetOSCValuePropertiesCommand(const SetOSCValuePropertiesCommand &); /* not allowed */
+    SetOSCValuePropertiesCommand &operator=(const SetOSCValuePropertiesCommand &); /* not allowed */
 
 private:
 	OSCElement *element_;
     const OpenScenario::oscObjectBase *object_;
 	OpenScenario::oscMember *member_;
-	OpenScenario::oscValue<T> newOSCValue_;
-	OpenScenario::oscValue<T> oldOSCValue_;
+	T newOSCValue_;
+	T oldOSCValue_;
 };
 
 #endif // OSCOBJECTCOMMANDS_HPP
