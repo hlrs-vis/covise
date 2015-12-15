@@ -50,6 +50,7 @@ BridgeSettings::BridgeSettings(ProjectSettings *projectSettings, SettingsElement
     , init_(false)
     , valueChanged_(true)
 {
+
     ui->setupUi(this);
 
     // Initial Values //
@@ -82,7 +83,7 @@ BridgeSettings::updateProperties()
     if (bridge_)
     {
         ui->nameBox->setText(bridge_->getName());
-        ui->idBox->setText(bridge_->getId());
+        ui->idLabel->setText(bridge_->getId());
         ui->sSpinBox->setValue(bridge_->getSStart());
         ui->typeComboBox->setCurrentIndex(bridge_->getType());
 

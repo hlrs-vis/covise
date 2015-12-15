@@ -48,8 +48,10 @@
 #include <osg/BoundingBox>
 
 #include <deque>
+#include <OpenVRUI/sginterface/vruiButtons.h>
 #include "VRPinboard.h"
 #include "coVRPlugin.h"
+#include <osgShadow/ShadowedScene>
 
 #define MAX_NUMBER_JOYSTICKS 64
 
@@ -123,9 +125,9 @@ public:
     //! @return old button state
     unsigned int oldState();
     //! buttons pressed since last frame
-    unsigned int wasPressed();
+    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
     //! buttons released since last frame
-    unsigned int wasReleased();
+    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
     //! is no button pressed
     bool notPressed();
     //! accumulated number of wheel events
@@ -196,7 +198,7 @@ public:
     // access to scene graph nodes and transformations
 
     //! get scene group node
-    osg::Group *getScene() const;
+    osgShadow::ShadowedScene *getScene() const;
 
     //! get the group node for all COVISE and model geometry
     osg::ClipNode *getObjectsRoot() const;

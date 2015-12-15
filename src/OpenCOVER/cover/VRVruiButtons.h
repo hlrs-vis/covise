@@ -33,8 +33,8 @@ public:
     VRVruiButtons(coPointerButton *button = NULL);
     virtual ~VRVruiButtons();
 
-    virtual unsigned int wasPressed() const;
-    virtual unsigned int wasReleased() const;
+    virtual unsigned int wasPressed(unsigned int buttons) const;
+    virtual unsigned int wasReleased(unsigned int buttons) const;
 
     virtual unsigned int getStatus() const;
     virtual unsigned int getOldStatus() const;

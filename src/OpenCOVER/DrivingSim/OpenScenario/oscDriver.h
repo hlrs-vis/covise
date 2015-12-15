@@ -12,22 +12,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
 #include <oscHeader.h>
-#include <oscFile.h>
 #include <oscBody.h>
 #include <oscNamedObject.h>
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscDriver: public oscObjectBase
+class OPENSCENARIOEXPORT oscDriver: public oscNamedObject
 {
 public:
+	
     oscDriver()
     {
         OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
-        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
 		OSC_ADD_MEMBER(obeyTrafficLights);
         OSC_ADD_MEMBER(obeyTrafficSigns);
 		OSC_ADD_MEMBER(steeringDistance);
@@ -53,10 +50,8 @@ public:
 		OSC_ADD_MEMBER(adaptToWeatherConditions);
         OSC_OBJECT_ADD_MEMBER(body,"oscBody");
         OSC_OBJECT_ADD_MEMBER(geometry,"oscFile");
-        OSC_OBJECT_ADD_MEMBER(include,"oscFile");
     };
     oscHeaderMember header;
-    oscNamedObjectMember name;
 	oscBool obeyTrafficLights;
 	oscBool obeyTrafficSigns;
 	oscDouble steeringDistance;
@@ -82,7 +77,6 @@ public:
 	oscDouble adaptToWeatherConditions;
 	oscBodyMember body;
 	oscFileMember geometry;
-    oscFileMember include;
 };
 
 typedef oscObjectVariable<oscDriver *> oscDriverMember;

@@ -281,18 +281,71 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
         else
         {
             std::string stem = p.stem().string();
-            if (time)
+            if (!boost::algorithm::ends_with(stem, "Dict") && !boost::algorithm::ends_with(stem, "Properties"))
+            {
+                if (time)
                 {
-				++info.varyingFields[stem];
-				std::cerr << "counting timedir : " << timedir << std::endl;
-				}
-            else
-                ++info.constantFields[stem];
+                    ++info.varyingFields[stem];
+                    //std::cerr << "counting timedir : " << timedir << std::endl;
+                    //std::cerr << "added varying field :" << stem << std::endl;
+                }
+                else
+                    ++info.constantFields[stem];
+            }
         }
     }
 
     return true;
 }
+
+
+bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double mintime, double maxtime, int skipfactor)
+{
+	// start out with 
+	std::stringstream s;
+    if (info.numblocks>0)
+		s << "/processor0" << "/";
+	std::string basedir = casedir;
+	basedir += s.str(); 
+	std::string fullMeshDir = info.constantdir;
+
+	for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
+	{
+		std::string currentTimeDir= basedir + it->second;
+		checkSubDirectory(info, currentTimeDir, true);
+		if (info.varyingGrid)
+		{
+			fullMeshDir = it->second;
+		}
+		info.completeMeshDirs[it->first]=fullMeshDir;
+		std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
+	}
+
+    // if numblocks>0 -> casedir/processor0/timedir/polyMesh
+    // else casedir/timedir/polyMesh
+    // checkSubDirectory
+    // if (varingGrid)
+    // {
+    // 
+    // }
+/*	int counter = 0;
+	for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
+	{
+		next = it;
+		++next;
+		if (counter % skipfactor != 0)
+		{
+			std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
+			info.timedirs.erase(it);
+			--num_timesteps;
+		}
+		++counter;
+	}*/
+
+    return true;
+}
+
+
 
 bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare, double mintime, double maxtime, int skipfactor, bool exact)
 {
@@ -369,7 +422,8 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
-                if (t >= mintime && t <= maxtime)
+				std::cerr << bn << "is a time directory, " << t  << std::endl;
+                //if (t >= mintime && t <= maxtime)
                 {
                     ++num_timesteps;
                     if (compare)
@@ -400,7 +454,8 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             }
         }
     }
-
+// ignore skipfactor in checkCaseDirectory for now
+/*
     if (!compare)
     {
         int counter = 0;
@@ -410,12 +465,13 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             ++next;
             if (counter % skipfactor != 0)
             {
-                info.timedirs.erase(it);
+                std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
+				info.timedirs.erase(it);
                 --num_timesteps;
             }
             ++counter;
         }
-    }
+    }*/
 
     bool varyingChecked = false, constantChecked = false;
     for (bf::directory_iterator it(dir);
@@ -425,7 +481,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-			std::cerr << "directory :" << bn << std::endl;
+			//std::cerr << "directory :" << bn << std::endl;
             if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());

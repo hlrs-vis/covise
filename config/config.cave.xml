@@ -51,7 +51,7 @@
               <Orientation h="0" p="0" r="0" />
            </CaveGloves>
 	   
-/*
+<!--
            <CaveHead2 device="DTrackCave" bodyIndex="3">
               <Offset x="-105" y="-40" z="-50" />
               <Orientation h="0" p="0" r="0" />
@@ -61,7 +61,7 @@
               <Offset x="0" y="-170" z="0" />
               <Orientation h="0" p="0" r="0" />
            </CaveHand2>
-*/
+-->
            <TripodHead>
               <Offset x="0" y="-3000" z="0" />
            </TripodHead>
@@ -94,6 +94,7 @@
            <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
         </Persons>
      </Input>
    </COVER>
@@ -192,6 +193,15 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
+    <TrackObjects value="on">
+	    <Objects>
+           <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
+           <Object name="Pumpe" x="400" y="960" z="-940"  h="0" p="0" r="0"/>
+           <Object name="Fuellstation" x="800" y="308" z="-940"  h="180" p="0" r="0"/>
+           <Object name="anotherPosition" x="3000" y="0" z="0"  h="90" p="0" r="0"/>
+        </Objects>
+        
+	</TrackObjects>
     <ViewPoint value="on"/>
     <Joystick>
       <Device value="/dev/input/porschepedal" />

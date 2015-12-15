@@ -115,6 +115,7 @@ TrackComponentItem::init()
     // Selection/Highlighting //
     //
     //setAcceptHoverEvents(true);
+	setSelectable();
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
     // Transformation //

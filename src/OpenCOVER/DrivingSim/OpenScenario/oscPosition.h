@@ -9,7 +9,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
 #include <oscPositionWorld.h>
 #include <oscPositionRoad.h>
 #include <oscPositionLane.h>
@@ -19,8 +18,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscPositionRoute.h>
 
 namespace OpenScenario {
-
-class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscPosition: public oscObjectBase

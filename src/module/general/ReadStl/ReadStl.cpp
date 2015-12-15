@@ -734,7 +734,25 @@ int ReadStl::compute(const char *)
     // add filename as an attribute
     coDistributedObject *obj = p_polyOut->getCurrentObject();
     if (obj)
-        obj->addAttribute("OBJECTNAME", p_filename->getValue());
+    {
+        std::string filename(p_filename->getValue());
+        if (filename.length() > 40)
+        {
+            size_t pos = filename.rfind("/");
+            if (pos != std::string::npos)
+            {
+                filename = "..." + filename.substr(pos);
+            }
+        }
+#if 0
+        pos = filename.rfind(".");
+        if (pos != std::string::npos)
+        {
+            filename = filename.substr(0, pos);
+        }
+#endif
+        obj->addAttribute("OBJECTNAME", filename.c_str());
+    }
 
     return result;
 }

@@ -117,7 +117,7 @@ JunctionEditorTool::initToolWidget()
     line->setLineWidth(1);
     toolLayout->addWidget(line, ++row, 0, 1, ColumnCount);
 
-    toolButton = new QPushButton("Create Junction from selected elements");
+    toolButton = new QPushButton("Junction from\nselected elements");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TJE_CREATE_JUNCTION); // button, id
@@ -131,12 +131,12 @@ JunctionEditorTool::initToolWidget()
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TJE_SELECT_JUNCTION); // button, id
 
-    toolButton = new QPushButton("Add Selected Roads");
+    toolButton = new QPushButton("Add Roads");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TJE_ADD_TO_JUNCTION); // button, id
 
-    toolButton = new QPushButton("Remove Selected Roads");
+    toolButton = new QPushButton("Remove Roads");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, row, 1);
     toolGroup->addButton(toolButton, ODD::TJE_REMOVE_FROM_JUNCTION); // button, id
@@ -180,8 +180,8 @@ JunctionEditorTool::initToolWidget()
     thresholdEdit_->setMinimumWidth(80.0);
     thresholdEdit_->setMaximumWidth(80.0);
 
-    toolLayout->addWidget(thresholdLabel, row, 1);
-    toolLayout->addWidget(thresholdEdit_, row, 2);
+    toolLayout->addWidget(thresholdLabel, ++row, 0);
+    toolLayout->addWidget(thresholdEdit_, row, 1);
 
     connect(thresholdEdit_, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
 

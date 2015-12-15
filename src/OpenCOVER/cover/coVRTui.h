@@ -62,6 +62,8 @@ private:
     coTUIFrame *personContainer;
     coTUILabel * personsLabel;
     coTUIComboBox * personsChoice;
+    coTUILabel *eyeDistanceLabel;
+    coTUIEditFloatField *eyeDistanceEdit;
 
     coTUIFrame *bodiesContainer;
     coTUILabel *bodiesLabel;
@@ -79,6 +81,14 @@ private:
     coTUILabel *deviceTransLabel[3];
     coTUIEditFloatField *deviceRot[3];
     coTUILabel *deviceRotLabel[3];
+
+    coTUIFrame *debugContainer;
+    coTUILabel *debugLabel;
+    coTUIToggleButton *debugMouseButton;
+    coTUIToggleButton *debugDriverButton;
+    coTUIToggleButton *debugRawButton;
+    coTUIToggleButton *debugTransformedButton;
+    coTUIToggleButton *debugMatrices, *debugOther;
 };
 
 class coPluginEntryList : public covise::DLinkList<coPluginEntry *>
@@ -199,6 +209,7 @@ private:
     coTUIToggleButton *AnimOscillate;
     coTUIToggleButton *Walk;
     coTUIToggleButton *DebugBins;
+    coTUIComboBox *ShadowChoice;
     coTUIToggleButton *Drive;
     coTUIToggleButton *Fly;
     coTUIToggleButton *XForm;
@@ -236,6 +247,9 @@ private:
     coTUILabel *backgroundLabel;
     coTUILabel *LODScaleLabel;
     coTUIEditFloatField *LODScaleEdit;
+
+    coTUILabel *debugLabel;
+    coTUIEditIntField *debugLevel;
 #ifndef NOFB
     coTUIFileBrowserButton *FileBrowser;
     coTUIFileBrowserButton *SaveFileFB;

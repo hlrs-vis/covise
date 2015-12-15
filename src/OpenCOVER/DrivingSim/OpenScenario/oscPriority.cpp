@@ -4,15 +4,15 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#include <oscEvent.h>
+#include <oscPriority.h>
 
 using namespace OpenScenario;
 
 priorityType::priorityType()
 {
-    addEnum("overwrite",oscEvent::overwrite);
-    addEnum("following",oscEvent::following);
-    addEnum("skip",oscEvent::skip);
+    addEnum("overwrite",oscPriority::overwrite);
+    addEnum("following",oscPriority::following);
+    addEnum("skip",oscPriority::skip);
 }
 
 priorityType *priorityType::instance()

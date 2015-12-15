@@ -11,10 +11,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
+#include <oscUserData.h>
 
 namespace OpenScenario {
-
-class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscRoadNetwork: public oscObjectBase
@@ -24,9 +23,14 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(OpenDRIVE,"oscFile");
         OSC_OBJECT_ADD_MEMBER(SceneGraph,"oscFile");
+		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+	    OSC_OBJECT_ADD_MEMBER(include,"oscFile");
+
     };
     oscFileMember OpenDRIVE;
     oscFileMember SceneGraph;
+	oscUserDataMember userData;
+    oscFileMember include;
 };
 
 typedef oscObjectVariable<oscRoadNetwork *> oscRoadNetworkMember;

@@ -7,7 +7,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <OpenScenarioBase.h>
 #include <oscVariables.h>
-#include <oscHeader.h>
+#include "oscSourceFile.h"
+
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
@@ -29,12 +30,13 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     oscFactories::instance();
 
     OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
-    OSC_OBJECT_ADD_MEMBER(database,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(catalogs,"oscCatalogs");
     OSC_OBJECT_ADD_MEMBER(roadNetwork,"oscRoadNetwork");
-    OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironment");
-    OSC_OBJECT_ADD_MEMBER(entities,"oscHeader");
-    OSC_OBJECT_ADD_MEMBER(storyboard,"oscHeader");
-    OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentRef");
+    OSC_OBJECT_ADD_MEMBER(entities,"oscEntities");
+    OSC_OBJECT_ADD_MEMBER(storyboard,"oscStoryboard");
+    OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscScenarioEnd");
+	OSC_OBJECT_ADD_MEMBER(test,"oscTest");
 
     base=this;
 }
@@ -64,51 +66,93 @@ int OpenScenarioBase::loadFile(std::string &fileName)
         return parseFromXML(rootElement);
     }
 }
+
 int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default false */)
 {
-    xercesc::DOMImplementation *impl;
-    impl = xercesc::DOMImplementation::getImplementation();
-    xmlDoc = impl->createDocument(0, xercesc::XMLString::transcode("OpenScenario"), 0);
-    rootElement = xmlDoc->getDocumentElement();
-    writeToDOM(rootElement,xmlDoc);;
-#if (XERCES_VERSION_MAJOR < 3)
-    xercesc::DOMWriter *writer = impl->createDOMWriter();
-#else
-    xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
-    // set the format-pretty-print feature
-    if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
-        writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
-#endif
+    xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+    //oscSourceFile for OpenScenarioBase
+    oscSourceFile *osbSourceFile;
 
-    xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(fileName.c_str());
-
-#if (XERCES_VERSION_MAJOR < 3)
-    if (!writer->writeNode(xmlTarget, *document))
+    //create xmlDocs for every source file
+    //
+    for (int i = 0; i < srcFileVec.size(); i++)
     {
-        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-        delete xmlTarget;
-        delete writer;
-        return false;
-    }
-#else
-    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    output->setByteStream(xmlTarget);
+        std::string srcFileRootElement = srcFileVec[i]->getRootElementName();
 
-    if (!writer->write(xmlDoc, output))
-    {
-        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-        delete xmlTarget;
-        delete writer;
-        return false;
+        //set filename for main xosc file with root element "OpenScenario" to fileName
+        if (srcFileRootElement == "OpenScenario")
+        {
+            srcFileVec[i]->setVariables(srcFileRootElement, fileName);
+            osbSourceFile = srcFileVec[i];
+        }
+
+        xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, xercesc::XMLString::transcode(srcFileRootElement.c_str()), 0);
+
+        if (!srcFileVec[i]->getXmlDoc())
+        {
+            srcFileVec[i]->setXmlDoc(xmlSrcDoc);
+        }
     }
 
-    delete output;
+    //write objects to their own xmlDoc
+    //for start use OpenScenarioBase xml document
+    //
+    writeToDOM(osbSourceFile->getXmlDoc()->getDocumentElement(), osbSourceFile->getXmlDoc());
+
+    //write xmlDocs to disk
+    //
+    for (int i = 0; i < srcFileVec.size(); i++)
+    {
+        std::string srcFileName = srcFileVec[i]->getSrcFileName();
+
+        if (srcFileName != fileName)
+        {
+            srcFileName = "out_" + srcFileName;
+        }
+        xercesc::DOMDocument* xmlSrcDoc = srcFileVec[i]->getXmlDoc();
+
+#if (XERCES_VERSION_MAJOR < 3)
+        xercesc::DOMWriter *writer = impl->createDOMWriter();
+#else
+        xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+        // set the format-pretty-print feature
+        if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+            writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
 #endif
 
-    delete xmlTarget;
-    delete writer;
+        xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(srcFileName.c_str());
+
+#if (XERCES_VERSION_MAJOR < 3)
+        if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
+        {
+            std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+            delete xmlTarget;
+            delete writer;
+            return false;
+        }
+
+#else
+        xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+        output->setByteStream(xmlTarget);
+
+        if (!writer->write(xmlSrcDoc, output))
+        {
+            std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+            delete xmlTarget;
+            delete writer;
+            return false;
+        }
+
+        delete output;
+#endif
+
+        delete xmlTarget;
+        delete writer;
+    }
+
     return true;
 }
+
 
 xercesc::DOMElement *OpenScenarioBase::getRootElement(std::string filename)
 {
@@ -141,12 +185,41 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(std::string filename)
     if (xmlDoc)
     {
         rootElement = xmlDoc->getDocumentElement();
+
+        //to ensure that the DOM view of a document is the same as if it were saved and re-loaded
+        rootElement->normalize();
     }
 
     return rootElement;
 }
 
+
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *currentElement)
 {
-    return oscObjectBase::parseFromXML(currentElement);
+    source = new oscSourceFile();
+    source->initialize(this);
+    std::string currElemName = xercesc::XMLString::transcode(currentElement->getNodeName());
+    std::string srcFileName = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(currentElement)->getBaseURI());
+    source->setVariables(currElemName, srcFileName);
+
+    this->addToSrcFileVec(source);
+
+    return oscObjectBase::parseFromXML(currentElement, source);
+}
+
+
+xercesc::DOMDocument *OpenScenarioBase::getDocument() const
+{
+    return xmlDoc;
+}
+
+
+void OpenScenarioBase::addToSrcFileVec(oscSourceFile *src)
+{
+    srcFileVec.push_back(src);
+}
+
+std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec() const
+{
+    return srcFileVec;
 }

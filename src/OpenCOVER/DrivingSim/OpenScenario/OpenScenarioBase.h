@@ -9,10 +9,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
+#include <oscCatalogs.h>
 #include <oscRoadNetwork.h>
 #include <oscHeader.h>
-#include <oscEnvironment.h>
+#include <oscEnvironmentRef.h>
+#include <oscEntities.h>
+#include <oscStoryboard.h>
+#include <oscScenarioEnd.h>
+
+#include <oscTest.h>
+
 #include <string>
+#include <vector>
+
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
@@ -22,7 +31,7 @@ XERCES_CPP_NAMESPACE_END
 
 namespace OpenScenario {
 
-class oscHeader;
+class oscSourceFile;
 
 /// \class This class represents an OpenScenario database
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
@@ -31,16 +40,18 @@ protected:
     xercesc::DOMElement *rootElement; ///< DOM Root element
     xercesc::XercesDOMParser *parser; ///< validating parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
+    std::vector<oscSourceFile *> srcFileVec;
+
     
 public:
     oscHeaderMember header;
-    oscHeaderMember database;
+    oscCatalogsMember catalogs;
     oscRoadNetworkMember roadNetwork;
-    oscEnvironmentMember environment; // temp only, should be a reference
-    oscHeaderMember entities;
-    oscHeaderMember storyboard;
-    oscHeaderMember scenarioEnd;
-
+    oscEnvironmentRefMember environment; // temp only, should be a reference
+    oscEntitiesMember entities;
+    oscStoryboardMember storyboard;
+    oscScenarioEndMember scenarioEnd;
+	oscTestMember test;
 
     OpenScenarioBase(); /// constructor, initializes the class and sets a default factory
     ~OpenScenarioBase(); /// destructor, terminate xerces-c
@@ -54,10 +65,13 @@ public:
                                                               \return false if writing to the file failed.*/
 
     xercesc::DOMElement *getRootElement(std::string filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
-
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
-    xercesc::DOMDocument *getDocument(){return xmlDoc;};
+
+    xercesc::DOMDocument *getDocument() const;
+
+    void addToSrcFileVec(oscSourceFile *src);
+    std::vector<oscSourceFile *> getSrcFileVec() const;
 
 };
 

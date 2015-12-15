@@ -1,7 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
 <OpenScenario>
   <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+  <catalogs>
+    <vehicleCatalog>
+      <directory path="vehicle.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </vehicleCatalog>
+    <driverCatalog>
+      <directory path="driver.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </driverCatalog>
+    <observerCatalog>
+      <directory path="observer.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </observerCatalog>
+    <pedestrianCatalog>
+      <directory path="pedestrian.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </pedestrianCatalog>
+    <miscObjectCatalog>
+      <directory path="miscObject.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </miscObjectCatalog>
+    <entityCatalog>
+      <directory path="entity.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </entityCatalog>
+    <environmentCatalog>
+      <directory path="environment.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </environmentCatalog>
+    <maneuverCatalog>
+      <directory path="maneuver.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </maneuverCatalog>
+    <routingCatalog>
+      <directory path="routing.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </routingCatalog>
+    <userData code="asd" value="ert"></userData>
+    <include URL="driver.xml"></include>
+  </catalogs>
+  <roadNetwork>
+    <OpenDRIVE URL="test.xodr"/>
+    <SceneGraph URL="test.ive"/>
+    <userData code="roadNetWork" value="roadNetWork"/>
+    <include URL="roadNetWork.xodr"/>
+  </roadNetwork>
+  <entities>
+    <object name="Ego">
+      <catalogRef catalogId="123">
+        <parameter name="wer" value="io" type="p"/>
+      </catalogRef>
+      <initPosition>
+        <position>
+          <positionWorld x="10" y="10" z="10" h="10" p="10" r="10"/>
+        </position>
+      </initPosition>
+      <initDynamics velocity="50" acceleration="3.0"/>
+      <initState trafficLightPhase="red" dynamicTrafficSignState="aaa"/>
+      <userData code="asd" value="ert"></userData>
+      <include URL="DDD"></include>
+    </object>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA"></include>
+  </entities>
+  <storyboard>
+    <maneuverList>
+      <startConditionGroup>
+        <startCondition name="end" counter="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </startCondition>
+      </startConditionGroup>
+      <endConditionGroup>
+        <endCondition name="end" counter="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </endCondition>
+      </endConditionGroup>
+      <cancelConditionGroup>
+        <cancelCondition name="end" counter="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </cancelCondition>
+      </cancelConditionGroup>
+      <maneuver name="oiu" numberOfExecutions="733333333" maneuverPriority="cancel">
+        <refActor URL="AAAAAA.xml"/>
+        <catalogRef catalogId="123">
+          <parameter name="wer" value="io" type="p"/>
+        </catalogRef>
+        <maneuver name="takeover">
+          <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+          <parameterList>
+            <parameter name="sss" value="222"/>
+          </parameterList>
+        </maneuver>
+        <userData code="asd" value="ert"></userData>
+        <include URL="AAAAAA"></include>
+      </maneuver>
+    </maneuverList>
+    <refActor name="qwe">
+      <maneuver name="q" numberOfExecutions="3" maneuverPriority="following">
+        <startCondition name="end" counter="9" iid="1" groupId="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </startCondition>
+        <endCondition name="end" counter="9" iid="1" groupId="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="ffff.xml"></include>
+        </endCondition>
+        <cancelCondition name="end" counter="9" iid="1" groupId="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA.xml"></include>
+        </cancelCondition>
+        <catalogRef catalogId="123">
+          <parameter name="wer" value="io" type="p"/>
+        </catalogRef>
+        <maneuver name="takeover">
+          <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+          <parameterList>
+            <parameter name="sss" value="222"/>
+          </parameterList>
+        </maneuver>
+        <userData code="asd" value="ert"></userData>
+        <include URL="AAAAAA"></include>
+      </maneuver>
+    </refActor>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </storyboard>
+  <scenarioEnd>
+    <endConditionGroup>
+      <endCondition name="end" counter="9">
+        <condition>
+          <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+        </condition>
+        <userData code="asd" value="ert"></userData>
+        <include URL="AAAAAA.xml"></include>
+      </endCondition>
+    </endConditionGroup>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </scenarioEnd>
   <environment>
+    <catalogRef catalogId="123">
+      <parameter name="a" value="b" type="c"/>
+    </catalogRef>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </environment>
+  <test>
+    <environment name="day">
       <header revMajor="1" revMinor="0" date="2015-10-20T12:15:00+01:00" description="testEnvironment" author="PW"/>
       <timeOfDay animation="1">
         <time hour="12" min="15" sec="30"/>
@@ -13,22 +181,270 @@
           <intensity ambient="0.5" diffuse="0.5" specular="0.5"/>
         </sun>
         <fog visibility="0.9">
-           <color r="100" g="100" b="100"/>
+          <color r="100" g="100" b="100"/>
           <boundingBox>
             <center x="10" y="10" z="10"  h="5"/>
             <dimensions width ="1000" length="1000" height="1000"/>
           </boundingBox>
         </fog>
         <precipitation type="dry" intensity="0.5"/>
-       </weather> 
-        <roadConditions frictionScale="0.1">
-          <roadCondition  effect="dry" intensity="0.2"/>  
-        </roadConditions>
-  </environment>
-  <roadNetwork>
-    <OpenDRIVE URL="test.xodr"/>
-    <SceneGraph URL="test.ive"/>
-  </roadNetwork>
-  <storyboard>
-  </storyboard>
+      </weather>
+      <roadConditions frictionScale="0.1">
+        <roadCondition  effect="dry" intensity="0.2"/>
+      </roadConditions>
+      <include URL="testinclude.xosc" />
+    </environment>
+    <vehicle vehicleClass="car" manufacturer="Porsche" model="911" color="red" licensePlate="123456" name="porsche911">
+      <header revMajor="1" revMinor="0" date="2015-10-20T12:15:00+01:00" description="testEnvironment" author="PW"/>
+      <performance maxSpeed="200" maxDeceleration="10" overallEfficiency="50" >
+        <aerodynamics airDragCoefficient="0.5" frontSurfaceEffective="0.2"/>
+        <engine type="V6" power="300" maxRpm="3000"/>
+        <cog positionX="0" positionY="1" positionZ="3" mass="1000"/>
+        <gearbox type="manual"/>
+      </performance>
+      <geometry  URL="porsche.max" />
+      <dimensions front="1.5" rear="3" left="1.2" right="1" bottom="1" top="1" />
+      <axles>
+        <front rollingResistance="0.22" maxSteering="180" wheelDiameter="0.5" trackWidth="1.5" positionX="2" positionZ="0" driven="1"/>
+        <rear rollingResistance="0.22" maxSteering="180" wheelDiameter="0.5" trackWidth="1.5" positionX="2" positionZ="0" driven="1"/>
+        <n rollingResistance="0.22" maxSteering="180" wheelDiameter="0.5" trackWidth="1.5" positionX="2" positionZ="0" driven="1"/>
+      </axles>
+      <eyepoints>
+        <eyepoint type="top">
+          <coord>
+            <position x="0" y="0" z="0"/>
+            <orientation h="0" p="0" r="0"/>
+          </coord>
+        </eyepoint>
+      </eyepoints>
+      <lighting>
+        <light type="top" frequency="0.2">
+          <coord >
+            <position x="0" y="0" z="0"/>
+            <orientation h="0" p="0" r="0"/>
+          </coord>
+          <light>
+            <color r="30" g="30" b="30"/>
+            <intensity ambient="0.5" diffuse="0.5" specular="0.5"/>
+          </light>
+        </light>
+      </lighting>
+      <mirrors>
+        <mirror type="top">
+          <coord>
+            <position x="0.000000" y="0.000000" z="0.000000"/>
+            <orientation h="0.000000" p="0.000000" r="0.000000"/>
+          </coord>
+        </mirror>
+      </mirrors>
+      <features>
+        <feature type="a" availability="1"/>
+      </features>
+      <include URL="PORSCHE.XML"/>
+      <userData code="A" value="b"/>
+    </vehicle>
+    <pedestrian name="peter" refId="111" pedestrianClass="animal" model="111.xml" mass="25">
+      <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="pedestrian" author="PW"/>
+      <behavior politeness="1" alertness="0.1"/>
+      <dimension front="1.5" rear="3" left="1.2" right="1" bottom="1" top="1" />
+      <geometry URL="DOG.MAX"/>
+    </pedestrian>
+    <observer name="sss" refId="123" type="ddd">
+      <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="observer" author="PW"/>
+      <frustum near="0.1" far="0.2" left="1" right="2.2" bottom="2.3" top="1"/>
+      <filter objectType="dfg" maxNum="20" filterParam="2.22"/>
+      <include URL="observer.xml"/>
+      <userData code="A" value="b"/>
+    </observer>
+    <miscObject name="ccc" type="cccc" mass="3000">
+      <header revMajor="1" revMinor="0" date="2015-11-23T12:15:00+01:00" description="miscObject" author="PW"/>
+      <dimensions front="1.5" rear="3" left="1.2" right="1" bottom="1" top="1" />
+      <geometry URL="3d.max"/>
+    </miscObject>
+    <entity name="b" refId="2" >
+      <objectChoice>
+        <OSCVehicle name="a" refId="1"/>
+        <OSCPedestrian name="a" refId="1"/>
+        <OSCMiscObject name="a" refId="1"/>
+      </objectChoice>
+      <controllerChoice>
+        <OSCDriverReference name="a" refId="1"/>
+        <PedestrianController motion="run"/>
+      </controllerChoice>
+      <observer iid="222"  name="a" refId="1">
+        <coord>
+          <position x="0" y="0" z="0"/>
+          <orientation h="0" p="0" r="0"/>
+        </coord>
+      </observer>
+    </entity>
+    <routing>
+      <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+      <general closed="0" name="round">
+        <include URL="AA.XML"/>
+        <userData code="A" value="b"/>
+      </general>
+      <waypoint>
+        <position>
+          <positionRoad roadId="a" s="1" t="1" relativeOrientation="1" h="1" p="1" r="1"/>
+        </position>
+        <continuation>
+          <route strategy="random"/>
+          <shape purpose="steering" polyline="s">
+            <clothoid curvature="1" curvatureDot="2" length="2"/>
+            <spline controlPoint1="a" controlPoint2="b"/>
+          </shape>
+        </continuation>
+      </waypoint>
+      <include URL="AA.XML"/>
+      <userData code="A" value="b"/>
+    </routing>
+    <driver name="joe" obeyTrafficLights="0" obeyTrafficSigns="1" steeringDistance="1" foresightDistance="2" respondToTailgating="3" urgeToOvertake="4" useOfIndicator="5" keepRightRule="6" laneChangeDynamic="7" speedKeeping="8" laneKeeping="9" distanceKeeping="10" observeSpeedLimits="11" curveSpeed="12" desiredDeceleration="13" desiredAcceleration="14" desiredVelocity="15" politeness="16" alertness="17" adaptToVehicleType="18" adaptToTimeOfDay="19" adaptToRoadConditions="20" adaptToWeatherConditions="21">
+      <header revMajor="1" revMinor="0" date="2015-11-23T12:15:00+01:00" description="testDriver" author="PW"/>  
+      <body weight="75" height="180" eyeDistance="65" sex="male"/>
+      <geometry URL="3d.max"/> 
+      <include URL="test.xodr"/>
+    </driver>
+    <position>
+      <positionWorld x="10" y="10" z="10" h="10" p="10" r="10"/>
+      <positionRoad roadId="1" s="2" t="3" relativeOrientation="0" h="10" p="10" r="10"/>
+      <positionLane roadId="1" laneId="2" offset="1" s="1" relativeOrientation="0" h="10" p="10" r="10"/>
+      <relativePositionWorld refObject="a" dx="1" dy="2" dz="3" h="1" p="2" r="3"/>
+      <relativePositionRoad refObject="a" ds="1" dt="2" relativeOrientation="0" h="1" p="2" r="3"/>
+      <relativePositionLane refObject="a" dLane="2" offset="1" ds="1" relativeOrientation="0" h="10" p="10" r="10"/>
+      <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
+        <roadCoord pathS="1" t="2"/>
+        <laneCoord pathS="1" laneId="2" laneOffset="3"/>
+      </positionRoute>
+    </position>
+    <maneuver name="ChangeLane">
+      <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+      <event name="takeover" priority="skip">
+        <startConditionGroup>
+          <startCondition name="sss" delayTime="0.3">
+            <userData code="asd" value="ert"></userData>
+            <include URL="AAAAAA.xml"></include>
+            <condition>
+              <command name="start"/>
+            </condition>
+          </startCondition>
+        </startConditionGroup>
+        <action>
+          <autonomous activate="0" driver="joe"/>
+          <speed>
+            <dynamics rate="1.22" immediate="2" shape="round"></dynamics>
+            <relative refObject="w" delta="5" factor="3.333"></relative>
+            <absolute target="22.222"/>
+          </speed>
+          <laneChange targetLaneOffset="4.5567">
+            <relative refObject="w" delta="5"></relative>
+            <absolute target="22.222"/>
+            <dynamics shape="round" maxLateralAcc="2.987" duration="9.888" />
+          </laneChange>
+          <laneOffset>
+            <relative refObject="w" delta="5"></relative>
+            <absolute target="22.222"/>
+            <dynamics maxLateralAcc="2.987" duration="9.888" />
+          </laneOffset>
+          <position></position>
+          <distanceLateral refObject="w" freespace="1" distance="3.333"></distanceLateral>
+          <distanceLongitudinal refObject="w" freespace="1" distance="3.333" timeGap="2.222"/>
+          <visibility graphics="0" traffic="0" sensors="1"></visibility>
+          <characterAppearance feature="ww" value="oo"></characterAppearance>
+          <characterGesture gesture="ss"></characterGesture>
+          <characterMotion motionType="dd"></characterMotion>
+          <trafficLight>
+            <setController name="q" state="e"/>
+            <setState name="q" state="e"/>
+          </trafficLight>
+          <entityAdd name="q">
+            <position>
+              <positionLane roadId="1" laneId="2" offset="1" s="1" relativeOrientation="0" h="10" p="10" r="10"/>
+            </position>
+          </entityAdd>
+          <entityDelete name="q"></entityDelete>
+          <trafficJam>
+            <position>
+              <relativePositionWorld refObject="a" dx="1" dy="2" dz="3" h="1" p="2" r="3"/>
+            </position>
+          </trafficJam>
+          <trafficSource distance="vehicle" rate="1.1111" velocity="3.4456" velocityDeviation="8.1" forward="0">
+            <position>
+              <relativePositionRoad refObject="a" ds="1" dt="2" relativeOrientation="0" h="1" p="2" r="3"/>
+            </position>
+          </trafficSource>
+          <trafficSink>
+            <position>
+              <relativePositionLane refObject="a" dLane="2" offset="1" ds="1" relativeOrientation="0" h="10" p="10" r="10"/>
+            </position>
+          </trafficSink>
+          <userDefinedAction name="op">
+            <parameter name="wer" value="098" type="ijn">
+            </parameter>
+          </userDefinedAction>
+          <userDefinedCommand command="qwe"></userDefinedCommand>
+          <userScript name="qwe" execution="waitForTermination">
+            <parameter name="11" value="dd" type="s"></parameter>
+            <file URL="ss"/>
+          </userScript>
+          <notify text="aaa"></notify>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA.xml"></include>
+        </action>
+      </event>
+    </maneuver>
+    <condition>
+      <simulationTime simulationTime="30"/>
+      <timeOfDay animation="1">
+        <time hour="12" min="15" sec="30"/>
+        <date day="20" month="10" year="2015"/>
+      </timeOfDay>
+      <reachPosition tolerance="0.5" conditions="exceed">
+        <position>
+          <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
+            <roadCoord pathS="1" t="2"/>
+            <laneCoord pathS="1" laneId="2" laneOffset="3"/>
+          </positionRoute>
+        </position>
+      </reachPosition>
+      <distance freespace="1" object="V1" refObject="V2" value="50" condition="decceed"/>
+      <velocity reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+      <standsStill object="V3" duration="60"/>
+      <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+      <stoppingDistance freespace="1" object="V1" refObject="V2" value="50" condition="decceed">
+        <position>
+          <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
+            <roadCoord pathS="1" t="2"/>
+            <laneCoord pathS="1" laneId="2" laneOffset="3"/>
+          </positionRoute>
+        </position>
+      </stoppingDistance>
+      <timeToCollision freespace="1" object="V1" refObject="V2" value="50" condition="decceed">
+        <position>
+          <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
+            <roadCoord pathS="1" t="2"/>
+            <laneCoord pathS="1" laneId="2" laneOffset="3"/>
+          </positionRoute>
+        </position>
+      </timeToCollision>
+      <timeHeadway freespace="1" object="V1" refObject="V2" value="50" condition="decceed">
+        <position>
+          <positionRoute routeId="a" current="0" relativeOrientation="0" h="10" p="10" r="10">
+            <roadCoord pathS="1" t="2"/>
+            <laneCoord pathS="1" laneId="2" laneOffset="3"/>
+          </positionRoute>
+        </position>
+      </timeHeadway>
+      <referenceHanding maneuverId="123" eventId="321" conditionRef="starts"/>
+      <offroad object="wa" duration="100"/>
+      <collision object="aaa">
+        <partner object="bbb" objectType="vehicle"/>
+      </collision>
+      <numericCondition name="May" value="20" rule="equal"/>
+      <command name="joe"/>
+      <userDefined uid="ccc">
+        <parameter name="ff" value="2" type="w"/>
+      </userDefined>
+    </condition>
+  </test>
 </OpenScenario>

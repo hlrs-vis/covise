@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OpenScenario>
+  <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+  <catalogs>
+    <vehicleCatalog>
+      <directory path="vehicle.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </vehicleCatalog>
+    <driverCatalog>
+      <directory path="driver.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </driverCatalog>
+    <observerCatalog>
+      <directory path="observer.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </observerCatalog>
+    <pedestrianCatalog>
+      <directory path="pedestrian.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </pedestrianCatalog>
+    <miscObjectCatalog>
+      <directory path="miscObject.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </miscObjectCatalog>
+    <entityCatalog>
+      <directory path="entity.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </entityCatalog>
+    <environmentCatalog>
+      <directory path="environment.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </environmentCatalog>
+    <maneuverCatalog>
+      <directory path="maneuver.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </maneuverCatalog>
+    <routingCatalog>
+      <directory path="routing.xml"/>
+      <userData code="aaa" value="bbb"/>
+    </routingCatalog>
+    <userData code="asd" value="ert"></userData>
+    <include URL="driver.xml"></include>
+  </catalogs>
+  <roadNetwork>
+    <OpenDRIVE URL="test.xodr"/>
+    <SceneGraph URL="test.ive"/>
+    <userData code="roadNetWork" value="roadNetWork"/>
+    <include URL="roadNetWork.xodr"/>
+  </roadNetwork>
+  <entities>
+    <object name="Ego">
+      <catalogRef catalogId="123">
+        <parameter name="wer" value="io" type="p"/>
+      </catalogRef>
+      <initPosition>
+        <position>
+          <positionWorld x="10" y="10" z="10" h="10" p="10" r="10"/>
+        </position>
+      </initPosition>
+      <initDynamics velocity="50" acceleration="3.0"/>       
+      <initState trafficLightPhase="red" dynamicTrafficSignState="aaa"/>     
+      <userData code="asd" value="ert"></userData>
+      <include URL="DDD"></include>
+    </object>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA"></include>
+  </entities>
+  <storyboard>
+    <maneuverList>
+      <startConditionGroup>
+        <startCondition name="end" counter="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </startCondition>
+      </startConditionGroup>
+      <endConditionGroup>
+        <endCondition name="end" counter="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </endCondition>
+      </endConditionGroup>
+      <cancelConditionGroup>
+        <cancelCondition name="end" counter="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </cancelCondition>
+      </cancelConditionGroup>
+      <maneuver name="oiu" numberOfExecutions="733333333" maneuverPriority="cancel">
+        <refActor URL="AAAAAA.xml"/>
+        <catalogRef catalogId="123">
+          <parameter name="wer" value="io" type="p"/>
+        </catalogRef>
+        <maneuver name="takeover">
+          <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+          <parameterList>
+            <parameter name="sss" value="222"/>
+          </parameterList> 
+        </maneuver>
+        <userData code="asd" value="ert"></userData>
+        <include URL="AAAAAA"></include>
+      </maneuver>
+    </maneuverList>
+    <refActor name="qwe">
+      <maneuver name="q" numberOfExecutions="3" maneuverPriority="following">      
+        <startCondition name="end" counter="9" iid="1" groupId="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA"></include>
+        </startCondition>
+        <endCondition name="end" counter="9" iid="1" groupId="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="ffff.xml"></include>
+        </endCondition>
+        <cancelCondition name="end" counter="9" iid="1" groupId="9">
+          <condition>
+            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+          </condition>
+          <userData code="asd" value="ert"></userData>
+          <include URL="AAAAAA.xml"></include>
+        </cancelCondition>
+        <catalogRef catalogId="123">
+          <parameter name="wer" value="io" type="p"/>
+        </catalogRef>
+        <maneuver name="takeover">
+          <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+          <parameterList>
+            <parameter name="sss" value="222"/>
+          </parameterList>
+        </maneuver>
+        <userData code="asd" value="ert"></userData>
+        <include URL="AAAAAA"></include>
+      </maneuver>
+    </refActor>    
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </storyboard>
+  <scenarioEnd>
+    <endConditionGroup>
+      <endCondition name="end" counter="9">
+        <condition>
+          <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
+        </condition>
+        <userData code="asd" value="ert"></userData>
+        <include URL="AAAAAA.xml"></include>
+      </endCondition>
+    </endConditionGroup>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </scenarioEnd>
+  <environment>
+    <catalogRef catalogId="123">
+      <parameter name="a" value="b" type="c"/>
+    </catalogRef>
+    <userData code="asd" value="ert"></userData>
+    <include URL="AAAAAA.xml"></include>
+  </environment>
+</OpenScenario>

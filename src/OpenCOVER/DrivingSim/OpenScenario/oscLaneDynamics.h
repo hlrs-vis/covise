@@ -13,8 +13,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscLaneDynamics: public oscObjectBase
 {
@@ -22,11 +20,11 @@ public:
     oscLaneDynamics()
     {
         OSC_ADD_MEMBER(shape);
-        OSC_ADD_MEMBER(maxLateralACC);
+        OSC_ADD_MEMBER(maxLateralAcc);
 		OSC_ADD_MEMBER(duration);
     };
 	oscString shape;
-    oscDouble maxLateralACC;
+    oscDouble maxLateralAcc;
     oscDouble duration;
 	
 };

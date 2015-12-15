@@ -1,0 +1,323 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="input" >config.input.spbgpu.xml</INCLUDE>
+ <INCLUDE global="1" configname="CAVE" >config-cave-aaa.xml</INCLUDE>
+ 
+ <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
+
+
+ <GLOBAL>
+  <License>
+    <!--<SERVER value="003048c4a24e 8.1 01.01.2025 0 MGCPJDA SPBSTU" type="SERVER" name="MGCPJDA" />-->
+   <!--<STD_UI value="003048c4a24e 8.1 01.01.2025 0 CKICOOO SPBSTU" type="STD_UI" name="CKICOOO" />-->
+   <!--<COVISE_WINDOWS value="003048c4a24e 8.1 01.01.2025 0 ISMHNVG SPBSTU" type="COVISE_WINDOWS" name="ISMHNVG" />-->
+   <!--<VR_ONE_PIPE value="003048c4a24e 8.1 01.01.2025 0 WMKUCQO SPBSTU" type="VR_ONE_PIPE" name="WMKUCQO" />-->
+   <!--<VR_MULTI_ANY value="003048c4a24e 8.1 01.01.2025 0 QUSVPRQ SPBSTU" type="VR_MULTI_ANY" name="QUSVPRQ" />-->
+   <!--<COVISE_VRML value="003048c4a24e 8.1 01.01.2025 0 MCGHLLM SPBSTU" type="COVISE_VRML" name="MCGHLLM" />-->
+   <!--<COVISE_CFD value="003048c4a24e 8.1 01.01.2025 0 QIEVJZU SPBSTU" type="COVISE_CFD" name="QIEVJZU" />-->
+   <!--<COVISE_FEM value="003048c4a24e 8.1 01.01.2025 0 YUAIGUM SPBSTU" type="COVISE_FEM" name="YUAIGUM" />-->
+   <!--<VR_DUAL_CLUSTER value="003048c4a24e 8.1 01.01.2025 0 OKOMEMK SPBSTU" type="VR_DUAL_CLUSTER" name="OKOMEMK" />-->
+
+
+  <SERVER value="01180a030093 8.1 01.01.2025 0 OGGRTFM SPBSTU" type="SERVER" name="OGGRTFM" />
+  <STD_UI value="01180a030093 8.1 01.01.2025 0 EKMEYQA SPBSTU" type="STD_UI" name="EKMEYQA" />
+  <COVISE_WINDOWS value="01180a030093 8.1 01.01.2025 0 KSQJXXS SPBSTU" type="COVISE_WINDOWS" name="KSQJXXS" />
+ <VR_ONE_PIPE value="01180a030093 8.1 01.01.2025 0 YMOWMSA SPBSTU" type="VR_ONE_PIPE" name="YMOWMSA" />
+  <VR_MULTI_ANY value="01180a030093 8.1 01.01.2025 0 SUWXZTC SPBSTU" type="VR_MULTI_ANY" name="SUWXZTC" />
+  <COVISE_VRML value="01180a030093 8.1 01.01.2025 0 OCKJVNY SPBSTU" type="COVISE_VRML" name="OCKJVNY" />
+  <COVISE_CFD value="01180a030093 8.1 01.01.2025 0 SIIXTBG SPBSTU" type="COVISE_CFD" name="SIIXTBG" />
+  <COVISE_FEM value="01180a030093 8.1 01.01.2025 0 AUEKQWY SPBSTU" type="COVISE_FEM" name="AUEKQWY" />
+  <VR_DUAL_CLUSTER value="01180a030093 8.1 01.01.2025 0 QKSOOOW SPBSTU" type="VR_DUAL_CLUSTER" name="QKSOOOW" />
+
+  </License>
+
+
+  <COVER>
+
+   <Plugin>
+    <JTOpen value="false" />
+    <PLMXML value="false" />
+
+    <Volume>
+     <Files>
+       <Osaka value="data/volume/nchc/osaka3.xvf" />
+     </Files>
+
+
+    </Volume>
+
+    <VRViewpoints>
+     <WriteVrmlViewpoint value="true" />
+    </VRViewpoints>
+
+    <Molecules>
+     <DataDir value="/home/cave/data/data/itt" />
+    </Molecules>
+
+    <AKToolbar>
+     <Scale value="2" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+
+    <CCDBVR>
+     <Scale value="1" />
+     <ViewerDistance value="2" />
+     <Mitochondria>
+  	 <mito_inner value="inner_2.wrl" />
+  	          <mito_outer value="outer_2.wrl" />
+  	          <mito_crista_1 value="crista1_2.wrl" />
+  	          <mito_crista14 value="crista14.wrl" />
+  	          <mito_crista15 value="crista15.wrl" />
+  	        </Mitochondria>
+
+     <HPFNode>
+  	          <axon value="axon.synu.iv" />
+  	          <loop1 value="loop1_lower_best.synu.iv" />
+  	          <loop2L value="loop2_lower.synu.iv" />
+  	          <loop2U value="loop2_upper.synu.iv" />
+  	          <loop3L value="loop3_lower.synu.iv" />
+  	          <loop3U value="loop3_upper.synu.iv" />
+  	          <lysosome value="Lysosome_1.synu.iv" />
+  	          <paranode value="paranode.iv" />
+  	        </HPFNode>
+
+     <Complete>
+  	          <Mitochondria value="MITO" />
+  	          <HPFNode value="HPF" />
+  	          <CONNode value="CON" />
+  	          <Take value="TAKE" />
+  	          <Test value="TEST" />
+  	        </Complete>
+    </CCDBVR>
+
+    <DNA>
+     <DataDir value="/mnt/raid/cod/sandia/igrid/DNA Drawer/Data" />
+    </DNA>
+
+    <PDB>
+     <BrowserDirectory value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/thumbnails" />
+     <PDBPluginMolDir value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/PDBPlugin/" />
+     <PDBPluginTempDir value="/mnt/raid/tmp/pdb" />
+     <PDBPluginPymolDir value="/mnt/raid/data/extern_libs/src/pymol/pymol/pymol" />
+     <PDBUrl value="www.pdb.org/pdb/files" />
+     <PDBAnimationUrl value="www.molmovdb.org/uploads" />e
+    </PDB>
+    <Image>
+  <ImageDir value="/mnt/raid/data/calit2/images" />
+  <ImageFadeLowDist value="1000.0" />   <!-- 1000.0 is 1 meter -->
+  <ImageFadeHighDist value="1500.0" />
+  <ImageWandTracked value="0" />  <!-- 1= true, means it is enabled -->
+  <ImageDist value="0.3" />
+  <MarkerSize value="10.0" />
+  <Files>
+    <Mouse_brain value="mouse_brain" />
+    <Campus value="campus" />
+    <Monkey_Brain value="test4" />
+    <Cerebellum value="test10" />
+    <Golden_Gate value="golden" />
+    <Da_Vinci value="magi.ipp" />
+    <South_wall value="south.ipp"/>
+    <Annunica value="annun.ipp" />
+    <Cloud value="cloud.ipp" />
+  </Files>
+</Image>
+    <VideoLOD value="on" >
+      <Files>
+        <GalaxyHD path="/data/calit2/videos/" prefix="hdgc8-17_4k.10" suffix="" vnums="2" framestart="0" frameend="9" h="1080" w="1920" />
+        <GalaxyHDdxt path="/tmp/osgacom/" prefix="hdgc8-17_4k.10" suffix="" vnums="2" framestart="0" frameend="99" h="1080" w="1920" />
+      </Files>
+    </VideoLOD>
+
+<CAMERAVis>
+   <GOSFile value="/mnt/raid/home/hpcwoess/covise/src/renderer/OpenCOVER/plugins/CAMERAVis/GOS_Metadata.txt" />
+   <GOSFile2 value="/mnt/raid/home/hpcwoess/covise/src/renderer/OpenCOVER/plugins/CAMERAVis/GOS2.txt" />
+   <DataDir value="/data/calit2" />
+   <_scaleSize value="0.03" />
+   <MINSIZE value="25" />
+   <MAXSIZE value="125" />
+   <windowHeight value="1200"/>
+   <windowWidth value="1920"/>
+   <shapeScale value="5" />
+   <recenter value="true" />
+   <hudScale value="0.5" />
+   <screenHeight value="500" />
+   <screenWidth value="810" />
+</CAMERAVis>
+    <PDBSequenceDisplay>
+     <Scale value="1" />
+    </PDBSequenceDisplay>
+
+   </Plugin>
+
+   <TabletPC>
+    <Server value="localhost" />
+   </TabletPC>
+
+  </COVER>
+
+
+  <Volume>
+
+  <!--Renderer value="Simian" /-->
+  </Volume>
+
+
+  <System>
+
+    <CRB>
+
+    <Proxy>
+     <ProxyCommand value="ssh uw_te@visit crb" />
+    </Proxy>
+
+   </CRB>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="ssh" name="viskas" hostname="viskas" />
+    <Host timeout="60" memory="shm" method="ssh" name="visspring" hostname="visspring" />
+    <Host timeout="60" memory="shm" method="ssh" name="vissummer" hostname="vissummer" />
+    <Host timeout="60" memory="shm" method="ssh" name="visautumn" hostname="visautumn" />
+    <Host timeout="60" memory="shm" method="ssh" name="viswinter" hostname="viswinter" />
+    <Host timeout="30" memory="shm" method="ssh" name="vispw1" hostname="vispw1" />
+    <Host timeout="300" memory="shm" method="ssh" name="visard" hostname="visard" />
+    <Host timeout="300" memory="shm" method="ssh" name="viszdf" hostname="viszdf" />
+    <Host timeout="60" memory="shm" method="ssh" name="visper" hostname="visper" />
+    <Host timeout="60" memory="shm" method="ssh" name="vis-mail" hostname="vis-mail" />
+    <Host timeout="60" memory="shm" method="ssh" name="visible" hostname="visible" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="vispw1" />
+    <Host timeout="60" memory="shm" method="rdaemon" name="vispw1" hostname="neptun" />
+    <Host timeout="10" memory="shm" method="manual" name="vispw1" hostname="10.16.32.161" />
+    <Host timeout="60" memory="shm" method="ssh" name="hlrssemi7" hostname="hlrssemi7" />
+    <Host timeout="60" memory="shm" method="ssh" name="hlrssemi4" hostname="hlrssemi4" />
+    <Host timeout="300" memory="shm" method="ssh" name="vistiger" hostname="vistiger" />
+    <Host timeout="5" memory="shm" method="ssh" name="visdragon" hostname="visdragon" />
+   </HostConfig>
+   
+   <Network>
+    <!--IpAlias value="192.168.0.1 testrechner" name="testalias" /-->
+   </Network>
+
+   <IpTable>
+    <!--IP symbolic="visper" value="141.58.8.11" name="visper" />
+    <IP symbolic="vispw1" value="141.58.8.3" name="visper" /-->
+   </IpTable>
+   <Network>
+    <!--IpAlias value="192.168.178.23 rechner.uwewoessner.de" name="uwesrechner" /-->
+   </Network>
+
+
+   <VRB>
+    <Server port="31200" />
+	    <!--Server value="141.58.8.11" /-->
+    </VRB>
+
+   <RemoteDaemon>
+    <Server port="31090" />
+   </RemoteDaemon>
+
+  </System>
+
+
+  <Module>
+
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+
+   <Globus>
+   <GlobusRun value="/data/extern_libs/x64/gt4/bin/globusrun-ws" />
+   <JobFactory value="/wsrf/services/ManagedJobFactoryService" />
+   </Globus>
+ 
+   <Fenfloss>
+    <VERBOSE value="1" />
+    <TIMEOUT value="20" />
+    <STARTUP value="gate %0 %1 %e" name="v3" />
+    <STARTUP value="tube %0 %1 %e" name="v4" />
+    <STARTUP value="axial %0 %1 %e" name="v5" />
+    <STARTUP value="radial %0 %1 %e" name="v6" />
+    <STARTUP value="sc2004booth %0 %1 %e" name="v7" />
+    <STARTUP value="archflow %0 %1 %e" name="v8" />
+    <STARTUP value="other %0 %1 %e" name="v9" />
+
+    <Application value="p_covise_fen6.3.0.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+    <Application value="p_fen7.0" name="v3"/>
+   </Fenfloss>
+
+  <MiniSim>
+
+   <VERBOSE value="1" />
+   <SERVER value="m" />
+   <STARTUP value="blubb %0 %e" name="v1" />
+   <StartUpScript value="ssh hpcdemo@asama.hww.de rsh node0 /gdata0/HLRS/hlrs/hpcdemo/MiniSim/miniSim.sh" />
+
+  </MiniSim>
+
+   <StarCD>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <SERVER value="m" />
+    <STARTUP value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=1:00:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <STARTUP value="dummy d" name="v2" />
+    <STARTUP value="manual echo 'export CO_SIMLIB_CONN=%e ; /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v3" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+    
+   <ReadSim>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <STARTUP value="gate %0 %1 %e" name="v1" />
+   </ReadSim>
+
+   <Material>
+      <UserDefined>
+         <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0"/>
+      </UserDefined>
+   </Material>
+
+  </Module>
+
+
+  <CONFIGEDITOR>
+
+   <COLOR name="global_scope" color="blue" />
+   <COLOR name="global_variable" color="darkslateblue" />
+   <COLOR name="host_scope" color="red" />
+   <COLOR name="host_variable" color="indianred" />
+   <COLOR name="user_scope" color="darkgreen" />
+   <COLOR name="user_variable" color="darkseagreen" />
+   <COLOR name="userhost_scope" color="darkorange" />
+   <COLOR name="userhost_variable" color="goldenrod" />
+  </CONFIGEDITOR>
+
+  <WebBrowser>
+     <BookMarks value="3" />
+     <BookMark0Name value="Magpie" />
+     <BookMark0URL value="http://magpie.ucsd.edu/magpie/sp_test2/ost_01_008/ost_01_008_home.html" />
+     <BookMark1Name value="Google" />
+     <BookMark1URL value="http://www.google.com" />
+     <BookMark2Name value="Local" />
+     <BookMark2URL value="file:///home/iGrid2005/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/WebBrowser/sites/si859a1_01_home.html" />
+  </WebBrowser>
+
+ </GLOBAL>
+
+
+</COCONFIG>

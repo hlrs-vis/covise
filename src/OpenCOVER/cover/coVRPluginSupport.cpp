@@ -559,7 +559,7 @@ osg::ClipNode *coVRPluginSupport::getObjectsRoot() const
     return NULL;
 }
 
-osg::Group *coVRPluginSupport::getScene() const
+osgShadow::ShadowedScene *coVRPluginSupport::getScene() const
 {
     //START("coVRPluginSupport::getScene");
     return (VRSceneGraph::instance()->getScene());
@@ -780,15 +780,15 @@ void coVRPluginSupport::update()
     }
 
     size_t currentPerson = Input::instance()->getActivePerson();
-    if ((getMouseButton()->wasPressed() & vruiButtons::PERSON_NEXT)
-            || (getPointerButton()->wasPressed() & vruiButtons::PERSON_NEXT))
+    if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
+            || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
     {
         ++currentPerson;
         currentPerson %= Input::instance()->getNumPersons();
         Input::instance()->setActivePerson(currentPerson);
     }
-    if ((getMouseButton()->wasPressed() & vruiButtons::PERSON_PREV)
-            || (getPointerButton()->wasPressed() & vruiButtons::PERSON_PREV))
+    if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
+            || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
     {
         if (currentPerson == 0)
             currentPerson = Input::instance()->getNumPersons();
@@ -1429,14 +1429,14 @@ bool coPointerButton::notPressed()
     return (buttonStatus == 0);
 }
 
-unsigned int coPointerButton::wasPressed()
+unsigned int coPointerButton::wasPressed(unsigned int buttonMask)
 {
-    return (getState() ^ oldState()) & getState();
+    return buttonMask & ((getState() ^ oldState()) & getState());
 }
 
-unsigned int coPointerButton::wasReleased()
+unsigned int coPointerButton::wasReleased(unsigned int buttonMask)
 {
-    return (getState() ^ oldState()) & oldState();
+    return buttonMask & ((getState() ^ oldState()) & oldState());
 }
 
 void coPointerButton::setState(unsigned int newButton) // called from

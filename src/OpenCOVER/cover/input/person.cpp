@@ -187,4 +187,9 @@ float Person::eyeDistance() const {
 
     return m_eyeDistance;
 }
+
+void Person::setEyeDistance(float dist)
+{
+    m_eyeDistance = dist;
+}
 }

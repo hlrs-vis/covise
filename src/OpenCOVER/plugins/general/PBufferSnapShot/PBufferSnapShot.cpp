@@ -218,9 +218,11 @@ void PBufferSnapShot::prepareSnapshot()
         pBufferCameraR->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
         pBufferCamera->setView(cam->getView());
         //pBufferCamera->setCullMask(Isect::Visible);
-        pBufferCamera->setCullMask(Isect::Visible | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
-        pBufferCamera->setCullMaskLeft(Isect::Visible | Isect::Left | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
-        pBufferCamera->setCullMaskRight(Isect::Visible | Isect::Right | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+        
+        pBufferCamera->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
+        pBufferCamera->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
+        pBufferCamera->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
+       
 
         if (stereo)
         {

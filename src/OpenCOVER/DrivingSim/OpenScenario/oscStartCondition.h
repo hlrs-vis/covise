@@ -4,32 +4,25 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+#ifndef OPENSCENARIO_HEADER
+#define OPENSCENARIO_HEADER
+
 #ifndef OSC_START_CONDITION_H
-#define OSC_START_CONGDITION_H
+#define OSC_START_CONDITION_H
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscNamedObject.h>
-#include <oscCondition.h>
+#include <oscConditionObject.h>
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscStartCondition: public oscObjectBase
+class OPENSCENARIOEXPORT oscStartCondition: public oscConditionObject
 {
 public:
     oscStartCondition()
     {
-        OSC_OBJECT_ADD_MEMBER(name,"oscNamedObject");
-        OSC_ADD_MEMBER(delayTime);
-		OSC_OBJECT_ADD_MEMBER(condition,"oscCondition");
     };
-    oscNamedObjectMember name;
-    oscDouble delayTime;
-	oscConditionMember condition;
 };
 
 typedef oscObjectVariable<oscStartCondition *> oscStartConditionMember;
@@ -37,3 +30,4 @@ typedef oscObjectVariable<oscStartCondition *> oscStartConditionMember;
 }
 
 #endif //OSC_START_CONDITION_H
+#endif

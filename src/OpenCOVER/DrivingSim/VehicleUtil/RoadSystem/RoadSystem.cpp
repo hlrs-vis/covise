@@ -864,6 +864,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                 header.version = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("version"))));
                 header.xoffset = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("xoffset"))));
                 header.yoffset = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("yoffset"))));
+                header.zoffset = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("zoffset"))));
             }
         }
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
@@ -2666,13 +2667,20 @@ Vector2D RoadSystem::searchPosition(const Vector3D &worldPos, Road *&road, doubl
         for (unsigned int roadIt = 0; roadIt < roadVector.size(); ++roadIt)
         {
             Road *searchRoad = roadVector[roadIt];
-            osg::BoundingBox roadBox = searchRoad->getRoadGeode()->getBoundingBox();
-            roadBox.zMin() -= 1;
-            roadBox.zMax() += 1;
-            if (roadBox.contains(osg::Vec3(worldPos.x(), worldPos.y(), worldPos.z())))
-            {
-                roadSet.insert(searchRoad);
-            }
+	    if(searchRoad)
+	    {
+		osg::Geode *geode= searchRoad->getRoadGeode();
+		if(geode)
+		{
+        	    osg::BoundingBox roadBox = geode->getBoundingBox();
+        	    roadBox.zMin() = -1000000; // ignore height
+        	    roadBox.zMax() = 1000000;
+        	    if (roadBox.contains(osg::Vec3(worldPos.x(), worldPos.y(), worldPos.z())))
+        	    {
+                	roadSet.insert(searchRoad);
+        	    }
+		}
+	    }
             //std::cout << "worldPos: " << worldPos.x() << ", " << worldPos.y() << ", " << worldPos.z() << std::endl;
             //std::cout << "BB: " << roadBox.xMin() << ", " << roadBox.yMin() << ", " << roadBox.zMin() << " - " << roadBox.xMax() << ", " << roadBox.yMax() << ", " << roadBox.zMax() << std::endl;
         }

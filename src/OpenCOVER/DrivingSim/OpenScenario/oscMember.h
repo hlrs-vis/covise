@@ -19,40 +19,43 @@ XERCES_CPP_NAMESPACE_END
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
 class oscObjectBase;
-
 
 /// \class This class represents a generic OpenScenario Member variable
 class OPENSCENARIOEXPORT oscMember
 {
 protected:
-
     std::string name; ///< name of member
     std::string typeName; ///< type name of member
     oscMemberValue *value;
-    oscObjectBase* owner;
+    oscObjectBase *owner;
     enum oscMemberValue::MemberTypes type;
 
 public:
     oscMember(); ///< constructor
-    void setName(const char *n){name = n;};
-    void setName(std::string &n){name = n;};
-    void setTypeName(const char *tn) {typeName = tn;};
-    void setTypeName(std::string &tn) {typeName = tn;};
-    std::string getTypeName() {return typeName;}; ///< return the typeName of this member
-    void registerWith(oscObjectBase* owner); ///< constructor
-    
-
     virtual ~oscMember(); ///< destructor
-    
-    virtual oscMemberValue * getValue() {return value;};
-    virtual void setValue(oscMemberValue *v) {value = v;};
-    virtual void setValue(oscObjectBase *t){};
-    void setType(oscMemberValue::MemberTypes t) {type = t;};
-    oscMemberValue::MemberTypes getType() {return type;}; ///< return the type of this member
-    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document){if(value!=NULL) value->writeToDOM(currentElement,document,name.c_str());return true;};
-    std::string &getName(){return name;};
+
+    void registerWith(oscObjectBase *owner);
+
+    void setName(const char *n);
+    void setName(std::string &n);
+    std::string &getName();
+    void setTypeName(const char *tn);
+    void setTypeName(std::string &tn);
+    std::string getTypeName() const; ///< return the typeName of this member
+
+    virtual void setValue(oscMemberValue *v);
+    virtual void setValue(oscObjectBase *t);
+    virtual void deleteValue();
+    virtual oscMemberValue *getValue();
+    void setType(oscMemberValue::MemberTypes t);
+    oscMemberValue::MemberTypes getType() const; ///< return the type of this member
+
+    virtual const oscObjectBase *getObject() const;
+    virtual bool exists() const; ///<for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists is executed
+    oscObjectBase *getOwner() const;
+
+    virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 };
 

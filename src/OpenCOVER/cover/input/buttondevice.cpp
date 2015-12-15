@@ -102,38 +102,37 @@ void ButtonDevice::createButtonMap(const std::string &confbase)
 }
 
 ButtonDevice::ButtonDevice(const string &name)
-    : m_dev(NULL)
-    , btnstatus(0)
+    : InputSource(name, "Buttons")
+    , m_raw(0)
+    , m_oldRaw(m_raw)
+    , m_btnstatus(0)
 {
-    const std::string conf = "COVER.Input.Buttons." + name;
-    const std::string driver = coCoviseConfig::getEntry("device", conf, "default");
-
-    if (name != "Mouse")
-    {
-        m_dev = Input::instance()->getDevice(driver);
-        if (!m_dev)
-            m_dev = Input::instance()->getDevice("const");
-    }
-
-    createButtonMap(conf);
+    createButtonMap(config());
 }
 
 /**
- * @brief ButtonDevice::update Must be called from Input::update(). Saves the buttonstate into btnstatus member
+ * @brief ButtonDevice::update Must be called from Input::update(). Saves the buttonstate into m_btnstatus member
  * @return 0
  */
 void ButtonDevice::update()
 {
-    if (m_dev)
+    if (device())
     {
-        unsigned raw = 0;
-        for (size_t i = 0; i < m_dev->numButtons(); ++i)
+        m_raw = 0;
+        for (size_t i = 0; i < device()->numButtons(); ++i)
         {
-            if (m_dev->getButtonState(i))
-                raw |= (1U << i);
+            if (device()->getButtonState(i))
+                m_raw |= (1U << i);
         }
-        btnstatus = mapButton(raw);
     }
+
+    if (Input::debug(Input::Buttons) && Input::debug(Input::Raw) && m_oldRaw!=m_raw)
+    {
+        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::endl;
+    }
+    m_oldRaw = m_raw;
+
+    m_btnstatus = mapButton(m_raw);
 }
 
 /**
@@ -142,15 +141,19 @@ void ButtonDevice::update()
  */
 unsigned int ButtonDevice::getButtonState() const
 {
-    return btnstatus;
+    return m_btnstatus;
 }
 
 void ButtonDevice::setButtonState(unsigned int state, bool isRaw)
 {
 
     if (isRaw)
-        btnstatus = mapButton(state);
+    {
+        m_raw = state;
+    }
     else
-        btnstatus = state;
+    {
+        m_btnstatus = state;
+    }
 }
 }

@@ -12,6 +12,7 @@ using namespace OpenScenario;
 
 oscArrayMember::oscArrayMember(): oscMember()
 {
+
 }
 
 oscArrayMember::~oscArrayMember()
@@ -21,4 +22,28 @@ oscArrayMember::~oscArrayMember()
         delete *it;
     }
     values.clear();
+}
+
+
+//
+oscObjectBase *oscArrayMember::getValue(size_t i) const
+{
+    if(values.size()>i)
+    {
+        return values[i];
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void oscArrayMember::setValue(size_t i,oscObjectBase *v)
+{
+    values[i] = v;
+}
+
+void oscArrayMember::push_back(oscObjectBase *v)
+{
+    values.push_back(v);
 }

@@ -9,12 +9,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscCatalog.h>
+#include <oscDirectory.h>
+#include <oscUserData.h>
 
 namespace OpenScenario {
-
-class OpenScenarioBase;
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscRoutingCatalog: public oscObjectBase
@@ -22,9 +20,11 @@ class OPENSCENARIOEXPORT oscRoutingCatalog: public oscObjectBase
 public:
     oscRoutingCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER(routing,"oscCatalog");
+        OSC_OBJECT_ADD_MEMBER(directory,"oscDirectory");
+		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
     };
-    oscCatalogMember routing;
+	oscDirectoryMember directory;
+    oscUserDataMember userData;
 };
 
 typedef oscObjectVariable<oscRoutingCatalog *> oscRoutingCatalogMember;

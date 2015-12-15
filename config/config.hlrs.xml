@@ -26,7 +26,7 @@
    <!--Background r="1" g="1" b="1" /-->
    <Plugin>
  <PointCloud>
-   <PointSize value="2" />
+   <PointSize value="5" />
    </PointCloud>
 
     <Annotation value="false" />
@@ -35,7 +35,7 @@
     <CADCv3D value="off" />
     <VRAnim value="off" />
     <Variant value="off"/>
-    <CuttingSurface value="on"/> 
+    <CuttingSurface value="off"/> 
     <cuCuttingSurface value="off"/> 
     <cuIsoSurface value="off"/> 
     <cuTracer value="off"/> 

@@ -40,6 +40,7 @@
 //
 #include <QInputDialog>
 #include <QStringList>
+#include <QVariant>
 
 // Utils //
 //
@@ -58,6 +59,13 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
 {
     objectManager_ = getProjectSettings()->getProjectWidget()->getMainWindow()->getSignalManager();
     ui->setupUi(this);
+
+	// TreeWidget for repeat parameters //
+	//
+/*	QList<QTreeWidgetItem *> itemList = ui->repeatTreeWidget->findItems("repeat", Qt::MatchExactly);
+	QTreeWidgetItem *repeatItem = itemList.first();
+	QTreeWidgetItem *layoutItem = new QTreeWidgetItem(repeatItem);
+	ui->repeatTreeWidget->setItemWidget(layoutItem, 0, ui->repeatWidget);*/
 
     // Initial Values //
     //
@@ -103,6 +111,8 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->textureLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->textureLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
 
+	connect(ui->repeatButton, SIGNAL(clicked(bool)), this, SLOT(activateRepeatWidget(bool)));
+
     init_ = true;
 }
 
@@ -121,7 +131,7 @@ ObjectSettings::updateProperties()
     if (object_)
     {
         ui->nameBox->setText(object_->getModelFileName());
-        ui->idBox->setText(object_->getId());
+        ui->idLabel->setText(object_->getId());
         ui->sSpinBox->setValue(object_->getSStart());
         ui->tSpinBox->setValue(object_->getT());
         ui->zOffsetSpinBox->setValue(object_->getzOffset());
@@ -145,6 +155,7 @@ ObjectSettings::updateProperties()
 
         ui->textureLineEdit->setText(object_->getTextureFileName());
     }
+	activateRepeatWidget(false);
 }
 
 double ObjectSettings::
@@ -277,6 +288,12 @@ ObjectSettings::on_sSpinBox_editingFinished()
             focusWidget->clearFocus();
         }
     }
+}
+
+void
+	ObjectSettings::activateRepeatWidget(bool activ)
+{
+	ui->repeatGroupBox->setVisible(activ);
 }
 
 //##################//

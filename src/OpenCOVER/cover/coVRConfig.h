@@ -296,6 +296,12 @@ public:
     // 5 all functions which are called continously
     bool debugLevel(int level) const;
 
+    // get debug level
+    int getDebugLevel() const;
+
+    // set debug level
+    void setDebugLevel(int level);
+
     // return true, if OpenCOVER is configured for stereo rendering
     bool stereoState() const;
 

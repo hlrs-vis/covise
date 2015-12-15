@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export COVISE_TERMINATE_ON_QUIT=1 # terminate covise session when COVER exits
+
 # some day there will be ansii color
 #LSCOLORS=exfxcxdxbxegedabagacad
 #export LSCOLORS

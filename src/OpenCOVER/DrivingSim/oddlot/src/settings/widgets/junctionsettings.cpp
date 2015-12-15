@@ -66,7 +66,7 @@ void
 JunctionSettings::updateProperties()
 {
     ui->nameBox->setText(junction_->getName());
-    ui->idBox->setText(junction_->getID());
+    ui->idLabel->setText(junction_->getID());
 }
 
 void

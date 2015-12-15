@@ -51,6 +51,11 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
 {
     ui->setupUi(this);
 
+	activateWidthGroupBox(false);
+	activateInsertGroupBox(false);
+	connect(ui->insertPushButton, SIGNAL(clicked(bool)), this, SLOT(activateInsertGroupBox(bool)));
+	connect(ui->editPushButton, SIGNAL(clicked(bool)), this, SLOT(activateWidthGroupBox(bool)));
+
     // List //
     //
     QStringList typeNames;
@@ -384,6 +389,31 @@ LaneSettings::on_addWidthButton_released()
 void LaneSettings::on_widthSpinBox_valueChanged(double w)
 {
   //  laneEditor_->setWidth(w);
+}
+
+void
+LaneSettings::activateInsertGroupBox(bool activ)
+{
+	ui->insertGroupBox->setVisible(activ);
+	double y;
+	if (activ)
+	{
+		y = ui->insertFrame->height() + ui->insertFrame->geometry().y();
+	}
+	else
+	{
+		y = ui->insertPushButton->height() + ui->insertFrame->geometry().y();
+	}
+	QRect geometry = ui->editFrame->geometry();
+	geometry.setY(y + 6);
+	ui->editFrame->setGeometry(geometry);
+	ui->widthGroupBox->updateGeometry();
+}
+
+void
+LaneSettings::activateWidthGroupBox(bool activ)
+{
+	ui->widthGroupBox->setVisible(activ);
 }
 
 //##################//

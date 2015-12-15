@@ -13,21 +13,36 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
+class OPENSCENARIOEXPORT sexType: public oscEnumType
+{
+public:
+    static sexType *instance(); 
+private:
+    sexType();
+    static sexType *inst;
+};
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscBody: public oscObjectBase
 {
 public:
+	oscDouble weight;
+	oscDouble height;
+	oscDouble eyeDistance;
+    enum sex
+    {
+        male,
+        female,
+    };
     oscBody()
     {
         OSC_ADD_MEMBER(weight);
 		OSC_ADD_MEMBER(height);
 		OSC_ADD_MEMBER(eyeDistance);
+		OSC_ADD_MEMBER(sex);
+		sex.enumType = sexType::instance();
     };
-    oscDouble weight;
-	oscDouble height;
-	oscDouble eyeDistance;
+	oscEnum sex;
 };
 
 typedef oscObjectVariable<oscBody *> oscBodyMember;

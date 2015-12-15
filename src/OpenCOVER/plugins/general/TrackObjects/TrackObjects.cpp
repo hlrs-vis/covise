@@ -106,16 +106,16 @@ bool TrackObjects::init()
     objectChoice = new coTUIComboBox("Objects", TrackObjectsTab->getID());
     bodyChoiceLabel = new coTUILabel("Body:",TrackObjectsTab->getID());
     bodyChoice = new coTUIComboBox("Body", TrackObjectsTab->getID());
-    getOffset = new coTUIButton("get offset");
-    snap = new coTUIButton("snap");
+    getOffset = new coTUIButton("get offset", TrackObjectsTab->getID());
+    snap = new coTUIButton("snap", TrackObjectsTab->getID());
 
-    TrackObjectsTab->setPos(0, 0);
+    TrackObjectsTab->setPos(5, 0);
     trackObjects->setPos(0, 0);
     objectChoiceLabel->setPos(1,0);
-    objectChoiceLabel->setPos(2,0);
+    bodyChoiceLabel->setPos(2,0);
     objectChoice->setPos(1,1);
-    objectChoice->setPos(2,1);
-    getOffset->setPos(3,0);
+    bodyChoice->setPos(2,1);
+    getOffset->setPos(4,1);
     snap->setPos(4,0);
     objectChoice->setEventListener(this);
     bodyChoice->setEventListener(this);
@@ -129,11 +129,11 @@ bool TrackObjects::init()
     std::string bodyName = coCoviseConfig::getEntry("value","COVER.Plugin.TrackObjects.BodyName", "");
     if(bodyName.length()==0 && Input::instance()->getNumBodies()>0)
     {
-        bodyName = Input::instance()->getBody(0)->getName();
+        bodyName = Input::instance()->getBody(0)->name();
     }
     for (size_t i = 0; i < Input::instance()->getNumBodies(); ++i)
     {
-        std::string name = Input::instance()->getBody(i)->getName();
+        std::string name = Input::instance()->getBody(i)->name();
         bodyChoice->addEntry(name);
         if(name == bodyName)
         {
@@ -189,14 +189,14 @@ TrackObjects::~TrackObjects()
 
 void TrackObjects::preFrame()
 {    
-    if(trackingBody)
+    if(trackingBody && trackObjects->getState())
     {
         osg::Matrix currentMat = trackingBody->getMat();
         if(currentMat != oldMat)
         {
             oldMat = currentMat;
             osg::Matrix tmpMat;
-            tmpMat = currentMat * currentObject->offset;
+            tmpMat = currentObject->offset * currentMat ;
             cover->getObjectsXform()->setMatrix(tmpMat);
             coVRCollaboration::instance()->SyncXform();
         }
@@ -227,27 +227,40 @@ void TrackObjects::tabletEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == posX)
     {
-        x = posX->getValue();
+        currentObject->offsetCoord.xyz[0] = posX->getValue();
+	
+    currentObject->offsetCoord.makeMat(currentObject->offset);
+        updateTUI();
     }
     else if (tUIItem == posY)
     {
-        y = posY->getValue();
+        currentObject->offsetCoord.xyz[1] = posY->getValue();
+    currentObject->offsetCoord.makeMat(currentObject->offset);
+        updateTUI();
     }
     else if (tUIItem == posZ)
     {
-        z = posZ->getValue();
+        currentObject->offsetCoord.xyz[2] = posZ->getValue();
+    currentObject->offsetCoord.makeMat(currentObject->offset);
+        updateTUI();
     }
     else if (tUIItem == rotH)
     {
-        h = rotH->getValue();
+        currentObject->offsetCoord.hpr[0] = rotH->getValue();
+    currentObject->offsetCoord.makeMat(currentObject->offset);
+        updateTUI();
     }
     else if (tUIItem == rotP)
     {
-        p = rotP->getValue();
+        currentObject->offsetCoord.hpr[1] = rotP->getValue();
+    currentObject->offsetCoord.makeMat(currentObject->offset);
+        updateTUI();
     }
     else if (tUIItem == rotR)
     {
-        r = rotR->getValue();
+        currentObject->offsetCoord.hpr[2] = rotR->getValue();
+    currentObject->offsetCoord.makeMat(currentObject->offset);
+        updateTUI();
     }
     else if (tUIItem == getOffset)
     {
@@ -255,7 +268,7 @@ void TrackObjects::tabletEvent(coTUIElement *tUIItem)
         {
             osg::Matrix invTB = osg::Matrix::inverse(trackingBody->getMat());
             osg::Matrix tmpMat = cover->getObjectsXform()->getMatrix();
-            currentObject->offset = invTB * tmpMat;
+            currentObject->offset = tmpMat * invTB;
             currentObject->offsetCoord = currentObject->offset;
             updateTUI();
         }

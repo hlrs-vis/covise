@@ -218,6 +218,8 @@ public slots:
     //
     void toolAction(ToolAction *);
 
+	void settingsDockParentChanged(bool);
+
 private slots:
 
     // Menu Slots //

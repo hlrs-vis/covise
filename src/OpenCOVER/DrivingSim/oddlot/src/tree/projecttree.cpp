@@ -45,6 +45,7 @@ ProjectTree::ProjectTree(ProjectWidget *projectWidget, ProjectData *projectData)
     // Model //
     //
     projectTreeWidget_ = new ProjectTreeWidget(this, projectData_);
+	projectTreeWidget_->setIndentation(6);
 
     // Buttons //
     //

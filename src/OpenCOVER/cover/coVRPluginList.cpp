@@ -410,13 +410,14 @@ void coVRPluginList::init()
         OpenCOVER::instance()->hud->setText3(it->first);
         OpenCOVER::instance()->hud->redraw();
 
-        if (!it->second->init())
+        if (!it->second->m_initDone && !it->second->init())
         {
             cerr << "plugin " << it->second->getName() << " failed to initialise" << endl;
             m_plugins.erase(it++);
         }
         else
         {
+            it->second->m_initDone = true;
             ++it;
         }
     }
@@ -446,6 +447,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name)
         if (m && m->init())
         {
             m_plugins[name] = m; // if init OK, then add new plugin
+            m->m_initDone = true;
         }
         else
         {

@@ -77,12 +77,12 @@ int coSubMenuToolboxItem::hit(vruiHit *hit)
                                ? vruiRendererInterface::the()->getMouseButtons()
                                : vruiRendererInterface::the()->getButtons();
 
-    if (buttons->wasPressed() & vruiButtons::ACTION_BUTTON)
+    if (buttons->wasPressed(vruiButtons::ACTION_BUTTON))
     {
         pressed = true;
     }
 
-    if (pressed && (buttons->wasReleased() & vruiButtons::ACTION_BUTTON))
+    if (pressed && (buttons->wasReleased(vruiButtons::ACTION_BUTTON)))
     {
         pressed = false;
 
