@@ -8,6 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_MEMBER_VALUE_H
 
 #include <oscExport.h>
+
+#include <string>
+
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMAttr;
@@ -42,6 +45,17 @@ protected:
 public:
     oscMemberValue(); ///< constructor
     virtual ~oscMemberValue(); ///< destructor
+
+    // set the value with the specified type instead of using initialize(), done in oscValue
+    virtual void setValue(int &t){};
+    virtual void setValue(unsigned int &t){};
+    virtual void setValue(short &t){};
+    virtual void setValue(unsigned short &t){};
+    virtual void setValue(std::string &t){};
+    virtual void setValue(double &t){};
+    virtual void setValue(time_t &t){};
+    virtual void setValue(bool &t){};
+    virtual void setValue(float &t){};
 
     MemberTypes getType() const; ///< return the type of this value
     virtual bool initialize(xercesc::DOMAttr *);

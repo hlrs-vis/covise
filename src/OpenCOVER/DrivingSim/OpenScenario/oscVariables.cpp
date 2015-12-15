@@ -6,10 +6,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 * License: LGPL 2+ */
 
 #include <oscVariables.h>
+
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <cstdlib>
+
 
 namespace OpenScenario {
 
@@ -58,23 +59,23 @@ std::string oscEnum::getValueAsStr(int &val) const
 
 
 template<>
-OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute){value = atoi(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute){value = std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute){value = atoi(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute){value = atoi(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute){value = std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
 OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute){value = xercesc::XMLString::transcode(attribute->getValue()); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute){value = std::stod(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute){ return false;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute){value = atof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute){value = std::stof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 
 OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
 {
