@@ -48,6 +48,8 @@ DTrackDriver::DTrackDriver(const std::string &config)
         m_valuatorBase.push_back(m_valuatorBase.back() + f->num_joystick);
         m_buttonBase.push_back(m_buttonBase.back() + f->num_button);
     }
+    m_handButtonBase.push_back(m_buttonBase.back()); // Hand "buttons" bases start from the end of flstk bases
+
     m_valuatorValues.resize(m_valuatorBase.back());
     m_valuatorRanges.resize(m_valuatorBase.back());
     for (size_t i = 0; i < m_valuatorRanges.size(); ++i)
@@ -57,9 +59,25 @@ DTrackDriver::DTrackDriver(const std::string &config)
     }
     m_buttonStates.resize(m_buttonBase.back());
 
+    //
+    m_numHands = dt->getNumHand();
+    cout<<"DTrack hands calibrated:"<<m_numHands<<endl;
+    for (size_t i=0;i<m_numHands;++i)
+    {
+    	DTrack_Hand_Type_d *h = dt->getHand(i);
+    	m_handButtonBase.push_back(m_handButtonBase.back()+2); //each hand will have 2 virtual "buttons"
+    }
+
+    m_buttonStates.resize(m_handButtonBase.back()); //adding values for hand "buttons"
+    //
+
+
     m_numBodies = 0;
     m_numFlySticks = 0;
     m_bodyBase = m_numFlySticks;
+
+    m_numHands = 0;
+    m_handBase = m_bodyBase+m_numFlySticks;
 
     dt->startMeasurement();
 
@@ -94,7 +112,34 @@ bool getDTrackMatrix(osg::Matrix &mat, const Data &d)
 
     return true;
 }
+bool DTrackDriver::updateHand(size_t idx)
+{
+	if (ssize_t(idx)>= dt->getNumHand())
+	{
+		std::cout<<"!!! Hand id is out of range: "<<idx<<std::endl;
+	}
+	DTrack_Hand_Type_d *h=dt->getHand(idx);
 
+	osg::Vec3d fingerpos[3]; //using 3 fingers now
+
+	for(int n=0;n<3;++n)
+		fingerpos[n]=osg::Vec3d(h->finger[n].loc[0],h->finger[n].loc[1],h->finger[n].loc[2]);
+
+	// grab with fingers no. 1&2 -> first button, with 1&3 -> second button
+	double dist12=(fingerpos[0]-fingerpos[1]).length();
+	double dist13=(fingerpos[0]-fingerpos[2]).length();
+
+
+	//std::cout<<"ft 1st:"  <<dist12<<" 2nd:"<< dist13<<endl;
+
+	// 50mm for very bad precision, 23mm -- for good one
+	// 17..19 mm is a minimal distance between fingers
+	m_buttonStates[0 + m_handButtonBase[idx]] = (dist12>0)&&(dist12<23.0);
+	m_buttonStates[1 + m_handButtonBase[idx]] = (dist12>0)&&(dist13<23.0);
+
+
+	return getDTrackMatrix(m_bodyMatrices[m_handBase+idx],*h);
+}
 bool DTrackDriver::updateBodyMatrix(size_t idx)
 {
     // cout<<"!!!!!!!INputHDW getDTrackBodyMatrix STARTS!!!!!!!"<<devidx<<endl;
@@ -187,16 +232,22 @@ bool DTrackDriver::poll()
         return true;
     }
 
-    if (dt->getNumBody() != m_numBodies || dt->getNumFlyStick() != m_numFlySticks )
+    if (dt->getNumBody() != m_numBodies || dt->getNumFlyStick() != m_numFlySticks ||
+    		dt->getNumHand() != m_numHands )
     {
         m_mutex.lock();
-        size_t numMat = dt->getNumBody() + dt->getNumFlyStick();
+        size_t numMat = dt->getNumBody() + dt->getNumFlyStick() + dt->getNumHand();
         m_numFlySticks = dt->getNumFlyStick();
         m_numBodies = dt->getNumBody();
         m_bodyBase = m_numFlySticks;
+
+        m_numHands = dt->getNumHand();
+        m_handBase = m_bodyBase + m_numBodies;
+
         m_bodyMatrices.resize(numMat);
         m_bodyMatricesValid.resize(numMat);
         m_mutex.unlock();
+
     }
 
     m_mutex.lock();
@@ -212,6 +263,15 @@ bool DTrackDriver::poll()
         m_bodyMatricesValid[m_bodyBase+i] = updateBodyMatrix(i);
     }
     m_mutex.unlock();
+
+    //hands matrices update
+
+    m_mutex.lock();
+	for (int i = 0; i < dt->getNumHand(); ++i)
+	{
+		m_bodyMatricesValid[m_handBase+i] = updateHand(i);
+	}
+	m_mutex.unlock();
 
     return true;
 }
