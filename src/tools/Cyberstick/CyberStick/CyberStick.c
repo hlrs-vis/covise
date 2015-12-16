@@ -393,7 +393,7 @@ uint8_t rfm70ReceivePayload()
 				if (rx_buf[1]==1 & stateChanged)
 				{
 					stateChanged = false;
-					rfm70SendPayload(buf, 32, AUTO_ACK);
+					rfm70SendPayload(buf, 32, 2);
 				}
 
 			}
@@ -486,7 +486,7 @@ void CyberStick_Start()
 
     bool beacon_msg_received = false;
 
-	rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, 0x40);
+	//rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, 0x40);
 	//_delay_ms(2);
 
 	rfm70SetModeRX();
@@ -494,12 +494,12 @@ void CyberStick_Start()
 
 	timer0_init();
 
-	find_receiver_frequency();
+	//find_receiver_frequency();
 
     while (true)
     {
     	LED4ON;   // always means connection is established with the receiver
-
+    	rfm70ReceivePayload();
     	// check if beacon message is received
     	// if not for 100ms that means receiver has switched to another
     	// frequency and we need to find receiver frequency again
