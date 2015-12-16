@@ -143,6 +143,11 @@ public:
 		return signalTree_;
 	}
 
+	QDockWidget *getCatalogDock()
+	{
+		return catalogDock_;
+	}
+
 	void showSignalsDock(bool visible);
 
     // ProjectSettings //
@@ -283,6 +288,7 @@ private:
     QUndoView *undoView_;
 
     QDockWidget *toolDock_;
+	QDockWidget * catalogDock_;
 
     QDockWidget *treeDock_;
     QWidget *emptyTreeWidget_;

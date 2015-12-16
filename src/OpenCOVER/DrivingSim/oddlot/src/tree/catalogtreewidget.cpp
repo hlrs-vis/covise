@@ -55,6 +55,7 @@
 #include "oscMember.h"
 
 #include <QWidget>
+#include <QDockWidget>
 
 using namespace OpenScenario;
 
@@ -88,6 +89,9 @@ CatalogTreeWidget::~CatalogTreeWidget()
 void
 CatalogTreeWidget::init()
 {
+	// Connect to DockWidget to receive raise signal//
+	//
+
 	projectWidget_ = mainWindow_->getActiveProject();
 
 	// OpenScenario Element base //
@@ -124,6 +128,13 @@ CatalogTreeWidget::init()
 
 		AddOSCObjectCommand *command = new AddOSCObjectCommand(openScenarioBase_, base_, "test", testBase_, NULL);
 		projectWidget_->getTopviewGraph()->executeCommand(command);
+
+		objectBase_ = testBase_->getObject();
+	}
+	else 
+	{
+		OpenScenario::oscMember *member = openScenarioBase_->getMembers().at("test");
+		testBase_ = base_->getOSCElement(member->getObject());
 
 		objectBase_ = testBase_->getObject();
 	}
@@ -189,7 +200,8 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 {
 //	if (oscEditor_)
 	{
-
+		static QObject *catalogDock_ = static_cast<QObject *>(mainWindow_->getCatalogDock());
+		QObject::connect(catalogDock_, SIGNAL(visibilityChanged(bool)), this, SLOT(onVisibilityChanged(bool)));
 
 		if (selectedItems().count() > 0)
 		{
@@ -300,6 +312,21 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 		clearFocus();
 	}*/
 
+}
+
+//################//
+// SLOTS          //
+//################//
+void
+CatalogTreeWidget::onVisibilityChanged(bool visible)
+{
+	clearSelection();
+
+	if (oscElement_->isElementSelected())
+	{
+		DeselectDataElementCommand *command = new DeselectDataElementCommand(oscElement_, NULL);
+		projectWidget_->getTopviewGraph()->executeCommand(command);
+	}
 }
 
 

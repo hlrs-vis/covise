@@ -149,7 +149,6 @@ oscObjectSettings::uiInit()
 		else if (type == OpenScenario::oscMemberValue::MemberTypes::ENUM)
 		{
 			QComboBox *oscComboBox = new QComboBox();
-//			object_->getBase()->test->driver->body->sex.enumType->enumValues;
 
 			OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(member);
 			std::map<std::string,int> enumValues = oscVar->enumType->enumValues;
@@ -175,7 +174,7 @@ oscObjectSettings::uiInit()
 			memberWidgets_.insert(memberName, oscCheckBox);
 			signalMapper->setMapping(oscCheckBox, memberName);
 			ui->objectGridLayout->addWidget(oscCheckBox, row, 1);
-			connect(oscCheckBox, SIGNAL(stateChanged()), signalMapper, SLOT(map()));
+			connect(oscCheckBox, SIGNAL(stateChanged(int)), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscCheckBox, memberName);
 
 		}

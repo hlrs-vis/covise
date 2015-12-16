@@ -86,6 +86,13 @@ public:
 signals:
     void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
 
+//################//
+    // SLOTS          //
+    //################//
+
+public slots:
+	void onVisibilityChanged(bool);
+
     //################//
     // PROPERTIES     //
     //################//

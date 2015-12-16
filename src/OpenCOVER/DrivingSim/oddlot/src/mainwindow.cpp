@@ -570,25 +570,25 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
 {
     // Dock Area //
     //
-    QDockWidget * catalogDock = new QDockWidget(name, this);
-    catalogDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	catalogDock->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-	catalogDock->setFixedWidth(200);
+    catalogDock_ = new QDockWidget(name, this);
+    catalogDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	catalogDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	catalogDock_->setFixedWidth(200);
 
-    addDockWidget(Qt::RightDockWidgetArea, catalogDock);
-	tabifyDockWidget(treeDock_, catalogDock);
-	catalogDock->raise();
+    addDockWidget(Qt::RightDockWidgetArea, catalogDock_);
+	tabifyDockWidget(treeDock_, catalogDock_);
+	catalogDock_->raise();
 		
     // Show/Hide Action //
     //
-    QAction *catalogDockToggleAction = catalogDock->toggleViewAction();
+    QAction *catalogDockToggleAction = catalogDock_->toggleViewAction();
     catalogDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
     viewMenu_->addAction(catalogDockToggleAction);
 	
 
     // Catalog Widget //
     //
-    catalogDock->setWidget(widget);
+    catalogDock_->setWidget(widget);
 }
 
 
