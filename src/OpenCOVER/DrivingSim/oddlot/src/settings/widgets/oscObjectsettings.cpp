@@ -110,6 +110,16 @@ oscObjectSettings::uiInit()
 		OpenScenario::oscMember *member = it->second;
 		QString memberName = QString::fromStdString(member->getName());
 		QLabel *label = new QLabel(memberName);
+		if (memberName.size() > 16)
+		{
+			//QStringList list = memberName.split(QRegExp("[A-Z]"));
+			QString temp = memberName;
+			temp.truncate(16);
+			QStringList list = memberName.split(temp);
+			QString name = list.takeFirst() + "\n" + list.takeLast();
+			label->setText(temp);
+		}
+
 		ui->objectGridLayout->addWidget(label, ++row, 0);
 		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
