@@ -222,9 +222,12 @@ bool rfm70SendBeaconMsg(int toAck)
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
 <<<<<<< HEAD
     beacon_payload[1]= 1;
+<<<<<<< HEAD
 =======
     beacon_payload[1]= 1;     // CyberStick1 is allowed to communicate
 >>>>>>> 3d3d54d
+=======
+>>>>>>> find_receievr_frequency
 
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
@@ -275,7 +278,12 @@ bool rfm70SendBeaconMsg(int toAck)
     }
 
     rfm70SetModeRX();
+<<<<<<< HEAD
 
+=======
+    //_delay_ms(2);   	// critical delay, do not do anything until 2ms after
+    					// changing to RX mode
+>>>>>>> find_receievr_frequency
 
     return true;
 }
@@ -286,17 +294,26 @@ bool rfm70SendBeaconMsg(int toAck)
 
 void timer0_init()
 {
+<<<<<<< HEAD
 	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+=======
+	TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
+>>>>>>> find_receievr_frequency
 
 	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
-										// 1 count = 0.0853 ms
-										// 1 timer overflow = 255*0.0853ms =21.76ms
+						// 1 count = 0.0853 ms
+						// 1 timer overflow = 255*0.0853ms =21.76ms
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> find_receievr_frequency
 ISR(TIMER0_OVF_vect)
 {
 	wdt_reset();
 	cyberstick_switch_time = cyberstick_switch_time + 21.76 ;
+<<<<<<< HEAD
 =======
     //timer2_init();
     TCNT2 = 0x00;
@@ -405,6 +422,8 @@ void timer2_init()
 ISR(TIMER2_OVF_vect)
 {
 	ack_time += 21.76;
+=======
+>>>>>>> find_receievr_frequency
 }
 
 
@@ -416,16 +435,23 @@ int rfm70ReceivePayload()
 {
     uint8_t len;
     uint8_t status;
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> find_receievr_frequency
     uint8_t fifo_status;
     unsigned char rx_buf[32];
     bool ack_received = false;
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
     int int_part,dec_part, strIntpart_size;
 >>>>>>> 3d3d54d
+=======
+>>>>>>> find_receievr_frequency
 
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
@@ -440,6 +466,7 @@ int rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
                 // Send ack message
                 if (rx_buf[30] == 0xCC ) // 0xCC code for send acknowledgment mess
@@ -483,6 +510,24 @@ int rfm70ReceivePayload()
 					{
 					  double2Ints(ack_time, p, &int_part,&dec_part);
 					}
+=======
+
+               	ack_received = true;
+
+		reportBuffer.buttonMask = rx_buf[0];
+		reportBuffer.dx = rx_buf[1] - oldDX;
+		reportBuffer.dy = rx_buf[2] - oldDY;
+		oldDX = rx_buf[1];
+		oldDY = rx_buf[2];
+
+		if (rx_buf[3] == 1) 
+		{
+			sbi(PORTD, LED_RED);
+			_delay_ms(10);
+			cbi(PORTD, LED_RED);
+		}
+
+>>>>>>> find_receievr_frequency
 
 	            	// conversion of both ints int_part and dec_part into char array
 				    strIntpart_size = lenHelper(int_part);
@@ -525,9 +570,12 @@ int rfm70ReceivePayload()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 3d3d54d
+=======
+>>>>>>> find_receievr_frequency
 
 
 int main()
@@ -553,13 +601,16 @@ int main()
     // uart initialize and check on terminal serial communication is working
     uart_init();
 
+<<<<<<< HEAD
    	sbi(PORTD, LED_RED);
+=======
+>>>>>>> find_receievr_frequency
 
     usbInit();
     cli();
     usbDeviceDisconnect(); // enforce re-enumeration
     for (i = 0; i < 250; i++)
-    { // wait 500 ms
+    { 
         wdt_reset(); // keep the watchdog happy
         _delay_ms(2);
     }
@@ -602,12 +653,16 @@ int main()
     _delay_ms(50);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> find_receievr_frequency
     int rand = 1234;
 
     timer0_init();
 
     while (1)
     {
+<<<<<<< HEAD
     	// Send beacon message after every 20 ms
     	if ((cyberstick_switch_time >= 20) )
     	{
@@ -630,6 +685,15 @@ int main()
 >>>>>>> 3d3d54d
     		cyberstick_switch_time = 0.0;
     	}
+=======
+    	//sbi(PORTD, LED_RED);
+    	if (cyberstick_switch_time >= 20) 
+    	{
+    		rfm70SendBeaconMsg(0);
+    		cyberstick_switch_time = 0.0;
+    	}
+
+>>>>>>> find_receievr_frequency
 
     	rfm70ReceivePayload();
 
