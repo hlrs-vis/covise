@@ -14,7 +14,6 @@
 
 #define F_CPU 12000000UL // system clock in Hz -
 
-
 #define BAUD 9600UL     // Baud rate
 
 // Calculations UART serial communication BAUDRATE
@@ -120,6 +119,7 @@ uint8_t oldDX = 0;
 uint8_t oldDY = 0;
 uint8_t CyberStick_allowed = 1;
 
+<<<<<<< HEAD
 double carrier_detect_time = 0.0;
 double ack_timeout = 0.0;
 double cyberstick_switch_time = 0.0;
@@ -130,21 +130,25 @@ bool CyberStick1_detected = false;
 bool CyberStick2_detected = false;
 bool timer0_initiated = false;
 bool next_message = true;
+=======
+double ack_time = 0.0;
+double cyberstick_switch_time = 0.0;
+>>>>>>> 3d3d54d
 
 
 //----------------------------------------------------------------------------------
 // UART INIT and TRANSMIT
 //----------------------------------------------------------------------------------
 
-
 // function to send data
 void uart_transmit (unsigned char data)
 {
-    while (!( UCSR0A & (1<<UDRE0)));                // wait while register is free
-    UDR0 = data;                                   // load data in the register
+    while (!( UCSR0A & (1<<UDRE0)));         // wait while register is free
+    UDR0 = data;                             // load data in the register
 }
 
 void uart_init (void)
+<<<<<<< HEAD
   {
 	UBRR0 = UBRR_VAL;
 	UCSR0B |= (1 << TXEN0); // Frame Format: Asynchronous 8N1
@@ -153,6 +157,14 @@ void uart_init (void)
 
 
 
+=======
+{
+	UBRR0 = UBRR_VAL;
+	UCSR0B |= (1 << TXEN0); 		// Frame Format: Asynchronous 8N1
+
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
+>>>>>>> 3d3d54d
 
 
 // ----------------------------------------------------------------------------
@@ -198,14 +210,21 @@ bool rfm70SendBeaconMsg(int toAck)
 {
 	uint8_t beacon_payload[32]; // acknowledgment message to transmit
 	uint8_t status;
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 3d3d54d
 
     rfm70SetModeTX();
     _delay_ms(1);
 
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
+<<<<<<< HEAD
     beacon_payload[1]= 1;
+=======
+    beacon_payload[1]= 1;     // CyberStick1 is allowed to communicate
+>>>>>>> 3d3d54d
 
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
@@ -247,6 +266,7 @@ bool rfm70SendBeaconMsg(int toAck)
     spiSelect(csNONE);
     _delay_ms(0);
 
+<<<<<<< HEAD
     uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
@@ -277,8 +297,24 @@ ISR(TIMER0_OVF_vect)
 {
 	wdt_reset();
 	cyberstick_switch_time = cyberstick_switch_time + 21.76 ;
+=======
+    //timer2_init();
+    TCNT2 = 0x00;
+    ack_time = 0.0;
+
+    uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
+    if ((value & 0x20) == 0x00)
+    {
+
+       _delay_ms(2);
+    }
+    rfm70SetModeRX();
+    _delay_ms(2);   	// critical delay, do not do anything until 5ms after
+    					// changing to RX mode
+>>>>>>> 3d3d54d
 
 }
+<<<<<<< HEAD
 
 //----------------------------------------------------------------------------------
 // Send Acknowledgment for Received Payload
@@ -306,10 +342,14 @@ uint8_t rfm70SendAckPayload()
     // enable CSN
     spiSelect(csRFM73);
     _delay_ms(0);
+=======
+>>>>>>> 3d3d54d
 
-    // cmd: write TX payload and disable AUTOACK
-    spiSendMsg(RFM70_CMD_W_TX_PAYLOAD_NOACK);
+// ----------------------------------------------------------------------------
+// 8-bit timer0 initialization and its ISR implementation
+// ----------------------------------------------------------------------------
 
+<<<<<<< HEAD
     int len = 0;
     while(len < 32)
     {
@@ -332,8 +372,39 @@ uint8_t rfm70SendAckPayload()
 
     rfm70SetModeRX();
     _delay_ms(5);
+=======
+// For beacon messaging
+void timer0_init()
+{
+	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
 
-    return true;
+	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
+										// 1 count = 0.0853 ms
+										// 1 timer overflow = 255*0.0853ms =21.76ms
+}
+
+ISR(TIMER0_OVF_vect)
+{
+	cyberstick_switch_time = cyberstick_switch_time + 21.76 ;
+}
+
+
+// For time evaluation of the sending auto ack beacon message
+// and receiving message from CyberStick
+void timer2_init()
+{
+	TIMSK2 |= (1<<TOIE2);				// set timer overflow(=255) interrupt
+
+	TCCR2B |= (1<<CS22) | (1<<CS21) | (1<<CS20);
+										// Set prescale value Clk(12Mhz)/1024
+										// 1 count = 0.0853 ms
+										// 1 timer overflow = 255*0.0853ms =21.76ms
+}
+>>>>>>> 3d3d54d
+
+ISR(TIMER2_OVF_vect)
+{
+	ack_time += 21.76;
 }
 
 
@@ -351,6 +422,10 @@ int rfm70ReceivePayload()
     bool ack_received = false;
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
 
+<<<<<<< HEAD
+=======
+    int int_part,dec_part, strIntpart_size;
+>>>>>>> 3d3d54d
 
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
@@ -365,6 +440,7 @@ int rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
+<<<<<<< HEAD
                 // Send ack message
                 if (rx_buf[30] == 0xCC ) // 0xCC code for send acknowledgment mess
                 {
@@ -374,11 +450,15 @@ int rfm70ReceivePayload()
                 }
 
 				reportBuffer.buttonMask = rx_buf[0];
+=======
+               	reportBuffer.buttonMask = rx_buf[0];
+>>>>>>> 3d3d54d
 				reportBuffer.dx = rx_buf[1] - oldDX;
 				reportBuffer.dy = rx_buf[2] - oldDY;
 				oldDX = rx_buf[1];
 				oldDY = rx_buf[2];
 
+<<<<<<< HEAD
 				// Message received from CyberStick1
 				if (rx_buf[3] == 1)
 				{
@@ -390,17 +470,40 @@ int rfm70ReceivePayload()
 
 				// Timing message to be publish on terminal
                 if (rx_buf[31]== 0xEE)      // 0xEE code of timing message
+=======
+				if (rx_buf[3] == 1) //& CyberStick1_detected == false)
+>>>>>>> 3d3d54d
 				{
-					int x=6;
-					while (x<15)
+					ack_time = (TCNT2 * 0.0853);
+			        sbi(PORTD, LED_RED);
+			        _delay_ms(10);
+			        cbi(PORTD, LED_RED);
+
+	            	for(int p=2;p<4;p++)
 					{
-						uart_transmit(rx_buf[x]);
-						x++;
-
+					  double2Ints(ack_time, p, &int_part,&dec_part);
 					}
+
+	            	// conversion of both ints int_part and dec_part into char array
+				    strIntpart_size = lenHelper(int_part);
+
+				    char strDec[2];
+				    char strInt[strIntpart_size];
+
+					sprintf(strInt, "%d", int_part);
+					sprintf(strDec, "%d", dec_part);
+
+				    for (int i=0; i<strIntpart_size; i++)
+				    {
+					   uart_transmit(strInt[i]);
+				    }
+				    uart_transmit('.');
+				    uart_transmit(strDec[0]);
+				    uart_transmit(strDec[1]);
+				    uart_transmit(strDec[2]);
+				    uart_transmit('_');
+				    uart_transmit('_');
 				}
-
-
             }
             else
             {
@@ -421,7 +524,10 @@ int rfm70ReceivePayload()
     return ack_received;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3d3d54d
 
 
 int main()
@@ -495,6 +601,7 @@ int main()
     wdt_reset(); // keep the watchdog happy
     _delay_ms(50);
 
+<<<<<<< HEAD
     int rand = 1234;
 
     timer0_init();
@@ -505,6 +612,22 @@ int main()
     	if ((cyberstick_switch_time >= 20) )
     	{
     		rfm70SendBeaconMsg(0);
+=======
+
+	uint8_t carrier_detect;
+    int rand = 1234;
+
+    timer0_init();
+    timer2_init();
+
+    while (1)
+    {
+
+    	// Send beacon message with auto acknowledgment
+    	if (cyberstick_switch_time >= 20)
+    	{
+    		rfm70SendBeaconMsg(2);
+>>>>>>> 3d3d54d
     		cyberstick_switch_time = 0.0;
     	}
 

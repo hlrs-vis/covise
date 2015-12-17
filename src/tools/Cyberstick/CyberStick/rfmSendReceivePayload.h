@@ -33,7 +33,7 @@ bool rfm70SendPayload2(uint8_t *payload, uint8_t len, uint8_t toAck)
 {
     uint8_t status;
 	bool ack_received = false;
-	uint8_t retr_msg_count = 0xFF;
+	uint8_t retr_msg_count = 0xF5;
 	int frequency = 0;
 
     rfm70SetModeTX();
@@ -58,11 +58,15 @@ bool rfm70SendPayload2(uint8_t *payload, uint8_t len, uint8_t toAck)
     spiSelect(csRFM73);
     _delay_ms(0);
 
-	while((frequency < 84) & (ack_received == false))
+	while(true)//frequency < 84)
     {
 
-		if (retr_msg_count == 0xFF)
-		{
+		//if (frequency == 83)
+		//{
+			//frequency = 0;
+		//}
+		//if (retr_msg_count == 0xF5)
+		//{
 			retr_msg_count = 0x00;
 			// send TX cmd via SPI
 			if (toAck == -1)
@@ -88,7 +92,7 @@ bool rfm70SendPayload2(uint8_t *payload, uint8_t len, uint8_t toAck)
 				payload++;
 			}
 
-		}
+		//}
 
 		// disable CSN
 		spiSelect(csNONE);
@@ -99,91 +103,33 @@ bool rfm70SendPayload2(uint8_t *payload, uint8_t len, uint8_t toAck)
 		// check if data is sent and ack is received (TX_DS) interrupt
 		if (status & RFM70_IRQ_STATUS_TX_DS)
 		{
-			ack_received = true;
-			return ack_received;
+			rfm70SetModeRX();
+			return true;
 		}
 
 
-		retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
-
-		if ((retr_msg_count == 0xFF))
+		/*if (toAck == 2)
 		{
-			ack_received = false;
-			frequency++;
+			retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
 
-			// clear flag TX_FULL
-			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
+			if ((retr_msg_count == 0xF5))
+			{
+				//rfm70SetModeRX();
+				//ack_received = false;
+				frequency++;
 
-			// change frequency
-			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
+				// clear flag TX_FULL
+				rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
 
-		}
+				// change frequency
+				rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
 
+			}
+		}*/
     }
 
-    return ack_received;
-}
-
-// ----------------------------------------------------------------------------
-// rfm70ReceivePayload
-// ----------------------------------------------------------------------------
-
-uint8_t rfm70ReceivePayload()
-{
-    uint8_t len;
-    uint8_t status;
-    //uint8_t detect;
-    uint8_t fifo_status;
-    uint8_t rx_buf[32];
-    int ack_received = 0;
-    fifo_status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
-
-
-    status = rfm70ReadRegValue(RFM70_REG_STATUS);
-
-    // check if receive data ready (RX_DR) interrupt
-    if (status & RFM70_IRQ_STATUS_RX_DR)
-    {
-    	do
-        {
-            // read length of playload packet
-            len = rfm70ReadRegValue(RFM70_CMD_RX_PL_WID);
-
-            if (len >= 5 && len <= 32) // 32 = max packet length
-            {
-
-                // read data from FIFO Buffer
-                rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
-
-				if (rx_buf[0] == 0xFF) 	// 0xFF user defined ack msg code
-				{
-					/* 1 count = 0.128 ms
-				   //ack_time_current += TCNT0 * 0.128;//*(10^(-3));
-				   ack_time_previous = ack_time_current;
-
-				//	LED3ON;
-				//	_delay_ms(10);
-				//	LED3OFF;*/
-				}
-
-
-            }
-            else
-            {
-                // flush RX FIFO
-                rfm70WriteRegPgmBuf((uint8_t *)RFM70_CMD_FLUSH_RX, sizeof(RFM70_CMD_FLUSH_RX));
-            }
-
-            fifo_status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
-        } while ((fifo_status & RFM70_FIFO_STATUS_RX_EMPTY) == 0);
-
-
-    }
-    rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, status);
-
-
-
-    return true;
+	rfm70SetModeRX();
+    return false;
 }
 
 
