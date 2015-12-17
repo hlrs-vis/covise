@@ -339,7 +339,7 @@ SET(ODDLOT_SOURCES
 	src/tree/catalogtreewidget.cpp
 	src/tree/catalogwidget.cpp
 	src/data/commands/osccommands.cpp
-	src/settings/widgets/oscObjectsettings.cpp
+	src/settings/widgets/oscobjectsettings.cpp
 	src/data/oscsystem/oscelement.cpp
 	src/data/oscsystem/oscbase.cpp
 )
@@ -633,7 +633,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/tree/catalogtreewidget.hpp
 	src/tree/catalogwidget.hpp
 	src/data/commands/osccommands.hpp
-	src/settings/widgets/oscObjectsettings.hpp
+	src/settings/widgets/oscobjectsettings.hpp
 	src/data/oscsystem/oscelement.hpp
 	src/data/oscsystem/oscbase.hpp
 )
@@ -660,7 +660,7 @@ SET(ODDLOT_FORMS
      src/settings/widgets/lanesettings.ui
      src/wizards/roadlinkwizard.ui
 	 src/settings/widgets/controllersettings.ui
-	 src/settings/widgets/oscObjectsettings.ui
+	 src/settings/widgets/oscobjectsettings.ui
 )
 SET(ODDLOT_RESOURCES
    icons/tools/tools.qrc

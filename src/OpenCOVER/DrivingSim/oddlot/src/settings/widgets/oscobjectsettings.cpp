@@ -13,7 +13,7 @@
 **
 **************************************************************************/
 
-#include "oscObjectSettings.hpp"
+#include "oscobjectsettings.hpp"
 
 #include "src/mainwindow.hpp"
 
@@ -25,7 +25,7 @@
 
 // Settings //
 //
-#include "ui_oscObjectSettings.h"
+#include "ui_oscobjectsettings.h"
 
 // Commands //
 //
