@@ -40,6 +40,11 @@
 #define JOYSTICK_X DDC0
 #define JOYSTICK_Y DDC1
 
+// For time check, one method of ack has to be on (MANUAL_ACK or AUTO_ACK)
+#define MANUAL_ACK     0     // 1 is on and 0 is off
+#define AUTO_ACK       2     // 2 is on and 0 is off
+#define ACK_TIME_CHECK 0     // 1 is on 0 is off
+
 #define LED2ON sbi(PORTD, LED_2)
 #define LED2OFF cbi(PORTD, LED_2)
 #define LED3ON sbi(PORTD, LED_3)
@@ -94,24 +99,20 @@
 
 #include "spi_init.h"
 #include "rfm73.h"
-<<<<<<< HEAD
-=======
 //#include "rfmSendReceivePayload.h"
->>>>>>> 3d3d54d
 
 bool stateChanged;
 
 unsigned char buf[32];
 
-<<<<<<< HEAD
+// ----------------------------------------------------------------------------
+// Variable declaration for debug timing messages
+// ----------------------------------------------------------------------------
 
-=======
->>>>>>> 3d3d54d
-// ----------------------------------------------------------------------------
-// Variable declaration for timiongs
-// ----------------------------------------------------------------------------
+double ack_time_previous = 0.0;
 double beacon_msg_time = 0.0;
 double msg_receive_timeout = 0.0;
+double ack_time_current = 0.0;
 
 // ----------------------------------------------------------------------------
 // Variable declaration for wake up ISR
@@ -140,15 +141,45 @@ struct
 
 
 // ----------------------------------------------------------------------------
+// Convert floating point value into two integers for serial transmission
+// Function for the size of the integers
+// ----------------------------------------------------------------------------
+
+void double2Ints(double f, int p, int *i, int *d)
+{
+  // f = float, p=decimal precision, i=integer, d=decimal
+  int   li;
+  int   prec=1;
+
+  for(int x=p;x>0;x--)
+  {
+    prec*=10;
+  };  // same as power(10,p)
+
+  li = (int) f;              // get integer part
+  *d = (int) ((f-li)*prec);  // get decimal part
+  *i = li;
+}
+
+int lenHelper(unsigned x) {
+    if(x>=1000000000) return 10;
+    if(x>=100000000) return 9;
+    if(x>=10000000) return 8;
+    if(x>=1000000) return 7;
+    if(x>=100000) return 6;
+    if(x>=10000) return 5;
+    if(x>=1000) return 4;
+    if(x>=100) return 3;
+    if(x>=10) return 2;
+    return 1;
+}
+
+// ----------------------------------------------------------------------------
 // 8-bit timer0 initialization and its ISR implementation
 // ----------------------------------------------------------------------------
 
 void timer0_init()
 {
-<<<<<<< HEAD
-
-=======
->>>>>>> 3d3d54d
 	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
 
 	TCCR0A |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(8Mhz)/1024
@@ -162,7 +193,7 @@ ISR(TIMER0_OVF_vect)
 	msg_receive_timeout += 32.64;
 	beacon_msg_time += 32.64;
 	time_out_cyberstick += 32.64;
-
+	ack_time_current += 32.64;
 }
 
 
@@ -228,8 +259,8 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 {
     uint8_t status;
 
-    //rfm70SetModeTX();    // no need to change modes when message is sent with ack payload
-    //_delay_ms(1);
+    rfm70SetModeTX();
+    _delay_ms(1);
 
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
@@ -239,6 +270,12 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
     {
     	return false;
     }
+
+    // set CE low
+    // rfm needs a CE high pulse of at least 10 us and stays in
+    // TX mode as long CE==1 and FIFO is not empty. He returns
+    // to standbyII if FIFO is empty.
+    // rfm70SetCE(0);
 
     // enable CSN
     spiSelect(csRFM73);
@@ -268,18 +305,14 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
         payload++;
     }
 
-<<<<<<< HEAD
     //TCNT0 = 0x00;                        // clear the timer value= 00000000
     //ack_time_current = 0.0;
-=======
->>>>>>> 3d3d54d
+    //LED4ON;
 
     // disable CSN
     spiSelect(csNONE);
     _delay_ms(0);
 
-
-<<<<<<< HEAD
     while(true)
     {
 		uint8_t status = rfm70ReadRegValue(RFM70_REG_STATUS);
@@ -298,11 +331,11 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 
 		uint8_t retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
 
-		// If auto ack is not received and auto retr count is max
 		if ((retr_msg_count == 0xF5))
 		{
 			rfm70SetModeRX();
 
+			//auto_ack_received = true;
 			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
 
 			LED2ON;
@@ -311,8 +344,7 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 			break;
 		}
     }
-=======
->>>>>>> 3d3d54d
+    //rfm70SetModeRX();
 
     return true;
 }
@@ -347,36 +379,21 @@ uint8_t rfm70ReceivePayload()
             {
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
-<<<<<<< HEAD
 
 				if (rx_buf[0] == 0xFF) 	// 0xFF user defined ack msg code
 				{
 					// 1 count = 0.128 ms
-				   ack_time_current += TCNT0 * 0.128;      //*(10^(-3));
+				   ack_time_current += TCNT0 * 0.128;//*(10^(-3));
 				   ack_time_previous = ack_time_current;
-
 				}
 
 				msg_received = true;
 
-				// send message if received beacon message allows and button
-				// is pressed
-				if ( rx_buf[1]==1 & stateChanged )
-				{
-					stateChanged = false;
-
-					rfm70SendPayload(buf, 32, AUTO_ACK);
-=======
-
-				msg_received = true;
-
-				// Send message with ack payload of the beacon message
-				// if receiver allows and button is pressed
+				// Send message if receiver allows and button is pressed
 				if (rx_buf[1]==1 & stateChanged)
 				{
 					stateChanged = false;
-					rfm70SendPayload(buf, 32, -1);
->>>>>>> 3d3d54d
+					rfm70SendPayload(buf, 32, AUTO_ACK);
 				}
 
 			}
@@ -396,9 +413,6 @@ uint8_t rfm70ReceivePayload()
     return msg_received;
 }
 
-<<<<<<< HEAD
-
-=======
 
 // ----------------------------------------------------------------------------
 // Search current receiver operating frequency
@@ -438,7 +452,6 @@ bool find_receiver_frequency()
 
 	return msg_received;
 }
->>>>>>> 3d3d54d
 
 
 // ----------------------------------------------------------------------------
@@ -447,6 +460,9 @@ bool find_receiver_frequency()
 
 void CyberStick_Start()
 {
+    //bool stateChanged;
+	uint8_t value;
+
     stateCurrent.buttons = 0x00;
     stateCurrent.touchpadX = 0;
     stateCurrent.touchpadY = 0;
@@ -454,33 +470,30 @@ void CyberStick_Start()
     stateLast = stateCurrent;
     stateChanged = false;
 
+    //////////////////////////////////////////////////////////////////////////
+    // start main loop
+
+    uint8_t firsttime = 2;
+
     sei();
 
-<<<<<<< HEAD
     //  VARIABLE FOR TIME MESSAGE
-    int int_part, dec_part, strIntpart_size;
+    int len = 32;
+    int int_part,dec_part, strIntpart_size;
+    int button_pressed =0;
 
-=======
     bool manual_ack = false;
+
     bool beacon_msg_received = false;
 
-    // chnage frequency to check find_receiver_frequency() can find the right frequency
 	rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, 0x40);
-	_delay_ms(2);
+	//_delay_ms(2);
 
->>>>>>> 3d3d54d
 	rfm70SetModeRX();
-	_delay_ms(2);
+	//_delay_ms(2);
 
 	timer0_init();
 
-<<<<<<< HEAD
-    while (true)
-    {
-    	LED4ON;
-
-    	rfm70ReceivePayload();
-=======
 	find_receiver_frequency();
 
     while (true)
@@ -505,10 +518,9 @@ void CyberStick_Start()
     	{
     		beacon_msg_time =0.0;
     	}
->>>>>>> 3d3d54d
 
     	// if button is not pressed for 20s go to power down mode
-    	if (time_out_cyberstick > 20000)  // time is in ms
+    	/*if (time_out_cyberstick > 20000)  // time is in ms
     	{
     		LED4OFF;
     		power_down = true;
@@ -516,7 +528,7 @@ void CyberStick_Start()
     		enable_PCINT();
     		power_down_mode();
 
-    	}
+    	}*/
 
         if ((PINC & (1 << DDC0)) == 0)
         {
@@ -598,21 +610,19 @@ void CyberStick_Start()
 
         if (stateChanged)
         {
-<<<<<<< HEAD
-            // copy current state to buffer
 
-=======
-        	time_out_cyberstick = 0.0;       //restart time, button is pressed
+       // 	time_out_cyberstick = 0.0;       //restart time, button is pressed
+
 
             // copy current state to buffer
->>>>>>> 3d3d54d
+
+            //unsigned char buf[32];
             buf[0] = stateCurrent.buttons;
             buf[1] = stateCurrent.touchpadX;
             buf[2] = stateCurrent.touchpadY;
             buf[3] = CYBERSTICK_ID;
-<<<<<<< HEAD
 
-            if (MANUAL_ACK)
+            if (manual_ack)
             {
             	buf[30] = 0xCC;      	// Manual ack message code
             }
@@ -625,7 +635,7 @@ void CyberStick_Start()
 
             	for(int p=2;p<4;p++)
 				{
-				  double2Ints(ack_time_previous, p, &int_part, &dec_part);
+				  double2Ints(ack_time_previous, p, &int_part,&dec_part);
 				}
 
             	// conversion of both ints int_part and dec_part into char array
@@ -660,8 +670,6 @@ void CyberStick_Start()
             }
 
 
-=======
->>>>>>> 3d3d54d
         }
 
 
@@ -700,6 +708,9 @@ int main(void)
     sbi(PORTC, DDC0); // pullup
     cbi(DDRC, DDC1);  // Touchpad button is on C1
     sbi(PORTC, DDC1); // pullup
+
+    //power reduction by stopping the clock to different peripherals
+    //PRR =  (1<<PRTWI) |(1<<PRTIM1)| (1<<PRADC);
 
     //out
     DDRD |= (1 << LED_2);
@@ -742,6 +753,11 @@ int main(void)
     }
 
     _delay_ms(50);
+
+
+   // LED2ON;
+   // _delay_ms(10);
+   // LED2OFF;
 
     sei();
     cbi(PORTB, DDB2); // chip enable of the touchpad to low
