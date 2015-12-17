@@ -206,14 +206,7 @@ bool rfm70SendBeaconMsg(int toAck)
 
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
     beacon_payload[1]= 1;
-    /*if (CyberStick_allowed == 1)
-    {
-    	 beacon_payload[1]= 2;
-    }
-    else
-    {
-    	beacon_payload[1]= 1;
-    }*/
+
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
 
@@ -261,7 +254,7 @@ bool rfm70SendBeaconMsg(int toAck)
        _delay_ms(2);
     }
     rfm70SetModeRX();
-    //_delay_ms(2);   	// critical delay, do not do anything until 5ms after
+    //_delay_ms(2);   	// critical delay, do not do anything until 2ms after
     					// changing to RX mode
 
     return true;
@@ -273,108 +266,18 @@ bool rfm70SendBeaconMsg(int toAck)
 
 void timer0_init()
 {
-	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
-	//TIMSK0 |= (1 << OCIE0A);			// Compare Match Interrupt Enable
-
-	//OCR0A = 118;						// Compare value is 118 count
-										// 118 * 0.0853 ~= 10 ms
-
-	//TCCR0A = (0<<WGM00) | (1<<WGM01);   // CTC (clear timer on compare match) mode
+	TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
 
 	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
-										// 1 count = 0.0853 ms
-										// 1 timer overflow = 255*0.0853ms =21.76ms
+						// 1 count = 0.0853 ms
+						// 1 timer overflow = 255*0.0853ms =21.76ms
 }
 
-// Beacon message after every 10 ms
-// when there are more than one cybersticks present
-/*ISR(TIMER0_COMPA_vect)
-{
-	//cyberstick_switch_time = cyberstick_switch_time + 10 ;
-	//if(CyberStick1_detected == true)
-	//{
-	//if (cyberstick_switch_time > 1000)
-	//{
-		//sbi(PORTD, LED_RED);
-		//_delay_ms(10);
-		//cbi(PORTD, LED_RED);
-		//cyberstick_switch_time = 0.0;
-	//}
-		rfm70SendBeaconMsg(0);
-	//}
-}*/
+
 ISR(TIMER0_OVF_vect)
 {
 	wdt_reset();
 	cyberstick_switch_time = cyberstick_switch_time + 21.76 ;
-	//if (cyberstick_switch_time > 20)
-	//{
-	//	cyberstick_switch_time = 0.0;
-	//	rfm70SendBeaconMsg(0);
-	//	next_message = false;
-	//}
-		//sbi(PORTD, LED_RED);
-	//_delay_ms(2);
-			//cbi(PORTD, LED_RED);
-
-
-}
-//----------------------------------------------------------------------------------
-// Send Acknowledgment for Received Payload
-//----------------------------------------------------------------------------------
-
-uint8_t rfm70SendAckPayload()
-{
-	uint8_t ack_payload[32]; // acknowledgment message to transmit
-	uint8_t status;
-
-    rfm70SetModeTX();
-    _delay_ms(1);
-
-    ack_payload[0]= 0xFF; // 0xFF defined code for acknowledgment message
-
-
-
-    // read status register
-    status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
-
-    // if the FIFO is full, do nothing just return false
-    if (status & RFM70_FIFO_STATUS_TX_FULL)
-    {
-    	return false;
-    }
-
-    // enable CSN
-    spiSelect(csRFM73);
-    _delay_ms(0);
-
-    // cmd: write TX payload and disable AUTOACK
-    spiSendMsg(RFM70_CMD_W_TX_PAYLOAD_NOACK);
-
-    int len = 0;
-    while(len < 32)
-    {
-    	spiSendMsg(ack_payload[len]);
-    	len++;
-    }
-
-
-    // disable CSN
-    spiSelect(csNONE);
-    _delay_ms(0);
-    //_delay_ms(10);
-
-    uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
-    if ((value & 0x20) == 0x00)
-    {
-
-       _delay_ms(50);
-    }
-
-    rfm70SetModeRX();
-    _delay_ms(5);
-
-    return true;
 }
 
 
@@ -386,20 +289,15 @@ int rfm70ReceivePayload()
 {
     uint8_t len;
     uint8_t status;
-    //uint8_t detect;
+  
     uint8_t fifo_status;
     unsigned char rx_buf[32];
     bool ack_received = false;
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
-    //rfm70SetModeRX();
 
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
     {
-        //sbi(PORTD, LED_RED);
-       // _delay_ms(10);
-        //cbi(PORTD, LED_RED);
-
         do
         {
             // read length of playload packet
@@ -410,55 +308,21 @@ int rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
-                /*if (rx_buf[30] == 0xCC ) 	// code for send acknowledgment mess
-                {
-                    _delay_ms(5);// critical delay from TX to RX on the remote side
-					rfm70SendAckPayload();
-                }*/
 
-               // if (rx_buf[0] == 0xcc)
-                //{
+               	ack_received = true;
 
-                	ack_received = true;
-                //}
-				reportBuffer.buttonMask = rx_buf[0];
-				reportBuffer.dx = rx_buf[1] - oldDX;
-				reportBuffer.dy = rx_buf[2] - oldDY;
-				oldDX = rx_buf[1];
-				oldDY = rx_buf[2];
+		reportBuffer.buttonMask = rx_buf[0];
+		reportBuffer.dx = rx_buf[1] - oldDX;
+		reportBuffer.dy = rx_buf[2] - oldDY;
+		oldDX = rx_buf[1];
+		oldDY = rx_buf[2];
 
-				if (rx_buf[3] == 1) //& CyberStick1_detected == false)
-				{
-			        sbi(PORTD, LED_RED);
-			        _delay_ms(10);
-			        cbi(PORTD, LED_RED);
-					//CyberStick1_detected = true;
-					//next_message = true;
-				}
-
-				/*if (rx_buf[3] == 2)
-				{
-					CyberStick2_detected = true;
-					//timer0_init();
-				}*/
-
-
-
-
-				/*if (rx_buf[31] == 0xEF)
-				{
-					uart_transmit(rx_buf[4]);
-				}
-                if (rx_buf[31]== 0xEE)      // code of timing message
-				{
-					int x=6;
-					while (x<15)
-					{
-						uart_transmit(rx_buf[x]);
-						x++;
-
-					}
-				}*/
+		if (rx_buf[3] == 1) 
+		{
+			sbi(PORTD, LED_RED);
+			_delay_ms(10);
+			cbi(PORTD, LED_RED);
+		}
 
 
             }
@@ -481,63 +345,6 @@ int rfm70ReceivePayload()
     return ack_received;
 }
 
-//----------------------------------------------------------------------------------
-// Find free frequency channel
-//----------------------------------------------------------------------------------
-
-uint8_t Select_free_channel()
-{
-	uint8_t carrier_detect;
-	char Int[2];
-	int i=0; // frequency channel can be 2400Mhz+ 1-83
-	int j=0;
-
-
-	while (i<84)
-	{
-		//wdt_reset();
-
-		for(j=0; j<3; j++)
-		{
-			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, i );
-			_delay_ms(1);
-			carrier_detect = rfm70ReadRegValue(RFM70_REG_CD) | 0xFE;
-
-			if ( carrier_detect == 0xFF)
-			{
-				occupied_frequencies[i]='y';
-			}
-
-
-		}
-
-		if (occupied_frequencies[i] != 'y')
-		{
-			return true;
-		}
-		i++;
-	}
-
-	//uart_transmit('s');
-	/*for (int i=0; i<84; i++)
-	{
-
-		if (occupied_frequencies[i] == 'y')
-		{
-
-			uart_transmit('_');
-
-			sprintf(Int, "%d", i);
-			uart_transmit(Int[0]);
-			uart_transmit(Int[1]);
-			uart_transmit('_');
-
-		}
-
-	}*/
-	//uart_transmit('e');
-	return false;
-}
 
 
 int main()
@@ -563,17 +370,12 @@ int main()
     // uart initialize and check on terminal serial communication is working
     uart_init();
 
-   	uart_transmit('o');
-
-
-   	//timer0_init();
-   	sbi(PORTD, LED_RED);
 
     usbInit();
     cli();
     usbDeviceDisconnect(); // enforce re-enumeration
     for (i = 0; i < 250; i++)
-    { // wait 500 ms
+    { 
         wdt_reset(); // keep the watchdog happy
         _delay_ms(2);
     }
@@ -615,105 +417,20 @@ int main()
     wdt_reset(); // keep the watchdog happy
     _delay_ms(50);
 
-    // configure receiver to frequency channel which is currently free
-    //rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, Search_free_channel());
-    /*
-    int int_part,dec_part, strIntpart_size;
-
-    TCNT0 = 0x00;
-    Select_free_channel();
-    carrier_detect_time += TCNT0 * 0.0853;  //ms
-
-    for(int p=2;p<4;p++)
-	{
-	  double2Ints(carrier_detect_time, p, &int_part,&dec_part);
-	}
-
-	// conversion of both ints int_part and dec_part into char array
-	strIntpart_size = lenHelper(int_part);
-
-	char strDec[2];
-	char strInt[strIntpart_size];
-
-	sprintf(strInt, "%d", int_part);
-	sprintf(strDec, "%d", dec_part);
-
-	for (int x=0; x<strIntpart_size; x++)
-	{
-		uart_transmit(strInt[x]);
-	}
-	uart_transmit('.');
-	uart_transmit(strDec[0]);
-	uart_transmit(strDec[1]);
-	uart_transmit(strDec[2]);
-	*/
-    //carrier_detect_time = 0.0;
-	//Select_free_channel();
-    bool acke_received = true;
-    //rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, 40 );
-    //_delay_ms(3);
-	//_delay_ms(2);
-	uint8_t carrier_detect;
     int rand = 1234;
     timer0_init();
     while (1)
     {
     	//sbi(PORTD, LED_RED);
-    	if ((cyberstick_switch_time >= 20) )//& (next_message == true))
+    	if (cyberstick_switch_time >= 20) 
     	{
-
-    		rfm70SendBeaconMsg(0);//rfm70SendAckPayload();
-    		next_message = false;
-
+    		rfm70SendBeaconMsg(0);
     		cyberstick_switch_time = 0.0;
-
     	}
 
-	/*	carrier_detect = rfm70ReadRegValue(RFM70_REG_CD) | 0xFE;
-
-		if ( carrier_detect == 0xFF)
-		{
-			if (Select_free_channel())
-			{
-			sbi(PORTD, LED_RED);
-			_delay_ms(10);
-			cbi(PORTD, LED_RED);
-			}
-
-		}*/
 
     	rfm70ReceivePayload();
-    	//Select_free_channel();
-    	//while(true)
-    //	{
-    	//	wdt_reset();
 
-    		//carrier_detect = rfm70ReadRegValue(RFM70_REG_CONFIG);
-    		//if ( carrier_detect & 0x01)
-    		//{
-    			//sbi(PORTD, LED_RED);
-    			//_delay_ms(10);
-    			//cbi(PORTD, LED_RED);
-
-				// if(rfm70ReceivePayload() | (cyberstick_switch_time >= 20))
-				// {
-				//	 cyberstick_switch_time = 0.0;
-				//	 acke_received = true;
-				//	 break;
-				// }
-    		//}
-    	//}
-    	//sbi(PORTD, LED_RED);
-    	/*carrier_detect_time += TCNT0 * 0.0853;  //ms
-    	if (carrier_detect_time >= 250)//0.0853)
-    	{
-			//sbi(PORTD, LED_RED);
-			//_delay_ms(10);
-			//cbi(PORTD, LED_RED);
-    		Select_free_channel();
-    		carrier_detect_time = 0.0;
-    		TCNT0 = 0x00;
-    	}*/
     	wdt_reset(); // keep the watchdog happy
         usbPoll();
 
