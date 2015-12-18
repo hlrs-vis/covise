@@ -142,41 +142,6 @@ void uart_init (void)
 }
 
 
-// ----------------------------------------------------------------------------
-// Convert floating point value into two integers for serial transmission
-// Function for the size of the integers
-// ----------------------------------------------------------------------------
-
-void double2Ints(double f, int p, int *i, int *d)
-{
-  // f = float, p=decimal precision, i=integer, d=decimal
-  int   li;
-  int   prec=1;
-
-  for(int x=p;x>0;x--)
-  {
-    prec*=10;
-  };  // same as power(10,p)
-
-  li = (int) f;              // get integer part
-  *d = (int) ((f-li)*prec);  // get decimal part
-  *i = li;
-}
-
-int lenHelper(unsigned x) {
-    if(x>=1000000000) return 10;
-    if(x>=100000000) return 9;
-    if(x>=10000000) return 8;
-    if(x>=1000000) return 7;
-    if(x>=100000) return 6;
-    if(x>=10000) return 5;
-    if(x>=1000) return 4;
-    if(x>=100) return 3;
-    if(x>=10) return 2;
-    return 1;
-}
-
-
 //----------------------------------------------------------------------------------
 // Send beacon message
 //----------------------------------------------------------------------------------
@@ -185,9 +150,6 @@ bool rfm70SendBeaconMsg(int toAck)
 {
 	uint8_t beacon_payload[32]; // acknowledgment message to transmit
 	uint8_t status;
-
-    //rfm70SetModeTX();
-    //_delay_ms(1);
 
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
     beacon_payload[1]= 1;     // CyberStick1 is allowed to communicate
@@ -242,8 +204,6 @@ bool rfm70SendBeaconMsg(int toAck)
     {
        _delay_ms(1);
     }
-    //rfm70SetModeRX();
-
 
     return true;
 }
@@ -274,10 +234,7 @@ void timer0_init()
 ISR(TIMER0_COMPA_vect)
 {
 	cyberstick_switch_time = cyberstick_switch_time + 10 ;
-	wdt_reset();
-	//rfm70SendBeaconMsg(2);
-
-
+	//wdt_reset();
 }
 
 // For time evaluation of the sending auto ack beacon message
@@ -333,37 +290,11 @@ int rfm70ReceivePayload()
 				oldDX = rx_buf[1];
 				oldDY = rx_buf[2];
 
-				if (rx_buf[3] == 1) //& CyberStick1_detected == false)
+				if (rx_buf[3] == 1) // CyberStick1_detected
 				{
-					//ack_time = (TCNT2 * 0.0853);
-			        sbi(PORTD, LED_RED);
+					sbi(PORTD, LED_RED);
 			        _delay_ms(3);
 			        cbi(PORTD, LED_RED);
-
-	            	/*for(int p=2;p<4;p++)
-					{
-					  double2Ints(ack_time, p, &int_part,&dec_part);
-					}
-
-	            	// conversion of both ints int_part and dec_part into char array
-				    strIntpart_size = lenHelper(int_part);
-
-				    char strDec[2];
-				    char strInt[strIntpart_size];
-
-					sprintf(strInt, "%d", int_part);
-					sprintf(strDec, "%d", dec_part);
-
-				    for (int i=0; i<strIntpart_size; i++)
-				    {
-					   uart_transmit(strInt[i]);
-				    }
-				    uart_transmit('.');
-				    uart_transmit(strDec[0]);
-				    uart_transmit(strDec[1]);
-				    uart_transmit(strDec[2]);
-				    uart_transmit('_');
-				    uart_transmit('_');*/
 				}
             }
             else
@@ -452,21 +383,15 @@ int main()
 
 
     _delay_ms(50);
-    // init and power up modules
-    // goto RX mode
-    //wdt_reset(); // keep the watchdog happy
-   // rfm70SetModeRX();
-    //wdt_reset(); // keep the watchdog happy
-   // _delay_ms(50);
 
-	uint8_t carrier_detect;
+
     int rand = 1234;
 
     rfm70SetModeTX();
     _delay_ms(2);
 
     timer0_init();
-    timer2_init();
+    //timer2_init();
 
     while (1)
     {
