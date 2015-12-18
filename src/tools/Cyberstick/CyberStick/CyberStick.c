@@ -217,9 +217,6 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 {
     uint8_t status;
 
-    //rfm70SetModeTX();    // no need to change modes when message is sent with ack payload
-    //_delay_ms(1);
-
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
 
@@ -384,14 +381,8 @@ void CyberStick_Start()
     stateLast = stateCurrent;
     stateChanged = false;
 
-    //////////////////////////////////////////////////////////////////////////
-    // start main loop
-
-    uint8_t firsttime = 2;
-
     sei();
 
-    bool manual_ack = false;
     bool beacon_msg_received = false;
 
     // chnage frequency to check find_receiver_frequency() can find the right frequency
@@ -577,7 +568,6 @@ int main(void)
     LED3OFF;
     LED4OFF;
 
-
     //enable_PCINT();   // enable pin change interrupt
 
     //out
@@ -610,18 +600,10 @@ int main(void)
 
     _delay_ms(50);
 
-
-   // LED2ON;
-   // _delay_ms(10);
-   // LED2OFF;
-
     sei();
     cbi(PORTB, DDB2); // chip enable of the touchpad to low
     _delay_ms(10);
 
-    //uint16_t initStreaming = 0x5ABA;
-    //spiSelect(csTOUCH);
-    //spiSendMsg16(initStreaming);
 
     spiSelect(csNONE);
     cbi(PORTB, DDB2); // chip enable of the touchpad to low
