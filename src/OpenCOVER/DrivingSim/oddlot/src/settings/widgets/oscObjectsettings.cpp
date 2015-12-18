@@ -52,6 +52,9 @@
 #include <QSignalMapper>
 #include <QLabel>
 #include <QPushButton>
+#include <QSizePolicy>
+#include <QScrollArea>
+#include <QGridLayout> 
 
 // Utils //
 //
@@ -86,7 +89,7 @@ oscObjectSettings::oscObjectSettings(ProjectSettings *projectSettings, SettingsE
 
 oscObjectSettings::~oscObjectSettings()
 {
-    delete ui;
+//    delete ui;
 }
 
 //################//
@@ -98,6 +101,11 @@ oscObjectSettings::~oscObjectSettings()
 void
 oscObjectSettings::uiInit()
 {
+	// Widget/Layout //
+    //
+	 QGridLayout *objectGridLayout = new QGridLayout();
+	// objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
 	int row = -1;
 	QSignalMapper *signalMapper = new QSignalMapper(this);
 	connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(onEditingFinished(QString)));
@@ -110,24 +118,41 @@ oscObjectSettings::uiInit()
 		OpenScenario::oscMember *member = it->second;
 		QString memberName = QString::fromStdString(member->getName());
 		QLabel *label = new QLabel(memberName);
+		label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 		if (memberName.size() > 16)
 		{
-			//QStringList list = memberName.split(QRegExp("[A-Z]"));
-			QString temp = memberName;
-			temp.truncate(16);
-			QStringList list = memberName.split(temp);
-			QString name = list.takeFirst() + "\n" + list.takeLast();
-			label->setText(temp);
+			QStringList list = memberName.split(QRegExp("[A-Z]"));
+			QString line;
+			int separator = 16;
+
+			for (int i = 0; i < list.size(); i++)
+			{
+				QString temp = line + list.at(i) + " ";
+				if (temp.size() > 16)
+				{
+					separator = line.size() - 1;
+					break;
+				}
+				line = temp;
+			}
+
+			QString name = memberName.left(separator) + "\n" + memberName.right(memberName.size() - separator);
+			label->setText(name);
+			label->setFixedHeight(20);
+		}
+		else
+		{
+			label->setFixedHeight(25);
 		}
 
-		ui->objectGridLayout->addWidget(label, ++row, 0);
+		objectGridLayout->addWidget(label, ++row, 0);
 		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
 		if (type <= 3) // UINT = 0, INT = 1, USHORT = 2, SHORT = 3
 		{
 			QSpinBox * oscSpinBox = new QSpinBox();
 			memberWidgets_.insert(memberName, oscSpinBox);	
-			ui->objectGridLayout->addWidget(oscSpinBox, row, 1);
+			objectGridLayout->addWidget(oscSpinBox, row, 1);
 			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscSpinBox, memberName);
 		}
@@ -135,7 +160,7 @@ oscObjectSettings::uiInit()
 		{
 			QLineEdit *oscLineEdit = new QLineEdit();
 			memberWidgets_.insert(memberName, oscLineEdit);
-			ui->objectGridLayout->addWidget(oscLineEdit, row, 1);
+			objectGridLayout->addWidget(oscLineEdit, row, 1);
 			connect(oscLineEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscLineEdit, memberName);
 		}
@@ -143,7 +168,7 @@ oscObjectSettings::uiInit()
 		{
 			QDoubleSpinBox *oscSpinBox = new QDoubleSpinBox();
 			memberWidgets_.insert(memberName, oscSpinBox);	
-			ui->objectGridLayout->addWidget(oscSpinBox, row, 1);
+			objectGridLayout->addWidget(oscSpinBox, row, 1);
 			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscSpinBox, memberName);
 		}
@@ -152,7 +177,7 @@ oscObjectSettings::uiInit()
 			QPushButton *oscPushButton = new QPushButton();
 			oscPushButton->setText("Edit");
 			memberWidgets_.insert(memberName, oscPushButton);
-			ui->objectGridLayout->addWidget(oscPushButton, row, 1);
+			objectGridLayout->addWidget(oscPushButton, row, 1);
 			connect(oscPushButton, SIGNAL(pressed()), signalPushMapper, SLOT(map()));
 			signalPushMapper->setMapping(oscPushButton, memberName);
 		}
@@ -175,7 +200,7 @@ oscObjectSettings::uiInit()
 			}
 
 			memberWidgets_.insert(memberName, oscComboBox);
-			ui->objectGridLayout->addWidget(oscComboBox, row, 1);
+			objectGridLayout->addWidget(oscComboBox, row, 1);
 			connect(oscComboBox, SIGNAL(currentIndexChanged(int)), signalMapper, SLOT(map()));
 		}
 		else if (type == OpenScenario::oscMemberValue::MemberTypes::BOOL)
@@ -183,7 +208,7 @@ oscObjectSettings::uiInit()
 			QCheckBox *oscCheckBox = new QCheckBox();
 			memberWidgets_.insert(memberName, oscCheckBox);
 			signalMapper->setMapping(oscCheckBox, memberName);
-			ui->objectGridLayout->addWidget(oscCheckBox, row, 1);
+			objectGridLayout->addWidget(oscCheckBox, row, 1);
 			connect(oscCheckBox, SIGNAL(stateChanged(int)), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscCheckBox, memberName);
 
@@ -191,14 +216,19 @@ oscObjectSettings::uiInit()
 
 	}
 
-	// adjust the scroll area
-	//
-//	ui->scrollAreaWidgetContents->setMinimumHeight(ui->scrollAreaWidgetContents->height());
+	// Finish Layout //
+    //
+    objectGridLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
+    objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
+
+	ui->oscGroupBox->setLayout(objectGridLayout);
+
 }
 
 void
 oscObjectSettings::updateProperties()
 {
+
     if (object_)
     {
 		QMap<QString, QWidget *>::const_iterator it;

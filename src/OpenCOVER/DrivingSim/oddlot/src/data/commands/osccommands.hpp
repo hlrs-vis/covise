@@ -258,6 +258,7 @@ class SetOSCValuePropertiesCommand : public DataCommand
 public:
 	explicit SetOSCValuePropertiesCommand(OSCElement *element, std::string &memberName, T &value, DataCommand *parent = NULL)
 	{
+		memberName_ = memberName;
 	// Check for validity //
     //
     if (!element)
@@ -266,17 +267,23 @@ public:
         setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement specified."));
         return;
     }
-    else
-    {
-        setValid();
-        setText(QObject::tr("SetProperties"));
-    }
 
 	element_ = element;
-	object_ = element_->getObject();
+	const OpenScenario::oscObjectBase *object = element_->getObject();
 	newOSCValue_ = value;
-	member_ = object_->getMembers().at(memberName);
-//	oldOSCValue_ = member_->getValue();
+	OpenScenario::oscMember *member = object->getMembers().at(memberName);
+	v_ = member->getValue();
+	if (!v_)
+	{
+		setInvalid(); // Invalid
+		setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement specified."));
+		return;
+	}
+//	oldOSCValue_ = v_->getValue();
+
+	setValid();
+	setText(QObject::tr("SetProperties"));
+
 	}
     virtual ~SetOSCValuePropertiesCommand()
 	{
@@ -290,7 +297,6 @@ public:
     }
 	}
 
-
     virtual int id() const
     {
         return 0x1011;
@@ -299,17 +305,22 @@ public:
     virtual void undo()
 	{
 
-//	member_->setValue(oldOSCValue_);
-	element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
+	v_->setValue(oldOSCValue_);
+	if (memberName_ == "name")
+		{
+			element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
+		}
 
     setUndone();
 	}
 
     virtual void redo()
 	{
-//	member_->setValue(newOSCValue_);
-	element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
-
+		v_->setValue(newOSCValue_);
+		if (memberName_ == "name")
+		{
+			element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
+		}
     setRedone();
 	}
 
@@ -320,8 +331,8 @@ private:
 
 private:
 	OSCElement *element_;
-    const OpenScenario::oscObjectBase *object_;
-	OpenScenario::oscMember *member_;
+	OpenScenario::oscMemberValue *v_;
+	std::string memberName_;
 	T newOSCValue_;
 	T oldOSCValue_;
 };

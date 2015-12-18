@@ -351,9 +351,11 @@ CatalogTreeWidget::updateObserver()
 
 	if (changes & OSCElement::COE_ParameterChange)
     {
-		if (currentSelectedItem_->text(0).toStdString() != currentMember_->getName())
+		OpenScenario::oscMember *member = currentMember_->getObject()->getMembers().at("name");
+		oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getValue());
+		if (sv)
 		{
-			currentSelectedItem_->setText(1, QString::fromStdString(currentMember_->getName()));
+			currentSelectedItem_->setText(0, QString::fromStdString(sv->getValue()));
 		}
     }
 	else if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementDeleted))
