@@ -334,7 +334,7 @@ bool find_receiver_frequency()
 {
 	bool msg_received = false;
 	int frequency = 0;
-
+	TCNT0 = 0x00;
 	while(true)
 	{
 		if (frequency == 83)  // max possible frequencies 2400Mhz-2483Mhz
@@ -350,13 +350,15 @@ bool find_receiver_frequency()
 
 		msg_receive_timeout = TCNT0 * 0.128;
 
-		if ((msg_receive_timeout >= 22) & (msg_received == false))
+		if ((msg_receive_timeout >= 5) & (msg_received == false))
 		{
 			msg_receive_timeout = 0.0;
+			TCNT0 = 0x00;
 			frequency++;
 
 			// change frequency
 			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
+			_delay_ms(1);
 		}
 
 
@@ -406,7 +408,7 @@ void CyberStick_Start()
     while (true)
     {
     	LED4ON;   // always means connection is established with the receiver
-
+    	//rfm70ReceivePayload();
     	// check if beacon message is received
     	// if not for 100ms that means receiver has switched to another
     	// frequency and we need to find receiver frequency again
@@ -427,7 +429,7 @@ void CyberStick_Start()
     	}
 
     	// if button is not pressed for 20s go to power down mode
-    	if (time_out_cyberstick > 20000)  // time is in ms
+    	/*if (time_out_cyberstick > 20000)  // time is in ms
     	{
     		LED4OFF;
     		power_down = true;
@@ -435,7 +437,7 @@ void CyberStick_Start()
     		enable_PCINT();
     		power_down_mode();
 
-    	}
+    	}*/
 
         if ((PINC & (1 << DDC0)) == 0)
         {

@@ -71,7 +71,7 @@ const uint8_t PROGMEM RFM70_Bank0Init[][2] = {
     { (0x20 | 0x01), 0x3F }, // enable auto acknowledgment data pipe 0-5
     { (0x20 | 0x02), 0x3F }, // enable RX addresses data pipe 0,1
     { (0x20 | 0x03), 0x03 }, // RX/TX address field width is 5 bytes
-    { (0x20 | 0x04), 0xff }, // auto retransmission delay (4000us), auto retransmission count(15)
+    { (0x20 | 0x04), 0x75 }, // auto retransmission delay (4000us), auto retransmission count(15)
     { (0x20 | 0x05), 0x18 }, // RF Channel 0x01 = 01 = 2400 MHz + 1*1 MHz = 2401 MHz
     { (0x20 | 0x06), 0x27 }, // 7-4 fix
     // 3  :0  air data rate = 0x07 1Mbps, 0x0F 2Mbps, 0x27 250Kbps, 0x2F 2Mbps

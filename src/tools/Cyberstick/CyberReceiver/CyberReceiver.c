@@ -186,8 +186,8 @@ bool rfm70SendBeaconMsg(int toAck)
 	uint8_t beacon_payload[32]; // acknowledgment message to transmit
 	uint8_t status;
 
-    rfm70SetModeTX();
-    _delay_ms(1);
+    //rfm70SetModeTX();
+    //_delay_ms(1);
 
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
     beacon_payload[1]= 1;     // CyberStick1 is allowed to communicate
@@ -232,19 +232,18 @@ bool rfm70SendBeaconMsg(int toAck)
     spiSelect(csNONE);
     _delay_ms(0);
 
-    //timer2_init();
+
     TCNT2 = 0x00;
     ack_time = 0.0;
+
 
     uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
-
-       _delay_ms(2);
+       _delay_ms(1);
     }
-    rfm70SetModeRX();
-    _delay_ms(2);   	// critical delay, do not do anything until 5ms after
-    					// changing to RX mode
+    //rfm70SetModeRX();
+
 
     return true;
 }
@@ -253,21 +252,33 @@ bool rfm70SendBeaconMsg(int toAck)
 // 8-bit timer0 initialization and its ISR implementation
 // ----------------------------------------------------------------------------
 
-// For beacon messaging
 void timer0_init()
 {
-	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+	//TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+	TIMSK0 |= (1 << OCIE0A);			// Compare Match Interrupt Enable
 
 	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
 										// 1 count = 0.0853 ms
 										// 1 timer overflow = 255*0.0853ms =21.76ms
+
+	OCR0A = 118;						// Compare value is 118 count
+										// 118 * 0.0853 ~= 10 ms
+
+	TCCR0A = (0<<WGM00) | (1<<WGM01);   // CTC (clear timer on compare match) mode
+
 }
 
-ISR(TIMER0_OVF_vect)
+
+// Beacon message after every 10 ms
+// when there are more than one cybersticks present
+ISR(TIMER0_COMPA_vect)
 {
-	cyberstick_switch_time = cyberstick_switch_time + 21.76 ;
-}
+	cyberstick_switch_time = cyberstick_switch_time + 10 ;
+	wdt_reset();
+	//rfm70SendBeaconMsg(2);
 
+
+}
 
 // For time evaluation of the sending auto ack beacon message
 // and receiving message from CyberStick
@@ -324,12 +335,12 @@ int rfm70ReceivePayload()
 
 				if (rx_buf[3] == 1) //& CyberStick1_detected == false)
 				{
-					ack_time = (TCNT2 * 0.0853);
+					//ack_time = (TCNT2 * 0.0853);
 			        sbi(PORTD, LED_RED);
-			        _delay_ms(10);
+			        _delay_ms(3);
 			        cbi(PORTD, LED_RED);
 
-	            	for(int p=2;p<4;p++)
+	            	/*for(int p=2;p<4;p++)
 					{
 					  double2Ints(ack_time, p, &int_part,&dec_part);
 					}
@@ -352,7 +363,7 @@ int rfm70ReceivePayload()
 				    uart_transmit(strDec[1]);
 				    uart_transmit(strDec[2]);
 				    uart_transmit('_');
-				    uart_transmit('_');
+				    uart_transmit('_');*/
 				}
             }
             else
@@ -398,6 +409,7 @@ int main()
 
     // uart initialize and check on terminal serial communication is working
     uart_init();
+    uart_transmit('o');
 
    	sbi(PORTD, LED_RED);
 
@@ -442,14 +454,16 @@ int main()
     _delay_ms(50);
     // init and power up modules
     // goto RX mode
-    wdt_reset(); // keep the watchdog happy
-    rfm70SetModeRX();
-    wdt_reset(); // keep the watchdog happy
-    _delay_ms(50);
-
+    //wdt_reset(); // keep the watchdog happy
+   // rfm70SetModeRX();
+    //wdt_reset(); // keep the watchdog happy
+   // _delay_ms(50);
 
 	uint8_t carrier_detect;
     int rand = 1234;
+
+    rfm70SetModeTX();
+    _delay_ms(2);
 
     timer0_init();
     timer2_init();
@@ -458,8 +472,9 @@ int main()
     {
 
     	// Send beacon message with auto acknowledgment
-    	if (cyberstick_switch_time >= 20)
+    	if (cyberstick_switch_time >= 10)
     	{
+
     		rfm70SendBeaconMsg(2);
     		cyberstick_switch_time = 0.0;
     	}
