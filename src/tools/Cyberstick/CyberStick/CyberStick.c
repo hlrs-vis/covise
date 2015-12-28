@@ -138,11 +138,11 @@ struct
 
 void timer0_init()
 {
-	TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+	TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
 
 	TCCR0A |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(8Mhz)/1024
-										// 1 count = 0.128 ms
-										// 1 timer overflow = 255*0.128ms =32.64ms
+						// 1 count = 0.128 ms
+						// 1 timer overflow = 255*0.128ms =32.64ms
 }
 
 
@@ -295,18 +295,17 @@ uint8_t rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
-				msg_received = true;
+		msg_received = true;
 
-				// Send message with ack payload of the beacon message
-				// if receiver allows and button is pressed
-				if (rx_buf[1]==1 & stateChanged)
-				{
-					stateChanged = false;
+		// Send message with ack payload of the beacon message
+		// if receiver allows and button is pressed
+		if (rx_buf[1]==1 & stateChanged)
+		{
+			stateChanged = false;
+			rfm70SendPayload(buf, 32, -1);
+		}
 
-					rfm70SendPayload(buf, 32, -1);
-				}
-
-			}
+	    }
             else
             {
                 // flush RX FIFO
@@ -409,10 +408,10 @@ void CyberStick_Start()
     	{
     		if (beacon_msg_time>= 100)
     		{
-				LED4OFF;
-				find_receiver_frequency();
-				beacon_msg_time = 0.0;
-				LED4ON;
+			LED4OFF;
+			find_receiver_frequency();
+			beacon_msg_time = 0.0;
+			LED4ON;
     		}
     	}
     	else
