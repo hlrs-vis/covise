@@ -14,7 +14,6 @@
 
 #define F_CPU 12000000UL // system clock in Hz -
 
-
 #define BAUD 9600UL     // Baud rate
 
 // Calculations UART serial communication BAUDRATE
@@ -119,12 +118,7 @@ static uchar 	idleRate; /* repeat rate for keyboards, never used for mice */
 uint8_t oldDX = 0;
 uint8_t oldDY = 0;
 
-
-double carrier_detect_time = 0.0;
-double ack_timeout = 0.0;
-
 double ack_time = 0.0;
-
 double cyberstick_switch_time = 0.0;
 
 
@@ -132,24 +126,20 @@ double cyberstick_switch_time = 0.0;
 // UART INIT and TRANSMIT
 //----------------------------------------------------------------------------------
 
-
 // function to send data
 void uart_transmit (unsigned char data)
 {
-    while (!( UCSR0A & (1<<UDRE0)));                // wait while register is free
-    UDR0 = data;                                   // load data in the register
+    while (!( UCSR0A & (1<<UDRE0)));         // wait while register is free
+    UDR0 = data;                             // load data in the register
 }
 
 void uart_init (void)
-  {
+{
 	UBRR0 = UBRR_VAL;
 	UCSR0B |= (1 << TXEN0); 		// Frame Format: Asynchronous 8N1
 
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
-  }
-
-
-
+}
 
 
 //----------------------------------------------------------------------------------
@@ -204,24 +194,11 @@ bool rfm70SendBeaconMsg(int toAck)
     spiSelect(csNONE);
     _delay_ms(0);
 
-<<<<<<< HEAD
-=======
-
-    TCNT2 = 0x00;
-    ack_time = 0.0;
-
-
->>>>>>> latency_reduced
     uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
        _delay_ms(1);
     }
-<<<<<<< HEAD
-    rfm70SetModeRX();
-
-=======
->>>>>>> latency_reduced
 
     return true;
 }
@@ -232,39 +209,17 @@ bool rfm70SendBeaconMsg(int toAck)
 
 void timer0_init()
 {
-<<<<<<< HEAD
-
-	TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
-
-	TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
-
+	//TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
+	TIMSK0 |= (1 << OCIE0A);		// Compare Match Interrupt Enable
 
 	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
 						// 1 count = 0.0853 ms
 						// 1 timer overflow = 255*0.0853ms =21.76ms
-}
 
+	OCR0A = 118;				// Compare value is 118 count
+						// 118 * 0.0853 ~= 10 ms
 
-ISR(TIMER0_OVF_vect)
-{
-	wdt_reset();
-	cyberstick_switch_time = cyberstick_switch_time + 21.76 ;
-}
-
-
-
-=======
-	//TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
-	TIMSK0 |= (1 << OCIE0A);			// Compare Match Interrupt Enable
-
-	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
-										// 1 count = 0.0853 ms
-										// 1 timer overflow = 255*0.0853ms =21.76ms
-
-	OCR0A = 118;						// Compare value is 118 count
-										// 118 * 0.0853 ~= 10 ms
-
-	TCCR0A = (0<<WGM00) | (1<<WGM01);   // CTC (clear timer on compare match) mode
+	TCCR0A = (0<<WGM00) | (1<<WGM01);       // CTC (clear timer on compare match) mode
 
 }
 
@@ -277,7 +232,6 @@ ISR(TIMER0_COMPA_vect)
 	//wdt_reset();
 }
 
->>>>>>> latency_reduced
 // For time evaluation of the sending auto ack beacon message
 // and receiving message from CyberStick
 void timer2_init()
@@ -285,16 +239,15 @@ void timer2_init()
 	TIMSK2 |= (1<<TOIE2);				// set timer overflow(=255) interrupt
 
 	TCCR2B |= (1<<CS22) | (1<<CS21) | (1<<CS20);
-										// Set prescale value Clk(12Mhz)/1024
-										// 1 count = 0.0853 ms
-										// 1 timer overflow = 255*0.0853ms =21.76ms
+							// Set prescale value Clk(12Mhz)/1024
+							// 1 count = 0.0853 ms
+							// 1 timer overflow = 255*0.0853ms =21.76ms
 }
 
 ISR(TIMER2_OVF_vect)
 {
 	ack_time += 21.76;
 }
-
 
 
 //----------------------------------------------------------------------------------
@@ -326,62 +279,18 @@ int rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
-                ack_received = true;
-                
-
                	reportBuffer.buttonMask = rx_buf[0];
-<<<<<<< HEAD
 		reportBuffer.dx = rx_buf[1] - oldDX;
 		reportBuffer.dy = rx_buf[2] - oldDY;
 		oldDX = rx_buf[1];
 		oldDY = rx_buf[2];
 
-		if (rx_buf[3] == 1) //& CyberStick1_detected == false)
+		if (rx_buf[3] == 1) // CyberStick1_detected
 		{
-			ack_time = (TCNT2 * 0.0853);
 			sbi(PORTD, LED_RED);
-			_delay_ms(10);
-			cbi(PORTD, LED_RED);
-
-		    	for(int p=2;p<4;p++)
-			{
-			  double2Ints(ack_time, p, &int_part,&dec_part);
-			}
-
-	            	// conversion of both ints int_part and dec_part into char array
-			    strIntpart_size = lenHelper(int_part);
-
-			    char strDec[2];
-			    char strInt[strIntpart_size];
-
-				sprintf(strInt, "%d", int_part);
-				sprintf(strDec, "%d", dec_part);
-
-			    for (int i=0; i<strIntpart_size; i++)
-			    {
-				   uart_transmit(strInt[i]);
-			    }
-			    uart_transmit('.');
-			    uart_transmit(strDec[0]);
-			    uart_transmit(strDec[1]);
-			    uart_transmit(strDec[2]);
-			    uart_transmit('_');
-			    uart_transmit('_');
+	       	        _delay_ms(3);
+	       		cbi(PORTD, LED_RED);
 		}
-
-=======
-				reportBuffer.dx = rx_buf[1] - oldDX;
-				reportBuffer.dy = rx_buf[2] - oldDY;
-				oldDX = rx_buf[1];
-				oldDY = rx_buf[2];
-
-				if (rx_buf[3] == 1) // CyberStick1_detected
-				{
-					sbi(PORTD, LED_RED);
-			        _delay_ms(3);
-			        cbi(PORTD, LED_RED);
-				}
->>>>>>> latency_reduced
             }
             else
             {
@@ -401,6 +310,7 @@ int rfm70ReceivePayload()
 
     return true;
 }
+
 
 
 int main()
@@ -427,6 +337,7 @@ int main()
     uart_init();
     uart_transmit('o');
 
+    sbi(PORTD, LED_RED);
 
     usbInit();
     cli();
@@ -468,14 +379,6 @@ int main()
 
     _delay_ms(50);
 
-<<<<<<< HEAD
-    int rand = 1234;
-    timer0_init();
-    while (1)
-    {
-   	// Send beacon message with auto acknowledgment
-    	if (cyberstick_switch_time >= 20)
-=======
 
     int rand = 1234;
 
@@ -490,11 +393,9 @@ int main()
 
     	// Send beacon message with auto acknowledgment
     	if (cyberstick_switch_time >= 10)
->>>>>>> latency_reduced
     	{
 
     		rfm70SendBeaconMsg(2);
-
     		cyberstick_switch_time = 0.0;
     	}
 
