@@ -217,9 +217,6 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
 {
     uint8_t status;
 
-    //rfm70SetModeTX();    // no need to change modes when message is sent with ack payload
-    //_delay_ms(1);
-
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
 
@@ -335,7 +332,7 @@ bool find_receiver_frequency()
 {
 	bool msg_received = false;
 	int frequency = 0;
-
+	TCNT0 = 0x00;
 	while(true)
 	{
 		if (frequency == 83)  // max possible frequencies 2400Mhz-2483Mhz
@@ -351,13 +348,15 @@ bool find_receiver_frequency()
 
 		msg_receive_timeout = TCNT0 * 0.128;
 
-		if ((msg_receive_timeout >= 22) & (msg_received == false))
+		if ((msg_receive_timeout >= 5) & (msg_received == false))
 		{
 			msg_receive_timeout = 0.0;
+			TCNT0 = 0x00;
 			frequency++;
 
 			// change frequency
 			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | 0x05, frequency);
+			_delay_ms(1);
 		}
 
 
@@ -383,14 +382,8 @@ void CyberStick_Start()
     stateLast = stateCurrent;
     stateChanged = false;
 
-    //////////////////////////////////////////////////////////////////////////
-    // start main loop
-
-    uint8_t firsttime = 2;
-
     sei();
 
-    bool manual_ack = false;
     bool beacon_msg_received = false;
 
     // chnage frequency to check find_receiver_frequency() can find the right frequency
@@ -407,7 +400,7 @@ void CyberStick_Start()
     while (true)
     {
     	LED4ON;   // always means connection is established with the receiver
-
+    	//rfm70ReceivePayload();
     	// check if beacon message is received
     	// if not for 100ms that means receiver has switched to another
     	// frequency and we need to find receiver frequency again
@@ -428,7 +421,7 @@ void CyberStick_Start()
     	}
 
     	// if button is not pressed for 20s go to power down mode
-    	if (time_out_cyberstick > 20000)  // time is in ms
+    	/*if (time_out_cyberstick > 20000)  // time is in ms
     	{
     		LED4OFF;
     		power_down = true;
@@ -436,7 +429,7 @@ void CyberStick_Start()
     		enable_PCINT();
     		power_down_mode();
 
-    	}
+    	}*/
 
         if ((PINC & (1 << DDC0)) == 0)
         {
@@ -576,7 +569,6 @@ int main(void)
     LED3OFF;
     LED4OFF;
 
-
     //enable_PCINT();   // enable pin change interrupt
 
     //out
@@ -609,18 +601,10 @@ int main(void)
 
     _delay_ms(50);
 
-
-   // LED2ON;
-   // _delay_ms(10);
-   // LED2OFF;
-
     sei();
     cbi(PORTB, DDB2); // chip enable of the touchpad to low
     _delay_ms(10);
 
-    //uint16_t initStreaming = 0x5ABA;
-    //spiSelect(csTOUCH);
-    //spiSendMsg16(initStreaming);
 
     spiSelect(csNONE);
     cbi(PORTB, DDB2); // chip enable of the touchpad to low

@@ -152,41 +152,6 @@ void uart_init (void)
 
 
 
-// ----------------------------------------------------------------------------
-// Convert floating point value into two integers for serial transmission
-// Function for the size of the integers
-// ----------------------------------------------------------------------------
-
-void double2Ints(double f, int p, int *i, int *d)
-{
-  // f = float, p=decimal precision, i=integer, d=decimal
-  int   li;
-  int   prec=1;
-
-  for(int x=p;x>0;x--)
-  {
-    prec*=10;
-  };  // same as power(10,p)
-
-  li = (int) f;              // get integer part
-  *d = (int) ((f-li)*prec);  // get decimal part
-  *i = li;
-}
-
-int lenHelper(unsigned x) {
-    if(x>=1000000000) return 10;
-    if(x>=100000000) return 9;
-    if(x>=10000000) return 8;
-    if(x>=1000000) return 7;
-    if(x>=100000) return 6;
-    if(x>=10000) return 5;
-    if(x>=1000) return 4;
-    if(x>=100) return 3;
-    if(x>=10) return 2;
-    return 1;
-}
-
-
 //----------------------------------------------------------------------------------
 // Send beacon message
 //----------------------------------------------------------------------------------
@@ -195,9 +160,6 @@ bool rfm70SendBeaconMsg(int toAck)
 {
 	uint8_t beacon_payload[32]; // acknowledgment message to transmit
 	uint8_t status;
-
-    rfm70SetModeTX();
-    _delay_ms(1);
 
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
     beacon_payload[1]= 1;     // CyberStick1 is allowed to communicate
@@ -242,14 +204,24 @@ bool rfm70SendBeaconMsg(int toAck)
     spiSelect(csNONE);
     _delay_ms(0);
 
+<<<<<<< HEAD
+=======
+
+    TCNT2 = 0x00;
+    ack_time = 0.0;
+
+
+>>>>>>> latency_reduced
     uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
-
-       _delay_ms(2);
+       _delay_ms(1);
     }
+<<<<<<< HEAD
     rfm70SetModeRX();
 
+=======
+>>>>>>> latency_reduced
 
     return true;
 }
@@ -258,9 +230,9 @@ bool rfm70SendBeaconMsg(int toAck)
 // 8-bit timer0 initialization and its ISR implementation
 // ----------------------------------------------------------------------------
 
-// For beacon messaging
 void timer0_init()
 {
+<<<<<<< HEAD
 
 	TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
 
@@ -281,6 +253,31 @@ ISR(TIMER0_OVF_vect)
 
 
 
+=======
+	//TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+	TIMSK0 |= (1 << OCIE0A);			// Compare Match Interrupt Enable
+
+	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
+										// 1 count = 0.0853 ms
+										// 1 timer overflow = 255*0.0853ms =21.76ms
+
+	OCR0A = 118;						// Compare value is 118 count
+										// 118 * 0.0853 ~= 10 ms
+
+	TCCR0A = (0<<WGM00) | (1<<WGM01);   // CTC (clear timer on compare match) mode
+
+}
+
+
+// Beacon message after every 10 ms
+// when there are more than one cybersticks present
+ISR(TIMER0_COMPA_vect)
+{
+	cyberstick_switch_time = cyberstick_switch_time + 10 ;
+	//wdt_reset();
+}
+
+>>>>>>> latency_reduced
 // For time evaluation of the sending auto ack beacon message
 // and receiving message from CyberStick
 void timer2_init()
@@ -333,6 +330,7 @@ int rfm70ReceivePayload()
                 
 
                	reportBuffer.buttonMask = rx_buf[0];
+<<<<<<< HEAD
 		reportBuffer.dx = rx_buf[1] - oldDX;
 		reportBuffer.dy = rx_buf[2] - oldDY;
 		oldDX = rx_buf[1];
@@ -371,6 +369,19 @@ int rfm70ReceivePayload()
 			    uart_transmit('_');
 		}
 
+=======
+				reportBuffer.dx = rx_buf[1] - oldDX;
+				reportBuffer.dy = rx_buf[2] - oldDY;
+				oldDX = rx_buf[1];
+				oldDY = rx_buf[2];
+
+				if (rx_buf[3] == 1) // CyberStick1_detected
+				{
+					sbi(PORTD, LED_RED);
+			        _delay_ms(3);
+			        cbi(PORTD, LED_RED);
+				}
+>>>>>>> latency_reduced
             }
             else
             {
@@ -414,6 +425,7 @@ int main()
 
     // uart initialize and check on terminal serial communication is working
     uart_init();
+    uart_transmit('o');
 
 
     usbInit();
@@ -455,20 +467,32 @@ int main()
 
 
     _delay_ms(50);
-    // init and power up modules
-    // goto RX mode
-    wdt_reset(); // keep the watchdog happy
-    rfm70SetModeRX();
-    wdt_reset(); // keep the watchdog happy
-    _delay_ms(50);
 
+<<<<<<< HEAD
     int rand = 1234;
     timer0_init();
     while (1)
     {
    	// Send beacon message with auto acknowledgment
     	if (cyberstick_switch_time >= 20)
+=======
+
+    int rand = 1234;
+
+    rfm70SetModeTX();
+    _delay_ms(2);
+
+    timer0_init();
+    //timer2_init();
+
+    while (1)
+    {
+
+    	// Send beacon message with auto acknowledgment
+    	if (cyberstick_switch_time >= 10)
+>>>>>>> latency_reduced
     	{
+
     		rfm70SendBeaconMsg(2);
 
     		cyberstick_switch_time = 0.0;
