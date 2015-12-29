@@ -20,6 +20,7 @@
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
+#include "ui_LaneRibbon.h"
 
 class QDoubleSpinBox;
 
@@ -59,6 +60,7 @@ signals:
 public slots:
     void activateEditor();
     void setWidth();
+    void setRWidth();
     void handleToolClick(int);
 
     //################//
@@ -66,6 +68,7 @@ public slots:
     //################//
 
 private:
+    Ui::LaneRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *widthEdit_;
 };

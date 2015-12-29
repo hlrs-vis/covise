@@ -651,6 +651,16 @@ SET(ODDLOT_FORMS
      src/gui/importsettings.ui
      src/gui/projectionsettings.ui
 	 src/gui/lodsettings.ui
+	 src/gui/tools/TrackRibbon.ui
+	 src/gui/tools/TypeRibbon.ui
+	 src/gui/tools/RoadLinkRibbon.ui
+	 src/gui/tools/ElevationRibbon.ui
+	 src/gui/tools/SuperelevationRibbon.ui
+	 src/gui/tools/CrossfallRibbon.ui
+	 src/gui/tools/LaneRibbon.ui
+	 src/gui/tools/JunctionRibbon.ui
+	 src/gui/tools/SignalRibbon.ui
+	 src/gui/tools/OSCRibbon.ui
      src/wizards/flatjunctionswizard.ui
      src/settings/widgets/junctionsettings.ui
      src/settings/widgets/signalsettings.ui

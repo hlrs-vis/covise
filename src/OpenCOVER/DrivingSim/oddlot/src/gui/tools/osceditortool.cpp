@@ -88,7 +88,7 @@ OpenScenarioEditorTool::initToolWidget()
     toolLayout->addWidget(catalogComboBox_, ++row, 0);
 
 
-    // Link Roads //
+    // Save Catalog //
     //
     toolButton = new QPushButton(tr("Save Catalog"));
     toolButton->setCheckable(false);
@@ -106,6 +106,24 @@ OpenScenarioEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
 	toolManager_->addToolBoxWidget(toolWidget, tr("OpenScenario Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
+    // Ribbon //
+    //
+
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    Ui::OSCRibbon *ui = new Ui::OSCRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    
+    
+    ribbonToolGroup->addButton(ui->oscSave, ODD::TOS_SAVE_CATALOG);
+    
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("OpenScenario"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 void

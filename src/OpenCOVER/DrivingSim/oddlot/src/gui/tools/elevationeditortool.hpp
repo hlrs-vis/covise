@@ -20,6 +20,7 @@
 
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
+#include "ui_ElevationRibbon.h"
 
 class QDoubleSpinBox;
 
@@ -62,12 +63,16 @@ public slots:
     void setRadius();
     void setHeight();
     void setIHeight();
+    void setRRadius();
+    void setRHeight();
+    void setRIHeight();
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
+    Ui::ElevationRibbon *ui;
     ODD::ToolId toolId_;
 
     QDoubleSpinBox *radiusEdit_;

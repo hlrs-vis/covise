@@ -56,7 +56,8 @@ ProjectTree::ProjectTree(ProjectWidget *projectWidget, ProjectData *projectData)
     QVBoxLayout *treeLayout = new QVBoxLayout;
     treeLayout->addWidget(projectTreeWidget_);
     //	treeLayout->addChildLayout(buttonsLayout);
-
+    
+    treeLayout->setContentsMargins(0,0,0,0);
     setLayout(treeLayout);
 }
 

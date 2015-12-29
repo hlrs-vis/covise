@@ -56,6 +56,7 @@ ProjectSettings::ProjectSettings(ProjectWidget *projectWidget, ProjectData *proj
     // Layout //
     //
     settingsLayout_ = new QVBoxLayout;
+    settingsLayout_->setContentsMargins(0,0,0,0);
 
     ////	settingsLayout->addChildLayout(buttonsLayout);
 

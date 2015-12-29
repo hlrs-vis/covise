@@ -62,6 +62,7 @@ HeightGraph::HeightGraph(QWidget *parent, ProjectWidget *projectWidget, ProjectD
     //
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(view_);
+    layout->setContentsMargins(0,0,0,0);
     setLayout(layout);
 }
 

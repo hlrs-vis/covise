@@ -22,6 +22,7 @@
 #include "src/util/odd.hpp"
 
 #include "src/data/prototypemanager.hpp"
+#include "ui_JunctionRibbon.h"
 
 // Qt //
 //
@@ -93,7 +94,8 @@ signals:
 public slots:
     void activateEditor();
     void handleToolClick(int);
-    void setThreshold();
+    void setRadius();
+    void setRRadius();
     void cuttingCircle(bool);
 
     //################//
@@ -102,6 +104,7 @@ public slots:
 
 protected:
 private:
+    Ui::JunctionRibbon *ui;
     ODD::ToolId toolId_;
     QDoubleSpinBox *thresholdEdit_;
     QPushButton *cuttingCircleButton_;
