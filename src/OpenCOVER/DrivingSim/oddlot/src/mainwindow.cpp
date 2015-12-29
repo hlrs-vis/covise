@@ -42,6 +42,7 @@
 #include <QMessageBox>
 
 
+
 // Utils //
 //
 #include "src/util/odd.hpp"
@@ -64,9 +65,9 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(tr("ODD: OpenDRIVE Designer"));
     resize(1024, 768);
 
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     // ODD //
@@ -105,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+	delete signalTree_;
 
     ODD::kill();
 }
@@ -448,12 +450,24 @@ MainWindow::createTools()
     //
     toolManager_ = new ToolManager(prototypeManager_, this);
     connect(toolManager_, SIGNAL(toolAction(ToolAction *)), this, SLOT(toolAction(ToolAction *)));
-
-    // Docked ToolBox //
+    
+    toolDock_->setWidget(toolManager_->getToolBox());
+    toolDock_->hide();
+    
+    ribbonToolDock_ = new QDockWidget(tr("Ribbon"), this);
+    QWidget* titleWidget = new QWidget(this);
+    ribbonToolDock_->setTitleBarWidget( titleWidget ); // empty title bar
+    ribbonToolDock_->setAllowedAreas(Qt::TopDockWidgetArea);
+    addDockWidget(Qt::TopDockWidgetArea, ribbonToolDock_);
+    
+    // Show/Hide Action //
     //
-    QToolBox *toolBox = toolManager_->getToolBox();
-    toolBox->setParent(toolDock_);
-    toolDock_->setWidget(toolBox);
+    QAction *ribbonToolDockToggleAction = toolDock_->toggleViewAction();
+    ribbonToolDockToggleAction->setStatusTip(tr("Show/hide the ribbon."));
+    viewMenu_->addAction(ribbonToolDockToggleAction);
+
+    ribbonToolDock_->setWidget(toolManager_->getRibbonWidget());
+
 }
 
 /*! \brief Creates the WizardManager.
@@ -475,7 +489,7 @@ MainWindow::createTree()
     treeDock_ = new QDockWidget(tr("Tree View"), this);
     treeDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, treeDock_);
-
+		
     // Show/Hide Action //
     //
     QAction *treeDockToggleAction = treeDock_->toggleViewAction();
@@ -486,6 +500,7 @@ MainWindow::createTree()
     // Tree Widget //
     //
     emptyTreeWidget_ = new QWidget();
+
     treeDock_->setWidget(emptyTreeWidget_);
 }
 
@@ -497,9 +512,14 @@ MainWindow::createSettings()
     // Dock Area //
     //
     settingsDock_ = new QDockWidget(tr("Settings View"), this);
-    settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	
+	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	settingsDock_->setFixedWidth(200);
+
+
     //	settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);
-    addDockWidget(Qt::BottomDockWidgetArea, settingsDock_);
+    addDockWidget(Qt::RightDockWidgetArea, settingsDock_);
 
     // Show/Hide Action //
     //
@@ -511,6 +531,9 @@ MainWindow::createSettings()
     //
     emptySettingsWidget_ = new QWidget();
     settingsDock_->setWidget(emptySettingsWidget_);
+
+	connect(settingsDock_, SIGNAL(topLevelChanged(bool)), this, SLOT(settingsDockParentChanged(bool)));
+ 
 }
 
 /*! \brief Creates the undo group and view.
@@ -550,6 +573,34 @@ MainWindow::createUndo()
     //
     undoView_ = new QUndoView(undoGroup_);
     undoDock_->setWidget(undoView_);
+}
+
+/*! \brief Creates the tree view dock.
+*/
+void
+MainWindow::createCatalog(const QString &name, QWidget *widget)
+{
+    // Dock Area //
+    //
+    catalogDock_ = new QDockWidget(name, this);
+    catalogDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	catalogDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	catalogDock_->setFixedWidth(200);
+
+    addDockWidget(Qt::RightDockWidgetArea, catalogDock_);
+	tabifyDockWidget(treeDock_, catalogDock_);
+	catalogDock_->raise();
+		
+    // Show/Hide Action //
+    //
+    QAction *catalogDockToggleAction = catalogDock_->toggleViewAction();
+    catalogDockToggleAction->setStatusTip(tr("Show/hide the tree view."));
+    viewMenu_->addAction(catalogDockToggleAction);
+	
+
+    // Catalog Widget //
+    //
+    catalogDock_->setWidget(widget);
 }
 
 
@@ -622,7 +673,8 @@ MainWindow::open()
         }
         else
         {
-            project->close();
+ //           project->close();
+			delete project;
         }
     }
     return;
@@ -678,7 +730,8 @@ MainWindow::open(QString fileName)
         }
         else
         {
-            project->close();
+         //   project->close();
+			delete project;
         }
     }
     return;
@@ -938,6 +991,19 @@ MainWindow::toolAction(ToolAction *toolAction)
     {
         getActiveProject()->toolAction(toolAction);
     }
+}
+
+void
+MainWindow::settingsDockParentChanged(bool docked)
+{
+	if (docked)
+	{
+		settingsDock_->setMaximumWidth(400);
+	}
+	else
+	{
+		settingsDock_->setFixedWidth(200);
+	}
 }
 
 //###########//

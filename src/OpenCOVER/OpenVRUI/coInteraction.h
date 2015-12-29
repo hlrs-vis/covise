@@ -10,6 +10,7 @@
 
 #include <util/coTypes.h>
 #include <string>
+#include "sginterface/vruiButtons.h"
 
 namespace vrui
 {
@@ -43,14 +44,14 @@ public:
 
     enum InteractionType
     {
-        ButtonA = 0,
-        ButtonB,
-        ButtonC,
-        ButtonD,
-        ButtonE,
-        Wheel,
+        ButtonA = vruiButtons::ACTION_BUTTON,
+        ButtonB = vruiButtons::DRIVE_BUTTON,
+        ButtonC = vruiButtons::XFORM_BUTTON,
+        ButtonD = vruiButtons::USER1_BUTTON,
+        ButtonE = vruiButtons::USER4_BUTTON,
+        Wheel = vruiButtons::WHEEL,
         Joystick,
-        AllButtons,
+        AllButtons = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
         NumInteractorTypes
     };
 

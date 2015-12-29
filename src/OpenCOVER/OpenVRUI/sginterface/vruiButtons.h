@@ -49,10 +49,11 @@ public:
         JOYSTICK_DOWN = 0x20000000,
         JOYSTICK_LEFT = 0x40000000,
         JOYSTICK_UP = 0x80000000,
+        ALL_BUTTONS = ACTION_BUTTON | DRIVE_BUTTON | XFORM_BUTTON | USER1_BUTTON | USER4_BUTTON
     };
 
-    virtual unsigned int wasPressed() const = 0;
-    virtual unsigned int wasReleased() const = 0;
+    virtual unsigned int wasPressed(unsigned int buttonMask=ALL_BUTTONS) const = 0;
+    virtual unsigned int wasReleased(unsigned int buttonMask=ALL_BUTTONS) const = 0;
 
     virtual unsigned int getStatus() const = 0;
     virtual unsigned int getOldStatus() const = 0;

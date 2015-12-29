@@ -10,21 +10,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
-#include <oscObject.h>
+#include <oscConditionChoiceObject.h>
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscDistance: public oscObjectBase
+class OPENSCENARIOEXPORT oscDistance: public oscConditionChoiceObject
 {
 public:
     oscDistance()
     {	
 		OSC_ADD_MEMBER(freespace);
-		OSC_OBJECT_ADD_MEMBER(object, "oscObject");
     };
 	oscBool freespace;
-	oscObjectMember object;
 };
 
 typedef oscObjectVariable<oscDistance *> oscDistanceMember;

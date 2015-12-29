@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
-#include <oscNameId.h>
+#include <oscNameRefId.h>
 #include <oscObjectChoice.h>
 #include <oscControllerChoice.h>
 #include <oscObserverId.h>
@@ -18,17 +18,15 @@ namespace OpenScenario {
 
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscEntity: public oscObjectBase
+class OPENSCENARIOEXPORT oscEntity: public oscNameRefId
 {
 public:
     oscEntity()
     {
-        OSC_OBJECT_ADD_MEMBER(name,"oscNameId");
 		OSC_OBJECT_ADD_MEMBER(objectChoice,"oscObjectChoice");
 		OSC_OBJECT_ADD_MEMBER(controllerChoice,"oscControllerChoice");
 		OSC_OBJECT_ADD_MEMBER(observer,"oscObserverId");
     };
-    oscNameIdMember name;
 	oscObjectChoiceMember objectChoice;
 	oscControllerChoiceMember controllerChoice;
 	oscObserverIdMember observer;

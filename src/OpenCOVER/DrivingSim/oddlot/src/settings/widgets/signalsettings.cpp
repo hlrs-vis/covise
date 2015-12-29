@@ -68,10 +68,10 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
 	signalEditor_ = dynamic_cast <SignalEditor *> (getProjectSettings()->getProjectWidget()->getProjectEditor());
     ui->setupUi(this);
 
-
     // Initial Values //
     //
     updateProperties();
+	activateValidityWidget(false);
 
     connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
     connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
@@ -107,19 +107,19 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->toLaneSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->toLaneSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
 
-    //Pedestrian Crossing has ancillary data
-    //
-    if (signal_->getType() == 293)
-    {
+	connect(ui->validityPushButton, SIGNAL(clicked(bool)), this, SLOT(activateValidityWidget(bool)));
+	connect(ui->crossingPushButton, SIGNAL(clicked(bool)), this, SLOT(activateCrossingWidget(bool)));
 
-        enableCrossingParams(true);
+	connect(ui->crossingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->crossingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->resetTimeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->resetTimeSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
-        connect(ui->crossingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-        connect(ui->crossingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-        connect(ui->resetTimeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-        connect(ui->resetTimeSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-    }
-
+	if (signal_->getType() != 293)
+	{
+		enableCrossingParams(false);
+	}
+	
     init_ = true;
 }
 
@@ -138,7 +138,7 @@ SignalSettings::updateProperties()
     if (signal_)
     {
         ui->nameBox->setText(signal_->getName());
-        ui->idBox->setText(signal_->getId());
+        ui->idLabel->setText(signal_->getId());
         ui->sSpinBox->setValue(signal_->getSStart());
         ui->tSpinBox->setValue(signal_->getT());
         ui->zOffsetSpinBox->setValue(signal_->getZOffset());
@@ -151,7 +151,7 @@ SignalSettings::updateProperties()
 		if (signalContainer)
 		{
 			QIcon icon = signalContainer->getSignalIcon();
-			ui->imageTextLabel->setPixmap(icon.pixmap(icon.availableSizes().first()).scaledToHeight(80));
+			ui->imageTextLabel->setPixmap(icon.pixmap(icon.availableSizes().first()).scaledToHeight(30));
 		}
         ui->valueSpinBox->setValue(signal_->getValue());
         ui->hOffsetSpinBox->setValue(signal_->getHeading());
@@ -165,13 +165,23 @@ SignalSettings::updateProperties()
         ui->fromLaneSpinBox->setValue(signal_->getValidFromLane());
         ui->toLaneSpinBox->setValue(signal_->getValidToLane());
 
+		//Pedestrian Crossing has ancillary data
+		//
+		if ((signal_->getType() == 293) && !ui->crossingPushButton->isVisible())
+		{
+			enableCrossingParams(true);
+		}
+		else if (ui->crossingPushButton->isVisible() && (signal_->getType() != 293))
+		{
+			enableCrossingParams(false);
+		}
+
 		// User data //
-		if (ui->crossingSpinBox->isEnabled())
+		if (signal_->getType() == 293)
 		{
 			ui->crossingSpinBox->setValue(signal_->getCrossingProbability());
 			ui->resetTimeSpinBox->setValue(signal_->getResetTime());
 		}
-
     }
 }
 
@@ -197,40 +207,11 @@ double SignalSettings::
 void
 SignalSettings::enableCrossingParams(bool value)
 {
-	ui->crossingSpinBox->setEnabled(value);
-    ui->crossingProbLabel->setEnabled(value);
-    ui->resetTimeLabel->setEnabled(value);
-    ui->resetTimeSpinBox->setEnabled(value);
+	ui->crossingPushButton->setVisible(value);
+	activateCrossingWidget(false);
+
+	
 //    ui->poleCheckBox->setChecked(!value); this will send updateWidget and call signalsettings
-}
-
-void
-SignalSettings::updateProperties(QString country, SignalContainer *signalProperties)
-{
-    double t = signalT(ui->sSpinBox->value(), ui->tSpinBox->value(), signalProperties->getSignalDistance());
-
-    ui->tSpinBox->setValue(t);
-    ui->countryBox->setText(country);
-
-    ui->typeSpinBox->setValue(signalProperties->getSignalType());
-    ui->subclassLineEdit->setText(signalProperties->getSignalTypeSubclass());
-    ui->subtypeSpinBox->setValue(signalProperties->getSignalSubType());
-    ui->valueSpinBox->setValue(signalProperties->getSignalValue());
-
-    //Pedestrian Crossing has ancillary data
-    //
-    if ((signalProperties->getSignalType() == 293) && !ui->crossingProbLabel->isEnabled())
-    {
-
-        enableCrossingParams(true);
-
-        connect(ui->crossingSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-        connect(ui->resetTimeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    }
-    else if (ui->crossingProbLabel->isEnabled() && (signalProperties->getSignalType() != 293))
-    {
-        enableCrossingParams(false);
-    }
 }
 
 
@@ -378,6 +359,29 @@ SignalSettings::on_sSpinBox_editingFinished()
 
 }
 
+void
+SignalSettings::activateValidityWidget(bool activ)
+{
+	ui->validityGroupBox->setVisible(activ);
+	double y;
+	if (activ)
+	{
+		y = ui->validityFrame->height() + ui->validityFrame->geometry().y();
+	}
+	else
+	{
+		y = ui->validityPushButton->height() + ui->validityFrame->geometry().y();
+	}
+	QRect geometry = ui->crossingFrame->geometry();
+	geometry.setY(y + 6);
+	ui->crossingFrame->setGeometry(geometry); 
+}
+
+void
+SignalSettings::activateCrossingWidget(bool activ)
+{
+	ui->crossingGroupBox->setVisible(activ);
+}
 //##################//
 // Observer Pattern //
 //##################//

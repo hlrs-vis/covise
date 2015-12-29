@@ -54,118 +54,38 @@ void coCombinedButtonInteraction::update()
 
     if (state == Idle)
     {
-        if (curbutton->wasPressed())
-        {
-            if (type == ButtonA || type == AllButtons)
-            {
-                if (curbutton->wasPressed() & vruiButtons::ACTION_BUTTON)
-                {
-                    if (activate())
-                    {
-                        runningState = StateStarted;
-                        startInteraction();
-                    }
-                }
-            }
-            if (type == ButtonB || type == AllButtons)
-            {
-                if (curbutton->wasPressed() & vruiButtons::DRIVE_BUTTON)
-                {
-                    if (activate())
-                    {
-                        runningState = StateStarted;
-                        startInteraction();
-                    }
-                }
-            }
-            if (type == ButtonC || type == AllButtons)
-            {
-                if (curbutton->wasPressed() & vruiButtons::XFORM_BUTTON)
-                {
-                    if (activate())
-                    {
-                        runningState = StateStarted;
-                        startInteraction();
-                    }
-                }
-            }
-        }
-        if (type == Wheel || type == AllButtons)
+        if (curbutton->wasPressed(type))
         {
             if (activate())
             {
-                if (buttonStatus & vruiButtons::WHEEL_UP || buttonStatus & vruiButtons::WHEEL_DOWN)
-                {
-                    runningState = StateStarted;
-                    startInteraction();
-                }
-
-                wheelCount = curbutton->getWheelCount();
+                runningState = StateStarted;
+                startInteraction();
+            }
+        }
+        if ((type & Wheel) && (buttonStatus & Wheel))
+        {
+            wheelCount = curbutton->getWheelCount();
+            if (activate())
+            {
+                runningState = StateStarted;
+                startInteraction();
             }
         }
     }
     else if (state == Active)
     {
-        if (type == ButtonA || type == AllButtons)
+        if (type & buttonStatus)
         {
-            if (buttonStatus & vruiButtons::ACTION_BUTTON)
-            {
-                runningState = StateRunning;
-                doInteraction();
-            }
-            else
-            {
-                runningState = StateStopped;
-                stopInteraction();
-                state = Idle;
-            }
-        }
-        if (type == ButtonB || type == AllButtons)
-        {
-            if (buttonStatus & vruiButtons::DRIVE_BUTTON)
-            {
-                runningState = StateRunning;
-                doInteraction();
-            }
-            else
-            {
-                runningState = StateStopped;
-                stopInteraction();
-                state = Idle;
-            }
-        }
-        if (type == ButtonC || type == AllButtons)
-        {
-            if (buttonStatus & vruiButtons::XFORM_BUTTON)
-            {
-                runningState = StateRunning;
-                doInteraction();
-            }
-            else
-            {
-                runningState = StateStopped;
-                stopInteraction();
-                state = Idle;
-            }
-        }
-        if (type == Wheel || type == AllButtons)
-        {
-            if (buttonStatus & (vruiButtons::WHEEL_UP | vruiButtons::WHEEL_DOWN))
-            {
-                runningState = StateRunning;
-                //VRUILOG("doInteraction " << wheelDirection)
-
+            if ((buttonStatus & Wheel) && (type & Wheel))
                 wheelCount = curbutton->getWheelCount();
-
-                doInteraction();
-            }
-            else
-            {
-                runningState = StateStopped;
-                //VRUILOG("stopInteraction")
-                stopInteraction();
-                state = Idle;
-            }
+            runningState = StateRunning;
+            doInteraction();
+        }
+        else
+        {
+            runningState = StateStopped;
+            stopInteraction();
+            state = Idle;
         }
     }
     else if (state == Stopped) // das soll einen Frame verzoegern

@@ -37,7 +37,9 @@ using(PROJ4)
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${PROJ4_LIBRARIES})
 
 #INCLUDE_DIRECTORIES($ENV{COVISEDIR}/src/tools/oddlot)
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(
+   ../OpenScenario
+)
 ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
 ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
 
@@ -331,6 +333,15 @@ SET(ODDLOT_SOURCES
 	src/tree/items/controllertreeitem.cpp
 	src/settings/widgets/controllersettings.cpp
 	src/graph/items/roadsystem/controlleritem.cpp
+	src/io/oscparser.cpp
+	src/gui/tools/osceditortool.cpp
+	src/graph/editors/osceditor.cpp
+	src/tree/catalogtreewidget.cpp
+	src/tree/catalogwidget.cpp
+	src/data/commands/osccommands.cpp
+	src/settings/widgets/oscobjectsettings.cpp
+	src/data/oscsystem/oscelement.cpp
+	src/data/oscsystem/oscbase.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -616,6 +627,15 @@ SET(ODDLOT_MOC_HEADERS
 	src/data/commands/controllercommands.hpp
 	src/settings/widgets/controllersettings.hpp
 	src/graph/items/roadsystem/controlleritem.hpp
+	src/io/oscparser.hpp
+	src/gui/tools/osceditortool.hpp
+	src/graph/editors/osceditor.hpp
+	src/tree/catalogtreewidget.hpp
+	src/tree/catalogwidget.hpp
+	src/data/commands/osccommands.hpp
+	src/settings/widgets/oscobjectsettings.hpp
+	src/data/oscsystem/oscelement.hpp
+	src/data/oscsystem/oscbase.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
@@ -631,6 +651,16 @@ SET(ODDLOT_FORMS
      src/gui/importsettings.ui
      src/gui/projectionsettings.ui
 	 src/gui/lodsettings.ui
+	 src/gui/tools/TrackRibbon.ui
+	 src/gui/tools/TypeRibbon.ui
+	 src/gui/tools/RoadLinkRibbon.ui
+	 src/gui/tools/ElevationRibbon.ui
+	 src/gui/tools/SuperelevationRibbon.ui
+	 src/gui/tools/CrossfallRibbon.ui
+	 src/gui/tools/LaneRibbon.ui
+	 src/gui/tools/JunctionRibbon.ui
+	 src/gui/tools/SignalRibbon.ui
+	 src/gui/tools/OSCRibbon.ui
      src/wizards/flatjunctionswizard.ui
      src/settings/widgets/junctionsettings.ui
      src/settings/widgets/signalsettings.ui
@@ -640,6 +670,7 @@ SET(ODDLOT_FORMS
      src/settings/widgets/lanesettings.ui
      src/wizards/roadlinkwizard.ui
 	 src/settings/widgets/controllersettings.ui
+	 src/settings/widgets/oscobjectsettings.ui
 )
 SET(ODDLOT_RESOURCES
    icons/tools/tools.qrc
@@ -657,5 +688,8 @@ QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
 
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
 qt_use_modules(oddlot Core Widgets Gui Network Xml)
-target_link_libraries (oddlot ${EXTRA_LIBS} ) 
+TARGET_LINK_LIBRARIES(oddlot
+   ${EXTRA_LIBS}
+   coOpenScenario
+) 
 covise_install_target(oddlot)

@@ -20,11 +20,11 @@ public:
     oscLaneDynamics()
     {
         OSC_ADD_MEMBER(shape);
-        OSC_ADD_MEMBER(maxLateralACC);
+        OSC_ADD_MEMBER(maxLateralAcc);
 		OSC_ADD_MEMBER(duration);
     };
 	oscString shape;
-    oscDouble maxLateralACC;
+    oscDouble maxLateralAcc;
     oscDouble duration;
 	
 };

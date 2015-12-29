@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscMemberValue.h>
 #include <oscMember.h>
-#include <oscFactory.h>
+
 #include <string>
 #if __cplusplus >= 201103L || defined WIN32
 #include <unordered_map>
@@ -18,6 +18,7 @@ using std::unordered_map;
 #include <tr1/unordered_map>
 using std::tr1::unordered_map;
 #endif
+
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
@@ -36,24 +37,30 @@ XERCES_CPP_NAMESPACE_END
 namespace OpenScenario {
 
 class OpenScenarioBase;
+class oscSourceFile;
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscObjectBase
 {
 public:
     typedef unordered_map<std::string, oscMember *> MemberMap;
+
 protected:
     OpenScenarioBase *base;
     MemberMap members; ///< list of all member variables
+    oscSourceFile *source;
 
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
-    virtual void initialize(OpenScenarioBase *b);
-    void addMember(oscMember *m);
-    OpenScenarioBase *getBase(){return base;};
 
-    bool parseFromXML(xercesc::DOMElement *currentElement);
+    virtual void initialize(OpenScenarioBase *b, oscSourceFile *s);
+    void addMember(oscMember *m);
+    OpenScenarioBase *getBase() const;
+    MemberMap getMembers() const;
+    oscSourceFile *getSource() const;
+
+    bool parseFromXML(xercesc::DOMElement *currentElement, oscSourceFile *src);
     bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 };

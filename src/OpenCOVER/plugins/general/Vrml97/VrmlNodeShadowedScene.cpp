@@ -40,14 +40,14 @@
 #include <osg/MatrixTransform>
 #include <osg/Quat>
 
-// ARSensor factory.
+// ShadowedScene factory.
 
 static VrmlNode *creator(VrmlScene *scene)
 {
     return new VrmlNodeShadowedScene(scene);
 }
 
-// Define the built in VrmlNodeType:: "ARSensor" fields
+// Define the built in VrmlNodeType:: "ShadowedScene" fields
 
 VrmlNodeType *VrmlNodeShadowedScene::defineType(VrmlNodeType *t)
 {
@@ -61,11 +61,7 @@ VrmlNodeType *VrmlNodeShadowedScene::defineType(VrmlNodeType *t)
     }
 
     VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("global", VrmlField::SFBOOL);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("orientation", VrmlField::SFROTATION);
-    t->addExposedField("position", VrmlField::SFVEC3F);
-    t->addExposedField("number", VrmlField::SFINT32);
+    t->addExposedField("technique", VrmlField::SFSTRING);
 
     return t;
 }
@@ -77,11 +73,7 @@ VrmlNodeType *VrmlNodeShadowedScene::nodeType() const
 
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
     : VrmlNodeGroup(scene)
-    , d_global(false)
-    , d_enabled(true)
-    , d_position(0, 0, 0)
-    , d_orientation(0, 1, 0, 0)
-    , d_number(0)
+    , d_technique("ShadowMap")
 {
     d_shadowObject = 0;
 }
@@ -90,11 +82,7 @@ VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
 
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n)
     : VrmlNodeGroup(n.d_scene)
-    , d_global(n.d_global)
-    , d_enabled(n.d_enabled)
-    , d_position(n.d_position)
-    , d_orientation(n.d_orientation)
-    , d_number(n.d_number)
+    , d_technique(n.d_technique)
 {
     d_shadowObject = 0;
 }
@@ -127,37 +115,7 @@ void VrmlNodeShadowedScene::render(Viewer *viewer)
     {
         d_shadowObject = viewer->beginObject(name(), 0, this);
     }
-    if (d_global.get())
-    {
-        if (d_enabled.get())
-        {
-            osg::ClipPlane *cp = cover->getClipPlane(d_number.get());
-            float *pos = d_position.get();
-            float *ori = d_orientation.get();
-            osg::Quat q(ori[3], osg::Vec3(ori[0], ori[1], ori[2]));
-            osg::Vec3 normal(0, -1, 0);
-            normal = q * normal;
-            osg::Plane p(normal, osg::Vec3(pos[0], -pos[2], pos[1])); // rotated 90 degrees
-            cp->setClipPlane(p);
-            cover->getObjectsRoot()->addClipPlane(cp);
-        }
-        else
-        {
-            osg::ClipPlane *cp = cover->getClipPlane(d_number.get());
-            cover->getObjectsRoot()->removeClipPlane(cp);
-        }
-    }
-    else
-    {
-
-        if (d_children.size() > 0)
-        {
-            // Apply transforms
-            viewer->setShadow(
-                            d_number.get(),
-                            d_enabled.get());
-        }
-    }
+    viewer->setShadow(d_technique.get());
     if (d_children.size() > 0)
     {
 
@@ -170,16 +128,8 @@ void VrmlNodeShadowedScene::render(Viewer *viewer)
 
 ostream &VrmlNodeShadowedScene::printFields(ostream &os, int indent)
 {
-    if (!d_global.get())
-        PRINT_FIELD(global);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_position.get())
-        PRINT_FIELD(position);
-    if (!d_orientation.get())
-        PRINT_FIELD(orientation);
-    if (!d_number.get())
-        PRINT_FIELD(number);
+    if (!d_technique.get())
+        PRINT_FIELD(technique);
 
     return os;
 }
@@ -190,31 +140,15 @@ void VrmlNodeShadowedScene::setField(const char *fieldName,
                                      const VrmlField &fieldValue)
 {
     if
-        TRY_FIELD(global, SFBool)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(position, SFVec3f)
-    else if
-        TRY_FIELD(orientation, SFRotation)
-    else if
-        TRY_FIELD(number, SFInt)
+        TRY_FIELD(technique, SFString)
     else
         VrmlNodeGroup::setField(fieldName, fieldValue);
 }
 
 const VrmlField *VrmlNodeShadowedScene::getField(const char *fieldName) const
 {
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "global") == 0)
-        return &d_global;
-    else if (strcmp(fieldName, "position") == 0)
-        return &d_position;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else if (strcmp(fieldName, "number") == 0)
-        return &d_number;
+    if (strcmp(fieldName, "technique") == 0)
+        return &d_technique;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;

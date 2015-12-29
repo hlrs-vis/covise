@@ -11,6 +11,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 #include <oscVariables.h>
 #include <oscHeader.h>
+#include <oscParameterList.h>
+#include <oscEvent.h>
 
 namespace OpenScenario {
 
@@ -22,9 +24,13 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
 		OSC_ADD_MEMBER(name);
+		OSC_OBJECT_ADD_MEMBER(parameterList,"oscParameterList");
+		OSC_OBJECT_ADD_MEMBER(event,"oscEvent");
     };
     oscHeaderMember header;
 	oscString name;
+	oscParameterListMember parameterList;
+	oscEventMember event;
 };
 
 typedef oscObjectVariable<oscManeuver *>oscManeuverMember;

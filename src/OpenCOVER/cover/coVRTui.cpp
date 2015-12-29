@@ -22,6 +22,7 @@
 #include "coVRConfig.h"
 #include "coVRPluginList.h"
 #include "coVRCommunication.h"
+#include "coVRShadowManager.h"
 #include "coVRMSController.h"
 #include "coIntersection.h"
 #include "ARToolKit.h"
@@ -215,6 +216,18 @@ coVRTui::coVRTui()
     XForm = new coTUIToggleButton("Move world", topContainer->getID());
     DebugBins = new coTUIToggleButton("DebugBins", topContainer->getID(), false);
     DebugBins->setEventListener(this);
+    
+    ShadowChoice = new coTUIComboBox("shadowChoice",topContainer->getID());
+    ShadowChoice->setEventListener(this);
+    ShadowChoice->addEntry("none");
+    ShadowChoice->addEntry("ShadowVolume");
+    ShadowChoice->addEntry("ShadowTexture");
+    ShadowChoice->addEntry("SoftShadowMap");
+    ShadowChoice->addEntry("StandardShadowMap");
+    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapVB");
+    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapCB");
+    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapDB");
+    ShadowChoice->addEntry("ShadowMap");
 
     Scale = new coTUIToggleButton("Scale", topContainer->getID());
     Collision = new coTUIToggleButton("Detect collisions", topContainer->getID());
@@ -229,6 +242,8 @@ coVRTui::coVRTui()
     scaleLabel = new coTUILabel("Scale factor (log10)", topContainer->getID());
     ScaleSlider = new coTUIFloatSlider("ScaleFactor", topContainer->getID());
     Menu->setState(false);
+    debugLabel = new coTUILabel("Debug level", topContainer->getID());
+    debugLevel = new coTUIEditIntField("DebugLevel", topContainer->getID());
 #ifndef NOFB
     FileBrowser = new coTUIFileBrowserButton("Load file...", topContainer->getID());
     coVRCommunication::instance()->setFBData(FileBrowser->getVRBData());
@@ -292,6 +307,7 @@ coVRTui::coVRTui()
     CFPS->setEventListener(this);
     backgroundColor->setEventListener(this);
     LODScaleEdit->setEventListener(this);
+    debugLevel->setEventListener(this);
 
     nearEdit->setEventListener(this);
     farEdit->setEventListener(this);
@@ -322,8 +338,12 @@ coVRTui::coVRTui()
     Scale->setPos(0, 4);
     Collision->setPos(0, 5);
     DebugBins->setPos(3, 0);
+    ShadowChoice->setPos(3,1);
     DisableIntersection->setPos(1, 5);
     testImage->setPos(2, 5);
+
+    debugLabel->setPos(3,4);
+    debugLevel->setPos(3,5);
 
     speedLabel->setPos(0, 10);
     NavSpeed->setPos(1, 10);
@@ -502,6 +522,7 @@ coVRTui::~coVRTui()
     delete Scale;
     delete Collision;
     delete DebugBins;
+    delete ShadowChoice;
     delete DisableIntersection;
     delete testImage;
     delete speedLabel;
@@ -556,6 +577,12 @@ coInputTUI::coInputTUI()
     personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
     personsChoice->setPos(1,0);
     personsChoice->setEventListener(this);
+
+    eyeDistanceLabel = new coTUILabel("Eye distance", personContainer->getID());
+    eyeDistanceLabel->setPos(1,3);
+    eyeDistanceEdit = new coTUIEditFloatField("EyeDistance", personContainer->getID());
+    eyeDistanceEdit->setPos(1,4);
+    eyeDistanceEdit->setEventListener(this);
     
     bodiesContainer = new coTUIFrame("bc",inputTab->getID());
     bodiesContainer->setPos(1,0);
@@ -619,7 +646,32 @@ coInputTUI::coInputTUI()
         deviceRotLabel[i]->setPos(1+i * 2, 6);
         deviceRot[i]->setEventListener(this);
     }
+
+    debugContainer = new coTUIFrame("Debug", inputTab->getID());
+    debugContainer->setPos(1,6);
+    debugLabel = new coTUILabel("Debug", debugContainer->getID());
+    debugLabel->setPos(0,0);
+
+    debugMatrices = new coTUIToggleButton("Matrices", debugContainer->getID());
+    debugMatrices->setPos(3,0);
+    debugMatrices->setEventListener(this);
+    debugOther = new coTUIToggleButton("Buttons+Valuators", debugContainer->getID());
+    debugOther->setPos(4,0);
+    debugOther->setEventListener(this);
     
+    debugMouseButton = new coTUIToggleButton("Mouse", debugContainer->getID());
+    debugMouseButton->setPos(1,1);
+    debugMouseButton->setEventListener(this);
+    debugDriverButton = new coTUIToggleButton("Driver", debugContainer->getID());
+    debugDriverButton->setPos(2,1);
+    debugDriverButton->setEventListener(this);
+    debugRawButton = new coTUIToggleButton("Raw", debugContainer->getID());
+    debugRawButton->setPos(3,1);
+    debugRawButton->setEventListener(this);
+    debugTransformedButton = new coTUIToggleButton("Transformed", debugContainer->getID());
+    debugTransformedButton->setPos(4,1);
+    debugTransformedButton->setEventListener(this);
+
     updateTUI();
 }
 
@@ -630,12 +682,17 @@ void coInputTUI::updateTUI()
         personsChoice->clear();
         for (size_t i = 0; i < Input::instance()->getNumPersons(); i++)
         {
-            personsChoice->addEntry(Input::instance()->getPerson(i)->getName());
+            personsChoice->addEntry(Input::instance()->getPerson(i)->name());
         }
     }
     int activePerson = Input::instance()->getActivePerson();
     if(activePerson != personsChoice->getSelectedEntry())
         personsChoice->setSelectedEntry(activePerson);
+
+    if (eyeDistanceEdit->getValue() != Input::instance()->eyeDistance())
+    {
+        eyeDistanceEdit->setValue(Input::instance()->eyeDistance());
+    }
 
     if (size_t(bodiesChoice->getNumEntries()) != Input::instance()->getNumBodies())
     {
@@ -643,7 +700,7 @@ void coInputTUI::updateTUI()
         bodiesChoice->clear();
         for (size_t i = 0; i < Input::instance()->getNumBodies(); i++)
         {
-            bodiesChoice->addEntry(Input::instance()->getBody(i)->getName());
+            bodiesChoice->addEntry(Input::instance()->getBody(i)->name());
         }
         bodiesChoice->setSelectedEntry(0);
         bodiesChoice->setSelectedText(body);
@@ -673,7 +730,21 @@ void coInputTUI::updateTUI()
             deviceRot[i]->setValue(coord.hpr[i]);
         }
     }
+
+    if (debugMouseButton->getState() != Input::debug(Input::Mouse))
+        debugMouseButton->setState(Input::debug(Input::Mouse));
+    if (debugDriverButton->getState() != Input::debug(Input::Driver))
+        debugDriverButton->setState(Input::debug(Input::Driver));
+    if (debugRawButton->getState() != Input::debug(Input::Raw))
+        debugRawButton->setState(Input::debug(Input::Raw));
+    if (debugTransformedButton->getState() != Input::debug(Input::Transformed))
+        debugTransformedButton->setState(Input::debug(Input::Transformed));
+    if (debugMatrices->getState() != Input::debug(Input::Matrices))
+        debugMatrices->setState(Input::debug(Input::Matrices));
+    if (debugOther->getState() != Input::debug(Input::Buttons)||Input::debug(Input::Valuators))
+        debugOther->setState(Input::debug(Input::Buttons)||Input::debug(Input::Valuators));
 }
+
 coInputTUI::~coInputTUI()
 {
     for (int i = 0; i < 3; i++)
@@ -703,7 +774,13 @@ coInputTUI::~coInputTUI()
 
 void coInputTUI::tabletEvent(coTUIElement *tUIItem)
 {
-    if(tUIItem == personsChoice)
+    if (tUIItem == eyeDistanceEdit)
+    {
+        const int activePerson = Input::instance()->getActivePerson();
+        Input::instance()->getPerson(activePerson)->setEyeDistance(eyeDistanceEdit->getValue());
+        VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
+    }
+    else if(tUIItem == personsChoice)
     {
         Input::instance()->setActivePerson(personsChoice->getSelectedEntry());
     }
@@ -739,7 +816,26 @@ void coInputTUI::tabletEvent(coTUIElement *tUIItem)
         m.postMult(translationMat);
         id->setOffsetMat(m);
     }
+    else if (tUIItem == debugMatrices || tUIItem == debugOther ||
+            tUIItem == debugRawButton || tUIItem == debugMouseButton || tUIItem == debugDriverButton || tUIItem == debugTransformedButton)
+    {
+        int debug = Input::instance()->debug(Input::Config);
+        if (debugRawButton->getState())
+            debug |= Input::Raw;
+        if (debugMouseButton->getState())
+            debug |= Input::Mouse;
+        if (debugDriverButton->getState())
+            debug |= Input::Driver;
+        if (debugTransformedButton->getState())
+            debug |= Input::Transformed;
+        if (debugMatrices->getState())
+            debug |= Input::Matrices;
+        if (debugOther->getState())
+            debug |= Input::Buttons|Input::Valuators;
+        Input::instance()->setDebug(debug);
+    }
 }
+
 void coInputTUI::tabletPressEvent(coTUIElement *tUIItem)
 {
 }
@@ -763,6 +859,10 @@ void coVRTui::updateFPS(double fps)
 
 void coVRTui::update()
 {
+    if (debugLevel->getValue() != coVRConfig::instance()->getDebugLevel())
+    {
+        debugLevel->setValue(coVRConfig::instance()->getDebugLevel());
+    }
     if (navigationMode != coVRNavigationManager::instance()->getMode())
     {
         navigationMode = coVRNavigationManager::instance()->getMode();
@@ -897,6 +997,11 @@ void coVRTui::update()
 void coVRTui::tabletEvent(coTUIElement *tUIItem)
 {
 
+    if (tUIItem == debugLevel)
+    {
+        coVRConfig::instance()->setDebugLevel(debugLevel->getValue());
+    }
+
     if (tUIItem == driveNav)
     {
         mx = driveNav->x;
@@ -921,6 +1026,10 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         {
             binList->removeAll();
         }
+    }
+    else if (tUIItem == ShadowChoice)
+    {
+        coVRShadowManager::instance()->setTechnique(ShadowChoice->getSelectedText());
     }
     else if (tUIItem == PresentationForward)
     {

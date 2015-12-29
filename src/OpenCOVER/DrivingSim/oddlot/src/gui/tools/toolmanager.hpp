@@ -30,6 +30,7 @@ class SelectionTool;
 class QToolBox;
 class QMenu;
 class QToolBar;
+class QTabWidget;
 
 class ToolManager : public QObject
 {
@@ -59,7 +60,17 @@ public:
     {
         return toolBox_;
     }
+    
+    QTabWidget *getRibbonWidget()
+    {
+        return ribbon_;
+    }
+    void setRibbon(QTabWidget *r)
+    {
+        ribbon_=r;
+    }
     void addToolBoxWidget(ToolWidget *widget, const QString &title);
+    void addRibbonWidget(ToolWidget *widget, const QString &title);
 
     void resendCurrentTool();
 
@@ -115,6 +126,10 @@ private:
     //
     QToolBox *toolBox_;
 
+    // Ribbon based Toolbox
+    //
+    QTabWidget *ribbon_;
+
     // Selection Tool
     //
     SelectionTool *selectionTool_;
@@ -122,6 +137,7 @@ private:
 	// ZoomTool //
 	//
 	ZoomTool *zoomTool_;
+
 };
 
 #endif // TOOLMANAGER_HPP

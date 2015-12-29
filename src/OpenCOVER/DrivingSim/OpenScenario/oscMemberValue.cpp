@@ -18,8 +18,16 @@ oscMemberValue::oscMemberValue()
 
 oscMemberValue::~oscMemberValue()
 {
+
 }
 
-oscMemberValue::MemberTypes oscMemberValue::getType() {return type;}; ///< return the type of this value
 
-bool oscMemberValue::initialize(xercesc::DOMAttr *){return false;};
+oscMemberValue::MemberTypes oscMemberValue::getType() const
+{
+    return type;
+}
+
+bool oscMemberValue::initialize(xercesc::DOMAttr *)
+{
+    return false;
+}

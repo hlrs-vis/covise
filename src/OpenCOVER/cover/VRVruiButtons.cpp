@@ -27,14 +27,14 @@ VRVruiButtons::~VRVruiButtons()
 {
 }
 
-unsigned int VRVruiButtons::wasPressed() const
+unsigned int VRVruiButtons::wasPressed(unsigned int buttons) const
 {
-    return button->wasPressed();
+    return button->wasPressed(buttons);
 }
 
-unsigned int VRVruiButtons::wasReleased() const
+unsigned int VRVruiButtons::wasReleased(unsigned int buttons) const
 {
-    return button->wasReleased();
+    return button->wasReleased(buttons);
 }
 
 unsigned int VRVruiButtons::getStatus() const

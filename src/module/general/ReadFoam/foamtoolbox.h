@@ -68,6 +68,7 @@ struct CaseInfo
     }
 
     std::map<double, std::string> timedirs; //Map of all the Time Directories
+	std::map<double, std::string> completeMeshDirs; //Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
     std::map<std::string, int> varyingFields, constantFields;
     std::string constantdir;
     int numblocks;
@@ -154,6 +155,7 @@ public:
 
 CaseInfo getCaseInfo(const std::string &casedir, double mintime, double maxtime, int skipfactor = 1, bool exact = false);
 bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time);
+bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double mintime, double maxtime, int skipfactor);
 boost::shared_ptr<std::istream> getStreamForFile(const std::string &filename);
 boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename);
 HeaderInfo readFoamHeader(std::istream &stream);

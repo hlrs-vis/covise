@@ -18,6 +18,8 @@
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"
 
+#include "ui_TrackRibbon.h"
+
 // Data //
 //
 #include "src/data/prototypemanager.hpp"
@@ -128,7 +130,7 @@ TrackEditorTool::initToolWidget()
     QLabel *roadLabel = new QLabel(tr("Road Tools"));
     toolLayout->addWidget(roadLabel, ++row, 0, 1, ColumnCount);
 
-    toolButton = new QPushButton("Move Rotate");
+    toolButton = new QPushButton("Modify");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TTE_ROAD_MOVE_ROTATE); // button, id
@@ -350,6 +352,37 @@ TrackEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("Track Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    Ui::TrackRibbon *ui = new Ui::TrackRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    ribbonToolGroup->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
+    ribbonToolGroup->addButton(ui->trackNewLine, ODD::TTE_ADD_LINE);
+    ribbonToolGroup->addButton(ui->trackNewCurve, ODD::TTE_ADD_CURVE);
+    ribbonToolGroup->addButton(ui->trackAddPrototype, ODD::TTE_ADD);
+    ribbonToolGroup->addButton(ui->trackDelete, ODD::TTE_DELETE);
+    ribbonToolGroup->addButton(ui->trackSplit, ODD::TTE_TRACK_SPLIT);
+
+    ribbonToolGroup->addButton(ui->roadModify, ODD::TTE_ROAD_MOVE_ROTATE);
+    ribbonToolGroup->addButton(ui->roadNew, ODD::TTE_ROAD_NEW);
+    ribbonToolGroup->addButton(ui->roadAddPrototype, ODD::TTE_ROADSYSTEM_ADD);
+    ribbonToolGroup->addButton(ui->roadDelete, ODD::TTE_ROAD_DELETE);
+    ribbonToolGroup->addButton(ui->roadSplit, ODD::TTE_ROAD_SPLIT);
+    ribbonToolGroup->addButton(ui->roadMerge, ODD::TTE_ROAD_MERGE);
+    ribbonToolGroup->addButton(ui->roadSnap, ODD::TTE_ROAD_SNAP);
+    ribbonToolGroup->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
+    
+    ribbonToolGroup->addButton(ui->tileMove, ODD::TTE_TILE_MOVE);
+    ribbonToolGroup->addButton(ui->tileNew, ODD::TTE_TILE_NEW);
+    ribbonToolGroup->addButton(ui->tileDelete, ODD::TTE_TILE_DELETE);
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Track"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
 
     // Default Settings //
     //

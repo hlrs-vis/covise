@@ -342,6 +342,8 @@ void coVRSelectionManager::setSelectionOnOff(int mode)
 {
     if (mode)
     {
+        coVRSelectionManager::instance()->setSelectionWire(3);
+        coVRSelectionManager::instance()->setSelectionColor(0, 0, 1);
 
         if (!selectionInteractionA->isRegistered())
         {

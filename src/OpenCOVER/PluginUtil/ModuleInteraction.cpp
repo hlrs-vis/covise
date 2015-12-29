@@ -8,6 +8,7 @@
 #include "ModuleInteraction.h"
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coSubMenuItem.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRPinboard.h>
 
@@ -28,12 +29,18 @@ ModuleInteraction::ModuleInteraction(RenderObject *container, coInteractor *inte
     menu_->insert(showPickInteractorCheckbox_, menuItemCounter);
     menuItemCounter++;
 
+    coSubMenuItem *parent = dynamic_cast<coSubMenuItem *>(menu_->getSubMenuItem());
+    if (parent)
+        parent->setSecondaryItem(showPickInteractorCheckbox_);
+
     if (!coVRConfig::instance()->mouseTracking())
     {
         showDirectInteractorCheckbox_ = new coCheckboxMenuItem("Direct Interactor", false, groupPointerArray[0]);
         showDirectInteractorCheckbox_->setMenuListener(this);
         menu_->insert(showDirectInteractorCheckbox_, menuItemCounter);
         menuItemCounter++;
+        if (parent)
+            parent->setSecondaryItem(showDirectInteractorCheckbox_);
     }
 }
 

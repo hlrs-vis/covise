@@ -20,6 +20,8 @@
 
 #include "src/mainwindow.hpp"
 
+#include "ui_CrossfallRibbon.h"
+
 // Qt //
 //
 #include <QGridLayout>
@@ -116,6 +118,28 @@ CrossfallEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("Crossfall Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
+    // Ribbon //
+    //
+
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    Ui::CrossfallRibbon *ui = new Ui::CrossfallRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    
+    
+    ribbonToolGroup->addButton(ui->crossfallSelect, ODD::TSE_SELECT);
+    ribbonToolGroup->addButton(ui->crossfallAdd, ODD::TSE_ADD);
+    ribbonToolGroup->addButton(ui->crossfallDelete, ODD::TSE_DEL);
+    //ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TSE_SMOOTH);
+    
+    connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRadius()));
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Crossfall"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 void

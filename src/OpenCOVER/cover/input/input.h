@@ -41,6 +41,21 @@ public:
     static Input *instance(); //< access input subsystem
     ~Input();
     bool init(); //< initialize input subsytem, legacy driver requires cover/coVRPluginSupport to exist
+
+    enum DebugBits {
+        Config = 1,
+        Mouse = 2,
+        Driver = 4,
+        Raw = 8,
+        Transformed = 16,
+        Matrices = 32,
+        Buttons = 64,
+        Valuators = 128,
+    };
+    static bool debug(DebugBits kind);
+    void setDebug(int debugFlags /* bitwise or of some DebugBits */);
+    int getDebug();
+
     void printConfig() const; //< debug output
 
     void update(); //< global update, call once per frame
@@ -86,6 +101,7 @@ public:
 private:
     Input();
 
+    int m_debug;
     coMousePointer *m_mouse;
 
     typedef std::map<std::string, Person *> PersonMap;

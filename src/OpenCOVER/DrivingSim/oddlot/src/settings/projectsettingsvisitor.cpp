@@ -24,6 +24,10 @@
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
 
+// OpenScenario //
+//
+#include "src/data/oscsystem/oscelement.hpp"
+
 #include "src/data/scenerysystem/heightmap.hpp"
 
 // Settings //
@@ -52,6 +56,8 @@
 #include "widgets/elevationsettings.hpp"
 
 #include "widgets/controllersettings.hpp"
+
+#include "widgets/oscobjectsettings.hpp"
 
 ProjectSettingsVisitor::ProjectSettingsVisitor(ProjectSettings *projectSettings)
     : Visitor()
@@ -235,6 +241,12 @@ ProjectSettingsVisitor::visit(RSystemElementJunction *acceptor)
 void
 ProjectSettingsVisitor::visit(JunctionConnection *)
 {
+}
+
+void
+ProjectSettingsVisitor::visit(OSCElement *acceptor)
+{
+    settingsElement_ = new oscObjectSettings(projectSettings_, NULL, acceptor);
 }
 
 // VehicleSystem //

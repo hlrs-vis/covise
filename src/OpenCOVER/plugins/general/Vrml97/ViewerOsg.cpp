@@ -40,6 +40,7 @@ static const int NUM_TEXUNITS = 4;
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
 #include <cover/coVRLighting.h>
+#include <cover/coVRShadowManager.h>
 
 #include <osg/BlendFunc>
 #include <osg/AlphaFunc>
@@ -76,8 +77,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osgUtil/Tessellator>
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/TangentSpaceGenerator>
-#include <osgShadow/ShadowedScene>
-#include <osgShadow/ShadowMap>
 
 #include <vtrans/vtrans.h>
 
@@ -4748,42 +4747,24 @@ void ViewerOsg::setClip(float *pos,
 }
 
 
-void ViewerOsg::setShadow(int number,
-                        bool enabled)
+void ViewerOsg::setShadow(const std::string &technique)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::setShadow" << endl;
-    osgShadow::ShadowedScene *shadowedScene = (osgShadow::ShadowedScene *)d_currentObject->pNode.get();
+    osg::Group *ShadowGroup = (osg::Group *)d_currentObject->pNode.get();
     if (!d_currentObject->pNode)
     {
-        shadowedScene = new osgShadow::ShadowedScene();
-        d_currentObject->pNode = shadowedScene;
+        ShadowGroup = new osg::Group();
+        d_currentObject->pNode = ShadowGroup;
         setModesByName();
         addToScene(d_currentObject);
         d_currentObject->addChildrensNodes();
     }
+    
+    osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
 
-    if (enabled)
-    {
-        const int ReceivesShadowTraversalMask = 0x1;
+    coVRShadowManager::instance()->setTechnique(technique);
 
-        const int CastsShadowTraversalMask = 0x2;
-
-
-        shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
-        shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
-
-        osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
-        sm->setLight(coVRLighting::instance()->headlight);
-        shadowedScene->setShadowTechnique(sm.get());
-
-        int mapres = 1024;
-        sm->setTextureSize(osg::Vec2s(mapres,mapres));
-
-    }
-    else
-    {
-    }
 }
 
 // Transforms

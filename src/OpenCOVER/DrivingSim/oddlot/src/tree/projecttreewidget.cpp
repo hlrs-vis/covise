@@ -61,7 +61,8 @@ ProjectTreeWidget::init()
 
     // Labels //
     //
-    setHeaderLabels(QStringList() << tr(""));
+	setHeaderHidden(true);
+
     // Root Items //
     //
     QTreeWidgetItem *rootItem = invisibleRootItem();

@@ -27,8 +27,15 @@
 #include "pedestriansystem/pedestriansystem.hpp"
 #include "scenerysystem/scenerysystem.hpp"
 #include "tilesystem/tilesystem.hpp"
+#include "oscsystem/oscbase.hpp"
 
 #include "changemanager.hpp"
+
+// OpenScenario //
+//
+#include "OpenScenarioBase.h"
+
+using namespace OpenScenario;
 
 // Qt //
 //
@@ -57,6 +64,7 @@ ProjectData::ProjectData(ProjectWidget *projectWidget, QUndoStack *undoStack, Ch
     , vehicleSystem_(NULL)
     , pedestrianSystem_(NULL)
     , scenerySystem_(NULL)
+	, oscBase_(NULL)
     , undoStack_(undoStack)
     , changeManager_(changeManager)
 {
@@ -76,6 +84,7 @@ ProjectData::~ProjectData()
     delete vehicleSystem_;
     delete pedestrianSystem_;
     delete scenerySystem_;
+	delete oscBase_;
 }
 
 //##################//
@@ -272,6 +281,25 @@ ProjectData::setScenerySystem(ScenerySystem *scenerySystem)
     else
     {
         qDebug("WARNING 1003230929! Cannot assign ScenerySystem to ProjectData twice!");
+    }
+}
+
+void
+ProjectData::setOSCBase(OSCBase *base)
+{
+    // Can only be assigned once //
+    if (!oscBase_)
+    {
+        oscBase_ = base;
+        oscBase_->setParentProjectData(this);
+
+		OpenScenario::OpenScenarioBase *openScenarioBase = new OpenScenario::OpenScenarioBase();     // make OpenScenarioBase //
+		oscBase_->setOpenScenarioBase(openScenarioBase);
+  //      addProjectDataChanges(ProjectData::CPD_RoadSystemChanged);
+    }
+    else
+    {
+        qDebug("WARNING 1003230927! Cannot assign RoadSystem to ProjectData twice!");
     }
 }
 

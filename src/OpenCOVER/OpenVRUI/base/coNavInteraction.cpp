@@ -36,108 +36,35 @@ void coNavInteraction::update()
 
     if (state == Idle)
     {
-        if (button->wasPressed())
+        if (button->wasPressed(type))
         {
-            if (type == ButtonA || type == AllButtons)
+            if (activate())
             {
-                if (button->wasPressed() & vruiButtons::ACTION_BUTTON)
-                {
-                    if (activate())
-                    {
-                        runningState = StateStarted;
-                        startInteraction();
-                    }
-                }
-            }
-            if (type == ButtonB || type == AllButtons)
-            {
-                if (button->wasPressed() & vruiButtons::DRIVE_BUTTON)
-                {
-                    if (activate())
-                    {
-                        runningState = StateStarted;
-                        startInteraction();
-                    }
-                }
-            }
-            if (type == ButtonC || type == AllButtons)
-            {
-                if (button->wasPressed() & vruiButtons::XFORM_BUTTON)
-                {
-                    if (activate())
-                    {
-                        runningState = StateStarted;
-                        startInteraction();
-                    }
-                }
+                runningState = StateStarted;
+                startInteraction();
             }
         }
     }
     else if (state == Active || state == Paused || state == ActiveNotify)
     //else if (state == Active)
     {
-        if (type == ButtonA || type == AllButtons)
+        if (button->getStatus() & type)
         {
-            if (button->getStatus() & vruiButtons::ACTION_BUTTON)
+            if (state == Paused)
             {
-                if (state == Paused)
-                {
-                    runningState = StateStopped;
-                }
-                else
-                {
-                    runningState = StateRunning;
-                    doInteraction();
-                }
+                runningState = StateStopped;
             }
             else
             {
-                runningState = StateStopped;
-                stopInteraction();
-                state = Idle;
+                runningState = StateRunning;
+                doInteraction();
             }
         }
-        if (type == ButtonB || type == AllButtons)
+        else
         {
-            if (button->getStatus() & vruiButtons::DRIVE_BUTTON)
-            {
-                if (state == Paused)
-                {
-                    runningState = StateStopped;
-                }
-                else
-                {
-                    runningState = StateRunning;
-                    doInteraction();
-                }
-            }
-            else
-            {
-                runningState = StateStopped;
-                stopInteraction();
-                state = Idle;
-            }
-        }
-        if (type == ButtonC || type == AllButtons)
-        {
-            if (button->getStatus() & vruiButtons::XFORM_BUTTON)
-            {
-                if (state == Paused)
-                {
-                    runningState = StateStopped;
-                }
-                else
-                {
-                    runningState = StateRunning;
-                    doInteraction();
-                }
-            }
-            else
-            {
-                runningState = StateStopped;
-                stopInteraction();
-                state = Idle;
-            }
+            runningState = StateStopped;
+            stopInteraction();
+            state = Idle;
         }
     }
 }

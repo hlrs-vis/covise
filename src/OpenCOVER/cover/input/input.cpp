@@ -12,6 +12,7 @@
  *      Author: svnvlad
  */
 
+#include <osg/io_utils>
 #include <config/CoviseConfig.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRDynLib.h>
@@ -42,12 +43,17 @@ Input *Input::instance()
 }
 
 Input::Input()
+: activePerson(NULL)
+, m_mouse(NULL)
+, m_debug(0)
 {
-    activePerson = NULL;
 }
 
 bool Input::init()
 {
+    if (cover->debugLevel(2))
+        m_debug |= Input::Config;
+
     activePerson = NULL;
 
     initHardware();
@@ -59,16 +65,30 @@ bool Input::init()
 
     if (coVRMSController::instance()->isMaster())
     {
-        if (cover->debugLevel(0))
+        if (debug(Input::Config))
             printConfig();
     }
 
     return true;
 }
 
+void Input::setDebug(int debugFlags)
+{
+    m_debug = debugFlags;
+}
+
+int Input::getDebug()
+{
+    return m_debug;
+}
+
+bool Input::debug(DebugBits facility)
+{
+    return Input::instance()->getDebug() & facility;
+}
+
 coMousePointer *Input::mouse() const
 {
-
     return m_mouse;
 }
 
@@ -520,22 +540,59 @@ void Input::update()
         tb << activePerson;
         tb << nButtons << nValuators << nBodies;
 
-        m_mouse->update();
-        tb << m_mouse->xres << m_mouse->yres << m_mouse->width << m_mouse->height;
-        mouse = m_mouse->getMatrix();
-        tb << m_mouse->wheel(0) << m_mouse->wheel(1) << m_mouse->x() << m_mouse->y() <<  mouse;
+        { 
+            const int oxres = m_mouse->xres, oyres = m_mouse->yres;
+            const int owidth = m_mouse->width, oheight = m_mouse->height;
+            const int ow0 = m_mouse->wheel(0), ow1 = m_mouse->wheel(1);
+            const osg::Matrix omat = m_mouse->getMatrix();
+            m_mouse->update();
+            if (debug(Input::Mouse))
+            {
+                if (debug(Input::Matrices))
+                {
+                    if (omat != m_mouse->getMatrix())
+                    {
+                        std::cerr << "Input: transformed Mouse: mat=" << m_mouse->getMatrix() << std::endl;
+                    }
+                }
+                if (oxres != m_mouse->xres || oyres != m_mouse->yres || owidth != m_mouse->width || oheight != m_mouse->height)
+                {
+                    std::cerr << "Input: transformed Mouse: xres=" << m_mouse->xres << ", yres=" << m_mouse->yres << ", width=" << m_mouse->width << ", height=" << m_mouse->height << std::endl;
+                }
+                if (debug(Input::Valuators))
+                {
+                    if (ow0 != m_mouse->wheel(0) || ow1 != m_mouse->wheel(1))
+                    {
+                        std::cerr << "Input: transformed Mouse: wheel(0)=" << m_mouse->wheel(0) << ", wheel(1)=" << m_mouse->wheel(1) << std::endl;
+                    }
+                }
+            }
+            tb << m_mouse->xres << m_mouse->yres << m_mouse->width << m_mouse->height;
+            mouse = m_mouse->getMatrix();
+            tb << m_mouse->wheel(0) << m_mouse->wheel(1) << m_mouse->x() << m_mouse->y() <<  mouse;
+        }
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
         {
             ButtonDevice *b = ob->second;
+            const unsigned old = b->getButtonState();
             b->update();
+            if (debug(Input::Transformed) && debug(Input::Buttons) && old != b->getButtonState())
+            {
+                std::cerr << "Input: transformed " << ob->second->name() << " buttons=0x" << std::hex << b->getButtonState() << std::endl;
+            }
             tb << b->getButtonState();
         }
 
         for (ValuatorMap::iterator it = valuators.begin(); it != valuators.end(); ++it)
         {
             Valuator *v = it->second;
+            const double old = v->getValue();
             v->update();
+            if (debug(Input::Transformed) && debug(Input::Valuators) && old != v->getValue())
+            {
+                std::cerr << "Input: transformed " << it->second->name() << " valuator=" << v->getValue() << std::endl;
+            }
             tb << v->getValue();
             std::pair<double, double> range = v->getRange();
             tb << range.first << range.second;
@@ -543,8 +600,13 @@ void Input::update()
 
         for (TrackingBodyMap::iterator ob = trackingbodies.begin(); ob != trackingbodies.end(); ++ob)
         {
+            const osg::Matrix old = ob->second->getMat();
             ob->second->update();
             ob->second->updateRelative();
+            if (debug(Input::Transformed) && debug(Input::Matrices) && old != ob->second->getMat())
+            {
+                std::cerr << "Input: transformed " << ob->second->name() << " matrix=" << ob->second->getMat() << std::endl;
+            }
             int isVal = ob->second->isValid(), isVar = ob->second->isVarying(), is6Dof = ob->second->is6Dof();
             tb << isVal;
             tb << isVar;

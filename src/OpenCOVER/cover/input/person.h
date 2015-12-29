@@ -48,9 +48,8 @@ public:
     unsigned int getButtonState(size_t num) const;
     double getValuatorValue(size_t idx) const;
     
-    const std::string &getName() const{return m_name;};
-
     float eyeDistance() const;
+    void setEyeDistance(float dist);
 
 private:
     Person(const std::string &name);

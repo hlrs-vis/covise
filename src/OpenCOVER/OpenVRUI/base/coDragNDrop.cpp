@@ -94,12 +94,12 @@ bool coDragNDrop::processHit()
 {
 
     // check if drag or drop is requested
-    if (vruiRendererInterface::the()->getButtons()->wasPressed() & vruiButtons::DRAG_BUTTON)
+    if (vruiRendererInterface::the()->getButtons()->wasPressed(vruiButtons::DRAG_BUTTON))
     {
         // drag button was pressed
         dragOperation();
     }
-    else if (vruiRendererInterface::the()->getButtons()->wasReleased() & vruiButtons::DRAG_BUTTON)
+    else if (vruiRendererInterface::the()->getButtons()->wasReleased(vruiButtons::DRAG_BUTTON))
     {
         // drag button was released
         // CHECK MEDIA TYPE FIRST???

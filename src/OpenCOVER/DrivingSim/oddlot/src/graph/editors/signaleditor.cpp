@@ -166,7 +166,7 @@ SignalEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D
 	{
 		RSystemElementRoad *newRoad = it.value();
 		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
-		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(s) - to);
+		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(newS) - to);
 		double dist = newVec.length();
 
 		if (dist < t)

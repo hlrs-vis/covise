@@ -30,6 +30,8 @@ class ChangeManager;
 
 class DataElement;
 
+class OSCBase;
+
 class ProjectData : public QObject, public DataElement
 {
     Q_OBJECT
@@ -157,6 +159,14 @@ public:
     }
     void setScenerySystem(ScenerySystem *scenerySystem);
 
+	// Oddlot OpenScenario elment base //
+	//
+	OSCBase * getOSCBase() const
+	{
+		return oscBase_;
+	}
+	void setOSCBase(OSCBase *base);
+
     // ProjectData //
     //
     virtual ProjectData *getProjectData()
@@ -280,6 +290,10 @@ private:
     // ScenerySystem //
     //
     ScenerySystem *scenerySystem_; // owned
+
+	// Oddlot OpenScenario base //
+    //
+	OSCBase *oscBase_; // owned
 
     // Undo/Redo //
     //

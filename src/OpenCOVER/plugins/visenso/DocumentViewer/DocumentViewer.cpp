@@ -210,7 +210,7 @@ DocumentViewerPlugin::preFrame()
 */
 
     coPointerButton *button = cover->getPointerButton();
-    if (button->wasReleased() && button->oldState() == vruiButtons::TOGGLE_DOCUMENTS)
+    if (button->wasReleased(vruiButtons::TOGGLE_DOCUMENTS))
     {
         toggleDocumentsButton_->setState(!toggleDocumentsButton_->getState());
         menuEvent(toggleDocumentsButton_);

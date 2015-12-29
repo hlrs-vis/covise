@@ -254,7 +254,7 @@ private:
 
     /* until button is released */
 
-    int shiftEnabled;
+    bool shiftEnabled, shiftMouseNav;
     bool isViewerPosRotation; // mouse rotate around current viewer position
     osg::Matrix mat0;
 
@@ -282,7 +282,6 @@ private:
     float mx, my;
     float x0, y0, relx0, rely0;
     float oldRotx, newRotx, oldRoty, newRoty;
-    int oldShiftEnabled;
     float modifiedVSize, modifiedHSize, yValViewer, yValObject;
     float transXRel, transYRel, transZRel;
     float originX, originY;

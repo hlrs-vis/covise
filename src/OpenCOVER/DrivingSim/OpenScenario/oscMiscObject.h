@@ -12,7 +12,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscVariables.h>
 #include <oscHeader.h>
 #include <oscFile.h>
-//#include <oscNamedObject.h>
 #include <oscDimension.h>
 
 namespace OpenScenario {
@@ -27,15 +26,15 @@ public:
 		OSC_ADD_MEMBER(name);
 		OSC_ADD_MEMBER(type);
 		OSC_ADD_MEMBER(mass);
-		OSC_OBJECT_ADD_MEMBER(dimension,"oscDimension");
-		OSC_OBJECT_ADD_MEMBER(Geometry,"oscFile");
+		OSC_OBJECT_ADD_MEMBER(dimensions,"oscDimension");
+		OSC_OBJECT_ADD_MEMBER(geometry,"oscFile");
     };
     oscHeaderMember header;
 	oscString name;
 	oscString type;
 	oscDouble mass;
-	oscDimensionMember dimension;
-	oscFileMember Geometry;
+	oscDimensionMember dimensions;
+	oscFileMember geometry;
 };
 
 typedef oscObjectVariable<oscMiscObject *> oscMiscObjectMember;

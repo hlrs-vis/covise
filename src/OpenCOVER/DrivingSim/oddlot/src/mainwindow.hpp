@@ -143,6 +143,11 @@ public:
 		return signalTree_;
 	}
 
+	QDockWidget *getCatalogDock()
+	{
+		return catalogDock_;
+	}
+
 	void showSignalsDock(bool visible);
 
     // ProjectSettings //
@@ -155,6 +160,9 @@ public:
 
     void open(QString fileName);
     void openTile(QString fileName);
+
+	// add Catalog dock widgets when the project is openend
+	void createCatalog(const QString &, QWidget *widget);
 
 
 private:
@@ -218,6 +226,8 @@ public slots:
     //
     void toolAction(ToolAction *);
 
+	void settingsDockParentChanged(bool);
+
 private slots:
 
     // Menu Slots //
@@ -278,6 +288,8 @@ private:
     QUndoView *undoView_;
 
     QDockWidget *toolDock_;
+    QDockWidget *ribbonToolDock_;
+	QDockWidget * catalogDock_;
 
     QDockWidget *treeDock_;
     QWidget *emptyTreeWidget_;

@@ -40,6 +40,10 @@
 #include "src/data/pedestriansystem/pedestriansystem.hpp"
 #include "src/data/scenerysystem/scenerysystem.hpp"
 
+#include "src/data/oscsystem/oscbase.hpp"
+#include "src/data/oscsystem/oscelement.hpp"
+
+
 // Graph //
 //
 #include "src/graph/topviewgraph.hpp"
@@ -58,10 +62,12 @@
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/editors/junctioneditor.hpp"
 #include "src/graph/editors/signaleditor.hpp"
+#include "src/graph/editors/osceditor.hpp"
 
 // Tree //
 //
 #include "src/tree/projecttree.hpp"
+#include "src/tree/catalogwidget.hpp"
 
 // Settings //
 //
@@ -86,6 +92,11 @@
 #include "src/io/domparser.hpp"
 #include "src/io/domwriter.hpp"
 
+// OpenScenario //
+//
+#include "OpenScenarioBase.h"
+#include "src/io/oscparser.hpp"
+
 // Qt //
 //
 #include <QtGui>
@@ -99,6 +110,8 @@
 #include <QAction>
 #include <QApplication>
 #include <vector>
+
+using namespace OpenScenario;
 
 /** \brief Main Contructor. Use only this one.
 *
@@ -124,6 +137,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     //
     QGridLayout *layout = new QGridLayout();
     setLayout(layout);
+    layout->setContentsMargins(0,0,0,0);
     QSplitter *splitter = new QSplitter(this);
     splitter->setOrientation(Qt::Vertical);
     layout->addWidget(splitter);
@@ -158,6 +172,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     projectData_->setVehicleSystem(new VehicleSystem());
     projectData_->setPedestrianSystem(new PedestrianSystem());
     projectData_->setScenerySystem(new ScenerySystem());
+	projectData_->setOSCBase(new OSCBase());
 
     // VIEW: Graph //
     //
@@ -205,6 +220,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
+	editors_.insert(ODD::EOS, new OpenScenarioEditor(this, projectData_, topviewGraph_));
 
     // VIEW: Tree //
     //
@@ -248,6 +264,7 @@ ProjectWidget::~ProjectWidget()
 {
     delete projectSettings_;
     delete heightGraph_;
+
     foreach (ProjectEditor *editor, editors_)
     {
         delete editor;
@@ -411,6 +428,23 @@ ProjectWidget::loadFile(const QString &fileName)
     QApplication::setOverrideCursor(Qt::WaitCursor);
     DomParser *parser = new DomParser(projectData_);
     bool success = parser->parseXODR(&file);
+
+	if (!success)		// try OpenScenario
+	{
+		// Create a Tile
+		Tile *tile = new Tile("Tile0", "0");
+		projectData_->getTileSystem()->addTile(tile);
+		projectData_->getTileSystem()->setCurrentTile(tile);
+
+		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
+		if (openScenarioBase)
+		{
+			OSCParser *oscParser = new OSCParser(openScenarioBase, projectData_);
+			success = oscParser->parseXOSC(fileName);
+		}
+
+	}
+
     topviewGraph_->updateSceneSize();
     delete parser;
     // TODO
@@ -464,6 +498,15 @@ ProjectWidget::loadTile(const QString &fileName)
     setFile(fileName);
 
     return true;
+}
+
+void
+	ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
+{
+	// add a catalog tree
+	//
+	CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
+	mainWindow_->createCatalog(type, catalogWidget);
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)

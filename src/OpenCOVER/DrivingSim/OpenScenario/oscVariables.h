@@ -11,8 +11,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscMemberValue.h>
 #include <oscMember.h>
 #include <oscFactories.h>
+
 #include <string>
-#include <iostream>
 
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
@@ -20,8 +20,10 @@ class DOMDocument;
 class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
+
 namespace OpenScenario
 {
+    //
     template<typename T>
     class oscValue: public oscMemberValue 
     {
@@ -37,6 +39,7 @@ namespace OpenScenario
         OPENSCENARIOEXPORT virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name);
     };
     
+    //
     template<typename T>
     class oscVariable: public oscMember
     {
@@ -47,15 +50,48 @@ namespace OpenScenario
         virtual T& operator=(T &tv){setValue(tv); return tv;};
         oscValue<T> *getMemberValue() const {return value;};
         void setMemberValue(oscMemberValue *v) {value = v;};
-        const T& getValue() const {if(value) {oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value); if(ov!=NULL) return ov->getValue();} return defaultValue;};
-        bool exists(){return value!=NULL;};
+        const T& getValue() const
+        {
+            if(value)
+            {
+                oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value);
+                if(ov!=NULL)
+                {
+                    return ov->getValue();
+                }
+            }
+            return defaultValue;
+        };
+        bool exists() const {return value!=NULL;};
         void setDefault(T &d) {defaultValue = d;};
-        virtual void setValue(T &v) {if(value==NULL) {value = oscFactories::instance()->valueFactory->create(type);} if(value!=NULL) {oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value); if(ov!=NULL) ov->setValue(v);}};
-        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document){if(value!=NULL) { value->writeToDOM(currentElement,document,name.c_str());} return true;};
+        virtual void setValue(T &v)
+        {
+            if(value==NULL)
+            {
+                value = oscFactories::instance()->valueFactory->create(type);
+            }
+            if(value!=NULL)
+            {
+                oscValue<T> *ov = dynamic_cast<oscValue<T>*>(value);
+                if(ov!=NULL)
+                {
+                    ov->setValue(v);
+                }
+            }
+        };
+        virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+        {
+            if(value!=NULL)
+            {
+                value->writeToDOM(currentElement,document,name.c_str());
+            }
+            return true;
+        };
         OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
 
     };
 
+    //
     class oscEnumType
     {
     public:
@@ -64,6 +100,8 @@ namespace OpenScenario
         void addEnum(const std::string &n,int val){ enumValues[n]=val;};
     };
     
+
+    //
     typedef oscVariable<std::string> oscString;
     typedef oscVariable<int> oscInt;
     typedef oscVariable<unsigned int> oscUInt;
@@ -72,13 +110,17 @@ namespace OpenScenario
     typedef oscVariable<double> oscDouble;
 	typedef oscVariable<bool> oscBool;
 	typedef oscVariable<float> oscFloat;
+	//
     class oscEnum: public oscVariable<int>
     {
     public:
         oscEnumType *enumType;
         OPENSCENARIOEXPORT virtual oscMemberValue::MemberTypes getValueType();
+        void setValueWStr(std::string &strVal); ///<set the value with the string of the value
+        std::string getValueAsStr(int &val) const; ///<get the value as a string
     };
 
+    //
     typedef oscValue<std::string> oscStringValue;
     typedef oscValue<int> oscIntValue;
     typedef oscValue<unsigned int> oscUIntValue;
@@ -88,6 +130,7 @@ namespace OpenScenario
     typedef oscValue<bool> oscBoolValue;
     typedef oscValue<float> oscFloatValue;
     typedef oscValue<oscObjectBase *> oscObjectValue;
+    //
     class oscEnumValue: public oscValue<int>
     {
     public:

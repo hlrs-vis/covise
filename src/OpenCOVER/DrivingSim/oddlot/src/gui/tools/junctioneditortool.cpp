@@ -22,6 +22,7 @@
 //
 #include "src/data/prototypemanager.hpp"
 
+
 // Qt //
 //
 #include <QGridLayout>
@@ -117,7 +118,7 @@ JunctionEditorTool::initToolWidget()
     line->setLineWidth(1);
     toolLayout->addWidget(line, ++row, 0, 1, ColumnCount);
 
-    toolButton = new QPushButton("Create Junction from selected elements");
+    toolButton = new QPushButton("Junction from\nselected elements");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TJE_CREATE_JUNCTION); // button, id
@@ -131,12 +132,12 @@ JunctionEditorTool::initToolWidget()
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TJE_SELECT_JUNCTION); // button, id
 
-    toolButton = new QPushButton("Add Selected Roads");
+    toolButton = new QPushButton("Add Roads");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, ++row, 0);
     toolGroup->addButton(toolButton, ODD::TJE_ADD_TO_JUNCTION); // button, id
 
-    toolButton = new QPushButton("Remove Selected Roads");
+    toolButton = new QPushButton("Remove Roads");
     toolButton->setCheckable(true);
     toolLayout->addWidget(toolButton, row, 1);
     toolGroup->addButton(toolButton, ODD::TJE_REMOVE_FROM_JUNCTION); // button, id
@@ -180,10 +181,10 @@ JunctionEditorTool::initToolWidget()
     thresholdEdit_->setMinimumWidth(80.0);
     thresholdEdit_->setMaximumWidth(80.0);
 
-    toolLayout->addWidget(thresholdLabel, row, 1);
-    toolLayout->addWidget(thresholdEdit_, row, 2);
+    toolLayout->addWidget(thresholdLabel, ++row, 0);
+    toolLayout->addWidget(thresholdEdit_, row, 1);
 
-    connect(thresholdEdit_, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
+    connect(thresholdEdit_, SIGNAL(editingFinished()), this, SLOT(setRadius()));
 
     // Finish Layout //
     //
@@ -196,6 +197,38 @@ JunctionEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("Junction Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
+    // Ribbon //
+    //
+
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    ui = new Ui::JunctionRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    
+    ribbonToolGroup->addButton(ui->connectingLane, ODD::TJE_CREATE_LANE);
+    ribbonToolGroup->addButton(ui->connectingRoad, ODD::TJE_CREATE_ROAD);
+    ribbonToolGroup->addButton(ui->split, ODD::TJE_SPLIT);
+    ribbonToolGroup->addButton(ui->adjust, ODD::TJE_MOVE);
+    
+    ribbonToolGroup->addButton(ui->junctionCreate, ODD::TJE_CREATE_JUNCTION);
+    ribbonToolGroup->addButton(ui->junctionSelect, ODD::TJE_SELECT_JUNCTION);
+    ribbonToolGroup->addButton(ui->junctionAdd, ODD::TJE_ADD_TO_JUNCTION);
+    ribbonToolGroup->addButton(ui->junctionRemove, ODD::TJE_REMOVE_FROM_JUNCTION);
+    
+    ribbonToolGroup->addButton(ui->linkSelected, ODD::TJE_LINK_ROADS);
+    ribbonToolGroup->addButton(ui->unlinkSelected, ODD::TJE_UNLINK_ROADS);
+    ribbonToolGroup->addButton(ui->cuttingCircle, ODD::TJE_CIRCLE);
+    
+    connect(ui->cuttingCircle, SIGNAL(toggled(bool)), this, SLOT(cuttingCircle(bool)));
+    
+    connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Junction"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 void
@@ -250,12 +283,25 @@ JunctionEditorTool::cuttingCircle(bool active)
 /*! \brief Gets called when a tool has been selected.
 */
 void
-JunctionEditorTool::setThreshold()
+JunctionEditorTool::setRadius()
 {
 
     // Set a tool //
     //
     JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, thresholdEdit_->value());
+    emit toolAction(action);
+    delete action;
+}
+
+/*! \brief Gets called when a tool has been selected.
+*/
+void
+JunctionEditorTool::setRRadius()
+{
+
+    // Set a tool //
+    //
+    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, ui->radiusEdit->value());
     emit toolAction(action);
     delete action;
 }

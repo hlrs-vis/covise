@@ -35,7 +35,6 @@ TracerLine::TracerLine(coInteractor *inter, TracerPlugin *p)
 
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew TracerLine\n");
-    float *sp1, *sp2;
     int dummy; // we know that the vector has 3 elements
     plugin = p;
     _inter = inter;
@@ -52,11 +51,14 @@ TracerLine::TracerLine(coInteractor *inter, TracerPlugin *p)
     _execOnChange = coCoviseConfig::isOn("COVER.ExecuteOnChange", true);
 
     // create _s1, _s2
+    float *sp1=NULL, *sp2=NULL;
     _inter->getFloatVectorParam(TracerInteraction::P_STARTPOINT1, dummy, sp1);
     _inter->getFloatVectorParam(TracerInteraction::P_STARTPOINT2, dummy, sp2);
 
-    _pos1.set(sp1[0], sp1[1], sp1[2]);
-    _pos2.set(sp2[0], sp2[1], sp2[2]);
+    if (sp1)
+        _pos1.set(sp1[0], sp1[1], sp1[2]);
+    if (sp2)
+        _pos2.set(sp2[0], sp2[1], sp2[2]);
 
     parent = cover->getObjectsScale();
     _s0 = new coVR3DTransRotInteractor(computeM0(), _interSize, coInteraction::ButtonA, "Menu", "Line_s0", coInteraction::Medium);

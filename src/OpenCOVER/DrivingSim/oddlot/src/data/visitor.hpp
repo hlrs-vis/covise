@@ -74,6 +74,10 @@ class PedFiddleyardSink;
 class JunctionConnection;
 class RSystemElementJunction;
 
+//OpenScenario //
+//
+class OSCElement;
+
 // TileSystem //
 //
 class TileSystem;
@@ -229,6 +233,12 @@ public:
     virtual void visit(JunctionConnection *)
     {
     }
+
+	// OpenScenario Element //
+	//
+	virtual void visit(OSCElement *)
+	{
+	}
 
     // VehicleSystem //
     //

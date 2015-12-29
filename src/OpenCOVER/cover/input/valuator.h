@@ -17,13 +17,14 @@
 
 #include <string>
 #include <util/coExport.h>
+#include "inputsource.h"
 
 namespace opencover
 {
 
 class InputDevice;
 
-class COVEREXPORT Valuator
+class COVEREXPORT Valuator: public InputSource
 {
     friend class Input;
 
@@ -38,7 +39,6 @@ private:
     void setValue(double value);
     void setRange(double min, double max);
 
-    InputDevice *m_dev;
     size_t m_idx;
     double m_value;
     double m_min, m_max;

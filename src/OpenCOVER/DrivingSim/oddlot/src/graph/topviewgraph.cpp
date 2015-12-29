@@ -64,10 +64,10 @@ TopviewGraph::TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectDat
     //
     graphView_ = new GraphView(graphScene_, this);
     graphView_->setObjectName("TopviewGraphView");
-    graphView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    graphView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    //graphView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //graphView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //graphView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    //graphView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    graphView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphView_->setRenderHints(QPainter::Antialiasing);
 
     graphView_->resetViewTransformation();
@@ -79,6 +79,7 @@ TopviewGraph::TopviewGraph(ProjectWidget *projectWidget, ProjectData *projectDat
     //
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(graphView_);
+    layout->setContentsMargins(0,0,0,0);
     setLayout(layout);
 
     updateSceneSize();

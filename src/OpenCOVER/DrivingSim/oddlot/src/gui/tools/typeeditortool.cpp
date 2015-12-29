@@ -21,6 +21,8 @@
 
 #include "src/mainwindow.hpp"
 
+#include "ui_TypeRibbon.h"
+
 // Qt //
 //
 #include <QGridLayout>
@@ -48,7 +50,7 @@
 */
 TypeEditorTool::TypeEditorTool(ToolManager *toolManager)
     : Tool(toolManager)
-    , toolId_(ODD::TRT_SELECT)
+    , toolId_(ODD::TRT_MOVE)
     , roadType_(TypeSection::RTP_UNKNOWN)
     , // default, note: should be the same as in the comboBox
     active_(false)
@@ -111,6 +113,7 @@ TypeEditorTool::initToolWidget()
     selectGroupBox_ = new QGroupBox(tr("Add Settings"));
     selectGroupBox_->setLayout(roadTypeBox_->getGridLayout());
     selectGroupBox_->setEnabled(false);
+    selectGroupBox_->setVisible(false);
 
     toolLayout->addWidget(selectGroupBox_, ++row, 0);
 
@@ -127,6 +130,35 @@ TypeEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("Road Type Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
+    
+    ToolWidget *ribbonWidget = new ToolWidget();
+    ribbonWidget->setObjectName("Ribbon");
+    //ribbonWidget->
+    Ui::TypeRibbon *ui = new Ui::TypeRibbon();
+    ui->setupUi(ribbonWidget);
+    ribbonWidget->setObjectName("Ribbon");
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+
+    // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
+    ribbonToolGroup->addButton(ui->typeMove, ODD::TRT_MOVE);
+    ui->typeMove->setChecked(true);
+    ribbonToolGroup->addButton(ui->typeAdd, ODD::TRT_ADD);
+    ribbonToolGroup->addButton(ui->typeDelete, ODD::TRT_DEL);
+    
+    RoadTypeComboBox *ribbonRoadTypeBox_ = new RoadTypeComboBox();
+    selectGroupBox2_ = new QGroupBox(tr("Add Settings"));
+    selectGroupBox2_->setLayout(ribbonRoadTypeBox_->getGridLayout());
+    selectGroupBox2_->setEnabled(false);
+    selectGroupBox2_->setVisible(false);
+    ui->horizontalLayout->insertWidget(2,selectGroupBox2_);
+
+    connect(ribbonRoadTypeBox_->getComboBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(handleRoadTypeSelection(int)));
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Road Type"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 //################//
@@ -169,10 +201,16 @@ TypeEditorTool::handleToolClick(int id)
     if (toolId_ == ODD::TRT_ADD)
     {
         selectGroupBox_->setEnabled(true);
+        selectGroupBox2_->setEnabled(true);
+        selectGroupBox_->setVisible(true);
+        selectGroupBox2_->setVisible(true);
     }
     else
     {
         selectGroupBox_->setEnabled(false);
+        selectGroupBox2_->setEnabled(false);
+        selectGroupBox_->setVisible(false);
+        selectGroupBox2_->setVisible(false);
     }
 
     // Set a tool //

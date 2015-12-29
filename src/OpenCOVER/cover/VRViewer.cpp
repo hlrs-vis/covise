@@ -973,9 +973,9 @@ VRViewer::createChannels(int i)
         GLenum buffer = traits->doubleBuffer ? GL_BACK : GL_FRONT;
         coVRConfig::instance()->channels[i].camera->setDrawBuffer(buffer);
         coVRConfig::instance()->channels[i].camera->setReadBuffer(buffer);
-        coVRConfig::instance()->channels[i].camera->setCullMask(Isect::Visible | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
-        coVRConfig::instance()->channels[i].camera->setCullMaskLeft(Isect::Visible | Isect::Left | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
-        coVRConfig::instance()->channels[i].camera->setCullMaskRight(Isect::Visible | Isect::Right | Isect::OsgEarthSecondary); // also cull secondary geometry in osgEarth
+        coVRConfig::instance()->channels[i].camera->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
+        coVRConfig::instance()->channels[i].camera->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
+        coVRConfig::instance()->channels[i].camera->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
        
         coVRConfig::instance()->channels[i].camera->setInheritanceMask(osg::CullSettings::NO_VARIABLES);
         //coVRConfig::instance()->screens[i].camera->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);

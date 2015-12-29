@@ -186,12 +186,12 @@ int coButton::hit(vruiHit *hit)
                                ? renderer->getMouseButtons()
                                : renderer->getButtons();
 
-    if (buttons->wasPressed() & vruiButtons::ACTION_BUTTON)
+    if (buttons->wasPressed(vruiButtons::ACTION_BUTTON))
     {
         // left Button was pressed
         onPress();
     }
-    else if (buttons->wasReleased() & vruiButtons::ACTION_BUTTON)
+    else if (buttons->wasReleased(vruiButtons::ACTION_BUTTON))
     {
         // left Button was released
         onRelease();

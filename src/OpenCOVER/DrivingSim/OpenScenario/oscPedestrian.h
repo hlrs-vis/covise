@@ -14,7 +14,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscHeader.h>
 #include <oscDimension.h>
 #include <oscBehavior.h>
-#include <oscNameId.h>
+#include <oscNameRefId.h>
 
 namespace OpenScenario {
 
@@ -28,11 +28,10 @@ private:
 };
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPedestrian: public oscObjectBase
+class OPENSCENARIOEXPORT oscPedestrian: public oscNameRefId
 {
 public:
 	oscHeaderMember header;
-	oscNameIdMember name;
 	oscString model;
 	oscDouble mass;
 	oscBehaviorMember behavior;
@@ -49,7 +48,6 @@ public:
     oscPedestrian()
     {
         OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
-        OSC_OBJECT_ADD_MEMBER(name,"oscNameId");
         OSC_ADD_MEMBER(model);
 		OSC_ADD_MEMBER(mass);
         OSC_OBJECT_ADD_MEMBER(behavior,"oscBehavior");
