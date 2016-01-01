@@ -119,7 +119,7 @@ public:
 public:
     osg::LightSource *headlight;
     osg::LightSource *spotlight;
-    //osg::LightSource *menulight;
+    osg::LightSource *shadowlight;
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
     static coVRLighting *instance();
 
@@ -143,6 +143,10 @@ public:
 
     // switch lights other than headlight and spot light
     void switchOtherLights(bool on);
+    
+    osg::LightSource *getShadowLight(){return shadowlight;};
+    void setShadowLight(osg::LightSource *ls);
+
 };
 }
 #endif

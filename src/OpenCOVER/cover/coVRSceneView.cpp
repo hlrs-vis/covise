@@ -89,8 +89,25 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
     if (coVRConfig::instance()->screens[screen].render == false)
         return false;
     // does not work, renderstage is Reset by cullStage renderStage->addPositionedAttribute(NULL,coVRLighting::instance()->headlight->getLight()); // add light which creates shadows
-    _lightingMode = HEADLIGHT;
-    _light = coVRLighting::instance()->headlight->getLight(); // ::SceneView::cullStage then sets PositionedAttribute to this light
+    //_lightingMode = HEADLIGHT;
+    //_light = coVRLighting::instance()->headlight->getLight(); // ::SceneView::cullStage then sets PositionedAttribute to this light
+    //_light = coVRLighting::instance()->getShadowLight()->getLight(); // ::SceneView::cullStage then sets PositionedAttribute to this light
+    _lightingMode = NO_SCENEVIEW_LIGHT;
+    osg::MatrixList matrices = coVRLighting::instance()->getShadowLight()->getWorldMatrices();
+    osg::Matrix worldMat;
+
+    if (!matrices.empty())
+    {
+        worldMat = matrices[0];
+    }
+    else
+    {
+        worldMat = osg::Matrix::identity();
+    }
+    RefMatrix *lightMat = new osg::RefMatrix(worldMat);
+    //osgUtil::PositionalStateContainer::AttrMatrixList& attrList = renderStage->getStateGraphListgetAttrMatrixList();
+    renderStage->getPositionalStateContainer()->getAttrMatrixList().clear();
+    renderStage->addPositionedAttribute(lightMat,coVRLighting::instance()->getShadowLight()->getLight());
     bool retval = SceneView::cullStage(npm, nmv, cullVisitor, rendergraph, renderStage, viewport);
 
     if (coVRTui::instance()->binList->size() > 0)
