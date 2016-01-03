@@ -29,6 +29,8 @@ SET(LIB_HEADERS
   VrmlNodeClippingPlane.h
   VrmlNodeShadowedScene.h
   VrmlNodePrecipitation.h
+  VrmlNodeMatrixLight.h
+  coPrecipitationEffect.h
 )
 
 SET(LIB_SOURCES
@@ -46,9 +48,11 @@ SET(LIB_SOURCES
   VrmlNodeClippingPlane.cpp
   VrmlNodeShadowedScene.cpp
   VrmlNodePrecipitation.cpp
+  VrmlNodeMatrixLight.cpp
+  coPrecipitationEffect.cpp
 )
 
-add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES})
+add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES} ${LIB_HEADERS})
 target_link_libraries(Vrml97Cover coOpenPluginUtil coOpenCOVER coOpenVRUI
    coOSGVRUI ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_CONFIG_LIBRARY}
    ${COVISE_UTIL_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${EXTRA_LIBS} ${OPENSCENEGRAPH_LIBRARIES}) # ${CMAKE_THREAD_LIBS_INIT})

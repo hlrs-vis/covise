@@ -59,7 +59,10 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
     if (technique=="ShadowVolume")
     {
-        sv = new osgShadow::ShadowVolume;
+        if(sv.get()==NULL)
+        {
+            sv = new osgShadow::ShadowVolume;
+        }
         sv->setDynamicShadowVolumes(false);
         sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
         //sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
@@ -67,12 +70,18 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     }
     else if (technique=="ShadowTexture")
     {
-        st = new osgShadow::ShadowTexture;
+        if(st.get()==NULL)
+        {
+            st = new osgShadow::ShadowTexture;
+        }
         shadowedScene->setShadowTechnique(st.get());
     }
     else if (technique=="SoftShadowMap")
     {
-        softSM = new osgShadow::SoftShadowMap;
+        if(softSM.get()==NULL)
+        {
+            softSM = new osgShadow::SoftShadowMap;
+        }
         shadowedScene->setShadowTechnique(softSM.get());
         if(lightSource.get())
         {
@@ -81,7 +90,10 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     }
     else if (technique=="StandardShadowMap")
     {
-        standardSM = new osgShadow::StandardShadowMap;
+        if(standardSM.get()==NULL)
+        {
+            standardSM = new osgShadow::StandardShadowMap;
+        }
         shadowedScene->setShadowTechnique(standardSM.get());
         if(lightSource.get())
         {
@@ -93,7 +105,10 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     //}
     else if (technique=="LightSpacePerspectiveShadowMapVB")
     {
-        osg::ref_ptr<osgShadow::MinimalShadowMap> lspsm = new osgShadow::LightSpacePerspectiveShadowMapVB;
+        if(lspsm.get()==NULL)
+        {
+            lspsm = new osgShadow::LightSpacePerspectiveShadowMapVB;
+        }
         /*unsigned int texSize = 2048;
         //float minLightMargin = 100000.f;
         //float maxFarPlane = 5;
@@ -112,7 +127,10 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     }
     else if (technique=="LightSpacePerspectiveShadowMapCB")
     {
-        lspsmcb = new osgShadow::LightSpacePerspectiveShadowMapCB;
+        if(lspsmcb.get()==NULL)
+        {
+            lspsmcb = new osgShadow::LightSpacePerspectiveShadowMapCB;
+        }
         shadowedScene->setShadowTechnique(lspsmcb.get());
         if(lightSource.get())
         {
@@ -121,7 +139,10 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     }
     else if (technique=="LightSpacePerspectiveShadowMapDB")
     {
-        lspsmdb = new osgShadow::LightSpacePerspectiveShadowMapDB;
+        if(lspsmdb.get()==NULL)
+        {
+            lspsmdb = new osgShadow::LightSpacePerspectiveShadowMapDB;
+        }
         shadowedScene->setShadowTechnique(lspsmdb.get());
         if(lightSource.get())
         {
@@ -130,7 +151,10 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     }
     else if (technique=="ShadowMap")
     {
-        shadowMap = new osgShadow::ShadowMap;
+        if(shadowMap.get()==NULL)
+        {
+            shadowMap = new osgShadow::ShadowMap;
+        }
         shadowedScene->setShadowTechnique(shadowMap.get());
 
         int mapres = 4096;

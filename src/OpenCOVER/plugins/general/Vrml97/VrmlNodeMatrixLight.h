@@ -10,10 +10,10 @@
 //  Copyright (C) 2001 Uwe Woessner
 //
 //  %W% %G%
-//  VrmlNodePrecipitation.h
+//  VrmlNodeMatrixLight.h
 
-#ifndef _VRMLNODEPrecipitation_
-#define _VRMLNODEPrecipitation_
+#ifndef _VRMLNODEMatrixLight_
+#define _VRMLNODEMatrixLight_
 
 #include <util/coTypes.h>
 
@@ -26,27 +26,27 @@
 #include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
-#include <coPrecipitationEffect.h>
+#include <cover/coVRPluginSupport.h>
 
 using namespace opencover;
 using namespace vrml;
 
-class VRML97COVEREXPORT VrmlNodePrecipitation : public VrmlNodeChild
+class VRML97COVEREXPORT VrmlNodeMatrixLight : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of Precipitation nodes
+    // Define the fields of MatrixLight nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
     virtual VrmlNodeType *nodeType() const;
 
-    VrmlNodePrecipitation(VrmlScene *scene = 0);
-    VrmlNodePrecipitation(const VrmlNodePrecipitation &n);
-    virtual ~VrmlNodePrecipitation();
+    VrmlNodeMatrixLight(VrmlScene *scene = 0);
+    VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n);
+    virtual ~VrmlNodeMatrixLight();
     virtual void addToScene(VrmlScene *s, const char *);
 
     virtual VrmlNode *cloneMe() const;
 
-    virtual VrmlNodePrecipitation *toPrecipitation() const;
+    virtual VrmlNodeMatrixLight *toMatrixLight() const;
 
     virtual ostream &printFields(ostream &os, int indent);
 
@@ -63,11 +63,11 @@ public:
 
 private:
     // Fields
-    VrmlSFInt d_numPrecipitation;
+    VrmlSFInt d_numMatrixLight;
     VrmlSFFloat d_fraction_changed;
 
     VrmlSFBool d_enabled;
     VrmlSFBool d_loop;
-    osg::ref_ptr<coPrecipitationEffect> precipitationEffect;
+    osg::ref_ptr<coMatrixLightEffect> precipitationEffect;
 };
-#endif //_VRMLNODEPrecipitation_
+#endif //_VRMLNODEMatrixLight_

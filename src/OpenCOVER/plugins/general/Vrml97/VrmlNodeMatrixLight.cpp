@@ -10,7 +10,7 @@
 //  Copyright (C) 2001 Uwe Woessner
 //
 //  %W% %G%
-//  VrmlNodePrecipitation.cpp
+//  VrmlNodeMatrixLight.cpp
 #ifdef _WIN32
 #if (_MSC_VER >= 1300) && !(defined(MIDL_PASS) || defined(RC_INVOKED))
 #define POINTER_64 __ptr64
@@ -38,26 +38,26 @@
 
 #include <util/byteswap.h>
 
-#include "VrmlNodePrecipitation.h"
+#include "VrmlNodeMatrixLight.h"
 #include "ViewerOsg.h"
 #include <osg/Quat>
 
-static list<VrmlNodePrecipitation *> allPrecipitation;
+static list<VrmlNodeMatrixLight *> allMatrixLights;
 
-// Precipitation factory.
+// MatrixLight factory.
 
 static VrmlNode *creator(VrmlScene *scene)
 {
-    return new VrmlNodePrecipitation(scene);
+    return new VrmlNodeMatrixLight(scene);
 }
 
-void VrmlNodePrecipitation::update()
+void VrmlNodeMatrixLight::update()
 {
 }
 
-// Define the built in VrmlNodeType:: "Precipitation" fields
+// Define the built in VrmlNodeType:: "MatrixLight" fields
 
-VrmlNodeType *VrmlNodePrecipitation::defineType(VrmlNodeType *t)
+VrmlNodeType *VrmlNodeMatrixLight::defineType(VrmlNodeType *t)
 {
     static VrmlNodeType *st = 0;
 
@@ -65,12 +65,12 @@ VrmlNodeType *VrmlNodePrecipitation::defineType(VrmlNodeType *t)
     {
         if (st)
             return st; // Only define the type once.
-        t = st = new VrmlNodeType("Precipitation", creator);
+        t = st = new VrmlNodeType("MatrixLight", creator);
     }
 
     VrmlNodeChild::defineType(t); // Parent class
 
-    t->addExposedField("numPrecipitation", VrmlField::SFINT32);
+    t->addExposedField("numMatrixLight", VrmlField::SFINT32);
     t->addExposedField("enabled", VrmlField::SFBOOL);
     t->addExposedField("loop", VrmlField::SFBOOL);
     t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
@@ -79,26 +79,26 @@ VrmlNodeType *VrmlNodePrecipitation::defineType(VrmlNodeType *t)
     return t;
 }
 
-VrmlNodeType *VrmlNodePrecipitation::nodeType() const
+VrmlNodeType *VrmlNodeMatrixLight::nodeType() const
 {
     return defineType(0);
 }
 
-VrmlNodePrecipitation::VrmlNodePrecipitation(VrmlScene *scene)
+VrmlNodeMatrixLight::VrmlNodeMatrixLight(VrmlScene *scene)
     : VrmlNodeChild(scene)
-    , d_numPrecipitation(0)
+    , d_numMatrixLight(0)
     , d_fraction_changed(0.0)
     , d_enabled(true)
     , d_loop(true)
 {
     setModified();
-    precipitationEffect = new coPrecipitationEffect;
+    precipitationEffect = new coMatrixLightEffect;
     precipitationEffect->rain(0.5);
     //precipitationEffect->setParticleSize(0.03*1000);
     cover->getObjectsRoot()->addChild(precipitationEffect.get());
 }
 
-void VrmlNodePrecipitation::addToScene(VrmlScene *s, const char *relUrl)
+void VrmlNodeMatrixLight::addToScene(VrmlScene *s, const char *relUrl)
 {
     (void)relUrl;
     d_scene = s;
@@ -113,15 +113,15 @@ void VrmlNodePrecipitation::addToScene(VrmlScene *s, const char *relUrl)
 
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
-VrmlNodePrecipitation::VrmlNodePrecipitation(const VrmlNodePrecipitation &n)
+VrmlNodeMatrixLight::VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n)
     : VrmlNodeChild(n.d_scene)
-    , d_numPrecipitation(n.d_numPrecipitation)
+    , d_numMatrixLight(n.d_numMatrixLight)
     , d_fraction_changed(n.d_fraction_changed)
     , d_enabled(n.d_enabled)
     , d_loop(n.d_loop)
 {
     
-    precipitationEffect = new coPrecipitationEffect;
+    precipitationEffect = new coMatrixLightEffect;
     precipitationEffect->rain(0.5);
    // precipitationEffect->setNearTransition(100);
     //precipitationEffect->setFarTransition(100000);
@@ -131,31 +131,31 @@ VrmlNodePrecipitation::VrmlNodePrecipitation(const VrmlNodePrecipitation &n)
     setModified();
 }
 
-VrmlNodePrecipitation::~VrmlNodePrecipitation()
+VrmlNodeMatrixLight::~VrmlNodeMatrixLight()
 {
     cover->getObjectsRoot()->removeChild(precipitationEffect.get());
 }
 
-VrmlNode *VrmlNodePrecipitation::cloneMe() const
+VrmlNode *VrmlNodeMatrixLight::cloneMe() const
 {
-    return new VrmlNodePrecipitation(*this);
+    return new VrmlNodeMatrixLight(*this);
 }
 
-VrmlNodePrecipitation *VrmlNodePrecipitation::toPrecipitation() const
+VrmlNodeMatrixLight *VrmlNodeMatrixLight::toMatrixLight() const
 {
-    return (VrmlNodePrecipitation *)this;
+    return (VrmlNodeMatrixLight *)this;
 }
 
-void VrmlNodePrecipitation::render(Viewer *viewer)
+void VrmlNodeMatrixLight::render(Viewer *viewer)
 {
     (void)viewer;
     //setModified();
 }
 
-ostream &VrmlNodePrecipitation::printFields(ostream &os, int indent)
+ostream &VrmlNodeMatrixLight::printFields(ostream &os, int indent)
 {
-    if (!d_numPrecipitation.get())
-        PRINT_FIELD(numPrecipitation);
+    if (!d_numMatrixLight.get())
+        PRINT_FIELD(numMatrixLight);
     if (!d_enabled.get())
         PRINT_FIELD(enabled);
     if (!d_loop.get())
@@ -168,11 +168,11 @@ ostream &VrmlNodePrecipitation::printFields(ostream &os, int indent)
 
 // Set the value of one of the node fields.
 
-void VrmlNodePrecipitation::setField(const char *fieldName,
+void VrmlNodeMatrixLight::setField(const char *fieldName,
                                  const VrmlField &fieldValue)
 {
     if
-        TRY_FIELD(numPrecipitation, SFInt)
+        TRY_FIELD(numMatrixLight, SFInt)
     else if
         TRY_FIELD(enabled, SFBool)
     else if
@@ -182,7 +182,7 @@ void VrmlNodePrecipitation::setField(const char *fieldName,
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
 
-    if (strcmp(fieldName, "numPrecipitation") == 0)
+    if (strcmp(fieldName, "numMatrixLight") == 0)
     {
     }
     if (strcmp(fieldName, "timestep") == 0)
@@ -190,10 +190,10 @@ void VrmlNodePrecipitation::setField(const char *fieldName,
     }
 }
 
-const VrmlField *VrmlNodePrecipitation::getField(const char *fieldName) const
+const VrmlField *VrmlNodeMatrixLight::getField(const char *fieldName) const
 {
-    if (strcmp(fieldName, "numPrecipitation") == 0)
-        return &d_numPrecipitation;
+    if (strcmp(fieldName, "numMatrixLight") == 0)
+        return &d_numMatrixLight;
     if (strcmp(fieldName, "enabled") == 0)
         return &d_enabled;
     else if (strcmp(fieldName, "loop") == 0)
