@@ -102,9 +102,10 @@ void
 oscObjectSettings::uiInit()
 {
 	// Widget/Layout //
-    //
-	 QGridLayout *objectGridLayout = new QGridLayout();
-	// objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+	//
+	QGridLayout *objectGridLayout = new QGridLayout();
+	objectGridLayout->setContentsMargins(4, 9, 4, 9);
+	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
 	int row = -1;
 	QSignalMapper *signalMapper = new QSignalMapper(this);
