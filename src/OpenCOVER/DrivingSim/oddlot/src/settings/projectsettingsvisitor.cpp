@@ -57,7 +57,7 @@
 
 #include "widgets/controllersettings.hpp"
 
-#include "widgets/oscObjectsettings.hpp"
+#include "widgets/oscobjectsettings.hpp"
 
 ProjectSettingsVisitor::ProjectSettingsVisitor(ProjectSettings *projectSettings)
     : Visitor()

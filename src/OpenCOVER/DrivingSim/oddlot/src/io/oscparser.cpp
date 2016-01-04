@@ -52,7 +52,7 @@
 /*#include <QtGui>
 #include <QDomDocument>*/
 #include <QMessageBox>
-#include <qDebug>
+#include <QDebug>
 
 // Xercecs //
 //

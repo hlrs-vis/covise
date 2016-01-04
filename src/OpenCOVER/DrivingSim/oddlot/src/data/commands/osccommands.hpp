@@ -256,7 +256,7 @@ template<typename T>
 class SetOSCValuePropertiesCommand : public DataCommand
 {
 public:
-	explicit SetOSCValuePropertiesCommand(OSCElement *element, std::string &memberName, T &value, DataCommand *parent = NULL)
+	explicit SetOSCValuePropertiesCommand(OSCElement *element, const std::string &memberName, const T &value, DataCommand *parent = NULL)
 	{
 		memberName_ = memberName;
 	// Check for validity //

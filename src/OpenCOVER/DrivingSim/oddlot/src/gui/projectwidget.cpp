@@ -137,6 +137,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     //
     QGridLayout *layout = new QGridLayout();
     setLayout(layout);
+    layout->setContentsMargins(0,0,0,0);
     QSplitter *splitter = new QSplitter(this);
     splitter->setOrientation(Qt::Vertical);
     layout->addWidget(splitter);

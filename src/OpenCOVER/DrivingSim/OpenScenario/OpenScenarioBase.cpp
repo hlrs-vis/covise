@@ -57,7 +57,7 @@ OpenScenarioBase::~OpenScenarioBase()
 }
 
 
-int OpenScenarioBase::loadFile(std::string &fileName)
+int OpenScenarioBase::loadFile(const std::string &fileName)
 {
     if(getRootElement(fileName)==NULL)
         return false;
@@ -67,7 +67,7 @@ int OpenScenarioBase::loadFile(std::string &fileName)
     }
 }
 
-int OpenScenarioBase::saveFile(std::string &fileName, bool overwrite/* default false */)
+int OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* default false */)
 {
     xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
     //oscSourceFile for OpenScenarioBase

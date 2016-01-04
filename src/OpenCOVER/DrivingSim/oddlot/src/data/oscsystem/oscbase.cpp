@@ -17,7 +17,7 @@
 
 // Data //
 //
-#include "oscElement.hpp"
+#include "oscelement.hpp"
 #include "src/data/projectdata.hpp"
 #include "src/data/tilesystem/tile.hpp"
 

@@ -23,6 +23,8 @@
 
 #include <QComboBox>
 
+#include "ui_OSCRibbon.h"
+
 
 class OpenScenarioEditorTool : public Tool
 {

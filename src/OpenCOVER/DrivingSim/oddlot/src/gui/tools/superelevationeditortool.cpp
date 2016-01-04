@@ -19,6 +19,7 @@
 #include "toolwidget.hpp"
 
 #include "src/mainwindow.hpp"
+#include "ui_SuperelevationRibbon.h"
 
 // Qt //
 //
@@ -116,6 +117,28 @@ SuperelevationEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("Superelevation Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
+    // Ribbon //
+    //
+
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    Ui::SuperelevationRibbon *ui = new Ui::SuperelevationRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    
+    
+    ribbonToolGroup->addButton(ui->elevationSelect, ODD::TSE_SELECT);
+    ribbonToolGroup->addButton(ui->elevationAdd, ODD::TSE_ADD);
+    ribbonToolGroup->addButton(ui->elevationDelete, ODD::TSE_DEL);
+    //ribbonToolGroup->addButton(ui->elevationSmooth, ODD::TSE_SMOOTH);
+    
+    connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRadius()));
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Superelevation"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 void
