@@ -70,7 +70,7 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-	QComboBox *catalogComboBox_;
+	Ui::OSCRibbon *ui;
 };
 
 class OpenScenarioEditorToolAction : public ToolAction
