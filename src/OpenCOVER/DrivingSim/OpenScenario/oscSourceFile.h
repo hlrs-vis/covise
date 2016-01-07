@@ -15,43 +15,35 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
-class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
 namespace OpenScenario {
 
-class OpenScenarioBase;
-class oscObjectBase;
-
 class OPENSCENARIOEXPORT oscSourceFile
 {
+protected:
+    std::string srcFileName; ///< file name of the file that is imported
+    std::string rootElementName; ///< of the file that is read in
+    xercesc::DOMDocument *xmlDoc;
+
 public:
     oscSourceFile(); ///< constructor
     ~oscSourceFile(); ///< destructor
 
-    void initialize(OpenScenarioBase *b);
-
-    void setVariables(const std::string &ren, const std::string &sf); ///< set srcFile and rootElementName when object is used the first time
+    void setSrcFileName(const std::string &sf);
+    void setSrcFileName(const XMLCh *sf);
+    void setRootElementName(const std::string &ren);
+    void setRootElementName(const XMLCh *ren);
     void setXmlDoc(xercesc::DOMDocument *xD);
-    void setIncludeParentElem(xercesc::DOMElement *inclParentElem);
 
-    std::string getSrcFileName() const;
-    std::string getRootElementName() const;
+    std::string getSrcFileNameAsStr() const;
+    const XMLCh *getSrcFileNameAsXmlCh() const;
+    std::string getRootElementNameAsStr() const;
+    const XMLCh *getRootElementNameAsXmlCh() const;
     xercesc::DOMDocument *getXmlDoc() const;
-    xercesc::DOMElement *getIncludeParentElem() const;
-
-
-protected:
-    OpenScenarioBase *base;
-    std::string srcFileName; ///< file name from which we read
-    std::string rootElementName; ///< name of the root element of the file from which is read
-    xercesc::DOMDocument *xmlDoc;
-    xercesc::DOMElement *includeParentElem;
-
 };
 
 }
-
 
 #endif /* OSC_SOURCE_FILE_H */

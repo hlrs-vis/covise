@@ -6,21 +6,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 * License: LGPL 2+ */
 
 #include "oscSourceFile.h"
-#include "OpenScenarioBase.h"
-#include "oscObjectBase.h"
-
-#include <iostream>
 
 #include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/util/XMLString.hpp>
 
 
 using namespace OpenScenario;
 
+
 oscSourceFile::oscSourceFile()
 {
-    base = NULL;
     xmlDoc = NULL;
-    includeParentElem = NULL;
 }
 
 oscSourceFile::~oscSourceFile()
@@ -34,15 +30,24 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
-void oscSourceFile::initialize(OpenScenarioBase *b)
-{
-    base = b;
-}
-
-void oscSourceFile::setVariables(const std::string &ren, const std::string &sf)
+void oscSourceFile::setSrcFileName(const std::string &sf)
 {
     srcFileName = sf;
+}
+
+void oscSourceFile::setSrcFileName(const XMLCh *sf)
+{
+    srcFileName = xercesc::XMLString::transcode(sf);
+}
+
+void oscSourceFile::setRootElementName(const std::string &ren)
+{
     rootElementName = ren;
+}
+
+void oscSourceFile::setRootElementName(const XMLCh *ren)
+{
+    rootElementName = xercesc::XMLString::transcode(ren);
 }
 
 void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
@@ -50,35 +55,29 @@ void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
     xmlDoc = xD;
 }
 
-void oscSourceFile::setIncludeParentElem(xercesc::DOMElement *inclParentElem)
-{
-    includeParentElem = inclParentElem;
-}
 
-
-std::string oscSourceFile::getSrcFileName() const
+//
+std::string oscSourceFile::getSrcFileNameAsStr() const
 {
     return srcFileName;
 }
 
-std::string oscSourceFile::getRootElementName() const
+const XMLCh *oscSourceFile::getSrcFileNameAsXmlCh() const
+{
+    return xercesc::XMLString::transcode(srcFileName.c_str());
+}
+
+std::string oscSourceFile::getRootElementNameAsStr() const
 {
     return rootElementName;
+}
+
+const XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const
+{
+    return xercesc::XMLString::transcode(rootElementName.c_str());
 }
 
 xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
 {
     return xmlDoc;
 }
-
-xercesc::DOMElement *oscSourceFile::getIncludeParentElem() const
-{
-    return includeParentElem;
-}
-
-
-
-/*****
- * private functions
- *****/
-

@@ -45,20 +45,20 @@ SET(HEADERS
    oscDistance.h
    oscDistanceLateral.h
    oscDistanceLongitudinal.h
-   oscDriverCatalog.h
    oscDriver.h
+   oscDriverCatalog.h
    oscDriverRef.h
    oscEndCondition.h
    oscEndConditionGroup.h
    oscEndConditionRef.h
    oscEngine.h
-   oscEntity.h
    oscEntities.h
+   oscEntity.h
    oscEntityAdd.h
    oscEntityCatalog.h
    oscEntityDelete.h
-   oscEnvironmentCatalog.h
    oscEnvironment.h
+   oscEnvironmentCatalog.h
    oscEnvironmentRef.h
    oscEvent.h
    oscEventStartCondition.h
@@ -89,8 +89,8 @@ SET(HEADERS
    oscLight.h
    oscLighting.h
    oscLights.h
-   oscManeuverCatalog.h
    oscManeuver.h
+   oscManeuverCatalog.h
    oscManeuverList.h
    oscManeuverRef.h
    oscManeuverRefActor.h
@@ -98,8 +98,8 @@ SET(HEADERS
    oscMemberValue.h
    oscMirror.h
    oscMirrors.h
-   oscMiscObjectCatalog.h
    oscMiscObject.h
+   oscMiscObjectCatalog.h
    oscMiscObjectRef.h
    oscNamedObject.h
    oscNamedPriority.h
@@ -107,6 +107,7 @@ SET(HEADERS
    oscNotify.h
    oscNumericCondition.h
    oscObject.h
+   oscObjectArrayVariable.h
    oscObjectBase.h
    oscObjectChoice.h  
    oscObjectVariable.h
@@ -123,7 +124,6 @@ SET(HEADERS
    oscPedestrianCatalog.h
    oscPedestrianController.h
    oscPedestrianRef.h
-   oscPedestrian.h
    oscPerformance.h
    oscPosition.h
    oscPositionLane.h
@@ -136,9 +136,9 @@ SET(HEADERS
    oscReachPosition.h
    oscRefActor.h
    oscRefActorList.h
-   oscRelativeChoice.h
    oscReferenceHanding.h
    oscRelative.h
+   oscRelativeChoice.h
    oscRelativePositionLane.h
    oscRelativePositionRoad.h
    oscRelativePositionWorld.h
@@ -152,16 +152,16 @@ SET(HEADERS
    oscScenarioEnd.h
    oscSetController.h
    oscSetState.h
-   oscSimulationTime.h
    oscShape.h
+   oscSimulationTime.h
    oscSourceFile.h
-   oscSpeedDynamics.h
    oscSpeed.h
+   oscSpeedDynamics.h
    oscSpline.h
    oscStandsStill.h
+   oscStartCondition.h
    oscStartConditionGroup.h
    oscStartConditionRef.h
-   oscStartCondition.h
    oscStoppingDistance.h
    oscStoryboard.h
    oscTest.h
@@ -205,11 +205,11 @@ SET(SOURCES
    oscPedestrian.cpp
    oscPedestrianController.cpp
    oscPrecipitation.cpp
+   oscPriority.cpp
    oscReachPosition.cpp
    oscReferenceHanding.cpp
    oscRoadCondition.cpp
    oscRoute.cpp
-   oscPriority.cpp
    oscShape.cpp
    oscSourceFile.cpp
    oscTrafficSource.cpp
@@ -223,21 +223,21 @@ IF(WIN32)
   set(EXTRA_LIBS ${EXTRA_LIBS} ws2_32.lib)
 ENDIF(WIN32)
 
- 
 
+INCLUDE_DIRECTORIES(
+   ./..
+   ${PROJ4_INCLUDE_DIR}
+   ${V8_INCLUDE_DIR}
+)
 
-   INCLUDE_DIRECTORIES(
-      ./..
-      ${PROJ4_INCLUDE_DIR}
-      ${V8_INCLUDE_DIR}
-   )
+ADD_COVISE_LIBRARY(coOpenScenario SHARED ${SOURCES} ${HEADERS})
 
-   ADD_COVISE_LIBRARY(coOpenScenario SHARED ${SOURCES} ${HEADERS})
+COVISE_WNOERROR(coOpenScenario)
 
-   COVISE_WNOERROR(coOpenScenario)
+COVISE_INSTALL_TARGET(coOpenScenario)
 
-   COVISE_INSTALL_TARGET(coOpenScenario)
 target_link_libraries(coOpenScenario ${EXTRA_LIBS})
+
 
 IF(MSVC80 OR MSVC90)
   ADD_COVISE_COMPILE_FLAGS(coOpenScenario "/Zc:wchar_t-")
