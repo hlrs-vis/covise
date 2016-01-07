@@ -13,32 +13,17 @@
 **
 **************************************************************************/
 
-#ifndef OSCOBJECTSETTINGS_HPP
-#define OSCOBJECTSETTINGS_HPP
+#ifndef OSCOBJECTSETTINGSSTACK_HPP
+#define OSCOBJECTSETTINGSSTACK_HPP
 
 #include "src/settings/settingselement.hpp"
 
 
-namespace Ui
-{
-class OSCObjectSettings;
-}
-
-namespace OpenScenario
-{
-class oscObjectBase;
-}
-//class SignalManager;
-
 class OSCElement;
-class OSCBase;
-class ToolAction;
-class OpenScenarioEditorToolAction;
-class OSCObjectSettingsStack;
 
-class QSignalMapper;
+class QStackedWidget;
 
-class OSCObjectSettings: public QWidget
+class OSCObjectSettingsStack : public SettingsElement
 {
     Q_OBJECT
 
@@ -47,8 +32,8 @@ class OSCObjectSettings: public QWidget
     //################//
 
 public:
-    explicit OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element);
-    virtual ~OSCObjectSettings();
+    explicit OSCObjectSettingsStack(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, OSCElement *element);
+    virtual ~OSCObjectSettingsStack();
 
     // Observer Pattern //
     //
@@ -58,46 +43,36 @@ public:
 	//
 	void uiInit();
 
+	int getStackSize();
+
+	void addWidget(QWidget *widget);
+
 private:
-    void updateProperties();
 
 	//################//
 	// SIGNALS        //
 	//################//
 
 signals:
-    void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
 
     //################//
     // SLOTS          //
     //################//
 
 private slots:
-    void onEditingFinished(QString name);
-	void onPushButtonPressed(QString name);
+	void removeWidget();
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-	Ui::OSCObjectSettings *ui;
-	ProjectSettings *projectSettings_;
-	OSCObjectSettingsStack *parentStack_;
-
-    const OpenScenario::oscObjectBase *object_;
-	OSCElement *element_;
-	OSCBase *base_;
-
     bool init_;
+	ProjectSettings *projectSettings_;
+	OSCElement *element_;
 
-	QMap<QString, QWidget*> memberWidgets_;
-
-    bool valueChanged_;
-
-	OpenScenarioEditorToolAction *action_;
-
-	QSignalMapper *signalMapper;
+	QStackedWidget *stack_;
+	QVBoxLayout *objectBoxLayout_;
 };
 
-#endif // OSCOBJECTSETTINGS_HPP
+#endif // OSCOBJECTSETTINGSSTACK_HPP

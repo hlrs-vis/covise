@@ -20,6 +20,7 @@
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
 #include "src/data/projectdata.hpp"
+#include "src/data/changemanager.hpp"
 
 // GUI //
 //
@@ -247,50 +248,8 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 				oscElement_ = base_->getOSCElement(currentMember_->getObject());
 				if (oscElement_)
 				{
-					const OpenScenario::oscObjectBase *object = oscElement_->getObject();
-					OpenScenario::oscObjectBase::MemberMap members = object->getMembers();
-					for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
-					{
-						if (!it->second->exists())
-						{
-							OpenScenario::oscMemberValue::MemberTypes memberType = it->second->getType();
-							if (memberType == OpenScenario::oscMemberValue::MemberTypes::OBJECT)
-							{
-								OSCElement *memberElement = new OSCElement(QString::fromStdString(it->first));
-
-								AddOSCObjectCommand *command = new AddOSCObjectCommand(object, base_, it->first, memberElement, NULL);
-								projectWidget_->getTopviewGraph()->executeCommand(command);
-							}
-							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::BOOL)
-							{
-								bool v = true;
-								AddOSCValueCommand<bool> *command = new AddOSCValueCommand<bool>(object, it->first, v);
-								projectWidget_->getTopviewGraph()->executeCommand(command);
-							}
-							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::STRING)
-							{
-								std::string v = "";
-								AddOSCValueCommand<std::string> *command = new AddOSCValueCommand<std::string>(object, it->first, v);
-								projectWidget_->getTopviewGraph()->executeCommand(command);
-							}
-							else if (memberType == OpenScenario::oscMemberValue::MemberTypes::ENUM)
-							{
-								int v = 0;
-								AddOSCEnumValueCommand *command = new AddOSCEnumValueCommand(object, it->first, v);
-								projectWidget_->getTopviewGraph()->executeCommand(command);
-
-							}
-							else
-							{
-								int v = 0;
-								AddOSCValueCommand<int> *command = new AddOSCValueCommand<int>(object, it->first, v);
-								projectWidget_->getTopviewGraph()->executeCommand(command);
-							}
-						}
-					}
-
 					SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
-					projectWidget_->getTopviewGraph()->executeCommand(command);
+					projectWidget_->getTopviewGraph()->executeCommand(command); 
 				}
 
 
@@ -358,8 +317,16 @@ CatalogTreeWidget::updateObserver()
 			currentSelectedItem_->setText(0, QString::fromStdString(sv->getValue()));
 		}
     }
-	else if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementDeleted))
+	else
 	{
-		createTree();
+		int changes = oscElement_->getDataElementChanges();
+		if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementDeleted))
+		{
+			createTree();
+		}
+		else if ((changes & DataElement::CDE_SelectionChange) && !oscElement_->isElementSelected())
+		{
+//			clearSelection();
+		}
 	}
 }

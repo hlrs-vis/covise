@@ -340,6 +340,7 @@ SET(ODDLOT_SOURCES
 	src/tree/catalogwidget.cpp
 	src/data/commands/osccommands.cpp
 	src/settings/widgets/oscobjectsettings.cpp
+	src/settings/widgets/oscobjectsettingsstack.cpp
 	src/data/oscsystem/oscelement.cpp
 	src/data/oscsystem/oscbase.cpp
 )
@@ -634,6 +635,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/tree/catalogwidget.hpp
 	src/data/commands/osccommands.hpp
 	src/settings/widgets/oscobjectsettings.hpp
+	src/settings/widgets/oscobjectsettingsstack.hpp
 	src/data/oscsystem/oscelement.hpp
 	src/data/oscsystem/oscbase.hpp
 )
