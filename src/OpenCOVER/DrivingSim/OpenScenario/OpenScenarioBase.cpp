@@ -112,7 +112,8 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
 
         if (srcFileName != fileName)
         {
-            srcFileName = "out_" + srcFileName;
+
+            srcFileName = srcFileName + "_out.xml";
         }
         xercesc::DOMDocument* xmlSrcDoc = srcFileVec[i]->getXmlDoc();
 
