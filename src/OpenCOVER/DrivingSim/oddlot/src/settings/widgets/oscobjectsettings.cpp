@@ -71,7 +71,7 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
     : QWidget()
 	, ui(new Ui::OSCObjectSettings)
     , init_(false)
-    , valueChanged_(true)
+    , valueChanged_(false)
 	, element_(element)
 	, projectSettings_(projectSettings)
 	, parentStack_(parent)
@@ -126,8 +126,14 @@ OSCObjectSettings::uiInit()
 	
 	// Signal Mapper for the value input widgets //
 	//
-	signalMapper = new QSignalMapper(this);
+	QSignalMapper *signalMapper = new QSignalMapper(this);
 	connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(onEditingFinished(QString)));
+
+	// values changed mapper //
+	//
+	QSignalMapper *valueChangedMapper = new QSignalMapper(this);
+	connect(valueChangedMapper, SIGNAL(mapped(QString)), this, SLOT(onValueChanged()));
+
 
 	// Signal Mapper for the objects //
 	//
@@ -177,6 +183,8 @@ OSCObjectSettings::uiInit()
 			objectGridLayout->addWidget(oscSpinBox, row, 1);
 			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscSpinBox, memberName);
+			connect(oscSpinBox, SIGNAL(valueChanged(int)), valueChangedMapper, SLOT(map()));
+			valueChangedMapper->setMapping(oscSpinBox, memberName);
 		}
 		else if (type == OpenScenario::oscMemberValue::MemberTypes::STRING)
 		{
@@ -185,6 +193,8 @@ OSCObjectSettings::uiInit()
 			objectGridLayout->addWidget(oscLineEdit, row, 1);
 			connect(oscLineEdit, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscLineEdit, memberName);
+			connect(oscLineEdit, SIGNAL(textChanged(QString)), valueChangedMapper, SLOT(map()));
+			valueChangedMapper->setMapping(oscLineEdit, memberName);
 		}
 		else if ((type == OpenScenario::oscMemberValue::MemberTypes::DOUBLE) || (type == OpenScenario::oscMemberValue::MemberTypes::FLOAT))
 		{
@@ -193,6 +203,8 @@ OSCObjectSettings::uiInit()
 			objectGridLayout->addWidget(oscSpinBox, row, 1);
 			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscSpinBox, memberName);
+			connect(oscSpinBox, SIGNAL(valueChanged(double)), valueChangedMapper, SLOT(map()));
+			valueChangedMapper->setMapping(oscSpinBox, memberName);
 		}
 		else if (type == OpenScenario::oscMemberValue::MemberTypes::OBJECT)
 		{
@@ -223,16 +235,20 @@ OSCObjectSettings::uiInit()
 
 			memberWidgets_.insert(memberName, oscComboBox);
 			objectGridLayout->addWidget(oscComboBox, row, 1);
-			connect(oscComboBox, SIGNAL(currentIndexChanged(int)), signalMapper, SLOT(map()));
+			connect(oscComboBox, SIGNAL(activated(int)), signalMapper, SLOT(map()));
+			signalMapper->setMapping(oscComboBox, memberName);
+			connect(oscComboBox, SIGNAL(currentIndexChanged(int)), valueChangedMapper, SLOT(map()));
+			valueChangedMapper->setMapping(oscComboBox, memberName);
 		}
 		else if (type == OpenScenario::oscMemberValue::MemberTypes::BOOL)
 		{
 			QCheckBox *oscCheckBox = new QCheckBox();
 			memberWidgets_.insert(memberName, oscCheckBox);
-			signalMapper->setMapping(oscCheckBox, memberName);
 			objectGridLayout->addWidget(oscCheckBox, row, 1);
-			connect(oscCheckBox, SIGNAL(stateChanged(int)), signalMapper, SLOT(map()));
+			connect(oscCheckBox, SIGNAL(clicked(bool)), signalMapper, SLOT(map()));
 			signalMapper->setMapping(oscCheckBox, memberName);
+			connect(oscCheckBox, SIGNAL(stateChanged(int)), valueChangedMapper, SLOT(map()));
+			valueChangedMapper->setMapping(oscCheckBox, memberName);
 
 		}
 
@@ -264,63 +280,61 @@ OSCObjectSettings::updateProperties()
 
 			OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 			OpenScenario::oscMemberValue *value = member->getValue();
-			QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value());
-			if (spinBox)
+
+			if (QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value()))
 			{
-				oscIntValue *iv = dynamic_cast<oscIntValue *>(it.value());
-				if (iv)
+			
+				if (oscIntValue *iv = dynamic_cast<oscIntValue *>(value))
 				{
 					spinBox->setValue(iv->getValue());
 				}
-				continue;
-			}
-			QDoubleSpinBox *doubleSpinBox = dynamic_cast<QDoubleSpinBox *>(it.value());
-			if (doubleSpinBox)
-			{
-				oscFloatValue *fv = dynamic_cast<oscFloatValue *>(value);
-				if(fv)
+				else if (oscUIntValue *uv = dynamic_cast<oscUIntValue *>(value))
 				{
-				   doubleSpinBox->setValue(fv->getValue());
+					spinBox->setValue(uv->getValue());
 				}
-				continue;
+				else if (oscShortValue *sv = dynamic_cast<oscShortValue *>(value))
+				{
+					spinBox->setValue(sv->getValue());
+				}
+				else if (oscUShortValue *usv = dynamic_cast<oscUShortValue *>(value))
+				{
+					spinBox->setValue(usv->getValue());
+				}
 			}
-			QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(it.value());
-			if (lineEdit)
+			else if (QDoubleSpinBox *doubleSpinBox = dynamic_cast<QDoubleSpinBox *>(it.value()))
 			{
-				oscStringValue *sv = dynamic_cast<oscStringValue *>(it.value());
+				if (oscFloatValue *fv = dynamic_cast<oscFloatValue *>(value))
+				{
+					doubleSpinBox->setValue(fv->getValue());
+				}
+				else if (oscDoubleValue *dv = dynamic_cast<oscDoubleValue *>(value))
+				{
+					doubleSpinBox->setValue(dv->getValue());
+				}
+			}
+			else if (QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(it.value()))
+			{
+				oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
 				if (sv)
 				{
 					lineEdit->setText(QString::fromStdString(sv->getValue()));
 				}
-				continue;
 			}
-			QComboBox *comboBox = dynamic_cast<QComboBox *>(it.value());
-			if (comboBox)
+			else if (QComboBox *comboBox = dynamic_cast<QComboBox *>(it.value()))
 			{
-				oscIntValue *iv = dynamic_cast<oscIntValue *>(it.value());
+				oscIntValue *iv = dynamic_cast<oscIntValue *>(value);
 				if (iv)
 				{
 					comboBox->setCurrentIndex(iv->getValue());
 				}
-
-				continue;
 			}
-			QCheckBox *checkBox = dynamic_cast<QCheckBox *>(it.value());
-			if (checkBox)
+			else if (QCheckBox *checkBox = dynamic_cast<QCheckBox *>(it.value()))
 			{
-				oscIntValue *iv = dynamic_cast<oscIntValue *>(it.value());
+				oscBoolValue *iv = dynamic_cast<oscBoolValue *>(value);
 				if (iv)
 				{
-					if (iv->getValue() == 1)
-					{
-						checkBox->setChecked(true);
-					}
-					else
-					{
-						checkBox->setChecked(false);
-					}
+					checkBox->setChecked(iv->getValue());
 				}
-				continue;
 			}
 		}
     }
@@ -331,99 +345,103 @@ OSCObjectSettings::updateProperties()
 //################//
 
 void
+OSCObjectSettings::onValueChanged()
+{
+    valueChanged_ = true;
+}
+
+
+void
 OSCObjectSettings::onEditingFinished(QString name)
 {
-//    if (valueChanged_)
- //   {
-	QWidget *widget = memberWidgets_.value(name);
-	OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
-	OpenScenario::oscMemberValue::MemberTypes type = member->getType();
-
-	if (!member->exists())		// create new member value
+	if (valueChanged_)
 	{
-		OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
-		member->setValue(v);
-	}
+		QWidget *widget = memberWidgets_.value(name);
+		OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
+		OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
-	switch (type)
-	{
-	case OpenScenario::oscMemberValue::MemberTypes::INT:
+		if (!member->exists())		// create new member value
 		{
-			QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
-			int v = spinBox->value();
-			SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::UINT:
-		{
-			QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
-			uint v = spinBox->value();
-			SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, name.toStdString(), v);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::USHORT:
-		{
-			QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
-			ushort v = spinBox->value();
-			SetOSCValuePropertiesCommand<ushort> *command = new SetOSCValuePropertiesCommand<ushort>(element_, name.toStdString(), v);
-			projectSettings_->executeCommand(command);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::SHORT:
-		{
-			QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
-			short v = spinBox->value();
-			SetOSCValuePropertiesCommand<short> *command = new SetOSCValuePropertiesCommand<short>(element_, name.toStdString(), v);
-			projectSettings_->executeCommand(command);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::FLOAT:
-		{
-			QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
-			float v = spinBox->value();
-			SetOSCValuePropertiesCommand<float> *command = new SetOSCValuePropertiesCommand<float>(element_, name.toStdString(), v);
-			projectSettings_->executeCommand(command);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::DOUBLE:
-		{
-			QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
-			double v = spinBox->value();
-			SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(element_, name.toStdString(), v);
-			projectSettings_->executeCommand(command);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::STRING:
-		{
-			QLineEdit * lineEdit = dynamic_cast<QLineEdit *>(widget);
-			QString v = lineEdit->text();
-			SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(element_, name.toStdString(), v.toStdString());
-			projectSettings_->executeCommand(command);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::BOOL:
-		{
-			QCheckBox *checkBox = dynamic_cast<QCheckBox *>(widget);
-			bool v = checkBox->isChecked();
-			SetOSCValuePropertiesCommand<bool> *command = new SetOSCValuePropertiesCommand<bool>(element_, name.toStdString(), v);
-			projectSettings_->executeCommand(command);
-			break;
-		}
-	case OpenScenario::oscMemberValue::MemberTypes::ENUM:
-		{
-			QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
-			int v = comboBox->currentIndex();
-			OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(member);
-
-/*			OpenScenario::oscEnumType *oscVar = dynamic_cast<OpenScenario::oscEnumType *>(member);
-
-			OpenScenario::oscValue<oscEnum> value(v);
-			SetOSCObjectPropertiesCommand<oscEnum> *command = new SetOSCObjectPropertiesCommand<oscEnum>(element_, name.toStdString(), value);
-			projectSettings_->executeCommand(command);*/
-			break;
+			OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
+			member->setValue(v);
 		}
 
-		//TODO: Date, time, obejct
+		switch (type)
+		{
+		case OpenScenario::oscMemberValue::MemberTypes::INT:
+			{
+				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
+				int v = spinBox->value();
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::UINT:
+			{
+				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
+				uint v = spinBox->value();
+				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, name.toStdString(), v);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::USHORT:
+			{
+				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
+				ushort v = spinBox->value();
+				SetOSCValuePropertiesCommand<ushort> *command = new SetOSCValuePropertiesCommand<ushort>(element_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::SHORT:
+			{
+				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
+				short v = spinBox->value();
+				SetOSCValuePropertiesCommand<short> *command = new SetOSCValuePropertiesCommand<short>(element_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::FLOAT:
+			{
+				QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
+				float v = spinBox->value();
+				SetOSCValuePropertiesCommand<float> *command = new SetOSCValuePropertiesCommand<float>(element_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::DOUBLE:
+			{
+				QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
+				double v = spinBox->value();
+				SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(element_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::STRING:
+			{
+				QLineEdit * lineEdit = dynamic_cast<QLineEdit *>(widget);
+				QString v = lineEdit->text();
+				SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(element_, name.toStdString(), v.toStdString());
+				projectSettings_->executeCommand(command);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::BOOL:
+			{
+				QCheckBox *checkBox = dynamic_cast<QCheckBox *>(widget);
+				bool v = checkBox->isChecked();
+				SetOSCValuePropertiesCommand<bool> *command = new SetOSCValuePropertiesCommand<bool>(element_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
+				break;
+			}
+		case OpenScenario::oscMemberValue::MemberTypes::ENUM:
+			{
+				QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
+				int v = comboBox->currentIndex();
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v);
+				projectSettings_->executeCommand(command);
+				break;
+			}
+
+			//TODO: Date, time
+		}
+		valueChanged_ = false;
 	}
 
 

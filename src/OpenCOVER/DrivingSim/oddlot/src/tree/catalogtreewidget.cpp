@@ -74,6 +74,7 @@ CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, const OpenScenario:
 	, oscElement_(NULL)
 	, currentSelectedItem_(NULL)
 	, type_(type)
+	, currentMember_(NULL)
 {
     init();
 }
@@ -244,14 +245,26 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 				}
 
 				currentTool_ = ODD::TOS_SELECT;
-				currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
-				oscElement_ = base_->getOSCElement(currentMember_->getObject());
-				if (oscElement_)
+				OpenScenario::oscObjectBase::MemberMap members = objectBase_->getMembers();
+				for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 				{
-					SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
-					projectWidget_->getTopviewGraph()->executeCommand(command); 
+					QString elementName = QString::fromStdString(it->first);
+					if (elementName == text)
+					{
+						currentMember_ = it->second;
+						break;
+					}
 				}
-
+//				currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
+				if (currentMember_)
+				{
+					oscElement_ = base_->getOSCElement(currentMember_->getObject());
+					if (oscElement_)
+					{
+						SelectDataElementCommand *command = new SelectDataElementCommand(oscElement_, NULL);
+						projectWidget_->getTopviewGraph()->executeCommand(command); 
+					}
+				}
 
 			}
 		}

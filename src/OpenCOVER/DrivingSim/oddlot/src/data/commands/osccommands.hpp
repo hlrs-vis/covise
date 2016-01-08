@@ -279,7 +279,12 @@ public:
 		setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement specified."));
 		return;
 	}
-//	oldOSCValue_ = v_->getValue();
+
+	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
+	if (oscTypeMemberValue)
+	{
+		oldOSCValue_ = oscTypeMemberValue->getValue();
+	}
 
 	setValid();
 	setText(QObject::tr("SetProperties"));

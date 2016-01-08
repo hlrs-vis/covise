@@ -18,6 +18,8 @@
 
 #include "src/settings/settingselement.hpp"
 
+#include "oscMemberValue.h"
+
 
 namespace Ui
 {
@@ -32,11 +34,9 @@ class oscObjectBase;
 
 class OSCElement;
 class OSCBase;
-class ToolAction;
 class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
 
-class QSignalMapper;
 
 class OSCObjectSettings: public QWidget
 {
@@ -66,7 +66,6 @@ private:
 	//################//
 
 signals:
-    void toolAction(ToolAction *);  // This widget has to behave like a toolEditor and send the selected tool //
 
     //################//
     // SLOTS          //
@@ -75,6 +74,7 @@ signals:
 private slots:
     void onEditingFinished(QString name);
 	void onPushButtonPressed(QString name);
+	void onValueChanged();
 
     //################//
     // PROPERTIES     //
@@ -95,9 +95,6 @@ private:
 
     bool valueChanged_;
 
-	OpenScenarioEditorToolAction *action_;
-
-	QSignalMapper *signalMapper;
 };
 
 #endif // OSCOBJECTSETTINGS_HPP
