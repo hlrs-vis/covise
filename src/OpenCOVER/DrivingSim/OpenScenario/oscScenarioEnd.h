@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
+#include <oscObjectVariable.h>
 
 #include <oscEndConditionGroup.h>
 #include <oscUserData.h>
@@ -23,11 +24,11 @@ class OPENSCENARIOEXPORT oscScenarioEnd: public oscObjectBase
 public:
     oscScenarioEnd()
     {
-       OSC_OBJECT_ADD_MEMBER(endConditionGroup,"oscEndConditionGroup");
-       OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(endConditionGroup,"oscEndConditionGroup");
+        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
     };
 
-    oscEndConditionGroupMember endConditionGroup;
+    oscEndConditionGroupArrayMember endConditionGroup;
     oscUserDataMember userData;
 };
 
