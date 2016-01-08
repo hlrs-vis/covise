@@ -179,6 +179,33 @@ OSCObjectSettings::uiInit()
 		if (type <= 3) // UINT = 0, INT = 1, USHORT = 2, SHORT = 3
 		{
 			QSpinBox * oscSpinBox = new QSpinBox();
+			switch (type)
+			{
+			case OpenScenario::oscMemberValue::MemberTypes::INT:
+				{
+					oscSpinBox->setMinimum(INT_MIN);
+					oscSpinBox->setMaximum(INT_MAX);
+					break;
+				}
+			case OpenScenario::oscMemberValue::MemberTypes::UINT:
+				{
+					oscSpinBox->setMinimum(0);
+					oscSpinBox->setMaximum(UINT_MAX);
+					break;
+				}
+			case OpenScenario::oscMemberValue::MemberTypes::SHORT:
+				{
+					oscSpinBox->setMinimum(SHRT_MIN);
+					oscSpinBox->setMaximum(SHRT_MAX);
+					break;
+				}
+			case OpenScenario::oscMemberValue::MemberTypes::USHORT:
+				{
+					oscSpinBox->setMinimum(0);
+					oscSpinBox->setMaximum(USHRT_MAX);
+					break;
+				}
+			}
 			memberWidgets_.insert(memberName, oscSpinBox);	
 			objectGridLayout->addWidget(oscSpinBox, row, 1);
 			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
@@ -199,6 +226,21 @@ OSCObjectSettings::uiInit()
 		else if ((type == OpenScenario::oscMemberValue::MemberTypes::DOUBLE) || (type == OpenScenario::oscMemberValue::MemberTypes::FLOAT))
 		{
 			QDoubleSpinBox *oscSpinBox = new QDoubleSpinBox();
+			switch (type)
+			{
+			case OpenScenario::oscMemberValue::MemberTypes::DOUBLE:
+				{
+					oscSpinBox->setMinimum(-DBL_MAX);
+					oscSpinBox->setMaximum(DBL_MAX);
+					break;
+				}
+			case OpenScenario::oscMemberValue::MemberTypes::FLOAT:
+				{
+					oscSpinBox->setMinimum(-FLT_MAX);
+					oscSpinBox->setMaximum(FLT_MAX);
+					break;
+				}
+			}
 			memberWidgets_.insert(memberName, oscSpinBox);	
 			objectGridLayout->addWidget(oscSpinBox, row, 1);
 			connect(oscSpinBox, SIGNAL(editingFinished()), signalMapper, SLOT(map()));
