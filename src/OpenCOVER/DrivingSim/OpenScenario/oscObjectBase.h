@@ -75,7 +75,7 @@ public:
     bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 private:
-    void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *filename); ///< during write adds the include node
+    void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node
     oscSourceFile *determineSrcFile(xercesc::DOMElement *memElem, oscSourceFile *srcF); ///< determine which source file to use
 };
 
