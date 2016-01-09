@@ -57,6 +57,14 @@ coVRSceneView::~coVRSceneView()
 {
 }
 
+void coVRSceneView::createUniforms(osg::StateSet *stateset)
+{
+    
+    coEnvCorrectMatrixUniform = new osg::Uniform(osg::Uniform::FLOAT_MAT4,"coEnvCorrectMatrix");
+    coInvEnvCorrectMatrixUniform = new osg::Uniform(osg::Uniform::FLOAT_MAT4,"coInvEnvCorrectMatrix");
+    stateset->addUniform(coEnvCorrectMatrixUniform);
+    stateset->addUniform(coInvEnvCorrectMatrixUniform);
+}
 bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd &modelview, osgUtil::CullVisitor *cullVisitor,
                               osgUtil::StateGraph *rendergraph, osgUtil::RenderStage *renderStage, osg::Viewport *viewport)
 {
@@ -72,6 +80,11 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
     {
         nmv = *(mv.get());
         npm = *(proj.get());
+        osg::Matrixf tmp;
+        tmp = osg::Matrix::inverse(getViewMatrix());
+        coEnvCorrectMatrixUniform->set(tmp);
+        tmp.invert(tmp);
+        coInvEnvCorrectMatrixUniform->set(tmp);
     }
     else
     {
@@ -85,6 +98,10 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
         invRot.invert(rotonly);
         nmv = (*(mv.get()) * invRot) * cover->invEnvCorrectMat;
         npm = cover->envCorrectMat * rotonly * *(proj.get());
+        osg::Matrixf tmp = cover->envCorrectMat * rotonly * getViewMatrix();
+        coEnvCorrectMatrixUniform->set(tmp);
+                     tmp = osg::Matrix::inverse(getViewMatrix()) * invRot * cover->invEnvCorrectMat;
+        coInvEnvCorrectMatrixUniform->set(tmp);
     }
     if (coVRConfig::instance()->screens[screen].render == false)
         return false;
