@@ -16,6 +16,7 @@
 #define _VRMLNODEMatrixLight_
 
 #include <util/coTypes.h>
+#include "coIES.h"
 
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlSFBool.h>
@@ -54,20 +55,23 @@ public:
     const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
-
-    bool isEnabled()
-    {
-        return d_enabled.get();
-    }
-    static void update();
+    
+    static void updateAll();
+    void update();
+    
+    static std::list<VrmlNodeMatrixLight *> allMatrixLights;
 
 private:
     // Fields
-    VrmlSFInt d_numMatrixLight;
-    VrmlSFFloat d_fraction_changed;
+    VrmlSFInt d_lightNumber;
+    VrmlSFString d_IESFile;
 
-    VrmlSFBool d_enabled;
-    VrmlSFBool d_loop;
-    osg::ref_ptr<coMatrixLightEffect> precipitationEffect;
+    coIES *iesFile;
+    static osg::ref_ptr<osg::Uniform> matrixLightMatrix;
+    Viewer::Object d_viewerObject;
+    osg::ref_ptr<osg::MatrixTransform> lightNodeInSceneGraph;
+    static const int MAX_LIGHTS = 4;
+
+
 };
 #endif //_VRMLNODEMatrixLight_

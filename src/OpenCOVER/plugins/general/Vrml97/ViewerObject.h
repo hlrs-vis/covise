@@ -154,5 +154,6 @@ public:
     void setTexGen(int environment, int textureNumber, int blendMode);
 
     static int getBlendModeForVrmlNode(const char *modeString);
+    std::string name;
 };
 #endif

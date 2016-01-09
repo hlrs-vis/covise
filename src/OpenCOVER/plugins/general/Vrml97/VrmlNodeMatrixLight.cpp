@@ -42,7 +42,9 @@
 #include "ViewerOsg.h"
 #include <osg/Quat>
 
-static list<VrmlNodeMatrixLight *> allMatrixLights;
+// static initializations
+std::list<VrmlNodeMatrixLight *> VrmlNodeMatrixLight::allMatrixLights;
+osg::ref_ptr<osg::Uniform> VrmlNodeMatrixLight::matrixLightMatrix;
 
 // MatrixLight factory.
 
@@ -51,8 +53,23 @@ static VrmlNode *creator(VrmlScene *scene)
     return new VrmlNodeMatrixLight(scene);
 }
 
+void VrmlNodeMatrixLight::updateAll()
+{
+    for(std::list<VrmlNodeMatrixLight *>::iterator it = allMatrixLights.begin();it != allMatrixLights.end(); it++)
+    {
+        (*it)->update();
+    }
+}
 void VrmlNodeMatrixLight::update()
 {
+    osg::MatrixList worldMatrices = lightNodeInSceneGraph->getWorldMatrices();
+    osg::Matrixf firstMat = worldMatrices[0];
+       // matrixLightMatrix->setElement(d_lightNumber.get(), firstMat); 
+    osg::Matrixf invFirstMat;
+    if(invFirstMat.invert_4x4(firstMat))
+    {
+        matrixLightMatrix->setElement(d_lightNumber.get(), invFirstMat); 
+    }
 }
 
 // Define the built in VrmlNodeType:: "MatrixLight" fields
@@ -70,11 +87,12 @@ VrmlNodeType *VrmlNodeMatrixLight::defineType(VrmlNodeType *t)
 
     VrmlNodeChild::defineType(t); // Parent class
 
-    t->addExposedField("numMatrixLight", VrmlField::SFINT32);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("loop", VrmlField::SFBOOL);
-    t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
-    t->addEventIn("timestep", VrmlField::SFINT32);
+    t->addExposedField("lightNumber", VrmlField::SFINT32);
+    t->addExposedField("IESFile", VrmlField::SFSTRING);
+    static osg::Matrixf lightMatrices[MAX_LIGHTS];
+    matrixLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "matrixLightMatrix", MAX_LIGHTS);
+    osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+    state->addUniform(matrixLightMatrix);
 
     return t;
 }
@@ -86,16 +104,13 @@ VrmlNodeType *VrmlNodeMatrixLight::nodeType() const
 
 VrmlNodeMatrixLight::VrmlNodeMatrixLight(VrmlScene *scene)
     : VrmlNodeChild(scene)
-    , d_numMatrixLight(0)
-    , d_fraction_changed(0.0)
-    , d_enabled(true)
-    , d_loop(true)
+    , d_lightNumber(0)
+    , d_viewerObject(NULL)
+    , d_IESFile("")
 {
     setModified();
-    precipitationEffect = new coMatrixLightEffect;
-    precipitationEffect->rain(0.5);
-    //precipitationEffect->setParticleSize(0.03*1000);
-    cover->getObjectsRoot()->addChild(precipitationEffect.get());
+    lightNodeInSceneGraph = new osg::MatrixTransform();
+    allMatrixLights.push_back(this);
 }
 
 void VrmlNodeMatrixLight::addToScene(VrmlScene *s, const char *relUrl)
@@ -115,25 +130,18 @@ void VrmlNodeMatrixLight::addToScene(VrmlScene *s, const char *relUrl)
 
 VrmlNodeMatrixLight::VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n)
     : VrmlNodeChild(n.d_scene)
-    , d_numMatrixLight(n.d_numMatrixLight)
-    , d_fraction_changed(n.d_fraction_changed)
-    , d_enabled(n.d_enabled)
-    , d_loop(n.d_loop)
+    , d_lightNumber(n.d_lightNumber)
+    , d_viewerObject(n.d_viewerObject)
+    , d_IESFile(n.d_IESFile)
+    , lightNodeInSceneGraph(n.lightNodeInSceneGraph)
 {
-    
-    precipitationEffect = new coMatrixLightEffect;
-    precipitationEffect->rain(0.5);
-   // precipitationEffect->setNearTransition(100);
-    //precipitationEffect->setFarTransition(100000);
-    //precipitationEffect->setParticleSize(0.03*1000);
-    
-    cover->getObjectsRoot()->addChild(precipitationEffect.get());
+    allMatrixLights.push_back(this);
     setModified();
 }
 
 VrmlNodeMatrixLight::~VrmlNodeMatrixLight()
 {
-    cover->getObjectsRoot()->removeChild(precipitationEffect.get());
+    allMatrixLights.remove(this);
 }
 
 VrmlNode *VrmlNodeMatrixLight::cloneMe() const
@@ -148,20 +156,34 @@ VrmlNodeMatrixLight *VrmlNodeMatrixLight::toMatrixLight() const
 
 void VrmlNodeMatrixLight::render(Viewer *viewer)
 {
-    (void)viewer;
-    //setModified();
+    if (!haveToRender())
+        return;
+
+    if (d_viewerObject && isModified())
+    {
+        viewer->removeObject(d_viewerObject);
+        d_viewerObject = 0;
+    }
+    if (d_viewerObject)
+    {
+        viewer->insertReference(d_viewerObject);
+    }
+    d_viewerObject = viewer->beginObject(name(), 0, this);
+
+    ((osgViewerObject *)d_viewerObject)->pNode = lightNodeInSceneGraph;
+    ((ViewerOsg *)viewer)->addToScene((osgViewerObject *)d_viewerObject);
+
+    viewer->endObject();
+
+    clearModified();
 }
 
 ostream &VrmlNodeMatrixLight::printFields(ostream &os, int indent)
 {
-    if (!d_numMatrixLight.get())
-        PRINT_FIELD(numMatrixLight);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_loop.get())
-        PRINT_FIELD(loop);
-    if (!d_fraction_changed.get())
-        PRINT_FIELD(fraction_changed);
+    if (!d_lightNumber.get())
+        PRINT_FIELD(lightNumber);
+    if (!d_IESFile.get())
+        PRINT_FIELD(IESFile);
 
     return os;
 }
@@ -172,34 +194,36 @@ void VrmlNodeMatrixLight::setField(const char *fieldName,
                                  const VrmlField &fieldValue)
 {
     if
-        TRY_FIELD(numMatrixLight, SFInt)
+        TRY_FIELD(lightNumber, SFInt)
     else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(loop, SFBool)
-    else if
-        TRY_FIELD(fraction_changed, SFFloat)
+        TRY_FIELD(IESFile, SFString)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
 
-    if (strcmp(fieldName, "numMatrixLight") == 0)
+    if (strcmp(fieldName, "lightNumber") == 0)
     {
     }
-    if (strcmp(fieldName, "timestep") == 0)
+    if (strcmp(fieldName, "IESFile") == 0)
     {
+        iesFile = new coIES(d_IESFile.get());
+        osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
+        lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+        lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+        lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
+        lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
+        lightTexture->setImage(iesFile->getTexture());
+        osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+
+        state->setTextureAttributeAndModes(5+d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
     }
 }
 
 const VrmlField *VrmlNodeMatrixLight::getField(const char *fieldName) const
 {
-    if (strcmp(fieldName, "numMatrixLight") == 0)
-        return &d_numMatrixLight;
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "loop") == 0)
-        return &d_loop;
-    else if (strcmp(fieldName, "fraction_changed") == 0)
-        return &d_fraction_changed;
+    if (strcmp(fieldName, "lightNumber") == 0)
+        return &d_lightNumber;
+    if (strcmp(fieldName, "IESFile") == 0)
+        return &d_IESFile;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;

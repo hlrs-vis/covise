@@ -31,6 +31,7 @@ SET(LIB_HEADERS
   VrmlNodePrecipitation.h
   VrmlNodeMatrixLight.h
   coPrecipitationEffect.h
+  coIES.h
 )
 
 SET(LIB_SOURCES
@@ -50,6 +51,7 @@ SET(LIB_SOURCES
   VrmlNodePrecipitation.cpp
   VrmlNodeMatrixLight.cpp
   coPrecipitationEffect.cpp
+  coIES.cpp
 )
 
 add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES} ${LIB_HEADERS})
