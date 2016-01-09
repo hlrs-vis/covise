@@ -516,6 +516,7 @@ MainWindow::createSettings()
 	
 	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 	settingsDock_->setFixedWidth(200);
+	settingsDock_->setMinimumHeight(152);
 
 
     //	settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);

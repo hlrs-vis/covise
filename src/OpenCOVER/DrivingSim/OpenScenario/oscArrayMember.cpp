@@ -8,42 +8,30 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscArrayMember.h>
 #include <oscObjectBase.h>
 
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMElement.hpp>
+#include <xercesc/util/XMLString.hpp>
+
+
 using namespace OpenScenario;
 
-oscArrayMember::oscArrayMember(): oscMember()
+
+oscArrayMember::oscArrayMember(): oscMember(), std::vector<oscObjectBase *>()
 {
 
 }
 
 oscArrayMember::~oscArrayMember()
 {
-    for(std::vector<oscObjectBase *>::iterator it=values.begin();it != values.end(); it++)
-    {
-        delete *it;
-    }
-    values.clear();
+
 }
 
 
 //
-oscObjectBase *oscArrayMember::getValue(size_t i) const
+xercesc::DOMElement *oscArrayMember::writeArrayMemberToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
 {
-    if(values.size()>i)
-    {
-        return values[i];
-    }
-    else
-    {
-        return NULL;
-    }
-}
+    xercesc::DOMElement *aMemberElement = document->createElement(xercesc::XMLString::transcode(name.c_str()));
+    currentElement->appendChild(aMemberElement);
 
-void oscArrayMember::setValue(size_t i,oscObjectBase *v)
-{
-    values[i] = v;
-}
-
-void oscArrayMember::push_back(oscObjectBase *v)
-{
-    values.push_back(v);
+    return aMemberElement;
 }

@@ -57,7 +57,7 @@
 
 #include "widgets/controllersettings.hpp"
 
-#include "widgets/oscobjectsettings.hpp"
+#include "widgets/oscobjectsettingsstack.hpp"
 
 ProjectSettingsVisitor::ProjectSettingsVisitor(ProjectSettings *projectSettings)
     : Visitor()
@@ -246,7 +246,7 @@ ProjectSettingsVisitor::visit(JunctionConnection *)
 void
 ProjectSettingsVisitor::visit(OSCElement *acceptor)
 {
-    settingsElement_ = new oscObjectSettings(projectSettings_, NULL, acceptor);
+    settingsElement_ = new OSCObjectSettingsStack(projectSettings_, NULL, acceptor);
 }
 
 // VehicleSystem //

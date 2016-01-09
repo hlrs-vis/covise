@@ -148,6 +148,7 @@ std::vector<const char *> ReadFOAM::getFieldList()
     {
         choiceVal[i] = it->first.c_str();
         ++i;
+coModule::sendInfo("Added: %s", it->first.c_str());
     }
 
     for (std::map<std::string, int>::iterator it = m_case.constantFields.begin();
@@ -225,7 +226,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
 		}
 
         //fill the choiceParameters and set them to the previously selected item (if not possible set them to "none")
-        index_t num = m_case.varyingFields.size() + m_case.constantFields.size() + 1;
+        index_t num = m_case.varyingFields.size() + m_case.constantFields.size() + 2;
         std::vector<const char *> choiceVal;
         choiceVal = getFieldList();
 
@@ -1012,12 +1013,22 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 					meshSubSetName += s.str();
 					meshSubSet = new coDoSet(meshSubSetName, tempSet.size(), &tempSet.front());
 					std::vector<coDistributedObject *> meshSubSets;
-					for (index_t i = 0; i < m_case.timedirs.size(); i++)
+					int counter = 0;
+                    for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+                         it != m_case.timedirs.end();
+                         ++it)
 					{
-						meshSubSets.push_back(meshSubSet);
-						if (i > 0)
-						{
-							meshSubSet->incRefCount();
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{ 
+							if (counter % skipfactor == 0)
+							{
+								meshSubSets.push_back(meshSubSet);
+								if (counter > 0)
+								{
+									meshSubSet->incRefCount();
+								}
+							}
 						}
 					}
 					std::string meshSetName = meshOutPort->getObjName();
@@ -1057,12 +1068,22 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 					meshSubObjName += ss.str();
 					coDoUnstructuredGrid *meshSub = loadMesh(dir, dir, meshSubObjName);
 					std::vector<coDistributedObject *> meshSubSets;
-					for (index_t i = 0; i < m_case.timedirs.size(); i++)
+                    int counter = 0;
+                    for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+                         it != m_case.timedirs.end();
+                         ++it)
 					{
-						meshSubSets.push_back(meshSub);
-						if (i > 0)
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
 						{
-							meshSub->incRefCount();
+							if (counter % skipfactor == 0)
+							{
+								meshSubSets.push_back(meshSub);
+								if (counter > 0)
+								{
+									meshSub->incRefCount();
+								}
+							}
 						}
 					}
 					coDoSet *meshSet;
@@ -1267,14 +1288,24 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     boundSubSetName += s.str();
                     boundarySubSet = new coDoSet(boundSubSetName, tempSet.size(), &tempSet.front());
                     std::vector<coDistributedObject *> boundarySubSets;
-                    for (index_t i = 0; i < m_case.timedirs.size(); i++)
-                    {
-                        boundarySubSets.push_back(boundarySubSet);
-                        if (i > 0)
-                        {
-                            boundarySubSet->incRefCount();
-                        }
-                    }
+                    int counter = 0;
+                    for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+                         it != m_case.timedirs.end();
+                         ++it)
+					{
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{
+							if (counter % skipfactor == 0)
+							{
+								boundarySubSets.push_back(boundarySubSet);
+								if (counter > 0)
+								{
+									boundarySubSet->incRefCount();
+								}
+							}
+						}
+					}
                     std::string boundSetName = boundaryOutPort->getObjName();
                     boundarySet = new coDoSet(boundSetName, boundarySubSets.size(), &boundarySubSets.front());
 
@@ -1312,14 +1343,25 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     boundSubObjName += ss.str();
                     coDoPolygons *boundarySub = loadPatches(dir, dir, boundSubObjName, selection);
                     std::vector<coDistributedObject *> boundarySubSets;
-                    for (index_t i = 0; i < m_case.timedirs.size(); i++)
-                    {
-                        boundarySubSets.push_back(boundarySub);
-                        if (i > 0)
-                        {
-                            boundarySub->incRefCount();
-                        }
-                    }
+                    int counter = 0;
+                    for (std::map<double, std::string>::const_iterator it = m_case.timedirs.begin();
+                         it != m_case.timedirs.end();
+                         ++it)
+					{
+						double t = it->first;
+						if (t >= starttime && t <= stoptime)
+						{
+							if (counter % skipfactor == 0)
+							{
+								boundarySubSets.push_back(boundarySub);
+								if (counter > 0)
+								{
+									boundarySub->incRefCount();
+								}
+							}
+						}
+					}
+
                     coDoSet *boundarySet;
                     std::string boundSetName = boundaryOutPort->getObjName();
                     boundarySet = new coDoSet(boundSetName, boundarySubSets.size(), &boundarySubSets.front());
@@ -1492,7 +1534,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     for (int nPort = 0; nPort < num_ports; ++nPort)
     {
         index_t portchoice = portChoice[nPort]->getValue();
-        if (portchoice > 0 && portchoice <= m_case.varyingFields.size())
+        if (portchoice > 0 && portchoice <= m_case.varyingFields.size()+1)
         {
             coModule::sendInfo("Reading Port Data. Please wait ...");
             std::vector<coDistributedObject *> tempSet;
@@ -1667,7 +1709,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     {
         std::string selection = patchesStringParam->getValString();
         index_t portchoice = boundaryDataChoice[nPort]->getValue();
-        if (portchoice > 0 && portchoice <= m_case.varyingFields.size())
+        if (portchoice > 0 && portchoice <= m_case.varyingFields.size()+1)
         {
             coModule::sendInfo("Reading Boundary Port Data. Please wait ...");
             std::vector<coDistributedObject *> tempSet;

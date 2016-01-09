@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>oscObjectSettings</class>
- <widget class="QWidget" name="oscObjectSettings">
+ <class>OSCObjectSettings</class>
+ <widget class="QWidget" name="OSCObjectSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>662</height>
+    <height>1000</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -32,11 +32,8 @@
    <string notr="true">padding: 0px;
 min-width: 0em;</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
     <number>0</number>
    </property>
    <property name="rightMargin">
@@ -45,20 +42,8 @@ min-width: 0em;</string>
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="0" column="0">
+   <item>
     <widget class="QScrollArea" name="scrollArea">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -67,57 +52,54 @@ min-width: 0em;</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>200</width>
-        <height>662</height>
+        <width>198</width>
+        <height>989</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>200</width>
-        <height>662</height>
+        <width>0</width>
+        <height>989</height>
        </size>
       </property>
       <widget class="QGroupBox" name="oscGroupBox">
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-10</y>
-         <width>181</width>
-         <height>671</height>
+         <y>-30</y>
+         <width>171</width>
+         <height>991</height>
         </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>2</width>
-         <height>0</height>
-        </size>
        </property>
        <property name="title">
         <string/>
        </property>
-       <widget class="QWidget" name="gridLayoutWidget">
+       <widget class="QPushButton" name="closeButton">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>160</width>
-          <height>641</height>
+          <x>110</x>
+          <y>30</y>
+          <width>41</width>
+          <height>16</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="objectGridLayout">
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>9</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>9</number>
-         </property>
-        </layout>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QWidget{
+background-color: rgb(255,0,0);
+}</string>
+        </property>
+        <property name="text">
+         <string>close</string>
+        </property>
        </widget>
       </widget>
      </widget>
