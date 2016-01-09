@@ -4,13 +4,17 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_PARAMETER_LIST_H
 #define OSC_PARAMETER_LIST_H
+
 #include <oscExport.h>
 #include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include <oscObjectArrayVariable.h>
+
 #include <oscVariables.h>
 #include <oscParameters.h>
+
 
 namespace OpenScenario {
 
@@ -22,10 +26,11 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(parameter,"oscParameters");
     };
+
     oscParametersMember parameter;
 };
 
-typedef oscObjectVariable<oscParameterList *> oscParameterListMember;
+typedef oscObjectArrayVariable<oscParameterList *> oscParameterListArrayMember;
 
 }
 

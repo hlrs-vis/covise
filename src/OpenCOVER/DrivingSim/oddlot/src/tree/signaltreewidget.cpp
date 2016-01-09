@@ -207,7 +207,7 @@ SignalTreeWidget::setSignalEditor(SignalEditor *signalEditor)
 void
 SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-	if (signalEditor_)
+	if (signalEditor_ && (selectedItems().size() > 0))
 	{
 		QTreeWidgetItem *item = selectedItems().at(0);
 		const QString text = item->text(0);
@@ -280,6 +280,10 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			{
 				currentTool_ = ODD::TSG_TUNNEL;
 
+			}
+			else
+			{
+				currentTool_ = ODD::TSE_SELECT;
 			}
 		}
 

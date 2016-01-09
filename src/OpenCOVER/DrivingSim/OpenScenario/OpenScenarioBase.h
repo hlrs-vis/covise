@@ -29,6 +29,7 @@ class DOMElement;
 class XercesDOMParser; 
 XERCES_CPP_NAMESPACE_END
 
+
 namespace OpenScenario {
 
 class oscSourceFile;
@@ -40,9 +41,8 @@ protected:
     xercesc::DOMElement *rootElement; ///< DOM Root element
     xercesc::XercesDOMParser *parser; ///< validating parser
     xercesc::DOMDocument *xmlDoc; ///< main xml document
-    std::vector<oscSourceFile *> srcFileVec;
+    std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
 
-    
 public:
     oscHeaderMember header;
     oscCatalogsMember catalogs;
@@ -56,15 +56,15 @@ public:
     OpenScenarioBase(); /// constructor, initializes the class and sets a default factory
     ~OpenScenarioBase(); /// destructor, terminate xerces-c
 
-    int loadFile(const std::string &fileName); /*!< load an OpenScenario databas file in xml format
-                                         \param fileName file to load.
-                                         \return false if loading the file failed.*/
-    int saveFile(const std::string &fileName, bool overwrite=false);/*!< store an OpenScenario databas to a file in xml format
-                                                              \param fileName file to save to.
-                                                              \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is retured if a file with that name already exists.
-                                                              \return false if writing to the file failed.*/
+    bool loadFile(const std::string &fileName); /*!< load an OpenScenario databas file in xml format
+                                                 \param fileName file to load.
+                                                 \return false if loading the file failed.*/
+    bool saveFile(const std::string &fileName, bool overwrite=false);/*!< store an OpenScenario databas to a file in xml format
+                                                                      \param fileName file to save to.
+                                                                      \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is retured if a file with that name already exists.
+                                                                      \return false if writing to the file failed.*/
 
-    xercesc::DOMElement *getRootElement(std::string filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
+    xercesc::DOMElement *getRootElement(const std::string &filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
 

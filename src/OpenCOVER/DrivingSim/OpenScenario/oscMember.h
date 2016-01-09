@@ -10,12 +10,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscExport.h>
 #include <oscMemberValue.h>
+
 #include <string>
+
 #include <xercesc/util/XercesDefs.hpp>
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
 class DOMElement;
 XERCES_CPP_NAMESPACE_END
+
 
 namespace OpenScenario {
 
@@ -28,8 +31,9 @@ protected:
     std::string name; ///< name of member
     std::string typeName; ///< type name of member
     oscMemberValue *value;
-    oscObjectBase *owner;
+    oscObjectBase *owner; ///< the parent/owner object of this member
     enum oscMemberValue::MemberTypes type;
+    oscMember *parentMember; ///< the parent member of this member
 
 public:
     oscMember(); ///< constructor
@@ -51,12 +55,13 @@ public:
     void setType(oscMemberValue::MemberTypes t);
     oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
-    virtual const oscObjectBase *getObject() const;
-    virtual bool exists() const; ///<for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists is executed
+    virtual oscObjectBase *getObject() const;
+    virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists or oscObjectArrayVariable is executed
     oscObjectBase *getOwner() const;
+    virtual void setParentMember(oscMember *pm);
+    virtual oscMember *getParentMember() const;
 
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
-
 };
 
 

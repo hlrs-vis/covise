@@ -677,7 +677,16 @@ double coVRPluginSupport::currentTime() const
     START("coVRPluginSupport::currentTime");
     timeval currentTime;
     gettimeofday(&currentTime, NULL);
-    return (currentTime.tv_sec + (double)currentTime.tv_usec / 1000000.0);
+    
+    time_t t1, t2;
+    struct tm tms;
+    time(&t1);
+    _localtime64_s(&tms,&t1);
+    tms.tm_hour = 0;
+    tms.tm_min = 0;
+    tms.tm_sec = 0;
+    t2 = _mktime64(&tms);
+    return (currentTime.tv_sec - t2 + (double)currentTime.tv_usec / 1000000.0);
 }
 
 double coVRPluginSupport::frameTime() const

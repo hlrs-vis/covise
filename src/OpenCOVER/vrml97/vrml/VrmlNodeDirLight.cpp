@@ -77,12 +77,12 @@ void VrmlNodeDirLight::render(Viewer *viewer)
     if (isModified())
     {
         if (d_on.get())
-            viewer->insertDirLight(d_ambientIntensity.get(),
+            d_viewerObject = viewer->insertDirLight(d_ambientIntensity.get(),
                                    d_intensity.get(),
                                    d_color.get(),
                                    d_direction.get());
         else
-            viewer->insertDirLight(d_ambientIntensity.get(),
+            d_viewerObject = viewer->insertDirLight(d_ambientIntensity.get(),
                                    0.0,
                                    d_color.get(),
                                    d_direction.get());

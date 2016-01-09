@@ -76,14 +76,19 @@ coVRRenderer::coVRRenderer(osg::Camera *camera, int channel)
     // prevent the draw traversal from reading from it before the cull traversal has been completed.
     _availableQueue._queue.clear();
 
-    _sceneView[0] = new coVRSceneView(NULL, channel);
-    _sceneView[1] = new coVRSceneView(NULL, channel);
-
+    coVRSceneView *sv1 =  new coVRSceneView(NULL, channel);
+    coVRSceneView *sv2 = new coVRSceneView(NULL, channel);
+    _sceneView[0] = sv1;
+    _sceneView[1] = sv2;
     unsigned int sceneViewOptions = 0; // no HeadLight
 
     osg::Camera *masterCamera = _camera->getView() ? _camera->getView()->getCamera() : camera;
     osg::StateSet *stateset = masterCamera->getOrCreateStateSet();
     osgViewer::View *view = dynamic_cast<osgViewer::View *>(_camera->getView());
+    
+    sv1->createUniforms(stateset);
+    sv2->coEnvCorrectMatrixUniform = sv1->coEnvCorrectMatrixUniform;
+    sv2->coInvEnvCorrectMatrixUniform = sv1->coInvEnvCorrectMatrixUniform;
 
     osg::DisplaySettings *ds = _camera->getDisplaySettings() ? _camera->getDisplaySettings() : ((view && view->getDisplaySettings()) ? view->getDisplaySettings() : osg::DisplaySettings::instance().get());
 

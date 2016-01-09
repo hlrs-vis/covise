@@ -61,6 +61,7 @@ public:
 private:
     // Fields
     VrmlSFString d_technique;
+    VrmlSFNode d_shadowLight;
 
     Viewer::Object d_shadowObject;
 };

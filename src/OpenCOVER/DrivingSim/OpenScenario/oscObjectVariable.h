@@ -4,6 +4,7 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_OBJECT_VARIABLE_H
 #define OSC_OBJECT_VARIABLE_H
 
@@ -15,10 +16,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/util/XMLString.hpp>
 
+
 namespace OpenScenario
 {
     template<typename T>
-    class OPENSCENARIOEXPORT oscObjectVariable: public oscMember 
+    class oscObjectVariable: public oscMember 
     {
     protected:
         T valueT;
@@ -26,7 +28,7 @@ namespace OpenScenario
         oscObjectVariable(){type = oscMemberValue::OBJECT; valueT=NULL;};
         bool initialize(xercesc::DOMAttr *){return false;};
         T operator->(){return valueT;};
-        const oscObjectBase* getObject() const {return valueT;};
+        oscObjectBase* getObject() const {return valueT;};
         void setValue(oscObjectBase *t)
         {
             if (t != NULL)
@@ -44,8 +46,7 @@ namespace OpenScenario
         {
             if(valueT !=NULL)
             {
-                xercesc::DOMElement *memberElement;
-                memberElement = document->createElement(xercesc::XMLString::transcode(name.c_str()));
+                xercesc::DOMElement *memberElement = document->createElement(xercesc::XMLString::transcode(name.c_str()));
                 currentElement->appendChild(memberElement);
                 valueT->writeToDOM(memberElement,document);
             }
