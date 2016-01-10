@@ -230,14 +230,14 @@ OSCObjectSettings::uiInit()
 			{
 			case OpenScenario::oscMemberValue::MemberTypes::DOUBLE:
 				{
-					oscSpinBox->setMinimum(-DBL_MAX);
-					oscSpinBox->setMaximum(DBL_MAX);
+					oscSpinBox->setMinimum(-1.0e+10);
+					oscSpinBox->setMaximum(1.0e+10);
 					break;
 				}
 			case OpenScenario::oscMemberValue::MemberTypes::FLOAT:
 				{
-					oscSpinBox->setMinimum(-FLT_MAX);
-					oscSpinBox->setMaximum(FLT_MAX);
+					oscSpinBox->setMinimum(-1.0e+10);
+					oscSpinBox->setMaximum(1.0e+10);
 					break;
 				}
 			}

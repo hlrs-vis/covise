@@ -87,7 +87,7 @@ AddOSCObjectCommand::redo()
 
 	if(obj)
 	{
-		obj->initialize(openScenarioBase_, NULL);
+		obj->initialize(openScenarioBase_, NULL,NULL,NULL);
 	
 		member_->setValue(obj);
 
