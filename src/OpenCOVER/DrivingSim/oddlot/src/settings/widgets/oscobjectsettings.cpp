@@ -172,6 +172,10 @@ OSCObjectSettings::uiInit()
 		{
 			label->setFixedHeight(25);
 		}
+		if (member->exists())
+		{
+			label->setStyleSheet("color: green;");
+		}
 
 		objectGridLayout->addWidget(label, ++row, 0);
 		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
@@ -261,6 +265,8 @@ OSCObjectSettings::uiInit()
 		{
 			QComboBox *oscComboBox = new QComboBox();
 
+			oscComboBox->addItem("Choose entry ...");
+
 			OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(member);
 			std::map<std::string,int> enumValues = oscVar->enumType->enumValues;
 			for (int i = 0; i < enumValues.size(); i++)
@@ -302,6 +308,7 @@ OSCObjectSettings::uiInit()
     objectGridLayout->setColumnStretch(2, 1); // column 2 fills the rest of the availlable space
 
 	ui->oscGroupBox->setLayout(objectGridLayout);
+
 
 }
 
@@ -367,7 +374,7 @@ OSCObjectSettings::updateProperties()
 				oscIntValue *iv = dynamic_cast<oscIntValue *>(value);
 				if (iv)
 				{
-					comboBox->setCurrentIndex(iv->getValue());
+					comboBox->setCurrentIndex(iv->getValue() + 1);
 				}
 			}
 			else if (QCheckBox *checkBox = dynamic_cast<QCheckBox *>(it.value()))
@@ -399,6 +406,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 	if (valueChanged_)
 	{
 		QWidget *widget = memberWidgets_.value(name);
+		
 		OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
 		OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
@@ -406,6 +414,16 @@ OSCObjectSettings::onEditingFinished(QString name)
 		{
 			OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
 			member->setValue(v);
+
+			QGridLayout *objectGridLayout = dynamic_cast<QGridLayout *>(ui->oscGroupBox->layout());
+			int row; int column;
+			int index = objectGridLayout->indexOf(widget);
+			objectGridLayout->getItemPosition(index, &row, &column, &column, &column);
+			QLabel *labelWidget = dynamic_cast<QLabel *>(objectGridLayout->itemAtPosition(row, 0)->widget());
+			if (labelWidget)
+			{
+				labelWidget->setStyleSheet("color: green;");
+			}
 		}
 
 		switch (type)
@@ -476,8 +494,21 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
 				int v = comboBox->currentIndex();
-				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v - 1);
 				projectSettings_->executeCommand(command);
+
+				if (v == 0)
+				{
+					QGridLayout *objectGridLayout = dynamic_cast<QGridLayout *>(ui->oscGroupBox->layout());
+					int row; int column;
+					int index = objectGridLayout->indexOf(widget);
+					objectGridLayout->getItemPosition(index, &row, &column, &column, &column);
+					QLabel *labelWidget = dynamic_cast<QLabel *>(objectGridLayout->itemAtPosition(row, 0)->widget());
+					if (labelWidget)
+					{
+						labelWidget->setStyleSheet("color: white;");
+					}
+				}
 				break;
 			}
 

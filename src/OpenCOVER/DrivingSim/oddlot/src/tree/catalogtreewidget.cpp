@@ -333,7 +333,7 @@ CatalogTreeWidget::updateObserver()
 	else
 	{
 		int changes = oscElement_->getDataElementChanges();
-		if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementDeleted))
+		if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))
 		{
 			createTree();
 		}

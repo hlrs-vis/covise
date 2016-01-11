@@ -98,7 +98,7 @@ CatalogWidget::init()
 	// Widget/Layout //
     //
 	QGridLayout *toolLayout = new QGridLayout;
-	const QPixmap recycleIcon(":/icons/recycle.png");
+	QPixmap recycleIcon(":/icons/recycle.png");
 	DropArea *recycleArea = new DropArea(recycleIcon, this);
 	recycleArea->setPixmap(recycleIcon);
 	toolLayout->addWidget(recycleArea, 0, 2);

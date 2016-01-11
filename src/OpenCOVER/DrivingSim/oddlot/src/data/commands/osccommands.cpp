@@ -93,9 +93,6 @@ AddOSCObjectCommand::redo()
 
 		element_->setObjectBase(obj);
 		oscBase_->addOSCElement(element_);
-
-		element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
-
 	}
 
 	setRedone();
@@ -113,8 +110,6 @@ AddOSCObjectCommand::undo()
 
 	element_->setObjectBase(NULL);
 	oscBase_->delOSCElement(element_);
-
-	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
 
    setUndone();
 }
@@ -171,8 +166,6 @@ RemoveOSCObjectCommand::redo()
     element_->setObjectBase(NULL);				// todo: delete OpenScenario object/member
 	oscBase_->delOSCElement(element_);
 
-	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
-
     setRedone();
 }
 
@@ -184,8 +177,6 @@ RemoveOSCObjectCommand::undo()
 {
     element_->setObjectBase(object_);
 	oscBase_->addOSCElement(element_);
-
-	element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
 
     setUndone();
 }
