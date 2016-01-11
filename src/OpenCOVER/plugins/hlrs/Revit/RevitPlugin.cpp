@@ -601,10 +601,10 @@ void RevitPlugin::message(int type, int len, const void *buf)
             }
         }
     }
-    else if(type > PluginMessageTypes::HLRS_Revit_Message && type < (PluginMessageTypes::HLRS_Revit_Message+100))
+    else if(type >= PluginMessageTypes::HLRS_Revit_Message && type <= (PluginMessageTypes::HLRS_Revit_Message+100))
     {
         Message m;
-        m.type = type-MSG_NewObject;
+        m.type = type-PluginMessageTypes::HLRS_Revit_Message + MSG_NewObject;
         m.length = len;
         m.data = (char *)buf;
         handleMessage(&m);
@@ -1263,7 +1263,7 @@ RevitPlugin::preFrame()
                 coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
                 coVRMSController::instance()->sendSlaves(msg);
                 
-                cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Revit_Message,msg->length, msg->data);
+                cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Revit_Message+msg->type-MSG_NewObject,msg->length, msg->data);
                 handleMessage(msg);
             }
             else
