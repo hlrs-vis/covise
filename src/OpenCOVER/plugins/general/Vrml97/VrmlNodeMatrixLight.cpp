@@ -207,6 +207,7 @@ void VrmlNodeMatrixLight::setField(const char *fieldName,
     {
         iesFile = new coIES(d_IESFile.get());
         osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
+        lightTexture->setResizeNonPowerOfTwoHint(false);
         lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
         lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
         lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
