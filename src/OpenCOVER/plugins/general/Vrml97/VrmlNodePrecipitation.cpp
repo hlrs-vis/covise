@@ -92,8 +92,9 @@ VrmlNodePrecipitation::VrmlNodePrecipitation(VrmlScene *scene)
     , d_loop(true)
 {
     setModified();
-    precipitationEffect = new osgParticle::PrecipitationEffect;
-    precipitationEffect->rain(1.0);
+    precipitationEffect = new coPrecipitationEffect;
+    precipitationEffect->rain(0.5);
+    //precipitationEffect->setParticleSize(0.03*1000);
     cover->getObjectsRoot()->addChild(precipitationEffect.get());
 }
 
@@ -120,9 +121,13 @@ VrmlNodePrecipitation::VrmlNodePrecipitation(const VrmlNodePrecipitation &n)
     , d_loop(n.d_loop)
 {
     
-    precipitationEffect = new osgParticle::PrecipitationEffect;
-    precipitationEffect->rain(1.0);
-    cover->getScene()->addChild(precipitationEffect.get());
+    precipitationEffect = new coPrecipitationEffect;
+    precipitationEffect->rain(0.5);
+   // precipitationEffect->setNearTransition(100);
+    //precipitationEffect->setFarTransition(100000);
+    //precipitationEffect->setParticleSize(0.03*1000);
+    
+    cover->getObjectsRoot()->addChild(precipitationEffect.get());
     setModified();
 }
 

@@ -24,7 +24,7 @@ EarthViewpoint::EarthViewpoint(coTUIFrame *parent, Viewpoint *vp, int ViewpointN
     parentFrame = parent;
     viewpoint = vp;
     viewpointNumber = ViewpointNumber;
-    viewpointButton = new coTUIButton(viewpoint->getName(), parentFrame->getID());
+    viewpointButton = new coTUIButton(viewpoint->name().get(), parentFrame->getID());
     viewpointButton->setEventListener(this);
     viewpointButton->setPos(0, ViewpointNumber);
     animateButton = new coTUIToggleButton("animate", parentFrame->getID());
@@ -36,7 +36,7 @@ EarthViewpoint::EarthViewpoint(coTUIFrame *parent, Viewpoint *vp, int ViewpointN
 
 void EarthViewpoint::setScale()
 {
-    const char *name = viewpoint->getName().c_str();
+    const char *name = viewpoint->name().get().c_str();
     const char *nameEnd = name + strlen(name);
     while (nameEnd > name)
     {
@@ -55,16 +55,16 @@ void EarthViewpoint::setScale()
 }
 void EarthViewpoint::computeToUpright()
 {
-    new_center = viewpoint->getFocalPoint();
+    new_center = viewpoint->focalPoint().get().vec3d();
     osg::Vec3d localUpVector = osg::Z_AXIS;
     osg::Vec3d upVector = osg::Z_AXIS;
     toUpright.makeIdentity();
     // start by transforming the requested focal point into world coordinates:
-    if (const SpatialReference *srs = EarthPlugin::plugin->getSRS())
+    /*if (const SpatialReference *srs = EarthPlugin::plugin->getSRS())
     {
         // resolve the VP's srs. If the VP's SRS is not specified, assume that it
         // is either lat/long (if the map is geocentric) or X/Y (otherwise).
-        osg::ref_ptr<const SpatialReference> vp_srs = viewpoint->getSRS() ? viewpoint->getSRS() : EarthPlugin::plugin->getMapNode()->getMap()->isGeocentric() ? srs->getGeographicSRS() : srs;
+        osg::ref_ptr<const SpatialReference> vp_srs = viewpoint->SRS() ? viewpointgetSRS() : EarthPlugin::plugin->getMapNode()->getMap()->isGeocentric() ? srs->getGeographicSRS() : srs;
 
         if (!srs->isEquivalentTo(vp_srs.get()))
         {
@@ -89,7 +89,7 @@ void EarthViewpoint::computeToUpright()
             new_center = geocentric;
             localUpVector = srs->getEllipsoid()->computeLocalUpVector(osg::DegreesToRadians(new_center.y()), osg::DegreesToRadians(new_center.x()), new_center.z());
         }
-    }
+    }*/
 }
 
 void EarthViewpoint::setViewpoint()

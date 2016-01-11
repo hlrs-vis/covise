@@ -68,6 +68,7 @@
 #include "VrmlNodeClippingPlane.h"
 #include "VrmlNodeShadowedScene.h"
 #include "VrmlNodePrecipitation.h"
+#include "VrmlNodeMatrixLight.h"
 
 #include <osgGA/GUIEventAdapter>
 #include <osgDB/Registry>
@@ -348,6 +349,7 @@ bool Vrml97Plugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeCOVERBody::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeCOVISEObject::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodePrecipitation::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeMatrixLight::defineType());
 
     VrmlNamespace::addBuiltIn(VrmlNodeARSensor::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMirrorCamera::defineType());
@@ -400,6 +402,7 @@ Vrml97Plugin::preFrame()
         this->player->update();
     if (System::the)
         System::the->update();
+    VrmlNodeMatrixLight::updateAll();
     if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
     {
         plugin->isNewVRML = false;

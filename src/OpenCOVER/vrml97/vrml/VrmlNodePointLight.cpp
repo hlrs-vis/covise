@@ -106,14 +106,14 @@ void VrmlNodePointLight::render(Viewer *viewer)
     if (isModified())
     {
         if (d_on.get() && d_radius.get() > 0.0)
-            viewer->insertPointLight(d_ambientIntensity.get(),
+            d_viewerObject = viewer->insertPointLight(d_ambientIntensity.get(),
                                      d_attenuation.get(),
                                      d_color.get(),
                                      d_intensity.get(),
                                      d_location.get(),
                                      d_radius.get());
         else
-            viewer->insertPointLight(d_ambientIntensity.get(),
+            d_viewerObject = viewer->insertPointLight(d_ambientIntensity.get(),
                                      d_attenuation.get(),
                                      d_color.get(),
                                      0.0,

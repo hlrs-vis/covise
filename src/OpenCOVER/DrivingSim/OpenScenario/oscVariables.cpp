@@ -7,6 +7,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscVariables.h>
 
+#include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -36,13 +37,13 @@ OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<float>::getValueType(
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType(){return oscMemberValue::ENUM;};
 
 
-void oscEnum::setValueWStr(std::string &strVal)
+void oscEnum::setValueWStr(const std::string &strVal)
 {
     int val = enumType->getEnum(strVal);
-    this->setValue(val);
+    setValue(val);
 }
 
-std::string oscEnum::getValueAsStr(int &val) const
+std::string oscEnum::getValueAsStr(const int &val) const
 {
     std::string strVal;
 

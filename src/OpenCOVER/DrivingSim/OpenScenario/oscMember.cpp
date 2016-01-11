@@ -8,21 +8,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscMember.h>
 #include <oscObjectBase.h>
 
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMElement.hpp>
+
+
 using namespace OpenScenario;
 
-
-/*oscMember::oscMember(std::string &n, oscMemberValue::MemberTypes t, oscObjectBase* owner, oscMemberValue *&mv): value(mv)
-{
-    name = n;
-    type = t;
-    owner->addMember(this);
-}*/
 
 oscMember::oscMember()
 {
     value = NULL;
     owner = NULL;
     type = oscMemberValue::MemberTypes::INT;
+    parentMember = NULL;
 }
 
 oscMember::~oscMember()
@@ -36,7 +34,7 @@ void oscMember::registerWith(oscObjectBase* o)
     owner->addMember(this);
 }
 
-// set, get of name and typeName
+
 //
 void oscMember::setName(const char *n)
 {
@@ -68,7 +66,7 @@ std::string oscMember::getTypeName() const
     return typeName;
 }
 
-//set, get of value and type
+
 //
 void oscMember::setValue(oscMemberValue *v)
 {
@@ -102,7 +100,7 @@ oscMemberValue::MemberTypes oscMember::getType() const
 
 
 //
-const oscObjectBase *oscMember::getObject() const
+oscObjectBase *oscMember::getObject() const
 {
     return NULL;
 }
@@ -117,13 +115,23 @@ oscObjectBase *oscMember::getOwner() const
     return owner;
 }
 
+void oscMember::setParentMember(oscMember *pm)
+{
+    parentMember = pm;
+}
+
+oscMember *oscMember::getParentMember() const
+{
+    return parentMember;
+}
+
 
 //
 bool oscMember::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
 {
     if(value != NULL)
     {
-        value->writeToDOM(currentElement,document,name.c_str());
+        value->writeToDOM(currentElement, document, name.c_str());
     }
 
     return true;

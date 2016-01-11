@@ -44,14 +44,14 @@ public:
 
     enum InteractionType
     {
-        ButtonA = vruiButtons::ACTION_BUTTON,
-        ButtonB = vruiButtons::DRIVE_BUTTON,
-        ButtonC = vruiButtons::XFORM_BUTTON,
-        ButtonD = vruiButtons::USER1_BUTTON,
-        ButtonE = vruiButtons::USER4_BUTTON,
-        Wheel = vruiButtons::WHEEL,
+        ButtonA = 0, // vruiButtons is a bitmask while InteractionType can only be a consecutive number of types!!  = vruiButtons::ACTION_BUTTON,
+        ButtonB, // = vruiButtons::DRIVE_BUTTON,
+        ButtonC, // = vruiButtons::XFORM_BUTTON,
+        ButtonD, // = vruiButtons::USER1_BUTTON,
+        ButtonE, // = vruiButtons::USER4_BUTTON,
+        Wheel, // = vruiButtons::WHEEL,
         Joystick,
-        AllButtons = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
+        AllButtons, // = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
         NumInteractorTypes
     };
 

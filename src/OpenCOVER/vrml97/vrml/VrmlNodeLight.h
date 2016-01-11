@@ -62,12 +62,14 @@ public:
     {
         return d_color.get();
     }
+    Viewer::Object getViewerObject() {return d_viewerObject;};
 
 protected:
     VrmlSFFloat d_ambientIntensity;
     VrmlSFColor d_color;
     VrmlSFFloat d_intensity;
     VrmlSFBool d_on;
+    Viewer::Object d_viewerObject; // move to VrmlNode.h ? ...
 };
 }
 #endif //_VRMLNODELIGHT_

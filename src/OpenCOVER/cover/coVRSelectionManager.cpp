@@ -462,7 +462,7 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
             osgFX::Outline *out = new osgFX::Outline;
             out->setColor(osg::Vec4f(SelRed, SelGreen, SelBlue, 1.0f));
             out->setWidth(4);
-            selectionNode = (osg::Group *)out;
+            selectionNode = static_cast<osg::Group *>(out);
         }
     }
     else

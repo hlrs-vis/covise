@@ -251,7 +251,7 @@ public:
 
     // Lightweight copy
     virtual Object insertReference(Object existingObject);
-
+    void applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, osg::Drawable *drawable);
     // Remove an object from the display list
     virtual void removeObject(Object key);
 

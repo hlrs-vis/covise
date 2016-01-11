@@ -1880,6 +1880,9 @@ VRSceneGraph::loadGlobalGeostate()
     else
         defaultLm->setColorControl(osg::LightModel::SINGLE_COLOR);
 
+    osg::Vec4 globalAmbient(0,0,0,1);
+    defaultLm->setAmbientIntensity(globalAmbient);
+
     osg::Material *material = new osg::Material();
 
     material->setColorMode(osg::Material::OFF);

@@ -79,11 +79,12 @@ void coButtonInteraction::update()
     if (state == Idle)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Idle\n");
+        // here whe do the mapping between Interaction types and the button bitmask
         if (type == Wheel)
         {
             if (activate())
             {
-                if (buttonStatus & type)
+                if (buttonStatus & vruiButtons::WHEEL)
                 {
                     runningState = StateStarted;
                     startInteraction();
@@ -91,21 +92,24 @@ void coButtonInteraction::update()
                 wheelCount = button->getWheelCount();
             }
         }
-        else if (button->wasPressed(type))
+        else
         {
-            if (activate())
+            if (button->wasPressed(1<<type))
             {
-                //fprintf(stderr,"coButtonInteraction::update 1 StateStarted %s \n", name.c_str());
-                //fprintf(stderr,"coButtonInteraction (state == Idle) %d (type == ButtonA || type == AllButtons) %d buttonStatus == vruiButtons::ACTION_BUTTON %d state != Paused %d\n", (state == Idle), (type == ButtonA || type == AllButtons), (buttonStatus == vruiButtons::ACTION_BUTTON), state != Paused);
-                runningState = StateStarted;
-                startInteraction();
+                if (activate())
+                {
+                    //fprintf(stderr,"coButtonInteraction::update 1 StateStarted %s \n", name.c_str());
+                    //fprintf(stderr,"coButtonInteraction (state == Idle) %d (type == ButtonA || type == AllButtons) %d buttonStatus == vruiButtons::ACTION_BUTTON %d state != Paused %d\n", (state == Idle), (type == ButtonA || type == AllButtons), (buttonStatus == vruiButtons::ACTION_BUTTON), state != Paused);
+                    runningState = StateStarted;
+                    startInteraction();
+                }
             }
         }
     }
     else if (state == Paused)
     {
         runningState = StateStopped;
-        if (!(type & buttonStatus))
+        if (!((1<<type) & buttonStatus))
         {
             stopInteraction();
             state = Stopped;
@@ -114,13 +118,14 @@ void coButtonInteraction::update()
     else if (state == Active)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Active || state == Paused\n");
+         if (type == Wheel)
+                wheelCount = button->getWheelCount();
 
-        if (type & buttonStatus)
+        if ((1<<type) & buttonStatus)
         {
             //fprintf(stderr,"coButtonInteraction::update 6 StateRunning %s \n", name.c_str());
             //fprintf(stderr,"coButtonInteraction (state == Idle) %d button->wasPressed() %d type == ButtonA || type == AllButtons %d buttonStatus == vruiButtons::ACTION_BUTTON %d activate() %d\n", (state == Idle), button->wasPressed(), (type == ButtonA || type == AllButtons), (buttonStatus == vruiButtons::ACTION_BUTTON), activate() );
-            if (type & Wheel)
-                wheelCount = button->getWheelCount();
+           
             runningState = StateRunning;
             doInteraction();
         }

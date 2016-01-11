@@ -36,7 +36,7 @@ void coNavInteraction::update()
 
     if (state == Idle)
     {
-        if (button->wasPressed(type))
+        if (button->wasPressed(1<<type))
         {
             if (activate())
             {
@@ -48,7 +48,7 @@ void coNavInteraction::update()
     else if (state == Active || state == Paused || state == ActiveNotify)
     //else if (state == Active)
     {
-        if (button->getStatus() & type)
+        if (button->getStatus() & (1<<type))
         {
             if (state == Paused)
             {

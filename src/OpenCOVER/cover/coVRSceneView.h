@@ -50,10 +50,14 @@ class COVEREXPORT coVRSceneView : public osgUtil::SceneView
 public:
     /** Construct a default scene view.*/
     coVRSceneView(osg::DisplaySettings *ds = NULL, int channel = 0);
+    void createUniforms(osg::StateSet *stateset);
+    osg::Uniform *coEnvCorrectMatrixUniform;
+    osg::Uniform *coInvEnvCorrectMatrixUniform;
 
 protected:
     virtual ~coVRSceneView();
 
+    
     /** Do cull traversal of attached scene graph using Cull NodeVisitor.*/
     virtual bool cullStage(const osg::Matrixd &projection, const osg::Matrixd &modelview, osgUtil::CullVisitor *cullVisitor,
                            osgUtil::StateGraph *stategraph, osgUtil::RenderStage *renderStage,

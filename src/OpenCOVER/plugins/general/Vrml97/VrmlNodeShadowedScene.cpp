@@ -28,9 +28,14 @@
 #include <vrml97/vrml/System.h>
 #include <vrml97/vrml/Viewer.h>
 #include <vrml97/vrml/VrmlScene.h>
+#include <vrml97/vrml/VrmlNodeLight.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
+#include <cover/VRSceneGraph.h>
+#include <cover/VRViewer.h>
+#include <cover/coVRLighting.h>
+#include <cover/coVRShadowManager.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <PluginUtil/PluginMessageTypes.h>
 #include <math.h>
@@ -62,6 +67,7 @@ VrmlNodeType *VrmlNodeShadowedScene::defineType(VrmlNodeType *t)
 
     VrmlNodeGroup::defineType(t); // Parent class
     t->addExposedField("technique", VrmlField::SFSTRING);
+    t->addExposedField("shadowLight", VrmlField::SFNODE);
 
     return t;
 }
@@ -83,6 +89,7 @@ VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n)
     : VrmlNodeGroup(n.d_scene)
     , d_technique(n.d_technique)
+    , d_shadowLight(n.d_shadowLight)
 {
     d_shadowObject = 0;
 }
@@ -115,7 +122,22 @@ void VrmlNodeShadowedScene::render(Viewer *viewer)
     {
         d_shadowObject = viewer->beginObject(name(), 0, this);
     }
-    viewer->setShadow(d_technique.get());
+    if(isModified())
+    {
+        viewer->setShadow(d_technique.get());
+        // set shadow Light
+        VrmlNodeLight *ln = dynamic_cast<VrmlNodeLight *>(d_shadowLight.get());
+        if(ln!=NULL)
+        {
+
+            osgViewerObject *obj = (osgViewerObject *)ln->getViewerObject();
+            if(obj->pNode!=NULL)
+            {
+                osg::LightSource * ls = dynamic_cast<osg::LightSource *>(obj->pNode.get());
+                coVRLighting::instance()->setShadowLight(ls);
+            }
+        }
+    }
     if (d_children.size() > 0)
     {
 
@@ -130,6 +152,8 @@ ostream &VrmlNodeShadowedScene::printFields(ostream &os, int indent)
 {
     if (!d_technique.get())
         PRINT_FIELD(technique);
+    if(!d_shadowLight.get())
+        PRINT_FIELD(shadowLight);
 
     return os;
 }
@@ -141,14 +165,19 @@ void VrmlNodeShadowedScene::setField(const char *fieldName,
 {
     if
         TRY_FIELD(technique, SFString)
+    else if
+        TRY_FIELD(shadowLight,SFNode)
     else
         VrmlNodeGroup::setField(fieldName, fieldValue);
+    setModified();
 }
 
 const VrmlField *VrmlNodeShadowedScene::getField(const char *fieldName) const
 {
     if (strcmp(fieldName, "technique") == 0)
         return &d_technique;
+    else if(strcmp(fieldName,"shadowLight") == 0)
+        return &d_shadowLight;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;

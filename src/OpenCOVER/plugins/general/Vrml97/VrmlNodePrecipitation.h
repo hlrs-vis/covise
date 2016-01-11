@@ -26,7 +26,7 @@
 #include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
-#include <osgParticle/PrecipitationEffect>
+#include <coPrecipitationEffect.h>
 
 using namespace opencover;
 using namespace vrml;
@@ -68,6 +68,6 @@ private:
 
     VrmlSFBool d_enabled;
     VrmlSFBool d_loop;
-    osg::ref_ptr<osgParticle::PrecipitationEffect> precipitationEffect;
+    osg::ref_ptr<coPrecipitationEffect> precipitationEffect;
 };
 #endif //_VRMLNODEPrecipitation_
