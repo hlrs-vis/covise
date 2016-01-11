@@ -85,7 +85,7 @@ private:
 	ProjectSettings *projectSettings_;
 	OSCObjectSettingsStack *parentStack_;
 
-    const OpenScenario::oscObjectBase *object_;
+    OpenScenario::oscObjectBase *object_;
 	OSCElement *element_;
 	OSCBase *base_;
 

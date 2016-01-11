@@ -364,7 +364,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 					getProjectGraph()->executeCommand(command);
 
 				}
-				const OpenScenario::oscObjectBase *catalogObject = openScenarioBase->catalogs.getObject();
+				OpenScenario::oscObjectBase *catalogObject = openScenarioBase->catalogs.getObject();
 				if (catalogObject)
 				{
 					OpenScenario::oscObjectBase::MemberMap members = catalogObject->getMembers();

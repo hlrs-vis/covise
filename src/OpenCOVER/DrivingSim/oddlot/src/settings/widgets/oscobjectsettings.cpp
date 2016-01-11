@@ -172,10 +172,6 @@ OSCObjectSettings::uiInit()
 		{
 			label->setFixedHeight(25);
 		}
-		if (member->exists())
-		{
-			label->setStyleSheet("color: green;");
-		}
 
 		objectGridLayout->addWidget(label, ++row, 0);
 		const OpenScenario::oscMemberValue::MemberTypes type = member->getType();
@@ -414,16 +410,6 @@ OSCObjectSettings::onEditingFinished(QString name)
 		{
 			OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
 			member->setValue(v);
-
-			QGridLayout *objectGridLayout = dynamic_cast<QGridLayout *>(ui->oscGroupBox->layout());
-			int row; int column;
-			int index = objectGridLayout->indexOf(widget);
-			objectGridLayout->getItemPosition(index, &row, &column, &column, &column);
-			QLabel *labelWidget = dynamic_cast<QLabel *>(objectGridLayout->itemAtPosition(row, 0)->widget());
-			if (labelWidget)
-			{
-				labelWidget->setStyleSheet("color: green;");
-			}
 		}
 
 		switch (type)
@@ -497,18 +483,6 @@ OSCObjectSettings::onEditingFinished(QString name)
 				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v - 1);
 				projectSettings_->executeCommand(command);
 
-				if (v == 0)
-				{
-					QGridLayout *objectGridLayout = dynamic_cast<QGridLayout *>(ui->oscGroupBox->layout());
-					int row; int column;
-					int index = objectGridLayout->indexOf(widget);
-					objectGridLayout->getItemPosition(index, &row, &column, &column, &column);
-					QLabel *labelWidget = dynamic_cast<QLabel *>(objectGridLayout->itemAtPosition(row, 0)->widget());
-					if (labelWidget)
-					{
-						labelWidget->setStyleSheet("color: white;");
-					}
-				}
 				break;
 			}
 

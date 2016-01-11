@@ -45,7 +45,7 @@ class OSCBase;
 class AddOSCObjectCommand : public DataCommand
 {
 public:
-	explicit AddOSCObjectCommand(const OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, DataCommand *parent = NULL);
+	explicit AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *oscBase, const std::string &name, OSCElement *element, DataCommand *parent = NULL);
     virtual ~AddOSCObjectCommand();
 
     virtual int id() const
@@ -64,7 +64,7 @@ private:
 private:
 	OpenScenario::OpenScenarioBase * openScenarioBase_;
     std::string typeName_;
-	const OpenScenario::oscObjectBase * parentObject_;
+	OpenScenario::oscObjectBase * parentObject_;
 
 	OSCElement *element_;
 	OSCBase *oscBase_;
@@ -96,7 +96,8 @@ private:
 
 private:
 	const OpenScenario::OpenScenarioBase * openScenarioBase_;
-    const OpenScenario::oscObjectBase *object_;
+    OpenScenario::oscObjectBase *object_;
+	OpenScenario::oscMember *parentMember_;
 
 	OSCBase *oscBase_;
 	OSCElement *element_;

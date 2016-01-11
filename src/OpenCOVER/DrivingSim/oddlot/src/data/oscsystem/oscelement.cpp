@@ -20,7 +20,7 @@
 /*! \brief The constructor does nothing special.
 *
 */
-OSCElement::OSCElement(const QString &id, const OpenScenario::oscObjectBase *oscObjectBase)
+OSCElement::OSCElement(const QString &id, OpenScenario::oscObjectBase *oscObjectBase)
     : DataElement() 
 	, oscObjectBase_(oscObjectBase)
  //   , rSystemElementChanges_(0x0)
