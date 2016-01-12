@@ -106,7 +106,7 @@ void TUIFloatSlider::sliderChanged(int ival)
 void TUIFloatSlider::pressed()
 {
     value = string->text().toFloat();
-    std::cerr << "val:" << value << std::endl;
+    //std::cerr << "val:" << value << std::endl;
     covise::TokenBuffer tb;
     tb << ID;
     tb << TABLET_PRESSED;
@@ -118,7 +118,7 @@ void TUIFloatSlider::pressed()
 void TUIFloatSlider::released()
 {
     value = string->text().toFloat();
-    std::cerr << "rval:" << value << std::endl;
+    //std::cerr << "rval:" << value << std::endl;
     covise::TokenBuffer tb;
     tb << ID;
     tb << TABLET_RELEASED;
