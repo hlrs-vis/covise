@@ -310,24 +310,18 @@ public:
 
     virtual void undo()
 	{
+		v_->setValue(oldOSCValue_);
+		element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
 
-	v_->setValue(oldOSCValue_);
-	if (memberName_ == "name")
-		{
-			element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
-		}
-
-    setUndone();
+		setUndone();
 	}
 
     virtual void redo()
 	{
 		v_->setValue(newOSCValue_);
-		if (memberName_ == "name")
-		{
-			element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
-		}
-    setRedone();
+		element_->addOSCElementChanges(OSCElement::COE_ParameterChange);
+
+		setRedone();
 	}
 
 private:

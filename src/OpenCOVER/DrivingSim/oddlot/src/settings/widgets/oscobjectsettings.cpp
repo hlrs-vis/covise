@@ -69,6 +69,7 @@ using namespace OpenScenario;
 
 OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element)
     : QWidget()
+	, Observer()
 	, ui(new Ui::OSCObjectSettings)
     , init_(false)
     , valueChanged_(false)
@@ -89,11 +90,17 @@ OSCObjectSettings::OSCObjectSettings(ProjectSettings *projectSettings, OSCObject
     init_ = true;
 	parentStack_->addWidget(this);
 
+	// Observer //
+    //
+    element_->attachObserver(this);
+
 }
 
 OSCObjectSettings::~OSCObjectSettings()
 {
-
+	// Observer //
+    //
+    element_->detachObserver(this);
 //    delete ui;
 }
 
@@ -529,21 +536,17 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 void
 OSCObjectSettings::updateObserver()
 {
-
-    // Parent //
-    //
- /*   SettingsElement::updateObserver();
-    if (isInGarbage())
+	if (parentStack_->isInGarbage())
     {
         return; // no need to go on
-    }*/
+    }
 
     // oscObject //
     //
-/*    int changes = object_->getoscObjectChanges();
+	int changes = element_->getOSCElementChanges();
 
-    if ((changes & Bridge::CEL_ParameterChange))
+    if (changes & OSCElement::COE_ParameterChange)
     {
         updateProperties();
-    }*/
+    }
 }

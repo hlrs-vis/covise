@@ -123,6 +123,7 @@ OSCObjectSettingsStack::updateObserver()
         return; // no need to go on
     }
 
+
     // oscObject //
     //
 /*    int changes = object_->getoscObjectChanges();

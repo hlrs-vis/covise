@@ -108,6 +108,7 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *event);
     void dropEvent(QDropEvent *event);
 
+
 private:
 	CatalogWidget *parent_;
 };
