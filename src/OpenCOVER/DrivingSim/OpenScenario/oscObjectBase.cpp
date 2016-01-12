@@ -127,9 +127,9 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     //
                     if (document != srcXmlDoc)
                     {
-                        //add xi:include to root element of new xml document
-                        const XMLCh *filename = obj->getSource()->getSrcFileNameAsXmlCh();
-                        addXInclude(currentElement, document, filename);
+                        //add osc:include to root element of new xml document
+                        const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
+                        addXInclude(currentElement, document, fileHref);
 
                         //member and arrayMember use a new document and the root element of this document
                         docToUse = srcXmlDoc;
@@ -216,10 +216,10 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
         {
             std::string attributeName = xercesc::XMLString::transcode(attribute->getName());
 
-            //attributes xmlns, xmlns:xi and xml:base are generated and/or used with namespaces and XInclude
+            //attributes xmlns, xmlns:osc and xml:base are generated and/or used with namespaces and XInclude
             //they have no representation in the object structure
             //only xml:base is evaluated during the determination of the source file
-            if (attributeName != "xmlns" && attributeName != "xmlns:xi" && attributeName != "xml:base")
+            if (attributeName != "xmlns" && attributeName != "xmlns:osc" && attributeName != "xml:base")
             {
                 oscMember *m = members[attributeName];
                 if(m)
@@ -290,7 +290,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         if(attrib != NULL)
                         {
                             std::string attribName = xercesc::XMLString::transcode(attrib->getName());
-                            if (attribName != "xmlns" && attribName != "xmlns:xi" && attribName != "xml:base")
+                            if (attribName != "xmlns" && attribName != "xmlns:osc" && attribName != "xml:base")
                             {
                                 std::cerr << "\n Array member " << memberName << " has attributes." << std::endl;
                                 std::cerr << " Attributes of an array member are not supported.\n" << std::endl;
@@ -361,7 +361,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         std::cerr << "\n Warning!" << std::endl;
                         std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << xercesc::XMLString::transcode(currentElement->getNodeName()) << "\"" << std::endl;
                         std::cerr << "  Only first entry is used." << std::endl;
-                        std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileNameAsStr() << " is used.\n" << std::endl;
+                        std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileHrefAsStr() << " is used.\n" << std::endl;
                     }
                     //member has no value (value doesn't exist)
                     else
@@ -399,25 +399,25 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
  * private functions
  *****/
 
-void oscObjectBase::addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *filename)
+void oscObjectBase::addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref)
 {
-    //add element xi:include
-    const XMLCh *xInclude = xercesc::XMLString::transcode(std::string("xi:include").c_str());
+    //add element osc:include
+    const XMLCh *xInclude = xercesc::XMLString::transcode(std::string("osc:include").c_str());
     xercesc::DOMElement *xIncludeElem = doc->createElement(xInclude);
     const XMLCh *attrHrefName = xercesc::XMLString::transcode(std::string("href").c_str());
-    xIncludeElem->setAttribute(attrHrefName, filename);
+    xIncludeElem->setAttribute(attrHrefName, fileHref);
     currElem->appendChild(xIncludeElem);
 
-    //write attribute xmlns:xi to doc root element
-    const XMLCh *attrXmlnsXiName = xercesc::XMLString::transcode(std::string("xmlns:xi").c_str());
+    //write attribute xmlns:osc to doc root element
+    const XMLCh *attrXmlnsOscName = xercesc::XMLString::transcode(std::string("xmlns:osc").c_str());
     xercesc::DOMElement *docRootElem = doc->getDocumentElement();
-    xercesc::DOMAttr *attrNodeXmlnsXi = docRootElem->getAttributeNode(attrXmlnsXiName);
-    if (!attrNodeXmlnsXi)
+    xercesc::DOMAttr *attrNodeXmlnsOsc = docRootElem->getAttributeNode(attrXmlnsOscName);
+    if (!attrNodeXmlnsOsc)
     {
         //XInclude defines a namespace associated with the URI http://www.w3.org/2001/XInclude
         //it is no link, it is treated as a normal string (as a formal identifier)
-        const XMLCh *attrXmlnsXiValue = xercesc::XMLString::transcode(std::string("http://www.w3.org/2001/XInclude").c_str());
-        docRootElem->setAttribute(attrXmlnsXiName, attrXmlnsXiValue);
+        const XMLCh *attrXmlnsOscValue = xercesc::XMLString::transcode(std::string("http://www.w3.org/2001/XInclude").c_str());
+        docRootElem->setAttribute(attrXmlnsOscName, attrXmlnsOscValue);
     }
 }
 
@@ -433,7 +433,7 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
     if (memElemAttrXmlBase)
     {
         oscSourceFile *newSrc = new oscSourceFile();
-        newSrc->setSrcFileName(memElemAttrXmlBase->getValue());
+        newSrc->setSrcFileHref(memElemAttrXmlBase->getValue());
         newSrc->setRootElementName(memElem->getNodeName());
         base->addToSrcFileVec(newSrc);
         srcToUse = newSrc;

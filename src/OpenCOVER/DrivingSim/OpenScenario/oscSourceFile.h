@@ -23,7 +23,7 @@ namespace OpenScenario {
 class OPENSCENARIOEXPORT oscSourceFile
 {
 protected:
-    std::string srcFileName; ///< file name of the file that is imported
+    std::string srcFileHref; ///< reference to the file that is imported (relative path from parent and filename)
     std::string rootElementName; ///< of the file that is read in
     xercesc::DOMDocument *xmlDoc;
 
@@ -31,14 +31,14 @@ public:
     oscSourceFile(); ///< constructor
     ~oscSourceFile(); ///< destructor
 
-    void setSrcFileName(const std::string &sf);
-    void setSrcFileName(const XMLCh *sf);
+    void setSrcFileHref(const std::string &sfhr);
+    void setSrcFileHref(const XMLCh *sfhr);
     void setRootElementName(const std::string &ren);
     void setRootElementName(const XMLCh *ren);
     void setXmlDoc(xercesc::DOMDocument *xD);
 
-    std::string getSrcFileNameAsStr() const;
-    const XMLCh *getSrcFileNameAsXmlCh() const;
+    std::string getSrcFileHrefAsStr() const;
+    const XMLCh *getSrcFileHrefAsXmlCh() const;
     std::string getRootElementNameAsStr() const;
     const XMLCh *getRootElementNameAsXmlCh() const;
     xercesc::DOMDocument *getXmlDoc() const;

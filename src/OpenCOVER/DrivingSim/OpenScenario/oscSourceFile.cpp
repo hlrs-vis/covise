@@ -30,14 +30,14 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
-void oscSourceFile::setSrcFileName(const std::string &sf)
+void oscSourceFile::setSrcFileHref(const std::string &sfhr)
 {
-    srcFileName = sf;
+    srcFileHref = sfhr;
 }
 
-void oscSourceFile::setSrcFileName(const XMLCh *sf)
+void oscSourceFile::setSrcFileHref(const XMLCh *sfhr)
 {
-    srcFileName = xercesc::XMLString::transcode(sf);
+    srcFileHref = xercesc::XMLString::transcode(sfhr);
 }
 
 void oscSourceFile::setRootElementName(const std::string &ren)
@@ -57,14 +57,14 @@ void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
 
 
 //
-std::string oscSourceFile::getSrcFileNameAsStr() const
+std::string oscSourceFile::getSrcFileHrefAsStr() const
 {
-    return srcFileName;
+    return srcFileHref;
 }
 
-const XMLCh *oscSourceFile::getSrcFileNameAsXmlCh() const
+const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
 {
-    return xercesc::XMLString::transcode(srcFileName.c_str());
+    return xercesc::XMLString::transcode(srcFileHref.c_str());
 }
 
 std::string oscSourceFile::getRootElementNameAsStr() const

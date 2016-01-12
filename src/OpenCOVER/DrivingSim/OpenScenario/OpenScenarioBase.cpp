@@ -88,7 +88,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         //set filename for main xosc file with root element "OpenScenario" to fileName
         if (srcFileRootElement == "OpenScenario")
         {
-            srcFileVec[i]->setSrcFileName(fileName);
+            srcFileVec[i]->setSrcFileHref(fileName);
             osbSourceFile = srcFileVec[i];
         }
 
@@ -108,12 +108,11 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        std::string srcFileName = srcFileVec[i]->getSrcFileNameAsStr();
+        std::string srcFileRef = srcFileVec[i]->getSrcFileHrefAsStr();
 
-        if (srcFileName != fileName)
+        if (srcFileRef != fileName)
         {
-
-            srcFileName = srcFileName + "_out.xml";
+            srcFileRef = srcFileRef + "_out.xml";
         }
         xercesc::DOMDocument* xmlSrcDoc = srcFileVec[i]->getXmlDoc();
 
@@ -126,7 +125,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
             writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
 #endif
 
-        xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(srcFileName.c_str());
+        xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(srcFileRef.c_str());
 
 #if (XERCES_VERSION_MAJOR < 3)
         if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
@@ -207,7 +206,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
     source = new oscSourceFile();
-    source->setSrcFileName(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
+    source->setSrcFileHref(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
     source->setRootElementName(rootElement->getNodeName());
     addToSrcFileVec(source);
 
