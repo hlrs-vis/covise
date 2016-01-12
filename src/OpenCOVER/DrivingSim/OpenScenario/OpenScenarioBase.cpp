@@ -88,7 +88,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         //set filename for main xosc file with root element "OpenScenario" to fileName
         if (srcFileRootElement == "OpenScenario")
         {
-            srcFileVec[i]->setSrcFileHref(fileName);
+            srcFileVec[i]->setSrcFileName(fileName);
             osbSourceFile = srcFileVec[i];
         }
 
@@ -108,12 +108,21 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        std::string srcFileRef = srcFileVec[i]->getSrcFileHrefAsStr();
+        //get the relative path from main to the to write
+        std::string relFilePath = srcFileVec[i]->getRelPathFromMainDoc();
+        //get the file name to write
+        std::string srcFileName = srcFileVec[i]->getSrcFileName();
 
-        if (srcFileRef != fileName)
+        //for testing: generate a new filename
+        if (srcFileName != fileName)
         {
-            srcFileRef = srcFileRef + "_out.xml";
+            srcFileName = srcFileName + "_out.xml";
         }
+
+        //file name and path for writing
+        std::string pathFileNameToWrite = relFilePath + srcFileName;
+
+        //xml document to write
         xercesc::DOMDocument* xmlSrcDoc = srcFileVec[i]->getXmlDoc();
 
 #if (XERCES_VERSION_MAJOR < 3)
@@ -125,7 +134,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
             writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
 #endif
 
-        xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(srcFileRef.c_str());
+        xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(pathFileNameToWrite.c_str());
 
 #if (XERCES_VERSION_MAJOR < 3)
         if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
@@ -206,7 +215,12 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
     source = new oscSourceFile();
-    source->setSrcFileHref(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
+    source->setSrcFileHref("");
+    std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
+    fileNamePath *fnPath = source->getFileNamePath(fileNamePathStr);
+    source->setSrcFileName(fnPath->fileName);
+    source->setMainDocPath(fnPath->path);
+    source->setRelPathFromMainDoc("");
     source->setRootElementName(rootElement->getNodeName());
     addToSrcFileVec(source);
 

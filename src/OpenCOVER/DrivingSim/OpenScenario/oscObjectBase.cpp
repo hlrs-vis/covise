@@ -433,8 +433,59 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
     if (memElemAttrXmlBase)
     {
         oscSourceFile *newSrc = new oscSourceFile();
+
+        //new srcFileHref
         newSrc->setSrcFileHref(memElemAttrXmlBase->getValue());
+
+        //filename and path
+        fileNamePath *fnPath = newSrc->getFileNamePath(newSrc->getSrcFileHrefAsStr());
+
+        //new srcFileName
+        newSrc->setSrcFileName(fnPath->fileName);
+
+        //new mainDocPath and relPathFromMainDoc
+        if (base->getSrcFileVec().size() == 1) //only sourceFile of OpenScenario is present
+        {
+            newSrc->setMainDocPath(base->source->getMainDocPath());
+            newSrc->setRelPathFromMainDoc(fnPath->path);
+        }
+        else
+        {
+            newSrc->setMainDocPath(srcF->getMainDocPath());
+
+            std::string srcRelPathFromMainDoc = srcF->getRelPathFromMainDoc();
+            std::string newSrcRelPathFromMainDoc = fnPath->path;
+
+            std::string relPathFromMainDocToUse;
+            if (srcRelPathFromMainDoc == "")
+            {
+                if (newSrcRelPathFromMainDoc == "")
+                {
+                    relPathFromMainDocToUse = "";
+                }
+                else
+                {
+                    relPathFromMainDocToUse = newSrcRelPathFromMainDoc;
+                }
+            }
+            else
+            {
+                if (newSrcRelPathFromMainDoc == "")
+                {
+                    relPathFromMainDocToUse = srcRelPathFromMainDoc;
+                }
+                else
+                {
+                    relPathFromMainDocToUse = srcRelPathFromMainDoc + newSrcRelPathFromMainDoc;
+                }
+            }
+
+            newSrc->setRelPathFromMainDoc(relPathFromMainDocToUse);
+        }
+
+        //new rootElementName
         newSrc->setRootElementName(memElem->getNodeName());
+
         base->addToSrcFileVec(newSrc);
         srcToUse = newSrc;
     }
