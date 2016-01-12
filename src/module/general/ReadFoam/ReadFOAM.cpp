@@ -1030,6 +1030,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 								}
 							}
 						}
+						counter++;
 					}
 					std::string meshSetName = meshOutPort->getObjName();
 					meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
@@ -1085,6 +1086,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 								}
 							}
 						}
+						counter++;
 					}
 					coDoSet *meshSet;
 					std::string meshSetName = meshOutPort->getObjName();
@@ -1305,6 +1307,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 								}
 							}
 						}
+						counter++;
 					}
                     std::string boundSetName = boundaryOutPort->getObjName();
                     boundarySet = new coDoSet(boundSetName, boundarySubSets.size(), &boundarySubSets.front());
@@ -1360,6 +1363,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 								}
 							}
 						}
+						counter++;
 					}
 
                     coDoSet *boundarySet;

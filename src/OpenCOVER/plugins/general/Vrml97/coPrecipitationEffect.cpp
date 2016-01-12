@@ -16,6 +16,7 @@
 
 #include<OpenThreads/ScopedLock>
 
+#include <osg/Version>
 #include<osg/Texture2D>
 #include<osg/PointSprite>
 #include<osgDB/FileUtils>
@@ -24,6 +25,7 @@
 
 #include <coPrecipitationEffect.h>
 
+#include <osg/GL2Extensions>
 #include <osg/Notify>
 #include <osg/io_utils>
 #include <osg/Timer>
@@ -839,7 +841,11 @@ void coPrecipitationEffect::PrecipitationDrawable::drawImplementation(osg::Rende
 if (!_geometry) return;
 
 
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 3)
+    const osg::GL2Extensions* extensions = osg::GL2Extensions::Get(renderInfo.getContextID(),true);
+#else
     const osg::Geometry::Extensions* extensions = osg::Geometry::getExtensions(renderInfo.getContextID(),true);
+#endif
 
     // save OpenGL matrices
     glPushMatrix();

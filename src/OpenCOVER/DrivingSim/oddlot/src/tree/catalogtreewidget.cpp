@@ -330,16 +330,11 @@ CatalogTreeWidget::updateObserver()
 			currentSelectedItem_->setText(0, QString::fromStdString(sv->getValue()));
 		}
     }
-	else
+
+	changes = oscElement_->getDataElementChanges();
+	if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))
 	{
-		int changes = oscElement_->getDataElementChanges();
-		if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementDeleted))
-		{
-			createTree();
-		}
-		else if ((changes & DataElement::CDE_SelectionChange) && !oscElement_->isElementSelected())
-		{
-//			clearSelection();
-		}
+		createTree();
 	}
+
 }

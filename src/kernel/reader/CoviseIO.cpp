@@ -113,7 +113,7 @@ coDistributedObject *CoviseIO::ReadFile(const char *filename, const char *object
         return NULL;
 }
 
-void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
+void CoviseIO::writeobj(int fd, const coDistributedObject *data_obj)
 {
     coDoSet *set;
     coDoGeometry *geo;
@@ -121,7 +121,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
     const char *gtype;
     USG_HEADER usg_h;
     STR_HEADER s_h;
-    const coDistributedObject *data_obj;
     const coDistributedObject *do1;
     const coDistributedObject *do2;
     const coDistributedObject *do3;
@@ -129,7 +128,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
     const coDistributedObject *const *objs;
     int numsets, i, numAttr;
     const char **an, **at, **an2, **at2;
-    data_obj = tmp_Object->createUnknown();
     if (data_obj->getRefCount() > 1) // this object is used multiple times, if we have already written this object, we just add a reference
     {
         int n = 0;
@@ -158,7 +156,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
                 writeobj(fd, objs[i]);
             numAttr = set->getAllAttributes(&an, &at);
             covWriteSetEnd(fd, (char **)an, (char **)at, numAttr);
-            delete set;
         }
         else if (strcmp(gtype, "INTARR") == 0)
         {
@@ -167,7 +164,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             int numElem = arr->getSize();
             numAttr = arr->getAllAttributes(&an, &at);
             covWriteINTARR(fd, numDim, numElem, arr->getDimensionPtr(), arr->getAddress(), (char **)an, (char **)at, numAttr);
-            delete arr;
         }
         else if (strcmp(gtype, "INTDT ") == 0)
         {
@@ -175,7 +171,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             int numPoints = arr->getNumPoints();
             numAttr = arr->getAllAttributes(&an, &at);
             covWriteINTDT(fd, numPoints, arr->getAddress(), (char **)an, (char **)at, numAttr);
-            delete arr;
         }
         else if (strcmp(gtype, "BYTEDT") == 0)
         {
@@ -183,7 +178,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             int numPoints = arr->getNumPoints();
             numAttr = arr->getAllAttributes(&an, &at);
             covWriteBYTEDT(fd, numPoints, arr->getAddress(), (char **)an, (char **)at, numAttr);
-            delete arr;
         }
         else if (strcmp(gtype, "GEOMET") == 0)
         {
@@ -221,7 +215,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
                 writeobj(fd, do4);
             numAttr = geo->getAllAttributes(&an, &at);
             covWriteGeometryEnd(fd, (char **)an, (char **)at, numAttr);
-            delete geo;
         }
         else if (strcmp(gtype, "UNSGRD") == 0)
         {
@@ -232,7 +225,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             numAttr = mesh->getAllAttributes(&an, &at);
             covWriteUNSGRD(fd, usg_h.n_elem, usg_h.n_conn, usg_h.n_coord,
                            el, vl, tl, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete mesh;
         }
         else if (strcmp(gtype, "POINTS") == 0)
         {
@@ -241,7 +233,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = pts->getNumPoints();
             numAttr = pts->getAllAttributes(&an, &at);
             covWritePOINTS(fd, n_elem, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete pts;
         }
         else if (strcmp(gtype, "SPHERE") == 0)
         {
@@ -250,7 +241,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = sph->getNumSpheres();
             numAttr = sph->getAllAttributes(&an, &at);
             covWriteSPHERES(fd, n_elem, x_coord, y_coord, z_coord, radius, (char **)an, (char **)at, numAttr);
-            delete sph;
         }
         else if (strcmp(gtype, "DOTEXT") == 0)
         {
@@ -260,7 +250,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = txt->getTextLength();
             numAttr = txt->getAllAttributes(&an, &at);
             covWriteDOTEXT(fd, n_elem, data, (char **)an, (char **)at, numAttr);
-            delete pts;
         }
         else if (strcmp(gtype, "POLYGN") == 0)
         {
@@ -272,7 +261,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             numAttr = pol->getAllAttributes(&an, &at);
             covWritePOLYGN(fd, usg_h.n_elem, el, usg_h.n_conn, vl, usg_h.n_coord, x_coord, y_coord, z_coord,
                            (char **)an, (char **)at, numAttr);
-            delete pol;
         }
         else if (strcmp(gtype, "LINES") == 0)
         {
@@ -283,7 +271,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             usg_h.n_coord = lin->getNumPoints();
             numAttr = lin->getAllAttributes(&an, &at);
             covWriteLINES(fd, usg_h.n_elem, el, usg_h.n_conn, vl, usg_h.n_coord, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete lin;
         }
         else if (strcmp(gtype, "TRITRI") == 0)
         {
@@ -293,7 +280,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             usg_h.n_coord = triang->getNumPoints();
             numAttr = triang->getAllAttributes(&an, &at);
             covWriteTRI(fd, usg_h.n_conn, vl, usg_h.n_coord, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete triang;
         }
         else if (strcmp(gtype, "QUADS") == 0)
         {
@@ -303,7 +289,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             usg_h.n_coord = quads->getNumPoints();
             numAttr = quads->getAllAttributes(&an, &at);
             covWriteQUADS(fd, usg_h.n_conn, vl, usg_h.n_coord, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete quads;
         }
         else if (strcmp(gtype, "TRIANG") == 0)
         {
@@ -315,7 +300,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             numAttr = tri->getAllAttributes(&an, &at);
             covWriteTRIANG(fd, usg_h.n_elem, el, usg_h.n_conn, vl, usg_h.n_coord, x_coord, y_coord, z_coord,
                            (char **)an, (char **)at, numAttr);
-            delete tri;
         }
         else if (strcmp(gtype, "RCTGRD") == 0)
         {
@@ -324,7 +308,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             rgrid->getGridSize(&(s_h.xs), &(s_h.ys), &(s_h.zs));
             numAttr = rgrid->getAllAttributes(&an, &at);
             covWriteRCTGRD(fd, s_h.xs, s_h.ys, s_h.zs, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete rgrid;
         }
         else if (strcmp(gtype, "STRGRD") == 0)
         {
@@ -333,7 +316,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             sgrid->getGridSize(&(s_h.xs), &(s_h.ys), &(s_h.zs));
             numAttr = sgrid->getAllAttributes(&an, &at);
             covWriteSTRGRD(fd, s_h.xs, s_h.ys, s_h.zs, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete sgrid;
         }
         else if (strcmp(gtype, "UNIGRD") == 0)
         {
@@ -345,7 +327,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             numAttr = ugrid->getAllAttributes(&an, &at);
             covWriteUNIGRD(fd, s_h.xs, s_h.ys, s_h.zs,
                            x_min, x_max, y_min, y_max, z_min, z_max, (char **)an, (char **)at, numAttr);
-            delete ugrid;
         }
         else if (strcmp(gtype, "USTSDT") == 0)
         {
@@ -354,7 +335,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = us3d->getNumPoints();
             numAttr = us3d->getAllAttributes(&an, &at);
             covWriteUSTSDT(fd, n_elem, z_coord, (char **)an, (char **)at, numAttr);
-            delete us3d;
         }
         else if (strcmp(gtype, "USTTDT") == 0)
         {
@@ -367,7 +347,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = us3d->getNumPoints();
             numAttr = us3d->getAllAttributes(&an, &at);
             covWriteUSTTDT(fd, n_elem, type, z_coord, (char **)an, (char **)at, numAttr);
-            delete us3d;
         }
         else if (strcmp(gtype, "RGBADT") == 0)
         {
@@ -376,7 +355,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = rgba->getNumPoints();
             numAttr = rgba->getAllAttributes(&an, &at);
             covWriteRGBADT(fd, n_elem, (int *)z_coord, (char **)an, (char **)at, numAttr);
-            delete rgba;
         }
         else if (strcmp(gtype, "USTVDT") == 0)
         {
@@ -385,7 +363,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             n_elem = us3dv->getNumPoints();
             numAttr = us3dv->getAllAttributes(&an, &at);
             covWriteUSTVDT(fd, n_elem, x_coord, y_coord, z_coord, (char **)an, (char **)at, numAttr);
-            delete us3dv;
         }
         else if (strcmp(gtype, "IMAGE") == 0)
         {
@@ -403,7 +380,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
             strPixelImageBuffer = pixelimage->getPixels();
             covWriteIMAGE(fd, intPixelImageWidth, intPixelImageHeight, intPixelImageSize,
                           intPixelImageFormatId, strPixelImageBuffer, (char **)an, (char **)at, numAttr);
-            delete pixelimage;
         }
 
         else if (strcmp(gtype, "TEXTUR") == 0)
@@ -443,8 +419,6 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
                            intNumberOfBorderPixels, intNumberOfComponents, intLevel,
                            intNumberOfCoordinates, intNumberOfVertices, intVertexIndices,
                            fltCoords, (char **)an2, (char **)at2, numTextAttr);
-
-            delete texture;
         }
         else if (strcmp(gtype, "OCTREE") == 0)
         {
@@ -465,13 +439,11 @@ void CoviseIO::writeobj(int fd, const coDistributedObject *tmp_Object)
         else
         {
             Covise::sendError("ERROR: unsupported DataType");
-            return;
         }
     }
     else
     {
         Covise::sendError("ERROR: object name not correct for 'mesh_in'");
-        return;
     }
 }
 

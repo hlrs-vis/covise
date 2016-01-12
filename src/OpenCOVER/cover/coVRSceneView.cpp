@@ -98,9 +98,9 @@ bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd
         invRot.invert(rotonly);
         nmv = (*(mv.get()) * invRot) * cover->invEnvCorrectMat;
         npm = cover->envCorrectMat * rotonly * *(proj.get());
-        osg::Matrixf tmp = cover->envCorrectMat * rotonly * getViewMatrix();
+        osg::Matrixf tmp =   cover->envCorrectMat * rotonly * osg::Matrix::inverse(getViewMatrix());
         coEnvCorrectMatrixUniform->set(tmp);
-                     tmp = osg::Matrix::inverse(getViewMatrix()) * invRot * cover->invEnvCorrectMat;
+                     tmp =  cover->invEnvCorrectMat *invRot *  getViewMatrix();
         coInvEnvCorrectMatrixUniform->set(tmp);
     }
     if (coVRConfig::instance()->screens[screen].render == false)
