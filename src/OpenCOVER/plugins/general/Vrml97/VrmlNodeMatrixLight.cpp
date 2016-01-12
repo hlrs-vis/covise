@@ -105,7 +105,7 @@ VrmlNodeType *VrmlNodeMatrixLight::nodeType() const
 VrmlNodeMatrixLight::VrmlNodeMatrixLight(VrmlScene *scene)
     : VrmlNodeChild(scene)
     , d_lightNumber(0)
-    , d_viewerObject(NULL)
+    , d_viewerObject(0)
     , d_IESFile("")
 {
     setModified();
