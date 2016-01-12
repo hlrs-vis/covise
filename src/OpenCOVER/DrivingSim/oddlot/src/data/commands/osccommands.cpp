@@ -180,6 +180,7 @@ RemoveOSCObjectCommand::redo()
 void
 RemoveOSCObjectCommand::undo()
 {
+
     element_->setObjectBase(object_);
 	oscBase_->addOSCElement(element_);
 

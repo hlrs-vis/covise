@@ -26,7 +26,7 @@
 //
 #include "src/gui/projectwidget.hpp"
 #include "src/gui/tools/osceditortool.hpp"
-#include "src/gui/tools/toolmanager.hpp"
+//#include "src/gui/tools/toolmanager.hpp"
 
 // MainWindow//
 //
@@ -103,11 +103,11 @@ CatalogTreeWidget::init()
 		
 	// Connect with the ToolManager to send the selected signal or object //
     //
-	ToolManager *toolManager = mainWindow_->getToolManager();
+/*	ToolManager *toolManager = mainWindow_->getToolManager();
 	if (toolManager)
 	{
 		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
-	}
+	}*/
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setDragEnabled(true);
@@ -324,10 +324,13 @@ CatalogTreeWidget::updateObserver()
 	if (changes & OSCElement::COE_ParameterChange)
     {
 		OpenScenario::oscMember *member = currentMember_->getObject()->getMembers().at("name");
-		oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getValue());
-		if (sv)
+		if (member->exists())
 		{
-			currentSelectedItem_->setText(0, QString::fromStdString(sv->getValue()));
+			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getValue());
+			if (sv->getValue() != currentSelectedItem_->text(0).toStdString())
+			{
+				currentSelectedItem_->setText(0, QString::fromStdString(sv->getValue()));
+			}
 		}
     }
 
