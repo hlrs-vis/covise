@@ -41,10 +41,10 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
 
     base = this;
 
-    ownMember = new oscMember();
-    ownMember->setName("OpenScenario");
-    ownMember->setTypeName("OpenScenarioBase");
-    ownMember->setValue(this);
+    ownMem = new oscMember();
+    ownMem->setName("OpenScenario");
+    ownMem->setTypeName("OpenScenarioBase");
+    ownMem->setValue(this);
 }
 
 OpenScenarioBase::~OpenScenarioBase()
