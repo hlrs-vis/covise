@@ -170,7 +170,7 @@ bool TUIFloatSlider::isOfClassName(char *classname)
 
 void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
 {
-    //cerr << "TUIFloatSlider::setValue info: type = " << type << endl;
+    //cerr << "TUIFloatSlider::setValue " << name.toStdString()<< ": type = " << type << endl;
     if (type == TABLET_MIN)
     {
         tb >> min;
