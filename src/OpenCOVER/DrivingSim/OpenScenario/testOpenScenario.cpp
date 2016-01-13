@@ -10,13 +10,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <iostream>
 
-// Mandatory for using any feature of Xerces.
 #include <xercesc/util/PlatformUtils.hpp>
-// Required for outputting a Xerces DOMDocument
-// to a standard output stream (Also see: XMLFormatTarget)
 #include <xercesc/framework/StdOutFormatTarget.hpp>
-// Required for outputting a Xerces DOMDocument
-// to the file system (Also see: XMLFormatTarget)
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 #include <xercesc/dom/DOMImplementation.hpp>
@@ -96,15 +91,6 @@ int main(int argc, char **argv)
     }
 
     xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-
-    /*
-    Choose a location for the serialized output. The 3 options are:
-        1) StdOutFormatTarget     (std output stream -  good for debugging)
-        2) MemBufFormatTarget     (to Memory)
-        3) LocalFileFormatTarget  (save to file)
-        (Note: You'll need a different header file for each one)
-    */
-    //
 
     // print to std::out
     if (writeToConsole)
