@@ -212,7 +212,16 @@ void Host::HostSymbolic(const char *n)
         return;
     }
     //Second alternative
-
+    if(strcmp(n,"127.0.0.1")==0)
+    {
+        setAddress(n);
+        char_address[0] = 127;
+        char_address[1] = 0;
+        char_address[2] = 0;
+        char_address[3] = 1;
+    }
+    else
+    {
     hent = gethostbyname(n);
     if (NULL == hent)
     {
@@ -233,6 +242,7 @@ void Host::HostSymbolic(const char *n)
             char_address[2],
             char_address[3]);
     setAddress(buf);
+    }
     setName(n);
 }
 
