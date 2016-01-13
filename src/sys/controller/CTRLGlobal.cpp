@@ -14,9 +14,14 @@
 
 using namespace covise;
 
-CTRLGlobal &CTRLGlobal::get_handle()
+CTRLGlobal *CTRLGlobal::getInstance()
 {
-    return *m_global;
+    
+    if (m_global == NULL)
+    {
+        m_global = new CTRLGlobal();
+    }
+    return m_global;
 }
 
 CTRLGlobal::~CTRLGlobal()
@@ -53,14 +58,6 @@ CTRLGlobal::CTRLGlobal()
     netList = new net_module_list();
     objectList = new object_list;
     modUIList = new modui_list;
-    if (m_global == NULL)
-    {
-        m_global = this;
-    }
-    else
-    {
-        print_comment(__LINE__, __FILE__, "already have a CTRLGlobal object");
-    }
     s_nodeID = 0;
 }
 

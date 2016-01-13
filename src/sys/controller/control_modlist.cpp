@@ -220,8 +220,8 @@ AppModule *DM_data::get_DM()
 
 int DM_data::start_crb(int type, const string &host, const string &user, const string &passwd, const string &script_name, coHostType & /*htype*/)
 {
-
-    CTRLGlobal &global = CTRLGlobal::get_handle();
+    
+    CTRLGlobal *global = CTRLGlobal::getInstance();
 
     string executable = "crb";
     if (CTRLHandler::instance()->Config->getshminfo(host.c_str()) == COVISE_PROXIE)
@@ -232,12 +232,12 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
     {
     case COVISE_LOCAL:
     {
-        dm = global.controller->start_datamanager("crb");
+        dm = CTRLGlobal::getInstance()->controller->start_datamanager("crb");
         break;
     }
     case COVISE_REXEC:
     {
-        dm = global.controller->start_datamanager(p_host, user.c_str(), passwd.c_str(), executable.c_str());
+        dm = CTRLGlobal::getInstance()->controller->start_datamanager(p_host, user.c_str(), passwd.c_str(), executable.c_str());
         break;
     }
     case COVISE_SSH:
@@ -249,7 +249,7 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
     case COVISE_ACCESSGRID:
     case COVISE_REMOTE_DAEMON:
     {
-        dm = global.controller->start_datamanager(p_host, user.c_str(), executable.c_str(), type, script_name.c_str());
+        dm = CTRLGlobal::getInstance()->controller->start_datamanager(p_host, user.c_str(), executable.c_str(), type, script_name.c_str());
         break;
     }
     default:
@@ -293,14 +293,14 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
         {
             string text = "Controller WARNING : main covise version = " + main_version + " and the partner version = ";
             text = text + partner_version + " from host " + host + " are different !!!";
-            global.userinterfaceList->sendWarning2m(text);
+            CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(text);
         }
     }
     else
     {
         string text = "Controller WARNING : main covise version = " + main_version;
         text = text + " and the partner version = \"unknown\" from host " + host + " are different !!!";
-        global.userinterfaceList->sendWarning2m(text);
+        CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(text);
     }
 
     // patch Message to include hostname & user !!
@@ -653,13 +653,12 @@ bool rhost::get_mark()
 
 int rhost::start_ctrl(int type, const string &script_name, coHostType &htype)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     string DC_info;
 
-    if (global.dataManagerList->add_crb(type, hostname, user, passwd, script_name, htype))
+    if (CTRLGlobal::getInstance()->dataManagerList->add_crb(type, hostname, user, passwd, script_name, htype))
     {
-        DM_data *tmp_data = global.dataManagerList->get(hostname, user);
+        DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(hostname, user);
         ctrl = tmp_data->get_DM();
 
         //  add Modules
@@ -669,16 +668,16 @@ int rhost::start_ctrl(int type, const string &script_name, coHostType &htype)
             return 0;
         }
         string module_info = tmp_data->list_msg->data;
-        global.moduleList->add_module_list(hostname, user, module_info);
+        CTRLGlobal::getInstance()->moduleList->add_module_list(hostname, user, module_info);
 
 //  DC-info received from remote host
 #ifdef CONNECT
-        Message *p_msg = global.dataManagerList->get(hostname, user)->interface_msg;
+        Message *p_msg = CTRLGlobal::getInstance()->dataManagerList->get(hostname, user)->interface_msg;
         set_intflist(p_msg->data);
         DC_info = get_DC_list();
 #endif
         //    Send Message with current modulelist to all userinterfaces
-        global.userinterfaceList->update_all(module_info, DC_info);
+        CTRLGlobal::getInstance()->userinterfaceList->update_all(module_info, DC_info);
 
         return (1);
     }
@@ -818,7 +817,7 @@ string rhost_list::get_hosts(const string &local_name, const string &local_user)
             buffer << tmp_host << "\n" << tmp_user;
 
             // if this host has a Userinterface
-            if (tmp_host != "LOCAL" && CTRLGlobal::get_handle().userinterfaceList->get(host->get_hostname()))
+            if (tmp_host != "LOCAL" && CTRLGlobal::getInstance()->userinterfaceList->get(host->get_hostname()))
                 buffer << " "
                        << "Partner";
             buffer << "\n";
@@ -843,7 +842,6 @@ int rhost_list::add_host(const string &hostname, const string &user_id, const st
     Message *ui_msg = new Message;
     (void)ui_msg;
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // add new host in hostlist
 
@@ -862,7 +860,7 @@ int rhost_list::add_host(const string &hostname, const string &user_id, const st
     {
         ostringstream os;
         os << "Controller\n \n \n user " << tmp_host->get_user() << " is already started on host " << hostname;
-        global.userinterfaceList->sendWarning2m(os.str());
+        CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(os.str());
         return 0;
     }
 
@@ -872,7 +870,7 @@ int rhost_list::add_host(const string &hostname, const string &user_id, const st
     if (tmp_host->start_ctrl(exec_type, script_name, htype) == 0)
     {
         string text = "Controller\n \n \n CRB could not be started on host " + hostname + " !!!";
-        global.userinterfaceList->sendWarning2m(text);
+        CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(text);
         delete tmp_host;
         return 0;
     }
@@ -946,14 +944,13 @@ int rhost_list::add_local_host(const string &local_user)
 
 int rhost_list::rmv_host(const string &hostname, const string &user_id)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     Host localhost;
-    userinterface *p_ui = global.userinterfaceList->get_master();
+    userinterface *p_ui = CTRLGlobal::getInstance()->userinterfaceList->get_master();
     string master_hostname = p_ui->get_host();
     if (hostname == localhost.getAddress() || hostname == master_hostname)
     {
-        global.userinterfaceList->sendWarning2m("Controller\n \n \n REMOVING CONTROLLER OR MASTER HOST IS NOT ALLOWED !!!");
+        CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m("Controller\n \n \n REMOVING CONTROLLER OR MASTER HOST IS NOT ALLOWED !!!");
         return 0;
     }
 
@@ -961,15 +958,15 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
     if (tmp_host == NULL)
     {
         string text = "Controller\n \n \n host " + user_id + "@" + hostname + "  not found  !!!";
-        global.userinterfaceList->sendWarning2m(text);
+        CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(text);
         return 0;
     }
 
-    DM_data *tmp_data = global.dataManagerList->get(hostname);
+    DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(hostname);
     if (tmp_data == NULL)
     {
         string text = "Controller\n \n \n  crb not found for the host " + hostname + "  !!!";
-        global.userinterfaceList->sendWarning2m(text);
+        CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(text);
         return 0;
     }
 
@@ -979,8 +976,8 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
     tmp_data->new_desk();
 
     Message *tmpmsg = new Message(COVISE_MESSAGE_REMOVED_HOST, user_id + "\n" + hostname + "\n");
-    global.netList->reset();
-    net_module *p_netmod = global.netList->next();
+    CTRLGlobal::getInstance()->netList->reset();
+    net_module *p_netmod = CTRLGlobal::getInstance()->netList->next();
     while (p_netmod)
     {
         int mod_type = p_netmod->is_renderer();
@@ -1003,15 +1000,15 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
         if (tmp == hostname)
         {
             p_netmod->set_alive(0);
-            global.modUIList->delete_mod(p_netmod->get_name(), p_netmod->get_nr(), tmp);
+            CTRLGlobal::getInstance()->modUIList->delete_mod(p_netmod->get_name(), p_netmod->get_nr(), tmp);
         }
-        p_netmod = global.netList->next();
+        p_netmod = CTRLGlobal::getInstance()->netList->next();
     }
 
     delete tmpmsg;
 
-    global.netList->reset();
-    p_netmod = global.netList->next();
+    CTRLGlobal::getInstance()->netList->reset();
+    p_netmod = CTRLGlobal::getInstance()->netList->next();
     while (p_netmod)
     {
         string tmp = p_netmod->get_host();
@@ -1028,8 +1025,8 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
                     p_mirror->set_mirror_node(NULL);
                 }
             }
-            global.netList->re_move(p_netmod->get_name(), p_netmod->get_nr(), tmp, -1);
-            global.netList->reset();
+            CTRLGlobal::getInstance()->netList->re_move(p_netmod->get_name(), p_netmod->get_nr(), tmp, -1);
+            CTRLGlobal::getInstance()->netList->reset();
         }
         else
         {
@@ -1038,22 +1035,22 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
             if (mod_type == REND_MOD)
                 ((render_module *)p_netmod)->remove_display(tmp_host);
         }
-        p_netmod = global.netList->next();
+        p_netmod = CTRLGlobal::getInstance()->netList->next();
     }
 
     //
     // remove mapeditor
     //
-    userinterface *tmpui = global.userinterfaceList->get(hostname);
+    userinterface *tmpui = CTRLGlobal::getInstance()->userinterfaceList->get(hostname);
     if (tmpui)
     {
         tmpui->quit();
-        global.userinterfaceList->remove(tmpui);
+        CTRLGlobal::getInstance()->userinterfaceList->remove(tmpui);
         delete tmpui;
     }
 
     //  remove Modules from modulelist
-    global.moduleList->rmv_module_list(hostname);
+    CTRLGlobal::getInstance()->moduleList->rmv_module_list(hostname);
 
     //
     // update mapeditors
@@ -1084,21 +1081,21 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
 #endif
 
     // Send Message to Userinterfaces
-    global.userinterfaceList->update_all(mod_info, DC_info);
+    CTRLGlobal::getInstance()->userinterfaceList->update_all(mod_info, DC_info);
 
     //
     // remove crb
     //
     tmp_data->quit();
-    global.dataManagerList->remove(tmp_data);
+    CTRLGlobal::getInstance()->dataManagerList->remove(tmp_data);
 
     //
     // notify the other CRBs
     //
 
     tmpmsg = new Message(COVISE_MESSAGE_CRB_QUIT, string(hostname));
-    global.dataManagerList->reset();
-    while ((tmp_data = global.dataManagerList->next()) != NULL)
+    CTRLGlobal::getInstance()->dataManagerList->reset();
+    while ((tmp_data = CTRLGlobal::getInstance()->dataManagerList->next()) != NULL)
     {
         tmp_data->send_msg(tmpmsg);
     }
@@ -1116,11 +1113,10 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
 
 void rhost_list::mark_host()
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     net_module *tmp_mod;
-    global.netList->reset();
-    while ((tmp_mod = global.netList->next()) != NULL)
+    CTRLGlobal::getInstance()->netList->reset();
+    while ((tmp_mod = CTRLGlobal::getInstance()->netList->next()) != NULL)
     {
 
         string mod_host = tmp_mod->get_host();
@@ -1196,11 +1192,10 @@ void userinterface::set_passwd(const string &str)
 
 int UIMapEditor::start(bool restart) // if restart is true a restart was done
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
     string instanz("001");
 
     // get Datamanager for host
-    DM_data *tmp_data = global.dataManagerList->get(hostname);
+    DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(hostname);
     if (tmp_data == NULL)
         return 0;
 
@@ -1208,7 +1203,7 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
     if (dmod == NULL)
         return 0;
 
-    ui = global.controller->start_applicationmodule(USERINTERFACE, "mapeditor", dmod, instanz.c_str(), Start::Normal);
+    ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "mapeditor", dmod, instanz.c_str(), Start::Normal);
     if (ui == NULL)
         return 0;
     if (ui->connect(dmod) == 0)
@@ -1226,7 +1221,7 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
     ui->send_msg(msg);
     delete msg;
 
-    global.userinterfaceList->update_ui(this);
+    CTRLGlobal::getInstance()->userinterfaceList->update_ui(this);
 
     // wait for OK from Mapeditor
 
@@ -1251,11 +1246,10 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
 
 int UISoap::start(bool)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
     string instance("ws0001");
 
     // get Datamanager for host
-    DM_data *tmp_data = global.dataManagerList->get(hostname);
+    DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(hostname);
     if (tmp_data == NULL)
         return 0;
 
@@ -1267,7 +1261,7 @@ int UISoap::start(bool)
     bool ws_enabled = covise::coConfig::getInstance()->getBool("enable", "System.WSInterface", true);
     if (ws_enabled)
     {
-        ui = global.controller->start_applicationmodule(USERINTERFACE, "wsinterface", dmod, instance.c_str(), Start::Normal);
+        ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, "wsinterface", dmod, instance.c_str(), Start::Normal);
     }
     else
     {
@@ -1288,7 +1282,7 @@ int UISoap::start(bool)
     ui->send_msg(msg);
     delete msg;
 
-    global.userinterfaceList->update_ui(this);
+    CTRLGlobal::getInstance()->userinterfaceList->update_ui(this);
 
     // wait for OK from Mapeditor
 
@@ -1307,7 +1301,6 @@ int UISoap::start(bool)
 
 int userinterface::restart()
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // start user interface
     start(true);
@@ -1324,8 +1317,8 @@ int userinterface::restart()
     // loop over all modules
 
     net_module *mod;
-    global.netList->reset();
-    while ((mod = global.netList->next()) != NULL)
+    CTRLGlobal::getInstance()->netList->reset();
+    while ((mod = CTRLGlobal::getInstance()->netList->next()) != NULL)
     {
         cerr << mod->get_name() << endl;
         ostringstream mybuf;
@@ -1384,7 +1377,7 @@ int userinterface::restart()
             mybuf2 << "ADD_PANEL\n" << mod->get_name() << "\n" << mod->get_nr() << "\n" << mod->get_host() << "\n";
             mybuf2 << name_list[i] << "\n" << panel_list[i];
             msg2 = new Message(COVISE_MESSAGE_UI, mybuf2.str());
-            global.userinterfaceList->send_all(msg2);
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(msg2);
             delete msg2;
         }
     }
@@ -1392,8 +1385,8 @@ int userinterface::restart()
     // send connection informations
     object *tmp_obj;
 
-    global.objectList->reset();
-    while ((tmp_obj = global.objectList->next()) != NULL)
+    CTRLGlobal::getInstance()->objectList->reset();
+    while ((tmp_obj = CTRLGlobal::getInstance()->objectList->next()) != NULL)
     {
         int i = 0;
         string buffer = tmp_obj->get_simple_connection(&i);
@@ -1420,11 +1413,10 @@ int userinterface::restart()
 // test by RM
 int userinterface::xstart(const string &pyFile)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
     string instanz("001");
 
     // get Datamanager for host
-    DM_data *tmp_data = global.dataManagerList->get(hostname);
+    DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(hostname);
     if (tmp_data == NULL)
         return 0;
 
@@ -1442,7 +1434,7 @@ int userinterface::xstart(const string &pyFile)
     if (!pyFile.empty())
         cmdStr.append(pyFile);
 
-    ui = global.controller->start_applicationmodule(USERINTERFACE, cmdStr.c_str(), dmod, instanz.c_str(), Start::Normal);
+    ui = CTRLGlobal::getInstance()->controller->start_applicationmodule(USERINTERFACE, cmdStr.c_str(), dmod, instanz.c_str(), Start::Normal);
     if (ui == NULL)
         return 0;
     if (ui->connect(dmod) == 0)
@@ -1454,7 +1446,7 @@ int userinterface::xstart(const string &pyFile)
     ui->send_msg(msg);
     delete msg;
 
-    global.userinterfaceList->update_ui(this);
+    CTRLGlobal::getInstance()->userinterfaceList->update_ui(this);
 
     // wait for OK from Mapeditor
 
@@ -1630,9 +1622,8 @@ userinterface *ui_list::get_master()
 int ui_list::start_local_Mapeditor(const string &moduleinfo)
 {
     (void)moduleinfo;
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    DM_data *tmp_dm = global.dataManagerList->get_local();
+    DM_data *tmp_dm = CTRLGlobal::getInstance()->dataManagerList->get_local();
 
     string local_user = tmp_dm->get_user();
     string local_name = tmp_dm->get_hostname();
@@ -1676,9 +1667,8 @@ int ui_list::start_local_Mapeditor(const string &moduleinfo)
 int ui_list::start_local_WebService(const string &moduleinfo)
 {
     (void)moduleinfo;
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    DM_data *tmp_dm = global.dataManagerList->get_local();
+    DM_data *tmp_dm = CTRLGlobal::getInstance()->dataManagerList->get_local();
 
     string local_name = tmp_dm->get_hostname();
     string local_user = tmp_dm->get_user();
@@ -1706,9 +1696,8 @@ int ui_list::start_local_WebService(const string &moduleinfo)
 int ui_list::start_local_xuif(const string &moduleinfo, const string &pyFile)
 {
     (void)moduleinfo;
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    DM_data *tmp_dm = global.dataManagerList->get_local();
+    DM_data *tmp_dm = CTRLGlobal::getInstance()->dataManagerList->get_local();
     string local_name = tmp_dm->get_hostname();
     string local_user = tmp_dm->get_user();
 
@@ -1833,14 +1822,13 @@ int ui_list::config_action(const string &mapfile, const string &host, const stri
 
 bool ui_list::slave_update()
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     if (!m_slaveUpdate)
         return false;
 
     net_module *p_netmod;
-    global.netList->reset();
-    while ((p_netmod = global.netList->next()) != NULL)
+    CTRLGlobal::getInstance()->netList->reset();
+    while ((p_netmod = CTRLGlobal::getInstance()->netList->next()) != NULL)
     {
         int mod_type = p_netmod->is_renderer();
         if (mod_type == REND_MOD)
@@ -1869,7 +1857,6 @@ bool ui_list::slave_update()
 
 int ui_list::add_partner(const string &filename, const string &host, const string &userid, const string &passwd, const string &script_name)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // add here the interfacelist. Advantage: the information is transmitted
     // in one message
@@ -1882,13 +1869,13 @@ int ui_list::add_partner(const string &filename, const string &host, const strin
         return 0;
     }
 
-    rhost *p_rhost = global.hostList->get(host, userid);
+    rhost *p_rhost = CTRLGlobal::getInstance()->hostList->get(host, userid);
     if (p_rhost == NULL)
     {
         // no crb exist on that host for the specified user
         // start crb
         coHostType htype(CO_PARTNER);
-        if (global.hostList->add_host(host, userid, passwd, script_name, htype) == 0)
+        if (CTRLGlobal::getInstance()->hostList->add_host(host, userid, passwd, script_name, htype) == 0)
         { // error while trying to add host
             return 0;
         }
@@ -1928,7 +1915,7 @@ int ui_list::add_partner(const string &filename, const string &host, const strin
     }
 
     // send current net to UIF
-    DM_data *dm_local = global.dataManagerList->get_local();
+    DM_data *dm_local = CTRLGlobal::getInstance()->dataManagerList->get_local();
     string local_name = dm_local->get_hostname();
     string local_user = dm_local->get_user();
 
@@ -1939,8 +1926,8 @@ int ui_list::add_partner(const string &filename, const string &host, const strin
 
     // loop over all modules
     net_module *mod;
-    global.netList->reset();
-    while ((mod = global.netList->next()) != NULL)
+    CTRLGlobal::getInstance()->netList->reset();
+    while ((mod = CTRLGlobal::getInstance()->netList->next()) != NULL)
     {
         ostringstream mybuf;
         mybuf << "INIT\n" << mod->get_name() << "\n" << mod->get_nr() << "\n";
@@ -1999,15 +1986,15 @@ int ui_list::add_partner(const string &filename, const string &host, const strin
             mybuf << "ADD_PANEL\n" << mod->get_name() << "\n" << mod->get_nr() << "\n" << mod->get_host() << "\n";
             mybuf << name_list[i] << "\n" << panel_list[i];
             msg2 = new Message(COVISE_MESSAGE_UI, mybuf.str());
-            global.userinterfaceList->send_all(msg2);
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(msg2);
             delete msg2;
         }
     }
 
     // send connection informations
-    global.objectList->reset();
+    CTRLGlobal::getInstance()->objectList->reset();
     object *tmp_obj;
-    while ((tmp_obj = global.objectList->next()) != NULL)
+    while ((tmp_obj = CTRLGlobal::getInstance()->objectList->next()) != NULL)
     {
         int i = 0;
         string buffer = tmp_obj->get_simple_connection(&i);
@@ -2029,8 +2016,8 @@ int ui_list::add_partner(const string &filename, const string &host, const strin
     // raise partner renderers
     bool tmp_su;
     net_module *p_netmod;
-    global.netList->reset();
-    while ((p_netmod = global.netList->next()) != NULL)
+    CTRLGlobal::getInstance()->netList->reset();
+    while ((p_netmod = CTRLGlobal::getInstance()->netList->next()) != NULL)
     {
         int mod_type = p_netmod->is_renderer();
         if (mod_type == REND_MOD && p_netmod->get_mirror_status() != CPY_MIRR)
@@ -2046,7 +2033,6 @@ int ui_list::add_partner(const string &filename, const string &host, const strin
 
 int ui_list::rmv_partner(const string &host, const string &user_id)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     userinterface *p_ui = get_master();
     string master_hostname = p_ui->get_host();
@@ -2066,14 +2052,14 @@ int ui_list::rmv_partner(const string &host, const string &user_id)
         return 0;
     }
 
-    global.netList->reset();
+    CTRLGlobal::getInstance()->netList->reset();
     net_module *p_netmod;
-    while ((p_netmod = global.netList->next()) != NULL)
+    while ((p_netmod = CTRLGlobal::getInstance()->netList->next()) != NULL)
     {
         int mod_type = p_netmod->is_renderer();
         if (mod_type == REND_MOD)
         {
-            rhost *tmp_host = global.hostList->get(host);
+            rhost *tmp_host = CTRLGlobal::getInstance()->hostList->get(host);
             ;
             ((render_module *)p_netmod)->remove_display(tmp_host);
         }
@@ -2243,15 +2229,14 @@ void ui_list::send_new_status(const string &status)
 
 void ui_list::update_ui(userinterface *ui)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // send all already existing lists to new uif
     if (ui)
     {
         Message *ui_msg = new Message;
         ui_msg->type = COVISE_MESSAGE_UI;
-        global.dataManagerList->reset();
-        DM_data *p_data = global.dataManagerList->next();
+        CTRLGlobal::getInstance()->dataManagerList->reset();
+        DM_data *p_data = CTRLGlobal::getInstance()->dataManagerList->next();
         while (p_data)
         {
             if (p_data->list_msg)
@@ -2262,13 +2247,13 @@ void ui_list::update_ui(userinterface *ui)
             }
             else
                 cerr << endl << "Controller ERROR : NULL list_msg !!!\n";
-            p_data = global.dataManagerList->next();
+            p_data = CTRLGlobal::getInstance()->dataManagerList->next();
         }
 
 #ifdef CONNECT
         string DC_info;
-        global.hostList->reset();
-        rhost *p_host = global.hostList->next();
+        CTRLGlobal::getInstance()->hostList->reset();
+        rhost *p_host = CTRLGlobal::getInstance()->hostList->next();
         while (p_host)
         {
             DC_info = p_host->get_DC_list();
@@ -2278,7 +2263,7 @@ void ui_list::update_ui(userinterface *ui)
                 ui_msg->length = strlen(ui_msg->data) + 1;
                 ui->send(ui_msg);
             }
-            p_host = global.hostList->next();
+            p_host = CTRLGlobal::getInstance()->hostList->next();
         }
 #endif
         delete ui_msg;
@@ -2314,11 +2299,10 @@ int ui_list::update_all(const string &mod_info, const string & /*DC_info*/)
 
 void uif::start(AppModule *dmod, const string &execname, const string &category, const string &key, const string &name, const string &instanz, const string &host)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // instanz ist beliebig, da die UIF-Teile separat verwaltet werden
     // name ist der Name des executeables
-    applmod = global.controller->start_applicationmodule(APPLICATIONMODULE, execname.c_str(), category.c_str(), dmod, instanz.c_str(), Start::Normal);
+    applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, execname.c_str(), category.c_str(), dmod, instanz.c_str(), Start::Normal);
     applmod->connect(dmod);
 
     // im normalen Module: receive Module description
@@ -2428,11 +2412,10 @@ uiflist::uiflist()
 
 void uiflist::create_uifs(const string &execname, const string &category, const string &key, const string &name, const string &instanz, const string &host)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     userinterface *tmp_ui;
-    global.userinterfaceList->reset();
-    while ((tmp_ui = global.userinterfaceList->next()) != NULL)
+    CTRLGlobal::getInstance()->userinterfaceList->reset();
+    while ((tmp_ui = CTRLGlobal::getInstance()->userinterfaceList->next()) != NULL)
     {
         // fuer jeden sessionhost wird ein eigener Eintrag in die Liste erzeugt
         uif *new_uif = new uif;
@@ -2446,7 +2429,7 @@ void uiflist::create_uifs(const string &execname, const string &category, const 
         count++;
 
         // select Datamanager
-        DM_data *tmp_data = global.dataManagerList->get(tmp_ui->get_host());
+        DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(tmp_ui->get_host());
         AppModule *dmod = tmp_data->get_DM();
 
         // und ein UIF-Teil dort gestartet
@@ -2581,7 +2564,6 @@ void modui::sendapp(Message *msg)
 
 void modui::set_new_status()
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     uif *tmp_uif;
     uif_list->reset();
@@ -2592,7 +2574,7 @@ void modui::set_new_status()
         string tmp_userid = tmp_uif->get_userid();
 
         // ui fuer tmp_host aus ui_list holen
-        userinterface *tmp_ui = global.userinterfaceList->get(tmp_host, tmp_userid);
+        userinterface *tmp_ui = CTRLGlobal::getInstance()->userinterfaceList->get(tmp_host, tmp_userid);
 
         // display-status fuer ui holen
         string new_status = tmp_ui->get_status();
@@ -2675,7 +2657,6 @@ modui *modui_list::get(const string &name, const string &nr, const string &host)
  */
 void modui_list::create_mod(const string &name, const string &instanz, const string &category, const string &host, const string &key, const string &executable)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     modui *tmp = new modui;
     this->add(tmp);
@@ -2688,7 +2669,7 @@ void modui_list::create_mod(const string &name, const string &instanz, const str
     tmp->set_execname(executable);
 
     // get module-link
-    net_module *tmpnetmod = global.netList->get(name, instanz, host);
+    net_module *tmpnetmod = CTRLGlobal::getInstance()->netList->get(name, instanz, host);
     tmp->set_netmod(tmpnetmod);
 
     // anlegen der UIF-Teile und start der Module

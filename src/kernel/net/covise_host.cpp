@@ -225,11 +225,23 @@ void Host::HostSymbolic(const char *n)
     hent = gethostbyname(n);
     if (NULL == hent)
     {
-        fprintf(stderr, "lookup for %s failed\n", n);
-        if (strchr(n, ' '))
-            abort();
-        setAddress(NULL);
-        return;
+        if(strcmp(n,"localhost")==0)
+        {
+            setAddress("127.0.0.1");
+            char_address[0] = 127;
+            char_address[1] = 0;
+            char_address[2] = 0;
+            char_address[3] = 1;
+            return;
+        }
+        else
+        {
+            fprintf(stderr, "lookup for %s failed\n", n);
+            if (strchr(n, ' '))
+                abort();
+            setAddress(NULL);
+            return;
+        }
     }
     char_address[0] = *hent->h_addr_list[0];
     char_address[1] = *(hent->h_addr_list[0] + 1);
