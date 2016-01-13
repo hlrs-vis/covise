@@ -62,6 +62,7 @@
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QGridLayout>
+#include <QMenu>
 
 
 using namespace OpenScenario;
@@ -102,6 +103,7 @@ CatalogWidget::init()
 	DropArea *recycleArea = new DropArea(recycleIcon, this);
 	recycleArea->setPixmap(recycleIcon);
 	toolLayout->addWidget(recycleArea, 0, 2);
+
 
 	catalogTreeWidget_ = new CatalogTreeWidget(mainWindow_, object_, type_);
 	toolLayout->addWidget(catalogTreeWidget_, 0, 0);
@@ -187,3 +189,4 @@ DropArea::dragLeaveEvent(QDragLeaveEvent *event)
     clear();
     event->accept();
 }
+

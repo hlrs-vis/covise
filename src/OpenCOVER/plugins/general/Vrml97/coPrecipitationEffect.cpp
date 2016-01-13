@@ -16,6 +16,7 @@
 
 #include<OpenThreads/ScopedLock>
 
+#include <osg/Version>
 #include<osg/Texture2D>
 #include<osg/PointSprite>
 #include<osgDB/FileUtils>

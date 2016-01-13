@@ -981,7 +981,7 @@ VrmlNodeType *VrmlNodeTUIFloatSlider::nodeType() const { return defineType(0); }
 VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(VrmlScene *scene)
     : VrmlNodeTUIElement(scene)
     , d_min(0.0)
-    , d_max(100.0)
+    , d_max(0.0)
     , d_value(50.0)
     , d_orientation("horizontal")
 {
@@ -1034,6 +1034,7 @@ void VrmlNodeTUIFloatSlider::render(Viewer *viewer)
             fs->setMin(d_min.get());
             fs->setMax(d_max.get());
             fs->setValue(d_value.get());
+	    //fprintf(stderr,"%s: min %f max %f value %f\n",d_elementName.get(),d_min.get(),d_max.get(),d_value.get());
 
             bool ori = false;
             if (strcasecmp(d_orientation.get(), "horizontal") == 0)
@@ -1192,7 +1193,7 @@ VrmlNodeType *VrmlNodeTUISlider::nodeType() const { return defineType(0); }
 VrmlNodeTUISlider::VrmlNodeTUISlider(VrmlScene *scene)
     : VrmlNodeTUIElement(scene)
     , d_min(0)
-    , d_max(100)
+    , d_max(0)
     , d_value(50)
     , d_orientation("horizontal")
 {

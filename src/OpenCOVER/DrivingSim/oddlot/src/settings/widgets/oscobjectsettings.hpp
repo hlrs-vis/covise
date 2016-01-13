@@ -16,7 +16,8 @@
 #ifndef OSCOBJECTSETTINGS_HPP
 #define OSCOBJECTSETTINGS_HPP
 
-#include "src/settings/settingselement.hpp"
+#include <QWidget>
+#include "src/data/observer.hpp"
 
 #include "oscMemberValue.h"
 
@@ -30,15 +31,16 @@ namespace OpenScenario
 {
 class oscObjectBase;
 }
-//class SignalManager;
 
 class OSCElement;
 class OSCBase;
 class OpenScenarioEditorToolAction;
 class OSCObjectSettingsStack;
+class ProjectSettings;
 
+#include <QMap>
 
-class OSCObjectSettings: public QWidget
+class OSCObjectSettings: public QWidget, public Observer
 {
     Q_OBJECT
 
@@ -85,7 +87,7 @@ private:
 	ProjectSettings *projectSettings_;
 	OSCObjectSettingsStack *parentStack_;
 
-    const OpenScenario::oscObjectBase *object_;
+    OpenScenario::oscObjectBase *object_;
 	OSCElement *element_;
 	OSCBase *base_;
 

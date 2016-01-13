@@ -52,13 +52,20 @@ protected:
     OpenScenarioBase *base;
     oscSourceFile *source;
     oscObjectBase *parentObj; ///< the parent of this objectBase
-    oscMember *ownMember; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
+    oscMember *ownMem; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
+
+    const std::string XMLNS = "xmlns"; ///< define a namespace
+    const std::string XMLNSOSC = "xmlns:osc"; ///< namespace with name osc
+    const std::string XMLBASE = "xml:base"; ///< filename from which the element and its children were read
+    const std::string INCLUDE = "osc:include"; ///< element name for include
+    const std::string INCLNS = "http://www.w3.org/2001/XInclude"; /*!< XInclude defines a namespace associated with this URI
+                                                                       it is no link, it is treated as a normal string (as a formal identifier)*/
 
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
 
-    virtual void initialize(OpenScenarioBase *b, oscObjectBase *pObj, oscMember *om, oscSourceFile *s); ///< params: base, parentObj, ownMember, source
+    virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source
     void addMember(oscMember *m);
     void setBase(OpenScenarioBase *b);
     void setSource(oscSourceFile *s);
@@ -75,7 +82,7 @@ public:
     bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 
 private:
-    void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *filename); ///< during write adds the include node
+    void addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref); ///< during write adds the include node
     oscSourceFile *determineSrcFile(xercesc::DOMElement *memElem, oscSourceFile *srcF); ///< determine which source file to use
 };
 

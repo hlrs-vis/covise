@@ -30,14 +30,29 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
-void oscSourceFile::setSrcFileName(const std::string &sf)
+void oscSourceFile::setSrcFileHref(const std::string &sfhr)
 {
-    srcFileName = sf;
+    srcFileHref = sfhr;
 }
 
-void oscSourceFile::setSrcFileName(const XMLCh *sf)
+void oscSourceFile::setSrcFileHref(const XMLCh *sfhr)
 {
-    srcFileName = xercesc::XMLString::transcode(sf);
+    srcFileHref = xercesc::XMLString::transcode(sfhr);
+}
+
+void oscSourceFile::setSrcFileName(const std::string &sfn)
+{
+    srcFileName = sfn;
+}
+
+void oscSourceFile::setMainDocPath(const std::string &mdp)
+{
+    mainDocPath = mdp;
+}
+
+void oscSourceFile::setRelPathFromMainDoc(const std::string &rpfmd)
+{
+    relPathFromMainDoc = rpfmd;
 }
 
 void oscSourceFile::setRootElementName(const std::string &ren)
@@ -57,14 +72,29 @@ void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
 
 
 //
-std::string oscSourceFile::getSrcFileNameAsStr() const
+std::string oscSourceFile::getSrcFileHrefAsStr() const
+{
+    return srcFileHref;
+}
+
+const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
+{
+    return xercesc::XMLString::transcode(srcFileHref.c_str());
+}
+
+std::string oscSourceFile::getSrcFileName() const
 {
     return srcFileName;
 }
 
-const XMLCh *oscSourceFile::getSrcFileNameAsXmlCh() const
+std::string oscSourceFile::getMainDocPath() const
 {
-    return xercesc::XMLString::transcode(srcFileName.c_str());
+    return mainDocPath;
+}
+
+std::string oscSourceFile::getRelPathFromMainDoc() const
+{
+    return relPathFromMainDoc;
 }
 
 std::string oscSourceFile::getRootElementNameAsStr() const
@@ -80,4 +110,40 @@ const XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const
 xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
 {
     return xmlDoc;
+}
+
+
+//
+fileNamePath *oscSourceFile::getFileNamePath(const std::string &fnp)
+{
+    fileNamePath *fileNP = new fileNamePath();
+    const std::string FILE = "file://";
+    std::string fnpToUse;
+
+    //find possible 'file://' in string and ignore it
+    size_t proto = fnp.find(FILE);
+    if (proto != std::string::npos)
+    {
+        fnpToUse = fnp.substr(FILE.length());
+    }
+    else
+    {
+        fnpToUse = fnp;
+    }
+
+    //find last slash as delimiter (between path and filename)
+    size_t delimiter = fnpToUse.find_last_of("/");
+    if (delimiter == std::string::npos)
+    {
+        fileNP->fileName = fnpToUse;
+        fileNP->path = "";
+    }
+    else
+    {
+        fileNP->fileName = fnpToUse.substr(delimiter + 1);
+        //set path with slash as delimiter at the end
+        fileNP->path = fnpToUse.substr(0, delimiter + 1);
+    }
+
+    return fileNP;
 }

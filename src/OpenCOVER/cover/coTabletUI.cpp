@@ -4016,14 +4016,14 @@ coTUIProgressBar::coTUIProgressBar(const std::string &n, int pID)
     : coTUIElement(n, pID, TABLET_PROGRESS_BAR)
 {
     actValue = 0;
-    maxValue = 1;
+    maxValue = 100;
 }
 
 coTUIProgressBar::coTUIProgressBar(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_PROGRESS_BAR)
 {
     actValue = 0;
-    maxValue = 1;
+    maxValue = 100;
 }
 
 coTUIProgressBar::~coTUIProgressBar()
@@ -4061,7 +4061,7 @@ coTUIFloatSlider::coTUIFloatSlider(const std::string &n, int pID, bool s)
 {
     actValue = 0;
     minValue = 0;
-    maxValue = 1;
+    maxValue = 0;
     ticks = 10;
 
     orientation = s;
@@ -4073,7 +4073,7 @@ coTUIFloatSlider::coTUIFloatSlider(QObject *parent, const std::string &n, int pI
 {
     actValue = 0;
     minValue = 0;
-    maxValue = 1;
+    maxValue = 0;
     ticks = 10;
 
     orientation = s;
@@ -4185,6 +4185,9 @@ coTUISlider::coTUISlider(const std::string &n, int pID, bool s)
     : coTUIElement(n, pID, TABLET_SLIDER)
     , actValue(0)
 {
+    actValue = 0;
+    minValue = 0;
+    maxValue = 0;
     orientation = s;
     setVal(orientation);
 }
@@ -4193,6 +4196,9 @@ coTUISlider::coTUISlider(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_SLIDER)
     , actValue(0)
 {
+    actValue = 0;
+    minValue = 0;
+    maxValue = 0;
     orientation = s;
     setVal(orientation);
 }
