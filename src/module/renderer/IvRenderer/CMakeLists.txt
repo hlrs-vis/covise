@@ -70,7 +70,7 @@ SET(SOURCES
   SoXtMagellan.cpp 
   TextField.cpp 
   coFeedbackParser.cpp
-  InvTextManager.cpp
+  ../QtRenderer/InvTextManager.cpp
   ../QtRenderer/InvObjects.cpp
   ../QtRenderer/SoBillboard.cpp
   ../QtRenderer/InvManipList.cpp
@@ -132,7 +132,6 @@ SET(EXTRASOURCES
   InvTracker.h
   InvUIRegion.h
   InvViewer.h
-  InvTextManager.h
   logidrvr.h
   ModuleInfo.h
   polhemusdrvr.h

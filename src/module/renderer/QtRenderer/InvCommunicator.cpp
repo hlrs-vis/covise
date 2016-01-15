@@ -632,8 +632,24 @@ void InvCommunicator::receiveAddObjectMessage(const coDistributedObject *data_ob
             else
                 addgeometry(object, doreplace, is_timestep, timestep, NULL, data_obj, NULL, NULL, NULL, NULL);
         }
+	
+	handleAttributes(object, data_obj);
     }
 }
+
+
+void InvCommunicator::handleAttributes(const char *name, const coDistributedObject *obj)
+{
+    if (const char *text = obj->getAttribute("TEXT"))
+    {
+        const char *font = obj->getAttribute("TEXT_FONT");
+        const char *size = obj->getAttribute("TEXT_SIZE");
+        float points = size ? atof(size) : 20.;
+        if (coviseViewer && coviseViewer->getTextManager())
+            coviseViewer->getTextManager()->setAnnotation(name, text, points, font);
+    }
+}
+
 
 //======================================================================
 // create a color data object for a named color
@@ -833,6 +849,8 @@ InvCommunicator::addgeometry(const char *object, int doreplace, int is_timestep,
     uint32_t rgba;
     covise::coMaterial *material = NULL;
     curset = anzset;
+
+    handleAttributes(object, geometry);
 
     gtype = geometry->getType();
     // save this for later, as geometry might get deleted
@@ -1818,6 +1836,9 @@ void InvCommunicator::receiveDeleteObjectMessage(QString object)
     renderer->om->deleteColormap(object.toLatin1());
     //renderer->om->deletePartCB(object);
     //renderer->om->deleteTimePartCB(object);
+
+    if (coviseViewer && coviseViewer->getTextManager())
+        coviseViewer->getTextManager()->removeAnnotation(object.toStdString().c_str());
 }
 
 //==========================================================================

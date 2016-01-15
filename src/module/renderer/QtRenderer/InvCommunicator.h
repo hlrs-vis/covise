@@ -104,6 +104,7 @@ public:
     //void receiveMasterMessage(QString, QString, QString);
     void receiveSlaveMessage(QString);
     void receiveMasterSlaveMessage(QString, QString, QString);
+    void handleAttributes(const char *name, const coDistributedObject *obj);
     ~InvCommunicator(){};
 
     // AW: replacing by empty objects
