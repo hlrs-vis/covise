@@ -119,7 +119,7 @@ void VrmlNodeSpotLight::render(Viewer *viewer)
     if (isModified())
     {
         if (d_on.get() && d_radius.get() > 0.0)
-            viewer->insertSpotLight(d_ambientIntensity.get(),
+            d_viewerObject = viewer->insertSpotLight(d_ambientIntensity.get(),
                                     d_attenuation.get(),
                                     d_beamWidth.get(),
                                     d_color.get(),
@@ -129,7 +129,7 @@ void VrmlNodeSpotLight::render(Viewer *viewer)
                                     d_location.get(),
                                     d_radius.get());
         else
-            viewer->insertSpotLight(d_ambientIntensity.get(),
+            d_viewerObject = viewer->insertSpotLight(d_ambientIntensity.get(),
                                     d_attenuation.get(),
                                     d_beamWidth.get(),
                                     d_color.get(),

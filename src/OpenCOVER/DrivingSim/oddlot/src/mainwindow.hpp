@@ -288,6 +288,7 @@ private:
     QUndoView *undoView_;
 
     QDockWidget *toolDock_;
+    QDockWidget *ribbonToolDock_;
 	QDockWidget * catalogDock_;
 
     QDockWidget *treeDock_;

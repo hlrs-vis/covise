@@ -4,14 +4,16 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_VEHICLE_H
 #define OSC_VEHICLE_H
+
 #include <oscExport.h>
-#include <oscObjectBase.h>
+#include <oscNamedObject.h>
 #include <oscObjectVariable.h>
+
 #include <oscVariables.h>
 #include <oscHeader.h>
-#include <oscNamedObject.h>
 #include <oscPerformance.h>
 #include <oscFile.h>
 #include <oscDimension.h>
@@ -20,6 +22,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscEyepoints.h>
 #include <oscMirrors.h>
 #include <oscFeatures.h>
+
 
 namespace OpenScenario {
 
@@ -53,6 +56,7 @@ public:
 		OSC_OBJECT_ADD_MEMBER(mirrors, "oscMirrors");
 		OSC_OBJECT_ADD_MEMBER(features, "oscFeatures");
 		OSC_ADD_MEMBER(vehicleClass);
+
 		vehicleClass.enumType = vehicleClassType::instance();
     };
 	
@@ -65,11 +69,10 @@ public:
 	oscFileMember geometry;
 	oscDimensionMember dimensions;
 	oscAxlesMember axles;
-	oscLightingMember lighting;
-	oscEyepointsMember eyepoints;
-	oscMirrorsMember mirrors;
-	oscFeaturesMember features;
-
+	oscLightingArrayMember lighting;
+	oscEyepointsArrayMember eyepoints;
+	oscMirrorsArrayMember mirrors;
+	oscFeaturesArrayMember features;
 	oscEnum vehicleClass;
 
 	enum vehicleClass

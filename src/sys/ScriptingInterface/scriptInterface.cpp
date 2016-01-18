@@ -27,6 +27,7 @@
 //
 
 #include <covise/covise.h>
+#include <net/covise_socket.h>
 #include "config/CoviseConfig.h"
 #include <util/coLog.h>
 #include "scriptInterface.h"
@@ -57,13 +58,14 @@ run_xuif(int argc, char **argv)
 {
     int nn;
     struct passwd *pwd;
-
     // check connection parameter
     if ((argc < 7) || (argc > 8))
     {
         fprintf(stderr, "COVISE python interface with inappropriate arguments called  %d\n", argc);
         print_exit(__LINE__, __FILE__, 0);
     }
+
+    covise::Socket::initialize();
 
     // create userinterface process
     UIF = new UserInterface("AppModule", argc, argv);

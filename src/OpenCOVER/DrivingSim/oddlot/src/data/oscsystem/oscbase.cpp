@@ -115,8 +115,6 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 
     if (oscElements_.remove(oscElement->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
     {
- //       addRoadSystemChanges(RoadSystem::CRS_RoadChange);
-
         oscElement->setOSCBase(NULL);
         return true;
     }

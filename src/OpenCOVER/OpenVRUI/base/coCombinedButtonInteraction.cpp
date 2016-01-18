@@ -54,7 +54,7 @@ void coCombinedButtonInteraction::update()
 
     if (state == Idle)
     {
-        if (curbutton->wasPressed(type))
+        if (curbutton->wasPressed(1<<type))
         {
             if (activate())
             {
@@ -74,7 +74,7 @@ void coCombinedButtonInteraction::update()
     }
     else if (state == Active)
     {
-        if (type & buttonStatus)
+        if ((1<<type) & buttonStatus)
         {
             if ((buttonStatus & Wheel) && (type & Wheel))
                 wheelCount = curbutton->getWheelCount();

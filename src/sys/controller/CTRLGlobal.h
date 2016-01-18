@@ -52,7 +52,7 @@ public:
        *
        *  @return   object reference
        */
-    static CTRLGlobal &get_handle();
+    static CTRLGlobal *getInstance();
     int s_nodeID;
 
     /// default constructor

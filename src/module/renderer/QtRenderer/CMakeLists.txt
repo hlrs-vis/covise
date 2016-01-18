@@ -59,6 +59,7 @@ SET(HEADERS
   objTreeItem.h
   colormapListWidget.h
   colormapListItem.h
+  InvTextManager.h
 )
 
 SET(SOURCES
@@ -82,6 +83,7 @@ SET(SOURCES
   objTreeItem.cpp
   colormapListWidget.cpp
   colormapListItem.cpp
+  InvTextManager.cpp
 )
 
 if (COVISE_USE_VIRVO)

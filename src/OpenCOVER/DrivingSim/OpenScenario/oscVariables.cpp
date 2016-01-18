@@ -7,6 +7,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscVariables.h>
 
+#include <iostream>
+
+#include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -36,13 +39,13 @@ OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<float>::getValueType(
 OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType(){return oscMemberValue::ENUM;};
 
 
-void oscEnum::setValueWStr(std::string &strVal)
+void oscEnum::setValueWStr(const std::string &strVal)
 {
     int val = enumType->getEnum(strVal);
-    this->setValue(val);
+    setValue(val);
 }
 
-std::string oscEnum::getValueAsStr(int &val) const
+std::string oscEnum::getValueAsStr(const int &val) const
 {
     std::string strVal;
 
@@ -73,7 +76,33 @@ OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute
 template<>
 OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute){ return false;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
+{
+    std::string valueStr = xercesc::XMLString::transcode(attribute->getValue());
+
+    //conversion of 'true' to '1' and 'false' to '0'
+    if (valueStr == "true")
+    {
+        valueStr = "1";
+    }
+    else if (valueStr == "false")
+    {
+        valueStr = "0";
+    }
+
+    try
+    {
+        value = std::stol(valueStr);
+    }
+    catch (...)
+    {
+        std::cerr << " Error during conversion of string value \"" << valueStr << "\" to boolean." << std::endl;
+        std::cerr << " Known values are: 'true', 'false', '1', '0'" << std::endl;
+        return false;
+    }
+
+    return true;
+};
 template<>
 OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute){value = std::stof(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 

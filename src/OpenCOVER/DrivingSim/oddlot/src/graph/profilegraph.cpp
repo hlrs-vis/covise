@@ -63,6 +63,7 @@ ProfileGraph::ProfileGraph(ProjectWidget *projectWidget, ProjectData *projectDat
     // Layout //
     //
     QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0,0,0,0);
     layout->addWidget(view_);
     setLayout(layout);
 }
@@ -100,6 +101,7 @@ ProfileGraph::ProfileGraph(ProjectWidget *projectWidget, ProjectData *projectDat
     //
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(view_);
+    layout->setContentsMargins(0,0,0,0);
     setLayout(layout);
 }
 

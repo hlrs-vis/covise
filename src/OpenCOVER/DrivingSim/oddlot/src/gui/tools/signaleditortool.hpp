@@ -21,6 +21,8 @@
 #include "toolaction.hpp"
 #include "src/util/odd.hpp"
 
+#include "ui_SignalRibbon.h"
+
 class QGroupBox;
 
 class SignalEditorTool : public Tool

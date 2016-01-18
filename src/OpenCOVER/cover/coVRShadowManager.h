@@ -23,6 +23,12 @@
 #include <util/coExport.h>
 #include <osgShadow/ShadowedScene>
 #include <osgShadow/ShadowMap>
+#include <osgShadow/ShadowVolume>
+#include <osgShadow/ShadowTexture>
+#include <osgShadow/SoftShadowMap>
+#include <osgShadow/StandardShadowMap>
+#include <osgShadow/MinimalShadowMap>
+#include <osgShadow/LightSpacePerspectiveShadowMap>
 
 namespace opencover
 {
@@ -32,6 +38,8 @@ public:
     coVRShadowManager();
     ~coVRShadowManager();
     static coVRShadowManager *instance();
+    
+    void setLight(osg::LightSource *ls);
 
     void setTechnique(const std::string &tech);
     std::string getTechnique(){return technique;};
@@ -40,6 +48,15 @@ private:
     
     std::string technique;
     static coVRShadowManager* inst;
+    osg::ref_ptr<osgShadow::ShadowVolume> sv;
+    osg::ref_ptr<osgShadow::ShadowTexture> st;
+    osg::ref_ptr<osgShadow::SoftShadowMap> softSM;
+    osg::ref_ptr<osgShadow::StandardShadowMap> standardSM;
+    osg::ref_ptr<osgShadow::MinimalShadowMap> lspsm;
+    osg::ref_ptr<osgShadow::MinimalShadowMap> lspsmcb;
+    osg::ref_ptr<osgShadow::MinimalShadowMap> lspsmdb;
+    osg::ref_ptr<osgShadow::ShadowMap> shadowMap;
+    osg::ref_ptr<osg::LightSource> lightSource;
 };
 
 }

@@ -57,7 +57,7 @@ public:
     //################//
 
 public:
-    explicit OSCElement(const QString &id, const OpenScenario::oscObjectBase *oscObjectBase = NULL);
+    explicit OSCElement(const QString &id, OpenScenario::oscObjectBase *oscObjectBase = NULL);
     virtual ~OSCElement();
 
 	const QString &getID() const
@@ -76,12 +76,12 @@ public:
 
     void setOSCBase(OSCBase *oscBase);
 
-	const OpenScenario::oscObjectBase *getObject()
+	OpenScenario::oscObjectBase *getObject()
 	{
 		return oscObjectBase_;
 	}
 
-	void setObjectBase(const OpenScenario::oscObjectBase * oscObjectBase)
+	void setObjectBase(OpenScenario::oscObjectBase * oscObjectBase)
 	{
 		oscObjectBase_ = oscObjectBase;
 	}
@@ -114,7 +114,7 @@ private:
 	//
 	OSCBase *oscBase_;
 
-	const OpenScenario::oscObjectBase *oscObjectBase_;
+	OpenScenario::oscObjectBase *oscObjectBase_;
 
 	QString id_; // unique ID within ODDLOT database
 

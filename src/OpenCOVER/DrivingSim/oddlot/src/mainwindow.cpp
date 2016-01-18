@@ -65,9 +65,9 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(tr("ODD: OpenDRIVE Designer"));
     resize(1024, 768);
 
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     // ODD //
@@ -450,12 +450,24 @@ MainWindow::createTools()
     //
     toolManager_ = new ToolManager(prototypeManager_, this);
     connect(toolManager_, SIGNAL(toolAction(ToolAction *)), this, SLOT(toolAction(ToolAction *)));
-
-    // Docked ToolBox //
+    
+    toolDock_->setWidget(toolManager_->getToolBox());
+    toolDock_->hide();
+    
+    ribbonToolDock_ = new QDockWidget(tr("Ribbon"), this);
+    QWidget* titleWidget = new QWidget(this);
+    ribbonToolDock_->setTitleBarWidget( titleWidget ); // empty title bar
+    ribbonToolDock_->setAllowedAreas(Qt::TopDockWidgetArea);
+    addDockWidget(Qt::TopDockWidgetArea, ribbonToolDock_);
+    
+    // Show/Hide Action //
     //
-    QToolBox *toolBox = toolManager_->getToolBox();
-    toolBox->setParent(toolDock_);
-    toolDock_->setWidget(toolBox);
+    QAction *ribbonToolDockToggleAction = toolDock_->toggleViewAction();
+    ribbonToolDockToggleAction->setStatusTip(tr("Show/hide the ribbon."));
+    viewMenu_->addAction(ribbonToolDockToggleAction);
+
+    ribbonToolDock_->setWidget(toolManager_->getRibbonWidget());
+
 }
 
 /*! \brief Creates the WizardManager.
@@ -504,6 +516,7 @@ MainWindow::createSettings()
 	
 	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 	settingsDock_->setFixedWidth(200);
+	settingsDock_->setMinimumHeight(152);
 
 
     //	settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);

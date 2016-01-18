@@ -82,6 +82,7 @@ private:
     //
     QMap<QString, TypeSection::RoadType> roadTypes_;
     QGroupBox *selectGroupBox_;
+    QGroupBox *selectGroupBox2_;
     QMenu *roadTypeToolButtonMenu_;
     QToolButton *roadTypeToolButton_;
 

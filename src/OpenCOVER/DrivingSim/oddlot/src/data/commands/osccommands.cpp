@@ -33,7 +33,7 @@ using namespace OpenScenario;
 // AddOSCObjectCommand //
 //#########################//
 
-AddOSCObjectCommand::AddOSCObjectCommand(const OpenScenario::oscObjectBase *parentObject, OSCBase *base, const std::string &name, OSCElement *element, DataCommand *parent)
+AddOSCObjectCommand::AddOSCObjectCommand(OpenScenario::oscObjectBase *parentObject, OSCBase *base, const std::string &name, OSCElement *element, DataCommand *parent)
     : DataCommand(parent)
 	, element_(element)
 	, parentObject_(parentObject)
@@ -87,15 +87,12 @@ AddOSCObjectCommand::redo()
 
 	if(obj)
 	{
-		obj->initialize(openScenarioBase_, NULL);
-	
+		obj->initialize(openScenarioBase_, parentObject_, member_, NULL);	
 		member_->setValue(obj);
+
 
 		element_->setObjectBase(obj);
 		oscBase_->addOSCElement(element_);
-
-		element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
-
 	}
 
 	setRedone();
@@ -108,13 +105,10 @@ void
 AddOSCObjectCommand::undo()
 {
 	const OpenScenario::oscObjectBase *obj = member_->getObject();
-//	member_->setValue(NULL);
-	delete obj;
+	member_->deleteValue();
 
 	element_->setObjectBase(NULL);
 	oscBase_->delOSCElement(element_);
-
-	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
 
    setUndone();
 }
@@ -143,6 +137,7 @@ RemoveOSCObjectCommand::RemoveOSCObjectCommand(OSCElement *element, DataCommand 
 	oscBase_ = element_->getOSCBase();
 	openScenarioBase_ = oscBase_->getOpenScenarioBase();
 	object_ = element_->getObject();
+	parentMember_ = object_->getOwnMember();
 }
 
 /*! \brief .
@@ -171,7 +166,10 @@ RemoveOSCObjectCommand::redo()
     element_->setObjectBase(NULL);				// todo: delete OpenScenario object/member
 	oscBase_->delOSCElement(element_);
 
-	element_->addOSCElementChanges(DataElement::CDE_DataElementDeleted);
+	if (parentMember_)
+	{
+		parentMember_->deleteValue();
+	}
 
     setRedone();
 }
@@ -182,10 +180,11 @@ RemoveOSCObjectCommand::redo()
 void
 RemoveOSCObjectCommand::undo()
 {
+
     element_->setObjectBase(object_);
 	oscBase_->addOSCElement(element_);
 
-	element_->addOSCElementChanges(DataElement::CDE_DataElementAdded);
+	object_->setOwnMember(parentMember_);
 
     setUndone();
 }

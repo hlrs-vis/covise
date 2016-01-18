@@ -20,6 +20,8 @@
 
 #include "src/mainwindow.hpp"
 
+#include "ui_RoadLinkRibbon.h"
+
 // Qt //
 //
 #include <QGridLayout>
@@ -112,12 +114,29 @@ RoadLinkEditorTool::initToolWidget()
     toolLayout->setRowStretch(++row, 1); // last row fills the rest of the availlable space
     toolLayout->setColumnStretch(1, 1); // column 1 fills the rest of the availlable space
 
-    // Widget/Layout //
+    // Ribbon //
     //
     ToolWidget *toolWidget = new ToolWidget();
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("RoadLink Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    Ui::RoadLinkRibbon *ui = new Ui::RoadLinkRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+    
+    ribbonToolGroup->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
+    ribbonToolGroup->addButton(ui->roadLink, ODD::TRL_ROADLINK);
+    ribbonToolGroup->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
+    
+    connect(ui->thresholdSpinBox, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Road Link"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 void

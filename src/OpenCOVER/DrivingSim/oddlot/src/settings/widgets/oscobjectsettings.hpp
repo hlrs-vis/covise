@@ -16,22 +16,31 @@
 #ifndef OSCOBJECTSETTINGS_HPP
 #define OSCOBJECTSETTINGS_HPP
 
-#include "src/settings/settingselement.hpp"
+#include <QWidget>
+#include "src/data/observer.hpp"
+
+#include "oscMemberValue.h"
+
 
 namespace Ui
 {
-class oscObjectSettings;
+class OSCObjectSettings;
 }
 
 namespace OpenScenario
 {
 class oscObjectBase;
 }
-//class SignalManager;
 
 class OSCElement;
+class OSCBase;
+class OpenScenarioEditorToolAction;
+class OSCObjectSettingsStack;
+class ProjectSettings;
 
-class oscObjectSettings : public SettingsElement
+#include <QMap>
+
+class OSCObjectSettings: public QWidget, public Observer
 {
     Q_OBJECT
 
@@ -40,8 +49,8 @@ class oscObjectSettings : public SettingsElement
     //################//
 
 public:
-    explicit oscObjectSettings(ProjectSettings *projectSettings, SettingsElement *parentSettingsElement, OSCElement *element);
-    virtual ~oscObjectSettings();
+    explicit OSCObjectSettings(ProjectSettings *projectSettings, OSCObjectSettingsStack *parent, OSCElement *element);
+    virtual ~OSCObjectSettings();
 
     // Observer Pattern //
     //
@@ -54,6 +63,12 @@ public:
 private:
     void updateProperties();
 
+	//################//
+	// SIGNALS        //
+	//################//
+
+signals:
+
     //################//
     // SLOTS          //
     //################//
@@ -61,21 +76,27 @@ private:
 private slots:
     void onEditingFinished(QString name);
 	void onPushButtonPressed(QString name);
+	void onValueChanged();
 
     //################//
     // PROPERTIES     //
     //################//
 
 private:
-	Ui::oscObjectSettings *ui;
-    const OpenScenario::oscObjectBase *object_;
+	Ui::OSCObjectSettings *ui;
+	ProjectSettings *projectSettings_;
+	OSCObjectSettingsStack *parentStack_;
+
+    OpenScenario::oscObjectBase *object_;
 	OSCElement *element_;
+	OSCBase *base_;
 
     bool init_;
 
 	QMap<QString, QWidget*> memberWidgets_;
 
     bool valueChanged_;
+
 };
 
 #endif // OSCOBJECTSETTINGS_HPP

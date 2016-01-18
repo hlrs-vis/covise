@@ -125,6 +125,22 @@ SignalEditorTool::initToolWidget()
     toolWidget->setLayout(toolLayout);
     toolManager_->addToolBoxWidget(toolWidget, tr("Signal and Object Editor"));
     connect(toolWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
+    ToolWidget *ribbonWidget = new ToolWidget();
+    //ribbonWidget->
+    Ui::SignalRibbon *ui = new Ui::SignalRibbon();
+    ui->setupUi(ribbonWidget);
+    
+    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+
+    // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
+    ribbonToolGroup->addButton(ui->deleteController, ODD::TSG_DEL);
+    ribbonToolGroup->addButton(ui->newController, ODD::TSG_CONTROLLER);
+    ribbonToolGroup->addButton(ui->addSignal, ODD::TSG_ADD_CONTROL_ENTRY);
+    ribbonToolGroup->addButton(ui->removeSignal, ODD::TSG_REMOVE_CONTROL_ENTRY);
+
+    toolManager_->addRibbonWidget(ribbonWidget, tr("Signals and Objects"));
+    connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateEditor()));
 }
 
 //################//

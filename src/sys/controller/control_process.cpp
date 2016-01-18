@@ -232,7 +232,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
     int port;
     char *dsp = CTRLHandler::instance()->Config->getDisplayIP(rhost->get_ipv4());
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
+    CTRLGlobal *global = CTRLGlobal::getInstance();
 
     module_count += 2;
     ServerConnection *conn = new ServerConnection(&port, module_count - 1, CONTROLLER);
@@ -245,7 +245,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         snprintf(text, sizeof(text), "please start \"%s %d %s %d\" on %s", name, port,
                  host->getAddress(), module_count, rhost->getName());
         Message *msg = new Message(COVISE_MESSAGE_COVISE_ERROR, text);
-        global.userinterfaceList->send_master(msg);
+        global->userinterfaceList->send_master(msg);
         delete msg;
         fprintf(stderr, "please start \"%s %d %s %d\" on %s", name, port, host->getAddress(),
                 module_count, rhost->getName());
@@ -289,7 +289,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         //Attach SSL to socket
         if (sslconn->AttachSSLToSocket(sslconn->getSocket()) == 0)
         {
-            global.userinterfaceList->sendWarning("SSLConnection to RemoteHost failed! Local SSL attach failed");
+            global->userinterfaceList->sendWarning("SSLConnection to RemoteHost failed! Local SSL attach failed");
             delete sslconn;
             sslconn = NULL;
             return NULL;
@@ -298,7 +298,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         //Connect SSL, do handshake
         if (sslconn->connect() < 0)
         {
-            global.userinterfaceList->sendWarning("SSLConnection to RemoteHost failed! Connect failed!");
+            global->userinterfaceList->sendWarning("SSLConnection to RemoteHost failed! Connect failed!");
             delete sslconn;
             sslconn = NULL;
             return NULL;
@@ -328,13 +328,13 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
                 //Check for result == NULL here to avoid crashes
                 if (result && strncmp(result, "ACK\n", 4))
                 {
-                    global.userinterfaceList->sendWarning("RemoteHost confirmed command!");
+                    global->userinterfaceList->sendWarning("RemoteHost confirmed command!");
                     bWaitingForAck = false;
                 }
             }
             if (bWaitingForAck)
             {
-                global.userinterfaceList->sendWarning("Command timed out!");
+                global->userinterfaceList->sendWarning("Command timed out!");
             }
         }
 
@@ -576,7 +576,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     if (strcmp("Renderer", cat) == 0)
     {
         string hostname = dmod->get_host()->getAddress();
-        mapeditor = CTRLGlobal::get_handle().userinterfaceList->get(hostname);
+        mapeditor = CTRLGlobal::getInstance()->userinterfaceList->get(hostname);
 
         if (mapeditor)
         {
@@ -680,7 +680,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     if (strcmp("Renderer", cat) == 0)
     {
         string hostname = dmod->get_host()->getAddress();
-        mapeditor = CTRLGlobal::get_handle().userinterfaceList->get(hostname);
+        mapeditor = CTRLGlobal::getInstance()->userinterfaceList->get(hostname);
 
         if (mapeditor)
         {

@@ -340,6 +340,7 @@ SET(ODDLOT_SOURCES
 	src/tree/catalogwidget.cpp
 	src/data/commands/osccommands.cpp
 	src/settings/widgets/oscobjectsettings.cpp
+	src/settings/widgets/oscobjectsettingsstack.cpp
 	src/data/oscsystem/oscelement.cpp
 	src/data/oscsystem/oscbase.cpp
 )
@@ -634,6 +635,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/tree/catalogwidget.hpp
 	src/data/commands/osccommands.hpp
 	src/settings/widgets/oscobjectsettings.hpp
+	src/settings/widgets/oscobjectsettingsstack.hpp
 	src/data/oscsystem/oscelement.hpp
 	src/data/oscsystem/oscbase.hpp
 )
@@ -651,6 +653,16 @@ SET(ODDLOT_FORMS
      src/gui/importsettings.ui
      src/gui/projectionsettings.ui
 	 src/gui/lodsettings.ui
+	 src/gui/tools/TrackRibbon.ui
+	 src/gui/tools/TypeRibbon.ui
+	 src/gui/tools/RoadLinkRibbon.ui
+	 src/gui/tools/ElevationRibbon.ui
+	 src/gui/tools/SuperelevationRibbon.ui
+	 src/gui/tools/CrossfallRibbon.ui
+	 src/gui/tools/LaneRibbon.ui
+	 src/gui/tools/JunctionRibbon.ui
+	 src/gui/tools/SignalRibbon.ui
+	 src/gui/tools/OSCRibbon.ui
      src/wizards/flatjunctionswizard.ui
      src/settings/widgets/junctionsettings.ui
      src/settings/widgets/signalsettings.ui

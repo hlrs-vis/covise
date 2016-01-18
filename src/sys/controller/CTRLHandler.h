@@ -44,7 +44,6 @@ public:
 
     ControlConfig *Config;
     AccessGridDaemon *m_accessGridDaemon;
-    CTRLGlobal global;
 
     static CTRLHandler *instance();
 

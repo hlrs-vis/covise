@@ -33,6 +33,7 @@
 #include "coVRLighting.h"
 #include "VRSceneGraph.h"
 #include "coVRPluginSupport.h"
+#include "coVRShadowManager.h"
 #include "VRPinboard.h"
 #include <osg/LightSource>
 #include <osg/LightModel>
@@ -70,6 +71,7 @@ coVRLighting::coVRLighting()
     , light2(NULL)
     , headlight(NULL)
     , spotlight(NULL)
+    , shadowlight(NULL)
 {
     config();
     init();
@@ -145,6 +147,7 @@ void coVRLighting::initSunLight()
         headlightState = coCoviseConfig::isOn("COVER.Headlight", headlightState);
         switchLight(headlight, headlightState);
     }
+    shadowlight = headlight;
 }
 
 //void coVRLighting::initMenuLight()
@@ -633,4 +636,11 @@ void coVRLighting::menuEvent(coMenuItem *menuItem)
             switchLight(((*it).second), ((coCheckboxMenuItem *)menuItem)->getState());
         }
     }
+}
+
+
+void coVRLighting::setShadowLight(osg::LightSource *ls)
+{
+    shadowlight = ls; 
+    coVRShadowManager::instance()->setLight(ls);
 }

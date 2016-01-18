@@ -415,8 +415,7 @@ void net_module::exec_module(ui_list *uilist)
             {
                 Message *ex_msg = new Message(COVISE_MESSAGE_UI, "INEXEC");
                 uilist->send_all(ex_msg);
-                CTRLGlobal &global = CTRLGlobal::get_handle();
-                global.netList->send_all_renderer(ex_msg);
+                CTRLGlobal::getInstance()->netList->send_all_renderer(ex_msg);
                 delete ex_msg;
             }
 
@@ -1167,7 +1166,6 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
                      int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror_node)
 {
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     parameter *tmp;
     module *mod;
@@ -1185,17 +1183,17 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
     xkoord = posx;
     ykoord = posy;
 
-    link_type(name, host, global.moduleList);
+    link_type(name, host, CTRLGlobal::getInstance()->moduleList);
 
     if (CTRLHandler::instance()->Config->getshminfo(host.c_str()) != COVISE_NOSHM)
     {
         // get Datamanager for host
-        tmp_data = global.dataManagerList->get(host);
+        tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(host);
         dmod = tmp_data->get_DM();
 
         // Start a module: send CRB a message to start module.
         //                 !!! Module connects to CTRL only, not to CRB !!!
-        applmod = global.controller->start_applicationmodule(APPLICATIONMODULE, name.c_str(), get_type()->get_category().c_str(), dmod, instanz.c_str(), flags);
+        applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, name.c_str(), get_type()->get_category().c_str(), dmod, instanz.c_str(), flags);
         /// aw: applmod may be ==  0
         if (applmod == NULL)
         {
@@ -1222,16 +1220,16 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
         //------------------------------------------------------------------------
 
         // get Datamanager for host
-        tmp_data = global.dataManagerList->get(host);
+        tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(host);
         dmod = tmp_data->get_DM();
         // END OF CHANGES FOR T3E
 
         // start applicationmodule
-        tmp_host = global.hostList->get(host);
+        tmp_host = CTRLGlobal::getInstance()->hostList->get(host);
         tmp_passwd = tmp_host->get_passwd();
         tmp_user = tmp_host->get_user();
 
-        applmod = global.controller->start_applicationmodule(APPLICATIONMODULE, get_name().c_str(),
+        applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(APPLICATIONMODULE, get_name().c_str(),
                                                              get_type()->get_category().c_str(), dmod, instanz.c_str(), flags);
 
         /// aw: applmod may be ==  0
@@ -1249,9 +1247,9 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
         tmp_data->set_passwd(tmp_passwd);
         tmp_data->set_DM(applmod);
 
-        global.dataManagerList->connect_all(applmod);
+        CTRLGlobal::getInstance()->dataManagerList->connect_all(applmod);
 
-        global.dataManagerList->add(tmp_data);
+        CTRLGlobal::getInstance()->dataManagerList->add(tmp_data);
 
         datam = applmod;
     }
@@ -1279,7 +1277,7 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
     mod->read_description(msg->data);
     delete msg;
 
-    this->create_netlink(name, instanz, host, global.netList);
+    this->create_netlink(name, instanz, host, CTRLGlobal::getInstance()->netList);
 
     // copy interfaces from module
 
@@ -1296,8 +1294,8 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
             ostringstream objName;
             objName << name << "_" << instanz << "(" << nodeid << ")_OUT_" << outNum << "_";
             string outputName = mod->get_interfname();
-            object *obj = global.objectList->select(objName.str());
-            global.netList->set_DO_conn(name, instanz, host, outputName, obj);
+            object *obj = CTRLGlobal::getInstance()->objectList->select(objName.str());
+            CTRLGlobal::getInstance()->netList->set_DO_conn(name, instanz, host, outputName, obj);
             outNum++;
         }
     }
@@ -1455,7 +1453,6 @@ bool net_module::test_copy()
 
 void net_module::del(int already_dead)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     //delete_all Objects if not saved
     delete_all_objs(already_dead);
@@ -1504,8 +1501,8 @@ void net_module::del(int already_dead)
                 C_interface->del_connect();
 
                 // delete Object (without any connection)
-                global.objectList->remove(obj);
-                global.objectList->reset();
+                CTRLGlobal::getInstance()->objectList->remove(obj);
+                CTRLGlobal::getInstance()->objectList->reset();
             }
             else if (direction == "input")
             {
@@ -1675,8 +1672,8 @@ string net_module::get_outparaobj()
                 }
                 else if (state == false)
                 {
-                    print_comment(__LINE__, __FILE__, "ERROR: send_finisglobal. Interfaces not connected \n");
-                    cerr << "\n ERROR: send_finisglobal. Interfaces not connected !!!\n";
+                    print_comment(__LINE__, __FILE__, "ERROR: send_finisCTRLGlobal::getInstance()-> Interfaces not connected \n");
+                    cerr << "\n ERROR: send_finisCTRLGlobal::getInstance()-> Interfaces not connected !!!\n";
                     string content;
                     return content;
                 } // if state
@@ -1779,12 +1776,11 @@ string net_module::get_inparaobj()
 
 void net_module::send_finish()
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
     string content = this->get_outparaobj();
     if (!content.empty())
     {
         Message *msg = new Message(COVISE_MESSAGE_FINISHED, content);
-        global.userinterfaceList->send_all(msg);
+        CTRLGlobal::getInstance()->userinterfaceList->send_all(msg);
         delete msg;
     }
 }
@@ -2186,7 +2182,6 @@ int display::get_mod_id()
 
 int display::start(AppModule *dmod, const string &info_str, module *mod, const string &add_param, enum Start::Flags flags)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // parse instanz out of info_str (second token)
     vector<string> list = CTRLHandler::instance()->splitString(info_str, "\n");
@@ -2196,7 +2191,7 @@ int display::start(AppModule *dmod, const string &info_str, module *mod, const s
     if (!add_param.empty())
         addParam = add_param.c_str();
 
-    applmod = global.controller->start_applicationmodule(RENDERER, addParam, mod->get_name().c_str(),
+    applmod = CTRLGlobal::getInstance()->controller->start_applicationmodule(RENDERER, addParam, mod->get_name().c_str(),
                                                          mod->get_category().c_str(), dmod, instanz.c_str(), flags);
     /// aw: applmod may be ==  0
     if (applmod == NULL)
@@ -2489,13 +2484,12 @@ void displaylist::reset_ready()
 int displaylist::init(const string &excovise_name, const string &info_str, module *mod, int copy, enum Start::Flags flags, rhost *host)
 {
     (void)excovise_name;
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    userinterface *tmp_ui = global.userinterfaceList->get(host->get_hostname(), host->get_user());
+    userinterface *tmp_ui = CTRLGlobal::getInstance()->userinterfaceList->get(host->get_hostname(), host->get_user());
     if (tmp_ui && copy != 4) // !MIRROR
     {
-        global.userinterfaceList->reset();
-        while ((tmp_ui = global.userinterfaceList->next()) != NULL)
+        CTRLGlobal::getInstance()->userinterfaceList->reset();
+        while ((tmp_ui = CTRLGlobal::getInstance()->userinterfaceList->next()) != NULL)
         {
             string tmp_hostname = tmp_ui->get_host();
             string tmp_userid = tmp_ui->get_userid();
@@ -2535,7 +2529,7 @@ int displaylist::init(const string &excovise_name, const string &info_str, modul
             tmp_dis->set_passwd(tmp_passwd);
             tmp_dis->set_execstat(tmp_status);
 
-            DM_data *tmp_data = global.dataManagerList->get(tmp_hostname);
+            DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(tmp_hostname);
             AppModule *dmod = tmp_data->get_DM();
 
             // add host to the info_str
@@ -2556,7 +2550,7 @@ int displaylist::init(const string &excovise_name, const string &info_str, modul
     } // end !MIRROR
 
     string tmp_hostname = host->get_hostname();
-    tmp_ui = global.userinterfaceList->get(tmp_hostname);
+    tmp_ui = CTRLGlobal::getInstance()->userinterfaceList->get(tmp_hostname);
     if ((tmp_ui == NULL) || (copy == 4))
     {
         // no partner on this host or it's a mirror node
@@ -2574,7 +2568,7 @@ int displaylist::init(const string &excovise_name, const string &info_str, modul
         tmp_dis->set_passwd(tmp_passwd);
         tmp_dis->set_execstat(string("MIRROR"));
 
-        DM_data *tmp_data = global.dataManagerList->get(tmp_hostname);
+        DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(tmp_hostname);
         AppModule *dmod = tmp_data->get_DM();
 
         // add host to the info_str
@@ -2746,10 +2740,9 @@ void render_module::set_interface(const string &strn, const string &strt, const 
 int displaylist::addHelperCRB(const string &helperHost, const string &host)
 {
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    DM_data *helperDmgr = global.dataManagerList->get(helperHost);
-    DM_data *moduleDmgr = global.dataManagerList->get(host);
+    DM_data *helperDmgr = CTRLGlobal::getInstance()->dataManagerList->get(helperHost);
+    DM_data *moduleDmgr = CTRLGlobal::getInstance()->dataManagerList->get(host);
 
     string user = moduleDmgr->get_user();
     string passwd = moduleDmgr->get_passwd();
@@ -2759,7 +2752,7 @@ int displaylist::addHelperCRB(const string &helperHost, const string &host)
         // start crb
         int exec_type = CTRLHandler::instance()->Config->getexectype(helperHost.c_str());
         coHostType htype(CO_PARTNER);
-        if (global.dataManagerList->add_crb(exec_type, helperHost, user, passwd, "", htype) == 0)
+        if (CTRLGlobal::getInstance()->dataManagerList->add_crb(exec_type, helperHost, user, passwd, "", htype) == 0)
         {
             return (0);
         }
@@ -2769,7 +2762,7 @@ int displaylist::addHelperCRB(const string &helperHost, const string &host)
         tmp_host->set_hostname(helperHost);
         tmp_host->set_user(user);
         tmp_host->set_passwd(passwd);
-        global.hostList->add(tmp_host);
+        CTRLGlobal::getInstance()->hostList->add(tmp_host);
     }
     return 1;
 }
@@ -2782,10 +2775,9 @@ int render_module::add_helper(const string &helperHost, // host to start the hel
 
     addHelperCRB(helperHost, host);
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    DM_data *helperDmgr = global.dataManagerList->get(helperHost);
-    DM_data *moduleDmgr = global.dataManagerList->get(host);
+    DM_data *helperDmgr = CTRLGlobal::getInstance()->dataManagerList->get(helperHost);
+    DM_data *moduleDmgr = CTRLGlobal::getInstance()->dataManagerList->get(host);
     string user = moduleDmgr->get_user();
     string passwd = moduleDmgr->get_passwd();
 
@@ -2795,7 +2787,7 @@ int render_module::add_helper(const string &helperHost, // host to start the hel
     tmp_dis->set_passwd(passwd);
     tmp_dis->set_helper(1);
 
-    helperDmgr = global.dataManagerList->get(helperHost);
+    helperDmgr = CTRLGlobal::getInstance()->dataManagerList->get(helperHost);
     AppModule *dmod = helperDmgr->get_DM();
     module *mod = get_type();
     // add host to the info_str
@@ -2815,7 +2807,6 @@ int render_module::add_helper(const string &helperHost, // host to start the hel
 int render_module::init(int nodeid, const string &name, const string &instanz, const string &host,
                         int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror_node)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     set_name(name);
     set_nr(instanz);
@@ -2834,14 +2825,14 @@ int render_module::init(int nodeid, const string &name, const string &instanz, c
     // create the info_str with 'name \n instanz_nr \n'
     string info_str = name + "\n" + instanz + "\n";
 
-    this->create_netlink(name, instanz, host, global.netList);
+    this->create_netlink(name, instanz, host, CTRLGlobal::getInstance()->netList);
 
-    link_type(name, host, global.moduleList);
+    link_type(name, host, CTRLGlobal::getInstance()->moduleList);
     module *mod = get_type();
 
-    rhost *rh = global.hostList->get(host);
+    rhost *rh = CTRLGlobal::getInstance()->hostList->get(host);
 
-    userinterface *p_ui = global.userinterfaceList->get(host);
+    userinterface *p_ui = CTRLGlobal::getInstance()->userinterfaceList->get(host);
     if (copy == 4) // MIRROR
     {
         mirror_node->set_mirror_status(ORG_MIRR); //original
@@ -2877,8 +2868,8 @@ int render_module::init(int nodeid, const string &name, const string &instanz, c
             os << name << "_" << instanz << "(" << nodeid << ")_OUT_" << outNum << "_";
             string objName = os.str();
             string outputName = mod->get_interfname();
-            object *obj = global.objectList->select(objName);
-            global.netList->set_DO_conn(name, instanz, host, outputName, obj);
+            object *obj = CTRLGlobal::getInstance()->objectList->select(objName);
+            CTRLGlobal::getInstance()->netList->set_DO_conn(name, instanz, host, outputName, obj);
             outNum++;
         }
     }
@@ -2901,7 +2892,6 @@ int render_module::init(int nodeid, const string &name, const string &instanz, c
 void render_module::del(int already_dead)
 {
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // alle interfaces durchgehen (nur input)
     C_interface *tmp_intf;
@@ -2941,8 +2931,8 @@ void render_module::del(int already_dead)
             ninterface->del_connect();
 
             // delete Object (without any connection)
-            global.objectList->remove(obj);
-            global.objectList->reset();
+            CTRLGlobal::getInstance()->objectList->remove(obj);
+            CTRLGlobal::getInstance()->objectList->reset();
 
             interfaces->remove(ninterface);
             interfaces->reset();
@@ -3387,7 +3377,6 @@ void render_module::reset_wait()
 
 bool render_module::add_display(userinterface *ui)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     bool exec = false;
 
@@ -3402,7 +3391,7 @@ bool render_module::add_display(userinterface *ui)
     tmp_dis->set_passwd(tmp_passwd);
     tmp_dis->set_execstat(tmp_status);
 
-    DM_data *tmp_data = global.dataManagerList->get(tmp_hostname);
+    DM_data *tmp_data = CTRLGlobal::getInstance()->dataManagerList->get(tmp_hostname);
     AppModule *dmod = tmp_data->get_DM();
 
     // add host to the info_str
@@ -3452,7 +3441,7 @@ bool render_module::add_display(userinterface *ui)
         if (!content.empty())
         {
             Message *msg = new Message(COVISE_MESSAGE_START, content);
-            global.userinterfaceList->send_all(msg);
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(msg);
             delete msg;
         }
     }
@@ -3480,12 +3469,11 @@ void render_module::remove_display(int id)
 
 void render_module::remove_display(display *disp)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     if (!disp)
         return;
 
-    ConnectionList *con_list = global.controller->getConnectionList();
+    ConnectionList *con_list = CTRLGlobal::getInstance()->controller->getConnectionList();
     Connection *p_conn = (disp->get_mod())->get_conn();
     con_list->remove(p_conn);
     disp->quit();
@@ -3567,10 +3555,9 @@ net_module_list::net_module_list()
 /// start a CRB for a helper
 int render_module::addHelperCRB(const string &helperHost, const string &host)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
-    DM_data *helperDmgr = global.dataManagerList->get(helperHost);
-    DM_data *moduleDmgr = global.dataManagerList->get(host);
+    DM_data *helperDmgr = CTRLGlobal::getInstance()->dataManagerList->get(helperHost);
+    DM_data *moduleDmgr = CTRLGlobal::getInstance()->dataManagerList->get(host);
 
     string user = moduleDmgr->get_user();
     string passwd = moduleDmgr->get_passwd();
@@ -3580,7 +3567,7 @@ int render_module::addHelperCRB(const string &helperHost, const string &host)
         // start crb
         int exec_type = CTRLHandler::instance()->Config->getexectype(helperHost.c_str());
         coHostType htype(CO_PARTNER);
-        if (global.dataManagerList->add_crb(exec_type, helperHost, user, passwd, "", htype) == 0)
+        if (CTRLGlobal::getInstance()->dataManagerList->add_crb(exec_type, helperHost, user, passwd, "", htype) == 0)
         {
             return (0);
         }
@@ -3590,7 +3577,7 @@ int render_module::addHelperCRB(const string &helperHost, const string &host)
         tmp_host->set_hostname(helperHost);
         tmp_host->set_user(user);
         tmp_host->set_passwd(passwd);
-        global.hostList->add(tmp_host);
+        CTRLGlobal::getInstance()->hostList->add(tmp_host);
     }
     else
     {
@@ -3603,10 +3590,9 @@ int render_module::addHelperCRB(const string &helperHost, const string &host)
 int net_module_list::init(int nodeid, const string &name, const string &instanz, const string &host,
                           int posx, int posy, int copy, enum Start::Flags flags, net_module *mirror)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     // check the Category of the Module
-    module *mod = global.moduleList->get(name, host);
+    module *mod = CTRLGlobal::getInstance()->moduleList->get(name, host);
     if (mod == NULL)
         return 0;
 
@@ -3674,8 +3660,7 @@ void net_module_list::re_move(net_module *mod, int already_dead)
     if (mod == NULL)
         return;
 
-    CTRLGlobal &global = CTRLGlobal::get_handle();
-    ConnectionList *con_list = global.controller->getConnectionList();
+    ConnectionList *con_list = CTRLGlobal::getInstance()->controller->getConnectionList();
     bool first_run = true;
     net_module *p_mirror;
     mod->reset_mirror_list();
@@ -3736,11 +3721,11 @@ void net_module_list::re_move(net_module *mod, int already_dead)
                 p_rend->set_mirror_status(NOT_MIRR);
                 p_rend->set_mirror_node(NULL);
                 string tmp_host = mod->get_host();
-                userinterface *p_ui = global.userinterfaceList->get(tmp_host);
+                userinterface *p_ui = CTRLGlobal::getInstance()->userinterfaceList->get(tmp_host);
                 if (p_ui)
                 {
                     int upd = p_rend->add_display(p_ui);
-                    global.userinterfaceList->set_slaveUpdate(upd);
+                    CTRLGlobal::getInstance()->userinterfaceList->set_slaveUpdate(upd);
                 }
                 break;
             }
@@ -3785,7 +3770,6 @@ void net_module_list::move(int nodeid, int posx, int posy)
 
 bool net_module_list::mirror(net_module *from_mod, const string &new_host)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
 
     string name = from_mod->get_name();
     char nr[64];
@@ -3794,9 +3778,9 @@ bool net_module_list::mirror(net_module *from_mod, const string &new_host)
     int posX = from_mod->get_x_pos() + (from_mod->get_num_mirrors() + 1) * 400;
     int posY = from_mod->get_y_pos();
 
-    global.s_nodeID++;
+    CTRLGlobal::getInstance()->s_nodeID++;
     string nrr(nr);
-    int iret = init(global.s_nodeID, from_mod->get_name(), nrr, new_host, posX + (from_mod->get_num_mirrors() + 1) * 400, posY, 4, Start::Normal, from_mod);
+    int iret = init(CTRLGlobal::getInstance()->s_nodeID, from_mod->get_name(), nrr, new_host, posX + (from_mod->get_num_mirrors() + 1) * 400, posY, 4, Start::Normal, from_mod);
     if (iret)
     {
         //--------------------------//
@@ -3808,12 +3792,12 @@ bool net_module_list::mirror(net_module *from_mod, const string &new_host)
         oss << "COPY2\n" << name << "\n" << nr << "\n" << new_host << "\n" << posX << "\n" << posY << "\n";
         oss << from_mod->get_name() << "\n" << from_mod->get_nr() << "\n" << from_mod->get_host() << "\n";
         Message *msg = new Message(COVISE_MESSAGE_UI, oss.str());
-        global.userinterfaceList->send_all(msg);
+        CTRLGlobal::getInstance()->userinterfaceList->send_all(msg);
         delete msg;
 
         string text = "DESC\n" + mod->create_descr();
         msg = new Message(COVISE_MESSAGE_UI, text);
-        global.userinterfaceList->send_all(msg);
+        CTRLGlobal::getInstance()->userinterfaceList->send_all(msg);
         delete msg;
         return true;
     }
@@ -3822,7 +3806,7 @@ bool net_module_list::mirror(net_module *from_mod, const string &new_host)
     {
         ostringstream os;
         os << "Failing to start " << name << "_" << nr << "@" << new_host << "!!!";
-        global.userinterfaceList->sendError(os.str());
+        CTRLGlobal::getInstance()->userinterfaceList->sendError(os.str());
         return false;
     }
 }
@@ -4364,9 +4348,9 @@ string net_module_list::get_para_connect(const string &local_name, const string 
 //!
 void net_module_list::save_config(const string &filename)
 {
-    CTRLGlobal &global = CTRLGlobal::get_handle();
+    CTRLGlobal *global = CTRLGlobal::getInstance();
 
-    DM_data *dm_local = global.dataManagerList->get_local();
+    DM_data *dm_local = CTRLGlobal::getInstance()->dataManagerList->get_local();
     string local_name = dm_local->get_hostname();
     string local_user = dm_local->get_user();
 
@@ -4384,7 +4368,7 @@ void net_module_list::save_config(const string &filename)
             {
                 string tmp = "Error saving file " + filename;
                 Message *err_msg = new Message(COVISE_MESSAGE_COVISE_ERROR, tmp);
-                global.userinterfaceList->send_all(err_msg);
+                CTRLGlobal::getInstance()->userinterfaceList->send_all(err_msg);
                 delete err_msg;
                 return;
             }
@@ -4422,7 +4406,7 @@ void net_module_list::save_config(const string &filename)
         outFile << "#" << endl;
         outFile << "# CONNECTIONS" << endl;
         outFile << "#" << endl;
-        global.objectList->writeScript(outFile, local_name, local_user);
+        CTRLGlobal::getInstance()->objectList->writeScript(outFile, local_name, local_user);
 
         // same ending as python files from map_converter
         outFile << "#" << endl;
@@ -4441,7 +4425,7 @@ void net_module_list::save_config(const string &filename)
         // write content
         // get hosts
         outFile << "#" << NET_FILE_VERERSION << endl;
-        string hdata = global.hostList->get_hosts(local_name, local_user);
+        string hdata = CTRLGlobal::getInstance()->hostList->get_hosts(local_name, local_user);
 
         // get module descrptions
         string buffer;
@@ -4449,7 +4433,7 @@ void net_module_list::save_config(const string &filename)
         if (!mdata.empty())
         {
             // get connections
-            string cdata = global.objectList->get_connections(local_name, local_user);
+            string cdata = CTRLGlobal::getInstance()->objectList->get_connections(local_name, local_user);
             buffer = hdata + mdata + cdata;
 
 #ifdef PARAM_CONN
@@ -4488,9 +4472,8 @@ char *net_module_list::openNetFile(const string &filename)
             ifstream inFile2(filestr.c_str(), ifstream::in);
             if (!inFile2.good())
             {
-                CTRLGlobal &global = CTRLGlobal::get_handle();
                 Message *err_msg = new Message(COVISE_MESSAGE_COVISE_ERROR, "Can't open file " + filename);
-                global.userinterfaceList->send_all(err_msg);
+                CTRLGlobal::getInstance()->userinterfaceList->send_all(err_msg);
                 delete err_msg;
                 return NULL;
             }
@@ -4593,7 +4576,7 @@ bool net_module_list::load_config(const string &filename)
                         oldFile = false;
 
                         Message *tmpmsg = new Message(COVISE_MESSAGE_UI, "CONVERTED_NET_FILE\n" + filename);
-                        CTRLGlobal::get_handle().userinterfaceList->send_all(tmpmsg);
+                        CTRLGlobal::getInstance()->userinterfaceList->send_all(tmpmsg);
                         delete tmpmsg;
                     }
                 }
@@ -4604,7 +4587,7 @@ bool net_module_list::load_config(const string &filename)
         {
             // conversion failed
             Message *tmpmsg = new Message(COVISE_MESSAGE_UI, "FAILED_NET_FILE_CONVERSION\n" + filename);
-            CTRLGlobal::get_handle().userinterfaceList->send_all(tmpmsg);
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(tmpmsg);
             delete tmpmsg;
         }
         else

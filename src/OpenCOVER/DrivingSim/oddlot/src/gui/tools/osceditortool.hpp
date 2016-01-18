@@ -23,6 +23,8 @@
 
 #include <QComboBox>
 
+#include "ui_OSCRibbon.h"
+
 
 class OpenScenarioEditorTool : public Tool
 {
@@ -68,7 +70,7 @@ public slots:
 
 private:
     ODD::ToolId toolId_;
-	QComboBox *catalogComboBox_;
+	Ui::OSCRibbon *ui;
 };
 
 class OpenScenarioEditorToolAction : public ToolAction

@@ -6,21 +6,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 * License: LGPL 2+ */
 
 #include "oscSourceFile.h"
-#include "OpenScenarioBase.h"
-#include "oscObjectBase.h"
-
-#include <iostream>
 
 #include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/util/XMLString.hpp>
 
 
 using namespace OpenScenario;
 
+
 oscSourceFile::oscSourceFile()
 {
-    base = NULL;
     xmlDoc = NULL;
-    includeParentElem = NULL;
 }
 
 oscSourceFile::~oscSourceFile()
@@ -34,15 +30,39 @@ oscSourceFile::~oscSourceFile()
  * public functions
  *****/
 
-void oscSourceFile::initialize(OpenScenarioBase *b)
+void oscSourceFile::setSrcFileHref(const std::string &sfhr)
 {
-    base = b;
+    srcFileHref = sfhr;
 }
 
-void oscSourceFile::setVariables(const std::string &ren, const std::string &sf)
+void oscSourceFile::setSrcFileHref(const XMLCh *sfhr)
 {
-    srcFileName = sf;
+    srcFileHref = xercesc::XMLString::transcode(sfhr);
+}
+
+void oscSourceFile::setSrcFileName(const std::string &sfn)
+{
+    srcFileName = sfn;
+}
+
+void oscSourceFile::setMainDocPath(const std::string &mdp)
+{
+    mainDocPath = mdp;
+}
+
+void oscSourceFile::setRelPathFromMainDoc(const std::string &rpfmd)
+{
+    relPathFromMainDoc = rpfmd;
+}
+
+void oscSourceFile::setRootElementName(const std::string &ren)
+{
     rootElementName = ren;
+}
+
+void oscSourceFile::setRootElementName(const XMLCh *ren)
+{
+    rootElementName = xercesc::XMLString::transcode(ren);
 }
 
 void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
@@ -50,20 +70,41 @@ void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xD)
     xmlDoc = xD;
 }
 
-void oscSourceFile::setIncludeParentElem(xercesc::DOMElement *inclParentElem)
+
+//
+std::string oscSourceFile::getSrcFileHrefAsStr() const
 {
-    includeParentElem = inclParentElem;
+    return srcFileHref;
 }
 
+const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
+{
+    return xercesc::XMLString::transcode(srcFileHref.c_str());
+}
 
 std::string oscSourceFile::getSrcFileName() const
 {
     return srcFileName;
 }
 
-std::string oscSourceFile::getRootElementName() const
+std::string oscSourceFile::getMainDocPath() const
+{
+    return mainDocPath;
+}
+
+std::string oscSourceFile::getRelPathFromMainDoc() const
+{
+    return relPathFromMainDoc;
+}
+
+std::string oscSourceFile::getRootElementNameAsStr() const
 {
     return rootElementName;
+}
+
+const XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const
+{
+    return xercesc::XMLString::transcode(rootElementName.c_str());
 }
 
 xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
@@ -71,14 +112,38 @@ xercesc::DOMDocument *oscSourceFile::getXmlDoc() const
     return xmlDoc;
 }
 
-xercesc::DOMElement *oscSourceFile::getIncludeParentElem() const
+
+//
+fileNamePath *oscSourceFile::getFileNamePath(const std::string &fnp)
 {
-    return includeParentElem;
+    fileNamePath *fileNP = new fileNamePath();
+    const std::string FILE = "file://";
+    std::string fnpToUse;
+
+    //find possible 'file://' in string and ignore it
+    size_t proto = fnp.find(FILE);
+    if (proto != std::string::npos)
+    {
+        fnpToUse = fnp.substr(FILE.length());
+    }
+    else
+    {
+        fnpToUse = fnp;
+    }
+
+    //find last slash as delimiter (between path and filename)
+    size_t delimiter = fnpToUse.find_last_of("/");
+    if (delimiter == std::string::npos)
+    {
+        fileNP->fileName = fnpToUse;
+        fileNP->path = "";
+    }
+    else
+    {
+        fileNP->fileName = fnpToUse.substr(delimiter + 1);
+        //set path with slash as delimiter at the end
+        fileNP->path = fnpToUse.substr(0, delimiter + 1);
+    }
+
+    return fileNP;
 }
-
-
-
-/*****
- * private functions
- *****/
-

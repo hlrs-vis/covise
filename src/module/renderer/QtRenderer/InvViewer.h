@@ -27,6 +27,8 @@
 #include <Inventor/actions/SoGLRenderAction.h> // transparency levels
 #include <Inventor/actions/SoCallbackAction.h>
 
+#include "InvTextManager.h"
+
 // utility
 #include <util/coIntMultiHash.h>
 #include <util/coHashIter.h>
@@ -275,6 +277,12 @@ public:
     static void enableFramePerSecondOutputConsole(bool bOn);
     static bool isEnabledFramePerSecondOutputConsole();
 
+    InvTextManager *getTextManager() const
+    {
+        return text_manager;
+    }
+
+
 private:
     SoSwitch *m_current_tswitch;
 
@@ -365,6 +373,10 @@ private:
     static void viewerStartEditCB(void *data, SoQtViewer *);
     static void viewerFinishEditCB(void *data, SoQtViewer *);
 
+
+    InvTextManager *text_manager;
+
+
     //
     // Convenience routines
     //
@@ -379,5 +391,7 @@ protected:
     virtual void processEvent(QEvent *);
     //virtual SbBool processSoEvent( const SoEvent * );
 };
+
+extern InvViewer *coviseViewer;
 
 #endif

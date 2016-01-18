@@ -36,6 +36,6 @@ void AccessGridDaemon::connect(const char *host, int port)
     DaemonPort = coCoviseConfig::getInt("port", "AccessGridDaemon", 31098);
     Host *h = new Host(host);
     conn = new ClientConnection(h, port, 0, (sender_type)0);
-    CTRLGlobal::get_handle().controller->addConnection(conn);
+    CTRLGlobal::getInstance()->controller->addConnection(conn);
     delete h;
 }
