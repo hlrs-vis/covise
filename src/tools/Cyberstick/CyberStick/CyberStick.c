@@ -99,7 +99,7 @@
 bool stateChanged;
 
 unsigned char buf[32];
-
+//buf[3] = CYBERSTICK_ID;
 // ----------------------------------------------------------------------------
 // Variable declaration for timiongs
 // ----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ void power_down_mode()
 // queries the FIFO status
 // if its not full, write payload to FIFO
 // ----------------------------------------------------------------------------
-uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
+uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck, int pipe)
 {
     uint8_t status;
 
@@ -230,21 +230,33 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
     spiSelect(csRFM73);
     _delay_ms(0);
 
-    // send TX cmd via SPI
+    if (pipe==0)
+    {
+    	spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD_P0);
+    }
+
+    if (pipe==1)
+    {
+    	spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD_P1);
+    }
+    	// send TX cmd via SPI
     if (toAck == -1)
     {
         // cmd: write payload with ack of received message used in RX mode
-        spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD);
+    	//if (pipe == 0)
+    	//	spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD_P0);
+    	//else
+    	//	spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD_P1);
     }
     else if (toAck == 0)
     {
         // cmd: write TX payload and disable AUTOACK
-        spiSendMsg(RFM70_CMD_W_TX_PAYLOAD_NOACK);
+     //   spiSendMsg(RFM70_CMD_W_TX_PAYLOAD_NOACK);
     }
     else
     {
         // cmd: write TX payload with defined ACK packet
-        spiSendMsg(RFM70_CMD_WR_TX_PLOAD);
+      //  spiSendMsg(RFM70_CMD_WR_TX_PLOAD);
     }
 
     // send payload
@@ -258,8 +270,6 @@ uint8_t rfm70SendPayload(uint8_t *payload, uint8_t len, uint8_t toAck)
     // disable CSN
     spiSelect(csNONE);
     _delay_ms(0);
-
-
 
     return true;
 }
@@ -285,6 +295,7 @@ uint8_t rfm70ReceivePayload()
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
     {
+    	msg_received = true;
     	do
         {
             // read length of playload packet
@@ -295,17 +306,15 @@ uint8_t rfm70ReceivePayload()
                 // read data from FIFO Buffer
                 rfm70ReadRegPgmBuf(RFM70_CMD_RD_RX_PLOAD, rx_buf, len);
 
-		msg_received = true;
-
 		// Send message with ack payload of the beacon message
 		// if receiver allows and button is pressed
-		if (rx_buf[1]==1 & stateChanged)
+		if (stateChanged)
 		{
 			stateChanged = false;
-			rfm70SendPayload(buf, 32, -1);
+			rfm70SendPayload(buf, 32, -1, 1);
 		}
 
-	    }
+		}
             else
             {
                 // flush RX FIFO
@@ -332,6 +341,9 @@ bool find_receiver_frequency()
 	bool msg_received = false;
 	int frequency = 0;
 	TCNT0 = 0x00;
+
+	// start communication with receiver at pipe0
+	rfm70SendPayload(buf, 32, -1, 0);
 	while(true)
 	{
 		if (frequency == 83)  // max possible frequencies 2400Mhz-2483Mhz
@@ -374,6 +386,8 @@ void CyberStick_Start()
     //bool stateChanged;
 	uint8_t value;
 
+	buf[3] = CYBERSTICK_ID;
+
     stateCurrent.buttons = 0x00;
     stateCurrent.touchpadX = 0;
     stateCurrent.touchpadY = 0;
@@ -393,11 +407,12 @@ void CyberStick_Start()
 	_delay_ms(2);
 
 	timer0_init();
-
+	LED3ON;
 	find_receiver_frequency();
 
     while (true)
     {
+    	LED3OFF;
     	LED4ON;   // always means connection is established with the receiver
     	//rfm70ReceivePayload();
     	// check if beacon message is received
@@ -408,10 +423,10 @@ void CyberStick_Start()
     	{
     		if (beacon_msg_time>= 100)
     		{
-			LED4OFF;
-			find_receiver_frequency();
-			beacon_msg_time = 0.0;
-			LED4ON;
+				LED4OFF;
+				find_receiver_frequency();
+				beacon_msg_time = 0.0;
+				LED4ON;
     		}
     	}
     	else
@@ -430,7 +445,7 @@ void CyberStick_Start()
 
     	}*/
 
-        if ((PINC & (1 << DDC0)) == 0)
+       /* if ((PINC & (1 << DDC0)) == 0)
         {
             int8_t tmpdata[2];
             // data is ready, read it
@@ -451,7 +466,7 @@ void CyberStick_Start()
         }
         else
         {
-        }
+        }*/
         // get current state of all inputs
         // buttons
 
@@ -491,14 +506,14 @@ void CyberStick_Start()
             stateCurrent.buttons &= ~(1 << BUTTON_BIT3);
         }
 
-        if ((PINC & (1 << BUTTON_5)) == 0)
+        /*if ((PINC & (1 << BUTTON_5)) == 0)
         {
             stateCurrent.buttons |= (1 << BUTTON_BIT4);
         }
         else
         {
             stateCurrent.buttons &= ~(1 << BUTTON_BIT4);
-        }
+        }*/
 
         //check if something changed
 
@@ -612,5 +627,6 @@ int main(void)
 
     CyberStick_Start();
 }
+
 
 

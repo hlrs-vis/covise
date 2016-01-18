@@ -23,6 +23,7 @@
 
 
 
+
 /*! \brief Pin number of IRQ contact on RFM73 module.*/
 #define RFM73_IRQ_PIN DDD3
 /*! \brief PORT register to IRQ contact on RFM73 module.*/
@@ -69,7 +70,7 @@
 #include "usbdrv.h"
 
 #include "spi_init.h"
-#include "rfm73.h"
+#include "rfm73Receiver.h"
 
 #define USB_LED_OFF 0
 #define USB_LED_ON 1
@@ -120,7 +121,9 @@ uint8_t oldDY = 0;
 
 double ack_time = 0.0;
 double cyberstick_switch_time = 0.0;
+double cyberstick1_timeout = 0.0;
 
+bool CyberStick1 = false;
 
 //----------------------------------------------------------------------------------
 // UART INIT and TRANSMIT
@@ -143,6 +146,46 @@ void uart_init (void)
 
 
 //----------------------------------------------------------------------------------
+// Switch address after first ack message is received for each cyberstick
+//----------------------------------------------------------------------------------
+
+void switch_address(int pipe)
+{
+    // select register bank 0
+    rfm70SelectBank(0);
+
+    // switch to pipe0 as every cyberstick starts with pipe0 and than
+    // changes to its predefined pipe
+    if (pipe == 0)
+    {
+    	// Send message and receive ack on PIPE 0 allocated for all CyberSticks
+        rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_RX0, sizeof(RFM70_ADR_RX0));
+
+    	rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_TX0, sizeof(RFM70_ADR_TX0));
+
+    	uart_transmit('0');
+    	uart_transmit('_');
+    }
+    // switch to pipe1 allocated for cyberstick1
+    else if (pipe == 1)
+    {
+    	// Send message and receive ack on PIPE 1 allocated for CyberStick1
+        rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_RX1, sizeof(RFM70_ADR_RX1));
+
+    	rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_TX1, sizeof(RFM70_ADR_TX1));
+
+    	uart_transmit('1');
+    	uart_transmit('_');
+    }
+    else
+    {
+
+    }
+
+}
+
+
+//----------------------------------------------------------------------------------
 // Send beacon message
 //----------------------------------------------------------------------------------
 
@@ -154,16 +197,21 @@ bool rfm70SendBeaconMsg(int toAck)
     beacon_payload[0]= 0xAA;  // 0xAA defined code for beacon message
     beacon_payload[1]= 1;     // CyberStick1 is allowed to communicate
 
+    rfm70SetModeTX();		// somehow necessary
+    //_delay_ms(2);
     // read status register
     status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
 
     // if the FIFO is full, do nothing just return false
     if (status & RFM70_FIFO_STATUS_TX_FULL)
     {
+    	sbi(PORTD, LED_RED);
+        _delay_ms(3);
+        cbi(PORTD, LED_RED);
     	return false;
     }
 
-    // enable CSN
+     // enable CSN
     spiSelect(csRFM73);
     _delay_ms(0);
 
@@ -171,7 +219,7 @@ bool rfm70SendBeaconMsg(int toAck)
     if (toAck == -1)
     {
         // cmd: write payload with ack of received message used in RX mode
-        spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD);
+   		spiSendMsg(RFM70_CMD_W_ACK_PAYLOAD);
     }
     else if (toAck == 0)
     {
@@ -194,11 +242,44 @@ bool rfm70SendBeaconMsg(int toAck)
     spiSelect(csNONE);
     _delay_ms(0);
 
-    uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
+
+   // TCNT2 = 0x00;
+    //ack_time = 0.0;
+
+
+    /*uint8_t value = rfm70ReadRegValue(RFM70_REG_STATUS);
     if ((value & 0x20) == 0x00)
     {
-       _delay_ms(1);
-    }
+       _delay_ms(2);
+    }*/
+
+    while(true)
+     {
+ 		status = rfm70ReadRegValue(RFM70_REG_STATUS);
+ 		// When Auto ack is on
+ 		// check if data is sent and ack is received (TX_DS) interrupt
+ 		if (status & RFM70_IRQ_STATUS_TX_DS)
+ 		{
+ 			//sbi(PORTD, LED_RED);
+ 			//			        _delay_ms(3);
+ 			//			        cbi(PORTD, LED_RED);
+ 			cyberstick1_timeout = 0.0;
+ 			return true;
+ 		}
+
+ 		uint8_t retr_msg_count = rfm70ReadRegValue(0x08) | 0xF0;
+
+ 		if ((retr_msg_count == 0xF5))
+ 		{
+
+ 			// clear flag TX_FULL
+ 			rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, rfm70ReadRegValue(RFM70_REG_STATUS)|0x10 );
+
+ 			return false;
+ 		}
+     }
+
+
 
     return true;
 }
@@ -209,17 +290,17 @@ bool rfm70SendBeaconMsg(int toAck)
 
 void timer0_init()
 {
-	//TIMSK0 |= (1<<TOIE0);			// set timer overflow(=255) interrupt
-	TIMSK0 |= (1 << OCIE0A);		// Compare Match Interrupt Enable
+	//TIMSK0 |= (1<<TOIE0);				// set timer overflow(=255) interrupt
+	TIMSK0 |= (1 << OCIE0A);			// Compare Match Interrupt Enable
 
 	TCCR0B |= (1<<CS02) | (1<<CS00);	// Set prescale value Clk(12Mhz)/1024
 						// 1 count = 0.0853 ms
 						// 1 timer overflow = 255*0.0853ms =21.76ms
 
-	OCR0A = 118;				// Compare value is 118 count
+        OCR0A = 118;				// Compare value is 118 count
 						// 118 * 0.0853 ~= 10 ms
 
-	TCCR0A = (0<<WGM00) | (1<<WGM01);       // CTC (clear timer on compare match) mode
+	TCCR0A = (0<<WGM00) | (1<<WGM01);   // CTC (clear timer on compare match) mode
 
 }
 
@@ -228,7 +309,9 @@ void timer0_init()
 // when there are more than one cybersticks present
 ISR(TIMER0_COMPA_vect)
 {
+
 	cyberstick_switch_time = cyberstick_switch_time + 10 ;
+	cyberstick1_timeout = cyberstick1_timeout + 10;
 	//wdt_reset();
 }
 
@@ -264,7 +347,7 @@ int rfm70ReceivePayload()
 
     status = rfm70ReadRegValue(RFM70_REG_STATUS);
 
-    int int_part,dec_part, strIntpart_size;
+    //int int_part,dec_part, strIntpart_size;
 
     // check if receive data ready (RX_DR) interrupt
     if (status & RFM70_IRQ_STATUS_RX_DR)
@@ -287,9 +370,17 @@ int rfm70ReceivePayload()
 
 		if (rx_buf[3] == 1) // CyberStick1_detected
 		{
+			if(CyberStick1 == false)
+			{
+				CyberStick1 = true;
+
+				// switch to pipe1 allocated for cyberstick1
+				switch_address(1);
+			}
+
 			sbi(PORTD, LED_RED);
-	       	        _delay_ms(3);
-	       		cbi(PORTD, LED_RED);
+	        	_delay_ms(3);
+	        	cbi(PORTD, LED_RED);
 		}
             }
             else
@@ -301,10 +392,10 @@ int rfm70ReceivePayload()
             fifo_status = rfm70ReadRegValue(RFM70_REG_FIFO_STATUS);
         } while ((fifo_status & RFM70_FIFO_STATUS_RX_EMPTY) == 0);
 
-        if ((rx_buf[0] == 0xAA) && (rx_buf[1] == 0x80))
+        /*if ((rx_buf[0] == 0xAA) && (rx_buf[1] == 0x80))
         {
             rfm70SetModeRX();
-        }
+        }*/
     }
     rfm70WriteRegValue(RFM70_CMD_WRITE_REG | RFM70_REG_STATUS, status);
 
@@ -337,7 +428,7 @@ int main()
     uart_init();
     uart_transmit('o');
 
-    sbi(PORTD, LED_RED);
+   	sbi(PORTD, LED_RED);
 
     usbInit();
     cli();
@@ -376,7 +467,6 @@ int main()
         sbi(PORTD, LED_RED);
     }
 
-
     _delay_ms(50);
 
 
@@ -388,13 +478,20 @@ int main()
     timer0_init();
     //timer2_init();
 
+    int CyberStickID = 0;
     while (1)
     {
 
     	// Send beacon message with auto acknowledgment
-    	if (cyberstick_switch_time >= 10)
+    	if (cyberstick_switch_time == 10)
     	{
-
+    		// if cyberstick1 does not respond for 50 ms
+    		// switch to pipe0
+    		if (CyberStick1 == true & cyberstick1_timeout >= 50)
+    		{
+    			CyberStick1 = false;
+    			switch_address(0);
+    		}
     		rfm70SendBeaconMsg(2);
     		cyberstick_switch_time = 0.0;
     	}
@@ -452,6 +549,7 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
 
     return 0; // by default don't return any data
 }
+
 
 
 
