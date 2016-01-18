@@ -54,13 +54,7 @@ protected:
     oscObjectBase *parentObj; ///< the parent of this objectBase
     oscMember *ownMem; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
 
-    const std::string XMLNS = "xmlns"; ///< define a namespace
-    const std::string XMLNSOSC = "xmlns:osc"; ///< namespace with name osc
-    const std::string XMLBASE = "xml:base"; ///< filename from which the element and its children were read
-    const std::string INCLUDE = "osc:include"; ///< element name for include
-    const std::string INCLNS = "http://www.w3.org/2001/XInclude"; /*!< XInclude defines a namespace associated with this URI
-                                                                       it is no link, it is treated as a normal string (as a formal identifier)*/
-
+   
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
