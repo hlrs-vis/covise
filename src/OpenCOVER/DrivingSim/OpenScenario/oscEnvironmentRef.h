@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscCatalogRef.h>
-#include <oscUserData.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -25,12 +25,12 @@ class OPENSCENARIOEXPORT oscEnvironmentRef: public oscObjectBase
 public:
     oscEnvironmentRef()
     {
-        OSC_OBJECT_ADD_MEMBER(catalogRef,"oscCatalogRef");
-        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(catalogRef, "oscCatalogRef");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
     oscCatalogRefMember catalogRef;
-    oscUserDataMember userData;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscEnvironmentRef *> oscEnvironmentRefMember;

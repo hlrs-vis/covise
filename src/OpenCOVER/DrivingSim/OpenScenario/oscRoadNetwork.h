@@ -13,7 +13,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscFile.h>
-#include <oscUserData.h>
+#include <oscUserDataList.h>
+
 
 namespace OpenScenario {
 
@@ -23,14 +24,14 @@ class OPENSCENARIOEXPORT oscRoadNetwork: public oscObjectBase
 public:
     oscRoadNetwork()
     {
-        OSC_OBJECT_ADD_MEMBER(OpenDRIVE,"oscFile");
-        OSC_OBJECT_ADD_MEMBER(SceneGraph,"oscFile");
-		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(OpenDRIVE, "oscFile");
+        OSC_OBJECT_ADD_MEMBER(SceneGraph, "oscFile");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
     oscFileMember OpenDRIVE;
     oscFileMember SceneGraph;
-	oscUserDataMember userData;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscRoadNetwork *> oscRoadNetworkMember;

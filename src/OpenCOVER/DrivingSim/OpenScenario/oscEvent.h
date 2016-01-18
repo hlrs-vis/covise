@@ -13,8 +13,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
-#include <oscEventStartConditionGroup.h>
-#include <oscAction.h>
+#include <oscActions.h>
+#include <oscStartConditionTypeCGroups.h>
 
 namespace OpenScenario {
 
@@ -26,13 +26,13 @@ public:
     oscEvent()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscEventStartConditionGroup");
-        OSC_OBJECT_ADD_MEMBER(action,"oscAction");
+        OSC_OBJECT_ADD_MEMBER(startConditionGroups, "oscStartConditionTypeCGroups");
+        OSC_OBJECT_ADD_MEMBER(actions, "oscActions");
     };
 
     oscString name;
-    oscEventStartConditionGroupArrayMember startConditionGroup;
-    oscActionMember action;
+    oscStartConditionTypeCGroupsArrayMember startConditionGroups;
+    oscActionsArrayMember actions;
 };
 
 typedef oscObjectVariable<oscEvent *> oscEventMember;

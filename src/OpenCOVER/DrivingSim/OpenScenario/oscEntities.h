@@ -12,8 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 
-#include <oscObject.h>
-#include <oscUserData.h>
+#include <oscObjects.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -24,12 +24,12 @@ class OPENSCENARIOEXPORT oscEntities: public oscObjectBase
 public:
     oscEntities()
     {
-       OSC_OBJECT_ADD_MEMBER(object,"oscObject");
-       OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(objects, "oscObjects");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscObjectMember object;
-    oscUserDataMember userData;
+    oscObjectsArrayMember objects;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscEntities *> oscEntitiesMember;

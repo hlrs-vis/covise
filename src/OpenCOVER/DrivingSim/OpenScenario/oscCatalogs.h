@@ -21,7 +21,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscEnvironmentCatalog.h>
 #include <oscManeuverCatalog.h>
 #include <oscRoutingCatalog.h>
-#include <oscUserData.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -32,28 +32,28 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-		OSC_OBJECT_ADD_MEMBER(vehicleCatalog,"oscVehicleCatalog");
-		OSC_OBJECT_ADD_MEMBER(driverCatalog,"oscDriverCatalog");
-		OSC_OBJECT_ADD_MEMBER(observerCatalog,"oscObserverCatalog");
-		OSC_OBJECT_ADD_MEMBER(pedestrianCatalog,"oscPedestrianCatalog");
-		OSC_OBJECT_ADD_MEMBER(miscObjectCatalog,"oscMiscObjectCatalog");
-		OSC_OBJECT_ADD_MEMBER(entityCatalog,"oscEntityCatalog");
-		OSC_OBJECT_ADD_MEMBER(environmentCatalog,"oscEnvironmentCatalog");
-		OSC_OBJECT_ADD_MEMBER(maneuverCatalog,"oscManeuverCatalog");
-		OSC_OBJECT_ADD_MEMBER(routingCatalog,"oscRoutingCatalog");
-		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(vehicleCatalog, "oscVehicleCatalog");
+        OSC_OBJECT_ADD_MEMBER(driverCatalog, "oscDriverCatalog");
+        OSC_OBJECT_ADD_MEMBER(observerCatalog, "oscObserverCatalog");
+        OSC_OBJECT_ADD_MEMBER(pedestrianCatalog, "oscPedestrianCatalog");
+        OSC_OBJECT_ADD_MEMBER(miscObjectCatalog, "oscMiscObjectCatalog");
+        OSC_OBJECT_ADD_MEMBER(entityCatalog, "oscEntityCatalog");
+        OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscEnvironmentCatalog");
+        OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscManeuverCatalog");
+        OSC_OBJECT_ADD_MEMBER(routingCatalog, "oscRoutingCatalog");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-	oscVehicleCatalogMember vehicleCatalog;
-	oscDriverCatalogMember driverCatalog;
-	oscObserverCatalogMember observerCatalog;
-	oscPedestrianCatalogMember pedestrianCatalog;
-	oscMiscObjectCatalogMember miscObjectCatalog;
-	oscEntityCatalogMember entityCatalog;
-	oscEnvironmentCatalogMember environmentCatalog;
-	oscManeuverCatalogMember maneuverCatalog;
-	oscRoutingCatalogMember routingCatalog;
-	oscUserDataMember userData;
+    oscVehicleCatalogMember vehicleCatalog;
+    oscDriverCatalogMember driverCatalog;
+    oscObserverCatalogMember observerCatalog;
+    oscPedestrianCatalogMember pedestrianCatalog;
+    oscMiscObjectCatalogMember miscObjectCatalog;
+    oscEntityCatalogMember entityCatalog;
+    oscEnvironmentCatalogMember environmentCatalog;
+    oscManeuverCatalogMember maneuverCatalog;
+    oscRoutingCatalogMember routingCatalog;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscCatalogs *> oscCatalogsMember;

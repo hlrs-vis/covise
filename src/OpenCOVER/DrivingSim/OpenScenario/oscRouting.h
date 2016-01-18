@@ -14,8 +14,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscHeader.h>
 #include <oscGeneral.h>
-#include <oscWaypoint.h>
-#include <oscUserData.h>
+#include <oscWaypoints.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -29,14 +29,14 @@ public:
     {
 		OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
 		OSC_OBJECT_ADD_MEMBER(general, "oscGeneral");
-		OSC_OBJECT_ADD_MEMBER(waypoint, "oscWaypoint");
-		OSC_OBJECT_ADD_MEMBER(userData, "oscUserData");
+		OSC_OBJECT_ADD_MEMBER(waypoints, "oscWaypoints");
+		OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
 	oscHeaderMember header;
 	oscGeneralMember general;
-	oscWaypointMember waypoint;
-	oscUserDataMember userData;
+	oscWaypointsArrayMember waypoints;
+	oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscRouting *> oscRoutingMember;

@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscRoadConditions: public oscObjectBase
 public:
     oscRoadConditions()
     {
-        OSC_OBJECT_ADD_MEMBER(roadCondition,"oscRoadCondition");
+        OSC_OBJECT_ADD_MEMBER(roadCondition, "oscRoadCondition");
     };
 
 	oscRoadConditionMember roadCondition;

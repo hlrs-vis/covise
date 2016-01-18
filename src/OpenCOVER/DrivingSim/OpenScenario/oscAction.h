@@ -33,7 +33,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscUserDefinedCommand.h>
 #include <oscNotify.h>
 #include <oscUserScript.h>
-#include <oscUserData.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -44,52 +44,52 @@ class OPENSCENARIOEXPORT oscAction: public oscNamedObject
 public:
     oscAction()
     {
-		OSC_OBJECT_ADD_MEMBER(autonomous,"oscAutonomous");
-		OSC_OBJECT_ADD_MEMBER(speed,"oscSpeed");
-		OSC_OBJECT_ADD_MEMBER(laneChange,"oscLaneChange");
-		OSC_OBJECT_ADD_MEMBER(laneOffset,"oscLaneOffset");
-		OSC_OBJECT_ADD_MEMBER(position,"oscPosition");
-		OSC_OBJECT_ADD_MEMBER(distanceLateral,"oscDistanceLateral");
-		OSC_OBJECT_ADD_MEMBER(distanceLongitudinal,"oscDistanceLongitudinal");
-		OSC_OBJECT_ADD_MEMBER(visibility,"oscVisibility");
-	    OSC_OBJECT_ADD_MEMBER(characterAppearance,"oscCharacterAppearance");
-		OSC_OBJECT_ADD_MEMBER(characterGesture,"oscCharacterGesture");
-		OSC_OBJECT_ADD_MEMBER(characterMotion,"oscCharacterMotion");
-		OSC_OBJECT_ADD_MEMBER(trafficLight,"oscTrafficLight");
-		OSC_OBJECT_ADD_MEMBER(entityAdd,"oscEntityAdd");
-		OSC_OBJECT_ADD_MEMBER(entityDelete,"oscEntityDelete");
-		OSC_OBJECT_ADD_MEMBER(trafficJam,"oscTrafficJam");
-		OSC_OBJECT_ADD_MEMBER(trafficSource,"oscTrafficSource");
-		OSC_OBJECT_ADD_MEMBER(trafficSink,"oscTrafficSink");
-		OSC_OBJECT_ADD_MEMBER(userDefinedAction,"oscUserDefinedAction");
-		OSC_OBJECT_ADD_MEMBER(userDefinedCommand,"oscUserDefinedCommand");
-		OSC_OBJECT_ADD_MEMBER(userScript,"oscUserScript");
-		OSC_OBJECT_ADD_MEMBER(notify,"oscNotify");
-		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(autonomous, "oscAutonomous");
+        OSC_OBJECT_ADD_MEMBER(speed, "oscSpeed");
+        OSC_OBJECT_ADD_MEMBER(laneChange, "oscLaneChange");
+        OSC_OBJECT_ADD_MEMBER(laneOffset, "oscLaneOffset");
+        OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
+        OSC_OBJECT_ADD_MEMBER(distanceLateral, "oscDistanceLateral");
+        OSC_OBJECT_ADD_MEMBER(distanceLongitudinal, "oscDistanceLongitudinal");
+        OSC_OBJECT_ADD_MEMBER(visibility, "oscVisibility");
+        OSC_OBJECT_ADD_MEMBER(characterAppearance, "oscCharacterAppearance");
+        OSC_OBJECT_ADD_MEMBER(characterGesture, "oscCharacterGesture");
+        OSC_OBJECT_ADD_MEMBER(characterMotion, "oscCharacterMotion");
+        OSC_OBJECT_ADD_MEMBER(trafficLight, "oscTrafficLight");
+        OSC_OBJECT_ADD_MEMBER(entityAdd, "oscEntityAdd");
+        OSC_OBJECT_ADD_MEMBER(entityDelete, "oscEntityDelete");
+        OSC_OBJECT_ADD_MEMBER(trafficJam, "oscTrafficJam");
+        OSC_OBJECT_ADD_MEMBER(trafficSource, "oscTrafficSource");
+        OSC_OBJECT_ADD_MEMBER(trafficSink, "oscTrafficSink");
+        OSC_OBJECT_ADD_MEMBER(userDefinedAction, "oscUserDefinedAction");
+        OSC_OBJECT_ADD_MEMBER(userDefinedCommand, "oscUserDefinedCommand");
+        OSC_OBJECT_ADD_MEMBER(userScript, "oscUserScript");
+        OSC_OBJECT_ADD_MEMBER(notify, "oscNotify");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-	oscAutonomousMember autonomous;
-	oscSpeedMember speed;
-	oscLaneChangeMember laneChange;
-	oscLaneOffsetMember laneOffset;
-	oscPositionMember position;
-	oscDistanceLateralMember distanceLateral;
-	oscDistanceLongitudinalMember distanceLongitudinal;
-	oscVisibilityMember visibility;
-	oscCharacterAppearanceMember characterAppearance;
-	oscCharacterGestureMember characterGesture;
-	oscCharacterMotionMember characterMotion;
-	oscTrafficLightMember trafficLight;
-	oscEntityAddMember entityAdd;
-	oscEntityDeleteMember entityDelete;
-	oscTrafficJamMember trafficJam;
-	oscTrafficSourceMember trafficSource;
-	oscTrafficSinkMember trafficSink;
-	oscUserDefinedActionMember userDefinedAction;
-	oscUserDefinedCommandMember userDefinedCommand;
-	oscUserScriptMember userScript;
-	oscNotifyMember notify;
-	oscUserDataMember userData;
+    oscAutonomousMember autonomous;
+    oscSpeedMember speed;
+    oscLaneChangeMember laneChange;
+    oscLaneOffsetMember laneOffset;
+    oscPositionMember position;
+    oscDistanceLateralMember distanceLateral;
+    oscDistanceLongitudinalMember distanceLongitudinal;
+    oscVisibilityMember visibility;
+    oscCharacterAppearanceMember characterAppearance;
+    oscCharacterGestureMember characterGesture;
+    oscCharacterMotionMember characterMotion;
+    oscTrafficLightMember trafficLight;
+    oscEntityAddMember entityAdd;
+    oscEntityDeleteMember entityDelete;
+    oscTrafficJamMember trafficJam;
+    oscTrafficSourceMember trafficSource;
+    oscTrafficSinkMember trafficSink;
+    oscUserDefinedActionMember userDefinedAction;
+    oscUserDefinedCommandMember userDefinedCommand;
+    oscUserScriptMember userScript;
+    oscNotifyMember notify;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscAction *> oscActionMember;

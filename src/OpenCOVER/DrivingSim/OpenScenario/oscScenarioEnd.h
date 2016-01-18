@@ -12,8 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 
-#include <oscEndConditionGroup.h>
-#include <oscUserData.h>
+#include <oscEndConditionTypeAGroups.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -24,12 +24,12 @@ class OPENSCENARIOEXPORT oscScenarioEnd: public oscObjectBase
 public:
     oscScenarioEnd()
     {
-        OSC_OBJECT_ADD_MEMBER(endConditionGroup,"oscEndConditionGroup");
-        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(endConditionGroups, "oscEndConditionTypeAGroups");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscEndConditionGroupArrayMember endConditionGroup;
-    oscUserDataMember userData;
+    oscEndConditionTypeAGroupsArrayMember endConditionGroups;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscScenarioEnd *> oscScenarioEndMember;

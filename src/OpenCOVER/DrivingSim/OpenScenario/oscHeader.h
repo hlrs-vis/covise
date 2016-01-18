@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
-#include <oscUserData.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -29,7 +29,7 @@ public:
         OSC_ADD_MEMBER(description);
         OSC_ADD_MEMBER(date);
         OSC_ADD_MEMBER(author);
-        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
     oscShort revMajor;
@@ -37,7 +37,7 @@ public:
     oscString description;
     oscString date;
     oscString author;
-    oscUserDataMember userData;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscHeader *> oscHeaderMember;

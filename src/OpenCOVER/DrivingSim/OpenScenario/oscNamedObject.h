@@ -16,7 +16,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
-#include <oscUserData.h>
+#include <oscUserDataList.h>
 
 
 namespace OpenScenario {
@@ -28,14 +28,15 @@ public:
     oscNamedObject()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     }
 
     oscString name;
-    oscUserDataMember userData;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscNamedObject *> oscNamedObjectMember;
+
 }
 
 #endif //OSC_NAMED_OBJECT_H
