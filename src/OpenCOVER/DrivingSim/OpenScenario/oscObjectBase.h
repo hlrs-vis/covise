@@ -52,13 +52,14 @@ protected:
     OpenScenarioBase *base;
     oscSourceFile *source;
     oscObjectBase *parentObj; ///< the parent of this objectBase
-    oscMember *ownMember; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
+    oscMember *ownMem; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
 
+   
 public:
     oscObjectBase(); ///< constructor
     virtual ~oscObjectBase(); ///< destructor
 
-    virtual void initialize(OpenScenarioBase *b, oscObjectBase *pObj, oscMember *om, oscSourceFile *s); ///< params: base, parentObj, ownMember, source
+    virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source
     void addMember(oscMember *m);
     void setBase(OpenScenarioBase *b);
     void setSource(oscSourceFile *s);

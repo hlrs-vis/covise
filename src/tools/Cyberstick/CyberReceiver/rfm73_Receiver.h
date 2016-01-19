@@ -35,8 +35,7 @@
 #define RFM70_CMD_WRITE_REG 0x20 // write register
 #define RFM70_CMD_WR_TX_PLOAD 0xA0 // Define TX payload command
 #define RFM70_CMD_W_TX_PAYLOAD_NOACK 0xb0 // Define TX payload NOACK command
-#define RFM70_CMD_W_ACK_PAYLOAD_P0 0xa8 // Define Write ACK command at pipe0
-#define RFM70_CMD_W_ACK_PAYLOAD_P1 0xa9 // Define Write ACK command at pipe1
+#define RFM70_CMD_W_ACK_PAYLOAD 0xa8 // Define Write ACK command at pipe0
 #define RFM70_CMD_RX_PL_WID 0x60 // Define received payload width command
 #define RFM70_CMD_RD_RX_PLOAD 0x61 // Define RX payload command
 
@@ -159,7 +158,7 @@ const uint8_t PROGMEM RFM70_Bank1Init_PART2[] = {
 // address definition commands
 // ----------------------------------------------------------------------------
 const uint8_t PROGMEM RFM70_ADR_RX0[] = { (0x20 | 0x0A), 0x34, 0x43, 0x01, 0x01, 0x01 };
-const uint8_t PROGMEM RFM70_ADR_RX1[] = { (0x20 | 0x0B), 0x39, 0x38, 0x37, 0x36, 0xC2 };
+const uint8_t PROGMEM RFM70_ADR_RX1[] = { (0x20 | 0x0A), 0x39, 0x38, 0x37, 0x36, 0xC2 };
 
 const uint8_t PROGMEM RFM70_ADR_TX0[] = {(0x20 | 0x10), 0x34, 0x43, 0x01, 0x01, 0x01 };
 const uint8_t PROGMEM RFM70_ADR_TX1[] = {(0x20 | 0x10), 0x39, 0x38, 0x37, 0x36, 0xC2 };
@@ -323,9 +322,7 @@ uint8_t rfm70InitRegisters(void)
 
     // write address registers in bank 0
     rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_RX0, sizeof(RFM70_ADR_RX0));
-    rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_RX1, sizeof(RFM70_ADR_RX1));
-    //rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_TX0, sizeof(RFM70_ADR_TX0));
-    //rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_TX1, sizeof(RFM70_ADR_TX1));
+    rfm70WriteRegPgmBuf((uint8_t *)RFM70_ADR_TX0, sizeof(RFM70_ADR_TX0));
 
     // activate feature register
     // check if feature register has been activated already

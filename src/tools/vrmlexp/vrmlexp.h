@@ -138,6 +138,7 @@ struct NameList
     {
         name = n;
         next = NULL;
+        instances = 0;
     }
     ~NameList() // don´t delete it recursively, it might be to deep
     {
@@ -156,6 +157,7 @@ struct NameList
     }
     TSTR name;
     NameList *next;
+    int instances;
 };
 
 #define NODE_HASH_TABLE_SIZE 1001
@@ -185,6 +187,7 @@ public:
     }
 
     bool findName(const TCHAR *name);
+    NameList *findNodeByName(const TCHAR *name);
     NodeList *AddNode(INode *node);
     TCHAR *GetNodeName(INode *node);
     TCHAR *AddName(const TCHAR *name);

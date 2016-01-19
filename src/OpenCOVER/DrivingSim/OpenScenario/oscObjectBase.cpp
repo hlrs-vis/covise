@@ -28,7 +28,7 @@ oscObjectBase::oscObjectBase()
     base = NULL;
     source = NULL;
     parentObj = NULL;
-    ownMember = NULL;
+    ownMem = NULL;
 }
 
 oscObjectBase::~oscObjectBase()
@@ -38,11 +38,11 @@ oscObjectBase::~oscObjectBase()
 
 
 //
-void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *pObj, oscMember *om, oscSourceFile *s)
+void oscObjectBase::initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s)
 {
     base = b;
-    parentObj = pObj;
-    ownMember = om;
+    parentObj = parentObject;
+    ownMem = ownMember;
     source = s;
 }
 
@@ -95,7 +95,7 @@ void oscObjectBase::setParentObj(OpenScenarioBase *pObj)
 
 void oscObjectBase::setOwnMember(oscMember *om)
 {
-    ownMember = om;
+    ownMem = om;
 }
 
 oscObjectBase *oscObjectBase::getParentObj() const
@@ -105,7 +105,7 @@ oscObjectBase *oscObjectBase::getParentObj() const
 
 oscMember *oscObjectBase::getOwnMember() const
 {
-    return ownMember;
+    return ownMem;
 }
 
 
@@ -137,7 +137,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     //
                     if (document != srcXmlDoc)
                     {
-                        //add osc:include to root element of new xml document
+                        //add include element to currentElement and add XInclude namespace to root element of new xml document
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
                         addXInclude(currentElement, document, fileHref);
 
@@ -226,9 +226,9 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
         {
             std::string attributeName = xercesc::XMLString::transcode(attribute->getName());
 
-            //attributes xmlns, xmlns:osc and xml:base are generated and/or used with namespaces and XInclude
+            //attributes "xmlns", "xmlns:osc" and "xml:base" are generated and/or used with namespaces and XInclude
             //they have no representation in the object structure
-            //only xml:base is evaluated during the determination of the source file
+            //only "xml:base" is evaluated during the determination of the source file
             if (attributeName != "xmlns" && attributeName != "xmlns:osc" && attributeName != "xml:base")
             {
                 oscMember *m = members[attributeName];
@@ -319,7 +319,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         {
                             objAMCreated->initialize(base, this, m, srcToUse);
                             m->setValue(objAMCreated);
-                            m->setParentMember(ownMember);
+                            m->setParentMember(ownMem);
                         }
                         else
                         {
@@ -381,7 +381,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         {
                             obj->initialize(base, this, m, srcToUse);
                             m->setValue(obj);
-                            m->setParentMember(ownMember);
+                            m->setParentMember(ownMem);
                             obj->parseFromXML(memberElem, srcToUse);
                         }
                         else
@@ -411,23 +411,23 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 
 void oscObjectBase::addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref)
 {
-    //add element osc:include
-    const XMLCh *xInclude = xercesc::XMLString::transcode(std::string("osc:include").c_str());
+    //add include element 
+    const XMLCh *xInclude = xercesc::XMLString::transcode("osc:include");
     xercesc::DOMElement *xIncludeElem = doc->createElement(xInclude);
-    const XMLCh *attrHrefName = xercesc::XMLString::transcode(std::string("href").c_str());
+    const XMLCh *attrHrefName = xercesc::XMLString::transcode("href");
     xIncludeElem->setAttribute(attrHrefName, fileHref);
     currElem->appendChild(xIncludeElem);
 
-    //write attribute xmlns:osc to doc root element
-    const XMLCh *attrXmlnsOscName = xercesc::XMLString::transcode(std::string("xmlns:osc").c_str());
+    //write namespace for XInclude as attribute to doc root element
+    const XMLCh *attrXIncludeNsName = xercesc::XMLString::transcode("xmlns:osc");
     xercesc::DOMElement *docRootElem = doc->getDocumentElement();
-    xercesc::DOMAttr *attrNodeXmlnsOsc = docRootElem->getAttributeNode(attrXmlnsOscName);
-    if (!attrNodeXmlnsOsc)
+    xercesc::DOMAttr *attrNodeXIncludeNs = docRootElem->getAttributeNode(attrXIncludeNsName);
+    if (!attrNodeXIncludeNs)
     {
         //XInclude defines a namespace associated with the URI http://www.w3.org/2001/XInclude
         //it is no link, it is treated as a normal string (as a formal identifier)
-        const XMLCh *attrXmlnsOscValue = xercesc::XMLString::transcode(std::string("http://www.w3.org/2001/XInclude").c_str());
-        docRootElem->setAttribute(attrXmlnsOscName, attrXmlnsOscValue);
+        const XMLCh *attrXIncludeNsValue = xercesc::XMLString::transcode("http://www.w3.org/2001/XInclude");
+        docRootElem->setAttribute(attrXIncludeNsName, attrXIncludeNsValue);
     }
 }
 
@@ -435,16 +435,66 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
 {
     oscSourceFile *srcToUse;
 
-    //if attribute with attrXmlBase is present the element and all its children were read from a different file
+    //if attribute with attrXmlBase is present, the element and all its children were read from a different file
     //therefore we generate a new oscSourceFile
-    //the value of xml:base is the file name from which the element and its children were read
-    const XMLCh *attrXmlBase = xercesc::XMLString::transcode(std::string("xml:base").c_str());
+    const XMLCh *attrXmlBase = xercesc::XMLString::transcode("xml:base");
     xercesc::DOMAttr *memElemAttrXmlBase = memElem->getAttributeNode(attrXmlBase);
     if (memElemAttrXmlBase)
     {
         oscSourceFile *newSrc = new oscSourceFile();
+
+        //new srcFileHref
         newSrc->setSrcFileHref(memElemAttrXmlBase->getValue());
+
+        //filename and path
+        fileNamePath *fnPath = newSrc->getFileNamePath(newSrc->getSrcFileHrefAsStr());
+
+        //new srcFileName
+        newSrc->setSrcFileName(fnPath->fileName);
+
+        //new mainDocPath and relPathFromMainDoc
+        if (base->getSrcFileVec().size() == 1) //only sourceFile of OpenScenario is present
+        {
+            newSrc->setMainDocPath(base->source->getMainDocPath());
+            newSrc->setRelPathFromMainDoc(fnPath->path);
+        }
+        else
+        {
+            newSrc->setMainDocPath(srcF->getMainDocPath());
+
+            std::string srcRelPathFromMainDoc = srcF->getRelPathFromMainDoc();
+            std::string newSrcRelPathFromMainDoc = fnPath->path;
+
+            std::string relPathFromMainDocToUse;
+            if (srcRelPathFromMainDoc == "")
+            {
+                if (newSrcRelPathFromMainDoc == "")
+                {
+                    relPathFromMainDocToUse = "";
+                }
+                else
+                {
+                    relPathFromMainDocToUse = newSrcRelPathFromMainDoc;
+                }
+            }
+            else
+            {
+                if (newSrcRelPathFromMainDoc == "")
+                {
+                    relPathFromMainDocToUse = srcRelPathFromMainDoc;
+                }
+                else
+                {
+                    relPathFromMainDocToUse = srcRelPathFromMainDoc + newSrcRelPathFromMainDoc;
+                }
+            }
+
+            newSrc->setRelPathFromMainDoc(relPathFromMainDocToUse);
+        }
+
+        //new rootElementName
         newSrc->setRootElementName(memElem->getNodeName());
+
         base->addToSrcFileVec(newSrc);
         srcToUse = newSrc;
     }

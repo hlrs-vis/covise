@@ -103,7 +103,7 @@ void TUISlider::sliderChanged(int ival)
 void TUISlider::pressed()
 {
     value = string->text().toInt();
-    std::cerr << "val:" << value << std::endl;
+    //std::cerr << "val:" << value << std::endl;
     covise::TokenBuffer tb;
     tb << ID;
     tb << TABLET_PRESSED;
@@ -115,7 +115,7 @@ void TUISlider::pressed()
 void TUISlider::released()
 {
     value = string->text().toInt();
-    std::cerr << "rval:" << value << std::endl;
+    //std::cerr << "rval:" << value << std::endl;
     covise::TokenBuffer tb;
     tb << ID;
     tb << TABLET_RELEASED;

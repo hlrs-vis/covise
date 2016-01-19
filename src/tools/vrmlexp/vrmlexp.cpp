@@ -4282,52 +4282,37 @@ bool NodeTable::findName(const TCHAR *name)
     }
     return false;
 }
+
+NameList *NodeTable::findNodeByName(const TCHAR *name)
+{
+    unsigned hashVal = HashName(name, NODE_HASH_TABLE_SIZE);
+    NameList *nList;
+
+    for (nList = mNames[hashVal]; nList; nList = nList->next)
+    {
+        if (nList->name && !_tcscmp(name, nList->name))
+        { // found a match
+            return nList;
+        }
+    }
+    return NULL;
+}
 // Node unique name list lookup
 TCHAR *NodeTable::AddName(const TCHAR *name)
 {
     unsigned hashVal = HashName(name, NODE_HASH_TABLE_SIZE);
     NameList *nList;
     TCHAR buf[256];
-    const TCHAR *matchStr;
-    int matchVal;
-
-    for (nList = mNames[hashVal]; nList; nList = nList->next)
+    
+    TSTR newName(name);
+    while((nList = findNodeByName(newName.data()))!=NULL)
     {
-        if (nList->name && !_tcscmp(name, nList->name))
-        { // found a match
-            // checkout name for "_0xxx" that is our tag
-            matchStr = _tcsrchr(name, '_');
-            if (matchStr)
-            { // possible additional duplicate names
-                if (matchStr[1] == '0')
-                { // assume additional duplicate names
-                    matchVal = _tstoi(matchStr + 1); // get number
-                    _tcsncpy(buf, name, _tcslen(name) - _tcslen(matchStr)); // first part
-                    buf[_tcslen(name) - _tcslen(matchStr)] = '\0'; // terminate
-                    //sprintf(newName.name, "%s_0%d", buf, matchVal+1);	// add one
-                    int i = 0;
-                    do
-                    {
-                        TSTR newName(buf);
-                        _stprintf(buf, _T("_0%d"), matchVal + i); // add one
-                        newName.Append(TSTR(buf));
-                        if (!findName(newName.data()))
-                        {
-                            nList = new NameList(newName.data());
-                            nList->next = mNames[hashVal];
-                            mNames[hashVal] = nList;
-                            return (TCHAR *)nList->name.data();
-                        }
-                    } while (1);
-                }
-            }
-            //sprintf(newName.name, "%s_0", name);	// first duplicate name
-            TSTR newName(name);
-            newName.Append(_T("_0"));
-            return AddName(newName.data()); // check for unique new name
-        }
+        _stprintf(buf, _T("_%d"), nList->instances);
+        nList->instances++;
+        newName.Append(TSTR(buf));
     }
-    nList = new NameList(name);
+    nList = new NameList(newName.data());
+    hashVal = HashName(newName.data(), NODE_HASH_TABLE_SIZE);
     nList->next = mNames[hashVal];
     mNames[hashVal] = nList;
     return (TCHAR *)nList->name.data();

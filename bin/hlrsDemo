@@ -33,6 +33,7 @@ do
     echo -e "${MENU} ${OPT} 16)  ${MENU} CoolEmAll                 "
     echo -e "${MENU} ${OPT} 17)  ${MENU} Aneurysma                 "
     echo -e "${MENU} ${OPT} 18)  ${MENU} Radfahrer                 "
+    echo -e "${MENU} ${OPT} 19)  ${MENU} Motorradfahrer            "
 
     echo -e "${MENU}-----${TYP} Archaeology ${MENU}---------------------------"
     echo -e "${MENU} ${OPT} 21)  ${MENU} Octagon                   "
@@ -155,8 +156,12 @@ do
 	    ;;
 	18)
 	    echo -e "starting Cyclist";
-            covise -e /mnt/raid/home/hpcthobs/N_merged2RW.net
+            covise -e /data/covise_net/2016/Radfahrer.net
 	    ;;
+    19)
+        echo -e "starting Motorbike";
+            covise -e /data/covise_net/2016/Maltes_motorrad_read.net
+        ;;
 
 # ARCHEOLOGY
 

@@ -134,6 +134,8 @@
 int InvViewer::isSelected = 0;
 int InvViewer::c_first_time = 0;
 
+InvViewer *coviseViewer = NULL;
+
 //
 //
 // axis data
@@ -348,6 +350,8 @@ myMousePressCB(void *userData, SoEventCallback *eventCB)
 InvViewer::InvViewer(QWidget *parent, const char *name)
     : SoQtExaminerViewer(parent, name)
 {
+    coviseViewer = this;
+
     tpShow_ = false;
     keyState = -1;
     mouseX = 0;
@@ -386,6 +390,9 @@ InvViewer::InvViewer(QWidget *parent, const char *name)
     axis_switch->addChild(makeAxis());
     sceneGraph->addChild(axis_switch);
     setAxis(axStatus);
+
+    text_manager = new InvTextManager();
+    sceneGraph->addChild(text_manager->getRootNode());
 
     // add Telepointer
     tpHandler = new TPHandler();
@@ -507,6 +514,8 @@ InvViewer::InvViewer(QWidget *parent, const char *name)
 //======================================================================
 InvViewer::~InvViewer()
 {
+    delete text_manager;
+
     // detach and delete the manips
     detachManipFromAll();
     delete maniplist;

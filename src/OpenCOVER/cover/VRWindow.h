@@ -37,7 +37,7 @@ class COVEREXPORT VRWindow
 private:
     int *origVSize, *origHSize;
 
-    void createWin(int i);
+    bool createWin(int i);
 
     bool _firstTimeEmbedded;
     EventReceiver *_eventReceiver;
@@ -47,7 +47,7 @@ public:
 
     ~VRWindow();
 
-    void config();
+    bool config();
 
     void lockPipes();
     void update();

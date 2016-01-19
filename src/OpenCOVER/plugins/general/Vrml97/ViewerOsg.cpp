@@ -1944,7 +1944,7 @@ ViewerOsg::insertShell(unsigned int mask,
     geom->addPrimitiveSet(primitives);
 
     // associate colors
-    if (ci)
+    if (ci && nci>1)
     {
         Vec4Array *colArr = new Vec4Array();
         if ((componentsPerColor != 4) && (componentsPerColor != 3))

@@ -13,6 +13,7 @@ ADD_SUBDIRECTORY(CoolEmAllWriteToDatabase)
 ADD_SUBDIRECTORY(samsungctrl)
 ADD_SUBDIRECTORY(map_converter)
 ADD_SUBDIRECTORY(giswalk)
+#ADD_SUBDIRECTORY(zSpaceTest)
 
 IF(NOT UNIX)
   RETURN()
