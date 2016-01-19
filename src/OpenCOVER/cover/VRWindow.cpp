@@ -97,6 +97,8 @@ VRWindow::config()
             return false;
         //XXX ia->addRenderSurface(cover->windows[i].rs);
     }
+
+    return true;
 }
 
 void
