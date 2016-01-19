@@ -57,13 +57,18 @@ coVRSceneView::~coVRSceneView()
 {
 }
 
+    osg::Uniform *coVRSceneView::coEnvCorrectMatrixUniform=NULL;
+    osg::Uniform *coVRSceneView::coInvEnvCorrectMatrixUniform=NULL;
+
 void coVRSceneView::createUniforms(osg::StateSet *stateset)
 {
-    
+    if(coEnvCorrectMatrixUniform==NULL)
+    {
     coEnvCorrectMatrixUniform = new osg::Uniform(osg::Uniform::FLOAT_MAT4,"coEnvCorrectMatrix");
     coInvEnvCorrectMatrixUniform = new osg::Uniform(osg::Uniform::FLOAT_MAT4,"coInvEnvCorrectMatrix");
     stateset->addUniform(coEnvCorrectMatrixUniform);
     stateset->addUniform(coInvEnvCorrectMatrixUniform);
+    }
 }
 bool coVRSceneView::cullStage(const osg::Matrixd &projection, const osg::Matrixd &modelview, osgUtil::CullVisitor *cullVisitor,
                               osgUtil::StateGraph *rendergraph, osgUtil::RenderStage *renderStage, osg::Viewport *viewport)
