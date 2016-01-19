@@ -27,6 +27,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(directory, "oscDirectory");
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
+
     oscDirectoryMember directory;
     oscUserDataListArrayMember userDataList;
 };

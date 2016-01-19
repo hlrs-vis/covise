@@ -31,10 +31,13 @@ class OPENSCENARIOEXPORT oscPriority: public oscObjectBase
 {
 public:
     oscPriority()
-    {   
+    {
         OSC_ADD_MEMBER(priority);
+
         priority.enumType = priorityType::instance();
     };
+
+    oscEnum priority;
 
     enum priority
     {
@@ -42,8 +45,6 @@ public:
         following,
         skip,
     };
-
-    oscEnum priority;
 };
 
 typedef oscObjectVariable<oscPriority *> oscPriorityMember;

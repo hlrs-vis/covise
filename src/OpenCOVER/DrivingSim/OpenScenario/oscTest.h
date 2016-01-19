@@ -34,7 +34,7 @@ class OPENSCENARIOEXPORT oscTest: public oscObjectBase
 {
 public:
     oscTest()
-        {
+    {
         OSC_OBJECT_ADD_MEMBER(driver, "oscDriver");
         OSC_OBJECT_ADD_MEMBER(condition, "oscConditionBase");
         OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
