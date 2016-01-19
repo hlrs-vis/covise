@@ -308,15 +308,20 @@ int main(int argc, char *argv[])
     if (dl >= 1)
         fprintf(stderr, "OpenCOVER: Starting up\n\n");
     opencover::OpenCOVER *Renderer = new opencover::OpenCOVER(forceMpi);
-    Renderer->init();
+    if (Renderer->init())
+    {
+        if (dl >= 2)
+            fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
+        Renderer->loop();
 
-    if (dl >= 2)
-        fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
-    Renderer->loop();
-
-    Renderer->doneRendering();
-    if (dl >= 2)
-        fprintf(stderr, "OpenCOVER: Leaving main loop\n\n");
+        Renderer->doneRendering();
+        if (dl >= 2)
+            fprintf(stderr, "OpenCOVER: Leaving main loop\n\n");
+    }
+    else
+    {
+        fprintf(stderr, "OpenCOVER: Start-up failed\n\n");
+    }
 
     if (dl >= 1)
         fprintf(stderr, "OpenCOVER: Shutting down\n\n");

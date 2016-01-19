@@ -64,7 +64,7 @@ public:
 #else
     OpenCOVER(int parentWindow);
 #endif
-    void init();
+    bool init();
     bool initDone();
     ~OpenCOVER();
     void loop();

@@ -221,7 +221,7 @@ void OpenCOVER::waitForWindowID()
     }
 }
 
-void OpenCOVER::init()
+bool OpenCOVER::init()
 {
     installSignalHandlers();
 
@@ -510,7 +510,25 @@ void OpenCOVER::init()
 
     hud = coHud::instance();
 
-    VRWindow::instance()->config();
+    bool haveWindows = VRWindow::instance()->config();
+    if (coVRMSController::instance()->isMaster())
+    {
+        coVRMSController::SlaveData sd(sizeof(haveWindows));
+        coVRMSController::instance()->readSlaves(&sd);
+        for (size_t i=0; i<coVRMSController::instance()->getNumSlaves(); ++i)
+        {
+            if (!*(bool*)sd.data[i])
+                haveWindows = false;
+        }
+    }
+    else
+    {
+        coVRMSController::instance()->sendMaster(&haveWindows, sizeof(haveWindows));
+    }
+    haveWindows = coVRMSController::instance()->syncBool(haveWindows);
+    if (!haveWindows)
+        return false;
+
     VRViewer::instance()->config();
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
@@ -626,6 +644,8 @@ void OpenCOVER::init()
     coVRShaderList::instance()->init();
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
+
+    return true;
 }
 
 bool OpenCOVER::initDone()
@@ -637,7 +657,12 @@ void OpenCOVER::loop()
 {
     while (!exitFlag && !VRViewer::instance()->done())
     {
-        frame();
+        exitFlag |= VRViewer::instance()->done();
+        exitFlag = coVRMSController::instance()->syncBool(exitFlag);
+        if (!exitFlag)
+        {
+            frame();
+        }
     }
 }
 
