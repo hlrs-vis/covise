@@ -343,6 +343,12 @@ SET(ODDLOT_SOURCES
 	src/settings/widgets/oscobjectsettingsstack.cpp
 	src/data/oscsystem/oscelement.cpp
 	src/data/oscsystem/oscbase.cpp
+	src/graph/items/roadsystem/scenario/oscbridgeitem.cpp
+	src/graph/items/roadsystem/scenario/oscsignalitem.cpp
+	src/graph/items/roadsystem/scenario/oscobjectitem.cpp
+	src/graph/items/roadsystem/scenario/oscroaditem.cpp
+	src/graph/items/roadsystem/scenario/oscroadsystemitem.cpp
+	src/graph/items/oscsystem/oscitem.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -638,6 +644,12 @@ SET(ODDLOT_MOC_HEADERS
 	src/settings/widgets/oscobjectsettingsstack.hpp
 	src/data/oscsystem/oscelement.hpp
 	src/data/oscsystem/oscbase.hpp
+	src/graph/items/roadsystem/scenario/oscbridgeitem.hpp
+	src/graph/items/roadsystem/scenario/oscsignalitem.hpp
+	src/graph/items/roadsystem/scenario/oscobjectitem.hpp
+	src/graph/items/roadsystem/scenario/oscroaditem.hpp
+	src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp
+	src/graph/items/oscsystem/oscitem.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui

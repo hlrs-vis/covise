@@ -328,7 +328,7 @@ OSCObjectSettings::updateProperties()
 			if (!member->exists())
 			{
 				continue;
-			}
+			} 
 
 			OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 			OpenScenario::oscMemberValue *value = member->getValue();
@@ -412,12 +412,6 @@ OSCObjectSettings::onEditingFinished(QString name)
 		
 		OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
 		OpenScenario::oscMemberValue::MemberTypes type = member->getType();
-
-		if (!member->exists())		// create new member value
-		{
-			OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
-			member->setValue(v);
-		}
 
 		switch (type)
 		{
@@ -511,19 +505,8 @@ OSCObjectSettings::onPushButtonPressed(QString name)
 {
 
 	OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
-
-	OSCElement *memberElement;
-	if (!member->exists())	// create new Object
-	{
-		memberElement = new OSCElement(name);
-
-		AddOSCObjectCommand *command = new AddOSCObjectCommand(object_, base_, name.toStdString(), memberElement, NULL);
-		projectSettings_->executeCommand(command);
-	}
-	else
-	{
-		memberElement = base_->getOSCElement(member->getObject());
-	}
+	OpenScenario::oscObjectBase *object = member->getObject();
+	OSCElement *memberElement = base_->getOSCElement(object);
 
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
 }

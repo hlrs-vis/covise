@@ -187,7 +187,7 @@ public:
 		TOS_SELECT,
 		TOS_CREATE_CATALOG,
 		TOS_SAVE_CATALOG,
-		TOS_OBJECT,
+		TOS_ELEMENT,
 
         // No Tool
         TNO_TOOL

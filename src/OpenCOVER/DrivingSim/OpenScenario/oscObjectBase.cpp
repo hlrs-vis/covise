@@ -66,6 +66,16 @@ oscObjectBase::MemberMap oscObjectBase::getMembers() const
     return members;
 }
 
+oscMember *oscObjectBase::getMember(const std::string &s) const
+{
+	if (members.count(s) == 0)
+	{
+		return NULL;
+	}
+
+	return members.at(s);
+}
+
 OpenScenarioBase *oscObjectBase::getBase() const
 {
     return base;

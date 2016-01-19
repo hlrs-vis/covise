@@ -578,7 +578,7 @@ MainWindow::createUndo()
 
 /*! \brief Creates the tree view dock.
 */
-void
+QDockWidget *
 MainWindow::createCatalog(const QString &name, QWidget *widget)
 {
     // Dock Area //
@@ -602,6 +602,8 @@ MainWindow::createCatalog(const QString &name, QWidget *widget)
     // Catalog Widget //
     //
     catalogDock_->setWidget(widget);
+
+	return catalogDock_;
 }
 
 

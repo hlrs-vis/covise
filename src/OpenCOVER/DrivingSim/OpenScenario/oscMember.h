@@ -55,7 +55,7 @@ public:
     void setType(oscMemberValue::MemberTypes t);
     oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
-    virtual oscObjectBase *getObject() const;
+    virtual oscObjectBase *getObject();
     virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists or oscObjectArrayVariable is executed
     oscObjectBase *getOwner() const;
     virtual void setParentMember(oscMember *pm);

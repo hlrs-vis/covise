@@ -31,7 +31,7 @@ class ObjectTextItem : public GraphElement
     //################//
 
 public:
-    explicit ObjectTextItem(ObjectItem *objectItem);
+    explicit ObjectTextItem(GraphElement *item, Object *object);
     virtual ~ObjectTextItem();
 
     virtual void createPath();

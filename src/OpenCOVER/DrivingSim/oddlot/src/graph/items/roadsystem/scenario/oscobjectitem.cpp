@@ -13,8 +13,7 @@
 **
 **************************************************************************/
 
-#include "objectitem.hpp"
-#include "signalroaditem.hpp"
+#include "oscobjectitem.hpp"
 
 #include "src/util/odd.hpp"
 #include "src/util/colorpalette.hpp"
@@ -54,7 +53,7 @@
 #include <QMatrix>
 #include <QKeyEvent>
 
-ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
+OSCObjectItem::OSCObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
     : GraphElement(roadSystemItem, object)
 	, roadSystemItem_(roadSystemItem)
     , object_(object)
@@ -64,12 +63,12 @@ ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF p
     init();
 }
 
-ObjectItem::~ObjectItem()
+OSCObjectItem::~OSCObjectItem()
 {
 }
 
 void
-ObjectItem::init()
+OSCObjectItem::init()
 {
     // Hover Events //
     //
@@ -77,23 +76,6 @@ ObjectItem::init()
     setSelectable();
 	setFlag(ItemIsFocusable);
 
-    // Signal Editor
-    //
-    signalEditor_ = dynamic_cast<SignalEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
-
-	// Signal Manager
-	//
-	signalManager_ = getProjectData()->getProjectWidget()->getMainWindow()->getSignalManager();
-
-	// Category Size
-	//
-	categorySize_ = signalManager_->getCategoriesSize();
-
-    // Context Menu //
-    //
-
-    QAction *removeRoadAction = getRemoveMenu()->addAction(tr("Object"));
-    connect(removeRoadAction, SIGNAL(triggered()), this, SLOT(removeObject()));
 
     if (getTopviewGraph()) // not for profile graph
     {
@@ -104,45 +86,28 @@ ObjectItem::init()
     }
 
 	road_ = object_->getParentRoad(); 
-	closestRoad_ = road_;
 	pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT());
 
-    updateCategory();
     updatePosition();
 
 	doPan_ = false;
 	copyPan_ = false;
 }
 
-void 
-ObjectItem::updateCategory()
-{
-	ObjectContainer *objectContainer = signalManager_->getObjectContainer(object_->getType());
-	if (objectContainer)
-	{
-		QString category = objectContainer->getObjectCategory();
-		int i = 360 / (categorySize_ + 1);
-		outerColor_.setHsv(signalManager_->getCategoryNumber(category) * i, 255, 255, 255);
-	}
-	else
-	{
-		outerColor_.setRgb(80, 80, 80);
-	}
-}
 
 /*! \brief Sets the color according to the number of links.
 */
 void
-ObjectItem::updateColor()
+OSCObjectItem::updateColor()
 {
-  //  outerColor_.setRgb(255, 0, 255);
+   outerColor_.setRgb(80, 80, 80);
 }
 
 /*!
 * Initializes the path (only once).
 */
 void
-ObjectItem::createPath()
+OSCObjectItem::createPath()
 {
 	if (path_)
 	{
@@ -336,7 +301,7 @@ ObjectItem::createPath()
 * Update position
 */
 void
-ObjectItem::updatePosition()
+OSCObjectItem::updatePosition()
 {
 
     pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT());
@@ -349,7 +314,7 @@ ObjectItem::updatePosition()
 //*************//
 
 bool
-ObjectItem::deleteRequest()
+OSCObjectItem::deleteRequest()
 {
     if (removeObject())
     {
@@ -364,7 +329,7 @@ ObjectItem::deleteRequest()
 //################//
 
 bool
-ObjectItem::removeObject()
+OSCObjectItem::removeObject()
 {
     RemoveObjectCommand *command = new RemoveObjectCommand(object_, road_);
     return getProjectGraph()->executeCommand(command);
@@ -375,7 +340,7 @@ ObjectItem::removeObject()
 //################//
 
 void
-ObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+OSCObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::OpenHandCursor);
 	setFocus();
@@ -391,7 +356,7 @@ ObjectItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 }
 
 void
-ObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+OSCObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::ArrowCursor);
 	if (!copyPan_)
@@ -409,7 +374,7 @@ ObjectItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 }
 
 void
-ObjectItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+OSCObjectItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
 
     // Parent //
@@ -417,165 +382,3 @@ ObjectItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     //GraphElement::hoverMoveEvent(event);
 }
 
-void
-ObjectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-	pressPos_ = lastPos_ = event->scenePos();
-    ODD::ToolId tool = signalEditor_->getCurrentTool(); // Editor Delete Object
-    if (tool == ODD::TSG_DEL)
-    {
-        removeObject();
-    }
-    else
-    {
-		doPan_ = true;
-
-		if (copyPan_)
-		{
-			Object * newObject = object_->getClone();
-			AddObjectCommand *command = new AddObjectCommand(newObject, object_->getParentRoad(), NULL);
-			getProjectGraph()->executeCommand(command);
-		}
-
-        GraphElement::mousePressEvent(event); // pass to baseclass
-    }
-}
-
-void
-ObjectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{	
-	if (doPan_)
-	{
-
-		QPointF newPos = event->scenePos();
-		path_->translate(newPos-lastPos_);
-		lastPos_ = newPos;
-		setPath(*path_);
-
-		QPointF to = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
-
-		double s;
-		QVector2D vec;
-		double dist;
-
-		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
-		if (!nearestRoad)
-		{
-			nearestRoad = road_;
-		}
-		if (nearestRoad != closestRoad_)
-		{
-			RoadItem *nearestRoadItem = roadSystemItem_->getRoadItem(nearestRoad->getID());
-			nearestRoadItem->setHighlighting(true);
-			setZValue(nearestRoadItem->zValue() + 1);
-			roadSystemItem_->getRoadItem(closestRoad_->getID())->setHighlighting(false);
-			closestRoad_ = nearestRoad;
-		}
-
-		GraphElement::mouseMoveEvent(event);
-	}
-}
-
-void
-ObjectItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-	GraphElement::mouseReleaseEvent(event);
-
-	double diff = (lastPos_ - pressPos_).manhattanLength();
-	if (diff > 0.01) // otherwise item has not been moved by intention
-	{
-		if (doPan_)
-		{
-			if (object_->getRepeatLength() > NUMERICAL_ZERO3) // Object is repeated
-			{
-				pos_ = road_->getGlobalPoint(object_->getRepeatS(), object_->getT()) + lastPos_ - pressPos_;
-			}
-			else
-			{
-				pos_ = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
-			}
-			signalEditor_->translateObject(object_, closestRoad_, pos_);
-
-		}
-	}
-	else
-	{
-		pos_ = lastPos_;
-	}
-
-	doPan_ = false;
-}
-
-/*! \brief Key events for panning, etc.
-*
-*/
-void
-ObjectItem::keyPressEvent(QKeyEvent *event)
-{
-    // TODO: This will not notice a key pressed, when the view is not active
-    switch (event->key())
-    {
-	case Qt::Key_Shift:
-        copyPan_ = true;
-        break;
-
-    default:
-        QGraphicsItem::keyPressEvent(event);
-    }
-}
-
-/*! \brief Key events for panning, etc.
-*
-*/
-void
-ObjectItem::keyReleaseEvent(QKeyEvent *event)
-{
-    switch (event->key())
-    {
-    case Qt::Key_Shift:
-        copyPan_ = false;
-		if (!isHovered())
-		{
-			clearFocus();
-		}
-        break;
-
-
-    default:
-        QGraphicsItem::keyReleaseEvent(event);
-    }
-}
-
-
-//##################//
-// Observer Pattern //
-//##################//
-
-/*! \brief Called when the observed DataElement has been changed.
-*
-*/
-void
-ObjectItem::updateObserver()
-{
-    // Parent //
-    //
-    GraphElement::updateObserver();
-    if (isInGarbage())
-    {
-        return; // will be deleted anyway
-    }
-
-    // Object //
-    //
-    int changes = object_->getObjectChanges();
-
-	if ((changes & Object::CEL_TypeChange))
-    {
-        updateCategory();
-        updatePosition();
-    }
-    else if ((changes & Object::CEL_ParameterChange))
-    {
-        updatePosition();
-    }
-}

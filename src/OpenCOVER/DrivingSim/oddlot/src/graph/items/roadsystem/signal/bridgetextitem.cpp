@@ -18,6 +18,7 @@
 // Data //
 //
 #include "src/data/roadsystem/sections/bridgeobject.hpp"
+#include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 // Graph //
@@ -31,10 +32,10 @@
 // CONSTRUCTOR    //
 //################//
 
-BridgeTextItem::BridgeTextItem(BridgeItem *bridgeItem)
-    : GraphElement(bridgeItem, bridgeItem->getBridge())
-    , bridgeItem_(bridgeItem)
-    , bridge_(bridgeItem->getBridge())
+BridgeTextItem::BridgeTextItem(GraphElement *item, Bridge *bridge)
+    : GraphElement(item, bridge)
+	, bridge_(bridge)
+	, item_(item)
 {
     // Text //
     //
@@ -98,7 +99,7 @@ BridgeTextItem::updateName()
 {
 	if ((bridge_->getName() == "") || (bridge_->getName() == "unnamed"))
 	{
-		if (bridgeItem_->getTunnel())
+		if (Tunnel *tunnel = dynamic_cast<Tunnel *>(bridge_))
 		{
 			textHandle_->setText("Tunnel");
 		}
@@ -188,5 +189,5 @@ BridgeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     // Not the Label is selected, but the road beneath
     //
-    getBridgeItem()->mousePressEvent(event);
+//    item_->mousePressEvent(event);
 }

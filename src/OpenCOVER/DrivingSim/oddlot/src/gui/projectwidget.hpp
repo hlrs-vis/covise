@@ -37,6 +37,7 @@ class TopviewGraph;
 class ProfileGraph;
 
 class ProjectTree;
+class CatalogTreeWidget;
 class ProjectSettings;
 class LODSettings;
 
@@ -111,7 +112,7 @@ public:
 
 	// Add catalogs //
 	//
-	void addCatalogTree(const QString & type, OSCElement *element);
+	CatalogTreeWidget *addCatalogTree(const QString & type, OSCElement *element);
     
     RSystemElementRoad *addLineStrip(QString name = "");
     RSystemElementRoad *addLineStrip(QString name,int maxspeed, bool bridge, int numLanes, osmWay::wayType type);

@@ -31,7 +31,7 @@ class SignalTextItem : public GraphElement
     //################//
 
 public:
-    explicit SignalTextItem(SignalItem *signalItem);
+    explicit SignalTextItem(GraphElement *item, Signal *signal);
     virtual ~SignalTextItem();
 
     virtual void createPath();

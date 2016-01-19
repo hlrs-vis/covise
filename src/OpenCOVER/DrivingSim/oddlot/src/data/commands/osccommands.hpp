@@ -274,12 +274,6 @@ public:
 	newOSCValue_ = value;
 	OpenScenario::oscMember *member = object->getMembers().at(memberName);
 	v_ = member->getValue();
-	if (!v_)
-	{
-		setInvalid(); // Invalid
-		setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement specified."));
-		return;
-	}
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

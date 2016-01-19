@@ -112,7 +112,7 @@ SignalItem::init()
     {
         // Text //
         //
-        signalTextItem_ = new SignalTextItem(this);
+        signalTextItem_ = new SignalTextItem(this, signal_);
         signalTextItem_->setZValue(1.0); // stack before siblings
     }
 
