@@ -260,6 +260,8 @@ int coReadVolume::compute(const char *)
             {
                 vd->merge(&vdframe, vvVolDesc::VV_MERGE_VOL2ANIM);
             }
+
+            delete[] path;
         }
     }
 
