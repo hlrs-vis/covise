@@ -24,6 +24,8 @@
  ** Cration Date: 28.10.2000                                               **
 \**************************************************************************/
 
+#include <boost/filesystem.hpp>
+
 #include <api/coModule.h>
 #include <api/coFeedback.h>
 #include <do/coDoData.h>
@@ -65,6 +67,9 @@ coReadVolume::coReadVolume(int argc, char *argv[])
 
     piSequenceInc = addInt32Param("SequenceInc", "Increment in sequence");
     piSequenceInc->setValue(1);
+
+    pboReadOrderedDicom = addBooleanParam("ReadOrderedDicom", "Off: read single file or file sequence, on: process whole folder, determine order from Dicom files");
+    pboReadOrderedDicom->setValue(false);
 
     pboPreferByteData = addBooleanParam("PreferByteData", "Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel");
     pboPreferByteData->setValue(false);
@@ -141,81 +146,120 @@ int coReadVolume::compute(const char *)
         slice_format = true;
     if (s1 && strchr(s1 + 1, '%')) // we found a second %
         dc_format = true;
-    for (int i = piSequenceBegin->getValue(); i <= piSequenceEnd->getValue(); i += piSequenceInc->getValue())
+
+    if (pboReadOrderedDicom->getValue())
     {
-        vvVolDesc *vdread = vd, vdframe;
-        bool merge = false;
-        if (vd->vox[2] > 1 && vd->frames > 0)
-        {
-            merge = true;
-            vdread = &vdframe;
-        }
-        char *path = new char[strlen(pathtemplate) + 20];
-        if (dc_format)
-        {
-            int i1, i2;
-            i2 = i % 1000;
-            i1 = i / 1000;
-            sprintf(path, pathtemplate, i1, i2);
-        }
-        else
-        {
-            sprintf(path, pathtemplate, i);
-        }
-        vdread->setFilename(path);
-        int result = vvFileIO::OK;
-        if (pboReadRaw->getValue())
-        {
-            result = fio->loadRawFile(vdread,
-                                      piVoxelsX->getValue(), piVoxelsY->getValue(), piVoxelsZ->getValue(),
-                                      piBPC->getValue(), piChannels->getValue(), piHeader->getValue());
-        }
-        else
-        {
-            result = fio->loadVolumeData(vdread, vvFileIO::ALL_DATA, i != piSequenceBegin->getValue() && !merge);
-        }
+        namespace fs = boost::filesystem;
 
-        if (result == vvFileIO::OK)
-        {
-            numFiles++;
-            //vdread->printVolumeInfo();
+        fs::path tmp(pathtemplate);
+        fs::path dir(tmp.parent_path());
 
-            // Determine volume dimensions:
-            if (pboCustomSize->getValue())
+        for (fs::directory_iterator it =  fs::directory_iterator(dir);
+                                    it != fs::directory_iterator();
+                                    ++it)
+        {
+            std::string suffix = it->path().extension().string();
+
+            if (fs::is_regular_file(it->status()) && (suffix == ".dcom" || suffix == ".dcm"))
             {
-                width = pfsVolWidth->getValue();
-                height = pfsVolHeight->getValue();
-                depth = pfsVolDepth->getValue();
-            }
-            else
-            {
-                width = vdread->vox[0] * vdread->dist[0];
-                height = vdread->vox[1] * vdread->dist[1];
+                char const* path = it->path().string().c_str();
 
-                if (slice_format && !merge)
+                vd->setFilename(path);
+                vvFileIO::ErrorType result = fio->loadVolumeData(vd, vvFileIO::ALL_DATA, true);
+
+                if (result == vvFileIO::OK)
                 {
-                    depth = numFiles * vdread->dist[2];
+                    numFiles++;
+
+                    width = vd->vox[0] * vd->dist[0];
+                    height = vd->vox[1] * vd->dist[1];
+                    depth = numFiles * vd->dist[2];
                 }
                 else
                 {
-                    depth = vdread->vox[2] * vdread->dist[2];
+                    skipped << " " << path;
                 }
             }
         }
-        else if (result == vvFileIO::FILE_NOT_FOUND)
+    }
+    else
+    {
+        for (int i = piSequenceBegin->getValue(); i <= piSequenceEnd->getValue(); i += piSequenceInc->getValue())
         {
-            skipped << " " << i;
-        }
-        else
-        {
-            sendError("Failed to load file %d from sequence: %s", i, path);
-            retVal = STOP_PIPELINE;
-            break;
-        }
+            vvVolDesc *vdread = vd, vdframe;
+            bool merge = false;
+            if (vd->vox[2] > 1 && vd->frames > 0)
+            {
+                merge = true;
+                vdread = &vdframe;
+            }
+            char *path = new char[strlen(pathtemplate) + 20];
+            if (dc_format)
+            {
+                int i1, i2;
+                i2 = i % 1000;
+                i1 = i / 1000;
+                sprintf(path, pathtemplate, i1, i2);
+            }
+            else
+            {
+                sprintf(path, pathtemplate, i);
+            }
+            vdread->setFilename(path);
+            int result = vvFileIO::OK;
+            if (pboReadRaw->getValue())
+            {
+                result = fio->loadRawFile(vdread,
+                                          piVoxelsX->getValue(), piVoxelsY->getValue(), piVoxelsZ->getValue(),
+                                          piBPC->getValue(), piChannels->getValue(), piHeader->getValue());
+            }
+            else
+            {
+                result = fio->loadVolumeData(vdread, vvFileIO::ALL_DATA, i != piSequenceBegin->getValue() && !merge);
+            }
 
-        if (merge)
-        {
-            vd->merge(&vdframe, vvVolDesc::VV_MERGE_VOL2ANIM);
+            if (result == vvFileIO::OK)
+            {
+                numFiles++;
+                //vdread->printVolumeInfo();
+
+                // Determine volume dimensions:
+                if (pboCustomSize->getValue())
+                {
+                    width = pfsVolWidth->getValue();
+                    height = pfsVolHeight->getValue();
+                    depth = pfsVolDepth->getValue();
+                }
+                else
+                {
+                    width = vdread->vox[0] * vdread->dist[0];
+                    height = vdread->vox[1] * vdread->dist[1];
+
+                    if (slice_format && !merge)
+                    {
+                        depth = numFiles * vdread->dist[2];
+                    }
+                    else
+                    {
+                        depth = vdread->vox[2] * vdread->dist[2];
+                    }
+                }
+            }
+            else if (result == vvFileIO::FILE_NOT_FOUND)
+            {
+                skipped << " " << i;
+            }
+            else
+            {
+                sendError("Failed to load file %d from sequence: %s", i, path);
+                retVal = STOP_PIPELINE;
+                break;
+            }
+
+            if (merge)
+            {
+                vd->merge(&vdframe, vvVolDesc::VV_MERGE_VOL2ANIM);
+            }
         }
     }
 
