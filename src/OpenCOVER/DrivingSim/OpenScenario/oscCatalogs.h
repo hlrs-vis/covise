@@ -12,11 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 
-#include <oscVehicleCatalog.h>
-#include <oscDriverCatalog.h>
-#include <oscObserverCatalog.h>
-#include <oscPedestrianCatalog.h>
-#include <oscMiscObjectCatalog.h>
+#include <oscObjectCatalog.h>
 #include <oscEntityCatalog.h>
 #include <oscEnvironmentCatalog.h>
 #include <oscManeuverCatalog.h>
@@ -32,11 +28,7 @@ class OPENSCENARIOEXPORT oscCatalogs: public oscObjectBase
 public:
     oscCatalogs()
     {
-        OSC_OBJECT_ADD_MEMBER(vehicleCatalog, "oscVehicleCatalog");
-        OSC_OBJECT_ADD_MEMBER(driverCatalog, "oscDriverCatalog");
-        OSC_OBJECT_ADD_MEMBER(observerCatalog, "oscObserverCatalog");
-        OSC_OBJECT_ADD_MEMBER(pedestrianCatalog, "oscPedestrianCatalog");
-        OSC_OBJECT_ADD_MEMBER(miscObjectCatalog, "oscMiscObjectCatalog");
+        OSC_OBJECT_ADD_MEMBER(objectCatalog, "oscObjectCatalog");
         OSC_OBJECT_ADD_MEMBER(entityCatalog, "oscEntityCatalog");
         OSC_OBJECT_ADD_MEMBER(environmentCatalog, "oscEnvironmentCatalog");
         OSC_OBJECT_ADD_MEMBER(maneuverCatalog, "oscManeuverCatalog");
@@ -44,11 +36,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscVehicleCatalogMember vehicleCatalog;
-    oscDriverCatalogMember driverCatalog;
-    oscObserverCatalogMember observerCatalog;
-    oscPedestrianCatalogMember pedestrianCatalog;
-    oscMiscObjectCatalogMember miscObjectCatalog;
+    oscObjectCatalogMember objectCatalog;
     oscEntityCatalogMember entityCatalog;
     oscEnvironmentCatalogMember environmentCatalog;
     oscManeuverCatalogMember maneuverCatalog;

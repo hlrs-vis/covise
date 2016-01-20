@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
-#include <oscManeuverTypeCGroup.h>
+#include <oscManeuversTypeC.h>
 
 
 namespace OpenScenario {
@@ -25,11 +25,11 @@ public:
     oscRefActorTypeA()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(maneuverGroup, "oscManeuverTypeCGroup");
+        OSC_OBJECT_ADD_MEMBER(maneuvers, "oscManeuversTypeC");
     };
 
     oscString name;
-    oscManeuverTypeCGroupArrayMember maneuverGroup;
+    oscManeuversTypeCArrayMember maneuvers;
 };
 
 typedef oscObjectVariable<oscRefActorTypeA *> oscRefActorTypeAMember;

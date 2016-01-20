@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_CANCEL_CONDITION_TYPE_B_GROUP_H
-#define OSC_CANCEL_CONDITION_TYPE_B_GROUP_H
+#ifndef OSC_CANCEL_CONDITIONS_TYPE_B_H
+#define OSC_CANCEL_CONDITIONS_TYPE_B_H
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscCancelConditionTypeBGroup: public oscObjectBase
+class OPENSCENARIOEXPORT oscCancelConditionsTypeB: public oscObjectBase
 {
 public:
-    oscCancelConditionTypeBGroup()
+    oscCancelConditionsTypeB()
     {
         OSC_OBJECT_ADD_MEMBER(cancelCondition, "oscCancelConditionTypeB");
     };
@@ -29,8 +29,8 @@ public:
     oscCancelConditionTypeBMember cancelCondition;
 };
 
-typedef oscObjectArrayVariable<oscCancelConditionTypeBGroup *> oscCancelConditionTypeBGroupArrayMember;
+typedef oscObjectArrayVariable<oscCancelConditionsTypeB *> oscCancelConditionsTypeBArrayMember;
 
 }
 
-#endif //OSC_CANCEL_CONDITION_TYPE_B_GROUP_H
+#endif //OSC_CANCEL_CONDITIONS_TYPE_B_H

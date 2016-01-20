@@ -17,11 +17,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscBehavior.h>
 #include <oscBody.h>
 #include <oscBoundingBox.h>
+#include <oscCancelConditionsGroupsTypeA.h>
+#include <oscCancelConditionsGroupTypeA.h>
+#include <oscCancelConditionsTypeA.h>
+#include <oscCancelConditionsTypeB.h>
 #include <oscCancelConditionTypeA.h>
-#include <oscCancelConditionTypeAGroup.h>
-#include <oscCancelConditionTypeAGroups.h>
 #include <oscCancelConditionTypeB.h>
-#include <oscCancelConditionTypeBGroup.h>
 #include <oscCatalogRef.h>
 #include <oscCatalogs.h>
 #include <oscCenter.h>
@@ -51,11 +52,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscDriver.h>
 #include <oscDriverCatalog.h>
 #include <oscDriverRef.h>
+#include <oscEndConditionsGroupsTypeA.h>
+#include <oscEndConditionsGroupTypeA.h>
+#include <oscEndConditionsTypeA.h>
+#include <oscEndConditionsTypeB.h>
 #include <oscEndConditionTypeA.h>
-#include <oscEndConditionTypeAGroup.h>
-#include <oscEndConditionTypeAGroups.h>
 #include <oscEndConditionTypeB.h>
-#include <oscEndConditionTypeBGroup.h>
 #include <oscEngine.h>
 #include <oscEntities.h>
 #include <oscEntity.h>
@@ -93,13 +95,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscLighting.h>
 #include <oscLights.h>
 #include <oscManeuverCatalog.h>
-#include <oscManeuverList.h>
-#include <oscManeuverLists.h>
+#include <oscManeuversTypeB.h>
+#include <oscManeuversTypeC.h>
 #include <oscManeuverTypeA.h>
 #include <oscManeuverTypeB.h>
-#include <oscManeuverTypeBGroup.h>
 #include <oscManeuverTypeC.h>
-#include <oscManeuverTypeCGroup.h>
 #include <oscMirror.h>
 #include <oscMirrors.h>
 #include <oscMiscObject.h>
@@ -111,18 +111,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscNotify.h>
 #include <oscNumericCondition.h>
 #include <oscObject.h>
-#include <oscObjects.h>
 #include <oscObjectBase.h>
+#include <oscObjectCatalog.h>
 #include <oscObjectChoice.h>
+#include <oscObjects.h>
 #include <oscObserver.h>
 #include <oscObserverCatalog.h>
 #include <oscObserverId.h>
 #include <oscOffroad.h>
 #include <oscOrientation.h>
+#include <oscParameterListTypeA.h>
+#include <oscParameterListTypeB.h>
 #include <oscParameterTypeA.h>
-#include <oscParameterTypeAList.h>
 #include <oscParameterTypeB.h>
-#include <oscParameterTypeBList.h>
 #include <oscPartner.h>
 #include <oscPedestrian.h>
 #include <oscPedestrianCatalog.h>
@@ -138,10 +139,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscPrecipitation.h>
 #include <oscPriority.h>
 #include <oscReachPosition.h>
+#include <oscRefActorsTypeA.h>
+#include <oscRefActorsTypeB.h>
 #include <oscRefActorTypeA.h>
-#include <oscRefActorTypeAList.h>
 #include <oscRefActorTypeB.h>
-#include <oscRefActorTypeBList.h>
 #include <oscReferenceHanding.h>
 #include <oscRelative.h>
 #include <oscRelativeChoice.h>
@@ -164,14 +165,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscSpeedDynamics.h>
 #include <oscSpline.h>
 #include <oscStandsStill.h>
+#include <oscStartConditionsGroupsTypeA.h>
+#include <oscStartConditionsGroupsTypeC.h>
+#include <oscStartConditionsGroupTypeA.h>
+#include <oscStartConditionsGroupTypeC.h>
+#include <oscStartConditionsTypeA.h>
+#include <oscStartConditionsTypeB.h>
+#include <oscStartConditionsTypeC.h>
 #include <oscStartConditionTypeA.h>
-#include <oscStartConditionTypeAGroup.h>
-#include <oscStartConditionTypeAGroups.h>
 #include <oscStartConditionTypeB.h>
-#include <oscStartConditionTypeBGroup.h>
 #include <oscStartConditionTypeC.h>
-#include <oscStartConditionTypeCGroup.h>
-#include <oscStartConditionTypeCGroups.h>
 #include <oscStoppingDistance.h>
 #include <oscStoryboard.h>
 #include <oscTest.h>
@@ -199,6 +202,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscWaypoint.h>
 #include <oscWaypoints.h>
 #include <oscWeather.h>
+#include "oscManeuverGroupsTypeAB.h"
+#include "oscManeuverGroupTypeAB.h"
 
 
 
@@ -239,11 +244,12 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscBehavior>("oscBehavior");
     staticObjectFactory.registerType<oscBody>("oscBody");
     staticObjectFactory.registerType<oscBoundingBox>("oscBoundingBox");
+    staticObjectFactory.registerType<oscCancelConditionsGroupsTypeA>("oscCancelConditionsGroupsTypeA");
+    staticObjectFactory.registerType<oscCancelConditionsGroupTypeA>("oscCancelConditionsGroupTypeA");
+    staticObjectFactory.registerType<oscCancelConditionsTypeA>("oscCancelConditionsTypeA");
+    staticObjectFactory.registerType<oscCancelConditionsTypeB>("oscCancelConditionsTypeB");
     staticObjectFactory.registerType<oscCancelConditionTypeA>("oscCancelConditionTypeA");
-    staticObjectFactory.registerType<oscCancelConditionTypeAGroup>("oscCancelConditionTypeAGroup");
-    staticObjectFactory.registerType<oscCancelConditionTypeAGroups>("oscCancelConditionTypeAGroups");
     staticObjectFactory.registerType<oscCancelConditionTypeB>("oscCancelConditionTypeB");
-    staticObjectFactory.registerType<oscCancelConditionTypeBGroup>("oscCancelConditionTypeBGroup");
     staticObjectFactory.registerType<oscCatalogRef>("oscCatalogRef");
     staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
     staticObjectFactory.registerType<oscCenter>("oscCenter");
@@ -273,11 +279,12 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscDriver>("oscDriver");
     staticObjectFactory.registerType<oscDriverCatalog>("oscDriverCatalog");
     staticObjectFactory.registerType<oscDriverRef>("oscDriverRef");
+    staticObjectFactory.registerType<oscEndConditionsGroupsTypeA>("oscEndConditionsGroupsTypeA");
+    staticObjectFactory.registerType<oscEndConditionsGroupTypeA>("oscEndConditionsGroupTypeA");
+    staticObjectFactory.registerType<oscEndConditionsTypeA>("oscEndConditionsTypeA");
+    staticObjectFactory.registerType<oscEndConditionsTypeB>("oscEndConditionsTypeB");
     staticObjectFactory.registerType<oscEndConditionTypeA>("oscEndConditionTypeA");
-    staticObjectFactory.registerType<oscEndConditionTypeAGroup>("oscEndConditionTypeAGroup");
-    staticObjectFactory.registerType<oscEndConditionTypeAGroups>("oscEndConditionTypeAGroups");
     staticObjectFactory.registerType<oscEndConditionTypeB>("oscEndConditionTypeB");
-    staticObjectFactory.registerType<oscEndConditionTypeBGroup>("oscEndConditionTypeBGroup");
     staticObjectFactory.registerType<oscEngine>("oscEngine");
     staticObjectFactory.registerType<oscEntities>("oscEntities");
     staticObjectFactory.registerType<oscEntity>("oscEntity");
@@ -314,13 +321,13 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscLighting>("oscLighting");
     staticObjectFactory.registerType<oscLights>("oscLights");
     staticObjectFactory.registerType<oscManeuverCatalog>("oscManeuverCatalog");
-    staticObjectFactory.registerType<oscManeuverList>("oscManeuverList");
-    staticObjectFactory.registerType<oscManeuverLists>("oscManeuverLists");
+    staticObjectFactory.registerType<oscManeuverGroupTypeAB>("oscManeuverGroupTypeAB");
+    staticObjectFactory.registerType<oscManeuverGroupsTypeAB>("oscManeuverGroupsTypeAB");
+    staticObjectFactory.registerType<oscManeuversTypeB>("oscManeuversTypeB");
+    staticObjectFactory.registerType<oscManeuversTypeC>("oscManeuversTypeC");
     staticObjectFactory.registerType<oscManeuverTypeA>("oscManeuverTypeA");
     staticObjectFactory.registerType<oscManeuverTypeB>("oscManeuverTypeB");
-    staticObjectFactory.registerType<oscManeuverTypeBGroup>("oscManeuverTypeBGroup");
     staticObjectFactory.registerType<oscManeuverTypeC>("oscManeuverTypeC");
-    staticObjectFactory.registerType<oscManeuverTypeCGroup>("oscManeuverTypeCGroup");
     staticObjectFactory.registerType<oscMirror>("oscMirror");
     staticObjectFactory.registerType<oscMirrors>("oscMirrors");
     staticObjectFactory.registerType<oscMiscObject>("oscMiscObject");
@@ -332,17 +339,18 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscNotify>("oscNotify");
     staticObjectFactory.registerType<oscNumericCondition>("oscNumericCondition");
     staticObjectFactory.registerType<oscObject>("oscObject");
-    staticObjectFactory.registerType<oscObjects>("oscObjects");
+    staticObjectFactory.registerType<oscObjectCatalog>("oscObjectCatalog");
     staticObjectFactory.registerType<oscObjectChoice>("oscObjectChoice");
+    staticObjectFactory.registerType<oscObjects>("oscObjects");
     staticObjectFactory.registerType<oscObserver>("oscObserver");
     staticObjectFactory.registerType<oscObserverCatalog>("oscObserverCatalog");
     staticObjectFactory.registerType<oscObserverId>("oscObserverId");
     staticObjectFactory.registerType<oscOffroad>("oscOffroad");
     staticObjectFactory.registerType<oscOrientation>("oscOrientation");
+    staticObjectFactory.registerType<oscParameterListTypeA>("oscParameterListTypeA");
+    staticObjectFactory.registerType<oscParameterListTypeB>("oscParameterListTypeB");
     staticObjectFactory.registerType<oscParameterTypeA>("oscParameterTypeA");
-    staticObjectFactory.registerType<oscParameterTypeAList>("oscParameterTypeAList");
     staticObjectFactory.registerType<oscParameterTypeB>("oscParameterTypeB");
-    staticObjectFactory.registerType<oscParameterTypeBList>("oscParameterTypeBList");
     staticObjectFactory.registerType<oscPartner>("oscPartner");
     staticObjectFactory.registerType<oscPedestrian>("oscPedestrian");
     staticObjectFactory.registerType<oscPedestrianCatalog>("oscPedestrianCatalog");
@@ -358,10 +366,10 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscPrecipitation>("oscPrecipitation");
     staticObjectFactory.registerType<oscPriority>("oscPriority");
     staticObjectFactory.registerType<oscReachPosition>("oscReachPosition");
+    staticObjectFactory.registerType<oscRefActorsTypeA>("oscRefActorsTypeA");
+    staticObjectFactory.registerType<oscRefActorsTypeB>("oscRefActorsTypeB");
     staticObjectFactory.registerType<oscRefActorTypeA>("oscRefActorTypeA");
-    staticObjectFactory.registerType<oscRefActorTypeAList>("oscRefActorTypeAList");
     staticObjectFactory.registerType<oscRefActorTypeB>("oscRefActorTypeB");
-    staticObjectFactory.registerType<oscRefActorTypeBList>("oscRefActorTypeBList");
     staticObjectFactory.registerType<oscReferenceHanding>("oscReferenceHanding");
     staticObjectFactory.registerType<oscRelative>("oscRelative");
     staticObjectFactory.registerType<oscRelativeChoice>("oscRelativeChoice");
@@ -384,14 +392,16 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscSpeedDynamics>("oscSpeedDynamics");
     staticObjectFactory.registerType<oscSpline>("oscSpline");
     staticObjectFactory.registerType<oscStandsStill>("oscStandsStill");
+    staticObjectFactory.registerType<oscStartConditionsGroupsTypeA>("oscStartConditionsGroupsTypeA");
+    staticObjectFactory.registerType<oscStartConditionsGroupsTypeC>("oscStartConditionsGroupsTypeC");
+    staticObjectFactory.registerType<oscStartConditionsGroupTypeA>("oscStartConditionsGroupTypeA");
+    staticObjectFactory.registerType<oscStartConditionsGroupTypeC>("oscStartConditionsGroupTypeC");
+    staticObjectFactory.registerType<oscStartConditionsTypeA>("oscStartConditionsTypeA");
+    staticObjectFactory.registerType<oscStartConditionsTypeB>("oscStartConditionsTypeB");
+    staticObjectFactory.registerType<oscStartConditionsTypeC>("oscStartConditionsTypeC");
     staticObjectFactory.registerType<oscStartConditionTypeA>("oscStartConditionTypeA");
-    staticObjectFactory.registerType<oscStartConditionTypeAGroup>("oscStartConditionTypeAGroup");
-    staticObjectFactory.registerType<oscStartConditionTypeAGroups>("oscStartConditionTypeAGroups");
     staticObjectFactory.registerType<oscStartConditionTypeB>("oscStartConditionTypeB");
-    staticObjectFactory.registerType<oscStartConditionTypeBGroup>("oscStartConditionTypeBGroup");
     staticObjectFactory.registerType<oscStartConditionTypeC>("oscStartConditionTypeC");
-    staticObjectFactory.registerType<oscStartConditionTypeCGroup>("oscStartConditionTypeCGroup");
-    staticObjectFactory.registerType<oscStartConditionTypeCGroups>("oscStartConditionTypeCGroups");
     staticObjectFactory.registerType<oscStoppingDistance>("oscStoppingDistance");
     staticObjectFactory.registerType<oscStoryboard>("oscStoryboard");
     staticObjectFactory.registerType<oscTest>("oscTest");

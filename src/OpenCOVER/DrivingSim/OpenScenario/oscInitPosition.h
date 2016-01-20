@@ -9,24 +9,20 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_INIT_POSITION_H
 
 #include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
-
 #include <oscPosition.h>
+#include <oscObjectVariable.h>
 
 
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscInitPosition: public oscObjectBase
+class OPENSCENARIOEXPORT oscInitPosition: public oscPosition
 {
 public:
     oscInitPosition()
     {
-        OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
-    };
 
-    oscPositionMember position;
+    };
 };
 
 typedef oscObjectVariable<oscInitPosition *>oscInitPositionMember;

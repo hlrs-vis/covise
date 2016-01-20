@@ -13,9 +13,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
+#include <oscRefActorsTypeB.h>
 #include <oscCatalogRef.h>
 #include <oscManeuverTypeA.h>
-#include <oscRefActorTypeBList.h>
 
 
 namespace OpenScenario {
@@ -26,12 +26,12 @@ class OPENSCENARIOEXPORT oscManeuverTypeB: public oscNamedPriority
 public:
     oscManeuverTypeB()
     {
-        OSC_OBJECT_ADD_MEMBER(refActorList, "oscRefActorTypeBList");
+        OSC_OBJECT_ADD_MEMBER(refActors, "oscRefActorsTypeB");
         OSC_OBJECT_ADD_MEMBER(catalogRef, "oscCatalogRef");
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
-    oscRefActorTypeBListArrayMember refActorList;
+    oscRefActorsTypeBArrayMember refActors;
     oscCatalogRefMember catalogRef;
     oscManeuverTypeAMember maneuver;
 };

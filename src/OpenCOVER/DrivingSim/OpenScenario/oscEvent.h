@@ -13,11 +13,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
+#include <oscStartConditionsGroupsTypeC.h>
 #include <oscActions.h>
-#include <oscStartConditionTypeCGroups.h>
+
 
 namespace OpenScenario {
-
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscEvent: public oscPriority
@@ -26,12 +26,12 @@ public:
     oscEvent()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(startConditionGroups, "oscStartConditionTypeCGroups");
+        OSC_OBJECT_ADD_MEMBER(startConditionGroups, "oscStartConditionsGroupsTypeC");
         OSC_OBJECT_ADD_MEMBER(actions, "oscActions");
     };
 
     oscString name;
-    oscStartConditionTypeCGroupsArrayMember startConditionGroups;
+    oscStartConditionsGroupsTypeCArrayMember startConditionGroups;
     oscActionsArrayMember actions;
 };
 

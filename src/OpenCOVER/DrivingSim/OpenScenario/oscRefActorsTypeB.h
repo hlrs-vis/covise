@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_REFACTOR_TYPE_B_LIST_H
-#define OSC_REFACTOR_TYPE_B_LIST_H
+#ifndef OSC_REFACTORS_TYPE_B_H
+#define OSC_REFACTORS_TYPE_B_H
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRefActorTypeBList: public oscObjectBase
+class OPENSCENARIOEXPORT oscRefActorsTypeB: public oscObjectBase
 {
 public:
-    oscRefActorTypeBList()
+    oscRefActorsTypeB()
     {
         OSC_OBJECT_ADD_MEMBER(refActor, "oscRefActorTypeB");
     };
@@ -29,8 +29,8 @@ public:
     oscRefActorTypeBMember refActor;
 };
 
-typedef oscObjectArrayVariable<oscRefActorTypeBList *> oscRefActorTypeBListArrayMember;
+typedef oscObjectArrayVariable<oscRefActorsTypeB *> oscRefActorsTypeBArrayMember;
 
 }
 
-#endif /* OSC_REFACTOR_TYPE_B_LIST_H */
+#endif /* OSC_REFACTORS_TYPE_B_H */

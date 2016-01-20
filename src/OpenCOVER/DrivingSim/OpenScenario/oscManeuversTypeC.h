@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_MANEUVER_TYPE_C_GROUP_H
-#define OSC_MANEUVER_TYPE_C_GROUP_H
+#ifndef OSC_MANEUVERS_TYPE_C_H
+#define OSC_MANEUVERS_TYPE_C_H
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscManeuverTypeCGroup: public oscObjectBase
+class OPENSCENARIOEXPORT oscManeuversTypeC: public oscObjectBase
 {
 public:
-    oscManeuverTypeCGroup()
+    oscManeuversTypeC()
     {
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeC");
     };
@@ -29,8 +29,8 @@ public:
     oscManeuverTypeCMember maneuver;
 };
 
-typedef oscObjectArrayVariable<oscManeuverTypeCGroup *> oscManeuverTypeCGroupArrayMember;
+typedef oscObjectArrayVariable<oscManeuversTypeC *> oscManeuversTypeCArrayMember;
 
 }
 
-#endif /* OSC_MANEUVER_TYPE_C_GROUP_H */
+#endif /* OSC_MANEUVERS_TYPE_C_H */

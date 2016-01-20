@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_END_CONDITION_TYPE_A_GROUP_H
-#define OSC_END_CONDITION_TYPE_A_GROUP_H
+#ifndef OSC_END_CONDITIONS_TYPE_A_H
+#define OSC_END_CONDITIONS_TYPE_A_H
 
 #include <oscExport.h>
 #include <oscObjectBase.h>
@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscEndConditionTypeAGroup: public oscObjectBase
+class OPENSCENARIOEXPORT oscEndConditionsTypeA: public oscObjectBase
 {
 public:
-    oscEndConditionTypeAGroup()
+    oscEndConditionsTypeA()
     {
         OSC_OBJECT_ADD_MEMBER(endCondition, "oscEndConditionTypeA");
     };
@@ -29,8 +29,8 @@ public:
     oscEndConditionTypeAMember endCondition;
 };
 
-typedef oscObjectArrayVariable<oscEndConditionTypeAGroup *> oscEndConditionTypeAGroupArrayMember;
+typedef oscObjectArrayVariable<oscEndConditionsTypeA *> oscEndConditionsTypeAArrayMember;
 
 }
 
-#endif //OSC_END_CONDITION_TYPE_A_GROUP_H
+#endif //OSC_END_CONDITIONS_TYPE_A_H

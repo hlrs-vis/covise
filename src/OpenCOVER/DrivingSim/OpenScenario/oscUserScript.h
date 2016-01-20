@@ -14,7 +14,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscVariables.h>
 #include <oscFile.h>
-#include <oscParameterTypeBList.h>
+#include <oscParameterListTypeB.h>
 
 
 namespace OpenScenario {
@@ -36,7 +36,7 @@ public:
     {
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(file, "oscFile");
-        OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterTypeBList");
+        OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterListTypeB");
         OSC_ADD_MEMBER(execution);
 
         execution.enumType = executionType::instance();
@@ -45,7 +45,7 @@ public:
     oscString name;
     oscFileMember file;
     oscEnum execution;
-    oscParameterTypeBListArrayMember parameterList;
+    oscParameterListTypeBArrayMember parameterList;
 
     enum execution
     {

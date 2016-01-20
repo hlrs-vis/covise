@@ -12,9 +12,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscNamedPriority.h>
 #include <oscObjectVariable.h>
 
-#include <oscStartConditionTypeBGroup.h>
-#include <oscEndConditionTypeBGroup.h>
-#include <oscCancelConditionTypeBGroup.h>
+#include <oscStartConditionsTypeB.h>
+#include <oscEndConditionsTypeB.h>
+#include <oscCancelConditionsTypeB.h>
 #include <oscCatalogRef.h>
 #include <oscManeuverTypeA.h>
 
@@ -27,16 +27,16 @@ class OPENSCENARIOEXPORT oscManeuverTypeC: public oscNamedPriority
 public:
     oscManeuverTypeC()
     {
-        OSC_OBJECT_ADD_MEMBER(startCondition, "oscStartConditionTypeBGroup");
-        OSC_OBJECT_ADD_MEMBER(endCondition, "oscEndConditionTypeBGroup");
-        OSC_OBJECT_ADD_MEMBER(cancelCondition, "oscCancelConditionTypeBGroup");
+        OSC_OBJECT_ADD_MEMBER(startConditions, "oscStartConditionsTypeB");
+        OSC_OBJECT_ADD_MEMBER(endConditions, "oscEndConditionsTypeB");
+        OSC_OBJECT_ADD_MEMBER(cancelConditions, "oscCancelConditionsTypeB");
         OSC_OBJECT_ADD_MEMBER(catalogRef, "oscCatalogRef");
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
-    oscStartConditionTypeBGroupArrayMember startCondition;
-    oscEndConditionTypeBGroupArrayMember endCondition;
-    oscCancelConditionTypeBGroupArrayMember cancelCondition;
+    oscStartConditionsTypeBArrayMember startConditions;
+    oscEndConditionsTypeBArrayMember endConditions;
+    oscCancelConditionsTypeBArrayMember cancelConditions;
     oscCatalogRefMember catalogRef;
     oscManeuverTypeAMember maneuver;
 };

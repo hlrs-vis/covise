@@ -12,8 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectBase.h>
 #include <oscObjectVariable.h>
 
-#include <oscManeuverLists.h>
-#include <oscRefActorTypeAList.h>
+#include <oscManeuverGroupsTypeAB.h>
+#include <oscRefActorsTypeA.h>
 #include <oscUserDataList.h>
 
 
@@ -25,13 +25,13 @@ class OPENSCENARIOEXPORT oscStoryboard: public oscObjectBase
 public:
     oscStoryboard()
     {
-        OSC_OBJECT_ADD_MEMBER(maneuverLists, "oscManeuverLists");
-        OSC_OBJECT_ADD_MEMBER(refActorList, "oscRefActorTypeAList");
+        OSC_OBJECT_ADD_MEMBER(maneuverGroups, "oscManeuverGroupsTypeAB");
+        OSC_OBJECT_ADD_MEMBER(refActors, "oscRefActorsTypeA");
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscManeuverListsArrayMember maneuverLists;
-    oscRefActorTypeAListArrayMember refActorList;
+    oscManeuverGroupsTypeABArrayMember maneuverGroups;
+    oscRefActorsTypeAArrayMember refActors;
     oscUserDataListArrayMember userDataList;
 };
 

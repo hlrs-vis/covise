@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscObjectVariable.h>
 
 #include <oscVariables.h>
-#include <oscParameterTypeBList.h>
+#include <oscParameterListTypeB.h>
 
 
 namespace OpenScenario {
@@ -25,11 +25,11 @@ public:
     oscUserDefinedAction()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterTypeBList");
+        OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterListTypeB");
     };
 
     oscString name;
-    oscParameterTypeBListArrayMember parameterList;
+    oscParameterListTypeBArrayMember parameterList;
 };
 
 typedef oscObjectVariable<oscUserDefinedAction *> oscUserDefinedActionMember;
