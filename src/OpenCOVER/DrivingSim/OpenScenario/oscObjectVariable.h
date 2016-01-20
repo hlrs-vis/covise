@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscMemberValue.h>
 #include <oscMember.h>
+#include <oscFactories.h>
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>

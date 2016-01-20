@@ -89,7 +89,7 @@ QPainterPath *
 	{
 		switch (iv->getValue())
 		{
-		case oscVehicle::vehicleClass::car:
+		case oscVehicle::car:
 			{
 				QPolygonF polygon;
 				polygon << QPointF(-7.8,-3) << QPointF(-7.8,0) << QPointF(-7.8,0) << QPointF(-3.8,3) << QPointF(3.8,3) << QPointF(4,0) << QPointF(7,0) << QPointF(7.6,-1.2) << QPointF(7.8,-3);
@@ -100,7 +100,7 @@ QPainterPath *
 				path->translate(pos);
 				break;
 			}
-		case oscVehicle::vehicleClass::van:
+		case oscVehicle::van:
 			{
 				break;
 			}
