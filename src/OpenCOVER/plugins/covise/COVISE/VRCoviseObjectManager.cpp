@@ -1411,6 +1411,13 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 colors->getAddresses(rc, gc, bc);
                 colorpacking = Pack::None;
             }
+            else if (strcmp(ctype, "USTSTD") == 0)
+            {
+                colors->getSize(no_c);
+                colors->getAddresses(rc, gc, bc);
+                bc = NULL;
+                colorpacking = Pack::None;
+            }
             else if (strcmp(ctype, "USTVDT") == 0)
             {
                 colors->getSize(no_c);

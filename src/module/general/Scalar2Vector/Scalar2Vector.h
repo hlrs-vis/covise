@@ -42,7 +42,8 @@ private:
     coInputPort *p_inPortV;
     coInputPort *p_inPortW;
     coInputPort *p_inPortA;
-    coOutputPort *p_outPort;
+    coOutputPort *p_outPortVec2;
+    coOutputPort *p_outPortVec3;
     coOutputPort *p_outPortPacked;
     coChoiceParam *p_paramNormalizeChoice;
     coFloatParam *p_paramNormalizeIgnore;
@@ -65,13 +66,13 @@ private:
         int ySize,
         const char **yNames,
         const char **yValues,
-        int zSize,
-        const char **zNames,
-        const char **zValues);
+        int zSize = 0,
+        const char **zNames = 0,
+        const char **zValues = 0);
     void summarizeAttributes(
         const coDistributedObject *objU,
         const coDistributedObject *objV,
-        const coDistributedObject *objW);
+        const coDistributedObject *objW = 0);
     int matchAttributeNames(
         const char **xName,
         const char **yName,
@@ -80,7 +81,7 @@ private:
     void summarizeValue(
         const char **xValue,
         const char **yValue,
-        const char **zValue);
+        const char **zValue = 0);
 
     void summarizeEntry(
         const char **xName,

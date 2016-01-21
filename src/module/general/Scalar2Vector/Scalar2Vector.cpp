@@ -327,7 +327,7 @@ void Scalar2Vector::summarizeAttributes(
 
     xSize = objU->getAllAttributes(&xNames, &xValues);
     ySize = objV->getAllAttributes(&yNames, &yValues);
-    zSize = objW->getAllAttributes(&zNames, &zValues);
+    zSize = objW ? objW->getAllAttributes(&zNames, &zValues) : 0;
     summarizedNames = new const char *[xSize + ySize + zSize];
     summarizedValues = new const char *[xSize + ySize + zSize];
     summarized = 0;
@@ -383,9 +383,11 @@ Scalar2Vector::Scalar2Vector(int argc, char *argv[])
                              "Float", "Scalar input for V/green");
     p_inPortW = addInputPort("inPortW",
                              "Float", "Scalar input for W/blue");
+    p_inPortW->setRequired(0);
     p_inPortA = addInputPort("inPortA", "Float", "Scalar input for alpha/opacity");
     p_inPortA->setRequired(0);
-    p_outPort = addOutputPort("outPort", "Vec3", "Vector output");
+    p_outPortVec2 = addOutputPort("outPortVec2", "Vec2", "Vector output");
+    p_outPortVec3 = addOutputPort("outPortVec3", "Vec3", "Vector output");
     p_outPortPacked = addOutputPort("outPortRGBA", "RGBA", "Packed color output");
 
     // value to ignore for min/max
@@ -422,13 +424,18 @@ int Scalar2Vector::checkInPorts(
     //Check whether we have objects
     checkInPort(objU, p_inPortU, retVal, errMsg);
     checkInPort(objV, p_inPortV, retVal, errMsg);
-    checkInPort(objW, p_inPortW, retVal, errMsg);
     if (retVal == FAIL)
     {
         return FAIL;
     }
+    int chkW;
+    char msgW[4096];
+    checkInPort(objW, p_inPortW, chkW, msgW);
+
+    bool haveW = (chkW == SUCCESS);
+
     //Check whether objects have the same type
-    if (!(objU->isType("USTSDT") && objV->isType("USTSDT") && objW->isType("USTSDT")))
+    if (!objU->isType("USTSDT") || !objV->isType("USTSDT") || (haveW && !objW->isType("USTSDT")))
     {
         strcat(errMsg, "data types of Input ports ");
         strcat(errMsg, p_inPortU->getName());
@@ -441,10 +448,9 @@ int Scalar2Vector::checkInPorts(
     //Check whether objects have the same sizes
     coDoFloat *pU = (coDoFloat *)objU;
     coDoFloat *pV = (coDoFloat *)objV;
-    coDoFloat *pW = (coDoFloat *)objW;
+    coDoFloat *pW = haveW ? (coDoFloat *)objW : NULL;
 
-    if (!(
-            (pU->getNumPoints() == pV->getNumPoints()) && (pU->getNumPoints() == pW->getNumPoints())))
+    if (pU->getNumPoints() != pV->getNumPoints() || (haveW && pU->getNumPoints() != pW->getNumPoints()))
     {
         strcat(errMsg, "Dimensions of unstructured input data do not match");
         return FAIL;
@@ -668,15 +674,29 @@ coDistributedObject *Scalar2Vector::computeUnstructured(
     float *uAddress, *vAddress, *wAddress;
     uData->getAddress(&uAddress);
     vData->getAddress(&vAddress);
-    wData->getAddress(&wAddress);
-    coDoVec3 *outData
-        = new coDoVec3(
-            p_outPort->getObjName(),
-            numValues,
-            uAddress,
-            vAddress,
-            wAddress);
-    return outData;
+
+    if (wData != NULL)
+    {
+        wData->getAddress(&wAddress);
+        coDoVec3 *outData
+            = new coDoVec3(
+                p_outPortVec3->getObjName(),
+                numValues,
+                uAddress,
+                vAddress,
+                wAddress);
+        return outData;
+    }
+    else
+    {
+        coDoVec2 *outData
+            = new coDoVec2(
+                p_outPortVec2->getObjName(),
+                numValues,
+                uAddress,
+                vAddress);
+        return outData;
+    }
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -721,7 +741,7 @@ int Scalar2Vector::compute(const char *)
     if (outData == NULL)
     {
         sendError("Failed to create object '%s' for port '%s'",
-                  p_outPort->getObjName(), p_outPort->getName());
+                  p_outPortVec3->getObjName(), p_outPortVec3->getName());
         return FAIL;
     }
 
@@ -732,7 +752,7 @@ int Scalar2Vector::compute(const char *)
     outData->addAttributes(summarized, summarizedNames, summarizedValues);
 
     // sl: use setObj, if we want to see the output!!!
-    p_outPort->setCurrentObject(outData);
+    p_outPortVec3->setCurrentObject(outData);
     p_outPortPacked->setCurrentObject(outDataPacked);
 
     return SUCCESS;

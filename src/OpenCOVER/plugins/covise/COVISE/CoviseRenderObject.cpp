@@ -362,6 +362,18 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     tb.addBinary((char *)iarr1, sizev * sizeof(int));
                 }
             }
+            else if (strcmp(type, "USTSTD") == 0)
+            {
+                coDoVec2 *vector_data = (coDoVec2 *)co;
+                size = vector_data->getNumPoints();
+                vector_data->getAddresses(&farr1, &farr2);
+                if (cluster)
+                {
+                    addInt(size);
+                    tb.addBinary((char *)farr1, size * sizeof(float));
+                    tb.addBinary((char *)farr2, size * sizeof(float));
+                }
+            }
             else if (strcmp(type, "USTVDT") == 0)
             {
                 coDoVec3 *normal_data = (coDoVec3 *)co;
@@ -650,6 +662,14 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
             memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
             memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+        }
+        else if (strcmp(type, "USTSTD") == 0)
+        {
+            copyInt(size);
+            farr1 = new float[size];
+            farr2 = new float[size];
+            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "USTVDT") == 0)
         {
