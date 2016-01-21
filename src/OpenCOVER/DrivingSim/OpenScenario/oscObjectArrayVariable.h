@@ -24,6 +24,21 @@ namespace OpenScenario
         oscObjectArrayVariable() {type = oscMemberValue::OBJECT; valueT = NULL;}; ///< constructor
         T operator->() {return valueT;};
         oscObjectBase* getObject() const {return valueT;};
+        oscObjectBase* getGenerateObject()
+        {
+            if (valueT)
+            {
+                oscObjectBase *obj = oscFactories::instance()->objectFactory->create(typeName);
+                if(obj)
+                {
+                    oscMember *member = static_cast<oscMember *>((oscObjectVariable<T>*)this);
+                    obj->initialize(owner->getBase(), owner, member, owner->getSource());
+                    setValue(obj);
+                }
+            }
+
+            return valueT;
+        };
         void setValue(oscObjectBase *t)
         {
             if (t != NULL)

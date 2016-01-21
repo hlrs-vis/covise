@@ -86,15 +86,18 @@ void oscMember::deleteValue()
 
 oscMemberValue *oscMember::getValue()
 {
-	if (value)
-	{
-		return value;
-	}
-	
-	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
-	setValue(v);
-
 	return value;
+}
+
+oscMemberValue *oscMember::getGenerateValue()
+{
+    if (value != NULL)
+    {
+        OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
+        setValue(v);
+    }
+
+    return value;
 }
 
 void oscMember::setType(oscMemberValue::MemberTypes t)
@@ -109,7 +112,12 @@ oscMemberValue::MemberTypes oscMember::getType() const
 
 
 //
-oscObjectBase *oscMember::getObject()
+oscObjectBase *oscMember::getObject() const
+{
+    return NULL;
+}
+
+oscObjectBase *oscMember::getGenerateObject()
 {
     return NULL;
 }

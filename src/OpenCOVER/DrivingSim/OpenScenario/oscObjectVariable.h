@@ -29,20 +29,18 @@ namespace OpenScenario
         oscObjectVariable(){type = oscMemberValue::OBJECT; valueT=NULL;};
         bool initialize(xercesc::DOMAttr *){return false;};
         T operator->(){return valueT;};
-        oscObjectBase* getObject()
+        oscObjectBase* getObject() const {return valueT;};
+        oscObjectBase* getGenerateObject()
 		{
-			if (valueT)
+			if (valueT != NULL)
 			{
-				return valueT;
-			}
-
-			std::string type = typeName;
-			oscObjectBase *obj = oscFactories::instance()->objectFactory->create(type);
-			if(obj)
-			{
-				oscMember *member = static_cast<oscMember *>((oscObjectVariable<T>*)this);
-				obj->initialize(owner->getBase(), owner, member, owner->getSource());	
-				setValue(obj);
+                oscObjectBase *obj = oscFactories::instance()->objectFactory->create(typeName);
+                if(obj)
+                {
+                    oscMember *member = static_cast<oscMember *>((oscObjectVariable<T>*)this);
+                    obj->initialize(owner->getBase(), owner, member, owner->getSource());
+                    setValue(obj);
+                }
 			}
 
 			return valueT;
