@@ -5,15 +5,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include <OpenScenarioBase.h>
-#include <oscHeader.h>
+#include "OpenScenarioBase.h"
+#include "oscHeader.h"
 
 #include <iostream>
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/dom/DOMLSOutput.hpp>
@@ -22,6 +21,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 
 using namespace OpenScenario;
+
 
 int main(int argc, char **argv)
 {
@@ -101,7 +101,6 @@ int main(int argc, char **argv)
         writer->write(parsedXmlDoc, output);
         std::cerr << std::endl;
     }
-    //
 
     //write into a file
     if (writeComleteXML)

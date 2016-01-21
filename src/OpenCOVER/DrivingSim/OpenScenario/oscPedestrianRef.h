@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_PEDESTRIAN_REF_H
 #define OSC_PEDESTRIAN_REF_H
 
-#include <oscExport.h>
-#include <oscNameRefId.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNameRefId.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
+#include "oscVariables.h"
 
 
 namespace OpenScenario {

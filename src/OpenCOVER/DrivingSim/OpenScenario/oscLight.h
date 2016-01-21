@@ -8,12 +8,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_LIGHT_H
 #define OSC_LIGHT_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscColor.h>
-#include <oscIntensity.h>
+#include "oscColor.h"
+#include "oscIntensity.h"
 
 
 namespace OpenScenario {

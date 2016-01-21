@@ -8,14 +8,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ENVIRONMENT_H
 #define OSC_ENVIRONMENT_H
 
-#include <oscExport.h>
-#include <oscNamedObject.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNamedObject.h"
+#include "oscObjectVariable.h"
 
-#include <oscHeader.h>
-#include <oscTimeOfDay.h>
-#include <oscWeather.h>
-#include <oscRoadConditions.h>
+#include "oscHeader.h"
+#include "oscTimeOfDay.h"
+#include "oscWeather.h"
+#include "oscRoadConditions.h"
 
 
 namespace OpenScenario {

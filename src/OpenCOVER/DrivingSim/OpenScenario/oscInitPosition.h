@@ -8,9 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_INIT_POSITION_H
 #define OSC_INIT_POSITION_H
 
-#include <oscExport.h>
-#include <oscPosition.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscPosition.h"
+#include "oscObjectVariable.h"
 
 
 namespace OpenScenario {

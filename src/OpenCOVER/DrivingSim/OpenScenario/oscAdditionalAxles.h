@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ADDITIONAL_AXLES_H
 #define OSC_ADDITIONAL_AXLES_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectArrayVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectArrayVariable.h"
 
-#include <oscVehicleAxle.h>
+#include "oscVehicleAxle.h"
 
 
 namespace OpenScenario {

@@ -8,23 +8,23 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_TEST_H
 #define OSC_TEST_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscDriver.h>
-#include <oscConditionBase.h>
-#include <oscPosition.h>
-#include <oscEntity.h>
-#include <oscVehicle.h>
-#include <oscRouting.h>
-#include <oscPedestrian.h>
-#include <oscVelocity.h>
-#include <oscRelativePositionWorld.h>
-#include <oscObserver.h>
-#include <oscManeuverTypeA.h>
-#include <oscMiscObject.h>
-#include <oscEnvironment.h>
+#include "oscDriver.h"
+#include "oscConditionBase.h"
+#include "oscPosition.h"
+#include "oscEntity.h"
+#include "oscVehicle.h"
+#include "oscRouting.h"
+#include "oscPedestrian.h"
+#include "oscVelocity.h"
+#include "oscRelativePositionWorld.h"
+#include "oscObserver.h"
+#include "oscManeuverTypeA.h"
+#include "oscMiscObject.h"
+#include "oscEnvironment.h"
 
 
 namespace OpenScenario {

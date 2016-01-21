@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_MANEUVER_GROUPS_H
 #define OSC_MANEUVER_GROUPS_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectArrayVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectArrayVariable.h"
 
-#include <oscManeuverGroupTypeAB.h>
+#include "oscManeuverGroupTypeAB.h"
 
 
 namespace OpenScenario {

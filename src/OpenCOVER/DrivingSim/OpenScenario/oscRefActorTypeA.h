@@ -8,12 +8,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_REFACTOR_TYPE_A_H
 #define OSC_REFACTOR_TYPE_A_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscManeuversTypeC.h>
+#include "oscVariables.h"
+#include "oscManeuversTypeC.h"
 
 
 namespace OpenScenario {

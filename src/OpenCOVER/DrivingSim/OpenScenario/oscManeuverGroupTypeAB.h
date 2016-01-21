@@ -8,14 +8,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_MANEUVER_GROUP_TYPE_AB_H
 #define OSC_MANEUVER_GROUP_TYPE_AB_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscEndConditionsGroupsTypeA.h>
-#include <oscCancelConditionsGroupsTypeA.h>
-#include <oscStartConditionsGroupsTypeA.h>
-#include <oscManeuversTypeB.h>
+#include "oscEndConditionsGroupsTypeA.h"
+#include "oscCancelConditionsGroupsTypeA.h"
+#include "oscStartConditionsGroupsTypeA.h"
+#include "oscManeuversTypeB.h"
 
 
 namespace OpenScenario {

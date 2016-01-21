@@ -8,13 +8,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_EVENT_H
 #define OSC_EVENT_H
 
-#include <oscExport.h>
-#include <oscPriority.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscPriority.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscStartConditionsGroupsTypeC.h>
-#include <oscActions.h>
+#include "oscVariables.h"
+#include "oscStartConditionsGroupsTypeC.h"
+#include "oscActions.h"
 
 
 namespace OpenScenario {

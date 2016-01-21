@@ -8,32 +8,32 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ACTION_H
 #define OSC_ACTION_H
 
-#include <oscExport.h>
-#include <oscNamedObject.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNamedObject.h"
+#include "oscObjectVariable.h"
 
-#include <oscAutonomous.h>
-#include <oscSpeed.h>
-#include <oscLaneChange.h>
-#include <oscLaneOffset.h>
-#include <oscPosition.h>
-#include <oscDistanceLateral.h>
-#include <oscDistanceLongitudinal.h>
-#include <oscVisibility.h>
-#include <oscCharacterAppearance.h>
-#include <oscCharacterGesture.h>
-#include <oscCharacterMotion.h>
-#include <oscTrafficLight.h>
-#include <oscEntityAdd.h>
-#include <oscEntityDelete.h>
-#include <oscTrafficJam.h>
-#include <oscTrafficSource.h>
-#include <oscTrafficSink.h>
-#include <oscUserDefinedAction.h>
-#include <oscUserDefinedCommand.h>
-#include <oscNotify.h>
-#include <oscUserScript.h>
-#include <oscUserDataList.h>
+#include "oscAutonomous.h"
+#include "oscSpeed.h"
+#include "oscLaneChange.h"
+#include "oscLaneOffset.h"
+#include "oscPosition.h"
+#include "oscDistanceLateral.h"
+#include "oscDistanceLongitudinal.h"
+#include "oscVisibility.h"
+#include "oscCharacterAppearance.h"
+#include "oscCharacterGesture.h"
+#include "oscCharacterMotion.h"
+#include "oscTrafficLight.h"
+#include "oscEntityAdd.h"
+#include "oscEntityDelete.h"
+#include "oscTrafficJam.h"
+#include "oscTrafficSource.h"
+#include "oscTrafficSink.h"
+#include "oscUserDefinedAction.h"
+#include "oscUserDefinedCommand.h"
+#include "oscNotify.h"
+#include "oscUserScript.h"
+#include "oscUserDataList.h"
 
 
 namespace OpenScenario {

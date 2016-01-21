@@ -4,10 +4,11 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_MEMBER_VALUE_H
 #define OSC_MEMBER_VALUE_H
 
-#include <oscExport.h>
+#include "oscExport.h"
 
 #include <string>
 
@@ -17,6 +18,7 @@ class DOMAttr;
 class DOMElement;
 class DOMDocument;
 XERCES_CPP_NAMESPACE_END
+
 
 namespace OpenScenario {
 

@@ -8,15 +8,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBJECT_CATALOG_H
 #define OSC_OBJECT_CATALOG_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVehicleCatalog.h>
-#include <oscDriverCatalog.h>
-#include <oscObserverCatalog.h>
-#include <oscPedestrianCatalog.h>
-#include <oscMiscObjectCatalog.h>
+#include "oscVehicleCatalog.h"
+#include "oscDriverCatalog.h"
+#include "oscObserverCatalog.h"
+#include "oscPedestrianCatalog.h"
+#include "oscMiscObjectCatalog.h"
 
 
 namespace OpenScenario {

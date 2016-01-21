@@ -8,13 +8,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_LANE_OFFSET_H
 #define OSC_LANE_OFFSET_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscRelative.h>
-#include <oscAbsolute.h>
-#include <oscLaneOffsetDynamics.h>
+#include "oscRelative.h"
+#include "oscAbsolute.h"
+#include "oscLaneOffsetDynamics.h"
 
 
 namespace OpenScenario {

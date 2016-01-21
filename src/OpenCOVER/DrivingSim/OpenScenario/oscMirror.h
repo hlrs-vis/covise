@@ -8,12 +8,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_MIRROR_H
 #define OSC_MIRROR_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscCoord.h>
+#include "oscVariables.h"
+#include "oscCoord.h"
 
 
 namespace OpenScenario {

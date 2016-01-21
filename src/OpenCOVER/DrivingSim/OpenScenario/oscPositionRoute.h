@@ -8,13 +8,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_POSITION_ROUTE_H
 #define OSC_POSITION_ROUTE_H
 
-#include <oscExport.h>
-#include <oscOrientation.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscOrientation.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscRoadCoord.h>
-#include <oscLaneCoord.h>
+#include "oscVariables.h"
+#include "oscRoadCoord.h"
+#include "oscLaneCoord.h"
 
 
 namespace OpenScenario {

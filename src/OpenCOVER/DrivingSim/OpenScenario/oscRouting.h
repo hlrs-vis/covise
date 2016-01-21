@@ -8,14 +8,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ROUTING_H
 #define OSC_ROUTING_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscHeader.h>
-#include <oscGeneral.h>
-#include <oscWaypoints.h>
-#include <oscUserDataList.h>
+#include "oscHeader.h"
+#include "oscGeneral.h"
+#include "oscWaypoints.h"
+#include "oscUserDataList.h"
 
 
 namespace OpenScenario {

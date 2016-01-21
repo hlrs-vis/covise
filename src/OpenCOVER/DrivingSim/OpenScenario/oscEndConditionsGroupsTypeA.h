@@ -8,9 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_END_CONDITIONS_GROUPS_TYPE_A_H
 #define OSC_END_CONDITIONS_GROUPS_TYPE_A_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectArrayVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectArrayVariable.h"
 
 #include "oscEndConditionsGroupTypeA.h"
 

@@ -8,14 +8,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_MANEUVER_TYPE_B_H
 #define OSC_MANEUVER_TYPE_B_H
 
-#include <oscExport.h>
-#include <oscNamedPriority.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNamedPriority.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscRefActorsTypeB.h>
-#include <oscCatalogRef.h>
-#include <oscManeuverTypeA.h>
+#include "oscVariables.h"
+#include "oscRefActorsTypeB.h"
+#include "oscCatalogRef.h"
+#include "oscManeuverTypeA.h"
 
 
 namespace OpenScenario {

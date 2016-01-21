@@ -8,15 +8,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBSERVER_H
 #define OSC_OBSERVER_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscHeader.h>
-#include <oscNamedObject.h>
-#include <oscFrustum.h>
-#include <oscFilters.h>
+#include "oscVariables.h"
+#include "oscHeader.h"
+#include "oscNamedObject.h"
+#include "oscFrustum.h"
+#include "oscFilters.h"
 
 
 namespace OpenScenario {

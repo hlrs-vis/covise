@@ -8,10 +8,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBJECT_VARIABLE_H
 #define OSC_OBJECT_VARIABLE_H
 
-#include <oscExport.h>
-#include <oscMemberValue.h>
-#include <oscMember.h>
-#include <oscFactories.h>
+#include "oscExport.h"
+#include "oscMemberValue.h"
+#include "oscMember.h"
+#include "oscFactories.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>

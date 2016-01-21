@@ -8,20 +8,20 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_VEHICLE_H
 #define OSC_VEHICLE_H
 
-#include <oscExport.h>
-#include <oscNamedObject.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNamedObject.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscHeader.h>
-#include <oscPerformance.h>
-#include <oscFile.h>
-#include <oscDimension.h>
-#include <oscAxles.h>
-#include <oscLighting.h>
-#include <oscEyepoints.h>
-#include <oscMirrors.h>
-#include <oscFeatures.h>
+#include "oscVariables.h"
+#include "oscHeader.h"
+#include "oscPerformance.h"
+#include "oscFile.h"
+#include "oscDimension.h"
+#include "oscAxles.h"
+#include "oscLighting.h"
+#include "oscEyepoints.h"
+#include "oscMirrors.h"
+#include "oscFeatures.h"
 
 
 namespace OpenScenario {

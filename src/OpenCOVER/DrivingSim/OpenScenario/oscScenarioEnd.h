@@ -8,12 +8,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_SCENARIO_END_H
 #define OSC_SCENARIO_END_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscEndConditionsGroupsTypeA.h>
-#include <oscUserDataList.h>
+#include "oscEndConditionsGroupsTypeA.h"
+#include "oscUserDataList.h"
 
 
 namespace OpenScenario {

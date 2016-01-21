@@ -8,9 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_CANCEL_CONDITION_TYPE_B_H
 #define OSC_CANCEL_CONDITION_TYPE_B_H
 
-#include <oscExport.h>
-#include <oscConditionTypeB.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscConditionTypeB.h"
+#include "oscObjectVariable.h"
 
 
 namespace OpenScenario {

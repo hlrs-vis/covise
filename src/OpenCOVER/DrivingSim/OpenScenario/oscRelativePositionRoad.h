@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_RELATIVE_POSITION_ROAD_H
 #define OSC_RELATIVE_POSITION_ROAD_H
 
-#include <oscExport.h>
-#include <oscOrientation.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscOrientation.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
+#include "oscVariables.h"
 
 
 namespace OpenScenario {

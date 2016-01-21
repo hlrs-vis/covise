@@ -8,14 +8,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBJECT_H
 #define OSC_OBJECT_H
 
-#include <oscExport.h>
-#include <oscNamedObject.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNamedObject.h"
+#include "oscObjectVariable.h"
 
-#include <oscCatalogRef.h>
-#include <oscInitPosition.h>
-#include <oscInitDynamics.h>
-#include <oscInitState.h>
+#include "oscCatalogRef.h"
+#include "oscInitPosition.h"
+#include "oscInitDynamics.h"
+#include "oscInitState.h"
 
 
 namespace OpenScenario {

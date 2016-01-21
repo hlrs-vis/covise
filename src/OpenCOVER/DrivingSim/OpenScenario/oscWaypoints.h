@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_WAYPOINTS_H
 #define OSC_WAYPOINTS_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectArrayVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectArrayVariable.h"
 
-#include <oscWaypoint.h>
+#include "oscWaypoint.h"
 
 
 namespace OpenScenario {

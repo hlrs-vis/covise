@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_TRAFFIC_JAM_H
 #define OSC_TRAFFIC_JAM_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscPosition.h>
+#include "oscPosition.h"
 
 
 namespace OpenScenario {

@@ -8,9 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBJECT_ARRAY_VARIABLE_H
 #define OSC_OBJECT_ARRAY_VARIABLE_H
 
-#include <oscExport.h>
-#include <oscArrayMember.h>
-#include <oscMemberValue.h>
+#include "oscExport.h"
+#include "oscArrayMember.h"
+#include "oscMemberValue.h"
 
 
 namespace OpenScenario

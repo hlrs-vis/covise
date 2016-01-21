@@ -8,26 +8,26 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_CONDITION_BASE_H
 #define OSC_CONDITION_BASE_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscSimulationTime.h>
-#include <oscTimeOfDay.h>
-#include <oscReachPosition.h>
-#include <oscDistance.h>
-#include <oscVelocity.h>
-#include <oscStandsStill.h>
-#include <oscAcceleration.h>
-#include <oscStoppingDistance.h>
-#include <oscTimeToCollision.h>
-#include <oscTimeHeadway.h>
-#include <oscReferenceHanding.h>
-#include <oscOffroad.h>
-#include <oscCollision.h>
-#include <oscNumericCondition.h>
-#include <oscCommand.h>
-#include <oscUserDefined.h>
+#include "oscSimulationTime.h"
+#include "oscTimeOfDay.h"
+#include "oscReachPosition.h"
+#include "oscDistance.h"
+#include "oscVelocity.h"
+#include "oscStandsStill.h"
+#include "oscAcceleration.h"
+#include "oscStoppingDistance.h"
+#include "oscTimeToCollision.h"
+#include "oscTimeHeadway.h"
+#include "oscReferenceHanding.h"
+#include "oscOffroad.h"
+#include "oscCollision.h"
+#include "oscNumericCondition.h"
+#include "oscCommand.h"
+#include "oscUserDefined.h"
 
 
 namespace OpenScenario {

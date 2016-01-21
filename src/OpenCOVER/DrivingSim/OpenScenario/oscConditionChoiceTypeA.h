@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_CONDITION_CHOICE_TYPE_A_H
 #define OSC_CONDITION_CHOICE_TYPE_A_H
 
-#include <oscExport.h>
-#include <oscConditionChoiceBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscConditionChoiceBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
+#include "oscVariables.h"
 
 
 namespace OpenScenario {

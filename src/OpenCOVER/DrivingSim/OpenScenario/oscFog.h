@@ -8,13 +8,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_FOG_H
 #define OSC_FOG_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscColor.h>
-#include <oscBoundingBox.h>
+#include "oscVariables.h"
+#include "oscColor.h"
+#include "oscBoundingBox.h"
 
 
 namespace OpenScenario {

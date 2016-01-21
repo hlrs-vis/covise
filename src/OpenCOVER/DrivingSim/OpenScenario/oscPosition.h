@@ -8,17 +8,17 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_POSITION_H
 #define OSC_POSITION_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscPositionWorld.h>
-#include <oscPositionRoad.h>
-#include <oscPositionLane.h>
-#include <oscRelativePositionWorld.h>
-#include <oscRelativePositionRoad.h>
-#include <oscRelativePositionLane.h>
-#include <oscPositionRoute.h>
+#include "oscPositionWorld.h"
+#include "oscPositionRoad.h"
+#include "oscPositionLane.h"
+#include "oscRelativePositionWorld.h"
+#include "oscRelativePositionRoad.h"
+#include "oscRelativePositionLane.h"
+#include "oscPositionRoute.h"
 
 
 namespace OpenScenario {

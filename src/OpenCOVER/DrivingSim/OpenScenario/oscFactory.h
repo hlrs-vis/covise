@@ -4,10 +4,12 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_FACTORY_H
 #define OSC_FACTORY_H
 
-#include <oscExport.h>
+#include "oscExport.h"
+
 #include <string>
 #include <map>
 #include <xercesc/util/XercesDefs.hpp>
@@ -15,6 +17,7 @@ XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
 class DOMElement;
 XERCES_CPP_NAMESPACE_END
+
 
 namespace OpenScenario {
 

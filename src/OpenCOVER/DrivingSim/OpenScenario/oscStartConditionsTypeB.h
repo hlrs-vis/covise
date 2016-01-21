@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_START_CONDITIONS_TYPE_B_H
 #define OSC_START_CONDITIONS_TYPE_B_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectArrayVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectArrayVariable.h"
 
-#include <oscStartConditionTypeB.h>
+#include "oscStartConditionTypeB.h"
 
 
 namespace OpenScenario {

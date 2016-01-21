@@ -8,13 +8,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ENTITY_H
 #define OSC_ENTITY_H
 
-#include <oscExport.h>
-#include <oscNameRefId.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscNameRefId.h"
+#include "oscObjectVariable.h"
 
-#include <oscObjectChoice.h>
-#include <oscControllerChoice.h>
-#include <oscObserverId.h>
+#include "oscObjectChoice.h"
+#include "oscControllerChoice.h"
+#include "oscObserverId.h"
 
 
 namespace OpenScenario {

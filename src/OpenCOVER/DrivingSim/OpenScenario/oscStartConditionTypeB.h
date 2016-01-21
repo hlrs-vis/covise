@@ -8,9 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_START_CONDITION_TYPE_B_H
 #define OSC_START_CONDITION_TYPE_B_H
 
-#include <oscExport.h>
-#include <oscConditionTypeB.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscConditionTypeB.h"
+#include "oscObjectVariable.h"
 
 
 
