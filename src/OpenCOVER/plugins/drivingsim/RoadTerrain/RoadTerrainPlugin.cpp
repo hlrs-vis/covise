@@ -386,7 +386,22 @@ bool RoadTerrainPlugin::loadTerrain(std::string filename, osg::Vec3d offset,
 
 bool RoadTerrainPlugin::addLayer(std::string filename)
 {
-    OGRDataSource *poDS = OGRSFDriverRegistrar::Open(filename.c_str(), FALSE);
+    
+    
+#if GDAL_VERSION_MAJOR<2
+        if (OGRSFDriverRegistrar::GetRegistrar()->GetDriverCount() == 0)
+            OGRRegisterAll();
+
+        // Try to open data source
+        OGRDataSource* file = OGRSFDriverRegistrar::Open(filename.c_str(), FALSE);
+#else
+        if (GDALGetDriverCount() == 0)
+            GDALAllRegister();
+
+        // Try to open data source
+        GDALDataset* poDS  = (GDALDataset*) GDALOpenEx( filename.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL );
+#endif
+
     if (poDS == NULL)
     {
         std::cout << "RoadTerrainPlugin: Could not open layer " << filename << "!" << std::endl;
