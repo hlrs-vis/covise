@@ -29,6 +29,7 @@
 #include "src/data/signalmanager.hpp"
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/oscsystem/oscbase.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
 
 // Commands //
 //
@@ -42,11 +43,8 @@
 #include "src/graph/graphscene.hpp"
 #include "src/graph/graphview.hpp"
 
-#include "src/graph/items/roadsystem/signal/signalroadsystemitem.hpp"
-#include "src/graph/items/roadsystem/signal/signalroaditem.hpp"
-#include "src/graph/items/roadsystem/signal/signalitem.hpp"
-
-#include "src/graph/items/roadsystem/signal/signalhandle.hpp"
+#include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
+#include "src/graph/items/oscsystem/oscitem.hpp"
 
 // Tools //
 //
@@ -55,7 +53,7 @@
 
 // Tree //
 //
-#include "src/tree/signaltreewidget.hpp"
+#include "src/tree/catalogtreewidget.hpp"
 
 // Visitor //
 //
@@ -82,7 +80,9 @@ using namespace OpenScenario;
 
 OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
     : ProjectEditor(projectWidget, projectData, topviewGraph)
+	, oscRoadSystemItem_(NULL)
 	, oscBase_(NULL)
+	, oscCatalog_(NULL)
 {
 	mainWindow_ = projectWidget->getMainWindow();
 	oscBase_ = projectData->getOSCBase();
@@ -103,7 +103,7 @@ OpenScenarioEditor::~OpenScenarioEditor()
 void
 OpenScenarioEditor::init()
 {
- /*   if (!oscRoadSystemItem_)   // Signaleditor graphischee Elemente
+    if (!oscRoadSystemItem_)   // Signaleditor graphischee Elemente
     {
         // Root item //
         //
@@ -112,15 +112,12 @@ OpenScenarioEditor::init()
 
         // Signal Handle //
         //
-        insertOSCHandle_ = new OSCHandle(signalRoadSystemItem_);
-        insertOSCHandle_->hide();
-    }*/
+ /*       insertOSCHandle_ = new OSCHandle(signalRoadSystemItem_);
+        insertOSCHandle_->hide();*/
+    }
 
     lastTool_ = getCurrentTool();
 
-	// Raise Catalog Trees //
-	//
-	//catalogTree_->setOpenScenarioEditor(this);
 }
 
 /*!
@@ -128,10 +125,8 @@ OpenScenarioEditor::init()
 void
 OpenScenarioEditor::kill()
 {
- /*   delete oscRoadSystemItem_;
+    delete oscRoadSystemItem_;
     oscRoadSystemItem_ = NULL;
-
-	signalTree_->setOpenScenarioEditor(NULL);*/
 
 }
 
@@ -145,13 +140,13 @@ OpenScenarioEditor::getOSCHandle() const
     return insertOSCHandle_;
 }*/
 
-// Move Signal //
+// Move Object //
 //
-/*RSystemElementRoad *
+RSystemElementRoad *
 OpenScenarioEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
 {
 	RoadSystem * roadSystem = getProjectData()->getRoadSystem();
-	QMap<QString, RSystemElementRoad *> roads = roadSystem->getRoads();
+	QMap<QString, RSystemElementRoad *> roads = getProjectData()->getRoadSystem()->getRoads();
 
 	if (roads.count() < 1)
 	{
@@ -192,20 +187,21 @@ OpenScenarioEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVe
 
 
 bool 
-OpenScenarioEditor::translateObject(Object * object, RSystemElementRoad *newRoad, QPointF &to)
+OpenScenarioEditor::translateObject(OpenScenario::oscObject * object, RSystemElementRoad *newRoad, QPointF &to)
 {
-    RSystemElementRoad * road = object->getParentRoad();
+ //   RSystemElementRoad * road = object->getParentRoad();
+	RSystemElementRoad * road;
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Object"));
     bool parentChanged = false;
     if (newRoad != road)
     {
-        RemoveObjectCommand * removeObjectCommand = new RemoveObjectCommand(object, road);
-        getProjectGraph()->executeCommand(removeObjectCommand);
+    //    RemoveObjectCommand * removeObjectCommand = new RemoveObjectCommand(object, road);
+     //   getProjectGraph()->executeCommand(removeObjectCommand);
 
-        AddObjectCommand * AddObjectCommand = new AddObjectCommand(object, newRoad);
-        getProjectGraph()->executeCommand(AddObjectCommand);
-		object->setElementSelected(false);
+ //       AddObjectCommand * AddObjectCommand = new AddObjectCommand(object, newRoad);
+ //       getProjectGraph()->executeCommand(AddObjectCommand);
+//		object->setElementSelected(false);
 
         road = newRoad;
         parentChanged = true;
@@ -222,17 +218,17 @@ OpenScenarioEditor::translateObject(Object * object, RSystemElementRoad *newRoad
 		t = -t;
 	}
 
-    SetObjectPropertiesCommand * objectPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), object->getType(), t, object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getTextureFileName());
+ /*   SetObjectPropertiesCommand * objectPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), object->getType(), t, object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getTextureFileName());
     getProjectGraph()->executeCommand(objectPropertiesCommand);
     MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(object, s, RSystemElementRoad::DRS_ObjectSection);
-    getProjectGraph()->executeCommand(moveSectionCommand);
+    getProjectGraph()->executeCommand(moveSectionCommand);*/
 
     getProjectData()->getUndoStack()->endMacro();
 
     return parentChanged;
 }
 
-Object *
+/*Object *
 OpenScenarioEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 {
 	ObjectContainer *lastObject = signalManager_->getSelectedObjectContainer();
@@ -265,6 +261,12 @@ OpenScenarioEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t
 }
 */
 
+void 
+OpenScenarioEditor::catalogChanged(OpenScenario::oscObjectBase *object)
+{
+	oscCatalog_ = object;
+}
+
 //################//
 // MOUSE & KEY    //
 //################//
@@ -295,7 +297,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
         }
 
     }
-	else if (currentTool == ODD::TSG_OBJECT)
+	else if (currentTool == ODD::TOS_ELEMENT)
 	{
 		QPointF mousePoint = mouseAction->getEvent()->scenePos();
 
@@ -307,21 +309,29 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 				if (underMouseItems.count() == 0)		// find the closest road //
 				{
-/*					double s;
+					double s;
 					double t;
 					QVector2D vec;
 					RSystemElementRoad * road = findClosestRoad(mousePoint, s, t, vec);
 					if (road)
 					{
-						if (currentTool == ODD::TSG_SIGNAL)
-						{
-							addSignalToRoad(road, s, t);   
-						}
-						else
-						{
-							addObjectToRoad(road, s, t);
-						}
-					}*/
+						// Create new object //
+						OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
+						OpenScenario::oscObjectBase *entitiesObject = openScenarioBase->getMember("entities")->getObject();
+
+						OpenScenario::oscObject *entity = dynamic_cast<oscObject *>(entitiesObject->getMember("object")->getObject());
+
+						
+						OpenScenario::oscObjectBase *oscPosition = entity->getMember("initPosition")->getObject();
+						OpenScenario::oscObjectBase *oscPos = oscPosition->getMember("position")->getObject();
+						OpenScenario::oscObjectBase *oscPosRoad = oscPos->getMember("positionRoad")->getObject();
+						oscPosRoad->getMember("roadId")->getValue()->setValue(road->getID().toStdString());
+						oscPosRoad->getMember("s")->getValue()->setValue(s);
+						oscPosRoad->getMember("t")->getValue()->setValue(t);
+
+						OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getMember(catalogElement_.toStdString())->getObject();
+						OSCItem *oscItem = new OSCItem(oscRoadSystemItem_, entity, selectedObject, mousePoint);  
+					}
 				}
 			}
 		}
@@ -353,43 +363,34 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 		{
 			// Create new catalog //
 			QString objectName = action->getText();
+			
 			if (objectName != "")
 			{
 				OpenScenario::OpenScenarioBase *openScenarioBase = oscBase_->getOpenScenarioBase();
-				if (!openScenarioBase->catalogs.exists())
-				{
-					OSCElement *oscCatalogs = new OSCElement("catalogs");
+				OpenScenario::oscObjectBase *catalogObject = openScenarioBase->getMember("catalogs")->getObject();
+				oscBase_->getOSCElement(catalogObject);
 
-					AddOSCObjectCommand *command = new AddOSCObjectCommand(openScenarioBase, oscBase_, "catalogs", oscCatalogs, NULL);
-					getProjectGraph()->executeCommand(command);
+				OpenScenario::oscObjectBase *catalog = catalogObject->getMember(objectName.toStdString())->getObject();
+				OSCElement *oscElement = oscBase_->getOSCElement(catalog);
 
-				}
-				OpenScenario::oscObjectBase *catalogObject = openScenarioBase->catalogs.getObject();
-				if (catalogObject)
-				{
-					OpenScenario::oscObjectBase::MemberMap members = catalogObject->getMembers();
-					OpenScenario::oscMember *catalog = members[objectName.toStdString()];
+				catalogTree_ = getProjectWidget()->addCatalogTree(objectName, oscElement);   
+				catalogTree_->setOpenScenarioEditor(this);
 
-					OSCElement *oscElement;
-					if (!catalog->exists())
-					{
-						oscElement = new OSCElement(objectName);
-
-						AddOSCObjectCommand *command = new AddOSCObjectCommand(catalogObject, oscBase_, objectName.toStdString(), oscElement, NULL);
-						getProjectGraph()->executeCommand(command);
-					}
-					else
-					{
-						oscElement = oscBase_->getOSCElement(catalog->getObject());
-					}
-					getProjectWidget()->addCatalogTree(objectName, oscElement);   
-				}
 			}
 		}
 	}
 	else if (currentTool != lastTool_)
 	{
-		if (currentTool == ODD::TOS_SAVE_CATALOG)
+		if (currentTool == ODD::TOS_ELEMENT)
+		{
+			OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
+			if (action)
+			{
+				// Create new object //
+				catalogElement_ = action->getText();
+			}
+		}
+		else if (currentTool == ODD::TOS_SAVE_CATALOG)
 		{
 			// Save catalog //
 			//			if (catalog_ && mainWindow_->getActiveProject()->saveCatalogAs())

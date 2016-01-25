@@ -7,6 +7,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <oscMember.h>
 #include <oscObjectBase.h>
+#include <oscFactories.h>
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -85,7 +86,15 @@ void oscMember::deleteValue()
 
 oscMemberValue *oscMember::getValue()
 {
-    return value;
+	if (value)
+	{
+		return value;
+	}
+	
+	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
+	setValue(v);
+
+	return value;
 }
 
 void oscMember::setType(oscMemberValue::MemberTypes t)
@@ -100,7 +109,7 @@ oscMemberValue::MemberTypes oscMember::getType() const
 
 
 //
-oscObjectBase *oscMember::getObject() const
+oscObjectBase *oscMember::getObject()
 {
     return NULL;
 }

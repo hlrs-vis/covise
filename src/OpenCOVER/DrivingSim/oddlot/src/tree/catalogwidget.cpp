@@ -77,6 +77,7 @@ CatalogWidget::CatalogWidget(MainWindow *mainWindow, OSCElement *element, const 
 	, projectWidget_(NULL)
 	, oscElement_(element)
 	, type_(type)
+	, catalogTreeWidget_(NULL)
 {
 	object_ = oscElement_->getObject();
     init();

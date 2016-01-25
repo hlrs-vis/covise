@@ -64,6 +64,7 @@ public:
     void setBase(OpenScenarioBase *b);
     void setSource(oscSourceFile *s);
     MemberMap getMembers() const;
+	oscMember *getMember(const std::string &s) const;
     OpenScenarioBase *getBase() const;
     oscSourceFile *getSource() const;
 

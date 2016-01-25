@@ -26,7 +26,7 @@
 //
 #include "src/gui/projectwidget.hpp"
 #include "src/gui/tools/osceditortool.hpp"
-//#include "src/gui/tools/toolmanager.hpp"
+#include "src/gui/tools/toolmanager.hpp"
 
 // MainWindow//
 //
@@ -64,7 +64,7 @@ using namespace OpenScenario;
 // CONSTRUCTOR    //
 //################//
 
-CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, const OpenScenario::oscObjectBase *object, const QString &type)
+CatalogTreeWidget::CatalogTreeWidget(MainWindow *mainWindow, OpenScenario::oscObjectBase *object, const QString &type)
 	: QTreeWidget()
 	, mainWindow_(mainWindow)
 	, projectWidget_(NULL)
@@ -103,11 +103,11 @@ CatalogTreeWidget::init()
 		
 	// Connect with the ToolManager to send the selected signal or object //
     //
-/*	ToolManager *toolManager = mainWindow_->getToolManager();
+	ToolManager *toolManager = mainWindow_->getToolManager();
 	if (toolManager)
 	{
 		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
-	}*/
+	}
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setDragEnabled(true);
@@ -168,7 +168,7 @@ CatalogTreeWidget::createTree()
 		{
 			QString elementName = QString::fromStdString(it->first);
 
-			if ((elementName == type_) && (it->second->getObject()))
+			if ((elementName == type_) && (it->second->exists()))
 			{
 				QTreeWidgetItem *item = new QTreeWidgetItem();
 				item->setText(0,elementName);
@@ -202,8 +202,6 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 {
 //	if (oscEditor_)
 	{
-		static QObject *catalogDock_ = static_cast<QObject *>(mainWindow_->getCatalogDock());
-		QObject::connect(catalogDock_, SIGNAL(visibilityChanged(bool)), this, SLOT(onVisibilityChanged(bool)));
 
 		if (selectedItems().count() > 0)
 		{
@@ -212,7 +210,6 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 			if (text == "New Element")
 			{
-				currentTool_ = ODD::TOS_OBJECT;
 				oscElement_ = new OSCElement(type_);
 
 				if (oscElement_)
@@ -244,7 +241,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					projectWidget_->getTopviewGraph()->executeCommand(command);
 				}
 
-				currentTool_ = ODD::TOS_SELECT;
+				currentTool_ = ODD::TOS_ELEMENT;
 				OpenScenario::oscObjectBase::MemberMap members = objectBase_->getMembers();
 				for(OpenScenario::oscObjectBase::MemberMap::iterator it = members.begin();it != members.end();it++)
 				{
@@ -255,7 +252,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 						break;
 					}
 				}
-//				currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
+				currentMember_ = testBase_->getObject()->getMembers().at(text.toStdString());
 				if (currentMember_)
 				{
 					oscElement_ = base_->getOSCElement(currentMember_->getObject());
@@ -266,14 +263,14 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 					}
 				}
 
+				// Set a tool //
+				//
+				OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
+				emit toolAction(action);
+				delete action;
+
 			}
 		}
-
-		// Set a tool //
-		//
-	/*	OpenScenarioEditorToolAction *action = new OpenScenarioEditorToolAction(currentTool_, text);
-		emit toolAction(action);
-		delete action;*/
 
 
 		QTreeWidget::selectionChanged(selected, deselected);
@@ -292,9 +289,14 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 void
 CatalogTreeWidget::onVisibilityChanged(bool visible)
 {
+	if (visible && oscEditor_)
+	{
+		oscEditor_->catalogChanged(objectBase_);
+	}
+
 	clearSelection();
 
-	if (oscElement_->isElementSelected())
+	if (oscElement_ && oscElement_->isElementSelected())
 	{
 		DeselectDataElementCommand *command = new DeselectDataElementCommand(oscElement_, NULL);
 		projectWidget_->getTopviewGraph()->executeCommand(command);

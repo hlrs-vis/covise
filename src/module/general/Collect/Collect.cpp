@@ -47,7 +47,7 @@ Collect::Collect(int argc, char *argv[])
                                      "|Lines|Polygons|Quads|Triangles|TriangleStrips",
                           "Grid");
 
-    p_color = addInputPort("DataIn0", "Byte|Float|Vec3|RGBA", "Colors or Scalar Data for Volume Visualization");
+    p_color = addInputPort("DataIn0", "Byte|Float|Vec2|Vec3|RGBA", "Colors or Scalar Data for Volume Visualization");
     p_color->setRequired(0);
 
     p_norm = addInputPort("DataIn1", "Vec3", "Normals");

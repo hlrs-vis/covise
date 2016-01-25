@@ -66,6 +66,16 @@ oscObjectBase::MemberMap oscObjectBase::getMembers() const
     return members;
 }
 
+oscMember *oscObjectBase::getMember(const std::string &s) const
+{
+	if (members.count(s) == 0)
+	{
+		return NULL;
+	}
+
+	return members.at(s);
+}
+
 OpenScenarioBase *oscObjectBase::getBase() const
 {
     return base;
@@ -127,7 +137,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     //
                     if (document != srcXmlDoc)
                     {
-                        //add XInclude to root element of new xml document
+                        //add include element to currentElement and add XInclude namespace to root element of new xml document
                         const XMLCh *fileHref = obj->getSource()->getSrcFileHrefAsXmlCh();
                         addXInclude(currentElement, document, fileHref);
 
@@ -408,14 +418,16 @@ void oscObjectBase::addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocum
     xIncludeElem->setAttribute(attrHrefName, fileHref);
     currElem->appendChild(xIncludeElem);
 
-    //write attribute XMLBASE to doc root element
-    const XMLCh *attrXmlnsOscName = xercesc::XMLString::transcode("xmlns");
+    //write namespace for XInclude as attribute to doc root element
+    const XMLCh *attrXIncludeNsName = xercesc::XMLString::transcode("xmlns:osc");
     xercesc::DOMElement *docRootElem = doc->getDocumentElement();
-    xercesc::DOMAttr *attrNodeXmlnsOsc = docRootElem->getAttributeNode(attrXmlnsOscName);
-    if (!attrNodeXmlnsOsc)
+    xercesc::DOMAttr *attrNodeXIncludeNs = docRootElem->getAttributeNode(attrXIncludeNsName);
+    if (!attrNodeXIncludeNs)
     {
-        const XMLCh *attrXmlnsOscValue = xercesc::XMLString::transcode("http://www.w3.org/2001/XInclude");
-        docRootElem->setAttribute(attrXmlnsOscName, attrXmlnsOscValue);
+        //XInclude defines a namespace associated with the URI http://www.w3.org/2001/XInclude
+        //it is no link, it is treated as a normal string (as a formal identifier)
+        const XMLCh *attrXIncludeNsValue = xercesc::XMLString::transcode("http://www.w3.org/2001/XInclude");
+        docRootElem->setAttribute(attrXIncludeNsName, attrXIncludeNsValue);
     }
 }
 
@@ -423,7 +435,7 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
 {
     oscSourceFile *srcToUse;
 
-    //if attribute with attrXmlBase is present the element and all its children were read from a different file
+    //if attribute with attrXmlBase is present, the element and all its children were read from a different file
     //therefore we generate a new oscSourceFile
     const XMLCh *attrXmlBase = xercesc::XMLString::transcode("xml:base");
     xercesc::DOMAttr *memElemAttrXmlBase = memElem->getAttributeNode(attrXmlBase);

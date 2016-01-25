@@ -31,10 +31,9 @@
 // CONSTRUCTOR    //
 //################//
 
-SignalTextItem::SignalTextItem(SignalItem *signalItem)
-    : GraphElement(signalItem, signalItem->getSignal())
-    , signalItem_(signalItem)
-    , signal_(signalItem->getSignal())
+SignalTextItem::SignalTextItem(GraphElement *item, Signal *signal)
+    : GraphElement(item, signal)
+    , signal_(signal)
 {
     // Text //
     //
@@ -204,5 +203,5 @@ SignalTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     // Not the Label is selected, but the road beneath
     //
-    getSignalItem()->mousePressEvent(event);
+ //   getSignalItem()->mousePressEvent(event);
 }

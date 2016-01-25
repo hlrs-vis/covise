@@ -31,7 +31,7 @@ class BridgeTextItem : public GraphElement
     //################//
 
 public:
-    explicit BridgeTextItem(BridgeItem *bridgeItem);
+	explicit BridgeTextItem(GraphElement *bridgeItem, Bridge *bridge);
     virtual ~BridgeTextItem();
 
     virtual void createPath();
@@ -54,10 +54,6 @@ private:
 
     void updatePosition();
     void updateName();
-    BridgeItem *getBridgeItem()
-    {
-        return bridgeItem_;
-    };
 
     //################//
     // SLOTS          //
@@ -87,7 +83,7 @@ protected:
     //################//
 
 private:
-    BridgeItem *bridgeItem_;
+    GraphElement *item_;
     Bridge *bridge_;
     TextHandle *textHandle_;
 };

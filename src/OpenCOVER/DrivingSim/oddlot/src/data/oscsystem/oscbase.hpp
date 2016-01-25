@@ -79,7 +79,7 @@ public:
 	}
 
 	OSCElement *getOSCElement(const QString &id) const;
-	OSCElement *getOSCElement(const OpenScenario::oscObjectBase *oscObjectBase) const;
+	OSCElement *getOSCElement(OpenScenario::oscObjectBase *oscObjectBase);
 
     QMap<QString, OSCElement *> getOSCElements() const
     {

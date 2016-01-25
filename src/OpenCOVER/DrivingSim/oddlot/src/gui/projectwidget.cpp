@@ -68,6 +68,7 @@
 //
 #include "src/tree/projecttree.hpp"
 #include "src/tree/catalogwidget.hpp"
+#include "src/tree/catalogtreewidget.hpp"
 
 // Settings //
 //
@@ -109,6 +110,7 @@
 #include <QMessageBox>
 #include <QAction>
 #include <QApplication>
+#include <QDockWidget>
 #include <vector>
 
 using namespace OpenScenario;
@@ -500,13 +502,18 @@ ProjectWidget::loadTile(const QString &fileName)
     return true;
 }
 
-void
+CatalogTreeWidget *
 	ProjectWidget::addCatalogTree(const QString &type, OSCElement *element)
 {
 	// add a catalog tree
 	//
 	CatalogWidget *catalogWidget = new CatalogWidget(mainWindow_, element, type);
-	mainWindow_->createCatalog(type, catalogWidget);
+	QDockWidget *catalogDock = mainWindow_->createCatalog(type, catalogWidget);
+	CatalogTreeWidget *catalogTree = catalogWidget->getCatalogTreeWidget();
+
+	QObject::connect(catalogDock, SIGNAL(visibilityChanged(bool)), catalogTree, SLOT(onVisibilityChanged(bool)));
+
+	return catalogTree;
 }
 
 float ProjectWidget::getLinearError(size_t start, size_t len)

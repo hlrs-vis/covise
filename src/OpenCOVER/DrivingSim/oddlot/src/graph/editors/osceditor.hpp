@@ -22,13 +22,18 @@
 
 class ProjectData;
 class TopviewGraph;
+class RSystemElementRoad;
+class CatalogTreeWidget;
 
 namespace OpenScenario
 {
 class OpenScenarioBase;
+class oscObjectBase;
+class oscObject;
 }
 
 class OSCBase;
+class OSCRoadSystemItem;
 
 class OpenScenarioEditor : public ProjectEditor
 {
@@ -56,12 +61,17 @@ public:
 
     // Move Signal //
     //
-//	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
-/*bool translateObject(Object * object, RSystemElementRoad * newRoad, QPointF &to);
+	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
+	bool translateObject(OpenScenario::oscObject * object, RSystemElementRoad * newRoad, QPointF &to);
+
+
+	// Catalog dock widget changed //
+	//
+	void catalogChanged(OpenScenario::oscObjectBase *object);
 
 	// New Object with properties chosen in SignalTreeWidget //
 	//
-	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);*/
+//	Object *addObjectToRoad(RSystemElementRoad *road, double s, double t);
 
 
 protected:
@@ -91,7 +101,7 @@ private:
 
 	// RoadSystem //
 	//
-	// OSCRoadSystemItem * oscRoadSystemItem_;
+	 OSCRoadSystemItem * oscRoadSystemItem_;
 
 	// MainWindow //
 	//
@@ -101,7 +111,17 @@ private:
 	//
 	OSCBase * oscBase_;
 
+	// Selected catalog //
+	//
+	OpenScenario::oscObjectBase *oscCatalog_;
+
 	ODD::ToolId lastTool_;
+
+	QString catalogElement_;
+
+	// Window with catalog entries //
+	//
+	CatalogTreeWidget *catalogTree_;
 
     // RoadType //
     //

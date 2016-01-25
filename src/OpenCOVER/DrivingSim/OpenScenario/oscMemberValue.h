@@ -51,7 +51,7 @@ public:
     virtual void setValue(unsigned int &t){};
     virtual void setValue(short &t){};
     virtual void setValue(unsigned short &t){};
-    virtual void setValue(std::string &t){};
+    virtual void setValue(const std::string &t){};
     virtual void setValue(double &t){};
     virtual void setValue(time_t &t){};
     virtual void setValue(bool &t){};

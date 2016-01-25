@@ -67,7 +67,7 @@ OSCBase::getOSCElement(const QString &id) const
 }
 
 OSCElement *
-OSCBase::getOSCElement(const OpenScenario::oscObjectBase *oscObjectBase) const
+OSCBase::getOSCElement(OpenScenario::oscObjectBase *oscObjectBase)
 {
 	OSCElement *oscElement;
 
@@ -77,10 +77,15 @@ OSCBase::getOSCElement(const OpenScenario::oscObjectBase *oscObjectBase) const
 		oscElement = it.value();
 		if (oscObjectBase == oscElement->getObject())
 		{
-			break;
+			return oscElement;
 		}
 		it++;
 	}
+
+	oscElement = new OSCElement(QString::fromStdString(oscObjectBase->getOwnMember()->getName()));
+	oscElement->setObjectBase(oscObjectBase);
+	addOSCElement(oscElement);
+
 	return oscElement;
 }
 

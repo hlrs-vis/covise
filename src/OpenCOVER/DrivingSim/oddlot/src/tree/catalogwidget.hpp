@@ -55,6 +55,12 @@ public:
 
 	void onDeleteCatalogItem();
 
+	CatalogTreeWidget *getCatalogTreeWidget()
+	{
+		return catalogTreeWidget_;
+	}
+
+
 protected:
 private:
     CatalogWidget(); /* not allowed */
@@ -62,7 +68,6 @@ private:
     CatalogWidget &operator=(const CatalogWidget &); /* not allowed */
 
     void init();
-
 
     //################//
     // PROPERTIES     //
@@ -81,7 +86,7 @@ private:
 
 	const QString type_;	// catalog type
 
-	const OpenScenario::oscObjectBase *object_;
+	OpenScenario::oscObjectBase *object_;
 	OSCElement *oscElement_;
 
 };

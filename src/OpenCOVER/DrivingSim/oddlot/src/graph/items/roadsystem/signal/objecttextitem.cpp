@@ -31,10 +31,9 @@
 // CONSTRUCTOR    //
 //################//
 
-ObjectTextItem::ObjectTextItem(ObjectItem *objectItem)
-    : GraphElement(objectItem, objectItem->getObject())
-    , objectItem_(objectItem)
-    , object_(objectItem->getObject())
+ObjectTextItem::ObjectTextItem(GraphElement *item, Object *object)
+    : GraphElement(item, object)
+    , object_(object)
 {
     // Text //
     //
@@ -180,5 +179,5 @@ ObjectTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     // Not the Label is selected, but the road beneath
     //
-    getObjectItem()->mousePressEvent(event);
+ //   getObjectItem()->mousePressEvent(event);
 }

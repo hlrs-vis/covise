@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <oscExport.h>
 #include <oscMemberValue.h>
 #include <oscMember.h>
+#include <oscFactories.h>
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -28,7 +29,24 @@ namespace OpenScenario
         oscObjectVariable(){type = oscMemberValue::OBJECT; valueT=NULL;};
         bool initialize(xercesc::DOMAttr *){return false;};
         T operator->(){return valueT;};
-        oscObjectBase* getObject() const {return valueT;};
+        oscObjectBase* getObject()
+		{
+			if (valueT)
+			{
+				return valueT;
+			}
+
+			std::string type = typeName;
+			oscObjectBase *obj = oscFactories::instance()->objectFactory->create(type);
+			if(obj)
+			{
+				oscMember *member = static_cast<oscMember *>((oscObjectVariable<T>*)this);
+				obj->initialize(owner->getBase(), owner, member, owner->getSource());	
+				setValue(obj);
+			}
+
+			return valueT;
+		};
         void setValue(oscObjectBase *t)
         {
             if (t != NULL)

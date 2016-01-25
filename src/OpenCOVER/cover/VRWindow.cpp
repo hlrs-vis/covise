@@ -79,7 +79,7 @@ VRWindow::~VRWindow()
     delete[] origHSize;
 }
 
-void
+bool
 VRWindow::config()
 {
     if (cover->debugLevel(3))
@@ -93,9 +93,12 @@ VRWindow::config()
     {
         origVSize[i] = -1;
         origHSize[i] = -1;
-        createWin(i);
+        if (!createWin(i))
+            return false;
         //XXX ia->addRenderSurface(cover->windows[i].rs);
     }
+
+    return true;
 }
 
 void
@@ -167,7 +170,7 @@ VRWindow::update()
 }
 
 /*************************************************************************/
-void
+bool
 VRWindow::createWin(int i)
 {
     if (cover->debugLevel(4))
@@ -299,6 +302,11 @@ VRWindow::createWin(int i)
             }
         }
     }
+    if (!coVRConfig::instance()->windows[i].window)
+    {
+        return false;
+    }
+
     if (covise::coCoviseConfig::isOn("COVER.WindowConfig.OpenGL3", false))
     {
         // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
@@ -338,4 +346,5 @@ VRWindow::createWin(int i)
 #endif
     fprintf(stderr, "VRWindow::createWin %d --- finished\n", i);
     //sleep(200);
+    return true;
 }

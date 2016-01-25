@@ -143,11 +143,6 @@ public:
 		return signalTree_;
 	}
 
-	QDockWidget *getCatalogDock()
-	{
-		return catalogDock_;
-	}
-
 	void showSignalsDock(bool visible);
 
     // ProjectSettings //
@@ -162,7 +157,7 @@ public:
     void openTile(QString fileName);
 
 	// add Catalog dock widgets when the project is openend
-	void createCatalog(const QString &, QWidget *widget);
+	QDockWidget  *createCatalog(const QString &, QWidget *widget);
 
 
 private:
