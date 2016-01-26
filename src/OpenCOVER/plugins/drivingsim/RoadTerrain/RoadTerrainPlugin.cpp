@@ -393,7 +393,7 @@ bool RoadTerrainPlugin::addLayer(std::string filename)
             OGRRegisterAll();
 
         // Try to open data source
-        OGRDataSource* file = OGRSFDriverRegistrar::Open(filename.c_str(), FALSE);
+        OGRDataSource* poDS = OGRSFDriverRegistrar::Open(filename.c_str(), FALSE);
 #else
         if (GDALGetDriverCount() == 0)
             GDALAllRegister();
