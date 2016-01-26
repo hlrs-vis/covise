@@ -853,7 +853,7 @@ void OpenCOVER::frame()
         {
             if (printFPS)
             {
-                cout << "avg fps: " << frameCount / sum_time << " min fps: " << 1.0 / maxTime << '\n' << flush;
+                cout << "avg fps: " << frameCount / sum_time << ", min fps: " << 1.0 / maxTime << '\r' << flush;
             }
             coVRTui::instance()->updateFPS(1.0 / (fl_time - old_fl_time));
         }
