@@ -9,12 +9,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_PEDESTRIAN_H
 
 #include "oscExport.h"
-
 #include "oscNameRefId.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscBehavior.h"
 #include "oscDimension.h"
 #include "oscFile.h"
@@ -37,7 +36,7 @@ class OPENSCENARIOEXPORT oscPedestrian: public oscNameRefId
 public:
     oscPedestrian()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(model);
         OSC_ADD_MEMBER(mass);
         OSC_OBJECT_ADD_MEMBER(behavior, "oscBehavior");
@@ -48,7 +47,7 @@ public:
         pedestrianClass.enumType = pedestrianClassType::instance();
     };
 
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscString model;
     oscDouble mass;
     oscBehaviorMember behavior;

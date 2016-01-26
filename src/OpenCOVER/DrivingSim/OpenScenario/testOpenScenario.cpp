@@ -6,7 +6,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 * License: LGPL 2+ */
 
 #include "OpenScenarioBase.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 
 #include <iostream>
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 
     xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
 
-    // print to std::out
+    // print to console
     if (writeToConsole)
     {
         xercesc::XMLFormatTarget *consoleTarget = new xercesc::StdOutFormatTarget();
@@ -116,11 +116,11 @@ int main(int argc, char **argv)
     //////
 
     //print some values to console
-    if (osdb->header.getObject() != NULL)
+    if (osdb->fileHeader.getObject() != NULL)
     {
-        std::cerr << "revMajor:" << osdb->header->revMajor.getValue() << std::endl;
-        std::cerr << "revMinor:" << osdb->header->revMinor.getValue() << std::endl;
-        std::cerr << "Author:" << osdb->header->author.getValue() << std::endl;
+        std::cerr << "revMajor:" << osdb->fileHeader->revMajor.getValue() << std::endl;
+        std::cerr << "revMinor:" << osdb->fileHeader->revMinor.getValue() << std::endl;
+        std::cerr << "Author:" << osdb->fileHeader->author.getValue() << std::endl;
     }
 
     //write object structure to xml document

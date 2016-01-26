@@ -32,7 +32,7 @@
 #include "OpenScenarioBase.h"
 #include "oscObjectBase.h"
 #include "oscObject.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 
 
 /*#include "src/data/vehiclesystem/vehiclesystem.hpp"
@@ -128,7 +128,7 @@ OSCParser::parseXOSC(const QString &filename)
 
     // <OpenSCENARIO><header> //
     //
-	const OpenScenario::oscObjectBase * h = openScenarioBase_->header.getObject();
+	const OpenScenario::oscObjectBase * h = openScenarioBase_->fileHeader.getObject();
     
     if (!h)
     {

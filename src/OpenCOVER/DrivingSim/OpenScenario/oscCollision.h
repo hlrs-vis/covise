@@ -13,7 +13,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscPartner.h"
+#include "oscPartnerObject.h"
+#include "oscPartnerType.h"
 
 
 namespace OpenScenario {
@@ -23,13 +24,15 @@ class OPENSCENARIOEXPORT oscCollision: public oscObjectBase
 {
 public:
     oscCollision()
-    {	
+    {
         OSC_ADD_MEMBER(object);
-        OSC_OBJECT_ADD_MEMBER(partner, "oscPartner");
+        OSC_OBJECT_ADD_MEMBER(partnerObject, "oscPartnerObject");
+        OSC_OBJECT_ADD_MEMBER(partnerType, "oscPartnerType");
     };
 
     oscString object;
-    oscPartnerMember partner;
+    oscPartnerObjectMember partnerObject;
+    oscPartnerTypeMember partnerType;
 };
 
 typedef oscObjectVariable<oscCollision *> oscCollisionMember;

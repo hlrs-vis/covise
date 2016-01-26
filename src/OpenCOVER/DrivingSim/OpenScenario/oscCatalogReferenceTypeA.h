@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_CATALOG_REF_H
-#define OSC_CATALOG_REF_H
+#ifndef OSC_CATALOG_REFERENCE_TYPE_A_H
+#define OSC_CATALOG_REFERENCE_TYPE_A_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -19,10 +19,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscCatalogRef: public oscObjectBase
+class OPENSCENARIOEXPORT oscCatalogReferenceTypeA: public oscObjectBase
 {
 public:
-    oscCatalogRef()
+    oscCatalogReferenceTypeA()
     {
         OSC_ADD_MEMBER(catalogId);
         OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterListTypeB");
@@ -32,8 +32,8 @@ public:
     oscParameterListTypeBArrayMember parameterList;
 };
 
-typedef oscObjectVariable<oscCatalogRef *> oscCatalogRefMember;
+typedef oscObjectVariable<oscCatalogReferenceTypeA *> oscCatalogReferenceTypeAMember;
 
 }
 
-#endif //OSC_CATALOG_REF_H
+#endif //OSC_CATALOG_REFERENCE_TYPE_A_H

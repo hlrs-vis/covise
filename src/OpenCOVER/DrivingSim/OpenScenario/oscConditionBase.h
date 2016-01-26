@@ -22,11 +22,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscStoppingDistance.h"
 #include "oscTimeToCollision.h"
 #include "oscTimeHeadway.h"
-#include "oscReferenceHanding.h"
+#include "oscReferenceHandling.h"
 #include "oscOffroad.h"
 #include "oscCollision.h"
 #include "oscNumericCondition.h"
 #include "oscCommand.h"
+#include "oscAfterManeuvers.h"
+#include "oscEndOfRoad.h"
 #include "oscUserDefined.h"
 
 
@@ -48,11 +50,13 @@ public:
         OSC_OBJECT_ADD_MEMBER(stoppingDistance, "oscStoppingDistance");
         OSC_OBJECT_ADD_MEMBER(timeToCollision, "oscTimeToCollision");
         OSC_OBJECT_ADD_MEMBER(timeHeadway, "oscTimeHeadway");
-        OSC_OBJECT_ADD_MEMBER(referenceHanding, "oscReferenceHanding");
+        OSC_OBJECT_ADD_MEMBER(referenceHandling, "oscReferenceHandling");
         OSC_OBJECT_ADD_MEMBER(offroad, "oscOffroad");
         OSC_OBJECT_ADD_MEMBER(collision, "oscCollision");
         OSC_OBJECT_ADD_MEMBER(numericCondition, "oscNumericCondition");
         OSC_OBJECT_ADD_MEMBER(command, "oscCommand");
+        OSC_OBJECT_ADD_MEMBER(afterManeuvers, "oscAfterManeuvers");
+        OSC_OBJECT_ADD_MEMBER(endOfRoad, "oscEndOfRoad");
         OSC_OBJECT_ADD_MEMBER(userDefined, "oscUserDefined");
     };
 
@@ -66,11 +70,13 @@ public:
     oscStoppingDistanceMember stoppingDistance;
     oscTimeToCollisionMember timeToCollision;
     oscTimeHeadwayMember timeHeadway;
-    oscReferenceHandingMember referenceHanding;
+    oscReferenceHandlingMember referenceHandling;
     oscOffroadMember offroad;
     oscCollisionMember collision;
     oscNumericConditionMember numericCondition;
     oscCommandMember command;
+    oscAfterManeuversMember afterManeuvers;
+    oscEndOfRoadMember endOfRoad;
     oscUserDefinedMember userDefined;
 };
 

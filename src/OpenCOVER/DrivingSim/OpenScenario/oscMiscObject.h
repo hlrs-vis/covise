@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscDimension.h"
 #include "oscFile.h"
 
@@ -26,14 +26,14 @@ class OPENSCENARIOEXPORT oscMiscObject: public oscObjectBase
 public:
     oscMiscObject()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(name);
         OSC_ADD_MEMBER(type);
         OSC_ADD_MEMBER(mass);
         OSC_OBJECT_ADD_MEMBER(dimensions, "oscDimension");
         OSC_OBJECT_ADD_MEMBER(geometry, "oscFile");
     };
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscString name;
     oscString type;
     oscDouble mass;

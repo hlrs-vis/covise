@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscNamedObject.h"
 #include "oscObjectVariable.h"
 
-#include "oscCatalogRef.h"
+#include "oscCatalogReferenceTypeA.h"
 #include "oscInitPosition.h"
 #include "oscInitDynamics.h"
 #include "oscInitState.h"
@@ -26,13 +26,13 @@ class OPENSCENARIOEXPORT oscObject: public oscNamedObject
 public:
     oscObject()
     {
-        OSC_OBJECT_ADD_MEMBER(catalogRef, "oscCatalogRef");
+        OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
         OSC_OBJECT_ADD_MEMBER(initPosition, "oscInitPosition");
         OSC_OBJECT_ADD_MEMBER(initDynamics, "oscInitDynamics");
         OSC_OBJECT_ADD_MEMBER(initState, "oscInitState");
     };
     
-    oscCatalogRefMember catalogRef;
+    oscCatalogReferenceTypeAMember catalogReference;
     oscInitPositionMember initPosition;
     oscInitDynamicsMember initDynamics;
     oscInitStateMember initState;

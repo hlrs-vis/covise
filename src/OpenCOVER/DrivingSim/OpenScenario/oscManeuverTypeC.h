@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscStartConditionsTypeB.h"
 #include "oscEndConditionsTypeB.h"
 #include "oscCancelConditionsTypeB.h"
-#include "oscCatalogRef.h"
+#include "oscCatalogReferenceTypeB.h"
 #include "oscManeuverTypeA.h"
 
 
@@ -30,14 +30,14 @@ public:
         OSC_OBJECT_ADD_MEMBER(startConditions, "oscStartConditionsTypeB");
         OSC_OBJECT_ADD_MEMBER(endConditions, "oscEndConditionsTypeB");
         OSC_OBJECT_ADD_MEMBER(cancelConditions, "oscCancelConditionsTypeB");
-        OSC_OBJECT_ADD_MEMBER(catalogRef, "oscCatalogRef");
+        OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeB");
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
     oscStartConditionsTypeBArrayMember startConditions;
     oscEndConditionsTypeBArrayMember endConditions;
     oscCancelConditionsTypeBArrayMember cancelConditions;
-    oscCatalogRefMember catalogRef;
+    oscCatalogReferenceTypeBMember catalogReference;
     oscManeuverTypeAMember maneuver;
 };
 

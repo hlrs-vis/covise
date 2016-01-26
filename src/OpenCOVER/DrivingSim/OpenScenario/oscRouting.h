@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscGeneral.h"
 #include "oscWaypoints.h"
 #include "oscUserDataList.h"
@@ -27,13 +27,13 @@ public:
 	
     oscRouting()
     {
-		OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+		OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
 		OSC_OBJECT_ADD_MEMBER(general, "oscGeneral");
 		OSC_OBJECT_ADD_MEMBER(waypoints, "oscWaypoints");
 		OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-	oscHeaderMember header;
+	oscFileHeaderMember fileHeader;
 	oscGeneralMember general;
 	oscWaypointsArrayMember waypoints;
 	oscUserDataListArrayMember userDataList;

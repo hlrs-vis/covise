@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscNamedObject.h"
 #include "oscObjectVariable.h"
 
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscTimeOfDay.h"
 #include "oscWeather.h"
 #include "oscRoadConditions.h"
@@ -27,13 +27,13 @@ class OPENSCENARIOEXPORT oscEnvironment: public oscNamedObject
 public:
     oscEnvironment()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_OBJECT_ADD_MEMBER(timeOfDay, "oscTimeOfDay");
         OSC_OBJECT_ADD_MEMBER(weather, "oscWeather");
         OSC_OBJECT_ADD_MEMBER(roadConditions, "oscRoadConditions");
     };
 
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscTimeOfDayMember timeOfDay;
     oscWeatherMember weather;
     oscRoadConditionsArrayMember roadConditions;

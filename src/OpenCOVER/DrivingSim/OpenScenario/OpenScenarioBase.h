@@ -10,9 +10,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
+
+#include "oscFileHeader.h"
 #include "oscCatalogs.h"
 #include "oscRoadNetwork.h"
-#include "oscHeader.h"
 #include "oscEnvironmentRef.h"
 #include "oscEntities.h"
 #include "oscStoryboard.h"
@@ -45,7 +46,7 @@ protected:
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
 
 public:
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscCatalogsMember catalogs;
     oscRoadNetworkMember roadNetwork;
     oscEnvironmentRefMember environment; // temp only, should be a reference

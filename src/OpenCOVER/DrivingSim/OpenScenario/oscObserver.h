@@ -9,12 +9,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_OBSERVER_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscNamedObject.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscHeader.h"
-#include "oscNamedObject.h"
+#include "oscFileHeader.h"
 #include "oscFrustum.h"
 #include "oscFilters.h"
 
@@ -27,14 +26,14 @@ class OPENSCENARIOEXPORT oscObserver: public oscNamedObject
 public:
     oscObserver()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(refId);
         OSC_ADD_MEMBER(type);
         OSC_OBJECT_ADD_MEMBER(frustum, "oscFrustum");
         OSC_OBJECT_ADD_MEMBER(filters, "oscFilters");
     };
 
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscInt refId;
     oscString type;
     oscFrustumMember frustum;

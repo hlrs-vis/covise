@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_PARTNER_H
-#define OSC_PARTNER_H
+#ifndef OSC_PARTNER_TYPE_H
+#define OSC_PARTNER_TYPE_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -17,31 +17,29 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT objectTypeType: public oscEnumType
+class OPENSCENARIOEXPORT partnerTObjTypeType: public oscEnumType
 {
 public:
-    static objectTypeType *instance(); 
+    static partnerTObjTypeType *instance();
 private:
-    objectTypeType();
-    static objectTypeType *inst;
+    partnerTObjTypeType();
+    static partnerTObjTypeType *inst;
 };
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscPartner: public oscObjectBase
+class OPENSCENARIOEXPORT oscPartnerType: public oscObjectBase
 {
 public:
-    oscPartner()
+    oscPartnerType()
     {
-        OSC_ADD_MEMBER(object);
         OSC_ADD_MEMBER(objectType);
 
-        objectType.enumType = objectTypeType::instance();
+        objectType.enumType = partnerTObjTypeType::instance();
     };
 
-    oscString object;
     oscEnum objectType;
 
-    enum objectType
+    enum partnerTObjType
     {
         vehicle,
         pedestrian,
@@ -50,8 +48,8 @@ public:
     };
 };
 
-typedef oscObjectVariable<oscPartner *> oscPartnerMember;
+typedef oscObjectVariable<oscPartnerType *> oscPartnerTypeMember;
 
 }
 
-#endif //OSC_PARTNER_H
+#endif //OSC_PARTNER_TYPE_H

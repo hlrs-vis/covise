@@ -12,9 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscNamedPriority.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
 #include "oscRefActorsTypeB.h"
-#include "oscCatalogRef.h"
+#include "oscCatalogReferenceTypeA.h"
 #include "oscManeuverTypeA.h"
 
 
@@ -27,12 +26,12 @@ public:
     oscManeuverTypeB()
     {
         OSC_OBJECT_ADD_MEMBER(refActors, "oscRefActorsTypeB");
-        OSC_OBJECT_ADD_MEMBER(catalogRef, "oscCatalogRef");
+        OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
     oscRefActorsTypeBArrayMember refActors;
-    oscCatalogRefMember catalogRef;
+    oscCatalogReferenceTypeAMember catalogReference;
     oscManeuverTypeAMember maneuver;
 };
 

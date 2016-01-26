@@ -33,12 +33,12 @@ public:
     oscNamedPriority()
     {   
         OSC_ADD_MEMBER(numberOfExecutions);
-        OSC_ADD_MEMBER(maneuverPriority);
+        OSC_ADD_MEMBER(priority);
 
-        maneuverPriority.enumType = maneuverPriorityType::instance();
+        priority.enumType = maneuverPriorityType::instance();
     };
 
-    oscEnum maneuverPriority;
+    oscEnum priority;
     oscInt numberOfExecutions;
 
     enum maneuverPriority

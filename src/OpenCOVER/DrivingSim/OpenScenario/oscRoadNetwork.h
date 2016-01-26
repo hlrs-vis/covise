@@ -24,13 +24,13 @@ class OPENSCENARIOEXPORT oscRoadNetwork: public oscObjectBase
 public:
     oscRoadNetwork()
     {
-        OSC_OBJECT_ADD_MEMBER(OpenDRIVE, "oscFile");
-        OSC_OBJECT_ADD_MEMBER(SceneGraph, "oscFile");
+        OSC_OBJECT_ADD_MEMBER(openDrive, "oscFile");
+        OSC_OBJECT_ADD_MEMBER(sceneGraph, "oscFile");
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscFileMember OpenDRIVE;
-    oscFileMember SceneGraph;
+    oscFileMember openDrive;
+    oscFileMember sceneGraph;
     oscUserDataListArrayMember userDataList;
 };
 

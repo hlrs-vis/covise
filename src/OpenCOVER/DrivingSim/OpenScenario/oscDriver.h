@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscBody.h"
 #include "oscFile.h"
 
@@ -26,7 +26,7 @@ class OPENSCENARIOEXPORT oscDriver: public oscNamedObject
 public:
     oscDriver()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(obeyTrafficLights);
         OSC_ADD_MEMBER(obeyTrafficSigns);
         OSC_ADD_MEMBER(steeringDistance);
@@ -54,7 +54,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(geometry, "oscFile");
     };
 
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscBool obeyTrafficLights;
     oscBool obeyTrafficSigns;
     oscDouble steeringDistance;

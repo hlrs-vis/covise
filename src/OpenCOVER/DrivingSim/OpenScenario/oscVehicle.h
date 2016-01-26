@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscPerformance.h"
 #include "oscFile.h"
 #include "oscDimension.h"
@@ -41,7 +41,7 @@ class OPENSCENARIOEXPORT oscVehicle: public oscNamedObject
 public:
     oscVehicle()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(manufacturer);
         OSC_ADD_MEMBER(model);
         OSC_ADD_MEMBER(color);
@@ -59,7 +59,7 @@ public:
         vehicleClass.enumType = vehicleClassType::instance();
     };
 
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscString manufacturer;
     oscString model;
     oscString color;

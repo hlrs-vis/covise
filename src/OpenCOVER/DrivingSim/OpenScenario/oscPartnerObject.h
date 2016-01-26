@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_SIMULATION_TIME_H
-#define OSC_SIMULATION_TIME_H
+#ifndef OSC_PARTNER_OBJECT_H
+#define OSC_PARTNER_OBJECT_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -18,19 +18,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscSimulationTime: public oscObjectBase
+class OPENSCENARIOEXPORT oscPartnerObject: public oscObjectBase
 {
 public:
-    oscSimulationTime()
+    oscPartnerObject()
     {
-        OSC_ADD_MEMBER(time);
+        OSC_ADD_MEMBER(object);
     };
 
-    oscDouble time;
+    oscString object;
 };
 
-typedef oscObjectVariable<oscSimulationTime *> oscSimulationTimeMember;
+typedef oscObjectVariable<oscPartnerObject *> oscPartnerObjectMember;
 
 }
 
-#endif //OSC_SIMULATION_TIME_H
+#endif /* OSC_PARTNER_OBJECT_H */

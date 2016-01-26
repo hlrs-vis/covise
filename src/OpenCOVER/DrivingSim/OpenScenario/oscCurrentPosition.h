@@ -5,11 +5,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_SIMULATION_TIME_H
-#define OSC_SIMULATION_TIME_H
+#ifndef OSC_CURRENT_POSITION_H
+#define OSC_CURRENT_POSITION_H
 
 #include "oscExport.h"
-#include "oscObjectBase.h"
+#include "oscOrientation.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -18,19 +18,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscSimulationTime: public oscObjectBase
+class OPENSCENARIOEXPORT oscCurrentPosition: public oscOrientation
 {
 public:
-    oscSimulationTime()
+    oscCurrentPosition()
     {
-        OSC_ADD_MEMBER(time);
+        OSC_ADD_MEMBER(current);
     };
 
-    oscDouble time;
+    oscBool current;
 };
 
-typedef oscObjectVariable<oscSimulationTime *> oscSimulationTimeMember;
+typedef oscObjectVariable<oscCurrentPosition *> oscCurrentPositionMember;
 
 }
 
-#endif //OSC_SIMULATION_TIME_H
+#endif /* OSC_CURRENT_POSITION_H */

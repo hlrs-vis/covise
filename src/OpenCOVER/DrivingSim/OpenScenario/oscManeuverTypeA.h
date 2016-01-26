@@ -13,7 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
-#include "oscHeader.h"
+#include "oscFileHeader.h"
 #include "oscParameterListTypeA.h"
 #include "oscEvents.h"
 
@@ -26,13 +26,13 @@ class OPENSCENARIOEXPORT oscManeuverTypeA: public oscObjectBase
 public:
     oscManeuverTypeA()
     {
-        OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+        OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(parameterList, "oscParameterListTypeA");
         OSC_OBJECT_ADD_MEMBER(events, "oscEvents");
     };
 
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscString name;
     oscParameterListTypeAArrayMember parameterList;
     oscEventsArrayMember events;

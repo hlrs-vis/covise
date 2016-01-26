@@ -24,11 +24,11 @@ class OPENSCENARIOEXPORT oscScenarioEnd: public oscObjectBase
 public:
     oscScenarioEnd()
     {
-        OSC_OBJECT_ADD_MEMBER(endConditions, "oscEndConditionsTypeA");
+        OSC_OBJECT_ADD_MEMBER(endConditionGroups, "oscEndConditionsGroupsTypeA");
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscEndConditionsTypeAArrayMember endConditions;
+    oscEndConditionsGroupsTypeAArrayMember endConditionGroups;
     oscUserDataListArrayMember userDataList;
 };
 

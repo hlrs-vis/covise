@@ -13,6 +13,7 @@ SET(HEADERS
    oscActions.h
    oscAdditionalAxles.h
    oscAerodynamics.h
+   oscAfterManeuvers.h
    oscArrayMember.h
    oscAutonomous.h
    oscAxles.h
@@ -25,7 +26,8 @@ SET(HEADERS
    oscCancelConditionsTypeB.h
    oscCancelConditionTypeA.h
    oscCancelConditionTypeB.h
-   oscCatalogRef.h
+   oscCatalogReferenceTypeA.h
+   oscCatalogReferenceTypeB.h
    oscCatalogs.h
    oscCenter.h
    oscCharacterAppearance.h
@@ -44,6 +46,7 @@ SET(HEADERS
    oscContinuation.h
    oscControllerChoice.h
    oscCoord.h
+   oscCurrentPosition.h
    oscDate.h
    oscDimension.h
    oscDimensions.h
@@ -60,6 +63,7 @@ SET(HEADERS
    oscEndConditionsTypeB.h
    oscEndConditionTypeA.h
    oscEndConditionTypeB.h
+   oscEndOfRoad.h
    oscEngine.h
    oscEntities.h
    oscEntity.h
@@ -79,13 +83,13 @@ SET(HEADERS
    oscFeature.h
    oscFeatures.h
    oscFile.h
+   oscFileHeader.h
    oscFilter.h
    oscFilters.h
    oscFog.h
    oscFrustum.h
    oscGearbox.h
    oscGeneral.h
-   oscHeader.h
    oscInitDynamics.h
    oscInitPosition.h
    oscInitState.h
@@ -134,7 +138,8 @@ SET(HEADERS
    oscParameterListTypeB.h
    oscParameterTypeA.h
    oscParameterTypeB.h
-   oscPartner.h
+   oscPartnerObject.h
+   oscPartnerType.h
    oscPedestrian.h
    oscPedestrianCatalog.h
    oscPedestrianController.h
@@ -153,7 +158,7 @@ SET(HEADERS
    oscRefActorsTypeB.h
    oscRefActorTypeA.h
    oscRefActorTypeB.h
-   oscReferenceHanding.h
+   oscReferenceHandling.h
    oscRelative.h
    oscRelativeChoice.h
    oscRelativePositionLane.h
@@ -227,13 +232,13 @@ SET(SOURCES
    oscNamedPriority.cpp
    oscNumericCondition.cpp
    oscObjectBase.cpp
-   oscPartner.cpp
+   oscPartnerType.cpp
    oscPedestrian.cpp
    oscPedestrianController.cpp
    oscPrecipitation.cpp
    oscPriority.cpp
    oscReachPosition.cpp
-   oscReferenceHanding.cpp
+   oscReferenceHandling.cpp
    oscRoadCondition.cpp
    oscRoute.cpp
    oscShape.cpp

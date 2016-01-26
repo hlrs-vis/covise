@@ -13,6 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
+#include "oscCurrentPosition.h"
 #include "oscRoadCoord.h"
 #include "oscLaneCoord.h"
 
@@ -26,17 +27,18 @@ public:
     oscPositionRoute()
     {
         OSC_ADD_MEMBER(routeId);
-        OSC_ADD_MEMBER(current);
+        OSC_ADD_MEMBER(relativeOrientation);
+        OSC_OBJECT_ADD_MEMBER(currentPosition, "oscCurrentPosition");
         OSC_OBJECT_ADD_MEMBER(roadCoord, "oscRoadCoord");
         OSC_OBJECT_ADD_MEMBER(laneCoord, "oscLaneCoord");
-        OSC_ADD_MEMBER(relativeOrientation);
     };
 
     oscString routeId;
-    oscBool current;
+    oscBool relativeOrientation;
+    oscCurrentPositionMember currentPosition;
     oscRoadCoordMember roadCoord;
     oscLaneCoordMember laneCoord;
-    oscBool relativeOrientation;
+
 };
 
 typedef oscObjectVariable<oscPositionRoute *> oscPositionRouteMember;
