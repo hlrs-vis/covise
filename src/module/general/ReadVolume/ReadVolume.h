@@ -56,7 +56,7 @@ private:
     coFloatParam *pfsVolDepth;
     coBooleanParam *pboReadRaw;
     coBooleanParam *pboReadBS;
-    coBooleanParam *pboReadOrderedDicom;
+    coBooleanParam *pboSequenceFromHeader;
     coIntScalarParam *piBPC;
     coIntScalarParam *piChannels;
     coIntScalarParam *piHeader;
