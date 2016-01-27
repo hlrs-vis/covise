@@ -12,8 +12,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscConditionTypeB.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
-
 
 namespace OpenScenario {
 

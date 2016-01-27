@@ -12,9 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
 #include "oscCenter.h"
-#include "oscDimensions.h"
+#include "oscDimensionTypeB.h"
 
 
 namespace OpenScenario {
@@ -26,11 +25,11 @@ public:
     oscBoundingBox()
     {
         OSC_OBJECT_ADD_MEMBER(center, "oscCenter");
-        OSC_OBJECT_ADD_MEMBER(dimensions, "oscDimensions");
+        OSC_OBJECT_ADD_MEMBER(dimension, "oscDimensionTypeB");
     };
 
     oscCenterMember center;
-    oscDimensionsMember dimensions;
+    oscDimensionTypeBMember dimension;
 };
 
 typedef oscObjectVariable<oscBoundingBox *> oscBoundingBoxMember;

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<observer name="bnhj" refId="3796" type="trtyi">
+
+
+  <fileHeader author="MK" date="2016-01-26T17:35:00+01:00" description="observer - testScenario" revMajor="1" revMinor="0">
+    <userDataList>
+      <userData code="cvgn" value="pui"/>
+      <userData code="i78" value="db5"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <frustum near="-2345.945" far="35.68" left="2345.8" right="435.45" bottom="68.904" top="345.7"/>
+
+
+  <filters>
+
+    <filter objectType="gdn" maxNum="234" filterParam="568.89"/>
+    <filter objectType="njt" maxNum="567" filterParam="-576.4"/>
+    <filter objectType="ukt7" maxNum="35" filterParam="2345.56"/>
+
+  </filters>
+
+
+  <userDataList>
+    <userData code="s4nj" value="szzv"/>
+    <userData code="i78" value="dfi7"/>
+    <userData code="xcbvbn" value="tyu5"/>
+  </userDataList>
+
+</observer>

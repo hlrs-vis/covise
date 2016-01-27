@@ -16,8 +16,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscFileHeader.h"
 #include "oscPerformance.h"
 #include "oscFile.h"
-#include "oscDimension.h"
 #include "oscAxles.h"
+#include "oscDimensionTypeA.h"
 #include "oscLighting.h"
 #include "oscEyepoints.h"
 #include "oscMirrors.h"
@@ -48,15 +48,15 @@ public:
         OSC_ADD_MEMBER(licensePlate);
         OSC_OBJECT_ADD_MEMBER(performance, "oscPerformance");
         OSC_OBJECT_ADD_MEMBER(geometry, "oscFile");
-        OSC_OBJECT_ADD_MEMBER(dimensions, "oscDimension");
+        OSC_OBJECT_ADD_MEMBER(dimension, "oscDimensionTypeA");
         OSC_OBJECT_ADD_MEMBER(axles, "oscAxles");
         OSC_OBJECT_ADD_MEMBER(lighting, "oscLighting");
         OSC_OBJECT_ADD_MEMBER(eyepoints, "oscEyepoints");
         OSC_OBJECT_ADD_MEMBER(mirrors, "oscMirrors");
         OSC_OBJECT_ADD_MEMBER(features, "oscFeatures");
-        OSC_ADD_MEMBER(vehicleClass);
+        OSC_ADD_MEMBER(category);
 
-        vehicleClass.enumType = vehicleClassType::instance();
+        category.enumType = vehicleClassType::instance();
     };
 
     oscFileHeaderMember fileHeader;
@@ -66,13 +66,13 @@ public:
     oscString licensePlate;
     oscPerformanceMember performance;
     oscFileMember geometry;
-    oscDimensionMember dimensions;
+    oscDimensionTypeAMember dimension;
     oscAxlesMember axles;
     oscLightingArrayMember lighting;
     oscEyepointsArrayMember eyepoints;
     oscMirrorsArrayMember mirrors;
     oscFeaturesArrayMember features;
-    oscEnum vehicleClass;
+    oscEnum category;
 
     enum vehicleClass
     {

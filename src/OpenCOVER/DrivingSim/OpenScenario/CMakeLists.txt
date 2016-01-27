@@ -45,11 +45,12 @@ SET(HEADERS
    oscConditionTypeB.h
    oscContinuation.h
    oscControllerChoice.h
+   oscControlPoint.h
    oscCoord.h
    oscCurrentPosition.h
    oscDate.h
-   oscDimension.h
-   oscDimensions.h
+   oscDimensionTypeA.h
+   oscDimensionTypeB.h
    oscDirectory.h
    oscDistance.h
    oscDistanceLateral.h
@@ -120,6 +121,7 @@ SET(HEADERS
    oscNamedObject.h
    oscNamedPriority.h
    oscNameRefId.h
+   oscNone.h
    oscNotify.h
    oscNumericCondition.h
    oscObject.h
@@ -129,9 +131,10 @@ SET(HEADERS
    oscObjectChoice.h
    oscObjects.h
    oscObjectVariable.h
-   oscObserver.h
    oscObserverCatalog.h
    oscObserverId.h
+   oscObserverTypeA.h
+   oscObserverTypeB.h
    oscOffroad.h
    oscOrientation.h
    oscParameterListTypeA.h
@@ -145,6 +148,7 @@ SET(HEADERS
    oscPedestrianController.h
    oscPedestrianRef.h
    oscPerformance.h
+   oscPolyline.h
    oscPosition.h
    oscPositionLane.h
    oscPositionRoad.h
@@ -166,6 +170,7 @@ SET(HEADERS
    oscRelativePositionWorld.h
    oscRoadCondition.h
    oscRoadConditions.h
+   oscRoadConditionsGroup.h
    oscRoadCoord.h
    oscRoadNetwork.h
    oscRoute.h
@@ -214,7 +219,8 @@ SET(HEADERS
    oscVehicleCatalog.h
    oscVehicleRef.h
    oscVelocity.h
-   oscVisibility.h
+   oscVisibilityTypeA.h
+   oscVisibilityTypeB.h
    oscWaypoint.h
    oscWaypoints.h
    oscWeather.h
@@ -226,6 +232,7 @@ SET(SOURCES
    oscBody.cpp
    oscConditionChoiceBase.cpp
    oscConditionChoiceTypeA.cpp
+   oscControlPoint.cpp
    oscFactories.cpp
    oscMember.cpp
    oscMemberValue.cpp

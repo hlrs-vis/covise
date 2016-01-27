@@ -15,6 +15,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscVariables.h"
 #include "oscColor.h"
 #include "oscBoundingBox.h"
+#include "oscVisibilityTypeB.h"
 
 
 namespace OpenScenario {
@@ -27,12 +28,12 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(color, "oscColor");
         OSC_OBJECT_ADD_MEMBER(boundingBox, "oscBoundingBox");
-        OSC_ADD_MEMBER(visibility);
+        OSC_OBJECT_ADD_MEMBER(visibility, "oscVisibilityTypeB");
     };
 
     oscColorMember color;
     oscBoundingBoxMember boundingBox;
-    oscFloat visibility;
+    oscVisibilityTypeBMember visibility;
 };
 
 typedef oscObjectVariable<oscFog *> oscFogMember;

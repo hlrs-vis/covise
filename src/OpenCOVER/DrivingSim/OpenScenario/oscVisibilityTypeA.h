@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_VISIBILITY_H
-#define OSC_VISIBILITY_H
+#ifndef OSC_VISIBILITY_TYPE_A_H
+#define OSC_VISIBILITY_TYPE_A_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscVisibility: public oscObjectBase
+class OPENSCENARIOEXPORT oscVisibilityTypeA: public oscObjectBase
 {
 public:
-    oscVisibility()
+    oscVisibilityTypeA()
     {
         OSC_ADD_MEMBER(graphics);
         OSC_ADD_MEMBER(traffic);
@@ -33,8 +33,8 @@ public:
     oscBool sensors;
 };
 
-typedef oscObjectVariable<oscVisibility *> oscVisibilityMember;
+typedef oscObjectVariable<oscVisibilityTypeA *> oscVisibilityTypeAMember;
 
 }
 
-#endif //OSC_VISIBILITY_H
+#endif //OSC_VISIBILITY_TYPE_A_H

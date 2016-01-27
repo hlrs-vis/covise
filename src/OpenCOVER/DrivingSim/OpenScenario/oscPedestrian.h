@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscVariables.h"
 #include "oscFileHeader.h"
 #include "oscBehavior.h"
-#include "oscDimension.h"
+#include "oscDimensionTypeA.h"
 #include "oscFile.h"
 
 
@@ -40,20 +40,20 @@ public:
         OSC_ADD_MEMBER(model);
         OSC_ADD_MEMBER(mass);
         OSC_OBJECT_ADD_MEMBER(behavior, "oscBehavior");
-        OSC_OBJECT_ADD_MEMBER(dimension, "oscDimension");
+        OSC_OBJECT_ADD_MEMBER(dimension, "oscDimensionTypeA");
         OSC_OBJECT_ADD_MEMBER(geometry, "oscFile");
-        OSC_ADD_MEMBER(pedestrianClass);
+        OSC_ADD_MEMBER(category);
 
-        pedestrianClass.enumType = pedestrianClassType::instance();
+        category.enumType = pedestrianClassType::instance();
     };
 
     oscFileHeaderMember fileHeader;
     oscString model;
     oscDouble mass;
     oscBehaviorMember behavior;
-    oscDimensionMember dimension;
+    oscDimensionTypeAMember dimension;
     oscFileMember geometry;
-    oscEnum pedestrianClass;
+    oscEnum category;
 
     enum pedestrianClass
     {
