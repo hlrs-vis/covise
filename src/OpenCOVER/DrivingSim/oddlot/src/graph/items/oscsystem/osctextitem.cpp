@@ -103,7 +103,7 @@ OSCTextItem::updateName()
 {
 	// Text //
     //
-	OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getValue();
+	OpenScenario::oscMemberValue *value =  oscObject_->getMember("name")->getGenerateValue();
 	oscStringValue *sv = dynamic_cast<oscStringValue *>(value);
 	if (sv)
 	{

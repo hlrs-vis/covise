@@ -86,7 +86,7 @@ QPainterPath *
 {
 	QPainterPath *path = new QPainterPath();
 
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("vehicleClass")->getValue());
+	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("vehicleClass")->getGenerateValue());
 	if (iv)
 	{
 		switch (iv->getValue())
@@ -154,7 +154,9 @@ OSCItem::init()
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
-
+	OpenScenario::oscObjectBase *oscPosition = oscObject_->getMember("initPosition")->getObject();
+	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
+	roadID_ = QString::fromStdString(dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getValue())->getValue());
 	road_ = roadSystemItem_->getRoadSystem()->getRoad(roadID_);
 	closestRoad_ = road_;
 

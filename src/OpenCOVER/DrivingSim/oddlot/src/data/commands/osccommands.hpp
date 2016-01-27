@@ -273,7 +273,7 @@ public:
 	const OpenScenario::oscObjectBase *object = element_->getObject();
 	newOSCValue_ = value;
 	OpenScenario::oscMember *member = object->getMember(memberName);
-	v_ = member->getValue();
+	v_ = member->getGenerateValue();
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

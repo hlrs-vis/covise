@@ -32,7 +32,7 @@ namespace OpenScenario
         oscObjectBase* getObject() const {return valueT;};
         oscObjectBase* getGenerateObject()
 		{
-			if (valueT != NULL)
+			if (!valueT)
 			{
                 oscObjectBase *obj = oscFactories::instance()->objectFactory->create(typeName);
                 if(obj)

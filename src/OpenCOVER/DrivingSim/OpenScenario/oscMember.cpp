@@ -91,7 +91,7 @@ oscMemberValue *oscMember::getValue()
 
 oscMemberValue *oscMember::getGenerateValue()
 {
-    if (value != NULL)
+    if (!value)
     {
         OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
         setValue(v);
