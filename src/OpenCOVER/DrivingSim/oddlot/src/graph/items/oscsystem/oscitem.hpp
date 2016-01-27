@@ -28,6 +28,7 @@ class oscObject;
 }
 
 class OpenScenarioEditor;
+class OSCTextItem;
 class QColor;
 
 class OSCItem : public GraphElement
@@ -57,12 +58,6 @@ public:
 
     void updatePosition();
 
-    // Text //
-    //
-/*    SignalTextItem *getSignalTextItem() const
-    {
-        return signalTextItem_;
-    } */
 
     // Garbage //
     //
@@ -132,7 +127,7 @@ private:
 	bool doPan_;
 	bool copyPan_;
 
- //   SignalTextItem *signalTextItem_;
+    OSCTextItem *oscTextItem_;
 
     QColor color_;
 

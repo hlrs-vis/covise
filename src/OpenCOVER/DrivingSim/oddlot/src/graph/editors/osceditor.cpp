@@ -329,7 +329,15 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 						oscPosRoad->getMember("s")->getValue()->setValue(s);
 						oscPosRoad->getMember("t")->getValue()->setValue(t);
 
-						OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getMember(catalogElement_.toStdString())->getObject();
+	//					OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getMember(catalogElement_.toStdString())->getObject();
+						
+	/*					std::string type = oscCatalog_->getOwnMember()->getTypeName();
+						std::size_t found = type.find("Catalog");
+						type = type.substr(0, found-1); */
+						std::string type("vehicle");
+
+	//					OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getMember(catalogElement_.toStdString())->getObject();
+						OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getMember(type)->getObject();
 						OSCItem *oscItem = new OSCItem(oscRoadSystemItem_, entity, selectedObject, mousePoint);  
 					}
 				}
@@ -379,18 +387,18 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 			}
 		}
 	}
-	else if (currentTool != lastTool_)
+	else if (currentTool == ODD::TOS_ELEMENT)
 	{
-		if (currentTool == ODD::TOS_ELEMENT)
+		OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
+		if (action && ((currentTool != lastTool_) || (action->getText() != catalogElement_)))
 		{
-			OpenScenarioEditorToolAction *action = dynamic_cast<OpenScenarioEditorToolAction *>(toolAction);
-			if (action)
-			{
-				// Create new object //
-				catalogElement_ = action->getText();
-			}
+			// Create new object //
+			catalogElement_ = action->getText();
 		}
-		else if (currentTool == ODD::TOS_SAVE_CATALOG)
+	}
+	else if (currentTool != lastTool_)
+	{		
+		if (currentTool == ODD::TOS_SAVE_CATALOG)
 		{
 			// Save catalog //
 			//			if (catalog_ && mainWindow_->getActiveProject()->saveCatalogAs())

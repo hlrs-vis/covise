@@ -14,6 +14,8 @@
 **************************************************************************/
 
 #include "oscitem.hpp"
+#include "osctextitem.hpp"
+
 #include "src/graph/items/roadsystem/scenario/oscroaditem.hpp"
 
 #include "src/util/odd.hpp"
@@ -92,11 +94,11 @@ QPainterPath *
 		case oscVehicle::car:
 			{
 				QPolygonF polygon;
-				polygon << QPointF(-7.8,-3) << QPointF(-7.8,0) << QPointF(-7.8,0) << QPointF(-3.8,3) << QPointF(3.8,3) << QPointF(4,0) << QPointF(7,0) << QPointF(7.6,-1.2) << QPointF(7.8,-3);
+				polygon << QPointF(-5,-2) << QPointF(-5,0) << QPointF(-5,0) << QPointF(-1.3,2) << QPointF(1.3,2) << QPointF(2.7,0) << QPointF(4.2,0) << QPointF(4.8,-0.8) << QPointF(5,-2);
 				path->addPolygon(polygon);
 				path->closeSubpath();
-				path->addEllipse(QPointF(-4.6,-3.2), 1.2, 1.2);
-				path->addEllipse(QPointF(4.6,-3.2), 1.2, 1.2);
+				path->addEllipse(QPointF(-3,-2.1), 0.8, 0.8);
+				path->addEllipse(QPointF(3,-2.1), 0.8, 0.8);
 				path->translate(pos);
 				break;
 			}
@@ -148,8 +150,8 @@ OSCItem::init()
     {
         // Text //
         //
- //       signalTextItem_ = new SignalTextItem(this, signal_);
- //       signalTextItem_->setZValue(1.0); // stack before siblings
+        oscTextItem_ = new OSCTextItem(this, oscObject_, pos_);
+        oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
 
@@ -177,11 +179,11 @@ OSCItem::updateColor(const std::string &type)
 {
 	if (type == "oscVehicle")
 	{
-		color_ = Qt::yellow;
+		color_ = Qt::black;
 	}
 
 	
-	setBrush(QBrush(color_));
+//	setBrush(QBrush(color_));
 	setPen(QPen(color_));
 }
 
@@ -238,8 +240,8 @@ OSCItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 	// Text //
 	//
-//	getSignalTextItem()->setVisible(true);
-//	getSignalTextItem()->setPos(event->scenePos());
+	oscTextItem_->setVisible(true);
+	oscTextItem_->setPos(event->scenePos());
 
 	// Parent //
 	//
@@ -257,7 +259,7 @@ OSCItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
     // Text //
     //
-//    getSignalTextItem()->setVisible(false);
+    oscTextItem_->setVisible(false);
 
     // Parent //
     //

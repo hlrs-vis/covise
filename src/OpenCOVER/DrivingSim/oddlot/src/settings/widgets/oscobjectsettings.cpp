@@ -116,7 +116,6 @@ OSCObjectSettings::uiInit()
 	// Widget/Layout //
 	//
 	QGridLayout *objectGridLayout = new QGridLayout();
-	objectGridLayout->setContentsMargins(4, 9, 4, 9);
 	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
 	int row = 1;
@@ -124,11 +123,16 @@ OSCObjectSettings::uiInit()
 	// not for the first element in the stackedWidget //
 	if (parentStack_->getStackSize() == 0)
 	{
-		ui->closeButton->hide();
+		objectGridLayout->setContentsMargins(4, 30, 4, 9);
 	}
 	else
 	{
-		connect(ui->closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
+		closeButton->setObjectName(QStringLiteral("close"));
+        closeButton->setGeometry(QRect(90, 30, 75, 23));
+		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+
+		objectGridLayout->setContentsMargins(4, 60, 4, 9);
 	}
 	
 	// Signal Mapper for the value input widgets //
@@ -324,13 +328,12 @@ OSCObjectSettings::updateProperties()
 		QMap<QString, QWidget *>::const_iterator it;
 		for (it = memberWidgets_.constBegin(); it != memberWidgets_.constEnd(); it++)
 		{
-			OpenScenario::oscMember *member = object_->getMembers().at(it.key().toStdString());
+			OpenScenario::oscMember *member = object_->getMember(it.key().toStdString());
 			if (!member->exists())
 			{
 				continue;
 			} 
 
-			OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 			OpenScenario::oscMemberValue *value = member->getValue();
 
 			if (QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value()))
@@ -410,7 +413,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 	{
 		QWidget *widget = memberWidgets_.value(name);
 		
-		OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
+		OpenScenario::oscMember *member = object_->getMember(name.toStdString());
 		OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
 		switch (type)
@@ -503,9 +506,8 @@ OSCObjectSettings::onEditingFinished(QString name)
 void 
 OSCObjectSettings::onPushButtonPressed(QString name)
 {
+	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->getObject();
 
-	OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
-	OpenScenario::oscObjectBase *object = member->getObject();
 	OSCElement *memberElement = base_->getOSCElement(object);
 
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);
