@@ -24,6 +24,8 @@
  ** Cration Date: 28.10.2000                                               **
 \**************************************************************************/
 
+#include <sstream>
+
 #include <boost/filesystem.hpp>
 
 #include <api/coModule.h>
@@ -34,6 +36,7 @@
 #include <virvo/vvfileio.h>
 #include <virvo/vvvoldesc.h>
 #include <virvo/vvtoolshed.h>
+#include <virvo/vvvirvo.h>
 #include "ReadVolume.h"
 
 
@@ -295,9 +298,19 @@ coReadVolume::coReadVolume(int argc, char *argv[])
         poVolume[c]->setInfo(buf2);
     }
 
+    std::stringstream filetypes;
+    filetypes << "*.xvf;*.rvf;*.avf/*.dcm;*.dcom/";
+    if (virvo::hasFeature("nifti"))
+    {
+        filetypes << "*.nii/";
+    }
+    filetypes << "*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*";
+    std::string ftstr = filetypes.str();
+    const char *ftptr = ftstr.c_str();
+
     // Create parameters:
     pbrVolumeFile = addFileBrowserParam("FilePath", "Volume file (or printf format string for sequence)");
-    pbrVolumeFile->setValue("data/volume", "*.xvf;*.rvf;*.avf/*.dcm;*.dcom/*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*");
+    pbrVolumeFile->setValue("data/volume", ftptr);
 
     piSequenceBegin = addInt32Param("SequenceBegin", "First file number in sequence");
     piSequenceBegin->setValue(0);
