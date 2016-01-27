@@ -6,11 +6,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 * License: LGPL 2+ */
 #ifndef OSC_ENVIRONMENT_CATALOG_H
 #define OSC_ENVIRONMENT_CATALOG_H
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
-#include <oscDirectory.h>
-#include <oscUserData.h>
+
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+
+#include "oscDirectory.h"
+#include "oscUserDataList.h"
+
 
 namespace OpenScenario {
 
@@ -20,11 +23,12 @@ class OPENSCENARIOEXPORT oscEnvironmentCatalog: public oscObjectBase
 public:
     oscEnvironmentCatalog()
     {
-        OSC_OBJECT_ADD_MEMBER(directory,"oscDirectory");
-		OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(directory, "oscDirectory");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
-	oscDirectoryMember directory;
-    oscUserDataMember userData;
+
+    oscDirectoryMember directory;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscEnvironmentCatalog *> oscEnvironmentCatalogMember;

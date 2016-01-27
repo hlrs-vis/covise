@@ -30,13 +30,20 @@ coRawDevice::coRawDevice(const char *deviceName)
     for (i = 0; i < coRawDeviceManager::instance()->numDevices(); i++)
     {
         fprintf(stderr, "looking for:%s\n", deviceName);
-        fprintf(stderr, "try        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
-        if (strncasecmp(deviceName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
+        if(strlen(coRawDeviceManager::instance()->rawDevices[i].deviceName)>4)
         {
-            buttonNumber = i;
+            fprintf(stderr, "try        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
+            if (strncasecmp(deviceName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
+            {
+                buttonNumber = i;
 
-            fprintf(stderr, "found:%d\n", i);
-            break;
+                fprintf(stderr, "found:%d\n", i);
+                break;
+            }
+        }
+        else
+        {
+            fprintf(stderr, "ignoring        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName);
         }
         /*if (strncasecmp(devName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(devName)) == 0)
         {
@@ -632,8 +639,10 @@ void coRawDeviceManager::setupDevices()
         // 2nd call to GetRawInputDeviceInfo: Pass our pointer to get the device name
         if ((int)/* GetRawInputDeviceInfo */ (*_GRIDIA)(pRawInputDeviceList[i].hDevice, RIDI_DEVICENAME, psName, &nSize) < 0)
         {
-            fprintf(stderr, "ERROR: Unable to get raw input device name.\n");
-            return;
+            fprintf(stderr, "ERROR: Unable to get raw input device name %d.\n",i);
+            psName = new char[100];
+            strcpy(psName,"unknown(failed to get Name)");
+            //return;
         }
         std::string xmlString = psName+4; // skip backslashes and questionmarks
         escape(xmlString);

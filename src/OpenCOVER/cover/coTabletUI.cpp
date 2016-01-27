@@ -5227,10 +5227,10 @@ void coTabletUI::update()
             if (serverHost)
             {
                 if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << "Connecting to tablet UI on " << serverHost->getName() << ":" << port << "..." << std::flush;
+                    std::cerr << "Trying tablet UI connection to " << serverHost->getName() << ":" << port << "... " << std::flush;
                 conn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, timeout);
                 if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << " done: " << conn->is_connected() << "." << std::endl;
+                    std::cerr << (conn->is_connected()?"success":"failed") << "." << std::endl;
                 firstConnection = false;
             }
             if (conn && !conn->is_connected()) // could not open server port
@@ -5261,10 +5261,10 @@ void coTabletUI::update()
             if (!conn && localHost)
             {
                 if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << "Connecting to tablet UI on " << localHost->getName() << ":" << port << "..." << std::flush;
+                    std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
                 conn = new ClientConnection(localHost, port, 0, (sender_type)0, 0);
                 if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << " done: " << conn->is_connected() << "." << std::endl;
+                    std::cerr << (conn->is_connected()?"success":"failed") << "." << std::endl;
                 firstConnection = false;
                 if (!conn->is_connected()) // could not open server port
                 {

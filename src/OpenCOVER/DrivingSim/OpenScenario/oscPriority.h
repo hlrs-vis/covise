@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_PRIORITY_H
 #define OSC_PRIORITY_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
+#include "oscVariables.h"
 
 
 namespace OpenScenario {
@@ -31,10 +31,13 @@ class OPENSCENARIOEXPORT oscPriority: public oscObjectBase
 {
 public:
     oscPriority()
-    {   
+    {
         OSC_ADD_MEMBER(priority);
+
         priority.enumType = priorityType::instance();
     };
+
+    oscEnum priority;
 
     enum priority
     {
@@ -42,8 +45,6 @@ public:
         following,
         skip,
     };
-
-    oscEnum priority;
 };
 
 typedef oscObjectVariable<oscPriority *> oscPriorityMember;

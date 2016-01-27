@@ -8,11 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ROAD_CONDITIONS_H
 #define OSC_ROAD_CONDITIONS_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectArrayVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectArrayVariable.h"
 
-#include <oscRoadCondition.h>
+#include "oscRoadCondition.h"
 
 
 namespace OpenScenario {
@@ -23,7 +23,7 @@ class OPENSCENARIOEXPORT oscRoadConditions: public oscObjectBase
 public:
     oscRoadConditions()
     {
-        OSC_OBJECT_ADD_MEMBER(roadCondition,"oscRoadCondition");
+        OSC_OBJECT_ADD_MEMBER(roadCondition, "oscRoadCondition");
     };
 
 	oscRoadConditionMember roadCondition;

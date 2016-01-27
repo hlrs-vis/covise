@@ -104,6 +104,8 @@ private:
     coTUIEditIntField *tuiResolutionY;
     coTUILabel *tuiFileNameLabel;
     coTUIEditField *tuiFileName;
+    coTUILabel *tuiSavedFileLabel;
+    coTUILabel *tuiSavedFile;
     coTUIToggleButton *tuiContinuous;
     coTUIFloatSlider *tuiFrameRateSlider;
     coTUIEditFloatField *tuiFrameRate;

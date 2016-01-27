@@ -8,8 +8,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_MEMBER_H
 #define OSC_MEMBER_H
 
-#include <oscExport.h>
-#include <oscMemberValue.h>
+#include "oscExport.h"
+#include "oscMemberValue.h"
 
 #include <string>
 
@@ -51,11 +51,13 @@ public:
     virtual void setValue(oscMemberValue *v);
     virtual void setValue(oscObjectBase *t);
     virtual void deleteValue();
-    virtual oscMemberValue *getValue();
+    virtual oscMemberValue *getValue(); ///< return value is value or NULL, overridden in oscObjectVariable and oscObjectArrayVariable
+    virtual oscMemberValue *getGenerateValue(); ///<return value is always value, overridden in oscObjectVariable and oscObjectArrayVariable
     void setType(oscMemberValue::MemberTypes t);
     oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
-    virtual oscObjectBase *getObject();
+    virtual oscObjectBase *getObject() const;
+    virtual oscObjectBase *getGenerateObject();
     virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists or oscObjectArrayVariable is executed
     oscObjectBase *getOwner() const;
     virtual void setParentMember(oscMember *pm);

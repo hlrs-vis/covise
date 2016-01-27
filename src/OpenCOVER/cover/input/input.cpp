@@ -385,7 +385,8 @@ bool Input::initPersons()
 
     if (names.empty())
     {
-        cout << "Input: Persons must be configured!" << endl;
+        if (cover->debugLevel(3))
+            cout << "Input: Persons must be configured!" << endl;
         names.push_back("default");
     }
 

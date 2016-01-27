@@ -660,6 +660,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     }
     else if (m_renderMethod == RENDER_METHOD_ARB_POINT_SPRITES)
     {
+        glPushAttrib(GL_LIGHTING);
+        glDisable(GL_LIGHTING);
         if (!s_pointSpritesChecked)
         {
             s_pointSpritesChecked = true;
@@ -722,6 +724,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
                 // window resolution in millimeter
             }
             glDisable(GL_POINT_SPRITE_ARB);
+            
+            glPopAttrib();//GL_LIGHTING
         }
         else
         {

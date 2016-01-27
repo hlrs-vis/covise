@@ -41,9 +41,11 @@
     <geometry URL="porsche.max"/>
     <dimensions bottom="1" front="1.5" left="1.2" rear="3" right="1" top="1"/>
     <axles>
-      <front driven="1" maxSteering="180" positionX="2" positionZ="0" rollingResistance="0.22" trackWidth="1.5" wheelDiameter="0.5"/>
-      <rear driven="1" maxSteering="180" positionX="2" positionZ="0" rollingResistance="0.22" trackWidth="1.5" wheelDiameter="0.5"/>
-      <n driven="1" maxSteering="180" positionX="2" positionZ="0" rollingResistance="0.22" trackWidth="1.5" wheelDiameter="0.5"/>
+      <front driven="true" maxSteering="180" positionX="50" positionZ="0" rollingResistance="0.22" trackWidth="1800" wheelDiameter="600"/>
+      <rear driven="false" maxSteering="0" positionX="5500" positionZ="0" rollingResistance="0.22" trackWidth="1800" wheelDiameter="600"/>
+      <additionalAxles>
+	<additional driven="false" maxSteering="20" positionX="4500" positionZ="0" rollingResistance="0.28" trackWidth="1800" wheelDiameter="0.5"/>
+      </additionalAxles>
     </axles>
     <eyepoints>
       <eyepoint type="top">
@@ -245,11 +247,11 @@
 	</positionRoute>
       </position>
     </reachPosition>
-    <distance condition="decceed" freespace="1" object="V1" refObject="V2" value="50"/>
-    <velocity condition="decceed" object="V1" refObject="V2" reference="relative" value="50"/>
+    <distance condition="deceed" freespace="1" object="V1" refObject="V2" value="50"/>
+    <velocity condition="deceed" object="V1" refObject="V2" reference="relative" value="50"/>
     <standsStill duration="60" object="V3"/>
-    <acceleration condition="decceed" object="V1" refObject="V2" reference="relative" value="50"/>
-    <stoppingDistance condition="decceed" freespace="1" object="V1" refObject="V2" value="50">
+    <acceleration condition="deceed" object="V1" refObject="V2" reference="relative" value="50"/>
+    <stoppingDistance condition="deceed" freespace="1" object="V1" refObject="V2" value="50">
       <position>
 	<positionRoute current="0" h="10" p="10" r="10" relativeOrientation="0" routeId="a">
 	  <roadCoord pathS="1" t="2"/>
@@ -257,7 +259,7 @@
 	</positionRoute>
       </position>
     </stoppingDistance>
-    <timeToCollision condition="decceed" freespace="1" object="V1" refObject="V2" value="50">
+    <timeToCollision condition="deceed" freespace="1" object="V1" refObject="V2" value="50">
       <position>
 	<positionRoute current="0" h="10" p="10" r="10" relativeOrientation="0" routeId="a">
 	  <roadCoord pathS="1" t="2"/>
@@ -265,7 +267,7 @@
 	</positionRoute>
       </position>
     </timeToCollision>
-    <timeHeadway condition="decceed" freespace="1" object="V1" refObject="V2" value="50">
+    <timeHeadway condition="deceed" freespace="1" object="V1" refObject="V2" value="50">
       <position>
 	<positionRoute current="0" h="10" p="10" r="10" relativeOrientation="0" routeId="a">
 	  <roadCoord pathS="1" t="2"/>

@@ -5,9 +5,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include <oscMember.h>
-#include <oscObjectBase.h>
-#include <oscFactories.h>
+#include "oscMember.h"
+#include "oscObjectBase.h"
+#include "oscFactories.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -86,15 +86,18 @@ void oscMember::deleteValue()
 
 oscMemberValue *oscMember::getValue()
 {
-	if (value)
-	{
-		return value;
-	}
-	
-	OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
-	setValue(v);
-
 	return value;
+}
+
+oscMemberValue *oscMember::getGenerateValue()
+{
+    if (value != NULL)
+    {
+        OpenScenario::oscMemberValue *v = oscFactories::instance()->valueFactory->create(type);
+        setValue(v);
+    }
+
+    return value;
 }
 
 void oscMember::setType(oscMemberValue::MemberTypes t)
@@ -109,7 +112,12 @@ oscMemberValue::MemberTypes oscMember::getType() const
 
 
 //
-oscObjectBase *oscMember::getObject()
+oscObjectBase *oscMember::getObject() const
+{
+    return NULL;
+}
+
+oscObjectBase *oscMember::getGenerateObject()
 {
     return NULL;
 }

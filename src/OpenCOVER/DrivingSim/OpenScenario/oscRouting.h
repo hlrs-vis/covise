@@ -8,14 +8,14 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ROUTING_H
 #define OSC_ROUTING_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscHeader.h>
-#include <oscGeneral.h>
-#include <oscWaypoint.h>
-#include <oscUserData.h>
+#include "oscFileHeader.h"
+#include "oscGeneral.h"
+#include "oscWaypoints.h"
+#include "oscUserDataList.h"
 
 
 namespace OpenScenario {
@@ -27,16 +27,16 @@ public:
 	
     oscRouting()
     {
-		OSC_OBJECT_ADD_MEMBER(header, "oscHeader");
+		OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
 		OSC_OBJECT_ADD_MEMBER(general, "oscGeneral");
-		OSC_OBJECT_ADD_MEMBER(waypoint, "oscWaypoint");
-		OSC_OBJECT_ADD_MEMBER(userData, "oscUserData");
+		OSC_OBJECT_ADD_MEMBER(waypoints, "oscWaypoints");
+		OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-	oscHeaderMember header;
+	oscFileHeaderMember fileHeader;
 	oscGeneralMember general;
-	oscWaypointMember waypoint;
-	oscUserDataMember userData;
+	oscWaypointsArrayMember waypoints;
+	oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscRouting *> oscRoutingMember;

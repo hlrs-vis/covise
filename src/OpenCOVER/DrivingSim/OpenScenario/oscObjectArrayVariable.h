@@ -8,9 +8,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBJECT_ARRAY_VARIABLE_H
 #define OSC_OBJECT_ARRAY_VARIABLE_H
 
-#include <oscExport.h>
-#include <oscArrayMember.h>
-#include <oscMemberValue.h>
+#include "oscExport.h"
+#include "oscArrayMember.h"
+#include "oscMemberValue.h"
 
 
 namespace OpenScenario
@@ -24,6 +24,21 @@ namespace OpenScenario
         oscObjectArrayVariable() {type = oscMemberValue::OBJECT; valueT = NULL;}; ///< constructor
         T operator->() {return valueT;};
         oscObjectBase* getObject() const {return valueT;};
+        oscObjectBase* getGenerateObject()
+        {
+            if (valueT)
+            {
+                oscObjectBase *obj = oscFactories::instance()->objectFactory->create(typeName);
+                if(obj)
+                {
+                    oscMember *member = static_cast<oscMember *>((oscObjectVariable<T>*)this);
+                    obj->initialize(owner->getBase(), owner, member, owner->getSource());
+                    setValue(obj);
+                }
+            }
+
+            return valueT;
+        };
         void setValue(oscObjectBase *t)
         {
             if (t != NULL)

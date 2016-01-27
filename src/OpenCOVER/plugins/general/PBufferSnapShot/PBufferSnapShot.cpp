@@ -110,11 +110,29 @@ void DrawCallback::operator()(const osg::Camera &cam) const
             image.get()->copySubImage(0, 0, 0, plugin->image.get());
             image.get()->copySubImage(plugin->image.get()->s(), 0, 0, plugin->imageR.get());
 
-            osgDB::writeImageFile(*(image.get()), plugin->filename);
+            if(osgDB::writeImageFile(*(image.get()), plugin->filename))
+            {
+                plugin->tuiSavedFile->setLabel(coDirectory::canonical(plugin->filename.c_str()));
+                plugin->tuiSavedFile->setColor(Qt::black);
+            }
+            else
+            {
+                plugin->tuiSavedFile->setLabel("failed to wirite: " + std::string(coDirectory::canonical(plugin->filename.c_str())));
+                plugin->tuiSavedFile->setColor(Qt::red);
+            }
         }
         else
         {
-            osgDB::writeImageFile(*(plugin->image.get()), plugin->filename);
+            if(osgDB::writeImageFile(*(plugin->image.get()), coDirectory::canonical(plugin->filename.c_str())))
+            {
+                plugin->tuiSavedFile->setLabel(plugin->filename);
+                plugin->tuiSavedFile->setColor(Qt::black);
+            }
+            else
+            {
+                plugin->tuiSavedFile->setLabel("failed to wirite: " + std::string(coDirectory::canonical(plugin->filename.c_str())));
+                plugin->tuiSavedFile->setColor(Qt::red);
+            }
         }
         plugin->cameraCallbackExit();
     }
@@ -379,6 +397,23 @@ void PBufferSnapShot::preFrame()
         else
         {
             filename = tuiFileName->getText();
+            if(counter > 0)
+            {
+                ostringstream str;
+                str.width(7);
+                str.fill('0');
+                str << counter;
+                std::string::size_type suffixPos = filename.rfind('.');
+                if (suffixPos != filename.npos)
+                {
+                    filename.insert(suffixPos, str.str());
+                    //fprintf(stderr,"counter=%d\n", counter);
+                }
+                else
+                {
+                    filename += str.str();
+                }
+            }
         }
 
         if (tuiSnapOnSlaves->getState() && coVRMSController::instance()->getNumSlaves() > 0)
@@ -417,6 +452,10 @@ void PBufferSnapShot::tabletEvent(coTUIElement *tUIItem)
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::tabletEvent\n");
 
+    if(tUIItem == tuiFileName)
+    {   
+        counter=0;
+    }
     if (tUIItem == tuiResolution)
     {
         int sel = tuiResolution->getSelectedEntry();
@@ -495,10 +534,10 @@ void PBufferSnapShot::cameraCallbackExit() const
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::cameraCallbackExit\n");
-
+    
+    ++counter;
     if (tuiContinuous->getState())
     {
-        ++counter;
         //fprintf(stderr,"counter=%d\n", counter);
     }
     else
@@ -594,6 +633,12 @@ void PBufferSnapShot::initUI()
     tuiFileName->setText("snapshot.png");
     tuiFileName->setPos(1, 2);
 
+    tuiSavedFileLabel = new coTUILabel("saved as:", tuiSnapTab->getID());
+    tuiSavedFileLabel->setPos(2, 2);
+    
+    tuiSavedFile = new coTUILabel("", tuiSnapTab->getID());
+    tuiSavedFile->setPos(3, 2);
+
     (new coTUILabel("Frame Rate", tuiSnapTab->getID()))->setPos(0, 3);
 
     tuiFrameRateSlider = new coTUIFloatSlider("Frame Rate Slider", tuiSnapTab->getID());
@@ -635,7 +680,7 @@ void PBufferSnapShot::initUI()
     tuiSnapOnSlaves = new coTUIToggleButton("SnapOnSlaves", tuiSnapTab->getID());
     tuiSnapOnSlaves->setEventListener(this);
     tuiSnapOnSlaves->setPos(0, 7);
-    tuiSnapOnSlaves->setState(true);
+    tuiSnapOnSlaves->setState(false);
 
     tuiTransparentBackground = new coTUIToggleButton("TransparentBackground", tuiSnapTab->getID());
     tuiTransparentBackground->setEventListener(this);

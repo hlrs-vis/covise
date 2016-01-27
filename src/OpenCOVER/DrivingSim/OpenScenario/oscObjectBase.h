@@ -8,8 +8,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_OBJECT_BASE_H
 #define OSC_OBJECT_BASE_H
 
-#include <oscExport.h>
-#include <oscMember.h>
+#include "oscExport.h"
+#include "oscMember.h"
 
 #include <string>
 #if __cplusplus >= 201103L || defined WIN32
