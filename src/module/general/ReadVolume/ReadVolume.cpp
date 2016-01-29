@@ -302,7 +302,7 @@ coReadVolume::coReadVolume(int argc, char *argv[])
     filetypes << "*.xvf;*.rvf;*.avf/*.dcm;*.dcom/";
     if (virvo::hasFeature("nifti"))
     {
-        filetypes << "*.nii/";
+        filetypes << "*.nii;*.nii.gz/";
     }
     filetypes << "*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*";
     std::string ftstr = filetypes.str();
@@ -422,7 +422,7 @@ int coReadVolume::compute(const char *)
             merge = true;
             vdread = &vdframe;
         }
-        std::string path = it.path_string();std::cerr << path << std::endl;
+        std::string path = it.path_string();
         vdread->setFilename(path.c_str());
         int result = vvFileIO::OK;
         if (pboReadRaw->getValue())
