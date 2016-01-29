@@ -88,7 +88,7 @@ QPainterPath *
 	double width = 10;
 	double height = 10;
 
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("vehicleClass")->getGenerateValue());
+	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getGenerateValue());
 	if (iv)
 	{
 		switch (iv->getValue())
