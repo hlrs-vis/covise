@@ -54,7 +54,7 @@ public:
 //	void createPath(OpenScenario::oscPedestrian *pedestrian);
 	
 	// Function for path drawing //
-	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *, const QPointF &pos);
+	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *);
 
     void updatePosition();
 
@@ -132,6 +132,7 @@ private:
     QColor color_;
 
     OpenScenarioEditor *oscEditor_;
+
 
 };
 

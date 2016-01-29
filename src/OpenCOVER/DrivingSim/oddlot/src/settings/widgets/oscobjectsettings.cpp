@@ -422,21 +422,21 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				int v = spinBox->value();
-				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, object_, name.toStdString(), v);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::UINT:
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				uint v = spinBox->value();
-				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, object_, name.toStdString(), v);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::USHORT:
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				ushort v = spinBox->value();
-				SetOSCValuePropertiesCommand<ushort> *command = new SetOSCValuePropertiesCommand<ushort>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<ushort> *command = new SetOSCValuePropertiesCommand<ushort>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -444,7 +444,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				short v = spinBox->value();
-				SetOSCValuePropertiesCommand<short> *command = new SetOSCValuePropertiesCommand<short>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<short> *command = new SetOSCValuePropertiesCommand<short>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -452,7 +452,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
 				float v = spinBox->value();
-				SetOSCValuePropertiesCommand<float> *command = new SetOSCValuePropertiesCommand<float>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<float> *command = new SetOSCValuePropertiesCommand<float>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -460,7 +460,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
 				double v = spinBox->value();
-				SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -468,7 +468,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QLineEdit * lineEdit = dynamic_cast<QLineEdit *>(widget);
 				QString v = lineEdit->text();
-				SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(element_, name.toStdString(), v.toStdString());
+				SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(element_, object_, name.toStdString(), v.toStdString());
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -476,7 +476,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QCheckBox *checkBox = dynamic_cast<QCheckBox *>(widget);
 				bool v = checkBox->isChecked();
-				SetOSCValuePropertiesCommand<bool> *command = new SetOSCValuePropertiesCommand<bool>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<bool> *command = new SetOSCValuePropertiesCommand<bool>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -484,7 +484,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
 				int v = comboBox->currentIndex();
-				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v - 1);
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, object_, name.toStdString(), v - 1);
 				projectSettings_->executeCommand(command);
 
 				break;

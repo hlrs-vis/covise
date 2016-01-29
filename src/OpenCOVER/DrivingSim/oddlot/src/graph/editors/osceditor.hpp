@@ -62,7 +62,7 @@ public:
     // Move Signal //
     //
 	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
-	bool translateObject(OpenScenario::oscObject * object, RSystemElementRoad * newRoad, QPointF &to);
+	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
 
 
 	// Catalog dock widget changed //

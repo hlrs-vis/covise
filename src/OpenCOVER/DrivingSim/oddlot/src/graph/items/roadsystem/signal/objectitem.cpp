@@ -452,13 +452,11 @@ ObjectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		lastPos_ = newPos;
 		setPath(*path_);
 
-		QPointF to = road_->getGlobalPoint(object_->getSStart(), object_->getT()) + lastPos_ - pressPos_;
-
 		double s;
 		QVector2D vec;
 		double dist;
 
-		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( to, s, dist, vec);
+		RSystemElementRoad * nearestRoad = signalEditor_->findClosestRoad( newPos, s, dist, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;

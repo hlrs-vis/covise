@@ -146,7 +146,7 @@ RSystemElementRoad *
 OpenScenarioEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &vec)
 {
 	RoadSystem * roadSystem = getProjectData()->getRoadSystem();
-	QMap<QString, RSystemElementRoad *> roads = getProjectData()->getRoadSystem()->getRoads();
+	QMap<QString, RSystemElementRoad *> roads = roadSystem->getRoads();
 
 	if (roads.count() < 1)
 	{
@@ -163,7 +163,7 @@ OpenScenarioEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVe
 	{
 		RSystemElementRoad *newRoad = it.value();
 		double newS = newRoad->getSFromGlobalPoint(to, 0.0, newRoad->getLength());
-		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(s) - to);
+		QVector2D newVec = QVector2D(newRoad->getGlobalPoint(newS) - to);
 		double dist = newVec.length();
 
 		if (dist < t)
@@ -187,41 +187,30 @@ OpenScenarioEditor::findClosestRoad(const QPointF &to, double &s, double &t, QVe
 
 
 bool 
-OpenScenarioEditor::translateObject(OpenScenario::oscObject * object, RSystemElementRoad *newRoad, QPointF &to)
+OpenScenarioEditor::translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t)
 {
- //   RSystemElementRoad * road = object->getParentRoad();
-	RSystemElementRoad * road;
+	OSCElement *oscElement = oscBase_->getOSCElement(object);
+	OpenScenario::oscObjectBase *oscPosition = object->getMember("initPosition")->getGenerateObject();
+	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
+	oscStringValue *roadId = dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getGenerateValue());
 
-    getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Object"));
-    bool parentChanged = false;
-    if (newRoad != road)
-    {
-    //    RemoveObjectCommand * removeObjectCommand = new RemoveObjectCommand(object, road);
-     //   getProjectGraph()->executeCommand(removeObjectCommand);
+	getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Object"));
 
- //       AddObjectCommand * AddObjectCommand = new AddObjectCommand(object, newRoad);
- //       getProjectGraph()->executeCommand(AddObjectCommand);
-//		object->setElementSelected(false);
-
-        road = newRoad;
-        parentChanged = true;
-    }  
-
-	double s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
-	QVector2D vec = QVector2D(road->getGlobalPoint(s) - to);
-	double t = vec.length();
-
-	QVector2D normal = road->getGlobalNormal(s);
-
-	if (QVector2D::dotProduct(normal, vec) < 0)
+	bool parentChanged = false;
+	if (QString::fromStdString(roadId->getValue()) != newRoadId)
 	{
-		t = -t;
+		SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscPosRoad, "roadId", newRoadId.toStdString());
+		getProjectGraph()->executeCommand(command);
+
+		parentChanged = true;
+		//		object->setElementSelected(false);
 	}
 
- /*   SetObjectPropertiesCommand * objectPropertiesCommand = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), object->getType(), t, object->getzOffset(), object->getValidLength(), object->getOrientation(), object->getLength(), object->getWidth(), object->getRadius(), object->getHeight(), object->getHeading(), object->getPitch(), object->getRoll(), object->getPole(), s, object->getRepeatLength(), object->getRepeatDistance(), object->getTextureFileName());
-    getProjectGraph()->executeCommand(objectPropertiesCommand);
-    MoveRoadSectionCommand * moveSectionCommand = new MoveRoadSectionCommand(object, s, RSystemElementRoad::DRS_ObjectSection);
-    getProjectGraph()->executeCommand(moveSectionCommand);*/
+
+	SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(oscElement, oscPosRoad, "s", s);
+	getProjectGraph()->executeCommand(command);
+	command = new SetOSCValuePropertiesCommand<double>(oscElement, oscPosRoad, "t", t);
+	getProjectGraph()->executeCommand(command);
 
     getProjectData()->getUndoStack()->endMacro();
 
@@ -321,12 +310,8 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 						OpenScenario::oscObjectBase *entities = entitiesObject->getMember("objects")->getGenerateObject();
 						OpenScenario::oscObject *entity = dynamic_cast<oscObject *>(entities->getMember("object")->getGenerateObject());
-						
-						OpenScenario::oscObjectBase *oscPosition = entity->getMember("initPosition")->getGenerateObject();
-						OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
-						oscPosRoad->getMember("roadId")->getGenerateValue()->setValue(road->getID().toStdString());
-						oscPosRoad->getMember("s")->getGenerateValue()->setValue(s);
-						oscPosRoad->getMember("t")->getGenerateValue()->setValue(t);
+
+						translateObject(entity, road->getID(), s, t);
 
 	//					OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getMember(catalogElement_.toStdString())->getGenerateObject();
 						
