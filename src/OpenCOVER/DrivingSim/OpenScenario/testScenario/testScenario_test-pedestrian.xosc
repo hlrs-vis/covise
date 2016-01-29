@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="xvsdf" refId="3477" category="wheelchair" model="bdf345" mass="479.3">
+
+
+  <fileHeader author="MK" date="2016-01-26T17:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="0">
+    <userDataList>
+      <userData code="xcvz" value="yuo8"/>
+      <userData code="bfbgfh" value="sg45"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <dimension front="34.7" rear="345.6" left="97.345" right="35345.08" bottom="1.7" top="2489.6"/>
+
+
+  <geometry URL="pedestrian_geom.xml"/>
+
+
+  <behavior politeness="0.00234" alertness="345.78"/>
+
+
+</pedestrian>

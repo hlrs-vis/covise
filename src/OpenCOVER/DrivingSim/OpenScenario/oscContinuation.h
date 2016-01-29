@@ -14,6 +14,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscRoute.h"
 #include "oscShape.h"
+#include "oscNone.h"
 
 
 namespace OpenScenario {
@@ -26,10 +27,12 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(route, "oscRoute");
         OSC_OBJECT_ADD_MEMBER(shape, "oscShape");
+        OSC_OBJECT_ADD_MEMBER(none, "oscNone");
     };
 
     oscRouteMember route;
     oscShapeMember shape;
+    oscNoneMember none;
 };
 
 typedef oscObjectVariable<oscContinuation *> oscContinuationMember;

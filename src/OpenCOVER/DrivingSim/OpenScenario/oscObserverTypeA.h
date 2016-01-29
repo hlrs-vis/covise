@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_OBSERVER_H
-#define OSC_OBSERVER_H
+#ifndef OSC_OBSERVER_TYPE_A_H
+#define OSC_OBSERVER_TYPE_A_H
 
 #include "oscExport.h"
 #include "oscNamedObject.h"
@@ -21,10 +21,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObserver: public oscNamedObject
+class OPENSCENARIOEXPORT oscObserverTypeA: public oscNamedObject
 {
 public:
-    oscObserver()
+    oscObserverTypeA()
     {
         OSC_OBJECT_ADD_MEMBER(fileHeader, "oscFileHeader");
         OSC_ADD_MEMBER(refId);
@@ -40,8 +40,8 @@ public:
     oscFiltersArrayMember filters;
 };
 
-typedef oscObjectVariable<oscObserver *> oscObserverMember;
+typedef oscObjectVariable<oscObserverTypeA *> oscObserverTypeAMember;
 
 }
 
-#endif //OSC_OBSERVER_H
+#endif //OSC_OBSERVER_TYPE_A_H

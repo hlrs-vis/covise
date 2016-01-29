@@ -12,19 +12,15 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscDriver.h"
-#include "oscConditionBase.h"
-#include "oscPosition.h"
-#include "oscEntity.h"
-#include "oscVehicle.h"
-#include "oscRouting.h"
-#include "oscPedestrian.h"
-#include "oscVelocity.h"
-#include "oscRelativePositionWorld.h"
-#include "oscObserver.h"
-#include "oscManeuverTypeA.h"
 #include "oscMiscObject.h"
+#include "oscPedestrian.h"
+#include "oscObserverTypeA.h"
+#include "oscEntity.h"
+#include "oscRouting.h"
+#include "oscDriver.h"
 #include "oscEnvironment.h"
+#include "oscVehicle.h"
+#include "oscManeuverTypeA.h"
 
 
 namespace OpenScenario {
@@ -35,34 +31,26 @@ class OPENSCENARIOEXPORT oscTest: public oscObjectBase
 public:
     oscTest()
     {
-        OSC_OBJECT_ADD_MEMBER(driver, "oscDriver");
-        OSC_OBJECT_ADD_MEMBER(condition, "oscConditionBase");
-        OSC_OBJECT_ADD_MEMBER(position, "oscPosition");
-        OSC_OBJECT_ADD_MEMBER(entity, "oscEntity");
-        OSC_OBJECT_ADD_MEMBER(vehicle, "oscVehicle");
-        OSC_OBJECT_ADD_MEMBER(routing, "oscRouting");
-        OSC_OBJECT_ADD_MEMBER(pedestrian, "oscPedestrian");
-        OSC_OBJECT_ADD_MEMBER(velocity, "oscVelocity");
-        OSC_OBJECT_ADD_MEMBER(relativePositionWorld, "oscRelativePositionWorld");
-        OSC_OBJECT_ADD_MEMBER(observer, "oscObserver");
-        OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
         OSC_OBJECT_ADD_MEMBER(miscObject, "oscMiscObject");
+        OSC_OBJECT_ADD_MEMBER(pedestrian, "oscPedestrian");
+        OSC_OBJECT_ADD_MEMBER(observer, "oscObserverTypeA");
+        OSC_OBJECT_ADD_MEMBER(entity, "oscEntity");
+        OSC_OBJECT_ADD_MEMBER(routing, "oscRouting");
+        OSC_OBJECT_ADD_MEMBER(driver, "oscDriver");
         OSC_OBJECT_ADD_MEMBER(environment, "oscEnvironment");
+        OSC_OBJECT_ADD_MEMBER(vehicle, "oscVehicle");
+        OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
-    oscDriverMember driver;
-    oscConditionBaseMember condition;
-    oscPositionMember position;
-    oscEntityMember entity;
-    oscVehicleMember vehicle;
-    oscRoutingMember routing;
-    oscPedestrianMember pedestrian;
-    oscVelocityMember velocity;
-    oscRelativePositionWorldMember relativePositionWorld;
-    oscObserverMember observer;
-    oscManeuverTypeAMember maneuver;
     oscMiscObjectMember miscObject;
+    oscPedestrianMember pedestrian;
+    oscObserverTypeAMember observer;
+    oscEntityMember entity;
+    oscRoutingMember routing;
+    oscDriverMember driver;
     oscEnvironmentMember environment;
+    oscVehicleMember vehicle;
+    oscManeuverTypeAMember maneuver;
 };
 
 typedef oscObjectVariable<oscTest *> oscTestMember;

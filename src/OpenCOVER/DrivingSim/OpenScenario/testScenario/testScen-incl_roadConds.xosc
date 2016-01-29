@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<roadConditions xmlns:osc="http://www.w3.org/2001/XInclude">
-  <roadCondition effect="dirt" intensity="0.7"/>
-  <roadCondition effect="leaves" intensity="0.45"/>
-  <roadCondition effect="oil" intensity="0.2"/>
-  <osc:include href="testScen-incl_roadCond-1.xosc"/>
-  <osc:include href="testScen-incl_roadCond-2.xosc"/>
-</roadConditions>

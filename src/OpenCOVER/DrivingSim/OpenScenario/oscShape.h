@@ -13,6 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
+#include "oscPolyline.h"
 #include "oscClothoid.h"
 #include "oscSpline.h"
 
@@ -35,7 +36,7 @@ public:
     oscShape()
     {
         OSC_ADD_MEMBER(purpose);
-        OSC_ADD_MEMBER(polyline);
+        OSC_OBJECT_ADD_MEMBER(polyline, "oscPolyline");
         OSC_OBJECT_ADD_MEMBER(clothoid, "oscClothoid");
         OSC_OBJECT_ADD_MEMBER(spline, "oscSpline");
 
@@ -43,7 +44,7 @@ public:
     };
 
     oscEnum purpose;
-    oscString polyline;
+    oscPolylineMember polyline;
     oscClothoidMember clothoid;
     oscSplineMember spline;
 

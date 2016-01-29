@@ -43,11 +43,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscConditionTypeB.h"
 #include "oscContinuation.h"
 #include "oscControllerChoice.h"
+#include "oscControlPoint.h"
 #include "oscCoord.h"
 #include "oscCurrentPosition.h"
 #include "oscDate.h"
-#include "oscDimension.h"
-#include "oscDimensions.h"
+#include "oscDimensionTypeA.h"
+#include "oscDimensionTypeB.h"
 #include "oscDirectory.h"
 #include "oscDistance.h"
 #include "oscDistanceLateral.h"
@@ -114,6 +115,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscNamedObject.h"
 #include "oscNamedPriority.h"
 #include "oscNameRefId.h"
+#include "oscNone.h"
 #include "oscNotify.h"
 #include "oscNumericCondition.h"
 #include "oscObject.h"
@@ -121,9 +123,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectCatalog.h"
 #include "oscObjectChoice.h"
 #include "oscObjects.h"
-#include "oscObserver.h"
 #include "oscObserverCatalog.h"
 #include "oscObserverId.h"
+#include "oscObserverTypeA.h"
+#include "oscObserverTypeB.h"
 #include "oscOffroad.h"
 #include "oscOrientation.h"
 #include "oscParameterListTypeA.h"
@@ -137,6 +140,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscPedestrianController.h"
 #include "oscPedestrianRef.h"
 #include "oscPerformance.h"
+#include "oscPolyline.h"
 #include "oscPosition.h"
 #include "oscPositionLane.h"
 #include "oscPositionRoad.h"
@@ -158,6 +162,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscRelativePositionWorld.h"
 #include "oscRoadCondition.h"
 #include "oscRoadConditions.h"
+#include "oscRoadConditionsGroup.h"
 #include "oscRoadCoord.h"
 #include "oscRoadNetwork.h"
 #include "oscRoute.h"
@@ -205,7 +210,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscVehicleCatalog.h"
 #include "oscVehicleRef.h"
 #include "oscVelocity.h"
-#include "oscVisibility.h"
+#include "oscVisibilityTypeA.h"
+#include "oscVisibilityTypeB.h"
 #include "oscWaypoint.h"
 #include "oscWaypoints.h"
 #include "oscWeather.h"
@@ -275,11 +281,12 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscConditionTypeB>("oscConditionTypeB");
     staticObjectFactory.registerType<oscContinuation>("oscContinuation");
     staticObjectFactory.registerType<oscControllerChoice>("oscControllerChoice");
+    staticObjectFactory.registerType<oscControlPoint>("oscControlPoint");
     staticObjectFactory.registerType<oscCoord>("oscCoord");
     staticObjectFactory.registerType<oscCurrentPosition>("oscCurrentPosition");
     staticObjectFactory.registerType<oscDate>("oscDate");
-    staticObjectFactory.registerType<oscDimension>("oscDimension");
-    staticObjectFactory.registerType<oscDimensions>("oscDimensions");
+    staticObjectFactory.registerType<oscDimensionTypeA>("oscDimensionTypeA");
+    staticObjectFactory.registerType<oscDimensionTypeB>("oscDimensionTypeB");
     staticObjectFactory.registerType<oscDirectory>("oscDirectory");
     staticObjectFactory.registerType<oscDistance>("oscDistance");
     staticObjectFactory.registerType<oscDistanceLateral>("oscDistanceLateral");
@@ -345,15 +352,17 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscNamedObject>("oscNamedObject");
     staticObjectFactory.registerType<oscNamedPriority>("oscNamedPriority");
     staticObjectFactory.registerType<oscNameRefId>("oscNameRefId");
+    staticObjectFactory.registerType<oscNone>("oscNone");
     staticObjectFactory.registerType<oscNotify>("oscNotify");
     staticObjectFactory.registerType<oscNumericCondition>("oscNumericCondition");
     staticObjectFactory.registerType<oscObject>("oscObject");
     staticObjectFactory.registerType<oscObjectCatalog>("oscObjectCatalog");
     staticObjectFactory.registerType<oscObjectChoice>("oscObjectChoice");
     staticObjectFactory.registerType<oscObjects>("oscObjects");
-    staticObjectFactory.registerType<oscObserver>("oscObserver");
     staticObjectFactory.registerType<oscObserverCatalog>("oscObserverCatalog");
     staticObjectFactory.registerType<oscObserverId>("oscObserverId");
+    staticObjectFactory.registerType<oscObserverTypeA>("oscObserverTypeA");
+    staticObjectFactory.registerType<oscObserverTypeB>("oscObserverTypeB");
     staticObjectFactory.registerType<oscOffroad>("oscOffroad");
     staticObjectFactory.registerType<oscOrientation>("oscOrientation");
     staticObjectFactory.registerType<oscParameterListTypeA>("oscParameterListTypeA");
@@ -367,6 +376,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscPedestrianController>("oscPedestrianController");
     staticObjectFactory.registerType<oscPedestrianRef>("oscPedestrianRef");
     staticObjectFactory.registerType<oscPerformance>("oscPerformance");
+    staticObjectFactory.registerType<oscPolyline>("oscPolyline");
     staticObjectFactory.registerType<oscPosition>("oscPosition");
     staticObjectFactory.registerType<oscPositionLane>("oscPositionLane");
     staticObjectFactory.registerType<oscPositionRoad>("oscPositionRoad");
@@ -388,6 +398,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscRelativePositionWorld>("oscRelativePositionWorld");
     staticObjectFactory.registerType<oscRoadCondition>("oscRoadCondition");
     staticObjectFactory.registerType<oscRoadConditions>("oscRoadConditions");
+    staticObjectFactory.registerType<oscRoadConditionsGroup>("oscRoadConditionsGroup");
     staticObjectFactory.registerType<oscRoadCoord>("oscRoadCoord");
     staticObjectFactory.registerType<oscRoadNetwork>("oscRoadNetwork");
     staticObjectFactory.registerType<oscRoute>("oscRoute");
@@ -434,7 +445,8 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscVehicleCatalog>("oscVehicleCatalog");
     staticObjectFactory.registerType<oscVehicleRef>("oscVehicleRef");
     staticObjectFactory.registerType<oscVelocity>("oscVelocity");
-    staticObjectFactory.registerType<oscVisibility>("oscVisibility");
+    staticObjectFactory.registerType<oscVisibilityTypeA>("oscVisibilityTypeA");
+    staticObjectFactory.registerType<oscVisibilityTypeB>("oscVisibilityTypeB");
     staticObjectFactory.registerType<oscWaypoint>("oscWaypoint");
     staticObjectFactory.registerType<oscWaypoints>("oscWaypoints");
     staticObjectFactory.registerType<oscWeather>("oscWeather");

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<miscObject name="cvnmf" type="wmjt" mass="4576.89">
+
+
+  <fileHeader author="MK" date="2016-01-26T16:55:00+01:00" description="miscObject - testScenario" revMajor="1" revMinor="0">
+    <userDataList>
+      <userData code="cvbgfb" value="uky6i"/>
+      <userData code="lo6" value="zxcvdfge4"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <dimension front="123.89" rear="345.56" left="24.7" right="546.3" bottom="0.46" top="345.5"/>
+
+
+  <geometry URL="miscObject_geom.xml"/>
+
+
+</miscObject>

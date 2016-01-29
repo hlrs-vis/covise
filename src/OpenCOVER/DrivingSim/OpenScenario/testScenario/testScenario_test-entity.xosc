@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<entity name="vdfge" refId="235">
+
+
+  <objectChoice>
+
+    <vehicle name="hh" refId="2466"/>
+<!--
+    <pedestrian name="vzxf" refId="85"/>
+
+    <miscObject name="w36" refId="384"/>
+-->
+  </objectChoice>
+
+
+  <controllerChoice>
+<!--
+    <driverReference name="sdf23gh" refId="45890"/>
+-->
+    <pedestrianController motion="dead"/>
+
+  </controllerChoice>
+
+
+  <observer name="dbfg" refId="7894" iid="2359">
+    <coord>
+      <position x="234.78" y="-563.46" z="0.35"/>
+      <orientation h="127.87" p="-42.78" r="56.8"/>
+    </coord>
+  </observer>
+
+
+</entity>

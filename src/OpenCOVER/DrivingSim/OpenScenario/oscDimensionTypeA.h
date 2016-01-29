@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_DIMENSION_H
-#define OSC_DIMENSION_H
+#ifndef OSC_DIMENSION_TYPE_A_H
+#define OSC_DIMENSION_TYPE_A_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -18,10 +18,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscDimension: public oscObjectBase
+class OPENSCENARIOEXPORT oscDimensionTypeA: public oscObjectBase
 {
 public:
-    oscDimension()
+    oscDimensionTypeA()
     {
         OSC_ADD_MEMBER(front);
         OSC_ADD_MEMBER(rear);
@@ -39,8 +39,8 @@ public:
     oscDouble top;
 };
 
-typedef oscObjectVariable<oscDimension *> oscDimensionMember;
+typedef oscObjectVariable<oscDimensionTypeA *> oscDimensionTypeAMember;
 
 }
 
-#endif //OSC_DIMENSION_H
+#endif //OSC_DIMENSION_TYPE_A_H

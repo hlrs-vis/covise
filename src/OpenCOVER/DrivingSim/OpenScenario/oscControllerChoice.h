@@ -12,7 +12,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
 #include "oscDriverRef.h"
 #include "oscPedestrianController.h"
 
@@ -25,12 +24,12 @@ class OPENSCENARIOEXPORT oscControllerChoice: public oscObjectBase
 public:
     oscControllerChoice()
     {
-        OSC_OBJECT_ADD_MEMBER(OSCDriverReference, "oscDriverRef");
-        OSC_OBJECT_ADD_MEMBER(PedestrianController, "oscPedestrianController");
+        OSC_OBJECT_ADD_MEMBER(driverReference, "oscDriverRef");
+        OSC_OBJECT_ADD_MEMBER(pedestrianController, "oscPedestrianController");
     };
 
-    oscDriverRefMember OSCDriverReference;
-    oscPedestrianControllerMember PedestrianController;
+    oscDriverRefMember driverReference;
+    oscPedestrianControllerMember pedestrianController;
 };
 
 typedef oscObjectVariable<oscControllerChoice *> oscControllerChoiceMember;
