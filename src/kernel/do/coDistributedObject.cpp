@@ -1126,7 +1126,7 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                             tmparray = new coShmArray(iptr[shmarr_count],
                                                       *(shmSizeType *)(&iptr[shmarr_count + 1]));
                             *((const coDistributedObject **)dl[i].ptr) = createUnknown(tmparray);
-                            if ((*(coDistributedObject **)dl[i].ptr)->rebuildFromShm() == 0)
+                            if (!(*(coDistributedObject **)dl[i].ptr)->objectOk()) // rebuildFromShm already done in reateUnknown, don't do it again
                             {
                                 print_comment(__LINE__, __FILE__, "rebuildFromShm failed");
                                 return 0;
