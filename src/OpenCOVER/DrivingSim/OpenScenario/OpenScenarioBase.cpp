@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include <OpenScenarioBase.h>
-#include <oscVariables.h>
+#include "OpenScenarioBase.h"
+#include "oscVariables.h"
 #include "oscSourceFile.h"
 
 #include <iostream>
@@ -30,7 +30,7 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     xmlDoc = NULL;
     oscFactories::instance();
 
-    OSC_OBJECT_ADD_MEMBER(header,"oscHeader");
+    OSC_OBJECT_ADD_MEMBER(fileHeader,"oscFileHeader");
     OSC_OBJECT_ADD_MEMBER(catalogs,"oscCatalogs");
     OSC_OBJECT_ADD_MEMBER(roadNetwork,"oscRoadNetwork");
     OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentRef");
@@ -42,7 +42,7 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     base = this;
 
     ownMem = new oscMember();
-    ownMem->setName("OpenScenario");
+    ownMem->setName("OpenSCENARIO");
     ownMem->setTypeName("OpenScenarioBase");
     ownMem->setValue(this);
 }
@@ -85,8 +85,8 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     {
         std::string srcFileRootElement = srcFileVec[i]->getRootElementNameAsStr();
 
-        //set filename for main xosc file with root element "OpenScenario" to fileName
-        if (srcFileRootElement == "OpenScenario")
+        //set filename for main xosc file with root element "OpenSCENARIO" to fileName
+        if (srcFileRootElement == "OpenSCENARIO")
         {
             srcFileVec[i]->setSrcFileName(fileName);
             osbSourceFile = srcFileVec[i];

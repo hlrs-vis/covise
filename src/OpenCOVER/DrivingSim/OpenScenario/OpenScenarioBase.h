@@ -4,20 +4,22 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OPEN_SCENARIO_BASE
 #define OPEN_SCENARIO_BASE
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscCatalogs.h>
-#include <oscRoadNetwork.h>
-#include <oscHeader.h>
-#include <oscEnvironmentRef.h>
-#include <oscEntities.h>
-#include <oscStoryboard.h>
-#include <oscScenarioEnd.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
 
-#include <oscTest.h>
+#include "oscFileHeader.h"
+#include "oscCatalogs.h"
+#include "oscRoadNetwork.h"
+#include "oscEnvironmentRef.h"
+#include "oscEntities.h"
+#include "oscStoryboard.h"
+#include "oscScenarioEnd.h"
+
+#include "oscTest.h"
 
 #include <string>
 #include <vector>
@@ -44,7 +46,7 @@ protected:
     std::vector<oscSourceFile *> srcFileVec; ///< store oscSourceFile of all included and read files
 
 public:
-    oscHeaderMember header;
+    oscFileHeaderMember fileHeader;
     oscCatalogsMember catalogs;
     oscRoadNetworkMember roadNetwork;
     oscEnvironmentRefMember environment; // temp only, should be a reference

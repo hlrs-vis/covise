@@ -116,7 +116,6 @@ OSCObjectSettings::uiInit()
 	// Widget/Layout //
 	//
 	QGridLayout *objectGridLayout = new QGridLayout();
-	objectGridLayout->setContentsMargins(4, 9, 4, 9);
 	objectGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
 	int row = 1;
@@ -124,11 +123,16 @@ OSCObjectSettings::uiInit()
 	// not for the first element in the stackedWidget //
 	if (parentStack_->getStackSize() == 0)
 	{
-		ui->closeButton->hide();
+		objectGridLayout->setContentsMargins(4, 30, 4, 9);
 	}
 	else
 	{
-		connect(ui->closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+		QPushButton *closeButton = new QPushButton("close", ui->oscGroupBox);
+		closeButton->setObjectName(QStringLiteral("close"));
+        closeButton->setGeometry(QRect(90, 30, 75, 23));
+		connect(closeButton, SIGNAL(pressed()), parentStack_, SLOT(removeWidget()));
+
+		objectGridLayout->setContentsMargins(4, 60, 4, 9);
 	}
 	
 	// Signal Mapper for the value input widgets //
@@ -324,14 +328,13 @@ OSCObjectSettings::updateProperties()
 		QMap<QString, QWidget *>::const_iterator it;
 		for (it = memberWidgets_.constBegin(); it != memberWidgets_.constEnd(); it++)
 		{
-			OpenScenario::oscMember *member = object_->getMembers().at(it.key().toStdString());
+			OpenScenario::oscMember *member = object_->getMember(it.key().toStdString());
 			if (!member->exists())
 			{
 				continue;
 			} 
 
-			OpenScenario::oscMemberValue::MemberTypes type = member->getType();
-			OpenScenario::oscMemberValue *value = member->getValue();
+			OpenScenario::oscMemberValue *value = member->getGenerateValue();
 
 			if (QSpinBox * spinBox = dynamic_cast<QSpinBox *>(it.value()))
 			{
@@ -410,7 +413,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 	{
 		QWidget *widget = memberWidgets_.value(name);
 		
-		OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
+		OpenScenario::oscMember *member = object_->getMember(name.toStdString());
 		OpenScenario::oscMemberValue::MemberTypes type = member->getType();
 
 		switch (type)
@@ -419,21 +422,21 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				int v = spinBox->value();
-				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, object_, name.toStdString(), v);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::UINT:
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				uint v = spinBox->value();
-				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<uint> *command = new SetOSCValuePropertiesCommand<uint>(element_, object_, name.toStdString(), v);
 				break;
 			}
 		case OpenScenario::oscMemberValue::MemberTypes::USHORT:
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				ushort v = spinBox->value();
-				SetOSCValuePropertiesCommand<ushort> *command = new SetOSCValuePropertiesCommand<ushort>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<ushort> *command = new SetOSCValuePropertiesCommand<ushort>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -441,7 +444,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QSpinBox * spinBox = dynamic_cast<QSpinBox *>(widget);
 				short v = spinBox->value();
-				SetOSCValuePropertiesCommand<short> *command = new SetOSCValuePropertiesCommand<short>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<short> *command = new SetOSCValuePropertiesCommand<short>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -449,7 +452,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
 				float v = spinBox->value();
-				SetOSCValuePropertiesCommand<float> *command = new SetOSCValuePropertiesCommand<float>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<float> *command = new SetOSCValuePropertiesCommand<float>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -457,7 +460,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QDoubleSpinBox * spinBox = dynamic_cast<QDoubleSpinBox *>(widget);
 				double v = spinBox->value();
-				SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -465,7 +468,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QLineEdit * lineEdit = dynamic_cast<QLineEdit *>(widget);
 				QString v = lineEdit->text();
-				SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(element_, name.toStdString(), v.toStdString());
+				SetOSCValuePropertiesCommand<std::string> *command = new SetOSCValuePropertiesCommand<std::string>(element_, object_, name.toStdString(), v.toStdString());
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -473,7 +476,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QCheckBox *checkBox = dynamic_cast<QCheckBox *>(widget);
 				bool v = checkBox->isChecked();
-				SetOSCValuePropertiesCommand<bool> *command = new SetOSCValuePropertiesCommand<bool>(element_, name.toStdString(), v);
+				SetOSCValuePropertiesCommand<bool> *command = new SetOSCValuePropertiesCommand<bool>(element_, object_, name.toStdString(), v);
 				projectSettings_->executeCommand(command);
 				break;
 			}
@@ -481,7 +484,7 @@ OSCObjectSettings::onEditingFinished(QString name)
 			{
 				QComboBox *comboBox = dynamic_cast<QComboBox *>(widget);
 				int v = comboBox->currentIndex();
-				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, name.toStdString(), v - 1);
+				SetOSCValuePropertiesCommand<int> *command = new SetOSCValuePropertiesCommand<int>(element_, object_, name.toStdString(), v - 1);
 				projectSettings_->executeCommand(command);
 
 				break;
@@ -503,9 +506,8 @@ OSCObjectSettings::onEditingFinished(QString name)
 void 
 OSCObjectSettings::onPushButtonPressed(QString name)
 {
+	OpenScenario::oscObjectBase *object = object_->getMember(name.toStdString())->getGenerateObject();
 
-	OpenScenario::oscMember *member = object_->getMembers().at(name.toStdString());
-	OpenScenario::oscObjectBase *object = member->getObject();
 	OSCElement *memberElement = base_->getOSCElement(object);
 
 	OSCObjectSettings *oscSettings = new OSCObjectSettings(projectSettings_, parentStack_, memberElement);

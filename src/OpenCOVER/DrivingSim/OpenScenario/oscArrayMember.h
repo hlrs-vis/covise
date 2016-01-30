@@ -8,8 +8,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ARRAY_MEMBER_H
 #define OSC_ARRAY_MEMBER_H
 
-#include <oscExport.h>
-#include <oscMember.h>
+#include "oscExport.h"
+#include "oscMember.h"
 
 #include <vector>
 

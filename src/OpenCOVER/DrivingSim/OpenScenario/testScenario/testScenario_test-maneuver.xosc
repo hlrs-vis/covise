@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<maneuver name="kuiore">
+
+  <fileHeader revMajor="1" revMinor="0" date="2016-01-27T14:55:00+01:00" description="maneuver - testScenario" author="MK">
+    <userDataList>
+      <userData code="cvbgf" value="dfe45"/>
+      <userData code="fd45" value="h5567"/>
+    </userDataList>
+  </fileHeader>
+
+  <parameterList>
+    <parameter name="xz" value="nghj"/>
+    <parameter name="dfh6r" value="ngh6"/>
+  </parameterList>
+
+  <events>
+
+    <event name="bf45" priority="skip">
+
+      <startConditionGroups>
+
+        <startConditionGroup>
+          <startConditions>
+
+            <startCondition name="ngjk" delayTime="456.89">
+              <condition>
+                <simulationTime time="34.6"/>
+              </condition>
+              <userDataList>
+                <userData code="vb mg" value="mbnkm"/>
+                <userData code="bvmg" value="qtjr"/>
+              </userDataList>
+            </startCondition>
+
+          </startConditions>
+        </startConditionGroup>
+
+        <startConditionGroup>
+          <startConditions>
+
+            <startCondition name="vngfh" delayTime="5678.78">
+              <condition>
+                <simulationTime time="67.905"/>
+              </condition>
+            </startCondition>
+
+          </startConditions>
+        </startConditionGroup>
+
+      </startConditionGroups>
+
+      <actions>
+
+        <action>
+          <speed>
+            <dynamics shape="ngjt" rate="457.89" immediate="true"/>
+            <relative refObject="cbc" delta="56.89" factor="767.89"/>
+          </speed>
+        </action>
+
+      </actions>
+
+    </event>
+
+    <event name="nfgh45e6" priority="overwrite">
+
+      <startConditionGroups/>
+
+      <actions>
+
+        <action>
+          <characterMotion motionType="bfgh"/>
+        </action>
+
+        <action>
+          <characterGesture gesture="e45bbf"/>
+        </action>
+
+
+      </actions>
+    </event>
+
+    <event name="dge5t" priority="following">
+      <startConditionGroups/>
+      <actions>
+
+        <action>
+          <autonomous activate="true" driver="cbvhtg"/>
+        </action>
+
+      </actions>
+    </event>
+
+  </events>
+
+</maneuver>

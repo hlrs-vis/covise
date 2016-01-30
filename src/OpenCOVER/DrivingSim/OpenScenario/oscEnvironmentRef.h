@@ -8,12 +8,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ENVIRONMENT_REF_H
 #define OSC_ENVIRONMENT_REF_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
 
-#include <oscCatalogRef.h>
-#include <oscUserData.h>
+#include "oscCatalogReferenceTypeA.h"
+#include "oscUserDataList.h"
 
 
 namespace OpenScenario {
@@ -25,12 +25,12 @@ class OPENSCENARIOEXPORT oscEnvironmentRef: public oscObjectBase
 public:
     oscEnvironmentRef()
     {
-        OSC_OBJECT_ADD_MEMBER(catalogRef,"oscCatalogRef");
-        OSC_OBJECT_ADD_MEMBER(userData,"oscUserData");
+        OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
+        OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscCatalogRefMember catalogRef;
-    oscUserDataMember userData;
+    oscCatalogReferenceTypeAMember catalogReference;
+    oscUserDataListArrayMember userDataList;
 };
 
 typedef oscObjectVariable<oscEnvironmentRef *> oscEnvironmentRefMember;

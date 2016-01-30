@@ -4,21 +4,26 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
-#include <oscReachPosition.h>
+
+#include "oscReachPosition.h"
+
 
 using namespace OpenScenario;
 
-conditionsType::conditionsType()
+
+reachPosConditionType::reachPosConditionType()
 {
-    addEnum("exceed",oscReachPosition::exceed);
-    addEnum("deceed",oscReachPosition::deceed);
+    addEnum("exceed", oscReachPosition::exceed);
+    addEnum("deceed", oscReachPosition::deceed);
 }
 
-conditionsType *conditionsType::instance()
+reachPosConditionType *reachPosConditionType::instance()
 {
-    if(inst == NULL) 
-        inst = new conditionsType(); 
+    if(inst == NULL)
+    {
+        inst = new reachPosConditionType();
+    }
     return inst;
 }
 
-conditionsType *conditionsType::inst=NULL;
+reachPosConditionType *reachPosConditionType::inst = NULL;

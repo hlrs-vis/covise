@@ -8,10 +8,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_ROAD_CONDITION_H
 #define OSC_ROAD_CONDITION_H
 
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
-#include <oscVariables.h>
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+
+#include "oscVariables.h"
 
 
 namespace OpenScenario {
@@ -31,13 +32,11 @@ class OPENSCENARIOEXPORT oscRoadCondition: public oscObjectBase
 public:
     oscRoadCondition()
     {
-        OSC_ADD_MEMBER(frictionScale);
         OSC_ADD_MEMBER(intensity);
         OSC_ADD_MEMBER(effect);
         effect.enumType = effectType::instance();
     };
 
-    oscDouble frictionScale;
     oscDouble intensity;
     oscEnum effect;
 

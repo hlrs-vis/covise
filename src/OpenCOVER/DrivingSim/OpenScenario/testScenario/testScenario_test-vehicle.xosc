@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vehicle name="btyj56" category="bicycle" manufacturer="nvy56" model="jtyi56" color="gdfast" licensePlate="ndt">
+
+
+  <fileHeader author="MK" date="2016-01-27T13:55:00+01:00" description="vehilce - testScenario" revMajor="1" revMinor="0">
+    <userDataList>
+      <userData code="bnm,u" value="wer4"/>
+      <userData code="tui4" value="Zczsd5"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <performance maxSpeed="345.789" maxDeceleration="345.89" overallEfficiency="87.34">
+    <aerodynamics airDragCoefficient="56.7" frontSurfaceEffective="4568.78"/>
+    <engine type="cngfh" power="457.7" maxRpm="6789.56"/>
+    <cog positionX="56.89" positionY="345.7" positionZ="856.2" mass="76854.768"/>
+    <gearbox type="bnty"/>
+  </performance>
+
+
+  <geometry URL="vehicle_geom.xml"/>
+
+
+  <dimension front="34576.89" rear="34563475.78" left="34.78" right="9865.563" bottom="0.5436" top="3578.7"/>
+
+
+  <axles>
+    <front rollingResistance="237.8" maxSteering="67.987" wheelDiameter="3534.789" trackWidth="35.78" positionX="-567.567" positionZ="576.89" driven="true"/>
+    <rear rollingResistance="4568.3" maxSteering="2323.768" wheelDiameter="3576.789" trackWidth="35.89" positionX="678.4" positionZ="3457.08" driven="false"/>
+
+    <additionalAxles>
+
+      <additional rollingResistance="345.897" maxSteering="8764.3" wheelDiameter="4564.5" trackWidth="45687.2" positionX="786.012" positionZ="4856.3" driven="false"/>
+      <additional rollingResistance="4564.478" maxSteering="134.78" wheelDiameter="134.754" trackWidth="453.4" positionX="456.2" positionZ="4153.054" driven="false"/>
+
+      </additionalAxles>
+  </axles>
+
+
+  <lighting>
+
+    <light type="fbde" frequency="67.89">
+      <coord>
+        <position x="234.89" y="-768.567" z="3456.768"/>
+        <orientation h="34.7" p="128.4" r="54.2"/>
+      </coord>
+      <light>
+        <color r="23.7" g="5.6" b="239.8"/>
+        <intensity ambient="45.89" diffuse="456.8" specular="-567.4"/>
+      </light>
+    </light>
+
+    <light type="d_refg" frequency="234.8">
+      <coord>
+        <position x="-56.768" y="3456.78" z="56766.8"/>
+        <orientation h="-45.7" p="-67.34" r="-162.9"/>
+      </coord>
+      <light>
+        <color r="112.89" g="67.4" b="238.1"/>
+        <intensity ambient="34.89" diffuse="76.45" specular="56.3"/>
+      </light>
+    </light>
+
+  </lighting>
+
+
+  <eyepoints>
+
+    <eyepoint type="gbfg5">
+      <coord>
+        <position x="-768.4" y="-678.456" z="-567.7"/>
+        <orientation h="56.9" p="-45.57" r="152.4"/>
+      </coord>
+    </eyepoint>
+
+    <eyepoint type="nmk7,sg">
+      <coord>
+        <position x="67.89" y="345.9" z="4.89"/>
+        <orientation h="11.7" p="56.3" r="78.9"/>
+      </coord>
+    </eyepoint>
+
+  </eyepoints>
+
+
+  <mirrors>
+
+    <mirror type="xcvbrt-789">
+      <coord>
+        <position x="2345.789" y="456.9" z="67805.4"/>
+        <orientation h="1.8" p="8.5" r="67.9"/>
+      </coord>
+    </mirror>
+
+    <mirror type="cvbghj7">
+      <coord>
+        <position x="567.3" y="14.89" z="56.456"/>
+        <orientation h="4.456" p="44.3" r="7.34"/>
+      </coord>
+    </mirror>
+
+  </mirrors>
+
+
+  <features>
+
+    <feature type="vghe" availability="true"/>
+    <feature type="mghity-kh" availability="false"/>
+    <feature type="nm.gyut" availability="true"/>
+
+  </features>
+
+
+  <userDataList>
+    <userData code="xcvve3" value="bniop9"/>
+    <userData code="sda23" value="xb43"/>
+    <userData code="avafw" value="gh6"/>
+  </userDataList>
+
+
+</vehicle>

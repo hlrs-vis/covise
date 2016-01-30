@@ -8,16 +8,16 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_EVENT_H
 #define OSC_EVENT_H
 
-#include <oscExport.h>
-#include <oscPriority.h>
-#include <oscObjectVariable.h>
+#include "oscExport.h"
+#include "oscPriority.h"
+#include "oscObjectVariable.h"
 
-#include <oscVariables.h>
-#include <oscEventStartConditionGroup.h>
-#include <oscAction.h>
+#include "oscVariables.h"
+#include "oscStartConditionsGroupsTypeC.h"
+#include "oscActions.h"
+
 
 namespace OpenScenario {
-
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscEvent: public oscPriority
@@ -26,13 +26,13 @@ public:
     oscEvent()
     {
         OSC_ADD_MEMBER(name);
-        OSC_OBJECT_ADD_MEMBER(startConditionGroup,"oscEventStartConditionGroup");
-        OSC_OBJECT_ADD_MEMBER(action,"oscAction");
+        OSC_OBJECT_ADD_MEMBER(startConditionGroups, "oscStartConditionsGroupsTypeC");
+        OSC_OBJECT_ADD_MEMBER(actions, "oscActions");
     };
 
     oscString name;
-    oscEventStartConditionGroupArrayMember startConditionGroup;
-    oscActionMember action;
+    oscStartConditionsGroupsTypeCArrayMember startConditionGroups;
+    oscActionsArrayMember actions;
 };
 
 typedef oscObjectVariable<oscEvent *> oscEventMember;

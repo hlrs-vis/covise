@@ -257,23 +257,23 @@ template<typename T>
 class SetOSCValuePropertiesCommand : public DataCommand
 {
 public:
-	explicit SetOSCValuePropertiesCommand(OSCElement *element, const std::string &memberName, const T &value, DataCommand *parent = NULL)
+	explicit SetOSCValuePropertiesCommand(OSCElement *element, OpenScenario::oscObjectBase *object, const std::string &memberName, const T &value, DataCommand *parent = NULL)
 	{
 		memberName_ = memberName;
 	// Check for validity //
     //
-    if (!element)
+    if (!element || !object)
     {
         setInvalid(); // Invalid
-        setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement specified."));
+        setText(QObject::tr("SetOSCValuePropertiesCommand: Internal error! No OSCElement or no OpenScenario object specified."));
         return;
     }
 
 	element_ = element;
-	const OpenScenario::oscObjectBase *object = element_->getObject();
+
 	newOSCValue_ = value;
-	OpenScenario::oscMember *member = object->getMembers().at(memberName);
-	v_ = member->getValue();
+	OpenScenario::oscMember *member = object->getMember(memberName);
+	v_ = member->getGenerateValue();
 
 	OpenScenario::oscValue<T> *oscTypeMemberValue = dynamic_cast<OpenScenario::oscValue<T> *>(v_);
 	if (oscTypeMemberValue)

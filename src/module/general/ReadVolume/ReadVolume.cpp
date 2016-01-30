@@ -24,6 +24,8 @@
  ** Cration Date: 28.10.2000                                               **
 \**************************************************************************/
 
+#include <sstream>
+
 #include <boost/filesystem.hpp>
 
 #include <api/coModule.h>
@@ -34,7 +36,248 @@
 #include <virvo/vvfileio.h>
 #include <virvo/vvvoldesc.h>
 #include <virvo/vvtoolshed.h>
+#include <virvo/vvvirvo.h>
 #include "ReadVolume.h"
+
+
+/// Iterate folders either with a sequence (begin, end, int)
+/// or randomly (sequence is determined from file header)
+class FolderIterator
+{
+public:
+
+    // Use either an int or a boost::filesystem::directory_iterator
+    enum Type { Int, DirectoryIter };
+
+
+    // constructors ---------------------------------------
+
+    // Type Int
+    FolderIterator(
+            std::string pt,
+            int i,
+            bool dc_format = false,
+            bool slice_format = false
+            )
+        : type_(Int)
+        , pathtemplate_(pt)
+        , int_it_(i)
+        , dc_format_(dc_format)
+        , slice_format_(slice_format)
+    {
+    }
+
+    // Type DirectoryIter
+    FolderIterator(
+            boost::filesystem::path dir,
+            bool dc_format = false,
+            bool slice_format = false
+            )
+        : type_(DirectoryIter)
+        , dir_it_(dir)
+        , dc_format_(dc_format)
+        , slice_format_(slice_format)
+    {
+    }
+
+    // TypeDirectoryIter, create end()
+    FolderIterator()
+        : type_(DirectoryIter)
+    {
+    }
+
+
+    // basic forward iterator interface -------------------
+
+    FolderIterator& operator++()
+    {
+        if (type_ == Int)
+            ++int_it_;
+        else
+            ++dir_it_;
+        return *this;
+    }
+
+    bool operator!=(const FolderIterator& rhs)
+    {
+        if (type_ == Int)
+            return int_it_ != rhs.int_it_;
+        else
+            return dir_it_ != rhs.dir_it_;
+    }
+
+
+    // ----------------------------------------------------
+
+    boost::filesystem::path path() const
+    {
+        if (type_ == Int)
+            return boost::filesystem::path(assemblePath(int_it_));
+        else
+            return dir_it_->path();
+    }
+
+    std::string path_string() const
+    {
+        if (type_ == Int)
+            return assemblePath(int_it_);
+        else
+            return dir_it_->path().string();
+    }
+
+    boost::filesystem::file_status status() const
+    {
+        if (type_ == Int)
+            return boost::filesystem::status(path());
+        else
+            return dir_it_->status();
+    }
+
+    int toInt() const
+    {
+        if (type_ == Int)
+            return int_it_;
+        else
+            return -1;
+    }
+
+private:
+
+    std::string assemblePath(int i) const
+    {
+        char *path = new char[strlen(pathtemplate_.c_str()) + 20];
+        if (dc_format_)
+        {
+            int i1, i2;
+            i2 = i % 1000;
+            i1 = i / 1000;
+            sprintf(path, pathtemplate_.c_str(), i1, i2);
+        }
+        else
+        {
+            sprintf(path, pathtemplate_.c_str(), i);
+        }
+
+        std::string result(path);
+        delete[] path;
+        return result;
+    }
+
+    Type type_;
+    std::string pathtemplate_;
+    bool dc_format_;
+    bool slice_format_;
+
+    int int_it_;
+    boost::filesystem::directory_iterator dir_it_;
+
+};
+
+
+/// util class, provides folder iterators
+struct FolderUtil
+{
+    struct Sequence
+    {
+        Sequence(int b, int e, int i)
+            : begin(b)
+            , end(e)
+            , increment(i)
+        {
+        }
+
+        int begin;
+        int end;
+        int increment;
+    };
+
+
+    // constructors ---------------------------------------
+
+    // use integer sequence
+    FolderUtil(std::string pathtemplate, Sequence seq)
+        : type_(FolderIterator::Int)
+        , pathtemplate_(pathtemplate)
+        , sequence_(seq)
+        , dc_format_(false)
+        , slice_format_(false)
+    {
+        checkFormat();
+    }
+
+    // randomly traverse folder, sequence is
+    // obtained from file headers
+    FolderUtil(std::string path)
+        : type_(FolderIterator::DirectoryIter)
+        , pathtemplate_(path)
+        , sequence_(0, 0, 0)
+        , dc_format_(false)
+        , slice_format_(true) // always assume we merge slices (TODO?)
+    {
+        boost::filesystem::path tmp(pathtemplate_);
+        directory_ = tmp.parent_path();
+    }
+
+
+    // get iterators --------------------------------------
+
+    FolderIterator begin()
+    {
+        if (type_ == FolderIterator::Int)
+            return FolderIterator(
+                pathtemplate_,
+                sequence_.begin,
+                dc_format_,
+                slice_format_
+                );
+        else
+            return FolderIterator(
+                directory_,
+                dc_format_,
+                slice_format_
+                );
+    }
+
+    FolderIterator end()
+    {
+        if (type_ == FolderIterator::Int)
+            return FolderIterator(pathtemplate_, sequence_.end);
+        else
+            return FolderIterator();
+    }
+
+
+    // sequence format ------------------------------------
+
+    bool dc_format() const
+    {
+        return dc_format_;
+    }
+
+    bool slice_format() const
+    {
+        return slice_format_;
+    }
+
+private:
+
+    void checkFormat()
+    {
+        const char *s1 = strchr(pathtemplate_.c_str(), '%');
+        if (s1)
+            slice_format_ = true;
+        if (s1 && strchr(s1 + 1, '%')) // we found a second %
+            dc_format_ = true;
+    }
+
+    FolderIterator::Type type_;
+    std::string pathtemplate_;
+    Sequence sequence_;
+    bool dc_format_;
+    bool slice_format_;
+    boost::filesystem::path directory_;
+};
+
 
 /// Constructor
 coReadVolume::coReadVolume(int argc, char *argv[])
@@ -55,9 +298,19 @@ coReadVolume::coReadVolume(int argc, char *argv[])
         poVolume[c]->setInfo(buf2);
     }
 
+    std::stringstream filetypes;
+    filetypes << "*.xvf;*.rvf;*.avf/*.dcm;*.dcom/";
+    if (virvo::hasFeature("nifti"))
+    {
+        filetypes << "*.nii;*.nii.gz/";
+    }
+    filetypes << "*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*";
+    std::string ftstr = filetypes.str();
+    const char *ftptr = ftstr.c_str();
+
     // Create parameters:
     pbrVolumeFile = addFileBrowserParam("FilePath", "Volume file (or printf format string for sequence)");
-    pbrVolumeFile->setValue("data/volume", "*.xvf;*.rvf;*.avf/*.dcm;*.dcom/*.tif;*.tiff/*.rgb/*.pgm;*.ppm/*");
+    pbrVolumeFile->setValue("data/volume", ftptr);
 
     piSequenceBegin = addInt32Param("SequenceBegin", "First file number in sequence");
     piSequenceBegin->setValue(0);
@@ -68,8 +321,8 @@ coReadVolume::coReadVolume(int argc, char *argv[])
     piSequenceInc = addInt32Param("SequenceInc", "Increment in sequence");
     piSequenceInc->setValue(1);
 
-    pboReadOrderedDicom = addBooleanParam("ReadOrderedDicom", "Off: read single file or file sequence, on: process whole folder, determine order from Dicom files");
-    pboReadOrderedDicom->setValue(false);
+    pboSequenceFromHeader = addBooleanParam("SequenceFromHeader", "Off: read single file or file sequence, on: process all files in folder, determine order from file header");
+    pboSequenceFromHeader->setValue(false);
 
     pboPreferByteData = addBooleanParam("PreferByteData", "Off: never create byte data, on: use byte data for volumes stored with 1 byte/channel");
     pboPreferByteData->setValue(false);
@@ -139,129 +392,91 @@ int coReadVolume::compute(const char *)
 
     int retVal = CONTINUE_PIPELINE;
     int numFiles = 0;
-    bool dc_format = false;
-    bool slice_format = false;
-    const char *s1 = strchr(pathtemplate, '%');
-    if (s1)
-        slice_format = true;
-    if (s1 && strchr(s1 + 1, '%')) // we found a second %
-        dc_format = true;
 
-    if (pboReadOrderedDicom->getValue())
+    FolderUtil folder_util = pboSequenceFromHeader->getValue()
+        ? FolderUtil(pathtemplate)
+        : FolderUtil(pathtemplate, FolderUtil::Sequence(
+                piSequenceBegin->getValue(),
+                piSequenceEnd->getValue() + piSequenceInc->getValue(),
+                piSequenceInc->getValue()
+                )
+                )
+        ;
+
+    for (FolderIterator it =  folder_util.begin();
+                        it != folder_util.end();
+                        ++it
+                        )
     {
         namespace fs = boost::filesystem;
 
-        fs::path tmp(pathtemplate);
-        fs::path dir(tmp.parent_path());
-
-        for (fs::directory_iterator it =  fs::directory_iterator(dir);
-                                    it != fs::directory_iterator();
-                                    ++it)
+        if (fs::is_directory(it.status()))
         {
-            std::string suffix = it->path().extension().string();
+            continue;
+        }
 
-            if (fs::is_regular_file(it->status()) && (suffix == ".dcom" || suffix == ".dcm"))
+        vvVolDesc *vdread = vd, vdframe;
+        bool merge = false;
+        if (vd->vox[2] > 1 && vd->frames > 0)
+        {
+            merge = true;
+            vdread = &vdframe;
+        }
+        std::string path = it.path_string();
+        vdread->setFilename(path.c_str());
+        int result = vvFileIO::OK;
+        if (pboReadRaw->getValue())
+        {
+            result = fio->loadRawFile(vdread,
+                                      piVoxelsX->getValue(), piVoxelsY->getValue(), piVoxelsZ->getValue(),
+                                      piBPC->getValue(), piChannels->getValue(), piHeader->getValue());
+        }
+        else
+        {
+            result = fio->loadVolumeData(vdread, vvFileIO::ALL_DATA, it != folder_util.begin() && !merge);
+        }
+
+        if (result == vvFileIO::OK)
+        {
+            numFiles++;
+            //vdread->printVolumeInfo();
+
+            // Determine volume dimensions:
+            if (pboCustomSize->getValue())
             {
-                char const* path = it->path().string().c_str();
+                width = pfsVolWidth->getValue();
+                height = pfsVolHeight->getValue();
+                depth = pfsVolDepth->getValue();
+            }
+            else
+            {
+                width = vdread->vox[0] * vdread->dist[0];
+                height = vdread->vox[1] * vdread->dist[1];
 
-                vd->setFilename(path);
-                vvFileIO::ErrorType result = fio->loadVolumeData(vd, vvFileIO::ALL_DATA, true);
-
-                if (result == vvFileIO::OK)
+                if (folder_util.slice_format() && !merge)
                 {
-                    numFiles++;
-
-                    width = vd->vox[0] * vd->dist[0];
-                    height = vd->vox[1] * vd->dist[1];
-                    depth = numFiles * vd->dist[2];
+                    depth = numFiles * vdread->dist[2];
                 }
                 else
                 {
-                    skipped << " " << path;
+                    depth = vdread->vox[2] * vdread->dist[2];
                 }
             }
         }
-    }
-    else
-    {
-        for (int i = piSequenceBegin->getValue(); i <= piSequenceEnd->getValue(); i += piSequenceInc->getValue())
+        else if (result == vvFileIO::FILE_NOT_FOUND)
         {
-            vvVolDesc *vdread = vd, vdframe;
-            bool merge = false;
-            if (vd->vox[2] > 1 && vd->frames > 0)
-            {
-                merge = true;
-                vdread = &vdframe;
-            }
-            char *path = new char[strlen(pathtemplate) + 20];
-            if (dc_format)
-            {
-                int i1, i2;
-                i2 = i % 1000;
-                i1 = i / 1000;
-                sprintf(path, pathtemplate, i1, i2);
-            }
-            else
-            {
-                sprintf(path, pathtemplate, i);
-            }
-            vdread->setFilename(path);
-            int result = vvFileIO::OK;
-            if (pboReadRaw->getValue())
-            {
-                result = fio->loadRawFile(vdread,
-                                          piVoxelsX->getValue(), piVoxelsY->getValue(), piVoxelsZ->getValue(),
-                                          piBPC->getValue(), piChannels->getValue(), piHeader->getValue());
-            }
-            else
-            {
-                result = fio->loadVolumeData(vdread, vvFileIO::ALL_DATA, i != piSequenceBegin->getValue() && !merge);
-            }
+            skipped << " " << it.toInt();
+        }
+        else
+        {
+            sendError("Failed to load file %d from sequence: %s", it.toInt(), path.c_str());
+            retVal = STOP_PIPELINE;
+            break;
+        }
 
-            if (result == vvFileIO::OK)
-            {
-                numFiles++;
-                //vdread->printVolumeInfo();
-
-                // Determine volume dimensions:
-                if (pboCustomSize->getValue())
-                {
-                    width = pfsVolWidth->getValue();
-                    height = pfsVolHeight->getValue();
-                    depth = pfsVolDepth->getValue();
-                }
-                else
-                {
-                    width = vdread->vox[0] * vdread->dist[0];
-                    height = vdread->vox[1] * vdread->dist[1];
-
-                    if (slice_format && !merge)
-                    {
-                        depth = numFiles * vdread->dist[2];
-                    }
-                    else
-                    {
-                        depth = vdread->vox[2] * vdread->dist[2];
-                    }
-                }
-            }
-            else if (result == vvFileIO::FILE_NOT_FOUND)
-            {
-                skipped << " " << i;
-            }
-            else
-            {
-                sendError("Failed to load file %d from sequence: %s", i, path);
-                retVal = STOP_PIPELINE;
-                break;
-            }
-
-            if (merge)
-            {
-                vd->merge(&vdframe, vvVolDesc::VV_MERGE_VOL2ANIM);
-            }
-
-            delete[] path;
+        if (merge)
+        {
+            vd->merge(&vdframe, vvVolDesc::VV_MERGE_VOL2ANIM);
         }
     }
 
@@ -455,7 +670,10 @@ int coReadVolume::compute(const char *)
         }
 
         // Print message:
-        if (numFiles != piSequenceEnd->getValue() - piSequenceBegin->getValue() + 1)
+        if (
+            !pboSequenceFromHeader->getValue()
+         && (numFiles != piSequenceEnd->getValue() - piSequenceBegin->getValue() + 1)
+            )
         {
             skipped << " in sequence.";
             sendInfo("%s", skipped.str().c_str());

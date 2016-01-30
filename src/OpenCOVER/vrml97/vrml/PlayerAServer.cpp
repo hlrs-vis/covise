@@ -151,7 +151,7 @@ PlayerAServer::connect()
 
 PlayerAServer::~PlayerAServer()
 {
-    CERR << "destruction of " << sources.size() << " sources" << endl;
+    //CERR << "destruction of " << sources.size() << " sources" << endl;
 
     // these would be deleted in the Player destructor, too,
     // but then the asSocket is already closed

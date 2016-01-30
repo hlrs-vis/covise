@@ -14,6 +14,8 @@
 **************************************************************************/
 
 #include "oscitem.hpp"
+#include "osctextitem.hpp"
+
 #include "src/graph/items/roadsystem/scenario/oscroaditem.hpp"
 
 #include "src/util/odd.hpp"
@@ -80,11 +82,13 @@ OSCItem::~OSCItem()
 * Initializes the path 
 */
 QPainterPath *
-	createVehiclePath(OpenScenario::oscObjectBase *vehicle, const QPointF &pos)
+	createVehiclePath(OpenScenario::oscObjectBase *vehicle)
 {
 	QPainterPath *path = new QPainterPath();
+	double width = 10;
+	double height = 10;
 
-	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("vehicleClass")->getValue());
+	oscIntValue *iv = dynamic_cast<oscIntValue *>(vehicle->getMember("category")->getGenerateValue());
 	if (iv)
 	{
 		switch (iv->getValue())
@@ -92,12 +96,13 @@ QPainterPath *
 		case oscVehicle::car:
 			{
 				QPolygonF polygon;
-				polygon << QPointF(-7.8,-3) << QPointF(-7.8,0) << QPointF(-7.8,0) << QPointF(-3.8,3) << QPointF(3.8,3) << QPointF(4,0) << QPointF(7,0) << QPointF(7.6,-1.2) << QPointF(7.8,-3);
+				polygon << QPointF(0,0) << QPointF(0,2) << QPointF(0,2) << QPointF(3.7,4) << QPointF(6.3,4) << QPointF(7.7,2) << QPointF(9.2,2) << QPointF(9.8,1.2) << QPointF(10,0);
 				path->addPolygon(polygon);
 				path->closeSubpath();
-				path->addEllipse(QPointF(-4.6,-3.2), 1.2, 1.2);
-				path->addEllipse(QPointF(4.6,-3.2), 1.2, 1.2);
-				path->translate(pos);
+				path->addEllipse(QPointF(2,-0.1), 0.8, 0.8);
+				path->addEllipse(QPointF(8,-0.1), 0.8, 0.8);
+
+				height = 4;
 				break;
 			}
 		case oscVehicle::van:
@@ -106,7 +111,7 @@ QPainterPath *
 			}
 		default:
 			{
-				path->addRect(pos.x(), pos.y(), 10, 10);
+				path->addRect(0, 0, 10, 10);
 			}
 
 	/*	truck,
@@ -118,6 +123,7 @@ QPainterPath *
 		tram,*/
 		}
 	}
+	path->translate(-width/2, -height/2);
 
 	return path;
 
@@ -148,11 +154,13 @@ OSCItem::init()
     {
         // Text //
         //
- //       signalTextItem_ = new SignalTextItem(this, signal_);
- //       signalTextItem_->setZValue(1.0); // stack before siblings
+        oscTextItem_ = new OSCTextItem(this, oscObject_, pos_);
+        oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
-
+	OpenScenario::oscObjectBase *oscPosition = oscObject_->getMember("initPosition")->getObject();
+	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
+	roadID_ = QString::fromStdString(dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getValue())->getValue());
 	road_ = roadSystemItem_->getRoadSystem()->getRoad(roadID_);
 	closestRoad_ = road_;
 
@@ -177,11 +185,11 @@ OSCItem::updateColor(const std::string &type)
 {
 	if (type == "oscVehicle")
 	{
-		color_ = Qt::yellow;
+		color_ = Qt::black;
 	}
 
 	
-	setBrush(QBrush(color_));
+//	setBrush(QBrush(color_));
 	setPen(QPen(color_));
 }
 
@@ -192,10 +200,9 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-
-
-	QPainterPath *path = createPath(selectedObject_, pos_);
-	setPath(*path);
+	path_ = createPath(selectedObject_);
+	path_->translate(pos_ );
+	setPath(*path_);
 }
 
 //*************//
@@ -238,8 +245,8 @@ OSCItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 	// Text //
 	//
-//	getSignalTextItem()->setVisible(true);
-//	getSignalTextItem()->setPos(event->scenePos());
+	oscTextItem_->setVisible(true);
+	oscTextItem_->setPos(event->scenePos());
 
 	// Parent //
 	//
@@ -257,7 +264,7 @@ OSCItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
     // Text //
     //
-//    getSignalTextItem()->setVisible(false);
+    oscTextItem_->setVisible(false);
 
     // Parent //
     //
@@ -295,6 +302,8 @@ OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         GraphElement::mousePressEvent(event); // pass to baseclass
 
     }
+
+	oscTextItem_->setVisible(false);
 }
 
 void
@@ -304,18 +313,13 @@ OSCItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 
 		QPointF newPos = event->scenePos();
-		pos_ += newPos - lastPos_;
+		path_->translate(newPos-lastPos_);
 		lastPos_ = newPos;
-	//	createPath();
+		setPath(*path_);
 
-	//	QPointF to = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
-		QPointF to;
-
-		double s;
 		QVector2D vec;
-		double dist;
 
-		RSystemElementRoad * nearestRoad = oscEditor_->findClosestRoad( to, s, dist, vec);
+		RSystemElementRoad * nearestRoad = oscEditor_->findClosestRoad( newPos, s_, t_, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;
@@ -343,13 +347,9 @@ OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		double diff = (lastPos_ - pressPos_).manhattanLength();
 		if (diff > 0.01) // otherwise item has not been moved by intention
 		{
-	//		pos_ = road_->getGlobalPoint(signal_->getSStart(), signal_->getT()) + lastPos_ - pressPos_;
-		/*	bool parentChanged = oscEditor_->translateObject(element_, closestRoad_, pos_);
+			bool parentChanged = oscEditor_->translateObject(oscObject_, closestRoad_->getID(), s_, t_);
+			pos_ += lastPos_ - pressPos_;
 
-			if (!parentChanged)
-			{
-				updatePosition();
-			}*/
 		}
 		else
 		{
@@ -358,6 +358,8 @@ OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 		doPan_ = false;
     }
+
+	oscTextItem_->setVisible(true);
 }
 
 /*! \brief Key events for panning, etc.

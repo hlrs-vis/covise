@@ -28,6 +28,7 @@ class oscObject;
 }
 
 class OpenScenarioEditor;
+class OSCTextItem;
 class QColor;
 
 class OSCItem : public GraphElement
@@ -53,16 +54,10 @@ public:
 //	void createPath(OpenScenario::oscPedestrian *pedestrian);
 	
 	// Function for path drawing //
-	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *, const QPointF &pos);
+	QPainterPath *(*createPath)(OpenScenario::oscObjectBase *);
 
     void updatePosition();
 
-    // Text //
-    //
-/*    SignalTextItem *getSignalTextItem() const
-    {
-        return signalTextItem_;
-    } */
 
     // Garbage //
     //
@@ -132,11 +127,12 @@ private:
 	bool doPan_;
 	bool copyPan_;
 
- //   SignalTextItem *signalTextItem_;
+    OSCTextItem *oscTextItem_;
 
     QColor color_;
 
     OpenScenarioEditor *oscEditor_;
+
 
 };
 

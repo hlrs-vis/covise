@@ -4,10 +4,11 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_MEMBER_VALUE_H
 #define OSC_MEMBER_VALUE_H
 
-#include <oscExport.h>
+#include "oscExport.h"
 
 #include <string>
 
@@ -17,6 +18,7 @@ class DOMAttr;
 class DOMElement;
 class DOMDocument;
 XERCES_CPP_NAMESPACE_END
+
 
 namespace OpenScenario {
 
@@ -47,15 +49,15 @@ public:
     virtual ~oscMemberValue(); ///< destructor
 
     // set the value with the specified type instead of using initialize(), done in oscValue
-    virtual void setValue(int &t){};
-    virtual void setValue(unsigned int &t){};
-    virtual void setValue(short &t){};
-    virtual void setValue(unsigned short &t){};
+    virtual void setValue(const int &t){};
+    virtual void setValue(const unsigned int &t){};
+    virtual void setValue(const short &t){};
+    virtual void setValue(const unsigned short &t){};
     virtual void setValue(const std::string &t){};
-    virtual void setValue(double &t){};
-    virtual void setValue(time_t &t){};
-    virtual void setValue(bool &t){};
-    virtual void setValue(float &t){};
+    virtual void setValue(const double &t){};
+    virtual void setValue(const time_t &t){};
+    virtual void setValue(const bool &t){};
+    virtual void setValue(const float &t){};
 
     MemberTypes getType() const; ///< return the type of this value
     virtual bool initialize(xercesc::DOMAttr *);

@@ -1,183 +1,1223 @@
 <?xml version="1.0" encoding="utf-8"?>
-<OpenScenario xmlns:osc="http://www.w3.org/2001/XInclude">
+<OpenSCENARIO xmlns:osc="http://www.w3.org/2001/XInclude">
 
-  <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
+  <fileHeader revMajor="1" revMinor="0" date="2016-01-22T11:55:00+01:00" description="OpenSCENARIO - testScenario" author="MK">
+    <userDataList>
+      <userData code="df" value="hhry"/>
+      <userData code="h56u56" value="uyk"/>
+      <userData code="shui5" value="eerg"/>
+    </userDataList>
+  </fileHeader>
+
+
 
   <catalogs>
-    <vehicleCatalog>
-      <directory path="vehicle.xml"/>
-      <userData code="aaa" value="bbb"/>
-    </vehicleCatalog>
-    <driverCatalog>
-      <directory path="driver.xml"/>
-      <userData code="aaa" value="bbb"/>
-    </driverCatalog>
-    <observerCatalog>
-      <directory path="observer.xml"/>
-      <userData code="aaa" value="bbb"/>
-    </observerCatalog>
-    <pedestrianCatalog>
-      <directory path="pedestrian.xml"/>
-      <userData code="aaa" value="bbb"/>
-    </pedestrianCatalog>
-    <miscObjectCatalog>
-      <directory path="miscObject.xml"/>
-      <userData code="aaa" value="bbb"/>
-    </miscObjectCatalog>
+
+    <objectCatalog>
+
+      <vehicleCatalog>
+        <directory path="vehicle.xml"/>
+        <userDataList>
+          <userData code="aaa" value="bbb"/>
+          <userData code="rrr" value="hh"/>
+          <userData code="lll" value="jjj"/>
+        </userDataList>
+      </vehicleCatalog>
+
+      <driverCatalog>
+        <directory path="driver.xml"/>
+        <userDataList>
+          <userData code="aaa" value="bbb"/>
+          <userData code="ccc" value="ddd"/>
+          <userData code="eee" value="fff"/>
+        </userDataList>
+      </driverCatalog>
+
+      <observerCatalog>
+        <directory path="observer.xml"/>
+        <userDataList>
+          <userData code="zzz" value="abb"/>
+          <userData code="eee" value="fff"/>
+          <userData code="ggg" value="hhh"/>
+        </userDataList>
+      </observerCatalog>
+
+      <pedestrianCatalog>
+        <directory path="pedestrian.xml"/>
+        <userDataList>
+          <userData code="aaa" value="bbb"/>
+          <userData code="ccc" value="ddd"/>
+          <userData code="eee" value="fff"/>
+        </userDataList>
+      </pedestrianCatalog>
+
+      <miscObjectCatalog>
+        <directory path="miscObject.xml"/>
+        <userDataList>
+          <userData code="iii" value="jjj"/>
+          <userData code="ccc" value="ddd"/>
+          <userData code="eee" value="fff"/>
+        </userDataList>
+      </miscObjectCatalog>
+
+    </objectCatalog>
+
     <entityCatalog>
       <directory path="entity.xml"/>
-      <userData code="aaa" value="bbb"/>
+      <userDataList>
+        <userData code="aaa" value="bbb"/>
+        <userData code="kkk" value="lll"/>
+        <userData code="mmm" value="nnn"/>
+      </userDataList>
     </entityCatalog>
+
     <environmentCatalog>
       <directory path="environment.xml"/>
-      <userData code="aaa" value="bbb"/>
+      <userDataList>
+        <userData code="aaa" value="bbb"/>
+        <userData code="ooo" value="ppp"/>
+        <userData code="eee" value="fff"/>
+      </userDataList>
     </environmentCatalog>
+
     <maneuverCatalog>
       <directory path="maneuver.xml"/>
-      <userData code="aaa" value="bbb"/>
+      <userDataList>
+        <userData code="qqq" value="rrr"/>
+        <userData code="ccc" value="ddd"/>
+        <userData code="eee" value="fff"/>
+      </userDataList>
     </maneuverCatalog>
+
     <routingCatalog>
       <directory path="routing.xml"/>
-      <userData code="aaa" value="bbb"/>
+      <userDataList>
+        <userData code="aaa" value="bbb"/>
+        <userData code="sss" value="ttt"/>
+        <userData code="eee" value="fff"/>
+      </userDataList>
     </routingCatalog>
-    <userData code="asd" value="ert"></userData>
+
+    <userDataList>
+      <userData code="aaa" value="bbb"/>
+      <userData code="uuu" value="vvv"/>
+      <userData code="xxx" value="yyy"/>
+    </userDataList>
+
   </catalogs>
 
+
+
   <roadNetwork>
-    <OpenDRIVE URL="test.xodr"/>
-    <SceneGraph URL="test.ive"/>
-    <userData code="roadNetWork" value="roadNetWork"/>
+
+    <openDrive URL="test.xodr"/>
+    <sceneGraph URL="test.ive"/>
+    <userDataList>
+      <userData code="roadNetWork" value="roadNetWorkValue"/>
+    </userDataList>
+
   </roadNetwork>
 
-  <entities>
-    <object name="Ego">
-      <catalogRef catalogId="123">
-        <parameter name="wer" value="io" type="p"/>
-      </catalogRef>
-      <initPosition>
-        <position>
-          <positionWorld x="10" y="10" z="10" h="10" p="10" r="10"/>
-        </position>
-      </initPosition>
-      <initDynamics velocity="50" acceleration="3.0"/>
-      <initState trafficLightPhase="red" dynamicTrafficSignState="aaa"/>
-      <userData code="asd" value="ert"></userData>
-    </object>
-    <userData code="asd" value="ert"></userData>
-  </entities>
 
-  <storyboard>
-    <maneuverList>
-
-      <startConditionGroup>
-
-        <startCondition name="start1" counter="1">
-          <condition>
-            <acceleration reference="absolute" object="V3" refObject="V1" value="75" condition="exceed"/>
-          </condition>
-          <userData code="zxc" value="vbn"></userData>
-        </startCondition>
-
-	<startCondition name="start2" counter="20">
-          <condition>
-            <acceleration reference="relative" object="V4" refObject="V3" value="34" condition="deceed"/>
-          </condition>
-          <userData code="qwe" value="rty"></userData>
-        </startCondition>
-
-        <startCondition name="end" counter="9">
-          <condition>
-            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="deceed"/>
-          </condition>
-          <userData code="asd" value="ert"></userData>
-        </startCondition>
-
-      </startConditionGroup>
-
-      <endConditionGroup>
-        <endCondition name="end" counter="9">
-          <condition>
-            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="deceed"/>
-          </condition>
-          <userData code="asd" value="ert"></userData>
-        </endCondition>
-      </endConditionGroup>
-      <cancelConditionGroup>
-        <cancelCondition name="end" counter="9">
-          <condition>
-            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="deceed"/>
-          </condition>
-          <userData code="asd" value="ert"></userData>
-        </cancelCondition>
-      </cancelConditionGroup>
-      <maneuver name="oiu" numberOfExecutions="733333333" maneuverPriority="cancel">
-        <refActor URL="AAAAAA.xml"/>
-        <catalogRef catalogId="123">
-          <parameter name="wer" value="io" type="p"/>
-        </catalogRef>
-        <maneuver name="takeover">
-          <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
-          <parameterList>
-            <parameter name="sss" value="222"/>
-          </parameterList>
-        </maneuver>
-        <userData code="asd" value="ert"></userData>
-      </maneuver>
-    </maneuverList>
-    <refActor name="qwe">
-      <maneuver name="q" numberOfExecutions="3" maneuverPriority="following">
-        <startCondition name="end" counter="9" iid="1" groupId="9">
-          <condition>
-            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
-          </condition>
-          <userData code="asd" value="ert"></userData>
-        </startCondition>
-        <endCondition name="end" counter="9" iid="1" groupId="9">
-          <condition>
-            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
-          </condition>
-          <userData code="asd" value="ert"></userData>
-        </endCondition>
-        <cancelCondition name="end" counter="9" iid="1" groupId="9">
-          <condition>
-            <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
-          </condition>
-          <userData code="asd" value="ert"></userData>
-        </cancelCondition>
-        <catalogRef catalogId="123">
-          <parameter name="wer" value="io" type="p"/>
-        </catalogRef>
-        <maneuver name="takeover">
-          <header revMajor="1" revMinor="0" date="2015-08-17T11:55:00+01:00" description="testScenario" author="UW"/>
-          <parameterList>
-            <parameter name="sss" value="222"/>
-          </parameterList>
-        </maneuver>
-        <userData code="asd" value="ert"></userData>
-      </maneuver>
-    </refActor>
-    <userData code="asd" value="ert"></userData>
-  </storyboard>
-
-  <scenarioEnd>
-    <endConditionGroup>
-      <endCondition name="end" counter="9">
-        <condition>
-          <acceleration reference="relative" object="V1" refObject="V2" value="50" condition="decceed"/>
-        </condition>
-        <userData code="asd" value="ert"></userData>
-      </endCondition>
-    </endConditionGroup>
-    <userData code="asd" value="ert"></userData>
-  </scenarioEnd>
 
   <environment>
-    <catalogRef catalogId="123">
-      <parameter name="a" value="b" type="c"/>
-    </catalogRef>
-    <userData code="asd" value="ert"></userData>
+
+    <catalogReference catalogId="c_xR">
+      <parameterList>
+        <parameter name="a" value="b" type="c"/>
+        <parameter name="d" value="e" type="f"/>
+      </parameterList>
+    </catalogReference>
+
+    <userDataList>
+      <userData code="asd" value="ert"/>
+      <userData code="fgh" value="yui"/>
+    </userDataList>
+
   </environment>
 
-  <osc:include href="testScenario/testScenario-include_test.xosc"/>
 
-</OpenScenario>
+
+  <entities>
+
+    <objects>
+
+      <object name="Ego">
+        <catalogReference catalogId="a123_">
+          <parameterList>
+            <parameter name="wer" value="io" type="p"/>
+            <parameter name="wie" value="so" type="k"/>
+          </parameterList>
+        </catalogReference>
+        <initPosition>
+          <positionWorld x="10.1" y="11.68" z="12.03" h="20.55" p="21.68" r="0.22"/>
+        </initPosition>
+        <initDynamics velocity="50.7" acceleration="3.0"/>
+        <initState trafficLightPhase="red" dynamicTrafficSignState="aaa"/>
+        <userDataList>
+          <userData code="hfg" value="jl"/>
+          <userData code="wer" value="uo"/>
+        </userDataList>
+      </object>
+
+      <object name="Obj2">
+        <catalogReference catalogId="b4r-3">
+          <parameterList>
+            <parameter name="sdf" value="gfr" type="ew"/>
+            <parameter name="fgh" value="fsd" type="f"/>
+          </parameterList>
+        </catalogReference>
+        <initPosition>
+          <positionWorld x="568.9" y="324678.0076" z="45622.038" h="12.9" p="-46.923" r="-0.346"/>
+        </initPosition>
+        <initDynamics velocity="75.93" acceleration="15.489"/>
+        <initState trafficLightPhase="sdfs" dynamicTrafficSignState="fhr6y"/>
+        <userDataList>
+          <userData code="hfg" value="jl"/>
+          <userData code="wer" value="uo"/>
+        </userDataList>
+      </object>
+
+    </objects>
+
+    <userDataList>
+      <userData code="qer" value="bb"/>
+      <userData code="ererg" value="jfj"/>
+    </userDataList>
+
+  </entities>
+
+
+
+  <storyboard>
+
+    <maneuverGroups>
+
+      <maneuverGroup>
+
+        <startConditionGroups>
+
+          <startConditionGroup>
+            <startConditions>
+
+              <startCondition name="start1" counter="101">
+                <condition>
+                  <simulationTime time="45678.6"/>
+                </condition>
+                <userDataList>
+                  <userData code="qer" value="bb"/>
+                  <userData code="ererg" value="jfj"/>
+                </userDataList>
+              </startCondition>
+
+              <startCondition name="start2" counter="102">
+                <condition>
+                  <timeOfDay>
+                    <time hour="14" min="34" sec="21"/>
+                    <date day="21" month="01" year="2016"/>
+                  </timeOfDay>
+                </condition>
+                <userDataList>
+                  <userData code="gf" value="we"/>
+                  <userData code="hjluyo" value="ghj"/>
+                </userDataList>
+              </startCondition>
+
+              <startCondition name="start3" counter="103">
+                <condition>
+                  <reachPosition tolerance="2.7" condition="exceed">
+                    <position>
+                      <positionWorld x="2308.6" y="189.01" z="89.542" h="38.9" p="-23.94" r="-159.5"/>
+                    </position>
+                  </reachPosition>
+                </condition>
+                <userDataList>
+                  <userData code="afs" value="iup"/>
+                  <userData code="afe" value="hjkgfk"/>
+                </userDataList>
+              </startCondition>
+
+            </startConditions>
+          </startConditionGroup>
+
+          <startConditionGroup>
+            <startConditions>
+
+              <startCondition name="start4" counter="104">
+                <condition>
+                  <distance object="V4" refObject="V3" value="34" freespace="true" condition="deceed"/>
+                </condition>
+                <userDataList>
+                  <userData code="sdfas" value="thyryubb"/>
+                  <userData code="erexcgdfg rg" value="e56e"/>
+                </userDataList>
+              </startCondition>
+
+              <startCondition name="start5" counter="105">
+                <condition>
+                  <velocity object="V5" refObject="V13" value="67.9" reference="absolute" condition="exceed" />
+                </condition>
+                <userDataList>
+                  <userData code="gh b" value="yr"/>
+                  <userData code="lii" value="tyui76"/>
+                </userDataList>
+              </startCondition>
+
+            </startConditions>
+          </startConditionGroup>
+
+          <startConditionGroup>
+            <startConditions>
+
+              <startCondition name="start6" counter="106">
+                <condition>
+                  <standsStill object="V136" duration="377.1"/>
+                </condition>
+                <userDataList>
+                  <userData code="trgy" value="89567t"/>
+                  <userData code="w534" value="juyo"/>
+                </userDataList>
+              </startCondition>
+
+              <startCondition name="start7" counter="107">
+                <condition>
+                  <acceleration reference="absolute" object="V3" refObject="V1" value="75" condition="exceed"/>
+                </condition>
+                <userDataList>
+                  <userData code="iy" value="kyi"/>
+                  <userData code="fgdh" value="wt34"/>
+                </userDataList>
+              </startCondition>
+
+            </startConditions>
+          </startConditionGroup>
+
+        </startConditionGroups>
+
+        <endConditionGroups>
+
+          <endConditionGroup>
+            <endConditions>
+
+              <endCondition name="end1" counter="108">
+                <condition>
+                  <stoppingDistance object="V47" refObject="V94" value="347.08" freespace="true" condition="exceed">
+                    <position>
+                      <positionRoad roadId="Nr9" s="3467.34" t="56.9" relativeOrientation="true" h="-45.1" p="91.568" r="-177.4"/>
+                    </position>
+                  </stoppingDistance>
+                </condition>
+                <userDataList>
+                  <userData code="dger" value="yju"/>
+                  <userData code="ae563fe" value="hjshukkgfk"/>
+                </userDataList>
+              </endCondition>
+
+              <endCondition name="end2" counter="109">
+                <condition>
+                  <timeToCollision object="V78" refObject="V458" value="0.006" freespace="false" condition="exceed">
+                    <position>
+                      <positionLane roadId="Nr78" laneId="456" offset="567.8" s="7669.974" relativeOrientation="false" h="-56.05" p="109.99" r="-21.9"/>
+                    </position>
+                  </timeToCollision>
+                </condition>
+                <userDataList>
+                  <userData code="234y" value="ut6r"/>
+                  <userData code="awefafe" value="gf"/>
+                </userDataList>
+              </endCondition>
+
+              <endCondition name="end3" counter="110">
+                <condition>
+                  <timeHeadway object="V5" refObject="V4" value="38.3" freespace="false" condition="exceed">
+                    <position>
+                      <relativePositionWorld refObject="Nr90" dx="56.98" dy="3.57" dz="456.902" h="-6.3" p="87.2" r="-78.0"/>
+                    </position>
+                  </timeHeadway>
+                </condition>
+                <userDataList>
+                  <userData code="jk" value="34ea"/>
+                  <userData code="uyyo" value="8iy6"/>
+                </userDataList>
+              </endCondition>
+
+              <endCondition name="end4" counter="111">
+                <condition>
+                  <referenceHandling maneuverId="45758" eventId="3476" condition="ends"/>
+                </condition>
+                <userDataList>
+                  <userData code="yutu" value="iubwp"/>
+                  <userData code="yu7" value="hjksgeugfk"/>
+                </userDataList>
+              </endCondition>
+
+            </endConditions>
+          </endConditionGroup>
+
+          <endConditionGroup>
+            <endConditions>
+
+              <endCondition name="end5" counter="112">
+                <condition>
+                  <offroad object="V658" duration="347.34"/>
+                </condition>
+                <userDataList>
+                  <userData code="a3w" value="89sg"/>
+                  <userData code="aj ,ytfe" value="yuio"/>
+                </userDataList>
+              </endCondition>
+
+              <endCondition name="end6" counter="113">
+                <condition>
+                  <collision object="V5678">
+                    <partnerObject object="V59"/>
+                  </collision>
+                </condition>
+                <userDataList>
+                  <userData code="asfd" value="erw"/>
+                  <userData code="4u6s" value="dhfhrw3"/>
+                </userDataList>
+              </endCondition>
+
+              <endCondition name="end6" counter="114">
+                <condition>
+                  <collision object="V3458">
+                    <partnerType objectType="traffic sign"/>
+                  </collision>
+                </condition>
+                <userDataList>
+                  <userData code="asfd" value="erw"/>
+                  <userData code="4u6s" value="dhfhrw3"/>
+                </userDataList>
+              </endCondition>
+
+            </endConditions>
+          </endConditionGroup>
+
+        </endConditionGroups>
+
+        <cancelConditionGroups>
+
+          <cancelConditionGroup>
+            <cancelConditions>
+
+              <cancelCondition name="cancel1" counter="115">
+                <condition>
+                  <numericCondition name="sdfs" value="324" rule=">="/>
+                </condition>
+                <userDataList>
+                  <userData code="d g" value="gfrt"/>
+                  <userData code="yuo756" value="tui"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel2" counter="116">
+                <condition>
+                  <command name="asre"/>
+                </condition>
+                <userDataList>
+                  <userData code="saf4" value="ui"/>
+                  <userData code="gjy" value="fg"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel3" counter="117">
+                <condition>
+                  <afterManeuvers/>
+                </condition>
+                <userDataList>
+                  <userData code="qwe" value="iuyutup"/>
+                  <userData code="sdf" value="jjny"/>
+                </userDataList>
+              </cancelCondition>
+
+            </cancelConditions>
+          </cancelConditionGroup>
+
+          <cancelConditionGroup>
+            <cancelConditions>
+
+              <cancelCondition name="cancel4" counter="118">
+                <condition>
+                  <endOfRoad/>
+                </condition>
+                <userDataList>
+                  <userData code="iu96t" value="456try"/>
+                  <userData code="67hr" value="ertbvv56"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel5" counter="119">
+                <condition>
+                  <userDefined uid="fgutwq">
+                    <parameterList>
+                      <parameter name="sadrwe" value="safest" type="jytu"/>
+                      <parameter name="jtyrui" value="luil" type="67j k"/>
+                      <parameter name="swe4r" value="yuk09789" type="lulo7"/>
+                    </parameterList>
+                  </userDefined>
+                </condition>
+                <userDataList>
+                  <userData code="sag" value="umkj"/>
+                  <userData code="hjk" value="trj"/>
+                </userDataList>
+              </cancelCondition>
+
+            </cancelConditions>
+          </cancelConditionGroup>
+
+          <cancelConditionGroup>
+            <cancelConditions>
+
+              <cancelCondition name="cancel6" counter="120">
+                <condition>
+                  <reachPosition tolerance="2.781" condition="deceed">
+                    <position>
+                    <relativePositionRoad refObject="sdf" ds="56821.4" dt="345.9" relativeOrientation="true" h="45.8" p="-0.3" r="-34.9"/>
+                    </position>
+                  </reachPosition>
+                </condition>
+                <userDataList>
+                  <userData code="asdfsd" value="t yuk"/>
+                  <userData code="sdve" value="567h"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel7" counter="121">
+                <condition>
+                  <reachPosition tolerance="5.93" condition="exceed">
+                    <position>
+                      <relativePositionLane refObject="sw4" dLane="348" ds="34876.85" offset="34890.645" relativeOrientation="false" h="8.34" p="-27.9" r="153.6"/>
+                    </position>
+                  </reachPosition>
+                </condition>
+                <userDataList>
+                  <userData code="q35" value="uiym "/>
+                  <userData code="aa j" value="paa"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel8" counter="122">
+                <condition>
+                  <reachPosition tolerance="0.8" condition="exceed">
+                    <position>
+                      <positionRoute routeId="fdse3" relativeOrientation="false" h="56.9" p="-23.9" r="-100.34">
+                        <currentPosition current="true"/>
+                      </positionRoute>
+                    </position>
+                  </reachPosition>
+                </condition>
+                <userDataList>
+                  <userData code="asgd" value="umuykj"/>
+                  <userData code="dguky" value="t345rj"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel9" counter="123">
+                <condition>
+                  <reachPosition tolerance="1.9" condition="deceed">
+                    <position>
+                      <positionRoute routeId="3445gdf" relativeOrientation="true" h="-56.8" p="-0.34" r="-2.8">
+                      <roadCoord pathS="45.7" t="38.1"/>
+                      </positionRoute>
+                    </position>
+                  </reachPosition>
+                </condition>
+                <userDataList>
+                  <userData code="fjaw45" value="ltyaw3"/>
+                  <userData code="a456sf" value="tr6575j"/>
+                </userDataList>
+              </cancelCondition>
+
+              <cancelCondition name="cancel10" counter="124">
+                <condition>
+                  <reachPosition tolerance="0.003" condition="exceed">
+                    <position>
+                      <positionRoute routeId="rt545" relativeOrientation="true" h="48.9" p="91.2" r="116.4">
+                        <laneCoord pathS="568.84" laneId="289044" laneOffset="467.3811"/>
+                      </positionRoute>
+                    </position>
+                  </reachPosition>
+                </condition>
+                <userDataList>
+                  <userData code="ads 45" value="kio67"/>
+                  <userData code="dfgg4" value="afw48"/>
+                </userDataList>
+              </cancelCondition>
+
+            </cancelConditions>
+          </cancelConditionGroup>
+
+        </cancelConditionGroups>
+
+        <maneuvers>
+
+          <maneuver name="oiu" numberOfExecutions="733333333" priority="cancel">
+
+            <refActors>
+              <refActor name="dfht"/>
+              <refActor name="dge"/>
+              <refActor name="tyjty"/>
+            </refActors>
+
+            <catalogReference catalogId="123">
+              <parameterList>
+                <parameter name="dfgtr" value="hjyt" type="we4tr"/>
+                <parameter name="jhlos" value="sg" type="sh"/>
+              </parameterList>
+            </catalogReference>
+
+            <userDataList>
+              <userData code="dfsh67" value="dfkyu"/>
+              <userData code="htr" value="hjr"/>
+            </userDataList>
+
+          </maneuver>
+
+          <maneuver name="fghqty" numberOfExecutions="48463423" priority="following">
+
+            <refActors>
+              <refActor name="dfg"/>
+              <refActor name="hjkuk"/>
+            </refActors>
+
+            <maneuver name="sdhjhjty">
+
+              <fileHeader revMajor="1" revMinor="0" date="2016-01-22T13:55:00+01:00" description="maneuver 1 - testScenario" author="MK">
+                <userDataList>
+                  <userData code="jty" value="fgj7i"/>
+                  <userData code="h56u56" value="ir6qw"/>
+                  <userData code="bnhkug" value="ffdhyr"/>
+                </userDataList>
+              </fileHeader>
+
+              <parameterList>
+                <parameter name="iuhs" value="gkyu"/>
+                <parameter name="gdser" value="sdf"/>
+              </parameterList>
+
+              <events>
+
+                <event name="sdfh" priority="overwrite">
+
+                  <startConditionGroups>
+
+                    <startConditionGroup>
+                      <startConditions>
+
+                        <startCondition name="sahjty" delayTime="58894.457">
+                          <condition>
+                            <simulationTime time="348658.67"/>
+                          </condition>
+                          <userDataList>
+                            <userData code="hmgjk" value="xzxe"/>
+                            <userData code="oytaw" value="w3"/>
+                          </userDataList>
+                        </startCondition>
+
+                        <startCondition name="kyut" delayTime="359.9">
+                          <condition>
+                            <simulationTime time="980.46"/>
+                          </condition>
+                        </startCondition>
+
+                      </startConditions>
+                    </startConditionGroup>
+
+                    <startConditionGroup>
+                      <startConditions>
+
+                        <startCondition name="oisdfar" delayTime="3560.35">
+                          <condition>
+                            <simulationTime time="4685.3"/>
+                          </condition>
+                        </startCondition>
+
+                        <startCondition name="xcs" delayTime="3425.897">
+                          <condition>
+                            <simulationTime time="457604.456"/>
+                          </condition>
+                        </startCondition>
+
+
+                      </startConditions>
+                    </startConditionGroup>
+
+                  </startConditionGroups>
+
+                  <actions>
+
+                    <action>
+                      <userDataList>
+                        <userData code="jty" value="fgj7i"/>
+                        <userData code="h56u56" value="ir6qw"/>
+                        <userData code="bnhkug" value="ffdhyr"/>
+                      </userDataList>
+                      <autonomous activate="true" driver="sadfastr"/>
+                    </action>
+
+                    <action>
+                      <speed>
+                        <dynamics shape="shtjl" rate="579.345" immediate="true"/>
+                        <relative refObject="hjlfy" delta="3459.0769" factor="4790.045"/>
+                      </speed>
+                    </action>
+
+                    <action>
+                      <speed>
+                        <dynamics shape="shtjl" rate="579.345" immediate="false"/>
+                        <absolute target="4579.234"/>
+                      </speed>
+                    </action>
+
+                    <action>
+                      <laneChange targetLaneOffset="2345.5678">
+                        <dynamics shape="shtjl" maxLateralAcc="4569.7456" duration="345.8976"/>
+                        <relative refObject="sdgfjg" delta="456890"/>
+                      </laneChange>
+                    </action>
+
+                    <action>
+                      <laneChange targetLaneOffset="32443.7">
+                        <dynamics shape="ghthk" maxLateralAcc="3246.89" duration="345.879"/>
+                        <absolute target="23266"/>
+                      </laneChange>
+                    </action>
+
+                    <action>
+                      <laneOffset>
+                        <dynamics maxLateralAcc="4569.7456" duration="345.8976"/>
+                        <relative refObject="l89pp" delta="348.89"/>
+                      </laneOffset>
+                    </action>
+
+                    <action>
+                      <laneOffset>
+                        <dynamics maxLateralAcc="234.7689" duration="234.890"/>
+                        <absolute target="3478.789"/>
+                      </laneOffset>
+                    </action>
+
+                    <action>
+                      <position>
+                        <positionWorld x="2347.7" y="345.46" z="5673.8" h="-34.8" p="1.78" r="-88.4"/>
+                      </position>
+                    </action>
+
+                    <action>
+                      <distanceLateral refObject="hjdw" freespace="true" distance="345.5"/>
+                    </action>
+
+                    <action>
+                      <distanceLongitudinal refObject="lipdetr" freespace="false" distance="346.4" timeGap="23345.2"/>
+                    </action>
+
+                    <action>
+                      <visibility graphics="true" traffic="true" sensors="false"/>
+                    </action>
+
+                    <action>
+                      <characterAppearance feature="lyus" value="sefk"/>
+                    </action>
+
+                    <action>
+                      <characterMotion motionType="dfshdsh"/>
+                    </action>
+
+                    <action>
+                      <characterGesture gesture="hfrhr"/>
+                    </action>
+
+                    <action>
+                      <trafficLight>
+                        <setController name="zxcv" state="mvsdf"/>
+                      </trafficLight>
+                    </action>
+
+                    <action>
+                      <trafficLight>
+                        <setState name="ouid" state="cszdf"/>
+                      </trafficLight>
+                    </action>
+
+                    <action>
+                      <entityAdd name="hdsku">
+                        <position>
+                          <positionWorld x="345.89" y="2.89" z="45.345" h="4.8" p="86.4" r="-45.7"/>
+                        </position>
+                      </entityAdd>
+                    </action>
+
+                    <action>
+                      <entityDelete name="234gdfsg"/>
+                    </action>
+
+                    <action>
+                       <trafficJam tbd="dfhg">
+                        <position>
+                          <positionWorld x="234.879" y="34.89" z="234.7" h="-34.9" p="-24.2" r="-0.003"/>
+                        </position>
+                      </trafficJam>
+                   </action>
+
+                    <action>
+                      <trafficSource distance="pedestrian" rate="34.78" velocity="234.9" velocityDeviation="34.789" forward="false">
+                        <position>
+                          <positionWorld x="234.89" y="45765678.56" z="2342.768" h="77.04" p="-45.2" r="124.6"/>
+                        </position>
+                      </trafficSource>
+                    </action>
+
+                    <action>
+                      <trafficSink tbd="hgkgf">
+                        <position>
+                          <positionWorld x="234.89" y="45765678.56" z="2342.768" h="77.04" p="-45.2" r="124.6"/>
+                        </position>
+                      </trafficSink>
+                    </action>
+
+                    <action>
+                      <userDefinedCommand command="gpw3"/>
+                    </action>
+
+                    <action>
+                      <userDefinedAction name="wprph">
+                        <parameterList>
+                          <parameter name="yjty" value="8io" type="wyeu67"/>
+                          <parameter name="kg" value="e4t" type="ukrt"/>
+                        </parameterList>
+                      </userDefinedAction>
+                    </action>
+
+                    <action>
+                      <userScript name="hjer234r" execution="fireAndForget">
+                        <file URL="dfgdrgeqf"/>
+                        <parameterList>
+                          <parameter name="l9up" value="bsqw3" type="za3r5"/>
+                          <parameter name="ytrd" value="wetr" type="kt5"/>
+                        </parameterList>
+                      </userScript>
+                    </action>
+
+                    <action>
+                      <notify text="bntrhgea vfasdg  dgg!!"/>
+                    </action>
+
+                  </actions>
+
+                </event>
+
+                <event name="dgf" priority="following">
+                  <startConditionGroups/>
+                  <actions>
+
+                    <action>
+                      <characterMotion motionType="luip"/>
+                    </action>
+
+                    <action>
+                      <characterGesture gesture="cvmuk"/>
+                    </action>
+
+
+                  </actions>
+                </event>
+
+                <event name="mghkgys" priority="skip">
+                  <startConditionGroups/>
+                  <actions>
+
+                    <action>
+                      <autonomous activate="true" driver="sadfastr"/>
+                    </action>
+
+                  </actions>
+                </event>
+
+              </events>
+
+            </maneuver>
+
+            <userDataList>
+              <userData code="dfsh67" value="dfkyu"/>
+              <userData code="htr" value="hjr"/>
+            </userDataList>
+
+          </maneuver>
+
+          <maneuver name="qaopt" numberOfExecutions="45690" priority="overwrite">
+
+            <refActors>
+              <refActor name="dvas"/>
+              <refActor name="sdgrs"/>
+            </refActors>
+
+            <maneuver name="kuiore">
+
+              <fileHeader revMajor="1" revMinor="0" date="2016-01-22T15:55:00+01:00" description="maneuver 2 - testScenario" author="MK">
+                <userDataList>
+                  <userData code="vbnd" value="a34"/>
+                  <userData code="dfgh76" value="af46"/>
+                </userDataList>
+              </fileHeader>
+
+              <parameterList>
+                <parameter name="sg" value="gfd"/>
+                <parameter name="hyju" value="r67"/>
+              </parameterList>
+
+              <events>
+
+                <event name="dsgr" priority="skip">
+
+                  <startConditionGroups>
+
+                    <startConditionGroup>
+                      <startConditions>
+
+                        <startCondition name="sdgw" delayTime="2344.878">
+                          <condition>
+                            <simulationTime time="23487.80"/>
+                          </condition>
+                          <userDataList>
+                            <userData code="czxb" value="zxcv"/>
+                            <userData code="hdft" value="qwr"/>
+                          </userDataList>
+                        </startCondition>
+
+                      </startConditions>
+                    </startConditionGroup>
+
+                    <startConditionGroup>
+                      <startConditions>
+
+                        <startCondition name="oisdfar" delayTime="3560.35">
+                          <condition>
+                            <simulationTime time="4685.3"/>
+                          </condition>
+                        </startCondition>
+
+                      </startConditions>
+                    </startConditionGroup>
+
+                  </startConditionGroups>
+
+                  <actions>
+
+                    <action>
+                      <speed>
+                        <dynamics shape="sdfs" rate="23.890" immediate="false"/>
+                        <relative refObject="sgfs" delta="468.890" factor="456.90"/>
+                      </speed>
+                    </action>
+
+                  </actions>
+
+                </event>
+
+                <event name="asfd" priority="overwrite">
+
+                  <startConditionGroups/>
+
+                  <actions>
+
+                    <action>
+                      <characterMotion motionType="vndfj"/>
+                    </action>
+
+                    <action>
+                      <characterGesture gesture="awehyf"/>
+                    </action>
+
+
+                  </actions>
+                </event>
+
+                <event name="fngdrh" priority="following">
+                  <startConditionGroups/>
+                  <actions>
+
+                    <action>
+                      <autonomous activate="false" driver="mjuky"/>
+                    </action>
+
+                  </actions>
+                </event>
+
+              </events>
+
+            </maneuver>
+
+            <userDataList>
+              <userData code="gm" value="stwet"/>
+              <userData code="zvsdrg" value="zs"/>
+            </userDataList>
+
+          </maneuver>
+
+        </maneuvers>
+
+      </maneuverGroup>
+
+    </maneuverGroups>
+
+    <refActors>
+
+      <refActor name="tyhdh">
+
+        <maneuvers>
+
+          <maneuver name="gyw" numberOfExecutions="56457" priority="following">
+
+            <startConditions>
+
+              <startCondition name="i wgcs" iid="4565" groupId="345" counter="7637">
+                <condition>
+                  <simulationTime time="3534676.76"/>
+                </condition>
+                <userDataList>
+                  <userData code="afsf" value="dfggmjtu"/>
+                  <userData code="xvzx" value="ghdny"/>
+                </userDataList>
+              </startCondition>
+
+            </startConditions>
+
+            <endConditions>
+
+              <endCondition name="bcvnghe" iid="2345" groupId="895" counter="234">
+                <condition>
+                  <simulationTime time="2346785.879"/>
+                </condition>
+                <userDataList>
+                  <userData code="asa" value="ilt"/>
+                </userDataList>
+              </endCondition>
+
+            </endConditions>
+
+            <cancelConditions>
+
+              <cancelCondition name="asmhj" iid="905" groupId="153" counter="4523">
+                <condition>
+                  <simulationTime time="23756.5"/>
+                </condition>
+                <userDataList>
+                  <userData code="dngdh" value="jkll"/>
+                </userDataList>
+              </cancelCondition>
+
+            </cancelConditions>
+
+            <catalogReference refId="zcxksd">
+              <parameterList>
+                <parameter name="gfdf" value="gjk" type="ulre"/>
+                <parameter name="jkfh" value="agcfd" type="q2sdf"/>
+              </parameterList>
+            </catalogReference>
+
+            <userDataList>
+              <userData code="SADFHdfg" value="shsaseF"/>
+            </userDataList>
+
+          </maneuver>
+
+          <maneuver name="jdfy" numberOfExecutions="3457" priority="cancel">
+
+            <startConditions>
+
+              <startCondition name="kyi" iid="34899" groupId="4565" counter="9064">
+                <condition>
+                  <offroad object="V459" duration="3456.789"/>
+                </condition>
+              </startCondition>
+
+            </startConditions>
+
+            <endConditions>
+
+              <endCondition name="muhykty" iid="348" groupId="7696" counter="673">
+                <condition>
+                  <simulationTime time="4579.456"/>
+                </condition>
+              </endCondition>
+
+            </endConditions>
+
+            <cancelConditions>
+
+              <cancelCondition name="gh" iid="23" groupId="784" counter="37889">
+                <condition>
+                  <endOfRoad/>
+                </condition>
+                <userDataList>
+                  <userData code="ghjjk" value="Zewe"/>
+                  <userData code="xsdg" value="tyo"/>
+                </userDataList>
+              </cancelCondition>
+
+            </cancelConditions>
+
+            <catalogReference refId="pui">
+              <parameterList>
+                <parameter name="sawr" value="cn" type="kjg"/>
+                <parameter name="mmf" value="dg4" type="yutr5"/>
+              </parameterList>
+            </catalogReference>
+
+            <userDataList>
+              <userData code="xcvbfh" value="shsaseF"/>
+            </userDataList>
+
+          </maneuver>
+
+        </maneuvers>
+
+      </refActor>
+
+      <refActor name="sdfsfw">
+
+        <maneuvers>
+
+          <maneuver name="gyw" numberOfExecutions="56457" priority="following">
+
+            <startConditions>
+
+              <startCondition name="njk" iid="26" groupId="896" counter="5680">
+                <condition>
+                  <simulationTime time="8768.9"/>
+                </condition>
+                <userDataList>
+                  <userData code="xbc" value="34tr"/>
+                  <userData code="mms" value="zrsg"/>
+                </userDataList>
+              </startCondition>
+
+            </startConditions>
+
+            <endConditions>
+
+              <endCondition name="nfd" iid="345" groupId="56768" counter="456">
+                <condition>
+                  <simulationTime time="3457865.89"/>
+                </condition>
+                <userDataList>
+                  <userData code="bvcnd" value="klu"/>
+                </userDataList>
+              </endCondition>
+
+            </endConditions>
+
+            <cancelConditions>
+
+              <cancelCondition name="xcbb" iid="4568" groupId="4535662" counter="142">
+                <condition>
+                  <simulationTime time="34578.23"/>
+                </condition>
+                <userDataList>
+                  <userData code="qwe" value="afara"/>
+                </userDataList>
+              </cancelCondition>
+
+            </cancelConditions>
+
+            <catalogReference refId="dfsdgs">
+              <parameterList>
+                <parameter name="str" value="wetrw" type="2aff"/>
+                <parameter name="dfhfty" value="yjr" type="sdgt"/>
+              </parameterList>
+            </catalogReference>
+
+            <userDataList>
+              <userData code="sgEWQR" value="sdghsmfgh"/>
+            </userDataList>
+
+          </maneuver>
+
+        </maneuvers>
+
+      </refActor>
+
+    </refActors>
+
+    <userDataList>
+      <userData code="hfg" value="jl"/>
+      <userData code="wer" value="uo"/>
+    </userDataList>
+
+  </storyboard>
+
+
+
+  <scenarioEnd>
+
+    <endConditionGroups>
+
+      <endConditionGroup>
+        <endConditions>
+
+          <endCondition name="bsgtuk" counter="4574">
+            <condition>
+              <simulationTime time="3457.90"/>
+            </condition>
+            <userDataList>
+              <userData code="dfh6" value="e567gf"/>
+              <userData code="3t7ir" value="yuo"/>
+              <userData code="hsg" value="nmyu"/>
+            </userDataList>
+          </endCondition>
+
+          <endCondition name="bzxcs" counter="7895">
+            <condition>
+              <simulationTime time="90765.234"/>
+            </condition>
+            <userDataList>
+              <userData code="bvda" value="jkf"/>
+            </userDataList>
+          </endCondition>
+
+          <endCondition name="zcerg" counter="456778">
+            <condition>
+              <simulationTime time="46.7689"/>
+            </condition>
+            <userDataList>
+              <userData code="opy" value="pu9yl"/>
+            </userDataList>
+          </endCondition>
+
+        </endConditions>
+      </endConditionGroup>
+
+      <endConditionGroup>
+        <endConditions>
+
+          <endCondition name="jky" counter="349">
+            <condition>
+              <command name="hfjtri90p"/>
+            </condition>
+          </endCondition>
+
+          <endCondition name="zcjgh" counter="7896">
+            <condition>
+              <offroad object="V5789" duration="234.890"/>
+            </condition>
+          </endCondition>
+
+        </endConditions>
+      </endConditionGroup>
+
+    </endConditionGroups>
+
+    <userDataList>
+      <userData code="gfa" value="yti"/>
+      <userData code="y8r" value="md"/>
+    </userDataList>
+
+  </scenarioEnd>
+
+
+
+  <osc:include href="testScenario/testScenario_test.xosc"/>
+
+
+</OpenSCENARIO>

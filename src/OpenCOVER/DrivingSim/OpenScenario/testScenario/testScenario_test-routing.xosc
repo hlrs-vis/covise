@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<routing>
+
+
+  <fileHeader author="MK" date="2016-01-27T09:55:00+01:00" description="routing - testScenario" revMajor="1" revMinor="0">
+    <userDataList>
+      <userData code="bmu" value="3534jg"/>
+      <userData code="gf56" value="bm8"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <userDataList>
+    <userData code="dfhju" value="sdgj765"/>
+    <userData code="ngh5" value="xcvg"/>
+    <userData code="asw4" value="bnmh"/>
+  </userDataList>
+
+
+  <observer name="cvyuo" refId="347" type="klio">
+
+    <general name="jtrwe" closed="false">
+      <userDataList>
+        <userData code="pcxer" value="mghk76"/>
+        <userData code="cbvo" value="zxzse"/>
+      </userDataList>
+    </general>
+
+    <waypoints>
+
+      <waypoint>
+        <position>
+          <positionWorld x="568.8" y="345.768" z="-456.3" h="48.9" p="-38.2" r="0.0047"/>
+        </position>
+        <continuation>
+          <shape purpose="steering">
+            <polyline/>
+          </shape>
+        </continuation>
+      </waypoint>
+
+      <waypoint>
+        <position>
+          <positionWorld x="3454.678" y="3578." z="897.4" h="29.9" p="36.2" r="-169.45"/>
+        </position>
+        <continuation>
+          <shape purpose="positioning">
+            <clothoid curvature="46.89" curvatureDot="4568.87" length="356788.6"/>
+          </shape>
+        </continuation>
+      </waypoint>
+
+      <waypoint>
+        <position>
+          <positionWorld x="6.4" y="359.04" z="47.36" h="79.4" p="146.5" r="38.005"/>
+        </position>
+        <continuation>
+          <shape purpose="steering">
+            <spline>
+              <controlPoint1 status="to be defined"/>
+              <controlPoint2 status="to be defined"/>
+            </spline>
+          </shape>
+        </continuation>
+      </waypoint>
+
+      <waypoint>
+        <position>
+          <positionWorld x="-689.32" y="-358.56" z="-35.789" h="-47.78" p="-5.89" r="-93.1"/>
+        </position>
+        <continuation>
+          <route strategy="leastIntersections"/>
+        </continuation>
+      </waypoint>
+
+      <waypoint>
+        <position>
+          <positionWorld x="389.56" y="358.78" z="356.9" h="56.9" p="84.457" r="158.2"/>
+        </position>
+        <continuation>
+          <none/>
+        </continuation>
+      </waypoint>
+
+    </waypoints>
+
+  </observer>
+
+
+</routing>

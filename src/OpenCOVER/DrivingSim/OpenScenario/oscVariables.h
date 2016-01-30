@@ -4,13 +4,14 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_VARIABLES_H
 #define OSC_VARIABLES_H
 
-#include <oscExport.h>
-#include <oscMemberValue.h>
-#include <oscMember.h>
-#include <oscFactories.h>
+#include "oscExport.h"
+#include "oscMemberValue.h"
+#include "oscMember.h"
+#include "oscFactories.h"
 
 #include <string>
 
@@ -35,7 +36,7 @@ namespace OpenScenario
         OPENSCENARIOEXPORT virtual bool initialize(xercesc::DOMAttr *);
         virtual oscValue<T>& operator=(T t){value = t; return *this;};
         virtual const T &getValue() const {return value;};
-        virtual void setValue(T &t){value = t;};
+        virtual void setValue(const T &t){value = t;};
         OPENSCENARIOEXPORT virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name);
     };
     
@@ -64,7 +65,7 @@ namespace OpenScenario
         };
         bool exists() const {return value!=NULL;};
         void setDefault(T &d) {defaultValue = d;};
-        virtual void setValue(T &v)
+        virtual void setValue(const T &v)
         {
             if(value==NULL)
             {

@@ -4,13 +4,16 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_RELATIVE_POSITION_WORLD_H
 #define OSC_RELATIVE_POSITION_WORLD_H
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscOrientation.h>
+
+#include "oscExport.h"
+#include "oscOrientation.h"
+#include "oscObjectVariable.h"
+
+#include "oscVariables.h"
+
 
 namespace OpenScenario {
 
@@ -21,14 +24,15 @@ public:
     oscRelativePositionWorld()
     {
         OSC_ADD_MEMBER(refObject);
-		OSC_ADD_MEMBER(dx);
-		OSC_ADD_MEMBER(dy);
-		OSC_ADD_MEMBER(dz);
+        OSC_ADD_MEMBER(dx);
+        OSC_ADD_MEMBER(dy);
+        OSC_ADD_MEMBER(dz);
     };
+
     oscString refObject;
-	oscDouble dx;
-	oscDouble dy;
-	oscDouble dz;
+    oscDouble dx;
+    oscDouble dy;
+    oscDouble dz;
 };
 
 typedef oscObjectVariable<oscRelativePositionWorld *> oscRelativePositionWorldMember;

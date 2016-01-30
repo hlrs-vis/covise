@@ -4,17 +4,19 @@ You can use it under the terms of the GNU Lesser General Public License
 version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
+
 #ifndef OSC_CONTROLLER_CHOICE_H
 #define OSC_CONTROLLER_CHOICE_H
-#include <oscExport.h>
-#include <oscObjectBase.h>
-#include <oscObjectVariable.h>
-#include <oscVariables.h>
-#include <oscDriverRef.h>
-#include <oscPedestrianController.h>
+
+#include "oscExport.h"
+#include "oscObjectBase.h"
+#include "oscObjectVariable.h"
+
+#include "oscDriverRef.h"
+#include "oscPedestrianController.h"
+
 
 namespace OpenScenario {
-
 
 /// \class This class represents a generic OpenScenario Object
 class OPENSCENARIOEXPORT oscControllerChoice: public oscObjectBase
@@ -22,11 +24,12 @@ class OPENSCENARIOEXPORT oscControllerChoice: public oscObjectBase
 public:
     oscControllerChoice()
     {
-        OSC_OBJECT_ADD_MEMBER(OSCDriverReference,"oscDriverRef");
-		OSC_OBJECT_ADD_MEMBER(PedestrianController, "oscPedestrianController");
+        OSC_OBJECT_ADD_MEMBER(driverReference, "oscDriverRef");
+        OSC_OBJECT_ADD_MEMBER(pedestrianController, "oscPedestrianController");
     };
-	oscDriverRefMember OSCDriverReference;
-    oscPedestrianControllerMember PedestrianController;
+
+    oscDriverRefMember driverReference;
+    oscPedestrianControllerMember pedestrianController;
 };
 
 typedef oscObjectVariable<oscControllerChoice *> oscControllerChoiceMember;

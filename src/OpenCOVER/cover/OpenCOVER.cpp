@@ -355,6 +355,7 @@ bool OpenCOVER::init()
     }
 #endif
 
+    int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
     if (useDISPLAY && getenv("DISPLAY") == NULL)
     {
         useDISPLAY = false;
@@ -362,7 +363,8 @@ bool OpenCOVER::init()
     }
     else if (useDISPLAY)
     {
-        cerr << "DISPLAY set to " << getenv("DISPLAY") << endl;
+        if (debugLevel > 1)
+            cerr << "DISPLAY set to " << getenv("DISPLAY") << endl;
     }
     if (!useDISPLAY)
     {
@@ -378,7 +380,6 @@ bool OpenCOVER::init()
             }
 
             // do NOT use cover->debugLevel here : cover is not yet created!
-            int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
             if (debugLevel > 1)
             {
                 fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
@@ -852,7 +853,7 @@ void OpenCOVER::frame()
         {
             if (printFPS)
             {
-                cout << "avg fps: " << frameCount / sum_time << " min fps: " << 1.0 / maxTime << '\n' << flush;
+                cout << "avg fps: " << frameCount / sum_time << ", min fps: " << 1.0 / maxTime << '\r' << flush;
             }
             coVRTui::instance()->updateFPS(1.0 / (fl_time - old_fl_time));
         }
