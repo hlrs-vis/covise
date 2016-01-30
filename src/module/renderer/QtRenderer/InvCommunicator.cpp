@@ -584,7 +584,6 @@ void InvCommunicator::receiveAddObjectMessage(const coDistributedObject *data_ob
                 else
                     addgeometry(object, doreplace, is_timestep, timestep, NULL, dobj, normals, colors, texture, geometry);
             }
-            delete geometry;
         }
         else if (strcmp(gtype, "DOTEXT") == 0)
         {
@@ -632,8 +631,8 @@ void InvCommunicator::receiveAddObjectMessage(const coDistributedObject *data_ob
             else
                 addgeometry(object, doreplace, is_timestep, timestep, NULL, data_obj, NULL, NULL, NULL, NULL);
         }
-	
 	handleAttributes(object, data_obj);
+    delete data_obj; //delete object here, not before handiling the attributes
     }
 }
 
