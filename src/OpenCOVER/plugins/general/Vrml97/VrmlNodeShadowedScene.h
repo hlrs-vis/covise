@@ -22,6 +22,7 @@
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlSFInt.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
+#include <vrml97/vrml/VrmlSFVec2f.h>
 #include <vrml97/vrml/VrmlSFString.h>
 #include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
@@ -62,6 +63,9 @@ private:
     // Fields
     VrmlSFString d_technique;
     VrmlSFNode d_shadowLight;
+    VrmlSFFloat d_jitterScale;
+    VrmlSFFloat d_softnessWidth;
+    VrmlSFVec2f d_textureSize;
 
     Viewer::Object d_shadowObject;
 };
