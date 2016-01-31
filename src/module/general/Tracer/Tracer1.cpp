@@ -188,7 +188,7 @@ Tracer::fillCylinder(float **x_ini, // array of output addresses
     axis[2] *= r;
 
     // lengths
-    s = (float)2.0f * M_PI * radius;
+    s = (float)(2.0 * M_PI * radius);
 
     // and now number of points in axis direction and around cylinder
     if (height < 0.01 * r)
@@ -351,7 +351,7 @@ Tracer::fillCylinder(float **x_ini, // array of output addresses
     {
         for (j = 0; j < n1; ++j)
         {
-            t = (float)s1 * j * 2.0f * M_PI;
+            t = (float)(s1 * j * 2.0f * M_PI);
             (*x_ini)[i * n1 + j] = axispoint[0] + radius * vec1[0] * cos(t) + radius * vec2[0] * sin(t) + axis[0] * i * s0;
             (*y_ini)[i * n1 + j] = axispoint[1] + radius * vec1[1] * cos(t) + radius * vec2[1] * sin(t) + axis[1] * i * s0;
             (*z_ini)[i * n1 + j] = axispoint[2] + radius * vec1[2] * cos(t) + radius * vec2[2] * sin(t) + axis[2] * i * s0;

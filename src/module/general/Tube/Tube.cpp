@@ -485,7 +485,7 @@ void Tube::create_tube()
             }
             if (Pdiameters)
             {
-                l_radius = radius * 0.5 * Pdiameters[vl[ll[li]]];
+                l_radius = radius * 0.5f * Pdiameters[vl[ll[li]]];
             }
             if (limitradius)
             {
@@ -590,7 +590,7 @@ void Tube::create_tube()
 
                 if (Pdiameters)
                 {
-                    l_radius = radius * 0.5 * Pdiameters[vl[ll[li] + seg]];
+                    l_radius = radius * 0.5f * Pdiameters[vl[ll[li] + seg]];
                     if (limitradius)
                     {
                         if (l_radius > maxradius)
@@ -775,7 +775,7 @@ void Tube::create_tube()
 
             if (Pdiameters)
             {
-                l_radius = radius * 0.5 * Pdiameters[vl[ll[li] + nseg]];
+                l_radius = radius * 0.5f * Pdiameters[vl[ll[li] + nseg]];
                 if (limitradius)
                 {
                     if (l_radius > maxradius)

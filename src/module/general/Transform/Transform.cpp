@@ -443,7 +443,7 @@ Transform::fillTransformations(int *numTransformations)
         return NULL;
         break;
     }
-    bool keep_original = h_mirror_and_original_->getIValue();
+    bool keep_original = (h_mirror_and_original_->getIValue()!=0);
     sendInfo("keeping original: %i", (int)keep_original);
     if (keep_original && h_type_->getIValue() == TYPE_TILE)
     {
