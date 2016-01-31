@@ -1259,7 +1259,7 @@ char *coDistributedObject::calcTypeString(int tno)
 
 void coDistributedObject::addAttribute(const char *attr_name, const char *attr_val)
 {
-    int attr_len, *idata, i, sn, shmfree[8];
+    int attr_len, sn, shmfree[8];
     shmSizeType of;
     long ct[2];
     data_type dt[2];
@@ -1328,6 +1328,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     if (attributes)
     {
         print_comment(__LINE__, __FILE__, "attributes != NULL");
+        ArrayLengthType i;
         for (i = 0; i < attributes->get_length(); i++)
         {
             attributes->stringPtrGet(i, &sn, &of);
@@ -1362,7 +1363,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
 void coDistributedObject::addAttributes(int no, const char *const *attr_name,
                                         const char *const *attr_val)
 {
-    int *attr_len, *idata, i, j, sn, shmfree[8];
+    int *attr_len, *idata, sn, shmfree[8];
     shmSizeType of;
     long *ct;
     data_type *dt;
@@ -1374,12 +1375,12 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     char *tmpstr;
 
     print_comment(__LINE__, __FILE__, "ATTR set for %s:", name);
-    for (i = 0; i < no; i++)
+    for (int i = 0; i < no; i++)
     {
         print_comment(__LINE__, __FILE__, "          %s -> %s", attr_name[i], attr_val[i]);
     }
     attr_len = new int[no];
-    for (i = 0; i < no; i++)
+    for (int i = 0; i < no; i++)
         attr_len[i] = (int)strlen(attr_name[i]) + 1 + (int)strlen(attr_val[i]) + 1;
     ct = new long[no + 1];
     dt = new data_type[no + 1];
@@ -1389,7 +1390,7 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     else
         ct[0] = no;
     dt[0] = STRINGSHMARRAY;
-    for (i = 0; i < no; i++)
+    for (int i = 0; i < no; i++)
     {
         ct[i + 1] = attr_len[i];
         dt[i + 1] = CHARSHMARRAY;
@@ -1413,14 +1414,15 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     tmparr = new coStringShmArray(seq, offset);
     if (attributes)
     {
-        for (i = 0; i < attributes->get_length(); i++)
+        ArrayLengthType i;
+        for ( i = 0; i < attributes->get_length(); i++)
         {
             attributes->stringPtrGet(i, &sn, &of);
             print_comment(__LINE__, __FILE__, "sn: %d of: %d", sn, of);
             tmparr->stringPtrSet(i, sn, of);
             attributes->stringPtrSet(i, 0, 0); // clear reference
         }
-        for (j = 0; j < no; j++)
+        for (int j = 0; j < no; j++)
         {
             seq = *(int *)cdata;
             cdata +=sizeof(int);
@@ -1451,7 +1453,7 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     }
     else
     {
-        for (j = 0; j < no; j++)
+        for (int j = 0; j < no; j++)
         {
             seq = *(int *)cdata;
             cdata +=sizeof(int);
