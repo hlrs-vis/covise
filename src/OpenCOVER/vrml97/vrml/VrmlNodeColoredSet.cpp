@@ -497,7 +497,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
 
             localvn = new float[3 * nni];
             norm = localvn;
-            bool normalPerVertex = optMask & Viewer::MASK_NORMAL_PER_VERTEX;
+            bool normalPerVertex = (optMask & Viewer::MASK_NORMAL_PER_VERTEX)!=0;
             bool ccw = optMask & Viewer::MASK_CCW;
             viewer->computeNormals(coord.get(), coordIndex.size(),
                                    coordIndex.get(), localvn, localni,

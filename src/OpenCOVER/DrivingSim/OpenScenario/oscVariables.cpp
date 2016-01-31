@@ -66,9 +66,9 @@ OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute){v
 template<>
 OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute){value = std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute){value = std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute){value = (short)std::stol(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute){value = std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
+OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute){value = (unsigned short)std::stoul(xercesc::XMLString::transcode(attribute->getValue())); return true;};
 template<>
 OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute){value = xercesc::XMLString::transcode(attribute->getValue()); return true;};
 template<>
@@ -92,7 +92,7 @@ OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
 
     try
     {
-        value = std::stol(valueStr);
+        value = (std::stol(valueStr)!=0);
     }
     catch (...)
     {

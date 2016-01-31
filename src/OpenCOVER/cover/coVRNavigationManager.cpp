@@ -314,7 +314,7 @@ bool coVRNavigationManager::keyEvent(int type, int keySym, int mod)
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRNavigationManager::keyEvent\n");
 
-    shiftEnabled = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    shiftEnabled = (mod & osgGA::GUIEventAdapter::MODKEY_SHIFT)!=0;
     // Beschleunigung
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {

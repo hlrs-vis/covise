@@ -5988,7 +5988,7 @@ static int convert_stop(/* ARGUMENTS                                    */
     static char name[] SET_TO "convert_stop";
     int index;
     char *line;
-    int length;
+    size_t length;
 
     if (block->m_modes[4] IS 0)
     {
