@@ -22,7 +22,9 @@
 #include <string.h>
 
 #ifdef WIN32
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 #pragma warning(disable : 4996 4244)
 
 #include <errno.h>

@@ -54,8 +54,6 @@ int ReadTxt::compute(const char* port) {
 
   coDoPolygons *polygonObj;
 
-  char buf[255];
-
   file = fopen(filename, "r");
 
   if(file == NULL) {

@@ -71,9 +71,11 @@ public:
     void computeVelocity();
     void setColor(float r, float g, float b, float a);
     float getMinimalDistance(Trajectory *t, osg::Vec3 &p1);
+    float getMinimalDistanceSlow(Trajectory *t, osg::Vec3 &p1);
 
     double getX(double v);
     double getDX(double v);
+    float distance(osg::Vec3 &p,osg::Vec3 &p0,osg::Vec3 &p1);
 };
 
 class BPA : public coTUIListener
@@ -114,9 +116,13 @@ public:
     osg::ShapeDrawable *sphereDrawable;
     void calcIntersection();
 
+    void intersectLines(osg::Vec3 p0,osg::Vec3 p1,osg::Vec3 d0,osg::Vec3 d1,osg::Vec3 &c0, osg::Vec3 &c1);
+    inline float distancePointLine(osg::Vec3 p0,osg::Vec3 d0, osg::Vec3 p){ return(d0 ^ (p0-p)).length()/d0.length();};
+
     osg::ref_ptr<osg::Group> trajectoriesGroup;
     float floorHeight;
 };
+
 
 class BPAPlugin : public coVRPlugin, public coTUIListener
 {

@@ -557,12 +557,12 @@ idRestChar  ([^\x00-\x20\x22\x23\x27\x2c\x2e\x5b-\x5d\x7b\x7d])
                }
                if (parsing_mf)
                {
-                  addBool(b);
+                  addBool(b!=0);
                }
                else 
                {
                   /* No open bracket means a single value: */
-                  yylval.field = new VrmlMFBool(b);
+                  yylval.field = new VrmlMFBool(b!=0);
                   BEGIN NODE; 
                   expectToken = 0;
                   return MF_BOOL;

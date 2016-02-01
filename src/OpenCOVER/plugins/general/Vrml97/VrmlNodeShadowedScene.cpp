@@ -68,6 +68,9 @@ VrmlNodeType *VrmlNodeShadowedScene::defineType(VrmlNodeType *t)
     VrmlNodeGroup::defineType(t); // Parent class
     t->addExposedField("technique", VrmlField::SFSTRING);
     t->addExposedField("shadowLight", VrmlField::SFNODE);
+    t->addExposedField("jitteringScale", VrmlField::SFFLOAT);
+    t->addExposedField("softnessWidth", VrmlField::SFFLOAT);
+    t->addExposedField("textureSize",VrmlField::SFVEC2F);
 
     return t;
 }
@@ -80,6 +83,9 @@ VrmlNodeType *VrmlNodeShadowedScene::nodeType() const
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
     : VrmlNodeGroup(scene)
     , d_technique("ShadowMap")
+    , d_jitterScale(32)
+    , d_softnessWidth(0.005)
+    , d_textureSize(1024,1024)
 {
     d_shadowObject = 0;
 }
@@ -90,6 +96,9 @@ VrmlNodeShadowedScene::VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n)
     : VrmlNodeGroup(n.d_scene)
     , d_technique(n.d_technique)
     , d_shadowLight(n.d_shadowLight)
+    , d_jitterScale(n.d_jitterScale)
+    , d_softnessWidth(n.d_softnessWidth)
+    , d_textureSize(n.d_textureSize)
 {
     d_shadowObject = 0;
 }
@@ -125,6 +134,12 @@ void VrmlNodeShadowedScene::render(Viewer *viewer)
     if(isModified())
     {
         viewer->setShadow(d_technique.get());
+        coVRShadowManager::instance()->setSoftnessWidth(d_softnessWidth.get());
+        coVRShadowManager::instance()->setJitteringScale(d_jitterScale.get());
+        osg::Vec2s ts;
+        ts[0] = d_textureSize.get()[0];
+        ts[1] = d_textureSize.get()[1];
+        coVRShadowManager::instance()->setTextureSize(ts);
         // set shadow Light
         VrmlNodeLight *ln = dynamic_cast<VrmlNodeLight *>(d_shadowLight.get());
         if(ln!=NULL)
@@ -154,6 +169,12 @@ ostream &VrmlNodeShadowedScene::printFields(ostream &os, int indent)
         PRINT_FIELD(technique);
     if(!d_shadowLight.get())
         PRINT_FIELD(shadowLight);
+    if(!d_jitterScale.get())
+        PRINT_FIELD(jitterScale);
+    if(!d_softnessWidth.get())
+        PRINT_FIELD(softnessWidth);
+    if(!d_textureSize.get())
+        PRINT_FIELD(textureSize);
 
     return os;
 }
@@ -167,6 +188,12 @@ void VrmlNodeShadowedScene::setField(const char *fieldName,
         TRY_FIELD(technique, SFString)
     else if
         TRY_FIELD(shadowLight,SFNode)
+    else if
+        TRY_FIELD(softnessWidth,SFFloat)
+    else if
+        TRY_FIELD(jitterScale,SFFloat)
+    else if
+        TRY_FIELD(textureSize,SFVec2f)
     else
         VrmlNodeGroup::setField(fieldName, fieldValue);
     setModified();
@@ -178,6 +205,12 @@ const VrmlField *VrmlNodeShadowedScene::getField(const char *fieldName) const
         return &d_technique;
     else if(strcmp(fieldName,"shadowLight") == 0)
         return &d_shadowLight;
+    else if(strcmp(fieldName,"softnessWidth") == 0)
+        return &d_softnessWidth;
+    else if(strcmp(fieldName,"jitterScale") == 0)
+        return &d_jitterScale;
+    else if(strcmp(fieldName,"textureSize") == 0)
+        return &d_textureSize;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;

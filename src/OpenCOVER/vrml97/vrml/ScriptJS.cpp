@@ -2132,7 +2132,7 @@ vec2f_divide(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     if (v1 && argc > 0 && JS_ValueToNumber(cx, argv[0], &d) && (v3obj = JS_NewObject(cx, &SFVec2fClass, 0, JS_GetParent(cx, obj))) != 0)
     {
         VrmlSFVec2f *v3 = (VrmlSFVec2f *)(v1->clone());
-        v3->divide(d);
+        v3->divide((float)d);
         JS_SetPrivate(cx, v3obj, v3);
         *rval = OBJECT_TO_JSVAL(v3obj);
         return JS_TRUE;
@@ -3944,7 +3944,7 @@ eventOut_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *val)
     _eventOut Properties should only be added to event our fields not to the values that are assigned to an event out...
     it causes fields to be destroyed when assigned to an event out.
     // Don't overwrite the property value.
-    if (JSVAL_IS_OBJECT(*val) && JSVAL_TO_OBJECT(*val) != 0 && !JS_DefineProperty(cx, JSVAL_TO_OBJECT(*val), "_eventOut", PRIVATE_TO_JSVAL((long int)eventName), 0, 0, JSPROP_READONLY | JSPROP_PERMANENT))
+    if (JSVAL_IS_OBJECT(*val) && JSVAL_TO_OBJECT(*val) != 0 && !JS_DefineProperty(cx, JSVAL_TO_OBJECT(*val), "_eventOut", PRIVATE_TO_JSVAL((int64)eventName), 0, 0, JSPROP_READONLY | JSPROP_PERMANENT))
         System::the->error("JS_DefineProp _eventOut failed\n");
         */
 
@@ -3977,7 +3977,7 @@ void ScriptJS::defineFields()
     for (i = d_node->eventOuts().begin(); i != end; ++i)
     {
         jsval val = vrmlFieldToJSVal((*i)->type, (*i)->value, false);
-        if (JSVAL_IS_OBJECT(val) && JSVAL_TO_OBJECT(val) != 0 && !JS_DefineProperty(d_cx, JSVAL_TO_OBJECT(val), "_eventOut", PRIVATE_TO_JSVAL((long int)((*i)->name)), 0, 0, JSPROP_READONLY | JSPROP_PERMANENT))
+        if (JSVAL_IS_OBJECT(val) && JSVAL_TO_OBJECT(val) != 0 && !JS_DefineProperty(d_cx, JSVAL_TO_OBJECT(val), "_eventOut", PRIVATE_TO_JSVAL((int64)((*i)->name)), 0, 0, JSPROP_READONLY | JSPROP_PERMANENT))
             System::the->error("JS_DefineProp _eventOut failed\n");
 
         if (!JS_DefineProperty(d_cx, d_globalObj, (*i)->name, val,
