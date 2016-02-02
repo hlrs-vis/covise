@@ -8,6 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "OpenScenarioBase.h"
 #include "oscSourceFile.h"
+#include "utilities.h"
 
 #include <iostream>
 

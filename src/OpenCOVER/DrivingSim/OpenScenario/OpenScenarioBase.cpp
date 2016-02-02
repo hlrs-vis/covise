@@ -8,15 +8,18 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
 #include "oscSourceFile.h"
+#include "utilities.h"
 
 #include <iostream>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/validators/common/Grammar.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/dom/DOMLSOutput.hpp>
-
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/framework/MemBufFormatTarget.hpp>
+#include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/util/XercesVersion.hpp>
 
 
@@ -65,8 +68,10 @@ OpenScenarioBase::~OpenScenarioBase()
 
 bool OpenScenarioBase::loadFile(const std::string &fileName)
 {
-    if(getRootElement(fileName)==NULL)
+    if(getRootElement(fileName) == NULL)
+    {
         return false;
+    }
     else
     {
         return parseFromXML(rootElement);
@@ -100,7 +105,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     }
 
     //write objects to their own xmlDoc
-    //for start use OpenScenarioBase xml document
+    //start with the document with root element OpenSCENARIO
     //
     writeToDOM(osbSourceFile->getXmlDoc()->getDocumentElement(), osbSourceFile->getXmlDoc());
 
@@ -123,50 +128,108 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         std::string pathFileNameToWrite = relFilePath + srcFileName;
 
         //xml document to write
-        xercesc::DOMDocument* xmlSrcDoc = srcFileVec[i]->getXmlDoc();
+        xercesc::DOMDocument *xmlSrcDoc = srcFileVec[i]->getXmlDoc();
 
-#if (XERCES_VERSION_MAJOR < 3)
-        xercesc::DOMWriter *writer = impl->createDOMWriter();
-#else
-        xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
-        // set the format-pretty-print feature
-        if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
-            writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
-#endif
-
-        xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(pathFileNameToWrite.c_str());
-
-#if (XERCES_VERSION_MAJOR < 3)
-        if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
-        {
-            std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-            delete xmlTarget;
-            delete writer;
-            return false;
-        }
-
-#else
-        xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-        output->setByteStream(xmlTarget);
-
-        if (!writer->write(xmlSrcDoc, output))
-        {
-            std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
-            delete xmlTarget;
-            delete writer;
-            return false;
-        }
-
-        delete output;
-#endif
-
-        delete xmlTarget;
-        delete writer;
+        //write xml document to file
+        writeFileToDisk(xmlSrcDoc, pathFileNameToWrite.c_str());
     }
 
     return true;
 }
 
+bool OpenScenarioBase::writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite)
+{
+    xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+
+#if (XERCES_VERSION_MAJOR < 3)
+    xercesc::DOMWriter *writer = impl->createDOMWriter();
+#else
+    xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+    // set the format-pretty-print feature
+    if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    {
+        writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    }
+#endif
+
+    xercesc::XMLFormatTarget *xmlTarget = new xercesc::LocalFileFormatTarget(filenameToWrite);
+
+#if (XERCES_VERSION_MAJOR < 3)
+    if (!writer->writeNode(xmlTarget, xmlSrcDoc->getDocumentElement()))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete xmlTarget;
+        delete writer;
+        return false;
+    }
+#else
+    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+    output->setByteStream(xmlTarget);
+
+    if (!writer->write(xmlDocToWrite, output))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete output;
+        delete xmlTarget;
+        delete writer;
+        return false;
+    }
+
+    delete output;
+#endif
+
+    delete xmlTarget;
+    delete writer;
+
+    return true;
+}
+
+xercesc::MemBufFormatTarget *OpenScenarioBase::writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite)
+{
+    xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
+
+#if (XERCES_VERSION_MAJOR < 3)
+    xercesc::DOMWriter *writer = impl->createDOMWriter();
+#else
+    xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
+    // set the format-pretty-print feature
+    if (writer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    {
+        writer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    }
+#endif
+
+    xercesc::MemBufFormatTarget *xmlMemTarget = new xercesc::MemBufFormatTarget();
+
+#if (XERCES_VERSION_MAJOR < 3)
+    if (!writer->writeNode(xmlMemTarget)
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete xmlMemTarget;
+        delete writer;
+        return NULL;
+    }
+#else
+    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
+    output->setByteStream(xmlMemTarget);
+
+    if (!writer->write(xmlDocToWrite, output))
+    {
+        std::cerr << "OpenScenarioBase::writeXosc: Could not open file for writing!" << std::endl;
+        delete output;
+        delete xmlMemTarget;
+        delete writer;
+        return NULL;
+    }
+
+    delete output;
+#endif
+
+    delete writer;
+
+    return xmlMemTarget;
+
+}
 
 xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filename)
 {
@@ -177,28 +240,128 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
     catch (const xercesc::XMLException &toCatch)
     {
         char *message = xercesc::XMLString::transcode(toCatch.getMessage());
-        std::cout << "Error during initialization! :\n" << message << std::endl;
+        std::cerr << "Error during initialization! :\n" << message << std::endl;
         xercesc::XMLString::release(&message);
         return NULL;
     }
 
+    //
+    //parsing a file is done in two steps
+    // -first step with enabled XInclude and disabled validation
+    // -second step with disabled XInclude and enabled validation
+    //
+    //(if file parsed in one step with enabled XInclude and validation
+    // then the validation is done before XInclude. But we want validate the
+    // whole document with all elements included in one document
+    //
+
+    //new parser, generic settings, error handler
+    //
     parser = new xercesc::XercesDOMParser();
-    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
-    //namespaces needed for XInclude
+
+    //namespaces needed for XInclude and validation
     parser->setDoNamespaces(true);
+
+    //error handler
+    ParserErrorHandler parserErrorHandler;
+    parser->setErrorHandler(&parserErrorHandler);
+
+
+    //parse file with enabled XInclude and disabled validation
+    //
     //parser will process XInclude nodes
     parser->setDoXInclude(true);
+    //parse without validation
+    parser->setDoSchema(false);
 
+    //parse the file
+    std::cout << "Parse the file '" << filename << "' with enabled XInclude and disabled validation." << std::endl;
     try
     {
         parser->parse(filename.c_str());
     }
     catch (...)
     {
-        std::cerr << "Couldn't parse OpenDRIVE XML-file " << filename << "!" << std::endl;
+        std::cerr << "\nErrors during parsing the document '" << filename << "'\n" << std::endl;
         return NULL;
     }
 
+    //get temporary xml document
+    xercesc::DOMDocument *tmpXmlDoc = parser->getDocument();
+
+    //write xml document to memory buffer
+    xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(tmpXmlDoc);
+
+    //raw buffer, length and fake id
+    const XMLByte* tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
+    XMLSize_t tmpRawBufferLength = tmpXmlMemBufFormat->getLen();
+    const XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
+
+    //new input source from memory for parser
+    xercesc::InputSource *tmpInputSrc = new xercesc::MemBufInputSource(tmpRawBuffer, tmpRawBufferLength, bufId);
+
+
+    //validate the xosc file in a second run without XInclude
+    // (enabled XInclude generate a namespace attribute xmlns:xml for xml:base
+    //  and this had to be added to the xml schema)
+    //
+    //disable XInclude for validation
+    parser->setDoXInclude(false);
+
+    //validation
+    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+    parser->setDoSchema(true);
+    parser->setValidationConstraintFatal(true);
+    parser->setExitOnFirstFatalError(true);
+
+    // Enable grammar caching
+    parser->cacheGrammarFromParse(true);
+
+    //name of XML Schema
+    const char *oscXmlSchema = "OpenScenario_XML-Schema.xsd";
+
+    //set namespace location, preparse the schema grammar (.xsd) and cache it
+    parser->setExternalNoNamespaceSchemaLocation(oscXmlSchema);
+
+    if (parser->loadGrammar(oscXmlSchema, xercesc::Grammar::SchemaGrammarType, true) == NULL)
+    {
+        std::cerr << "\nCouldn't load XML Schema '" << oscXmlSchema << "'\n" << std::endl;
+
+        //delete used objects
+        delete tmpXmlMemBufFormat;
+        delete tmpInputSrc;
+
+        return NULL;
+    }
+    else
+    {
+        std::cerr << "\nXML Schema '"  << oscXmlSchema << "' loaded.\n" << std::endl;
+    }
+
+    //parse memory buffer
+    std::cout << "Validate the complete xml structure with all included files.\n" << std::endl;
+    try
+    {
+        parser->parse(*tmpInputSrc);
+    }
+    catch (...)
+    {
+        std::cerr << "\nErrors during validating the document " << filename << "\n" << std::endl;
+
+        //delete used objects
+        delete tmpXmlMemBufFormat;
+        delete tmpInputSrc;
+
+        return NULL;
+    }
+
+    //delete used objects
+    delete tmpXmlMemBufFormat;
+    delete tmpInputSrc;
+
+
+    //get xml document with enabled XInclude and validation
+    //
     xmlDoc = parser->getDocument();
     if (xmlDoc)
     {

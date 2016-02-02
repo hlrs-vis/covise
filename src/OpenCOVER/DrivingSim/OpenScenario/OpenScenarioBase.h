@@ -29,6 +29,7 @@ XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
 class DOMElement;
 class XercesDOMParser;
+class MemBufFormatTarget;
 XERCES_CPP_NAMESPACE_END
 
 
@@ -67,6 +68,8 @@ public:
                                                                       \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is retured if a file with that name already exists.
                                                                       \return false if writing to the file failed.*/
 
+    bool writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite);
+    xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
     xercesc::DOMElement *getRootElement(const std::string &filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
@@ -75,7 +78,6 @@ public:
 
     void addToSrcFileVec(oscSourceFile *src);
     std::vector<oscSourceFile *> getSrcFileVec() const;
-
 };
 
 }

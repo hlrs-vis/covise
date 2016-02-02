@@ -25,6 +25,9 @@ using namespace OpenScenario;
 
 int main(int argc, char **argv)
 {
+    //initialize random seed
+    srand(time(NULL));
+
     OpenScenarioBase *osdb = new OpenScenarioBase();
     //default file to read in
     std::string fileName = "testScenario.xosc";
@@ -71,14 +74,15 @@ int main(int argc, char **argv)
     if(osdb->loadFile(readFileToUse) == false)
     {
         std::cerr << std::endl;
-        std::cerr << "failed to load OpenScenarioBase from file " << readFileToUse << std::endl;
+        std::cerr << "failed to load OpenSCENARIO from file " << readFileToUse << std::endl;
         std::cerr << std::endl;
         delete osdb;
+
         return -1;
     }
 
     //////
-    //for writing to console or complete xml document
+    //write complete xml document to console or into a file
     //
     xercesc::DOMDocument *parsedXmlDoc = osdb->getDocument();
 
@@ -92,7 +96,7 @@ int main(int argc, char **argv)
 
     xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
 
-    // print to console
+    //print to console
     if (writeToConsole)
     {
         xercesc::XMLFormatTarget *consoleTarget = new xercesc::StdOutFormatTarget();
@@ -131,9 +135,10 @@ int main(int argc, char **argv)
         if(osdb->saveFile(writeFileToUse,true) == false)
         {
             std::cerr << std::endl;
-            std::cerr << "failed to save OpenScenarioBase to file " << writeFileToUse << std::endl;
+            std::cerr << "failed to save OpenSCENARIO to file " << writeFileToUse << std::endl;
             std::cerr << std::endl;
             delete osdb;
+
             return -1;
         }
     }
