@@ -64,9 +64,6 @@ COVISE_FIND_PACKAGE(PNG)
 COVISE_FIND_PACKAGE(TIFF)
 COVISE_FIND_PACKAGE(FFMPEG)
 COVISE_FIND_PACKAGE(Threads)
-if (COVISE_USE_MPI)
-COVISE_FIND_PACKAGE(MPI)
-endif()
 COVISE_FIND_PACKAGE(VRPN)
 IF(APPLE)
   FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices)
@@ -92,10 +89,6 @@ endif()
 message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 
 
-if (COVISE_USE_MPI)
-USING(MPI optional)
-endif()
-
 # find dependencies for coVRML library
 using(FLEX optional)
 covise_find_package(BISON)
@@ -111,6 +104,10 @@ ELSE()
 ENDIF()
 FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
 
+ADD_SUBDIRECTORY(cover/input/dev)
+ADD_SUBDIRECTORY(DrivingSim)
+
+USING(MPI optional)
 using(Boost)
 add_subdirectory(libvtrans)
 include_directories(libvtrans)
@@ -123,13 +120,10 @@ ADD_SUBDIRECTORY(PluginUtil)
 ADD_SUBDIRECTORY(cover)
 
 ADD_SUBDIRECTORY(main)
-if (COVISE_USE_MPI)
-    ADD_SUBDIRECTORY(main.mpi)
-    ADD_SUBDIRECTORY(mpiwrapper)
-endif()
+ADD_SUBDIRECTORY(main.mpi)
+ADD_SUBDIRECTORY(mpiwrapper)
 
 ADD_SUBDIRECTORY(vrml97)
-ADD_SUBDIRECTORY(DrivingSim)
 ADD_SUBDIRECTORY(plugins)
 
 IF(${CMAKE_VERSION} VERSION_GREATER "2.8.2")
