@@ -31,7 +31,6 @@ coCoviseConfig::~coCoviseConfig() {}
  * @return the value of the section, or an empty string if nothing found.
  */
 std::string coCoviseConfig::getEntry(const std::string &entry, bool *exists)
-{
     return getEntry("value", entry, "", exists);
 }
 
