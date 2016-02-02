@@ -2,7 +2,9 @@
 
 USING(VTK optional)
 
-USING(MPI optional)
+if (COVISE_USE_MPI)
+    USING(MPI optional)
+endif()
 set(COVERKERNEL_TARGET coOpenCOVER)
 set(COVERDIR "${COVISEDIR}/src/OpenCOVER")
 
