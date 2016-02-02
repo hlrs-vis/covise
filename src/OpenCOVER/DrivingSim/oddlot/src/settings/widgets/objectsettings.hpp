@@ -46,6 +46,7 @@ public:
 private:
     void updateProperties();
     void updateProperties(QString country, ObjectContainer *objectProperties);
+	void updateS(double s);
     double objectT(double s, double t, double roadDistance);
 
     //################//
@@ -56,6 +57,7 @@ private slots:
     void onEditingFinished();
     void onEditingFinished(int);
     void on_sSpinBox_editingFinished();
+	void on_repeatSSpinBox_editingFinished();
     void onValueChanged();
 	void activateRepeatWidget(bool);
 
@@ -73,6 +75,7 @@ private:
     bool init_;
 
     bool valueChanged_;
+
 };
 
 #endif // OBJECTSETTINGS_HPP
