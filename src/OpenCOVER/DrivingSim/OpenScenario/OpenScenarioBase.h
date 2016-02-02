@@ -28,11 +28,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
 class DOMElement;
-class XercesDOMParser; 
+class XercesDOMParser;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 class oscSourceFile;
 

@@ -20,7 +20,8 @@ class DOMDocument;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 /// \class This class represents a member variable value in an oscObject
 class OPENSCENARIOEXPORT oscMemberValue 

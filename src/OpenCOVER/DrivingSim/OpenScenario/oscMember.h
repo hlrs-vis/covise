@@ -20,7 +20,8 @@ class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 class oscObjectBase;
 

@@ -18,7 +18,8 @@ class DOMDocument;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 struct fileNamePath
 {
