@@ -14,6 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(COVISE_BUILDING_COVER TRUE)
 
 option(COVISE_USE_CUDA "Use CUDA" ON)
+option(COVISE_USE_MPI "Use MPI" ON)
 option(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
 option(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
 option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
@@ -119,7 +120,9 @@ ADD_SUBDIRECTORY(cover)
 
 ADD_SUBDIRECTORY(main)
 ADD_SUBDIRECTORY(main.mpi)
-ADD_SUBDIRECTORY(mpiwrapper)
+if (COVISE_USE_MPI)
+    ADD_SUBDIRECTORY(mpiwrapper)
+endif()
 
 ADD_SUBDIRECTORY(vrml97)
 ADD_SUBDIRECTORY(DrivingSim)
