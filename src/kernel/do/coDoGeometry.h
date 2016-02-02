@@ -48,11 +48,14 @@ class DOEXPORT coDoGeometry : public coDistributedObject
     friend class coDoInitializer;
     static coDistributedObject *virtualCtor(coShmArray *arr);
 
+public:
+    enum { CHAN_MAX = 8 };
+
 private:
     coIntShm geometry_type;
     const coDistributedObject *geometry;
     coIntShm color_attr;
-    const coDistributedObject *colors;
+    const coDistributedObject *colors[CHAN_MAX];
     coIntShm normal_attr;
     const coDistributedObject *normals;
     coIntShm texture_attr;
@@ -87,7 +90,7 @@ public:
     };
 
     void setGeometry(int gtype, const coDistributedObject *geo);
-    void setColors(int cattr, const coDistributedObject *c);
+    void setColors(int cattr, const coDistributedObject *c, size_t chan = 0);
     void setNormals(int nattr, const coDistributedObject *n);
     void setTexture(int tattr, const coDistributedObject *t);
     void setVertexAttribute(int vattr, const coDistributedObject *v);
@@ -98,9 +101,9 @@ public:
     {
         return geometry;
     };
-    const coDistributedObject *getColors() const
+    const coDistributedObject *getColors(size_t chan = 0) const
     {
-        return colors;
+        return colors[chan];
     };
     const coDistributedObject *getNormals() const
     {

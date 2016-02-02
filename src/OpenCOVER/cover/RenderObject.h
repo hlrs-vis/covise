@@ -50,7 +50,16 @@ struct Field
 {
     enum Id
     {
-        X = 19,
+        CHAN0 = 0,
+        CHAN1,
+        CHAN2,
+        CHAN3,
+        CHAN4,
+        CHAN5,
+        CHAN6,
+        CHAN7,
+        CHAN_END,   // invalid!
+        X,
         Y,
         Z,
         Red,
@@ -157,6 +166,8 @@ public:
 
     virtual bool isUniformGrid() const = 0;
     virtual void getSize(int &nx, int &ny, int &nz) const = 0;
+    virtual float getMin(int channel) const = 0;
+    virtual float getMax(int channel) const = 0;
     virtual void getMinMax(float &xmin, float &xmax,
                            float &ymin, float &ymax,
                            float &zmin, float &zmax) const = 0;

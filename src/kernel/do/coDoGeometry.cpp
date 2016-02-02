@@ -59,19 +59,20 @@ coDoGeometry::coDoGeometry(const coObjInfo &info, coShmArray *arr)
 
 int coDoGeometry::getObjInfo(int no, coDoInfo **il) const
 {
-    if (no == 10)
+    if (no == 9 + CHAN_MAX)
     {
         (*il)[0].description = "Geometry Type";
         (*il)[1].description = "Geometry";
         (*il)[2].description = "Color Attribute: not used";
-        (*il)[3].description = "Colors";
-        (*il)[4].description = "Normal Attribute: not used";
-        (*il)[5].description = "Normals";
-        (*il)[6].description = "Texture Type";
-        (*il)[7].description = "Texture";
-        (*il)[8].description = "Vertex Attribute Type";
-        (*il)[9].description = "Vertex Attribute";
-        return 10;
+        for (int c = 0; c < CHAN_MAX; ++c)
+            (*il)[3 + c].description = "Colors";
+        (*il)[3 + CHAN_MAX].description = "Normal Attribute: not used";
+        (*il)[4 + CHAN_MAX].description = "Normals";
+        (*il)[5 + CHAN_MAX].description = "Texture Type";
+        (*il)[6 + CHAN_MAX].description = "Texture";
+        (*il)[7 + CHAN_MAX].description = "Vertex Attribute Type";
+        (*il)[8 + CHAN_MAX].description = "Vertex Attribute";
+        return 9 + CHAN_MAX;
     }
     else
     {
@@ -85,32 +86,40 @@ coDoGeometry::coDoGeometry(const coObjInfo &info, const coDistributedObject *geo
 {
 
     geometry = geo;
-    colors = NULL;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        colors[c] = NULL;
+    }
     normals = NULL;
     texture = NULL;
     vertexAttribute = NULL;
 
-    covise_data_list dl[]
-        = {
-            { INTSHM, &geometry_type },
-            { DISTROBJ, geometry },
-            { INTSHM, &color_attr },
-            { DISTROBJ, colors },
-            {
-              INTSHM, &normal_attr,
-            },
-            { DISTROBJ, normals },
-            {
-              INTSHM, &texture_attr,
-            },
-            { DISTROBJ, texture },
-            {
-              INTSHM, &vertexAttribute_attr,
-            },
-            { DISTROBJ, vertexAttribute }
-        };
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = DISTROBJ;
+    dl[4 + CHAN_MAX].ptr  = (void *)normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = DISTROBJ;
+    dl[6 + CHAN_MAX].ptr  = (void *)texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = DISTROBJ;
+    dl[8 + CHAN_MAX].ptr  = (void *)vertexAttribute;
 
-    new_ok = store_shared_dl(10, dl) != 0;
+    new_ok = store_shared_dl(9 + CHAN_MAX, dl) != 0;
     if (!new_ok)
         return;
     geometry_type = geo->get_type_no();
@@ -124,7 +133,8 @@ coDoGeometry *coDoGeometry::cloneObject(const coObjInfo &newinfo) const
 {
     coDoGeometry *geo = new coDoGeometry(newinfo);
     geo->setGeometry(getGeometryType(), getGeometry());
-    geo->setColors(getColorAttributes(), getColors());
+    for (int c = 0; c < CHAN_MAX; ++c)
+        geo->setColors(getColorAttributes(), getColors(c), c);
     geo->setNormals(getNormalAttributes(), getNormals());
     geo->setTexture(getTextureAttributes(), getTexture());
     geo->setVertexAttribute(getVertexAttributeAttributes(), getVertexAttribute());
@@ -139,150 +149,185 @@ int coDoGeometry::rebuildFromShm()
         print_exit(__LINE__, __FILE__, 1);
     }
 
-    covise_data_list dl[]
-        = {
-            { INTSHM, &geometry_type },
-            { UNKNOWN, &geometry },
-            { INTSHM, &color_attr },
-            { COVISE_OPTIONAL, &colors },
-            {
-              INTSHM, &normal_attr,
-            },
-            { COVISE_OPTIONAL, &normals },
-            {
-              INTSHM, &texture_attr,
-            },
-            { COVISE_OPTIONAL, &texture },
-            {
-              INTSHM, &vertexAttribute_attr,
-            },
-            { COVISE_OPTIONAL, &vertexAttribute }
-        };
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = UNKNOWN;
+    dl[1].ptr  = (void *)&geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = COVISE_OPTIONAL;
+        dl[3 + c].ptr  = (void *)&colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = COVISE_OPTIONAL;
+    dl[4 + CHAN_MAX].ptr  = (void *)&normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = COVISE_OPTIONAL;
+    dl[6 + CHAN_MAX].ptr  = (void *)&texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = COVISE_OPTIONAL;
+    dl[8 + CHAN_MAX].ptr  = (void *)&vertexAttribute;
 
-    return restore_shared_dl(10, dl);
+    return restore_shared_dl(9 + CHAN_MAX, dl);
 }
 
 void coDoGeometry::setGeometry(int gtype, const coDistributedObject *geo)
 {
     geometry_type = gtype;
     geometry = geo;
-    covise_data_list dl[] = {
-        { INTSHM, &geometry_type },
-        { DISTROBJ, geometry },
-        { INTSHM, &color_attr },
-        { DISTROBJ, colors },
-        {
-          INTSHM, &normal_attr,
-        },
-        { DISTROBJ, normals },
-        {
-          INTSHM, &texture_attr,
-        },
-        { DISTROBJ, texture },
-        {
-          INTSHM, &vertexAttribute_attr,
-        },
-        { DISTROBJ, vertexAttribute }
-    };
-    update_shared_dl(10, dl);
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = DISTROBJ;
+    dl[4 + CHAN_MAX].ptr  = (void *)normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = DISTROBJ;
+    dl[6 + CHAN_MAX].ptr  = (void *)texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = DISTROBJ;
+    dl[8 + CHAN_MAX].ptr  = (void *)vertexAttribute;
+    update_shared_dl(9 + CHAN_MAX, dl);
 }
 
-void coDoGeometry::setColors(int cattr, const coDistributedObject *c)
+void coDoGeometry::setColors(int cattr, const coDistributedObject *c, size_t chan)
 {
     color_attr = cattr;
-    colors = c;
-    covise_data_list dl[] = {
-        { INTSHM, &geometry_type },
-        { DISTROBJ, geometry },
-        { INTSHM, &color_attr },
-        { DISTROBJ, colors },
-        {
-          INTSHM, &normal_attr,
-        },
-        { DISTROBJ, normals },
-        {
-          INTSHM, &texture_attr,
-        },
-        { DISTROBJ, texture },
-        {
-          INTSHM, &vertexAttribute_attr,
-        },
-        { DISTROBJ, vertexAttribute }
-    };
-    update_shared_dl(10, dl);
+    colors[chan] = c;
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = DISTROBJ;
+    dl[4 + CHAN_MAX].ptr  = (void *)normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = DISTROBJ;
+    dl[6 + CHAN_MAX].ptr  = (void *)texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = DISTROBJ;
+    dl[8 + CHAN_MAX].ptr  = (void *)vertexAttribute;
+    update_shared_dl(9 + CHAN_MAX, dl);
 }
 
 void coDoGeometry::setNormals(int nattr, const coDistributedObject *n)
 {
     normal_attr = nattr;
     normals = n;
-    covise_data_list dl[] = {
-        { INTSHM, &geometry_type },
-        { DISTROBJ, geometry },
-        { INTSHM, &color_attr },
-        { DISTROBJ, colors },
-        {
-          INTSHM, &normal_attr,
-        },
-        { DISTROBJ, normals },
-        {
-          INTSHM, &texture_attr,
-        },
-        { DISTROBJ, texture },
-        {
-          INTSHM, &vertexAttribute_attr,
-        },
-        { DISTROBJ, vertexAttribute }
-    };
-    update_shared_dl(10, dl);
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = DISTROBJ;
+    dl[4 + CHAN_MAX].ptr  = (void *)normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = DISTROBJ;
+    dl[6 + CHAN_MAX].ptr  = (void *)texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = DISTROBJ;
+    dl[8 + CHAN_MAX].ptr  = (void *)vertexAttribute;
+    update_shared_dl(9 + CHAN_MAX, dl);
 }
 
 void coDoGeometry::setTexture(int tattr, const coDistributedObject *t)
 {
     texture_attr = tattr;
     texture = t;
-    covise_data_list dl[] = {
-        { INTSHM, &geometry_type },
-        { DISTROBJ, geometry },
-        { INTSHM, &color_attr },
-        { DISTROBJ, colors },
-        {
-          INTSHM, &normal_attr,
-        },
-        { DISTROBJ, normals },
-        {
-          INTSHM, &texture_attr,
-        },
-        { DISTROBJ, texture },
-        {
-          INTSHM, &vertexAttribute_attr,
-        },
-        { DISTROBJ, vertexAttribute }
-    };
-    update_shared_dl(10, dl);
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = DISTROBJ;
+    dl[4 + CHAN_MAX].ptr  = (void *)normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = DISTROBJ;
+    dl[6 + CHAN_MAX].ptr  = (void *)texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = DISTROBJ;
+    dl[8 + CHAN_MAX].ptr  = (void *)vertexAttribute;
+    update_shared_dl(9 + CHAN_MAX, dl);
 }
 
 void coDoGeometry::setVertexAttribute(int vattr, const coDistributedObject *v)
 {
     vertexAttribute_attr = vattr;
     vertexAttribute = v;
-    covise_data_list dl[] = {
-        { INTSHM, &geometry_type },
-        { DISTROBJ, geometry },
-        { INTSHM, &color_attr },
-        { DISTROBJ, colors },
-        {
-          INTSHM, &normal_attr,
-        },
-        { DISTROBJ, normals },
-        {
-          INTSHM, &texture_attr,
-        },
-        { DISTROBJ, texture },
-        {
-          INTSHM, &vertexAttribute_attr,
-        },
-        { DISTROBJ, vertexAttribute }
-    };
-    update_shared_dl(10, dl);
+    covise_data_list dl[9 + CHAN_MAX];
+    dl[0].type = INTSHM;
+    dl[0].ptr  = (void *)&geometry_type;
+    dl[1].type = DISTROBJ;
+    dl[1].ptr  = (void *)geometry;
+    dl[2].type = INTSHM;
+    dl[2].ptr  = (void *)&color_attr;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        dl[3 + c].type = DISTROBJ;
+        dl[3 + c].ptr  = (void *)colors[c];
+    }
+    dl[3 + CHAN_MAX].type = INTSHM;
+    dl[3 + CHAN_MAX].ptr  = (void *)&normal_attr;
+    dl[4 + CHAN_MAX].type = DISTROBJ;
+    dl[4 + CHAN_MAX].ptr  = (void *)normals;
+    dl[5 + CHAN_MAX].type = INTSHM;
+    dl[5 + CHAN_MAX].ptr  = (void *)&texture_attr;
+    dl[6 + CHAN_MAX].type = DISTROBJ;
+    dl[6 + CHAN_MAX].ptr  = (void *)texture;
+    dl[7 + CHAN_MAX].type = INTSHM;
+    dl[7 + CHAN_MAX].ptr  = (void *)&vertexAttribute_attr;
+    dl[8 + CHAN_MAX].type = DISTROBJ;
+    dl[8 + CHAN_MAX].ptr  = (void *)vertexAttribute;
+    update_shared_dl(9 + CHAN_MAX, dl);
 }

@@ -32,7 +32,11 @@ using std::string;
 class CoviseRenderObject : public opencover::RenderObject
 {
 public:
+    enum { CHAN_MAX = 8 };
+
+public:
     CoviseRenderObject(const covise::coDistributedObject *co, const std::vector<int> &assignedTo = std::vector<int>());
+    CoviseRenderObject(const covise::coDistributedObject *const *co, const std::vector<int> &assignedTo = std::vector<int>());
     ~CoviseRenderObject();
     const char *getType() const;
     bool isType(const char *t) const
@@ -94,50 +98,60 @@ public:
     }
     void getAddresses(float *&f1, float *&f2, float *&f3, int *&i1, int *&i2)
     {
-        f1 = farr1;
-        f2 = farr2;
-        f3 = farr3;
-        i1 = iarr1;
-        i2 = iarr2;
+        f1 = farr[0];
+        f2 = farr[1];
+        f3 = farr[2];
+        i1 = iarr[0];
+        i2 = iarr[1];
     }
     void getAddresses(float *&f1, float *&f2, float *&f3, int *&i1)
     {
-        f1 = farr1;
-        f2 = farr2;
-        f3 = farr3;
-        i1 = iarr1;
+        f1 = farr[0];
+        f2 = farr[1];
+        f3 = farr[2];
+        i1 = iarr[0];
     }
     void getAddresses(float *&f1, float *&f2, float *&f3)
     {
-        f1 = farr1;
-        f2 = farr2;
-        f3 = farr3;
+        f1 = farr[0];
+        f2 = farr[1];
+        f3 = farr[2];
     };
     void getAddresses(float *&f1, float *&f2, float *&f3, float *&f4, int *&i1)
     {
-        f1 = farr1;
-        f2 = farr2;
-        f3 = farr3;
-        f4 = farr4;
-        i1 = iarr1;
+        f1 = farr[0];
+        f2 = farr[1];
+        f3 = farr[2];
+        f4 = farr[3];
+        i1 = iarr[0];
     }
     void getAddresses(float *&f1, float *&f2, float *&f3, int *&i1, int *&i2, int *&i3)
     {
-        f1 = farr1;
-        f2 = farr2;
-        f3 = farr3;
-        i1 = iarr1;
-        i2 = iarr2;
-        i3 = iarr3;
+        f1 = farr[0];
+        f2 = farr[1];
+        f3 = farr[2];
+        i1 = iarr[0];
+        i2 = iarr[1];
+        i3 = iarr[2];
+    }
+    float getMin(int chan) const
+    {
+        assert( chan >= 0 && chan < CHAN_MAX );
+        return min_[chan];
+    }
+    float getMax(int chan) const
+    {
+        assert( chan >= 0 && chan < CHAN_MAX );
+        return max_[chan];
     }
     void getMinMax(float &mix, float &max, float &miy, float &may, float &miz, float &maz) const
     {
-        mix = minx;
-        max = maxx;
-        miy = miny;
-        may = maxy;
-        miz = minz;
-        maz = maxz;
+        mix = min_[0];
+        max = max_[0];
+        miy = min_[1];
+        may = max_[1];
+        miz = min_[2];
+        maz = max_[2];
     }
 
     const unsigned char *getByte(opencover::Field::Id idx) const;
@@ -193,7 +207,7 @@ public:
 
     const covise::coDistributedObject *COVdobj;
     const covise::coDistributedObject *COVnormals;
-    const covise::coDistributedObject *COVcolors;
+    const covise::coDistributedObject *COVcolors[CHAN_MAX];
     const covise::coDistributedObject *COVtexture;
     const covise::coDistributedObject *COVvertexAttribute;
     const covise::coDistributedObject *coviseObject;
@@ -202,18 +216,18 @@ public:
     unsigned char *texture;
     float **textureCoords;
     int *pc;
-    unsigned char *byteData;
     int numTC;
     int numAttributes;
     char **attrNames;
     char **attributes;
     int size;
     int sizeu, sizev, sizew;
-    float *farr1, *farr2, *farr3;
-    float *farr4, *farr5;
-    int *iarr1, *iarr2, *iarr3;
+    unsigned char *barr[CHAN_MAX];
+    int *iarr[CHAN_MAX];
+    float *farr[CHAN_MAX];
     int geometryFlag;
-    float minx, maxx, miny, maxy, minz, maxz;
+    float min_[CHAN_MAX];
+    float max_[CHAN_MAX];
     bool cluster;
     mutable RenderObject **objs;
     mutable CoviseRenderObject *geometryObject;
