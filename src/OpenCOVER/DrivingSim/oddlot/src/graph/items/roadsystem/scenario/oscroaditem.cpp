@@ -70,8 +70,6 @@ OSCRoadItem::init()
     setAcceptHoverEvents(true);
 	setFlag(QGraphicsItem::ItemIsSelectable, false);
 
-	ProjectWidget *projectWidget = getProjectGraph()->getProjectWidget();
-
     foreach (Signal *signal, road_->getSignals())
     {
         new OSCSignalItem(roadSystemItem_, signal, road_->getGlobalPoint(signal->getSStart(), signal->getT()));

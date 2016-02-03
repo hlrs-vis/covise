@@ -39,7 +39,8 @@
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphview.hpp"
 //#include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
-#include "src/graph/items/roadsystem/roadsystemitem.hpp"
+#include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
+#include "src/graph/items/oscsystem/oscbaseitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
 
 // Tools //
@@ -62,11 +63,10 @@
 #include <QString>
 #include <QKeyEvent>
 
-OSCItem::OSCItem(RoadSystemItem *roadSystemItem, OpenScenario::oscObject *oscObject, OpenScenario::oscObjectBase *catalogElement, const QPointF &pos)
-    : GraphElement(roadSystemItem, NULL)
-	, roadSystemItem_(roadSystemItem)
+OSCItem::OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, const QPointF &pos)
+    : GraphElement(oscBaseItem, NULL)
+	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
-	, selectedObject_(catalogElement)
 	, path_(NULL)
 	, pos_(pos)
 {
@@ -161,13 +161,22 @@ OSCItem::init()
 	OpenScenario::oscObjectBase *oscPosition = oscObject_->getMember("initPosition")->getObject();
 	OpenScenario::oscObjectBase *oscPosRoad = oscPosition->getMember("positionRoad")->getGenerateObject();
 	roadID_ = QString::fromStdString(dynamic_cast<oscStringValue *>(oscPosRoad->getMember("roadId")->getValue())->getValue());
-	road_ = roadSystemItem_->getRoadSystem()->getRoad(roadID_);
+	road_ = getProjectData()->getRoadSystem()->getRoad(roadID_);
 	closestRoad_ = road_;
+	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
 
 	doPan_ = false;
 	copyPan_ = false;
 
-	const std::string typeName = selectedObject_->getOwnMember()->getTypeName();
+	// TODO: get type and object from catalog reference //
+	//
+	OpenScenario::oscCatalogReferenceTypeA * catalogRefA = dynamic_cast<OpenScenario::oscCatalogReferenceTypeA *>(oscObject_->getMember("catalogReference")->getGenerateObject());
+	const std::string refId = dynamic_cast<OpenScenario::oscStringValue *>(catalogRefA->getMember("catalogId")->getGenerateValue())->getValue();
+	OpenScenarioEditor *oscEditor = dynamic_cast<OpenScenarioEditor *>(getProjectData()->getProjectWidget()->getProjectEditor());
+
+	selectedObject_ = oscEditor->getCatalog(refId)->getObject();
+
+	const std::string typeName = "oscVehicle";
 	if (typeName == "oscVehicle")
 	{
 		createPath = createVehiclePath;
