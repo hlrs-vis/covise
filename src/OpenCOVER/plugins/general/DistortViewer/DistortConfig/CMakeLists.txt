@@ -2,6 +2,11 @@ USING(OSGQT)
 USING(BOOST)
 USING(VTK optional)
 #OpenCOVER plugins general DistortConfig
+covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer
+   osgParticle osgText osgSim osgGA osgFX osgTerrain osgShadow osgWidget)
+if(NOT OSGWIDGET_FOUND)
+    return()
+endif()
 
 INCLUDE_DIRECTORIES(..)
 
