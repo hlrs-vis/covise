@@ -1,0 +1,24 @@
+
+
+USING(BOOST)
+ADD_DEFINITIONS(-DVOLUME_COLLECT)
+#INCLUDE_DIRECTORIES()
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  ../Collect/Collect.cpp
+)
+
+SET(EXTRASOURCES
+  ../Collect/Collect.h
+)
+
+using(BOOST)
+
+ADD_COVISE_MODULE(Tools VolumeCollect ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(VolumeCollect  coApi coAppl coCore )
+
+COVISE_INSTALL_TARGET(VolumeCollect)
