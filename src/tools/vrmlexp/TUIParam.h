@@ -33,7 +33,7 @@
 #include <io.h>
 #include <map>
 
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
 #include "maxtextfile.h"
 #define MAXSTREAM MaxSDK::Util::TextFile::Writer &
 #else

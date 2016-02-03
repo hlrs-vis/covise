@@ -2,7 +2,9 @@
 
 USING(VTK optional)
 
-USING(MPI optional)
+if (COVISE_USE_MPI)
+    USING(MPI optional)
+endif()
 set(COVERKERNEL_TARGET coOpenCOVER)
 set(COVERDIR "${COVISEDIR}/src/OpenCOVER")
 
@@ -29,6 +31,7 @@ add_subdirectory(input/dev/rift)
 add_subdirectory(input/dev/mike)
 add_subdirectory(input/dev/vrpn)
 add_subdirectory(input/dev/cavelib)
+add_subdirectory(input/dev/zspace)
 IF(WIN32)
   add_subdirectory(input/dev/windowsHID) 
 ENDIF(WIN32)

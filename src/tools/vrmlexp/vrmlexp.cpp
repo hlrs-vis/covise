@@ -228,7 +228,7 @@ VRBLExport::Indent(int level)
         return;
     assert(level >= 0);
     for (; level; level--)
-        MSTREAMPRINTF  _T("  "));
+        MSTREAMPRINTF  ("  "));
 }
 
 extern TCHAR *VRMLName(const TCHAR *name);
@@ -272,26 +272,26 @@ VRBLExport::StartNode(INode *node, Object *obj, int level, BOOL outputName)
 {
     if (node->IsRootNode())
     {
-        MSTREAMPRINTF  _T("Separator {\n"));
+        MSTREAMPRINTF  ("Separator {\n"));
         return;
     }
     Indent(level);
     if (obj->SuperClassID() == CAMERA_CLASS_ID || obj->SuperClassID() == LIGHT_CLASS_ID || !outputName)
     {
         // Lights and cameras need different top-level names for triggers
-        MSTREAMPRINTF  _T("DEF %s_TopLevel Separator {\n"), mNodes.GetNodeName(node));
+        MSTREAMPRINTF  ("DEF %s_TopLevel Separator {\n"), mNodes.GetNodeName(node));
     }
     else
     {
-        MSTREAMPRINTF  _T("DEF %s Separator {\n"), mNodes.GetNodeName(node));
+        MSTREAMPRINTF  ("DEF %s Separator {\n"), mNodes.GetNodeName(node));
         if (IsMirror(node))
         {
             Indent(level + 1);
-            MSTREAMPRINTF  _T("ShapeHints {\n"));
+            MSTREAMPRINTF  ("ShapeHints {\n"));
             Indent(level + 2);
-            MSTREAMPRINTF  _T("vertexOrdering CLOCKWISE\n"));
+            MSTREAMPRINTF  ("vertexOrdering CLOCKWISE\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
         }
     }
 
@@ -310,7 +310,7 @@ VRBLExport::StartNode(INode *node, Object *obj, int level, BOOL outputName)
             if (note.Length() > 0)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("Info { string \"frame %d: %s\" }\n"),
+                MSTREAMPRINTF  ("Info { string \"frame %d: %s\" }\n"),
                         nk->time/GetTicksPerFrame(), note.data());
             }
         }
@@ -322,7 +322,7 @@ void
 VRBLExport::EndNode(INode *node, int level, BOOL lastChild)
 {
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 // Write out the transform from the local coordinate system to the
@@ -365,7 +365,7 @@ done:
     {
         p = tm.GetTrans();
         Indent(level);
-        MSTREAMPRINTF  _T("Translation { translation %s }\n"), point(p));
+        MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
     }
     else
     {
@@ -381,13 +381,13 @@ done:
         q = parts.q;
         AngAxisFromQ(q, &ang, axis);
         Indent(level);
-        MSTREAMPRINTF  _T("Translation { translation %s }\n"), point(p));
+        MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
         if (ang != 0.0f && ang != -0.0f)
         {
             Indent(level);
             // VRML angle convention is opposite of MAX convention,
             // so we negate the angle.
-            MSTREAMPRINTF  _T("Rotation { rotation %s }\n"),
+            MSTREAMPRINTF  ("Rotation { rotation %s }\n"),
                     axisPoint(axis, -ang));
         }
         ScaleValue sv(parts.k, parts.u);
@@ -400,7 +400,7 @@ done:
             //s.y=s.z;
             //s.z=tmpy; // axes are different in Inventor so exchange y and z
             Indent(level);
-            MSTREAMPRINTF  _T("Scale { scaleFactor %s }\n"), scalePoint(s));
+            MSTREAMPRINTF  ("Scale { scaleFactor %s }\n"), scalePoint(s));
         }
     }
 }
@@ -487,7 +487,7 @@ NormalTable::PrintStats(MAXSTREAM mStream)
                 buckets++;
         }
     }
-    MSTREAMPRINTF _T("# slots = %d, buckets = %d, avg. chain length = %.5g\n"),
+    MSTREAMPRINTF ("# slots = %d, buckets = %d, avg. chain length = %.5g\n"),
             slots, buckets, ((double) buckets / (double) slots));
 }
 
@@ -526,7 +526,7 @@ VRBLExport::OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level)
 
     Indent(level);
 
-    MSTREAMPRINTF  _T("normalIndex [\n"));
+    MSTREAMPRINTF  ("normalIndex [\n"));
     for (i = 0; i < numfaces; i++)
     {
         int smGroup = mesh.faces[i].getSmGroup();
@@ -558,12 +558,12 @@ VRBLExport::OutputNormalIndices(Mesh &mesh, NormalTable *normTab, int level)
                 n = mesh.getFaceNormal(i);
             int index = normTab->GetIndex(n);
             assert(index != -1);
-            MSTREAMPRINTF  _T("%d, "), index);
+            MSTREAMPRINTF  ("%d, "), index);
         }
-        MSTREAMPRINTF  _T("-1,\n"));
+        MSTREAMPRINTF  ("-1,\n"));
     }
     Indent(level);
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
 }
 
 // Create the hash table of normals for the given mesh, and
@@ -622,7 +622,7 @@ VRBLExport::OutputNormals(Mesh &mesh, int level)
     index = 0;
     NormalDesc *nd;
     Indent(level);
-    MSTREAMPRINTF  _T("Normal { vector [\n"));
+    MSTREAMPRINTF  ("Normal { vector [\n"));
 
     for (i = 0; i < NORM_TABLE_SIZE; i++)
     {
@@ -631,14 +631,14 @@ VRBLExport::OutputNormals(Mesh &mesh, int level)
             nd->index = index++;
             Indent(level + 1);
             Point3 p = nd->n / NUM_NORMS;
-            MSTREAMPRINTF  _T("%s,\n"), normPoint(p));
+            MSTREAMPRINTF  ("%s,\n"), normPoint(p));
         }
     }
     Indent(level);
-    MSTREAMPRINTF  _T("] }\n"));
+    MSTREAMPRINTF  ("] }\n"));
 
     Indent(level);
-    MSTREAMPRINTF  _T("NormalBinding { value PER_VERTEX_INDEXED }\n"));
+    MSTREAMPRINTF  ("NormalBinding { value PER_VERTEX_INDEXED }\n"));
 
 #ifdef DEBUG_NORM_HASH
     normTab->PrintStats(mStream);
@@ -670,26 +670,26 @@ VRBLExport::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
     if (isMulti)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("MaterialBinding { value PER_FACE_INDEXED }\n"));
+        MSTREAMPRINTF  ("MaterialBinding { value PER_FACE_INDEXED }\n"));
     }
 
     // Output the vertices
     Indent(level);
-    MSTREAMPRINTF  _T("Coordinate3 { point [\n"));
+    MSTREAMPRINTF  ("Coordinate3 { point [\n"));
 
     for (i = 0; i < numverts; i++)
     {
         Point3 p = mesh.verts[i];
         Indent(level + 1);
-        MSTREAMPRINTF  _T("%s"), point(p));
+        MSTREAMPRINTF  ("%s"), point(p));
         if (i == numverts - 1)
         {
-            MSTREAMPRINTF  _T("]\n"));
+            MSTREAMPRINTF  ("]\n"));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
         }
         else
-            MSTREAMPRINTF  _T(",\n"));
+            MSTREAMPRINTF  (",\n"));
     }
 
     // Output the normals
@@ -702,84 +702,84 @@ VRBLExport::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
     if (numtverts > 0 && td)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("TextureCoordinate2 { point [\n"));
+        MSTREAMPRINTF  ("TextureCoordinate2 { point [\n"));
 
         for (i = 0; i < numtverts; i++)
         {
             UVVert p = mesh.getTVert(i);
             Indent(level + 1);
-            MSTREAMPRINTF  _T("%s"), texture(p));
+            MSTREAMPRINTF  ("%s"), texture(p));
             if (i == numtverts - 1)
             {
-                MSTREAMPRINTF  _T("]\n"));
+                MSTREAMPRINTF  ("]\n"));
                 Indent(level);
-                MSTREAMPRINTF  _T("}\n"));
+                MSTREAMPRINTF  ("}\n"));
             }
             else
-                MSTREAMPRINTF  _T(",\n"));
+                MSTREAMPRINTF  (",\n"));
         }
     }
 
     if (twoSided)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("ShapeHints {\n"));
+        MSTREAMPRINTF  ("ShapeHints {\n"));
         Indent(level + 1);
-        MSTREAMPRINTF  _T("shapeType UNKNOWN_SHAPE_TYPE\n"));
+        MSTREAMPRINTF  ("shapeType UNKNOWN_SHAPE_TYPE\n"));
         Indent(level);
-        MSTREAMPRINTF  _T("}\n"));
+        MSTREAMPRINTF  ("}\n"));
     }
     // Output the triangles
     Indent(level);
-    MSTREAMPRINTF  _T("IndexedFaceSet { coordIndex [\n"));
+    MSTREAMPRINTF  ("IndexedFaceSet { coordIndex [\n"));
     for (i = 0; i < numfaces; i++)
     {
         if (!(mesh.faces[i].flags & FACE_HIDDEN))
         {
             Indent(level + 1);
-            MSTREAMPRINTF  _T("%d, %d, %d, -1"), mesh.faces[i].v[0],
+            MSTREAMPRINTF  ("%d, %d, %d, -1"), mesh.faces[i].v[0],
                     mesh.faces[i].v[1], mesh.faces[i].v[2]);
             if (i != numfaces - 1)
-                MSTREAMPRINTF  _T(", \n"));
+                MSTREAMPRINTF  (", \n"));
         }
     }
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
 
     // Output the texture coordinate indices
     if (numtverts > 0 && td)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("textureCoordIndex [\n"));
+        MSTREAMPRINTF  ("textureCoordIndex [\n"));
         for (i = 0; i < numfaces; i++)
         {
             if (!(mesh.faces[i].flags & FACE_HIDDEN))
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("%d, %d, %d, -1"), mesh.tvFace[i].t[0],
+                MSTREAMPRINTF  ("%d, %d, %d, -1"), mesh.tvFace[i].t[0],
                         mesh.tvFace[i].t[1], mesh.tvFace[i].t[2]);
                 if (i != numfaces - 1)
-                MSTREAMPRINTF  _T(", \n"));
+                MSTREAMPRINTF  (", \n"));
             }
         }
-        MSTREAMPRINTF  _T("]\n"));
+        MSTREAMPRINTF  ("]\n"));
     }
 
     // Output the material indices
     if (isMulti)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("materialIndex [\n"));
+        MSTREAMPRINTF  ("materialIndex [\n"));
         for (i = 0; i < numfaces; i++)
         {
             if (!(mesh.faces[i].flags & FACE_HIDDEN))
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("%d"), mesh.faces[i].getMatID());
+                MSTREAMPRINTF  ("%d"), mesh.faces[i].getMatID());
                 if (i != numfaces - 1)
-                    MSTREAMPRINTF  _T(", \n"));
+                    MSTREAMPRINTF  (", \n"));
             }
         }
-        MSTREAMPRINTF  _T("]\n"));
+        MSTREAMPRINTF  ("]\n"));
     }
 
     // Output the normal indices
@@ -790,7 +790,7 @@ VRBLExport::OutputTriObject(INode *node, TriObject *obj, BOOL isMulti,
     }
 
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     delete td;
 }
 
@@ -874,11 +874,11 @@ VRBLExport::OutputMultiMtl(Mtl *mtl, int level)
     float f;
 
     Indent(level);
-    MSTREAMPRINTF  _T("Material {\n"));
+    MSTREAMPRINTF  ("Material {\n"));
     int num = mtl->NumSubMtls();
 
     Indent(level + 1);
-    MSTREAMPRINTF  _T("ambientColor [ "));
+    MSTREAMPRINTF  ("ambientColor [ "));
     for (i = 0; i < num; i++)
     {
         sub = mtl->GetSubMtl(i);
@@ -887,13 +887,13 @@ VRBLExport::OutputMultiMtl(Mtl *mtl, int level)
             continue;
         c = sub->GetAmbient(mStart);
         if (i == num - 1)
-            MSTREAMPRINTF  _T("%s "), color(c));
+            MSTREAMPRINTF  ("%s "), color(c));
         else
-            MSTREAMPRINTF  _T("%s, "), color(c));
+            MSTREAMPRINTF  ("%s, "), color(c));
     }
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("diffuseColor [ "));
+    MSTREAMPRINTF  ("diffuseColor [ "));
     for (i = 0; i < num; i++)
     {
         sub = mtl->GetSubMtl(i);
@@ -901,14 +901,14 @@ VRBLExport::OutputMultiMtl(Mtl *mtl, int level)
             continue;
         c = sub->GetDiffuse(mStart);
         if (i == num - 1)
-            MSTREAMPRINTF  _T("%s "), color(c));
+            MSTREAMPRINTF  ("%s "), color(c));
         else
-            MSTREAMPRINTF  _T("%s, "), color(c));
+            MSTREAMPRINTF  ("%s, "), color(c));
     }
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
 
     Indent(level + 1);
-    MSTREAMPRINTF  _T("specularColor [ "));
+    MSTREAMPRINTF  ("specularColor [ "));
     for (i = 0; i < num; i++)
     {
         sub = mtl->GetSubMtl(i);
@@ -916,14 +916,14 @@ VRBLExport::OutputMultiMtl(Mtl *mtl, int level)
             continue;
         c = sub->GetSpecular(mStart);
         if (i == num - 1)
-            MSTREAMPRINTF  _T("%s "), color(c));
+            MSTREAMPRINTF  ("%s "), color(c));
         else
-            MSTREAMPRINTF  _T("%s, "), color(c));
+            MSTREAMPRINTF  ("%s, "), color(c));
     }
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
 
     Indent(level + 1);
-    MSTREAMPRINTF  _T("shininess [ "));
+    MSTREAMPRINTF  ("shininess [ "));
     for (i = 0; i < num; i++)
     {
         sub = mtl->GetSubMtl(i);
@@ -931,14 +931,14 @@ VRBLExport::OutputMultiMtl(Mtl *mtl, int level)
             continue;
         f = sub->GetShininess(mStart);
         if (i == num - 1)
-            MSTREAMPRINTF  _T("%s "), floatVal(f));
+            MSTREAMPRINTF  ("%s "), floatVal(f));
         else
-            MSTREAMPRINTF  _T("%s, "), floatVal(f));
+            MSTREAMPRINTF  ("%s, "), floatVal(f));
     }
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
 
     Indent(level + 1);
-    MSTREAMPRINTF  _T("emissiveColor [ "));
+    MSTREAMPRINTF  ("emissiveColor [ "));
     for (i = 0; i < num; i++)
     {
         sub = mtl->GetSubMtl(i);
@@ -955,21 +955,21 @@ VRBLExport::OutputMultiMtl(Mtl *mtl, int level)
             si = 0.0f;
         Point3 p = si * Point3(c.r, c.g, c.b);
         if (i == num - 1)
-            MSTREAMPRINTF  _T("%s "), color(p));
+            MSTREAMPRINTF  ("%s "), color(p));
         else
-            MSTREAMPRINTF  _T("%s, "), color(p));
+            MSTREAMPRINTF  ("%s, "), color(p));
     }
-    MSTREAMPRINTF  _T("]\n"));
+    MSTREAMPRINTF  ("]\n"));
 
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 void
 VRBLExport::OutputNoTexture(int level)
 {
     Indent(level);
-    MSTREAMPRINTF  _T("Texture2 {}\n"));
+    MSTREAMPRINTF  ("Texture2 {}\n"));
 }
 
 // Output the matrial definition for a node.
@@ -984,13 +984,13 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
     {
         Color col(node->GetWireColor());
         Indent(level);
-        MSTREAMPRINTF  _T("Material {\n"));
+        MSTREAMPRINTF  ("Material {\n"));
         Indent(level + 1);
-        MSTREAMPRINTF  _T("diffuseColor %s\n"), color(col));
+        MSTREAMPRINTF  ("diffuseColor %s\n"), color(col));
         Indent(level + 1);
-        MSTREAMPRINTF  _T("specularColor .9 .9 .9\n"));
+        MSTREAMPRINTF  ("specularColor .9 .9 .9\n"));
         Indent(level);
-        MSTREAMPRINTF  _T("}\n"));
+        MSTREAMPRINTF  ("}\n"));
         OutputNoTexture(level);
         return FALSE;
     }
@@ -1007,23 +1007,23 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
     Interval i = FOREVER;
     sm->Update(0, i);
     Indent(level);
-    MSTREAMPRINTF  _T("Material {\n"));
+    MSTREAMPRINTF  ("Material {\n"));
     Color c;
 
     Indent(level + 1);
     c = sm->GetAmbient(mStart);
-    MSTREAMPRINTF  _T("ambientColor %s\n"), color(c));
+    MSTREAMPRINTF  ("ambientColor %s\n"), color(c));
     Indent(level + 1);
     c = sm->GetDiffuse(mStart);
-    MSTREAMPRINTF  _T("diffuseColor %s\n"), color(c));
+    MSTREAMPRINTF  ("diffuseColor %s\n"), color(c));
     Indent(level + 1);
     c = sm->GetSpecular(mStart);
-    MSTREAMPRINTF  _T("specularColor %s\n"), color(c));
+    MSTREAMPRINTF  ("specularColor %s\n"), color(c));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("shininess %s\n"),
+    MSTREAMPRINTF  ("shininess %s\n"),
             floatVal(sm->GetShininess(mStart)));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("transparency %s\n"),
+    MSTREAMPRINTF  ("transparency %s\n"),
             floatVal(1.0f - sm->GetOpacity(mStart)));
     float si = sm->GetSelfIllum(mStart);
     if (si > 0.0f)
@@ -1031,10 +1031,10 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
         Indent(level + 1);
         c = sm->GetDiffuse(mStart);
         Point3 p = si * Point3(c.r, c.g, c.b);
-        MSTREAMPRINTF  _T("emissiveColor %s\n"), color(p));
+        MSTREAMPRINTF  ("emissiveColor %s\n"), color(p));
     }
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     TextureDesc *td = GetMatTex(node);
     if (!td)
@@ -1044,11 +1044,11 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
     }
 
     Indent(level);
-    MSTREAMPRINTF  _T("Texture2 {\n"));
+    MSTREAMPRINTF  ("Texture2 {\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("filename \"%s\"\n"), td->url);
+    MSTREAMPRINTF  ("filename \"%s\"\n"), td->url);
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     BitmapTex *bm = td->tex;
     delete td;
@@ -1072,26 +1072,26 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
     }
 
     Indent(level);
-    MSTREAMPRINTF  _T("Texture2Transform {\n"));
+    MSTREAMPRINTF  ("Texture2Transform {\n"));
     if (uOff != 0.0f || vOff != 0.0f)
     {
         Indent(level + 1);
         UVVert p = UVVert(uOff, vOff, 0.0f);
-        MSTREAMPRINTF  _T("translation %s\n"), texture(p));
+        MSTREAMPRINTF  ("translation %s\n"), texture(p));
     }
     if (ang != 0.0f)
     {
         Indent(level + 1);
-        MSTREAMPRINTF  _T("rotation %s\n"), floatVal(ang));
+        MSTREAMPRINTF  ("rotation %s\n"), floatVal(ang));
     }
     if (uScl != 1.0f || vScl != 1.0f)
     {
         Indent(level + 1);
         UVVert p = UVVert(uScl, vScl, 0.0f);
-        MSTREAMPRINTF  _T("scaleFactor %s\n"), texture(p));
+        MSTREAMPRINTF  ("scaleFactor %s\n"), texture(p));
     }
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     return FALSE;
 }
@@ -1118,7 +1118,7 @@ VRBLExport::VrblOutSphere(INode *node, Object *obj, int level)
 
     Indent(level);
 
-    MSTREAMPRINTF  _T("Sphere { radius %s }\n"), floatVal(radius));
+    MSTREAMPRINTF  ("Sphere { radius %s }\n"), floatVal(radius));
 
     return TRUE;
 }
@@ -1143,26 +1143,26 @@ VRBLExport::VrblOutCylinder(INode *node, Object *obj, int level)
     so->pblock->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
     so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
     Indent(level);
-    MSTREAMPRINTF  _T("Separator {\n"));
+    MSTREAMPRINTF  ("Separator {\n"));
     Indent(level + 1);
     if (mZUp)
     {
-        MSTREAMPRINTF  _T("Rotation { rotation 1 0 0 %s }\n"),
+        MSTREAMPRINTF  ("Rotation { rotation 1 0 0 %s }\n"),
                 floatVal(float(PI/2.0)));
         Indent(level + 1);
-        MSTREAMPRINTF  _T("Translation { translation 0 %s 0 }\n"),
+        MSTREAMPRINTF  ("Translation { translation 0 %s 0 }\n"),
                 floatVal(float(height/2.0)));
     }
     else
     {
         Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
-        MSTREAMPRINTF  _T("Translation { translation %s }\n"), point(p));
+        MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
     }
     Indent(level + 1);
-    MSTREAMPRINTF  _T("Cylinder { radius %s "), floatVal(radius));
-    MSTREAMPRINTF  _T("height %s }\n"), floatVal(float(fabs(height))));
+    MSTREAMPRINTF  ("Cylinder { radius %s "), floatVal(radius));
+    MSTREAMPRINTF  ("height %s }\n"), floatVal(float(fabs(height))));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     return TRUE;
 }
@@ -1189,32 +1189,32 @@ VRBLExport::VrblOutCone(INode *node, Object *obj, int level)
     so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
     Indent(level);
 
-    MSTREAMPRINTF  _T("Separator {\n"));
+    MSTREAMPRINTF  ("Separator {\n"));
     Indent(level + 1);
     if (mZUp)
     {
         if (height > 0.0f)
-            MSTREAMPRINTF  _T("Rotation { rotation 1 0 0 %s }\n"),
+            MSTREAMPRINTF  ("Rotation { rotation 1 0 0 %s }\n"),
                     floatVal(float(PI/2.0)));
         else
-            MSTREAMPRINTF  _T("Rotation { rotation 1 0 0 %s }\n"),
+            MSTREAMPRINTF  ("Rotation { rotation 1 0 0 %s }\n"),
                     floatVal(float(-PI/2.0)));
         Indent(level + 1);
-        MSTREAMPRINTF  _T("Translation { translation 0 %s 0 }\n"),
+        MSTREAMPRINTF  ("Translation { translation 0 %s 0 }\n"),
                 floatVal(float(fabs(height)/2.0)));
     }
     else
     {
         Point3 p = Point3(0.0f, 0.0f, (float)fabs(height) / 2.0f);
-        MSTREAMPRINTF  _T("Translation { translation %s }\n"), point(p));
+        MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
     }
     Indent(level + 1);
 
-    MSTREAMPRINTF  _T("Cone { bottomRadius %s "), floatVal(radius1));
-    MSTREAMPRINTF  _T("height %s }\n"), floatVal(float(fabs(height))));
+    MSTREAMPRINTF  ("Cone { bottomRadius %s "), floatVal(radius1));
+    MSTREAMPRINTF  ("height %s }\n"), floatVal(float(fabs(height))));
 
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1244,33 +1244,33 @@ VRBLExport::VrblOutCube(INode *node, Object *obj, int level)
     so->pblock->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
     so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
     Indent(level);
-    MSTREAMPRINTF  _T("Separator {\n"));
+    MSTREAMPRINTF  ("Separator {\n"));
     Indent(level + 1);
     Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
     // VRML cubes grow from the middle, MAX grows from z=0
-    MSTREAMPRINTF  _T("Translation { translation %s }\n"), point(p));
+    MSTREAMPRINTF  ("Translation { translation %s }\n"), point(p));
     Indent(level + 1);
 
     if (mZUp)
     {
-        MSTREAMPRINTF  _T("Cube { width %s "),
+        MSTREAMPRINTF  ("Cube { width %s "),
                 floatVal(float(fabs(width))));
-        MSTREAMPRINTF  _T("height %s "),
+        MSTREAMPRINTF  ("height %s "),
                 floatVal(float(fabs(length))));
-        MSTREAMPRINTF  _T(" depth %s }\n"),
+        MSTREAMPRINTF  (" depth %s }\n"),
                 floatVal(float(fabs(height))));
     }
     else
     {
-        MSTREAMPRINTF  _T("Cube { width %s "),
+        MSTREAMPRINTF  ("Cube { width %s "),
                 floatVal(float(fabs(width))));
-        MSTREAMPRINTF  _T("height %s "),
+        MSTREAMPRINTF  ("height %s "),
                 floatVal(float(fabs(height))));
-        MSTREAMPRINTF  _T(" depth %s }\n"),
+        MSTREAMPRINTF  (" depth %s }\n"),
                 floatVal(float(fabs(length))));
     }
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     return TRUE;
 }
@@ -1288,19 +1288,19 @@ VRBLExport::VrblOutCamera(INode *node, Object *obj, int level)
     vp.fov = cs.fov / 1.3333f;
 
     Indent(level);
-    MSTREAMPRINTF  _T("DEF %s_Animated PerspectiveCamera {\n"), mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s_Animated PerspectiveCamera {\n"), mNodes.GetNodeName(node));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("position 0 0 0\n"));
+    MSTREAMPRINTF  ("position 0 0 0\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("heightAngle %s\n"), floatVal(vp.fov));
+    MSTREAMPRINTF  ("heightAngle %s\n"), floatVal(vp.fov));
     if (!mZUp)
     {
         Indent(level + 1);
-        MSTREAMPRINTF  _T("orientation 1 0 0 %s\n"),
+        MSTREAMPRINTF  ("orientation 1 0 0 %s\n"),
                 floatVal(float(-PI/2.0)));
     }
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     return TRUE;
 }
@@ -1315,20 +1315,20 @@ VRBLExport::VrblOutPointLight(INode *node, LightObject *light, int level)
     light->EvalLightState(mStart, iv, &ls);
 
     Indent(level);
-    MSTREAMPRINTF  _T("DEF %s PointLight {\n"), mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s PointLight {\n"), mNodes.GetNodeName(node));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("intensity %s\n"),
+    MSTREAMPRINTF  ("intensity %s\n"),
             floatVal(light->GetIntensity(mStart, FOREVER)));
     Indent(level + 1);
     Point3 col = light->GetRGBColor(mStart, FOREVER);
-    MSTREAMPRINTF  _T("color %s\n"), color(col));
+    MSTREAMPRINTF  ("color %s\n"), color(col));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("location 0 0 0\n"));
+    MSTREAMPRINTF  ("location 0 0 0\n"));
 
     Indent(level + 1);
-    MSTREAMPRINTF  _T("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
+    MSTREAMPRINTF  ("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1342,19 +1342,19 @@ VRBLExport::VrblOutDirectLight(INode *node, LightObject *light, int level)
     light->EvalLightState(mStart, iv, &ls);
 
     Indent(level);
-    MSTREAMPRINTF  _T("DEF %s DirectionalLight {\n"),  mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s DirectionalLight {\n"),  mNodes.GetNodeName(node));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("intensity %s\n"),
+    MSTREAMPRINTF  ("intensity %s\n"),
             floatVal(light->GetIntensity(mStart, FOREVER)));
     Indent(level + 1);
     Point3 col = light->GetRGBColor(mStart, FOREVER);
 
-    MSTREAMPRINTF  _T("color %s\n"), color(col));
+    MSTREAMPRINTF  ("color %s\n"), color(col));
 
     Indent(level + 1);
-    MSTREAMPRINTF  _T("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
+    MSTREAMPRINTF  ("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1368,27 +1368,27 @@ VRBLExport::VrblOutSpotLight(INode *node, LightObject *light, int level)
     Point3 dir(0, 0, -1);
     light->EvalLightState(mStart, iv, &ls);
     Indent(level);
-    MSTREAMPRINTF  _T("DEF %s SpotLight {\n"),  mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s SpotLight {\n"),  mNodes.GetNodeName(node));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("intensity %s\n"),
+    MSTREAMPRINTF  ("intensity %s\n"),
             floatVal(light->GetIntensity(mStart,FOREVER)));
     Indent(level + 1);
     Point3 col = light->GetRGBColor(mStart, FOREVER);
-    MSTREAMPRINTF  _T("color %s\n"), color(col));
+    MSTREAMPRINTF  ("color %s\n"), color(col));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("location 0 0 0\n"));
+    MSTREAMPRINTF  ("location 0 0 0\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("direction %s\n"), normPoint(dir));
+    MSTREAMPRINTF  ("direction %s\n"), normPoint(dir));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("cutOffAngle %s\n"),
+    MSTREAMPRINTF  ("cutOffAngle %s\n"),
             floatVal(DegToRad(ls.fallsize)));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("dropOffRate %s\n"),
+    MSTREAMPRINTF  ("dropOffRate %s\n"),
             floatVal(1.0f - ls.hotsize/ls.fallsize));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
+    MSTREAMPRINTF  ("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1402,21 +1402,21 @@ VRBLExport::VrblOutTopPointLight(INode *node, LightObject *light)
     light->EvalLightState(mStart, iv, &ls);
 
     Indent(1);
-    MSTREAMPRINTF  _T("DEF %s PointLight {\n"),  mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s PointLight {\n"),  mNodes.GetNodeName(node));
     Indent(2);
-    MSTREAMPRINTF  _T("intensity %s\n"),
+    MSTREAMPRINTF  ("intensity %s\n"),
             floatVal(light->GetIntensity(mStart, FOREVER)));
     Indent(2);
     Point3 col = light->GetRGBColor(mStart, FOREVER);
-    MSTREAMPRINTF  _T("color %s\n"), color(col));
+    MSTREAMPRINTF  ("color %s\n"), color(col));
     Indent(2);
     Point3 p = node->GetObjTMAfterWSM(mStart).GetTrans();
-    MSTREAMPRINTF  _T("location %s\n"), point(p));
+    MSTREAMPRINTF  ("location %s\n"), point(p));
 
     Indent(2);
-    MSTREAMPRINTF  _T("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
+    MSTREAMPRINTF  ("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
     Indent(1);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1430,13 +1430,13 @@ VRBLExport::VrblOutTopDirectLight(INode *node, LightObject *light)
     light->EvalLightState(mStart, iv, &ls);
 
     Indent(1);
-    MSTREAMPRINTF  _T("DEF %s DirectionalLight {\n"),  mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s DirectionalLight {\n"),  mNodes.GetNodeName(node));
     Indent(2);
-    MSTREAMPRINTF  _T("intensity %s\n"),
+    MSTREAMPRINTF  ("intensity %s\n"),
             floatVal(light->GetIntensity(mStart, FOREVER)));
     Indent(2);
     Point3 col = light->GetRGBColor(mStart, FOREVER);
-    MSTREAMPRINTF  _T("color %s\n"), color(col));
+    MSTREAMPRINTF  ("color %s\n"), color(col));
     Point3 p = Point3(0, 0, -1);
 
     Matrix3 tm = node->GetObjTMAfterWSM(mStart);
@@ -1450,11 +1450,11 @@ VRBLExport::VrblOutTopDirectLight(INode *node, LightObject *light)
     p = p * rot;
 
     Indent(2);
-    MSTREAMPRINTF  _T("direction %s\n"), normPoint(p));
+    MSTREAMPRINTF  ("direction %s\n"), normPoint(p));
     Indent(2);
-    MSTREAMPRINTF  _T("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
+    MSTREAMPRINTF  ("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
     Indent(1);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1467,16 +1467,16 @@ VRBLExport::VrblOutTopSpotLight(INode *node, LightObject *light)
 
     light->EvalLightState(mStart, iv, &ls);
     Indent(1);
-    MSTREAMPRINTF  _T("DEF %s SpotLight {\n"),  mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s SpotLight {\n"),  mNodes.GetNodeName(node));
     Indent(2);
-    MSTREAMPRINTF  _T("intensity %s\n"),
+    MSTREAMPRINTF  ("intensity %s\n"),
             floatVal(light->GetIntensity(mStart,FOREVER)));
     Indent(2);
     Point3 col = light->GetRGBColor(mStart, FOREVER);
-    MSTREAMPRINTF  _T("color %s\n"), color(col));
+    MSTREAMPRINTF  ("color %s\n"), color(col));
     Indent(2);
     Point3 p = node->GetObjTMAfterWSM(mStart).GetTrans();
-    MSTREAMPRINTF  _T("location %s\n"), point(p));
+    MSTREAMPRINTF  ("location %s\n"), point(p));
 
     Matrix3 tm = node->GetObjTMAfterWSM(mStart);
     p = Point3(0, 0, -1);
@@ -1490,17 +1490,17 @@ VRBLExport::VrblOutTopSpotLight(INode *node, LightObject *light)
     p = p * rot;
 
     Indent(2);
-    MSTREAMPRINTF  _T("direction %s\n"), normPoint(p));
+    MSTREAMPRINTF  ("direction %s\n"), normPoint(p));
     Indent(2);
-    MSTREAMPRINTF  _T("cutOffAngle %s\n"),
+    MSTREAMPRINTF  ("cutOffAngle %s\n"),
             floatVal( DegToRad(ls.fallsize)));
     Indent(2);
-    MSTREAMPRINTF  _T("dropOffRate %s\n"),
+    MSTREAMPRINTF  ("dropOffRate %s\n"),
             floatVal(1.0f - ls.hotsize/ls.fallsize));
     Indent(2);
-    MSTREAMPRINTF  _T("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
+    MSTREAMPRINTF  ("on %s\n"), ls.on ? _T("TRUE") : _T("FALSE"));
     Indent(1);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1522,15 +1522,15 @@ BOOL
 VRBLExport::VrblOutInline(VRMLInsObject *obj, int level)
 {
     Indent(level);
-    MSTREAMPRINTF  _T("WWWInline {\n"));
+    MSTREAMPRINTF  ("WWWInline {\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("name %s\n"), obj->GetUrl().data());
+    MSTREAMPRINTF  ("name %s\n"), obj->GetUrl().data());
     float size = obj->GetSize() * 2.0f;
     Indent(level + 1);
     Point3 p = Point3(size, size, size);
-    MSTREAMPRINTF  _T("bboxSize %s\n"), scalePoint(p));
+    MSTREAMPRINTF  ("bboxSize %s\n"), scalePoint(p));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1562,18 +1562,18 @@ VRBLExport::VrblOutLOD(INode *node, LODObject *obj, int level)
     if (numLod > 1)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("LOD {\n"));
+        MSTREAMPRINTF  ("LOD {\n"));
         Indent(level + 1);
         Point3 p = node->GetObjTMAfterWSM(mStart).GetTrans();
-        MSTREAMPRINTF  _T("center %s\n"), point(p));
+        MSTREAMPRINTF  ("center %s\n"), point(p));
         Indent(level + 1);
-        MSTREAMPRINTF  _T("range [ "));
+        MSTREAMPRINTF  ("range [ "));
         for (i = 0; i < numLod - 1; i++)
         {
             if (i < numLod - 2)
-                MSTREAMPRINTF  _T("%s, "), floatVal(lodObjects[i]->dist));
+                MSTREAMPRINTF  ("%s, "), floatVal(lodObjects[i]->dist));
             else
-                MSTREAMPRINTF  _T("%s ]\n"), floatVal(lodObjects[i]->dist));
+                MSTREAMPRINTF  ("%s ]\n"), floatVal(lodObjects[i]->dist));
         }
     }
 
@@ -1587,7 +1587,7 @@ VRBLExport::VrblOutLOD(INode *node, LODObject *obj, int level)
     if (numLod > 1)
     {
         Indent(level);
-        MSTREAMPRINTF  _T("}\n"));
+        MSTREAMPRINTF  ("}\n"));
     }
 
     return TRUE;
@@ -1606,19 +1606,19 @@ VRBLExport::VrblOutTarget(INode *node, int level)
     if (id != Class_ID(SPOT_LIGHT_CLASS_ID, 0) && id != Class_ID(LOOKAT_CAM_CLASS_ID, 0))
         return TRUE;
     Indent(level);
-    MSTREAMPRINTF  _T("AimTarget_ktx_com {\n"));
+    MSTREAMPRINTF  ("AimTarget_ktx_com {\n"));
     if (mGenFields)
     {
         Indent(level + 1);
-        MSTREAMPRINTF  _T("fields [ SFString aimer ]\n"));
+        MSTREAMPRINTF  ("fields [ SFString aimer ]\n"));
     }
     Indent(level + 1);
     if ((id == Class_ID(LOOKAT_CAM_CLASS_ID, 0)) && IsEverAnimated(lookAt))
-                MSTREAMPRINTF  _T("aimer \"%s_Animated\"\n"), mNodes.GetNodeName(lookAt));
+                MSTREAMPRINTF  ("aimer \"%s_Animated\"\n"), mNodes.GetNodeName(lookAt));
     else
-                MSTREAMPRINTF  _T("aimer \"%s\"\n"), mNodes.GetNodeName(lookAt));
+                MSTREAMPRINTF  ("aimer \"%s\"\n"), mNodes.GetNodeName(lookAt));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
     return TRUE;
 }
 
@@ -1877,75 +1877,75 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
         if (i == 0 || TCBIsDifferent(k, oldK))
         {
             Indent(level);
-            MSTREAMPRINTF  _T("AnimationStyle_ktx_com {\n"));
+            MSTREAMPRINTF  ("AnimationStyle_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
-                MSTREAMPRINTF  _T("fields [ SFBool loop, SFBitMask splineUse, SFFloat tension, SFFloat continuity, SFFloat bias, SFFloat easeTo, SFFloat easeFrom, SFVec3f pivotOffset ]\n"));
+                MSTREAMPRINTF  ("fields [ SFBool loop, SFBitMask splineUse, SFFloat tension, SFFloat continuity, SFFloat bias, SFFloat easeTo, SFFloat easeFrom, SFVec3f pivotOffset ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("splineUse ("));
+            MSTREAMPRINTF  ("splineUse ("));
 
             // Write flags
             BOOL hadOne = FALSE;
             if (k->tens != 0.0f)
             {
-                MSTREAMPRINTF  _T("TENSION"));
+                MSTREAMPRINTF  ("TENSION"));
                 hadOne = TRUE;
             }
             if (k->cont != 0.0f)
             {
                 if (hadOne)
-                    MSTREAMPRINTF  _T(" | "));
-                MSTREAMPRINTF  _T("CONTINUITY"));
+                    MSTREAMPRINTF  (" | "));
+                MSTREAMPRINTF  ("CONTINUITY"));
                 hadOne = TRUE;
             }
             if (k->bias != 0.0f)
             {
                 if (hadOne)
-                    MSTREAMPRINTF  _T(" | "));
-                MSTREAMPRINTF  _T("BIAS"));
+                    MSTREAMPRINTF  (" | "));
+                MSTREAMPRINTF  ("BIAS"));
                 hadOne = TRUE;
             }
             if (k->easeIn != 0.0f)
             {
                 if (hadOne)
-                    MSTREAMPRINTF  _T(" | "));
-                MSTREAMPRINTF  _T("EASE_TO"));
+                    MSTREAMPRINTF  (" | "));
+                MSTREAMPRINTF  ("EASE_TO"));
                 hadOne = TRUE;
             }
             if (k->easeOut != 0.0f)
             {
                 if (hadOne)
-                    MSTREAMPRINTF  _T(" | "));
-                MSTREAMPRINTF  _T("EASE_FROM"));
+                    MSTREAMPRINTF  (" | "));
+                MSTREAMPRINTF  ("EASE_FROM"));
                 hadOne = TRUE;
             }
-            MSTREAMPRINTF  _T(")\n"));
+            MSTREAMPRINTF  (")\n"));
 
             // Write TCB and ease
             if (k->tens != 0.0f)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("tension %s\n"), floatVal(k->tens));
+                MSTREAMPRINTF  ("tension %s\n"), floatVal(k->tens));
             }
             if (k->cont != 0.0f)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("continuity %s\n"), floatVal(k->cont));
+                MSTREAMPRINTF  ("continuity %s\n"), floatVal(k->cont));
             }
             if (k->bias != 0.0f)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("bias %s\n"), floatVal(k->bias));
+                MSTREAMPRINTF  ("bias %s\n"), floatVal(k->bias));
             }
             if (k->easeIn != 0.0f)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("easeTo %s\n"), floatVal(k->easeIn));
+                MSTREAMPRINTF  ("easeTo %s\n"), floatVal(k->easeIn));
             }
             if (k->easeOut != 0.0f)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("easeFrom %s\n"), floatVal(k->easeOut));
+                MSTREAMPRINTF  ("easeFrom %s\n"), floatVal(k->easeOut));
             }
 
             // get the pivot offset and remove the rotational component
@@ -1957,9 +1957,9 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
             po = VectorTransform(m, p);
 
             Indent(level + 1);
-            if (type != KEY_POS) MSTREAMPRINTF  _T("pivotOffset %s\n"), point(po));
+            if (type != KEY_POS) MSTREAMPRINTF  ("pivotOffset %s\n"), point(po));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
         }
         // Write values
         switch (type)
@@ -1989,17 +1989,17 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
                 continue;
             mHadAnim = TRUE;
             Indent(level);
-            MSTREAMPRINTF  _T("ScaleKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("ScaleKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFVec3f scale ]\n"));
+                        ("fields [ SFLong frame, SFVec3f scale ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
+            MSTREAMPRINTF  ("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
             Indent(level + 1);
-            MSTREAMPRINTF  _T("scale %s\n"), scalePoint(s));
+            MSTREAMPRINTF  ("scale %s\n"), scalePoint(s));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             memcpy(oldK, k, sizeof(skey));
             break;
         }
@@ -2015,17 +2015,17 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
                 continue;
             mHadAnim = TRUE;
             Indent(level);
-            MSTREAMPRINTF  _T("ColorKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("ColorKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFColor color ]\n"));
+                        ("fields [ SFLong frame, SFColor color ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
+            MSTREAMPRINTF  ("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
             Indent(level + 1);
-            MSTREAMPRINTF  _T("color %s\n"), color(pkey.val));
+            MSTREAMPRINTF  ("color %s\n"), color(pkey.val));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             memcpy(oldK, k, sizeof(pkey));
             break;
 
@@ -2040,18 +2040,18 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
                 continue;
             mHadAnim = TRUE;
             Indent(level);
-            MSTREAMPRINTF  _T("PositionKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("PositionKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFVec3f translation ]\n"));
+                        ("fields [ SFLong frame, SFVec3f translation ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
+            MSTREAMPRINTF  ("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
             p = pkey.val;
             Indent(level + 1);
-            MSTREAMPRINTF  _T("translation %s\n"), point(p));
+            MSTREAMPRINTF  ("translation %s\n"), point(p));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             memcpy(oldK, k, sizeof(pkey));
             break;
 
@@ -2093,18 +2093,18 @@ VRBLExport::WriteTCBKeys(INode *node, Control *cont,
             qLast = q;
             mHadAnim = TRUE;
             Indent(level);
-            MSTREAMPRINTF  _T("RotationKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("RotationKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFRotation rotation ]\n"));
+                        ("fields [ SFLong frame, SFRotation rotation ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
+            MSTREAMPRINTF  ("frame %d\n"), (k->time - mStart)/GetTicksPerFrame());
             Indent(level + 1);
-            MSTREAMPRINTF  _T("rotation %s\n"),
+            MSTREAMPRINTF  ("rotation %s\n"),
                     axisPoint(axis, ang));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             memcpy(oldK, k, sizeof(rkey));
             break;
         }
@@ -2148,10 +2148,10 @@ VRBLExport::WriteLinearKeys(INode *node,
     }
 
     Indent(level);
-    MSTREAMPRINTF  _T("AnimationStyle_ktx_com {\n"));
+    MSTREAMPRINTF  ("AnimationStyle_ktx_com {\n"));
     Indent(level + 1);
     if (mGenFields)
-        MSTREAMPRINTF  _T("fields [ SFVec3f pivotOffset ]\n"));
+        MSTREAMPRINTF  ("fields [ SFVec3f pivotOffset ]\n"));
     Indent(level + 1);
     // get the pivot offset and remove rotational component
     Matrix3 m = Matrix3(TRUE);
@@ -2162,9 +2162,9 @@ VRBLExport::WriteLinearKeys(INode *node,
     po = VectorTransform(m, p);
 
     Indent(level + 1);
-    if (type != KEY_POS) MSTREAMPRINTF  _T("pivotOffset %s\n"), point(po));
+    if (type != KEY_POS) MSTREAMPRINTF  ("pivotOffset %s\n"), point(po));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 
     for (i = 0; i < timeVals.Count(); i++)
     {
@@ -2179,18 +2179,18 @@ VRBLExport::WriteLinearKeys(INode *node,
             mHadAnim = TRUE;
             p = posKeys[i];
             Indent(level);
-            MSTREAMPRINTF  _T("PositionKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("PositionKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFVec3f translation ]\n"));
+                        ("fields [ SFLong frame, SFVec3f translation ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"),
+            MSTREAMPRINTF  ("frame %d\n"),
                     (timeVals[i]-mStart)/GetTicksPerFrame());
             Indent(level + 1);
-            MSTREAMPRINTF  _T("translation %s\n"), point(p));
+            MSTREAMPRINTF  ("translation %s\n"), point(p));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             break;
 
         case KEY_ROT:
@@ -2199,54 +2199,54 @@ VRBLExport::WriteLinearKeys(INode *node,
             if (rval.angle == 0.0f || fabs(rval.angle - 2.0 * PI) < 1.0e-5)
                 break;
             Indent(level);
-            MSTREAMPRINTF  _T("RotationKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("RotationKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFRotation rotation ]\n"));
+                        ("fields [ SFLong frame, SFRotation rotation ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"),
+            MSTREAMPRINTF  ("frame %d\n"),
                     (timeVals[i]-mStart)/GetTicksPerFrame());
             Indent(level + 1);
-            MSTREAMPRINTF  _T("rotation %s\n"),
+            MSTREAMPRINTF  ("rotation %s\n"),
                     axisPoint(rval.axis, rval.angle));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             break;
         case KEY_SCL:
             mHadAnim = TRUE;
             s = sclKeys[i];
             Indent(level);
-            MSTREAMPRINTF  _T("ScaleKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("ScaleKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFVec3f scale ]\n"));
+                        ("fields [ SFLong frame, SFVec3f scale ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"),
+            MSTREAMPRINTF  ("frame %d\n"),
                     (timeVals[i]-mStart)/GetTicksPerFrame());
             Indent(level + 1);
-            MSTREAMPRINTF  _T("scale %s\n"), scalePoint(s));
+            MSTREAMPRINTF  ("scale %s\n"), scalePoint(s));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             break;
 
         case KEY_COLOR:
             mHadAnim = TRUE;
             Indent(level);
-            MSTREAMPRINTF  _T("ColorKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("ColorKey_ktx_com {\n"));
             Indent(level + 1);
             if (mGenFields)
                 MSTREAMPRINTF 
-                        _T("fields [ SFLong frame, SFColor color ]\n"));
+                        ("fields [ SFLong frame, SFColor color ]\n"));
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"),
+            MSTREAMPRINTF  ("frame %d\n"),
                     (timeVals[i]-mStart)/GetTicksPerFrame());
             Indent(level + 1);
             p = posKeys[i];
-            MSTREAMPRINTF  _T("color %s\n"), color(p));
+            MSTREAMPRINTF  ("color %s\n"), color(p));
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
             break;
         }
     }
@@ -2448,16 +2448,16 @@ VRBLExport::WritePositionKey0(INode *node, TimeValue t, int level, BOOL force)
 
     mHadAnim = TRUE;
     Indent(level);
-    MSTREAMPRINTF  _T("PositionKey_ktx_com {\n"));
+    MSTREAMPRINTF  ("PositionKey_ktx_com {\n"));
     Indent(level + 1);
     if (mGenFields)
-        MSTREAMPRINTF  _T("fields [ SFLong frame, SFVec3f translation ]\n"));
+        MSTREAMPRINTF  ("fields [ SFLong frame, SFVec3f translation ]\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("frame %d\n"), (t-mStart)/GetTicksPerFrame());
+    MSTREAMPRINTF  ("frame %d\n"), (t-mStart)/GetTicksPerFrame());
     Indent(level + 1);
-    MSTREAMPRINTF  _T("translation %s\n"), point(p));
+    MSTREAMPRINTF  ("translation %s\n"), point(p));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 // Write out the initial rotation key, relative to the parent.
@@ -2481,17 +2481,17 @@ VRBLExport::WriteRotationKey0(INode *node, TimeValue t, int level, BOOL force)
 
     mHadAnim = TRUE;
     Indent(level);
-    MSTREAMPRINTF  _T("RotationKey_ktx_com {\n"));
+    MSTREAMPRINTF  ("RotationKey_ktx_com {\n"));
     Indent(level + 1);
     if (mGenFields)
         MSTREAMPRINTF 
-                _T("fields [ SFLong frame, SFRotation rotation ]\n"));
+                ("fields [ SFLong frame, SFRotation rotation ]\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("frame %d\n"), (t-mStart)/GetTicksPerFrame());
+    MSTREAMPRINTF  ("frame %d\n"), (t-mStart)/GetTicksPerFrame());
     Indent(level + 1);
-    MSTREAMPRINTF  _T("rotation %s\n"), axisPoint(axis, ang));
+    MSTREAMPRINTF  ("rotation %s\n"), axisPoint(axis, ang));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 // Write out the initial scale key, relative to the parent.
@@ -2512,16 +2512,16 @@ VRBLExport::WriteScaleKey0(INode *node, TimeValue t, int level, BOOL force)
 
     mHadAnim = TRUE;
     Indent(level);
-    MSTREAMPRINTF  _T("ScaleKey_ktx_com {\n"));
+    MSTREAMPRINTF  ("ScaleKey_ktx_com {\n"));
     Indent(level + 1);
     if (mGenFields)
-        MSTREAMPRINTF  _T("fields [ SFLong frame, SFVec3f scale ]\n"));
+        MSTREAMPRINTF  ("fields [ SFLong frame, SFVec3f scale ]\n"));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("frame %d\n"), (t-mStart)/GetTicksPerFrame());
+    MSTREAMPRINTF  ("frame %d\n"), (t-mStart)/GetTicksPerFrame());
     Indent(level + 1);
-    MSTREAMPRINTF  _T("scale %s\n"), scalePoint(s));
+    MSTREAMPRINTF  ("scale %s\n"), scalePoint(s));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 void
@@ -2540,16 +2540,16 @@ VRBLExport::WriteVisibilityData(INode *node, int level)
         {
             mHadAnim = TRUE;
             Indent(level);
-            MSTREAMPRINTF  _T("HideKey_ktx_com {\n"));
+            MSTREAMPRINTF  ("HideKey_ktx_com {\n"));
             if (mGenFields)
             {
                 Indent(level + 1);
-                MSTREAMPRINTF  _T("fields [ SFLong frame] \n"));
+                MSTREAMPRINTF  ("fields [ SFLong frame] \n"));
             }
             Indent(level + 1);
-            MSTREAMPRINTF  _T("frame %d\n"), i);
+            MSTREAMPRINTF  ("frame %d\n"), i);
             Indent(level);
-            MSTREAMPRINTF  _T("}\n"));
+            MSTREAMPRINTF  ("}\n"));
         }
         lastVis = vis;
     }
@@ -2692,15 +2692,15 @@ VRBLExport::VrmlOutTopLevelCamera(int level, INode *node, BOOL topLevel)
     vp.fov = cs.fov / 1.3333f;
 
     Indent(level);
-    MSTREAMPRINTF  _T("DEF %s PerspectiveCamera {\n"), mNodes.GetNodeName(node));
+    MSTREAMPRINTF  ("DEF %s PerspectiveCamera {\n"), mNodes.GetNodeName(node));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("position %s\n"), point(p));
+    MSTREAMPRINTF  ("position %s\n"), point(p));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("orientation %s\n"), axisPoint(axis, -ang));
+    MSTREAMPRINTF  ("orientation %s\n"), axisPoint(axis, -ang));
     Indent(level + 1);
-    MSTREAMPRINTF  _T("heightAngle %s\n"), floatVal(vp.fov));
+    MSTREAMPRINTF  ("heightAngle %s\n"), floatVal(vp.fov));
     Indent(level);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 // From dllmain.cpp
@@ -2734,7 +2734,7 @@ VRBLExport::VrblOutFileInfo()
         free(buf);
     }
     Indent(1);
-    MSTREAMPRINTF  _T("Info { string \"Produced by Uwes VRML 1.0/2.0 exporter, Version 8, Revision 05\" }\n"), vernum, betanum);
+    MSTREAMPRINTF  ("Info { string \"Produced by Uwes VRML 1.0/2.0 exporter, Version 8, Revision 05\" }\n"), vernum, betanum);
 
     time_t ltime;
     time(&ltime);
@@ -2745,23 +2745,23 @@ VRBLExport::VrblOutFileInfo()
     if (fn && _tcslen(fn) > 0)
     {
         Indent(1);
-        MSTREAMPRINTF  _T("Info { string \"MAX File: %s, Date: %s\" }\n"), fn, time);
+        MSTREAMPRINTF  ("Info { string \"MAX File: %s, Date: %s\" }\n"), fn, time);
     }
     else
     {
         Indent(1);
-        MSTREAMPRINTF  _T("Info { string \"Date: %s\" }\n"), time);
+        MSTREAMPRINTF  ("Info { string \"Date: %s\" }\n"), time);
     }
     Indent(1);
-    MSTREAMPRINTF  _T("ShapeHints {\n"));
+    MSTREAMPRINTF  ("ShapeHints {\n"));
     Indent(2);
-    MSTREAMPRINTF  _T("shapeType SOLID\n"));
+    MSTREAMPRINTF  ("shapeType SOLID\n"));
     Indent(2);
-    MSTREAMPRINTF  _T("vertexOrdering COUNTERCLOCKWISE\n"));
+    MSTREAMPRINTF  ("vertexOrdering COUNTERCLOCKWISE\n"));
     Indent(2);
-    MSTREAMPRINTF  _T("faceType CONVEX\n"));
+    MSTREAMPRINTF  ("faceType CONVEX\n"));
     Indent(1);
-    MSTREAMPRINTF  _T("}\n"));
+    MSTREAMPRINTF  ("}\n"));
 }
 
 // Output a single node as VRML and recursively output the children of
@@ -2827,17 +2827,17 @@ VRBLExport::VrblOutAnimationFrames()
     if (mType == Export_VRBL && mHadAnim)
     {
         Indent(1);
-        MSTREAMPRINTF  _T("AnimationFrames_ktx_com {\n"));
+        MSTREAMPRINTF  ("AnimationFrames_ktx_com {\n"));
         Indent(2);
         if (mGenFields)
-            MSTREAMPRINTF  _T("fields [ SFLong length, SFLong segmentStart, SFLong segmentEnd, SFLong current, SFFloat rate ]\n"));
+            MSTREAMPRINTF  ("fields [ SFLong length, SFLong segmentStart, SFLong segmentEnd, SFLong current, SFFloat rate ]\n"));
         Indent(2);
         int frames = (mIp->GetAnimRange().End() - mIp->GetAnimRange().Start()) / GetTicksPerFrame() + 1;
-        MSTREAMPRINTF  _T("length %d\n"), frames);
+        MSTREAMPRINTF  ("length %d\n"), frames);
         Indent(2);
-        MSTREAMPRINTF  _T("rate %d\n"), GetFrameRate());
+        MSTREAMPRINTF  ("rate %d\n"), GetFrameRate());
         Indent(1);
-        MSTREAMPRINTF  _T("}\n"));
+        MSTREAMPRINTF  ("}\n"));
     }
 }
 
@@ -3849,14 +3849,14 @@ VRBLExport::DoExport(const TCHAR *filename, ExpInterface *ei, Interface *i, BOOL
 
         mIp = i;
         mStart = mIp->GetAnimRange().Start();
-
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+        
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
         mStream.Open(filename, false, CP_UTF8);
 #else
         mStream = _tfopen(filename, _T("a"));
 #endif
-
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+        
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
         if (!mStream.IsFileOpen())
         {
 #else
@@ -3876,7 +3876,7 @@ VRBLExport::DoExport(const TCHAR *filename, ExpInterface *ei, Interface *i, BOOL
         SetCursor(busy);
 
         // Write out the VRML header and file info
-    MSTREAMPRINTF  _T("#VRML V1.0 ascii\n\n"));
+    MSTREAMPRINTF  ("#VRML V1.0 ascii\n\n"));
     // generate the hash table of unique node names
     GenerateUniqueNodeNames(mIp->GetRootNode());
 
@@ -3886,8 +3886,8 @@ VRBLExport::DoExport(const TCHAR *filename, ExpInterface *ei, Interface *i, BOOL
     delete mLodList;
 
     SetCursor(normal);
-
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+    
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
     mStream.Close();
 #else
     fclose(mStream);

@@ -69,7 +69,7 @@ public:
         return tab[i];
     }
 
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && !defined FASTIO
     void PrintStats(MaxSDK::Util::TextFile::Writer &mStream);
 #else
     void PrintStats(FILE *mStream);

@@ -33,24 +33,24 @@ static TCHAR *useFolder;
 #define DX_RENDER_PARAMBLOCK 2
 #define DX_RENDERBITMAP_PARAMID 2
 
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
 #define STREAMPRINTF stream.Printf(
-#define MSTREAMPRINTF  mStream.Printf(
+#define MSTREAMPRINTF  mStream.Printf( _T
 #else
 #define STREAMPRINTF fprintf((stream),
 #define MSTREAMPRINTF  fprintf((mStream),
 #endif
-#if MAX_PRODUCT_VERSION_MAJOR > 14
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
 //Print Macros
 #define PRINT_POS(stream, val1, val2) (stream.Printf(_T("pos %d %d \n"), val1, val2))
 #define PRINT_IVALUE(stream, val1, val2) (stream.Printf(_T("%s %d\n"), val1, val2))
 #define PRINT_FVALUE(stream, val1, val2) (stream.Printf(_T("%s %s\n"), val1, floatVal(val2)))
 #define PRINT_STR(stream, val1, val2) (stream.Printf(_T("%s %s\n"), val1, val2))
 #else
-#define PRINT_POS(stream, val1, val2) (fprintf((stream), _T("pos %d %d \n"), val1, val2))
-#define PRINT_IVALUE(stream, val1, val2) (fprintf((stream), _T("%s %d\n"), val1, val2))
-#define PRINT_FVALUE(stream, val1, val2) (fprintf((stream), _T("%s %s\n"), val1, floatVal(val2)))
-#define PRINT_STR(stream, val1, val2) (fprintf((stream), _T("%s %s\n"), val1, val2))
+#define PRINT_POS(stream, val1, val2) (fprintf((stream), ("pos %d %d \n"), val1, val2))
+#define PRINT_IVALUE(stream, val1, val2) (fprintf((stream), ("%s %d\n"), val1, val2))
+#define PRINT_FVALUE(stream, val1, val2) (fprintf((stream), ("%s %s\n"), val1, floatVal(val2)))
+#define PRINT_STR(stream, val1, val2) (fprintf((stream), ("%s %s\n"), val1, val2))
 #endif
 
 inline float
@@ -699,26 +699,26 @@ void TUIParamFloatSlider::PrintScript(MAXSTREAM mStream, TSTR objname, float cyc
 {
     myElem->Indent(mStream, 0);
 
-   MSTREAMPRINTF  _T("DEF %s-SCRIPT Script { \n"),objname);
+   MSTREAMPRINTF  ("DEF %s-SCRIPT Script { \n"),objname);
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventIn SFFloat value\n"));
+   MSTREAMPRINTF  ("eventIn SFFloat value\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventOut SFFloat value_changed\n"));
+   MSTREAMPRINTF  ("eventOut SFFloat value_changed\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("field SFNode fSlider USE %s\n"), objname);
+   MSTREAMPRINTF  ("field SFNode fSlider USE %s\n"), objname);
    myElem->Indent(mStream, 1);
 
-   MSTREAMPRINTF  _T("url \"javascript:\n"));
+   MSTREAMPRINTF  ("url \"javascript:\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("function value(k) {\n"));
+   MSTREAMPRINTF  ("function value(k) {\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("value_changed = (k-fSlider.min)/(fSlider.max-fSlider.min);\n"));
+   MSTREAMPRINTF  ("value_changed = (k-fSlider.min)/(fSlider.max-fSlider.min);\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("}\"\n"));
-   MSTREAMPRINTF  _T("}\n\n"));
+   MSTREAMPRINTF  ("}\"\n"));
+   MSTREAMPRINTF  ("}\n\n"));
 
    myElem->Indent(mStream, 0);
-   MSTREAMPRINTF  _T("ROUTE %s.value_changed TO %s-SCRIPT.value\n\n"),objname,objname);
+   MSTREAMPRINTF  ("ROUTE %s.value_changed TO %s-SCRIPT.value\n\n"),objname,objname);
 }
 
 TUIParamSpinEditField::TUIParamSpinEditField()
@@ -950,11 +950,11 @@ void TUIParamToggleButton::PrintAdditional(MAXSTREAM mStream)
                 myElem->Indent(mStream, 2);
                 if (defaultValue == -1)
                 {
-                                        MSTREAMPRINTF  _T("state FALSE\n"));
+                                        MSTREAMPRINTF  ("state FALSE\n"));
                 }
                 else
                 {
-                                        MSTREAMPRINTF  _T("state TRUE\n"));
+                                        MSTREAMPRINTF  ("state TRUE\n"));
                 }
             }
         }
@@ -965,13 +965,13 @@ void TUIParamToggleButton::PrintScript(MAXSTREAM mStream, TSTR objname, float cy
 {
     myElem->Indent(mStream, 0);
 
-   MSTREAMPRINTF  _T("DEF %s-SCRIPT Script { \n"),objname);
+   MSTREAMPRINTF  ("DEF %s-SCRIPT Script { \n"),objname);
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventIn SFBool state\n"));
+   MSTREAMPRINTF  ("eventIn SFBool state\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventOut SFTime startTime_changed\n"));
+   MSTREAMPRINTF  ("eventOut SFTime startTime_changed\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventOut SFTime stopTime_changed\n"));
+   MSTREAMPRINTF  ("eventOut SFTime stopTime_changed\n"));
    myElem->Indent(mStream, 1);
 
    bool oldState = false;
@@ -999,113 +999,113 @@ void TUIParamToggleButton::PrintScript(MAXSTREAM mStream, TSTR objname, float cy
    }
    if (oldState)
    {
-           MSTREAMPRINTF  _T("field SFBool oldstate TRUE\n"), cycleInterval);
+           MSTREAMPRINTF  ("field SFBool oldstate TRUE\n"), cycleInterval);
    }
    else
    {
-           MSTREAMPRINTF  _T("field SFBool oldstate FALSE\n"), cycleInterval);
+           MSTREAMPRINTF  ("field SFBool oldstate FALSE\n"), cycleInterval);
    }
    myElem->Indent(mStream, 1);
 
-   MSTREAMPRINTF  _T("url \"javascript:\n"));
+   MSTREAMPRINTF  ("url \"javascript:\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("function state(k,t) {\n"));
+   MSTREAMPRINTF  ("function state(k,t) {\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("if (k != oldstate)\n"));
+   MSTREAMPRINTF  ("if (k != oldstate)\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("{\n"));
+   MSTREAMPRINTF  ("{\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("if (k) startTime_changed = t;\n"));
+   MSTREAMPRINTF  ("if (k) startTime_changed = t;\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("else stopTime_changed = t;\n"));
+   MSTREAMPRINTF  ("else stopTime_changed = t;\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("oldstate = k;\n"));
+   MSTREAMPRINTF  ("oldstate = k;\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("}\n"));
+   MSTREAMPRINTF  ("}\n"));
 
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("}\"\n"));
-   MSTREAMPRINTF  _T("}\n\n"));
+   MSTREAMPRINTF  ("}\"\n"));
+   MSTREAMPRINTF  ("}\n\n"));
 
    myElem->Indent(mStream, 0);
-   MSTREAMPRINTF  _T("ROUTE %s.state TO %s-SCRIPT.state\n\n"),myElem->name.data(),objname);
+   MSTREAMPRINTF  ("ROUTE %s.state TO %s-SCRIPT.state\n\n"),myElem->name.data(),objname);
 }
 
 void TUIParamToggleButton::PrintObjects(MAXSTREAM mStream, TabletUIObj *obj)
 {
-   MSTREAMPRINTF  _T("\n\n"));
+   MSTREAMPRINTF  ("\n\n"));
 
    myElem->Indent(mStream, 0);
 
-   MSTREAMPRINTF  _T("DEF %s-SCRIPT Script { \n"), obj->listStr);
+   MSTREAMPRINTF  ("DEF %s-SCRIPT Script { \n"), obj->listStr);
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventIn SFTime stopTime\n"));
+   MSTREAMPRINTF  ("eventIn SFTime stopTime\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventIn SFTime fractionChanged\n"));
+   MSTREAMPRINTF  ("eventIn SFTime fractionChanged\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventOut SFFloat newFraction\n"));
+   MSTREAMPRINTF  ("eventOut SFFloat newFraction\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventOut SFTime timerStop\n"));
+   MSTREAMPRINTF  ("eventOut SFTime timerStop\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("eventOut SFBool toggleOn\n"));
+   MSTREAMPRINTF  ("eventOut SFBool toggleOn\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("field SFFloat oldStopFraction 0.0\n"));
+   MSTREAMPRINTF  ("field SFFloat oldStopFraction 0.0\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("field SFFloat newStopFraction 0.0\n"));
+   MSTREAMPRINTF  ("field SFFloat newStopFraction 0.0\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("field SFNode node USE %s-TIMER\n\n"),obj->listStr);
+   MSTREAMPRINTF  ("field SFNode node USE %s-TIMER\n\n"),obj->listStr);
    myElem->Indent(mStream, 1);
 
-   MSTREAMPRINTF  _T("url \"javascript:\n"));
+   MSTREAMPRINTF  ("url \"javascript:\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("toggleOn = TRUE;\n"));
+   MSTREAMPRINTF  ("toggleOn = TRUE;\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("function fractionChanged(k,t) {\n"));
+   MSTREAMPRINTF  ("function fractionChanged(k,t) {\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("if (oldStopFraction != 0)\n"));
+   MSTREAMPRINTF  ("if (oldStopFraction != 0)\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("{\n"));
+   MSTREAMPRINTF  ("{\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("if (oldStopFraction + k > 1)\n"));
+   MSTREAMPRINTF  ("if (oldStopFraction + k > 1)\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("{\n"));
+   MSTREAMPRINTF  ("{\n"));
    myElem->Indent(mStream, 4);
-   MSTREAMPRINTF  _T("oldStopFraction = -k;\n"));
+   MSTREAMPRINTF  ("oldStopFraction = -k;\n"));
    myElem->Indent(mStream, 4);
-   MSTREAMPRINTF  _T("if (!node.loop)\n"));
+   MSTREAMPRINTF  ("if (!node.loop)\n"));
    myElem->Indent(mStream, 4);
-   MSTREAMPRINTF  _T("{\n"));
+   MSTREAMPRINTF  ("{\n"));
    myElem->Indent(mStream, 5);
-   MSTREAMPRINTF  _T("timerStop = t;\n"));
+   MSTREAMPRINTF  ("timerStop = t;\n"));
    myElem->Indent(mStream, 5);
-   MSTREAMPRINTF  _T("toggleOn = FALSE;\n"));
+   MSTREAMPRINTF  ("toggleOn = FALSE;\n"));
    myElem->Indent(mStream, 4);
-   MSTREAMPRINTF  _T("}\n"));
+   MSTREAMPRINTF  ("}\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("}\n"));
+   MSTREAMPRINTF  ("}\n"));
    myElem->Indent(mStream, 3);
-   MSTREAMPRINTF  _T("else if (oldStopFraction + k < 0) oldStopFraction = 1+oldStopFraction;\n"));
+   MSTREAMPRINTF  ("else if (oldStopFraction + k < 0) oldStopFraction = 1+oldStopFraction;\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("}\n"));
+   MSTREAMPRINTF  ("}\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("else if ((k == 1) && !node.loop) toggleOn = FALSE;\n"));
+   MSTREAMPRINTF  ("else if ((k == 1) && !node.loop) toggleOn = FALSE;\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("newFraction = oldStopFraction + k;\n"));
+   MSTREAMPRINTF  ("newFraction = oldStopFraction + k;\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("newStopFraction = newFraction;\n"));
+   MSTREAMPRINTF  ("newStopFraction = newFraction;\n"));
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("}\n\n"));
+   MSTREAMPRINTF  ("}\n\n"));
 
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("function stopTime(k,t) {\n"));
+   MSTREAMPRINTF  ("function stopTime(k,t) {\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("if (newStopFraction == 1) oldStopFraction = 0;\n"));
+   MSTREAMPRINTF  ("if (newStopFraction == 1) oldStopFraction = 0;\n"));
    myElem->Indent(mStream, 2);
-   MSTREAMPRINTF  _T("else oldStopFraction = newStopFraction;\n"));
+   MSTREAMPRINTF  ("else oldStopFraction = newStopFraction;\n"));
 
    myElem->Indent(mStream, 1);
-   MSTREAMPRINTF  _T("}\"\n"));
-   MSTREAMPRINTF  _T("}\n\n"));
+   MSTREAMPRINTF  ("}\"\n"));
+   MSTREAMPRINTF  ("}\n\n"));
 }
 
 TUIParamFrame::TUIParamFrame()
@@ -1837,13 +1837,13 @@ void TUIParamComboBox::PrintAdditional(MAXSTREAM mStream)
         PRINT_STR(mStream, _T("withNone"), _T("TRUE"));
 
     myElem->Indent(mStream, 2);
-    if (value == 0) MSTREAMPRINTF  _T("items ["));
-    else MSTREAMPRINTF  _T("items [ \"%s\","), emptyName);
+    if (value == 0) MSTREAMPRINTF  ("items ["));
+    else MSTREAMPRINTF  ("items [ \"%s\","), emptyName);
     multimap<int, ComboBoxObj *>::iterator it;
     int index = 0;
     while ((it = comboObjects.find(index++)) != comboObjects.end())
-      MSTREAMPRINTF  _T(" \"%s\","),(*it).second->comboBoxName);
-   MSTREAMPRINTF  _T("]\n"));
+      MSTREAMPRINTF  (" \"%s\","),(*it).second->comboBoxName);
+   MSTREAMPRINTF  ("]\n"));
 
    pTUIParamBlock->GetValue(PB_S_MIN, 0,
                             value, FOREVER);
