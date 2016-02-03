@@ -1,6 +1,0 @@
-Debug
-*.h~
-*.cpp~
-core.*
-*.txt
-*.bak

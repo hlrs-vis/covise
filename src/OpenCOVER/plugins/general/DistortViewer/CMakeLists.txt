@@ -36,3 +36,5 @@ ScreenPlane.cpp
 
 
 cover_add_plugin(DistortViewer)
+
+add_subdirectory(DistortConfig)

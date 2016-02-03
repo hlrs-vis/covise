@@ -2,9 +2,7 @@
 
 USING(VTK optional)
 
-if (COVISE_USE_MPI)
-    USING(MPI optional)
-endif()
+USING(MPI optional)
 set(COVERKERNEL_TARGET coOpenCOVER)
 set(COVERDIR "${COVISEDIR}/src/OpenCOVER")
 
@@ -21,20 +19,6 @@ INCLUDE_DIRECTORIES(
   ${XERCESC_INCLUDE_DIR}
   ${OPENSCENEGRAPH_INCLUDE_DIRS}
 )
-
-add_subdirectory(input/dev/dtrack) 
-add_subdirectory(input/dev/mousebuttons) 
-#don't build legacy tracking system, port it to the new system if you need anything
-#add_subdirectory(input/dev/legacy)
-add_subdirectory(input/dev/vrc) 
-add_subdirectory(input/dev/rift) 
-add_subdirectory(input/dev/mike)
-add_subdirectory(input/dev/vrpn)
-add_subdirectory(input/dev/cavelib)
-add_subdirectory(input/dev/zspace)
-IF(WIN32)
-  add_subdirectory(input/dev/windowsHID) 
-ENDIF(WIN32)
 
 SET(HEADERS
   ARToolKit.h
