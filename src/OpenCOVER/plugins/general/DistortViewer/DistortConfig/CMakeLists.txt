@@ -3,7 +3,7 @@ USING(BOOST)
 USING(VTK optional)
 #OpenCOVER plugins general DistortConfig
 
-INCLUDE_DIRECTORIES(../DistortViewer)
+INCLUDE_DIRECTORIES(..)
 
 SET(HEADERS
   AboutDialog.h
@@ -28,19 +28,19 @@ SET(SOURCES
   SceneConf.cpp
   SettingsDialog.cpp
   ViewerWidget.cpp
-  ../DistortViewer/KoordAxis.cpp
-  ../DistortViewer/ScreenCylinder.cpp
-  ../DistortViewer/ScreenDome.cpp
-  ../DistortViewer/ScreenPlane.cpp
-  ../DistortViewer/Screen.cpp
-  ../DistortViewer/ScreenLoad.cpp
-  ../DistortViewer/Scene.cpp
-  ../DistortViewer/Projector.cpp
-  ../DistortViewer/Settings.cpp
-  ../DistortViewer/XmlTools.cpp
-  ../DistortViewer/HelpFuncs.cpp
-  ../DistortViewer/SceneVis.cpp
-  ../DistortViewer/VisScene.cpp
+  ../KoordAxis.cpp
+  ../ScreenCylinder.cpp
+  ../ScreenDome.cpp
+  ../ScreenPlane.cpp
+  ../Screen.cpp
+  ../ScreenLoad.cpp
+  ../Scene.cpp
+  ../Projector.cpp
+  ../Settings.cpp
+  ../XmlTools.cpp
+  ../HelpFuncs.cpp
+  ../SceneVis.cpp
+  ../VisScene.cpp
 )
 SET(DIST_MOC_HEADERS
   AboutDialog.h
