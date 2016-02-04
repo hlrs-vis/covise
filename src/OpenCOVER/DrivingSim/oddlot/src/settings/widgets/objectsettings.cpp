@@ -70,6 +70,7 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     // Initial Values //
     //
     updateProperties();
+	activateRepeatWidget(false);
 
     connect(ui->sSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
     connect(ui->sSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
@@ -101,7 +102,7 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->poleCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onEditingFinished(int)));
     connect(ui->orientationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onEditingFinished(int)));
 
-    connect(ui->repeatSSpinBox, SIGNAL(editingFinished()), this, SLOT(on_sSpinBox_editingFinished()));
+    connect(ui->repeatSSpinBox, SIGNAL(editingFinished()), this, SLOT(on_repeatSSpinBox_editingFinished()));
     connect(ui->repeatSSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->repeatLengthSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->repeatLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
@@ -155,7 +156,6 @@ ObjectSettings::updateProperties()
 
         ui->textureLineEdit->setText(object_->getTextureFileName());
     }
-	activateRepeatWidget(false);
 }
 
 double ObjectSettings::
@@ -258,36 +258,46 @@ ObjectSettings::onValueChanged()
 }
 
 void
+ObjectSettings::on_repeatSSpinBox_editingFinished()
+{
+	if (valueChanged_)
+    {
+		updateS(ui->repeatSSpinBox->value());
+	}
+}
+
+void
 ObjectSettings::on_sSpinBox_editingFinished()
 {
     if (valueChanged_)
     {
-        double s = ui->sSpinBox->value();
-        if (ui->repeatLengthSpinBox->value() > 0)
-        {
-            s = ui->repeatSSpinBox->value();
-        }
+		updateS(ui->sSpinBox->value());
+	}
+}
 
-        MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
-        if (moveSectionCommand->isValid())
-        {
-            getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Values"));
-            getProjectSettings()->executeCommand(moveSectionCommand);
+void
+	ObjectSettings::updateS(double s)
+{
 
-            SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getType(), object_->getT(), object_->getzOffset(), object_->getValidLength(), object_->getOrientation(), object_->getLength(), object_->getWidth(), object_->getRadius(), object_->getHeight(), object_->getHeading(), object_->getPitch(), object_->getRoll(), object_->getPole(), s, object_->getRepeatLength(), object_->getRepeatDistance(), object_->getTextureFileName());
-            getProjectSettings()->executeCommand(setPropertiesCommand);
+	MoveRoadSectionCommand *moveSectionCommand = new MoveRoadSectionCommand(object_, s, RSystemElementRoad::DRS_ObjectSection);
+	if (moveSectionCommand->isValid())
+	{
+		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Values"));
+		getProjectSettings()->executeCommand(moveSectionCommand);
 
-            getProjectData()->getUndoStack()->endMacro();
-        }
+		SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getType(), object_->getT(), object_->getzOffset(), object_->getValidLength(), object_->getOrientation(), object_->getLength(), object_->getWidth(), object_->getRadius(), object_->getHeight(), object_->getHeading(), object_->getPitch(), object_->getRoll(), object_->getPole(), object_->getSStart(), object_->getRepeatLength(), object_->getRepeatDistance(), object_->getTextureFileName());
+		getProjectSettings()->executeCommand(setPropertiesCommand);
 
-        valueChanged_ = false;
+		getProjectData()->getUndoStack()->endMacro();
+	}
 
-        QWidget * focusWidget = QApplication::focusWidget();
-        if (focusWidget)
-        {
-            focusWidget->clearFocus();
-        }
-    }
+	valueChanged_ = false;
+
+	QWidget * focusWidget = QApplication::focusWidget();
+	if (focusWidget)
+	{
+		focusWidget->clearFocus();
+	}
 }
 
 void

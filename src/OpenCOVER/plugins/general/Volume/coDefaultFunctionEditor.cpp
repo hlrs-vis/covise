@@ -271,6 +271,30 @@ void coDefaultFunctionEditor::enqueueTransfuncFilenames(const char *dirName)
     }
 }
 
+void coDefaultFunctionEditor::updateLabels()
+{
+    std::stringstream s;
+    s << activeChannel;
+    channelLabel->setString(s.str());
+
+
+    char num[50];
+
+    float m = minValue[activeChannel];
+    if (((float)(int)m) != m)
+        sprintf(num, "%.2f", m);
+    else
+        sprintf(num, "%d", (int)m);
+    scalarMin->setString(num);
+
+    m = maxValue[activeChannel];
+    if (((float)(int)m) != m)
+        sprintf(num, "%.2f", m);
+    else
+        sprintf(num, "%d", (int)m);
+    scalarMax->setString(num);
+}
+
 void coDefaultFunctionEditor::setLoadFunc(void (*f)(void *))
 {
     loadFunction = f;
@@ -323,34 +347,24 @@ void coDefaultFunctionEditor::setColor(float h, float s, float v, int context)
 
 void coDefaultFunctionEditor::setMin(float m)
 {
-    minValue = m;
-    char num[50];
-    if (((float)(int)m) != m)
-        sprintf(num, "%.2f", m);
-    else
-        sprintf(num, "%d", (int)m);
-    scalarMin->setString(num);
+    minValue[activeChannel] = m;
+    updateLabels();
 }
 
 void coDefaultFunctionEditor::setMax(float m)
 {
-    maxValue = m;
-    char num[50];
-    if (((float)(int)m) != m)
-        sprintf(num, "%.2f", m);
-    else
-        sprintf(num, "%d", (int)m);
-    scalarMax->setString(num);
+    maxValue[activeChannel] = m;
+    updateLabels();
 }
 
 float coDefaultFunctionEditor::getMin()
 {
-    return minValue;
+    return minValue[activeChannel];
 }
 
 float coDefaultFunctionEditor::getMax()
 {
-    return maxValue;
+    return maxValue[activeChannel];
 }
 
 void coDefaultFunctionEditor::endPinCreation()
@@ -637,8 +651,6 @@ void coDefaultFunctionEditor::setNumChannels(int num)
 void coDefaultFunctionEditor::setActiveChannel(int num)
 {
     coFunctionEditor::setActiveChannel(num);
-    std::stringstream s;
-    s << activeChannel;
-    channelLabel->setString(s.str());
     updatePinList();
+    updateLabels();
 }

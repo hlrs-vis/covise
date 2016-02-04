@@ -18,16 +18,10 @@ class DOMDocument;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
-
-struct fileNamePath
+namespace OpenScenario
 {
-    fileNamePath() { };
-    ~fileNamePath() { };
 
-    std::string fileName;
-    std::string path;
-};
+struct fileNamePath;
 
 class OPENSCENARIOEXPORT oscSourceFile
 {

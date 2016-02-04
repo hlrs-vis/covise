@@ -654,7 +654,8 @@ MACRO(COVISE_INSTALL_TARGET targetname)
   FOREACH(tgt ${ARGV})
     COVISE_COPY_TARGET_PDB(${tgt} ${ARCHSUFFIX} ${_category_path})
   ENDFOREACH(tgt)
-  COVISE_INSTALL_DEPENDENCIES(${targetname})
+  # does not work with Qt5
+  #COVISE_INSTALL_DEPENDENCIES(${targetname})
 ENDMACRO(COVISE_INSTALL_TARGET)
 
 # Macro to install an OpenCOVER plugin
@@ -665,7 +666,8 @@ MACRO(COVER_INSTALL_PLUGIN targetname)
           ARCHIVE DESTINATION ${ARCHSUFFIX}/lib/OpenCOVER/plugins
           COMPONENT osgplugins.${category}
   )
-  COVISE_INSTALL_DEPENDENCIES(${targetname})
+  # does not work with Qt5
+  #COVISE_INSTALL_DEPENDENCIES(${targetname})
 ENDMACRO(COVER_INSTALL_PLUGIN)
 
 #
@@ -1019,6 +1021,9 @@ MACRO(COVISE_FIND_CUDA)
               SET(CUDA_HOST_COMPILER ${COVISEDIR}/scripts/cuda-host-compiler CACHE STRING "CUDA nvcc host compiler" FORCE)
           elseif(${BASEARCHSUFFIX} STREQUAL "tahr")
               SET(CUDA_HOST_COMPILER ${COVISEDIR}/scripts/cuda-host-compiler CACHE STRING "CUDA nvcc host compiler" FORCE)
+          elseif(${BASEARCHSUFFIX} STREQUAL "vervet")
+              SET(CUDA_HOST_COMPILER ${COVISEDIR}/scripts/cuda-host-compiler CACHE STRING "CUDA nvcc host compiler" FORCE)
+
           endif()
       else()
           if (APPLE)

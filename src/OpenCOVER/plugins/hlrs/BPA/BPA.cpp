@@ -173,6 +173,28 @@ BPA::BPA(std::string filename, osg::Group *parent)
     calcIntersection();
 }
 
+
+
+
+void BPA::intersectLines(osg::Vec3 p0,osg::Vec3 p1,osg::Vec3 d0,osg::Vec3 d1,osg::Vec3 &c0, osg::Vec3 &c1)
+{
+    float a = d0 * d0;
+    float b = d0 * d1;
+    float c = d1 * d1;
+    osg::Vec3 w0 = p0 - p1;
+    float d = d0 * w0;
+    float e = d1 * w0;
+    float tmp = ((a*c) - (b*b));
+    float s0 = ((b*e)-(c*d)) / tmp;
+    float s1 = ((a*e)-(b*d)) / tmp;
+    c0 = p0 + (d0*s0);
+    c1 = p1 + (d1*s1);
+}
+/*float BPA::distancePointLine(osg::Vec3 p0, osg::Vec3 d0, osg::Vec3 p)
+{
+    return(d0 ^ (p0-p)).length()/d0.length();
+}*/
+
 void BPA::calcIntersection()
 {
     std::list<Trajectory *>::iterator itl;
@@ -198,6 +220,8 @@ void BPA::calcIntersection()
                     if(angle > angleThreshold)
                     {
                         osg::Vec3 tmpP;
+                        osg::Vec3 tmpP2;
+                        intersectLines((*itl)->startPos,(*itr)->startPos,s1,s2,tmpP,tmpP2);
                         float d = (*itl)->getMinimalDistance((*itr), tmpP);
                         if (d > 0)
                         {
@@ -215,9 +239,14 @@ void BPA::calcIntersection()
         positions = new osg::Vec3Array(left.size() * right.size());
         for (itl = left.begin(); itl != left.end(); itl++)
         {
+            osg::Vec3 s1 = (*itl)->startVelocity;
             for (itr = right.begin(); itr != right.end(); itr++)
             {
+
+                osg::Vec3 s2 = (*itr)->startVelocity;
                 osg::Vec3 tmpP;
+                osg::Vec3 tmpP2;
+                intersectLines((*itl)->startPos,(*itr)->startPos,s1,s2,tmpP,tmpP2);
                 float d = (*itl)->getMinimalDistance((*itr), tmpP);
                 if (d > 0)
                 {
@@ -382,7 +411,71 @@ void Trajectory::createGeometry()
     geode->addDrawable(geom);
 }
 
-float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1)
+float Trajectory::distance(osg::Vec3 &p,osg::Vec3 &p0,osg::Vec3 &p1)
+    // computes distance between p and the line between p0 and p1
+    //returns < -100000 if p is behind p0 and > 100000 if p is further than p1
+{
+    osg::Vec3 a = p1 - p0;
+    osg::Vec3 b = p - p0;
+    float la = a.length();
+    float sprod = (a*b)/la;
+    if(sprod < 0)
+        return -100000 + sprod;
+    if(sprod > 1)
+        return -100000+sprod;
+    return((a ^ b).length()/la);
+}
+
+float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1) // p1 is a start estimate
+{
+    float minDist = 1000;
+    int minI;
+    int minN;
+
+    if (vert->size() > 0 && t->vert->size() > 0)
+    {
+        int gi1=0,gi2=0;
+        float len2 = p1.length2();
+        float l2=0;
+        for (size_t i = 1; i < vert->size(); i++)
+        {
+            l2+= (vert->at(i) - vert->at(i-1)).length2();
+            if(len2 < l2)
+            {
+                gi1 = i-1;
+            }
+
+        }
+        l2=0;
+        for (size_t i = 1; i < t->vert->size(); i++)
+        {
+            l2+= (t->vert->at(i) - t->vert->at(i-1)).length2();
+            if(len2 < l2)
+            {
+                gi2 = i-1;
+            }
+
+        }
+        float lastDistance = 1000000000.0;
+        float dist = distance(vert->at(gi1),t->vert->at(gi2),t->vert->at(gi2+1));
+        // as long as 
+ /*       for (size_t n = 0; n < t->vert->size(); n++)
+            {
+                float dist = (vert->at(i) - t->vert->at(n)).length2();
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    minI = i;
+                    minN = n;
+                }
+            }*/
+        p1 = (vert->at(minI) + t->vert->at(minN)) / 2.0;
+        return sqrt(minDist);
+    }
+    return -1;
+}
+
+float Trajectory::getMinimalDistanceSlow(Trajectory *t, osg::Vec3 &p1) 
 {
     float minDist = 1000;
     int minI;

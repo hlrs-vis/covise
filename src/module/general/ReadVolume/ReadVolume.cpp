@@ -27,6 +27,7 @@
 #include <sstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <api/coModule.h>
 #include <api/coFeedback.h>
@@ -548,6 +549,7 @@ int coReadVolume::compute(const char *)
 
         // Copy raw volume data to shared memory:
         numVoxels = vd->getFrameVoxels();
+
         for (int c = 0; c < vd->chan && c < MAX_CHANNELS; c++)
         {
             std::vector<coDistributedObject *> timesteps;
@@ -572,6 +574,11 @@ int coReadVolume::compute(const char *)
                     fdata = dof->getAddress();
                     timesteps.push_back(dof);
                 }
+
+                std::string min_str = boost::lexical_cast<std::string>(vd->real[c][0]);
+                std::string max_str = boost::lexical_cast<std::string>(vd->real[c][1]);
+                timesteps.back()->addAttribute("MIN", min_str.c_str());
+                timesteps.back()->addAttribute("MAX", max_str.c_str());
 
                 rawData = vd->getRaw((size_t)t);
 

@@ -583,7 +583,7 @@ public:
             cerr << "error in array length (< 0)\n";
         }
     };
-    DataType &operator[](int i)
+    DataType &operator[](size_t i)
     {
         if (i >= 0 && i < length)
             return ((DataType *)(((char *)ptr) + sizeof(int)+sizeof(ArrayLengthType)))[i];
@@ -594,7 +594,7 @@ public:
         return null_return;
     }
 
-    const DataType &operator[](int i) const
+    const DataType &operator[](size_t i) const
     {
         if (i >= 0 && i < length)
             return ((DataType *)(((char *)ptr) + 2 * sizeof(int)))[i];

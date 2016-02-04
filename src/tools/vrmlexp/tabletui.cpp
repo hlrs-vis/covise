@@ -33,8 +33,8 @@ extern TCHAR *VRMLName(const TCHAR *name);
 #define STRTOUTF8(x) x
 #endif
 
-#if MAX_PRODUCT_VERSION_MAJOR > 14
-#define MSTREAMPRINTF mStream.Printf(
+#if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
+#define MSTREAMPRINTF mStream.Printf( _T
 
 #define PRINT_HEADER(stream, val1, val2) (stream.Printf(_T("DEF %s %s {\n"), val1, val2))
 #define PRINT_TAIL(stream) (stream.Printf(_T("}\n\n")))
@@ -42,9 +42,9 @@ extern TCHAR *VRMLName(const TCHAR *name);
 #else
 #define MSTREAMPRINTF fprintf((mStream),
 
-#define PRINT_HEADER(stream, val1, val2) (fprintf(stream, _T("DEF %s %s {\n"), val1, val2))
-#define PRINT_TAIL(stream) (fprintf(stream, _T("}\n\n")))
-#define PRINT_STRING(stream, val1, val2) (fprintf(stream, _T("%s \"%s\" \n"), val1, val2))
+#define PRINT_HEADER(stream, val1, val2) (fprintf(stream, ("DEF %s %s {\n"), val1, val2))
+#define PRINT_TAIL(stream) (fprintf(stream, ("}\n\n")))
+#define PRINT_STRING(stream, val1, val2) (fprintf(stream, ("%s \"%s\" \n"), val1, val2))
 #endif
 
 //------------------------------------------------------
@@ -2221,7 +2221,7 @@ void TabletUIElement::Indent(MAXSTREAM mStream, int level)
     if (level < 0)
         return;
     for (; level; level--)
-     MSTREAMPRINTF  _T("  "));
+     MSTREAMPRINTF  ("  "));
 }
 
 void TabletUIElement::Print(MAXSTREAM mStream)

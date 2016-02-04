@@ -523,7 +523,7 @@ void coVolumeDrawable::setTransferFunctions(const std::vector<vvTransFunc> &tf)
                  ++it)
             {
                 vvTFWidget *w = *it;
-                w->mapFrom01(vd->real[0], vd->real[1]);
+                w->mapFrom01(vd->real[chan][0], vd->real[chan][1]);
             }
         }
     }
@@ -547,7 +547,7 @@ void coVolumeDrawable::setTransferFunction(const vvTransFunc &tf, int chan)
              ++it)
         {
             vvTFWidget *w = *it;
-            w->mapFrom01(vd->real[0], vd->real[1]);
+            w->mapFrom01(vd->real[chan][0], vd->real[chan][1]);
         }
     }
 

@@ -43,6 +43,11 @@ public:
 
     void setTechnique(const std::string &tech);
     std::string getTechnique(){return technique;};
+    void setSoftnessWidth(float w){softSM->setSoftnessWidth(w);};
+    void setJitteringScale(float s){softSM->setJitteringScale(s);};
+    void setTextureSize(osg::Vec2s ts){if(softSM) softSM->setTextureSize(ts);if(shadowMap) shadowMap->setTextureSize(ts);if(standardSM) standardSM->setTextureSize(ts);
+         if(lspsm) lspsm->setTextureSize(ts);if(lspsmcb) lspsmcb->setTextureSize(ts);if(lspsmdb) lspsmdb->setTextureSize(ts);};
+    
 
 private:
     

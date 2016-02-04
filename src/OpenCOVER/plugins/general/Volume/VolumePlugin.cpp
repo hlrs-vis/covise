@@ -9,6 +9,9 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+
+#include <vector>
+
 #include "VolumePlugin.h"
 
 #include <util/common.h>
@@ -1102,8 +1105,29 @@ void VolumePlugin::addObject(RenderObject *container,
             const int *packedColor = colorObj->getInt(Field::RGBA);
             const float *red = colorObj->getFloat(Field::Red), *green = colorObj->getFloat(Field::Green), *blue = colorObj->getFloat(Field::Blue);
 
-            uchar *data = NULL;
+            std::vector<const uchar*> byteChannels(Field::CHAN_END);
+            std::vector<const float*> floatChannels(Field::CHAN_END);
+
+            bool have_byte_chans = false;
+            bool have_float_chans = false;
+
             int noChan = 0;
+
+            for (int c = Field::CHAN0; c < Field::CHAN_END; ++c)
+            {
+                byteChannels[c] = colorObj->getByte((Field::Id)c);
+                if (byteChannels[c])
+                    have_byte_chans = true;
+
+                floatChannels[c] = colorObj->getFloat((Field::Id)c);
+                if (floatChannels[c])
+                    have_float_chans = true;
+
+                if (byteChannels[c] || floatChannels[c])
+                    ++noChan;
+            }
+
+            uchar *data = NULL;
             size_t noVox = sizeX * sizeY * sizeZ;
             if (packedColor)
             {
@@ -1123,6 +1147,34 @@ void VolumePlugin::addObject(RenderObject *container,
                             *p++ = (packedColor[i] >> 16) & 0xff;
                             *p++ = (packedColor[i] >> 8) & 0xff;
                             *p++ = (packedColor[i] >> 0) & 0xff;
+                        }
+                    }
+                }
+            }
+            else if (have_byte_chans || have_float_chans)
+            {
+                data = new uchar[noVox * noChan];
+                uchar *p = data;
+                for (int z = 0; z < sizeZ; z++)
+                {
+                    for (int y = 0; y < sizeY; y++)
+                    {
+                        for (int x = 0; x < sizeX; x++)
+                        {
+                            // covise index
+                            int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
+
+                            for (int c = Field::CHAN0; c < Field::CHAN_END; ++c)
+                            {
+                                if (byteChannels[c])
+                                {
+                                    *p++ = byteChannels[c][i];
+                                }
+                                else if (floatChannels[c])
+                                {
+                                    *p++ = (uchar)(floatChannels[c][i] * 255.99);
+                                }
+                            }
                         }
                     }
                 }
@@ -1230,6 +1282,15 @@ void VolumePlugin::addObject(RenderObject *container,
             {
                 volDesc->tf[0].setDefaultColors(3, 0., 1.);
                 volDesc->tf[0].setDefaultAlpha(0, 0., 1.);
+            }
+
+            for (size_t c = 0; c < volDesc->chan; ++c)
+            {
+                volDesc->real[c][0] = colorObj->getMin(c);
+                volDesc->real[c][1] = colorObj->getMax(c);
+
+                if (volDesc->real[c][1] == 0)
+                    volDesc->real[c][1] = 1.0f;
             }
 
             if (container && container->getName())
@@ -1545,12 +1606,19 @@ void VolumePlugin::updateTFEData()
                     }
 
                     editor->setNumChannels(vd->chan);
+
                     editor->setTransferFuncs(currentVolume->second.tf);
                     editor->setActiveChannel(currentVolume->second.curChannel);
                     tfApplyCBData.drawable->setTransferFunctions(editor->getTransferFuncs());
 
-                    editor->setMin(vd->real[0]);
-                    editor->setMax(vd->real[1]);
+                    for (int c = 0; c < vd->chan; ++c)
+                    {
+                        editor->setActiveChannel(c);
+                        editor->setMin(vd->real[c][0]);
+                        editor->setMax(vd->real[c][1]);
+                    }
+
+                    editor->setActiveChannel(currentVolume->second.curChannel);
 
                     instantMode = tfApplyCBData.drawable->getInstantMode();
                     editor->setInstantMode(instantMode);

@@ -252,7 +252,7 @@ void
 TypeSectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = typeEditor_->getCurrentTool();
-    if (tool == ODD::TRT_SELECT | tool == ODD::TRT_MOVE)
+    if (tool == ODD::TRT_SELECT || tool == ODD::TRT_MOVE)
     {
         // Parent: selection //
         //
@@ -268,7 +268,7 @@ void
 TypeSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = typeEditor_->getCurrentTool();
-    if (tool == ODD::TRT_SELECT | tool == ODD::TRT_MOVE)
+    if (tool == ODD::TRT_SELECT || tool == ODD::TRT_MOVE)
     {
         // Parent: selection //
         //
@@ -297,7 +297,7 @@ void
 TypeSectionItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     ODD::ToolId tool = typeEditor_->getCurrentTool();
-    if (tool == ODD::TRT_SELECT | tool == ODD::TRT_MOVE)
+    if (tool == ODD::TRT_SELECT || tool == ODD::TRT_MOVE)
     {
         // Parent: selection //
         //
@@ -317,7 +317,7 @@ void
 TypeSectionItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     ODD::ToolId tool = typeEditor_->getCurrentTool();
-    if (tool == ODD::TRT_SELECT | tool == ODD::TRT_MOVE)
+    if (tool == ODD::TRT_SELECT || tool == ODD::TRT_MOVE)
     {
         setCursor(Qt::PointingHandCursor);
     }
@@ -345,7 +345,7 @@ void
 TypeSectionItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     ODD::ToolId tool = typeEditor_->getCurrentTool();
-    if (tool == ODD::TRT_SELECT | tool == ODD::TRT_MOVE)
+    if (tool == ODD::TRT_SELECT || tool == ODD::TRT_MOVE)
     {
         // does nothing //
     }
@@ -373,7 +373,7 @@ void
 TypeSectionItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     ODD::ToolId tool = typeEditor_->getCurrentTool();
-    if (tool == ODD::TRT_SELECT | tool == ODD::TRT_MOVE)
+    if (tool == ODD::TRT_SELECT || tool == ODD::TRT_MOVE)
     {
         // does nothing //
     }

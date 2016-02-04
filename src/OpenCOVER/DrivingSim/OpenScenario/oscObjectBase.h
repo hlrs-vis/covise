@@ -36,7 +36,8 @@ XERCES_CPP_NAMESPACE_END
 #define OSC_OBJECT_ADD_MEMBER(varName,typeName) varName.setName(#varName); varName.registerWith(this); varName.setType(varName.getValueType()); varName.setTypeName(typeName)
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 class OpenScenarioBase;
 class oscSourceFile;
@@ -53,7 +54,6 @@ protected:
     oscSourceFile *source;
     oscObjectBase *parentObj; ///< the parent of this objectBase
     oscMember *ownMem; ///< the member which store this objectBase as a valueT in oscObjectVariable or oscObjectArrayVariable
-
    
 public:
     oscObjectBase(); ///< constructor

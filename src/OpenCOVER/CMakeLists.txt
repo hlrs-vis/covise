@@ -14,6 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(COVISE_BUILDING_COVER TRUE)
 
 option(COVISE_USE_CUDA "Use CUDA" ON)
+option(COVISE_USE_MPI "Use MPI" ON)
 option(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
 option(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
 option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
@@ -63,7 +64,6 @@ COVISE_FIND_PACKAGE(PNG)
 COVISE_FIND_PACKAGE(TIFF)
 COVISE_FIND_PACKAGE(FFMPEG)
 COVISE_FIND_PACKAGE(Threads)
-COVISE_FIND_PACKAGE(MPI)
 COVISE_FIND_PACKAGE(VRPN)
 IF(APPLE)
   FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices)
@@ -89,8 +89,6 @@ endif()
 message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 
 
-USING(MPI optional)
-
 # find dependencies for coVRML library
 using(FLEX optional)
 covise_find_package(BISON)
@@ -106,6 +104,10 @@ ELSE()
 ENDIF()
 FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
 
+ADD_SUBDIRECTORY(cover/input/dev)
+ADD_SUBDIRECTORY(DrivingSim)
+
+USING(MPI optional)
 using(Boost)
 add_subdirectory(libvtrans)
 include_directories(libvtrans)
@@ -122,7 +124,6 @@ ADD_SUBDIRECTORY(main.mpi)
 ADD_SUBDIRECTORY(mpiwrapper)
 
 ADD_SUBDIRECTORY(vrml97)
-ADD_SUBDIRECTORY(DrivingSim)
 ADD_SUBDIRECTORY(plugins)
 
 IF(${CMAKE_VERSION} VERSION_GREATER "2.8.2")

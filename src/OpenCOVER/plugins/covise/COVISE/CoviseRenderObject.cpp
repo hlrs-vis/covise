@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include <boost/lexical_cast.hpp>
+#include <boost/static_assert.hpp>
+
 #include "CoviseRenderObject.h"
 #include <cover/coVRMSController.h>
 #include <PluginUtil/coSphere.h>
@@ -42,6 +45,7 @@ using namespace covise;
 #define HASCOLORS 4
 #define HASTEXTURE 8
 #define HASVERTEXATTRIBUTE 16
+#define HASMULTICOLORS 32
 
 CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std::vector<int> &assignedTo)
     : assignedTo(assignedTo)
@@ -58,22 +62,18 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
     sizeu = 0;
     sizev = 0;
     sizew = 0;
-    minx = 0;
-    maxx = 0;
-    miny = 0;
-    maxy = 0;
-    minz = 0;
-    maxz = 0;
-    farr1 = NULL;
-    farr2 = NULL;
-    farr3 = NULL;
-    farr4 = NULL;
-    farr5 = NULL;
-    iarr1 = NULL;
-    iarr2 = NULL;
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        barr[c] = NULL;
+        iarr[c] = NULL;
+        farr[c] = NULL;
+        min_[c] = 0;
+        max_[c] = 0;
+    }
     COVdobj = NULL;
     COVnormals = NULL;
-    COVcolors = NULL;
+    for (int c = 0; c < CHAN_MAX; ++c)
+        COVcolors[c] = NULL;
     COVtexture = NULL;
     COVvertexAttribute = NULL;
     name = NULL;
@@ -85,7 +85,6 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
     vertexAttributeObject = NULL;
     geometryFlag = 0;
     pc = NULL;
-    byteData = NULL;
     coviseObject = co;
     cluster = coVRMSController::instance()->isCluster();
 
@@ -134,15 +133,25 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoGeometry *geometry = (coDoGeometry *)co;
                 COVdobj = geometry->getGeometry();
                 COVnormals = geometry->getNormals();
-                COVcolors = geometry->getColors();
+                for (int c = 0; c < CHAN_MAX; ++c)
+                    COVcolors[c] = geometry->getColors(c);
                 COVtexture = geometry->getTexture();
                 COVvertexAttribute = geometry->getVertexAttribute();
                 if (COVdobj)
                     geometryFlag |= HASOBJ;
                 if (COVnormals)
                     geometryFlag |= HASNORMALS;
-                if (COVcolors)
-                    geometryFlag |= HASCOLORS;
+                for (int c = 0; c < CHAN_MAX; ++c)
+                {
+                    if (COVcolors[c])
+                    {
+                        geometryFlag |= HASCOLORS;
+                        if (c > 0)
+                        {
+                            geometryFlag |= HASMULTICOLORS;
+                        }
+                    }
+                }
                 if (COVtexture)
                     geometryFlag |= HASTEXTURE;
                 if (COVvertexAttribute)
@@ -167,17 +176,17 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 sizeu = poly->getNumPolygons();
                 sizev = poly->getNumVertices();
                 size = poly->getNumPoints();
-                poly->getAddresses(&farr1, &farr2, &farr3, &iarr1, &iarr2);
+                poly->getAddresses(&farr[0], &farr[1], &farr[2], &iarr[0], &iarr[1]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
-                    tb.addBinary((char *)iarr1, sizev * sizeof(int));
-                    tb.addBinary((char *)iarr2, sizeu * sizeof(int));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    tb.addBinary((char *)iarr[0], sizev * sizeof(int));
+                    tb.addBinary((char *)iarr[1], sizeu * sizeof(int));
                 }
             }
             else if (strcmp(type, "TRIANG") == 0)
@@ -186,97 +195,97 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 sizeu = strip->getNumStrips();
                 sizev = strip->getNumVertices();
                 size = strip->getNumPoints();
-                strip->getAddresses(&farr1, &farr2, &farr3, &iarr1, &iarr2);
+                strip->getAddresses(&farr[0], &farr[1], &farr[2], &iarr[0], &iarr[1]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
-                    tb.addBinary((char *)iarr1, sizev * sizeof(int));
-                    tb.addBinary((char *)iarr2, sizeu * sizeof(int));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    tb.addBinary((char *)iarr[0], sizev * sizeof(int));
+                    tb.addBinary((char *)iarr[1], sizeu * sizeof(int));
                 }
             }
             else if (strcmp(type, "UNIGRD") == 0)
             {
                 coDoUniformGrid *ugrid = (coDoUniformGrid *)co;
                 ugrid->getGridSize(&sizeu, &sizev, &sizew);
-                ugrid->getMinMax(&minx, &maxx, &miny, &maxy, &minz, &maxz);
+                ugrid->getMinMax(&min_[0], &max_[0], &min_[1], &max_[1], &min_[2], &max_[2]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(sizew);
-                    addFloat(minx);
-                    addFloat(maxx);
-                    addFloat(miny);
-                    addFloat(maxy);
-                    addFloat(minz);
-                    addFloat(maxz);
+                    addFloat(min_[0]);
+                    addFloat(max_[0]);
+                    addFloat(min_[1]);
+                    addFloat(max_[1]);
+                    addFloat(min_[2]);
+                    addFloat(max_[2]);
                 }
             }
             else if (strcmp(type, "UNSGRD") == 0)
             {
                 coDoUnstructuredGrid *unsgrid = (coDoUnstructuredGrid *)co;
                 unsgrid->getGridSize(&sizeu, &sizev, &sizew);
-                unsgrid->getAddresses(&iarr2, &iarr1, &farr1, &farr2, &farr3);
-                unsgrid->getTypeList(&iarr3);
+                unsgrid->getAddresses(&iarr[1], &iarr[0], &farr[0], &farr[1], &farr[2]);
+                unsgrid->getTypeList(&iarr[2]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(sizew);
-                    tb.addBinary((char *)farr1, sizew * sizeof(float));
-                    tb.addBinary((char *)farr2, sizew * sizeof(float));
-                    tb.addBinary((char *)farr3, sizew * sizeof(float));
-                    tb.addBinary((char *)iarr1, sizev * sizeof(int));
-                    tb.addBinary((char *)iarr2, sizeu * sizeof(int));
-                    tb.addBinary((char *)iarr3, sizeu * sizeof(int));
+                    tb.addBinary((char *)farr[0], sizew * sizeof(float));
+                    tb.addBinary((char *)farr[1], sizew * sizeof(float));
+                    tb.addBinary((char *)farr[2], sizew * sizeof(float));
+                    tb.addBinary((char *)iarr[0], sizev * sizeof(int));
+                    tb.addBinary((char *)iarr[1], sizeu * sizeof(int));
+                    tb.addBinary((char *)iarr[2], sizeu * sizeof(int));
                 }
             }
             else if (strcmp(type, "RCTGRD") == 0)
             {
                 coDoRectilinearGrid *rgrid = (coDoRectilinearGrid *)co;
                 rgrid->getGridSize(&sizeu, &sizev, &sizew);
-                rgrid->getAddresses(&farr1, &farr2, &farr3);
+                rgrid->getAddresses(&farr[0], &farr[1], &farr[2]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(sizew);
-                    tb.addBinary((char *)farr1, sizeu * sizeof(float));
-                    tb.addBinary((char *)farr2, sizev * sizeof(float));
-                    tb.addBinary((char *)farr3, sizew * sizeof(float));
+                    tb.addBinary((char *)farr[0], sizeu * sizeof(float));
+                    tb.addBinary((char *)farr[1], sizev * sizeof(float));
+                    tb.addBinary((char *)farr[2], sizew * sizeof(float));
                 }
             }
             else if (strcmp(type, "STRGRD") == 0)
             {
                 coDoStructuredGrid *sgrid = (coDoStructuredGrid *)co;
                 sgrid->getGridSize(&sizeu, &sizev, &sizew);
-                sgrid->getAddresses(&farr1, &farr2, &farr3);
+                sgrid->getAddresses(&farr[0], &farr[1], &farr[2]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(sizew);
-                    tb.addBinary((char *)farr1, sizeu * sizev * sizew * sizeof(float));
-                    tb.addBinary((char *)farr2, sizeu * sizev * sizew * sizeof(float));
-                    tb.addBinary((char *)farr3, sizeu * sizev * sizew * sizeof(float));
+                    tb.addBinary((char *)farr[0], sizeu * sizev * sizew * sizeof(float));
+                    tb.addBinary((char *)farr[1], sizeu * sizev * sizew * sizeof(float));
+                    tb.addBinary((char *)farr[2], sizeu * sizev * sizew * sizeof(float));
                 }
             }
             else if (strcmp(type, "POINTS") == 0)
             {
                 coDoPoints *points = (coDoPoints *)co;
                 size = points->getNumPoints();
-                points->getAddresses(&farr1, &farr2, &farr3);
+                points->getAddresses(&farr[0], &farr[1], &farr[2]);
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
                 }
             }
             else if (strcmp(type, "SPHERE") == 0)
@@ -300,15 +309,15 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     else if (!strcmp(rm, "CG_SHADER_INVERTED"))
                         geometryFlag = coSphere::RENDER_METHOD_CG_SHADER_INVERTED;
                 }
-                spheres->getAddresses(&farr1, &farr2, &farr3, &farr4);
+                spheres->getAddresses(&farr[0], &farr[1], &farr[2], &farr[3]);
                 if (cluster)
                 {
                     addInt(size);
                     addInt(geometryFlag);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
-                    tb.addBinary((char *)farr4, size * sizeof(float));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    tb.addBinary((char *)farr[3], size * sizeof(float));
                 }
             }
             else if (strcmp(type, "LINES") == 0)
@@ -317,17 +326,17 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 sizeu = lines->getNumLines();
                 sizev = lines->getNumVertices();
                 size = lines->getNumPoints();
-                lines->getAddresses(&farr1, &farr2, &farr3, &iarr1, &iarr2);
+                lines->getAddresses(&farr[0], &farr[1], &farr[2], &iarr[0], &iarr[1]);
                 if (cluster)
                 {
                     addInt(sizeu);
                     addInt(sizev);
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
-                    tb.addBinary((char *)iarr1, sizev * sizeof(int));
-                    tb.addBinary((char *)iarr2, sizeu * sizeof(int));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    tb.addBinary((char *)iarr[0], sizev * sizeof(int));
+                    tb.addBinary((char *)iarr[1], sizeu * sizeof(int));
                 }
             }
             else if (strcmp(type, "QUADS") == 0)
@@ -335,15 +344,15 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoQuads *lines = (coDoQuads *)co;
                 sizev = lines->getNumVertices();
                 size = lines->getNumPoints();
-                lines->getAddresses(&farr1, &farr2, &farr3, &iarr1);
+                lines->getAddresses(&farr[0], &farr[1], &farr[2], &iarr[0]);
                 if (cluster)
                 {
                     addInt(sizev);
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
-                    tb.addBinary((char *)iarr1, sizev * sizeof(int));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    tb.addBinary((char *)iarr[0], sizev * sizeof(int));
                 }
             }
             else if (strcmp(type, "TRITRI") == 0)
@@ -351,40 +360,40 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoTriangles *lines = (coDoTriangles *)co;
                 sizev = lines->getNumVertices();
                 size = lines->getNumPoints();
-                lines->getAddresses(&farr1, &farr2, &farr3, &iarr1);
+                lines->getAddresses(&farr[0], &farr[1], &farr[2], &iarr[0]);
                 if (cluster)
                 {
                     addInt(sizev);
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
-                    tb.addBinary((char *)iarr1, sizev * sizeof(int));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
+                    tb.addBinary((char *)iarr[0], sizev * sizeof(int));
                 }
             }
             else if (strcmp(type, "USTSTD") == 0)
             {
                 coDoVec2 *vector_data = (coDoVec2 *)co;
                 size = vector_data->getNumPoints();
-                vector_data->getAddresses(&farr1, &farr2);
+                vector_data->getAddresses(&farr[0], &farr[1]);
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
                 }
             }
             else if (strcmp(type, "USTVDT") == 0)
             {
                 coDoVec3 *normal_data = (coDoVec3 *)co;
                 size = normal_data->getNumPoints();
-                normal_data->getAddresses(&farr1, &farr2, &farr3);
+                normal_data->getAddresses(&farr[0], &farr[1], &farr[2]);
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
-                    tb.addBinary((char *)farr2, size * sizeof(float));
-                    tb.addBinary((char *)farr3, size * sizeof(float));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
+                    tb.addBinary((char *)farr[1], size * sizeof(float));
+                    tb.addBinary((char *)farr[2], size * sizeof(float));
                 }
             }
             else if (strcmp(type, "TEXTUR") == 0)
@@ -422,23 +431,23 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             else if (strcmp(type, "BYTEDT") == 0)
             {
                 coDoByte *bytes = (coDoByte *)co;
-                bytes->getAddress(&byteData);
+                bytes->getAddress(&barr[0]);
                 size = bytes->getNumPoints();
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((const char *)byteData, size);
+                    tb.addBinary((const char *)barr[0], size);
                 }
             }
             else if (strcmp(type, "USTSDT") == 0)
             {
                 coDoFloat *volume_sdata = (coDoFloat *)co;
                 size = volume_sdata->getNumPoints();
-                volume_sdata->getAddress(&farr1);
+                volume_sdata->getAddress(&farr[0]);
                 if (cluster)
                 {
                     addInt(size);
-                    tb.addBinary((char *)farr1, size * sizeof(float));
+                    tb.addBinary((char *)farr[0], size * sizeof(float));
                 }
             }
             else
@@ -517,179 +526,179 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            iarr1 = new int[sizev];
-            iarr2 = new int[sizeu];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
-            memcpy(iarr2, tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            iarr[0] = new int[sizev];
+            iarr[1] = new int[sizeu];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(iarr[0], tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+            memcpy(iarr[1], tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
         }
         else if (strcmp(type, "TRIANG") == 0)
         {
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            iarr1 = new int[sizev];
-            iarr2 = new int[sizeu];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
-            memcpy(iarr2, tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            iarr[0] = new int[sizev];
+            iarr[1] = new int[sizeu];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(iarr[0], tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+            memcpy(iarr[1], tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
         }
         else if (strcmp(type, "UNIGRD") == 0)
         {
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(sizew);
-            copyFloat(minx);
-            copyFloat(maxx);
-            copyFloat(miny);
-            copyFloat(maxy);
-            copyFloat(minz);
-            copyFloat(maxz);
+            copyFloat(min_[0]);
+            copyFloat(max_[0]);
+            copyFloat(min_[1]);
+            copyFloat(max_[1]);
+            copyFloat(min_[2]);
+            copyFloat(max_[2]);
         }
         else if (strcmp(type, "UNSGRD") == 0)
         {
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(sizew);
-            farr1 = new float[sizew];
-            farr2 = new float[sizew];
-            farr3 = new float[sizew];
-            iarr1 = new int[sizev];
-            iarr2 = new int[sizeu];
-            iarr3 = new int[sizeu];
-            memcpy(farr1, tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
-            memcpy(farr2, tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
-            memcpy(farr3, tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
-            memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
-            memcpy(iarr2, tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
-            memcpy(iarr3, tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
+            farr[0] = new float[sizew];
+            farr[1] = new float[sizew];
+            farr[2] = new float[sizew];
+            iarr[0] = new int[sizev];
+            iarr[1] = new int[sizeu];
+            iarr[2] = new int[sizeu];
+            memcpy(farr[0], tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
+            memcpy(farr[1], tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
+            memcpy(farr[2], tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
+            memcpy(iarr[0], tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+            memcpy(iarr[1], tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
+            memcpy(iarr[2], tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
         }
         else if (strcmp(type, "RCTGRD") == 0)
         {
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(sizew);
-            farr1 = new float[sizeu];
-            farr2 = new float[sizev];
-            farr3 = new float[sizew];
-            memcpy(farr1, tb.getBinary(sizeu * sizeof(float)), sizeu * sizeof(float));
-            memcpy(farr2, tb.getBinary(sizev * sizeof(float)), sizev * sizeof(float));
-            memcpy(farr3, tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
+            farr[0] = new float[sizeu];
+            farr[1] = new float[sizev];
+            farr[2] = new float[sizew];
+            memcpy(farr[0], tb.getBinary(sizeu * sizeof(float)), sizeu * sizeof(float));
+            memcpy(farr[1], tb.getBinary(sizev * sizeof(float)), sizev * sizeof(float));
+            memcpy(farr[2], tb.getBinary(sizew * sizeof(float)), sizew * sizeof(float));
         }
         else if (strcmp(type, "STRGRD") == 0)
         {
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(sizew);
-            farr1 = new float[sizeu * sizev * sizew];
-            farr2 = new float[sizeu * sizev * sizew];
-            farr3 = new float[sizeu * sizev * sizew];
-            memcpy(farr1, tb.getBinary(sizeu * sizev * sizew * sizeof(float)), sizeu * sizev * sizew * sizeof(float));
-            memcpy(farr2, tb.getBinary(sizeu * sizev * sizew * sizeof(float)), sizeu * sizev * sizew * sizeof(float));
-            memcpy(farr3, tb.getBinary(sizeu * sizev * sizew * sizeof(float)), sizeu * sizev * sizew * sizeof(float));
+            farr[0] = new float[sizeu * sizev * sizew];
+            farr[1] = new float[sizeu * sizev * sizew];
+            farr[2] = new float[sizeu * sizev * sizew];
+            memcpy(farr[0], tb.getBinary(sizeu * sizev * sizew * sizeof(float)), sizeu * sizev * sizew * sizeof(float));
+            memcpy(farr[1], tb.getBinary(sizeu * sizev * sizew * sizeof(float)), sizeu * sizev * sizew * sizeof(float));
+            memcpy(farr[2], tb.getBinary(sizeu * sizev * sizew * sizeof(float)), sizeu * sizev * sizew * sizeof(float));
         }
         else if (strcmp(type, "POINTS") == 0)
         {
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "SPHERE") == 0)
         {
             copyInt(size);
             copyInt(geometryFlag);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            farr4 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr4, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            farr[3] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[3], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "LINES") == 0)
         {
             copyInt(sizeu);
             copyInt(sizev);
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            iarr1 = new int[sizev];
-            iarr2 = new int[sizeu];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
-            memcpy(iarr2, tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            iarr[0] = new int[sizev];
+            iarr[1] = new int[sizeu];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(iarr[0], tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+            memcpy(iarr[1], tb.getBinary(sizeu * sizeof(int)), sizeu * sizeof(int));
         }
         else if (strcmp(type, "QUADS") == 0)
         {
             copyInt(sizev);
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            iarr1 = new int[sizev];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            iarr[0] = new int[sizev];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(iarr[0], tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
         }
         else if (strcmp(type, "TRITRI") == 0)
         {
             copyInt(sizev);
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            iarr1 = new int[sizev];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(iarr1, tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            iarr[0] = new int[sizev];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(iarr[0], tb.getBinary(sizev * sizeof(int)), sizev * sizeof(int));
         }
         else if (strcmp(type, "USTSTD") == 0)
         {
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "USTVDT") == 0)
         {
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "STRVDT") == 0)
         {
             copyInt(size);
-            farr1 = new float[size];
-            farr2 = new float[size];
-            farr3 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr2, tb.getBinary(size * sizeof(float)), size * sizeof(float));
-            memcpy(farr3, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            farr[1] = new float[size];
+            farr[2] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[1], tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            memcpy(farr[2], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "TEXTUR") == 0)
         {
@@ -714,21 +723,95 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
         else if (strcmp(type, "BYTEDT") == 0)
         {
             copyInt(size);
-            byteData = new unsigned char[size];
-            memcpy(byteData, tb.getBinary(size), size);
+            barr[0] = new unsigned char[size];
+            memcpy(barr[0], tb.getBinary(size), size);
         }
         else if (strcmp(type, "STRSDT") == 0)
         {
             copyInt(size);
-            farr1 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
         else if (strcmp(type, "USTSDT") == 0)
         {
             copyInt(size);
-            farr1 = new float[size];
-            memcpy(farr1, tb.getBinary(size * sizeof(float)), size * sizeof(float));
+            farr[0] = new float[size];
+            memcpy(farr[0], tb.getBinary(size * sizeof(float)), size * sizeof(float));
         }
+    }
+}
+
+CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, const std::vector<int> &assignedTo)
+    : assignedTo(assignedTo)
+    , texture(NULL)
+    , textureCoords(NULL)
+    , numTC(0)
+    , numAttributes(0)
+    , attrNames(NULL)
+    , attributes(NULL)
+    , size(0)
+    , sizeu(0)
+    , sizev(0)
+    , sizew(0)
+    , COVdobj(NULL)
+    , COVnormals(NULL)
+    , COVtexture(NULL)
+    , COVvertexAttribute(NULL)
+    , name(NULL)
+    , objs(NULL)
+    , geometryObject(NULL)
+    , normalObject(NULL)
+    , colorObject(NULL)
+    , textureObject(NULL)
+    , vertexAttributeObject(NULL)
+    , geometryFlag(0)
+    , pc(NULL)
+    , coviseObject(NULL)    // TODO
+    , cluster(coVRMSController::instance()->isCluster())
+{
+    BOOST_STATIC_ASSERT(CHAN_MAX >= 4);
+    BOOST_STATIC_ASSERT((int)CHAN_MAX >= (int)coDoGeometry::CHAN_MAX);
+
+    type[0] = '\0';//TODO
+
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        barr[c] = NULL;
+        iarr[c] = NULL;
+        farr[c] = NULL;
+        min_[c] = 0;
+        max_[c] = 0;
+        COVcolors[c] = NULL;
+    }
+
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        const coDistributedObject *co = cos[c];
+
+        if (co == NULL)
+            continue;
+
+
+        std::string type_c(co->getType());
+
+        if (type_c ==  "BYTEDT")
+        {
+            coDoByte *bytes = (coDoByte *)co;
+            size = bytes->getNumPoints();
+            bytes->getAddress(&barr[c]);
+        }
+        else if (type_c == "USTSDT")
+        {
+            coDoFloat *volume_sdata = (coDoFloat *)co;
+            size = volume_sdata->getNumPoints();
+            volume_sdata->getAddress(&farr[c]);
+        }
+
+        const char *min_str = co->getAttribute("MIN");
+        const char *max_str = co->getAttribute("MAX");
+
+        min_[c] = min_str ? boost::lexical_cast<float>(min_str) : min_[c];
+        max_[c] = max_str ? boost::lexical_cast<float>(max_str) : max_[c];
     }
 }
 
@@ -757,17 +840,17 @@ CoviseRenderObject::~CoviseRenderObject()
         }
         delete[] attrNames;
         delete[] attributes;
-        delete[] farr1;
-        delete[] farr2;
-        delete[] farr3;
-        delete[] farr4;
-        delete[] farr5;
-        delete[] iarr1;
-        delete[] iarr2;
+        for (int c = 0; c < CHAN_MAX; ++c)
+        {
+            delete[] barr[c];
+            delete[] iarr[c];
+            delete[] farr[c];
+        }
         delete coviseObject;
         delete COVdobj;
         delete COVnormals;
-        delete COVcolors;
+        for (int c = 0; c < CHAN_MAX; ++c)
+            delete COVcolors[c];
         delete COVtexture;
         delete COVvertexAttribute;
         delete[] name;
@@ -810,7 +893,10 @@ CoviseRenderObject *CoviseRenderObject::getColors() const
         return colorObject;
     if (geometryFlag & HASCOLORS)
     {
-        colorObject = new CoviseRenderObject(COVcolors, this->assignedTo);
+        if (geometryFlag & HASMULTICOLORS)
+            colorObject = new CoviseRenderObject(COVcolors, this->assignedTo);
+        else
+            colorObject = new CoviseRenderObject(COVcolors[0], this->assignedTo);
         return colorObject;
     }
     else
@@ -939,13 +1025,13 @@ RenderObject **CoviseRenderObject::getAllElements(int &numElements, std::vector<
                 //std::cerr << "CoviseRenderObject::getAllElements info: receiving " << numElements << " elements";
                 if (unassigned)
                 {
-                    CoviseRenderObject *cobj = new CoviseRenderObject(0);
+                    CoviseRenderObject *cobj = new CoviseRenderObject((const coDistributedObject *)0);
                     assignments.push_back(cobj->getAssignment());
                     objs[i] = cobj;
                 }
                 else
                 {
-                    objs[i] = new CoviseRenderObject(0, assignments[i]);
+                    objs[i] = new CoviseRenderObject((const coDistributedObject *)0, assignments[i]);
                 }
             }
         }
@@ -1042,10 +1128,15 @@ int CoviseRenderObject::getFloatRGBA(int pos, float *r, float *g, float *b, floa
 
 const unsigned char *CoviseRenderObject::getByte(Field::Id idx) const
 {
+    if (idx >= Field::CHAN0 && idx < Field::CHAN_END)
+    {
+        return barr[idx];
+    }
+
     switch (idx)
     {
     case Field::Byte:
-        return byteData;
+        return barr[0];
     case Field::Texture:
         return texture;
 
@@ -1072,11 +1163,11 @@ const int *CoviseRenderObject::getInt(Field::Id idx) const
     case Field::RGBA:
         return pc;
     case Field::Connections:
-        return iarr1;
+        return iarr[0];
     case Field::Elements:
-        return iarr2;
+        return iarr[1];
     case Field::Types:
-        return iarr3;
+        return iarr[2];
 
     case Field::X:
     case Field::Y:
@@ -1094,17 +1185,22 @@ const int *CoviseRenderObject::getInt(Field::Id idx) const
 
 const float *CoviseRenderObject::getFloat(Field::Id idx) const
 {
+    if (idx >= Field::CHAN0 && idx < Field::CHAN_END)
+    {
+        return farr[idx];
+    }
+
     switch (idx)
     {
     case Field::X:
     case Field::Red:
-        return farr1;
+        return farr[0];
     case Field::Y:
     case Field::Green:
-        return farr2;
+        return farr[1];
     case Field::Z:
     case Field::Blue:
-        return farr3;
+        return farr[2];
 
     case Field::RGBA:
     case Field::Byte:

@@ -16,7 +16,7 @@
 #ifndef OSCITEM_HPP
 #define OSCITEM_HPP
 
-#include "src/graph/items/roadsystem/roadsystemitem.hpp"
+#include "oscbaseitem.hpp"
 
 namespace OpenScenario
 {
@@ -29,6 +29,8 @@ class oscObject;
 
 class OpenScenarioEditor;
 class OSCTextItem;
+class OSCBaseItem;
+
 class QColor;
 
 class OSCItem : public GraphElement
@@ -40,7 +42,7 @@ class OSCItem : public GraphElement
     //################//
 
 public:
-	explicit OSCItem(RoadSystemItem *roadSystemItem, OpenScenario::oscObject *oscObject, OpenScenario::oscObjectBase *catalogElement, const QPointF &pos);
+	explicit OSCItem(OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, const QPointF &pos);
     virtual ~OSCItem();
 
     // Garbage //
@@ -108,7 +110,8 @@ protected:
     //################//
 
 private:
-	RoadSystemItem * roadSystemItem_;
+	OSCBaseItem * oscBaseItem_;
+	OSCRoadSystemItem *roadSystemItem_;
 	QString roadID_;
     void init();
 

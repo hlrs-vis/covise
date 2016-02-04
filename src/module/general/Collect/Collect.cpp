@@ -24,6 +24,7 @@
 #include <do/coDoGeometry.h>
 #include <do/coDoSet.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -47,6 +48,18 @@ Collect::Collect(int argc, char *argv[])
                                      "|Lines|Polygons|Quads|Triangles|TriangleStrips",
                           "Grid");
 
+#ifdef VOLUME_COLLECT
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        std::string data_in_str = "DataIn" + boost::lexical_cast<std::string>(c);
+        p_color[c] = addInputPort(
+            data_in_str.c_str(),
+            "Byte|Float|Vec2|Vec3|RGBA",
+            "Colors or Scalar Data for Volume Visualization"
+            );
+        p_color[c]->setRequired(c == 0);
+    }
+#else
     p_color = addInputPort("DataIn0", "Byte|Float|Vec2|Vec3|RGBA", "Colors or Scalar Data for Volume Visualization");
     p_color->setRequired(0);
 
@@ -58,6 +71,7 @@ Collect::Collect(int argc, char *argv[])
 
     p_vertex = addInputPort("VertexAttribIn0", "Vec3|Float", "Vertex Attribute 0");
     p_vertex->setRequired(0);
+#endif
 
     p_outPort = addOutputPort("GeometryOut0", "Geometry", "combined object");
 
@@ -134,10 +148,19 @@ void recAddMaterialAttrib(coDistributedObject *obj, const char *material)
 int Collect::compute(const char *)
 {
     const coDistributedObject *grid = p_grid->getCurrentObject();
+#ifdef VOLUME_COLLECT
+    const coDistributedObject *color[CHAN_MAX];
+    for (int c = 0; c < CHAN_MAX; ++c)
+        color[c] = p_color[c]->getCurrentObject();
+    const coDistributedObject *text = 0;
+    const coDistributedObject *norm = 0;
+    const coDistributedObject *vertex = 0;
+#else
     const coDistributedObject *color = p_color->getCurrentObject();
     const coDistributedObject *text = p_text->getCurrentObject();
     const coDistributedObject *norm = p_norm->getCurrentObject();
     const coDistributedObject *vertex = p_vertex->getCurrentObject();
+#endif
 
 #ifdef MATERIAL
     if (!grid)
@@ -166,11 +189,22 @@ int Collect::compute(const char *)
         return FAIL;
     }
 
+#ifdef VOLUME_COLLECT
+    for (int c = 0; c < CHAN_MAX; ++c)
+    {
+        if (color[c])
+        {
+            geom->setColors(NONE, color[c], c);
+            color[c]->incRefCount();
+        }
+    }
+#else
     if (color)
     {
         geom->setColors(NONE, color);
         color->incRefCount();
     }
+#endif
 
     if (text)
     {

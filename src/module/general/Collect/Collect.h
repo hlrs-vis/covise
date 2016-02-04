@@ -27,6 +27,9 @@ using namespace covise;
 
 class Collect : public coModule
 {
+#ifdef VOLUME_COLLECT
+    enum { CHAN_MAX = 8 };
+#endif
 
 private:
     //////////  member functions
@@ -35,7 +38,12 @@ private:
     virtual int compute(const char *port);
 
     ////////// ports
-    coInputPort *p_grid, *p_color, *p_norm, *p_text, *p_vertex;
+    coInputPort *p_grid;
+#ifndef VOLUME_COLLECT
+    coInputPort *p_color, *p_norm, *p_text, *p_vertex;
+#else
+    coInputPort *p_color[CHAN_MAX];
+#endif
     coOutputPort *p_outPort;
 #ifdef MATERIAL
     coMaterialParam *p_material;

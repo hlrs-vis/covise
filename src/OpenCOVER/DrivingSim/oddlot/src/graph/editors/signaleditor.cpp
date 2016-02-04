@@ -343,7 +343,7 @@ SignalEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t)
 		}
 		newObject = new Object("object", "", lastObject->getObjectType(), s, t, 0.0, 0.0, Object::NEGATIVE_TRACK_DIRECTION, lastObject->getObjectLength(), 
 			lastObject->getObjectWidth(), lastObject->getObjectRadius(), lastObject->getObjectHeight(), lastObject->getObjectHeading(),
-					0.0, 0.0, false, 0.0, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile());
+					0.0, 0.0, false, s, 0.0, lastObject->getObjectRepeatDistance(), lastObject->getObjectFile());
 		AddObjectCommand *command = new AddObjectCommand(newObject, road, NULL);
 		getProjectGraph()->executeCommand(command);
 	}

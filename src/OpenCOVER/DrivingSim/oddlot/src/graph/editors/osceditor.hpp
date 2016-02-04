@@ -32,8 +32,10 @@ class oscObjectBase;
 class oscObject;
 }
 
-class OSCBase;
+class OSCBaseItem;
 class OSCRoadSystemItem;
+class OSCElement;
+class OSCBase;
 
 class OpenScenarioEditor : public ProjectEditor
 {
@@ -59,10 +61,12 @@ public:
     //
     virtual void toolAction(ToolAction *);
 
-    // Move Signal //
+    // Move Object //
     //
 	RSystemElementRoad *findClosestRoad(const QPointF &to, double &s, double &dist, QVector2D &vec);
 	bool translateObject(OpenScenario::oscObject * object, const QString &newRoadId, double s, double t);
+
+	OSCElement *getCatalog(std::string name);
 
 
 	// Catalog dock widget changed //
@@ -110,6 +114,7 @@ private:
 	// OpenScenarioBase //
 	//
 	OSCBase * oscBase_;
+	OSCBaseItem * oscBaseItem_;
 
 	// Selected catalog //
 	//

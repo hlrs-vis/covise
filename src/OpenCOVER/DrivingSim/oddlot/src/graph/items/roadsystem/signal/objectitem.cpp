@@ -323,7 +323,7 @@ ObjectItem::createPath()
 
 			transformationMatrix.translate(pos_.x(), pos_.y());
 
-			path_->addRect(w / -2.0, object_->getLength() / -2.0, w / 2.0, object_->getLength() / 2.0);
+			path_->addRect(w / -2.0, 0, w / 2.0, object_->getLength());
 			rotationMatrix.rotate(road_->getGlobalHeading(object_->getSStart()) - 90 + object_->getHeading());
 			*path_ = transformationMatrix.map(rotationMatrix.map(*path_));
 		}

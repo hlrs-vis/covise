@@ -26,6 +26,7 @@ public:
 
 private:
     void enqueueTransfuncFilenames(const char *dirName);
+    void updateLabels();
     std::queue<const char *> _transfuncFilenames;
 
 protected:
@@ -50,8 +51,8 @@ protected:
     vrui::coPushButton *channelButton;
     vrui::coLabel *channelLabel;
     vrui::coButton *recentlyPressedButton;
-    float minValue;
-    float maxValue;
+    float minValue[MaxChannels];
+    float maxValue[MaxChannels];
     void (*applyFunction)(void *userData);
     void (*loadFunction)(void *userData);
     void (*saveFunction)(void *userData);

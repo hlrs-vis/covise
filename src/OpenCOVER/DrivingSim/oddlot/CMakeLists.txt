@@ -348,6 +348,7 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/scenario/oscobjectitem.cpp
 	src/graph/items/roadsystem/scenario/oscroaditem.cpp
 	src/graph/items/roadsystem/scenario/oscroadsystemitem.cpp
+	src/graph/items/oscsystem/oscbaseitem.cpp
 	src/graph/items/oscsystem/oscitem.cpp
 	src/graph/items/oscsystem/osctextitem.cpp
 )
@@ -650,6 +651,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/graph/items/roadsystem/scenario/oscobjectitem.hpp
 	src/graph/items/roadsystem/scenario/oscroaditem.hpp
 	src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp
+	src/graph/items/oscsystem/oscbaseitem.hpp
 	src/graph/items/oscsystem/oscitem.hpp
 	src/graph/items/oscsystem/osctextitem.hpp
 )

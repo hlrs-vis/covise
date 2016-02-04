@@ -224,6 +224,7 @@ SET(HEADERS
    oscWaypoint.h
    oscWaypoints.h
    oscWeather.h
+   utilities.h
 )
 
 SET(SOURCES
@@ -255,6 +256,7 @@ SET(SOURCES
    oscVariables.cpp
    oscVehicle.cpp
    oscWeather.cpp
+   utilities.cpp
 )
 
 IF(WIN32)

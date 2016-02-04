@@ -208,6 +208,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=pangolin
                elif grep -i -q -s 'ubuntu.*14\.04' /etc/issue; then
                    export ARCHSUFFIX=tahr
+               elif grep -i -q -s 'ubuntu.*15\.04' /etc/issue; then
+                   export ARCHSUFFIX=vervet
                else
                    export ARCHSUFFIX=amd64
                fi

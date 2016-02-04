@@ -19,7 +19,8 @@ class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 /// \class Factory which creates OpenScenario Objects or Members
 /// can be subclassed to create your own derived classes from the plane OpenScenario classes
@@ -61,7 +62,6 @@ private:
     
     typedef T* (*PCreateFunc)();
     std::map<TType,PCreateFunc> _createFuncs;
-
 };
 
 }

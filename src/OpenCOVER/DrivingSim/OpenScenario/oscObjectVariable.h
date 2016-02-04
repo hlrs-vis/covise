@@ -20,6 +20,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario
 {
+    //
     template<typename T>
     class oscObjectVariable: public oscMember 
     {
@@ -69,10 +70,8 @@ namespace OpenScenario
             return true;
         };
         oscMemberValue::MemberTypes getValueType() const {return type;};
-            
     };
     
 }
-
 
 #endif //OSC_OBJECT_VARIABLE_H

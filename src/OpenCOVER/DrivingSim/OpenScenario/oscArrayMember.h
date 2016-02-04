@@ -20,7 +20,8 @@ class DOMElement;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 /// \class This class represents a Member variable storing an array of one kind of values
 class OPENSCENARIOEXPORT oscArrayMember: public oscMember, public std::vector<oscObjectBase *>

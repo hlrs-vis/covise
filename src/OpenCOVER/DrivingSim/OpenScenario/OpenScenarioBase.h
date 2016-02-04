@@ -28,11 +28,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
 class DOMElement;
-class XercesDOMParser; 
+class XercesDOMParser;
+class MemBufFormatTarget;
 XERCES_CPP_NAMESPACE_END
 
 
-namespace OpenScenario {
+namespace OpenScenario
+{
 
 class oscSourceFile;
 
@@ -58,15 +60,18 @@ public:
     OpenScenarioBase(); /// constructor, initializes the class and sets a default factory
     ~OpenScenarioBase(); /// destructor, terminate xerces-c
 
-    bool loadFile(const std::string &fileName); /*!< load an OpenScenario databas file in xml format
-                                                 \param fileName file to load.
-                                                 \return false if loading the file failed.*/
+    bool loadFile(const std::string &fileName, const bool validate = true); /*!< load an OpenScenario databas file in xml format
+                                                                             \param fileName file to load.
+                                                                             \param validate - turn on/off validation
+                                                                             \return false if loading the file failed.*/
     bool saveFile(const std::string &fileName, bool overwrite=false);/*!< store an OpenScenario databas to a file in xml format
                                                                       \param fileName file to save to.
                                                                       \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is retured if a file with that name already exists.
                                                                       \return false if writing to the file failed.*/
 
-    xercesc::DOMElement *getRootElement(const std::string &filename); ///< init xerces, create validating parser and parse the OpenScenario file to a DOM hierarchy
+    bool writeFileToDisk(xercesc::DOMDocument *xmlDocToWrite, const char *filenameToWrite);
+    xercesc::MemBufFormatTarget *writeFileToMemory(xercesc::DOMDocument *xmlDocToWrite);
+    xercesc::DOMElement *getRootElement(const std::string &filename, const bool validate = true); ///< init xerces, create validating parser and parse the OpenSCENARIO file with XInclude and validation to a DOM hierarchy
     
     bool parseFromXML(xercesc::DOMElement *currentElement); ///< parses the document, returns true if successfull
 
@@ -74,7 +79,6 @@ public:
 
     void addToSrcFileVec(oscSourceFile *src);
     std::vector<oscSourceFile *> getSrcFileVec() const;
-
 };
 
 }

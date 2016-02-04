@@ -20,19 +20,6 @@ INCLUDE_DIRECTORIES(
   ${OPENSCENEGRAPH_INCLUDE_DIRS}
 )
 
-add_subdirectory(input/dev/dtrack) 
-add_subdirectory(input/dev/mousebuttons) 
-#don't build legacy tracking system, port it to the new system if you need anything
-#add_subdirectory(input/dev/legacy)
-add_subdirectory(input/dev/vrc) 
-add_subdirectory(input/dev/rift) 
-add_subdirectory(input/dev/mike)
-add_subdirectory(input/dev/vrpn)
-add_subdirectory(input/dev/cavelib)
-IF(WIN32)
-  add_subdirectory(input/dev/windowsHID) 
-ENDIF(WIN32)
-
 SET(HEADERS
   ARToolKit.h
   coActionUserData.h
