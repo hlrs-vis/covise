@@ -153,7 +153,7 @@ InvMain::InvMain(int argc, char *argv[])
     QByteArray ba = msg.toLatin1();
     message->data = (char *)((const char *)ba);
     message->type = COVISE_MESSAGE_PARINFO; // should be a real type
-    message->length = strlen(message->data) + 1;
+    message->length = (int) (strlen(message->data) + 1);
     appmod->send_ctl_msg(message);
     message->data = NULL;
     delete message;
@@ -281,6 +281,7 @@ void InvMain::makeLayout()
 	  colorListBox->setModel(colorListModel);*/
     colorListWidget = new QListWidget(listTabs);
     colorListWidget->setViewMode(QListView::IconMode);
+    colorListWidget->setIconSize(QSize(200,300));
 
     treeWidget = new objTreeWidget(this, listTabs);
     treeWidget->show();
@@ -1327,13 +1328,13 @@ void InvMain::moveEvent(QMoveEvent *e)
 
 void InvMain::insertColorListItem(const char *name, const char *colormap)
 {
-    float my_min = 0.0f, my_max = 0.0f;
-    int num = 0;
+    float my_min = 0.0f, my_max = 0.0f; 
+    int num = 0, dummy_0;
     char mapname[256];
     char annotation[256];
     int index = 0;
     int numLeg = 11;
-    int colorMapHeight = 160;
+    int colorMapHeight = 250;
 
     memset(mapname, 0, sizeof(mapname));
     memset(annotation, 0, sizeof(annotation));
@@ -1346,6 +1347,7 @@ void InvMain::insertColorListItem(const char *name, const char *colormap)
     stream >> my_min;
     stream >> my_max;
     stream >> num;
+    stream >> dummy_0;
 
     float *colorMap = new float[num * 4];
     memset(colorMap, 0, sizeof(float) * num * 4);
@@ -1394,7 +1396,7 @@ void InvMain::insertColorListItem(const char *name, const char *colormap)
         painter.drawText(QPoint(36, ypos), value);
     }
 
-    painter.drawRect(0, 10, 32, 160);
+    painter.drawRect(0, 10, 32, colorMapHeight);
 
     string desc(annotation);
     desc += " ";
@@ -1405,7 +1407,7 @@ void InvMain::insertColorListItem(const char *name, const char *colormap)
 
     QListWidgetItem *LWidgetItem
         = new QListWidgetItem(CIcon, desc.c_str(), colorListWidget, 0);
-    LWidgetItem->setSizeHint(QSize(p->width(), p->height()));
+    //LWidgetItem->setSizeHint(QSize(p->width(), p->height()));
     colorListWidget->addItem(LWidgetItem);
 
     PixmapWidget *w = new PixmapWidget(*p, "test");
