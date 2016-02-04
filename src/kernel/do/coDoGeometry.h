@@ -49,13 +49,13 @@ class DOEXPORT coDoGeometry : public coDistributedObject
     static coDistributedObject *virtualCtor(coShmArray *arr);
 
 public:
-    enum { CHAN_MAX = 8 };
+    enum { NumChannels = 8 };
 
 private:
     coIntShm geometry_type;
     const coDistributedObject *geometry;
     coIntShm color_attr;
-    const coDistributedObject *colors[CHAN_MAX];
+    const coDistributedObject *colors[NumChannels];
     coIntShm normal_attr;
     const coDistributedObject *normals;
     coIntShm texture_attr;

@@ -49,7 +49,7 @@ Collect::Collect(int argc, char *argv[])
                           "Grid");
 
 #ifdef VOLUME_COLLECT
-    for (int c = 0; c < CHAN_MAX; ++c)
+    for (int c = 0; c < NumChannels; ++c)
     {
         std::string data_in_str = "DataIn" + boost::lexical_cast<std::string>(c);
         p_color[c] = addInputPort(
@@ -149,8 +149,8 @@ int Collect::compute(const char *)
 {
     const coDistributedObject *grid = p_grid->getCurrentObject();
 #ifdef VOLUME_COLLECT
-    const coDistributedObject *color[CHAN_MAX];
-    for (int c = 0; c < CHAN_MAX; ++c)
+    const coDistributedObject *color[NumChannels];
+    for (int c = 0; c < NumChannels; ++c)
         color[c] = p_color[c]->getCurrentObject();
     const coDistributedObject *text = 0;
     const coDistributedObject *norm = 0;
@@ -190,7 +190,7 @@ int Collect::compute(const char *)
     }
 
 #ifdef VOLUME_COLLECT
-    for (int c = 0; c < CHAN_MAX; ++c)
+    for (int c = 0; c < NumChannels; ++c)
     {
         if (color[c])
         {

@@ -770,7 +770,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
     , cluster(coVRMSController::instance()->isCluster())
 {
     BOOST_STATIC_ASSERT(Field::NumChannels >= 4);
-    BOOST_STATIC_ASSERT((int)Field::NumChannels >= (int)coDoGeometry::CHAN_MAX);
+    BOOST_STATIC_ASSERT((int)Field::NumChannels >= (int)coDoGeometry::NumChannels);
 
     type[0] = '\0';//TODO
 

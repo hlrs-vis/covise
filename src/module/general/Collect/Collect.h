@@ -23,12 +23,13 @@
 // ++**********************************************************************/
 
 #include <api/coModule.h>
+#include <do/coDoGeometry.h>
 using namespace covise;
 
 class Collect : public coModule
 {
 #ifdef VOLUME_COLLECT
-    enum { CHAN_MAX = 8 };
+    enum { NumChannels = coDoGeometry::NumChannels };
 #endif
 
 private:
@@ -42,7 +43,7 @@ private:
 #ifndef VOLUME_COLLECT
     coInputPort *p_color, *p_norm, *p_text, *p_vertex;
 #else
-    coInputPort *p_color[CHAN_MAX];
+    coInputPort *p_color[NumChannels];
 #endif
     coOutputPort *p_outPort;
 #ifdef MATERIAL
