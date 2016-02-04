@@ -66,9 +66,9 @@ OpenScenarioBase::~OpenScenarioBase()
 }
 
 
-bool OpenScenarioBase::loadFile(const std::string &fileName)
+bool OpenScenarioBase::loadFile(const std::string &fileName, const bool validate)
 {
-    if(getRootElement(fileName) == NULL)
+    if(getRootElement(fileName, validate) == NULL)
     {
         return false;
     }
@@ -228,10 +228,9 @@ xercesc::MemBufFormatTarget *OpenScenarioBase::writeFileToMemory(xercesc::DOMDoc
     delete writer;
 
     return xmlMemTarget;
-
 }
 
-xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filename)
+xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filename, const bool validate)
 {
     try
     {
@@ -275,89 +274,98 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
     parser->setDoSchema(false);
 
     //parse the file
-    std::cout << "Parse the file '" << filename << "' with enabled XInclude and disabled validation." << std::endl;
+    std::cout << "Parse the file '" << filename << "' with enabled XInclude and disabled validation.\n" << std::endl;
     try
     {
         parser->parse(filename.c_str());
     }
     catch (...)
     {
-        std::cerr << "\nErrors during parsing the document '" << filename << "'\n" << std::endl;
+        std::cerr << "\nErrors during parse of the document '" << filename << "'\n" << std::endl;
         return NULL;
     }
 
-    //get temporary xml document
-    xercesc::DOMDocument *tmpXmlDoc = parser->getDocument();
-
-    //write xml document to memory buffer
-    xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(tmpXmlDoc);
-
-    //raw buffer, length and fake id
-    const XMLByte* tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
-    XMLSize_t tmpRawBufferLength = tmpXmlMemBufFormat->getLen();
-    const XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
-
-    //new input source from memory for parser
-    xercesc::InputSource *tmpInputSrc = new xercesc::MemBufInputSource(tmpRawBuffer, tmpRawBufferLength, bufId);
+    //success message for parse with XInclude
+    std::cout << "Parse with XInclude successful, no errors found.\n" << std::endl;
 
 
     //validate the xosc file in a second run without XInclude
     // (enabled XInclude generate a namespace attribute xmlns:xml for xml:base
     //  and this had to be added to the xml schema)
     //
-    //disable XInclude for validation
-    parser->setDoXInclude(false);
-
-    //validation
-    parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
-    parser->setDoSchema(true);
-    parser->setValidationConstraintFatal(true);
-    parser->setExitOnFirstFatalError(true);
-
-    // Enable grammar caching
-    parser->cacheGrammarFromParse(true);
-
-    //name of XML Schema
-    const char *oscXmlSchema = "OpenScenario_XML-Schema.xsd";
-
-    //set namespace location, preparse the schema grammar (.xsd) and cache it
-    parser->setExternalNoNamespaceSchemaLocation(oscXmlSchema);
-
-    if (parser->loadGrammar(oscXmlSchema, xercesc::Grammar::SchemaGrammarType, true) == NULL)
+    if (validate)
     {
-        std::cerr << "\nCouldn't load XML Schema '" << oscXmlSchema << "'\n" << std::endl;
+        //get temporary xml document
+        xercesc::DOMDocument *tmpXmlDoc = parser->getDocument();
+
+        //write xml document to memory buffer
+        xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(tmpXmlDoc);
+
+        //raw buffer, length and fake id
+        const XMLByte* tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
+        XMLSize_t tmpRawBufferLength = tmpXmlMemBufFormat->getLen();
+        const XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
+
+        //new input source from memory for parser
+        xercesc::InputSource *tmpInputSrc = new xercesc::MemBufInputSource(tmpRawBuffer, tmpRawBufferLength, bufId);
+
+        //disable XInclude for validation
+        parser->setDoXInclude(false);
+
+        //validation
+        parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+        parser->setDoSchema(true);
+        parser->setValidationConstraintFatal(true);
+        parser->setExitOnFirstFatalError(true);
+
+        // Enable grammar caching
+        parser->cacheGrammarFromParse(true);
+
+        //name of XML Schema
+        const char *oscXmlSchema = "OpenScenario_XML-Schema.xsd";
+
+        //set namespace location, preparse the schema grammar (.xsd) and cache it
+        parser->setExternalNoNamespaceSchemaLocation(oscXmlSchema);
+
+        if (parser->loadGrammar(oscXmlSchema, xercesc::Grammar::SchemaGrammarType, true) == NULL)
+        {
+            std::cerr << "\nCouldn't load XML Schema '" << oscXmlSchema << "'\n" << std::endl;
+
+            //delete used objects
+            delete tmpXmlMemBufFormat;
+            delete tmpInputSrc;
+
+            return NULL;
+        }
+        else
+        {
+            std::cerr << "\nXML Schema '"  << oscXmlSchema << "' loaded.\n" << std::endl;
+        }
+
+        //parse memory buffer
+        std::cout << "Validate the complete xml structure with all included files.\n" << std::endl;
+        try
+        {
+            parser->parse(*tmpInputSrc);
+        }
+        catch (...)
+        {
+            std::cerr << "\nErrors during validation of the document " << filename << "\n" << std::endl;
+
+            //delete used objects
+            delete tmpXmlMemBufFormat;
+            delete tmpInputSrc;
+
+            return NULL;
+        }
+
+        //success message for parse with validation
+        std::cout << "Validation successful, no errors found.\n" << std::endl;
 
         //delete used objects
         delete tmpXmlMemBufFormat;
         delete tmpInputSrc;
-
-        return NULL;
     }
-    else
-    {
-        std::cerr << "\nXML Schema '"  << oscXmlSchema << "' loaded.\n" << std::endl;
-    }
-
-    //parse memory buffer
-    std::cout << "Validate the complete xml structure with all included files.\n" << std::endl;
-    try
-    {
-        parser->parse(*tmpInputSrc);
-    }
-    catch (...)
-    {
-        std::cerr << "\nErrors during validating the document " << filename << "\n" << std::endl;
-
-        //delete used objects
-        delete tmpXmlMemBufFormat;
-        delete tmpInputSrc;
-
-        return NULL;
-    }
-
-    //delete used objects
-    delete tmpXmlMemBufFormat;
-    delete tmpInputSrc;
 
 
     //get xml document with enabled XInclude and validation
