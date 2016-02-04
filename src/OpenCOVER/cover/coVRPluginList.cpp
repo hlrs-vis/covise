@@ -111,15 +111,16 @@ void coVRPluginList::unloadAllPlugins()
     bool wasThreading = VRViewer::instance()->areThreadsRunning();
     if (wasThreading)
         VRViewer::instance()->stopThreading();
-    for (PluginMap::iterator it = m_plugins.begin();
-         it != m_plugins.end();
-         ++it)
+    while (!m_plugins.empty())
     {
+        PluginMap::iterator it = m_plugins.begin();
         if (cover->debugLevel(1))
             cerr << " " << it->first;
+        m_unloadQueue.push_back(it->second->handle);
         delete it->second;
+        m_plugins.erase(it);
     }
-    m_plugins.clear();
+    unloadQueued();
     if (wasThreading)
         VRViewer::instance()->startThreading();
     if (cover->debugLevel(1))
