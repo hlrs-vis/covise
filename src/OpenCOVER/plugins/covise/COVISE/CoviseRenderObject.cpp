@@ -1139,17 +1139,7 @@ const unsigned char *CoviseRenderObject::getByte(Field::Id idx) const
         return barr[0];
     case Field::Texture:
         return texture;
-
-    case Field::X:
-    case Field::Y:
-    case Field::Z:
-    case Field::Red:
-    case Field::Green:
-    case Field::Blue:
-    case Field::RGBA:
-    case Field::Elements:
-    case Field::Connections:
-    case Field::Types:
+    default:
         break;
     }
 
@@ -1168,15 +1158,7 @@ const int *CoviseRenderObject::getInt(Field::Id idx) const
         return iarr[1];
     case Field::Types:
         return iarr[2];
-
-    case Field::X:
-    case Field::Y:
-    case Field::Z:
-    case Field::Red:
-    case Field::Green:
-    case Field::Blue:
-    case Field::Byte:
-    case Field::Texture:
+    default:
         break;
     }
 
@@ -1201,13 +1183,7 @@ const float *CoviseRenderObject::getFloat(Field::Id idx) const
     case Field::Z:
     case Field::Blue:
         return farr[2];
-
-    case Field::RGBA:
-    case Field::Byte:
-    case Field::Texture:
-    case Field::Elements:
-    case Field::Connections:
-    case Field::Types:
+    default:
         break;
     }
 
