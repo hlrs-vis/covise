@@ -28,12 +28,10 @@ namespace covise
 class coDistributedObject;
 }
 using std::string;
+using opencover::Field;
 
 class CoviseRenderObject : public opencover::RenderObject
 {
-public:
-    enum { CHAN_MAX = 8 };
-
 public:
     CoviseRenderObject(const covise::coDistributedObject *co, const std::vector<int> &assignedTo = std::vector<int>());
     CoviseRenderObject(const covise::coDistributedObject *const *co, const std::vector<int> &assignedTo = std::vector<int>());
@@ -136,12 +134,12 @@ public:
     }
     float getMin(int chan) const
     {
-        assert( chan >= 0 && chan < CHAN_MAX );
+        assert( chan >= 0 && chan < Field::NumChannels );
         return min_[chan];
     }
     float getMax(int chan) const
     {
-        assert( chan >= 0 && chan < CHAN_MAX );
+        assert( chan >= 0 && chan < Field::NumChannels );
         return max_[chan];
     }
     void getMinMax(float &mix, float &max, float &miy, float &may, float &miz, float &maz) const
@@ -207,7 +205,7 @@ public:
 
     const covise::coDistributedObject *COVdobj;
     const covise::coDistributedObject *COVnormals;
-    const covise::coDistributedObject *COVcolors[CHAN_MAX];
+    const covise::coDistributedObject *COVcolors[Field::NumChannels];
     const covise::coDistributedObject *COVtexture;
     const covise::coDistributedObject *COVvertexAttribute;
     const covise::coDistributedObject *coviseObject;
@@ -222,12 +220,12 @@ public:
     char **attributes;
     int size;
     int sizeu, sizev, sizew;
-    unsigned char *barr[CHAN_MAX];
-    int *iarr[CHAN_MAX];
-    float *farr[CHAN_MAX];
+    unsigned char *barr[Field::NumChannels];
+    int *iarr[Field::NumChannels];
+    float *farr[Field::NumChannels];
     int geometryFlag;
-    float min_[CHAN_MAX];
-    float max_[CHAN_MAX];
+    float min_[Field::NumChannels];
+    float max_[Field::NumChannels];
     bool cluster;
     mutable RenderObject **objs;
     mutable CoviseRenderObject *geometryObject;

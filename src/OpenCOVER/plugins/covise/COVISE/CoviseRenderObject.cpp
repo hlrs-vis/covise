@@ -62,7 +62,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
     sizeu = 0;
     sizev = 0;
     sizew = 0;
-    for (int c = 0; c < CHAN_MAX; ++c)
+    for (int c = 0; c < Field::NumChannels; ++c)
     {
         barr[c] = NULL;
         iarr[c] = NULL;
@@ -72,7 +72,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
     }
     COVdobj = NULL;
     COVnormals = NULL;
-    for (int c = 0; c < CHAN_MAX; ++c)
+    for (int c = 0; c < Field::NumChannels; ++c)
         COVcolors[c] = NULL;
     COVtexture = NULL;
     COVvertexAttribute = NULL;
@@ -133,7 +133,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                 coDoGeometry *geometry = (coDoGeometry *)co;
                 COVdobj = geometry->getGeometry();
                 COVnormals = geometry->getNormals();
-                for (int c = 0; c < CHAN_MAX; ++c)
+                for (int c = 0; c < Field::NumChannels; ++c)
                     COVcolors[c] = geometry->getColors(c);
                 COVtexture = geometry->getTexture();
                 COVvertexAttribute = geometry->getVertexAttribute();
@@ -141,7 +141,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *co, const std:
                     geometryFlag |= HASOBJ;
                 if (COVnormals)
                     geometryFlag |= HASNORMALS;
-                for (int c = 0; c < CHAN_MAX; ++c)
+                for (int c = 0; c < Field::NumChannels; ++c)
                 {
                     if (COVcolors[c])
                     {
@@ -769,12 +769,12 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
     , coviseObject(NULL)    // TODO
     , cluster(coVRMSController::instance()->isCluster())
 {
-    BOOST_STATIC_ASSERT(CHAN_MAX >= 4);
-    BOOST_STATIC_ASSERT((int)CHAN_MAX >= (int)coDoGeometry::CHAN_MAX);
+    BOOST_STATIC_ASSERT(Field::NumChannels >= 4);
+    BOOST_STATIC_ASSERT((int)Field::NumChannels >= (int)coDoGeometry::CHAN_MAX);
 
     type[0] = '\0';//TODO
 
-    for (int c = 0; c < CHAN_MAX; ++c)
+    for (int c = 0; c < Field::NumChannels; ++c)
     {
         barr[c] = NULL;
         iarr[c] = NULL;
@@ -784,7 +784,7 @@ CoviseRenderObject::CoviseRenderObject(const coDistributedObject *const *cos, co
         COVcolors[c] = NULL;
     }
 
-    for (int c = 0; c < CHAN_MAX; ++c)
+    for (int c = 0; c < Field::NumChannels; ++c)
     {
         const coDistributedObject *co = cos[c];
 
@@ -840,7 +840,7 @@ CoviseRenderObject::~CoviseRenderObject()
         }
         delete[] attrNames;
         delete[] attributes;
-        for (int c = 0; c < CHAN_MAX; ++c)
+        for (int c = 0; c < Field::NumChannels; ++c)
         {
             delete[] barr[c];
             delete[] iarr[c];
@@ -849,7 +849,7 @@ CoviseRenderObject::~CoviseRenderObject()
         delete coviseObject;
         delete COVdobj;
         delete COVnormals;
-        for (int c = 0; c < CHAN_MAX; ++c)
+        for (int c = 0; c < Field::NumChannels; ++c)
             delete COVcolors[c];
         delete COVtexture;
         delete COVvertexAttribute;
@@ -1128,7 +1128,7 @@ int CoviseRenderObject::getFloatRGBA(int pos, float *r, float *g, float *b, floa
 
 const unsigned char *CoviseRenderObject::getByte(Field::Id idx) const
 {
-    if (idx >= Field::CHAN0 && idx < Field::CHAN_END)
+    if (idx >= Field::Channel0 && idx < Field::NumChannels)
     {
         return barr[idx];
     }
@@ -1167,7 +1167,7 @@ const int *CoviseRenderObject::getInt(Field::Id idx) const
 
 const float *CoviseRenderObject::getFloat(Field::Id idx) const
 {
-    if (idx >= Field::CHAN0 && idx < Field::CHAN_END)
+    if (idx >= Field::Channel0 && idx < Field::NumChannels)
     {
         return farr[idx];
     }

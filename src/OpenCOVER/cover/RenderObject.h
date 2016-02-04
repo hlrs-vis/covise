@@ -50,15 +50,15 @@ struct Field
 {
     enum Id
     {
-        CHAN0 = 0,
-        CHAN1,
-        CHAN2,
-        CHAN3,
-        CHAN4,
-        CHAN5,
-        CHAN6,
-        CHAN7,
-        CHAN_END,   // invalid!
+        Channel0 = 0,
+        Channel1,
+        Channel2,
+        Channel3,
+        Channel4,
+        Channel5,
+        Channel6,
+        Channel7,
+        NumChannels,   // invalid!
         X,
         Y,
         Z,

@@ -1105,15 +1105,15 @@ void VolumePlugin::addObject(RenderObject *container,
             const int *packedColor = colorObj->getInt(Field::RGBA);
             const float *red = colorObj->getFloat(Field::Red), *green = colorObj->getFloat(Field::Green), *blue = colorObj->getFloat(Field::Blue);
 
-            std::vector<const uchar*> byteChannels(Field::CHAN_END);
-            std::vector<const float*> floatChannels(Field::CHAN_END);
+            std::vector<const uchar*> byteChannels(Field::NumChannels);
+            std::vector<const float*> floatChannels(Field::NumChannels);
 
             bool have_byte_chans = false;
             bool have_float_chans = false;
 
             int noChan = 0;
 
-            for (int c = Field::CHAN0; c < Field::CHAN_END; ++c)
+            for (int c = Field::Channel0; c < Field::NumChannels; ++c)
             {
                 byteChannels[c] = colorObj->getByte((Field::Id)c);
                 if (byteChannels[c])
@@ -1164,7 +1164,7 @@ void VolumePlugin::addObject(RenderObject *container,
                             // covise index
                             int i = x * sizeY * sizeZ + (sizeY - 1 - y) * sizeZ + (sizeZ - 1 - z);
 
-                            for (int c = Field::CHAN0; c < Field::CHAN_END; ++c)
+                            for (int c = Field::Channel0; c < Field::NumChannels; ++c)
                             {
                                 if (byteChannels[c])
                                 {
