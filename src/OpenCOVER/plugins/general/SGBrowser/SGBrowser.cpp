@@ -264,10 +264,10 @@ bool SGBrowser::init()
 SGBrowser::~SGBrowser()
 {
 
-    texvis->clearImageList();
+    if (selectionManager)
+        selectionManager->removeListener(this);
     delete texvis;
     delete sGBrowserTab;
-    selectionManager->removeListener(this);
     delete restraint;
 }
 
@@ -1689,6 +1689,12 @@ TexVisitor::TexVisitor(TraversalMode tm, coTUISGBrowserTab *textureTab)
     texTab = textureTab;
     texFound = false;
 }
+
+TexVisitor::~TexVisitor()
+{
+    clearImageList();
+}
+
 void TexVisitor::processStateSet(osg::StateSet *ss)
 {
     if (ss)

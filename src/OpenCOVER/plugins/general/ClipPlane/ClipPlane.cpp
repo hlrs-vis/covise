@@ -127,6 +127,7 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
 }
 
 ClipPlanePlugin::ClipPlanePlugin()
+: clipTab(NULL)
 {
 }
 

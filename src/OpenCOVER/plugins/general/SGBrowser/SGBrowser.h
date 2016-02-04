@@ -81,6 +81,7 @@ class TexVisitor : public osg::NodeVisitor
 {
 public:
     TexVisitor(TraversalMode tm, coTUISGBrowserTab *TextureTab);
+    ~TexVisitor();
     void apply(osg::Node &node);
     void clearImageList()
     {
