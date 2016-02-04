@@ -255,8 +255,12 @@ SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.
 
 #CONFIGURE_FILE("${COVISEDIR}/cmake/FindCovise.cmake" "${CMAKE_BINARY_DIR}/cmake/FindCovise.cmake" COPYONLY)
 #CONFIGURE_FILE("${COVISEDIR}/cmake/FindZLIB.cmake" "${CMAKE_BINARY_DIR}/cmake/FindZLIB.cmake" COPYONLY)
-CONFIGURE_FILE("${COVISEDIR}/cmake/CoviseHelperMacros.cmake" "${CMAKE_BINARY_DIR}/cmake/CoviseHelperMacros.cmake" COPYONLY)
-INSTALL(DIRECTORY "${CMAKE_BINARY_DIR}/cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+#CONFIGURE_FILE("${COVISEDIR}/cmake/CoviseHelperMacros.cmake" "${CMAKE_BINARY_DIR}/cmake/CoviseHelperMacros.cmake" COPYONLY)
+INSTALL(DIRECTORY "${CMAKE_BINARY_DIR}/cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules")
+FILE(GLOB cmake_files "cmake/*.cmake")
+FILE(GLOB using_files "cmake/Using/*")
+INSTALL(FILES ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules")
+INSTALL(FILES ${using_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules/Using")
 
 INSTALL(FILES .covise .covise.sh
               DESTINATION .)
