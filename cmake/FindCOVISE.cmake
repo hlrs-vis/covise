@@ -26,11 +26,28 @@ STRING(REGEX REPLACE "mpi$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
 #ENDIF()
 #MESSAGE("COVISE: CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 
+if(COVISE_INCLUDE_DIR)
+   set(COVISE_FIND_QUIETLY TRUE)
+endif()
+
 if(NOT "$ENV{COVISEDIR}" STREQUAL "")
    getenv_path(COVISEDIR COVISEDIR)
 else()
-   message("COVISE: COVISEDIR not set")
+   find_path(COVISEDIR ".covise.sh"
+      PATH_SUFFIXES covise
+      DOC "COVISE - Headers"
+   )
+   if (NOT COVISEDIR)
+      message("COVISE: COVISEDIR not set")
+   endif()
 endif()
+
+find_path(COVISE_INCLUDE_DIR "config/CoviseConfig.h"
+   PATHS
+   ${COVISEDIR}/src/kernel
+   PATH_SUFFIXES covise
+   DOC "COVISE - Headers"
+)
 
 if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "")
     if ("${COVISE_DESTDIR}" STREQUAL "")
@@ -80,16 +97,6 @@ if (COVISE_EXPORTS_FILEPATH)
 else()
     message("COVISE: CMake library exports file not found")
 endif()
-
-if(COVISE_INCLUDE_DIR)
-   set(COVISE_FIND_QUIETLY TRUE)
-endif()
-
-find_path(COVISE_INCLUDE_DIR "config/CoviseConfig.h"
-   PATHS
-   ${COVISEDIR}/src/kernel
-   DOC "COVISE - Headers"
-)
 
 MACRO(COVISE_FIND_PACKAGE package)
    SET(SAVED_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
