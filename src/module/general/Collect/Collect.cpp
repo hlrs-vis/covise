@@ -21,6 +21,7 @@
 
 // this includes our own class's headers
 #include "Collect.h"
+#include <do/coDoData.h>
 #include <do/coDoGeometry.h>
 #include <do/coDoSet.h>
 #include <boost/algorithm/string.hpp>
@@ -190,6 +191,27 @@ int Collect::compute(const char *)
     }
 
 #ifdef VOLUME_COLLECT
+    size_t num_points = 0;
+    for (int c = 0; c < NumChannels; ++c)
+    {
+        if (color[c])
+        {
+            const coDoAbstractData *data = dynamic_cast<const coDoAbstractData *>(color[c]);
+            assert(data != NULL);
+
+            if (num_points == 0)
+            {
+                num_points = data->getNumPoints();
+            }
+
+            if (data->getNumPoints() != num_points)
+            {
+                sendError("Dimensions of input data do not match");
+                return FAIL;
+            }
+        }
+    }
+
     for (int c = 0; c < NumChannels; ++c)
     {
         if (color[c])
