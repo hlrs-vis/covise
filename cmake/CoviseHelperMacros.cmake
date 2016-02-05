@@ -670,6 +670,13 @@ MACRO(COVER_INSTALL_PLUGIN targetname)
   #COVISE_INSTALL_DEPENDENCIES(${targetname})
 ENDMACRO(COVER_INSTALL_PLUGIN)
 
+# Macro to install headers
+MACRO(COVISE_INSTALL_HEADERS dirname)
+
+  INSTALL(FILES ${ARGN} DESTINATION include/covise/${dirname})
+ENDMACRO(COVISE_INSTALL_HEADERS)
+
+
 #
 # Per target flag handling
 #
