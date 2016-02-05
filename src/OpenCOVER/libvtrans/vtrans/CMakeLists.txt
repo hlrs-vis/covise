@@ -51,10 +51,12 @@ IF (ICU_FOUND)
     TARGET_LINK_LIBRARIES (vtrans ${CMAKE_THREAD_LIBS_INIT})
 ENDIF(ICU_FOUND)
 
-INSTALL(FILES ITranslator.h TransFactory.h vtrans.h PathTranslator.h
-        DESTINATION include)
-        
-INSTALL(TARGETS vtrans
-        DESTINATION lib)
+IF (NOT COVISE_BUILD)
+    INSTALL(FILES ITranslator.h TransFactory.h vtrans.h PathTranslator.h
+            DESTINATION include)
+
+    INSTALL(TARGETS vtrans
+            DESTINATION lib)
+ENDIF()
 
 COVISE_INSTALL_TARGET(vtrans)
