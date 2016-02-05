@@ -104,7 +104,7 @@ void Gnuplot::CreateChildProcess()
 
     // Create the child process.
 
-    TCHAR szCmdline[] = TEXT("c:\\Program Files\\gnuplot\\binary\\pgnuplot.exe");
+    TCHAR szCmdline[] = TEXT("pgnuplot.exe"); // pgnuplot should be in the PATH
     PROCESS_INFORMATION piProcInfo;
     STARTUPINFO siStartInfo;
     BOOL bSuccess = FALSE;
