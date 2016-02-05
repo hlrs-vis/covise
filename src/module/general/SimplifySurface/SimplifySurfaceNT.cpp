@@ -1060,7 +1060,8 @@ SimplifySurface::compute(const char *)
             double k, l, best_k, best_l;
 
             // number of elements that contain point
-            int *elems_contain_point = (int *)calloc(n_vert + 1, sizeof(int));
+	    // TODO: elems_contain_point should be at least as long as the largest node nr in tri_conn_list
+	    int *elems_contain_point = (int *)calloc(n_vert + 1, sizeof(int));
             int *elems_at_point_list = (int *)calloc(tri_conn_list.size(), sizeof(int));
 
             initializeNeighbourhood(elems_contain_point, elems_at_point_list, tri_conn_list, n_vert);
@@ -1266,6 +1267,10 @@ void SimplifySurface::initializeNeighbourhood(int *elems_contain_point, int *ele
 
     for (i = 0; i < tri_conn_list.size(); i++)
     {
+	if (tri_conn_list[i] > n_vert)
+	{
+		sendError("tri_conn_list entry exceeds n_vert");
+	}
         elems_contain_point[tri_conn_list[i]]++;
     }
 
