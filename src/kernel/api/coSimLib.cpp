@@ -451,7 +451,7 @@ int coSimLib::startSim(int reattach)
 
     // Check, who is server: default is Module
     bool exists;
-    std::string confData = coCoviseConfig::getEntry(std::string(d_name) + ".Server", &exists);
+    std::string confData = coCoviseConfig::getEntry("Module." + std::string(d_name) + ".Server", &exists);
     int modIsServer = (!exists || *confData.c_str() == 'M' || *confData.c_str() == 'm');
 
     // now get the timeout, default = 1min
@@ -472,7 +472,8 @@ int coSimLib::startSim(int reattach)
 
     // get the verbose level, default = 0
     d_verbose = 0;
-    confData = coCoviseConfig::getEntry(std::string(d_name) + ".Verbose");
+    confData = coCoviseConfig::getEntry("Module." + std::string(d_name) + ".Verbose");
+
     if (confData != "")
     {
         size_t retval;
@@ -773,7 +774,9 @@ int coSimLib::startSim(int reattach)
             strcpy(tmpstr, command + 6);
             strcpy(command, tmpstr);
         }
+
         unsigned int retval = WinExec(command, SW_SHOWNORMAL);
+
         if (retval > 31)
         {
             printf("WinExec(%s) - Done!\n", command);
@@ -820,7 +823,7 @@ int coSimLib::startSim(int reattach)
     assert(sizeof(float) == 4);
 
     // now handshake: the other side will send us an integer 12345
-    // if must be eitther 12345 or byte-swapped 12345
+    // it must be either 12345 or byte-swapped 12345
     int32 handshake, size;
     size = recvData(&handshake, sizeof(handshake));
     if (size != sizeof(handshake))
@@ -948,6 +951,8 @@ uint32_t coSimLib::nslookup(const char *name)
 int coSimLib::openServer()
 {
     unsigned int port;
+
+    covise::Socket::initialize();
 
     // open the socket: if not possible, return -1
     server_socket = (int)socket(AF_INET, SOCK_STREAM, 0);
@@ -1180,6 +1185,7 @@ int coSimLib::recvData(void *buffer, size_t _length)
     char *bptr = (char *)buffer;
     int nread;
     int nbytes = length;
+
     if (d_verbose > 3)
         fprintf(stderr, " coSimLib waiting for %ld Bytes from Socket %d\n",
                 length, d_socket);
