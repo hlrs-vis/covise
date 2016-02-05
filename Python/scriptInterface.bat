@@ -42,21 +42,21 @@ IF /i "%ARCHSUFFIX%" == "win32opt" (
   )
 )
 
-IF NOT EXIST %EXTERNLIBS%\python\bin\python.exe GOTO nopybin
+IF NOT EXIST "%EXTERNLIBS%"\python\bin\python.exe GOTO nopybin
 IF "%USE_OPT_LIBS%" == "1" (
-set _PYTHON=%EXTERNLIBS%\python\bin\python 
+set _PYTHON="%EXTERNLIBS%"\python\bin\python
 ) ELSE (
-set _PYTHON=%EXTERNLIBS%\python\bin\python_d
+set _PYTHON="%EXTERNLIBS%"\python\bin\python_d
 )
 GOTO doneBin
 :nopybin
 IF "%USE_OPT_LIBS%" == "1" (
-set _PYTHON=%EXTERNLIBS%\python\python 
+set _PYTHON="%EXTERNLIBS%"\python\python
 ) ELSE (
-set _PYTHON=%EXTERNLIBS%\python\python_d
+set _PYTHON="%EXTERNLIBS%"\python\python_d
 )
 :doneBin
-set _STARTUP=%COVISEDIR%\Python\scriptInterface.py 
+set _STARTUP="%COVISEDIR%"\Python\scriptInterface.py
 set _PYOPT=-i
 
 IF NOT "x%COVISE_LOCAL_PYTHON%x" == "xx" (
@@ -68,4 +68,4 @@ IF NOT "x%COVISE_LOCAL_PYTHON%x" == "xx" (
 rem cd %COVISEDIR%\Python
 
 ECHO %_PYTHON% %_PYOPT% %_STARTUP% %1 %2 %3 %4 %5 %6 %7 %8
-%_PYTHON% %_PYOPT% "%_STARTUP%" "%1" "%2" "%3" "%4" "%5" "%6" %7
+%_PYTHON% %_PYOPT% %_STARTUP% "%1" "%2" "%3" "%4" "%5" "%6" %7
