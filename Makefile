@@ -57,7 +57,7 @@ shareddist:	always_out_of_date
 	cd archive && $(MAKE) shared
 
 install: always_out_of_date
-	cd src && $(MAKE) install
+	$(MAKE) -f src/Makefile.default install
 	cd src/OpenCOVER && $(MAKE) install
 	
 clean:
