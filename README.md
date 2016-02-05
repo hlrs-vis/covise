@@ -219,8 +219,8 @@ Source Code Organization
     VR renderer with its plug-ins
 
 
-[1]:   http://www.hlrs.de/organization/av/vis/covise/
-[2]:   http://www.hlrs.de/organization/av/vis/covise/features/opencover/
+[1]:   http://www.hlrs.de/covise/
+[2]:   http://www.hlrs.de/solutions-services/service-portfolio/visualization/covise/opencover/
 [3]:   http://www.hlrs.de/
 [4]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-users
 [5]:   https://listserv.uni-stuttgart.de/mailman/listinfo/covise-commits
