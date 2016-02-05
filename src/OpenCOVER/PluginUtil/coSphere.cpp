@@ -298,6 +298,7 @@ bool coSphere::loadTexture(int context, const char *pFilename, int iTextureMode,
             glBindTexture(GL_TEXTURE_2D, s_textureID[context]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
             // Don't forget to use GL_RGBA for our new image data... we support Alpha transparency now!
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pImage_RGB->sizeX, pImage_RGB->sizeY, 0,
@@ -725,12 +726,12 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             }
             glDisable(GL_POINT_SPRITE_ARB);
             
-            glPopAttrib();//GL_LIGHTING
         }
         else
         {
             m_renderMethod = RENDER_METHOD_CPU_BILLBOARDS;
         }
+        glPopAttrib();//GL_LIGHTING
     }
 
     if (m_renderMethod == RENDER_METHOD_CPU_BILLBOARDS)
