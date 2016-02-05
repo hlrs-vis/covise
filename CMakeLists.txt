@@ -179,6 +179,13 @@ INCLUDE(CoviseHelperMacros)
 # global feature tests
 INCLUDE(CoviseGlobalFeatureTests)
 
+IF(COVISE_EXPORT_TO_INSTALL)
+   set(COVISE_EXPORTS_PATH "${COVISEDIR}/${ARCHSUFFIX}")
+ELSE()
+   set(COVISE_EXPORTS_PATH "${CMAKE_BINARY_DIR}")
+ENDIF()
+FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
+
 # Create macro list for USING
 CREATE_USING()
 
@@ -224,13 +231,6 @@ set(CMAKE_PREFIX_PATH "$ENV{EXTERNLIBS}/python" ${CMAKE_PREFIX_PATH})
 COVISE_FIND_PACKAGE(PythonLibs)
 set(${CMAKE_PREFIX_PATH} ${saved_prefix_path})
 
-IF(COVISE_EXPORT_TO_INSTALL)
-   set(COVISE_EXPORTS_PATH "${COVISEDIR}/${ARCHSUFFIX}")
-ELSE()
-   set(COVISE_EXPORTS_PATH "${CMAKE_BINARY_DIR}")
-ENDIF()
-FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
-
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
@@ -259,7 +259,7 @@ SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.
 INSTALL(DIRECTORY "${CMAKE_BINARY_DIR}/cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules")
 FILE(GLOB cmake_files "cmake/*.cmake")
 FILE(GLOB using_files "cmake/Using/*")
-INSTALL(FILES ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules")
+INSTALL(FILES "${CMAKE_BINARY_DIR}/CoviseUsingMacros.cmake" ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules")
 INSTALL(FILES ${using_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules/Using")
 
 INSTALL(FILES .covise .covise.sh
@@ -288,6 +288,10 @@ CONFIGURE_FILE(
 configure_file(
   "${COVISEDIR}/cmake/CoviseOptions.cmake.in"
   "${COVISE_EXPORTS_PATH}/CoviseOptions.cmake" @ONLY)
+install(FILES
+    "${COVISE_EXPORTS_PATH}/CoviseOptions.cmake"
+    "${COVISE_EXPORTS_PATH}/CoviseUsingMacros.cmake"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/${ARCHSUFFIX}")
 
 ADD_CUSTOM_TARGET(uninstall "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 

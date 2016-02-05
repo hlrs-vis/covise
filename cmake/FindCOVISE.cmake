@@ -545,6 +545,10 @@ ENDMACRO(covise_create_using)
 
 # Create macro list for USING
 #covise_create_using()
+include(CoviseUsingMacros.cmake OPTIONAL RESULT_VARIABLE COVISE_USING_FILE)
+if (NOT COVISE_USING_FILE)
+    include("${COVISE_OPTIONS_FILEPATH}/CoviseUsingMacros.cmake")
+endif()
 
 # Macro to add covise libraries
 MACRO(COVISE_ADD_LIBRARY targetname)

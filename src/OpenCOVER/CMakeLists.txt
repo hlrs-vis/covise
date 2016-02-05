@@ -27,7 +27,7 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
 
    find_package(COVISE REQUIRED)
    find_package(COVISE COMPONENTS GPU REQUIRED)
-   covise_create_using()
+   #covise_create_using()
 
    # preset some initial values for install dir and CFLAGS etc.
    INCLUDE(CovisePresets)

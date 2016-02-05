@@ -918,9 +918,6 @@ MACRO(CREATE_USING)
   FIND_PROGRAM(GREP_EXECUTABLE grep PATHS $ENV{EXTERNLIBS}/UnixUtils DOC "grep executable")
   
   file(GLOB USING_FILES "${COVISEDIR}/cmake/Using/Use*.cmake")
-  foreach(F ${USING_FILES})
-     include(${F})
-  endforeach(F ${USING_FILES})
   EXECUTE_PROCESS(COMMAND ${GREP_EXECUTABLE} -h USE_ ${USING_FILES}
      COMMAND ${GREP_EXECUTABLE} "^MACRO"
      OUTPUT_VARIABLE using_list)
@@ -936,10 +933,17 @@ MACRO(CREATE_USING)
   MESSAGE("USING list: ${using_list}")
 
   SET(filename "${CMAKE_BINARY_DIR}/CoviseUsingMacros.cmake")
+  SET(filename "${COVISE_EXPORTS_PATH}/CoviseUsingMacros.cmake")
   LIST(LENGTH using_list using_list_size)
   MATH(EXPR using_list_size "${using_list_size} - 1")
 
-  FILE(WRITE  ${filename} "MACRO(USING)\n\n")
+  FILE(WRITE  ${filename} "")
+  FILE(APPEND ${filename} "file(GLOB USING_FILES \"\${COVISEDIR}/cmake/Using/Use*.cmake\" \"\${COVISEDIR}/share/cmake/Modules/Using/Use*.cmake\")\n")
+  FILE(APPEND ${filename} "foreach(F \${USING_FILES})\n")
+  FILE(APPEND ${filename} "  include(\${F})\n")
+  FILE(APPEND ${filename} "endforeach(F \${USING_FILES})\n")
+  FILE(APPEND ${filename} "\n")
+  FILE(APPEND ${filename} "MACRO(USING)\n\n")
   FILE(APPEND ${filename} "  SET(optional FALSE)\n")
   FILE(APPEND ${filename} "  STRING (REGEX MATCHALL \"(^|[^a-zA-Z0-9_])optional(\$|[^a-zA-Z0-9_])\" optional \"\$")
   FILE(APPEND ${filename} "{ARGV}\")\n\n")
@@ -958,7 +962,6 @@ MACRO(CREATE_USING)
   FILE(APPEND ${filename} "ENDMACRO(USING)\n")
 
   INCLUDE(${filename})
-
 ENDMACRO(CREATE_USING)
 
 # use this instead of FIND_PACKAGE to prefer Package in $PACKAGE_HOME and $EXTERNLIBS/package
