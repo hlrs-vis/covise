@@ -210,6 +210,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=tahr
                elif grep -i -q -s 'ubuntu.*15\.04' /etc/issue; then
                    export ARCHSUFFIX=vervet
+               elif grep -i -q -s 'ubuntu.*15\.10' /etc/issue; then
+                   export ARCHSUFFIX=werewolf
                else
                    export ARCHSUFFIX=amd64
                fi

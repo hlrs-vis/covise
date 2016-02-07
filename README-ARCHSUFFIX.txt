@@ -141,7 +141,8 @@ narwhal         Ubuntu 11.04 Natty Narwhal on x86_64 (64 bit mode)
 ocelot          Ubuntu 11.10 Oneiric Ocelot on x86_64 (64 bit mode)
 pangolin        Ubuntu 12.04 Precise Pangolin on x86_64 (64 bit mode)
 tahr            Ubuntu 14.04 Trusty Tahr on x86_64 (64 bit mode)
-vervet		Ubuntu 15.04 Vivid Vervet on x86_64 (64 bit mode)
+vervet          Ubuntu 15.04 Vivid Vervet on x86_64 (64 bit mode)
+werewolf        Ubuntu 15.10 Wily Werewolf on x86_64 (64 bit mode)
 
 sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1
