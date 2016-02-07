@@ -12,6 +12,11 @@ MACRO(USE_MPI)
       SET(EXTRA_LIBS ${EXTRA_LIBS} ${MPI_LIBRARIES})
       SET(CMAKE_C_COMPILE_FLAGS ${CMAKE_C_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
       SET(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
+      if(CMAKE_COMPILER_IS_GNUCXX)
+        # for OpenMPI on Ubuntu 15.04 & 15.10 in C++11 mode
+        set(CMAKE_C_COMPILE_FLAGS ${CMAKE_C_COMPILE_FLAGS} "-Wno-error=literal-suffix")
+        set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS} "-Wno-error=literal-suffix")
+      endif()
       if(APPLE)
         # otherwise, linker tries to resolve transitively linked CUDA
         set(lflag "-Wl,-flat_namespace")
