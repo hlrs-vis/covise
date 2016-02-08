@@ -11,6 +11,7 @@ SET(FILE_SOURCES
 )
 
 SET(FILE_HEADERS
+  coFileExport.h
   covFiles.h
   covReadFiles.h
   covWriteFiles.h 
