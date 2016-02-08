@@ -9,9 +9,7 @@
 #include <winsock2.h>
 #endif
 
-#ifndef WSLIBEXPORT
-#include <util/coExport.h>
-#endif
+#include "WSExport.h"
 
 namespace covise
 {

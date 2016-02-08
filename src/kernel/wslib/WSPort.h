@@ -8,16 +8,18 @@
 #ifndef WSPORT_H
 #define WSPORT_H
 
+#include <QObject>
 #include <QString>
 #include <QStringList>
 
 #include "WSCoviseStub.h"
+#include "WSExport.h"
 
 namespace covise
 {
 
-class WSModule;
 class WSLink;
+class WSModule;
 
 class WSLIBEXPORT WSPort : public QObject
 {

@@ -8,6 +8,7 @@
 #ifndef WSBOOLEANPARAMETER_H
 #define WSBOOLEANPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 namespace covise

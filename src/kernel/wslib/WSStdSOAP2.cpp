@@ -5,9 +5,7 @@
 
  * License: LGPL 2+ */
 
-#ifndef WSLIBEXPORT
-#include <util/coExport.h>
-#endif
+#include "WSExport.h"
 
 #ifndef SOAP_CMAC
 #define SOAP_CMAC WSLIBEXPORT

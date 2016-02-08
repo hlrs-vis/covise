@@ -16,6 +16,7 @@
 
 #include <map>
 
+#include "WSExport.h"
 #include "WSCoviseStub.h"
 
 #include <QObject>

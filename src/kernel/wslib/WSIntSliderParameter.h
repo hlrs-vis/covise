@@ -8,6 +8,7 @@
 #ifndef WSINTSLIDERPARAMETER_H
 #define WSINTSLIDERPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 namespace covise

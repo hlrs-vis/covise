@@ -17,9 +17,7 @@
 #include <QStringList>
 #include <QThread>
 
-#ifndef WSLIBEXPORT
-#include <util/coExport.h>
-#endif
+#include "WSExport.h"
 
 namespace covise
 {

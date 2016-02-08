@@ -8,6 +8,7 @@
 #ifndef WSCOLORMAP_H
 #define WSCOLORMAP_H
 
+#include "WSExport.h"
 #include "WSCoviseStub.h"
 
 #include <QList>

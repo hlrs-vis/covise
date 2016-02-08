@@ -8,6 +8,7 @@
 #ifndef WSMODULE_H
 #define WSMODULE_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 #include "WSPort.h"
 

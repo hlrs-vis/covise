@@ -5,15 +5,18 @@
 
  * License: LGPL 2+ */
 
+#include "WSModule.h"
 #include "WSPort.h"
 
 #include "WSLink.h"
-#include "WSModule.h"
 
 #include <cassert>
 #include <vector>
 
-covise::WSPort::WSPort(const covise::WSModule *module, const QString &name, const QStringList &acceptedTypes, PortType portType)
+namespace covise
+{
+
+WSPort::WSPort(const WSModule *module, const QString &name, const QStringList &acceptedTypes, PortType portType)
     : portName(name)
     , dataTypes(acceptedTypes)
     , portType(portType)
@@ -22,12 +25,12 @@ covise::WSPort::WSPort(const covise::WSModule *module, const QString &name, cons
     this->id = this->module->getID() + "/" + this->portName;
 }
 
-covise::WSPort::WSPort(const covise::WSModule *module, const covise::covise__Port &port)
+WSPort::WSPort(const WSModule *module, const covise__Port &port)
 {
     setFromSerialisable(module, port);
 }
 
-void covise::WSPort::setFromSerialisable(const covise::WSModule *module, const covise::covise__Port &port)
+void WSPort::setFromSerialisable(const WSModule *module, const covise__Port &port)
 {
     this->portName = QString::fromStdString(port.name);
     this->dataTypes.clear();
@@ -46,15 +49,15 @@ void covise::WSPort::setFromSerialisable(const covise::WSModule *module, const c
     this->id = this->module->getID() + "/" + this->portName;
 }
 
-covise::WSPort::~WSPort()
+WSPort::~WSPort()
 {
     //    while(!this->links.empty())
     //       delete this->links.takeFirst();
 }
 
-covise::covise__Port covise::WSPort::getSerialisable() const
+covise__Port WSPort::getSerialisable() const
 {
-    covise::covise__Port p;
+    covise__Port p;
 
     p.name = getName().toStdString();
     foreach (QString type, getTypes())
@@ -81,16 +84,16 @@ covise::covise__Port covise::WSPort::getSerialisable() const
     return p;
 }
 
-// void covise::WSPort::addLink(covise::WSLink * link)
+// void WSPort::addLink(WSLink * link)
 // {
 //    assert (link->from() == this || link->to() == this);
-//    covise::WSPort * otherPort;
+//    WSPort * otherPort;
 //    if (link->from()->getID() == this->getID())
 //       otherPort = link->to();
 //    else
 //       otherPort = link->from();
 
-//    foreach(covise::WSLink * l, this->links)
+//    foreach(WSLink * l, this->links)
 //    {
 //       if (otherPort->getID() == l->from()->getID() || otherPort->getID() == l->to()->getID())
 //          return;
@@ -104,10 +107,10 @@ covise::covise__Port covise::WSPort::getSerialisable() const
 
 // }
 
-// void covise::WSPort::removeLink(covise::WSLink * link)
+// void WSPort::removeLink(WSLink * link)
 // {
 
-//    foreach(covise::WSLink * l, this->links)
+//    foreach(WSLink * l, this->links)
 //    {
 //       if (link->getLinkID() == l->getLinkID())
 //       {
@@ -121,5 +124,7 @@ covise::covise__Port covise::WSPort::getSerialisable() const
 //    }
 
 // }
+
+} // namespace covise
 
 // EOF

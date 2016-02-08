@@ -8,6 +8,7 @@
 #ifndef WSCOLORMAPCHOICEPARAMETER_H
 #define WSCOLORMAPCHOICEPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 #include "WSTools.h"
 

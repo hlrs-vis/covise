@@ -8,6 +8,7 @@
 #ifndef WSCOLORPARAMETER_H
 #define WSCOLORPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 class WSColorParameter : public WSParameter

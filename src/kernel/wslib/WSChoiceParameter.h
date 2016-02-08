@@ -8,6 +8,7 @@
 #ifndef WSCHOICEPARAMETER_H
 #define WSCHOICEPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 #include "WSTools.h"
 

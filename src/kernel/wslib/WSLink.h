@@ -10,6 +10,7 @@
 
 #include <QObject>
 
+#include "WSExport.h"
 #include "WSCoviseStub.h"
 
 namespace covise

@@ -8,6 +8,7 @@
 #ifndef WSFLOATVECTORPARAMETER_H
 #define WSFLOATVECTORPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 #include <QList>

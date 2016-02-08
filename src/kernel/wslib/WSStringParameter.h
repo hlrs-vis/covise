@@ -8,6 +8,7 @@
 #ifndef WSSTRINGPARAMETER_H
 #define WSSTRINGPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 #include "WSTools.h"
 

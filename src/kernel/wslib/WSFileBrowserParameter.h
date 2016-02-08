@@ -8,6 +8,7 @@
 #ifndef WSFILEBROWSERPARAMETER_H
 #define WSFILEBROWSERPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 #include "WSTools.h"
 

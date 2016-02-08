@@ -8,6 +8,7 @@
 #ifndef WSINTSCALARPARAMETER_H
 #define WSINTSCALARPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 namespace covise

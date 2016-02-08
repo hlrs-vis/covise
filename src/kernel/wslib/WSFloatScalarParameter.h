@@ -8,6 +8,7 @@
 #ifndef WSFLOATSCALARPARAMETER_H
 #define WSFLOATSCALARPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 namespace covise

@@ -8,6 +8,7 @@
 #ifndef WSMAP_H
 #define WSMAP_H
 
+#include "WSExport.h"
 #include "WSModule.h"
 
 #include <QObject>

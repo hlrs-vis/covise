@@ -8,6 +8,7 @@
 #ifndef WSFLOATSLIDERPARAMETER_H
 #define WSFLOATSLIDERPARAMETER_H
 
+#include "WSExport.h"
 #include "WSParameter.h"
 
 namespace covise
