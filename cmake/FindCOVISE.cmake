@@ -300,6 +300,9 @@ MACRO(COVISE_INSTALL_DEPENDENCIES targetname)
        ELSE("${mode}" STREQUAL "GENERAL")
          SET(check_install "0")
        ENDIF("${mode}" STREQUAL "GENERAL")
+       IF(NOT $ENV{EXTERNLIBS})
+         SET(check_install "0")
+       ENDIF(NOT $ENV{EXTERNLIBS})
        IF(${check_install})
          # If the library is from externlibs, pack it.
          # FIXME: Currently only works with libraries added by FindXXX, as manually added
