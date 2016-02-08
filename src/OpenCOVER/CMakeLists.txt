@@ -133,6 +133,9 @@ ENDIF()
 
 message("Building for ARCHSUFFIX: ${COVISE_ARCHSUFFIX}, installing to: ${COVISE_DESTDIR}")
 
+INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
+    "${CMAKE_INSTALL_PREFIX}/share/cover/cmake/" RENAME "cover-config.cmake")
+
 # IF(MSVC)
   # ADD_SUBDIRECTORY(ManagedOpenCOVER)
   # ADD_SUBDIRECTORY(SurfaceCOVER)

@@ -23,6 +23,7 @@ set(COVER_DIR "${COVISEDIR}/src/OpenCOVER")
 find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
    PATHS
    ${COVER_DIR}
+   PATH_SUFFIXES covise
    DOC "COVER - Headers"
 )
 

@@ -10,10 +10,9 @@ ADD_DEFINITIONS(-DCOVISE_PLUGIN_UTIL)
 
 INCLUDE_DIRECTORIES(
   ${OPENSCENEGRAPH_INCLUDE_DIRS}
-  "${COVISEDIR}/src/kernel/OpenVRUI"
 )
 
-SET(HEADERS
+SET(PLUGINUTIL_HEADERS
   coColorBar.h
   ColorBar.h
   ModuleFeedbackManager.h
@@ -36,8 +35,8 @@ SET(HEADERS
   ProgramCache.h
   coLOD.h
   coSensor.h
+  GenericGuiObject.h
 )
-  SET(HEADERS ${HEADERS} GenericGuiObject.h)
 
 SET(SOURCES
   coColorBar.cpp
@@ -62,11 +61,12 @@ SET(SOURCES
   ProgramCache.cpp
   coLOD.cpp
   coSensor.cpp
+  GenericGuiObject.cpp
 )
-  SET(SOURCES ${SOURCES} GenericGuiObject.cpp)
 
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )
 TARGET_LINK_LIBRARIES(coOpenPluginUtil coOpenCOVER coOpenVRUI coOSGVRUI
    ${COVISE_GRMSG_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES})
 COVISE_INSTALL_TARGET(coOpenPluginUtil)
+COVISE_INSTALL_HEADERS(PluginUtil ${PLUGINUTIL_HEADERS})
 qt_use_modules(coOpenPluginUtil Core)

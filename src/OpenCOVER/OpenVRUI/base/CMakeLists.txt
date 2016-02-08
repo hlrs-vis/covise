@@ -8,10 +8,8 @@ ADD_DEFINITIONS(-DCOVISE_OPENVRUI)
 
 INCLUDE_DIRECTORIES(
   ../
-  ../base
   ../sginterface
   ../util
-  ../osg
 )
 
 SET(BASE_SOURCES
@@ -96,11 +94,31 @@ SET(BASE_SOURCES
 #  coLabelButtonToolboxItem.cpp
 )
 
-SET(BASE_HEADERS
+SET(UTIL_HEADERS
+  ../util/vruiDefines.h
+  ../util/vruiLog.h
+)
+
+SET(SGINTERFACE_HEADERS
+  ../sginterface/vruiActionUserData.h
+  ../sginterface/vruiButtonProvider.h
+  ../sginterface/vruiButtons.h
   ../sginterface/vruiCollabInterface.h
+  ../sginterface/vruiGroupNode.h
+  ../sginterface/vruiHit.h
   ../sginterface/vruiIntersection.h
+  ../sginterface/vruiMatrix.h
+  ../sginterface/vruiNode.h
+  ../sginterface/vruiPanelGeometryProvider.h
   ../sginterface/vruiRendererInterface.h
+  ../sginterface/vruiTexture.h
+  ../sginterface/vruiTransformNode.h
+  ../sginterface/vruiUIElementProvider.h
+  ../sginterface/vruiUserData.h
   ../sginterface/vruiVec.h
+)
+
+SET(BASE_HEADERS
   ../coAction.h
   ../coBackground.h
   ../coButton.h
@@ -171,7 +189,10 @@ SET(BASE_HEADERS
 #SET(BASE_DEV_HEADERS
 #)
 
-ADD_COVISE_LIBRARY(coOpenVRUI SHARED ${BASE_SOURCES} ${BASE_HEADERS})
+ADD_COVISE_LIBRARY(coOpenVRUI SHARED ${BASE_SOURCES} ${BASE_HEADERS} ${SGINTERFACE_HEADERS})
 TARGET_LINK_LIBRARIES(coOpenVRUI ${COVISE_CONFIG_LIBRARY} ${COVISE_UTIL_LIBRARY})
 
 COVISE_INSTALL_TARGET(coOpenVRUI)
+COVISE_INSTALL_HEADERS(OpenVRUI ${BASE_HEADERS})
+COVISE_INSTALL_HEADERS(OpenVRUI/sginterface ${SGINTERFACE_HEADERS})
+COVISE_INSTALL_HEADERS(OpenVRUI/util ${UTIL_HEADERS})
