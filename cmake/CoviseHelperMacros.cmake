@@ -938,7 +938,7 @@ MACRO(CREATE_USING)
   MATH(EXPR using_list_size "${using_list_size} - 1")
 
   FILE(WRITE  ${filename} "")
-  FILE(APPEND ${filename} "file(GLOB USING_FILES \"\${COVISEDIR}/cmake/Using/Use*.cmake\" \"\${COVISEDIR}/share/cmake/Modules/Using/Use*.cmake\")\n")
+  FILE(APPEND ${filename} "file(GLOB USING_FILES \"\${COVISEDIR}/cmake/Using/Use*.cmake\" \"\${COVISEDIR}/share/covise/cmake/Using/Use*.cmake\")\n")
   FILE(APPEND ${filename} "foreach(F \${USING_FILES})\n")
   FILE(APPEND ${filename} "  include(\${F})\n")
   FILE(APPEND ${filename} "endforeach(F \${USING_FILES})\n")

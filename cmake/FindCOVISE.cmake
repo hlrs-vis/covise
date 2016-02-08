@@ -62,17 +62,18 @@ else()
 endif()
 
 IF(WIN32)
-  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/windows;${CMAKE_MODULE_PATH}")
+  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/windows;${COVISEDIR}/share/covise/cmake/windows;${CMAKE_MODULE_PATH}")
 ENDIF()
 IF(UNIX)
-  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/unix;${CMAKE_MODULE_PATH}")
+  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/unix;${COVISEDIR}/share/covise/cmake/unix;${CMAKE_MODULE_PATH}")
 ENDIF()
 IF(APPLE)
-  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/apple;${CMAKE_MODULE_PATH}")
+  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/apple;${COVISEDIR}/share/covise/cmake/apple;${CMAKE_MODULE_PATH}")
 ENDIF()
 IF(MINGW)
-  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/mingw;${CMAKE_MODULE_PATH}")
+  SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake/mingw;${COVISEDIR}/share/covise/cmake/mingw;${CMAKE_MODULE_PATH}")
 ENDIF(MINGW)
+SET(CMAKE_MODULE_PATH "${COVISEDIR}/cmake;${COVISEDIR}/share/covise/cmake;${CMAKE_MODULE_PATH}")
 
 find_path(COVISE_OPTIONS_FILEPATH "CoviseOptions.cmake"
     PATHS
