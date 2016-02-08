@@ -932,7 +932,6 @@ MACRO(CREATE_USING)
 
   MESSAGE("USING list: ${using_list}")
 
-  SET(filename "${CMAKE_BINARY_DIR}/CoviseUsingMacros.cmake")
   SET(filename "${COVISE_EXPORTS_PATH}/CoviseUsingMacros.cmake")
   LIST(LENGTH using_list using_list_size)
   MATH(EXPR using_list_size "${using_list_size} - 1")

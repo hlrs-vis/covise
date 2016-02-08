@@ -265,7 +265,6 @@ SET(install_files_exclude "${install_files_exclude})")
 #INSTALL(DIRECTORY "${CMAKE_BINARY_DIR}/cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake")
 FILE(GLOB cmake_files "cmake/*.cmake")
 FILE(GLOB using_files "cmake/Using/*")
-INSTALL(FILES "${CMAKE_BINARY_DIR}/CoviseUsingMacros.cmake" ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake")
 INSTALL(FILES ${using_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake/Using")
 INSTALL(FILES "cmake/FindCOVISE.cmake" DESTINATION
     "${CMAKE_INSTALL_PREFIX}/share/covise/cmake/" RENAME "covise-config.cmake")
@@ -300,6 +299,8 @@ install(FILES
     "${COVISE_EXPORTS_PATH}/CoviseOptions.cmake"
     "${COVISE_EXPORTS_PATH}/CoviseUsingMacros.cmake"
     DESTINATION "${CMAKE_INSTALL_PREFIX}/${ARCHSUFFIX}")
+#INSTALL(FILES "${COVISE_EXPORTS_PATH}/CoviseUsingMacros.cmake" ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake")
+INSTALL(FILES ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake")
 
 ADD_CUSTOM_TARGET(uninstall "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
