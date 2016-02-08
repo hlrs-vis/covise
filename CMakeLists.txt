@@ -251,7 +251,11 @@ ENDIF(COVISE_GENERATE_DOCS)
 
 # Install
 
-SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.gitignore|/\\.hgignore|\\.html\\.in$|\\.tex\\.in$|\\.tex$)")
+SET(install_files_exclude "(/CVS/|/\\.svn/|/\\.hg/|/\\.git/|\\.swp$|\\.#|/#|/\\.gitignore|/\\.hgignore|\\.html\\.in$|\\.tex\\.in$|\\.tex$")
+IF(UNIX)
+  SET(install_files_exclude "${install_files_exclude}|\\.bat$|\\.vbs$")
+ENDIF(UNIX)
+SET(install_files_exclude "${install_files_exclude})")
 
 #CONFIGURE_FILE("${COVISEDIR}/cmake/FindCovise.cmake" "${CMAKE_BINARY_DIR}/cmake/FindCovise.cmake" COPYONLY)
 #CONFIGURE_FILE("${COVISEDIR}/cmake/FindZLIB.cmake" "${CMAKE_BINARY_DIR}/cmake/FindZLIB.cmake" COPYONLY)
