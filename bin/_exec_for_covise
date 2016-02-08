@@ -3,7 +3,7 @@
 ## default place for Covise installation: directory above this script
 ##                                        if not set otherwise
 if [ -z "$COVISEDIR" ]; then
-    if readlink "$0"; then
+    if readlink "$0" > /dev/null; then
         link="$(readlink $0)"
         linkdir="$(dirname $link)"
         scriptdir="$(dirname $0)"
