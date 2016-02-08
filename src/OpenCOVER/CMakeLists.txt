@@ -37,6 +37,8 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
    # global feature tests
    INCLUDE(CoviseGlobalFeatureTests)
 
+   set(CMAKE_INSTALL_PREFIX "${COVISE_INSTALL_PREFIX}")
+
    INCLUDE(Qt4-5)
    find_qt()
 endif()
