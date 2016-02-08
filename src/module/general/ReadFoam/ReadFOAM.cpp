@@ -339,15 +339,13 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
 
     if (Processor == -1)
     {
+		std::cerr << std::time(0) << " Reading mesh from: " << meshdir.c_str() << std::endl;
+		boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+		if (!pointsIn)
+			return NULL;
+		HeaderInfo pointsH = readFoamHeader(*pointsIn);
         {
-            std::cerr << std::time(0) << " Reading mesh from: " << meshdir.c_str() << std::endl;
-
-            boost::shared_ptr<std::istream> pointsSizeIn = getStreamForFile(pointsdir, "points");
-            if (!pointsSizeIn)
-                return NULL;
-            HeaderInfo pointsSizeH = readFoamHeader(*pointsSizeIn);
-            int num_points = pointsSizeH.lines;
-
+			int num_points = pointsH.lines;
             //std::cerr << std::time(0) << " reading Faces" << std::endl;
             boost::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
             if (!facesIn)
@@ -593,10 +591,6 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
 
         // save coordinates to coordinate lists
         std::cerr << std::time(0) << " Reading points from: " << pointsdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
-        if (!pointsIn)
-            return NULL;
-        HeaderInfo pointsH = readFoamHeader(*pointsIn);
         //      if (pointsH.lines != dim.points) {
         //         std::cerr << std::time(0) << " inconsistency: #Number of points in points-file != #points declared in owner header" << std::endl;
         //      }
@@ -615,11 +609,11 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         oldMesh->getAddresses(&oldel, &oldcl, &oldx_coord, &oldy_coord, &oldz_coord);
         oldMesh->getTypeList(&oldtl);
 
-        boost::shared_ptr<std::istream> pointsSizeIn = getStreamForFile(pointsdir, "points");
-        if (!pointsSizeIn)
+        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        if (!pointsIn)
             return NULL;
-        HeaderInfo pointsSizeH = readFoamHeader(*pointsSizeIn);
-        int num_points = pointsSizeH.lines;
+        HeaderInfo pointsH = readFoamHeader(*pointsIn);
+        int num_points = pointsH.lines;
 
         meshObj = new coDoUnstructuredGrid(meshObjName.c_str(), num_elem, num_conn, num_points, 1);
         // get pointers to the first element of the element, vertex and coordinate lists
@@ -639,10 +633,6 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
 
         // save coordinates to coordinate lists
         std::cerr << std::time(0) << " Reading points from: " << pointsdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
-        if (!pointsIn)
-            return NULL;
-        HeaderInfo pointsH = readFoamHeader(*pointsIn);
         //if (pointsH.lines != dim.points) {
         //   std::cerr << std::time(0) << " inconsistency: #Number of points in points-file != #points declared in owner header" << std::endl;
         //}
