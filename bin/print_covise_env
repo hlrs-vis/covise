@@ -2,10 +2,9 @@
 
 if [ -z "${COVISEDIR}" ]; then
    self="$(dirname $0)"
-   dotcovise="$self/../.covise.sh"
-else
-   dotcovise="${COVISEDIR}/.covise.sh"
+   export COVISEDIR="${self}/.."
 fi
+dotcovise="${COVISEDIR}/.covise.sh"
 
 if [ -r "$dotcovise" ]; then
    . "$dotcovise"
