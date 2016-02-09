@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_ABSOLUTE_H
-#define OSC_ABSOLUTE_H
+#ifndef OSC_VISUAL_RANGE_H
+#define OSC_VISUAL_RANGE_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -18,19 +18,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscAbsolute: public oscObjectBase
+class OPENSCENARIOEXPORT oscVisualRange: public oscObjectBase
 {
 public:
-    oscAbsolute()
+    oscVisualRange()
     {
-        OSC_ADD_MEMBER(target);
+        OSC_ADD_MEMBER(value);
     };
 
-    oscDouble target;
+    oscFloat value;
 };
 
-typedef oscObjectVariable<oscAbsolute *> oscAbsoluteMember;
+typedef oscObjectVariable<oscVisualRange *> oscVisualRangeMember;
 
 }
 
-#endif //OSC_ABSOLUTE_H
+#endif //OSC_VISUAL_RANGE_H

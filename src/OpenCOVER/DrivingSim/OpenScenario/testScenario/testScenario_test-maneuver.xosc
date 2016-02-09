@@ -54,7 +54,7 @@
         <action>
           <speed>
             <dynamics shape="ngjt" rate="457.89" immediate="true"/>
-            <relative refObject="cbc" delta="56.89" factor="767.89"/>
+            <relativeSpeed refObject="cbc" delta="56.89" factor="767.89"/>
           </speed>
         </action>
 

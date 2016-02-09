@@ -12,8 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscRelative.h"
-#include "oscAbsolute.h"
+#include "oscRelativeTypeB.h"
+#include "oscAbsoluteTypeB.h"
 #include "oscLaneOffsetDynamics.h"
 
 
@@ -25,13 +25,13 @@ class OPENSCENARIOEXPORT oscLaneOffset: public oscObjectBase
 public:
     oscLaneOffset()
     {
-        OSC_OBJECT_ADD_MEMBER(relative, "oscRelative");
-        OSC_OBJECT_ADD_MEMBER(absolute, "oscAbsolute");
+        OSC_OBJECT_ADD_MEMBER(relativeLaneOffset, "oscRelativeTypeB");
+        OSC_OBJECT_ADD_MEMBER(absoluteLaneOffset, "oscAbsoluteTypeB");
         OSC_OBJECT_ADD_MEMBER(dynamics, "oscLaneOffsetDynamics");
     };
 
-    oscRelativeMember relative;
-    oscAbsoluteMember absolute;
+    oscRelativeTypeBMember relativeLaneOffset;
+    oscAbsoluteTypeBMember absoluteLaneOffset;
     oscLaneeOffsetDynamicsMember dynamics;
 };
 

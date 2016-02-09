@@ -7,7 +7,8 @@ USING(XERCESC)
 
 SET(HEADERS
    OpenScenarioBase.h
-   oscAbsolute.h
+   oscAbsoluteTypeA.h
+   oscAbsoluteTypeB.h
    oscAcceleration.h
    oscAction.h
    oscActions.h
@@ -27,7 +28,6 @@ SET(HEADERS
    oscCancelConditionTypeA.h
    oscCancelConditionTypeB.h
    oscCatalogReferenceTypeA.h
-   oscCatalogReferenceTypeB.h
    oscCatalogs.h
    oscCenter.h
    oscCharacterAppearance.h
@@ -163,11 +163,12 @@ SET(HEADERS
    oscRefActorTypeA.h
    oscRefActorTypeB.h
    oscReferenceHandling.h
-   oscRelative.h
-   oscRelativeChoice.h
    oscRelativePositionLane.h
    oscRelativePositionRoad.h
    oscRelativePositionWorld.h
+   oscRelativeTypeA.h
+   oscRelativeTypeB.h
+   oscRelativeTypeC.h
    oscRoadCondition.h
    oscRoadConditions.h
    oscRoadConditionsGroup.h
@@ -219,8 +220,8 @@ SET(HEADERS
    oscVehicleCatalog.h
    oscVehicleRef.h
    oscVelocity.h
-   oscVisibilityTypeA.h
-   oscVisibilityTypeB.h
+   oscVisibility.h
+   oscVisualRange.h
    oscWaypoint.h
    oscWaypoints.h
    oscWeather.h

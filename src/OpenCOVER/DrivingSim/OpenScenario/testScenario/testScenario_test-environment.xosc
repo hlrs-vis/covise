@@ -33,7 +33,7 @@
         <dimension height="23856.456" length="3556.89" width="276.6"/>
       </boundingBox>
 <!--
-      <visibility value="345.1"/>
+      <visualRange value="345.1"/>
 -->
     </fog>
 

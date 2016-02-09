@@ -659,42 +659,42 @@
                     <action>
                       <speed>
                         <dynamics shape="shtjl" rate="579.345" immediate="true"/>
-                        <relative refObject="hjlfy" delta="3459.0769" factor="4790.045"/>
+                        <relativeSpeed refObject="hjlfy" delta="3459.0769" factor="4790.045"/>
                       </speed>
                     </action>
 
                     <action>
                       <speed>
                         <dynamics shape="shtjl" rate="579.345" immediate="false"/>
-                        <absolute target="4579.234"/>
+                        <absoluteSpeed target="4579.234"/>
                       </speed>
                     </action>
 
                     <action>
                       <laneChange targetLaneOffset="2345.5678">
                         <dynamics shape="shtjl" maxLateralAcc="4569.7456" duration="345.8976"/>
-                        <relative refObject="sdgfjg" delta="456890"/>
+                        <relativeLaneChange refObject="sdgfjg" delta="456890"/>
                       </laneChange>
                     </action>
 
                     <action>
                       <laneChange targetLaneOffset="32443.7">
                         <dynamics shape="ghthk" maxLateralAcc="3246.89" duration="345.879"/>
-                        <absolute target="23266"/>
+                        <absoluteLaneChange target="23266"/>
                       </laneChange>
                     </action>
 
                     <action>
                       <laneOffset>
                         <dynamics maxLateralAcc="4569.7456" duration="345.8976"/>
-                        <relative refObject="l89pp" delta="348.89"/>
+                        <relativeLaneOffset refObject="l89pp" delta="348.89"/>
                       </laneOffset>
                     </action>
 
                     <action>
                       <laneOffset>
                         <dynamics maxLateralAcc="234.7689" duration="234.890"/>
-                        <absolute target="3478.789"/>
+                        <absoluteLaneOffset target="3478.789"/>
                       </laneOffset>
                     </action>
 
@@ -907,7 +907,7 @@
                     <action>
                       <speed>
                         <dynamics shape="sdfs" rate="23.890" immediate="false"/>
-                        <relative refObject="sgfs" delta="468.890" factor="456.90"/>
+                        <relativeSpeed refObject="sgfs" delta="468.890" factor="456.90"/>
                       </speed>
                     </action>
 
@@ -1009,7 +1009,7 @@
 
             </cancelConditions>
 
-            <catalogReference refId="zcxksd">
+            <catalogReference catalogId="zcxksd">
               <parameterList>
                 <parameter name="gfdf" value="gjk" type="ulre"/>
                 <parameter name="jkfh" value="agcfd" type="q2sdf"/>
@@ -1058,7 +1058,7 @@
 
             </cancelConditions>
 
-            <catalogReference refId="pui">
+            <catalogReference catalogId="pui">
               <parameterList>
                 <parameter name="sawr" value="cn" type="kjg"/>
                 <parameter name="mmf" value="dg4" type="yutr5"/>
@@ -1121,7 +1121,7 @@
 
             </cancelConditions>
 
-            <catalogReference refId="dfsdgs">
+            <catalogReference catalogId="dfsdgs">
               <parameterList>
                 <parameter name="str" value="wetrw" type="2aff"/>
                 <parameter name="dfhfty" value="yjr" type="sdgt"/>

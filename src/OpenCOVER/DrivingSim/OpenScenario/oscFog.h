@@ -12,10 +12,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectVariable.h"
 
-#include "oscVariables.h"
 #include "oscColor.h"
 #include "oscBoundingBox.h"
-#include "oscVisibilityTypeB.h"
+#include "oscVisualRange.h"
 
 
 namespace OpenScenario {
@@ -28,12 +27,12 @@ public:
     {
         OSC_OBJECT_ADD_MEMBER(color, "oscColor");
         OSC_OBJECT_ADD_MEMBER(boundingBox, "oscBoundingBox");
-        OSC_OBJECT_ADD_MEMBER(visibility, "oscVisibilityTypeB");
+        OSC_OBJECT_ADD_MEMBER(visualRange, "oscVisualRange");
     };
 
     oscColorMember color;
     oscBoundingBoxMember boundingBox;
-    oscVisibilityTypeBMember visibility;
+    oscVisualRangeMember visualRange;
 };
 
 typedef oscObjectVariable<oscFog *> oscFogMember;

@@ -13,8 +13,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectVariable.h"
 
 #include "oscSpeedDynamics.h"
-#include "oscRelativeChoice.h"
-#include "oscAbsolute.h"
+#include "oscRelativeTypeC.h"
+#include "oscAbsoluteTypeB.h"
 
 
 namespace OpenScenario {
@@ -26,13 +26,13 @@ public:
     oscSpeed()
     {
         OSC_OBJECT_ADD_MEMBER(dynamics, "oscSpeedDynamics");
-        OSC_OBJECT_ADD_MEMBER(relative, "oscRelativeChoice");
-        OSC_OBJECT_ADD_MEMBER(absolute, "oscAbsolute");
+        OSC_OBJECT_ADD_MEMBER(relativeSpeed, "oscRelativeTypeC");
+        OSC_OBJECT_ADD_MEMBER(absoluteSpeed, "oscAbsoluteTypeB");
     };
 
     oscSpeedDynamicsMember dynamics;
-    oscRelativeChoiceMember relative;
-    oscAbsoluteMember absolute;
+    oscRelativeTypeCMember relativeSpeed;
+    oscAbsoluteTypeBMember absoluteSpeed;
 };
 
 typedef oscObjectVariable<oscSpeed *> oscSpeedMember;

@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_RELATIVE_H
-#define OSC_RELATIVE_H
+#ifndef OSC_ABSOLUTE_TYPE_B_H_
+#define OSC_ABSOLUTE_TYPE_B_H_
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -18,21 +18,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscRelative: public oscObjectBase
+class OPENSCENARIOEXPORT oscAbsoluteTypeB: public oscObjectBase
 {
 public:
-    oscRelative()
+    oscAbsoluteTypeB()
     {
-        OSC_ADD_MEMBER(refObject);
-        OSC_ADD_MEMBER(delta);
+        OSC_ADD_MEMBER(target);
     };
 
-    oscString refObject;
-    oscDouble delta;
+    oscDouble target;
 };
 
-typedef oscObjectVariable<oscRelative *> oscRelativeMember;
+typedef oscObjectVariable<oscAbsoluteTypeB *> oscAbsoluteTypeBMember;
 
 }
 
-#endif //OSC_RELATIVE_H
+#endif //OSC_ABSOLUTE_TYPE_B_H_

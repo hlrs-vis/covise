@@ -9,46 +9,52 @@
 <xsd:annotation>
     <xsd:documentation>
     XML Schema Definition for OpenSCENARIO XML files - Draft C, (c)2015 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
     </xsd:documentation>
 </xsd:annotation>
 
+
+<!-- -->
+<!-- OpenSCENARIO -->
+<!-- -->
+
 <xsd:element name="OpenSCENARIO">
     <xsd:complexType>
-        <xsd:sequence>
+        <xsd:all>
             <xsd:element name="fileHeader"  type="OSCFileHeader"/>
 
             <xsd:element name="catalogs"    type="OSCCatalogs"/>
 
             <xsd:element name="roadNetwork">
                 <xsd:complexType>
-                    <xsd:sequence>
+                    <xsd:all>
                         <xsd:element name="openDrive"   type="OSCFile"/>
                         <xsd:element name="sceneGraph"  type="OSCFile"/>
                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
+                    </xsd:all>
                     <xsd:attribute ref="xml:base"/>
                 </xsd:complexType>
             </xsd:element>
 
             <xsd:element name="environment">
                 <xsd:complexType>
-                    <xsd:sequence>
+                    <xsd:all>
                         <xsd:element name="catalogReference"    type="OSCCatalogReference"/>
                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
+                    </xsd:all>
                     <xsd:attribute ref="xml:base"/>
                 </xsd:complexType>
             </xsd:element>
 
             <xsd:element name="entities">
                 <xsd:complexType>
-                    <xsd:sequence>
+                    <xsd:all>
                         <xsd:element name="objects">
                             <xsd:complexType>
                                 <xsd:sequence>
                                     <xsd:element name="object" minOccurs="0" maxOccurs="unbounded">
                                         <xsd:complexType>
-                                            <xsd:sequence>
+                                            <xsd:all>
                                                 <xsd:element name="catalogReference"    type="OSCCatalogReference"/>
                                                 <xsd:element name="initPosition"        type="OSCPosition"/>
                                                 <xsd:element name="initDynamics">
@@ -66,7 +72,7 @@
                                                     </xsd:complexType>
                                                 </xsd:element>
                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                            </xsd:sequence>
+                                            </xsd:all>
                                             <xsd:attribute name="name"  type="xsd:string" use="required"/>
                                             <xsd:attribute ref="xml:base"/>
                                         </xsd:complexType>
@@ -76,35 +82,35 @@
                             </xsd:complexType>
                         </xsd:element>
                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
+                    </xsd:all>
                     <xsd:attribute ref="xml:base"/>
                 </xsd:complexType>
             </xsd:element>
 
             <xsd:element name="storyboard">
                 <xsd:complexType>
-                    <xsd:sequence>
+                    <xsd:all>
                         <xsd:element name="maneuverGroups">
                             <xsd:complexType>
                                 <xsd:sequence>
                                     <xsd:element name="maneuverGroup" minOccurs="0" maxOccurs="unbounded">
                                         <xsd:complexType>
-                                            <xsd:sequence>
+                                            <xsd:all>
                                                 <xsd:element name="startConditionGroups">
                                                     <xsd:complexType>
                                                         <xsd:sequence>
                                                             <xsd:element name="startConditionGroup" minOccurs="0" maxOccurs="unbounded">
                                                                 <xsd:complexType>
-                                                                    <xsd:sequence>
+                                                                    <xsd:all>
                                                                         <xsd:element name="startConditions">
                                                                             <xsd:complexType>
                                                                                 <xsd:sequence>
                                                                                     <xsd:element name="startCondition" minOccurs="1" maxOccurs="unbounded">
                                                                                         <xsd:complexType>
-                                                                                            <xsd:sequence>
+                                                                                            <xsd:all>
                                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                                            </xsd:sequence>
+                                                                                            </xsd:all>
                                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                                             <xsd:attribute name="counter"   type="xsd:int" use="required"/>
                                                                                             <xsd:attribute ref="xml:base"/>
@@ -114,7 +120,7 @@
                                                                                 <xsd:attribute ref="xml:base"/>
                                                                             </xsd:complexType>
                                                                         </xsd:element>
-                                                                    </xsd:sequence>
+                                                                    </xsd:all>
                                                                     <xsd:attribute ref="xml:base"/>
                                                                 </xsd:complexType>
                                                             </xsd:element>
@@ -127,16 +133,16 @@
                                                         <xsd:sequence>
                                                             <xsd:element name="endConditionGroup" minOccurs="0" maxOccurs="unbounded">
                                                                 <xsd:complexType>
-                                                                    <xsd:sequence>
+                                                                    <xsd:all>
                                                                         <xsd:element name="endConditions">
                                                                             <xsd:complexType>
                                                                                 <xsd:sequence>
                                                                                     <xsd:element name="endCondition" minOccurs="0" maxOccurs="unbounded">
                                                                                         <xsd:complexType>
-                                                                                            <xsd:sequence>
+                                                                                            <xsd:all>
                                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                                            </xsd:sequence>
+                                                                                            </xsd:all>
                                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                                             <xsd:attribute name="counter"   type="xsd:int" use="required"/>
                                                                                             <xsd:attribute ref="xml:base"/>
@@ -146,7 +152,7 @@
                                                                                 <xsd:attribute ref="xml:base"/>
                                                                             </xsd:complexType>
                                                                         </xsd:element>
-                                                                    </xsd:sequence>
+                                                                    </xsd:all>
                                                                     <xsd:attribute ref="xml:base"/>
                                                                 </xsd:complexType>
                                                             </xsd:element>
@@ -159,16 +165,16 @@
                                                         <xsd:sequence>
                                                             <xsd:element name="cancelConditionGroup" minOccurs="0" maxOccurs="unbounded">
                                                                 <xsd:complexType>
-                                                                    <xsd:sequence>
+                                                                    <xsd:all>
                                                                         <xsd:element name="cancelConditions">
                                                                             <xsd:complexType>
                                                                                 <xsd:sequence>
                                                                                     <xsd:element name="cancelCondition" minOccurs="0" maxOccurs="unbounded">
                                                                                         <xsd:complexType>
-                                                                                            <xsd:sequence>
+                                                                                            <xsd:all>
                                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                                            </xsd:sequence>
+                                                                                            </xsd:all>
                                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                                             <xsd:attribute name="counter"   type="xsd:int" use="required"/>
                                                                                             <xsd:attribute ref="xml:base"/>
@@ -178,7 +184,7 @@
                                                                                 <xsd:attribute ref="xml:base"/>
                                                                             </xsd:complexType>
                                                                         </xsd:element>
-                                                                    </xsd:sequence>
+                                                                    </xsd:all>
                                                                     <xsd:attribute ref="xml:base"/>
                                                                 </xsd:complexType>
                                                             </xsd:element>
@@ -191,7 +197,7 @@
                                                         <xsd:sequence>
                                                             <xsd:element name="maneuver" minOccurs="1" maxOccurs="unbounded">
                                                                 <xsd:complexType>
-                                                                    <xsd:sequence>
+                                                                    <xsd:all>
                                                                         <xsd:element name="refActors">
                                                                             <xsd:complexType>
                                                                                 <xsd:sequence>
@@ -205,12 +211,9 @@
                                                                                 <xsd:attribute ref="xml:base"/>
                                                                             </xsd:complexType>
                                                                         </xsd:element>
-                                                                        <xsd:choice>
-                                                                            <xsd:element name="catalogReference"    type="OSCCatalogReference"/>
-                                                                            <xsd:element name="maneuver"            type="OSCManeuver"/>
-                                                                        </xsd:choice>
+                                                                        <xsd:element ref="CHOICE_catalogReference_maneuver"/>
                                                                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                    </xsd:sequence>
+                                                                    </xsd:all>
                                                                     <xsd:attribute name="name"                  type="xsd:string" use="required"/>
                                                                     <xsd:attribute name="priority"              type="Enum_maneuver_priority" use="required"/>
                                                                     <xsd:attribute name="numberOfExecutions"    type="xsd:int" use="required"/>
@@ -221,7 +224,7 @@
                                                         <xsd:attribute ref="xml:base"/>
                                                     </xsd:complexType>
                                                 </xsd:element>
-                                            </xsd:sequence>
+                                            </xsd:all>
                                             <xsd:attribute ref="xml:base"/>
                                         </xsd:complexType>
                                     </xsd:element>
@@ -234,22 +237,22 @@
                                 <xsd:sequence>
                                     <xsd:element name="refActor" minOccurs="0" maxOccurs="unbounded">
                                         <xsd:complexType>
-                                            <xsd:sequence>
+                                            <xsd:all>
                                                 <xsd:element name="maneuvers">
                                                     <xsd:complexType>
                                                         <xsd:sequence>
                                                             <xsd:element name="maneuver" minOccurs="0" maxOccurs="unbounded">
                                                                 <xsd:complexType>
-                                                                    <xsd:sequence>
+                                                                    <xsd:all>
                                                                         <xsd:element name="startConditions">
                                                                             <xsd:complexType>
                                                                                 <xsd:sequence>
                                                                                     <xsd:element name="startCondition" minOccurs="1" maxOccurs="unbounded">
                                                                                         <xsd:complexType>
-                                                                                            <xsd:sequence>
+                                                                                            <xsd:all>
                                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                                            </xsd:sequence>
+                                                                                            </xsd:all>
                                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                                             <xsd:attribute name="iid"       type="xsd:unsignedInt" use="required"/>
                                                                                             <xsd:attribute name="groupId"   type="xsd:int" use="optional"/>
@@ -266,10 +269,10 @@
                                                                                 <xsd:sequence>
                                                                                     <xsd:element name="endCondition" minOccurs="0" maxOccurs="unbounded">
                                                                                         <xsd:complexType>
-                                                                                            <xsd:sequence>
+                                                                                            <xsd:all>
                                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                                            </xsd:sequence>
+                                                                                            </xsd:all>
                                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                                             <xsd:attribute name="iid"       type="xsd:unsignedInt" use="required"/>
                                                                                             <xsd:attribute name="groupId"   type="xsd:int" use="optional"/>
@@ -286,10 +289,10 @@
                                                                                 <xsd:sequence>
                                                                                     <xsd:element name="cancelCondition" minOccurs="0" maxOccurs="unbounded">
                                                                                         <xsd:complexType>
-                                                                                            <xsd:sequence>
+                                                                                            <xsd:all>
                                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                                            </xsd:sequence>
+                                                                                            </xsd:all>
                                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                                             <xsd:attribute name="iid"       type="xsd:unsignedInt" use="required"/>
                                                                                             <xsd:attribute name="groupId"   type="xsd:int" use="optional"/>
@@ -301,34 +304,9 @@
                                                                                 <xsd:attribute ref="xml:base"/>
                                                                             </xsd:complexType>
                                                                         </xsd:element>
-                                                                        <xsd:choice>
-                                                                            <xsd:element name="catalogReference">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:sequence>
-                                                                                        <xsd:element name="parameterList">
-                                                                                            <xsd:complexType>
-                                                                                                <xsd:sequence>
-                                                                                                    <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
-                                                                                                        <xsd:complexType>
-                                                                                                            <xsd:attribute name="name"      type="xsd:string" use="required"/>
-                                                                                                            <xsd:attribute name="value"     type="xsd:string" use="required"/>
-                                                                                                            <xsd:attribute name="type"     type="xsd:string" use="required"/>
-                                                                                                            <xsd:attribute ref="xml:base"/>
-                                                                                                        </xsd:complexType>
-                                                                                                    </xsd:element>
-                                                                                                </xsd:sequence>
-                                                                                                <xsd:attribute ref="xml:base"/>
-                                                                                            </xsd:complexType>
-                                                                                        </xsd:element>
-                                                                                    </xsd:sequence>
-                                                                                    <xsd:attribute name="refId" type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                            <xsd:element name="maneuver"    type="OSCManeuver"/>
-                                                                        </xsd:choice>
+                                                                        <xsd:element ref="CHOICE_catalogReference_maneuver"/>
                                                                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                    </xsd:sequence>
+                                                                    </xsd:all>
                                                                     <xsd:attribute name="name"                  type="xsd:string" use="required"/>
                                                                     <xsd:attribute name="numberOfExecutions"    type="xsd:int" use="required"/>
                                                                     <xsd:attribute name="priority"              type="Enum_maneuver_priority" use="required"/>
@@ -339,7 +317,7 @@
                                                         <xsd:attribute ref="xml:base"/>
                                                     </xsd:complexType>
                                                 </xsd:element>
-                                            </xsd:sequence>
+                                            </xsd:all>
                                             <xsd:attribute name="name"  type="xsd:string" use="required"/>
                                             <xsd:attribute ref="xml:base"/>
                                         </xsd:complexType>
@@ -349,29 +327,29 @@
                             </xsd:complexType>
                         </xsd:element>
                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
+                    </xsd:all>
                     <xsd:attribute ref="xml:base"/>
                 </xsd:complexType>
             </xsd:element>
 
             <xsd:element name="scenarioEnd">
                 <xsd:complexType>
-                    <xsd:sequence>
+                    <xsd:all>
                         <xsd:element name="endConditionGroups">
                             <xsd:complexType>
                                 <xsd:sequence>
                                     <xsd:element name="endConditionGroup" minOccurs="0" maxOccurs="unbounded">
                                         <xsd:complexType>
-                                            <xsd:sequence>
+                                            <xsd:all>
                                                 <xsd:element name="endConditions">
                                                     <xsd:complexType>
                                                         <xsd:sequence>
                                                             <xsd:element name="endCondition"    minOccurs="0" maxOccurs="unbounded">
                                                                 <xsd:complexType>
-                                                                    <xsd:sequence>
+                                                                    <xsd:all>
                                                                         <xsd:element name="condition"   type="OSCCondition"/>
                                                                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                    </xsd:sequence>
+                                                                    </xsd:all>
                                                                     <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                     <xsd:attribute name="counter"   type="xsd:int" use="required"/>
                                                                     <xsd:attribute ref="xml:base"/>
@@ -381,7 +359,7 @@
                                                         <xsd:attribute ref="xml:base"/>
                                                     </xsd:complexType>
                                                 </xsd:element>
-                                            </xsd:sequence>
+                                            </xsd:all>
                                             <xsd:attribute ref="xml:base"/>
                                         </xsd:complexType>
                                     </xsd:element>
@@ -390,14 +368,14 @@
                             </xsd:complexType>
                         </xsd:element>
                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
+                    </xsd:all>
                     <xsd:attribute ref="xml:base"/>
                 </xsd:complexType>
             </xsd:element>
 
-            <xsd:element name="test">
+            <xsd:element name="test"  minOccurs="0" maxOccurs="1">
                 <xsd:complexType>
-                    <xsd:sequence>
+                    <xsd:all>
                         <xsd:element name="miscObject"  type="OSCMiscObject"  minOccurs="0" maxOccurs="1"/>
                         <xsd:element name="pedestrian"  type="OSCPedestrian"  minOccurs="0" maxOccurs="1"/>
                         <xsd:element name="observer"    type="OSCObserver"    minOccurs="0" maxOccurs="1"/>
@@ -407,14 +385,20 @@
                         <xsd:element name="environment" type="OSCEnvironment" minOccurs="0" maxOccurs="1"/>
                         <xsd:element name="vehicle"     type="OSCVehicle"     minOccurs="0" maxOccurs="1"/>
                         <xsd:element name="maneuver"    type="OSCManeuver"    minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
+                    </xsd:all>
                     <xsd:attribute ref="xml:base"/>
                 </xsd:complexType>
             </xsd:element>
 
-        </xsd:sequence>
+        </xsd:all>
     </xsd:complexType>
 </xsd:element>
+
+
+
+<!-- -->
+<!-- Enumerations -->
+<!-- -->
 
 <xsd:simpleType name="Enum_TBD">
   <xsd:restriction base="xsd:string">
@@ -578,6 +562,340 @@
   </xsd:restriction>
 </xsd:simpleType>
 
+
+
+<!-- -->
+<!-- Choices -->
+<!-- -->
+
+<xsd:element name="CHOICE_catalogReference_maneuver" abstract="true"/>
+<!-- -->
+<xsd:element name="catalogReference"   type="OSCCatalogReference"   substitutionGroup="CHOICE_catalogReference_maneuver"/>
+<xsd:element name="maneuver"           type="OSCManeuver"           substitutionGroup="CHOICE_catalogReference_maneuver"/>
+
+
+<xsd:element name="CHOICE_boundingBox_visualRange" abstract="true"/>
+<!-- -->
+<xsd:element name="boundingBox"   substitutionGroup="CHOICE_boundingBox_visualRange">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="center">
+                <xsd:complexType>
+                    <xsd:attribute name="x" type="xsd:double" use="required"/>
+                    <xsd:attribute name="y" type="xsd:double" use="required"/>
+                    <xsd:attribute name="z" type="xsd:double" use="required"/>
+                    <xsd:attribute name="h" type="xsd:float" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="dimension">
+                <xsd:complexType>
+                    <xsd:attribute name="width"     type="xsd:double" use="required"/>
+                    <xsd:attribute name="length"    type="xsd:double" use="required"/>
+                    <xsd:attribute name="height"    type="xsd:double" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="visualRange"   substitutionGroup="CHOICE_boundingBox_visualRange">
+    <xsd:complexType>
+        <xsd:attribute name="value" type="xsd:float" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+
+
+<xsd:element name="CHOICE_maneuver__action" abstract="true"/>
+<!-- -->
+<xsd:element name="autonomous"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="activate"  type="xsd:boolean" use="required"/>
+        <xsd:attribute name="driver"    type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="speed"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="dynamics">
+                <xsd:complexType>
+                    <xsd:attribute name="shape"     type="xsd:string" use="required"/>
+                    <xsd:attribute name="rate"      type="xsd:double" use="required"/>
+                    <xsd:attribute name="immediate" type="xsd:boolean" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element ref="CHOICE_maneuver__action_speed_rel_abs"/>
+        </xsd:all>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="laneChange"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="dynamics">
+                <xsd:complexType>
+                    <xsd:attribute name="shape"         type="xsd:string" use="required"/>
+                    <xsd:attribute name="maxLateralAcc" type="xsd:double" use="required"/>
+                    <xsd:attribute name="duration"      type="xsd:double" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element ref="CHOICE_maneuver__action_laneChange_rel_abs"/>
+        </xsd:all>
+        <xsd:attribute name="targetLaneOffset"  type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="laneOffset"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="dynamics">
+                <xsd:complexType>
+                    <xsd:attribute name="maxLateralAcc" type="xsd:double" use="required"/>
+                    <xsd:attribute name="duration"      type="xsd:double" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element ref="CHOICE_maneuver__action_laneOffset_rel_abs"/>
+        </xsd:all>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="position"   type="OSCPosition"   substitutionGroup="CHOICE_maneuver__action"/>
+<xsd:element name="distanceLateral"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+        <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
+        <xsd:attribute name="distance"  type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="distanceLongitudinal"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+        <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
+        <xsd:attribute name="distance"  type="xsd:double" use="required"/>
+        <xsd:attribute name="timeGap"   type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="visibility"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="graphics"  type="xsd:boolean" use="required"/>
+        <xsd:attribute name="traffic"   type="xsd:boolean" use="required"/>
+        <xsd:attribute name="sensors"   type="xsd:boolean" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="characterAppearance"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="feature"   type="xsd:string" use="required"/>
+        <xsd:attribute name="value"     type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="characterMotion"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="motionType"    type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="characterGesture"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="gesture"    type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="trafficLight"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:choice>
+            <xsd:element name="setController">
+                <xsd:complexType>
+                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                    <xsd:attribute name="state" type="xsd:string" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setState">
+                <xsd:complexType>
+                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                    <xsd:attribute name="state" type="xsd:string" use="required"/>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:choice>
+    <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="entityAdd"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="position" type="OSCPosition"/>
+        </xsd:all>
+        <xsd:attribute name="name"  type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="entityDelete"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="name"  type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="trafficJam"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="position" type="OSCPosition"/>
+        </xsd:all>
+        <xsd:attribute name="tbd"   type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="trafficSource"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="position" type="OSCPosition"/>
+        </xsd:all>
+        <xsd:attribute name="distance"          type="Enum_trafficSource_distance" use="required"/>
+        <xsd:attribute name="rate"              type="xsd:double" use="required"/>
+        <xsd:attribute name="velocity"          type="xsd:double" use="required"/>
+        <xsd:attribute name="velocityDeviation" type="xsd:double" use="required"/>
+        <xsd:attribute name="forward"           type="xsd:boolean" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="trafficSink"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="position" type="OSCPosition"/>
+        </xsd:all>
+        <xsd:attribute name="tbd"   type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="userDefinedCommand"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="command"   type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="userDefinedAction"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="parameterList">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:complexType>
+                                <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                                <xsd:attribute name="value" type="xsd:string" use="required"/>
+                                <xsd:attribute name="type"  type="xsd:string" use="required"/>
+                                <xsd:attribute ref="xml:base"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute name="name"  type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="userScript"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="file" type="OSCFile"/>
+            <xsd:element name="parameterList">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:complexType>
+                                <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                                <xsd:attribute name="value" type="xsd:string" use="required"/>
+                                <xsd:attribute name="type"  type="xsd:string" use="required"/>
+                                <xsd:attribute ref="xml:base"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:attribute ref="xml:base"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute name="name"      type="xsd:string" use="required"/>
+        <xsd:attribute name="execution" type="Enum_userScript_execution" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="notify"   substitutionGroup="CHOICE_maneuver__action">
+    <xsd:complexType>
+        <xsd:attribute name="text"  type="xsd:string" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+
+
+<xsd:element name="CHOICE_maneuver__action_speed_rel_abs" abstract="true"/>
+<!-- -->
+<xsd:element name="relativeSpeed"   substitutionGroup="CHOICE_maneuver__action_speed_rel_abs">
+    <xsd:complexType>
+        <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+        <xsd:attribute name="delta"     type="xsd:double" use="required"/>
+        <xsd:attribute name="factor"    type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="absoluteSpeed"   substitutionGroup="CHOICE_maneuver__action_speed_rel_abs">
+    <xsd:complexType>
+        <xsd:attribute name="target"    type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+
+
+<xsd:element name="CHOICE_maneuver__action_laneChange_rel_abs" abstract="true"/>
+<!-- -->
+<xsd:element name="relativeLaneChange"   substitutionGroup="CHOICE_maneuver__action_laneChange_rel_abs">
+    <xsd:complexType>
+        <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+        <xsd:attribute name="delta"     type="xsd:int" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="absoluteLaneChange"   substitutionGroup="CHOICE_maneuver__action_laneChange_rel_abs">
+    <xsd:complexType>
+        <xsd:attribute name="target"    type="xsd:int" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+
+
+<xsd:element name="CHOICE_maneuver__action_laneOffset_rel_abs" abstract="true"/>
+<!-- -->
+<xsd:element name="relativeLaneOffset"   substitutionGroup="CHOICE_maneuver__action_laneOffset_rel_abs">
+    <xsd:complexType>
+        <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+        <xsd:attribute name="delta"     type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+<xsd:element name="absoluteLaneOffset"   substitutionGroup="CHOICE_maneuver__action_laneOffset_rel_abs">
+    <xsd:complexType>
+        <xsd:attribute name="target"    type="xsd:double" use="required"/>
+        <xsd:attribute ref="xml:base"/>
+    </xsd:complexType>
+</xsd:element>
+
+
+
+<!-- -->
+<!-- ComplexTypes -->
+<!-- -->
+
 <xsd:complexType name="OSCCondition">
     <xsd:choice>
         <xsd:element name="simulationTime">
@@ -588,7 +906,7 @@
         </xsd:element>
         <xsd:element name="timeOfDay">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="time">
                         <xsd:complexType>
                             <xsd:attribute name="hour"  type="xsd:unsignedInt" use="required"/>
@@ -605,15 +923,15 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="reachPosition">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="position" type="OSCPosition"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="tolerance" type="xsd:double" use="required"/>
                 <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
                 <xsd:attribute ref="xml:base"/>
@@ -658,9 +976,9 @@
         </xsd:element>
         <xsd:element name="stoppingDistance">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="position" type="OSCPosition"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="object"    type="xsd:string" use="required"/>
                 <xsd:attribute name="refObject" type="xsd:string" use="required"/>
                 <xsd:attribute name="value"     type="xsd:double" use="required"/>
@@ -671,9 +989,9 @@
         </xsd:element>
         <xsd:element name="timeToCollision">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="position" type="OSCPosition"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="object"    type="xsd:string" use="required"/>
                 <xsd:attribute name="refObject" type="xsd:string" use="required"/>
                 <xsd:attribute name="value"     type="xsd:double" use="required"/>
@@ -684,9 +1002,9 @@
         </xsd:element>
         <xsd:element name="timeHeadway">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="position" type="OSCPosition"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="object"    type="xsd:string" use="required"/>
                 <xsd:attribute name="refObject" type="xsd:string" use="required"/>
                 <xsd:attribute name="value"     type="xsd:double" use="required"/>
@@ -756,7 +1074,7 @@
         </xsd:element>
         <xsd:element name="userDefined">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="parameterList">
                         <xsd:complexType>
                             <xsd:sequence>
@@ -772,7 +1090,7 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="uid"   type="xsd:string" use="required"/>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
@@ -782,7 +1100,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCCoord">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="position">
             <xsd:complexType>
                 <xsd:attribute name="x" type="xsd:double" use="required"/>
@@ -799,7 +1117,7 @@
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
 
@@ -814,7 +1132,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCLight">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="color">
             <xsd:complexType>
                 <xsd:attribute name="r" type="xsd:float" use="required"/>
@@ -831,16 +1149,16 @@
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
 
 <xsd:complexType name="OSCMiscObject">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="dimension"   type="OSCDimension"/>
         <xsd:element name="geometry"    type="OSCFile"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name" type="xsd:string" use="required"/>
     <xsd:attribute name="type" type="xsd:string" use="required"/>
     <xsd:attribute name="mass" type="xsd:double" use="required"/>
@@ -859,7 +1177,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCPedestrian">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="dimension"   type="OSCDimension"/>
         <xsd:element name="geometry"    type="OSCFile"/>
@@ -870,7 +1188,7 @@
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"     type="xsd:string" use="required"/>
     <xsd:attribute name="refId"    type="xsd:int" use="required"/>
     <xsd:attribute name="category" type="Enum_pedestrian_category" use="required"/>
@@ -880,7 +1198,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCObserver">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="frustum">
             <xsd:complexType>
@@ -909,7 +1227,7 @@
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"  type="xsd:string" use="required"/>
     <xsd:attribute name="refId" type="xsd:int" use="required"/>
     <xsd:attribute name="type"  type="xsd:string" use="required"/>
@@ -917,7 +1235,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCEntity">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="objectChoice">
             <xsd:complexType>
                 <xsd:choice>
@@ -968,33 +1286,33 @@
         </xsd:element>
         <xsd:element name="observer">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="coord"  type="OSCCoord"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="name"  type="xsd:string" use="required"/>
                 <xsd:attribute name="refId" type="xsd:int" use="required"/>
                 <xsd:attribute name="iid"   type="xsd:int" use="required"/>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"  type="xsd:string" use="required"/>
     <xsd:attribute name="refId" type="xsd:int" use="required"/>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
 
 <xsd:complexType name="OSCRouting">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
         <xsd:element name="observer">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="general">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                             <xsd:attribute name="closed"    type="xsd:boolean" use="required"/>
                             <xsd:attribute ref="xml:base"/>
@@ -1005,7 +1323,7 @@
                             <xsd:sequence>
                                 <xsd:element name="waypoint" minOccurs="2" maxOccurs="unbounded">
                                     <xsd:complexType>
-                                        <xsd:sequence>
+                                        <xsd:all>
                                             <xsd:element name="position"    type="OSCPosition"/>
                                             <xsd:element name="continuation">
                                                 <xsd:complexType>
@@ -1024,7 +1342,7 @@
                                                                     </xsd:element>
                                                                     <xsd:element name="spline">
                                                                         <xsd:complexType>
-                                                                            <xsd:sequence>
+                                                                            <xsd:all>
                                                                                 <xsd:element name="controlPoint1">
                                                                                     <xsd:complexType>
                                                                                         <xsd:attribute name="status"   type="Enum_TBD" use="required"/>
@@ -1035,7 +1353,7 @@
                                                                                         <xsd:attribute name="status"   type="Enum_TBD" use="required"/>
                                                                                     </xsd:complexType>
                                                                                 </xsd:element>
-                                                                            </xsd:sequence>
+                                                                            </xsd:all>
                                                                             <xsd:attribute ref="xml:base"/>
                                                                         </xsd:complexType>
                                                                     </xsd:element>
@@ -1059,7 +1377,7 @@
                                                     <xsd:attribute ref="xml:base"/>
                                                 </xsd:complexType>
                                             </xsd:element>
-                                        </xsd:sequence>
+                                        </xsd:all>
                                         <xsd:attribute ref="xml:base"/>
                                     </xsd:complexType>
                                 </xsd:element>
@@ -1067,19 +1385,19 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="name"  type="xsd:string" use="required"/>
                 <xsd:attribute name="refId" type="xsd:int" use="required"/>
                 <xsd:attribute name="type"  type="xsd:string" use="required"/>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
 
 <xsd:complexType name="OSCDriver">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="body">
             <xsd:complexType>
@@ -1092,7 +1410,7 @@
         </xsd:element>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
         <xsd:element name="geometry"    type="OSCFile"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"                      type="xsd:string" use="required"/>
     <xsd:attribute name="obeyTrafficLights"         type="xsd:boolean" use="required"/>
     <xsd:attribute name="obeyTrafficSigns"          type="xsd:boolean" use="required"/>
@@ -1121,11 +1439,11 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCEnvironment">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="timeOfDay">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="time">
                         <xsd:complexType>
                             <xsd:attribute name="hour"  type="xsd:unsignedInt" use="required"/>
@@ -1142,18 +1460,18 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="animation" type="xsd:boolean" use="required"/>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="weather">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="sun" type="OSCLight"/>
                     <xsd:element name="fog">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="color">
                                     <xsd:complexType>
                                         <xsd:attribute name="r" type="xsd:float" use="required"/>
@@ -1162,39 +1480,8 @@
                                         <xsd:attribute ref="xml:base"/>
                                     </xsd:complexType>
                                 </xsd:element>
-                                <xsd:choice>
-                                    <xsd:element name="boundingBox">
-                                        <xsd:complexType>
-                                            <xsd:sequence>
-                                                <xsd:element name="center">
-                                                    <xsd:complexType>
-                                                        <xsd:attribute name="x" type="xsd:double" use="required"/>
-                                                        <xsd:attribute name="y" type="xsd:double" use="required"/>
-                                                        <xsd:attribute name="z" type="xsd:double" use="required"/>
-                                                        <xsd:attribute name="h" type="xsd:float" use="required"/>
-                                                        <xsd:attribute ref="xml:base"/>
-                                                    </xsd:complexType>
-                                                </xsd:element>
-                                                <xsd:element name="dimension">
-                                                    <xsd:complexType>
-                                                        <xsd:attribute name="width"     type="xsd:double" use="required"/>
-                                                        <xsd:attribute name="length"    type="xsd:double" use="required"/>
-                                                        <xsd:attribute name="height"    type="xsd:double" use="required"/>
-                                                        <xsd:attribute ref="xml:base"/>
-                                                    </xsd:complexType>
-                                                </xsd:element>
-                                            </xsd:sequence>
-                                            <xsd:attribute ref="xml:base"/>
-                                        </xsd:complexType>
-                                    </xsd:element>
-                                    <xsd:element name="visibility">
-                                        <xsd:complexType>
-                                            <xsd:attribute name="value" type="xsd:float" use="required"/>
-                                            <xsd:attribute ref="xml:base"/>
-                                        </xsd:complexType>
-                                    </xsd:element>
-                                </xsd:choice>
-                            </xsd:sequence>
+                                <xsd:element ref="CHOICE_boundingBox_visualRange"/>
+                            </xsd:all>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
@@ -1205,14 +1492,14 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="cloudState" type="Enum_cloudState" use="required"/>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="roadConditionsGroup">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="roadConditions">
                         <xsd:complexType>
                             <xsd:sequence>
@@ -1227,23 +1514,23 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="frictionScale" type="xsd:float" use="required"/>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"  type="xsd:string" use="required"/>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
 
 <xsd:complexType name="OSCVehicle">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader"  type="OSCFileHeader"/>
         <xsd:element name="performance">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="aerodynamics">
                         <xsd:complexType>
                             <xsd:attribute name="airDragCoefficient"    type="xsd:double" use="required"/>
@@ -1274,7 +1561,7 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute name="maxSpeed"          type="xsd:double" use="required"/>
                 <xsd:attribute name="maxDeceleration"   type="xsd:double" use="required"/>
                 <xsd:attribute name="overallEfficiency" type="xsd:double" use="required"/>
@@ -1285,7 +1572,7 @@
         <xsd:element name="dimension"  type="OSCDimension"/>
         <xsd:element name="axles">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="front"       type="OSCVehicleAxle"/>
                     <xsd:element name="rear"        type="OSCVehicleAxle"/>
                     <xsd:element name="additionalAxles">
@@ -1296,7 +1583,7 @@
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
@@ -1305,10 +1592,10 @@
                 <xsd:sequence>
                     <xsd:element name="light" minOccurs="0" maxOccurs="unbounded">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="coord"   type="OSCCoord"/>
                                 <xsd:element name="light"   type="OSCLight"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute name="type"      type="xsd:string" use="required"/>
                             <xsd:attribute name="frequency" type="xsd:double" use="required"/>
                             <xsd:attribute ref="xml:base"/>
@@ -1323,9 +1610,9 @@
                 <xsd:sequence>
                     <xsd:element name="eyepoint" minOccurs="1" maxOccurs="unbounded">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="coord"   type="OSCCoord"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute name="type"      type="xsd:string" use="required"/>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
@@ -1339,9 +1626,9 @@
                 <xsd:sequence>
                     <xsd:element name="mirror" minOccurs="0" maxOccurs="unbounded">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="coord"   type="OSCCoord"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute name="type"      type="xsd:string" use="required"/>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
@@ -1365,7 +1652,7 @@
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"          type="xsd:string" use="required"/>
     <xsd:attribute name="category"      type="Enum_vehicle_category" use="required"/>
     <xsd:attribute name="manufacturer"  type="xsd:string" use="required"/>
@@ -1376,7 +1663,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCManeuver">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="fileHeader" type="OSCFileHeader"/>
         <xsd:element name="parameterList">
             <xsd:complexType>
@@ -1397,22 +1684,22 @@
                 <xsd:sequence>
                     <xsd:element name="event" minOccurs="0" maxOccurs="unbounded">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="startConditionGroups">
                                     <xsd:complexType>
                                         <xsd:sequence>
                                             <xsd:element name="startConditionGroup" minOccurs="0" maxOccurs="unbounded">
                                                 <xsd:complexType>
-                                                    <xsd:sequence>
+                                                    <xsd:all>
                                                         <xsd:element name="startConditions">
                                                             <xsd:complexType>
                                                                 <xsd:sequence>
                                                                     <xsd:element name="startCondition" minOccurs="1" maxOccurs="unbounded">
                                                                         <xsd:complexType>
-                                                                            <xsd:sequence>
+                                                                            <xsd:all>
                                                                                 <xsd:element name="condition"   type="OSCCondition"/>
                                                                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                                            </xsd:sequence>
+                                                                            </xsd:all>
                                                                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                                                                             <xsd:attribute name="delayTime" type="xsd:double" use="required"/>
                                                                             <xsd:attribute ref="xml:base"/>
@@ -1422,7 +1709,7 @@
                                                                 <xsd:attribute ref="xml:base"/>
                                                             </xsd:complexType>
                                                         </xsd:element>
-                                                    </xsd:sequence>
+                                                    </xsd:all>
                                                     <xsd:attribute ref="xml:base"/>
                                                 </xsd:complexType>
                                             </xsd:element>
@@ -1435,283 +1722,10 @@
                                         <xsd:sequence>
                                             <xsd:element name="action" minOccurs="1" maxOccurs="unbounded">
                                                 <xsd:complexType>
-                                                    <xsd:sequence>
+                                                    <xsd:all>
                                                         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                                                        <xsd:choice>
-                                                            <xsd:element name="autonomous">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="activate"  type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute name="driver"    type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="speed">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="dynamics">
-                                                                            <xsd:complexType>
-                                                                                <xsd:attribute name="shape"     type="xsd:string" use="required"/>
-                                                                                <xsd:attribute name="rate"      type="xsd:double" use="required"/>
-                                                                                <xsd:attribute name="immediate" type="xsd:boolean" use="required"/>
-                                                                                <xsd:attribute ref="xml:base"/>
-                                                                            </xsd:complexType>
-                                                                        </xsd:element>
-                                                                        <xsd:choice>
-                                                                            <xsd:element name="relative">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="refObject" type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute name="delta"     type="xsd:double" use="required"/>
-                                                                                    <xsd:attribute name="factor"    type="xsd:double" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                            <xsd:element name="absolute">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="target"    type="xsd:double" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                        </xsd:choice>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="laneChange">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="dynamics">
-                                                                            <xsd:complexType>
-                                                                                <xsd:attribute name="shape"         type="xsd:string" use="required"/>
-                                                                                <xsd:attribute name="maxLateralAcc" type="xsd:double" use="required"/>
-                                                                                <xsd:attribute name="duration"      type="xsd:double" use="required"/>
-                                                                                <xsd:attribute ref="xml:base"/>
-                                                                            </xsd:complexType>
-                                                                        </xsd:element>
-                                                                        <xsd:choice>
-                                                                            <xsd:element name="relative">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="refObject" type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute name="delta"     type="xsd:int" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                            <xsd:element name="absolute">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="target"    type="xsd:int" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                        </xsd:choice>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="targetLaneOffset"  type="xsd:double" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="laneOffset">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="dynamics">
-                                                                            <xsd:complexType>
-                                                                                <xsd:attribute name="maxLateralAcc" type="xsd:double" use="required"/>
-                                                                                <xsd:attribute name="duration"      type="xsd:double" use="required"/>
-                                                                                <xsd:attribute ref="xml:base"/>
-                                                                            </xsd:complexType>
-                                                                        </xsd:element>
-                                                                        <xsd:choice>
-                                                                            <xsd:element name="relative">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="refObject" type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute name="delta"     type="xsd:double" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                            <xsd:element name="absolute">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="target"    type="xsd:double" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                        </xsd:choice>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="position" type="OSCPosition"/>
-                                                            <xsd:element name="distanceLateral">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="refObject" type="xsd:string" use="required"/>
-                                                                    <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute name="distance"  type="xsd:double" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="distanceLongitudinal">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="refObject" type="xsd:string" use="required"/>
-                                                                    <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute name="distance"  type="xsd:double" use="required"/>
-                                                                    <xsd:attribute name="timeGap"   type="xsd:double" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="visibility">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="graphics"  type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute name="traffic"   type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute name="sensors"   type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="characterAppearance">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="feature"   type="xsd:string" use="required"/>
-                                                                    <xsd:attribute name="value"     type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="characterMotion">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="motionType"    type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="characterGesture">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="gesture"    type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="trafficLight">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:choice>
-                                                                            <xsd:element name="setController">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute name="state" type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                            <xsd:element name="setState">
-                                                                                <xsd:complexType>
-                                                                                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute name="state" type="xsd:string" use="required"/>
-                                                                                    <xsd:attribute ref="xml:base"/>
-                                                                                </xsd:complexType>
-                                                                            </xsd:element>
-                                                                        </xsd:choice>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="entityAdd">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="position" type="OSCPosition"/>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="entityDelete">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="trafficJam">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="position" type="OSCPosition"/>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="tbd"   type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="trafficSource">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="position" type="OSCPosition"/>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="distance"          type="Enum_trafficSource_distance" use="required"/>
-                                                                    <xsd:attribute name="rate"              type="xsd:double" use="required"/>
-                                                                    <xsd:attribute name="velocity"          type="xsd:double" use="required"/>
-                                                                    <xsd:attribute name="velocityDeviation" type="xsd:double" use="required"/>
-                                                                    <xsd:attribute name="forward"           type="xsd:boolean" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="trafficSink">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="position" type="OSCPosition"/>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="tbd"   type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="userDefinedCommand">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="command"   type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="userDefinedAction">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="parameterList">
-                                                                            <xsd:complexType>
-                                                                                <xsd:sequence>
-                                                                                    <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
-                                                                                        <xsd:complexType>
-                                                                                            <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                                            <xsd:attribute name="value" type="xsd:string" use="required"/>
-                                                                                            <xsd:attribute name="type"  type="xsd:string" use="required"/>
-                                                                                            <xsd:attribute ref="xml:base"/>
-                                                                                        </xsd:complexType>
-                                                                                    </xsd:element>
-                                                                                </xsd:sequence>
-                                                                                <xsd:attribute ref="xml:base"/>
-                                                                            </xsd:complexType>
-                                                                        </xsd:element>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="userScript">
-                                                                <xsd:complexType>
-                                                                    <xsd:sequence>
-                                                                        <xsd:element name="file" type="OSCFile"/>
-                                                                        <xsd:element name="parameterList">
-                                                                            <xsd:complexType>
-                                                                                <xsd:sequence>
-                                                                                    <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
-                                                                                        <xsd:complexType>
-                                                                                            <xsd:attribute name="name"  type="xsd:string" use="required"/>
-                                                                                            <xsd:attribute name="value" type="xsd:string" use="required"/>
-                                                                                            <xsd:attribute name="type"  type="xsd:string" use="required"/>
-                                                                                            <xsd:attribute ref="xml:base"/>
-                                                                                        </xsd:complexType>
-                                                                                    </xsd:element>
-                                                                                </xsd:sequence>
-                                                                                <xsd:attribute ref="xml:base"/>
-                                                                            </xsd:complexType>
-                                                                        </xsd:element>
-                                                                    </xsd:sequence>
-                                                                    <xsd:attribute name="name"      type="xsd:string" use="required"/>
-                                                                    <xsd:attribute name="execution" type="Enum_userScript_execution" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                            <xsd:element name="notify">
-                                                                <xsd:complexType>
-                                                                    <xsd:attribute name="text"  type="xsd:string" use="required"/>
-                                                                    <xsd:attribute ref="xml:base"/>
-                                                                </xsd:complexType>
-                                                            </xsd:element>
-                                                        </xsd:choice>
-                                                    </xsd:sequence>
+                                                        <xsd:element ref="CHOICE_maneuver__action"/>
+                                                    </xsd:all>
                                                     <xsd:attribute ref="xml:base"/>
                                                 </xsd:complexType>
                                             </xsd:element>
@@ -1719,7 +1733,7 @@
                                         <xsd:attribute ref="xml:base"/>
                                     </xsd:complexType>
                                 </xsd:element>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute name="name"      type="xsd:string" use="required"/>
                             <xsd:attribute name="priority"  type="Enum_event_priority" use="required"/>
                             <xsd:attribute ref="xml:base"/>
@@ -1729,7 +1743,7 @@
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="name"  type="xsd:string" use="required"/>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
@@ -1847,7 +1861,7 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCCatalogReference">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="parameterList">
             <xsd:complexType>
                 <xsd:sequence>
@@ -1863,7 +1877,7 @@
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="catalogId" type="xsd:string" use="required"/>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
@@ -1874,97 +1888,97 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCCatalogs">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="objectCatalog">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="vehicleCatalog">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="directory"   type="OSCDirectory"/>
                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="driverCatalog">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="directory"   type="OSCDirectory"/>
                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="observerCatalog">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="directory"   type="OSCDirectory"/>
                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="pedestrianCatalog">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="directory"   type="OSCDirectory"/>
                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="miscObjectCatalog">
                         <xsd:complexType>
-                            <xsd:sequence>
+                            <xsd:all>
                                 <xsd:element name="directory"   type="OSCDirectory"/>
                                 <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                            </xsd:sequence>
+                            </xsd:all>
                             <xsd:attribute ref="xml:base"/>
                         </xsd:complexType>
                     </xsd:element>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="entityCatalog">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="directory"   type="OSCDirectory"/>
                     <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="environmentCatalog">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="directory"   type="OSCDirectory"/>
                     <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="maneuverCatalog">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="directory"   type="OSCDirectory"/>
                     <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="routingCatalog">
             <xsd:complexType>
-                <xsd:sequence>
+                <xsd:all>
                     <xsd:element name="directory"   type="OSCDirectory"/>
                     <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-                </xsd:sequence>
+                </xsd:all>
                 <xsd:attribute ref="xml:base"/>
             </xsd:complexType>
         </xsd:element>
         <xsd:element name="userDataList"    type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute ref="xml:base"/>
 </xsd:complexType>
 
@@ -1987,9 +2001,9 @@
 </xsd:complexType>
 
 <xsd:complexType name="OSCFileHeader">
-    <xsd:sequence>
+    <xsd:all>
         <xsd:element name="userDataList" type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
-    </xsd:sequence>
+    </xsd:all>
     <xsd:attribute name="revMajor"      type="xsd:unsignedShort" use="required"/>
     <xsd:attribute name="revMinor"      type="xsd:unsignedShort" use="required"/>
     <xsd:attribute name="date"          type="xsd:dateTime" use="required"/>
