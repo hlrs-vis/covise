@@ -254,16 +254,16 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
     // whole document with all elements included in one document
     //
 
-    //new parser, generic settings, error handler
+    //new parser, error handler, generic settings
     //
     parser = new xercesc::XercesDOMParser();
-
-    //namespaces needed for XInclude and validation
-    parser->setDoNamespaces(true);
 
     //error handler
     ParserErrorHandler parserErrorHandler;
     parser->setErrorHandler(&parserErrorHandler);
+
+    //namespaces needed for XInclude and validation
+    parser->setDoNamespaces(true);
 
 
     //parse file with enabled XInclude and disabled validation
@@ -274,7 +274,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
     parser->setDoSchema(false);
 
     //parse the file
-    std::cout << "Parse the file '" << filename << "' with enabled XInclude and disabled validation.\n" << std::endl;
+    std::cout << "\nParse the file '" << filename << "' with enabled XInclude and disabled validation.\n" << std::endl;
     try
     {
         parser->parse(filename.c_str());
@@ -282,6 +282,7 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
     catch (...)
     {
         std::cerr << "\nErrors during parse of the document '" << filename << "'\n" << std::endl;
+
         return NULL;
     }
 
@@ -295,55 +296,51 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
     //
     if (validate)
     {
-        //get temporary xml document
-        xercesc::DOMDocument *tmpXmlDoc = parser->getDocument();
+        //name of XML Schema
+        const char *oscXmlSchema = "OpenScenario_XML-Schema.xsd";
 
-        //write xml document to memory buffer
-        xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(tmpXmlDoc);
+        //set location of schema for elements without namespace
+        // (in schema file no global namespace is used)
+        parser->setExternalNoNamespaceSchemaLocation(oscXmlSchema);
 
-        //raw buffer, length and fake id
-        const XMLByte* tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
+        //read the schema grammar file (.xsd) and cache it
+        std::cout << "\nLoad the XML Schema file '" << oscXmlSchema << "'.\n" << std::endl;
+        try
+        {
+            parser->loadGrammar(oscXmlSchema, xercesc::Grammar::SchemaGrammarType, true);
+        }
+        catch (...)
+        {
+            std::cerr << "\nCouldn't load XML Schema '" << oscXmlSchema << "'\n" << std::endl;
+
+            return NULL;
+        }
+
+        //success message for loading XML Schema
+        std::cout << "XML Schema loaded, no errors found.\n" << std::endl;
+
+
+        //settings for validation
+        parser->setDoXInclude(false); //disable XInclude for validation
+        parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+        parser->setDoSchema(true);
+        parser->setValidationConstraintFatal(true);
+        parser->setExitOnFirstFatalError(true);
+        parser->cacheGrammarFromParse(true);
+
+        //write xml document got from parser to memory buffer
+        xercesc::MemBufFormatTarget *tmpXmlMemBufFormat = writeFileToMemory(parser->getDocument());
+
+        //raw buffer, length and fake id for memory input source
+        const XMLByte *tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
         XMLSize_t tmpRawBufferLength = tmpXmlMemBufFormat->getLen();
         const XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
 
         //new input source from memory for parser
         xercesc::InputSource *tmpInputSrc = new xercesc::MemBufInputSource(tmpRawBuffer, tmpRawBufferLength, bufId);
 
-        //disable XInclude for validation
-        parser->setDoXInclude(false);
-
-        //validation
-        parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
-        parser->setDoSchema(true);
-        parser->setValidationConstraintFatal(true);
-        parser->setExitOnFirstFatalError(true);
-
-        // Enable grammar caching
-        parser->cacheGrammarFromParse(true);
-
-        //name of XML Schema
-        const char *oscXmlSchema = "OpenScenario_XML-Schema.xsd";
-
-        //set namespace location, preparse the schema grammar (.xsd) and cache it
-        parser->setExternalNoNamespaceSchemaLocation(oscXmlSchema);
-
-        if (parser->loadGrammar(oscXmlSchema, xercesc::Grammar::SchemaGrammarType, true) == NULL)
-        {
-            std::cerr << "\nCouldn't load XML Schema '" << oscXmlSchema << "'\n" << std::endl;
-
-            //delete used objects
-            delete tmpXmlMemBufFormat;
-            delete tmpInputSrc;
-
-            return NULL;
-        }
-        else
-        {
-            std::cerr << "\nXML Schema '"  << oscXmlSchema << "' loaded.\n" << std::endl;
-        }
-
         //parse memory buffer
-        std::cout << "Validate the complete xml structure with all included files.\n" << std::endl;
+        std::cout << "\nValidate the complete xml structure with all included files.\n" << std::endl;
         try
         {
             parser->parse(*tmpInputSrc);
@@ -352,10 +349,8 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &filenam
         {
             std::cerr << "\nErrors during validation of the document " << filename << "\n" << std::endl;
 
-            //delete used objects
             delete tmpXmlMemBufFormat;
             delete tmpInputSrc;
-
             return NULL;
         }
 
