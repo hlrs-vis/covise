@@ -25,6 +25,8 @@ all:
 	$(MAKE) vr-prepare
 	$(MAKE) pyc
 
+install: all
+
 vr-prepare:
 	PYTHON=$(PYTHON) ./makeVrPrepare.sh
 
