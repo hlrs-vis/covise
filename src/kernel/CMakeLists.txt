@@ -8,7 +8,7 @@ PROJECT(kernel CXX C)
 
 ADD_SUBDIRECTORY(file)
 
-if (NOT XERCESC_FOUND)
+if (NOT XERCESC_FOUND OR COVISE_BUILD_ONLY_FILE)
    return()
 endif()
 
