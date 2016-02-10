@@ -91,7 +91,7 @@ set(COVISE_VERSION_DAY 0)
 set(COVISE_GIT_DATE 1970-01-01)
 set(COVISE_VERSION_HASH "")
 if (GIT_FOUND)
-   execute_process(COMMAND ${GIT_EXECUTABLE} log -n1 --format=%t/%ci
+   execute_process(COMMAND ${GIT_EXECUTABLE} log -n1 --format=%h/%ci
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE GIT_LOG_OUT
       ERROR_VARIABLE GIT_LOG_ERROR
