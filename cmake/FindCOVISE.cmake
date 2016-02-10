@@ -42,7 +42,7 @@ else()
    endif()
 endif()
 
-find_path(COVISE_INCLUDE_DIR "config/CoviseConfig.h"
+find_path(COVISE_INCLUDE_DIR "file/coFileExport.h"
    PATHS
    ${COVISEDIR}/src/kernel
    PATH_SUFFIXES covise
