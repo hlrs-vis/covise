@@ -422,7 +422,6 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
-				std::cerr << bn << "is a time directory, " << t  << std::endl;
                 //if (t >= mintime && t <= maxtime)
                 {
                     ++num_timesteps;
