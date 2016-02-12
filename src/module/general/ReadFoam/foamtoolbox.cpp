@@ -16,7 +16,7 @@
  **                                                                        **
  **                                                                        **
  ** History:                                                               **
- ** May   13	    C.Kopf  	    V1.0                                   **
+ ** May   13        C.Kopf          V1.0                                   **
  *\**************************************************************************/
 
 //Includes copied from vistle ReadFOAM.cpp
@@ -237,7 +237,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
         info.varyingCoords = true;
         return true;
     }
-	// this usually never occurs:
+    // this usually never occurs:
     if (meshfiles.size() == 3 && time && !havePoints)
     {
         info.varyingGrid = true;
@@ -301,25 +301,25 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 
 bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double mintime, double maxtime, int skipfactor)
 {
-	// start out with 
-	std::stringstream s;
+    // start out with 
+    std::stringstream s;
     if (info.numblocks>0)
-		s << "/processor0" << "/";
-	std::string basedir = casedir;
-	basedir += s.str(); 
-	std::string fullMeshDir = info.constantdir;
+        s << "/processor0" << "/";
+    std::string basedir = casedir;
+    basedir += s.str(); 
+    std::string fullMeshDir = info.constantdir;
 
-	for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
-	{
-		std::string currentTimeDir= basedir + it->second;
-		checkSubDirectory(info, currentTimeDir, true);
-		if (info.varyingGrid)
-		{
-			fullMeshDir = it->second;
-		}
-		info.completeMeshDirs[it->first]=fullMeshDir;
-		std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
-	}
+    for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
+    {
+        std::string currentTimeDir= basedir + it->second;
+        checkSubDirectory(info, currentTimeDir, true);
+        if (info.varyingGrid)
+        {
+            fullMeshDir = it->second;
+        }
+        info.completeMeshDirs[it->first]=fullMeshDir;
+        std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
+    }
 
     // if numblocks>0 -> casedir/processor0/timedir/polyMesh
     // else casedir/timedir/polyMesh
@@ -328,19 +328,19 @@ bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double 
     // {
     // 
     // }
-/*	int counter = 0;
-	for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
-	{
-		next = it;
-		++next;
-		if (counter % skipfactor != 0)
-		{
-			std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
-			info.timedirs.erase(it);
-			--num_timesteps;
-		}
-		++counter;
-	}*/
+/*  int counter = 0;
+    for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
+    {
+        next = it;
+        ++next;
+        if (counter % skipfactor != 0)
+        {
+            std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
+            info.timedirs.erase(it);
+            --num_timesteps;
+        }
+        ++counter;
+    }*/
 
     return true;
 }
@@ -422,6 +422,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
+                //std::cerr << bn << "is a time directory, " << t  << std::endl;
                 //if (t >= mintime && t <= maxtime)
                 {
                     ++num_timesteps;
@@ -465,7 +466,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (counter % skipfactor != 0)
             {
                 std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
-				info.timedirs.erase(it);
+                info.timedirs.erase(it);
                 --num_timesteps;
             }
             ++counter;
@@ -480,7 +481,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-			//std::cerr << "directory :" << bn << std::endl;
+            //std::cerr << "directory :" << bn << std::endl;
             if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());
@@ -684,8 +685,9 @@ HeaderInfo readFoamHeader(std::istream &stream)
     struct FieldHeaderParser<std::string::iterator> fieldHeaderParser;
     struct headerSkipper<std::string::iterator> headerSkipper;
 
-    std::string fileheader = getFoamHeader(stream);
     HeaderInfo info;
+    info.header = getFoamHeader(stream);
+    std::string fileheader = info.header;
 
     info.valid = qi::phrase_parse(fileheader.begin(), fileheader.end(),
                                   headerParser, headerSkipper, info);
@@ -695,7 +697,7 @@ HeaderInfo readFoamHeader(std::istream &stream)
         std::cerr << "parsing FOAM file header failed" << std::endl;
 
         std::cerr << "================================================" << std::endl;
-        std::cerr << fileheader << std::endl;
+        std::cerr << info.header << std::endl;
         std::cerr << "================================================" << std::endl;
     }
 #if 0
@@ -1164,21 +1166,11 @@ bool readFloatVectorArray(const HeaderInfo &info, std::istream &stream, scalar_t
     return readVectorArray(info, stream, x, y, z, lines);
 }
 
-DimensionInfo readDimensions(const std::string &meshdir)
+DimensionInfo parseDimensions(std::string header)
 {
-
     struct dimParser<std::string::iterator> dimParser;
     struct dimSkipper<std::string::iterator> dimSkipper;
-    boost::shared_ptr<std::istream> fileIn = getStreamForFile(meshdir, "owner");
     DimensionInfo info;
-    if (!fileIn)
-    {
-        std::cerr << "failed to open " << meshdir + "/polyMesh/owner for reading dimensions" << std::endl;
-        info.valid = false;
-        return info;
-    }
-    std::string header = getFoamHeader(*fileIn);
-
     info.valid = qi::phrase_parse(header.begin(), header.end(), dimParser, dimSkipper, info);
     return info;
 }
