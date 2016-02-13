@@ -26,7 +26,7 @@
 #define MSTREAMPRINTF mStream.Printf( _T
 #else
 #define MAXSTREAMDECL FILE *
-#define MSTREAMPRINTF fprintf(stderr,
+#define MSTREAMPRINTF fprintf((mStream),
 #endif
 
 // these are used for the type of output polygon

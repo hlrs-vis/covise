@@ -2501,7 +2501,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
    haveDiffuseMap = false;
    GetTextures(mtl, dummy, numTextureDescs, textureDescs);
 
-   MSTREAMPRINTF  ("M_%s"),mtlName);
+   MSTREAMPRINTF  ("M_%s"),VRMLName(mtlName));
    delete[] matName;
    MSTREAMPRINTF  (" Material {\n"));
    Color c;
@@ -8023,7 +8023,10 @@ VRML2Export::VrmlOutNode(INode *node, INode *parent, int level, BOOL isLOD,
             mStream.Open(mFilename, false, CP_UTF8);
 #else
         if (!mStream)
+        {
             mStream = _tfopen(mFilename, _T("a"));
+            setvbuf ( mStream , NULL , _IOFBF , 1024000 );
+        }
 #endif
     }
 
@@ -8237,7 +8240,10 @@ VRML2Export::VrmlOutNode(INode *node, INode *parent, int level, BOOL isLOD,
             mStream.Open(mFilename, false, CP_UTF8);
 #else
         if (!mStream)
+        {
             mStream = _tfopen(mFilename, _T("a"));
+            setvbuf ( mStream , NULL , _IOFBF , 1024000 );
+        }
 #endif
     }
 
@@ -8933,7 +8939,10 @@ VRML2Export::DoFBExport(const TCHAR *filename, Interface *i, VRBLExport *exp,
     mStream.Open(wName.data(), false, CP_UTF8);
 #else
     if (!mStream)
+    {
         mStream = _tfopen(wName, _T("a"));
+        setvbuf ( mStream , NULL , _IOFBF , 1024000 );
+    }
 #endif
 // write out the file
 //WorkFile theFile(wName.data(), _T("w"));
@@ -9003,7 +9012,10 @@ VRML2Export::DoFBExport(const TCHAR *filename, Interface *i, VRBLExport *exp,
        mStream.Open(mFilename, false, CP_UTF8);
 #else
    if (!mStream)
-       mStream = _tfopen(mFilename, _T("a"));
+    {
+        mStream = _tfopen(mFilename, _T("a"));
+        setvbuf ( mStream , NULL , _IOFBF , 1024000 );
+    }
 #endif
 
    // generate the hash table of unique node names
@@ -9106,6 +9118,7 @@ VRML2Export::DoExport(const TCHAR *filename, Interface *i, VRBLExport *exp)
     mStream.Open(mFilename, false, CP_UTF8);
 #else
     mStream = _tfopen(mFilename, _T("a"));
+    setvbuf ( mStream , NULL , _IOFBF , 1024000 );
 #endif
 #if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
     if (!mStream.IsFileOpen())
@@ -9197,7 +9210,10 @@ VRML2Export::DoExport(const TCHAR *filename, Interface *i, VRBLExport *exp)
        mStream.Open(mFilename, false, CP_UTF8);
 #else
    if (!mStream)
-       mStream = _tfopen(mFilename, _T("a"));
+    {
+        mStream = _tfopen(mFilename, _T("a"));
+        setvbuf ( mStream , NULL , _IOFBF , 1024000 );
+    }
 #endif
 
 #ifndef NO_CAL3D
@@ -9239,7 +9255,10 @@ VRML2Export::DoExport(const TCHAR *filename, Interface *i, VRBLExport *exp)
        mStream.Open(mFilename, false, CP_UTF8);
 #else
    if (!mStream)
-       mStream = _tfopen(mFilename, _T("a"));
+    {
+        mStream = _tfopen(mFilename, _T("a"));
+        setvbuf ( mStream , NULL , _IOFBF , 1024000 );
+    }
 #endif
 
    SetCursor(normal);

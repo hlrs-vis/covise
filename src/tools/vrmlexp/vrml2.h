@@ -29,7 +29,7 @@
 #define MSTREAMPRINTF mStream.Printf( _T
 #else
 #define MAXSTREAMDECL FILE *
-#define MSTREAMPRINTF fprintf(stderr, 
+#define MSTREAMPRINTF fprintf((mStream), 
 #endif
 
 #define RUN_BY_PROX_SENSOR 1
