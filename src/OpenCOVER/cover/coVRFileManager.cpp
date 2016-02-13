@@ -186,6 +186,7 @@ osg::Node *coVRFileManager::getLastModelNode()
 osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
     START("coVRFileManager::loadFile");
+   
 
     char *adjustedFileName = NULL;
     std::string key;
@@ -250,7 +251,19 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     /// read the 1st line of file and try to guess the type
     char fileTypeBuf[10] = "";
     const char *fileTypeString = findFileExt(adjustedFileName);
+    if(viewPointFile == "")
+    {
+        
+        const char *ext = strchr(adjustedFileName, '.');
+        if(ext)
+        {
+            viewPointFile = fileName;
+            std::string::size_type pos = viewPointFile.find_last_of('.');
+            viewPointFile = viewPointFile.substr(0,pos);
+            viewPointFile+=".vwp";
+        }
 
+    }
     if (!strcmp(fileTypeString, adjustedFileName))
     {
         if (!strncmp(adjustedFileName, "http://", 7) || !strncmp(adjustedFileName, "file://", 7))
@@ -1056,6 +1069,10 @@ bool coVRFileManager::IsDefFBSet()
 void coVRFileManager::SetDefaultFB(coTUIFileBrowserButton *fb)
 {
     this->mDefaultFB = fb;
+}
+std::string coVRFileManager::getViewPointFile()
+{
+    return viewPointFile;
 }
 
 bool coVRFileManager::update()

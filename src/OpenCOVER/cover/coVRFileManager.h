@@ -81,6 +81,10 @@ public:
 
     osg::Node *getLastModelNode();
 
+    // getName of a file to store Viewpoints
+    // this is derived from the loaded FileName
+    std::string getViewPointFile();
+
     // load an icon file, looks in covise/icons/$LookAndFeel or covise/icons
     // returns NULL, if nothing found
     osg::Node *loadIcon(const char *filename);
@@ -133,6 +137,7 @@ private:
 
     char *lastFileName;
     char *lastCovise_key;
+    std::string viewPointFile;
     osg::Node *lastNode;
 
     typedef std::list<const FileHandler *> FileHandlerList;

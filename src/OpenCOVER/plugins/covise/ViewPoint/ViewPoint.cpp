@@ -22,6 +22,7 @@
 #include <QString>
 #include <QTextStream>
 #include <cover/coVRMSController.h>
+#include <cover/coVRFileManager.h>
 #include <config/CoviseConfig.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -125,6 +126,10 @@ bool ViewPoints::init()
     if(coVRConfig::instance()->viewpointsFile !=NULL)
     {
         vwpPath = coVRConfig::instance()->viewpointsFile;
+    }
+    if(vwpPath == "")
+    {
+        vwpPath = coVRFileManager::instance()->getViewPointFile();
     }
 
     vp_index = 0;
@@ -1258,7 +1263,11 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
 
     if (coVRMSController::instance()->isMaster())
     {
-
+        
+        if(vwpPath == "")
+        {
+            vwpPath = coVRFileManager::instance()->getViewPointFile();
+        }
         // save the dom to file
         QFile file(vwpPath.c_str());
         file.open(QIODevice::WriteOnly);
