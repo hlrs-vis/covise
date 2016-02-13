@@ -12,6 +12,15 @@ coVRShadowManager::coVRShadowManager()
     
     shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
     shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
+    
+    shadowMap = new osgShadow::ShadowMap;
+    lspsmdb = new osgShadow::LightSpacePerspectiveShadowMapDB;
+    lspsmcb = new osgShadow::LightSpacePerspectiveShadowMapCB;
+    lspsm = new osgShadow::LightSpacePerspectiveShadowMapVB;
+    standardSM = new osgShadow::StandardShadowMap;
+    softSM = new osgShadow::SoftShadowMap;
+    st = new osgShadow::ShadowTexture;
+    sv = new osgShadow::ShadowVolume;
     setTechnique(tech);
 }
 coVRShadowManager* coVRShadowManager::instance()
