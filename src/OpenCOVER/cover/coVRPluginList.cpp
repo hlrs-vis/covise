@@ -424,6 +424,14 @@ void coVRPluginList::init()
     }
     updateState();
 }
+void coVRPluginList::init2()
+{
+    for (PluginMap::iterator it = m_plugins.begin();
+         it != m_plugins.end();it++)
+    {
+        it->second->init2();
+    }
+}
 
 void coVRPluginList::message(int t, int l, const void *b) const
 {

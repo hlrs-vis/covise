@@ -136,6 +136,8 @@ private:
     ~coVRPluginList();
     //! call init method of all plugins
     void init();
+    //! call init2 method of all plugins
+    void init2();
     //! unload all plugins queued for unloading
     void unloadQueued();
 

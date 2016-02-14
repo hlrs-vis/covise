@@ -645,6 +645,8 @@ bool OpenCOVER::init()
     coVRShaderList::instance()->init();
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
+    
+    coVRPluginList::instance()->init2();
 
     return true;
 }

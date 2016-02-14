@@ -82,6 +82,12 @@ public:
     {
         return true;
     }
+    
+    //! this function is called when files have been loaded
+    virtual bool init2()
+    {
+        return true;
+    }
 
     //! reimplement to do early cleanup work and return false to prevent unloading
     virtual bool destroy()
