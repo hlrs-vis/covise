@@ -457,6 +457,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name)
         {
             m_plugins[name] = m; // if init OK, then add new plugin
             m->m_initDone = true;
+            m->init2();
         }
         else
         {
