@@ -26,7 +26,7 @@ using namespace covise;
 #include <util/unixcompat.h>
 #include <iostream>
 
-#include <quat.h>
+//#include <quat.h>
 
 using namespace std;
 zSpaceDriver::zSpaceDriver(const std::string &config)
