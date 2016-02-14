@@ -51,8 +51,9 @@ public:
     virtual ~ViewPoints();
 
     static SharedActiveVPData *actSharedVPData;
-
+    
     virtual bool init();
+    virtual bool init2();
     virtual void preFrame();
     virtual void addNode(osg::Node *, RenderObject *);
     virtual void key(int type, int keySym, int mod);

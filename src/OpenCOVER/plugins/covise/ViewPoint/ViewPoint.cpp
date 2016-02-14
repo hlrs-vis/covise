@@ -484,13 +484,7 @@ bool ViewPoints::init()
     //fprintf(stderr,"---- nach default viepoints ist id_=%d\n", id_);
     // read the viewpoints from the file if given
     activated_ = false;
-    if ((!vwpPath.empty()) && (vwpPath[0] != '\0'))
-        readFromDom();
-
-    updateSHMData();
-    if (coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", false))
-        completeFlight();
-
+    
     // add quickNavNode to SG
     qnNode = new Geode();
     qnNode->ref();
@@ -510,6 +504,22 @@ bool ViewPoints::init()
     return true;
 }
 
+bool ViewPoints::init2()
+{
+    
+    if(vwpPath == "")
+    {
+        vwpPath = coVRFileManager::instance()->getViewPointFile();
+    }
+    if ((!vwpPath.empty()) && (vwpPath[0] != '\0'))
+        readFromDom();
+
+    updateSHMData();
+    if (coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", false))
+        completeFlight();
+
+    return true;
+}
 ViewPoints::~ViewPoints()
 {
 
@@ -960,7 +970,7 @@ void ViewPoints::key(int type, int keySym, int mod)
     {
         completeFlight();
     }
-#ifndef _WIN32
+//#ifndef _WIN32
     // QuickNav
     if (isQuickNavEnabled)
     {
@@ -994,7 +1004,7 @@ void ViewPoints::key(int type, int keySym, int mod)
             }
         }
     }
-#endif
+//#endif
 }
 
 void ViewPoints::addNodes(Node *node, std::string s, std::vector<osg::Node *> &nodes)
