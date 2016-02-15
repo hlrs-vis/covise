@@ -9,6 +9,7 @@
 #ifndef CO_VOLUME_DRAWABLE
 #define CO_VOLUME_DRAWABLE
 
+#include <string>
 #include <osg/Drawable>
 #include <osg/Geode>
 #include <virvo/math/math.h>
@@ -27,7 +28,7 @@ class vvTransFunc;
 class coVolumeDrawable : public osg::Drawable
 {
 public:
-    coVolumeDrawable();
+    coVolumeDrawable(std::string rendererName = "", std::string voxType = "");
     virtual ~coVolumeDrawable();
 
     virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
@@ -95,7 +96,7 @@ private:
     }
 
     coVolumeDrawable(const coVolumeDrawable &, const osg::CopyOp &copyop = osg::CopyOp::SHALLOW_COPY);
-    void init();
+    void init(std::string rendererName = "", std::string voxType = "");
 
     void setParameter(vvRenderState::ParameterType param, const vvParam &newValue);
 

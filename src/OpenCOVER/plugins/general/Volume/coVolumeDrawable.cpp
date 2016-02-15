@@ -9,8 +9,6 @@
 #define VV_HAVE_LLONG 1
 #define VV_HAVE_ULLONG 1
 #endif
-#include <util/common.h>
-#include <config/CoviseConfig.h>
 
 #include "coVolumeDrawable.h"
 #include <virvo/vvrendererfactory.h>
@@ -38,12 +36,12 @@ coVolumeDrawable::ContextState::~ContextState()
     delete renderer;
 }
 
-coVolumeDrawable::coVolumeDrawable()
+coVolumeDrawable::coVolumeDrawable(std::string rendererName, std::string voxType)
 {
 #ifdef VERBOSE
     cerr << "coVolumeDrawable::<init> warn: empty constructor called" << endl;
 #endif
-    init();
+    init(rendererName, voxType);
 }
 
 coVolumeDrawable::coVolumeDrawable(const coVolumeDrawable &drawable,
@@ -56,10 +54,8 @@ coVolumeDrawable::coVolumeDrawable(const coVolumeDrawable &drawable,
     init();
 }
 
-void coVolumeDrawable::init()
+void coVolumeDrawable::init(std::string rendererName, std::string voxType)
 {
-    rendererName = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.Renderer");
-    voxType = covise::coCoviseConfig::getEntry("voxelType", "COVER.Plugin.Volume.Renderer");
     if (geoType.empty())
         geoType = rendererName;
 
@@ -77,8 +73,6 @@ void coVolumeDrawable::init()
     setParameter(vvRenderState::VV_ROI_SIZE, virvo::vec3f(0., 0., 0.));
     setParameter(vvRenderState::VV_IS_ROI_USED, false);
     setParameter(vvRenderState::VV_MIP_MODE, 0);
-    size_t tmpInt = static_cast<size_t>(covise::coCoviseConfig::getInt("tram", "COVER.Plugin.Volume.Renderer", 32));
-    setParameter(vvRenderState::VV_TEX_MEMORY_SIZE, tmpInt);
 
     shader = 0;
     currentFrame = 0;
@@ -117,114 +111,7 @@ void coVolumeDrawable::drawImplementation(RenderInfo &renderInfo) const
 
     if (vd && !renderer)
     {
-        // Debug level value may be either [NO_MESSAGES|FEW_MESSAGES|MOST_MESSAGES|ALL_MESSAGES]
-        // Or, in the same order and meaning the same as the string equivalents [0|1|2|3]
-        bool debugLevelExists = false;
-        const int debugLevelInt = covise::coCoviseConfig::getInt("COVER.Plugin.Volume.DebugLevel", 0, &debugLevelExists);
-
-        if (debugLevelExists)
-        {
-            if ((debugLevelInt >= 0) && (debugLevelInt <= 9))
-            {
-                vvDebugMsg::setDebugLevel(debugLevelInt);
-            }
-            else
-            {
-                // In that case, the debug level was specified as a string literal
-                std::string debugLevelStr = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.DebugLevel");
-                if (!debugLevelStr.empty())
-                {
-                    if (strcasecmp(debugLevelStr.c_str(), "NO_MESSAGES") == 0)
-                    {
-                        vvDebugMsg::setDebugLevel(vvDebugMsg::NO_MESSAGES);
-                    }
-                    else if (strcasecmp(debugLevelStr.c_str(), "FEW_MESSAGES") == 0)
-                    {
-                        vvDebugMsg::setDebugLevel(vvDebugMsg::FEW_MESSAGES);
-                    }
-                    else if (strcasecmp(debugLevelStr.c_str(), "MOST_MESSAGES") == 0)
-                    {
-                        vvDebugMsg::setDebugLevel(vvDebugMsg::MOST_MESSAGES);
-                    }
-                    else if (strcasecmp(debugLevelStr.c_str(), "ALL_MESSAGES") == 0)
-                    {
-                        vvDebugMsg::setDebugLevel(vvDebugMsg::ALL_MESSAGES);
-                    }
-                }
-            }
-        }
-
-        bool imageScalingExists = false;
-        const bool useOffscreenBuffer = covise::coCoviseConfig::isOn("imageScaling", "COVER.Plugin.Volume.Renderer", false, &imageScalingExists);
-
-        bool numGPUSlavesExists = false;
-        const char **displayNames = NULL;
-        virvo::BufferPrecision multiGpuPrecision = virvo::Short;
-        const int numGPUSlaves = covise::coCoviseConfig::getInt("COVER.Plugin.Volume.MultiGPU.NumSlaves", -1, &numGPUSlavesExists);
-
-        std::vector<const char *> hostnames;
-        std::vector<int> ports;
-        std::vector<const char *> alternativeFilenames;
-
-        const bool useMultiGPU = numGPUSlavesExists;
-        if (useMultiGPU)
-        {
-            // Buffer precision for multi gpu rendering slaves.
-            // As with debug level. May either be [BYTE|SHORT|FLOAT]
-            // or equivalently [8|16|32]
-            bool bufferPrecisionExists;
-            const int precisionInt = covise::coCoviseConfig::getInt("COVER.Plugin.Volume.MultiGPU.BufferPrecision", 16, &bufferPrecisionExists);
-            if (bufferPrecisionExists)
-            {
-                if ((precisionInt == 8) || (precisionInt == 16) || (precisionInt == 32))
-                {
-                    if (precisionInt == 8)
-                        multiGpuPrecision = virvo::Byte;
-                    else if (precisionInt == 16)
-                        multiGpuPrecision = virvo::Short;
-                    else
-                        multiGpuPrecision = virvo::Float;
-                }
-                else
-                {
-                    // In that case, the buffer precision was specified as a string literal
-                    std::string precisionStr = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.MultiGPU.BufferPrecision");
-                    if (strcasecmp(precisionStr.c_str(), "BYTE") == 0)
-                    {
-                        multiGpuPrecision = virvo::Byte;
-                    }
-                    else if (strcasecmp(precisionStr.c_str(), "SHORT") == 0)
-                    {
-                        multiGpuPrecision = virvo::Short;
-                    }
-                    else if (strcasecmp(precisionStr.c_str(), "FLOAT") == 0)
-                    {
-                        multiGpuPrecision = virvo::Float;
-                    }
-                }
-            }
-            displayNames = new const char *[numGPUSlaves];
-            for (int i = 0; i < numGPUSlaves; ++i)
-            {
-                std::stringstream disp;
-                disp << "COVER.Plugin.Volume.MultiGPU.GPU:";
-                disp << i;
-                std::string entry = covise::coCoviseConfig::getEntry("display", disp.str());
-#ifdef VERBOSE
-                cerr << "Use additional GPU for rendering on display: " << entry << endl;
-#endif
-                char *cstr = new char[strlen(entry.c_str()) + 1];
-                strncpy(cstr, entry.c_str(), strlen(entry.c_str()));
-                displayNames[i] = cstr;
-            }
-        }
-
         renderer = vvRendererFactory::create(vd, renderState, geoType.c_str(), voxType.c_str());
-
-        if (renderer)
-        {
-            renderer->setParameter(vvRenderer::VV_OFFSCREENBUFFER, useOffscreenBuffer);
-        }
     }
 
     // if a renderer exists, process regular rendering procedure

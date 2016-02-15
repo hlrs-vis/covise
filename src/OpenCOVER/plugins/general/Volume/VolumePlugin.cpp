@@ -71,7 +71,10 @@ VolumePlugin::Volume::Volume()
     curChannel = 0;
     multiDimTF = true;
 
-    drawable = new coVolumeDrawable();
+    std::string rendererName = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.Renderer");
+    std::string voxType = covise::coCoviseConfig::getEntry("voxelType", "COVER.Plugin.Volume.Renderer");
+
+    drawable = new coVolumeDrawable(rendererName, voxType);
     drawable->enableFlatDisplay(coVRConfig::instance()->haveFlatDisplay());
     drawable->setROIPosition(Vec3(0., 0., 0.));
 
@@ -330,6 +333,49 @@ VolumePlugin::VolumePlugin()
 bool VolumePlugin::init()
 {
     vvDebugMsg::msg(1, "VolumePlugin::VolumePlugin()");
+
+    // set virvo debug level ------------------------------
+
+    // Debug level value may be either [NO_MESSAGES|FEW_MESSAGES|MOST_MESSAGES|ALL_MESSAGES]
+    // Or, in the same order and meaning the same as the string equivalents [0|1|2|3]
+    bool debugLevelExists = false;
+    int debugLevelInt = covise::coCoviseConfig::getInt("COVER.Plugin.Volume.DebugLevel", 0, &debugLevelExists);
+
+    if (debugLevelExists)
+    {
+        if ((debugLevelInt >= 0) && (debugLevelInt <= 9))
+        {
+            vvDebugMsg::setDebugLevel(debugLevelInt);
+        }
+        else
+        {
+            // In that case, the debug level was specified as a string literal
+            std::string debugLevelStr = covise::coCoviseConfig::getEntry("COVER.Plugin.Volume.DebugLevel");
+            if (!debugLevelStr.empty())
+            {
+                if (strcasecmp(debugLevelStr.c_str(), "NO_MESSAGES") == 0)
+                {
+                    vvDebugMsg::setDebugLevel(vvDebugMsg::NO_MESSAGES);
+                }
+                else if (strcasecmp(debugLevelStr.c_str(), "FEW_MESSAGES") == 0)
+                {
+                    vvDebugMsg::setDebugLevel(vvDebugMsg::FEW_MESSAGES);
+                }
+                else if (strcasecmp(debugLevelStr.c_str(), "MOST_MESSAGES") == 0)
+                {
+                    vvDebugMsg::setDebugLevel(vvDebugMsg::MOST_MESSAGES);
+                }
+                else if (strcasecmp(debugLevelStr.c_str(), "ALL_MESSAGES") == 0)
+                {
+                    vvDebugMsg::setDebugLevel(vvDebugMsg::ALL_MESSAGES);
+                }
+            }
+        }
+    }
+
+
+    // ----------------------------------------------------
+
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
