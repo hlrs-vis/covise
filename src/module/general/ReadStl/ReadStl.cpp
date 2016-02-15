@@ -517,41 +517,6 @@ int ReadStl::readASCII()
 
     char buf[600], *cbuf, tb1[600];
 
-    
-    // 1st pass: count sizes
-    int n_coord = 0;
-    int n_elem = 0;
-    int n_normals = 0;
-
-    while (!feof(d_file))
-    {
-        if (fgets(buf, sizeof(buf), d_file) == NULL)
-        {
-            cerr << "ReadStl::readASCII: fgets1 failed" << endl;
-        }
-        cbuf = buf;
-        while (*cbuf == ' ' || *cbuf == '\t')
-        {
-            cbuf++;
-        }
-        if (tolower(*cbuf) == 'v')
-            n_coord++;
-        if (tolower(*cbuf) == 'f')
-        {
-            while (*cbuf != ' ' && *cbuf != '\t' && *cbuf != '\0')
-            {
-                cbuf++;
-            }
-            while (*cbuf == ' ' || *cbuf == '\t')
-            {
-                cbuf++;
-            }
-            n_elem++;
-        }
-        if (tolower(*cbuf) == 'n')
-            n_normals++;
-    }
-    // 2nd pass: read actual files
     rewind(d_file);
     vector<float> x_n, y_n, z_n;
     vector<float> x_coord, y_coord, z_coord;
@@ -573,7 +538,7 @@ int ReadStl::readASCII()
     c.r=0;c.g=0;c.b=1;c.a=1;
     colorArray.push_back(c);
     
-    n_coord = 0;
+    int n_coord = 0;
     while (!feof(d_file))
     {
         if (fgets(buf, sizeof(buf), d_file) == NULL)
