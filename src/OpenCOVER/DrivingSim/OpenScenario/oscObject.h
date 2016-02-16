@@ -9,11 +9,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_OBJECT_H
 
 #include "oscExport.h"
-#include "oscNamedObject.h"
+#include "oscNameUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscCatalogReferenceTypeA.h"
-#include "oscInitPosition.h"
+#include "oscPosition.h"
 #include "oscInitDynamics.h"
 #include "oscInitState.h"
 
@@ -21,19 +21,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscObject: public oscNamedObject
+class OPENSCENARIOEXPORT oscObject: public oscNameUserData
 {
 public:
     oscObject()
     {
         OSC_OBJECT_ADD_MEMBER(catalogReference, "oscCatalogReferenceTypeA");
-        OSC_OBJECT_ADD_MEMBER(initPosition, "oscInitPosition");
+        OSC_OBJECT_ADD_MEMBER(initPosition, "oscPosition");
         OSC_OBJECT_ADD_MEMBER(initDynamics, "oscInitDynamics");
         OSC_OBJECT_ADD_MEMBER(initState, "oscInitState");
     };
     
     oscCatalogReferenceTypeAMember catalogReference;
-    oscInitPositionMember initPosition;
+    oscPositionMember initPosition;
     oscInitDynamicsMember initDynamics;
     oscInitStateMember initState;
 };

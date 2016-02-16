@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_ACTION_H
 
 #include "oscExport.h"
-#include "oscNamedObject.h"
+#include "oscNameUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscAutonomous.h"
@@ -39,7 +39,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscAction: public oscNamedObject
+class OPENSCENARIOEXPORT oscAction: public oscNameUserData
 {
 public:
     oscAction()

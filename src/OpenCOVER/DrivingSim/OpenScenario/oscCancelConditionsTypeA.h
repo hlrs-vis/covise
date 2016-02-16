@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectArrayVariable.h"
 
-#include "oscCancelConditionTypeA.h"
+#include "oscConditionTypeA.h"
 
 
 namespace OpenScenario {
@@ -23,10 +23,10 @@ class OPENSCENARIOEXPORT oscCancelConditionsTypeA: public oscObjectBase
 public:
     oscCancelConditionsTypeA()
     {
-        OSC_OBJECT_ADD_MEMBER(cancelCondition, "oscCancelConditionTypeA");
+        OSC_OBJECT_ADD_MEMBER(cancelCondition, "oscConditionTypeA");
     };
 
-    oscCancelConditionTypeAMember cancelCondition;
+    oscConditionTypeAMember cancelCondition;
 };
 
 typedef oscObjectArrayVariable<oscCancelConditionsTypeA *> oscCancelConditionsTypeAArrayMember;

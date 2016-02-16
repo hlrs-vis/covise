@@ -12,8 +12,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscNameRefId.h"
 #include "oscObjectVariable.h"
 
-#include "oscObjectChoice.h"
-#include "oscControllerChoice.h"
+#include "oscChoiceObject.h"
+#include "oscChoiceController.h"
 #include "oscObserverId.h"
 
 
@@ -25,13 +25,13 @@ class OPENSCENARIOEXPORT oscEntity: public oscNameRefId
 public:
     oscEntity()
     {
-        OSC_OBJECT_ADD_MEMBER(objectChoice, "oscObjectChoice");
-        OSC_OBJECT_ADD_MEMBER(controllerChoice, "oscControllerChoice");
+        OSC_OBJECT_ADD_MEMBER(objectChoice, "oscChoiceObject");
+        OSC_OBJECT_ADD_MEMBER(controllerChoice, "oscChoiceController");
         OSC_OBJECT_ADD_MEMBER(observer, "oscObserverId");
     };
 
-    oscObjectChoiceMember objectChoice;
-    oscControllerChoiceMember controllerChoice;
+    oscChoiceObjectMember objectChoice;
+    oscChoiceControllerMember controllerChoice;
     oscObserverIdMember observer;
 };
 

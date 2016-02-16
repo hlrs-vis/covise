@@ -8,8 +8,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_NAMED_OBJECT_H
-#define OSC_NAMED_OBJECT_H
+#ifndef OSC_NAME_USER_DATA_H
+#define OSC_NAME_USER_DATA_H
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
@@ -22,10 +22,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscNamedObject: public oscObjectBase
+class OPENSCENARIOEXPORT oscNameUserData: public oscObjectBase
 {
 public:
-    oscNamedObject()
+    oscNameUserData()
     {
         OSC_ADD_MEMBER(name);
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
@@ -35,8 +35,8 @@ public:
     oscUserDataListArrayMember userDataList;
 };
 
-typedef oscObjectVariable<oscNamedObject *> oscNamedObjectMember;
+typedef oscObjectVariable<oscNameUserData *> oscNameUserDataMember;
 
 }
 
-#endif //OSC_NAMED_OBJECT_H
+#endif //OSC_NAME_USER_DATA_H

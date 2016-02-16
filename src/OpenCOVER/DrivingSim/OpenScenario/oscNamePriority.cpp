@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include "oscNamedPriority.h"
+#include "oscNamePriority.h"
 
 
 using namespace OpenScenario;
@@ -13,9 +13,9 @@ using namespace OpenScenario;
 
 maneuverPriorityType::maneuverPriorityType()
 {
-    addEnum("overwrite", oscNamedPriority::overwrite);
-    addEnum("following", oscNamedPriority::following);
-    addEnum("cancel", oscNamedPriority::cancel);
+    addEnum("overwrite", oscNamePriority::overwrite);
+    addEnum("following", oscNamePriority::following);
+    addEnum("cancel", oscNamePriority::cancel);
 }
 
 maneuverPriorityType *maneuverPriorityType::instance()

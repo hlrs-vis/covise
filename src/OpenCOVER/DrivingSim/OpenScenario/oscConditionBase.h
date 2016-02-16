@@ -16,9 +16,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscTimeOfDay.h"
 #include "oscReachPosition.h"
 #include "oscDistance.h"
-#include "oscVelocity.h"
+#include "oscConditionChoiceTypeA.h"
 #include "oscStandsStill.h"
-#include "oscAcceleration.h"
 #include "oscStoppingDistance.h"
 #include "oscTimeToCollision.h"
 #include "oscTimeHeadway.h"
@@ -44,9 +43,9 @@ public:
         OSC_OBJECT_ADD_MEMBER(timeOfDay, "oscTimeOfDay");
         OSC_OBJECT_ADD_MEMBER(reachPosition, "oscReachPosition");
         OSC_OBJECT_ADD_MEMBER(distance, "oscDistance");
-        OSC_OBJECT_ADD_MEMBER(velocity, "oscVelocity");
+        OSC_OBJECT_ADD_MEMBER(velocity, "oscConditionChoiceTypeA");
         OSC_OBJECT_ADD_MEMBER(standsStill, "oscStandsStill");
-        OSC_OBJECT_ADD_MEMBER(acceleration, "oscAcceleration");
+        OSC_OBJECT_ADD_MEMBER(acceleration, "oscConditionChoiceTypeA");
         OSC_OBJECT_ADD_MEMBER(stoppingDistance, "oscStoppingDistance");
         OSC_OBJECT_ADD_MEMBER(timeToCollision, "oscTimeToCollision");
         OSC_OBJECT_ADD_MEMBER(timeHeadway, "oscTimeHeadway");
@@ -64,9 +63,9 @@ public:
     oscTimeOfDayMember timeOfDay;
     oscReachPositionMember reachPosition;
     oscDistanceMember distance;
-    oscVelocityMember velocity;
+    oscConditionChoiceTypeAMember velocity;
     oscStandsStillMember standsStill;
-    oscAccelerationMember acceleration;
+    oscConditionChoiceTypeAMember acceleration;
     oscStoppingDistanceMember stoppingDistance;
     oscTimeToCollisionMember timeToCollision;
     oscTimeHeadwayMember timeHeadway;

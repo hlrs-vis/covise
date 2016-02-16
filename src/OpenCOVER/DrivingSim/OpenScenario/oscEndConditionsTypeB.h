@@ -12,7 +12,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscObjectBase.h"
 #include "oscObjectArrayVariable.h"
 
-#include "oscEndConditionTypeB.h"
+#include "oscConditionTypeB.h"
 
 
 namespace OpenScenario {
@@ -23,10 +23,10 @@ class OPENSCENARIOEXPORT oscEndConditionsTypeB: public oscObjectBase
 public:
     oscEndConditionsTypeB()
     {
-        OSC_OBJECT_ADD_MEMBER(endCondition, "oscEndConditionTypeB");
+        OSC_OBJECT_ADD_MEMBER(endCondition, "oscConditionTypeB");
     };
 
-    oscEndConditionTypeBMember endCondition;
+    oscConditionTypeBMember endCondition;
 };
 
 typedef oscObjectArrayVariable<oscEndConditionsTypeB *> oscEndConditionsTypeBArrayMember;

@@ -9,7 +9,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define OSC_CONDITION_TYPE_A_H
 
 #include "oscExport.h"
-#include "oscNamedObject.h"
+#include "oscNameUserData.h"
 #include "oscObjectVariable.h"
 
 #include "oscVariables.h"
@@ -19,7 +19,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace OpenScenario {
 
 /// \class This class represents a generic OpenScenario Object
-class OPENSCENARIOEXPORT oscConditionTypeA: public oscNamedObject
+class OPENSCENARIOEXPORT oscConditionTypeA: public oscNameUserData
 {
 public:
     oscConditionTypeA()

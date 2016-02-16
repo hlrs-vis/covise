@@ -36,7 +36,7 @@ OpenScenarioBase::OpenScenarioBase():oscObjectBase()
     OSC_OBJECT_ADD_MEMBER(fileHeader,"oscFileHeader");
     OSC_OBJECT_ADD_MEMBER(catalogs,"oscCatalogs");
     OSC_OBJECT_ADD_MEMBER(roadNetwork,"oscRoadNetwork");
-    OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentRef");
+    OSC_OBJECT_ADD_MEMBER(environment,"oscEnvironmentReference");
     OSC_OBJECT_ADD_MEMBER(entities,"oscEntities");
     OSC_OBJECT_ADD_MEMBER(storyboard,"oscStoryboard");
     OSC_OBJECT_ADD_MEMBER(scenarioEnd,"oscScenarioEnd");

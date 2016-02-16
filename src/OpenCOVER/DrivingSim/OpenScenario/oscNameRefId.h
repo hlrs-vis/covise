@@ -24,14 +24,14 @@ public:
     oscNameRefId()
     {
         OSC_ADD_MEMBER(name);
-      OSC_ADD_MEMBER(refId);
+        OSC_ADD_MEMBER(refId);
     };
 
     oscString name;
     oscInt refId;
 };
 
-typedef oscObjectVariable<oscNameRefId *> oscoscNameRefIdMember;
+typedef oscObjectVariable<oscNameRefId *> oscNameRefIdMember;
 
 }
 
