@@ -34,9 +34,9 @@ public:
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
-    oscStartConditionsTypeBArrayMember startConditions;
-    oscEndConditionsTypeBArrayMember endConditions;
-    oscCancelConditionsTypeBArrayMember cancelConditions;
+    oscStartConditionsTypeBMemberArray startConditions;
+    oscEndConditionsTypeBMemberArray endConditions;
+    oscCancelConditionsTypeBMemberArray cancelConditions;
     oscCatalogReferenceTypeAMember catalogReference;
     oscManeuverTypeAMember maneuver;
 };

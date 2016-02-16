@@ -38,7 +38,7 @@ public:
     oscCatalogBaseMember environmentCatalog;
     oscCatalogBaseMember maneuverCatalog;
     oscCatalogBaseMember routingCatalog;
-    oscUserDataListArrayMember userDataList;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscCatalogs *> oscCatalogsMember;

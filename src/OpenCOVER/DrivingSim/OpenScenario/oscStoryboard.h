@@ -30,9 +30,9 @@ public:
         OSC_OBJECT_ADD_MEMBER(userDataList, "oscUserDataList");
     };
 
-    oscManeuverGroupsTypeABArrayMember maneuverGroups;
-    oscRefActorsTypeAArrayMember refActors;
-    oscUserDataListArrayMember userDataList;
+    oscManeuverGroupsTypeABMemberArray maneuverGroups;
+    oscRefActorsTypeAMemberArray refActors;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscStoryboard *> oscStoryboardMember;

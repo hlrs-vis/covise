@@ -29,7 +29,7 @@ public:
     };
 
     oscDirectoryMember directory;
-    oscUserDataListArrayMember userDataList;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscCatalogBase *> oscCatalogBaseMember;

@@ -33,7 +33,7 @@ public:
 
 	oscFileHeaderMember fileHeader;
 	oscObserverTypeBMember observer;
-	oscUserDataListArrayMember userDataList;
+	oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscRouting *> oscRoutingMember;

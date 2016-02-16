@@ -89,7 +89,7 @@ public:
     oscUserDefinedCommandMember userDefinedCommand;
     oscUserScriptMember userScript;
     oscNotifyMember notify;
-    oscUserDataListArrayMember userDataList;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscAction *> oscActionMember;

@@ -129,7 +129,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                     xercesc::DOMElement *elementToUse;
 
                     //arrayMember
-                    oscArrayMember *aMember = dynamic_cast<oscArrayMember *>(member);
+                    oscMemberArray *aMember = dynamic_cast<oscMemberArray *>(member);
 
                     //xml document for member
                     xercesc::DOMDocument *srcXmlDoc = obj->getSource()->getXmlDoc();
@@ -155,7 +155,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
                         {
                             //write arrayMember (the container)
                             //(and the arrayMembers are written under this element in the write function)
-                            elementToUse = aMember->writeArrayMemberToDOM(currentElement, docToUse);
+                            elementToUse = aMember->writeMemberArrayToDOM(currentElement, docToUse);
                         }
                         else
                         {
@@ -197,7 +197,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
             }
             else
             {
-                oscArrayMember *am = dynamic_cast<oscArrayMember *>(member);
+                oscMemberArray *am = dynamic_cast<oscMemberArray *>(member);
                 if(am)
                 {
                     std::cerr << "Array values not yet implemented" << std::endl;
@@ -235,7 +235,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 oscMember *m = members[attributeName];
                 if(m)
                 {
-                    oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
+                    oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
                     if(am)
                     {
                         std::cerr << "Array values not yet implemented" << std::endl;
@@ -287,9 +287,9 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 std::string memTypeName = m->getTypeName();
                 oscSourceFile *srcToUse = determineSrcFile(memberElem, src);
 
-                //oscArrayMember
+                //oscMemberArray
                 //
-                oscArrayMember *am = dynamic_cast<oscArrayMember *>(m);
+                oscMemberArray *am = dynamic_cast<oscMemberArray *>(m);
                 if(am)
                 {
                     //check if array member has attributes
@@ -312,7 +312,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //member has no value (value doesn't exist)
                     if ( !m->exists() )
                     {
-                        //generate the object for oscArrayMember
+                        //generate the object for oscMemberArray
                         //(it's the container for the array members)
                         oscObjectBase *objAMCreated = oscFactories::instance()->objectFactory->create(memTypeName);
 
@@ -328,7 +328,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                         }
                     }
 
-                    //object for oscArrayMember
+                    //object for oscMemberArray
                     oscObjectBase *objAM = m->getObject();
                     if(objAM)
                     {

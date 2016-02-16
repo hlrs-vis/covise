@@ -32,7 +32,7 @@ public:
     }
 
     oscString name;
-    oscUserDataListArrayMember userDataList;
+    oscUserDataListMemberArray userDataList;
 };
 
 typedef oscObjectVariable<oscNameUserData *> oscNameUserDataMember;

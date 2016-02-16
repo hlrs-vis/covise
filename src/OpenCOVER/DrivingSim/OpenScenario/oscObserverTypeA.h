@@ -37,7 +37,7 @@ public:
     oscInt refId;
     oscString type;
     oscFrustumMember frustum;
-    oscFiltersArrayMember filters;
+    oscFiltersMemberArray filters;
 };
 
 typedef oscObjectVariable<oscObserverTypeA *> oscObserverTypeAMember;

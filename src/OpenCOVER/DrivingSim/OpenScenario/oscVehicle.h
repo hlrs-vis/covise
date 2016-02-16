@@ -68,10 +68,10 @@ public:
     oscFileMember geometry;
     oscDimensionTypeAMember dimension;
     oscAxlesMember axles;
-    oscLightingArrayMember lighting;
-    oscEyepointsArrayMember eyepoints;
-    oscMirrorsArrayMember mirrors;
-    oscFeaturesArrayMember features;
+    oscLightingMemberArray lighting;
+    oscEyepointsMemberArray eyepoints;
+    oscMirrorsMemberArray mirrors;
+    oscFeaturesMemberArray features;
     oscEnum category;
 
     enum vehicleClass

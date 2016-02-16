@@ -10,7 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include "oscExport.h"
 #include "oscObjectBase.h"
-#include "oscObjectArrayVariable.h"
+#include "oscObjectVariableArray.h"
 
 #include "oscParameterTypeB.h"
 
@@ -29,7 +29,7 @@ public:
     oscParameterTypeBMember parameter;
 };
 
-typedef oscObjectArrayVariable<oscParameterListTypeB *> oscParameterListTypeBArrayMember;
+typedef oscObjectVariableArray<oscParameterListTypeB *> oscParameterListTypeBMemberArray;
 
 }
 

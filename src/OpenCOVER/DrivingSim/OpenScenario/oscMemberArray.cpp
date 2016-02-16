@@ -5,7 +5,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include "oscArrayMember.h"
+#include "oscMemberArray.h"
 #include "oscObjectBase.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
@@ -16,19 +16,19 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-oscArrayMember::oscArrayMember(): oscMember(), std::vector<oscObjectBase *>()
+oscMemberArray::oscMemberArray(): oscMember(), std::vector<oscObjectBase *>()
 {
 
 }
 
-oscArrayMember::~oscArrayMember()
+oscMemberArray::~oscMemberArray()
 {
 
 }
 
 
 //
-xercesc::DOMElement *oscArrayMember::writeArrayMemberToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
+xercesc::DOMElement *oscMemberArray::writeMemberArrayToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document)
 {
     xercesc::DOMElement *aMemberElement = document->createElement(xercesc::XMLString::transcode(name.c_str()));
     currentElement->appendChild(aMemberElement);

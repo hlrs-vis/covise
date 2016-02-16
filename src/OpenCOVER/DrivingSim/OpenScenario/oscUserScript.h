@@ -45,7 +45,7 @@ public:
     oscString name;
     oscFileMember file;
     oscEnum execution;
-    oscParameterListTypeBArrayMember parameterList;
+    oscParameterListTypeBMemberArray parameterList;
 
     enum execution
     {

@@ -29,7 +29,7 @@ public:
     };
 
     oscString name;
-    oscParameterListTypeBArrayMember parameterList;
+    oscParameterListTypeBMemberArray parameterList;
 };
 
 typedef oscObjectVariable<oscUserDefinedAction *> oscUserDefinedActionMember;

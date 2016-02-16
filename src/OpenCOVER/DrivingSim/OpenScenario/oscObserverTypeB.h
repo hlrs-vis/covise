@@ -37,7 +37,7 @@ public:
     oscInt refId;
     oscString type;
     oscGeneralMember general;
-    oscWaypointsArrayMember waypoints;
+    oscWaypointsMemberArray waypoints;
 };
 
 typedef oscObjectVariable<oscObserverTypeB *> oscObserverTypeBMember;

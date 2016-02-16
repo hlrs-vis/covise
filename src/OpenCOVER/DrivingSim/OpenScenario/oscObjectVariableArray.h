@@ -5,11 +5,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_OBJECT_ARRAY_VARIABLE_H
-#define OSC_OBJECT_ARRAY_VARIABLE_H
+#ifndef OSC_OBJECT_VARIABLE_ARRAY_H
+#define OSC_OBJECT_VARIABLE_ARRAY_H
 
 #include "oscExport.h"
-#include "oscArrayMember.h"
+#include "oscMemberArray.h"
 #include "oscMemberValue.h"
 
 
@@ -17,12 +17,12 @@ namespace OpenScenario
 {
     //
     template<typename T>
-    class OPENSCENARIOEXPORT oscObjectArrayVariable: public oscArrayMember
+    class OPENSCENARIOEXPORT oscObjectVariableArray: public oscMemberArray
     {
     protected:
         T valueT;
     public:
-        oscObjectArrayVariable() {type = oscMemberValue::OBJECT; valueT = NULL;}; ///< constructor
+        oscObjectVariableArray() {type = oscMemberValue::OBJECT; valueT = NULL;}; ///< constructor
         T operator->() {return valueT;};
         oscObjectBase* getObject() const {return valueT;};
         oscObjectBase* getGenerateObject()
@@ -57,4 +57,4 @@ namespace OpenScenario
     };
 }
 
-#endif //OSC_OBJECT_ARRAY_VARIABLE_H
+#endif //OSC_OBJECT_VARIABLE_ARRAY_H

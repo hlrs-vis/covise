@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_ARRAY_MEMBER_H
-#define OSC_ARRAY_MEMBER_H
+#ifndef OSC_MEMBER_ARRAY_H
+#define OSC_MEMBER_ARRAY_H
 
 #include "oscExport.h"
 #include "oscMember.h"
@@ -24,15 +24,15 @@ namespace OpenScenario
 {
 
 /// \class This class represents a Member variable storing an array of one kind of values
-class OPENSCENARIOEXPORT oscArrayMember: public oscMember, public std::vector<oscObjectBase *>
+class OPENSCENARIOEXPORT oscMemberArray: public oscMember, public std::vector<oscObjectBase *>
 {
 public:
-    oscArrayMember(); ///< constructor
-    virtual ~oscArrayMember(); ///< destructor
+    oscMemberArray(); ///< constructor
+    virtual ~oscMemberArray(); ///< destructor
 
-    virtual xercesc::DOMElement *writeArrayMemberToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
+    virtual xercesc::DOMElement *writeMemberArrayToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document);
 };
 
 }
 
-#endif //OSC_ARRAY_MEMBER_H
+#endif //OSC_MEMBER_ARRAY_H

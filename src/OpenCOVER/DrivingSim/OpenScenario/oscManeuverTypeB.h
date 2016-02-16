@@ -30,7 +30,7 @@ public:
         OSC_OBJECT_ADD_MEMBER(maneuver, "oscManeuverTypeA");
     };
 
-    oscRefActorsTypeBArrayMember refActors;
+    oscRefActorsTypeBMemberArray refActors;
     oscCatalogReferenceTypeAMember catalogReference;
     oscManeuverTypeAMember maneuver;
 };
