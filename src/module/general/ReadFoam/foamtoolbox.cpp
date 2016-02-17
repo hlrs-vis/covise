@@ -16,7 +16,7 @@
  **                                                                        **
  **                                                                        **
  ** History:                                                               **
- ** May   13        C.Kopf          V1.0                                   **
+ ** May   13	    C.Kopf  	    V1.0                                   **
  *\**************************************************************************/
 
 //Includes copied from vistle ReadFOAM.cpp
@@ -25,7 +25,6 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <set>
 #include <map>
 #include <cctype>
 
@@ -237,7 +236,7 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
         info.varyingCoords = true;
         return true;
     }
-    // this usually never occurs:
+	// this usually never occurs:
     if (meshfiles.size() == 3 && time && !havePoints)
     {
         info.varyingGrid = true;
@@ -301,25 +300,25 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 
 bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double mintime, double maxtime, int skipfactor)
 {
-    // start out with 
-    std::stringstream s;
+	// start out with 
+	std::stringstream s;
     if (info.numblocks>0)
-        s << "/processor0" << "/";
-    std::string basedir = casedir;
-    basedir += s.str(); 
-    std::string fullMeshDir = info.constantdir;
+		s << "/processor0" << "/";
+	std::string basedir = casedir;
+	basedir += s.str(); 
+	std::string fullMeshDir = info.constantdir;
 
-    for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
-    {
-        std::string currentTimeDir= basedir + it->second;
-        checkSubDirectory(info, currentTimeDir, true);
-        if (info.varyingGrid)
-        {
-            fullMeshDir = it->second;
-        }
-        info.completeMeshDirs[it->first]=fullMeshDir;
-        std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
-    }
+	for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
+	{
+		std::string currentTimeDir= basedir + it->second;
+		checkSubDirectory(info, currentTimeDir, true);
+		if (info.varyingGrid)
+		{
+			fullMeshDir = it->second;
+		}
+		info.completeMeshDirs[it->first]=fullMeshDir;
+		std::cerr << "Full Mesh for timestep " << it->second << " found at time = " << fullMeshDir << std::endl;
+	}
 
     // if numblocks>0 -> casedir/processor0/timedir/polyMesh
     // else casedir/timedir/polyMesh
@@ -328,19 +327,19 @@ bool checkPolyMeshDirContent(CaseInfo &info, const std::string &casedir, double 
     // {
     // 
     // }
-/*  int counter = 0;
-    for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
-    {
-        next = it;
-        ++next;
-        if (counter % skipfactor != 0)
-        {
-            std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
-            info.timedirs.erase(it);
-            --num_timesteps;
-        }
-        ++counter;
-    }*/
+/*	int counter = 0;
+	for (std::map<double, std::string>::iterator it = info.timedirs.begin(), next; it != info.timedirs.end(); it = next)
+	{
+		next = it;
+		++next;
+		if (counter % skipfactor != 0)
+		{
+			std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
+			info.timedirs.erase(it);
+			--num_timesteps;
+		}
+		++counter;
+	}*/
 
     return true;
 }
@@ -422,7 +421,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
-                //std::cerr << bn << "is a time directory, " << t  << std::endl;
+				std::cerr << bn << "is a time directory, " << t  << std::endl;
                 //if (t >= mintime && t <= maxtime)
                 {
                     ++num_timesteps;
@@ -466,7 +465,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (counter % skipfactor != 0)
             {
                 std::cerr << "skipping directory " << it->first << ", " << it->second  << std::endl;
-                info.timedirs.erase(it);
+				info.timedirs.erase(it);
                 --num_timesteps;
             }
             ++counter;
@@ -481,7 +480,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-            //std::cerr << "directory :" << bn << std::endl;
+			//std::cerr << "directory :" << bn << std::endl;
             if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());
@@ -1181,7 +1180,8 @@ index_t findVertexAlongEdge(const index_t point,
                             const std::vector<std::vector<index_t> > &faces)
 {
 
-    std::vector<index_t> pointfaces;
+    index_t pointfaces[2];
+    int idx = 0;
     for (index_t i = 0; i < cellfaces.size(); i++)
     {
         if (cellfaces[i] != homeface)
@@ -1191,19 +1191,23 @@ index_t findVertexAlongEdge(const index_t point,
             {
                 if (face[j] == point)
                 {
-                    pointfaces.push_back(cellfaces[i]);
+                    pointfaces[idx++] = cellfaces[i];
                     break;
                 }
             }
+            if (idx >= 2)
+                break;
         }
     }
     const std::vector<index_t> &a = faces[pointfaces[0]];
     const std::vector<index_t> &b = faces[pointfaces[1]];
     for (index_t i = 0; i < a.size(); i++)
     {
+        if (a[i] == point)
+            continue;
         for (index_t j = 0; j < b.size(); j++)
         {
-            if (a[i] == b[j] && a[i] != point)
+            if (a[i] == b[j])
             {
                 return a[i];
             }
@@ -1250,20 +1254,18 @@ bool isPointingInwards(index_t face,
     }
 }
 
-std::vector<index_t> getVerticesForCell(
+vertex_set getVerticesForCell(
     const std::vector<index_t> &cellfaces,
     const std::vector<std::vector<index_t> > &faces)
 {
 
-    std::vector<index_t> cellvertices;
+    vertex_set cellvertices;
     for (index_t i = 0; i < cellfaces.size(); i++)
     {
         for (index_t j = 0; j < faces[cellfaces[i]].size(); j++)
         {
-            cellvertices.push_back(faces[cellfaces[i]][j]);
+            cellvertices.insert(faces[cellfaces[i]][j]);
         }
     }
-    std::sort(cellvertices.begin(), cellvertices.end()); //Sort Vector by ascending Value
-    cellvertices.erase(std::unique(cellvertices.begin(), cellvertices.end()), cellvertices.end()); //Delete duplicate entries
     return cellvertices;
 }

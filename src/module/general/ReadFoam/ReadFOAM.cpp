@@ -396,7 +396,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             for (index_t i = 0; i < num_elem; i++)
             {
                 const std::vector<index_t> &cellfaces = cellfacemap[i];
-                const std::vector<index_t> cellvertices = getVerticesForCell(cellfaces, faces);
+                const vertex_set cellvertices = getVerticesForCell(cellfaces, faces);
                 bool onlySimpleFaces = true; //Simple Face = Triangle or Square
                 for (index_t j = 0; j < cellfaces.size(); ++j)
                 { //check if Cell has only Triangular and/or Square Faces
