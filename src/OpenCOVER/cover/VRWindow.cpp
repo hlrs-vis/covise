@@ -243,14 +243,11 @@ VRWindow::createWin(int i)
     const int pipeNum = coVRConfig::instance()->windows[i].pipeNum;
     if (coVRConfig::instance()->useDisplayVariable() || coVRConfig::instance()->pipes[pipeNum].useDISPLAY)
     {
-        char *display = NULL;
-        
         traits->displayNum = 0;
         traits->screenNum = 0;
-        char *disp = getenv("DISPLAY");
-        if(disp)
+        if (const char *disp = getenv("DISPLAY"))
         {
-            display=new char[strlen(disp)+1];
+            char *display=new char[strlen(disp)+1];
             strcpy(display,disp);
             const char *host = display;
             char *p = strchr(display, ':');
