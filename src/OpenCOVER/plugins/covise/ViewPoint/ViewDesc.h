@@ -68,6 +68,22 @@ class FlightPathVisualizer;
 using namespace vrui;
 using namespace opencover;
 
+    struct clipPlaneEntry
+    {
+        bool enabled;
+        float a, b, c, d;
+
+        clipPlaneEntry()
+            : enabled(false)
+            , a(0.0f)
+            , b(0.0f)
+            , c(0.0f)
+            , d(0.0f)
+        {
+        }
+    };
+
+
 class ViewDesc : public coMenuListener
 {
 private:
@@ -93,22 +109,6 @@ private:
                        coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
                        coMenuListener *master);
 
-    struct clipPlaneEntry
-    {
-        bool enabled;
-        float a, b, c, d;
-
-        clipPlaneEntry()
-            : enabled(false)
-            , a(0.0f)
-            , b(0.0f)
-            , c(0.0f)
-            , d(0.0f)
-        {
-        }
-    };
-
-    struct clipPlaneEntry clipPlanes[6];
 
     //========================================================================================
     //========================================================================================
@@ -120,6 +120,7 @@ private:
     coCheckboxMenuItem *showTangentCheck_;
     coCheckboxMenuItem *showMoveInteractorsCheck_;
     coCheckboxMenuItem *showTangentInteractorsCheck_;
+    coButtonMenuItem *updateViewButton;
 
     bool flightPathActivated;
     bool viewpointVisible;
@@ -365,6 +366,7 @@ public:
     {
         return button_;
     };
+    struct clipPlaneEntry clipPlanes[6];
 
     ref_ptr<MatrixTransform> localDCS;
     //========================================================================================

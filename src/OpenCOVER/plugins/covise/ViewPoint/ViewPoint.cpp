@@ -74,11 +74,14 @@ ViewPoints::ViewPoints()
 {
 }
 
+
+ViewPoints *ViewPoints::inst=NULL;
+
 bool ViewPoints::init()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::init\n");
-
+    inst = this;
     //init VPData for clipplane
     actSharedVPData = new SharedActiveVPData();
     actSharedVPData->totNum = 0;
@@ -585,6 +588,22 @@ void ViewPoints::readFromDom()
         }
         else
         {
+            bool changeable=false;
+            // for all children (<name>, <scale>, <position>, <euler>, <clipplane>*n)
+            for (j = 0; j < childCount; j++)
+            {
+                QDomNode node = vpChildList.item(j);
+                if (node.isElement())
+                {
+                    QDomElement element = node.toElement();
+                    QString tagName = element.tagName();
+                        if (tagName.compare("isChangeable") == 0)
+                        {
+                            if(element.text() == "true")
+                                changeable = true;
+                        }
+                }
+            }
             // for all children (<name>, <scale>, <position>, <euler>, <clipplane>*n)
             for (j = 0; j < childCount; j++)
             {
@@ -600,7 +619,7 @@ void ViewPoints::readFromDom()
                         if (cover->debugLevel(3))
                             fprintf(stderr, "found viewpoint element with name %s\n", (const char *)text.toLatin1());
                         foundName = true;
-                        newVP = new ViewDesc(text.toLatin1(), id_, viewPointMenu_, flightMenu_, editVPMenu_, this);
+                        newVP = new ViewDesc(text.toLatin1(), id_, viewPointMenu_, flightMenu_, editVPMenu_, this,changeable);
                         id_++;
                         break;
                     }
@@ -650,6 +669,12 @@ void ViewPoints::readFromDom()
                         else if (tagName.compare("TANGENT_OUT") == 0)
                         {
                             newVP->setTangentOut(element.text().toLatin1());
+                        }
+                        else if (tagName.compare("inFlightPath") == 0)
+                        {
+                            newVP->setFlightState(false);
+                            if(element.text() == "true")
+                                newVP->setFlightState(true);
                         }
                     }
                     else
@@ -1159,7 +1184,7 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
         viewDesc = new ViewDesc(newName, id_, guiString, viewPointMenu_, flightMenu_, editVPMenu_, this, true);
         //fprintf(stderr,"---- ViewPoints::saveViewPoint() newName=[%s] Id=%d\n" , newName, id_);
     }
-
+    viewDesc->coord = coord;
     //nochmal extra auf false setzen, um "zufaelliges" aktivieren von shiftFlightpath bei der VP-Erstellung zu unterdrücken
     //---------------------------------------------
     viewDesc->shiftFlightpath(false);
@@ -1174,72 +1199,12 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
     viewDesc->showTangentInteractors(showInteractors);
     flightPathVisualizer->showFlightpath(showFlightpath);
 
-    QDomDocument doc = coVRDOMDocument::instance()->getDocument();
-    //cerr << "DOCNAME " << doc.doctype().name().toAscii().data() << endl;
-
-    // add new viewpoint to dom
-    // append something
-    QDomElement viewpointElement, nameElement, scaleElement, posElement, eulerElement, tangentInElement, tangentOutElement;
-    //tangentOutElement, tangentInElement, stoptimeElement;
-    QDomText nameText, scaleText, posText, eulerText;
-    viewpointElement = doc.createElement("VIEWPOINT");
-
-    nameElement = doc.createElement("NAME");
-    nameText = doc.createTextNode(newName);
-    nameElement.appendChild(nameText);
-
-    char scaleString[1024];
-    sprintf(scaleString, "%f", cover->getScale());
-    scaleElement = doc.createElement("SCALE");
-    scaleText = doc.createTextNode(scaleString);
-    scaleElement.appendChild(scaleText);
-
-    char posString[1024];
-    sprintf(posString, "%f %f %f ", coord.xyz[0], coord.xyz[1], coord.xyz[2]);
-    posElement = doc.createElement("POSITION");
-    posText = doc.createTextNode(posString);
-    posElement.appendChild(posText);
-
-    char eulerString[1024];
-    sprintf(eulerString, "%f %f %f ", coord.hpr[0], coord.hpr[1], coord.hpr[2]);
-    eulerElement = doc.createElement("EULER");
-    eulerText = doc.createTextNode(eulerString);
-    eulerElement.appendChild(eulerText);
-
-    char tangentInString[1024];
-    sprintf(tangentInString, "%f %f %f ", viewDesc->getTangentIn()[0], viewDesc->getTangentIn()[1], viewDesc->getTangentIn()[2]);
-    tangentInElement = doc.createElement("TANGENT_IN");
-    tangentInElement.appendChild(doc.createTextNode(tangentInString));
-
-    char tangentOutString[1024];
-    sprintf(tangentOutString, "%f %f %f ", viewDesc->getTangentOut()[0], viewDesc->getTangentOut()[1], viewDesc->getTangentOut()[2]);
-    tangentOutElement = doc.createElement("TANGENT_OUT");
-    tangentOutElement.appendChild(doc.createTextNode(tangentOutString));
-
-    /*    char stoptimeString[1024];
-    sprintf(stoptimeString, "%f ", viewDesc->stoptime);
-    stoptimeElement = doc.createElement("STOPTIME");
-    stoptimeElement.appendChild(doc.createTextNode(stoptimeString));
-    */
-
-    coVRDOMDocument::instance()->getRootElement().appendChild(viewpointElement);
-    viewpointElement.appendChild(nameElement);
-    viewpointElement.appendChild(scaleElement);
-    viewpointElement.appendChild(posElement);
-    viewpointElement.appendChild(eulerElement);
-
-    viewpointElement.appendChild(tangentInElement);
-    viewpointElement.appendChild(tangentOutElement);
-    //viewpointElement.appendChild(stoptimeElement);
-
-    //fprintf(stderr,"ViewPoints::saveViewPoint NAME=%s; SCALE=%s; POSITION=%s; EULER=%s\n", newName, scaleString, posString, eulerString );
-
+   
     // clipplanes
     stringstream ssplanes_final;
     ssplanes_final << "";
 
     ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
-    clipNode->ref();
     ssplanes_final << clipNode->getNumClipPlanes() << " ";
     if (useClipPlanesCheck_->getState())
     {
@@ -1254,41 +1219,18 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
             char planeString[1024];
 
             snprintf(planeString, 1024, "%d %f %f %f %f ", number, plane[0], plane[1], plane[2], plane[3]);
-            planeElement = doc.createElement("CLIPPLANE");
-            planeElement.appendChild(doc.createTextNode(planeString));
-
-            viewpointElement.appendChild(planeElement);
-
             // add to the current viewpoint
             viewDesc->addClipPlane(planeString);
             ssplanes_final << planeString << " ";
         }
     }
-    clipNode->unref();
 
     //fprintf(stderr, "PLANE: %s\n", ssplanes_final.str().c_str());
     sendNewViewpointMsgToGui(newName, id_, guiString, ssplanes_final.str().c_str());
     //fprintf(stderr, "sendNewViewpointMsgToGui: newName=%s id=%d guiString=%s\n",newName, id_, guiString);
     id_++;
 
-    if (coVRMSController::instance()->isMaster())
-    {
-        
-        if(vwpPath == "")
-        {
-            vwpPath = coVRFileManager::instance()->getViewPointFile();
-        }
-        // save the dom to file
-        QFile file(vwpPath.c_str());
-        file.open(QIODevice::WriteOnly);
-        QTextStream stream(&file); // we will serialize the data into the file
-        if (cover->debugLevel(4))
-            fprintf(stderr, "%s", doc.toString().toLatin1().data());
-        stream << doc.toString();
-        file.close();
-        if (cover->debugLevel(3))
-            fprintf(stderr, "saved dom to file\n");
-    }
+   
     vpnum++;
 
     // only write VRML viewpoints if VRML_WRITE_VIEWPOINTS is set
@@ -1323,6 +1265,162 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
         mat.postMult(rotMat);
         coord = mat;
         quat = mat.getRotate();
+    }
+    saveAllViewPoints();
+}
+
+#include <covise/covise_version.h>
+
+void ViewPoints::saveAllViewPoints()
+{
+    if (cover->debugLevel(3))
+        fprintf(stderr, "ViewPoints::saveAllViewPoints()\n");
+    
+    QDomDocument doc;
+    QDomElement rootElement;
+    // create a dom
+    rootElement = doc.createElement("COVERSTATE");
+    // append something
+    QDomElement tag = doc.createElement("VERSION");
+    rootElement.appendChild(tag);
+    QDomText t = doc.createTextNode(covise::CoviseVersion::longVersion());
+    tag.appendChild(t);
+
+    doc.appendChild(rootElement);
+    // loop over all viewpoints
+    for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+    {
+        
+        ViewDesc *viewDesc = (*it);
+            // add new viewpoint to dom
+            // append something
+            QDomElement viewpointElement, nameElement, scaleElement, posElement, eulerElement, tangentInElement, tangentOutElement;
+        
+            //tangentOutElement, tangentInElement, stoptimeElement;
+        QDomText nameText, scaleText, posText, eulerText;
+        viewpointElement = doc.createElement("VIEWPOINT");
+
+        nameElement = doc.createElement("NAME");
+        nameText = doc.createTextNode(viewDesc->getName());
+        nameElement.appendChild(nameText);
+
+        char scaleString[1024];
+        sprintf(scaleString, "%f", viewDesc->getScale());
+        scaleElement = doc.createElement("SCALE");
+        scaleText = doc.createTextNode(scaleString);
+        scaleElement.appendChild(scaleText);
+
+        char posString[1024];
+        sprintf(posString, "%f %f %f ", viewDesc->coord.xyz[0], viewDesc->coord.xyz[1], viewDesc->coord.xyz[2]);
+        posElement = doc.createElement("POSITION");
+        posText = doc.createTextNode(posString);
+        posElement.appendChild(posText);
+
+        char eulerString[1024];
+        sprintf(eulerString, "%f %f %f ", viewDesc->coord.hpr[0], viewDesc->coord.hpr[1], viewDesc->coord.hpr[2]);
+        eulerElement = doc.createElement("EULER");
+        eulerText = doc.createTextNode(eulerString);
+        eulerElement.appendChild(eulerText);
+
+        char tangentInString[1024];
+        sprintf(tangentInString, "%f %f %f ", viewDesc->getTangentIn()[0], viewDesc->getTangentIn()[1], viewDesc->getTangentIn()[2]);
+        tangentInElement = doc.createElement("TANGENT_IN");
+        tangentInElement.appendChild(doc.createTextNode(tangentInString));
+
+        char tangentOutString[1024];
+        sprintf(tangentOutString, "%f %f %f ", viewDesc->getTangentOut()[0], viewDesc->getTangentOut()[1], viewDesc->getTangentOut()[2]);
+        tangentOutElement = doc.createElement("TANGENT_OUT");
+        tangentOutElement.appendChild(doc.createTextNode(tangentOutString));
+
+        /*    char stoptimeString[1024];
+        sprintf(stoptimeString, "%f ", viewDesc->stoptime);
+        stoptimeElement = doc.createElement("STOPTIME");
+        stoptimeElement.appendChild(doc.createTextNode(stoptimeString));
+        */
+
+        coVRDOMDocument::instance()->getRootElement().appendChild(viewpointElement);
+        viewpointElement.appendChild(nameElement);
+        viewpointElement.appendChild(scaleElement);
+        viewpointElement.appendChild(posElement);
+        viewpointElement.appendChild(eulerElement);
+
+        viewpointElement.appendChild(tangentInElement);
+        viewpointElement.appendChild(tangentOutElement);
+        //viewpointElement.appendChild(stoptimeElement);
+        
+        QDomElement inFlightPath;
+        inFlightPath = doc.createElement("inFlightPath");
+        if(viewDesc->getFlightState())
+        inFlightPath.appendChild(doc.createTextNode("true"));
+        else
+        inFlightPath.appendChild(doc.createTextNode("false"));
+        viewpointElement.appendChild(inFlightPath);
+
+        
+        QDomElement isChangeable;
+        isChangeable = doc.createElement("isChangeable");
+        if(viewDesc->isChangeable())
+        isChangeable.appendChild(doc.createTextNode("true"));
+        else
+        isChangeable.appendChild(doc.createTextNode("false"));
+        viewpointElement.appendChild(isChangeable);
+        
+        //fprintf(stderr,"ViewPoints::saveViewPoint NAME=%s; SCALE=%s; POSITION=%s; EULER=%s\n", newName, scaleString, posString, eulerString );
+
+        // clipplanes
+        stringstream ssplanes_final;
+        ssplanes_final << "";
+        
+    rootElement.appendChild(viewpointElement);
+
+        ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
+        clipNode->ref();
+        ssplanes_final << clipNode->getNumClipPlanes() << " ";
+
+        for (unsigned int i = 0; i < clipNode->getNumClipPlanes() /*6*/; i++)
+        {
+            if(viewDesc->isClipPlaneEnabled(i))
+            {
+                ClipPlane *cp = clipNode->getClipPlane(i);
+                Vec4 plane = cp->getClipPlane();
+
+
+                QDomElement planeElement;
+                char planeString[1024];
+
+                snprintf(planeString, 1024, "%d %f %f %f %f ", i, viewDesc->clipPlanes[i].a, viewDesc->clipPlanes[i].b, viewDesc->clipPlanes[i].c, viewDesc->clipPlanes[i].d);
+                planeElement = doc.createElement("CLIPPLANE");
+                planeElement.appendChild(doc.createTextNode(planeString));
+
+                viewpointElement.appendChild(planeElement);
+
+                // add to the current viewpoint
+                viewDesc->addClipPlane(planeString);
+                ssplanes_final << planeString << " ";
+
+            }
+        }
+        clipNode->unref();
+
+    }
+    
+    if (coVRMSController::instance()->isMaster())
+    {
+        
+        if(vwpPath == "")
+        {
+            vwpPath = coVRFileManager::instance()->getViewPointFile();
+        }
+        // save the dom to file
+        QFile file(vwpPath.c_str());
+        file.open(QIODevice::WriteOnly);
+        QTextStream stream(&file); // we will serialize the data into the file
+        if (cover->debugLevel(4))
+            fprintf(stderr, "%s", doc.toString().toLatin1().data());
+        stream << doc.toString();
+        file.close();
+        if (cover->debugLevel(3))
+            fprintf(stderr, "saved dom to file\n");
     }
 }
 
@@ -1458,6 +1556,8 @@ void ViewPoints::changeViewDesc(ViewDesc *viewDesc)
             tangentIn[0], tangentIn[1], tangentIn[2], tangentOut[0], tangentOut[1], tangentOut[2]);
 
     sendViewpointChangedMsgToGui(viewDesc->getName(), viewDesc->getId(), guiString, ssplanes_final.str().c_str());
+    
+    saveAllViewPoints();
 }
 
 void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn, Vec3 newTanOut, int idd, const char *name, ViewDesc *viewDesc)
@@ -1529,15 +1629,29 @@ void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn,
     //tangentOutX, tangentOutY, tangentOutZ);
 
     sendViewpointChangedMsgToGui(n.c_str(), id, guiString, ssplanes_final.str().c_str());
+    
+    saveAllViewPoints();
 }
 
 #define INTERVAL 0.5
+#define SAVEINTERVAL 2.0
 #define MAXFRAMES 12000
 void ViewPoints::preFrame()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "ViewPoints::preFrame() id_=%d\n", id_);
-
+    if(dataChanged)
+    {
+        
+        static double oldTime = 0;
+        double time = cover->frameTime();
+        if (time - oldTime > SAVEINTERVAL)
+        {
+            oldTime = time;
+            dataChanged=false;
+            saveAllViewPoints();
+        }
+    }
     if (record)
     {
         static double oldTime = 0;

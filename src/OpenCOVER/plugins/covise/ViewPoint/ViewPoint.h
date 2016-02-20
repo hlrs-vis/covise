@@ -63,6 +63,7 @@ public:
     virtual coMenuItem *getMenuButton(const std::string &buttonName);
 
     void readFromDom();
+    void saveAllViewPoints();
 
     ViewDesc *activeVP;
     coCoord curr_coord;
@@ -96,6 +97,7 @@ public:
 
     void enableHUD();
     void disableHUD();
+    void setDataChanged(){dataChanged = true;};
 
     static bool showInteractors;
     static bool showFlightpath;
@@ -135,6 +137,10 @@ public:
     FlightPathVisualizer *flightPathVisualizer;
     Interpolator *vpInterpolator;
     //   	FlightManager *flightmanager;
+    
+    static ViewPoints *instance(){return inst;};
+    bool dataChanged;
+    bool isClipPlaneChecked() {return useClipPlanesCheck_->getState();};
 
 private:
     Vec3 eyepoint;
@@ -210,4 +216,5 @@ private:
     bool turnTableStep_;
     double turnTableStepInitTime_;
     osg::Matrix turnTableStepInitMat_, turnTableStepDestMat_;
+    static ViewPoints *inst;
 };

@@ -304,18 +304,22 @@ void ViewDesc::createButtons(const char *name,
     showTangentInteractorsCheck_->setMenuListener(this);
     editVPMenu_->add(showTangentInteractorsCheck_);
 
+    updateViewButton = new coButtonMenuItem("Update To Current Position");
+    updateViewButton->setMenuListener(this);
+    editVPMenu_->add(updateViewButton);
+
     editMenu->add(editVPMenuButton_);
     menu->add(button_);
     flightMenu->add(flightButton_);
 
-    if (isChangeable_ && isChangeableFromCover_)
+   /* if (isChangeable_ && isChangeableFromCover_)
     {
         string text = "Change ";
         text.append(name);
         changeButton_ = new coButtonMenuItem(text.c_str());
         changeButton_->setMenuListener(master);
         menu->add(changeButton_);
-    }
+    }*/
 }
 
 ViewDesc::~ViewDesc()
@@ -842,6 +846,27 @@ void ViewDesc::menuEvent(coMenuItem *menuItem)
         }
         showTangentInteractors(editTangent);
     }
+    else if (menuItem == updateViewButton)
+    {
+        osg::Matrix m = cover->getObjectsXform()->getMatrix();
+        coord = m;
+        ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
+        if (ViewPoints::instance()->isClipPlaneChecked())
+        {
+
+            for (unsigned int i = 0; i < clipNode->getNumClipPlanes(); i++)
+            {
+                ClipPlane *cp = clipNode->getClipPlane(i);
+                Vec4 plane = cp->getClipPlane();
+                char planeString[1024];
+
+                snprintf(planeString, 1024, "%d %f %f %f %f ", cp->getClipPlaneNum(), plane[0], plane[1], plane[2], plane[3]);
+                // add to the current viewpoint
+                addClipPlane(planeString);
+            }
+        }
+        ViewPoints::instance()->saveAllViewPoints();
+    }
     else if (menuItem == showTangentCheck_)
     {
         tangentVisible = showTangentCheck_->getState();
@@ -1212,7 +1237,8 @@ void ViewDesc::updateGeometry()
 
     if (cover->debugLevel(3))
         fprintf(stderr, "\nViewDesc::updateGeometry\n");
-
+    
+    ViewPoints::instance()->dataChanged = true;
     tangentlinescoords->at(0) = Vec3(0, 0, 0);
     tangentlinescoords->at(1) = Vec3(tangentOut[0] / scale_, tangentOut[1] / scale_, tangentOut[2] / scale_);
     tangentlinescoords->at(2) = Vec3(0, 0, 0);
