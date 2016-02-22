@@ -33,6 +33,7 @@
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include <PluginUtil/PluginMessageTypes.h>
 
@@ -429,6 +430,10 @@ RevitPlugin::RevitPlugin()
     }
     msg = new Message;
 
+}
+
+bool RevitPlugin::init()
+{
     globalmtl = new osg::Material;
     globalmtl->ref();
     globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
@@ -439,12 +444,13 @@ RevitPlugin::RevitPlugin()
     globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     revitGroup = new osg::MatrixTransform();
     revitGroup->setName("RevitGeometry");
-    revitGroup->setMatrix(osg::Matrix::scale(0.3048, 0.3048, 0.3048));
+    scaleFactor = 0.3048;
+    revitGroup->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
     currentGroup.push(revitGroup.get());
     cover->getObjectsRoot()->addChild(revitGroup.get());
     createMenu();
+    return true;
 }
-
 // this is called if the plugin is removed at runtime
 RevitPlugin::~RevitPlugin()
 {
@@ -557,6 +563,138 @@ void RevitPlugin::message(int type, int len, const void *buf)
                 Message message(stb);
                 message.type = (int)RevitPlugin::MSG_SetTransform;
                 RevitPlugin::instance()->sendMessage(message);
+    }
+    else if (type == PluginMessageTypes::AnnotationMessage) // An AnnotationMessage has been received
+    {
+        AnnotationMessage *mm = (AnnotationMessage *)buf;
+
+        switch (mm->token)
+        {
+        case ANNOTATION_MESSAGE_TOKEN_MOVEADD: // MOVE/ADD
+            {
+
+                int revitID = getAnnotationID(mm->id);
+                if(revitID > 0)
+                {
+                    changeAnnotation(revitID,mm);
+                }
+                else if(revitID == -1)
+                {
+                    createNewAnnotation(mm->id,mm);
+                }
+                break;
+            } // case moveadd
+
+        case ANNOTATION_MESSAGE_TOKEN_REMOVE: // Remove an annotation
+        {
+            int revitID = getAnnotationID(mm->id);
+            if(revitID > 0)
+            {
+                TokenBuffer stb;
+                stb << revitID;
+
+                Message message(stb);
+                message.type = (int)RevitPlugin::MSG_DeleteObject;
+                RevitPlugin::instance()->sendMessage(message);
+            }
+            else if(revitID == -1)
+            {
+            }
+            break;
+        } // case remove
+
+        case ANNOTATION_MESSAGE_TOKEN_SELECT: // annotation selected (right-clicked)
+        {
+            
+            break;
+        } // case select
+
+        case ANNOTATION_MESSAGE_TOKEN_COLOR: // Change annotation color
+        {
+            break;
+        } // case color
+
+        case ANNOTATION_MESSAGE_TOKEN_DELETEALL: // Deletes all Annotations
+        {
+            break;
+        } // case deleteall
+
+        // Release current lock on a specific annotation
+        // TODO: Possibly remove this, as unlock all
+        // does what this is supposed to do
+        case ANNOTATION_MESSAGE_TOKEN_UNLOCK:
+        {
+            break;
+        } //case unlock
+
+        case ANNOTATION_MESSAGE_TOKEN_SCALE: // scale an annotation
+        {
+          
+            break;
+        } //case scale
+
+        case ANNOTATION_MESSAGE_TOKEN_SCALEALL: //scale all Annotations
+        {
+          
+            break;
+        } //case scaleall
+
+        case ANNOTATION_MESSAGE_TOKEN_COLORALL: //change all annotation's colors
+        {
+            break;
+        } //case colorall
+
+        // release lock on all annotations that are owned by sender
+        case ANNOTATION_MESSAGE_TOKEN_UNLOCKALL:
+        {
+            break;
+        } //case unlockall
+
+        case ANNOTATION_MESSAGE_TOKEN_FORCEUNLOCK:
+        {
+            break;
+        }
+
+        case ANNOTATION_MESSAGE_TOKEN_HIDE: //hide an annotation
+        {
+            break;
+        } //case hide
+
+        case ANNOTATION_MESSAGE_TOKEN_HIDEALL: //hide all annotations
+        {
+            break;
+        } //case hideall
+
+        default:
+            std::cerr
+                << "Annotation: Error: Bogus Annotation message with Token "
+                << (int)mm->token << std::endl;
+        } //switch mm->token
+    } //if type == ann_message
+    else if (type == PluginMessageTypes::AnnotationTextMessage)
+    {
+	std::string text;
+        TokenBuffer tb((const char *)buf, len);
+        int id,owner;
+        char *ctext;
+        tb >> id;
+        tb >> owner;
+        tb >> ctext;
+        text = ctext;
+        int AnnotationID = getAnnotationID(id);
+        TokenBuffer stb;
+        stb << AnnotationID;
+        stb << (double)0;
+        stb << (double)0;
+        stb << (double)0;
+        stb << (double)0;
+        stb << (double)0;
+        stb << (double)0;
+        stb << text;
+
+        Message message(stb);
+        message.type = (int)RevitPlugin::MSG_SetTransform;
+        RevitPlugin::instance()->sendMessage(message);
     }
     else if (type == PluginMessageTypes::MoveMoveNode)
     {
@@ -893,6 +1031,18 @@ RevitPlugin::handleMessage(Message *m)
         }
     }
     break;
+    case MSG_NewAnnotation:
+        {
+            TokenBuffer tb(m);
+            int annotationID;
+            int ID;
+            tb >> annotationID;
+            tb >> ID;
+            while(annotationIDs.size() <= annotationID)
+                annotationIDs.push_back(-1);
+            annotationIDs[annotationID]=ID;
+            // check if we have cached changes for this Annotation and send it to Revit.
+        }
     case MSG_NewObject:
     {
         TokenBuffer tb(m);
@@ -1288,6 +1438,75 @@ RevitPlugin::preFrame()
             }
         } while (gotMsg != '\0');
     }
+}
+
+int RevitPlugin::getAnnotationID(int ai)
+{
+    if(ai >= annotationIDs.size())
+        return -1; // never seen this Annotation (-2 == has already been created but revitID has not yet been received)
+    else return annotationIDs[ai];
+}
+
+void RevitPlugin::createNewAnnotation(int id, AnnotationMessage *am)
+{
+    while(annotationIDs.size() <= id)
+        annotationIDs.push_back(-1);
+    annotationIDs[id]=-2;
+    osg::Matrix trans;
+    osg::Matrix ori;
+    for (unsigned y = 0; y < 4; ++y)
+    {
+        for (unsigned x = 0; x < 4; ++x)
+        {
+            ori(x, y) = am->_orientation[y * 4 + x];
+            trans(x, y) = am->_translation[y * 4 + x];
+        }
+    }
+    coCoord orientation(ori);
+    TokenBuffer stb;
+    stb << id;
+    stb << (double)trans.getTrans()[0]/scaleFactor;
+    stb << (double)trans.getTrans()[1]/scaleFactor;
+    stb << (double)trans.getTrans()[2]/scaleFactor;
+    stb << (double)orientation.hpr[0];
+    stb << (double)orientation.hpr[1];
+    stb << (double)orientation.hpr[2];
+    char tmpText[100];
+    sprintf(tmpText,"Annotation %d",id);
+    stb << tmpText;
+
+    Message message(stb);
+    message.type = (int)RevitPlugin::MSG_NewAnnotation;
+    RevitPlugin::instance()->sendMessage(message);
+}
+void RevitPlugin::changeAnnotation(int id, AnnotationMessage *am)
+{
+    osg::Matrix trans;
+    osg::Matrix ori;
+    for (unsigned y = 0; y < 4; ++y)
+    {
+        for (unsigned x = 0; x < 4; ++x)
+        {
+            ori(x, y) = am->_orientation[y * 4 + x];
+            trans(x, y) = am->_translation[y * 4 + x];
+        }
+    }
+    coCoord orientation(ori);
+    TokenBuffer stb;
+    stb << id;
+    stb << (double)trans.getTrans()[0]/scaleFactor;
+    stb << (double)trans.getTrans()[1]/scaleFactor;
+    stb << (double)trans.getTrans()[2]/scaleFactor;
+    stb << (double)orientation.hpr[0];
+    stb << (double)orientation.hpr[1];
+    stb << (double)orientation.hpr[2];
+    char tmpText[100];
+    sprintf(tmpText,"Annotation %d",id);
+    stb << tmpText;
+
+    Message message(stb);
+    message.type = (int)RevitPlugin::MSG_ChangeAnnotation;
+    RevitPlugin::instance()->sendMessage(message);
 }
 
 COVERPLUGIN(RevitPlugin)

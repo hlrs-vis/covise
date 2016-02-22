@@ -68,19 +68,6 @@ static void array2matrix(osg::Matrix &m, const osg::Matrix::value_type *a)
         }
 }
 
-/*
- * AnnotationMessage Constructor
- */
-AnnotationMessage::AnnotationMessage()
-{
-    token = 0;
-    id = -1;
-    sender = coVRCommunication::instance()->getID();
-    color = 0.0f;
-    state = false;
-    memset(_translation, 0, sizeof(_translation));
-    memset(_orientation, 0, sizeof(_translation));
-}
 
 /*
  * Constructor
@@ -242,6 +229,8 @@ void AnnotationPlugin::preFrame()
         am.token = ANNOTATION_MESSAGE_TOKEN_UNLOCKALL;
         cover->sendMessage(this, coVRPluginSupport::TO_SAME, PluginMessageTypes::AnnotationMessage,
                            sizeof(AnnotationMessage), &am);
+        cover->sendMessage(this, "Revit",
+            PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
     }
     else if (interactionI->wasStopped() && interactionI->isRegistered())
     {
@@ -321,6 +310,8 @@ void AnnotationPlugin::preFrame()
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+                cover->sendMessage(this, "Revit",
+                                   PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
             }
             moving = true;
         }
@@ -334,6 +325,7 @@ void AnnotationPlugin::preFrame()
                 const osg::Vec3 &hp = cover->getIntersectionHitPointWorld();
                 trans.makeTranslate(hp[0], hp[1], hp[2]);
                 trans = trans * cover->getInvBaseMat();
+                trans.makeTranslate(trans.getTrans()); // get rid of scale part
 
                 osg::Vec3 from(0.0, 0.0, 1.0);
                 const osg::Vec3 to = cover->getIntersectionHitPointWorldNormal()
@@ -348,6 +340,8 @@ void AnnotationPlugin::preFrame()
                 matrix2array(orientation, am.orientation());
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
+                                   PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+                cover->sendMessage(this, "Revit",
                                    PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
             }
             //set VRUI Menu Item to false
@@ -377,6 +371,8 @@ void AnnotationPlugin::preFrame()
                     am.token = ANNOTATION_MESSAGE_TOKEN_SELECT;
                     cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                        PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+                    cover->sendMessage(this, "Revit",
+                        PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
                 }
                 else // close menu
                 {
@@ -413,6 +409,8 @@ void AnnotationPlugin::preFrame()
                 am.token = ANNOTATION_MESSAGE_TOKEN_MOVEADD;
                 matrix2array(current, am.translation());
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
+                                   PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+                cover->sendMessage(this, "Revit",
                                    PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
             }
         }
@@ -545,7 +543,9 @@ void AnnotationPlugin::potiValueChanged(float, float newvalue, coValuePoti *,
         mm.token = ANNOTATION_MESSAGE_TOKEN_COLOR;
         mm.color = newvalue;
         cover->sendMessage(this, coVRPluginSupport::TO_SAME, PluginMessageTypes::AnnotationMessage,
-                           sizeof(AnnotationMessage), &mm);
+            sizeof(AnnotationMessage), &mm);
+        cover->sendMessage(this, "Revit",
+            PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
     }
 }
 
@@ -582,7 +582,9 @@ void AnnotationPlugin::menuEvent(coMenuItem *item)
         mm.token = ANNOTATION_MESSAGE_TOKEN_SCALEALL;
         mm.color = scaleMenuPoti->getValue();
         cover->sendMessage(this, coVRPluginSupport::TO_SAME, PluginMessageTypes::AnnotationMessage,
-                           sizeof(AnnotationMessage), &mm);
+            sizeof(AnnotationMessage), &mm);
+        cover->sendMessage(this, "Revit",
+            PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
 
         //update tabletUI
         //tuiSlider->setValue(scaleMenuPoti->getValue());
@@ -597,6 +599,8 @@ void AnnotationPlugin::menuEvent(coMenuItem *item)
         mm.token = ANNOTATION_MESSAGE_TOKEN_FORCEUNLOCK;
         cover->sendMessage(this, coVRPluginSupport::TO_SAME, PluginMessageTypes::AnnotationMessage,
                            sizeof(AnnotationMessage), &mm);
+        cover->sendMessage(this, "Revit",
+            PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
     }
 }
 
@@ -629,6 +633,8 @@ void AnnotationPlugin::deleteAllAnnotations()
     mm.token = ANNOTATION_MESSAGE_TOKEN_DELETEALL;
     cover->sendMessage(this, coVRPluginSupport::TO_SAME, PluginMessageTypes::AnnotationMessage,
                        sizeof(AnnotationMessage), &mm);
+    cover->sendMessage(this, "Revit",
+        PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
 }
 
 /*
@@ -645,6 +651,8 @@ void AnnotationPlugin::deleteAnnotation(Annotation *annot)
         mm.token = ANNOTATION_MESSAGE_TOKEN_REMOVE;
         cover->sendMessage(this, coVRPluginSupport::TO_SAME, PluginMessageTypes::AnnotationMessage,
                            sizeof(AnnotationMessage), &mm);
+        cover->sendMessage(this, "Revit",
+            PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
         setCurrentAnnotation(NULL); //currentAnnotation=NULL;
     }
 }
@@ -703,6 +711,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 tb2 << text;
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::AnnotationTextMessage, tb2.get_length(), tb2.get_data());
+                cover->sendMessage(this, "Revit",
+                                   PluginMessageTypes::AnnotationTextMessage, tb2.get_length(), tb2.get_data());
             }
             break;
         }
@@ -740,6 +750,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 am.color = scaleVal < 0.01 ? 0.01 : scaleVal;
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+                cover->sendMessage(this, "Revit",
+                                   PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
             }
             //std::cout << "AnnotationPlugin::TABLET_ANNOTATION_SCALE ScaleVal = " << scaleVal << std::endl;
             break;
@@ -752,6 +764,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             am.color = scaleVal < 0.01 ? 0.01 : scaleVal;
             cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+            cover->sendMessage(this, "Revit",
+                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
             //std::cout << "AnnotationPlugin::TABLET_ANNOTATION_SCALE_ALL scaleVal = " << scaleVal << std::endl;
             break;
         }
@@ -769,6 +783,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 mm.color = color;
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
+                cover->sendMessage(this, "Revit",
+                                   PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
             }
             //std::cout << "AnnotationPlugin::TABLET_ANNOTATION_SET_COLOR color = " << color << std::endl;
             break;
@@ -782,6 +798,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             mm.color = color;
             cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
+            cover->sendMessage(this, "Revit",
+                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &mm);
             //std::cout << "AnnotationPlugin::TABLET_ANNOTATION_SET_ALL_COLORS color = " << color << std::endl;
             break;
         }
@@ -798,6 +816,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 
             cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+            cover->sendMessage(this, "Revit",
+                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
 
             break;
         }
@@ -812,6 +832,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             am.state = state;
             cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+            cover->sendMessage(this, "Revit",
+                PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
 
             break;
         }
@@ -834,6 +856,8 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                     matrix2array(translation, am.translation());
                     cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                        PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+                    cover->sendMessage(this, "Revit",
+                        PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
                 }
             }
         }

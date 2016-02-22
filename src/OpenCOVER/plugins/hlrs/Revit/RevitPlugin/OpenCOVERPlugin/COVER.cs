@@ -40,7 +40,7 @@ namespace OpenCOVERPlugin
    public sealed class COVER
    {
 
-       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo };
+       public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation };
       public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
       private Thread messageThread;
 
@@ -319,8 +319,6 @@ namespace OpenCOVERPlugin
               mb.add((int)ObjectTypes.Mesh);
               mb.add(false);
               mb.add(0);
-
-              int i = 0;
 
 
               mb.add((byte)220); // color
@@ -1224,6 +1222,73 @@ void TestAllOverloads(
                       Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)elem;
                       Autodesk.Revit.DB.ViewOrientation3D ori = new Autodesk.Revit.DB.ViewOrientation3D(new Autodesk.Revit.DB.XYZ(ex, ey, ez), new Autodesk.Revit.DB.XYZ(ux, uy, uz), new Autodesk.Revit.DB.XYZ(dx, dy, dz));
                       v3d.SetOrientation(ori);
+                  }
+                  break;
+
+              case MessageTypes.NewAnnotation:
+                  {
+                      
+                      int labelNumber = buf.readInt();
+                      double x = buf.readDouble();
+                      double y = buf.readDouble();
+                      double z = buf.readDouble();
+                      double h = buf.readDouble();
+                      double p = buf.readDouble();
+                      double r = buf.readDouble();
+                      string labelText = buf.readString();
+
+                      Autodesk.Revit.DB.XYZ translationVec = new Autodesk.Revit.DB.XYZ(x, y, z);
+                      Autodesk.Revit.DB.View view = document.ActiveView;
+                      ElementId currentTextTypeId = document.GetDefaultElementTypeId(ElementTypeGroup.TextNoteType);
+                      Autodesk.Revit.DB.TextNote tn = Autodesk.Revit.DB.TextNote.Create(document, view.Id, translationVec, labelText, currentTextTypeId);
+                      // send back revit ID corresponding to this annotationID 
+                      // the mapping of annotationIDs to Revit element IDs is done in OpenCOVER
+                      MessageBuffer mb = new MessageBuffer();
+                      mb.add(labelNumber);
+                      mb.add(tn.Id.IntegerValue);
+                      sendMessage(mb.buf, MessageTypes.NewAnnotation);
+                      /*tn.Text = labelText;
+
+                      Autodesk.Revit.DB.LocationCurve ElementPosCurve = tn.Location as Autodesk.Revit.DB.LocationCurve;
+                      if (ElementPosCurve != null)
+                          ElementPosCurve.Move(translationVec);
+                      Autodesk.Revit.DB.LocationPoint ElementPosPoint = tn.Location as Autodesk.Revit.DB.LocationPoint;
+                      if (ElementPosPoint != null)
+                          ElementPosPoint.Move(translationVec);
+                       * */
+
+                  }
+                  break;
+              case MessageTypes.ChangeAnnotation:
+                  {
+
+                      int elemID = buf.readInt();
+                      double x = buf.readDouble();
+                      double y = buf.readDouble();
+                      double z = buf.readDouble();
+                      double h = buf.readDouble();
+                      double p = buf.readDouble();
+                      double r = buf.readDouble();
+                      string labelText = buf.readString();
+
+                      Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                      Autodesk.Revit.DB.Element elem = document.GetElement(id);
+                      Autodesk.Revit.DB.View3D v3d = (Autodesk.Revit.DB.View3D)elem;
+
+                      Autodesk.Revit.DB.TextNote tn = elem as Autodesk.Revit.DB.TextNote;
+                      if (tn != null)
+                      {
+                          tn.Text = labelText;
+
+                          Autodesk.Revit.DB.XYZ translationVec = new Autodesk.Revit.DB.XYZ(x, y, z);
+                          Autodesk.Revit.DB.LocationCurve ElementPosCurve = tn.Location as Autodesk.Revit.DB.LocationCurve;
+                          if (ElementPosCurve != null)
+                              ElementPosCurve.Move(translationVec);
+                          Autodesk.Revit.DB.LocationPoint ElementPosPoint = tn.Location as Autodesk.Revit.DB.LocationPoint;
+                          if (ElementPosPoint != null)
+                              ElementPosPoint.Move(translationVec);
+                      }
+
                   }
                   break;
 

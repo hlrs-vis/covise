@@ -17,6 +17,7 @@
 
 #include <cover/coVRTui.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRCommunication.h>
 
 #include <cover/coVRPlugin.h>
 
@@ -101,10 +102,23 @@ struct AnnotationMessage // message of type ANNOTATION_MESSAGE
     {
         return &_translation[0];
     }
-
-    AnnotationMessage();
+    
+/*
+ * AnnotationMessage Constructor
+ */
+    AnnotationMessage()
+    {
+        token = 0;
+        id = -1;
+        sender = coVRCommunication::instance()->getID();
+        color = 0.0f;
+        state = false;
+        memset(_translation, 0, sizeof(_translation));
+        memset(_orientation, 0, sizeof(_translation));
+    }
 };
 #pragma pack(pop)
+
 
 class AnnotationPlugin : public coVRPlugin,
                          public coMenuListener,

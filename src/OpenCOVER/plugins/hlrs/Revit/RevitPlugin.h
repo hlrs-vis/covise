@@ -31,6 +31,8 @@
 #include <map>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
+// for AnnotationMessage:
+#include <../../general/Annotation/AnnotationPlugin.h>
 
 class RevitInfo : public vrui::vruiUserData
 {
@@ -104,6 +106,14 @@ private:
     coTUIFrame *frame;
     static int yPos;
 };
+class AnnotationInfo
+{
+public:
+    double x,y,z,h,p,r;
+    std::string text;
+    int ID;
+};
+
 
 class RevitParameter : public coTUIListener
 {
@@ -185,6 +195,9 @@ public:
         MSG_UpdateView = 516,
         MSG_AvatarPosition = 517,
         MSG_RoomInfo = 518,
+        MSG_NewAnnotation = 519,
+        MSG_ChangeAnnotation = 520,
+
         
         
     };
@@ -199,6 +212,7 @@ public:
     };
     RevitPlugin();
     ~RevitPlugin();
+    virtual bool init();
     static RevitPlugin *instance()
     {
         return plugin;
@@ -219,6 +233,9 @@ public:
     
     void message(int type, int len, const void *buf);
     void deactivateAllViewpoints();
+    int getAnnotationID(int ai);
+    void createNewAnnotation(int id, AnnotationMessage *am);
+    void changeAnnotation(int id, AnnotationMessage *am);
 protected:
     static RevitPlugin *plugin;
     coSubMenuItem *REVITButton;
@@ -247,6 +264,9 @@ protected:
     bool MoveFinished;
     int MovedID;
     RevitInfo  *info;
+    std::vector<int> annotationIDs;
+    std::list<AnnotationInfo> annotationInfos;
+    float scaleFactor;
     
 
     Message *msg;

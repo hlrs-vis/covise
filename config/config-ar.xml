@@ -28,8 +28,8 @@
 		    <!--  Thyssen Turm gross -->
 		    <Marker name="ObjectMarker2" >
                         <Pattern value="7" />
-                        <Size value="65" />
-                        <Offset x="75" y="0" z="5" h="90" p="0" r="0" />
+                        <Size value="62" />
+                        <Offset x="71" y="0" z="5" h="90" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Science Pub Bierglas kleiner Marker -->
@@ -209,7 +209,7 @@
 
                 <ALVAR value="OFF">
                     <Capture value="on" />
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="2" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />

@@ -18,7 +18,8 @@ namespace OpenCOVERPlugin
       public MessageBuffer(byte[] b)
       {
           currentPos = 0;
-          buf = b;
+          buf = new byte[b.Length];
+          b.CopyTo(buf,0);
       }
       private void incsize(int s)
       {
