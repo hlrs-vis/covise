@@ -197,6 +197,9 @@ public:
         MSG_RoomInfo = 518,
         MSG_NewAnnotation = 519,
         MSG_ChangeAnnotation = 520,
+        MSG_ChangeAnnotationText = 521,
+        MSG_NewAnnotationID = 522,
+        
 
         
         
@@ -233,7 +236,8 @@ public:
     
     void message(int type, int len, const void *buf);
     void deactivateAllViewpoints();
-    int getAnnotationID(int ai);
+    int getAnnotationID(int revitID);
+    int getRevitAnnotationID(int ai);
     void createNewAnnotation(int id, AnnotationMessage *am);
     void changeAnnotation(int id, AnnotationMessage *am);
 protected:

@@ -57,6 +57,24 @@ using covise::coCoviseConfig;
 
 int ElementInfo::yPos = 3;
 
+static void matrix2array(const osg::Matrix &m, osg::Matrix::value_type *a)
+{
+    for (unsigned y = 0; y < 4; ++y)
+        for (unsigned x = 0; x < 4; ++x)
+        {
+            a[y * 4 + x] = m(x, y);
+        }
+}
+
+static void array2matrix(osg::Matrix &m, const osg::Matrix::value_type *a)
+{
+    for (unsigned y = 0; y < 4; ++y)
+        for (unsigned x = 0; x < 4; ++x)
+        {
+            m(x, y) = a[y * 4 + x];
+        }
+}
+
 RevitInfo::RevitInfo()
 {
 }
@@ -434,6 +452,8 @@ RevitPlugin::RevitPlugin()
 
 bool RevitPlugin::init()
 {
+    cover->addPlugin("Annotation"); // we would like to have the Annotation plugin
+    cover->addPlugin("Move"); // we would like to have the Move plugin
     globalmtl = new osg::Material;
     globalmtl->ref();
     globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
@@ -573,7 +593,7 @@ void RevitPlugin::message(int type, int len, const void *buf)
         case ANNOTATION_MESSAGE_TOKEN_MOVEADD: // MOVE/ADD
             {
 
-                int revitID = getAnnotationID(mm->id);
+                int revitID = getRevitAnnotationID(mm->id);
                 if(revitID > 0)
                 {
                     changeAnnotation(revitID,mm);
@@ -587,7 +607,7 @@ void RevitPlugin::message(int type, int len, const void *buf)
 
         case ANNOTATION_MESSAGE_TOKEN_REMOVE: // Remove an annotation
         {
-            int revitID = getAnnotationID(mm->id);
+            int revitID = getRevitAnnotationID(mm->id);
             if(revitID > 0)
             {
                 TokenBuffer stb;
@@ -681,20 +701,17 @@ void RevitPlugin::message(int type, int len, const void *buf)
         tb >> owner;
         tb >> ctext;
         text = ctext;
-        int AnnotationID = getAnnotationID(id);
-        TokenBuffer stb;
-        stb << AnnotationID;
-        stb << (double)0;
-        stb << (double)0;
-        stb << (double)0;
-        stb << (double)0;
-        stb << (double)0;
-        stb << (double)0;
-        stb << text;
+        int AnnotationID = getRevitAnnotationID(id);
+        if(AnnotationID > 0)
+        {
+            TokenBuffer stb;
+            stb << AnnotationID;
+            stb << text;
 
-        Message message(stb);
-        message.type = (int)RevitPlugin::MSG_SetTransform;
-        RevitPlugin::instance()->sendMessage(message);
+            Message message(stb);
+            message.type = (int)RevitPlugin::MSG_ChangeAnnotationText;
+            RevitPlugin::instance()->sendMessage(message);
+        }
     }
     else if (type == PluginMessageTypes::MoveMoveNode)
     {
@@ -978,6 +995,41 @@ RevitPlugin::handleMessage(Message *m)
         ElementIDMap.clear();
     }
     break;
+    case MSG_NewAnnotation:
+    {
+        TokenBuffer tb(m);
+        int ID;
+        float x,y,z;
+        char *text;
+        tb >> ID;
+        tb >> x;
+        tb >> y;
+        tb >> z;
+        tb >> text;
+        
+        int AID = getAnnotationID(ID);  
+        AnnotationMessage am;
+        am.token = ANNOTATION_MESSAGE_TOKEN_MOVEADD;
+        am.id = AID;
+        am.sender = 101;
+        am.color = 0.4;
+        osg::Matrix trans;
+        osg::Matrix orientation;
+        trans.makeTranslate(x*scaleFactor,y*scaleFactor,z*scaleFactor); // get rid of scale part
+        orientation.makeRotate(3.0,-1,0,0);
+        matrix2array(trans, am.translation());
+        matrix2array(orientation, am.orientation());
+        cover->sendMessage(this, "Annotation",
+            PluginMessageTypes::AnnotationMessage, sizeof(AnnotationMessage), &am);
+              
+        TokenBuffer tb3;
+        tb3 << AID;
+        tb3 << 101; // owner
+        tb3 << text;
+        cover->sendMessage(this, "Annotation",
+            PluginMessageTypes::AnnotationTextMessage, tb3.get_length(), tb3.get_data());
+        break;
+    }
     case MSG_AddView:
     {
         TokenBuffer tb(m);
@@ -1031,7 +1083,7 @@ RevitPlugin::handleMessage(Message *m)
         }
     }
     break;
-    case MSG_NewAnnotation:
+    case MSG_NewAnnotationID:
         {
             TokenBuffer tb(m);
             int annotationID;
@@ -1440,12 +1492,24 @@ RevitPlugin::preFrame()
     }
 }
 
-int RevitPlugin::getAnnotationID(int ai)
+int RevitPlugin::getRevitAnnotationID(int ai)
 {
     if(ai >= annotationIDs.size())
         return -1; // never seen this Annotation (-2 == has already been created but revitID has not yet been received)
     else return annotationIDs[ai];
 }
+int RevitPlugin::getAnnotationID(int revitID)
+{
+    for(int i=0;i<annotationIDs.size();i++)
+    {
+        if(annotationIDs[i]== revitID)
+            return i;
+    }
+    int newID = annotationIDs.size();
+    annotationIDs.push_back(revitID);
+    return newID;
+}
+
 
 void RevitPlugin::createNewAnnotation(int id, AnnotationMessage *am)
 {
@@ -1500,13 +1564,11 @@ void RevitPlugin::changeAnnotation(int id, AnnotationMessage *am)
     stb << (double)orientation.hpr[0];
     stb << (double)orientation.hpr[1];
     stb << (double)orientation.hpr[2];
-    char tmpText[100];
-    sprintf(tmpText,"Annotation %d",id);
-    stb << tmpText;
 
     Message message(stb);
     message.type = (int)RevitPlugin::MSG_ChangeAnnotation;
     RevitPlugin::instance()->sendMessage(message);
 }
+
 
 COVERPLUGIN(RevitPlugin)

@@ -34,7 +34,7 @@ coVRLabel::coVRLabel(const char *name, float fontsize, float lineLen, osg::Vec4 
 {
 
     //fprintf(stderr,"===== new coVRLabel\n");
-    moveToCam=true;
+    moveToCam=false; // change default back to normal behavior (Uwe 2016)
     offset = lineLen;
     osg::ref_ptr<osgText::Font> font = coVRFileManager::instance()->loadFont(NULL);
 

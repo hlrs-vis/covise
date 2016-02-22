@@ -31,6 +31,8 @@ Annotation::Annotation(int id, int owner, osg::Node * /*node*/, float initscale,
     float lineLen = 0.04 * cover->getSceneSize();
     float fontSize = 0.02 * cover->getSceneSize();
     label = new coVRLabel(" ", fontSize, lineLen, fgcolor, bgcolor);
+    label->show();
+    label->keepDistanceFromCamera(false, 2000);
     //setText("Annotation");
 
     setColor(0.47); // set all annotations to the same color by default (green)
@@ -214,13 +216,12 @@ void Annotation::updateLabelPosition()
     //matrix.makeTranslate( offset );
 
     osg::MatrixList matrixList = arrow->getWorldMatrices();
-    osg::MatrixList::iterator iter;
-    for (iter = matrixList.begin(); iter != matrixList.end(); iter++)
+    if(matrixList.size() > 0)
     {
-        matrix.postMult(*iter);
-    }
+        matrix.postMult(matrixList[0]);
 
-    label->setPosition(matrix.getTrans());
+        label->setPosition(matrix.getTrans());
+    }
 }
 
 void Annotation::scaleArrowToConstantSize()
