@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vehicle name="vehicle_generic" category="truck" manufacturer="nvy56" model="jtyi56" color="gdfast" licensePlate="ndt">
+
+
+  <fileHeader author="MK" date="2016-02-15T15:20:00+01:00" description="vehilce - testScenario" revMajor="1" revMinor="1">
+    <userDataList>
+      <userData code="nfh4" value="nyuWR"/>
+      <userData code="hgmkt7" value="TET44"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <performance maxSpeed="345.768" maxDeceleration="5.6" overallEfficiency="56.67">
+    <aerodynamics airDragCoefficient="0.567" frontSurfaceEffective="3.78"/>
+    <engine type="nmghj" power="564.6" maxRpm="2343.5"/>
+    <cog positionX="567.76" positionY="345.879" positionZ="56.7" mass="7784.5"/>
+    <gearbox type="nh5t"/>
+  </performance>
+
+
+  <geometry URL="vehicle_generic_geom.xml"/>
+
+
+  <dimension front="2345.7" rear="85.546" left="3453.67" right="4564.45" bottom="-56.456" top="345.56"/>
+
+
+  <axles>
+    <front rollingResistance="345.56" maxSteering="46.768" wheelDiameter="478.45" trackWidth="465.56" positionX="-5678.7" positionZ="3456.457" driven="false"/>
+    <rear rollingResistance="45.89" maxSteering="3457.76" wheelDiameter="34.78" trackWidth="4579.657" positionX="4576.768" positionZ="7855.56" driven="true"/>
+
+    <additionalAxles>
+      <additional rollingResistance="576.67" maxSteering="345.65" wheelDiameter="897.567" trackWidth="45.78" positionX="457.78" positionZ="-57634.34" driven="false"/>
+      <additional rollingResistance="6890.34" maxSteering="9568.456" wheelDiameter="345.5" trackWidth="247." positionX="358.57" positionZ="-3456.6" driven="false"/>
+    </additionalAxles>
+  </axles>
+
+
+  <lighting>
+
+    <light type="bnfgh" frequency="78.3">
+      <coord>
+        <position x="543.78" y="5.78" z="-96.456"/>
+        <orientation h="7.9805" p="125.5" r="-93.6"/>
+      </coord>
+      <light>
+        <color r="67.78" g="88.9" b="246.45"/>
+        <intensity ambient="68.76" diffuse="345.6" specular="-9.58"/>
+      </light>
+    </light>
+
+    <light type="ngj435" frequency="56.789">
+      <coord>
+        <position x="-9.56" y="-56.6" z="-348.345"/>
+        <orientation h="2.78" p="-60.3" r="-159.345"/>
+      </coord>
+      <light>
+        <color r="45.78" g="34.56" b="251.5"/>
+        <intensity ambient="1.78" diffuse="-48.3" specular="-588.3"/>
+      </light>
+    </light>
+
+  </lighting>
+
+
+  <eyepoints>
+
+    <eyepoint type="nnmr">
+      <coord>
+        <position x="46.78" y="45.67" z="45.8"/>
+        <orientation h="44.67" p="-67.9" r="-5.5"/>
+      </coord>
+    </eyepoint>
+
+    <eyepoint type="czee">
+      <coord>
+        <position x="6.78" y="4445.5" z="44.68"/>
+        <orientation h="-119.46" p="-4.76" r="8.34"/>
+      </coord>
+    </eyepoint>
+
+  </eyepoints>
+
+
+  <mirrors>
+
+    <mirror type="xcvbrt-789">
+      <coord>
+        <position x="2345.789" y="456.9" z="67805.4"/>
+        <orientation h="-6.67" p="-7.2" r="-99.4"/>
+      </coord>
+    </mirror>
+
+    <mirror type="fbf45">
+      <coord>
+        <position x="456.789" y="-45.6" z="96.6"/>
+        <orientation h="38.63" p="95.05" r="6.345"/>
+      </coord>
+    </mirror>
+
+  </mirrors>
+
+
+  <features>
+
+    <feature type="nfh" availability="false"/>
+    <feature type="p789sd" availability="true"/>
+    <feature type="zrtywqw" availability="true"/>
+
+  </features>
+
+
+  <userDataList>
+    <userData code="bccv4" value="w3r"/>
+    <userData code="dvxcv" value="vcx"/>
+    <userData code="retes" value="jty"/>
+  </userDataList>
+
+
+</vehicle>

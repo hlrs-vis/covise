@@ -8,7 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "OpenScenarioBase.h"
 #include "oscVariables.h"
 #include "oscSourceFile.h"
-#include "utilities.h"
+#include "oscUtilities.h"
 
 #include <iostream>
 
@@ -113,7 +113,7 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        //get the relative path from main to the to write
+        //get the relative path from main doc to the file to write
         std::string relFilePath = srcFileVec[i]->getRelPathFromMainDoc();
         //get the file name to write
         std::string srcFileName = srcFileVec[i]->getSrcFileName();

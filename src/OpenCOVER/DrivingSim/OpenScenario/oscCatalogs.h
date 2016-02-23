@@ -34,10 +34,10 @@ public:
     };
 
     oscCatalogObjectMember objectCatalog;
-    oscCatalogBaseMember entityCatalog;
-    oscCatalogBaseMember environmentCatalog;
-    oscCatalogBaseMember maneuverCatalog;
-    oscCatalogBaseMember routingCatalog;
+    oscCatalogBaseMemberCatalog entityCatalog;
+    oscCatalogBaseMemberCatalog environmentCatalog;
+    oscCatalogBaseMemberCatalog maneuverCatalog;
+    oscCatalogBaseMemberCatalog routingCatalog;
     oscUserDataListMemberArray userDataList;
 };
 

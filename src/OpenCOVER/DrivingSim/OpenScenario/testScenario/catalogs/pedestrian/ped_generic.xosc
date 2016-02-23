@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="generic" refId="4578" category="pedestrian" model="4jt" mass="56.9">
+
+
+  <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1">
+    <userDataList>
+      <userData code="vxhb" value="hrfth56"/>
+      <userData code="l8tse4t" value="drgthy45"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <dimension front="46.905" rear="345.68" left="2345.56" right="23789.45" bottom="34.8" top="2635.84"/>
+
+
+  <geometry URL="pedestrian-generic_geom.xml"/>
+
+
+  <behavior politeness="2345.8" alertness="0.567"/>
+
+
+</pedestrian>

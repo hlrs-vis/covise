@@ -52,14 +52,14 @@ public:
     virtual void setValue(oscMemberValue *v);
     virtual void setValue(oscObjectBase *t);
     virtual void deleteValue();
-    virtual oscMemberValue *getValue(); ///< return value is value or NULL, overridden in oscObjectVariable and oscObjectArrayVariable
-    virtual oscMemberValue *getGenerateValue(); ///<return value is always value, overridden in oscObjectVariable and oscObjectArrayVariable
+    virtual oscMemberValue *getValue();
+    virtual oscMemberValue *getGenerateValue();
     void setType(oscMemberValue::MemberTypes t);
     oscMemberValue::MemberTypes getType() const; ///< return the type of this member
 
     virtual oscObjectBase *getObject() const;
     virtual oscObjectBase *getGenerateObject();
-    virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable::exists or oscObjectArrayVariable is executed
+    virtual bool exists() const; ///< for a member of type == oscMemberValue::OBJECT oscObjectVariable...::exists is executed
     oscObjectBase *getOwner() const;
     virtual void setParentMember(oscMember *pm);
     virtual oscMember *getParentMember() const;

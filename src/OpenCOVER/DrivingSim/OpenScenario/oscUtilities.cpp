@@ -5,10 +5,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#include "utilities.h"
+#include "oscUtilities.h"
 
 #include <iostream>
-#include <exception>
 
 
 using namespace OpenScenario;
@@ -58,9 +57,8 @@ void ParserErrorHandler::reportParseException(const xercesc::SAXParseException &
 
 
 //////
-// class Toolbox
 //
-std::string Toolbox::generateRandomString(const size_t numOfChars)
+std::string OpenScenario::generateRandomString(const size_t numOfChars)
 {
     //output string
     std::string str(numOfChars, 0);

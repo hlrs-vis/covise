@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="john" refId="7889" category="pedestrian" model="cvw4" mass="5945.7">
+
+
+  <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1"/>
+
+
+  <dimension front="365.8" rear="389.56" left="564.7" right="-45764.76" bottom="-456.6" top="67845.3"/>
+
+
+  <geometry URL="pedestrian-john_geom.xml"/>
+
+
+  <behavior politeness="2366.7" alertness="34535.78"/>
+
+
+</pedestrian>

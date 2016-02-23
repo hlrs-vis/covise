@@ -30,11 +30,11 @@ public:
         OSC_OBJECT_ADD_MEMBER(miscObjectCatalog, "oscCatalogBase");
     };
 
-    oscCatalogBaseMember vehicleCatalog;
-    oscCatalogBaseMember driverCatalog;
-    oscCatalogBaseMember observerCatalog;
-    oscCatalogBaseMember pedestrianCatalog;
-    oscCatalogBaseMember miscObjectCatalog;
+    oscCatalogBaseMemberCatalog vehicleCatalog;
+    oscCatalogBaseMemberCatalog driverCatalog;
+    oscCatalogBaseMemberCatalog observerCatalog;
+    oscCatalogBaseMemberCatalog pedestrianCatalog;
+    oscCatalogBaseMemberCatalog miscObjectCatalog;
 };
 
 typedef oscObjectVariable<oscCatalogObject *> oscCatalogObjectMember;

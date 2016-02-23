@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="wheelchair02" refId="96" category="wheelchair" model="bfghj45" mass="456.3">
+
+
+  <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1"/>
+
+
+  <dimension front="35.89" rear="3458.76" left="45.3" right="1458768.4" bottom="455.7" top="5645.78"/>
+
+
+  <geometry URL="pedestrian-wheelchair02_geom.xml"/>
+
+
+  <behavior politeness="2.78" alertness="679.5"/>
+
+
+</pedestrian>

@@ -5,8 +5,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-#ifndef OSC_UTILS_H
-#define OSC_UTILS_H
+#ifndef OSC_UTILITIES_H
+#define OSC_UTILITIES_H
 
 #include <string>
 
@@ -43,15 +43,8 @@ private:
 
 
 //
-class Toolbox
-{
-public:
-    Toolbox() { };
-    ~Toolbox() { };
-
-    std::string generateRandomString(const size_t numOfChars);
-};
+std::string generateRandomString(const size_t numOfChars);
 
 }
 
-#endif /* OSC_UTILS_H_ */
+#endif /* OSC_UTILITIES_H */

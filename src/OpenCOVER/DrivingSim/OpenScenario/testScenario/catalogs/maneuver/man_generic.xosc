@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<maneuver name="maneuver_generic">
+
+  <fileHeader revMajor="1" revMinor="1" date="2016-02-15T15:05:00+01:00" description="maneuver - testScenario" author="MK">
+    <userDataList>
+      <userData code="bvnfgr5" value="f6"/>
+      <userData code="cbcbd" value="nmgj6"/>
+    </userDataList>
+  </fileHeader>
+
+  <parameterList>
+    <parameter name="dfg" value="hrt6"/>
+    <parameter name="bc67" value="a35"/>
+  </parameterList>
+
+  <events>
+
+    <event name="bry5" priority="overwrite">
+
+      <startConditionGroups>
+
+        <startConditionGroup>
+          <startConditions>
+
+            <startCondition name="vbnf" delayTime="45.78">
+              <condition>
+                <simulationTime time="68.7"/>
+              </condition>
+              <userDataList>
+                <userData code="bcbcb" value="ng5665"/>
+                <userData code="zxv" value="z234"/>
+              </userDataList>
+            </startCondition>
+
+          </startConditions>
+        </startConditionGroup>
+
+        <startConditionGroup>
+          <startConditions>
+
+            <startCondition name="bfhr" delayTime="56.78">
+              <condition>
+                <simulationTime time="66674.7"/>
+              </condition>
+            </startCondition>
+
+          </startConditions>
+        </startConditionGroup>
+
+      </startConditionGroups>
+
+      <actions>
+
+        <action>
+          <speed>
+            <dynamics shape="lyuis" rate="2396.45" immediate="false"/>
+            <relativeSpeed refObject="bgfh" delta="68.789" factor="0.46"/>
+          </speed>
+        </action>
+
+      </actions>
+
+    </event>
+
+    <event name="cvbd4" priority="following">
+
+      <startConditionGroups/>
+
+      <actions>
+
+        <action>
+          <characterMotion motionType="hbtgh"/>
+        </action>
+
+        <action>
+          <characterGesture gesture="cb5"/>
+        </action>
+
+
+      </actions>
+    </event>
+
+    <event name="gntr" priority="skip">
+      <startConditionGroups/>
+      <actions>
+
+        <action>
+          <autonomous activate="true" driver="nfgh"/>
+        </action>
+
+      </actions>
+    </event>
+
+  </events>
+
+</maneuver>

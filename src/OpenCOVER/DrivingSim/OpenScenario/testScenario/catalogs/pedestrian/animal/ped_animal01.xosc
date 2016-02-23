@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="dog01" refId="3457" category="animal" model="jky78" mass="6.8">
+
+
+  <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1">
+    <userDataList>
+      <userData code="cgbnfgh" value="345k5"/>
+      <userData code="sdhg5" value="dfg76u"/>
+    </userDataList>
+  </fileHeader>
+
+
+  <dimension front="56.89" rear="34.89" left="-567.7899" right="237.89" bottom="345.7" top="457668.76"/>
+
+
+  <geometry URL="pedestrian-dog01_geom.xml"/>
+
+
+  <behavior politeness="34.89" alertness="456789.8"/>
+
+
+</pedestrian>

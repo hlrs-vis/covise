@@ -4,6 +4,7 @@ ENDIF()
 
 USING(PROJ4)
 USING(XERCESC)
+USING(BOOST)
 
 SET(HEADERS
    OpenScenarioBase.h
@@ -104,6 +105,7 @@ SET(HEADERS
    oscManeuverTypeC.h
    oscMember.h
    oscMemberArray.h
+   oscMemberCatalog.h
    oscMemberValue.h
    oscMirror.h
    oscMirrors.h
@@ -195,6 +197,7 @@ SET(HEADERS
    oscUserDefinedAction.h
    oscUserDefinedCommand.h
    oscUserScript.h
+   oscUtilities.h
    oscVariables.h
    oscVehicle.h
    oscVehicleAxle.h
@@ -203,7 +206,6 @@ SET(HEADERS
    oscWaypoint.h
    oscWaypoints.h
    oscWeather.h
-   utilities.h
 )
 
 SET(SOURCES
@@ -215,6 +217,7 @@ SET(SOURCES
    oscFactories.cpp
    oscMember.cpp
    oscMemberArray.cpp
+   oscMemberCatalog.cpp
    oscMemberValue.cpp
    oscNamePriority.cpp
    oscNumericCondition.cpp
@@ -232,10 +235,10 @@ SET(SOURCES
    oscSourceFile.cpp
    oscTrafficSource.cpp
    oscUserScript.cpp
+   oscUtilities.cpp
    oscVariables.cpp
    oscVehicle.cpp
    oscWeather.cpp
-   utilities.cpp
 )
 
 IF(WIN32)

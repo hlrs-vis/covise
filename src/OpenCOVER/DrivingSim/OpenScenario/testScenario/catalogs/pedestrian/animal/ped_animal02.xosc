@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pedestrian name="cat01" refId="794" category="animal" model="hfi76" mass="4.2">
+
+
+ <fileHeader author="MK" date="2016-02-15T14:15:00+01:00" description="pedestrian - testScenario" revMajor="1" revMinor="1"/>
+
+
+  <dimension front="456.879" rear="-74.7" left="456.78" right="556.7" bottom="-567.7" top="345.6"/>
+
+
+  <geometry URL="pedestrian-cat01_geom.xml"/>
+
+
+  <behavior politeness="0.85" alertness="0.56699"/>
+
+
+</pedestrian>

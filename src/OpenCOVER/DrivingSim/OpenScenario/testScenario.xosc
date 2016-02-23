@@ -16,7 +16,7 @@
     <objectCatalog>
 
       <vehicleCatalog>
-        <directory path="vehicle.xml"/>
+        <directory path="testScenario/catalogs/vehicle"/>
         <userDataList>
           <userData code="aaa" value="bbb"/>
           <userData code="rrr" value="hh"/>
@@ -25,7 +25,7 @@
       </vehicleCatalog>
 
       <driverCatalog>
-        <directory path="driver.xml"/>
+        <directory path="testScenario/catalogs/driver"/>
         <userDataList>
           <userData code="aaa" value="bbb"/>
           <userData code="ccc" value="ddd"/>
@@ -34,7 +34,7 @@
       </driverCatalog>
 
       <observerCatalog>
-        <directory path="observer.xml"/>
+        <directory path="testScenario/catalogs/observer"/>
         <userDataList>
           <userData code="zzz" value="abb"/>
           <userData code="eee" value="fff"/>
@@ -43,7 +43,7 @@
       </observerCatalog>
 
       <pedestrianCatalog>
-        <directory path="pedestrian.xml"/>
+        <directory path="testScenario/catalogs/pedestrian"/>
         <userDataList>
           <userData code="aaa" value="bbb"/>
           <userData code="ccc" value="ddd"/>
@@ -52,7 +52,7 @@
       </pedestrianCatalog>
 
       <miscObjectCatalog>
-        <directory path="miscObject.xml"/>
+        <directory path="testScenario/catalogs/miscObject"/>
         <userDataList>
           <userData code="iii" value="jjj"/>
           <userData code="ccc" value="ddd"/>
@@ -63,7 +63,7 @@
     </objectCatalog>
 
     <entityCatalog>
-      <directory path="entity.xml"/>
+      <directory path="testScenario/catalogs/entity"/>
       <userDataList>
         <userData code="aaa" value="bbb"/>
         <userData code="kkk" value="lll"/>
@@ -72,7 +72,7 @@
     </entityCatalog>
 
     <environmentCatalog>
-      <directory path="environment.xml"/>
+      <directory path="testScenario/catalogs/environment"/>
       <userDataList>
         <userData code="aaa" value="bbb"/>
         <userData code="ooo" value="ppp"/>
@@ -81,7 +81,7 @@
     </environmentCatalog>
 
     <maneuverCatalog>
-      <directory path="maneuver.xml"/>
+      <directory path="testScenario/catalogs/maneuver"/>
       <userDataList>
         <userData code="qqq" value="rrr"/>
         <userData code="ccc" value="ddd"/>
@@ -90,7 +90,7 @@
     </maneuverCatalog>
 
     <routingCatalog>
-      <directory path="routing.xml"/>
+      <directory path="testScenario/catalogs/routing"/>
       <userDataList>
         <userData code="aaa" value="bbb"/>
         <userData code="sss" value="ttt"/>
