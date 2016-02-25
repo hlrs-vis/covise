@@ -18,6 +18,8 @@
 #include "Sample.h"
 #include "api/coFeedback.h"
 
+const int DefaultSize = 128;
+
 int ExpandSetList(const coDistributedObject *const *objects, int h_many,
                   const char **type, std::vector<const coDistributedObject *> &out_array);
 
@@ -55,22 +57,22 @@ Sample::Sample(int argc, char *argv[])
 
     // select dimension in i direction
     iSizeChoiceParam = addChoiceParam("isize", "unigrid size in i direction");
-    iSizeChoiceParam->setValue(9, sizeChoice, 3);
+    iSizeChoiceParam->setValue(9, sizeChoice, 0);
 
     iSizeParam = addInt32Param("user_defined_isize", "user defined i_size");
-    iSizeParam->setValue(32);
+    iSizeParam->setValue(DefaultSize);
 
     jSizeChoiceParam = addChoiceParam("jsize", "unigrid size in j direction");
-    jSizeChoiceParam->setValue(9, sizeChoice, 3);
+    jSizeChoiceParam->setValue(9, sizeChoice, 0);
 
     jSizeParam = addInt32Param("user_defined_jsize", "user defined j_size");
-    jSizeParam->setValue(32);
+    jSizeParam->setValue(DefaultSize);
 
     kSizeChoiceParam = addChoiceParam("ksize", "unigrid size in k direction");
-    kSizeChoiceParam->setValue(9, sizeChoice, 3);
+    kSizeChoiceParam->setValue(9, sizeChoice, 0);
 
     kSizeParam = addInt32Param("user_defined_ksize", "user defined k_size");
-    kSizeParam->setValue(32);
+    kSizeParam->setValue(DefaultSize);
 
     p_bounding_box = addChoiceParam("bounding_box", "bounding box calculation");
     p_bounding_box->setValue(3, bounding_boxChoices, 0); // default to manual
