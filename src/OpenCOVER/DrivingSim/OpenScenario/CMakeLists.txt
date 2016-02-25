@@ -82,6 +82,7 @@ SET(HEADERS
    oscFilter.h
    oscFilters.h
    oscFog.h
+   oscFollowRoute.h
    oscFrustum.h
    oscGearbox.h
    oscGeneral.h
@@ -93,9 +94,11 @@ SET(HEADERS
    oscLaneDynamics.h
    oscLaneOffset.h
    oscLaneOffsetDynamics.h
+   oscLateral.h
    oscLight.h
    oscLighting.h
    oscLights.h
+   oscLongitudinal.h
    oscManeuverGroupsTypeAB.h
    oscManeuverGroupTypeAB.h
    oscManeuversTypeB.h
@@ -187,6 +190,7 @@ SET(HEADERS
    oscTimeHeadway.h
    oscTimeOfDay.h
    oscTimeToCollision.h
+   oscTiming.h
    oscTrafficJam.h
    oscTrafficLight.h
    oscTrafficSink.h
@@ -215,6 +219,7 @@ SET(SOURCES
    oscConditionChoiceTypeA.cpp
    oscControlPoint.cpp
    oscFactories.cpp
+   oscLateral.cpp
    oscMember.cpp
    oscMemberArray.cpp
    oscMemberCatalog.cpp
@@ -233,6 +238,7 @@ SET(SOURCES
    oscRoute.cpp
    oscShape.cpp
    oscSourceFile.cpp
+   oscTiming.cpp
    oscTrafficSource.cpp
    oscUserScript.cpp
    oscUtilities.cpp

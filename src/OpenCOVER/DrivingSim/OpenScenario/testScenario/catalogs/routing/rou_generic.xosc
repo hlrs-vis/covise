@@ -28,7 +28,7 @@
 
     <waypoints>
 
-      <waypoint>
+      <waypoint timestamp="3455.23">
         <position>
           <positionWorld x="456.7" y="96.345" z="-567.45" h="88.2" p="8.345" r="-56.56"/>
         </position>
@@ -39,7 +39,7 @@
         </continuation>
       </waypoint>
 
-      <waypoint>
+      <waypoint timestamp="3456.894">
         <position>
           <positionWorld x="3456.67" y="345.789" z="234.678" h="24.7" p="32.8903" r="-21.7"/>
         </position>
@@ -50,7 +50,7 @@
         </continuation>
       </waypoint>
 
-      <waypoint>
+      <waypoint timestamp="34.89">
         <position>
           <positionWorld x="3.89" y="4.6" z="-46.7" h="84.356" p="164.45" r="-6.35"/>
         </position>
@@ -64,7 +64,7 @@
         </continuation>
       </waypoint>
 
-      <waypoint>
+      <waypoint timestamp="234578.89">
         <position>
           <positionWorld x="456.56" y="456.56" z="-4.456" h="5.78" p="-52.4" r="-93.5654"/>
         </position>
@@ -73,7 +73,7 @@
         </continuation>
       </waypoint>
 
-      <waypoint>
+      <waypoint timestamp="2368.789">
         <position>
           <positionWorld x="455645.76" y="-678.45" z="345.7" h="-5.789" p="-39.04" r="-108.23"/>
         </position>

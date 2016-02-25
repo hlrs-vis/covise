@@ -685,6 +685,15 @@
                     </action>
 
                     <action>
+                      <followRoute routeId="bfr3nj">
+                        <longitudinal>
+                          <timing domain="relative" scale="-346.3" offset="3456.78"/>
+                        </longitudinal>
+                        <lateral purpose="steering"/>
+                      </followRoute>
+                    </action>
+
+                    <action>
                       <laneOffset>
                         <dynamics maxLateralAcc="4569.7456" duration="345.8976"/>
                         <relativeLaneOffset refObject="l89pp" delta="348.89"/>

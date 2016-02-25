@@ -78,6 +78,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscFilter.h"
 #include "oscFilters.h"
 #include "oscFog.h"
+#include "oscFollowRoute.h"
 #include "oscFrustum.h"
 #include "oscGearbox.h"
 #include "oscGeneral.h"
@@ -89,9 +90,11 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscLaneDynamics.h"
 #include "oscLaneOffset.h"
 #include "oscLaneOffsetDynamics.h"
+#include "oscLateral.h"
 #include "oscLight.h"
 #include "oscLighting.h"
 #include "oscLights.h"
+#include "oscLongitudinal.h"
 #include "oscManeuverGroupsTypeAB.h"
 #include "oscManeuverGroupTypeAB.h"
 #include "oscManeuversTypeB.h"
@@ -177,6 +180,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscTimeHeadway.h"
 #include "oscTimeOfDay.h"
 #include "oscTimeToCollision.h"
+#include "oscTiming.h"
 #include "oscTrafficJam.h"
 #include "oscTrafficLight.h"
 #include "oscTrafficSink.h"
@@ -294,6 +298,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscFilter>("oscFilter");
     staticObjectFactory.registerType<oscFilters>("oscFilters");
     staticObjectFactory.registerType<oscFog>("oscFog");
+    staticObjectFactory.registerType<oscFollowRoute>("oscFollowRoute");
     staticObjectFactory.registerType<oscFrustum>("oscFrustum");
     staticObjectFactory.registerType<oscGearbox>("oscGearbox");
     staticObjectFactory.registerType<oscGeneral>("oscGeneral");
@@ -305,9 +310,11 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscLaneDynamics>("oscLaneDynamics");
     staticObjectFactory.registerType<oscLaneOffset>("oscLaneOffset");
     staticObjectFactory.registerType<oscLaneOffsetDynamics>("oscLaneOffsetDynamics");
+    staticObjectFactory.registerType<oscLateral>("oscLateral");
     staticObjectFactory.registerType<oscLight>("oscLight");
     staticObjectFactory.registerType<oscLighting>("oscLighting");
     staticObjectFactory.registerType<oscLights>("oscLights");
+    staticObjectFactory.registerType<oscLongitudinal>("oscLongitudinal");
     staticObjectFactory.registerType<oscManeuverGroupsTypeAB>("oscManeuverGroupsTypeAB");
     staticObjectFactory.registerType<oscManeuverGroupTypeAB>("oscManeuverGroupTypeAB");
     staticObjectFactory.registerType<oscManeuversTypeB>("oscManeuversTypeB");
@@ -392,6 +399,7 @@ oscFactories::oscFactories()
     staticObjectFactory.registerType<oscTimeHeadway>("oscTimeHeadway");
     staticObjectFactory.registerType<oscTimeOfDay>("oscTimeOfDay");
     staticObjectFactory.registerType<oscTimeToCollision>("oscTimeToCollision");
+    staticObjectFactory.registerType<oscTiming>("oscTiming");
     staticObjectFactory.registerType<oscTrafficJam>("oscTrafficJam");
     staticObjectFactory.registerType<oscTrafficLight>("oscTrafficLight");
     staticObjectFactory.registerType<oscTrafficSink>("oscTrafficSink");
