@@ -11,20 +11,20 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-refHandlConditionType::refHandlConditionType()
+conditionReferenceHandlingType::conditionReferenceHandlingType()
 {
     addEnum("starts", oscReferenceHandling::starts);
     addEnum("ends", oscReferenceHandling::ends);
     addEnum("cancels", oscReferenceHandling::cancels);
 }
 
-refHandlConditionType *refHandlConditionType::instance()
+conditionReferenceHandlingType *conditionReferenceHandlingType::instance()
 {
     if(inst == NULL)
     {
-        inst = new refHandlConditionType();
+        inst = new conditionReferenceHandlingType();
     }
     return inst;
 }
 
-refHandlConditionType *refHandlConditionType::inst = NULL;
+conditionReferenceHandlingType *conditionReferenceHandlingType::inst = NULL;

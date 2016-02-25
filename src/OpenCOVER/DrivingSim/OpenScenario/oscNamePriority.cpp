@@ -11,20 +11,20 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-maneuverPriorityType::maneuverPriorityType()
+priorityManeuverType::priorityManeuverType()
 {
     addEnum("overwrite", oscNamePriority::overwrite);
     addEnum("following", oscNamePriority::following);
     addEnum("cancel", oscNamePriority::cancel);
 }
 
-maneuverPriorityType *maneuverPriorityType::instance()
+priorityManeuverType *priorityManeuverType::instance()
 {
 	if(inst == NULL)
 	{
-		inst = new maneuverPriorityType();
+		inst = new priorityManeuverType();
 	}
 	return inst;
 }
 
-maneuverPriorityType *maneuverPriorityType::inst = NULL;
+priorityManeuverType *priorityManeuverType::inst = NULL;

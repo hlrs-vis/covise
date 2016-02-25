@@ -18,13 +18,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT reachPosConditionType: public oscEnumType
+class OPENSCENARIOEXPORT conditionReachPositionType: public oscEnumType
 {
 public:
-    static reachPosConditionType *instance();
+    static conditionReachPositionType *instance();
 private:
-    reachPosConditionType();
-    static reachPosConditionType *inst;
+    conditionReachPositionType();
+    static conditionReachPositionType *inst;
 };
 
 /// \class This class represents a generic OpenScenario Object
@@ -37,14 +37,14 @@ public:
         OSC_ADD_MEMBER(tolerance);
         OSC_ADD_MEMBER(condition);
 
-        condition.enumType = reachPosConditionType::instance();
+        condition.enumType = conditionReachPositionType::instance();
     };
 
     oscPositionMember position;
     oscDouble tolerance;
     oscEnum condition;
 
-    enum reachPosCondition
+    enum conditionReachPosition
     {
         exceed,
         deceed,

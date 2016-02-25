@@ -17,13 +17,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT partnerTObjTypeType: public oscEnumType
+class OPENSCENARIOEXPORT objectTypePartnerType: public oscEnumType
 {
 public:
-    static partnerTObjTypeType *instance();
+    static objectTypePartnerType *instance();
 private:
-    partnerTObjTypeType();
-    static partnerTObjTypeType *inst;
+    objectTypePartnerType();
+    static objectTypePartnerType *inst;
 };
 
 /// \class This class represents a generic OpenScenario Object
@@ -34,12 +34,12 @@ public:
     {
         OSC_ADD_MEMBER(objectType);
 
-        objectType.enumType = partnerTObjTypeType::instance();
+        objectType.enumType = objectTypePartnerType::instance();
     };
 
     oscEnum objectType;
 
-    enum partnerTObjType
+    enum objectTypePartner
     {
         vehicle,
         pedestrian,

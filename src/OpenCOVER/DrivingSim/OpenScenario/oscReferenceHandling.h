@@ -17,13 +17,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT refHandlConditionType: public oscEnumType
+class OPENSCENARIOEXPORT conditionReferenceHandlingType: public oscEnumType
 {
 public:
-    static refHandlConditionType *instance();
+    static conditionReferenceHandlingType *instance();
 private:
-    refHandlConditionType();
-    static refHandlConditionType *inst;
+    conditionReferenceHandlingType();
+    static conditionReferenceHandlingType *inst;
 };
 
 /// \class This class represents a generic OpenScenario Object
@@ -36,14 +36,14 @@ public:
         OSC_ADD_MEMBER(eventId);
         OSC_ADD_MEMBER(condition);
 
-        condition.enumType = refHandlConditionType::instance();
+        condition.enumType = conditionReferenceHandlingType::instance();
     };
 
     oscInt maneuverId;
     oscInt eventId;
     oscEnum condition;
 
-    enum refHandlCondition
+    enum conditionReferenceHandling
     {
         starts,
         ends,

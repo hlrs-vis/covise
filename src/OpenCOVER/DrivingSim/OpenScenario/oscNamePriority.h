@@ -17,13 +17,13 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 namespace OpenScenario {
 
-class OPENSCENARIOEXPORT maneuverPriorityType: public oscEnumType
+class OPENSCENARIOEXPORT priorityManeuverType: public oscEnumType
 {
 public:
-    static maneuverPriorityType *instance();
+    static priorityManeuverType *instance();
 private:
-    maneuverPriorityType();
-    static maneuverPriorityType *inst;
+    priorityManeuverType();
+    static priorityManeuverType *inst;
 };
 
 /// \class This class represents a generic OpenScenario Object
@@ -35,7 +35,7 @@ public:
         OSC_ADD_MEMBER(priority);
         OSC_ADD_MEMBER(numberOfExecutions);
 
-        priority.enumType = maneuverPriorityType::instance();
+        priority.enumType = priorityManeuverType::instance();
     };
 
     oscEnum priority;

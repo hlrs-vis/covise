@@ -11,7 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace OpenScenario;
 
 
-partnerTObjTypeType::partnerTObjTypeType()
+objectTypePartnerType::objectTypePartnerType()
 {
     addEnum("vehicle", oscPartnerType::vehicle);
     addEnum("pedestrian", oscPartnerType::pedestrian);
@@ -19,13 +19,13 @@ partnerTObjTypeType::partnerTObjTypeType()
     addEnum("infrastructure", oscPartnerType::infrastructure);
 }
 
-partnerTObjTypeType *partnerTObjTypeType::instance()
+objectTypePartnerType *objectTypePartnerType::instance()
 {
     if(inst == NULL)
     {
-        inst = new partnerTObjTypeType();
+        inst = new objectTypePartnerType();
     }
     return inst;
 }
 
-partnerTObjTypeType *partnerTObjTypeType::inst = NULL;
+objectTypePartnerType *objectTypePartnerType::inst = NULL;
