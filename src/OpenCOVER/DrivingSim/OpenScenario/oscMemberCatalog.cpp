@@ -21,19 +21,43 @@ namespace ba = boost::algorithm;
 using namespace OpenScenario;
 
 
+/*****
+ * constructor
+ *****/
+
 oscMemberCatalog::oscMemberCatalog(): oscMember()
 {
-    //set the typeName for possible catalogTypes
-    m_catalogTypeToTypeName.emplace("driver", "oscDriver");
-    m_catalogTypeToTypeName.emplace("entity", "oscEntity");
-    m_catalogTypeToTypeName.emplace("environment", "oscEnvironment");
-    m_catalogTypeToTypeName.emplace("maneuver", "oscManeuverTypeA");
-    m_catalogTypeToTypeName.emplace("miscObject", "oscMiscObject");
-    m_catalogTypeToTypeName.emplace("observer", "oscObserverTypeA");
-    m_catalogTypeToTypeName.emplace("pedestrian", "oscPedestrian");
-    m_catalogTypeToTypeName.emplace("routing", "oscRouting");
-    m_catalogTypeToTypeName.emplace("vehicle", "oscVehicle");
+
 }
+
+
+/*****
+ * initialization static variables
+ *****/
+
+unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> initFuncCatToType()
+{
+    //set the typeName for possible catalogTypes
+    unordered_map<std::string, std::string> catToType;
+    catToType.emplace("driver", "oscDriver");
+    catToType.emplace("entity", "oscEntity");
+    catToType.emplace("environment", "oscEnvironment");
+    catToType.emplace("maneuver", "oscManeuverTypeA");
+    catToType.emplace("miscObject", "oscMiscObject");
+    catToType.emplace("observer", "oscObserverTypeA");
+    catToType.emplace("pedestrian", "oscPedestrian");
+    catToType.emplace("routing", "oscRouting");
+    catToType.emplace("vehicle", "oscVehicle");
+
+    return catToType;
+}
+
+const unordered_map<std::string, std::string> oscMemberCatalog::m_catalogTypeToTypeName = initFuncCatToType();
+
+
+/*****
+ * destructor
+ *****/
 
 oscMemberCatalog::~oscMemberCatalog()
 {
@@ -100,7 +124,7 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
 
     for (size_t i = 0; i < filenames.size(); i++)
     {
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].string(), false);
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filenames[i].string(), m_catalogType);
 
         if (rootElem)
         {
@@ -135,12 +159,12 @@ void oscMemberCatalog::fastReadCatalogObjects(const std::vector<bf::path> &filen
             }
             else
             {
-                std::cerr << "Error! File " << filenames[i] << " doesn't contain an object for catalog " << m_catalogType << std::endl;
+                //std::cerr << "Error! File " << filenames[i] << " doesn't contain an object for catalog " << m_catalogType << std::endl;
             }
         }
         else
         {
-            std::cerr << "Error! Can't parse file "<< filenames[i] << std::endl;
+            //std::cerr << "Error! Can't parse file "<< filenames[i] << std::endl;
         }
     }
 
@@ -232,7 +256,9 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
         OpenScenarioBase *oscBase = new OpenScenarioBase;
         bool success;
 
-        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.string(), false);
+        //in fullReadCatalogObjectWithName no validation should be done,
+        //because during fastReadCatalogObjects validation is done
+        xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.string(), m_catalogType, false);
         if (rootElem)
         {
             std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
@@ -283,13 +309,13 @@ bool oscMemberCatalog::fullReadCatalogObjectWithName(const std::string &objectNa
             }
             else
             {
-                std::cerr << "Error! File " << filePath << " doesn't contain an object for catalog " << m_catalogType << std::endl;
+                //std::cerr << "Error! File " << filePath << " doesn't contain an object for catalog " << m_catalogType << std::endl;
                 success = false;
             }
         }
         else
         {
-            std::cerr << "Error! Can't parse file "<< filePath << std::endl;
+            //std::cerr << "Error! Can't parse file "<< filePath << std::endl;
             success = false;
         }
 

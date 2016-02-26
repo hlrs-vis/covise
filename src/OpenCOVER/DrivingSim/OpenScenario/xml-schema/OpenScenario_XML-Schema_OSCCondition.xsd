@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCPosition.xsd"/>
+
+
+
+<!-- -->
+<!-- Enumeration -->
+<!-- -->
+
+<xsd:simpleType name="Enum_exceed_deceed">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="exceed" />
+    <xsd:enumeration value="deceed" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_rel_abs">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="relative" />
+    <xsd:enumeration value="absolute" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_starts_ends_cancels">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="starts" />
+    <xsd:enumeration value="ends" />
+    <xsd:enumeration value="cancels" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_object_type">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="vehicle" />
+    <xsd:enumeration value="pedestrian" />
+    <xsd:enumeration value="traffic sign" />
+    <xsd:enumeration value="infrastructure" />
+    <xsd:enumeration value="..." />
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Enum_numeric_condition_rule">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="==" />
+    <xsd:enumeration value="!=" />
+    <xsd:enumeration value="&lt;=" />
+    <xsd:enumeration value="&lt;" />
+    <xsd:enumeration value="&gt;=" />
+    <xsd:enumeration value="&gt;" />
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+
+<!-- -->
+<!-- ComplexType -->
+<!-- -->
+
+<xsd:complexType name="OSCCondition">
+    <xsd:choice>
+        <xsd:element name="simulationTime">
+            <xsd:complexType>
+                <xsd:attribute name="time"  type="xsd:double" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="timeOfDay">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="time">
+                        <xsd:complexType>
+                            <xsd:attribute name="hour"  type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="min"   type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="sec"   type="xsd:double" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="date">
+                        <xsd:complexType>
+                            <xsd:attribute name="day"   type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="month" type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute name="year"  type="xsd:unsignedInt" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:all>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="reachPosition">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="position" type="OSCPosition"/>
+                </xsd:all>
+                <xsd:attribute name="tolerance" type="xsd:double" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="distance">
+            <xsd:complexType>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+                <xsd:attribute name="value"     type="xsd:double" use="required"/>
+                <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="velocity">
+            <xsd:complexType>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+                <xsd:attribute name="value"     type="xsd:double" use="required"/>
+                <xsd:attribute name="reference" type="Enum_rel_abs" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="standsStill">
+            <xsd:complexType>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="duration"  type="xsd:double" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="acceleration">
+            <xsd:complexType>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+                <xsd:attribute name="value"     type="xsd:double" use="required"/>
+                <xsd:attribute name="reference" type="Enum_rel_abs" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="stoppingDistance">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="position" type="OSCPosition"/>
+                </xsd:all>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+                <xsd:attribute name="value"     type="xsd:double" use="required"/>
+                <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="timeToCollision">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="position" type="OSCPosition"/>
+                </xsd:all>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+                <xsd:attribute name="value"     type="xsd:double" use="required"/>
+                <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="timeHeadway">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="position" type="OSCPosition"/>
+                </xsd:all>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="refObject" type="xsd:string" use="required"/>
+                <xsd:attribute name="value"     type="xsd:double" use="required"/>
+                <xsd:attribute name="freespace" type="xsd:boolean" use="required"/>
+                <xsd:attribute name="condition" type="Enum_exceed_deceed" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="referenceHandling">
+            <xsd:complexType>
+                <xsd:attribute name="maneuverId"    type="xsd:int" use="required"/>
+                <xsd:attribute name="eventId"       type="xsd:int" use="required"/>
+                <xsd:attribute name="condition"     type="Enum_starts_ends_cancels" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="offroad">
+            <xsd:complexType>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute name="duration"  type="xsd:double" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="collision">
+            <xsd:complexType>
+                <xsd:choice>
+                    <xsd:element name="partnerObject">
+                        <xsd:complexType>
+                            <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="partnerType">
+                        <xsd:complexType>
+                            <xsd:attribute name="objectType"    type="Enum_object_type" use="required"/>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+                <xsd:attribute name="object"    type="xsd:string" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="numericCondition">
+            <xsd:complexType>
+                <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                <xsd:attribute name="value" type="xsd:int" use="required"/>
+                <xsd:attribute name="rule"  type="Enum_numeric_condition_rule" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="command">
+            <xsd:complexType>
+                <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="afterManeuvers">
+            <xsd:complexType>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="endOfRoad">
+            <xsd:complexType>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="userDefined">
+            <xsd:complexType>
+                <xsd:all>
+                    <xsd:element name="parameterList">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:attribute name="name"  type="xsd:string" use="required"/>
+                                        <xsd:attribute name="value" type="xsd:string" use="required"/>
+                                        <xsd:attribute name="type"  type="xsd:string" use="required"/>
+                                        <xsd:attribute ref="xml:base"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                            <xsd:attribute ref="xml:base"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:all>
+                <xsd:attribute name="uid"   type="xsd:string" use="required"/>
+                <xsd:attribute ref="xml:base"/>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:choice>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+
+
+</xsd:schema>

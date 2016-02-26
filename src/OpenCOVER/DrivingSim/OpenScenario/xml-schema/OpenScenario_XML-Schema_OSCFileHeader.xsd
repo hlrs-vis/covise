@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+    <xsd:documentation>
+    XML Schema Definition for OpenSCENARIO XML files - Draft D, (c)2016 by VIRES Simulationstechnologie GmbH, Germany
+    extended by HLRS
+    </xsd:documentation>
+</xsd:annotation>
+
+
+<!--
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+-->
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+
+
+<!-- -->
+<!-- include -->
+<!-- -->
+
+<xsd:include schemaLocation="OpenScenario_XML-Schema_OSCUserDataList.xsd"/>
+
+
+
+<!-- -->
+<!-- ComplexType -->
+<!-- -->
+
+<xsd:complexType name="OSCFileHeader">
+    <xsd:all>
+        <xsd:element name="userDataList" type="OSCUserDataList" minOccurs="0" maxOccurs="1"/>
+    </xsd:all>
+    <xsd:attribute name="revMajor"      type="xsd:unsignedShort" use="required"/>
+    <xsd:attribute name="revMinor"      type="xsd:unsignedShort" use="required"/>
+    <xsd:attribute name="date"          type="xsd:dateTime" use="required"/>
+    <xsd:attribute name="description"   type="xsd:string" use="required"/>
+    <xsd:attribute name="author"        type="xsd:string" use="required"/>
+    <xsd:attribute ref="xml:base"/>
+</xsd:complexType>
+
+
+</xsd:schema>

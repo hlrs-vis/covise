@@ -445,10 +445,6 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                     //store object name and filename in map
                     cm->fastReadCatalogObjects(filenames);
 
-                    //
-                    //Validierung der parsed files muss noch eingeschaltet werden: TODO!
-                    //
-
 
                     //////
                     //for testing only

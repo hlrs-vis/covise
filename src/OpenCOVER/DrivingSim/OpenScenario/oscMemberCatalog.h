@@ -37,7 +37,7 @@ class OPENSCENARIOEXPORT oscMemberCatalog: public oscMember, public unordered_ma
 {
 protected:
     std::string m_catalogType; ///< type of the objects in this catalog, e.g. vehicle, pedestrian
-    unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> m_catalogTypeToTypeName; ///< typeName of the objects for catalogType
+    static const unordered_map<std::string /*m_catalogType*/, std::string /*catalogTypeName*/> m_catalogTypeToTypeName; ///< typeName of the objects for catalogType
     unordered_map<std::string /*objectName*/, bf::path /*fileName*/> m_availableObjects; ///< objectName is the attribute name of the root element of file fileName
 
 public:
