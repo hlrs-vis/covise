@@ -154,10 +154,6 @@ PBufferSnapShot::PBufferSnapShot()
 
     counter = 0;
 
-    frameTime = 0.0;
-    lastFrameTime = 0.0;
-    frameRate = 25.0;
-
     removeCamera = false;
     pBufferCamera = NULL;
     pBufferCameraR = NULL;
@@ -271,7 +267,6 @@ bool PBufferSnapShot::init()
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::init\n");
 
-    frameTime = cover->frameTime();
     doInit = true;
     return true;
 }
@@ -363,8 +358,6 @@ void PBufferSnapShot::preFrame()
         }
     }
 
-    lastFrameTime = frameTime;
-    frameTime = cover->frameTime();
     if (myDoSnap)
     {
         doSnap = true;
@@ -376,9 +369,9 @@ void PBufferSnapShot::preFrame()
         if (cover->debugLevel(3))
             fprintf(stderr, "\n--- PBufferSnapShot::preFrame doSnap\n");
         prepareSnapshot();
-        if (tuiContinuous->getState())
+        filename = tuiFileName->getText();
+        if(counter > 0)
         {
-            filename = tuiFileName->getText();
             ostringstream str;
             str.width(7);
             str.fill('0');
@@ -392,27 +385,6 @@ void PBufferSnapShot::preFrame()
             else
             {
                 filename += str.str();
-            }
-        }
-        else
-        {
-            filename = tuiFileName->getText();
-            if(counter > 0)
-            {
-                ostringstream str;
-                str.width(7);
-                str.fill('0');
-                str << counter;
-                std::string::size_type suffixPos = filename.rfind('.');
-                if (suffixPos != filename.npos)
-                {
-                    filename.insert(suffixPos, str.str());
-                    //fprintf(stderr,"counter=%d\n", counter);
-                }
-                else
-                {
-                    filename += str.str();
-                }
             }
         }
 
@@ -485,17 +457,6 @@ void PBufferSnapShot::tabletEvent(coTUIElement *tUIItem)
         tuiResolutionLabel->setLabel(resolutions[0].description.c_str());
     }
 
-    if (tUIItem == tuiFrameRateSlider)
-    {
-        frameRate = tuiFrameRateSlider->getValue();
-        tuiFrameRate->setValue(frameRate);
-    }
-
-    if (tUIItem == tuiFrameRate)
-    {
-        frameRate = tuiFrameRate->getValue();
-        tuiFrameRateSlider->setValue(frameRate);
-    }
     if (tUIItem == tuiRenderingMethod)
     {
     }
@@ -517,13 +478,6 @@ void PBufferSnapShot::tabletReleaseEvent(coTUIElement *tUIItem)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::tabletReleaseEvent\n");
-
-    if (tUIItem == tuiContinuous)
-    {
-        counter = 0;
-        doSnap = false;
-        cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
-    }
 }
 
 //fprintf(stderr,"doSnap=true - writeImageFile\n");
@@ -536,26 +490,10 @@ void PBufferSnapShot::cameraCallbackExit() const
         fprintf(stderr, "\n--- PBufferSnapShot::cameraCallbackExit\n");
     
     ++counter;
-    if (tuiContinuous->getState())
-    {
-        //fprintf(stderr,"counter=%d\n", counter);
-    }
-    else
-    {
-        doSnap = false;
-        cover->sendMessage((coVRPlugin *)this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
-    }
+    doSnap = false;
+    cover->sendMessage((coVRPlugin *)this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
 
     removeCamera = true;
-    int sleepTime = (int)((1000000.0 / frameRate - (frameTime - lastFrameTime)) * 0.98);
-    usleep(sleepTime);
-    double effFrameTime = cover->currentTime() - frameTime;
-    if (cover->debugLevel(3))
-    {
-        cerr << "PBufferSnapShot::cameraCallbackExit info: frame delta = " << (frameTime - lastFrameTime)
-             << ", frame time = "
-             << effFrameTime << "s (" << (1.0 / effFrameTime) << " fps)" << endl;
-    }
 
     {
         TokenBuffer tb;
@@ -639,25 +577,6 @@ void PBufferSnapShot::initUI()
     tuiSavedFile = new coTUILabel("", tuiSnapTab->getID());
     tuiSavedFile->setPos(3, 2);
 
-    (new coTUILabel("Frame Rate", tuiSnapTab->getID()))->setPos(0, 3);
-
-    tuiFrameRateSlider = new coTUIFloatSlider("Frame Rate Slider", tuiSnapTab->getID());
-    tuiFrameRateSlider->setValue(frameRate);
-    tuiFrameRateSlider->setEventListener(this);
-    tuiFrameRateSlider->setRange(0, 50);
-    tuiFrameRateSlider->setTicks(50);
-    tuiFrameRateSlider->setPos(1, 3);
-
-    tuiFrameRate = new coTUIEditFloatField("Frame Rate Edit", tuiSnapTab->getID());
-    tuiFrameRate->setValue(1.0);
-    tuiFrameRate->setEventListener(this);
-    tuiFrameRate->setImmediate(true);
-    tuiFrameRate->setPos(2, 3);
-
-    tuiContinuous = new coTUIToggleButton("Continuous", tuiSnapTab->getID());
-    tuiContinuous->setEventListener(this);
-    tuiContinuous->setPos(3, 3);
-
     tuiSnapButton = new coTUIButton("Do it!", tuiSnapTab->getID());
     tuiSnapButton->setEventListener(this);
     tuiSnapButton->setPos(0, 4);
@@ -699,9 +618,6 @@ void PBufferSnapShot::deleteUI()
     delete tuiResolutionLabel;
     delete tuiFileNameLabel;
     delete tuiFileName;
-    delete tuiFrameRateSlider;
-    delete tuiFrameRate;
-    delete tuiContinuous;
     delete tuiSnapButton;
     delete tuiRenderingMethod;
 
@@ -733,8 +649,7 @@ void PBufferSnapShot::guiToRenderMsg(const char *msg)
 
             if (strcmp(snapshotMsg.getIntention(), "snapAll") == 0)
             {
-                tuiContinuous->setState(!tuiContinuous->getState());
-                doSnap = tuiContinuous->getState();
+                doSnap = !doSnap;
                 if (!doSnap)
                 {
                     cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
