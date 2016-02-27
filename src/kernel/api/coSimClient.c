@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #if !(defined(WIN32) || defined(WIN64) || defined(__MINGW32__))
+#define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #include <unistd.h>
 #include <signal.h>

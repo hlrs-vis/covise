@@ -154,9 +154,6 @@ public:
     virtual RenderObject *getTexture() const = 0;
     virtual RenderObject *getVertexAttribute() const = 0;
 
-    virtual size_t getNumAttributes() const = 0;
-    virtual const char *getAttributeName(size_t idx) const = 0;
-    virtual const char *getAttributeValue(size_t idx) const = 0;
     virtual const char *getAttribute(const char *) const = 0;
 
     //XXX: hacks for Volume plugin and Tracer

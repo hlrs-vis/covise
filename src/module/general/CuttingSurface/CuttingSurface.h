@@ -69,6 +69,7 @@ private:
     coBooleanParam *p_gennormals, *p_genstrips, *p_genDummyS;
     coFloatParam *p_scalar, *p_offset, *p_isostart, *p_isoend;
     coFloatVectorParam *p_vertex, *p_point;
+    coBooleanParam *p_skew;
     coIntScalarParam *p_numiso;
     coChoiceParam *p_option;
 

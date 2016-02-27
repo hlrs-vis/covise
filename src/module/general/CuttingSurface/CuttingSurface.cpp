@@ -135,6 +135,9 @@ CuttingSurfaceModule::CuttingSurfaceModule(int argc, char *argv[])
     p_scalar = addFloatParam("scalar", "Distance from the origin to the cuttingplane or cylinder radius or radius of the sphere");
     p_scalar->setValue(.5);
 
+    p_skew = addBooleanParam("skew", "Modify vertex and point slightly in order to avoid cutting exactly on cell boundaries");
+    p_skew->setValue(false);
+
     const char *option_labels[] = { "Plane", "Sphere", "Cylinder-X", "Cylinder-Y", "Cylinder-Z" };
     p_option = addChoiceParam("option", "Plane or sphere");
     p_option->setValue(5, option_labels, 0);
@@ -809,7 +812,7 @@ CuttingSurfaceModule::addFeedbackParams(coDistributedObject *obj)
         obj->addAttribute("FEEDBACK", buf);
 
         char ignore[1024];
-        sprintf(ignore, "%f %f %f %f %d", param_vertex[0], param_vertex[1], param_vertex[2], p_scalar->getValue() * 1.0001, p_option->getValue());
+        sprintf(ignore, "%f %f %f %f %d", param_vertex[0], param_vertex[1], param_vertex[2], p_scalar->getValue() * (p_skew->getValue() ? 1.00001 : 1.), p_option->getValue());
         obj->addAttribute("IGNORE", ignore);
 
 #ifdef _COMPLEX_MODULE_
@@ -1231,15 +1234,32 @@ int CuttingSurfaceModule::compute(const char *)
     float radius;
     int gennormals, genstrips;
 
-    planei = param_vertex[0] * 1.00002f; // make them slightly incorrect
-    planej = param_vertex[1] * 0.99999f; // to prevent cutting exactly
-    planek = param_vertex[2] * 1.00001f; // -> artefacts
+    if (p_skew->getValue())
+    {
+        // make them slightly incorrect to prevent cutting exactly: avoid artefacts
 
-    startx = param_point[0] * 1.00001f;
-    starty = param_point[1] * 0.99999f;
-    startz = param_point[2] * 1.00001f;
+        planei = param_vertex[0] * 1.00002f;
+        planej = param_vertex[1] * 0.99999f;
+        planek = param_vertex[2] * 1.00001f;
 
-    myDistance = param_scalar * 1.00001f;
+        startx = param_point[0] * 1.00001f;
+        starty = param_point[1] * 0.99999f;
+        startz = param_point[2] * 1.00001f;
+
+        myDistance = param_scalar * 1.00001f;
+    }
+    else
+    {
+        planei = param_vertex[0];
+        planej = param_vertex[1];
+        planek = param_vertex[2];
+
+        startx = param_point[0];
+        starty = param_point[1];
+        startz = param_point[2];
+
+        myDistance = param_scalar;
+    }
     gennormals = p_gennormals->getValue();
     genstrips = p_genstrips->getValue();
 

@@ -76,10 +76,6 @@ private:
     bool stereo;
     bool doInit;
 
-    double lastFrameTime;
-    double frameTime;
-    double frameRate;
-
     std::string filename;
 
     int snapID;
@@ -106,9 +102,6 @@ private:
     coTUIEditField *tuiFileName;
     coTUILabel *tuiSavedFileLabel;
     coTUILabel *tuiSavedFile;
-    coTUIToggleButton *tuiContinuous;
-    coTUIFloatSlider *tuiFrameRateSlider;
-    coTUIEditFloatField *tuiFrameRate;
     coTUIComboBox *tuiRenderingMethod;
     coTUIToggleButton *tuiStereoCheckbox;
     coTUIToggleButton *tuiSnapOnSlaves;
