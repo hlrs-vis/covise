@@ -91,6 +91,7 @@ public:
         HLRS_SteeringWheelRemoteVehiclePosition = 10367,
         HLRS_cuCuttingSurface = 10400,
         HLRS_Revit_Message = 10500,
+        HLRS_Office_Message = 10600,
 
         // Calit2 plugins start with 20000 --------------------------------------
         Calit2_FileBrowserRegisterExt = 20001,

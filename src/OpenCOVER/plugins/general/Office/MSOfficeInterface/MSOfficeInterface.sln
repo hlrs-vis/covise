@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSOfficeInterface", "MSOfficeInterface\MSOfficeInterface.csproj", "{F1D3F2DF-F22E-4033-B78D-D32C803F6DEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1D3F2DF-F22E-4033-B78D-D32C803F6DEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1D3F2DF-F22E-4033-B78D-D32C803F6DEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1D3F2DF-F22E-4033-B78D-D32C803F6DEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1D3F2DF-F22E-4033-B78D-D32C803F6DEC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
