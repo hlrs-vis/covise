@@ -109,7 +109,7 @@ void OfficeConnection::sendMessage(Message &m)
 void
 OfficeConnection::handleMessage(Message *m)
 {
-    enum MessageTypes type = (enum MessageTypes)m->type;
+    enum OfficePlugin::MessageTypes type = (enum OfficePlugin::MessageTypes)m->type;
     TokenBuffer tb(m);
 
     switch (type)
